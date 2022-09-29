@@ -26,11 +26,11 @@
  *
  * @return void
  */
-function snap_library_init(){
+function snap_library_init() {
     try{
         load_libs('servers');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('snap_library_init(): Failed', $e);
     }
 }
@@ -57,7 +57,7 @@ function snap_library_init(){
  * @param mixed $server
  * @return string The output from the snap-get install command
  */
-function snap_install($packages, $server = null){
+function snap_install($packages, $server = null) {
     try{
         $packages  = array_force($packages);
         $arguments = array_merge(array('sudo' => true, 'install', '--classic'), array_force($packages, ' '));
@@ -66,7 +66,7 @@ function snap_install($packages, $server = null){
                                            'function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                            'commands' => array('snap', $arguments)));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('Failed'), $e);
     }
 }

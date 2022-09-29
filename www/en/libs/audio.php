@@ -23,11 +23,11 @@
  *
  * @return void
  */
-function audio_library_init(){
+function audio_library_init() {
     try{
         load_config('audio');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('audio_library_init(): Failed', $e);
     }
 }
@@ -47,11 +47,11 @@ function audio_library_init(){
  * @param string $class
  * @return boolean True if the audio file was played, false if the audio file was not played
  */
-function audio_play($class = null){
+function audio_play($class = null) {
     global $_CONFIG;
 
     try{
-        if($_CONFIG['audio']['quiet']){
+        if($_CONFIG['audio']['quiet']) {
             /*
              * We're running quiet mode, do not play any audio!
              */
@@ -61,14 +61,14 @@ function audio_play($class = null){
         /*
          * Check if there is no given class
          */
-        if(!$class){
+        if(!$class) {
             $class = $_CONFIG['audio']['default'];
         }
 
         /*
          * Check if given class is in CONFIG[audio]
          */
-        if(empty($_CONFIG['audio']['classes'][$class])){
+        if(empty($_CONFIG['audio']['classes'][$class])) {
             throw new CoreException(tr('audio_play(): This audio class does not exist ":class"', array(':class' => $class)), 'not-exists');
         }
 
@@ -77,14 +77,14 @@ function audio_play($class = null){
         /*
          * Check if audio file exists
          */
-        if(!file_exists($file)){
+        if(!file_exists($file)) {
             throw new CoreException(tr('audio_play(): This audio file does not exist ":file"', array(':file' => $file)), 'audio');
         }
 
         /*
          * Detect if the audio is gonna be played local or remote
          */
-        if(!getenv('SSH_CLIENT')){
+        if(!getenv('SSH_CLIENT')) {
             /*
              * Play the audio local
              */
@@ -93,11 +93,11 @@ function audio_play($class = null){
                 safe_exec(array('background' => true,
                                 'commands'   => array($_CONFIG['audio']['command'], array($file))));
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 throw new CoreException(tr('audio_play(): Can not play audio file ":file", commando ":command" returned error: ":error"', array(':file' => $file, ':command' => $_CONFIG['audio']['command'], ':error' => $e)), 'audio');
             }
 
-        }else{
+        } else {
 // :INVESTIGATE: To do later how to do this easy without losing connection
 //            /*
 //             * Play the audio on remote server
@@ -123,7 +123,7 @@ function audio_play($class = null){
 
         return true;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('audio_play(): Failed', $e);
     }
 }

@@ -14,7 +14,7 @@
  * Initialize the library
  * Automatically executed by libs_load()
  */
-function ox_library_init(){
+function ox_library_init() {
     try{
 
     }catch(Exception $e){

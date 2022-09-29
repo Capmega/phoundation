@@ -29,12 +29,12 @@
  * @param string $columns
  * @return string The geo data about where this IP is registered, null if not found
  */
-function geoip_get($ip = null, $columns = '*'){
+function geoip_get($ip = null, $columns = '*') {
     try{
-        if($ip === null){
+        if($ip === null) {
             $ip = isset_get($_SERVER['REMOTE_ADDR']);
 
-            if(!$ip){
+            if(!$ip) {
                 throw new CoreException(tr('geoip_get_country(): No IP specified and no remote client IP found either'), 'not-available');
             }
         }
@@ -51,27 +51,27 @@ function geoip_get($ip = null, $columns = '*'){
 
                          array(':ip' => $ip));
 
-        if(!$data){
+        if(!$data) {
             /*
              * No results? Do we actually have geo ip table contents?
              */
             $count = sql_get('SELECT COUNT(*) AS `count` FROM `geoip_locations`');
 
-            if(!$count){
+            if(!$count) {
                 throw new CoreException(tr('geoip_get(): geoip_locations table is empty'), 'empty');
             }
 
             return null;
         }
 
-        if(count($data) == 1){
+        if(count($data) == 1) {
             return array_shift($data);
         }
 
         return $data;
 
-    }catch(Exception $e){
-        if(!sql_get('SHOW TABLES LIKE "geoip_locations"')){
+    }catch(Exception $e) {
+        if(!sql_get('SHOW TABLES LIKE "geoip_locations"')) {
             throw new CoreException('geoip_get(): `geoip_locations` table not found, please run the ./scripts/base/importers/geoip script to import the GEO IP data', $e);
         }
 
@@ -95,11 +95,11 @@ function geoip_get($ip = null, $columns = '*'){
  * @param string $ip The IP to be tested. If no IP is specified, the remote client's IP will be used (if available)
  * @return string The country where this IP is registered, null if not found
  */
-function geoip_get_country($ip = null){
+function geoip_get_country($ip = null) {
     try{
         return geoip_get($ip, 'country');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('geoip_get_country(): Failed', $e);
     }
 }
@@ -120,11 +120,11 @@ function geoip_get_country($ip = null){
  * @param string $ip The IP to be tested. If no IP is specified, the remote client's IP will be used (if available)
  * @return string The city where this IP is registered, null if not found
  */
-function geoip_get_city($ip){
+function geoip_get_city($ip) {
     try{
         return geoip_get($ip, 'city');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('geoip_get_city(): Failed', $e);
     }
 }
@@ -146,7 +146,7 @@ function geoip_get_city($ip){
  * @param string $ip The IP to be tested. If no IP is specified, the remote client's IP will be used (if available)
  * @return boolean True if the specified IP is registered to be located in a european country, false otherwise
  */
-function geoip_is_european($ip){
+function geoip_is_european($ip) {
     try{
         $country   = geoip_get_country($ip);
         $countries = array('austria',
@@ -180,7 +180,7 @@ function geoip_is_european($ip){
 
         return in_array($country, $countries);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('geoip_is_european(): Failed', $e);
     }
 }

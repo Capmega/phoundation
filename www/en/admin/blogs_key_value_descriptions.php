@@ -7,12 +7,12 @@ load_libs('validate');
 /*
  * Ensure we have an existing blog with access!
  */
-if(empty($_GET['blog'])){
+if(empty($_GET['blog'])) {
     html_flash_set(tr('Please select %object%', array('%object%' => $params['object'])), 'error');
     redirect($params['redirects']['blogs']);
 }
 
-if(!$blog = sql_get('SELECT `id`, `name`, `createdby`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))){
+if(!$blog = sql_get('SELECT `id`, `name`, `createdby`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
     html_flash_set(tr($params['noblog'], array('%object%' => $params['object'])), 'error');
     redirect($params['redirects']['blogs']);
 }
@@ -36,7 +36,7 @@ array_default($params, 'validation_description'  , tr('Specified data is missing
  * Update the key-value descriptions
  */
 try{
-    switch(isset_get($_POST['formaction'])){
+    switch(isset_get($_POST['formaction'])) {
         case 'Update':
             load_libs('seo,blogs');
 
@@ -50,7 +50,7 @@ try{
 
             sql_query('DELETE FROM `blogs_key_value_descriptions` WHERE `blogs_id` = :blogs_id', array(':blogs_id' => $blog['id']));
 
-            foreach($_POST['data'] as $key => $value){
+            foreach($_POST['data'] as $key => $value) {
                 $p->execute(array(':blogs_id'     => $blog['id'],
                                   ':key'          => $value['key'],
                                   ':seovalue'     => seo_create_string($value['value']),
@@ -66,7 +66,7 @@ try{
             redirect(true);
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     html_flash_set($e);
 }
 
@@ -123,9 +123,9 @@ $r = sql_query('SELECT `key`,
 
                 array(':blogs_id' => $blog['id']));
 
-if($r->rowCount()){
+if($r->rowCount()) {
 
-    while($row = sql_fetch($r)){
+    while($row = sql_fetch($r)) {
         $html .= '  <hr>
                     <div class="form-group">
                         <label class="col-md-3 control-label" for="key'.$count.'">'.tr('Key / Value').'</label>
@@ -205,28 +205,28 @@ echo ca_page($html, $params);
 /*
  *
  */
-function s_validate_data(&$data){
+function s_validate_data(&$data) {
     global $params;
 
     try{
         // Validate input
         $v = new validate_form($data);
 
-        if(!is_array($data)){
+        if(!is_array($data)) {
             throw new CoreException('Specified data is invalid', 'invalid');
         }
 
-        foreach($data as $key => $value){
-            if($key === 'id'){
+        foreach($data as $key => $value) {
+            if($key === 'id') {
                 unset($data[$key]);
                 continue;
             }
 
-            if(!is_array($value)){
+            if(!is_array($value)) {
                 $v->setError('Specified data value is invalid');
             }
 
-            if(empty($value['key']) and empty($value['value']) and empty($value['description1']) and empty($value['description2'])){
+            if(empty($value['key']) and empty($value['value']) and empty($value['description1']) and empty($value['description2'])) {
                 /*
                  * This set is completely empty, drop it
                  */
@@ -234,15 +234,15 @@ function s_validate_data(&$data){
                 continue;
             }
 
-            if(empty($value['key'])){
+            if(empty($value['key'])) {
                 $v->setError('Specified data is missing a key');
             }
 
-            if(empty($value['value'])){
+            if(empty($value['value'])) {
                 $v->setError('Specified data is missing a value');
             }
 
-            if(empty($value['description1']) and empty($value['description2'])){
+            if(empty($value['description1']) and empty($value['description2'])) {
                 $v->setError($params['validation_description']);
             }
         }
@@ -253,7 +253,7 @@ function s_validate_data(&$data){
 
         return $data;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('s_validate_data(): Failed', $e);
     }
 }

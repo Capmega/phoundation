@@ -1,18 +1,18 @@
 <?php
 try{
-    if(!debug()){
+    if(!debug()) {
         return array();
     }
 
     $filters = array_force($filters);
     $trace   = array();
 
-    foreach(debug_backtrace() as $key => $value){
-        if($skip_own and ($key <= 1)){
+    foreach(debug_backtrace() as $key => $value) {
+        if($skip_own and ($key <= 1)) {
             continue;
         }
 
-        foreach($filters as $filter){
+        foreach($filters as $filter) {
             unset($value[$filter]);
         }
 
@@ -21,7 +21,7 @@ try{
 
     return $trace;
 
-}catch(Exception $e){
+}catch(Exception $e) {
     throw new CoreException('debug_trace(): Failed', $e);
 }
 ?>

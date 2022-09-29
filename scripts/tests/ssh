@@ -7,18 +7,18 @@ require_once(dirname(__FILE__).'/../../libs/startup.php');
 cli_only(true);
 load_libs('test,ssh');
 
-test('ssh_get_account()', 'Ensure the "phoundation" account exists', function(){
+test('ssh_get_account()', 'Ensure the "phoundation" account exists', function() {
     $account = ssh_get_account('phoundation');
 });
 
-test('ssh_', 'Execute "echo 1" on localhost', function(){
+test('ssh_', 'Execute "echo 1" on localhost', function() {
     servers_insert(array('domain'      => $domain,
                                              'port'        => $port,
                                              'register'    => $register,
                                              'ssh_account' => isset_get($accounts_data['seoname'])));
 });
 
-test('ssh_exec()', 'Execute "echo 1" on localhost', function(){
+test('ssh_exec()', 'Execute "echo 1" on localhost', function() {
     /*
      * TEST CODE HERE
      */

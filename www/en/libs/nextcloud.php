@@ -169,11 +169,11 @@ userId,date,assignedQuota,usedQuota,numFiles,numShares,numUploads,numDownloads
  *
  * @return void
  */
-function nextcloud_library_init(){
+function nextcloud_library_init() {
     try{
         load_libs('services');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_library_init(): Failed', $e);
     }
 }
@@ -196,17 +196,17 @@ function nextcloud_library_init(){
  * @param boolean $force If set to true, will ignore cache and re-read the list from the database
  * @return array a list of all registered and available nextcloud server domains
  */
-function nextcloud_list_servers($server = null, $force = false){
+function nextcloud_list_servers($server = null, $force = false) {
     static $servers;
 
     try{
-        if(empty($servers) and !$force){
+        if(empty($servers) and !$force) {
             $servers = services_list_servers('nextcloud', $server);
         }
 
         return $servers;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_list_servers(): Failed', $e);
     }
 }
@@ -227,7 +227,7 @@ function nextcloud_list_servers($server = null, $force = false){
  * @param boolean $server If set to true, will only return the default nextcloud server. If set to a domain, will return the domain IF that domain supports the specified service
  * @return array a list of all registered and available nextcloud server domains
  */
-function nextcloud_select_server($server, $force = false){
+function nextcloud_select_server($server, $force = false) {
     try{
         $servers = nextcloud_list_servers($server, $force);
 
@@ -237,7 +237,7 @@ function nextcloud_select_server($server, $force = false){
         $server = array_shift($servers);
         return $server;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_select_server(): Failed', $e);
     }
 }
@@ -257,12 +257,12 @@ function nextcloud_select_server($server, $force = false){
  *
  * @return array a list of all registered and available nextcloud server domains
  */
-function nextcloud_exec($server, $params){
+function nextcloud_exec($server, $params) {
     try{
         $nextcloud = nextcloud_select_server($server);
 
-        foreach($params['commands'] as $key => &$value){
-            if(!($key % 2)){
+        foreach($params['commands'] as $key => &$value) {
+            if(!($key % 2)) {
                 /*
                  * This is a command
                  */
@@ -272,7 +272,7 @@ function nextcloud_exec($server, $params){
 
         return servers_exec($nextcloud['domain'], $params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_exec(): Failed', $e);
     }
 }
@@ -292,14 +292,14 @@ function nextcloud_exec($server, $params){
  * @param mixed $server
  * @return
  */
-function nextcloud_users_add($user, $server = null){
+function nextcloud_users_add($user, $server = null) {
     try{
         $retval = nextcloud_exec($server, array('commands' => array('export', array('')),
                                                                     'php'   , array('occ', 'user:add', '--password-from-env', '--display-name' => $user['nickname'], $user['id'])));
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_users_add(): Failed', $e);
     }
 }
@@ -319,13 +319,13 @@ function nextcloud_users_add($user, $server = null){
  * @param mixed $user
  * @return
  */
-function nextcloud_users_delete($server, $user){
+function nextcloud_users_delete($server, $user) {
     try{
         $retval = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:delete', $user['username']))));
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_delete(): Failed', $e);
     }
 }
@@ -345,13 +345,13 @@ function nextcloud_users_delete($server, $user){
  * @param mixed $user
  * @return
  */
-function nextcloud_users_disable($server, $user){
+function nextcloud_users_disable($server, $user) {
     try{
         $retval = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:disable', $user['username']))));
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_users_disable(): Failed', $e);
     }
 }
@@ -371,13 +371,13 @@ function nextcloud_users_disable($server, $user){
  * @param mixed $user
  * @return
  */
-function nextcloud_users_enable($server, $user){
+function nextcloud_users_enable($server, $user) {
     try{
         $retval = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:enable', $user['username']))));
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_users_enable(): Failed', $e);
     }
 }
@@ -397,13 +397,13 @@ function nextcloud_users_enable($server, $user){
  * @param mixed $user
  * @return
  */
-function nextcloud_users_info($server, $user){
+function nextcloud_users_info($server, $user) {
     try{
         $retval = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:info', $user['username']))));
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_users_info(): Failed', $e);
     }
 }
@@ -423,14 +423,14 @@ function nextcloud_users_info($server, $user){
  * @param mixed $user
  * @return
  */
-function nextcloud_users_last_seen($server, $user){
+function nextcloud_users_last_seen($server, $user) {
     try{
         $retval = nextcloud_exec($server, array('commands' => array('export', array('')),
                                                                     'php'   , array('occ', 'user:disable', '--password-from-env', $user['username'])));
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_users_last_seen(): Failed', $e);
     }
 }
@@ -449,13 +449,13 @@ function nextcloud_users_last_seen($server, $user){
  * @param mixed $server
  * @return
  */
-function nextcloud_users_list($server){
+function nextcloud_users_list($server) {
     try{
         $retval = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:list'))));
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_users_list(): Failed', $e);
     }
 }
@@ -474,13 +474,13 @@ function nextcloud_users_list($server){
  * @param mixed $server
  * @return
  */
-function nextcloud_users_report($server){
+function nextcloud_users_report($server) {
     try{
         $retval = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:report'))));
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_users_report(): Failed', $e);
     }
 }
@@ -501,14 +501,14 @@ function nextcloud_users_report($server){
  * @param mixed $password
  * @return
  */
-function nextcloud_users_reset_password($server, $user, $password){
+function nextcloud_users_reset_password($server, $user, $password) {
     try{
         $retval = nextcloud_exec($server, array('commands' => array('export', array('')),
                                                                     'php'   , array('occ', 'user:resetpassword', '--password-from-env', $user['username'])));
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_users_reset_password(): Failed', $e);
     }
 }
@@ -529,13 +529,13 @@ function nextcloud_users_reset_password($server, $user, $password){
  * @param array settings
  * @return
  */
-function nextcloud_users_setting($server, $user, $settings = null){
+function nextcloud_users_setting($server, $user, $settings = null) {
     try{
         $retval = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:setting', $user['username']))));
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_users_setting(): Failed', $e);
     }
 }
@@ -555,10 +555,10 @@ function nextcloud_users_setting($server, $user, $settings = null){
  * @param mixed $user
  * @return
  */
-function nextcloud_check_user_ldap($server, $user){
+function nextcloud_check_user_ldap($server, $user) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_check_user_ldap(): Failed', $e);
     }
 }
@@ -580,10 +580,10 @@ function nextcloud_check_user_ldap($server, $user){
  * @param mixed $group
  * @return
  */
-function nextcloud_add_user_to_group($server, $user, $group){
+function nextcloud_add_user_to_group($server, $user, $group) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_add_user_to_group(): Failed', $e);
     }
 }
@@ -605,10 +605,10 @@ function nextcloud_add_user_to_group($server, $user, $group){
  * @param mixed $group
  * @return
  */
-function nextcloud_remove_user_from_group($server, $user, $group){
+function nextcloud_remove_user_from_group($server, $user, $group) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('nextcloud_remove_user_from_group(): Failed', $e);
     }
 }

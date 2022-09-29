@@ -21,11 +21,11 @@
  *
  * @return void
  */
-function googlemaps_library_init(){
+function googlemaps_library_init() {
     try{
         load_config('googlemaps');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('googlemaps_library_init(): Failed', $e);
     }
 }
@@ -46,11 +46,11 @@ function googlemaps_library_init(){
  * @param  $api_key  Api key for use google maps
  * @return
  */
-function googlemaps_basic($latitude = null, $longitude = null, $zoom = 8, $api_key = null){
+function googlemaps_basic($latitude = null, $longitude = null, $zoom = 8, $api_key = null) {
     global $_CONFIG;
 
     try{
-        if(!$api_key){
+        if(!$api_key) {
             $api_key = $_CONFIG['google']['maps']['api_key'];
         }
 
@@ -128,7 +128,7 @@ function googlemaps_basic($latitude = null, $longitude = null, $zoom = 8, $api_k
 
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('googlemaps_basic(): Failed', $e);
     }
 }
@@ -169,7 +169,7 @@ function googlemaps_get_streetview_image($lat, $long, $x = 640, $y = 480) {
             throw new CoreException('googlemap_get_streetview_image() googleapi failed : '.show($data['status']));
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('googlemaps_get_streetview_image(): Failed', $e);
     }
 }
@@ -199,7 +199,7 @@ function googlemaps_cache_streetmaps($lat, $long, $x = 640, $y = 480) {
 
         return '/streetview_cache/'.$cache_file;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('googlemaps_cache_streetmaps(): Failed', $e);
     }
 }
@@ -218,7 +218,7 @@ function googlemaps_map_with_markers($markers = array(), $divid = 'map-canvas') 
 
         //google maps
         $html='<script>
-        $(document).on("ready", function(){
+        $(document).on("ready", function() {
 
             var map;
             var directionDisplay;
@@ -232,16 +232,16 @@ function googlemaps_map_with_markers($markers = array(), $divid = 'map-canvas') 
 
                 var locations = [';
 
-            if(empty($markers)){
+            if(empty($markers)) {
                 throw new CoreException('googlemaps_map_with_markers(): Failed to place any markers', isset_get($e, 'markerfailed'));
             }
             foreach($markers as $key => $data) {
                 try{
-                    if(empty($data['lat'])){
+                    if(empty($data['lat'])) {
                         throw new CoreException('googlemaps_map_with_markers(): No latitute specified for marker "'.$key.'"', isset_get($e, 'markerfailed'));
                     }
 
-                    if(empty($data['lng'])){
+                    if(empty($data['lng'])) {
                         throw new CoreException('googlemaps_map_with_markers(): No longitude specified for marker "'.$key.'"', isset_get($e, 'markerfailed'));
                     }
 
@@ -253,13 +253,13 @@ function googlemaps_map_with_markers($markers = array(), $divid = 'map-canvas') 
                         $data['icon']='/pub/img/googlemaps/a.png';
                     }
 
-                    if(empty($data['draggable'])){
+                    if(empty($data['draggable'])) {
                         $data['draggable'] = 'false';
                     }
 
                     $list[] = '[\''.$data['html'].'\', '.$data['lat'].', '.$data['lng'].', \''.$data['icon'].'\','.$data['draggable'].']';
 
-                }catch(Exception $e){
+                }catch(Exception $e) {
                     /*
                      * Marker failed. Ignore it and continue.
                      */
@@ -284,8 +284,8 @@ function googlemaps_map_with_markers($markers = array(), $divid = 'map-canvas') 
 
                     bounds.extend (new google.maps.LatLng(locations[i][1], locations[i][2]));
 
-                    google.maps.event.addListener(marker, \'dragend\', (function(marker, i){
-                        return function(){
+                    google.maps.event.addListener(marker, \'dragend\', (function(marker, i) {
+                        return function() {
                             var latLng       = marker.position;
                             currentLatitude  = latLng.lat();
                             currentLongitude = latLng.lng();
@@ -327,7 +327,7 @@ function googlemaps_map_with_markers($markers = array(), $divid = 'map-canvas') 
             google.maps.event.addDomListener(window, \'load\', gmap_initialize);
 
             $(document).ready(function() {
-                $(document).on("click",".gmap_pan", function(event){
+                $(document).on("click",".gmap_pan", function(event) {
                     var coords =$(this).prop(\'id\').split(\',\');
                     map.panTo(new google.maps.LatLng(coords[0],coords[1]));
                     map.setZoom(15);
@@ -356,7 +356,7 @@ function googlemaps_map_with_markers($markers = array(), $divid = 'map-canvas') 
 
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('googlemaps_map_with_markers(): Failed', $e);
     }
 }
@@ -381,7 +381,7 @@ function googlemaps_geocoding($street, $city, $state, $country) {
 
         return false;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('googlemaps_geocoding(): Failed', $e);
     }
 }
@@ -395,11 +395,11 @@ function googlemaps_reverse_geocoding($latitude, $longitude, $sensor = null) {
     global $_CONFIG;
 
     try{
-        if(empty($latitude) or empty($longitude)){
+        if(empty($latitude) or empty($longitude)) {
             throw new CoreException('googlemaps_reverse_geocoding(): Latitude or Longitude empty', 'invalid');
         }
 
-        if($sensor === null){
+        if($sensor === null) {
             /*
              * Guess if the customer has a sensor or not
              */
@@ -419,7 +419,7 @@ function googlemaps_reverse_geocoding($latitude, $longitude, $sensor = null) {
 
         return false;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('googlemaps_reverse_geocoding(): Failed', $e);
     }
 }
@@ -429,20 +429,20 @@ function googlemaps_reverse_geocoding($latitude, $longitude, $sensor = null) {
 /*
  *
  */
-function googlemaps_markers($locations, $longitude = null){
+function googlemaps_markers($locations, $longitude = null) {
     global $_CONFIG;
 
     try{
         load_config('googlemaps');
 
-        if(!is_array($locations)){
+        if(!is_array($locations)) {
             $locations = array(array('latitude'  => $locations,
                                      'longitude' => $longitude));
         }
 
         $retval = array();
 
-         foreach($locations as $location){
+         foreach($locations as $location) {
             $retval[] = array('lat'  => $location['latitude'],
                               'lng'  => $location['longitude'],
                               'html' => '',
@@ -451,7 +451,7 @@ function googlemaps_markers($locations, $longitude = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('googlemaps_markers(): Failed', $e);
     }
 }
@@ -461,7 +461,7 @@ function googlemaps_markers($locations, $longitude = null){
 /*
  * Display a goole map drag marker
  */
-function googlemaps_map_drag_marker($lat, $lng, $divid = 'map-canvas'){
+function googlemaps_map_drag_marker($lat, $lng, $divid = 'map-canvas') {
     global $_CONFIG;
 
     try{
@@ -470,7 +470,7 @@ function googlemaps_map_drag_marker($lat, $lng, $divid = 'map-canvas'){
 
         //google maps
         $html='<script>
-        $(document).on("ready", function(){
+        $(document).on("ready", function() {
                 var myLatLng = {lat: '.$lat.', lng: '.$lng.'};
 
                 var map = new google.maps.Map(document.getElementById(\''.$divid.'\'), {
@@ -484,7 +484,7 @@ function googlemaps_map_drag_marker($lat, $lng, $divid = 'map-canvas'){
                     position:myLatLng
                 });
 
-                google.maps.event.addListener(marker, "dragend", function(marker){
+                google.maps.event.addListener(marker, "dragend", function(marker) {
                     var latLng       = marker.latLng;
                     currentLatitude  = latLng.lat();
                     currentLongitude = latLng.lng();
@@ -496,7 +496,7 @@ function googlemaps_map_drag_marker($lat, $lng, $divid = 'map-canvas'){
 
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('googlemaps_map_drag marker(): Failed', $e);
     }
 }

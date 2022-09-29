@@ -14,20 +14,20 @@ log_console(tr('Updating server IPv4\'s and server hostnames in multi hostnames 
 
 sql_query('TRUNCATE `servers_hostnames`');
 
-while($server = sql_fetch($servers)){
-    if(!$server['ipv4']){
+while($server = sql_fetch($servers)) {
+    if(!$server['ipv4']) {
         $server['ipv4'] = gethostbynamel($server['hostname']);
 
-        if(!$server['ipv4']){
+        if(!$server['ipv4']) {
             $server['ipv4'] = null;
             log_console(tr('No IPv4 found for hostname ":hostname"', array(':ip' => $server['ipv4'], ':hostname' => $server['hostname'])), 'yellow');
 
-        }else{
-            if(count($server['ipv4']) == 1){
+        } else {
+            if(count($server['ipv4']) == 1) {
                 $server['ipv4'] = array_shift($server['ipv4']);
                 log_console(tr('Set IPv4 ":ip" for hostname ":hostname"', array(':ip' => $server['ipv4'], ':hostname' => $server['hostname'])));
 
-            }else{
+            } else {
                 log_console(tr('Found multiple IPv4 entries for hostname ":hostname", not automatically updating', array(':hostname' => $server['hostname'])), 'yellow');
             }
         }
@@ -37,15 +37,15 @@ while($server = sql_fetch($servers)){
 
     $servers_id = sql_get('SELECT `servers_id` FROM `servers_hostnames` WHERE `hostname` = :hostname', true, array('hostname' => $server['hostname']));
 
-    if($servers_id){
+    if($servers_id) {
         /*
          * Hostname is registered, $servers_id should match $server[id]
          */
-        if($servers_id != $server['id']){
+        if($servers_id != $server['id']) {
             log_console(tr('Failed to register main hostname ":hostname", it was already registered for servers_id ":id"', array(':hostname' => $server['hostname'], ':servers_id' => $servers_id)), 'yellow');
         }
 
-    }else{
+    } else {
         log_console(tr('Adding hostname ":hostname" to servers hostnames table', array(':hostname' => $server['hostname'])));
         $insert->execute(array(':meta_id'     => meta_action(),
                                ':servers_id'  => $server['id'],

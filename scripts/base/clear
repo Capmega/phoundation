@@ -24,7 +24,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 $tmp   = false;
 $cache = false;
 
-switch(cli_method()){
+switch(cli_method()) {
     case 'cache':
         cli_no_arguments_left();
         log_console('Clearing cache', 'white');
@@ -56,7 +56,7 @@ switch(cli_method()){
 /*
  * Clear the TMP directory
  */
-if($tmp){
+if($tmp) {
     /*
      * Move TMP out of the way, then delete it
      */
@@ -74,7 +74,7 @@ if($tmp){
 /*
  * Clear the cache directory
  */
-if($cache){
+if($cache) {
     safe_script('base/cache', '--clear');
 }
 ?>

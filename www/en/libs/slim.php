@@ -15,14 +15,14 @@
  * Initialize the library
  * Automatically executed by libs_load()
  */
-function slim_library_init(){
+function slim_library_init() {
     try{
         ensure_installed(array('name'     => 'slim',
                                'project'  => 'slim',
                                'callback' => 'slim_install',
                                'checks'   => array(ROOT.'vendor/slim')));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('slim_library_init(): Failed', $e);
     }
 }
@@ -32,12 +32,12 @@ function slim_library_init(){
 /*
  * Install the slim library
  */
-function slim_install($params){
+function slim_install($params) {
     try{
         $params['methods'] = array('composer' => array('commands' => ROOT.'scripts/base/composer require "slim/slim"'));
         return install($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('slim_install(): Failed', $e);
     }
 }

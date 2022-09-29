@@ -26,7 +26,7 @@
  *
  * @return void
  */
-function rating_library_init(){
+function rating_library_init() {
     try{
         ensure_installed(array('name'     => 'rating',
                                'callback' => 'rating_install',
@@ -37,7 +37,7 @@ function rating_library_init(){
         html_load_js('rating/rating');
         html_load_css('rating/rating');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('rating_library_init(): Failed', $e);
     }
 }
@@ -59,15 +59,15 @@ function rating_library_init(){
  * @param params $params A parameters array
  * @return void
  */
-function rating_install($params){
+function rating_install($params) {
     try{
         $css = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.css', 'ratings');
         $js  = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.js' , 'ratings');
 
-        file_execute_mode(ROOT.'pub/js/', 0770, function(){
+        file_execute_mode(ROOT.'pub/js/', 0770, function() {
             file_ensure_path(ROOT.'pub/js/rating/', 0550);
 
-            file_execute_mode(ROOT.'pub/js/rating/', 0770, function(){
+            file_execute_mode(ROOT.'pub/js/rating/', 0770, function() {
                 rename($js , ROOT.'pub/js/rating/rating.js');
                 rename($css, ROOT.'pub/css/rating/rating.css');
             });
@@ -75,7 +75,7 @@ function rating_install($params){
 
         file_delete(TMP.'ratings');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('rating_install(): Failed', $e);
     }
 }
@@ -85,7 +85,7 @@ function rating_install($params){
 /*
  * Show specified rating
  */
-function rating($stars){
+function rating($stars) {
     try{
 //    $(".star").raty({
 //        starOff: "pub/img/base/raty/star-off.png",
@@ -93,7 +93,7 @@ function rating($stars){
 //    });
 
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('rating(): Failed', $e);
     }
 }
@@ -103,12 +103,12 @@ function rating($stars){
 /*
  * Recalculate and update the value for the specified rating
  */
-function rating_calculate($rating){
+function rating_calculate($rating) {
     try{
         $average = sql_get('SELECT AVG(`ratings_votes`.`rating`) FROM `ratings_votes` WHERE `ratings_id` = :ratings_id', array(':ratings_id' => $rating['id']));
         return $average;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('rating_calculate(): Failed', $e);
     }
 }
@@ -118,9 +118,9 @@ function rating_calculate($rating){
 /*
  * Update the value for the specified rating with the specified value
  */
-function rating_update($ratings_id, $value){
+function rating_update($ratings_id, $value) {
     try{
-        if(!is_numeric($value) or ($value > 5) or ($value < 0)){
+        if(!is_numeric($value) or ($value > 5) or ($value < 0)) {
             throw new CoreException(tr('rating_calculate(): Specified value ":value" is invalid, it should be in between 0 and 5', array(':value' => $value)), $e);
         }
 
@@ -133,7 +133,7 @@ function rating_update($ratings_id, $value){
                    array(':id'    => $ratings_id,
                          ':value' => $value));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('rating_calculate(): Failed', $e);
     }
 }

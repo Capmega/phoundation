@@ -33,7 +33,7 @@ info                            - Return both size and count information';
 
 require_once(__DIR__.'/../../libs/startup.php');
 
-switch(cli_method()){
+switch(cli_method()) {
     case 'clear':
         /*
          * Clear the cache
@@ -74,7 +74,7 @@ switch(cli_method()){
 
         log_console(tr('The cache contains ":count" objects, and is ":size" large', array(':count' => $count, ':size' => bytes($size))), '', 'white');
 
-        switch($method){
+        switch($method) {
             case 'file':
                 log_console(tr('The cache is using the filesystem for storage')                   , 'white');
                 log_console(tr('The cache directory is ":ROOTdata/cache"', array(':ROOT' => ROOT)), 'white');

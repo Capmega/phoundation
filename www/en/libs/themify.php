@@ -25,11 +25,11 @@
  *
  * @return void
  */
-function themify_load(){
+function themify_load() {
     try{
         html_load_css('themify-icons');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('themify_load(): Failed', $e);
     }
 }
@@ -54,7 +54,7 @@ function themify_select($params) {
 
         return cache_write($html, 'select'.isset_get($params['selected']), 'themify');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('themify_select(): Failed', $e);
     }
 }
@@ -73,7 +73,7 @@ function themify_exists($class) {
 /*
  * Return an array with all themify items
  */
-function themify_array(){
+function themify_array() {
     return array('ti-arrow-up'                      => 'ti-arrow-up',
                  'ti-arrow-right'                   => 'ti-arrow-right',
                  'ti-arrow-left'                    => 'ti-arrow-left',

@@ -26,14 +26,14 @@
  *
  * @return void
  */
-function cache_library_init(){
+function cache_library_init() {
     global $_CONFIG;
 
     try{
         /*
          * Auto load the memcached or file library
          */
-        switch($_CONFIG['cache']['method']){
+        switch($_CONFIG['cache']['method']) {
             case 'memcached':
                 load_libs('memcached');
                 break;
@@ -52,7 +52,7 @@ function cache_library_init(){
         }
 
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cache_library_init(): Failed', $e);
     }
 }
@@ -75,22 +75,22 @@ function cache_library_init(){
  * @param null string $namespace
  * @return mixed The cache blob data if found, null otherwise
  */
-function cache_read($key, $namespace = null){
+function cache_read($key, $namespace = null) {
     global $_CONFIG, $core;
 
     try{
-        if(!$key){
+        if(!$key) {
             throw new CoreException(tr('cache_read(): No cache key specified'), 'not-specified');
         }
 
-        switch($_CONFIG['cache']['method']){
+        switch($_CONFIG['cache']['method']) {
             case 'file':
                 $key  = cache_key_hash($key);
                 $data = cache_read_file($key, $namespace);
                 break;
 
             case 'memcached':
-                if($namespace){
+                if($namespace) {
                     $namespace = unslash($namespace);
                 }
 
@@ -107,13 +107,13 @@ function cache_read($key, $namespace = null){
                 throw new CoreException(tr('cache_read(): Unknown cache method ":method" specified', array(':method' => $_CONFIG['cache']['method'])), 'unknown');
         }
 
-        if($data){
+        if($data) {
             log_console(tr('Found cache blob for key ":namespace-:key"', array(':namespace' => $namespace, ':key' => $key)), 'VERBOSE/green');
         }
 
         return $data;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cache_read(): Failed', $e);
     }
 }
@@ -136,27 +136,27 @@ function cache_read($key, $namespace = null){
  * @param null string $namespace
  * @return mixed The cache blob data if found, null otherwise
  */
-function cache_read_file($key, $namespace = null){
+function cache_read_file($key, $namespace = null) {
     global $_CONFIG;
 
     try{
-        if($namespace){
+        if($namespace) {
             $namespace = slash($namespace);
         }
 
-        if(!file_exists($file = ROOT.'data/cache/'.$namespace.$key)){
+        if(!file_exists($file = ROOT.'data/cache/'.$namespace.$key)) {
             return false;
         }
 
 //show((filemtime($file) + $_CONFIG['cache']['max_age']));
 //showdie(date('u'));
-        if((filemtime($file) + $_CONFIG['cache']['max_age']) < date('u')){
+        if((filemtime($file) + $_CONFIG['cache']['max_age']) < date('u')) {
             return false;
         }
 
         return file_get_contents($file);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cache_read_file(): Failed', $e);
     }
 }
@@ -180,19 +180,19 @@ function cache_read_file($key, $namespace = null){
  * @param null string $namespace
  * @return mixed The cache blob data if found, null otherwise
  */
-function cache_write($value, $key, $namespace = null, $max_age = null){
+function cache_write($value, $key, $namespace = null, $max_age = null) {
     global $_CONFIG, $core;
 
     try{
-        if(!$max_age){
+        if(!$max_age) {
             $max_age = $_CONFIG['cache']['max_age'];
         }
 
-        if(!$key){
+        if(!$key) {
             throw new CoreException(tr('cache_write(): No cache key specified'), 'warning/not-specified');
         }
 
-        switch($_CONFIG['cache']['method']){
+        switch($_CONFIG['cache']['method']) {
             case 'file':
                 $key = cache_key_hash($key);
                 cache_write_file($value, $key, $namespace);
@@ -215,7 +215,7 @@ function cache_write($value, $key, $namespace = null, $max_age = null){
         log_console(tr('Wrote cache blob for key ":namespace-:key"', array(':namespace' => $namespace, ':key' => $key)), 'VERBOSE/green');
         return $value;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         /*
          * Cache failed to write. Lets not die on this!
          *
@@ -245,9 +245,9 @@ function cache_write($value, $key, $namespace = null, $max_age = null){
  * @param null string $namespace
  * @return mixed The cache blob data if found, null otherwise
  */
-function cache_write_file($value, $key, $namespace = null){
+function cache_write_file($value, $key, $namespace = null) {
     try{
-        if($namespace){
+        if($namespace) {
             $namespace = slash($namespace);
         }
 
@@ -259,7 +259,7 @@ function cache_write_file($value, $key, $namespace = null){
 
         return $value;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cache_write_file(): Failed', $e);
     }
 }
@@ -281,18 +281,18 @@ function cache_write_file($value, $key, $namespace = null){
  * @param string $key
  * @return string A hash key
  */
-function cache_key_hash($key){
+function cache_key_hash($key) {
     global $_CONFIG;
 
     try{
         try{
             get_hash($key, $_CONFIG['cache']['key_hash']);
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             throw new CoreException(tr('Unknown key hash algorithm ":algorithm" configured in $_CONFIG[hash][key_hash]', array(':algorithm' => $_CONFIG['cache']['key_hash'])), $e);
         }
 
-        if($_CONFIG['cache']['key_interlace']){
+        if($_CONFIG['cache']['key_interlace']) {
             $interlace = substr($key, 0, $_CONFIG['cache']['key_interlace']);
             $key       = substr($key, $_CONFIG['cache']['key_interlace']);
 
@@ -301,7 +301,7 @@ function cache_key_hash($key){
 
         return $key;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cache_key_hash(): Failed', $e);
     }
 }
@@ -311,19 +311,19 @@ function cache_key_hash($key){
 /*
  *
  */
-function cache_showpage($key = null, $namespace = 'htmlpage', $etag = null){
+function cache_showpage($key = null, $namespace = 'htmlpage', $etag = null) {
     global $_CONFIG, $core;
 
     try{
-        if($_CONFIG['cache']['method']){
+        if($_CONFIG['cache']['method']) {
             /*
              * Default values
              */
-            if(!$key){
+            if(!$key) {
                 $key = $core->register['script'];
             }
 
-            if(!$etag){
+            if(!$etag) {
                 $etag = isset_get($core->register['etag']);
             }
 
@@ -334,7 +334,7 @@ function cache_showpage($key = null, $namespace = 'htmlpage', $etag = null){
              */
             http_cache_test($etag);
 
-            if($value = cache_read($key, $namespace)){
+            if($value = cache_read($key, $namespace)) {
                 http_headers(null, strlen($value));
 
                 echo $value;
@@ -344,7 +344,7 @@ function cache_showpage($key = null, $namespace = 'htmlpage', $etag = null){
 
         return false;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cache_showpage(): Failed', $e);
     }
 }
@@ -369,7 +369,7 @@ function cache_showpage($key = null, $namespace = 'htmlpage', $etag = null){
  * @param string $namespace
  * @return void
  */
-function cache_clear($key = null, $namespace = null){
+function cache_clear($key = null, $namespace = null) {
     include('handlers/cache-clear.php');
 }
 
@@ -393,7 +393,7 @@ function cache_clear($key = null, $namespace = null){
  * @param string $namespace
  * @return natural The size of the cache in bytes
  */
-function cache_size(){
+function cache_size() {
     return include('handlers/cache-size.php');
 }
 
@@ -417,6 +417,6 @@ function cache_size(){
  * @param string $namespace
  * @return natural The number of objects available in cache
  */
-function cache_count(){
+function cache_count() {
     return include('handlers/cache-count.php');
 }

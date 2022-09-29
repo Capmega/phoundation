@@ -18,7 +18,7 @@ sql_prepare('UPDATE `domains` SET `seoname` = NULL');
 $domains = sql_query('SELECT `id`, `name` FROM `domains`');
 $update  = sql_prepare('UPDATE `domains` SET `seoname` = :seoname WHERE `id` = :id');
 
-while($domain = sql_fetch($domains)){
+while($domain = sql_fetch($domains)) {
     $update->execute(array(':id'      => $domain['id'],
                            ':seoname' => seo_unique($domain['name'], 'domains')));
 }

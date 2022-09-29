@@ -22,10 +22,10 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('config');
 
-switch(cli_method()){
+switch(cli_method()) {
     case 'init':
-        if($_CONFIG['production']){
-            if(!FORCE){
+        if($_CONFIG['production']) {
+            if(!FORCE) {
                 throw new CoreException(tr('Cannot initialize configuration files on production without using FORCE mode. Please specify -f or --force'), 'warning/access-denied');
             }
         }
@@ -37,7 +37,7 @@ under_construction();
 
         cli_no_arguments_left();
 
-        if(!$keys){
+        if(!$keys) {
             throw new CoreException(tr('No keys specified. This script cannot show the entire configuration array.'), 'warning/not-specified');
         }
 
@@ -45,7 +45,7 @@ under_construction();
         $keys    = array_force($keys);
         $basekey = current($keys);
 
-        if(!isset($_CONFIG[$basekey])){
+        if(!isset($_CONFIG[$basekey])) {
             /*
              * This is not available in default configuration, load specific
              * configuration file
@@ -53,15 +53,15 @@ under_construction();
             $default = false;
             config_read($environment, $basekey);
 
-            if(!isset($_CONFIG[$basekey])){
+            if(!isset($_CONFIG[$basekey])) {
                 throw new CoreException(tr('The specified configuration section or file ":file" does not exist', array(':file' => $basekey)), 'warning/not-exist');
             }
         }
 
         $config = $_CONFIG;
 
-        foreach($keys as $key){
-            if(empty($config[$key])){
+        foreach($keys as $key) {
+            if(empty($config[$key])) {
                 throw new CoreException(tr('The specified configuration section ":section" does not exist', array(':section' => $keys)), 'warning/not-exist');
             }
 
@@ -76,7 +76,7 @@ under_construction();
         $value       = cli_argument(2);
         $environment = cli_argument(3);
 
-        if(!$environment){
+        if(!$environment) {
             $environment = ENVIRONMENT;
         }
 
@@ -85,8 +85,8 @@ under_construction();
         try{
             config_update($environment, $keys, $value);
 
-        }catch(Exception $e){
-            switch($e->getCode()){
+        }catch(Exception $e) {
+            switch($e->getCode()) {
                 case 'invalid':
                     // FALLTHROUGH
                 case 'not-found':

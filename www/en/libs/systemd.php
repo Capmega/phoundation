@@ -27,7 +27,7 @@
  *
  * @return void
  */
-function systemd_library_init(){
+function systemd_library_init() {
     try{
         ensure_installed(array('name'      => 'systemd',
                                'callback'  => 'systemd_install',
@@ -35,7 +35,7 @@ function systemd_library_init(){
                                'functions' => 'systemd,foobar',
                                'which'     => 'systemd,foobar'));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('systemd_library_init(): Failed', $e);
     }
 }
@@ -55,7 +55,7 @@ function systemd_library_init(){
  * @param
  * @return
  */
-function systemd_install($params){
+function systemd_install($params) {
     try{
         load_libs('apt');
         apt_install('systemd');
@@ -63,7 +63,7 @@ function systemd_install($params){
         load_libs('apt');
         apt_install('systemd');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('systemd_install(): Failed', $e);
     }
 }
@@ -105,10 +105,10 @@ function systemd_install($params){
  * @param string $params[bar]
  * @return string The result
  */
-function systemd_function($params){
+function systemd_function($params) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('systemd_function(): Failed', $e);
     }
 }

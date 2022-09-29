@@ -14,8 +14,8 @@ cli_no_arguments_left();
 try{
     sql_query('SELECT 1');
 
-}catch(Exception $e){
-    if($e->getRealCode() != '1049'){
+}catch(Exception $e) {
+    if($e->getRealCode() != '1049') {
         throw $e;
     }
 
@@ -42,15 +42,15 @@ log_console(cli_color(str_size(tr('Core database:')             , 27), 'white').
 /*
  * Show the following lines only if there is a core database
  */
-if(empty($no_db)){
+if(empty($no_db)) {
     log_console(cli_color(str_size(tr('Active users:')          , 27), 'white').' '.sql_get('SELECT COUNT(`id`) AS `count` FROM `users` WHERE `status` IS NULL', true));
 
-    if(($framework_status < 0) or ($project_status < 0)){
+    if(($framework_status < 0) or ($project_status < 0)) {
         log_console();
         throw new CoreException(tr('One or both database versions are ahead of the code version. Fix this with running the init script with  "./scripts/base/init reset"'), 'warning/invalid');
     }
 
-    if(($framework_status > 0) or ($project_status > 0)){
+    if(($framework_status > 0) or ($project_status > 0)) {
         log_console();
         throw new CoreException(tr('One or both database versions are behind the code version. Fix this with running the init script with "./scripts/base/init"'), 'warning/invalid');
     }

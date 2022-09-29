@@ -23,7 +23,7 @@
  *
  * @return void
  */
-function cli_library_init(){
+function cli_library_init() {
     global $core;
 
     try{
@@ -33,7 +33,7 @@ function cli_library_init(){
                                'callback'  => 'cli_install',
                                'functions' => 'posix_getuid'));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_library_init(): Failed', $e);
     }
 }
@@ -55,12 +55,12 @@ function cli_library_init(){
  * @param params $params
  * @return void
  */
-function cli_install($params){
+function cli_install($params) {
     try{
         load_libs('php');
         php_enmod('posix');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_install(): Failed', $e);
     }
 }
@@ -70,14 +70,14 @@ function cli_install($params){
 /*
  * Return the specified string without color information
  */
-function cli_strip_color($string){
+function cli_strip_color($string) {
     try{
         return preg_replace('/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]/', '',  $string);
 // :DELETE:
 //        return preg_replace('/\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]/', '',  $string);
 //        return preg_replace('/\033\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]/', '',  $string);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_strip_color(): Failed', $e);
     }
 }
@@ -87,17 +87,17 @@ function cli_strip_color($string){
 /*
  * Only allow execution on shell scripts
  */
-function cli_only($exclusive = false){
+function cli_only($exclusive = false) {
     try{
-        if(!PLATFORM_CLI){
+        if(!PLATFORM_CLI) {
             throw new CoreException('cli_only(): This can only be done from command line', 'clionly');
         }
 
-        if($exclusive){
+        if($exclusive) {
             cli_run_once_local();
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_only(): Failed', $e);
     }
 }
@@ -110,19 +110,19 @@ function cli_only($exclusive = false){
  *
  * ALWAYS USE return cli_die(); in case script_exec() was used!
  */
-function cli_die($exitcode, $message = '', $color = ''){
+function cli_die($exitcode, $message = '', $color = '') {
     try{
         log_console($message, ($exitcode ? 'red' : $color));
 
         /*
          * Make sure we're not in a script_exec(), where die should NOT happen!
          */
-        foreach(debug_backtrace() as $trace){
-            if($trace['function'] == 'script_exec'){
+        foreach(debug_backtrace() as $trace) {
+            if($trace['function'] == 'script_exec') {
                 /*
                  * Do NOT die!!
                  */
-                if($exitcode){
+                if($exitcode) {
                     throw new CoreException(tr('cli_die(): Script failed with exit code ":code"', array(':code' => $exitcode)), $exitcode);
                 }
 
@@ -132,7 +132,7 @@ function cli_die($exitcode, $message = '', $color = ''){
 
         die($exitcode);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_die(): Failed', $e);
     }
 }
@@ -142,17 +142,17 @@ function cli_die($exitcode, $message = '', $color = ''){
 /*
  * ?
  */
-function cli_code_back($count){
+function cli_code_back($count) {
     try{
         $retval = '';
 
-        for($i = 1; $i <= $count; $i++){
+        for($i = 1; $i <= $count; $i++) {
             $retval .= "\033[D";
         }
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_code_back(): Failed', $e);
     }
 }
@@ -162,15 +162,15 @@ function cli_code_back($count){
 /*
  * Returns the shell console to return the cursor to the beginning of the line
  */
-function cli_code_begin($echo = false){
+function cli_code_begin($echo = false) {
     try{
-        if(!$echo){
+        if(!$echo) {
             return "\033[D";
         }
 
         echo "\033[D";
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_code_begin(): Failed', $e);
     }
 }
@@ -180,15 +180,15 @@ function cli_code_begin($echo = false){
 /*
  * Hide anything printed to screen
  */
-function cli_hide($echo = false){
+function cli_hide($echo = false) {
     try{
-        if(!$echo){
+        if(!$echo) {
             return "\033[30;40m\e[?25l";
         }
 
         echo "\033[30;40m\e[?25l";
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_hide(): Failed', $e);
     }
 }
@@ -198,15 +198,15 @@ function cli_hide($echo = false){
 /*
  * Restore screen printing
  */
-function cli_restore($echo = false){
+function cli_restore($echo = false) {
     try{
-        if(!$echo){
+        if(!$echo) {
             return "\033[0m\e[?25h";
         }
 
         echo "\033[0m\e[?25h";
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_restore(): Failed', $e);
     }
 }
@@ -217,11 +217,11 @@ function cli_restore($echo = false){
  * Read input from the command line
  */
 // :TODO: Implement support for answer coloring
-function cli_readline($prompt = '', $hidden = false, $question_fore_color = null, $question_back_color = null, $answer_fore_color = null, $answer_back_color = null){
+function cli_readline($prompt = '', $hidden = false, $question_fore_color = null, $question_back_color = null, $answer_fore_color = null, $answer_back_color = null) {
     try{
         if($prompt) echo cli_color($prompt, $question_fore_color, $question_back_color);
 
-        if($hidden){
+        if($hidden) {
             echo cli_hide();
         }
 
@@ -229,13 +229,13 @@ function cli_readline($prompt = '', $hidden = false, $question_fore_color = null
         $retval = rtrim(fgets(STDIN), "\n");
         echo cli_reset_color();
 
-        if($hidden){
+        if($hidden) {
             echo cli_restore();
         }
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_readline(): Failed', $e);
     }
 }
@@ -269,7 +269,7 @@ function cli_readline($prompt = '', $hidden = false, $question_fore_color = null
  * @param boolean $close If set true, the function will stop ensuring that the script won't be run again
  * @return void
  */
-function cli_run_once_local($close = false){
+function cli_run_once_local($close = false) {
     global $core;
     static $executed = false;
 
@@ -279,8 +279,8 @@ function cli_run_once_local($close = false){
 
         file_ensure_path(dirname($run_dir.$script));
 
-        if($close){
-            if(!$executed){
+        if($close) {
+            if(!$executed) {
                 /*
                  * Hey, this script is being closed but was never opened?
                  */
@@ -294,7 +294,7 @@ function cli_run_once_local($close = false){
             return;
         }
 
-        if($executed){
+        if($executed) {
             /*
              * Hey, script has already been run before, and its run again
              * without the close option, this should never happen!
@@ -304,7 +304,7 @@ function cli_run_once_local($close = false){
 
         $executed = true;
 
-        if(file_exists($run_dir.$script)){
+        if(file_exists($run_dir.$script)) {
             /*
              * Run file exists, so either a process is running, or a process was
              * running but crashed before it could delete the run file. Check if
@@ -314,18 +314,18 @@ function cli_run_once_local($close = false){
             $pid = file_get_contents($run_dir.$script);
             $pid = trim($pid);
 
-            if(!is_numeric($pid) or !is_natural($pid) or ($pid > 65536)){
+            if(!is_numeric($pid) or !is_natural($pid) or ($pid > 65536)) {
                 log_console(tr('cli_run_once_local(): The run file ":file" contains invalid information, ignoring', array(':file' => $run_dir.$script)), 'yellow');
 
-            }else{
+            } else {
                 $name = safe_exec(array('commands' => array('ps'  , array('-p', $pid, 'connector' => '|'),
                                                             'tail', array('-n', 1))));
                 $name = array_pop($name);
 
-                if($name){
+                if($name) {
                     preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+('.str_replace('/', '\/', $script).')/', $name, $matches);
 
-                    if(!empty($matches[1][0])){
+                    if(!empty($matches[1][0])) {
                         throw new CoreException(tr('cli_run_once_local(): The script ":script" for this project is already running', array(':script' => $script)), 'already-running');
                     }
                 }
@@ -347,8 +347,8 @@ function cli_run_once_local($close = false){
         file_put_contents($run_dir.$script, getmypid());
         $core->register('shutdown_cli_run_once_local', array(true));
 
-    }catch(Exception $e){
-        if($e->getCode() == 'already-running'){
+    }catch(Exception $e) {
+        if($e->getCode() == 'already-running') {
             /*
             * Just keep throwing this one
             */
@@ -364,7 +364,7 @@ function cli_run_once_local($close = false){
 /*
  * Returns true if the startup script is already running
  */
-function cli_run_max_local($processes){
+function cli_run_max_local($processes) {
     static $executed = false;
 under_construction();
     try{
@@ -373,8 +373,8 @@ under_construction();
 
         file_ensure_path(dirmode($run_dir.$script));
 
-        if($processes === false){
-            if(!$executed){
+        if($processes === false) {
+            if(!$executed) {
                 /*
                  * Hey, this script is being closed but was never opened?
                  */
@@ -389,7 +389,7 @@ under_construction();
             return true;
         }
 
-        if($executed){
+        if($executed) {
             /*
              * Hey, script has already been run before, and its run again
              * without the close option, this should never happen!
@@ -399,7 +399,7 @@ under_construction();
 
         $executed = true;
 
-        if(file_exists($run_dir.$script)){
+        if(file_exists($run_dir.$script)) {
             /*
              * Run file exists, so either a process is running, or a process was
              * running but crashed before it could delete the run file. Check if
@@ -409,18 +409,18 @@ under_construction();
             $pid = file_get_contents($run_dir.$script);
             $pid = trim($pid);
 
-            if(!is_numeric($pid) or !is_natural($pid) or ($pid > 65536)){
+            if(!is_numeric($pid) or !is_natural($pid) or ($pid > 65536)) {
                 log_console(tr('cli_run_max_local(): The run file ":file" contains invalid information, ignoring', array(':file' => $run_dir.$script)), 'yellow');
 
-            }else{
+            } else {
                 $name = safe_exec(array('commands' => array('ps'  , array('-p', $pid, 'connector' => '|'),
                                                             'tail', array('-n', 1))));
                 $name = array_pop($name);
 
-                if($name){
+                if($name) {
                     preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+('.str_replace('/', '\/', $script).')/', $name, $matches);
 
-                    if(!empty($matches[1][0])){
+                    if(!empty($matches[1][0])) {
                         throw new CoreException(tr('cli_run_max_local(): The script ":script" for this project is already running', array(':script' => $script)), 'already-running');
                     }
                 }
@@ -442,8 +442,8 @@ under_construction();
         file_put_contents($run_dir.$script, getmypid());
         return true;
 
-    }catch(Exception $e){
-        if($e->getCode() == 'max-running'){
+    }catch(Exception $e) {
+        if($e->getCode() == 'max-running') {
             /*
             * Just keep throwing this one
             */
@@ -459,11 +459,11 @@ under_construction();
 /*
  * Returns true if the startup script is already running
  */
-function cli_run_once($action = 'exception', $force = false){
+function cli_run_once($action = 'exception', $force = false) {
     global $core;
 
     try{
-        if(!PLATFORM_CLI){
+        if(!PLATFORM_CLI) {
             throw new CoreException('cli_run_once(): This function does not work for platform "'.PLATFORM.'", it is only for "shell" usage');
         }
 
@@ -475,26 +475,26 @@ function cli_run_once($action = 'exception', $force = false){
         */
         $count = 0;
 
-        foreach($output as $line){
+        foreach($output as $line) {
             $line = preg_match('/\d+:\d+:\d+ .*? (.*?)$/', $line, $matches);
 
-            if(empty($matches[1])){
+            if(empty($matches[1])) {
                 continue;
             }
 
             $process = Strings::until(Strings::fromReverse($matches[1], '/'), ' ');
 
-            if($process == $core->register['real_script']){
-                if(++$count >= 2){
-                    switch($action){
+            if($process == $core->register['real_script']) {
+                if(++$count >= 2) {
+                    switch($action) {
                         case 'exception':
                             throw new CoreException('cli_run_once(): This script is already running', 'already-running');
 
                         case 'kill':
                             $thispid = getmypid();
 
-                            foreach($output as $line){
-                                if(!preg_match('/^\s*?\w+?\s+?(\d+)/', trim($line), $matches) or empty($matches[1])){
+                            foreach($output as $line) {
+                                if(!preg_match('/^\s*?\w+?\s+?(\d+)/', trim($line), $matches) or empty($matches[1])) {
                                     /*
                                      * This entry does not contain valid process id information
                                      */
@@ -503,7 +503,7 @@ function cli_run_once($action = 'exception', $force = false){
 
                                 $pid = $matches[1];
 
-                                if($pid == $thispid){
+                                if($pid == $thispid) {
                                     /*
                                      * We're not going to suicide!
                                      */
@@ -526,8 +526,8 @@ function cli_run_once($action = 'exception', $force = false){
 
         return false;
 
-    }catch(Exception $e){
-        if($e->getCode() == 'already-running'){
+    }catch(Exception $e) {
+        if($e->getCode() == 'already-running') {
             /*
             * Just keep throwing this one
             */
@@ -558,12 +558,12 @@ function cli_run_once($action = 'exception', $force = false){
  * @param mixed $default The value to be returned if no method was found
  * @return array The results of the executed SSH commands in an array, each entry containing one line of the output
  */
-function cli_method($index = null, $default = null){
+function cli_method($index = null, $default = null) {
     global $argv;
     static $method = array();
 
     try{
-        if($default === false){
+        if($default === false) {
             $method[$index] = null;
         }
 
@@ -692,7 +692,7 @@ function cli_argument($keys = null, $next = null, $default = null){
                         $results = array_merge($results, $value);
                     }
 
-                }else{
+                } else {
                     $value = cli_argument($key, $next, null);
 
                     if($value){
@@ -903,14 +903,14 @@ function cli_show_usage($usage, $color){
         if(!$usage){
             log_console(tr('Sorry, this script has no usage description defined yet'), 'yellow');
 
-        }else{
+        } else {
             $usage = array_force(trim($usage), "\n");
 
             if(count($usage) == 1){
                 log_console(tr('Usage:')       , $color);
                 log_console(array_shift($usage), $color);
 
-            }else{
+            } else {
                 log_console(tr('Usage:'), $color);
 
                 foreach(array_force($usage, "\n") as $line){
@@ -1211,11 +1211,11 @@ function cli_done(){
                      */
                     log_console(tr('Script ":script" ended with exit code ":exitcode" warning in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code)), 'yellow');
 
-                }else{
+                } else {
                     log_console(tr('Script ":script" failed with exit code ":exitcode" in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code)), 'red');
                 }
 
-            }else{
+            } else {
                 log_console(tr('Finished ":script" script in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()))), 'green');
             }
         }
@@ -1670,7 +1670,7 @@ function cli_unzip($file, $target_path = null, $remove = true){
         if($remove){
             rename($file, $target_path.$filename);
 
-        }else{
+        } else {
             copy($file, $target_path.$filename);
         }
 
@@ -1858,7 +1858,7 @@ function cli_build_commands_string(&$params){
                 if($params['route_errors']){
                     $route = ' 2>&1 ';
 
-                }else{
+                } else {
                     $route = '';
                 }
 
@@ -1874,7 +1874,7 @@ function cli_build_commands_string(&$params){
             if($params['timeout']){
                 $timeout = 'timeout --foreground '.escapeshellarg($params['timeout']).' ';
 
-            }else{
+            } else {
                 $timeout = '';
             }
 
@@ -1931,7 +1931,7 @@ function cli_build_commands_string(&$params){
                             if(strlen($argument) == 2){
                                 $valid = preg_match('/^\$[0-9#?$!-*@]$/i', $argument);
 
-                            }else{
+                            } else {
                                 $valid = preg_match('/^\${?[A-Z_]+(?:\[[0-9]\])?}?$/i', $argument);
                             }
 
@@ -1944,11 +1944,11 @@ function cli_build_commands_string(&$params){
                              * escape it
                              */
 
-                        }else{
+                        } else {
                             $argument = escapeshellarg(mb_trim($argument));
                         }
 
-                    }else{
+                    } else {
                         /*
                          * This argument appears to be special, check what to do
                          * with it
@@ -1963,7 +1963,7 @@ function cli_build_commands_string(&$params){
                                 if($params['route_errors']){
                                     $route = ' > '.$params['output_log'].' 2>&1 3>&1 & echo $!';
 
-                                }else{
+                                } else {
                                     $route = ' > '.$params['output_log'].' & echo $!';
                                 }
 
@@ -1980,7 +1980,7 @@ function cli_build_commands_string(&$params){
                                 if($argument === true){
                                     $sudo = 'sudo ';
 
-                                }elseif($argument){
+                                } elseif($argument){
                                     $sudo = $argument.' ';
                                 }
 

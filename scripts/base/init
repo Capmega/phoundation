@@ -101,7 +101,7 @@ sql_query('SELECT true;');
  */
 $method = cli_method();
 
-if(is_version($method)){
+if(is_version($method)) {
     /*
      * Oops, this is not a method but a version. Return it to where it was found
      */
@@ -115,14 +115,14 @@ if(is_version($method)){
 /*
  * Process methods
  */
-switch($method){
+switch($method) {
     case 'drop':
         /*
          * Drop the core database
          */
         sql_init();
 
-        if(!is_object($core->sql['core']) or !($core->sql['core'] instanceof PDO)){
+        if(!is_object($core->sql['core']) or !($core->sql['core'] instanceof PDO)) {
             throw new CoreException(tr('The core sql database connector is not available'), 'not-exists');
         }
 
@@ -135,7 +135,7 @@ switch($method){
         /*
          * Reset the database to the code version version
          */
-        if(!init_reset()){
+        if(!init_reset()) {
             throw new CoreException(tr('WARNING: Database version has NOT been reset, it probably is already at or behind the framework and code versions. See ROOT/script/base/info for more information.'), 'warning/nothing-done');
         }
 
@@ -156,14 +156,14 @@ switch($method){
         /*
          * Init from specific versions?
          */
-        if($fromframeworkversion === false){
+        if($fromframeworkversion === false) {
             /*
              * Default -f to current framework database version
              */
             $fromframeworkversion = init_get_highest_file_version('framework');
         }
 
-        if($fromprojectversion === false){
+        if($fromprojectversion === false) {
             /*
              * Default -p to current project database version
              */
@@ -175,7 +175,7 @@ switch($method){
         /*
          * Do init of a specific section?
          */
-        if($section){
+        if($section) {
             /*
              * Section initialization
              */
@@ -185,29 +185,29 @@ switch($method){
             try{
                 init_section($section, $version);
 
-            }catch(Exception $e){
-                if($e->getRealCode() == 'not-exists'){
+            }catch(Exception $e) {
+                if($e->getRealCode() == 'not-exists') {
                     $e->makeWarning(true);
                 }
 
                 throw $e;
             }
 
-        }else{
+        } else {
             cli_no_arguments_left();
 
             try{
                 $pfrom = $fromprojectversion;
                 $ffrom = $fromframeworkversion;
 
-                if($pfrom){
-                    if(!str_is_version($pfrom)){
+                if($pfrom) {
+                    if(!str_is_version($pfrom)) {
                         throw new CoreException(tr('The specified fromprojectversion ":version" is not a valid version format. Please supply a version in format "n.n.n"', array(':version' => $pfrom)), 'warning/invalid');
                     }
                 }
 
-                if($ffrom){
-                    if(!str_is_version($ffrom)){
+                if($ffrom) {
+                    if(!str_is_version($ffrom)) {
                         throw new CoreException(tr('The specified fromframeworkversion ":version" is not a valid version format. Please supply a version in format "n.n.n"', array(':version' => $ffrom)), 'warning/invalid');
                     }
                 }
@@ -216,10 +216,10 @@ switch($method){
                  * During init, force EMULATE_PREPARES because loads of init stuff will NOT work without
                  * Thanks PHP, for giving us the option between a shitty driver, or half a driver!
                  */
-                foreach($_CONFIG['db'] as $name => &$connector){
+                foreach($_CONFIG['db'] as $name => &$connector) {
                     if($name == 'default') continue;
 
-                    if(!empty($connector['init'])){
+                    if(!empty($connector['init'])) {
                         $connector['pdo_attributes'] = array(PDO::ATTR_EMULATE_PREPARES  => true,
                                                              PDO::ATTR_STRINGIFY_FETCHES => true);
                     }
@@ -227,8 +227,8 @@ switch($method){
 
                 init($pfrom, $ffrom);
 
-            }catch(Exception $e){
-                switch($e->getCode()){
+            }catch(Exception $e) {
+                switch($e->getCode()) {
                     case 'noinit':
                         log_console(tr('Core database init system has been disabled in db configuration'), 'yellow');
                         throw $e;

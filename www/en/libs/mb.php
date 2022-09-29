@@ -31,17 +31,17 @@
  *
  * @return void
  */
-function mb_library_init(){
+function mb_library_init() {
     try{
-        if(!extension_loaded('mbstring')){
+        if(!extension_loaded('mbstring')) {
             throw new CoreException(tr('mb_library_init: php module "mbstring" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-mbstring; sudo php5enmod mbstring" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-mbstring" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'mb');
         }
 
-        if(!utf8_decode('xml')){
+        if(!utf8_decode('xml')) {
             throw new CoreException(tr('mb_library_init: php module "xml" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-xml; sudo php5enmod xml" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-xml" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'mb');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mb_library_init(): Failed', $e);
     }
 }
@@ -66,7 +66,7 @@ if (! function_exists ('mb_init'))
        */
       setlocale(LC_CTYPE, $locale.'.UTF-8');
 
-      if(version_compare(phpversion(), '5.6.0') == -1){
+      if(version_compare(phpversion(), '5.6.0') == -1) {
          /*
           * New PHP 5.6.0 no longer supports iconv_set_encoding() "output_encoding", and by default uses UTF8 for its default_charset
           */
@@ -216,7 +216,7 @@ if (! function_exists ('mb_htmlentities'))
 
 if (! function_exists('mb_strip_tags_all'))
 {
-   function mb_strip_tags_all($document,$repl = ''){
+   function mb_strip_tags_all($document,$repl = '') {
       $search = array('@<script[^>]*?>.*?</script>@si',  // Strip out javascript
                      '@<[\/\!]*?[^<>]*?>@si',            // Strip out HTML tags
                      '@<style[^>]*?>.*?</style>@siU',    // Strip style tags properly
@@ -229,7 +229,7 @@ if (! function_exists('mb_strip_tags_all'))
 
 if (! function_exists('mb_strip_tags'))
 {
-   function mb_strip_tags($document,$repl = ''){
+   function mb_strip_tags($document,$repl = '') {
       $search = array('@<script[^>]*?>.*?</script>@si',  // Strip out javascript
                      '@<[\/\!]*?[^<>]*?>@si',            // Strip out HTML tags
                      '@<style[^>]*?>.*?</style>@siU',    // Strip style tags properly
@@ -270,7 +270,7 @@ if(!function_exists('mb_string_url'))
  * Taken from http://stackoverflow.com/questions/1401317/remove-non-utf8-characters-from-string
  * Rewritten by Sven Oostenrink for use in BASE framework
  */
-function mb_strip_invalid($string, $replace = false){
+function mb_strip_invalid($string, $replace = false) {
     try{
         $regex = <<<'END'
 /
@@ -279,19 +279,19 @@ function mb_strip_invalid($string, $replace = false){
     |   [\xC0-\xDF][\x80-\xBF]    # double-byte sequences   110xxxxx 10xxxxxx
     |   [\xE0-\xEF][\x80-\xBF]{2} # triple-byte sequences   1110xxxx 10xxxxxx * 2
     |   [\xF0-\xF7][\x80-\xBF]{3} # quadruple-byte sequence 11110xxx 10xxxxxx * 3
-    ){1,100}                      # ...one or more times
+    ) {1,100}                      # ...one or more times
   )
 | ( [\x80-\xBF] )                 # invalid byte in range 10000000 - 10111111
 | ( [\xC0-\xFF] )                 # invalid byte in range 11000000 - 11111111
 /x
 END;
-        if($replace){
+        if($replace) {
             return preg_replace_callback($regex, 'mb_utf8replacer', $string);
         }
 
         return preg_replace($regex, '$1', $string);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mb_strip_invalid(): Failed'), $e);
     }
 }
@@ -305,7 +305,7 @@ END;
  * Taken from http://stackoverflow.com/questions/1401317/remove-non-utf8-characters-from-string
  * Rewritten by Sven Oostenrink for use in BASE framework
  */
-function mb_utf8replacer($captures){
+function mb_utf8replacer($captures) {
     try{
         if ($captures[1] != "") {
             /*
@@ -328,7 +328,7 @@ function mb_utf8replacer($captures){
          */
         return "\xC3".chr(ord($captures[3])-64);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mb_utf8replacer(): Failed'), $e);
     }
 }
@@ -339,20 +339,20 @@ function mb_utf8replacer($captures){
  * Taken from https://stackoverflow.com/questions/10199017/how-to-solve-json-error-utf8-error-in-php-json-decode
  * Rewritten by Sven Oostenbrink
  */
-function mb_utf8ize($source){
+function mb_utf8ize($source) {
     try{
-        if(is_array($source)){
-            foreach ($source as $key => $value){
+        if(is_array($source)) {
+            foreach ($source as $key => $value) {
                 $source[$key] = mb_utf8ize($value);
             }
 
-        }elseif(is_string($source)){
+        } elseif(is_string($source)) {
             return utf8_encode($source);
         }
 
         return $source;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mb_utf8ize(): Failed'), $e);
     }
 }

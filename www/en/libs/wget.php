@@ -27,13 +27,13 @@
  *
  * @return void
  */
-function wget_library_init(){
+function wget_library_init() {
     try{
-        if(!file_which('wget')){
+        if(!file_which('wget')) {
             linux_install_package('wget');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('wget_library_init(): Failed', $e);
     }
 }
@@ -55,15 +55,15 @@ function wget_library_init(){
  * @param params $params The parameters for wget
  * @return string The result
  */
-function wget($params){
+function wget($params) {
     try{
         array_params($params, 'url');
 
-        if(empty($params['url'])){
+        if(empty($params['url'])) {
             throw new CoreException(tr('wget(): No url specified'), 'not-specified');
         }
 
-        if(empty($params['file'])){
+        if(empty($params['file'])) {
             file_ensure_path(TMP);
             $params['file'] = file_temp(false);
         }
@@ -71,8 +71,8 @@ function wget($params){
         safe_exec(array('commands' => array('wget', array('-O', $params['file'], $params['url'], 'redirect' => ' >> '.ROOT.'data/log/syslog'))));
     	return $params['file'];
 
-    }catch(Exception $e){
-        switch($e->getRealCode()){
+    }catch(Exception $e) {
+        switch($e->getRealCode()) {
             case '1':
                 throw new CoreException('wget(): Failed to download file, wget reported error "1: Generic error code"', $e);
 

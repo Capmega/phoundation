@@ -41,8 +41,8 @@ $count = 0;
 $r     = sql_query('SELECT `id`, `group`, `category` FROM `blogs_posts`');
 $p     = sql_prepare('UPDATE `blogs_posts` SET `seogroup` = :seogroup, `seocategory` = :seocategory WHERE `id` = :id');
 
-while($post = sql_fetch($r)){
-    if($count++ > 10){
+while($post = sql_fetch($r)) {
+    if($count++ > 10) {
         $count = 0;
         log_console('.', '', 'green', false);
     }

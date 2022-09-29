@@ -9,7 +9,7 @@ rights_or_access_denied('admin,ip_lock');
 /*
  * Process requested actions
  */
-if(empty($_CONFIG['security']['signin']['ip_lock'])){
+if(empty($_CONFIG['security']['signin']['ip_lock'])) {
     /*
      * Build HTML
      */
@@ -26,7 +26,7 @@ if(empty($_CONFIG['security']['signin']['ip_lock'])){
                     </div>
                 </div>';
 
-}elseif($_CONFIG['security']['signin']['ip_lock'] and !is_numeric($_CONFIG['security']['signin']['ip_lock'])){
+} elseif($_CONFIG['security']['signin']['ip_lock'] and !is_numeric($_CONFIG['security']['signin']['ip_lock'])) {
     /*
      * Use a static IP
      */
@@ -43,12 +43,12 @@ if(empty($_CONFIG['security']['signin']['ip_lock'])){
                     </div>
                 </div>';
 
-}else{
+} else {
     /*
      * Use a dynamic IP, updated by users with ip_lcok right
      */
     try{
-        switch(isset_get($_POST['action'])){
+        switch(isset_get($_POST['action'])) {
             case '':
                 break;
 
@@ -56,7 +56,7 @@ if(empty($_CONFIG['security']['signin']['ip_lock'])){
                 /*
                  * Add the new IP
                  */
-                if(empty($_POST['ip'])){
+                if(empty($_POST['ip'])) {
                     throw new CoreException(tr('No IP specified'), 'not_specified');
                 }
 
@@ -95,21 +95,21 @@ if(empty($_CONFIG['security']['signin']['ip_lock'])){
                 /*
                  * Erase the specified ip_locks
                  */
-                if(empty($_POST['id'])){
+                if(empty($_POST['id'])) {
                     throw new CoreException('Cannot erase IP locks, no IP locks selected', 'notspecified');
                 }
 
-                if(!is_array($_POST['id'])){
+                if(!is_array($_POST['id'])) {
                     throw new CoreException('Cannot erase IP locks, invalid data specified', 'invalid');
                 }
 
                 $in = sql_in($_POST['id'], ':id');
                 $r  = sql_query('DELETE FROM `ip_locks` WHERE `id` IN ('.implode(',', array_keys($in)).')', $in);
 
-                if(!$r->rowCount()){
+                if(!$r->rowCount()) {
                     html_flash_set('No user IP locks have been erased', 'warning');
 
-                }else{
+                } else {
                     html_flash_set(log_database('Erased "'.$r->rowCount().'" IP locks "', 'ip_locks_erased'), 'success');
                 }
 
@@ -122,7 +122,7 @@ if(empty($_CONFIG['security']['signin']['ip_lock'])){
                 html_flash_set(tr('Unknown action "%action%" specified', '%action%', str_log($_POST['action'])), 'error');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         html_flash_set($e);
     }
 
@@ -176,7 +176,7 @@ if(empty($_CONFIG['security']['signin']['ip_lock'])){
                 JOIN   `users`
                 ON     `users`.`id`   = `ip_locks`.`createdby`';
 
-    if(!empty($_GET['user'])){
+    if(!empty($_GET['user'])) {
         $query  .= ' AND `users`.`username` = :user';
         $execute = array(':user' => $_GET['user']);
     }
@@ -214,10 +214,10 @@ if(empty($_CONFIG['security']['signin']['ip_lock'])){
                             <form action="'.domain(true).'" method="post">
                                 <div class="panel-body">';
 
-    if(!$r->rowCount()){
+    if(!$r->rowCount()) {
         $html .= '<p>'.tr('No IP locks with the current filter').'</p>';
 
-    }else{
+    } else {
         $html .= '  <div class="table-responsive">
                         <table class="select link table mb-none table-striped table-hover table-striped">
                             <thead>
@@ -227,12 +227,12 @@ if(empty($_CONFIG['security']['signin']['ip_lock'])){
                                 <th>'.tr('IP').'</th>
                             </thead>';
 
-        while($ip = sql_fetch($r)){
-            if(isset($l[$ip['ip']])){
+        while($ip = sql_fetch($r)) {
+            if(isset($l[$ip['ip']])) {
                 $class = ' class="confirmed"';
                 unset($l[$ip['ip']]);
 
-            }else{
+            } else {
                 $class = '';
             }
 
@@ -241,11 +241,11 @@ if(empty($_CONFIG['security']['signin']['ip_lock'])){
             $ip['createdon'] = new DateTime($ip['createdon']);
             $ip['createdon'] = $ip['createdon']->format($_CONFIG['formats']['human_datetime']);
 
-            if(!empty($_POST['right'])){
+            if(!empty($_POST['right'])) {
                 /*
                  * Filter by the specified right.
                  */
-                if(!in_array($_POST['right'], $ip['rights'])){
+                if(!in_array($_POST['right'], $ip['rights'])) {
                     continue;
                 }
             }

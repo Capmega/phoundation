@@ -27,7 +27,7 @@
  *
  * @return void
  */
-function calendars_library_init(){
+function calendars_library_init() {
     try{
         //ensure_installed(array('name'      => 'calendar',
         //                       'callback'  => 'calendars_install',
@@ -35,7 +35,7 @@ function calendars_library_init(){
         //                       'functions' => 'calendar,foobar',
         //                       'which'     => 'calendar,foobar'));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('calendars_library_init(): Failed', $e);
     }
 }
@@ -55,12 +55,12 @@ function calendars_library_init(){
  * @param
  * @return
  */
-function calendars_install($params){
+function calendars_install($params) {
     try{
         //load_libs('apt');
         //apt_install('calendar');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('calendars_install(): Failed', $e);
     }
 }
@@ -79,7 +79,7 @@ function calendars_install($params){
  * @param array $calendar The calendar to validate
  * @return array The validated and cleaned $calendar array
  */
-function calendars_validate($calendar){
+function calendars_validate($calendar) {
     try{
         load_libs('validate,seo');
 
@@ -95,10 +95,10 @@ function calendars_validate($calendar){
         /*
          * Validate description
          */
-        if(empty($calendar['description'])){
+        if(empty($calendar['description'])) {
             $calendar['description'] = null;
 
-        }else{
+        } else {
             $v->hasMinChars($calendar['description'],   16, tr('Please ensure the calendar description has at least 16 characters'));
             $v->hasMaxChars($calendar['description'], 2047, tr('Please ensure the calendar description has less than 2047 characters'));
 
@@ -117,7 +117,7 @@ function calendars_validate($calendar){
 
       return $calendar;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('calendars_validate(): Failed', $e);
     }
 }
@@ -150,7 +150,7 @@ function calendars_validate($calendar){
  * @param string $calendar[bar]
  * @return params The specified calendar, validated and sanitized
  */
-function calendars_insert($calendar){
+function calendars_insert($calendar) {
     try{
         $calendar = calendars_validate($calendar);
 
@@ -165,7 +165,7 @@ function calendars_insert($calendar){
 
         return $calendar;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('calendars_insert(): Failed', $e);
     }
 }
@@ -198,7 +198,7 @@ function calendars_insert($calendar){
  * @param string $params[bar]
  * @return boolean True if the user was updated, false if not. If not updated, this might be because no data has changed
  */
-function calendars_update($calendar){
+function calendars_update($calendar) {
     try{
         $calendar = calendars_validate($calendar);
 
@@ -217,7 +217,7 @@ function calendars_update($calendar){
 
         return (boolean) $update->rowCount();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('calendars_update(): Failed', $e);
     }
 }
@@ -242,7 +242,7 @@ function calendars_update($calendar){
  * @param string $parent
  * @return mixed The calendar data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified calendar does not exist, NULL will be returned.
  */
-function calendars_get($calendar, $column = null, $status = null, $parent = false){
+function calendars_get($calendar, $column = null, $status = null, $parent = false) {
     try{
         array_ensure($params, 'seocalendar');
 
@@ -274,7 +274,7 @@ function calendars_get($calendar, $column = null, $status = null, $parent = fals
 
         return sql_simple_get($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('calendars_get(): Failed', $e);
     }
 }
@@ -295,7 +295,7 @@ function calendars_get($calendar, $column = null, $status = null, $parent = fals
  * @param params $params The list parameters
  * @return mixed The list of available calendars
  */
-function calendars_list($params){
+function calendars_list($params) {
     try{
         array_ensure($params);
 
@@ -303,7 +303,7 @@ function calendars_list($params){
 
         return sql_simple_list($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('calendars_list(): Failed', $e);
     }
 }
@@ -335,7 +335,7 @@ function calendars_list($params){
  * @param $params resource
  * @return string HTML for a calendars select box within the specified parameters
  */
-function calendars_select($params = null){
+function calendars_select($params = null) {
     try{
         array_ensure($params);
         array_default($params, 'name'      , 'seocalendar');
@@ -351,15 +351,15 @@ function calendars_select($params = null){
 
         $execute = array();
 
-        if($params['remove']){
-            if(count(array_force($params['remove'])) == 1){
+        if($params['remove']) {
+            if(count(array_force($params['remove'])) == 1) {
                 /*
                  * Filter out only one entry
                  */
                 $where[] = ' `id` != :id ';
                 $execute[':id'] = $params['remove'];
 
-            }else{
+            } else {
                 /*
                  * Filter out multiple entries
                  */
@@ -369,23 +369,23 @@ function calendars_select($params = null){
             }
         }
 
-        if($params['parents_id']){
+        if($params['parents_id']) {
             $where[] = ' `parents_id` = :parents_id ';
             $execute[':parents_id'] = $params['parents_id'];
 
-        }else{
+        } else {
             $where[] = ' `parents_id` IS NULL ';
         }
 
-        if($params['status'] !== false){
+        if($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)){
+        if(empty($where)) {
             $where = '';
 
-        }else{
+        } else {
             $where = ' WHERE '.implode(' AND ', $where).' ';
         }
 
@@ -395,7 +395,7 @@ function calendars_select($params = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('calendars_select(): Failed', $e);
     }
 }
@@ -414,7 +414,7 @@ function calendars_select($params = null){
  * @param array $event The calendar to validate
  * @return array The validated and cleaned $event parameter array
  */
-function calendars_validate_event($event){
+function calendars_validate_event($event) {
     try{
         load_libs('validate,seo');
 
@@ -430,10 +430,10 @@ function calendars_validate_event($event){
         /*
          * Validate description
          */
-        if(empty($event['description'])){
+        if(empty($event['description'])) {
             $event['description'] = null;
 
-        }else{
+        } else {
             $v->hasMinChars($event['description'],   16, tr('Please ensure the calendar description has at least 16 characters'));
             $v->hasMaxChars($event['description'], 2047, tr('Please ensure the calendar description has less than 2047 characters'));
 
@@ -452,7 +452,7 @@ function calendars_validate_event($event){
 
       return $event;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('calendars_validate_event(): Failed', $e);
     }
 }
@@ -485,7 +485,7 @@ function calendars_validate_event($event){
  * @param string $event[bar]
  * @return params The specified calendar, validated and sanitized
  */
-function calendars_insert_event($event){
+function calendars_insert_event($event) {
     try{
         $event = calendars_validate_event($event);
 
@@ -501,7 +501,7 @@ function calendars_insert_event($event){
 
         return $event;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('calendars_insert_event(): Failed', $e);
     }
 }
@@ -534,7 +534,7 @@ function calendars_insert_event($event){
  * @param string $params[bar]
  * @return boolean True if the user was updated, false if not. If not updated, this might be because no data has changed
  */
-function calendars_update_event($event){
+function calendars_update_event($event) {
     try{
         $event = calendars_validate($event);
 
@@ -553,7 +553,7 @@ function calendars_update_event($event){
 
         return (boolean) $update->rowCount();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('calendars_update_event(): Failed', $e);
     }
 }
@@ -578,7 +578,7 @@ function calendars_update_event($event){
  * @param string $parent
  * @return mixed The calendar data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified calendar does not exist, NULL will be returned.
  */
-function calendars_get_event($event, $column = null, $status = null, $parent = false){
+function calendars_get_event($event, $column = null, $status = null, $parent = false) {
     try{
         array_ensure($params, 'seocalendar');
 
@@ -610,7 +610,7 @@ function calendars_get_event($event, $column = null, $status = null, $parent = f
 
         return sql_simple_get($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('calendars_get_event(): Failed', $e);
     }
 }
@@ -631,7 +631,7 @@ function calendars_get_event($event, $column = null, $status = null, $parent = f
  * @param params $params The list parameters
  * @return mixed The list of available calendars
  */
-function calendars_list_events($params){
+function calendars_list_events($params) {
     try{
         array_ensure($params);
 
@@ -639,7 +639,7 @@ function calendars_list_events($params){
 
         return sql_simple_list($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('calendars_list_events(): Failed', $e);
     }
 }
@@ -671,7 +671,7 @@ function calendars_list_events($params){
  * @param $params resource
  * @return string HTML for a calendars select box within the specified parameters
  */
-function calendars_select_event($params = null){
+function calendars_select_event($params = null) {
     try{
         array_ensure($params);
         array_default($params, 'name'      , 'seocalendar');
@@ -687,15 +687,15 @@ function calendars_select_event($params = null){
 
         $execute = array();
 
-        if($params['remove']){
-            if(count(array_force($params['remove'])) == 1){
+        if($params['remove']) {
+            if(count(array_force($params['remove'])) == 1) {
                 /*
                  * Filter out only one entry
                  */
                 $where[] = ' `id` != :id ';
                 $execute[':id'] = $params['remove'];
 
-            }else{
+            } else {
                 /*
                  * Filter out multiple entries
                  */
@@ -705,23 +705,23 @@ function calendars_select_event($params = null){
             }
         }
 
-        if($params['parents_id']){
+        if($params['parents_id']) {
             $where[] = ' `parents_id` = :parents_id ';
             $execute[':parents_id'] = $params['parents_id'];
 
-        }else{
+        } else {
             $where[] = ' `parents_id` IS NULL ';
         }
 
-        if($params['status'] !== false){
+        if($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)){
+        if(empty($where)) {
             $where = '';
 
-        }else{
+        } else {
             $where = ' WHERE '.implode(' AND ', $where).' ';
         }
 
@@ -731,7 +731,7 @@ function calendars_select_event($params = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('calendars_select_event(): Failed', $e);
     }
 }

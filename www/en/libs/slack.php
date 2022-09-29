@@ -29,7 +29,7 @@
  *
  * @return void
  */
-function slack_library_init(){
+function slack_library_init() {
     try{
         ensure_installed(array('name'     => 'slack',
                                'callback' => 'slack_install',
@@ -37,7 +37,7 @@ function slack_library_init(){
 
         load_config('slack');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('slack_library_init(): Failed', $e);
     }
 }
@@ -59,12 +59,12 @@ function slack_library_init(){
  * @param params $params A parameters array
  * @return void
  */
-function slack_install($params){
+function slack_install($params) {
     try{
         load_libs('composer');
         composer_install('slack-client');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('slack_install(): Failed', $e);
     }
 }
@@ -74,10 +74,10 @@ function slack_install($params){
 /*
  * Send a message to slack
  */
-function slack_send(){
+function slack_send() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('slack_send(): Failed', $e);
     }
 }

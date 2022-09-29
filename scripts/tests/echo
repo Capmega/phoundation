@@ -10,7 +10,7 @@ load_libs('test');
 /*
  * Simple echo to screen test
  */
-test('Echo', 'Simple test that echos "1" to the screen', function(){
+test('Echo', 'Simple test that echos "1" to the screen', function() {
     echo '1';
 });
 ?>

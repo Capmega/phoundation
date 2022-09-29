@@ -28,11 +28,11 @@
  *
  * @return void
  */
-function backup_library_init(){
+function backup_library_init() {
     try{
         load_config('backup');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('backup_library_init(): Failed', $e);
     }
 }
@@ -55,7 +55,7 @@ function backup_library_init(){
 // * -K or --disable-keys to add DISABLE KEYS / ENABLE KEYS around inserts to speed up table inserts
 // * -R or --routines to include stored procedures
 // */
-//function backup_mysql($params){
+//function backup_mysql($params) {
 //    global $_CONFIG;
 //
 //    try{
@@ -95,7 +95,7 @@ function backup_library_init(){
 //        /*
 //         * Set database
 //         */
-//        if(!$params['database']){
+//        if(!$params['database']) {
 //            /*
 //             * Backup the core database of this project
 //             */
@@ -107,23 +107,23 @@ function backup_library_init(){
 //
 //            return $params['target'];
 //
-//        }elseif($params['database'] === true){
+//        } elseif($params['database'] === true) {
 //            /*
 //             * Backup all databases
 //             * First get a list of all available databases, then back them up one by one
 //             */
 //            log_console('Starting backup of all databases', 'white');
 //
-//            foreach(sql_list('SHOW DATABASES', null, null, 'backup') as $database){
+//            foreach(sql_list('SHOW DATABASES', null, null, 'backup') as $database) {
 //                try{
-//                    //if($database == 'information_schema'){
+//                    //if($database == 'information_schema') {
 //                    //    continue;
 //                    //}
 //
 //                    $params['database'] = $database;
 //                    backup_mysql($params);
 //
-//                }catch(Exception $e){
+//                }catch(Exception $e) {
 //                    /*
 //                     * One database failed to backup.
 //                     * Register the problem and continue
@@ -135,14 +135,14 @@ function backup_library_init(){
 //
 //            return $params['target'];
 //
-//        }elseif(strpos($params['database'], ',') !== false){
+//        } elseif(strpos($params['database'], ',') !== false) {
 //            /*
 //             * Backup multiple databases
 //             */
 //            log_console('Starting backup of multiple databases', 'white');
 //            $databases = explode(',', $params['database']);
 //
-//            foreach($databases as $params['database']){
+//            foreach($databases as $params['database']) {
 //                backup_mysql($params);
 //            }
 //
@@ -152,20 +152,20 @@ function backup_library_init(){
 //        /*
 //         * Set table
 //         */
-//        if(!$params['table']){
+//        if(!$params['table']) {
 //            log_console('Starting backup of database "'.str_log($params['database']).'"', 'white');
 //
 //            /*
 //             * Backup all tabless separately
 //             * First get a list of all available tables, then back them up one by one
 //             */
-//            foreach(sql_list('SHOW TABLES FROM '.cfm($params['database']), null, null, 'backup') as $table){
+//            foreach(sql_list('SHOW TABLES FROM '.cfm($params['database']), null, null, 'backup') as $table) {
 //                try{
 //                    $params['table'] = $table;
 //                    backup_mysql($params);
 //                    log_console('Backed up table "'.str_log($table).'"', 'backup');
 //
-//                }catch(Exception $e){
+//                }catch(Exception $e) {
 //                    /*
 //                     * One table failed to backup.
 //                     * Register the problem and continue
@@ -183,7 +183,7 @@ function backup_library_init(){
 //         * Set backup date
 //         * Make sure target exists
 //         */
-//        if($params['date'] === null){
+//        if($params['date'] === null) {
 //            /*
 //             * No backup date specified yet. Specify now, and build target
 //             */
@@ -196,38 +196,38 @@ function backup_library_init(){
 //        $target    = $params['target'].$params['table'].'.sql';
 //        $command   = 'mysqldump -p"'.$params['pass'].'" -u '.$params['user'].' --single-transaction';
 //
-//        if($params['create_options']){
+//        if($params['create_options']) {
 //            $command .=  ' --create-options';
 //        }
 //
-//        if($params['complete_insert']){
+//        if($params['complete_insert']) {
 //            $command .= ' --complete-insert';
 //        }
 //
-//        if($params['comments']){
+//        if($params['comments']) {
 //            $command .= ' --comments';
 //
-//        }else{
+//        } else {
 //            $command .= ' --no-comments';
 //        }
 //
-//        if($params['dump_date']){
+//        if($params['dump_date']) {
 //            $command .= ' --dump-date';
 //        }
 //
-//        if($params['routines']){
+//        if($params['routines']) {
 //            $command .= ' --routines';
 //        }
 //
-//        if($params['disable_keys']){
+//        if($params['disable_keys']) {
 //            $command .= ' --disable-keys';
 //        }
 //
-//        if($params['extended_insert']){
+//        if($params['extended_insert']) {
 //            $command .= ' --extended-insert';
 //        }
 //
-//        if($params['no_create_db']){
+//        if($params['no_create_db']) {
 //            $command .= ' --no-create-db';
 //        }
 //
@@ -241,7 +241,7 @@ function backup_library_init(){
 //         */
 //        $command .= ' '.$params['table'];
 //
-//        switch($params['compression']){
+//        switch($params['compression']) {
 //            case '';
 //                /*
 //                 * No compression
@@ -263,7 +263,7 @@ function backup_library_init(){
 //
 //        return $params['target'];
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('backup_mysql(): Failed', $e);
 //    }
 //}

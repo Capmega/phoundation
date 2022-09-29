@@ -12,7 +12,7 @@ $role = array();
  * Are we editing a role?
  * If so then get the role data from the DB
  */
-if(!empty($_GET['role'])){
+if(!empty($_GET['role'])) {
     $db = sql_get('SELECT    `roles`.`id`,
                              `roles`.`createdon`,
                              `roles`.`modifiedon`,
@@ -34,7 +34,7 @@ if(!empty($_GET['role'])){
                    array(':role' => $_GET['role']));
 
 
-    if(!$db){
+    if(!$db) {
         html_flash_set(log_database(tr('Specified role "'.str_log($_GET['role']).'" does not exist'), 'role_not_exist'), 'error');
         redirect(domain('/admin/roles.php'));
     }
@@ -44,12 +44,12 @@ if(!empty($_GET['role'])){
     $role = array_merge($db, $role);
     unset($db);
 
-    if($role['createdon']){
+    if($role['createdon']) {
         $role['createdon']  = new DateTime($role['createdon']);
         $role['createdon']  = $role['createdon']->format($_CONFIG['formats']['human_datetime']);
     }
 
-    if($role['modifiedon']){
+    if($role['modifiedon']) {
         $role['modifiedon'] = new DateTime($role['modifiedon']);
         $role['modifiedon'] = $role['modifiedon']->format($_CONFIG['formats']['human_datetime']);
     }
@@ -72,10 +72,10 @@ if(!empty($_GET['role'])){
 /*
  * Was role data submitted?
  */
-if(!empty($_POST['dosubmit'])){
+if(!empty($_POST['dosubmit'])) {
     $role = array_merge($role, $_POST);
 
-    if(!empty($role['id'])){
+    if(!empty($role['id'])) {
         /*
          * Auto update
          */
@@ -85,7 +85,7 @@ if(!empty($_POST['dosubmit'])){
 
 
 try{
-    if(isset_get($_POST['docreate'])){
+    if(isset_get($_POST['docreate'])) {
         /*
          * Validate data
          */
@@ -94,7 +94,7 @@ try{
         /*
          * This role does not exist yet?
          */
-        if(sql_get('SELECT `id` FROM `roles` WHERE `name` = :name', 'id', array(':name' => $role['name']))){
+        if(sql_get('SELECT `id` FROM `roles` WHERE `name` = :name', 'id', array(':name' => $role['name']))) {
             throw new CoreException(tr('The role "%name%" already exists', '%name%', str_log($role['name'])), 'exists');
         }
 
@@ -112,8 +112,8 @@ try{
 
         $role = array();
 
-    }elseif(isset_get($_POST['doupdate'])){
-        if(empty($role['id'])){
+    } elseif(isset_get($_POST['doupdate'])) {
+        if(empty($role['id'])) {
             throw new CoreException('Cannot update, no role specified', 'notspecified');
         }
 
@@ -126,7 +126,7 @@ try{
         /*
          * This role does not exist yet?
          */
-        if(sql_get('SELECT `name` FROM `roles` WHERE `name` = :name AND `id` != :id', 'name', array(':name' => $role['name'], ':id' => $role['id']))){
+        if(sql_get('SELECT `name` FROM `roles` WHERE `name` = :name AND `id` != :id', 'name', array(':name' => $role['name'], ':id' => $role['id']))) {
             throw new CoreException(tr('The role "%name%" already exists', '%name%', str_log($role['name'])), 'exists');
         }
 
@@ -173,7 +173,7 @@ try{
          */
         $r = sql_query('SELECT `id` FROM `users` WHERE `roles_id` = :roles_id', array(':roles_id' => $role['id']));
 
-        while($user = sql_fetch($r)){
+        while($user = sql_fetch($r)) {
             $user['roles_id'] = $role['id'];
             user_update_rights($user);
         }
@@ -184,14 +184,14 @@ try{
          */
         html_flash_set(log_database('Updated role "'.str_log($role['name']).'" with rights "'.str_log(str_force($role['rights'])).'"', 'role_update'), 'success');
 
-        if($r->rowCount()){
+        if($r->rowCount()) {
             html_flash_set(tr('Updated rights for "%count%" users with the role "%role%"', array('%count%' => $r->rowCount(), '%role%' => str_log($role['name']))), 'success');
         }
 
         redirect(domain('/admin/role.php?role='.$role['name']));
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     html_flash_set($e);
 }
 
@@ -216,7 +216,7 @@ $role['rights'] = array_force(isset_get($role['rights']));
 $role['rights'] = array_unique($role['rights']);
 sort($role['rights']);
 
-foreach($role['rights'] as $right){
+foreach($role['rights'] as $right) {
     if(!$right) continue;
 
     $rights['selected'] = $right;
@@ -248,7 +248,7 @@ $html   = ' <form id="role" name="role" action="'.domain(true).'" method="post">
                             </header>
                             <div class="panel-body">';
 
-if(!empty($role['id'])){
+if(!empty($role['id'])) {
     $html .= '                  <div class="form-group">
                                     <label class="col-md-3 control-label" for="createdon">'.tr('Created on').'</label>
                                     <div class="col-md-6">
@@ -329,7 +329,7 @@ echo ca_page($html, $params);
 /*
  * Validate the data of the specified role
  */
-function s_validate_role(&$role){
+function s_validate_role(&$role) {
     try{
         $v = new validate_form($role, 'name,description,rights');
 
@@ -337,11 +337,11 @@ function s_validate_role(&$role){
         $v->hasMinChars ($role['name'],   2, tr('Please ensure that the name has a minimum of 2 characters'));
         $v->hasMaxChars ($role['name'],  16, tr('Please ensure that the name has a maximum of 16 characters'));
 
-        if(strpos($role['name'], ' ') !== false){
+        if(strpos($role['name'], ' ') !== false) {
             $v->setError(tr('Please ensure that the role name contains no spaces'));
         }
 
-        if($role['name'] == 'none'){
+        if($role['name'] == 'none') {
             $v->setError(tr('The name "none" is not allowed for a role'));
         }
 
@@ -349,8 +349,8 @@ function s_validate_role(&$role){
         $v->hasMinChars ($role['description'],  32, tr('Please ensure that the description has a minimum of 32 characters'));
         $v->hasMaxChars ($role['description'], 255, tr('Please ensure that the description has a maximum of 255 characters'));
 
-        if(!is_array(isset_get($role['rights']))){
-            if(!empty($role['rights'])){
+        if(!is_array(isset_get($role['rights']))) {
+            if(!empty($role['rights'])) {
                 $v->setError(tr('Specified rights list is invalid'));
             }
 
@@ -367,7 +367,7 @@ function s_validate_role(&$role){
             throw new CoreException($v->getErrors(), 'invalid');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('s_validate_role(): Failed', $e);
     }
 }
@@ -377,13 +377,13 @@ function s_validate_role(&$role){
 /*
  *
  */
-function s_update_rights($role){
+function s_update_rights($role) {
     try{
-        if(empty($role['id'])){
+        if(empty($role['id'])) {
             throw new CoreException('s_update_rights(): Cannot update rights, no role specified', 'not_specified');
         }
 
-        if(isset_get($role['rights']) and !is_array($role['rights'])){
+        if(isset_get($role['rights']) and !is_array($role['rights'])) {
             throw new CoreException('s_update_rights(): The specified rights list is invalid', 'invalid');
         }
 
@@ -394,15 +394,15 @@ function s_update_rights($role){
 
         $role_right = array(':roles_id' => $role['id']);
 
-        foreach(isset_get($role['rights']) as $key => $right){
-            if(!$right){
+        foreach(isset_get($role['rights']) as $key => $right) {
+            if(!$right) {
                 unset($role['rights'][$key]);
                 continue;
             }
 
             $role_right[':rights_id'] = sql_get('SELECT `id` FROM `rights` WHERE `name` = :name', 'id', array(':name' => $right));
 
-            if(!$role_right[':rights_id']){
+            if(!$role_right[':rights_id']) {
                 /*
                  * This right does not exist! Skip it!
                  */
@@ -415,7 +415,7 @@ function s_update_rights($role){
 
         return $role['rights'];
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('s_update_rights(): Failed', $e);
     }
 }

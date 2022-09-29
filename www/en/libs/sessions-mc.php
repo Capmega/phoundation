@@ -23,11 +23,11 @@
  *
  * @return void
  */
-function sessions_memcached_library_init(){
+function sessions_memcached_library_init() {
     try{
 under_construction();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sessions_memcached_library_init(): Failed', $e);
     }
 }
@@ -47,10 +47,10 @@ under_construction();
  * @param string $session_name
  * @return
  */
-function sessions_memcached_open($save_path, $session_name){
+function sessions_memcached_open($save_path, $session_name) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sessions_memcached_open(): Failed', $e);
     }
 }
@@ -68,10 +68,10 @@ function sessions_memcached_open($save_path, $session_name){
  *
  * @return
  */
-function sessions_memcached_close(){
+function sessions_memcached_close() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sessions_memcached_close(): Failed', $e);
     }
 }
@@ -90,10 +90,10 @@ function sessions_memcached_close(){
  * @param string $sessions_id
  * @return
  */
-function sessions_memcached_read($sessions_id){
+function sessions_memcached_read($sessions_id) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sessions_memcached_read(): Failed', $e);
     }
 }
@@ -113,10 +113,10 @@ function sessions_memcached_read($sessions_id){
  * @param string $data
  * @return
  */
-function sessions_memcached_write($sessions_id, $data){
+function sessions_memcached_write($sessions_id, $data) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sessions_memcached_write(): Failed', $e);
     }
 }
@@ -135,10 +135,10 @@ function sessions_memcached_write($sessions_id, $data){
  * @param string $sessions_id
  * @return
  */
-function sessions_memcached_destroy($sessions_id){
+function sessions_memcached_destroy($sessions_id) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sessions_memcached_destroy(): Failed', $e);
     }
 }
@@ -157,10 +157,10 @@ function sessions_memcached_destroy($sessions_id){
  * @param string $lifetime
  * @return
  */
-function sessions_memcached_gc($lifetime){
+function sessions_memcached_gc($lifetime) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sessions_memcached_gc(): Failed', $e);
     }
 }
@@ -180,10 +180,10 @@ function sessions_memcached_gc($lifetime){
  * @param string $session_name
  * @return
  */
-function sessions_memcached_create_sid($save_path, $session_name){
+function sessions_memcached_create_sid($save_path, $session_name) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sessions_memcached_create_sid(): Failed', $e);
     }
 }

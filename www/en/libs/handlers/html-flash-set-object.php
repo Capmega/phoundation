@@ -13,9 +13,9 @@ $object = $params;
 $params = array('class' => $class, // Done for backward compatibility
                 'title' => tr('Oops'));
 
-if($object instanceof BException){
-    if(debug()){
-        if(($object->getCode() !== 'validation') and (Strings::until($object->getCode(), '/') !== 'warning')){
+if($object instanceof BException) {
+    if(debug()) {
+        if(($object->getCode() !== 'validation') and (Strings::until($object->getCode(), '/') !== 'warning')) {
             /*
              * This is not a warning, this is a real exception!
              * On non debugs (usually production) show an "oops"
@@ -26,17 +26,17 @@ if($object instanceof BException){
         }
     }
 
-    if(!$class){
+    if(!$class) {
         $class = $type;
     }
 
-    if(Strings::until($object->getCode(), '/') == 'warning'){
+    if(Strings::until($object->getCode(), '/') == 'warning') {
         $params['type'] = 'warning';
         $params['html'] = trim(Strings::from($object->getMessage(), '():'));
 
-    }elseif($object->getCode() == 'validation'){
-        foreach($object->getMessages() as $message){
-            if(strstr($message, 'ValidateForm::isValid()')){
+    } elseif($object->getCode() == 'validation') {
+        foreach($object->getMessages() as $message) {
+            if(strstr($message, 'ValidateForm::isValid()')) {
                 break;
             }
 
@@ -46,17 +46,17 @@ if($object instanceof BException){
         $params['type'] = 'warning';
         $params['html'] = implode('<br>', $messages);
 
-    }elseif(Strings::from($object->getCode(), '/') == 'unknown'){
+    } elseif(Strings::from($object->getCode(), '/') == 'unknown') {
         $params['type'] = 'warning';
         $params['html'] = $object->getMessage();
 
-    }else{
+    } else {
         $params['type'] = 'error';
 
-        if(debug()){
+        if(debug()) {
             $params['html'] = $object->getMessage();
 
-        }else{
+        } else {
             /*
              * This may or may not contain messages that are confidential.
              * All BExceptions thrown by functions will contain the function name like function():
@@ -68,7 +68,7 @@ if($object instanceof BException){
             $messages       = $object->getMessages();
             $params['html'] = current($messages);
 
-            if(preg_match('/^[a-z_]+\(\): /', $params['html']) or preg_match('/PHP ERROR [\d+] /', $params['html'])){
+            if(preg_match('/^[a-z_]+\(\): /', $params['html']) or preg_match('/PHP ERROR [\d+] /', $params['html'])) {
                 $params['html'] = tr('Something went wrong, please try again later');
 
                 notify(array('code'    => 'exception',
@@ -76,13 +76,13 @@ if($object instanceof BException){
                              'title'   => tr('html_flash_set() received exception'),
                              'message' => tr('html_flash_set(): Received BException ":code" with message trace ":trace"', array(':code' => $params['type'], ':trace' => $params['html']))));
 
-            }else{
+            } else {
                 /*
                  * Show all messages until a function(): message is found, those are considered to be
                  * confidential and should not be shown on production websites
                  */
-                foreach($messages as $id => $message){
-                    if(!empty($delete) or preg_match('/^[a-z_]+\(\): /', $message) or preg_match('/PHP ERROR [\d+] /', $message)){
+                foreach($messages as $id => $message) {
+                    if(!empty($delete) or preg_match('/^[a-z_]+\(\): /', $message) or preg_match('/PHP ERROR [\d+] /', $message)) {
                         unset($messages[$id]);
                         $delete = true;
                     }
@@ -94,22 +94,22 @@ if($object instanceof BException){
         }
     }
 
-}elseif(($object instanceof Exception) or ($object instanceof Error)){
-    if(!$class){
+} elseif(($object instanceof Exception) or ($object instanceof Error)) {
+    if(!$class) {
         $class = $type;
     }
 
-    if(Strings::from($object->getCode(), '/') == 'validation'){
+    if(Strings::from($object->getCode(), '/') == 'validation') {
         $params['type'] = 'warning';
         $params['html'] = $object->getMessage();
 
-    }else{
+    } else {
         $params['type'] = 'error';
 
-        if(debug()){
+        if(debug()) {
             $params['html'] = $object->getMessage();
 
-        }else{
+        } else {
             /*
              * Non BExceptions basically are caused by PHP and should basically not ever happen.
              * These should also be considdered confidential and their info should never be
@@ -124,7 +124,7 @@ if($object instanceof BException){
         }
     }
 
-}else{
+} else {
     $params['type'] = 'error';
     $params['html'] = tr('Something went wrong, please try again later');
 

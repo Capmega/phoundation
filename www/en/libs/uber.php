@@ -27,7 +27,7 @@
  *
  * @return void
  */
-function template_library_init(){
+function template_library_init() {
     try{
         ensure_installed(array('name'      => 'template',
                                'callback'  => 'template_install',
@@ -35,7 +35,7 @@ function template_library_init(){
                                'functions' => 'template,foobar',
                                'which'     => 'template,foobar'));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('template_library_init(): Failed', $e);
     }
 }
@@ -55,7 +55,7 @@ function template_library_init(){
  * @param
  * @return
  */
-function template_install($params){
+function template_install($params) {
     try{
         load_libs('apt');
         apt_install('template');
@@ -63,7 +63,7 @@ function template_install($params){
         load_libs('apt');
         apt_install('template');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('template_install(): Failed', $e);
     }
 }
@@ -105,10 +105,10 @@ function template_install($params){
  * @param string $params[bar]
  * @return string The result
  */
-function template_function($params){
+function template_function($params) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('template_function(): Failed', $e);
     }
 }

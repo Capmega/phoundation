@@ -15,18 +15,18 @@
  * Taken from https://stackoverflow.com/questions/3614925/remove-exif-data-from-jpg-using-php
  * Rewritten by Sven Oostenbrink for use in Base
  */
-function exif_clear($file, $target = null){
+function exif_clear($file, $target = null) {
     try{
         $buffer = 4096;
         $hi     = fopen($file, 'rb');
         $ho     = fopen($file, 'wb');
 
-        while(($buffer = fread($hi, $buffer)) !== false){
+        while(($buffer = fread($hi, $buffer)) !== false) {
             //  \xFF\xE1\xHH\xLLExif\x00\x00 - Exif
             //  \xFF\xE1\xHH\xLLhttp://      - XMP
             //  \xFF\xE2\xHH\xLLICC_PROFILE  - ICC
             //  \xFF\xED\xHH\xLLPhotoshop    - PH
-            while (preg_match('/\xFF[\xE1\xE2\xED\xEE](.)(.)(exif|photoshop|http:|icc_profile|adobe)/si', $buffer, $match, PREG_OFFSET_CAPTURE)){
+            while (preg_match('/\xFF[\xE1\xE2\xED\xEE](.)(.)(exif|photoshop|http:|icc_profile|adobe)/si', $buffer, $match, PREG_OFFSET_CAPTURE)) {
 //                echo "found: '{$match[3][0]}' marker\n";
                 $len = ord($match[1][0]) * 256 + ord($match[2][0]);
 //                echo "length: {$len} bytes\n";
@@ -44,7 +44,7 @@ function exif_clear($file, $target = null){
         fclose($ho);
         fclose($hi);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('exif_clear(): Failed', $e);
     }
 }

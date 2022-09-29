@@ -2,11 +2,11 @@
 static $style;
 
 try{
-    if($key === null){
+    if($key === null) {
         $key = tr('Unknown');
     }
 
-    if(empty($style)){
+    if(empty($style)) {
         $style  = true;
 
         $retval = '<style type="text/css">
@@ -31,7 +31,7 @@ try{
                         word-break: break-all;
                     }
                    </style>';
-    }else{
+    } else {
         $retval = '';
     }
 
@@ -40,7 +40,7 @@ try{
                         <thead class="debug-columns"><td>'.tr('Key').'</td><td>'.tr('Type').'</td><td>'.tr('Size').'</td><td>'.tr('Value').'</td></thead>'.debug_html_row($value, $key).'
                     </table>';
 
-}catch(Exception $e){
+}catch(Exception $e) {
     throw new CoreException('debug_html(): Failed', $e);
 }
 ?>

@@ -30,13 +30,13 @@
  *
  * @return void
  */
-function minify_library_init(){
+function minify_library_init() {
     try{
         ensure_installed(array('name'     => 'minify',
                                'callback' => 'minify_setup',
                                'checks'   => array(ROOT.'libs/vendor/mrclay/minify')));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('minify_library_init(): Failed', $e);
     }
 }
@@ -58,15 +58,15 @@ function minify_library_init(){
  * @param params $params
  * @return void
  */
-function minify_setup($params){
+function minify_setup($params) {
     try{
-        file_execute_mode(ROOT.'libs/', 0770, function(){
+        file_execute_mode(ROOT.'libs/', 0770, function() {
             load_libs('composer');
             composer_require('mrclay/minify');
             safe_exec(array('commands' => array('chmod', array('ug-w,o-rwx', ROOT.'libs/vendor/mrclay/'))));
         });
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('minify_setup(): Failed', $e);
     }
 }
@@ -76,7 +76,7 @@ function minify_setup($params){
 /*
  * Return the specified HTML minified
  */
-function minify_html($html){
+function minify_html($html) {
     try{
         include_once(ROOT.'libs/vendor/mrclay/minify/lib/Minify/HTML.php');
         include_once(ROOT.'libs/vendor/mrclay/minify/lib/Minify/CSS.php');
@@ -92,7 +92,7 @@ function minify_html($html){
 
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('minify_html(): Failed', $e);
     }
 }

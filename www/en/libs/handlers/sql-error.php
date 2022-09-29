@@ -1,8 +1,8 @@
 <?php
 global $_CONFIG, $core;
 
-if(!$e instanceof PDOException){
-    switch($e->getCode()){
+if(!$e instanceof PDOException) {
+    switch($e->getCode()) {
         case 'forcedenied':
             uncaught_exception($e, true);
 
@@ -15,22 +15,22 @@ if(!$e instanceof PDOException){
 }
 
 try{
-    if(!is_object($sql)){
-        if(empty($core->sql['core'])){
+    if(!is_object($sql)) {
+        if(empty($core->sql['core'])) {
             throw new CoreException('sql_error(): The $sql is not an object, cannot get more info from there', $e);
         }
 
         $sql = $core->sql['core'];
     }
 
-    if($query){
-        if($execute){
-            if(!is_array($execute)){
+    if($query) {
+        if($execute) {
+            if(!is_array($execute)) {
                 throw new CoreException(tr('sql_error(): The specified $execute parameter is NOT an array, it is an ":type"', array(':type' => gettype($execute))), $e);
             }
 
-            foreach($execute as $key => $value){
-                if(!is_scalar($value) and !is_null($value)){
+            foreach($execute as $key => $value) {
+                if(!is_scalar($value) and !is_null($value)) {
                     /*
                      * This is automatically a problem!
                      */
@@ -45,11 +45,11 @@ try{
      */
     $error = $sql->errorInfo();
 
-    if(($error[0] == '00000') and !$error[1]){
+    if(($error[0] == '00000') and !$error[1]) {
         $error = $e->errorInfo;
     }
 
-    switch($e->getCode()){
+    switch($e->getCode()) {
         case 'denied':
             // FALLTHROUGH
         case 'invalidforce':
@@ -57,7 +57,7 @@ try{
             /*
              * Some database operation has failed
              */
-            foreach($e->getMessages() as $message){
+            foreach($e->getMessages() as $message) {
                 log_console($message, 'red');
             }
 
@@ -71,7 +71,7 @@ try{
              */
             preg_match_all('/:\w+/imus', $query, $matches);
 
-            if(count($matches[0]) != count($execute)){
+            if(count($matches[0]) != count($execute)) {
                 throw new CoreException(tr('sql_error(): Query ":query" failed with error HY093, the number of query tokens does not match the number of bound variables. The query contains tokens ":tokens", where the bound variables are ":variables"', array(':query' => $query, ':tokens' => implode(',', $matches['0']), ':variables' => implode(',', array_keys($execute)))), $e);
             }
 
@@ -90,13 +90,13 @@ try{
 //                throw new CoreException('sql_error(): Query "'.str_log($query, 4096).'" tries to insert or update a column row with a unique index to a value that already exists', $e);
 
         default:
-            switch(isset_get($error[1])){
+            switch(isset_get($error[1])) {
                 case 1044:
                     /*
                      * Access to database denied
                      */
-                    if(!is_array($query)){
-                        if(empty($query['db'])){
+                    if(!is_array($query)) {
+                        if(empty($query['db'])) {
                             throw new CoreException(tr('sql_error(): Query ":query" failed, access to database denied', array(':query' => $query)), $e);
                         }
 
@@ -111,8 +111,8 @@ try{
                      */
                     static $retry;
 
-                    if(($core->register['script'] == 'init')){
-                        if($retry){
+                    if(($core->register['script'] == 'init')) {
+                        if($retry) {
                             $e = new BException(tr('sql_error(): Cannot use database ":db", it does not exist and cannot be created automatically with the current user ":user"', array(':db' => isset_get($query['db']), ':user' => isset_get($query['user']))), $e);
                             $e->addMessages(tr('sql_error(): Possible reason can be that the configured user does not have the required GRANT to create database'));
                             $e->addMessages(tr('sql_error(): Possible reason can be that MySQL cannot create the database because the filesystem permissions of the mysql data files has been borked up (on linux, usually this is /var/lib/mysql, and this should have the user:group mysql:mysql)'));
@@ -148,7 +148,7 @@ try{
                     /*
                      * Syntax error or access violation
                      */
-                    if(str_exists(strtoupper($query), 'DELIMITER')){
+                    if(str_exists(strtoupper($query), 'DELIMITER')) {
                         throw new CoreException(tr('sql_error(): Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', array(':query' => debug_sql($query, $execute, true))), $e);
                     }
 
@@ -175,7 +175,7 @@ try{
                         $fk = Strings::until($fk, '------------');
                         $fk = str_replace("\n", ' ', $fk);
 
-                    }catch(Exception $e){
+                    }catch(Exception $e) {
                         throw new CoreException(tr('sql_error(): Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', array(':query' => debug_sql($query, $execute, true))), $e);
                     }
 
@@ -188,8 +188,8 @@ try{
                     throw new CoreException(tr('sql_error(): Query ":query" refers to a base table or view that does not exist', array(':query' => debug_sql($query, $execute, true))), $e);
 
                 default:
-                    if(!is_string($query)){
-                        if(!is_object($query) or !($query instanceof PDOStatement)){
+                    if(!is_string($query)) {
+                        if(!is_object($query) or !($query instanceof PDOStatement)) {
                             throw new CoreException('sql_error(): Specified query is neither a SQL string or a PDOStatement it seems to be a ":type"', array(':type' => gettype($query)), 'invalid');
                         }
 
@@ -214,7 +214,7 @@ try{
 
                     error_log('PHP SQL_ERROR: '.str_log($error[2]).' on '.str_log(debug_sql($query, $execute, true), 4096));
 
-                    if(!$_CONFIG['production']){
+                    if(!$_CONFIG['production']) {
                         throw new CoreException(nl2br($body), $e);
                     }
 
@@ -222,7 +222,7 @@ try{
             }
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     throw new CoreException('sql_error(): Failed', $e);
 }
 ?>

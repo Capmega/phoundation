@@ -21,15 +21,15 @@ try{
 
     $message = implode(' ', cli_argument(null));
 
-    if(empty($class)){
+    if(empty($class)) {
         throw new CoreException(tr('No class name or id specified'), 'not-specified');
     }
 
-    if(empty($class)){
+    if(empty($class)) {
         throw new CoreException(tr('No event name specified'), 'not-specified');
     }
 
-    if(empty($class)){
+    if(empty($class)) {
         throw new CoreException(tr('No message specified'), 'not-specified');
     }
 
@@ -40,7 +40,7 @@ try{
 
     log_console(tr('Sent notification ":event"', array(':event' => $event)), '', 'green');
 
-}catch(Exception $e){
+}catch(Exception $e) {
     cli_error($e);
 }
 ?>

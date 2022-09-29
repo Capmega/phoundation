@@ -14,21 +14,21 @@ $users   = cli_argument('users'  , true);
 
 load_libs('mailer');
 
-if(!$mailings_id = mailer_get($mailing)){
+if(!$mailings_id = mailer_get($mailing)) {
     throw new CoreException('Mailing "'.$mailing.'" does not exist', 'not-exists');
 }
 
-if(!$users){
+if(!$users) {
     throw new CoreException('No users specified', 'not-specified');
 }
 
 $mailings_id = $mailings_id['id'];
 
-if($count = mailer_add_users($users, $mailings_id)){
+if($count = mailer_add_users($users, $mailings_id)) {
     log_console('Added "'.$count.'" users to mailing "'.$mailing.'"', 'white');
     log_console('If the amount of added users is less than specifiend, then probably some of these users were already recipients of the mailing, and not added again');
 
-}else{
+} else {
     log_console('No users added to mailing "'.$mailing.'"', 'yellow');
     log_console('Maybe the specified users are already recipients of the mailing, and so not added again?');
 }

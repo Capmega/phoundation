@@ -3,7 +3,7 @@
  * Rename cdn_objects to cdn_files, rename "url" to "file" since thats what it
  * is
  */
-if(sql_table_exists('cdn_objects')){
+if(sql_table_exists('cdn_objects')) {
     sql_foreignkey_exists('cdn_objects', 'fk_cdn_objects_projects_id', 'ALTER TABLE `cdn_objects` DROP FOREIGN KEY `fk_cdn_objects_projects_id`');
 
     sql_index_exists ('cdn_objects', 'url' ,  'ALTER TABLE `cdn_objects` DROP KEY `url`');

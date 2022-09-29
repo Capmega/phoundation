@@ -10,7 +10,7 @@ load_libs('test');
 /*
  * Test
  */
-test('NAME()', 'DESCRIPTION', function(){
+test('NAME()', 'DESCRIPTION', function() {
     /*
      * TEST CODE HERE
      */

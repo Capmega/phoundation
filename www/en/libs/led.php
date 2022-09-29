@@ -14,16 +14,16 @@
 /*
  * Return HTML to show led
  */
-function led(){
+function led() {
     try{
-        if(!debug()){
+        if(!debug()) {
             return '';
         }
 
         load_css('led');
         return '<div id="led" class="led"></div>';
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('led(): Failed', $e);
     }
 }

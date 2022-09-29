@@ -23,12 +23,12 @@
  *
  * @return void
  */
-function fprint_library_init(){
+function fprint_library_init() {
     try{
         load_libs('linux');
         load_config('fprint');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fprint_library_init(): Failed', $e);
     }
 }
@@ -53,7 +53,7 @@ function fprint_library_init(){
  * @param string $finger One from auto, left-thumb, left-index-finger, left-middle-finger, left-ring-finger, left-little-finger, right-thumb, right-index-finger, right-middle-finger, right-ring-finger, right-little-finger.
  * @return void
  */
-function fprint_enroll($users_id, $finger = 'auto'){
+function fprint_enroll($users_id, $finger = 'auto') {
     global $_CONFIG;
 
     try{
@@ -65,14 +65,14 @@ function fprint_enroll($users_id, $finger = 'auto'){
                                                              'commands' => array('fprintd-enroll', array('sudo' => true, ($finger ? '-f '.$finger.' ' : ''), $users_id))));
         $result  = array_pop($results);
 
-        if($result == 'Enroll result: enroll-completed'){
+        if($result == 'Enroll result: enroll-completed') {
             sql_query('UPDATE `users` SET `fingerprint` = UTC_TIMESTAMP WHERE `id` = :id', array(':id' => $users_id));
             return true;
         }
 
         throw new CoreException(tr('fprint_enroll(): Enroll failed with ":error"', array(':error' => $result)), 'failed');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         fprint_handle_exception($e, $users_id);
         throw new CoreException('fprint_enroll(): Failed', $e);
     }
@@ -96,18 +96,18 @@ function fprint_enroll($users_id, $finger = 'auto'){
  * @param string $finger One from auto, left-thumb, left-index-finger, left-middle-finger, left-ring-finger, left-little-finger, right-thumb, right-index-finger, right-middle-finger, right-ring-finger, right-little-finger.
  * @return boolean True if the finger print matches for the specified user, false if not
  */
-function fprint_verify($user, $finger = 'auto'){
+function fprint_verify($user, $finger = 'auto') {
     global $_CONFIG;
 
     try{
         load_libs('user');
         $dbuser = user_get($user);
 
-        if(!$dbuser){
+        if(!$dbuser) {
             throw new CoreException(tr('fprint_verify(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
         }
 
-        if(!$dbuser['fingerprint']){
+        if(!$dbuser['fingerprint']) {
             throw new CoreException(tr('fprint_verify(): User ":user" has no fingerprint registered', array(':user' => name($dbuser))), 'warning/empty');
         }
 
@@ -121,14 +121,14 @@ function fprint_verify($user, $finger = 'auto'){
                                                              'commands' => array('fprintd-verify', array('sudo' => true, ($finger ? '-f '.$finger.' ' : ''), $dbuser['id']))));
         $result  = array_pop($results);
 
-        if($result == 'Verify result: verify-match (done)'){
+        if($result == 'Verify result: verify-match (done)') {
             return true;
         }
 
         log_console($results, 'VERYVERBOSE/green');
         return false;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         fprint_handle_exception($e, $user);
         throw new CoreException('fprint_verify(): Failed', $e);
     }
@@ -148,14 +148,14 @@ function fprint_verify($user, $finger = 'auto'){
  *
  * @return array the found users that have their finger print registered
  */
-function fprint_list_users(){
+function fprint_list_users() {
     try{
         $device  = fprint_pick_device();
         $results = linux_scandir($device['servers_id'], '/var/lib/fprint');
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fprint_list_users(): Failed', $e);
     }
 }
@@ -174,14 +174,14 @@ function fprint_list_users(){
  *
  * @return array the users registered in the fprint database
  */
-function fprint_list($users){
+function fprint_list($users) {
     try{
         $device  = fprint_pick_device();
         $results = servers_exec($device['servers_id'], array('commands' => array('fprintd-list', array('sudo' => true, str_force($users, ' ')))));
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fprint_list(): Failed', $e);
     }
 }
@@ -201,11 +201,11 @@ function fprint_list($users){
  * @param mixed $user The user for which the finger print must be deleted
  * @return void
  */
-function fprint_delete($user){
+function fprint_delete($user) {
     try{
         $device = fprint_pick_device();
 
-        if(!linux_file_exists($device['servers_id'], '/var/lib/fprint/'.$user)){
+        if(!linux_file_exists($device['servers_id'], '/var/lib/fprint/'.$user)) {
             return false;
         }
 
@@ -217,7 +217,7 @@ function fprint_delete($user){
                                                        'sudo'         => true));
         return true;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fprint_delete(): Failed', $e);
     }
 }
@@ -236,12 +236,12 @@ function fprint_delete($user){
  *
  * @return void
  */
-function fprint_kill(){
+function fprint_kill() {
     try{
         $device = fprint_pick_device();
         return linux_pkill($device['servers_id'], 'fprintd', 15, true);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fprint_kill(): Failed', $e);
     }
 }
@@ -260,12 +260,12 @@ function fprint_kill(){
  *
  * @return natural
  */
-function fprint_process(){
+function fprint_process() {
     try{
         $device = fprint_pick_device();
         return linux_pgrep($device['servers_id'], 'fprintd');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fprint_kill(): Failed', $e);
     }
 }
@@ -285,9 +285,9 @@ function fprint_process(){
  * @param string $finger One from auto, left-thumb, left-index-finger, left-middle-finger, left-ring-finger, left-little-finger, right-thumb, right-index-finger, right-middle-finger, right-ring-finger, right-little-finger.
  * @return string The specified finger, validated
  */
-function fprint_verify_finger($finger){
+function fprint_verify_finger($finger) {
     try{
-        switch($finger){
+        switch($finger) {
             case 'auto':
                 return '';
 
@@ -318,7 +318,7 @@ function fprint_verify_finger($finger){
 
         return $finger;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fprint_verify_finger(): Failed', $e);
     }
 }
@@ -339,14 +339,14 @@ function fprint_verify_finger($finger){
  * @param mixed $user The user that was being processed
  * @return void
  */
-function fprint_handle_exception($e, $user){
+function fprint_handle_exception($e, $user) {
     try{
          $data = $e->getData();
 
-        if($data){
+        if($data) {
             $data = array_pop($data);
 
-            if(strstr($data, 'Failed to discover prints') !== false){
+            if(strstr($data, 'Failed to discover prints') !== false) {
                 /*
                  * Only counds for verify!
                  * Do NOT send previous exception, generate a new one, its just a simple warning!
@@ -354,7 +354,7 @@ function fprint_handle_exception($e, $user){
                 throw new CoreException(tr('fprint_handle_exception(): Finger print data missing for user ":user"', array(':user' => name($user))), 'warning/not-exist');
             }
 
-            if(strstr($data, 'No devices available') !== false){
+            if(strstr($data, 'No devices available') !== false) {
                 /*
                  * Do NOT send previous exception, generate a new one, its just a simple warning!
                  */
@@ -362,11 +362,11 @@ function fprint_handle_exception($e, $user){
             }
         }
 
-        if($e->getCode() == 124){
+        if($e->getCode() == 124) {
             throw new CoreException(tr('fprint_handle_exception(): finger print scan timed out'), 'warning/timeout');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fprint_handle_exception(): Failed', $e);
     }
 }
@@ -385,15 +385,15 @@ function fprint_handle_exception($e, $user){
  *
  * @return
  */
-function fprint_detect_software(){
+function fprint_detect_software() {
     try{
         $device = fprint_pick_device();
 
-        if(!linux_file_exists($device['servers_id'], '/var/lib/fprint')){
+        if(!linux_file_exists($device['servers_id'], '/var/lib/fprint')) {
             throw new CoreException(tr('fprint_detect_software(): fprintd application data directory "/var/lib/fprint" not found, it it probably is not installed. Please fix this by executing "sudo apt-get install fprintd" on the command line'), 'install');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fprint_detect_software(): Failed', $e);
     }
 }
@@ -412,10 +412,10 @@ function fprint_detect_software(){
  *
  * @return
  */
-function fprint_detect_device(){
+function fprint_detect_device() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fprint_detect_device(): Failed', $e);
     }
 }
@@ -437,17 +437,17 @@ function fprint_detect_device(){
  * @param mixed $category id or seoname of category
  * @return array The selected finger print scanner device with server data included
  */
-function fprint_pick_device($category = null){
+function fprint_pick_device($category = null) {
     static $device;
 
     try{
 // :TODO: Implement support for category / company / branch / department / employee filtering per fingerprint reader
-        if(!$device){
+        if(!$device) {
             load_libs('devices');
             $devices = devices_list('fingerprint-reader');
             $devices = sql_list($devices);
 
-            if(!$devices){
+            if(!$devices) {
                 throw new CoreException(tr('fprint_pick_device(): No fingerprint reader device found'), 'not-exists');
             }
 
@@ -457,7 +457,7 @@ function fprint_pick_device($category = null){
 
         return $device;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fprint_pick_device(): Failed', $e);
     }
 }
@@ -476,7 +476,7 @@ function fprint_pick_device($category = null){
  *
  * @return
  */
-function fprint_test_device($timeout = 0.5){
+function fprint_test_device($timeout = 0.5) {
    try{
         $device = fprint_pick_device();
 
@@ -487,16 +487,16 @@ function fprint_test_device($timeout = 0.5){
 
         return $device;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         $results = $e->getData();
         $results = array_force($results);
         $result  = array_pop($results);
 
-        if(strstr($result, 'No devices available')){
+        if(strstr($result, 'No devices available')) {
             throw new CoreException(tr('fprint_test_device(): No fingerprint devices available'), 'warning/not-exist');
         }
 
-        if(strstr($result, 'Could not attempt device open')){
+        if(strstr($result, 'Could not attempt device open')) {
             $device = array_shift($results);
             throw new CoreException(tr('fprint_test_device(): Failed to open fingerprint device ":device"', array(':device' => $device)), 'failed');
         }
@@ -519,8 +519,8 @@ function fprint_test_device($timeout = 0.5){
  *
  * @return
  */
-function fprint_process_result(){
-    if(!isset($_SESSION['fprint'])){
+function fprint_process_result() {
+    if(!isset($_SESSION['fprint'])) {
         return false;
     }
 
@@ -529,7 +529,7 @@ function fprint_process_result(){
 
     array_ensure($fprint, 'result');
 
-    switch($fprint['result']){
+    switch($fprint['result']) {
         case '':
             /*
              * Nothing happened yet

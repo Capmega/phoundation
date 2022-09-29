@@ -4,14 +4,14 @@
  */
 require_once(__DIR__.'/../libs/startup.php');
 
-if(ENVIRONMENT == 'production'){
+if(ENVIRONMENT == 'production') {
 	page_show(404);
 }
 
 /*
  * FROM HERE BE TESTS!
  */
-if(empty($_GET['provider'])){
+if(empty($_GET['provider'])) {
 ?>
 <ul>
 	<li>
@@ -41,23 +41,23 @@ if(empty($_GET['provider'])){
 </ul>
 <?php
 
-}else{
+} else {
 	try{
 		load_libs('sso');
 		$result = sso($_GET['provider'], true);
 
 		echo '<h1>Successful loging with provider "'.$_GET['provider'].'"</h1><ul>';
 
-		if($_GET['provider'] == 'paypal'){
+		if($_GET['provider'] == 'paypal') {
 			echo 'NOTE: paypal does not seem to return a token';
 		}
 
 		show($result);
 
-	}catch(Exception $e){
+	}catch(Exception $e) {
 		echo '<h1>Login with provider "'.$_GET['provider'].'" failed</h1><ul>';
 
-		foreach($e->getMessages() as $message){
+		foreach($e->getMessages() as $message) {
 			echo '<li>'.$message.'<li>';
 		}
 

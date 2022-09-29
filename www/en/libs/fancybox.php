@@ -26,7 +26,7 @@
  *
  * @return void
  */
-function fancybox_library_init(){
+function fancybox_library_init() {
     try{
         ensure_installed(array('name'      => 'fancybox',
                                'project'   => '2019',
@@ -39,7 +39,7 @@ function fancybox_library_init(){
         html_load_js('jquery.fancybox');
         html_load_css('jquery.fancybox');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fancybox_library_init(): Failed', $e);
     }
 }
@@ -58,7 +58,7 @@ function fancybox_library_init(){
  * @param
  * @return
  */
-function fancybox_install($params){
+function fancybox_install($params) {
     try{
         /*
          * Download the fancybox library, and install it in the pub directory
@@ -66,7 +66,7 @@ function fancybox_install($params){
         $js  = download('https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js');
         $css = download('https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css');
 
-        file_execute_mode(ROOT.'www/en/pub/js', 0770, function(){
+        file_execute_mode(ROOT.'www/en/pub/js', 0770, function() {
             file_delete(array(ROOT.'www/en/pub/js/jquery.fancybox.js',
                               ROOT.'www/en/pub/css/jquery.fancybox.css'), ROOT.'www/en/pub');
 
@@ -74,7 +74,7 @@ function fancybox_install($params){
             rename($css, ROOT.'www/en/pub/css/jquery.fancybox.css');
         });
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fancybox_install(): Failed', $e);
     }
 }
@@ -106,11 +106,11 @@ function fancybox_install($params){
  * @params html_img $img_small
  * @return string with html code for fancybox
  */
-function fancybox_image($img_big, $img_small){
+function fancybox_image($img_big, $img_small) {
     try{
         return '<a data-fancybox="gallery" href="'.cdn_domain($img_big).'">'.$img_small.'</a>';
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fancybox_image(): Failed', $e);
     }
 }

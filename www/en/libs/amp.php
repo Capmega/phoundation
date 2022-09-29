@@ -15,7 +15,7 @@
 /*
  * Expects a list of images and returns an AMP carousel component
  */
-function amp_component_carousel($params){
+function amp_component_carousel($params) {
     try {
         array_params($params);
         array_default($params, 'height', 300);
@@ -24,20 +24,20 @@ function amp_component_carousel($params){
         array_default($params, 'layout', 'fixed-height');
         array_default($params, 'images', array());
 
-        if(!is_array($params['images'])){
+        if(!is_array($params['images'])) {
             throw new CoreException(tr('amp_component_carousel(): Expected array as parameters'), 'invalid');
         }
 
         $carousel = '<amp-carousel height="'.$params['height'].'" layout="'.$params['layout'].'" type="'.$params['type'].'">';
 
-        foreach($params['images'] as $image => $alt){
+        foreach($params['images'] as $image => $alt) {
             $carousel .= '<amp-img src="'.$image.'" width="'.$params['width'].'" height="'.$params['height'].'" alt="'.$alt.'"></amp-img>';
         }
 
         $carousel .= '</amp-carousel>';
         return $carousel;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('amp_component_carousel(): Component failed'), $e);
     }
 }
@@ -47,20 +47,20 @@ function amp_component_carousel($params){
 /*
  * Show the AMP verion of the specified page
  */
-function amp_page_cache(){
+function amp_page_cache() {
     try{
         load_libs('cache');
 
         $data = cache_read($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], 'amp');
 
-        if($data){
+        if($data) {
            echo $data;
            die();
         }
 
         return false;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('amp_page_cache(): Failed', $e);
     }
 }
@@ -70,7 +70,7 @@ function amp_page_cache(){
 /*
  * Show the AMP verion of the specified page
  */
-function amp_page($params){
+function amp_page($params) {
     try{
         array_params($params);
         array_default($params, 'template'  , null);
@@ -80,27 +80,27 @@ function amp_page($params){
 
         load_libs('cache');
 
-        if(!$params['template']){
+        if(!$params['template']) {
             throw new CoreException(tr('amp_page(): No template page specified'), 'not-specified');
         }
 
-        if(!$params['canonical']){
+        if(!$params['canonical']) {
             throw new CoreException(tr('amp_page(): No canonical url specified'), 'not-specified');
         }
 
-        if(!$params['resource']){
+        if(!$params['resource']) {
             throw new CoreException(tr('amp_page(): No resource specified'), 'not-specified');
         }
 
         $file = ROOT.'data/content/amp/'.$params['template'].'.amp';
 
-        if(!file_exists($file)){
+        if(!file_exists($file)) {
             throw new CoreException(tr('amp_page(): Specified template ":template" does not exist', array(':template' => $params['template'])), 'not-exists');
         }
 
         $data = file_get_contents($file);
 
-        if(!$data){
+        if(!$data) {
             throw new CoreException(tr('amp_page(): Specified template ":template" is empty', array(':template' => $params['template'])), 'not-exists');
         }
 
@@ -109,8 +109,8 @@ function amp_page($params){
         /*
          * Lets replace resouces on our template
          */
-        if($params['resource']){
-            foreach($params['resource'] as $key => $value){
+        if($params['resource']) {
+            foreach($params['resource'] as $key => $value) {
                 $data = str_replace(':'.$key, $value, $data);
             }
         }
@@ -118,15 +118,15 @@ function amp_page($params){
         /*
          * Lets add out components into the mix
          */
-        if($params['components']){
-            foreach($params['components'] as $key => $component_data){
+        if($params['components']) {
+            foreach($params['components'] as $key => $component_data) {
                 try{
                     $component      = str_replace(':', '', $key);
                     $component      = 'amp_component_'.$component;
                     $component_data = amp_component_carousel($component_data);
                     $data           = str_replace(':'.$key, $component_data, $data);
 
-                }catch(Exception $e){
+                }catch(Exception $e) {
                     throw new CoreException(tr('amp_page(): Specified component failed or does not exist ":component"', array(':component' => $component)), $e);
                 }
             }
@@ -137,7 +137,7 @@ function amp_page($params){
         echo $data;
         die();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('amp_page(): Failed', $e);
     }
 }
@@ -168,10 +168,10 @@ function amp_page($params){
  * @param string $extra
  * @return string The <amp-img> tag
  */
-function amp_img($params, $alt = null, $width = null, $height = null, $extra = 'layout="responsive"'){
+function amp_img($params, $alt = null, $width = null, $height = null, $extra = 'layout="responsive"') {
     try{
 // :LEGACY: The following code block exists to support legacy apps that still use 5 arguments for html_img() instead of a params array
-        if(!is_array($params)){
+        if(!is_array($params)) {
             /*
              * Ensure we have a params array
              */
@@ -186,7 +186,7 @@ function amp_img($params, $alt = null, $width = null, $height = null, $extra = '
 
         return html_img($params).'</amp-img>';
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('amp_img(): Failed', $e);
     }
 }
@@ -196,7 +196,7 @@ function amp_img($params, $alt = null, $width = null, $height = null, $extra = '
 /*
  * Returns <amp-youtube> componet
  */
-function amp_youtube(array $attributes){
+function amp_youtube(array $attributes) {
     try{
         if(empty($attributes['hashtag'])) return '';
 
@@ -215,7 +215,7 @@ function amp_youtube(array $attributes){
 
         return $amp_youtube;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('amp_youtube(): Failed', $e);
     }
 }
@@ -225,7 +225,7 @@ function amp_youtube(array $attributes){
 /*
  * Returns <amp-video> componet
  */
-function amp_video(array $attributes){
+function amp_video(array $attributes) {
     try{
         $format_amp_video = '<amp-video width="'.$attributes['width'].'"
                                 height="'.$attributes['height'].'"
@@ -242,7 +242,7 @@ function amp_video(array $attributes){
 
         return $format_amp_video;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('amp_video(): Failed', $e);
     }
 }
@@ -252,7 +252,7 @@ function amp_video(array $attributes){
 /*
  * Convert the specified URL in an AMP url
  */
-function amp_url($url){
+function amp_url($url) {
     try{
         /*
          * Strip out protocol and domain from url
@@ -264,7 +264,7 @@ function amp_url($url){
 
         return domain('/amp'.$path);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('amp_url(): Failed', $e);
     }
 }
@@ -274,7 +274,7 @@ function amp_url($url){
 /*
  * Convert HTML to AMP HTML
  */
-function amp_content($html){
+function amp_content($html) {
     try{
         $search  = array();
         $replace = array();
@@ -291,17 +291,17 @@ function amp_content($html){
         /*
          * Turn video tags into amp-video tags
          */
-        if(strstr($html, '<video')){
+        if(strstr($html, '<video')) {
             preg_match_all('/<video.+?>[ ?\n?\r?].*<\/video>/', $html, $video_match);
 
             $attributes = array('class', 'width', 'height', 'poster', 'src', 'type');
             $videos     = $video_match[0];
 
-            if(count($videos)){
-                foreach($videos as $video ){
+            if(count($videos)) {
+                foreach($videos as $video ) {
                     $search[] = $video;
 
-                    foreach($attributes as $attribute){
+                    foreach($attributes as $attribute) {
                         $value_matches = array();
                         preg_match('/'.$attribute.'=(["\'][:\/\/a-zA-Z0-9 -\/.]+["\'])/', $video, $value_matches);
 
@@ -317,19 +317,19 @@ function amp_content($html){
         /*
          * Turn iframes into their target components
          */
-        if(strstr($html, '<iframe')){
+        if(strstr($html, '<iframe')) {
             preg_match_all('/<iframe.*>.*<\/iframe>/s', $html, $iframe_match);
 
             $attributes = array('class', 'width', 'height');
             $iframes    = $iframe_match[0];
 
-            if(count($iframes)){
-                foreach($iframes as $iframe ){
+            if(count($iframes)) {
+                foreach($iframes as $iframe ) {
                     if(!strstr($iframe, 'youtube')) continue;
 
                     $search[] = $iframe;
 
-                    foreach($attributes as $attribute){
+                    foreach($attributes as $attribute) {
                         $value_matches = array();
                         preg_match('/'.$attribute.'=(["\'][:\/\/a-zA-Z0-9 -\/.]+["\'])/', $iframe, $value_matches);
 
@@ -348,17 +348,17 @@ function amp_content($html){
         /*
          * Turn img tags into amp-img tags
          */
-        if(strstr($html, '<img')){
+        if(strstr($html, '<img')) {
             preg_match_all('/<img.+?>/', $html, $img_match);
 
             $attributes = array('src', 'alt', 'width', 'height', 'class');
             $images     = $img_match[0];
 
-            if(count($images)){
-                foreach($images as $image){
+            if(count($images)) {
+                foreach($images as $image) {
                     $search[] = $image;
 
-                    foreach($attributes as $attribute){
+                    foreach($attributes as $attribute) {
                         $value_match = array();
                         preg_match('/'.$attribute.'=(["\'][:\/\/a-zA-Z0-9 -\/.]+["\'])/', $image, $value_match);
 
@@ -371,7 +371,7 @@ function amp_content($html){
                      * Ej. base64, this is useful when sending blog post body into amp content
                      * function
                      */
-                    if(empty($values['src'])){
+                    if(empty($values['src'])) {
 // :TODO: remove continue and implement, from this point on html_img will complain about the base64 String
 $replace[] = '';
 continue;
@@ -380,7 +380,7 @@ continue;
                         $string        = isset_get($base64_match[1]);
                         $values['src'] = trim($string, '"');
 
-                    }elseif(empty($values['src'])){
+                    } elseif(empty($values['src'])) {
                         continue;
                     }
 
@@ -396,7 +396,7 @@ continue;
 
         return str_replace($search, $replace, $html);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('amp_content(): Failed', $e);
     }
 }
@@ -406,7 +406,7 @@ continue;
 /*
  * Removes unallowed HTML tags for AMP
  */
-function amp_html_cleanup($html){
+function amp_html_cleanup($html) {
     try{
         /*
          * List of things that need to be handled, populate list as needed
@@ -421,14 +421,14 @@ function amp_html_cleanup($html){
         /*
          * Remove tags that are
          */
-        foreach($keep_content_tags as $tag){
+        foreach($keep_content_tags as $tag) {
             $search [] = '/<'.$tag.'.*>(.*)<\/'.$tag.'>/s';
             $replace[] = '$1';
         }
         /*
          * Populate empty attributes with defaults
          */
-        foreach($empty_attributes as $attribute => $value){
+        foreach($empty_attributes as $attribute => $value) {
             $search [] = '/'.$attribute.'=(["\']["\'])/';
             $replace[] = $attribute.'="'.$value.'"';
         }
@@ -436,7 +436,7 @@ function amp_html_cleanup($html){
         /*
          * Remove forbidden attributes
          */
-        foreach($remove_attributes as $attribute){
+        foreach($remove_attributes as $attribute) {
             $search [] = '/'.$attribute.'=(["\']([:; \-\(\)\!a-zA-Z0-9\/.]+|)["\'])/';
             $replace[] = '';
         }
@@ -444,14 +444,14 @@ function amp_html_cleanup($html){
         /*
          * Just remove
          */
-        foreach($forbidden_tags as $tag){
+        foreach($forbidden_tags as $tag) {
             $search [] = '/<'.$tag.'.*>.*<\/'.$tag.'>/s';
             $replace[] = '';
         }
 
         return preg_replace($search, $replace, $html);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('amp_html_cleanup(): Failed', $e);
     }
 }

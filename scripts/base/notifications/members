@@ -18,8 +18,8 @@ load_libs('notifications');
 /*
  *
  */
-if(!function_exists('s_get_user_class')){
-    function s_get_user_class($class, $user){
+if(!function_exists('s_get_user_class')) {
+    function s_get_user_class($class, $user) {
         try{
             $retval['user']       = $user;
             $retval['class']      = $class;
@@ -27,17 +27,17 @@ if(!function_exists('s_get_user_class')){
             $retval['users_id']   = sql_get('SELECT `id` FROM `users`                 WHERE `id` = :id    OR `username` = :user' , 'id', array(':id' => $user , ':user'  => $user));
             $retval['classes_id'] = sql_get('SELECT `id` FROM `notifications_classes` WHERE `id` = :id    OR `name`     = :class', 'id', array(':id' => $class, ':class' => $class));
 
-            if(!$retval['classes_id']){
+            if(!$retval['classes_id']) {
                 throw new CoreException(tr('s_get_user_class(): Specified class "%name%" does not exist', array('%name%' => $class)));
             }
 
-            if(!$retval['users_id']){
+            if(!$retval['users_id']) {
                 throw new CoreException(tr('s_get_user_class(): Specified user "%name%" does not exist', array('%name%' => $user)));
             }
 
             return $retval;
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             throw new CoreException('s_get_user_class(): Failed', $e);
         }
     }
@@ -48,12 +48,12 @@ if(!function_exists('s_get_user_class')){
 try{
     cli_only();
 
-    switch($method = cli_argument(0)){
+    switch($method = cli_argument(0)) {
         case 'add':
             try{
                 $data = s_get_user_class(cli_argument(1), cli_argument(2));
 
-                if(sql_get('SELECT `id` FROM `notifications_members` WHERE `users_id` = :users_id AND `classes_id` = :classes_id', 'id', array(':users_id' => $data['users_id'], ':classes_id' => $data['classes_id']))){
+                if(sql_get('SELECT `id` FROM `notifications_members` WHERE `users_id` = :users_id AND `classes_id` = :classes_id', 'id', array(':users_id' => $data['users_id'], ':classes_id' => $data['classes_id']))) {
                     throw new CoreException(tr('User "%user%" is already a member of the notifications class "%class%"', array('%user%' => $data['user'], '%class%' => $data['class'])), 'alreadyexists');
                 }
 
@@ -66,7 +66,7 @@ try{
 
                 log_console(tr('Added user "%user%" to notifications class "%class%"', array('%user%' => $data['user'], '%class%' => $data['class'])), '', 'green');
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 throw new CoreException(tr('Failed to add member to notifications class'), $e);
             }
 
@@ -86,13 +86,13 @@ try{
                               LEFT JOIN `notifications_classes`
                               ON        `notifications_members`.`classes_id` = `notifications_classes`.`id`');
 
-            if(!$r->rowCount()){
+            if(!$r->rowCount()) {
                 throw new CoreException(tr('No members found'), 'notfound');
             }
 
             log_console('#id   Notifications class             User', '', 'white');
 
-            while($member = sql_fetch($r)){
+            while($member = sql_fetch($r)) {
                 log_console(str_size($member['id'], 5, ' ', true).' '.str_size($member['class_name'], 32).' '.str_size($member['user_name'], 32), '');
             }
 
@@ -108,7 +108,7 @@ try{
 
                 log_console(tr('Removed "%count%" notification member', array('%count%' => isset_get($count, 0))), '', 'green');
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 throw new CoreException(tr('Failed to remove member from notifications class'), $e);
             }
 
@@ -118,7 +118,7 @@ try{
             throw new CoreException(tr('Unknown method "%method%" specified', array('%method%' => $method)), 'unknown');
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     cli_error($e);
 }
 ?>

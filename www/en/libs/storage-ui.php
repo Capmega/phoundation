@@ -16,7 +16,7 @@
 /*
  * Return atlant style HTML for the storage webui header
  */
-function storage_ui_panel_header($params, $section, $page = null){
+function storage_ui_panel_header($params, $section, $page = null) {
     try{
         array_ensure($params);
         array_ensure($params['files']);
@@ -79,7 +79,7 @@ $params['tabs']['comments']      = '';
 $params['tabs']['ratings']       = '';
 $params['tabs']['resources']     = '';
 
-        switch($params['header_type']){
+        switch($params['header_type']) {
             case 'tabs':
                 $tab_div_open   = '<div class="tab-pane active" id="tab-'.$params['icon'].'">';
                 $tab_div_close  = '</div>';
@@ -95,7 +95,7 @@ $params['tabs']['resources']     = '';
 '.($params['tabs']['configuration']   ? '   <li'.(($params['active'] == 'configuration')   ? ' class="active"' : '').'><a href="'.str_replace(':'.$params['seosection'], $_GET[$params['seosection']], $params['urls']['files']).'" role="tab">'.$params['tabs']['configuration'].'</a></li>'   : '').'
 '.($params['tabs']['categories']      ? '   <li'.(($params['active'] == 'categories')      ? ' class="active"' : '').'><a href="'.str_replace(':'.$params['seosection'], $_GET[$params['seosection']], $params['urls']['categories']).'" role="tab">'.$params['tabs']['categories'].'</a></li>' : '');
 
-                if(empty($page)){
+                if(empty($page)) {
                     /*
                      * Link to pages table
                      */
@@ -103,7 +103,7 @@ $params['tabs']['resources']     = '';
 '.($params['tabs']['documents']       ? '   <li'.(($params['active'] == 'documents')       ? ' class="active"' : '').'><a href="'.str_replace(':'.$params['seosection'], $_GET[$params['seosection']], $params['urls']['documents']).'" role="tab">'.$params['tabs']['documents'].'</a></li>'             : '').'
 '.($params['tabs']['image_documents'] ? '   <li'.(($params['active'] == 'image_documents') ? ' class="active"' : '').'><a href="'.str_replace(':'.$params['seosection'], $_GET[$params['seosection']], $params['urls']['image_documents']).'" role="tab">'.$params['tabs']['image_documents'].'</a></li>' : '');
 
-                }else{
+                } else {
                     /*
                      * Link to single page
                      */
@@ -157,7 +157,7 @@ $params['tabs']['resources']     = '';
 
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_ui_panel_header(): Failed', $e);
     }
 }
@@ -167,9 +167,9 @@ $params['tabs']['resources']     = '';
 /*
  * Process user actions for document page
  */
-function storage_ui_process_dosubmit($params, $section, $page){
+function storage_ui_process_dosubmit($params, $section, $page) {
     try{
-        switch(isset_get($_POST['dosubmit'])){
+        switch(isset_get($_POST['dosubmit'])) {
             case '':
                 /*
                  * Do nothing
@@ -182,24 +182,24 @@ function storage_ui_process_dosubmit($params, $section, $page){
                     $count           = 0;
                     $servers_devices = devices_scan('document-scanner');
 
-                    foreach($servers_devices as $servers_id => $devices){
-                        foreach($devices as $device){
+                    foreach($servers_devices as $servers_id => $devices) {
+                        foreach($devices as $device) {
                             $count++;
                             devices_insert($device, $servers_id);
                         }
                     }
 
-                    if(count($count)){
+                    if(count($count)) {
                         log_console(tr('Added / updated ":count" devices', array(':count' => $count)), 'green');
                         html_flash_set(tr('Scanner device detection successful, found ":count" device(s)', array(':count' => $count)), 'success', 'documents');
 
-                    }else{
+                    } else {
                         html_flash_set(tr('Scanner device detection successful, found no scanner device(s)'), 'success', 'documents');
                     }
 
                     redirect(domain(true));
 
-                }catch(Exception $e){
+                }catch(Exception $e) {
                     html_flash_set(tr('Failed to detect scanners'), 'warning', 'documents');
                 }
 
@@ -233,7 +233,7 @@ function storage_ui_process_dosubmit($params, $section, $page){
                 throw new CoreException(tr('storage_ui_process_dosubmit(): Unknown action ":action" specified', array(':action' => $_POST['dosubmit'])), 'warning/unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         html_flash_set($e, 'documents');
     }
 
@@ -248,9 +248,9 @@ function storage_ui_process_dosubmit($params, $section, $page){
 /*
  * Get section data from database and $_POST
  */
-function storage_ui_get_section($params){
+function storage_ui_get_section($params) {
     try{
-        if(empty($_GET[$params['seosection']])){
+        if(empty($_GET[$params['seosection']])) {
             /*
              * No section available, we cannot do anything!
              */
@@ -261,14 +261,14 @@ function storage_ui_get_section($params){
 
         $section = storage_sections_get($_GET['section']);
 
-        if(!$section or is_new($section)){
+        if(!$section or is_new($section)) {
             html_flash_set(log_database(tr('Specified :labelsection ":section" does not exist', array(':labelsection' => $params['section'], ':section' => $_GET[$params['seosection']])), 'not-exists'), 'error', 404);
             page_show(404);
         }
 
         return $section;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('storage_ui_get_section(): Failed'), $e);
     }
 }
@@ -278,18 +278,18 @@ function storage_ui_get_section($params){
 /*
  * Get the page for the UI
  */
-function storage_ui_get_page($params, $section, $object){
+function storage_ui_get_page($params, $section, $object) {
     try{
         /*
          * Get page
          */
-        if(empty($_GET[$params['seo'.$object]])){
+        if(empty($_GET[$params['seo'.$object]])) {
             $page = storage_pages_get($section, null, true);
 
-        }else{
+        } else {
             $page = storage_pages_get($section, $_GET[$params['seo'.$object]]);
 
-            if(!$page){
+            if(!$page) {
                 html_flash_set(log_database(tr('Specified :labeldocument ":document" does not exist', array(':labeldocument' => $params[$object], ':document' => $_GET[$params['seo'.$object]])), 'not-exists'), 'error', 404);
                 page_show(404);
             }
@@ -302,7 +302,7 @@ function storage_ui_get_page($params, $section, $object){
 
         return $page;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('storage_ui_get_page(): Failed'), $e);
     }
 }
@@ -316,9 +316,9 @@ function storage_ui_get_page($params, $section, $object){
  * will perform the sql_merge(). This way we can enforce that users cannot force
  * values, even thought they should not be able to be updated
  */
-function storage_ui_pages_merge($db_page, $post_page, $params){
+function storage_ui_pages_merge($db_page, $post_page, $params) {
     try{
-        if(empty($params['show']['body'])){
+        if(empty($params['show']['body'])) {
              unset($post_page['body']);
         }
 
@@ -330,15 +330,15 @@ function storage_ui_pages_merge($db_page, $post_page, $params){
                       'assigned_to_id',
                       'status');
 
-        foreach($keys as $key){
-            if(empty($params['labels'][$key])){
+        foreach($keys as $key) {
+            if(empty($params['labels'][$key])) {
                 unset($post_page[$key]);
             }
         }
 
         return sql_merge($db_page, $post_page);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_ui_pages_merge(): Failed', $e);
     }
 }
@@ -349,7 +349,7 @@ function storage_ui_pages_merge($db_page, $post_page, $params){
  *
  */
 // :TODO: This function is not finished yet!!
-function storage_ui_icon($file){
+function storage_ui_icon($file) {
     try{
         load_libs('image');
 
@@ -361,8 +361,8 @@ function storage_ui_icon($file){
 
         return $icon;
 
-    }catch(Exception $e){
-        switch($e->getCode()){
+    }catch(Exception $e) {
+        switch($e->getCode()) {
             case 'not-exists':
                 /*
                  * Show a "not exist" icon
@@ -391,7 +391,7 @@ function storage_ui_icon($file){
 /*
  *
  */
-function storage_ui_file($file, $tabindex = 0){
+function storage_ui_file($file, $tabindex = 0) {
     try{
         load_libs('storage-files');
 
@@ -431,7 +431,7 @@ function storage_ui_file($file, $tabindex = 0){
 
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_ui_file(): Failed', $e);
     }
 }
@@ -462,14 +462,14 @@ function storage_ui_categories_select($params) {
         array_default($params['labels'], 'empty_category' , tr('Select a category'));
         array_default($params['labels'], 'none_category'  , tr('Select a category'));
 
-        if(empty($params['sections_id'])){
+        if(empty($params['sections_id'])) {
             /*
              * Categories work per section, so without a section we cannot show
              * categories
              */
             $params['resource'] = null;
 
-        }else{
+        } else {
             $execute = array(':sections_id' => $params['sections_id']);
 
             $query   = 'SELECT  '.$params['column'].' AS id,
@@ -482,7 +482,7 @@ function storage_ui_categories_select($params) {
             $where   = 'WHERE   `storage_categories`.`sections_id` = :sections_id
                         AND     `storage_categories`.`status`   IS NULL ';
 
-            if($params['right']){
+            if($params['right']) {
                 /*
                  * User must have right of the category to be able to see it
                  */
@@ -494,22 +494,22 @@ function storage_ui_categories_select($params) {
                 $execute[':users_id'] = isset_get($_SESSION['user']['id']);
             }
 
-            if($params['parent']){
+            if($params['parent']) {
                 $join .= ' JOIN `storage_categories` AS parents
                            ON   `parents`.`seoname` = :parent
                            AND  `parents`.`id`      = `storage_categories`.`parents_id` ';
 
                 $execute[':parent'] = $params['parent'];
 
-            }elseif($params['parent'] === null){
+            } elseif($params['parent'] === null) {
                 $where .= ' AND  `storage_categories`.`parents_id` IS NULL ';
 
-            }elseif($params['parent'] === false){
+            } elseif($params['parent'] === false) {
                 /*
                  * Don't filter for any parent
                  */
 
-            }else{
+            } else {
                 $where .= ' AND `storage_categories`.`parents_id` = 0 ';
 
             }
@@ -517,7 +517,7 @@ function storage_ui_categories_select($params) {
             /*
              * Filter specified values.
              */
-            foreach($params['filter'] as $key => $value){
+            foreach($params['filter'] as $key => $value) {
                 if(!$value) continue;
 
                 $where            .= ' AND `'.$key.'` != :'.$key.' ';
@@ -529,7 +529,7 @@ function storage_ui_categories_select($params) {
 
         return html_select($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_ui_categories_select(): Failed', $e);
     }
 }

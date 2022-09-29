@@ -24,11 +24,11 @@
  *
  * @return mixed The value found in $_POST['dosubmit']
  */
-function get_submit(){
+function get_submit() {
     static $submit;
 
     try{
-        if($submit !== null){
+        if($submit !== null) {
             /*
              * We have a cached value
              */
@@ -38,16 +38,16 @@ function get_submit(){
         /*
          * Get submit value
          */
-        if(empty($_POST['dosubmit'])){
-            if(empty($_POST['multisubmit'])){
+        if(empty($_POST['dosubmit'])) {
+            if(empty($_POST['multisubmit'])) {
                 $submit = '';
 
-            }else{
+            } else {
                 $submit = $_POST['multisubmit'];
                 unset($_POST['multisubmit']);
             }
 
-        }else{
+        } else {
             $submit = $_POST['dosubmit'];
             unset($_POST['dosubmit']);
         }
@@ -56,7 +56,7 @@ function get_submit(){
 
         return $submit;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('get_submit(): Failed', $e);
     }
 }
@@ -78,7 +78,7 @@ function get_submit(){
  * @param natural $time_delay
  * @return void (dies)
  */
-function redirect($target = '', $http_code = null, $clear_session_redirect = true, $time_delay = null){
+function redirect($target = '', $http_code = null, $clear_session_redirect = true, $time_delay = null) {
     return include(__DIR__.'/handlers/http-redirect.php');
 }
 
@@ -100,24 +100,24 @@ function redirect($target = '', $http_code = null, $clear_session_redirect = tru
  * @param string $url
  * @return string The specified URL (if not specified, the current URL) with $core->register['redirect'] added to it (if set)
  */
-function redirect_url($url = null){
+function redirect_url($url = null) {
     try{
         load_libs('inet');
 
-        if(!$url){
+        if(!$url) {
             /*
              * Default to this page
              */
             $url = domain(true);
         }
 
-        if(empty($_GET['redirect'])){
+        if(empty($_GET['redirect'])) {
             return $url;
         }
 
         return url_add_query($url, 'redirect='.urlencode($_GET['redirect']));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('redirect_url(): Failed', $e);
     }
 }
@@ -127,22 +127,22 @@ function redirect_url($url = null){
 /*
  * Redirect if the session redirector is set
  */
-function session_redirect($method = 'http', $force = false){
+function session_redirect($method = 'http', $force = false) {
     try{
-        if(!empty($force)){
+        if(!empty($force)) {
             /*
              * Redirect by force value
              */
             $redirect = $force;
 
-        }elseif(!empty($_GET['redirect'])){
+        } elseif(!empty($_GET['redirect'])) {
             /*
              * Redirect by _GET redirect
              */
             $redirect = $_GET['redirect'];
             unset($_GET['redirect']);
 
-        }elseif(!empty($_GET['redirect'])){
+        } elseif(!empty($_GET['redirect'])) {
             /*
              * Redirect by _SESSION redirect
              */
@@ -152,7 +152,7 @@ function session_redirect($method = 'http', $force = false){
             unset($_SESSION['sso_referrer']);
         }
 
-        switch($method){
+        switch($method) {
             case 'json':
                 /*
                  * Send JSON redirect. json_reply() will end script, so no break needed
@@ -173,7 +173,7 @@ function session_redirect($method = 'http', $force = false){
                 throw new CoreException(tr('session_redirect(): Unknown method ":method" specified. Please speficy one of "json", or "http"', array(':method' => $method)), 'unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('session_redirect(): Failed', $e);
     }
 }
@@ -183,7 +183,7 @@ function session_redirect($method = 'http', $force = false){
 /*
  * Store post data in $_SESSION
  */
-function store_post($redirect){
+function store_post($redirect) {
     return include(__DIR__.'/handlers/system_store_post.php');
 }
 
@@ -192,15 +192,15 @@ function store_post($redirect){
 /*
  * Ensure that the $_GET values with the specied keys are also available in $_POST
  */
-function http_get_to_post($keys, $overwrite = true){
+function http_get_to_post($keys, $overwrite = true) {
     try{
-        foreach(array_force($keys) as $key){
-            if(isset($_GET[$key]) and ($overwrite or empty($_POST[$key]))){
+        foreach(array_force($keys) as $key) {
+            if(isset($_GET[$key]) and ($overwrite or empty($_POST[$key]))) {
                 $_POST[$key] = $_GET[$key];
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('http_get_to_post(): Failed', $e);
     }
 }
@@ -211,7 +211,7 @@ function http_get_to_post($keys, $overwrite = true){
 ///*
 // * Return status message for specified code
 // */
-//function http_status_message($code){
+//function http_status_message($code) {
 //    static $messages = array(  0 => 'Nothing',
 //                             200 => 'OK',
 //                             304 => 'Not Modified',
@@ -224,11 +224,11 @@ function http_get_to_post($keys, $overwrite = true){
 //                             502 => 'Bad Gateway',
 //                             503 => 'Service Unavailable');
 //
-//    if(!is_numeric($code) or ($code < 0) or ($code > 1000)){
+//    if(!is_numeric($code) or ($code < 0) or ($code > 1000)) {
 //        throw new CoreException('http_status_message(): Invalid code "'.str_log($code).'" specified');
 //    }
 //
-//    if(!isset($messages[$code])){
+//    if(!isset($messages[$code])) {
 //        throw new CoreException('http_status_message(): Specified code "'.str_log($code).'" is not supported');
 //    }
 //
@@ -258,7 +258,7 @@ function http_get_to_post($keys, $overwrite = true){
  * @param null date $params[last_modified]
  * @param natural $content_length The length of the content sent to the client
  */
-function http_headers($params, $content_length){
+function http_headers($params, $content_length) {
     global $_CONFIG, $core;
     static $sent = false;
 
@@ -272,7 +272,7 @@ function http_headers($params, $content_length){
      * itself fails, or if a show() or showdie() was issued before the startup
      * finished, then this could leave the system without defined language
      */
-    if(!defined('LANGUAGE')){
+    if(!defined('LANGUAGE')) {
         define('LANGUAGE', isset_get($_CONFIG['language']['default'], 'en'));
     }
 
@@ -291,10 +291,10 @@ function http_headers($params, $content_length){
 
         $headers = $params['headers'];
 
-        if($_CONFIG['security']['expose_php'] === false){
+        if($_CONFIG['security']['expose_php'] === false) {
             header_remove('X-Powered-By');
 
-        }elseif($_CONFIG['security']['expose_php'] !== true){
+        } elseif($_CONFIG['security']['expose_php'] !== true) {
             /*
              * Send custom expose header to fake X-Powered-By header
              */
@@ -304,15 +304,15 @@ function http_headers($params, $content_length){
         $headers[] = 'Content-Type: '.$params['mimetype'].'; charset='.$_CONFIG['encoding']['charset'];
         $headers[] = 'Content-Language: '.LANGUAGE;
 
-        if($content_length){
+        if($content_length) {
             $headers[] = 'Content-Length: '.$content_length;
         }
 
-        if($params['http_code'] == 200){
-            if(empty($params['last_modified'])){
+        if($params['http_code'] == 200) {
+            if(empty($params['last_modified'])) {
                 $headers[] = 'Last-Modified: '.date_convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT').' GMT';
 
-            }else{
+            } else {
                 $headers[] = 'Last-Modified: '.date_convert($params['last_modified'], 'D, d M Y H:i:s', 'GMT').' GMT';
             }
         }
@@ -323,30 +323,30 @@ function http_headers($params, $content_length){
          *
          These pages should NEVER be indexed
          */
-        if(!$_CONFIG['production'] or $_CONFIG['noindex'] or !$core->callType('http')){
+        if(!$_CONFIG['production'] or $_CONFIG['noindex'] or !$core->callType('http')) {
             $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
         }
 
         /*
          * CORS headers
          */
-        if($_CONFIG['cors'] or $params['cors']){
+        if($_CONFIG['cors'] or $params['cors']) {
             /*
              * Add CORS / Access-Control-Allow-.... headers
              */
             $params['cors'] = array_merge($_CONFIG['cors'], array_force($params['cors']));
 
-            foreach($params['cors'] as $key => $value){
-                switch($key){
+            foreach($params['cors'] as $key => $value) {
+                switch($key) {
                     case 'origin':
-                        if($value == '*.'){
+                        if($value == '*.') {
                             /*
                              * Origin is allowed from all sub domains
                              */
                             $origin = Strings::from(isset_get($_SERVER['HTTP_ORIGIN']), '://');
                             $length = strlen(isset_get($_SESSION['domain']));
 
-                            if(substr($origin, -$length, $length) === isset_get($_SESSION['domain'])){
+                            if(substr($origin, -$length, $length) === isset_get($_SESSION['domain'])) {
                                 /*
                                  * Sub domain matches. Since CORS does
                                  * not support sub domains, just show
@@ -354,7 +354,7 @@ function http_headers($params, $content_length){
                                  */
                                 $value = $_SERVER['HTTP_ORIGIN'];
 
-                            }else{
+                            } else {
                                 /*
                                  * Sub domain does not match. Since CORS does
                                  * not support sub domains, just show no
@@ -369,7 +369,7 @@ function http_headers($params, $content_length){
                     case 'methods':
                         // FALLTHROUGH
                     case 'headers':
-                        if($value){
+                        if($value) {
                             $headers[] = 'Access-Control-Allow-'.str_capitalize($key).': '.$value;
                         }
 
@@ -395,30 +395,30 @@ function http_headers($params, $content_length){
          */
         http_response_code($params['http_code']);
 
-        if(($params['http_code'] != 200)){
+        if(($params['http_code'] != 200)) {
             log_file(tr('Phoundation sent :http for URL ":url"', array(':http' => ($params['http_code'] ? 'HTTP'.$params['http_code'] : 'HTTP0'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])), 'warning', 'yellow');
 
-        }elseif(VERBOSE){
+        } elseif(VERBOSE) {
             log_file(tr('Phoundation sent :http for URL ":url"', array(':http' => ($params['http_code'] ? 'HTTP'.$params['http_code'] : 'HTTP0'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])), 'http', 'green');
         }
 
-        if(VERYVERBOSE){
+        if(VERYVERBOSE) {
             load_libs('time,numbers');
             log_console(tr('Page ":script" was processed in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()))));
         }
 
-        foreach($headers as $header){
+        foreach($headers as $header) {
             header($header);
         }
 
-        if(strtoupper($_SERVER['REQUEST_METHOD']) == 'HEAD'){
+        if(strtoupper($_SERVER['REQUEST_METHOD']) == 'HEAD') {
             /*
              * HEAD request, do not return a body
              */
             die();
         }
 
-        switch($params['http_code']){
+        switch($params['http_code']) {
             case 304:
                 /*
                  * 304 requests indicate the browser to use it's local cache,
@@ -436,7 +436,7 @@ function http_headers($params, $content_length){
 
         return true;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         /*
          * http_headers() itself crashed. Since http_headers()
          * would send out http 500, and since it crashed, it no
@@ -452,19 +452,19 @@ function http_headers($params, $content_length){
 /*
  * Add a variable to the specified URL
  */
-function http_add_variable($url, $key, $value){
+function http_add_variable($url, $key, $value) {
     try{
-        if(!$key or !$value){
+        if(!$key or !$value) {
             return $url;
         }
 
-        if(strpos($url, '?') !== false){
+        if(strpos($url, '?') !== false) {
             return $url.'&'.urlencode($key).'='.urlencode($value);
         }
 
         return $url.'?'.urlencode($key).'='.urlencode($value);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('http_add_variable(): Failed', $e);
     }
 }
@@ -474,24 +474,24 @@ function http_add_variable($url, $key, $value){
 /*
  * Remove a variable from the specified URL
  */
-function http_remove_variable($url, $key){
+function http_remove_variable($url, $key) {
     try{
 throw new CoreException('http_remove_variable() is under construction!');
-        //if(!$key){
+        //if(!$key) {
         //    return $url;
         //}
         //
-        //if($pos = strpos($url, $key.'=') === false){
+        //if($pos = strpos($url, $key.'=') === false) {
         //    return $url;
         //}
         //
-        //if($pos2 = strpos($url, '&', $pos) === false){
+        //if($pos2 = strpos($url, '&', $pos) === false) {
         //    return substr($url, 0, $pos).;
         //}
         //
         //return substr($url, 0, );
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('http_remove_variable(): Failed', $e);
     }
 }
@@ -506,7 +506,7 @@ throw new CoreException('http_remove_variable() is under construction!');
  * For more information, see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
  * and https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
  */
-function http_cache_etag(){
+function http_cache_etag() {
     global $_CONFIG, $core;
 
     try{
@@ -514,7 +514,7 @@ function http_cache_etag(){
          * ETAG requires HTTP caching enabled
          * Ajax and API calls do not use ETAG
          */
-        if(!$_CONFIG['cache']['http']['enabled'] or $core->callType('ajax') or $core->callType('api')){
+        if(!$_CONFIG['cache']['http']['enabled'] or $core->callType('ajax') or $core->callType('api')) {
             unset($core->register['etag']);
             return false;
         }
@@ -525,8 +525,8 @@ function http_cache_etag(){
         $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).$core->register('etag'));
 
 // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
-        if(trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']){
-            if(empty($core->register['flash'])){
+        if(trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']) {
+            if(empty($core->register['flash'])) {
                 /*
                  * The client sent an etag which is still valid, no body (or anything else) necesary
                  */
@@ -537,7 +537,7 @@ function http_cache_etag(){
 
         return true;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('http_cache_etag(): Failed', $e);
     }
 }
@@ -552,22 +552,22 @@ function http_cache_etag(){
  * For more information, see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
  * and https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
  */
-function http_cache_test($etag = null){
+function http_cache_test($etag = null) {
     global $_CONFIG, $core;
 
     try{
         $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).$etag);
 
-        if(!$_CONFIG['cache']['http']['enabled']){
+        if(!$_CONFIG['cache']['http']['enabled']) {
             return false;
         }
 
-        if($core->callType('ajax') or $core->callType('api')){
+        if($core->callType('ajax') or $core->callType('api')) {
             return false;
         }
 
-        if((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']){
-            if(empty($core->register['flash'])){
+        if((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']) {
+            if(empty($core->register['flash'])) {
                 /*
                  * The client sent an etag which is still valid, no body (or anything else) necesary
                  */
@@ -577,7 +577,7 @@ function http_cache_test($etag = null){
 
         return true;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('http_cache_test(): Failed', $e);
     }
 }
@@ -604,22 +604,22 @@ function http_cache_test($etag = null){
  * @param array $headers Any extra headers that are required
  * @return void
  */
-function http_cache($params, $http_code, $headers = array()){
+function http_cache($params, $http_code, $headers = array()) {
     global $_CONFIG, $core;
 
     try{
         array_ensure($params);
 
-        if($_CONFIG['cache']['http']['enabled'] === 'auto'){
+        if($_CONFIG['cache']['http']['enabled'] === 'auto') {
             /*
              * PHP will take care of the cache headers
              */
 
-        }elseif($_CONFIG['cache']['http']['enabled'] === true){
+        } elseif($_CONFIG['cache']['http']['enabled'] === true) {
             /*
              * Place headers using phoundation algorithms
              */
-            if(!$_CONFIG['cache']['http']['enabled'] or ($http_code != 200)){
+            if(!$_CONFIG['cache']['http']['enabled'] or ($http_code != 200)) {
                 /*
                  * Non HTTP 200 / 304 pages should NOT have cache enabled!
                  * For example 404, 503 etc...
@@ -627,12 +627,12 @@ function http_cache($params, $http_code, $headers = array()){
                 $headers[] = 'Cache-Control: no-store, max-age=0';
                 unset($core->register['etag']);
 
-            }else{
+            } else {
                 /*
                  * Send caching headers
                  * Ajax, API, and admin calls do not have proxy caching
                  */
-                switch($core->callType()){
+                switch($core->callType()) {
                     case 'api':
                         // FALLTHROUGH
                     case 'ajax':
@@ -645,13 +645,13 @@ function http_cache($params, $http_code, $headers = array()){
                          * Session pages for specific users should not be stored
                          * on proxy servers either
                          */
-                        if(!empty($_SESSION['user']['id'])){
+                        if(!empty($_SESSION['user']['id'])) {
                             $_CONFIG['cache']['http']['cacheability'] = 'private';
                         }
 
                         $headers[] = 'Cache-Control: '.$_CONFIG['cache']['http']['cacheability'].', '.$_CONFIG['cache']['http']['expiration'].', '.$_CONFIG['cache']['http']['revalidation'].($_CONFIG['cache']['http']['other'] ? ', '.$_CONFIG['cache']['http']['other'] : '');
 
-                        if(!empty($core->register['etag'])){
+                        if(!empty($core->register['etag'])) {
                             $headers[] = 'ETag: "'.$core->register['etag'].'"';
                         }
                 }
@@ -660,7 +660,7 @@ function http_cache($params, $http_code, $headers = array()){
 
         return $headers;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('http_cache(): Failed', $e);
     }
 }
@@ -680,14 +680,14 @@ function http_cache($params, $http_code, $headers = array()){
 
  * @return void
  */
-function http_no_cache(){
+function http_no_cache() {
     try{
         header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true);
         header('Cache-Control: post-check=0, pre-check=0'                     , true);
         header('Pragma: no-cache'                                             , true);
         header('Expires: Wed, 10 Jan 2000 07:00:00 GMT'                       , true);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('http_no_cache(): Failed'), $e);
     }
 }
@@ -697,11 +697,11 @@ function http_no_cache(){
 /*
  * Return the URL the client requested
  */
-function requested_url(){
+function requested_url() {
     try{
         return $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('requested_url(): Failed', $e);
     }
 }
@@ -719,11 +719,11 @@ function requested_url(){
  *
  *
  */
-function http_done(){
+function http_done() {
     global $core, $_CONFIG;
 
     try{
-        if(!isset($core)){
+        if(!isset($core)) {
             /*
              * We died very early in startup. For more information see either
              * the ROOT/data/log/syslog file, or your webserver log file
@@ -731,7 +731,7 @@ function http_done(){
             die('Exception: See log files');
         }
 
-        if($core === false){
+        if($core === false) {
             /*
              * Core wasn't created yet, but uncaught exception handler basically
              * is saying that's okay, just warning stuff
@@ -746,7 +746,7 @@ function http_done(){
          */
         shutdown();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('http_done(): Failed', $e);
     }
 }
@@ -768,13 +768,13 @@ function http_done(){
  *
  * @return void
  */
-function http_validate_get(){
+function http_validate_get() {
     global $_CONFIG;
 
     try{
-        foreach($_GET as $key => &$value){
-            if(!is_scalar($value)){
-                if($value){
+        foreach($_GET as $key => &$value) {
+            if(!is_scalar($value)) {
+                if($value) {
                     throw new CoreException(tr('http_validate_get(): The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', array(':key' => $key, ':content' => $value)), 400);
                 }
 
@@ -789,7 +789,7 @@ function http_validate_get(){
 
         $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], $_CONFIG['paging']['limit']), array_keys($_CONFIG['paging']['list']), $_CONFIG['paging']['limit']);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('http_validate_get(): Failed', $e);
     }
 }
@@ -799,11 +799,11 @@ function http_validate_get(){
 /*
  * Here be dragons and depreciated wrappers
  */
-function http_build_url($url, $query){
+function http_build_url($url, $query) {
     try{
         return http_add_variable($url, Strings::until($query, '='), Strings::from($query, '='));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('http_build_url(DEPRECIATED): Failed', $e);
     }
 }
@@ -826,7 +826,7 @@ function http_build_url($url, $query){
  * @param string $params[allow_self_signed]
  * @return
  */
-function http_set_ssl_default_context($params = null){
+function http_set_ssl_default_context($params = null) {
     global $_CONFIG;
 
     try{
@@ -839,7 +839,7 @@ function http_set_ssl_default_context($params = null){
                                                                'verify_peer_name'  => $params['verify_peer_name'],
                                                                'allow_self_signed' => $params['allow_self_signed'])));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('http_ssl_context(): Failed'), $e);
     }
 }

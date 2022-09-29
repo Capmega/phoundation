@@ -6,23 +6,23 @@ try{
 
     if(!debug()) return '';
 
-    if($_CONFIG['debug']['bar'] === false){
+    if($_CONFIG['debug']['bar'] === false) {
         return '';
 
-    }elseif($_CONFIG['debug']['bar'] === 'limited'){
-        if(empty($_SESSION['user']['id']) or !has_rights("debug")){
+    } elseif($_CONFIG['debug']['bar'] === 'limited') {
+        if(empty($_SESSION['user']['id']) or !has_rights("debug")) {
             /*
              * Only show debug bar to authenticated users with "debug" right
              */
             return false;
         }
 
-    }elseif($_CONFIG['debug']['bar'] === true){
+    } elseif($_CONFIG['debug']['bar'] === true) {
         /*
          * Show debug bar!
          */
 
-    }else{
+    } else {
         throw new CoreException(tr('debug_bar(): Unknown configuration option ":option" specified. Please specify true, false, or "limited"', array(':option' => $_CONFIG['debug']['bar'])), 'unknown');
     }
 
@@ -30,7 +30,7 @@ try{
      * Add debug bar javascript directly to the footer, as this debug bar is
      * added AFTER html_generate_js() and so won't be processed anymore
      */
-    $core->register['footer'] .= html_script('$("#debug-bar").click(function(e){ $("#debug-bar").find(".list").toggleClass("hidden"); });');
+    $core->register['footer'] .= html_script('$("#debug-bar").click(function(e) { $("#debug-bar").find(".list").toggleClass("hidden"); });');
 
     /*
      * Setup required variables
@@ -65,7 +65,7 @@ try{
     /*
      * Add query statistical data ordered by slowest queries first
      */
-    foreach($core->register['debug_queries'] as $query){
+    foreach($core->register['debug_queries'] as $query) {
         $html .= '      <tr>
                             <td>'.number_format($query['time'], 6).'</td>
                             <td>'.$query['function'].'</td>
@@ -122,7 +122,7 @@ try{
                         </thead>
                         <tbody>';
 
-    foreach($files as $id => $file){
+    foreach($files as $id => $file) {
         $html .= '      <tr>
                             <td>'.($id + 1).'</td>
                             <td>'.$file.'</td>
@@ -140,7 +140,7 @@ try{
 
     return $html;
 
-}catch(Exception $e){
+}catch(Exception $e) {
     throw new CoreException(tr('debug_bar(): Failed'), $e);
 }
 ?>

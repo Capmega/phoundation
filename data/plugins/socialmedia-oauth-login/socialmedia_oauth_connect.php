@@ -74,7 +74,7 @@ class socialmedia_oauth_connect
 	protected $userProfileUrl;
 	protected $header;
 
-  	public function Initialize(){
+  	public function Initialize() {
   		$this->nonce = time() . rand();
   		switch($this->provider)
 		{
@@ -334,9 +334,9 @@ class socialmedia_oauth_connect
 
 
 
-  	public function Authorize(){
+  	public function Authorize() {
 
-  		if($this->oauth_version == "2.0"){
+  		if($this->oauth_version == "2.0") {
   	    $dialog_url = $this->dialogUrl
   	    		."client_id=".$this->client_id
 			."&response_type=".$this->responseType
@@ -345,7 +345,7 @@ class socialmedia_oauth_connect
 			."&state=".$this->state
         	."&redirect_uri=".urlencode($this->redirect_uri);
      		echo("<script> top.location.href='" . $dialog_url . "'</script>");
-     		}else{
+     		} else {
 
 			$date = new DateTime();
      			$request_url = $this->requestUrl;
@@ -370,7 +370,7 @@ class socialmedia_oauth_connect
   	}
 
 
-  	public function getAccessToken(){
+  	public function getAccessToken() {
 		$postvals = "client_id=".$this->client_id
 			."&client_secret=".$this->client_secret
 			."&grant_type=authorization_code"
@@ -379,38 +379,38 @@ class socialmedia_oauth_connect
 		return $this->curl_request($this->accessTokenUrl,'POST',$postvals);
   	}
 
-  	public function getUserProfile(){
+  	public function getUserProfile() {
   		$getAccessToken_value = $this->getAccessToken();
   		$getatoken = json_decode( stripslashes($getAccessToken_value) );
 
-		if( $getatoken === NULL ){
+		if( $getatoken === NULL ) {
 			$atoken=$getAccessToken_value;
-   		}else{
+   		} else {
 	   		$atoken = $getatoken->access_token;
    		}
 
-   		if($this->provider=="Yammer"){
+   		if($this->provider=="Yammer") {
    			$atoken = $getatoken->access_token->token;
    		}
 
-	  	if ($this->userProfileUrl){
+	  	if ($this->userProfileUrl) {
   		$profile_url = $this->userProfileUrl."".$atoken;
   		#$_SESSION['atoken']=$atoken;
 		#print "profile :".$profile_url;
 		#exit();
 
 		return $this->curl_request($profile_url,"GET",$atoken);
-		}else{
+		} else {
 		return $getAccessToken_value;
 		}
 
   	}
 
-  	public function APIcall($url){
+  	public function APIcall($url) {
 	  	return $this->curl_request($url,"GET",$_SESSION['atoken']);
   	}
 
-  	public function debugJson($data){
+  	public function debugJson($data) {
   		echo "<pre>";
   		print_r($data);
   		echo "</pre>";
@@ -423,17 +423,17 @@ class socialmedia_oauth_connect
 		#echo("<script> top.location.href='index.php#".$this->provider."'</script>");
 
   	}
-	public function curl_request($url,$method,$postvals){
+	public function curl_request($url,$method,$postvals) {
 
 	$ch = curl_init($url);
-	if ($method == "POST"){
+	if ($method == "POST") {
 	   $options = array(
                 CURLOPT_POST => 1,
                 CURLOPT_POSTFIELDS => $postvals,
                 CURLOPT_RETURNTRANSFER => 1,
 		);
 
-	}else{
+	} else {
 
 	   $options = array(
                 CURLOPT_RETURNTRANSFER => 1,
@@ -441,7 +441,7 @@ class socialmedia_oauth_connect
 
 	}
 	curl_setopt_array( $ch, $options );
-	if($this->header){
+	if($this->header) {
 
 		curl_setopt( $ch, CURLOPT_HTTPHEADER, array( $this->header . $postvals) );
 	}

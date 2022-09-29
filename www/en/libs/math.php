@@ -27,15 +27,15 @@
  * @param array $source The array to check
  * @return boolean Returns true if the specified array contains duplicate values, false otherwise
  */
-function math_average(...$items){
+function math_average(...$items) {
     try{
-        if(count($items)){
+        if(count($items)) {
             return array_sum($items) / count($items);
         }
 
         return 0;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('math_average(): Failed', $e);
     }
 }

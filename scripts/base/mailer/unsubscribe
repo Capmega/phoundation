@@ -15,19 +15,19 @@ try{
     $count = 0;
     $users = not_empty(cli_argument('users', true), cli_argument('user', true), $argv);
 
-    foreach(array_force($users) as $user){
+    foreach(array_force($users) as $user) {
         mailer_unsubscribe($user);
         $count++;
     }
 
-    if($count){
+    if($count) {
         log_console('Unsubscribed "'.$count.'" users from mailings', '', 'white');
 
-    }else{
+    } else {
         log_console('Unsubscribed no users from mailings', '', 'yellow');
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     throw new CoreException('scripts/mailer/unsubscribe: Failed', $e);
 }
 ?>

@@ -92,7 +92,7 @@ try{
     cli_only();
     load_libs('servers,ssh');
 
-    switch(cli_method()){
+    switch(cli_method()) {
         case 'add':
             $port      = not_empty(cli_argument('--port,-p', true), ssh_get_port());
             $register  = cli_argument('--register,-r');
@@ -102,19 +102,19 @@ try{
 
             cli_no_arguments_left();
 
-            if($account){
+            if($account) {
                 $accounts_data = ssh_get_account($account);
 
-                if(!$accounts_data){
+                if(!$accounts_data) {
                     throw new CoreException(tr('Specified account ":account" does not exist, try "servers list accounts"', array(':account' => $account)), 'warning/not-exist');
                 }
             }
 
-            if(!$domains){
+            if(!$domains) {
                 throw new CoreException(tr('No server(s) specified to add'), 'warning/not-specified');
             }
 
-            foreach($domains as $domain){
+            foreach($domains as $domain) {
                 try{
                     servers_insert(array('domain'      => $domain,
                                          'port'        => $port,
@@ -124,24 +124,24 @@ try{
                     log_console(tr('Added server with domain ":domain"', array(':domain' => $domain)), 'green');
                     $count++;
 
-                }catch(Exception $e){
-                    if($e->getRealCode() !== 'validation'){
+                }catch(Exception $e) {
+                    if($e->getRealCode() !== 'validation') {
                         throw $e;
                     }
 
-                    if(preg_match('/A server with domain ".+?" already exists/', $e->getMessage())){
+                    if(preg_match('/A server with domain ".+?" already exists/', $e->getMessage())) {
                         log_console(tr('Server ":domain" already exists', array(':domain' => $domain)), 'warning');
 
-                    }else{
+                    } else {
                         log_console($e);
                     }
                 }
             }
 
-            if($count){
+            if($count) {
                 log_console(tr('Added ":count" servers', array(':count' => $count)), 'success');
 
-            }else{
+            } else {
                 log_console(tr('Not added any servers'), 'warning');
             }
 
@@ -156,17 +156,17 @@ try{
 
             $server = servers_get($server);
 
-            if($account){
+            if($account) {
                 $accounts_data = ssh_get_account($account);
 
-                if(!$accounts_data){
+                if(!$accounts_data) {
                     throw new CoreException(tr('Specified account ":account" does not exist, try "servers list accounts"', array(':account' => $account)), 'warning/not-exist');
                 }
 
                 $server['ssh_account'] = $accounts_data['name'];
             }
 
-            if($port){
+            if($port) {
                 $server['port'] = $port;
             }
 
@@ -181,10 +181,10 @@ try{
             $server = servers_get($server);
             $count  = ssh_add_known_host($server['domain'], $server['port']);
 
-            if($count){
+            if($count) {
                 log_console(tr('Added ":count" registrations for server ":server"', array(':count' => $count, ':server' => $server['domain'])), 'green');
 
-            }else{
+            } else {
                 log_console(tr('Added no registrations for server ":server", the server probably was already registered', array(':server' => $server['domain'])), 'green');
             }
 
@@ -198,10 +198,10 @@ try{
             $server = servers_get($server);
             $count  = ssh_remove_known_host($server['domain'], $server['port']);
 
-            if($count){
+            if($count) {
                 log_console(tr('Removed ":count" registrations for server ":server"', array(':count' => $count, ':server' => $server['domain'])), 'green');
 
-            }else{
+            } else {
                 log_console(tr('Removed no registrations for server ":server", the server probably was not registered yet', array(':server' => $server['domain'])), 'green');
             }
 
@@ -241,11 +241,11 @@ try{
             /*
              * Get a list of all servers so we can delete them in an atomic action
              */
-            foreach($list as $requested){
+            foreach($list as $requested) {
                 $server = servers_like($requested);
                 $server = servers_get($server, false, false, 'id');
 
-                if(!$server){
+                if(!$server) {
                     throw new CoreException(tr('Specified server ":server" does not exist', array(':server' => $requested)), 'not-exists');
                 }
 
@@ -257,10 +257,10 @@ try{
 
             $r = sql_query('UPDATE `servers` SET `status` = :status WHERE `id` IN ('.sql_in_columns($in, ':value').')', $in);
 
-            if($r->rowCount()){
+            if($r->rowCount()) {
                 log_console(tr('Set status ":status" for ":count" servers', array(':status' => $status, ':count' => $r->rowCount())), 'green');
 
-            }else{
+            } else {
                 log_console(tr('Did not status update servers, servers probably already had requested status'), 'yellow');
             }
 
@@ -275,25 +275,25 @@ try{
             $list    = cli_arguments();
             cli_no_arguments_left();
 
-            foreach($list as $requested){
+            foreach($list as $requested) {
                 $server = servers_get($requested);
 
-                if(!$server){
+                if(!$server) {
                     throw new CoreException(tr('Specified server ":server" does not exist', array(':server' => $requested)), 'not-exists');
                 }
 
                 $servers[] = $server;
             }
 
-            foreach($servers as $server){
+            foreach($servers as $server) {
                 $count++;
                 servers_erase($server);
             }
 
-            if($count){
+            if($count) {
                 log_console(tr('Erased ":count" servers', array(':count' => $count)), 'green');
 
-            }else{
+            } else {
                 log_console(tr('Erased no servers, servers were probably not registered'), 'yellow');
             }
 
@@ -302,10 +302,10 @@ try{
         case 'accounts':
             cli_no_arguments_left();
 
-            if(DELETED){
+            if(DELETED) {
                 $where[] = ' `status` = "deleted" ';
 
-            }elseif(!$core->register['all']){
+            } elseif(!$core->register['all']) {
                 $where[] = ' (`status` IS NULL OR `status` = "testing") ';
             }
 
@@ -318,23 +318,23 @@ try{
 
                         FROM   `ssh_accounts` ';
 
-            if(empty($where)){
+            if(empty($where)) {
                 $where = '';
 
-            }else{
+            } else {
                 $where = ' WHERE '.implode(' AND ', $where);
             }
 
             $order   = ' ORDER BY `status` IS NOT NULL DESC, `name` ASC ';
             $servers = sql_query($query.$where.$order.sql_limit());
 
-            if(!$servers->rowCount()){
+            if(!$servers->rowCount()) {
                     log_console(tr('There are currently no SSH accounts registered'), 'QUIET/yellow');
 
-            }else{
+            } else {
                 log_console(str_size(tr('#id'), 7).str_size(tr('Name'), 17).str_size(tr('Username'), 17).str_size(tr('Description'), 64), 'QUIET/cyan');
 
-                while($server = sql_fetch($servers)){
+                while($server = sql_fetch($servers)) {
                     log_console(str_size($server['id'], 6, ' ', true).' '.str_size($server['name'], 16).' '.str_size($server['username'], 16).' '.str_size($server['description'], 64));
                 }
             }
@@ -350,24 +350,24 @@ try{
 
             cli_no_arguments_left();
 
-            if(DELETED){
+            if(DELETED) {
                 $where[] = ' `servers`.`status` = "deleted" ';
 
-            }elseif(!$core->register['all']){
+            } elseif(!$core->register['all']) {
                 $where[] = ' `servers`.`status` IS NULL OR `servers`.`status` = "testing" ';
             }
 
-            if(STATUS){
+            if(STATUS) {
                 $execute = array_merge($execute, sql_in(array_force(STATUS)));
                 $where[] = ' `servers`.`status` IN ('.implode(', ', array_keys(array_force(STATUS))).') ';
             }
 
-            if($customer){
+            if($customer) {
                 load_libs('customers');
                 $customers_id = customers_get(array('columns' => 'id',
                                                     'filters' => array('seoname' => $customer)));
 
-                if(!$customers_id){
+                if(!$customers_id) {
                     throw new CoreException(tr('The specified customer ":customer" does not exist', array(':customer' => $customer)), 'warning');
                 }
 
@@ -375,11 +375,11 @@ try{
                 $where[] = ' `servers`.`customers_id` = :customers_id ';
             }
 
-            if($provider){
+            if($provider) {
                 load_libs('providers');
                 $providers_id = providers_get($provider, 'id');
 
-                if(!$providers_id){
+                if(!$providers_id) {
                     throw new CoreException(tr('The specified provider ":provider" does not exist', array(':provider' => $provider)), 'warning');
                 }
 
@@ -415,32 +415,32 @@ try{
                         LEFT JOIN `users`
                         ON        `users`.`id` = `servers`.`createdby`';
 
-            if(empty($where)){
+            if(empty($where)) {
                 $where = '';
 
-            }else{
+            } else {
                 $where = ' WHERE '.implode(' AND ', $where);
             }
 
             $order   = ' ORDER BY `servers`.`status` IS NOT NULL DESC, `servers`.`domain` ASC ';
             $servers = sql_query($query.$where.$order.sql_limit(), $execute);
 
-            if(!$servers->rowCount()){
+            if(!$servers->rowCount()) {
                     log_console(tr('There are currently no servers registered'), 'QUIET/yellow');
 
-            }else{
-                if($only_domains){
+            } else {
+                if($only_domains) {
                     log_console(tr('Hostname'), 'QUIET/cyan');
 
-                    while($server = sql_fetch($servers)){
+                    while($server = sql_fetch($servers)) {
                         log_console($server['domain']);
                     }
 
-                }else{
+                } else {
                     log_console(str_size(tr('#id'), 6, ' ', true).' '.str_size(tr('Customer'), 24).' '.str_size(tr('Provider'), 24).' '.str_size(tr('ipv4'), 15).' '.str_size(tr('Hostname'), 33).str_size(tr('Status'), 13).str_size(tr('Created by'), 32), 'QUIET/cyan');
 
-                    while($server = sql_fetch($servers)){
-                        if(!$server['domain']){
+                    while($server = sql_fetch($servers)) {
+                        if(!$server['domain']) {
                             $server['domain'] = '*'.tr('This server').'*';
                             $server['ipv4']   = '-';
                         }
@@ -453,7 +453,7 @@ try{
             break;
 
         case 'proxies':
-            switch(cli_method(1)){
+            switch(cli_method(1)) {
                 case 'insert':
                     load_libs('proxies');
                     $root_domain   = cli_argument(2);
@@ -462,19 +462,19 @@ try{
                     $target_domain = cli_argument(5);
                     $protocols     = cli_argument(6);
 
-                    if(empty($root_domain)){
+                    if(empty($root_domain)) {
                         throw new CoreException(tr('No root domain specified'), 'warning/not-specified');
                     }
 
-                    if(empty($new_domain)){
+                    if(empty($new_domain)) {
                         throw new CoreException(tr('No new domain specified'), 'warning/not-specified');
                     }
 
-                    if(empty($location)){
+                    if(empty($location)) {
                         throw new CoreException(tr('No location specified'), 'warning/not-specified');
                     }
 
-                    if(empty($target_domain)){
+                    if(empty($target_domain)) {
                         throw new CoreException(tr('No target domain specified'), 'warning/not-specified');
                     }
 
@@ -482,8 +482,8 @@ try{
 
                     try{
                         proxies_insert($root_domain, $new_domain, $target_domain, $location, $protocols);
-                    }catch(Exception $e){
-                        switch(Strings::from($e->getCode(), '/')){
+                    }catch(Exception $e) {
+                        switch(Strings::from($e->getCode(), '/')) {
                             case 'invalid':
                                 $e->makeWarning(true);
                         }
@@ -518,16 +518,16 @@ try{
             $server            = servers_get($server, true, true);
             $server['domains'] = servers_list_domains($server);
 
-            if(empty($server['ssh_accounts_id'])){
+            if(empty($server['ssh_accounts_id'])) {
                 $server['allow_tcp_forward'] = 'N/A';
 
-            }else{
+            } else {
                 try{
                     load_libs('linux');
                     $server['allow_tcp_forward'] = linux_get_ssh_tcp_forwarding($server);
 
-                }catch(Exception $e){
-                    if($e->getRealCode() !== 'host-verification-missing'){
+                }catch(Exception $e) {
+                    if($e->getRealCode() !== 'host-verification-missing') {
                         throw $e;
                     }
 
@@ -543,22 +543,22 @@ try{
 
             ksort($server);
 
-            foreach($server as $key => $value){
+            foreach($server as $key => $value) {
                 if($key == 'password') continue;
                 log_console(cli_color($key.':', 'white').' '.json_encode_custom($value));
             }
 
-            if($domains){
-                foreach($domains as $key => $domain){
-                    if($key){
+            if($domains) {
+                foreach($domains as $key => $domain) {
+                    if($key) {
                         log_console(cli_color('domain aliases: ', 'white').$domain);
 
-                    }else{
+                    } else {
                         log_console(str_repeat(18, ' ').$value);
                     }
                 }
 
-            }else{
+            } else {
                 log_console(cli_color('domain aliases: ', 'white').'-');
             }
 
@@ -568,11 +568,11 @@ try{
             $test      = cli_argument(1);
             $requested = cli_argument(2);
 
-            if(!$test){
+            if(!$test) {
                 throw new CoreException(tr('No test specified. Please specify one of "ssh", "database", or "tunnel-database"'), 'warning/not-exist');
             }
 
-            if(!$requested){
+            if(!$requested) {
                 throw new CoreException(tr('No server specified'), 'warning/not-exist');
             }
 
@@ -580,9 +580,9 @@ try{
                 $requested = servers_like($requested);
                 $server    = servers_get($requested, true);
 
-                switch($test){
+                switch($test) {
                     case 'ssh':
-                        if(!$server['ssh_accounts_id']){
+                        if(!$server['ssh_accounts_id']) {
                             throw new CoreException(tr('Skipped SSH access test for server ":server", the server does not have an SSH account assigned', array(':server' => $anchor)), 'warning');
                         }
 
@@ -591,14 +591,14 @@ try{
                         break;
 
                     case 'database':
-                        if(!$server['ssh_accounts_id'] or !$server['database_accounts_id']){
+                        if(!$server['ssh_accounts_id'] or !$server['database_accounts_id']) {
                             throw new CoreException(tr('Cannot test database access, server ":server", the server does not have a database account specified', array(':server' => $anchor)), 'warning/not-specified');
                         }
 
                         load_libs('mysql');
                         $results = mysql_exec($server['domain'], 'SELECT 1');
 
-                        if((count($results) != 2) or ($results[end($results)] != 1)){
+                        if((count($results) != 2) or ($results[end($results)] != 1)) {
                             throw new CoreException($results, 'failed');
                         }
 
@@ -607,7 +607,7 @@ try{
                         break;
 
                     case 'tunnel-database':
-                        if(!$server['ssh_accounts_id'] and !$server['database_accounts_id']){
+                        if(!$server['ssh_accounts_id'] and !$server['database_accounts_id']) {
                             throw new CoreException(tr('Skipped database over SSH tunnel access test for server ":server", the server does not have an SSH account or database account assigned', array(':server' => $anchor)), 'warning');
                         }
 
@@ -619,8 +619,8 @@ try{
                         throw new CoreException(tr('Unknown test ":test" specified. Please specify one of "ssh", "database", or "tunnel-database".', array(':test' => $test)), 'warning/unknown');
                 }
 
-            }catch(Exception $e){
-                switch($e->getCode()){
+            }catch(Exception $e) {
+                switch($e->getCode()) {
                     case 'host-verification-missing':
                         throw new CoreException(tr('SSH acces test failed for server ":server" because the host key verification showed this hosts key missing. Add the server to the known_hosts file first (currently only possible with executing "./scripts/base/ssh register :domain")', array(':server' => $anchor, ':domain' => $domain)), 'warning/failed');
 
@@ -649,8 +649,8 @@ try{
             throw new CoreException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
     }
 
-}catch(Exception $e){
-    switch($e->getRealCode()){
+}catch(Exception $e) {
+    switch($e->getRealCode()) {
         case 'not-exists':
             // FALLTHROUGH
         case 'multiple':

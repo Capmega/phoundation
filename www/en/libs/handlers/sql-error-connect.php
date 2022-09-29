@@ -2,7 +2,7 @@
 try{
     global $_CONFIG, $core;
 
-    if($e->getMessage() == 'could not find driver'){
+    if($e->getMessage() == 'could not find driver') {
         throw new CoreException(tr('sql_connect(): Failed to connect with ":driver" driver, it looks like its not available', array(':driver' => $connector['driver'])), 'driverfail');
     }
 
@@ -11,9 +11,9 @@ try{
     /*
      * Check that all connector values have been set!
      */
-    foreach(array('driver', 'host', 'user', 'pass') as $key){
-        if(empty($connector[$key])){
-            if($_CONFIG['production']){
+    foreach(array('driver', 'host', 'user', 'pass') as $key) {
+        if(empty($connector[$key])) {
+            if($_CONFIG['production']) {
                 throw new CoreException(tr('sql_connect(): The database configuration has key ":key" missing, check your database configuration in :rootconfig/production.php', array(':key' => $key, ':root' => ROOT)), 'configuration');
             }
 
@@ -21,14 +21,14 @@ try{
         }
     }
 
-    switch($e->getCode()){
+    switch($e->getCode()) {
         case 1049:
             /*
              * Database not found!
              */
             $core->register['no-db'] = true;
 
-            if(!(PLATFORM_CLI and (($core->register['script'] == 'init') or ($core->register['script'] == 'sync')))){
+            if(!(PLATFORM_CLI and (($core->register['script'] == 'init') or ($core->register['script'] == 'sync')))) {
                 throw $e;
             }
 
@@ -54,7 +54,7 @@ try{
             /*
              * Connection refused
              */
-            if(empty($connector['ssh_tunnel']['required'])){
+            if(empty($connector['ssh_tunnel']['required'])) {
                 throw new CoreException(tr('sql_connect(): Connection refused for host ":hostname::port"', array(':hostname' => $connector['host'], ':port' => $connector['port'])), $e);
             }
 
@@ -63,15 +63,15 @@ try{
              */
             load_libs('cli,servers');
 
-            if(!cli_pidgrep($tunnel['pid'])){
+            if(!cli_pidgrep($tunnel['pid'])) {
                 $server     = servers_get($connector['ssh_tunnel']['domain']);
                 $registered = ssh_host_is_known($server['hostname'], $server['port']);
 
-                if($registered === false){
+                if($registered === false) {
                     throw new CoreException(tr('sql_connect(): Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', array(':hostname' => $connector['ssh_tunnel']['domain'])), $e);
                 }
 
-                if($registered === true){
+                if($registered === true) {
                     throw new CoreException(tr('sql_connect(): Connection refused for host ":hostname" on local port ":port" because the tunnel process either started too late or already died. The server has its SSH fingerprints registered in the ROOT/data/ssh/known_hosts file.', array(':hostname' => $connector['ssh_tunnel']['domain'], ':port' => $connector['port'])), $e);
                 }
 
@@ -92,7 +92,7 @@ try{
              * Check if target server supports TCP forwarding.
              * Check if the tunnel is still responding to TCP requests
              */
-            if(empty($connector['ssh_tunnel']['required'])){
+            if(empty($connector['ssh_tunnel']['required'])) {
                 /*
                  * No SSH tunnel was required for this connector
                  */
@@ -104,12 +104,12 @@ try{
             $server  = servers_get($connector['ssh_tunnel']['domain']);
             $allowed = linux_get_ssh_tcp_forwarding($server);
 
-            if(!$allowed){
+            if(!$allowed) {
                 /*
                  * SSH tunnel is required for this connector, but tcp fowarding
                  * is not allowed. Allow it and retry
                  */
-                if(!$server['allow_sshd_modification']){
+                if(!$server['allow_sshd_modification']) {
                     throw new CoreException(tr('sql_connect(): Connector ":connector" requires SSH tunnel to server, but that server does not allow TCP fowarding, nor does it allow auto modification of its SSH server configuration', array(':connector' => $connector)), 'configuration');
                 }
 
@@ -121,7 +121,7 @@ try{
                 linux_set_ssh_tcp_forwarding($server, true);
                 log_console(tr('Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', array(':server' => $connector['ssh_tunnel']['domain'])), 'yellow');
 
-                if($connector['ssh_tunnel']['pid']){
+                if($connector['ssh_tunnel']['pid']) {
                     log_console(tr('Closing previously opened SSH tunnel to server ":server"', array(':server' => $connector['ssh_tunnel']['domain'])), 'yellow');
                     ssh_close_tunnel($connector['ssh_tunnel']['pid']);
                 }
@@ -132,7 +132,7 @@ try{
             /*
              * Check if the tunnel process is still up and about
              */
-            if(!cli_pid($connector['ssh_tunnel']['pid'])){
+            if(!cli_pid($connector['ssh_tunnel']['pid'])) {
                 throw new CoreException(tr('sql_connect(): SSH tunnel process ":pid" is gone', array(':pid' => $connector['ssh_tunnel']['pid'])), 'failed');
             }
 
@@ -148,7 +148,7 @@ try{
             throw new CoreException('sql_connect(): Failed to create PDO SQL object', $e);
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     throw new CoreException(tr('sql_connect(): Failed'), $e);
 }
 ?>

@@ -1,5 +1,5 @@
-(function($){
-    $.flashMessage = function(message, type, autoClose, selector, opacity){
+(function($) {
+    $.flashMessage = function(message, type, autoClose, selector, opacity) {
         var	animation;
 
         if ($.unloading) {
@@ -13,12 +13,12 @@ console.log("message " + message);
 console.log("autoClose " + autoClose);
 console.log("selector " + selector);
 
-        switch(type){
+        switch(type) {
             case "info":
                 type = "information";
                 // FALLTHROUGH
             case "error":
-                if(type == "exception"){
+                if(type == "exception") {
                     type = "error";
                 }
                 // FALLTHROUGH
@@ -41,7 +41,7 @@ console.log(type);
 
         $selector = $(selector);
 
-        if(!$selector.length){
+        if(!$selector.length) {
             /*
              * There is no flash message element with the specified selector. Use alert() as alternative
              */
@@ -49,30 +49,30 @@ console.log(type);
             console.log(message);
             console.log("****************************************************************");
 
-            if(!isFunction("swal")){
+            if(!isFunction("swal")) {
                 $.getScript(cdnprefix+"js/sweetalert/sweetalert.js")
-                    .complete(function(){
+                    .complete(function() {
                         $.getCSS(cdnprefix+"css/sweetalert/sweetalert.css");
 
-                        if((typeof swal) != 'undefined'){
+                        if((typeof swal) != 'undefined') {
                             swal({title: "Notice",
                                   type: type,
                                   html: message});
                         }
                     })
-                    .fail(function(e){
+                    .fail(function(e) {
                         console.error("****************************************************************");
                         console.error(e);
                         console.error("****************************************************************");
                     });
 
-            }else{
+            } else {
                 swal({title: "Notice",
                       type: type,
                       html: message});
             }
 
-        }else{
+        } else {
             $selector
                 .hide()
                 .css("opacity", 0)
@@ -91,17 +91,17 @@ console.log(type);
                 opacity = 100;
             }
 
-            $selector.animate({opacity : opacity}, 300, function(){
-                var close = function(){
-                    $selector.animate({opacity : 0, height : 0}, 500, function(){
+            $selector.animate({opacity : opacity}, 300, function() {
+                var close = function() {
+                    $selector.animate({opacity : 0, height : 0}, 500, function() {
                         $(this).hide();
                     });
                 }
 
-                $(".clickClose").click(function(){
+                $(".clickClose").click(function() {
                     var $self = $(this);
 
-                    $self.animate({opacity : 0, height : 0}, 500, function(){
+                    $self.animate({opacity : 0, height : 0}, 500, function() {
                         $self.hide();
                     });
                 });
@@ -115,7 +115,7 @@ console.log(type);
 
                 if (autoClose > 0) {
                     // Positive autoclose will close with a click, or after timeout
-                    $selector.click(function(){
+                    $selector.click(function() {
                         close();
                     });
                 }

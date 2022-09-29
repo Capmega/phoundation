@@ -25,11 +25,11 @@
  *
  * @return void
  */
-function os_library_init(){
+function os_library_init() {
     try{
         load_libs('servers');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('os_library_init(): Failed', $e);
     }
 }
@@ -50,21 +50,21 @@ function os_library_init(){
  * @param mixed commands
  * @return mixed
  */
-function os_execute_command($hostname, $command = null){
+function os_execute_command($hostname, $command = null) {
     try{
-        if(is_array($hostname)){
+        if(is_array($hostname)) {
             /*
              * Server data has been specified by calling function
              */
             $server = $hostname;
 
-        }else{
+        } else {
             /*
              * Load server data from database
              */
             $server = servers_get($hostname);
 
-            if(!$server){
+            if(!$server) {
                 throw new CoreException(tr('os_execute_command(): Specified hostname ":hostname" does not exist', array(':hostname' => $hostname)), 'not-exists');
             }
         }
@@ -72,7 +72,7 @@ function os_execute_command($hostname, $command = null){
         /*
          * Ensure we know what function to exexute
          */
-        if($command === null){
+        if($command === null) {
             $command = current_function(-1);
 showdie($command);
         }
@@ -81,7 +81,7 @@ showdie($command);
          * Depending on the OS type, load the required library and continue
          * there
          */
-        switch($server['os_type']){
+        switch($server['os_type']) {
             case 'linux':
                 load_libs('linux');
                 return 'linux_'.$command($server, $command);
@@ -102,7 +102,7 @@ showdie($command);
                 throw new CoreException(tr('os_execute_command(): Unknown operating system type ":type" found for hostname ":hostname"', array(':hostname' => $hostname, ':type' => $server['type'])), 'unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('os_execute_command(): Failed', $e);
     }
 }
@@ -121,11 +121,11 @@ showdie($command);
  * @param mixed $hostname
  * return mixed
  */
-function os_enable_ssh_tcp_forwarding($hostname){
+function os_enable_ssh_tcp_forwarding($hostname) {
     try{
         return os_execute_command($hostname);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('os_enable_ssh_tcp_forwarding(): Failed', $e);
     }
 }

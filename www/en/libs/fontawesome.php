@@ -13,7 +13,7 @@
 /*
  * Create HTML <select> with all fontawesome classes
  */
-function fontawesome_select($params){
+function fontawesome_select($params) {
     try{
         array_ensure($params);
         array_default($params, 'sort', true);
@@ -26,7 +26,7 @@ function fontawesome_select($params){
 
         $params['resource'] = fontawesome_array();
 
-        if($params['sort']){
+        if($params['sort']) {
             ksort($params['resource']);
         }
 
@@ -34,7 +34,7 @@ function fontawesome_select($params){
 
         return cache_write($html, 'select'.isset_get($params['selected']), 'fontawesome');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fontawesome_select(): Failed', $e);
     }
 }
@@ -53,7 +53,7 @@ function fontawesome_exists($class) {
 /*
  * Return an array with all fontawesome items
  */
-function fontawesome_array(){
+function fontawesome_array() {
     return array('address-book'                        => 'address-book',
                  'address-book-o'                      => 'address-book-o',
                  'address-card'                        => 'address-card',
@@ -1036,7 +1036,7 @@ function fontawesome_array(){
 /*
  * Update the fontawesome installation
  */
-function fontawesome_update(){
+function fontawesome_update() {
     try{
         load_libs('cli');
 
@@ -1045,7 +1045,7 @@ function fontawesome_update(){
 
         file_delete(TMP.'fontawesome');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fontawesome_update(): Failed', $e);
     }
 }

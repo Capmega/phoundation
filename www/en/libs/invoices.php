@@ -27,7 +27,7 @@
  *
  * @return void
  */
-function invoices_library_init(){
+function invoices_library_init() {
     try{
         ensure_installed(array('name'      => 'invoice',
                                'callback'  => 'invoices_install',
@@ -35,7 +35,7 @@ function invoices_library_init(){
                                'functions' => 'invoice,foobar',
                                'which'     => 'invoice,foobar'));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('invoices_library_init(): Failed', $e);
     }
 }
@@ -55,12 +55,12 @@ function invoices_library_init(){
  * @param
  * @return
  */
-function invoices_install($params){
+function invoices_install($params) {
     try{
         load_libs('apt');
         apt_install('invoice');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('invoices_install(): Failed', $e);
     }
 }
@@ -79,7 +79,7 @@ function invoices_install($params){
  * @param array $invoice The invoice to validate
  * @return array The validated and cleaned $invoice parameter array
  */
-function invoices_validate($invoice){
+function invoices_validate($invoice) {
     try{
         load_libs('validate,seo');
 
@@ -95,10 +95,10 @@ function invoices_validate($invoice){
         /*
          * Validate description
          */
-        if(empty($invoice['description'])){
+        if(empty($invoice['description'])) {
             $invoice['description'] = null;
 
-        }else{
+        } else {
             $v->hasMinChars($invoice['description'],   16, tr('Please ensure the invoice description has at least 16 characters'));
             $v->hasMaxChars($invoice['description'], 2047, tr('Please ensure the invoice description has less than 2047 characters'));
 
@@ -117,7 +117,7 @@ function invoices_validate($invoice){
 
       return $invoice;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('invoices_validate(): Failed', $e);
     }
 }
@@ -150,7 +150,7 @@ function invoices_validate($invoice){
  * @param string $invoice[bar]
  * @return params The specified invoice, validated and sanitized
  */
-function invoices_insert($invoice){
+function invoices_insert($invoice) {
     try{
         $invoice = invoices_validate($invoice);
 
@@ -165,7 +165,7 @@ function invoices_insert($invoice){
 
         return $invoice;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('invoices_insert(): Failed', $e);
     }
 }
@@ -198,7 +198,7 @@ function invoices_insert($invoice){
  * @param string $params[bar]
  * @return boolean True if the user was updated, false if not. If not updated, this might be because no data has changed
  */
-function invoices_update($invoice){
+function invoices_update($invoice) {
     try{
         $invoice = invoices_validate($invoice);
 
@@ -217,7 +217,7 @@ function invoices_update($invoice){
 
         return (boolean) $update->rowCount();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('invoices_update(): Failed', $e);
     }
 }
@@ -242,7 +242,7 @@ function invoices_update($invoice){
  * @param string $parent
  * @return mixed The invoice data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified invoice does not exist, NULL will be returned.
  */
-function invoices_get($invoice, $column = null, $status = null, $parent = false){
+function invoices_get($invoice, $column = null, $status = null, $parent = false) {
     try{
         array_ensure($params, 'seoinvoice');
 
@@ -274,7 +274,7 @@ function invoices_get($invoice, $column = null, $status = null, $parent = false)
 
         return sql_simple_get($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('invoices_get(): Failed', $e);
     }
 }
@@ -295,7 +295,7 @@ function invoices_get($invoice, $column = null, $status = null, $parent = false)
  * @param params $params The list parameters
  * @return mixed The list of available invoices
  */
-function invoices_list($params){
+function invoices_list($params) {
     try{
         array_ensure($params);
 
@@ -303,7 +303,7 @@ function invoices_list($params){
 
         return sql_simple_list($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('invoices_list(): Failed', $e);
     }
 }
@@ -335,7 +335,7 @@ function invoices_list($params){
  * @param $params resource
  * @return string HTML for a invoices select box within the specified parameters
  */
-function invoices_select($params = null){
+function invoices_select($params = null) {
     try{
         array_ensure($params);
         array_default($params, 'name'      , 'seoinvoice');
@@ -351,15 +351,15 @@ function invoices_select($params = null){
 
         $execute = array();
 
-        if($params['remove']){
-            if(count(array_force($params['remove'])) == 1){
+        if($params['remove']) {
+            if(count(array_force($params['remove'])) == 1) {
                 /*
                  * Filter out only one entry
                  */
                 $where[] = ' `id` != :id ';
                 $execute[':id'] = $params['remove'];
 
-            }else{
+            } else {
                 /*
                  * Filter out multiple entries
                  */
@@ -369,23 +369,23 @@ function invoices_select($params = null){
             }
         }
 
-        if($params['parents_id']){
+        if($params['parents_id']) {
             $where[] = ' `parents_id` = :parents_id ';
             $execute[':parents_id'] = $params['parents_id'];
 
-        }else{
+        } else {
             $where[] = ' `parents_id` IS NULL ';
         }
 
-        if($params['status'] !== false){
+        if($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)){
+        if(empty($where)) {
             $where = '';
 
-        }else{
+        } else {
             $where = ' WHERE '.implode(' AND ', $where).' ';
         }
 
@@ -395,7 +395,7 @@ function invoices_select($params = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('invoices_select(): Failed', $e);
     }
 }
@@ -437,10 +437,10 @@ function invoices_select($params = null){
  * @param string $params[bar]
  * @return string The result
  */
-function invoices_function($params){
+function invoices_function($params) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('invoices_function(): Failed', $e);
     }
 }

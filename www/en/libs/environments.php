@@ -29,7 +29,7 @@
  * @param string $params none
  * @return string HTML for a environments select box within the specified parameters
  */
-function environments_select($params = null){
+function environments_select($params = null) {
     try{
         array_ensure($params);
         array_default($params, 'name' , 'environment');
@@ -38,14 +38,14 @@ function environments_select($params = null){
 
         $params['resource'] = array();
 
-        foreach(get_config('deploy')['deploy'] as $key => $config){
+        foreach(get_config('deploy')['deploy'] as $key => $config) {
             $params['resource'][$key] = $key;
         }
 
         $retval = html_select($params);
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('environments_select(): Failed', $e);
     }
 }

@@ -29,7 +29,7 @@
  * @param string the URL to be cloaked
  * @return string The cloaked URL
  */
-function url_cloak($url){
+function url_cloak($url) {
     try{
         $cloak = sql_get('SELECT `cloak`
 
@@ -41,7 +41,7 @@ function url_cloak($url){
                           true, array(':url'       => $url,
                                       ':createdby' => isset_get($_SESSION['user']['id'])));
 
-        if($cloak){
+        if($cloak) {
             /*
              * Found cloaking URL, update the createdon time so that it won't
              * exipre too soon
@@ -61,7 +61,7 @@ function url_cloak($url){
 
         return $cloak;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('url_cloak(): Failed', $e);
     }
 }
@@ -84,24 +84,24 @@ function url_cloak($url){
  * @param string the URL to be cloaked
  * @return string The cloaked URL
  */
-function url_decloak($cloak){
+function url_decloak($cloak) {
     global $_CONFIG, $core;
 
     try{
         $data = sql_get('SELECT `createdby`, `url` FROM `url_cloaks` WHERE `cloak` = :cloak', array(':cloak' => $cloak));
 
-        if(mt_rand(0, 100) <= $_CONFIG['security']['url_cloaking']['interval']){
+        if(mt_rand(0, 100) <= $_CONFIG['security']['url_cloaking']['interval']) {
             url_cloak_cleanup();
         }
 
-        if($data){
+        if($data) {
             $core->register['url_cloak_users_id'] = $data['createdby'];
             return $data['url'];
         }
 
         return '';
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('url_decloak(): Failed', $e);
     }
 }
@@ -123,7 +123,7 @@ function url_decloak($cloak){
  *
  * @return natural The amount of expired entries removed from the `url_cloaks` table
  */
-function url_cloak_cleanup(){
+function url_cloak_cleanup() {
     global $_CONFIG;
 
     try{
@@ -135,7 +135,7 @@ function url_cloak_cleanup(){
 
         return $r->rowCount();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('url_cloak_cleanup(): Failed', $e);
     }
 }

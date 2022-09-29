@@ -12,11 +12,11 @@
 /*
  * Play the specified audio file
  */
-function sound_play($file){
+function sound_play($file) {
     try{
         shell_exec('sudo nohup /usr/bin/aplay '.$file.' 2>/dev/null >/dev/null &');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sound_play(): Failed', $e);
     }
 }

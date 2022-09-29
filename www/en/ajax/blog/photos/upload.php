@@ -13,11 +13,11 @@ try{
     try{
         $image = getimagesize(ROOT.'www/en/photos/'.$photo['photo'].'_big.jpg');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         $image = false;
     }
 
-    if(!$image){
+    if(!$image) {
         $image = array(tr('Invalid image'), tr('Invalid image'));
     }
 
@@ -36,8 +36,8 @@ try{
                                     </div>
                                 </div>'));
 
-}catch(Exception $e){
-    switch($e->getCode()){
+}catch(Exception $e) {
+    switch($e->getCode()) {
         case UPLOAD_ERR_INI_SIZE:
             // FALLTHROUGH
         case UPLOAD_ERR_FORM_SIZE:

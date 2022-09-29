@@ -2,11 +2,11 @@
 /*
  * Redirect back to the site.
  */
-if(empty($_GET['redirect'])){
+if(empty($_GET['redirect'])) {
     log_file(tr('No return redirect for root_cookie script specified, showing 404 page instead as nobody should arrive here by hand'), 'root_cookie', 'warning');
     page_show(404);
 
-}else{
+} else {
     $_GET['redirect'] = urldecode($_GET['redirect']);
 
     /*

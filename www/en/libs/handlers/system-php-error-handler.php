@@ -1,11 +1,11 @@
 <?php
 global $core;
 
-if(!isset($core)){
+if(!isset($core)) {
     throw new CoreException(tr('Pre core available PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline)), 'PHP'.$errno);
 }
 
-if(empty($core->register['ready'])){
+if(empty($core->register['ready'])) {
     throw new CoreException(tr('Pre core ready PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline)), 'PHP'.$errno);
 }
 

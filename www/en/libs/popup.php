@@ -12,7 +12,7 @@
 /*
  * Crfeate HTML popup with the specified content
  */
-function popup_create($content){
+function popup_create($content) {
     try{
         return '<div class="popup container">
                     <div class="popup cover">
@@ -25,7 +25,7 @@ function popup_create($content){
                     </div>
                 </div>';
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('popup_create(): Failed', $e);
     }
 }

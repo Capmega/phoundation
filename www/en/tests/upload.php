@@ -4,7 +4,7 @@
  */
 require_once(__DIR__.'/../libs/startup.php');
 
-if(ENVIRONMENT == 'production'){
+if(ENVIRONMENT == 'production') {
 	page_show(404);
 }
 
@@ -14,7 +14,7 @@ html_only();
  * DO NOT MODIFY THE LINES ABOVE!
  * FROM HERE BE TESTS!
  */
-if(isset($_POST['submit'])){
+if(isset($_POST['submit'])) {
 	load_libs('upload');
 	upload_check_files();
 }

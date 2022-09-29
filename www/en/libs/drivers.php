@@ -28,7 +28,7 @@
  * @param string $model
  * @return void
  */
-function drivers_setup($type, $brand, $model, $server = null){
+function drivers_setup($type, $brand, $model, $server = null) {
     try{
         cli_only();
         load_libs('linux');
@@ -36,11 +36,11 @@ function drivers_setup($type, $brand, $model, $server = null){
         $brand = strtolower($brand);
         $model = strtolower($model);
 
-        switch($type){
+        switch($type) {
             case 'printer':
                 // FALLTHROUGH
             case 'scanner':
-                switch($brand){
+                switch($brand) {
                     case 'brother':
                         /*
                          * Brother MFC L-8900 CDW scanner / printer combo
@@ -67,7 +67,7 @@ function drivers_setup($type, $brand, $model, $server = null){
                 throw new CoreException(tr('drivers_setup(): Unknown device type ":type" specified', array(':type' => $type)), 'unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('drivers_setup(): Failed'), $e);
     }
 }

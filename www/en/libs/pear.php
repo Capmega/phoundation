@@ -27,13 +27,13 @@
  * @param
  * @return
  */
-function pear_library_init(){
+function pear_library_init() {
     try{
         ensure_installed(array('name'     => 'pear',
                                'callback' => 'pear_install',
                                'checks'   => array(ROOT.'libs/external/pear/')));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pear_library_init(): Failed', $e);
     }
 }
@@ -54,11 +54,11 @@ function pear_library_init(){
  * @param
  * @return
  */
-function pear_install($params){
+function pear_install($params) {
     try{
         safe_exec('sudo apt -y install pear');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pear_install(): Failed', $e);
     }
 }
@@ -78,11 +78,11 @@ function pear_install($params){
  * @return array the output from the command
  * @throws A BException will be thrown if
  */
-function pear_channel_discover($channel){
+function pear_channel_discover($channel) {
     try{
         return safe_exec('sudo pear channel-discover '.$channel);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pear_install(): Failed', $e);
     }
 }
@@ -102,11 +102,11 @@ function pear_channel_discover($channel){
  * @return array the output from the "pear install $package" command
  * @throws A BException will be thrown if the PEAR command fails. This exception will contain the output of the failed PEAR command
  */
-function pear_install_package($package){
+function pear_install_package($package) {
     try{
         return safe_exec('sudo pear install '.$package);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pear_install(): Failed', $e);
     }
 }

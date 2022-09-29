@@ -10,13 +10,13 @@ $selected = isset_get($_GET['id']);
 /*
  * We have to do something?
  */
-switch(isset_get($_POST['doaction'])){
+switch(isset_get($_POST['doaction'])) {
     case tr('Delete'):
         try{
             /*
              * Delete the specified contact messages
              */
-            if(empty($_POST['id'])){
+            if(empty($_POST['id'])) {
                 throw new CoreException('No contact messages selected to delete', 'notspecified');
             }
 
@@ -28,14 +28,14 @@ switch(isset_get($_POST['doaction'])){
 
                        $list);
 
-            if($r->rowCount()){
+            if($r->rowCount()) {
                 html_flash_set(tr('Deleted %count% contact messages', '%count%', $r->rowCount()), 'success');
 
-            }else{
+            } else {
                 throw new CoreException(tr('Found no contact messages to delete'), 'notfound');
             }
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             html_flash_set(tr('Failed to delete contact messages because "'.$e->getMessage().'"'), 'error');
         }
 
@@ -46,7 +46,7 @@ switch(isset_get($_POST['doaction'])){
             /*
              * Delete the specified contact messages
              */
-            if(empty($_POST['id'])){
+            if(empty($_POST['id'])) {
                 throw new CoreException('No contact messages selected to undelete', 'notspecified');
             }
 
@@ -58,14 +58,14 @@ switch(isset_get($_POST['doaction'])){
 
                        $list);
 
-            if($r->rowCount()){
+            if($r->rowCount()) {
                 html_flash_set(tr('Undeleted %count% contact messages', '%count%', $r->rowCount()), 'success');
 
-            }else{
+            } else {
                 throw new CoreException(tr('Found no contact messages to undelete'), 'notfound');
             }
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             html_flash_set(tr('Failed to undelete contact messages because "'.$e->getMessage().'"'), 'error');
         }
 
@@ -76,7 +76,7 @@ switch(isset_get($_POST['doaction'])){
             /*
              * Delete the specified contact messages
              */
-            if(empty($_POST['id'])){
+            if(empty($_POST['id'])) {
                 throw new CoreException('No contact messages selected to erase', 'notspecified');
             }
 
@@ -84,14 +84,14 @@ switch(isset_get($_POST['doaction'])){
 
             $r = sql_query('DELETE FROM `contactus` WHERE `status` = "deleted" AND `id` IN ('.implode(', ', array_keys($list)).')', $list);
 
-            if($r->rowCount()){
+            if($r->rowCount()) {
                 html_flash_set(tr('Erased %count% contact messages', '%count%', $r->rowCount()), 'success');
 
-            }else{
+            } else {
                 throw new CoreException(tr('Found no contact messages to erase'), 'notfound');
             }
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             html_flash_set(tr('Failed to erase contact messages because "'.$e->getMessage().'"'), 'error');
         }
 }
@@ -110,13 +110,13 @@ $r = sql_query('SELECT `contactus`.`id`,
 
                 FROM   `contactus`');
 
-if(!$r->rowCount()){
+if(!$r->rowCount()) {
     $html .= '<tr><td>'.tr('There are no contact messages yet').'</td></tr>';
 
-}else{
+} else {
     $html .= '<thead><td class="select"><input type="checkbox" name="id[]" class="all"></td><td>'.tr('Created on').'</td><td>'.tr('Name').'</td><td>'.tr('Email').'</td><td>'.tr('message').'</td><td>'.tr('Status').'</td></thead>';
 
-    while($contact = sql_fetch($r)){
+    while($contact = sql_fetch($r)) {
         $html .= '<tr'.($selected == $contact['id'] ? ' class="selected"' : '').'>
                       <td class="select"><input type="checkbox" name="id[]" value="'.$contact['id'].'"></td>
                       <td>'.$contact['createdon'].'</td>
@@ -130,7 +130,7 @@ if(!$r->rowCount()){
 
 $html .= '</table>';
 
-if($r->rowCount()){
+if($r->rowCount()) {
     $html .= '<input type="submit" name="doaction" value="'.tr('Delete').'">
               <input type="submit" name="doaction" value="'.tr('Undelete').'">
               <input type="submit" name="doaction" value="'.tr('Erase').'">';

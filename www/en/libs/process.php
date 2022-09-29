@@ -13,21 +13,21 @@
 /*
  *
  */
-function process_get_user(){
+function process_get_user() {
     try{
-        if(is_executable('posix_getpwuid')){
+        if(is_executable('posix_getpwuid')) {
             $id   = posix_geteuid();
             $user = posix_getpwuid($id);
             $user = $user['name'];
 
-        }else{
+        } else {
             $user = safe_exec(array('commands' => array('whoami')));
             $user = array_pop($user);
         }
 
         return $user;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('process_get_user(): Failed'), $e);
     }
 }
@@ -37,13 +37,13 @@ function process_get_user(){
 /*
  * Returns true if the specified process name is running
  */
-function process_runs($process_name){
+function process_runs($process_name) {
     try{
         $results = safe_exec(array('ok_exitcodes' => '1',
                                    'commands'     => array('pgrep', array($process_name))));
         return (boolean) count($results);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('process_runs(): Failed', $e);
     }
 }
@@ -53,15 +53,15 @@ function process_runs($process_name){
 /*
  * Return TRUE if the user of the current process is the root user
  */
-function process_detect_root(){
+function process_detect_root() {
     try{
-        if(!is_executable('posix_getuid')){
+        if(!is_executable('posix_getuid')) {
             throw new CoreException(tr('process_detect_root(): The PHP posix module is not installed. Do note that this function only works on Linux machines!'), 'not-installed');
         }
 
         return posix_getuid() == 0;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('process_detect_root(): Failed'), $e);
     }
 }
@@ -71,10 +71,10 @@ function process_detect_root(){
 /*
  * Return TRUE if the user of the current process has sudo available
  */
-function process_detect_sudo(){
+function process_detect_sudo() {
     try{
 // :TODO: Implement function
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('process_detect_sudo(): Failed'), $e);
     }
 }

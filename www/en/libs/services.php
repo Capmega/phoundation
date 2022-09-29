@@ -26,12 +26,12 @@
  *
  * @return void
  */
-function services_library_init(){
+function services_library_init() {
     try{
         load_libs('servers');
         load_config('services');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('services_library_init(): Failed', $e);
     }
 }
@@ -50,15 +50,15 @@ function services_library_init(){
  * @param mixed $server:
  * @return natural The amount of scanned servers
  */
-function services_scan($server = null){
+function services_scan($server = null) {
     try{
-        if(!$server){
+        if(!$server) {
             /*
              * Scan ALL servers
              */
             $domains = sql_query('SELECT `domain` FROM `servers` WHERE `status` IS NULL');
 
-            while($domain = sql_fetch($domains, true)){
+            while($domain = sql_fetch($domains, true)) {
                 $count++;
                 services_scan($domain);
             }
@@ -72,7 +72,7 @@ function services_scan($server = null){
         $server   = servers_get($server);
         $services = services_list();
 
-        foreach($services as $service){
+        foreach($services as $service) {
             /*
              * Scan for csf
              */
@@ -138,7 +138,7 @@ function services_scan($server = null){
         services_update_server($server, $services);
         return 1;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('services_scan(): Failed', $e);
     }
 }
@@ -157,7 +157,7 @@ function services_scan($server = null){
  * @param params $service
  * @return params The specified service array
  */
-function services_validate($service){
+function services_validate($service) {
     try{
         load_libs('validate,seo');
 
@@ -170,10 +170,10 @@ function services_validate($service){
         /*
          * Description
          */
-        if(empty($service['description'])){
+        if(empty($service['description'])) {
             $service['description'] = '';
 
-        }else{
+        } else {
             $v->hasMinChars($service['description'],   16, tr('Please specifiy a minimum of 16 characters for the description'));
             $v->hasMaxChars($service['description'], 2047, tr('Please specifiy a maximum of 2047 characters for the description'));
 
@@ -184,7 +184,7 @@ function services_validate($service){
 
         return $service;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('services_validate(): Failed', $e);
     }
 }
@@ -205,7 +205,7 @@ function services_validate($service){
  * @param params $service
  * @return params The specified service array
  */
-function services_insert($service){
+function services_insert($service) {
     try{
         $service = services_validate($service);
 
@@ -222,7 +222,7 @@ function services_insert($service){
 
         return $service;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('services_insert(): Failed', $e);
     }
 }
@@ -243,7 +243,7 @@ function services_insert($service){
  * @param params $service
  * @return params The specified service array
  */
-function services_update($service){
+function services_update($service) {
     try{
         $service = services_validate($service);
         meta_action($service['meta_id'], 'update');
@@ -263,7 +263,7 @@ function services_update($service){
 
         return $service;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('services_update(): Failed', $e);
     }
 }
@@ -283,10 +283,10 @@ function services_update($service){
  * @param array $services
  * @return natural The amount of services set for the specified server
  */
-function services_update_server($service){
+function services_update_server($service) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('services_update_server(): Failed', $e);
     }
 }
@@ -307,28 +307,28 @@ function services_update_server($service){
  * @param params $service
  * @return params The specified service array
  */
-function services_get($service, $column = null, $status = null){
+function services_get($service, $column = null, $status = null) {
     try{
-        if(is_numeric($service)){
+        if(is_numeric($service)) {
             $where[] = ' `services`.`id` = :id ';
             $execute[':id'] = $service;
 
-        }else{
+        } else {
             $where[] = ' `services`.`seoname` = :seoname ';
             $execute[':seoname'] = $service;
         }
 
-        if($status !== false){
+        if($status !== false) {
             $execute[':status'] = $status;
             $where[] = ' `services`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
 
-        if($column){
+        if($column) {
             $retval = sql_get('SELECT `'.$column.'` FROM `services` '.$where, true, $execute, 'core');
 
-        }else{
+        } else {
             $retval = sql_get('SELECT    `services`.`id`,
                                          `services`.`createdon`,
                                          `services`.`createdby`,
@@ -347,7 +347,7 @@ function services_get($service, $column = null, $status = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('services_get(): Failed', $e);
     }
 }
@@ -368,21 +368,21 @@ function services_get($service, $column = null, $status = null){
  * @param mixed $server The server for which all services must be cleared. May be specified by id, domain, or server array
  * @return natural The amount of services that were cleared for the specified server
  */
-function services_clear($server){
+function services_clear($server) {
     try{
-        if($server){
+        if($server) {
             $server = servers_get($server);
             $r      = sql_query('DELETE FROM `services_servers`
                                  WHERE       `servers_id` = :servers_id',
 
                                  array(':servers_id' => $server['id']));
-        }else{
+        } else {
             $r      = sql_query('DELETE FROM `services_servers`');
         }
 
         return $r->rowCount();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('services_clear(): Failed', $e);
     }
 }
@@ -413,7 +413,7 @@ function services_clear($server){
  * @param $params resource
  * @return string HTML for a services select box within the specified parameters
  */
-function services_select($params = null){
+function services_select($params = null) {
     try{
         array_ensure($params);
         array_default($params, 'name'    , 'seoservice');
@@ -424,15 +424,15 @@ function services_select($params = null){
         array_default($params, 'none'    , tr('Select a service'));
         array_default($params, 'orderby' , '`name`');
 
-        if($params['status'] !== false){
+        if($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)){
+        if(empty($where)) {
             $where = '';
 
-        }else{
+        } else {
             $where = ' WHERE '.implode(' AND ', $where).' ';
         }
 
@@ -442,7 +442,7 @@ function services_select($params = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('services_select(): Failed', $e);
     }
 }
@@ -464,13 +464,13 @@ function services_select($params = null){
  * @param null string $domain A (part of a) domain name that should be matched as well
  * @return array An array with all domain names that matches the requested type (and optionally $domain)
  */
-function services_list_servers($service, $domain = null, $return_array = false){
+function services_list_servers($service, $domain = null, $return_array = false) {
     try{
-        if($domain){
+        if($domain) {
             $where   = ' WHERE `services`.`seoname` = :seoname';
             $execute = array(':seoname' => $service);
 
-        }else{
+        } else {
             $where   = ' WHERE `services`.`seoname` = :seoname
                          AND   `servers`.`domain`   = :domain';
 
@@ -495,13 +495,13 @@ function services_list_servers($service, $domain = null, $return_array = false){
 
                              $execute);
 
-        if($return_array){
+        if($return_array) {
             return sql_list($retval);
         }
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('services_list_servers(): Failed', $e);
     }
 }

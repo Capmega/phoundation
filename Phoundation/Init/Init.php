@@ -105,7 +105,7 @@ Class Init
                         'rights'   => array('admin', 'users', 'rights'));
                 }
 
-            }elseif(!FORCE and (FRAMEWORKCODEVERSION == $codeversions['FRAMEWORK']) and (PROJECTCODEVERSION == $codeversions['PROJECT'])) {
+            } elseif(!FORCE and (FRAMEWORKCODEVERSION == $codeversions['FRAMEWORK']) and (PROJECTCODEVERSION == $codeversions['PROJECT'])) {
                 /*
                  * Fetch me a pizza, all is just fine!
                  */
@@ -146,7 +146,7 @@ Class Init
 
                 $init = 'forced init';
 
-            }else{
+            } else {
                 $init = 'init';
             }
 
@@ -154,7 +154,7 @@ Class Init
                 if(FORCE) {
                     log_console('Starting '.$init.' FORCED from version "'.FORCE.'" for "'.$_CONFIG['name'].'" using PHP "'.phpversion().'"', 'white');
 
-                }else{
+                } else {
                     log_console('Starting '.$init.' for "'.$_CONFIG['name'].'" using PHP "'.phpversion().'"', 'white');
                 }
 
@@ -227,7 +227,7 @@ Class Init
                              */
                             log_console(tr('Skipped future init file ":version"', array(':version' => $version)), 'VERBOSE/warning');
 
-                        }else{
+                        } else {
                             if(($dbversion === 0) or (version_compare($version, $dbversion) >= 1)) {
                                 /*
                                  * This init file is higher than the DB version, but lower than the code version, so it must be executed
@@ -275,7 +275,7 @@ Class Init
 
                                 log_console('Finished init version "'.$version.'"', 'green');
 
-                            }else{
+                            } else {
                                 /*
                                  * This init file has already been executed so we can skip it.
                                  */
@@ -381,18 +381,18 @@ Class Init
                 $versionerror     = 'Database is empty';
                 $core->register['no-db'] = true;
 
-            }else{
+            } else {
                 if($compare_framework > 0) {
                     $versionerror = (empty($versionerror) ? "" : "\n").tr('Framework core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => Strings::log($_CONFIG['db']['core']['db']), ':dbversion' => FRAMEWORKDBVERSION, ':codeversion' => FRAMEWORKCODEVERSION));
 
-                }elseif($compare_framework < 0) {
+                } elseif($compare_framework < 0) {
                     $versionerror = (empty($versionerror) ? "" : "\n").tr('Framework core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => Strings::log($_CONFIG['db']['core']['db']), ':dbversion' => FRAMEWORKDBVERSION, ':codeversion' => FRAMEWORKCODEVERSION));
                 }
 
                 if($compare_project > 0) {
                     $versionerror = (empty($versionerror) ? "" : "\n").tr('Project core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => Strings::log($_CONFIG['db']['core']['db']), ':dbversion' => PROJECTDBVERSION, ':codeversion' => PROJECTCODEVERSION));
 
-                }elseif($compare_project < 0) {
+                } elseif($compare_project < 0) {
                     $versionerror = (empty($versionerror) ? "" : "\n").tr('Project core database ":db" version ":dbversion" is newer than code version ":codeversion"!', array(':db' => Strings::log($_CONFIG['db']['core']['db']), ':dbversion' => PROJECTDBVERSION, ':codeversion' => PROJECTCODEVERSION));
                 }
             }
@@ -596,7 +596,7 @@ Class Init
                     $dbversion = '0.0.0';
                 }
 
-            }else{
+            } else {
                 /*
                  * No version table found, we're at 0.0.0
                  */
@@ -643,7 +643,7 @@ Class Init
                      */
                     log_console(tr('Skipped future section ":section" init file ":version"', array(':version' => $version, ':section' => $section)), 'VERBOSE');
 
-                }else{
+                } else {
                     if(($dbversion === 0) or (version_compare($version, $dbversion) >= 1)) {
                         /*
                          * This init file is higher than the DB version, but lower than the code version, so it must be executed
@@ -688,7 +688,7 @@ Class Init
                         Sql::query('INSERT INTO `versions` (`version`) VALUES (:version)', array(':version' => $version));
                         log_console('Finished init version "'.$version.'"', 'green');
 
-                    }else{
+                    } else {
                         /*
                          * This init file has already been executed so we can skip it.
                          */

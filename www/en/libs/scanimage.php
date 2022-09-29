@@ -25,12 +25,12 @@
  *
  * @return void
  */
-function scanimage_library_init(){
+function scanimage_library_init() {
     try{
         load_config('scanimage');
         load_libs('linux,image,devices');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('scanimage_library_init(): Failed', $e);
     }
 }
@@ -56,7 +56,7 @@ function scanimage_library_init(){
  * @params string file
  * @return string the file name for the scanned image
  */
-function scanimage($params){
+function scanimage($params) {
     try{
         $server = servers_get($params['domain']);
         $params = scanimage_validate($params);
@@ -65,17 +65,17 @@ function scanimage($params){
          * Finish scan command and execute it
          */
         try{
-            if($params['domain'] !== ''){
+            if($params['domain'] !== '') {
                 load_libs('rsync');
             }
 
-            if($params['batch']){
+            if($params['batch']) {
                 log_console(tr('Batch scanning to path ":path"', array(':path' => $params['path'])), 'cyan');
 
                 /*
                  * Batch scanning is done to a PATH, not a FILE!
                  */
-                if($params['domain'] === ''){
+                if($params['domain'] === '') {
                     /*
                      * This is the own machine
                      */
@@ -91,7 +91,7 @@ function scanimage($params){
                     $params['result']  = $result;
                     return $params;
 
-                }else{
+                } else {
                     /*
                      * This is a remote server
                      */
@@ -112,13 +112,13 @@ function scanimage($params){
                     return $params;
                 }
 
-            }else{
+            } else {
                 log_console(tr('Scanning to file ":file"', array(':file' => $params['file'])), 'cyan');
 
                 /*
                  * Scan a single file
                  */
-                if($params['domain'] === ''){
+                if($params['domain'] === '') {
                     /*
                      * This is the own machine. Scan to the TMP file
                      */
@@ -129,7 +129,7 @@ function scanimage($params){
                     $results                       = servers_exec($server, array('timeout'  => $params['timeout'],
                                                                                  'commands' => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
-                }else{
+                } else {
                     /*
                      * This is a remote server. Scan and rsync the file to TMP
                      */
@@ -150,7 +150,7 @@ function scanimage($params){
                  */
                 file_delete($params['file'], ROOT);
 
-                switch($params['format']){
+                switch($params['format']) {
                     case 'tiff':
                         /*
                          * File should already be in TIFF, so we only have to rename
@@ -179,8 +179,8 @@ function scanimage($params){
 
             return $params;
 
-        }catch(Exception $e){
-            if(!is_numeric($e->getRealCode())){
+        }catch(Exception $e) {
+            if(!is_numeric($e->getRealCode())) {
                 /*
                  *  This is some exception in the processing code, not an
                  *  exception from the command line, apparently
@@ -195,13 +195,13 @@ function scanimage($params){
             $data = $e->getData();
             $line = '';
 
-            if(is_array($data)){
-                while($data){
+            if(is_array($data)) {
+                while($data) {
                     $line = array_shift($data);
                     $line = strtolower($line);
                     $line = trim($line);
 
-                    switch($line){
+                    switch($line) {
                         case 'terminate called after throwing an instance of \'std::bad_alloc\'':
                             // FALLTROUGH
                         case 'scanimage: sane_start: Error during device I/O':
@@ -217,22 +217,22 @@ function scanimage($params){
                             throw new CoreException(tr('scanimage(): Scanner document feeder has no documents'), 'empty');
                     }
 
-                    if(str_exists($line, 'sane_start')){
+                    if(str_exists($line, 'sane_start')) {
                         break;
                     }
 
-                    if(str_exists($line, 'scanimage:')){
+                    if(str_exists($line, 'scanimage:')) {
                         break;
                     }
 
                     $line = '';
                 }
 
-            }else{
+            } else {
                 $line = '';
             }
 
-            switch(substr($line, 0, 25)){
+            switch(substr($line, 0, 25)) {
                 case 'scanimage: no SANE device':
                     /*
                      * No scanner found
@@ -247,11 +247,11 @@ function scanimage($params){
                     $server  = servers_get($params['domain']);
                     $process = linux_pgrep($server, 'scanimage');
 
-                    if(substr($line, -24, 24) === 'failed: invalid argument'){
+                    if(substr($line, -24, 24) === 'failed: invalid argument') {
                         throw new CoreException(tr('scanimage(): The scanner ":scanner" on server ":server" is not responding. Please start or restart the scanner', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'stuck');
 
-                    }else{
-                        if($process){
+                    } else {
+                        if($process) {
                             throw new CoreException(tr('scanimage(): The scanner ":scanner" on server ":server" is already in operation. Please wait for the process to finish, or kill the process', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'busy');
                         }
                     }
@@ -263,7 +263,7 @@ function scanimage($params){
 
         return $params;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('scanimage(): Failed', $e);
     }
 }
@@ -288,7 +288,7 @@ function scanimage($params){
  * @params string file
  * @return params The specified scanimage parameters $params validated
  */
-function scanimage_validate($params){
+function scanimage_validate($params) {
     global $_CONFIG;
 
     try{
@@ -308,16 +308,16 @@ function scanimage_validate($params){
         /*
          * Check source options
          */
-        if($params['source']){
+        if($params['source']) {
             $params['options']['source'] = $params['source'];
 
-            if(preg_match('/(?:bed)|(?:flat)|(?:table)/i', $params['source'])){
+            if(preg_match('/(?:bed)|(?:flat)|(?:table)/i', $params['source'])) {
                 /*
                  * Flatbed table
                  */
 
 
-            }elseif(preg_match('/(?:auto)|(?:feeder)|(?:adf)/i', $params['source'])){
+            } elseif(preg_match('/(?:auto)|(?:feeder)|(?:adf)/i', $params['source'])) {
                 /*
                  * ADF Auto Document Feeder
                  *
@@ -325,7 +325,7 @@ function scanimage_validate($params){
                  */
                 $params['batch'] = true;
 
-            }else{
+            } else {
                 /*
                  * Unknown source type, assume flatbed
                  */
@@ -336,13 +336,13 @@ function scanimage_validate($params){
         /*
          * Get the device with the device options list
          */
-        if($params['device']){
+        if($params['device']) {
             $device = scanimage_get($params['device'], $params['domain']);
 
-        }else{
+        } else {
             $device = scanimage_get_default();
 
-            if(!$device){
+            if(!$device) {
                 $v->setError(tr('No scanner specified and no default scanner found'));
             }
         }
@@ -352,7 +352,7 @@ function scanimage_validate($params){
         /*
          * Ensure this is a document scanner device
          */
-        if($device['type'] !== 'document-scanner'){
+        if($device['type'] !== 'document-scanner') {
             $v->setError(tr('scanimage_validate(): The specified device ":device" is not a document scanner device', array(':device' => $device['id'].' / '.$device['string'])));
         }
 
@@ -364,49 +364,49 @@ function scanimage_validate($params){
          */
         $params['file'] = strtolower(trim($params['file']));
 
-        if(!$params['file']){
+        if(!$params['file']) {
             /*
              * Target file has not been specified
              */
-            if(empty($params['batch'])){
+            if(empty($params['batch'])) {
                 $v->setError(tr('No file specified'));
 
-            }else{
+            } else {
                 $v->setError(tr('No batch scan target path specified'));
             }
 
             $params['path'] = '';
 
-        }elseif($params['batch']){
+        } elseif($params['batch']) {
             /*
              * Ensure the target path exists as a directory
              */
             $params['path'] = file_absolute_path($params['file']);
             $params['path'] = file_ensure_path($params['path']);
 
-        }else{
+        } else {
             /*
              * Single file scan, ensure that the target file does not exist
              */
             $params['path'] = slash(dirname($params['file']));
 
-            if(file_exists($params['file'])){
-                if(!FORCE){
+            if(file_exists($params['file'])) {
+                if(!FORCE) {
                     $v->setError(tr('Specified file ":file" already exists', array(':file' => $params['file'])));
 
-                }elseif(is_file($params['file'])){
+                } elseif(is_file($params['file'])) {
                     file_delete($params['file'], ROOT);
 
-                }else{
-                    if(is_dir($params['file'])){
+                } else {
+                    if(is_dir($params['file'])) {
                         $v->setError(tr('Specified file ":file" already exists but is a directory', array(':file' => $params['file'])));
 
-                    }else{
+                    } else {
                         $v->setError(tr('Specified file ":file" already exists and is not a normal file (maybe a socket or device file?)', array(':file' => $params['file'])));
                     }
                 }
 
-            }else{
+            } else {
                 file_ensure_path($params['path']);
             }
         }
@@ -414,7 +414,7 @@ function scanimage_validate($params){
         /*
          * Validate scanner buffer size
          */
-        if($params['buffer_size']){
+        if($params['buffer_size']) {
             $v->isNatural($params['buffer_size'], tr('Please specify a valid natural numbered buffer size'));
             $v->isBetween($params['buffer_size'], 1, 1024, tr('Please specify a valid buffer size between 1 and 1024'));
         }
@@ -424,7 +424,7 @@ function scanimage_validate($params){
         /*
          * Ensure requested format is known and file ends with correct extension
          */
-        switch($params['format']){
+        switch($params['format']) {
             case 'jpg':
                 // FALLTHROUGH
             case 'jpeg':
@@ -444,14 +444,14 @@ function scanimage_validate($params){
 
         $v->isValid();
 
-        if($params['batch']){
+        if($params['batch']) {
             array_default($params, 'timeout', $_CONFIG['devices']['timeout']['scanners_adf']);
 
-            if($params['format'] != 'tiff'){
+            if($params['format'] != 'tiff') {
                 $v->setError(tr('Specified batch file pattern ":file" has an incorrect file name extension for the requested format ":format", it should have the extension ":extension"', array(':file' => $params['file'], ':format' => $params['format'], ':extension' => $extension)));
             }
 
-            if($params['domain']){
+            if($params['domain']) {
                 $params['local']['batch'] = $params['path'];
                 $params['path']           = '/tmp/'.str_random(16).'/';
 
@@ -461,11 +461,11 @@ function scanimage_validate($params){
             $params['file']             = 'image%d.'.$params['format'];
             $params['options']['batch'] = $params['path'].$params['file'];
 
-        }else{
+        } else {
             array_default($params, 'timeout', $_CONFIG['devices']['timeout']['scanners']);
 
-            if(Strings::fromReverse($params['file'], '.') != $extension){
-                if(($extension !== 'jpg') and (Strings::fromReverse($params['file'], '.') !== 'jpeg')){
+            if(Strings::fromReverse($params['file'], '.') != $extension) {
+                if(($extension !== 'jpg') and (Strings::fromReverse($params['file'], '.') !== 'jpeg')) {
                     $v->setError(tr('Specified file ":file" has an incorrect file name extension for the requested format ":format", it should have the extension ":extension"', array(':file' => $params['file'], ':format' => $params['format'], ':extension' => $extension)));
                 }
 
@@ -479,20 +479,20 @@ function scanimage_validate($params){
         /*
          * Validate parameters against the device
          */
-        if(!$params['options']){
+        if(!$params['options']) {
             $params['options'] = array();
         }
 
-        if(!is_array($params['options'])){
+        if(!is_array($params['options'])) {
             $v->setError(tr('Please ensure options are specified as an array'));
 
-        }else{
-            foreach($params['options'] as $key => $value){
-                if(!isset($device['options'][$key])){
+        } else {
+            foreach($params['options'] as $key => $value) {
+                if(!isset($device['options'][$key])) {
                     /*
                      * This may be a system driver option
                      */
-                    switch($key){
+                    switch($key) {
                         case 'batch':
 // :TODO: Implement validations!
                             break;
@@ -519,12 +519,12 @@ function scanimage_validate($params){
                     goto continue_validation;
                 }
 
-                if(!$value){
+                if(!$value) {
                     unset($params['option']);
                     continue;
                 }
 
-                if(is_string($device['options'][$key])){
+                if(is_string($device['options'][$key])) {
                     /*
                      * This is a value range
                      */
@@ -534,14 +534,14 @@ function scanimage_validate($params){
                     $v->isNatural($value, tr('Please specify a numeric contrast value'));
                     $v->isBetween($value, $device['options'][$key]['min'], $device['options'][$key]['max'], tr('Please ensure that ":key" is in between ":min" and ":max"', array(':key' => $key, ':min' => $device['options'][$key]['min'], ':max' => $device['options'][$key]['max'])));
 
-                }else{
+                } else {
                     $v->inArray($value, $device['options'][$key], tr('Please select a valid ":key" value', array(':key' => $key)));
                 }
 
-                if(strlen($key) == 1){
+                if(strlen($key) == 1) {
                     $options[] = '-'.$key.'='.$value;
 
-                }else{
+                } else {
                     $options[] = '--'.$key.'='.$value;
                 }
 
@@ -555,7 +555,7 @@ function scanimage_validate($params){
 
         return $params;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('scanimage_validate(): Failed', $e);
     }
 }
@@ -573,7 +573,7 @@ function scanimage_validate($params){
  *
  * @return array All found scanner devices
  */
-function scanimage_list(){
+function scanimage_list() {
     try{
         /*
          * Get device data from cache
@@ -581,7 +581,7 @@ function scanimage_list(){
         $devices = devices_list('document-scanner');
         return $devices;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('scanimage_list(): Failed', $e);
     }
 }
@@ -603,19 +603,19 @@ function scanimage_list(){
  *
  * @return array All found scanner devices
  */
-function scanimage_detect_devices($server = null, $sudo = false){
+function scanimage_detect_devices($server = null, $sudo = false) {
     try{
         $scanners = servers_exec($server, array('timeout'  => 90,
                                                 'commands' => array('scanimage', array('sudo' => $sudo, '-L', '-q'))));
         $devices  = array();
 
-        foreach($scanners as $scanner){
+        foreach($scanners as $scanner) {
             if(substr($scanner, 0, 6) != 'device') continue;
 
             $device = null;
             $found  = preg_match_all('/device `(.+?):bus(\d+);dev(\d+)\' is a (.+)/i', $scanner, $matches);
 
-            if($found){
+            if($found) {
                 /*
                  * Found a scanner
                  */
@@ -629,10 +629,10 @@ function scanimage_detect_devices($server = null, $sudo = false){
                                 'driver'         => $matches[1][0],
                                 'string'         => $matches[1][0].':bus'.$matches[2][0].';dev'.$matches[3][0],
                                 'description'    => $matches[4][0]);
-            }else{
+            } else {
                 $found = preg_match_all('/device `((.+?):.+?)\' is a (.+)/i', $scanner, $matches);
 
-                if($found){
+                if($found) {
                     /*
                      * Found a scanner
                      */
@@ -649,7 +649,7 @@ function scanimage_detect_devices($server = null, $sudo = false){
                 }
             }
 
-            if($device){
+            if($device) {
                 $device['manufacturer'] = trim(Strings::until($device['description'], ' '));
                 $device['model']        = trim(Strings::until(Strings::from($device['description'], ' '), ' '));
                 $device['type']         = 'document-scanner';
@@ -660,13 +660,13 @@ function scanimage_detect_devices($server = null, $sudo = false){
                 try{
                     $device['options'] = scanimage_get_options($device['string'], $server, $sudo);
 
-                }catch(Exception $e){
+                }catch(Exception $e) {
                     devices_set_status('failed', $device['string']);
 
                     /*
                      * Options for one device failed to add, continue adding the rest
                      */
-                    if(empty($device['options'])){
+                    if(empty($device['options'])) {
                         /*
                          * HP device? Give information on how to solve this issue
                          */
@@ -674,8 +674,8 @@ function scanimage_detect_devices($server = null, $sudo = false){
                         log_console(tr('Scanner options exception:'), 'yellow');
                         log_console($e, 'yellow');
 
-                        if(strstr($device['string'], 'hpaio') or strstr($device['string'], 'Hewlett-Packard') or strstr($device['string'], ' HP')){
-                            if(strstr($e->getData(), 'Error during device I/O')){
+                        if(strstr($device['string'], 'hpaio') or strstr($device['string'], 'Hewlett-Packard') or strstr($device['string'], ' HP')) {
+                            if(strstr($e->getData(), 'Error during device I/O')) {
                                 log_console(tr('*** INFO *** Device ":string" appears to be an Hewlett Packard scanner with an "Error during device I/O" error. This possibly is a known issue with a solution', array(':string' => $device['string'])), 'yellow');
                                 log_console(tr('Uninstall the current "hplip" package from your installation, and install the official HP version'), 'yellow');
                                 log_console(tr('For more information, see ":url"', array(':url' => 'https://unix.stackexchange.com/questions/272951/hplip-hpaio-error-during-device-i-o')), 'yellow');
@@ -683,7 +683,7 @@ function scanimage_detect_devices($server = null, $sudo = false){
                             }
                         }
 
-                    }else{
+                    } else {
                         log_console(tr('Failed to store options for device ":device" with device string ":string", scanner device has been disabled', array(':device' => $device['description'], ':string' => $device['string'])), 'yellow');
                         log_console(tr('Options data:'), 'yellow');
                         log_console($device['options'], 'yellow');
@@ -700,7 +700,7 @@ function scanimage_detect_devices($server = null, $sudo = false){
 
         return $devices;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('scanimage_detect_devices(): Failed', $e);
     }
 }
@@ -722,7 +722,7 @@ function scanimage_detect_devices($server = null, $sudo = false){
 // *
 // * @return array All found scanner devices
 // */
-//function scanimage_update_devices(){
+//function scanimage_update_devices() {
 //    try{
 //        load_libs('devices');
 //        devices_clear('scanner');
@@ -730,14 +730,14 @@ function scanimage_detect_devices($server = null, $sudo = false){
 //        $scanners = scanimage_detect_devices();
 //        $failed   = 0;
 //
-//        foreach($scanners as $scanner){
+//        foreach($scanners as $scanner) {
 //            unset($options);
 //
 //            try{
 //                $scanner = devices_insert($scanner, 'scanner');
 //                log_console(tr('Added device ":device" with device string ":string"', array(':device' => $scanner['description'], ':string' => $scanner['string'])), 'green');
 //
-//            }catch(Exception $e){
+//            }catch(Exception $e) {
 //                $failed++;
 //
 //                /*
@@ -757,14 +757,14 @@ function scanimage_detect_devices($server = null, $sudo = false){
 //
 //                log_console(tr('Added ":count" options for device string ":string"', array(':string' => $scanner['string'], ':count' => $count)), 'VERBOSE/green');
 //
-//            }catch(Exception $e){
+//            }catch(Exception $e) {
 //                $failed++;
 //                devices_set_status($scanner['string'], 'failed');
 //
 //                /*
 //                 * Options for one device failed to add, continue adding the rest
 //                 */
-//                if(empty($options)){
+//                if(empty($options)) {
 //                    /*
 //                     * HP device? Give information on how to solve this issue
 //                     */
@@ -772,8 +772,8 @@ function scanimage_detect_devices($server = null, $sudo = false){
 //                    log_console(tr('Scanner options exception:'), 'yellow');
 //                    log_console($e, 'yellow');
 //
-//                    if(strstr($scanner['string'], 'hpaio') or strstr($scanner['string'], 'Hewlett-Packard') or strstr($scanner['string'], ' HP')){
-//                        if(strstr($e->getData(), 'Error during device I/O')){
+//                    if(strstr($scanner['string'], 'hpaio') or strstr($scanner['string'], 'Hewlett-Packard') or strstr($scanner['string'], ' HP')) {
+//                        if(strstr($e->getData(), 'Error during device I/O')) {
 //                            log_console(tr('*** INFO *** Device ":string" appears to be an Hewlett Packard scanner with an "Error during device I/O" error. This possibly is a known issue with a solution', array(':string' => $scanner['string'])), 'yellow');
 //                            log_console(tr('Uninstall the current "hplip" package from your installation, and install the official HP version'), 'yellow');
 //                            log_console(tr('For more information, see ":url"', array(':url' => 'https://unix.stackexchange.com/questions/272951/hplip-hpaio-error-during-device-i-o')), 'yellow');
@@ -781,7 +781,7 @@ function scanimage_detect_devices($server = null, $sudo = false){
 //                        }
 //                    }
 //
-//                }else{
+//                } else {
 //                    log_console(tr('Failed to store options for device ":device" with device string ":string", scanner device has been disabled', array(':device' => $scanner['description'], ':string' => $scanner['string'])), 'yellow');
 //                    log_console(tr('Options data:'), 'yellow');
 //                    log_console($options, 'yellow');
@@ -793,13 +793,13 @@ function scanimage_detect_devices($server = null, $sudo = false){
 //            }
 //        }
 //
-//        if(empty($failed)){
+//        if(empty($failed)) {
 //            return $scanners;
 //        }
 //
 //        throw new CoreException(tr('scanimage_update_devices(): Failed to add ":count" scanners or driver options, see file log for more information', array(':count' => $failed)), 'warning/failed');
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('scanimage_update_devices(): Failed', $e);
 //    }
 //}
@@ -822,14 +822,14 @@ function scanimage_detect_devices($server = null, $sudo = false){
  * @param string $device
  * @return
  */
-function scanimage_get_options($device, $server = null, $sudo = false){
+function scanimage_get_options($device, $server = null, $sudo = false) {
     try{
         $results = servers_exec($server, array('commands' => array('scanimage', array('sudo' => $sudo, '-A', '-d', $device))));
         $retval  = array();
 
-        foreach($results as $result){
-            if(strstr($result, 'failed:')){
-                if(strtolower(trim(Strings::from($result, 'failed:'))) == 'invalid argument'){
+        foreach($results as $result) {
+            if(strstr($result, 'failed:')) {
+                if(strtolower(trim(Strings::from($result, 'failed:'))) == 'invalid argument') {
                     throw new CoreException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e". This could possibly be a permission issue; does the current process user has the required access to scanner devices? Please check this user\'s groups!', array(':device' => $device, ':e' => trim(Strings::from($result, 'failed:')))), 'failed', $result);
                 }
 
@@ -839,7 +839,7 @@ function scanimage_get_options($device, $server = null, $sudo = false){
             $result = trim($result);
             $status = null;
 
-            if(substr($result, 0, 1) != '-'){
+            if(substr($result, 0, 1) != '-') {
                 /*
                  * Doesn't contain driver info
                  */
@@ -849,11 +849,11 @@ function scanimage_get_options($device, $server = null, $sudo = false){
             /*
              * These are driver keys
              */
-            if(substr($result, 0, 2) == '--'){
+            if(substr($result, 0, 2) == '--') {
                 /*
                  * These are double dash options
                  */
-                if(!preg_match_all('/--([a-zA-Z-]+)(.+)/', $result, $matches)){
+                if(!preg_match_all('/--([a-zA-Z-]+)(.+)/', $result, $matches)) {
                     throw new CoreException(tr('scanimage_get_options(): Unknown driver line format encountered for key "resolution"'), 'unknown');
                 }
 // :DEBUG: Do not remove the folowing commented line(s), its for debugging purposes
@@ -865,7 +865,7 @@ function scanimage_get_options($device, $server = null, $sudo = false){
                 $default = trim(Strings::untilReverse($default, ']'));
                 $data    = trim(Strings::untilReverse($data, ' ['));
 
-                if($default === 'inactive'){
+                if($default === 'inactive') {
                     $status  =  $default;
                     $default = null;
                 }
@@ -874,14 +874,14 @@ function scanimage_get_options($device, $server = null, $sudo = false){
 //show($key);
 //show($data);
 //show($default);
-                if($data == '[=(yes|no)]'){
+                if($data == '[=(yes|no)]') {
                     /*
                      * Options are yes or no
                      */
                     $data = array('yes', 'no');
 
-                }else{
-                    switch($key){
+                } else {
+                    switch($key) {
                         case 'mode':
                             // FALLTHROUGH
                         case 'scan-area':
@@ -893,13 +893,13 @@ function scanimage_get_options($device, $server = null, $sudo = false){
                         case 'resolution':
                             $data = str_replace('dpi', '', $data);
 
-                            if(strstr($data, '..')){
+                            if(strstr($data, '..')) {
                                 /*
                                  * Resolutions given as a range instead of discrete values
                                  */
                                 $data = array(trim($data));
 
-                            }else{
+                            } else {
                                 $data = explode('|', $data);
                             }
 
@@ -918,8 +918,8 @@ function scanimage_get_options($device, $server = null, $sudo = false){
                             break;
 
                         default:
-                            if(!strstr($data, '|')){
-                                if(!strstr($data, '..')){
+                            if(!strstr($data, '|')) {
+                                if(!strstr($data, '..')) {
                                     throw new CoreException(tr('scanimage_get_options(): Unknown driver line ":result" found', array(':result' => $result)), 'unknown');
                                 }
 
@@ -930,7 +930,7 @@ function scanimage_get_options($device, $server = null, $sudo = false){
                                 $data = str_replace('%', '', $data);
                                 $data = array(trim($data));
 
-                            }else{
+                            } else {
                                 /*
                                  * Unknown entry, but treat it as a distinct list
                                  */
@@ -941,11 +941,11 @@ function scanimage_get_options($device, $server = null, $sudo = false){
                     }
                 }
 
-            }else{
+            } else {
                 /*
                  * These are single dash options
                  */
-                if(!preg_match_all('/-([a-zA-Z-]+)(.+)/', $result, $matches)){
+                if(!preg_match_all('/-([a-zA-Z-]+)(.+)/', $result, $matches)) {
                     throw new CoreException(tr('scanimage_get_options(): Unknown driver line format encountered for key "resolution"'), 'unknown');
                 }
 // :DEBUG: Do not remove the folowing commented line(s), its for debugging purposes
@@ -958,7 +958,7 @@ function scanimage_get_options($device, $server = null, $sudo = false){
                 $data    = Strings::untilReverse($data, ' [');
                 $data    = trim(str_replace('mm', '', $data));
 
-                if($default === 'inactive'){
+                if($default === 'inactive') {
                     $status  =  $default;
                     $default = null;
                 }
@@ -967,7 +967,7 @@ function scanimage_get_options($device, $server = null, $sudo = false){
 //show($key);
 //show($data);
 //show($default);
-                switch($key){
+                switch($key) {
                     case 'l':
                         $data = Strings::until($data, '(');
                         $data = str_replace('%', '', $data);
@@ -1004,7 +1004,7 @@ function scanimage_get_options($device, $server = null, $sudo = false){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('scanimage_get_options(): Failed for device ":device"', array(':device' => $device)), $e);
     }
 }
@@ -1022,12 +1022,12 @@ function scanimage_get_options($device, $server = null, $sudo = false){
  *
  * @return
  */
-function scanimage_get_default(){
+function scanimage_get_default() {
     try{
         $scanners = scanimage_list();
 
-        while($scanner = sql_fetch($scanners)){
-            if($scanner['default']){
+        while($scanner = sql_fetch($scanners)) {
+            if($scanner['default']) {
                 $scanner = scanimage_get($scanner['seostring'], $scanner['servers_id']);
                 return $scanner;
             }
@@ -1035,7 +1035,7 @@ function scanimage_get_default(){
 
         return null;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('scanimage_get_default(): Failed', $e);
     }
 }
@@ -1054,9 +1054,9 @@ function scanimage_get_default(){
  * @param string $device_string The device to get and return data from
  * @return array All found data for the specified device
  */
-function scanimage_get($device, $server = null){
+function scanimage_get($device, $server = null) {
     try{
-        if(!$device){
+        if(!$device) {
             /*
              * No specific device specified, use the default
              */
@@ -1065,8 +1065,8 @@ function scanimage_get($device, $server = null){
 
         $scanner = devices_get($device, $server);
 
-        if(!$scanner){
-            if(is_numeric($device)){
+        if(!$scanner) {
+            if(is_numeric($device)) {
                 throw new CoreException(tr('scanimage_get(): Specified scanner ":device" does not exist', array(':device' => $device)), 'not-exists');
             }
 
@@ -1076,7 +1076,7 @@ function scanimage_get($device, $server = null){
         $scanner['options'] = devices_list_options($scanner['id']);
         return $scanner;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('scanimage_get(): Failed', $e);
     }
 }
@@ -1095,7 +1095,7 @@ function scanimage_get($device, $server = null){
  * @param params $params
  * @return string The HTML for the select box
  */
-function scanimage_select($params){
+function scanimage_select($params) {
     try{
         array_ensure($params);
         array_default($params, 'name'      , 'scanner');
@@ -1105,11 +1105,11 @@ function scanimage_select($params){
 
         $scanners = scanimage_list();
 
-        foreach($scanners as $scanner){
-            if(empty($scanner['name'])){
+        foreach($scanners as $scanner) {
+            if(empty($scanner['name'])) {
                 $params['resource'][$scanner['seodomain'].'/'.$scanner['seostring']] = $scanner['description'];
 
-            }else{
+            } else {
                 $params['resource'][$scanner['seodomain'].'/'.$scanner['seostring']] = $scanner['name'];
             }
         }
@@ -1118,7 +1118,7 @@ function scanimage_select($params){
 
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('scanimage_select(): Failed', $e);
     }
 }
@@ -1138,7 +1138,7 @@ function scanimage_select($params){
  * @param params $params
  * @return string The HTML for the resolution select box
  */
-function scanimage_select_resolution($params){
+function scanimage_select_resolution($params) {
     try{
         array_ensure($params, 'string');
         array_default($params, 'name'      , 'scanner');
@@ -1163,7 +1163,7 @@ function scanimage_select_resolution($params){
 
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('scanimage_select_resolution(): Failed', $e);
     }
 }
@@ -1187,15 +1187,15 @@ function scanimage_select_resolution($params){
  * @params null mixed $server
  * @return natural The amount of processes found
  */
-function scanimage_runs($device, $server = null){
+function scanimage_runs($device, $server = null) {
     try{
-        if(!$device){
+        if(!$device) {
             throw new CoreException(tr('scanimage_runs(): No device specified'), 'not-specified');
         }
 
         $dbdevice = scanimage_get($device, $server);
 
-        if(!$dbdevice){
+        if(!$dbdevice) {
             throw new CoreException(tr('scanimage_runs(): The specified scanner ":id" does not exist', array(':id' => $device)), 'warning/not-exist');
         }
 
@@ -1203,12 +1203,12 @@ function scanimage_runs($device, $server = null){
         $server  = servers_get($dbdevice['servers_id']);
         $results = linux_pgrep($server, 'scanimage');
 
-        foreach($results as $result){
+        foreach($results as $result) {
             $processes = linux_list_processes($server, array($result, 'scanimage'));
 
-            if($processes){
-                foreach($processes as $id => $process){
-                    if(!str_exists($process, $dbdevice['string'])){
+            if($processes) {
+                foreach($processes as $id => $process) {
+                    if(!str_exists($process, $dbdevice['string'])) {
                         unset($processes[$id]);
                     }
                 }
@@ -1219,7 +1219,7 @@ function scanimage_runs($device, $server = null){
 
         return $count;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('scanimage_runs(): Failed', $e);
     }
 }
@@ -1242,15 +1242,15 @@ function scanimage_runs($device, $server = null){
  * @params null mixed $server
  * @return void()
  */
-function scanimage_kill($device, $server = null, $hard = false){
+function scanimage_kill($device, $server = null, $hard = false) {
     try{
-        if(!$device){
+        if(!$device) {
             throw new CoreException(tr('scanimage_kill(): No device specified'), 'not-specified');
         }
 
         $dbdevice = scanimage_get($device, $server);
 
-        if(!$dbdevice){
+        if(!$dbdevice) {
             throw new CoreException(tr('scanimage_kill(): The specified scanner ":id" does not exist', array(':id' => $device)), 'warning/not-exist');
         }
 
@@ -1259,7 +1259,7 @@ function scanimage_kill($device, $server = null, $hard = false){
 
         log_console(tr('Successfully killed the scanimage process for scanner device ":device" on server ":server"', array(':device' => $dbdevice['string'], ':server' => $server['domain'])), 'green');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('scanimage_kill(): Failed', $e);
     }
 }

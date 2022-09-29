@@ -44,7 +44,7 @@
  *             'target' => server:/))
  * rsync -acz --progress -p --delete -e "ssh -p '.$_CONFIG['deploy']['target_port'].'" '.ROOT.' '.$_CONFIG['deploy']['target_user'].'@'.$_CONFIG['deploy']['target_server'].':'.$_CONFIG['deploy']['target_dir'].' '.$exclude
  */
-function rsync($params){
+function rsync($params) {
     load_libs('servers');
 
     try{
@@ -84,15 +84,15 @@ function rsync($params){
         /*
          * Required parameters
          */
-        if(empty($params['source'])){
+        if(empty($params['source'])) {
             throw new CoreException(tr('rsync(): No source specified'), 'not-specified');
         }
 
-        if(empty($params['target'])){
+        if(empty($params['target'])) {
             throw new CoreException(tr('rsync(): No target specified'), 'not-specified');
         }
 
-        if($params['source'] == $params['target']){
+        if($params['source'] == $params['target']) {
             throw new CoreException(tr('rsync(): Specified source and target are the same'), 'not-specified');
         }
 
@@ -100,12 +100,12 @@ function rsync($params){
          * See if we can auto build a source SSH command from the specified
          * source file
          */
-        foreach(array('source', 'target') as &$item){
+        foreach(array('source', 'target') as &$item) {
             try{
                 $server = Strings::until($params[$item], ':', 0, 0, true);
 
-                if($server){
-                    if(isset($remote)){
+                if($server) {
+                    if(isset($remote)) {
                         throw new CoreException(tr('rsync(): Both source and target are on remote servers. One of the two must be local'), 'invalid');
                     }
 
@@ -117,8 +117,8 @@ function rsync($params){
                     $server                  = servers_get($server);
                     $server['identity_file'] = servers_create_identity_file($server);
 
-                    if($server){
-                        if($server['ssh_accounts_id']){
+                    if($server) {
+                        if($server['ssh_accounts_id']) {
                             /*
                              * Yay, we know the server, set the parameters!
                              */
@@ -131,23 +131,23 @@ function rsync($params){
                     /*
                      * Ensure this is not executed on ROOT or part of ROOT
                      */
-                    switch($server['domain']){
+                    switch($server['domain']) {
                         case '':
                             // FALLTHROUGH
                         case 'localhost':
-                            foreach(array('source', 'target') as $subitem){
-                                if(str_exists($params[$subitem], ':')){
+                            foreach(array('source', 'target') as $subitem) {
+                                if(str_exists($params[$subitem], ':')) {
                                     /*
                                      * We're syncing to THIS server, are we not
                                      * syncing to ROOT or its parents somehow?
                                      */
                                     try{
-                                        if(str_exists(ROOT, linux_realpath($server, Strings::from($params[$subitem], ':')))){
+                                        if(str_exists(ROOT, linux_realpath($server, Strings::from($params[$subitem], ':')))) {
                                             throw new CoreException(tr('rsync(): Specified remote ":subitem" path ":path" is ROOT or parent of ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
                                         }
 
-                                    }catch(Exception $e){
-                                        if($e->getRealCode() !== 'not-exists'){
+                                    }catch(Exception $e) {
+                                        if($e->getRealCode() !== 'not-exists') {
                                             /*
                                              * If the target path would not exist we'd be okay
                                              */
@@ -155,8 +155,8 @@ function rsync($params){
                                         }
                                     }
 
-                                }else{
-                                    if(str_exists(ROOT, realpath($params[$subitem]))){
+                                } else {
+                                    if(str_exists(ROOT, realpath($params[$subitem]))) {
                                         throw new CoreException(tr('rsync(): Specified local ":subitem" path ":path" is ROOT or parent of ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
                                     }
                                 }
@@ -165,8 +165,8 @@ function rsync($params){
 
                 }
 
-            }catch(Exception $e){
-                switch($e->getRealCode()){
+            }catch(Exception $e) {
+                switch($e->getRealCode()) {
                     case 'not-exists':
                         throw new CoreException(tr('rsync(): Specified ":item" server ":server" does not exist', array(':item' => $item, ':server' => Strings::until($params['source'], ':', 0, 0, true))), $e);
 
@@ -178,96 +178,96 @@ function rsync($params){
 
         unset($item);
 
-        if(isset($remote)){
-            if($params['ssh_options']){
+        if(isset($remote)) {
+            if($params['ssh_options']) {
                 throw new CoreException(tr('rsync(): Specified ":item" server ":server" is a registered server with its own ssh_options, yet "ssh_options" was also specified', array(':item' => $item, ':server' => Strings::until($params['source'], ':', 0, 0, true))), $e);
             }
 
-        }elseif($params['ssh_options']){
+        } elseif($params['ssh_options']) {
             $ssh = ssh_build_options($params['ssh_options']);
         }
 
-        if(isset($ssh)){
+        if(isset($ssh)) {
             $arguments[] = '-e';
             $arguments[] = $ssh;
         }
 
-        if($params['archive']){
+        if($params['archive']) {
             $arguments[] = '-a';
         }
 
-        if($params['checksum']){
+        if($params['checksum']) {
             $arguments[] = '-c';
         }
 
-        if($params['compression']){
+        if($params['compression']) {
             $arguments[] = '-z';
         }
 
-        if($params['remove_source_files']){
+        if($params['remove_source_files']) {
             $arguments[] = '--remove-source-files';
         }
 
-        if($params['inplace']){
+        if($params['inplace']) {
             $arguments[] = '--inplace';
         }
 
-        if($params['delete']){
+        if($params['delete']) {
             $arguments[] = '--delete';
         }
 
-        if($params['exclude']){
-            if(!is_array($params['exclude'])){
+        if($params['exclude']) {
+            if(!is_array($params['exclude'])) {
                 $params['exclude'] = array($params['exclude']);
             }
 
-            foreach($params['exclude'] as $exclude){
+            foreach($params['exclude'] as $exclude) {
                 $arguments[] = '--exclude';
                 $arguments[] = $exclude;
             }
         }
 
-        if($params['force']){
+        if($params['force']) {
             $arguments[] = '--force';
         }
 
-        if($params['group']){
+        if($params['group']) {
             $arguments[] = '-g';
         }
 
-        if($params['links']){
+        if($params['links']) {
             $arguments[] = '-l';
         }
 
-        if($params['owner']){
+        if($params['owner']) {
             $arguments[] = '-o';
         }
 
-        if($params['permissions']){
+        if($params['permissions']) {
             $arguments[] = '-p';
         }
 
-        if($params['progress']){
+        if($params['progress']) {
             $arguments[] = '--progress';
         }
 
-        if($params['recursive']){
+        if($params['recursive']) {
             $arguments[] = '-r';
         }
 
-        if($params['remote_rsync']){
+        if($params['remote_rsync']) {
             $arguments[] = '--rsync-path="'.$params['remote_rsync'].'"';
         }
 
-        if($params['super']){
+        if($params['super']) {
             $arguments[] = '--super';
         }
 
-        if($params['time']){
+        if($params['time']) {
             $arguments[] = '-t';
         }
 
-        if($params['verbose']){
+        if($params['verbose']) {
             $arguments[] = '-v';
         }
 
@@ -275,14 +275,14 @@ function rsync($params){
         $arguments[] = $params['source'];
         $arguments[] = $params['target'];
 
-        if($params['monitor_task'] or $params['monitor_pid']){
+        if($params['monitor_task'] or $params['monitor_pid']) {
             /*
              * We need to monitor tasks so we need to cycle at least twice
              */
             $break = false;
         }
 
-        while(true){
+        while(true) {
             log_console(tr('Rsyncing from ":source" to ":target"', array(':source' => $params['source'], ':target' => $params['target'])), 'cyan');
 
             $results = safe_exec(array('function'     => $params['function'],
@@ -290,28 +290,28 @@ function rsync($params){
                                        'ok_exitcodes' => $params['exitcodes'],
                                        'commands'     => array('rsync', $arguments)));
 
-            if(!empty($break)){
+            if(!empty($break)) {
                 /*
                  * We're done!
                  */
                 break;
             }
 
-            if($params['monitor_task']){
+            if($params['monitor_task']) {
                 /*
                  * Monitor the specified task to see if it is still running. While
                  * it is running, we do not stop either.
                  */
                 load_libs('tasks');
 
-                if(!is_natural($params['monitor_task'])){
+                if(!is_natural($params['monitor_task'])) {
                     throw new CoreException(tr('rsync(): Specified monitor task ":task" is invalid', array(':task' => $params['monitor_task'])), 'invalid');
                 }
 
-                if(tasks_check_pid($params['monitor_task'])){
+                if(tasks_check_pid($params['monitor_task'])) {
                     log_console(tr('Task ":task" still running, continuing rsync cycle', array(':task' => $params['monitor_task'])), 'VERBOSE/cyan');
 
-                }else{
+                } else {
                     /*
                      * The process is done, break the loop
                      */
@@ -320,19 +320,19 @@ function rsync($params){
                 }
             }
 
-            if($params['monitor_pid']){
+            if($params['monitor_pid']) {
                 /*
                  * Monitor the specified process to see if it is still running.
                  * While it is running, we do not stop either.
                  */
-                if(!is_natural($params['monitor_pid'])){
+                if(!is_natural($params['monitor_pid'])) {
                     throw new CoreException(tr('rsync(): Specified process id ":pid" is invalid', array(':pid' => $params['monitor_pid'])), 'invalid');
                 }
 
-                if(cli_pid($params['monitor_pid'])){
+                if(cli_pid($params['monitor_pid'])) {
                     log_console(tr('Process":pid" still running, continuing rsync cycle', array(':pid' => $params['monitor_pid'])), 'VERBOSE/cyan');
 
-                }else{
+                } else {
                     /*
                      * The process is done, break the loop
                      */
@@ -344,11 +344,11 @@ function rsync($params){
             usleep($params['usleep']);
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         /*
          * Give nice rsync errors
          */
-        switch($e->getRealCode()){
+        switch($e->getRealCode()) {
             case 0:
                 $e->makeWarning(true);
                 throw new CoreException(tr('rsync(): Rsync failed with "Success"'), $e);

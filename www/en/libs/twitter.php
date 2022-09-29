@@ -23,7 +23,7 @@ load_libs('ext/twitteroauth/twitteroauth');
  *    Get the Bearer Token, this is an implementation of steps 1&2
  *    from https://dev.twitter.com/docs/auth/application-only-auth
  */
-function twitter_get_bearer_token(){
+function twitter_get_bearer_token() {
     global $_CONFIG;
 
     try{
@@ -66,11 +66,11 @@ function twitter_get_bearer_token(){
         $output       = explode("\n", $retrievedhtml);
         $bearer_token = '';
 
-        foreach($output as $line){
-            if(!$line){
+        foreach($output as $line) {
+            if(!$line) {
                 // there was no bearer token
 
-            }else{
+            } else {
                 $bearer_token = $line;
             }
         }
@@ -78,7 +78,7 @@ function twitter_get_bearer_token(){
         $bearer_token = json_decode_custom($bearer_token);
         return $bearer_token->{'access_token'};
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twitter_get_bearer_token(): Failed', $e);
     }
 }
@@ -90,7 +90,7 @@ function twitter_get_bearer_token(){
  * Should the bearer token become compromised or need to be invalidated for any reason,
  * call this method/function.
  */
-function twitter_invalidate_bearer_token($bearer_token){
+function twitter_invalidate_bearer_token($bearer_token) {
     global $_CONFIG;
 
     try{
@@ -125,7 +125,7 @@ function twitter_invalidate_bearer_token($bearer_token){
         curl_close($ch); // close the curl
         return $retrievedhtml;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twitter_invalidate_bearer_token(): Failed', $e);
     }
 }
@@ -137,14 +137,14 @@ function twitter_invalidate_bearer_token($bearer_token){
 * Basic Search of the Search API
 * Based on https://dev.twitter.com/docs/api/1.1/get/search/tweets
 */
-function twitter_search_for_a_term($bearer_token, $query, $result_type='mixed', $count='15'){
+function twitter_search_for_a_term($bearer_token, $query, $result_type='mixed', $count='15') {
     try{
         $url        = "https://api.twitter.com/1.1/search/tweets.json"; // base url
         $q          = urlencode(trim($query)); // query term
         $formed_url = '?q='.$q; // fully formed url
 
-        if($result_type!='mixed'){$formed_url = $formed_url.'&result_type='.$result_type;} // result type - mixed(default), recent, popular
-        if($count!='15'){$formed_url = $formed_url.'&count='.$count;} // results per page - defaulted to 15
+        if($result_type!='mixed') {$formed_url = $formed_url.'&result_type='.$result_type;} // result type - mixed(default), recent, popular
+        if($count!='15') {$formed_url = $formed_url.'&count='.$count;} // results per page - defaulted to 15
 
         $formed_url = $formed_url.'&include_entities=true'; // makes sure the entities are included, note @mentions are not included see documentation
 
@@ -164,7 +164,7 @@ function twitter_search_for_a_term($bearer_token, $query, $result_type='mixed', 
         curl_close($ch); // close the curl
         return $retrievedhtml;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twitter_search_for_a_term(): Failed', $e);
     }
 }
@@ -182,7 +182,7 @@ invalidate_bearer_token($bearer_token); // invalidate the token
 /*
  *
  */
-function twitter_user_info($token, $secret){
+function twitter_user_info($token, $secret) {
     global $_CONFIG;
 
     try{
@@ -192,13 +192,13 @@ function twitter_user_info($token, $secret){
         $finalTw    = new TwitterOAuth($app_id, $app_secret, $token, $secret);
         $response   = $finalTw->get('account/verify_credentials');
 
-        if($finalTw->http_code != 200){
+        if($finalTw->http_code != 200) {
             throw new CoreException('twitter_user_info(): Twitter returned HTTP code "'.str_log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
         }
 
         return $response;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twitter_user_info(): Failed', $e);
     }
 }
@@ -208,7 +208,7 @@ function twitter_user_info($token, $secret){
 /*
  *
  */
-function twitter_post_message($msg, $token, $secret){
+function twitter_post_message($msg, $token, $secret) {
     global $_CONFIG;
 
     try {
@@ -221,13 +221,13 @@ function twitter_post_message($msg, $token, $secret){
 
         $response = $finalTw->post('statuses/update', array('status' => $msg));
 
-        if(!($response instanceof stdClass)){
+        if(!($response instanceof stdClass)) {
             throw new CoreException('twitter_user_info(): Response should be of class "stdClass" but instead is of clas "'.get_class($response).'"', 'unknown_class');
         }
 
         return $response;
 
-    }catch (Exception $e){
+    }catch (Exception $e) {
         throw new CoreException('twitter_post_message(): Failed', $e);
     }
 }
@@ -237,7 +237,7 @@ function twitter_post_message($msg, $token, $secret){
 /*
  *
  */
-function twitter_redirect_to_authorize(){
+function twitter_redirect_to_authorize() {
     global $_CONFIG;
 
     try {
@@ -253,13 +253,13 @@ function twitter_redirect_to_authorize(){
 
         $authz_link = $tw_tmp->getAuthorizeURL($token_tmp);
 
-        if($tw_tmp->http_code != 200){
+        if($tw_tmp->http_code != 200) {
             throw new CoreException('twitter_redirect_to_authorize(): Twitter returned HTTP code "'.str_log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
         }
 
         return $authz_link;
 
-    }catch (Exception $e){
+    }catch (Exception $e) {
         throw new CoreException('twitter_redirect_to_authorize(): Failed', $e);
     }
 }
@@ -269,7 +269,7 @@ function twitter_redirect_to_authorize(){
 /*
  *
  */
-function twitter_get_user_token(){
+function twitter_get_user_token() {
     global $_CONFIG;
 
     try {
@@ -279,20 +279,20 @@ function twitter_get_user_token(){
         $secret       = $_SESSION['user']['oauth_token_secret'];
         $access_token = null;
 
-        if(empty($app_id) or empty($app_secret) or empty($token) or empty($secret)){
+        if(empty($app_id) or empty($app_secret) or empty($token) or empty($secret)) {
             throw new CoreException('Incomplete or bad params in get_user_token', 'badparams');
         }
 
         $tw_tmp       = new TwitterOAuth($app_id, $app_secret, $token, $secret);
         $access_token = $tw_tmp->getAccessToken($_GET['oauth_verifier']);
 
-        if($tw_tmp->http_code != 200){
+        if($tw_tmp->http_code != 200) {
             throw new CoreException('twitter_get_user_token(): Twitter returned HTTP code "'.str_log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
         }
 
         return $access_token;
 
-    }catch (Exception $e){
+    }catch (Exception $e) {
         throw new CoreException('twitter_get_user_token(): Failed', $e);
     }
 }

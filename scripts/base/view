@@ -17,7 +17,7 @@ cli_only();
 load_libs('view');
 $file = cli_argument(0);
 
-if(!$file){
+if(!$file) {
     throw new CoreException(tr('No file specified'), 'warning/not-specified');
 }
 

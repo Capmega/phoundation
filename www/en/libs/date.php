@@ -11,13 +11,13 @@
 /*
  *
  */
-function date_relative($timestamp, $now = null, $periods = null){
+function date_relative($timestamp, $now = null, $periods = null) {
     try{
-        if(!$now){
+        if(!$now) {
             $now = time();
         }
 
-        if(!$periods){
+        if(!$periods) {
             $periods = array(10       => tr('Right now'),
                              86400    => tr('Today'),
                              604800   => tr('Last week'),
@@ -26,7 +26,7 @@ function date_relative($timestamp, $now = null, $periods = null){
 
         usort($periods);
 
-        foreach($periods as $time => $label){
+        foreach($periods as $time => $label) {
             if($timestamp < $time){
                 return $label;
             }
@@ -48,7 +48,7 @@ function date_random($min = null, $max = null){
             $min = new DateTime(date_convert($min, 'y-m-d'));
             $min = $min->getTimestamp();
 
-        }else{
+        } else {
             $min = 1;
         }
 
@@ -56,7 +56,7 @@ function date_random($min = null, $max = null){
             $max = new DateTime(date_convert($max, 'y-m-d'));
             $max = $max->getTimestamp();
 
-        }else{
+        } else {
             $max = 2147483647;
         }
 
@@ -153,7 +153,7 @@ function date_interval($date, $interval, $format = null){
         if(substr($interval, 0, 1) == '-'){
             $date->sub(new DateInterval(substr($interval, 1)));
 
-        }else{
+        } else {
             $date->add(new DateInterval($interval));
         }
 

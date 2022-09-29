@@ -10,11 +10,11 @@ load_libs('test');
 ///*
 // * Test script_exec()
 // */
-//test('script_exec()', 'Execute a Phoundation script confined to ROOT/scripts', function(){
+//test('script_exec()', 'Execute a Phoundation script confined to ROOT/scripts', function() {
 //    $results = script_exec('tests/echo');
 //    $results = array_shift($results);
 //
-//    if($results !== '1'){
+//    if($results !== '1') {
 //        throw new CoreException(tr('script_exec() returned unexpected results. Expected "1" but received ":results" instead', array(':results' => $results)), 'unexpected');
 //    }
 //});

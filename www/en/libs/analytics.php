@@ -28,11 +28,11 @@
  *
  * @return void
  */
-function analytics_library_init(){
+function analytics_library_init() {
     try{
         load_config('analytics');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('analytics_library_init(): Failed', $e);
     }
 }
@@ -59,15 +59,15 @@ function analytics_library_init(){
  * @params null string $provider The analytics provider that should be used
  * @return string The HTML required to have the client register with your matomo tracking site
  */
-function analytics($sites_id, $provider = null){
+function analytics($sites_id, $provider = null) {
     global $_CONFIG;
 
     try{
-        if(!$provider){
+        if(!$provider) {
             $provider = $_CONFIG['analytics']['provider'];
         }
 
-        switch($provider){
+        switch($provider) {
             case 'google':
                 return analytics_google($sites_id);
 
@@ -78,7 +78,7 @@ function analytics($sites_id, $provider = null){
                 throw new CoreException(tr('analytics(): Unknown analytics provider ":provider" specified, see $_CONFIG[analytics][provider] or calling function', array(':provider' => $_CONFIG['analytics']['provider'])), 'unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('analytics(): Failed', $e);
     }
 }
@@ -103,19 +103,19 @@ function analytics($sites_id, $provider = null){
  * @params string $sites_id
  * @return string The HTML required to have the client register with your matomo tracking site
  */
-function analytics_matomo($sites_id){
+function analytics_matomo($sites_id) {
     global $_CONFIG;
 
     try{
-        if(!$sites_id){
+        if(!$sites_id) {
             throw new CoreException(tr('analytics_matomo(): No sites_id specified'), 'not-specified');
         }
 
-        if(!is_natural($sites_id)){
+        if(!is_natural($sites_id)) {
             throw new CoreException(tr('analytics_matomo(): Invalid sites_id ":sites_id" specified', array(':sites_id' => $sites_id)), 'not-specified');
         }
 
-        if(empty($_CONFIG['analytics']['matomo_domain'])){
+        if(empty($_CONFIG['analytics']['matomo_domain'])) {
             throw new CoreException(tr('analytics_matomo(): No matomo domain configured'), 'not-specified');
         }
 
@@ -123,7 +123,7 @@ function analytics_matomo($sites_id){
          * Ensure we have the analytics file available on our CDN system
          */
 // :TODO: Right now we're only testing this locally, we should test this on the CDN network system! This lookup may be heavy though, so maybe we should do that once every 100 page views or something
-        if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/matomo/piwik.js')){
+        if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/matomo/piwik.js')) {
             /*
              * Download the file from google analytics and install it in our
              * local CDN
@@ -154,7 +154,7 @@ function analytics_matomo($sites_id){
                     </script>
                     <noscript><p><img src="//'.$_CONFIG['analytics']['matomo_domain'].'/piwik.php?idsite='.$sites_id.'&amp;rec=1" style="border:0;" alt="" /></p></noscript>';
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('analytics_matomo(): Failed', $e);
     }
 }
@@ -182,16 +182,16 @@ function analytics_matomo($sites_id){
  * @params string $sites_id
  * @return string The HTML required to have the client register with google analytics
  */
-function analytics_google($sites_id){
+function analytics_google($sites_id) {
     try{
-        if(!$sites_id){
+        if(!$sites_id) {
             throw new CoreException(tr('analytics_google(): No sites_id specified'), 'not-specified');
         }
 
         /*
          * Ensure we have the analytics file available on our CDN system
          */
-        if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/google/analytics.js')){
+        if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/google/analytics.js')) {
             /*
              * Download the file from google analytics and install it in our
              * local CDN
@@ -209,7 +209,7 @@ function analytics_google($sites_id){
         }
 
         $retval = ' <script>
-                        (function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
+                        (function(i,s,o,g,r,a,m) {i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function() {
                         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
                         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
                         })(window,document,"script","'.cdn_domain('/js/google/analytics.js').'","ga");
@@ -221,7 +221,7 @@ function analytics_google($sites_id){
 //        $retval = '<script async src="https://www.googletagmanager.com/gtag/js?id='.$sites_id.'"></script>
 //                   <script>
 //                       window.dataLayer = window.dataLayer || [];
-//                       function gtag(){dataLayer.push(arguments);}
+//                       function gtag() {dataLayer.push(arguments);}
 //                       gtag("js", new Date());
 //
 //                       gtag("config", "'.$sites_id.'");
@@ -229,7 +229,7 @@ function analytics_google($sites_id){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('analytics_google(): Failed', $e);
     }
 }

@@ -33,11 +33,11 @@
  * @param    string $string The string to escape
  * @return   string The escaped string
  */
-function utf8_escape($string){
+function utf8_escape($string) {
     try{
         return Zend_Utf8::escape((string) $string);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('utf8_escape(): Failed for string "'.str_log($string).'"', $e);
     }
 }
@@ -54,11 +54,11 @@ function utf8_escape($string){
  * @param    string $string The string to unescape
  * @return   string The unescaped string
  */
-function utf8_unescape($string){
+function utf8_unescape($string) {
     try{
         return Zend_Utf8::unescape($string);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('utf8_unescape(): Failed for string "'.str_log($string).'"', $e);
     }
 }
@@ -314,7 +314,7 @@ class Zend_Utf8
         $options = array_merge(array(
             'read'                 => array(
                 'pattern'   => '\\\\u([0-9A-Fa-f]{4})',
-                'callback'  => function($all, $code){ return hexdec($code); },
+                'callback'  => function($all, $code) { return hexdec($code); },
                 'arguments' => array(),
             ),
             'extendedUseSurrogate' => true,
@@ -887,7 +887,7 @@ class Zend_Utf8
 	{
 		//http://stackoverflow.com/questions/1401317/remove-non-utf8-characters-from-string
 		//caused connection reset problem on larger strings
-		//$regx = '/((?:[\x00-\x7F]|[\xC0-\xDF][\x80-\xBF]|[\xE0-\xEF][\x80-\xBF]{2}|[\xF0-\xF7][\x80-\xBF]{3}){1,})|./';
+		//$regx = '/((?:[\x00-\x7F]|[\xC0-\xDF][\x80-\xBF]|[\xE0-\xEF][\x80-\xBF]{2}|[\xF0-\xF7][\x80-\xBF]{3}) {1,})|./';
 
 		$regx = '/([\x00-\x7F]|[\xC0-\xDF][\x80-\xBF]|[\xE0-\xEF][\x80-\xBF]{2}|[\xF0-\xF7][\x80-\xBF]{3})|./s';
 

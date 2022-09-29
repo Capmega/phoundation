@@ -14,18 +14,18 @@ load_config('sms');
 /*
  * Send SMS
  */
-function sms_send_message($message, $to, $from = null){
+function sms_send_message($message, $to, $from = null) {
     global $_CONFIG;
 
     try{
-        if($from === 'crmtext'){
+        if($from === 'crmtext') {
             $provider = $from;
 
-        }else{
+        } else {
             $provider = 'twilio';
         }
 
-        switch($provider){
+        switch($provider) {
             case 'crmtext':
                 load_libs('crmtext');
                 return crmtext_send_message($message, $to);
@@ -38,7 +38,7 @@ function sms_send_message($message, $to, $from = null){
                 throw new CoreException(tr('sms_send(): Unknown preferred SMS provider "%provider%" specified, check your configuration $_CONFIG[sms][prefer]', array('%provider%' => $_CONFIG['sms']['prefer'])), 'unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sms_send(): Failed', $e);
     }
 }
@@ -60,7 +60,7 @@ function sms_send_message($message, $to, $from = null){
  * @param integer $repliedon_now
  * @return array
  */
-function sms_get_conversation($phone_local, $phone_remote, $type, $createdon = null, $repliedon_now = false){
+function sms_get_conversation($phone_local, $phone_remote, $type, $createdon = null, $repliedon_now = false) {
     global $_CONFIG;
 
     try{
@@ -70,14 +70,14 @@ function sms_get_conversation($phone_local, $phone_remote, $type, $createdon = n
         /*
          * Determine the local and remote phones
          */
-        if(twilio_get_number($phone_remote)){
-            if(twilio_get_number($phone_local)){
+        if(twilio_get_number($phone_remote)) {
+            if(twilio_get_number($phone_local)) {
                 /*
                  * The remote number and local numbers are both locally known
                  * numbers. We can onlyh assume the order is correct, so don't
                  * do anything
                  */
-            }else{
+            } else {
                 /*
                  * The remote number is actually a locally known number
                  */
@@ -105,7 +105,7 @@ function sms_get_conversation($phone_local, $phone_remote, $type, $createdon = n
                                        ':phone_local'  => $phone_local,
                                        ':phone_remote' => $phone_remote));
 
-        if(!$conversation){
+        if(!$conversation) {
             /*
              * This phone combo has no conversation yet, create it now.
              */
@@ -128,7 +128,7 @@ function sms_get_conversation($phone_local, $phone_remote, $type, $createdon = n
 
         return $conversation;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('sms_get_conversation(): Failed for numbers local ":local", remote ":remote"', array(':local' => $phone_local, ':remote' => $phone_remote)), $e);
     }
 }
@@ -138,30 +138,30 @@ function sms_get_conversation($phone_local, $phone_remote, $type, $createdon = n
 /*
  * Update the specified conversation with the specified message
  */
-function sms_update_conversation($conversation, $messages_id, $direction, $message, $datetime, $replied){
+function sms_update_conversation($conversation, $messages_id, $direction, $message, $datetime, $replied) {
     global $_CONFIG;
 
     try{
-        if(empty($conversation['id'])){
+        if(empty($conversation['id'])) {
             throw new CoreException('sms_update_conversation(): No conversation id specified', 'not-specified');
         }
 
-        if(empty($direction)){
+        if(empty($direction)) {
             throw new CoreException('sms_update_conversation(): No conversation direction specified', 'not-specified');
         }
 
-        if(empty($message)){
+        if(empty($message)) {
             throw new CoreException('sms_update_conversation(): No conversation message specified', 'not-specified');
         }
 
         /*
          * Decode the current last_messages
          */
-        if($conversation['last_messages']){
+        if($conversation['last_messages']) {
             try{
                 $conversation['last_messages'] = json_decode_custom($conversation['last_messages']);
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 /*
                  * Ups, JSON decode failed!
                  */
@@ -173,18 +173,18 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
             /*
              * Ensure the conversation does not pass the max size
              */
-            if(count($conversation['last_messages']) >= $_CONFIG['twilio']['conversations']['size']){
+            if(count($conversation['last_messages']) >= $_CONFIG['twilio']['conversations']['size']) {
                 array_pop($conversation['last_messages']);
             }
 
-        }else{
+        } else {
             $conversation['last_messages'] = array();
         }
 
         /*
          * Add message timestamp to each message?
          */
-        if($_CONFIG['twilio']['conversations']['message_dates']){
+        if($_CONFIG['twilio']['conversations']['message_dates']) {
             $message = str_replace('%datetime%', date_convert($datetime), $_CONFIG['twilio']['conversations']['message_dates']).$message;
         }
 
@@ -193,8 +193,8 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
          */
         $images = sql_list('SELECT `id`, `file`, `url` FROM `sms_images` WHERE `sms_messages_id` = :sms_messages_id', array(':sms_messages_id' => $messages_id));
 
-        if($images){
-            foreach($images as $image){
+        if($images) {
+            foreach($images as $image) {
 
                 $message = html_img(($image['file'] ? $image['file'] : $image['url']), tr('MMS image'), 28, 28, 'class="mms"').$message;
             }
@@ -210,7 +210,7 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
         $last_messages  = json_encode_custom($conversation['last_messages']);
         $message_length = strlen($last_messages);
 
-        while($message_length > 4000){
+        while($message_length > 4000) {
             /*
              * The JSON string is too large to be stored, reduce the amount of messages and try again
              */
@@ -219,7 +219,7 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
             $message_length = strlen($last_messages);
         }
 
-        if($replied){
+        if($replied) {
             sql_query('UPDATE `sms_conversations`
 
                        SET    `last_messages` = :last_messages,
@@ -232,7 +232,7 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
                        array(':id'            => $conversation['id'],
                              ':last_messages' => $last_messages));
 
-        }else{
+        } else {
             sql_query('UPDATE `sms_conversations`
 
                        SET    `last_messages` = :last_messages,
@@ -246,7 +246,7 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
                              ':last_messages' => $last_messages));
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sms_update_conversation(): Failed', $e);
     }
 }
@@ -256,16 +256,16 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
 /*
  * Return a phone number that always includes a country code
  */
-function sms_full_phones($phones){
+function sms_full_phones($phones) {
     global $_CONFIG;
 
     try{
         $phones = array_force($phones);
 
-        foreach($phones as &$phone){
+        foreach($phones as &$phone) {
             $phone = trim($phone);
 
-            if(substr($phone, 0, 1) == '+'){
+            if(substr($phone, 0, 1) == '+') {
                 /*
                  * Phone has a country code
                  */
@@ -275,14 +275,14 @@ function sms_full_phones($phones){
             /*
              * Assume this is a US phone, return with +1
              */
-            if(is_numeric($phone)){
+            if(is_numeric($phone)) {
                 $phone = '+'.$_CONFIG['twilio']['defaults']['country_code'].$phone;
             }
         }
 
         return str_force($phones, ',');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sms_full_phones(): Failed', $e);
     }
 }
@@ -293,16 +293,16 @@ function sms_full_phones($phones){
  * Return a phone number that guaranteed contains no country code
  */
 // :TODO: Add support for other countries than the US
-function sms_no_country_phones($phones){
+function sms_no_country_phones($phones) {
     global $_CONFIG;
 
     try{
         $phones = array_force($phones);
 
-        foreach($phones as &$phone){
+        foreach($phones as &$phone) {
             $phone = trim($phone);
 
-            if(substr($phone, 0, 1) != '+'){
+            if(substr($phone, 0, 1) != '+') {
                 /*
                  * Phone has no country code
                  */
@@ -312,14 +312,14 @@ function sms_no_country_phones($phones){
             /*
              * Assume this is a US phone, return with +1
              */
-            if(substr($phone, 1, 1) == '1'){
+            if(substr($phone, 1, 1) == '1') {
                 $phone = substr($phone, 2);
             }
         }
 
         return str_force($phones, ',');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sms_full_phones(): Failed', $e);
     }
 }
@@ -329,7 +329,7 @@ function sms_no_country_phones($phones){
 /*
  *
  */
-function sms_select_source($name, $selected, $provider, $class){
+function sms_select_source($name, $selected, $provider, $class) {
     global $_CONFIG;
 
     try{
@@ -337,7 +337,7 @@ function sms_select_source($name, $selected, $provider, $class){
 
         $resource = array();
 
-        foreach($_CONFIG['twilio']['accounts'] as $account => $data){
+        foreach($_CONFIG['twilio']['accounts'] as $account => $data) {
             $resource = array_merge($resource, $data['sources']);
         }
 
@@ -347,14 +347,14 @@ function sms_select_source($name, $selected, $provider, $class){
                          'selected' => $selected,
                          'resource' => $resource);
 
-        if(isset_get($provider) == 'crmtext'){
+        if(isset_get($provider) == 'crmtext') {
             $sources['resource']['crmtext']  = tr('Shortcode');
             $sources['selected']             = 'crmtext';
         }
 
         return html_select($sources);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sms_select_source(): Failed', $e);
     }
 }
@@ -367,7 +367,7 @@ function sms_select_source($name, $selected, $provider, $class){
  * @param string $phone_number The phone number to be blocked
  * @return integer The amount of phone numbers that were actually blocked
  */
-function sms_block($phone_numbers, $status = null){
+function sms_block($phone_numbers, $status = null) {
     try{
         /*
          * First block the number
@@ -379,7 +379,7 @@ function sms_block($phone_numbers, $status = null){
 
                                       ON DUPLICATE KEY UPDATE `id` = `id`');
 
-        foreach(array_force($phone_numbers) as $phone_number){
+        foreach(array_force($phone_numbers) as $phone_number) {
             $insert->execute(array(':createdby' => isset_get($_SESSION['user']['id']),
                                    ':meta_id'   => meta_action(),
                                    ':status'    => $status,
@@ -395,7 +395,7 @@ function sms_block($phone_numbers, $status = null){
 
         return $count;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sms_block(): Failed', $e);
     }
 }
@@ -408,7 +408,7 @@ function sms_block($phone_numbers, $status = null){
  * @param string $phone_number The phone number to be unblocked
  * @return integer The amount of phone numbers that were actually unblocked
  */
-function sms_unblock($phone_numbers, $status = null){
+function sms_unblock($phone_numbers, $status = null) {
     try{
         /*
          * First unblock the number
@@ -425,7 +425,7 @@ function sms_unblock($phone_numbers, $status = null){
 
                                       WHERE  `number` = :number');
 
-        while($number = sql_fetch($numbers)){
+        while($number = sql_fetch($numbers)) {
             meta_action($number['meta_id'], 'removed');
 
             $delete->execute(array(':number' => $number['number']));
@@ -440,7 +440,7 @@ function sms_unblock($phone_numbers, $status = null){
 
         return $count;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sms_unblock(): Failed', $e);
     }
 }

@@ -15,12 +15,12 @@
  * Initialize the library
  * Automatically executed by libs_load()
  */
-function buks_library_init(){
+function buks_library_init() {
     try{
         load_libs('openssl');
 under_construction();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('buks_library_init(): Failed', $e);
     }
 }
@@ -31,23 +31,23 @@ under_construction();
  * Return a decrypted BUKS key for the specified section and users_id using the
  * specified password
  */
-function buks_get_key($section, $users_id, $password){
+function buks_get_key($section, $users_id, $password) {
     try{
         $key = sql_query('SELECT `key` FROM `buks` WHERE `section` = :section AND `users_id` = :users_id AND `status` IS NULL', true, array('section' => $section, ':users_id' => $users_id));
 
-        if(!$key){
+        if(!$key) {
             throw new CoreException(tr('buks_get_key(): No key found for section ":section" and user "users_id"', array(':users_id' => $users_id)), 'not-exists');
         }
 
         $key = openssl_decrypt($key, $password);
 
-        if(!$key){
+        if(!$key) {
             throw new CoreException(tr('buks_get_key(): Empty key found for section ":section" and user "users_id"', array(':users_id' => $users_id)), 'invalid');
         }
 
         return $key;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('buks_get_key(): Failed', $e);
     }
 }
@@ -57,27 +57,27 @@ function buks_get_key($section, $users_id, $password){
 /*
  * Add a new buks key for the specified section for the specified user
  */
-function buks_add_key($section, $password, $users_id, $existing_password = null, $existing_users_id = null){
+function buks_add_key($section, $password, $users_id, $existing_password = null, $existing_users_id = null) {
     try{
         $exists = sql_get('SELECT `id` FROM `buks` WHERE `section` = :section AND `users_id` = :users_id', array(':section' => $section, ':users_id' => $users_id));
 
-        if($exists){
+        if($exists) {
             throw new CoreException(tr('buks_add_key(): Buks key already exists for users_id ":users_id", section ":section"', array(':users_id' => $users_id, ':section' => $section)), 'exists');
         }
 
-        if($existing_users_id){
+        if($existing_users_id) {
             /*
              * Get the BUKS key from an existing user with its password
              */
             $key = buks_get_key($section, $existing_users_id, $existing_password);
 
-        }else{
+        } else {
             /*
              * Create a new BUKS key
              */
             $exists = sql_get('SELECT `id` FROM `buks` WHERE `section` = :section LIMIT 1', array(':section' => $section));
 
-            if($exists){
+            if($exists) {
                 throw new CoreException(tr('buks_add_key(): Buks key already exists for section ":section"', array(':users_id' => $users_id)), 'exists');
             }
 
@@ -94,7 +94,7 @@ function buks_add_key($section, $password, $users_id, $existing_password = null,
                          ':section'     => $section,
                          ':key'         => $key));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('buks_add_key(): Failed', $e);
     }
 }
@@ -104,15 +104,15 @@ function buks_add_key($section, $password, $users_id, $existing_password = null,
 /*
  * Update the password for all buks keys for the specified user
  */
-function buks_update_password($old_password, $new_password, $users_id = null){
+function buks_update_password($old_password, $new_password, $users_id = null) {
     try{
-        if(!$users_id){
+        if(!$users_id) {
             $users_id = $_SESSION['user']['id'];
         }
 
         $sections = sql_query();
 
-        while($section = sql_fetch($sections)){
+        while($section = sql_fetch($sections)) {
             $key = buks_get_key($section, $users_id, $old_password);
             $key = open_ssl_encrypt($key, $new_password);
 
@@ -121,7 +121,7 @@ function buks_update_password($old_password, $new_password, $users_id = null){
         }
 
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('buks_update_password(): Failed', $e);
     }
 }
@@ -131,29 +131,29 @@ function buks_update_password($old_password, $new_password, $users_id = null){
 /*
  *
  */
-function buks_encrypt($data, $section, $password, $user = null){
+function buks_encrypt($data, $section, $password, $user = null) {
     try{
         /*
          * Get users_id from specified user
          */
-        if(!$user){
+        if(!$user) {
             $user     = $_SESSION['user']['id'];
             $users_id = $_SESSION['user']['id'];
 
-        }elseif(is_numeric($user)){
+        } elseif(is_numeric($user)) {
             $users_id = $user;
 
-        }else{
+        } else {
             /*
              * Lookup in the buks users configuration list
              */
-            if(empty($_CONFIG['buks']['users'][$user])){
+            if(empty($_CONFIG['buks']['users'][$user])) {
                 throw new CoreException(tr('buks_encrypt(): Unknown user ":user" specified', array(':user' => $user)), 'unknown');
             }
 
             $users_id = sql_query('SELECT `id` FROM `users` WHERE `username` = :username', array(':username' => $user));
 
-            if(!$users_id){
+            if(!$users_id) {
                 throw new CoreException(tr('buks_encrypt(): Specified buks user ":user" does not exist', array(':user' => $user)), 'not-exists');
             }
 
@@ -165,13 +165,13 @@ function buks_encrypt($data, $section, $password, $user = null){
          */
         $key = buks_get_key($section, $users_id, $password);
 
-        if($key){
+        if($key) {
             throw new CoreException(tr('buks_encrypt(): User id ":user" does not have the ":key" key', array(':user' => $user, ':key' => $section)), 'not-exists');
         }
 
         return openssl_simple_encrypt($key, $data);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('buks_encrypt(): Failed', $e);
     }
 }
@@ -181,29 +181,29 @@ function buks_encrypt($data, $section, $password, $user = null){
 /*
  *
  */
-function buks_decrypt($data, $section, $password, $user = null){
+function buks_decrypt($data, $section, $password, $user = null) {
     try{
         /*
          * Get users_id from specified user
          */
-        if(!$user){
+        if(!$user) {
             $user     = $_SESSION['user']['id'];
             $users_id = $_SESSION['user']['id'];
 
-        }elseif(is_numeric($user)){
+        } elseif(is_numeric($user)) {
             $users_id = $user;
 
-        }else{
+        } else {
             /*
              * Lookup in the buks users configuration list
              */
-            if(empty($_CONFIG['buks']['users'][$user])){
+            if(empty($_CONFIG['buks']['users'][$user])) {
                 throw new CoreException(tr('buks_encrypt(): Unknown user ":user" specified', array(':user' => $user)), 'unknown');
             }
 
             $users_id = sql_query('SELECT `id` FROM `users` WHERE `username` = :username', array(':username' => $user));
 
-            if(!$users_id){
+            if(!$users_id) {
                 throw new CoreException(tr('buks_encrypt(): Specified buks user ":user" does not exist', array(':user' => $user)), 'not-exists');
             }
 
@@ -215,13 +215,13 @@ function buks_decrypt($data, $section, $password, $user = null){
          */
         $key = buks_get_key($section, $users_id, $password);
 
-        if($key){
+        if($key) {
             throw new CoreException(tr('buks_encrypt(): User id ":user" does not have the ":key" key', array(':user' => $user, ':key' => $section)), 'not-exists');
         }
 
         return openssl_decrypt($key, $data);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('buks_decrypt(): Failed', $e);
     }
 }

@@ -27,13 +27,13 @@
  *
  * @return void
  */
-function btrfs_library_init(){
+function btrfs_library_init() {
     try{
         ensure_installed(array('name'     => 'btrfs',
                                'callback' => 'btrfs_install',
                                'which'    => '/bin/btrfs'));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('btrfs_library_init(): Failed', $e);
     }
 }
@@ -55,12 +55,12 @@ function btrfs_library_init(){
  * @param params $params
  * @return void
  */
-function btrfs_install(){
+function btrfs_install() {
     try{
         load_libs('linux');
         linux_install_package(null, 'btrfs-tools');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('btrfs_install(): Failed', $e);
     }
 }
@@ -86,21 +86,21 @@ function btrfs_install(){
  * @params null mixed $params[verbose]
  * @return array The output lines from the "btrfs filesystem defrag" command
  */
-function btrfs_defragment($params){
+function btrfs_defragment($params) {
     try{
         array_ensure($params, 'verbose,path,server');
 
-        if($params['verbose'] or VERBOSE){
+        if($params['verbose'] or VERBOSE) {
             $verbose = '-v';
 
-        }else{
+        } else {
             $verbose = '';
         }
 
         $results = servers_exec($params['server'], array('commands' => array('btrfs', array('filesystem', 'defragment', $version, $params['path']))));
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('btrfs_defragment(): Failed', $e);
     }
 }
@@ -125,10 +125,10 @@ function btrfs_defragment($params){
  * @params null mixed $params[verbose]
  * @return array The output lines from the "btrfs subvolume create" command
  */
-function btrfs_create_subvolume($params){
+function btrfs_create_subvolume($params) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('btrfs_create_subvolume(): Failed', $e);
     }
 }
@@ -153,10 +153,10 @@ function btrfs_create_subvolume($params){
  * @params null mixed $params[verbose]
  * @return array The output lines from the "btrfs subvolume snapshot" command
  */
-function btrfs_snapshot_subvolume($params){
+function btrfs_snapshot_subvolume($params) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('btrfs_snapshot_subvolume(): Failed', $e);
     }
 }

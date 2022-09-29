@@ -13,10 +13,10 @@
 /*
  * Add entry to crontab
  */
-function crontab_add_entry(){
+function crontab_add_entry() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('crontab_add_entry(): Failed', $e);
     }
 }
@@ -26,10 +26,10 @@ function crontab_add_entry(){
 /*
  * List all crontab entries
  */
-function crontab_list(){
+function crontab_list() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('crontab_list(): Failed', $e);
     }
 }

@@ -13,7 +13,7 @@ load_libs('ext/php-pushover/Pushover');
 /*
  * Send an message through the pushover service
  */
-function pushover_send_msg($user, $params){
+function pushover_send_msg($user, $params) {
     global $_CONFIG;
 
     try{
@@ -25,12 +25,12 @@ function pushover_send_msg($user, $params){
         /*
          * Validations
          */
-        if(empty($user)){
+        if(empty($user)) {
             throw new CoreException(tr('pushover_send_msg(): not user specified'));
         }
 
-        if($user = 'all'){
-            foreach($_CONFIG['pushover']['users'] as $user => $preferences){
+        if($user = 'all') {
+            foreach($_CONFIG['pushover']['users'] as $user => $preferences) {
                 /*
                  * Prepare the message
                  */
@@ -42,7 +42,7 @@ function pushover_send_msg($user, $params){
                 $push->send();
             }
 
-        }else{
+        } else {
 
             /*
              * Prepare the message
@@ -56,7 +56,7 @@ function pushover_send_msg($user, $params){
 
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('pushover_send_msg(): Failed'), $e);
     }
 }
@@ -65,7 +65,7 @@ function pushover_send_msg($user, $params){
 /*
  *
  */
-function pushover_prepare_msg($user, $params){
+function pushover_prepare_msg($user, $params) {
     global $_CONFIG;
 
     try{
@@ -110,7 +110,7 @@ function pushover_prepare_msg($user, $params){
 
         return $push;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('pushover_prepare_msg(): Failed'), $e);
     }
 }

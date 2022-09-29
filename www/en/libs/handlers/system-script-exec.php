@@ -12,15 +12,15 @@ try{
      * Validate the requested commands, ensure that script_exec() is only used
      * when the system is ready to go
      */
-    if(!$core->register['ready']){
+    if(!$core->register['ready']) {
         throw new CoreException(tr('script_exec(): Startup has not yet finished and base is not ready to start working properly. script_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
     }
 
-    if(!$params['commands']){
+    if(!$params['commands']) {
         throw new CoreException(tr('script_exec(): No commands specified'), 'not-specified');
     }
 
-    if(!is_array($params['commands'])){
+    if(!is_array($params['commands'])) {
         throw new CoreException(tr('script_exec(): Invalid commands specified'), 'invalid');
     }
 
@@ -31,22 +31,22 @@ try{
      */
     $count = 0;
 
-    foreach($params['commands'] as $id => &$item){
-        if(fmod(++$count, 2)){
+    foreach($params['commands'] as $id => &$item) {
+        if(fmod(++$count, 2)) {
             /*
              * This must be a command
              */
-            if(is_array($item)){
+            if(is_array($item)) {
                 throw new CoreException(tr('script_exec(): Invalid commands structure specified, entry ":id" is an ":datatype" while it should be a string. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
             }
 
             $item = ROOT.'scripts/'.$item;
 
-        }else{
+        } else {
             /*
              * These must be arguments
              */
-            if(!is_array($item)){
+            if(!is_array($item)) {
                 throw new CoreException(tr('script_exec(): Invalid commands structure specified, entry ":id" is a ":datatype" while it should be an array. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
             }
 
@@ -56,8 +56,8 @@ try{
              */
             $environment = false;
 
-            foreach($item as $key => $value){
-                switch($value){
+            foreach($item as $key => $value) {
+                switch($value) {
                     case '-E';
                         // FALLTHROUGH
                     case '--env';
@@ -66,7 +66,7 @@ try{
                 }
             }
 
-            if(!$environment){
+            if(!$environment) {
                 $item[] = '-E';
                 $item[] = ENVIRONMENT;
                 $environment = true;
@@ -75,7 +75,7 @@ try{
     }
 
     // Ensure that environment is available, in case of a command without any arguments
-    if(empty($environment)){
+    if(empty($environment)) {
         $params['commands'][] = ['-E', ENVIRONMENT];
     }
 
@@ -84,6 +84,6 @@ try{
      */
     return safe_exec($params);
 
-}catch(Exception $e){
+}catch(Exception $e) {
     throw new CoreException(tr('script_exec(): Failed'), $e);
 }

@@ -26,13 +26,13 @@ load_libs('servers');
  *
  * @return void
  */
-function radius_library_init(){
+function radius_library_init() {
     global $_CONFIG;
 
     try{
         load_config('radius');
 
-        switch($_CONFIG['radius']['provider']){
+        switch($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 load_libs('freeradius');
                 break;
@@ -41,7 +41,7 @@ function radius_library_init(){
                 throw new CoreException(tr('radius_library_init(): Specified provider ":provider" does not exist', array(':provider' => $_CONFIG['radius']['provider'])), 'not-exist');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_library_init(): Failed', $e);
     }
 }
@@ -78,7 +78,7 @@ function radius_library_init(){
  * @param string $params[description]
  * @return params the new device added with sql_id
  */
-function radius_insert_device($device){
+function radius_insert_device($device) {
     try{
         $device = radius_validate_device($device);
 
@@ -100,7 +100,7 @@ function radius_insert_device($device){
 
          return $device;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_insert_device(): Failed', $e);
     }
 }
@@ -139,7 +139,7 @@ function radius_insert_device($device){
  * @param string $params[description]
  * @return array updated device
  */
-function radius_update_device($device){
+function radius_update_device($device) {
     try{
         $device     = radius_validate_device($device);
         $old_device = radius_get_device($device['id']);
@@ -169,7 +169,7 @@ function radius_update_device($device){
 
          return $device;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_update_device(): Failed', $e);
     }
 }
@@ -189,14 +189,14 @@ function radius_update_device($device){
  * @version 2.4.42: created function and documentation
  * @return void
  */
-function radius_restart(){
+function radius_restart() {
     global $_CONFIG;
 
     try{
         load_libs('linux');
         linux_service($_CONFIG['radius']['server'], 'radius', 'restart');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_restart(): Failed', $e);
     }
 }
@@ -217,7 +217,7 @@ function radius_restart(){
  * @param array $device
  * @return array the specified $device array validated and clean
  */
-function radius_validate_device($device){
+function radius_validate_device($device) {
     global $_CONFIG;
 
     try{
@@ -239,7 +239,7 @@ function radius_validate_device($device){
          */
         $user = sql_get('SELECT `id` FROM `users` WHERE `id` = :id', true, array(':id' => $device['users_id']));
 
-        if(!$user){
+        if(!$user) {
             $v->setError(tr('The specified user does not exist'));
         }
 
@@ -257,11 +257,11 @@ function radius_validate_device($device){
                          array(':mac_address' => $device['mac_address'],
                                ':id' => isset_get($device['id'], 0)));
 
-        if($user){
+        if($user) {
             $v->setError(tr('The specified mac_address is already in devices'));
         }
 
-        switch($_CONFIG['radius']['mac']){
+        switch($_CONFIG['radius']['mac']) {
             case 'uppercase':
                 $device['mac_address'] = strtoupper($device['mac_address']);
                 break;
@@ -278,7 +278,7 @@ function radius_validate_device($device){
 
         return $device;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_validate_device(): Failed', $e);
     }
 }
@@ -306,7 +306,7 @@ function radius_validate_device($device){
  * @param string $params['selected'] Is the current selected type
  * @return string HTML for a type of devices select box
  */
-function radius_type_select($params = null){
+function radius_type_select($params = null) {
     try{
         array_ensure($params);
         array_default($params, 'name' , 'type');
@@ -320,7 +320,7 @@ function radius_type_select($params = null){
 
         return html_select($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_type_select(): Failed', $e);
     }
 }
@@ -347,7 +347,7 @@ function radius_type_select($params = null){
  * @param array  $params
  * @param string $params['selected'] Is the current selected user
  */
-function radius_users_select($params = null){
+function radius_users_select($params = null) {
     try{
         array_ensure($params);
         array_default($params, 'name'        , 'users_id');
@@ -361,7 +361,7 @@ function radius_users_select($params = null){
 
         return html_select($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_users_select(): Failed', $e);
     }
 }
@@ -387,7 +387,7 @@ function radius_users_select($params = null){
  * @param integer $id
  * @return array with device selected
  */
-function radius_get_device($id){
+function radius_get_device($id) {
     try{
         return sql_get('SELECT `id`,
                                `users_id`,
@@ -407,7 +407,7 @@ function radius_get_device($id){
                         array(':id'          => $id,
                               ':mac_address' => $id));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_users_select(): Failed', $e);
     }
 }
@@ -433,7 +433,7 @@ function radius_get_device($id){
  * @param array $in
  * @return array all devices
  */
-function radius_list_devices($id_list){
+function radius_list_devices($id_list) {
     try{
         $in     = sql_in($id_list);
         $retval = sql_list('SELECT *
@@ -444,7 +444,7 @@ function radius_list_devices($id_list){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_list_devices(): Failed', $e);
     }
 }
@@ -469,13 +469,13 @@ function radius_list_devices($id_list){
  *
  * @return void
  */
-function radius_sync_server(){
+function radius_sync_server() {
     global $_CONFIG;
 
     try{
         $devices_local  = sql_list('SELECT `id`, `mac_address`, `status` FROM `radius_devices`');
 
-        switch($_CONFIG['radius']['provider']){
+        switch($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 return freeradius_sync_server($devices_local);
 
@@ -483,7 +483,7 @@ function radius_sync_server(){
                 throw new CoreException(tr('radius_insert_device_server(): Specified provider ":provider" does not exist', array(':provider' => $_CONFIG['radius']['provider'])), 'not-exist');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_insert_device_server(): Failed', $e);
     }
 }
@@ -513,11 +513,11 @@ function radius_sync_server(){
  * @param string $device['mac_address']
  * @return void
  */
-function radius_update_device_server($old_device, $device){
+function radius_update_device_server($old_device, $device) {
     global $_CONFIG;
 
     try{
-        switch($_CONFIG['radius']['provider']){
+        switch($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 return freeradius_update_device_server($old_device, $device);
 
@@ -525,7 +525,7 @@ function radius_update_device_server($old_device, $device){
                 throw new CoreException(tr('radius_insert_device_server(): Specified provider ":provider" does not exist', array(':provider' => $_CONFIG['radius']['provider'])), 'not-exist');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_insert_device_server(): Failed', $e);
     }
 }
@@ -552,11 +552,11 @@ function radius_update_device_server($old_device, $device){
  * @param string $device['mac_address']
  * @return void
  */
-function radius_insert_device_server($device){
+function radius_insert_device_server($device) {
     global $_CONFIG;
 
     try{
-        switch($_CONFIG['radius']['provider']){
+        switch($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 return freeradius_insert_device_server($device);
 
@@ -564,7 +564,7 @@ function radius_insert_device_server($device){
                 throw new CoreException(tr('radius_insert_device_server(): Specified provider ":provider" does not exist', array(':provider' => $_CONFIG['radius']['provider'])), 'not-exist');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_insert_device_server(): Failed', $e);
     }
 }
@@ -591,11 +591,11 @@ function radius_insert_device_server($device){
  * @param string $device['mac_address']
  * @return void
  */
-function radius_delete_device_server($device){
+function radius_delete_device_server($device) {
     global $_CONFIG;
 
     try{
-        switch($_CONFIG['radius']['provider']){
+        switch($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 return freeradius_delete_device_server($device);
 
@@ -603,7 +603,7 @@ function radius_delete_device_server($device){
                 throw new CoreException(tr('radius_delete_device_server(): Specified provider ":provider" does not exist', array(':provider' => $_CONFIG['radius']['provider'])), 'not-exist');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_delete_device_server(): Failed', $e);
     }
 }
@@ -632,11 +632,11 @@ function radius_delete_device_server($device){
  * @param string $device[mac_address]
  * @return boolean True if the specified device MAC address works, false if not
  */
-function radius_test_device($device){
+function radius_test_device($device) {
     global $_CONFIG;
 
     try{
-        switch($_CONFIG['radius']['provider']){
+        switch($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 return freeradius_test_device($device);
 
@@ -644,7 +644,7 @@ function radius_test_device($device){
                 throw new CoreException(tr('radius_test_device(): Specified provider ":provider" does not exist', array(':provider' => $_CONFIG['radius']['provider'])), 'not-exist');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_test_device(): Failed', $e);
     }
 }

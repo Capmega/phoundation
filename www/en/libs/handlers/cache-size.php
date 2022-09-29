@@ -5,7 +5,7 @@
 global $_CONFIG;
 
 try{
-    switch($_CONFIG['cache']['method']){
+    switch($_CONFIG['cache']['method']) {
         case 'file':
             load_libs('numbers');
             file_ensure_path(ROOT.'data/cache');
@@ -25,7 +25,7 @@ try{
             throw new CoreException(tr('cache_size(): Unknown cache method "%method%" specified',array('method' => str_log($_CONFIG['cache']['method']))), 'unknown');
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     throw new CoreException('cache_size(): Failed', $e);
 }
 ?>

@@ -20,7 +20,7 @@
 		var options = $.extend({}, defaults, options);
 		var lists   = this.find("div.autosuggest input").siblings("ul");
 
-		//$(lists).on("click", "li", function(e){
+		//$(lists).on("click", "li", function(e) {
 		//	self.val($(this).prop('title'));
 		//	lists.hide();
 		//
@@ -31,14 +31,14 @@
 
 // :DELETE:
 		////add onhovers
-		//$(lists).on("mouseenter", "li", function(e){
+		//$(lists).on("mouseenter", "li", function(e) {
 		//	$(this).addClass(options.returnClass + '_hover');
 		//});
 		//
-		//$(lists).on("mouseleave", "li", function(e){
+		//$(lists).on("mouseleave", "li", function(e) {
 		//	$(this).removeClass(options.returnClass + '_hover');
 		//});
-		$(this).on("mousedown", "div.autosuggest li", function(){
+		$(this).on("mousedown", "div.autosuggest li", function() {
 			var d = jQuery.Event("keydown");
 			d.which = 13; // trigger enter
 
@@ -57,24 +57,24 @@
 				.trigger(e);
 		});
 
-		$(this).on("hover", "div.autosuggest li", function(e){
+		$(this).on("hover", "div.autosuggest li", function(e) {
 			$(this).parent().children().removeClass('hover');
 			$(this).addClass('hover');
 		});
 
-		$(this).on("focus", "div.autosuggest input", function(e){
+		$(this).on("focus", "div.autosuggest input", function(e) {
 			$ul = $(this).siblings("ul");
 
-			if($(this).siblings("ul").children().length){
+			if($(this).siblings("ul").children().length) {
 				$ul.addClass("active");
 			}
 		});
 
-		$(this).on("blur", "div.autosuggest input", function(e){
+		$(this).on("blur", "div.autosuggest input", function(e) {
 			$(this).siblings("ul").removeClass("active");
 		});
 
-		$(this).on("keydown", "div.autosuggest input", function(e){
+		$(this).on("keydown", "div.autosuggest input", function(e) {
 			var $this = $(this);
 			switch (e.which) {
 				case 38:
@@ -87,10 +87,10 @@
 
 					$list.removeClass("hover");
 
-					if (!$selected.length || $selected.is(":first-child")){
+					if (!$selected.length || $selected.is(":first-child")) {
 						$list.last().addClass("hover");
 
-					}else{
+					} else {
 						$selected.prev().addClass("hover");
 					}
 
@@ -106,10 +106,10 @@
 
 					$list.removeClass("hover");
 
-					if (!$selected.length || $selected.is(":last-child")){
+					if (!$selected.length || $selected.is(":last-child")) {
 						$list.first().addClass("hover");
 
-					}else{
+					} else {
 						$selected.next().addClass("hover");
 					}
 
@@ -141,7 +141,7 @@
 			}
 		});
 
-		$(this).on("keyup", "div.autosuggest input", function(e){
+		$(this).on("keyup", "div.autosuggest input", function(e) {
 			if (typeof e.keyCode == "undefined") {
 				// Weird bug, no key pressed
 				return false;
@@ -176,10 +176,10 @@
 							}
 
 							$.post(url, data)
-								.success(function(data){
+								.success(function(data) {
 									$this.siblings("img").removeClass("active");
 
-									if(typeof data == "string"){
+									if(typeof data == "string") {
 										// Auto parse json
 										data = $.parseJSON(data);
 									}
@@ -195,7 +195,7 @@
 										target.removeClass("active");
 									}
 								})
-								.fail(function(){
+								.fail(function() {
 									$this.siblings("img").removeClass("active");
 									$.flashMessage("Autosuggest failed", "error", 0);
 								});

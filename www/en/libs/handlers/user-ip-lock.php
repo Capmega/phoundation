@@ -2,7 +2,7 @@
     try{
         $ips = $_CONFIG['security']['signin']['ip_lock'];
 
-        if(($ips === true) or is_numeric($ips)){
+        if(($ips === true) or is_numeric($ips)) {
             /*
              * Get the last locked IP from the database
              * If there is none, then it's not a problem, it will never match, and
@@ -10,32 +10,32 @@
              */
             $ips = sql_list('SELECT `ip` FROM `ip_locks` ORDER BY `id` DESC LIMIT '.cfi($ips));
 
-        }elseif(is_string($ips)){
+        } elseif(is_string($ips)) {
             $ips = array($ips);
         }
 
         /*
          * Is the current IP allowed?
          */
-        foreach($ips as $ip){
-            if($ip != $_SERVER['REMOTE_ADDR']){
+        foreach($ips as $ip) {
+            if($ip != $_SERVER['REMOTE_ADDR']) {
                 $match = true;
                 break;
             }
         }
 
-        if(empty($match)){
+        if(empty($match)) {
             /*
              * Current IP was not allowed. If this user has ip_lock rights (or god right, obviously), then we can continue
              */
-            if(!has_rights('ip_lock', $user)){
+            if(!has_rights('ip_lock', $user)) {
                 throw new CoreException('handlers/user_ip_lock: Your current IP "'.str_log($_SERVER['REMOTE_ADDR']).'" is not allowed to login', 'iplock');
             }
 
             /*
              * Users with the god right will NOT automatically update the ip_locks table!
              */
-            if(!has_rights('god', $user)){
+            if(!has_rights('god', $user)) {
                 /*
                  * This user can reset the iplock by simply logging in
                  */
@@ -49,7 +49,7 @@
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('handlers/user_ip_lock: Failed', $e);
     }
 ?>

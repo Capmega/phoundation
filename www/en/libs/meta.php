@@ -13,10 +13,10 @@
 /*
  * Add specified action to meta history for the specified meta_id
  */
-function meta_action($meta_id = null, $action = null, $data = null){
+function meta_action($meta_id = null, $action = null, $data = null) {
     try{
-        if(!$meta_id){
-            if(!$action){
+        if(!$meta_id) {
+            if(!$action) {
                 $action = 'create';
             }
 
@@ -25,15 +25,15 @@ function meta_action($meta_id = null, $action = null, $data = null){
 
             $meta_id = sql_insert_id('core');
 
-        }else{
-            if(!is_numeric($meta_id)){
+        } else {
+            if(!is_numeric($meta_id)) {
                 throw new CoreException(tr('meta_action(): Invalid meta_id ":meta_id" specified', array(':meta_id' => $meta_id)), 'invalid');
             }
         }
 
         return meta_add_history($meta_id, $action, $data);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('meta_action(): Failed', $e);
     }
 }
@@ -43,7 +43,7 @@ function meta_action($meta_id = null, $action = null, $data = null){
 /*
  * Add specified action to meta history for the specified meta_id
  */
-function meta_add_history($meta_id, $action, $data = null){
+function meta_add_history($meta_id, $action, $data = null) {
     try{
         sql_query('INSERT INTO `meta_history` (`createdby`, `meta_id`, `action`, `data`)
                    VALUES                     (:createdby , :meta_id , :action , :data )',
@@ -55,8 +55,8 @@ function meta_add_history($meta_id, $action, $data = null){
 
         return $meta_id;
 
-    }catch(Exception $e){
-        if($e->getCode() != '23000'){
+    }catch(Exception $e) {
+        if($e->getCode() != '23000') {
             throw new CoreException('meta_add_history(): Failed', $e);
         }
 
@@ -80,7 +80,7 @@ function meta_add_history($meta_id, $action, $data = null){
 /*
  * Return array with all the history for the specified meta_id
  */
-function meta_history($meta_id){
+function meta_history($meta_id) {
     try{
         $history = sql_list('SELECT    `meta_history`.`id`,
                                        `meta_history`.`createdby`,
@@ -106,7 +106,7 @@ function meta_history($meta_id){
 
         return $history;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('meta_history(): Failed', $e);
     }
 }
@@ -118,14 +118,14 @@ function meta_history($meta_id){
  * NOTE: Due to foreign key restraints, ensure that the referencing table entry
  * has been erased first!
  */
-function meta_erase($meta_id){
+function meta_erase($meta_id) {
     try{
         sql_query('DELETE FROM `meta_history` WHERE `meta_id` = :meta_id', array(':meta_id' => $meta_id), 'core');
         sql_query('DELETE FROM `meta`         WHERE `id`      = :id'     , array(':id'      => $meta_id), 'core');
 
         return $meta_id;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('meta_erase(): Failed', $e);
     }
 }
@@ -135,20 +135,20 @@ function meta_erase($meta_id){
 /*
  *
  */
-function meta_clear($meta_id, $views_only = false){
+function meta_clear($meta_id, $views_only = false) {
     try{
-        if($views_only){
+        if($views_only) {
             sql_query('DELETE FROM `meta_history` WHERE `meta_id` = :meta_id AND `action` = "view"', array(':meta_id' => $meta_id), 'core');
             meta_action($meta_id, 'clear-views');
 
-        }else{
+        } else {
             sql_query('DELETE FROM `meta_history` WHERE `meta_id` = :meta_id', array(':meta_id' => $meta_id), 'core');
             meta_action($meta_id, 'clear-history');
         }
 
         return $meta_id;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('meta_erase(): Failed', $e);
     }
 }
@@ -177,11 +177,11 @@ function meta_clear($meta_id, $views_only = false){
  * @param string $table The table in which the meta_id link must be added
  * @return natural The meta id assigned to the specified $table_id entry
  */
-function meta_link($table_id, $table){
+function meta_link($table_id, $table) {
     try{
         $exists = sql_get('SELECT `meta_id` FROM `'.$table.'` WHERE `id` = :id', true, array(':id' => $table_id), 'core');
 
-        if($exists){
+        if($exists) {
             /*
              * This entry already has a meta_id assigned
              */
@@ -199,7 +199,7 @@ function meta_link($table_id, $table){
 
         return $meta_id;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('meta_link(): Failed', $e);
     }
 }

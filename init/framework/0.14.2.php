@@ -12,8 +12,8 @@ $count = 0;
 $r     = sql_query('SELECT DISTINCT `value` FROM `blogs_key_values`');
 $p     = sql_prepare('UPDATE `blogs_key_values` SET `seovalue` = :seovalue WHERE `value` = :value');
 
-while($value = sql_fetch($r)){
-    if($count++ > 10){
+while($value = sql_fetch($r)) {
+    if($count++ > 10) {
         $count = 0;
         log_console('.', '', 'green', false);
     }

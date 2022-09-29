@@ -13,21 +13,21 @@
 /*
  * Return a correctly formatted phone number
  */
-function formats_phone($phone){
+function formats_phone($phone) {
     try{
         $phone = trim(str_replace(array(' ', '-', '.', '(', ')'), '', $phone));
 
-        if($phone[0] == '+'){
+        if($phone[0] == '+') {
             return substr($phone, 0, -10).' ('.substr($phone, -10, 3).') '.substr($phone, -7, 3).' '.substr($phone, -4, 4);
 
-        }elseif(strlen($phone[0]) > 10){
+        } elseif(strlen($phone[0]) > 10) {
             return '+'.substr($phone, 0, -10).' ('.substr($phone, -10, 3).') '.substr($phone, -7, 3).' '.substr($phone, -4, 4);
 
-        }else{
+        } else {
             return '('.substr($phone, 0, 3).') '.substr($phone, 3, 3).' '.substr($phone, 6, 4);
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('formats_phone(): Failed', $e);
     }
 }

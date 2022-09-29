@@ -27,11 +27,11 @@
  *
  * @return void
  */
-function editors_library_init(){
+function editors_library_init() {
     try{
         load_config('editors');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('editors_library_init(): Failed', $e);
     }
 }
@@ -41,7 +41,7 @@ function editors_library_init(){
 /*
  * Return HTML and JS for a niceditor
  */
-function editors_nicedit($params){
+function editors_nicedit($params) {
     try{
         array_ensure($params);
         array_default($params, 'name' , 'editor');
@@ -55,7 +55,7 @@ function editors_nicedit($params){
 //               html_script('var b = nicEditors.allTextAreas(); console.log(b); console.log("xxxxxxxxxxxxx");');
 //               html_script('nicEditors.findEditor('.$params['name'].');');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('editors_nicedit(): Failed', $e);
     }
 }
@@ -81,7 +81,7 @@ function editors_nicedit($params){
         <a href="javascript:;" onmousedown="$('#content').tinymce().execCommand('mceInsertContent',false,'<b>Hello world!!</b>');">[Insert HTML]</a>
         <a href="javascript:;" onmousedown="$('#content').tinymce().execCommand('mceReplaceContent',false,'<b>{$selection}</b>');">[Replace selection]</a>
 */
-function editors_tinymce($params){
+function editors_tinymce($params) {
     try{
         array_ensure($params);
         array_default($params, 'name'         , 'editor');
@@ -128,7 +128,7 @@ function editors_tinymce($params){
 
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('editors_tinymce(): Failed', $e);
     }
 }
@@ -139,7 +139,7 @@ function editors_tinymce($params){
 /*
  * Editor summernote to atlant template
  */
-function editors_summernote($params = null){
+function editors_summernote($params = null) {
     try{
         array_ensure($params);
         array_default($params, 'name'            , 'editor');
@@ -160,7 +160,7 @@ function editors_summernote($params = null){
         html_load_js('plugins/summernote/summernote');
         html_load_js('plugins/summernote/summernote_custom');
 
-        if(!$params['tooltips']){
+        if(!$params['tooltips']) {
             $params['on_init'] .= ' alert("YAY"); $(".note-editor [data-name=\"ul\"]").tooltip("disable");';
         }
 
@@ -169,15 +169,15 @@ function editors_summernote($params = null){
         if($params['on_image_upload']) $options['onImageUpload'] = $params['on_image_upload'];
         if($params['placeholder'])     $options['placeholder']   = $params['placeholder'];
 
-        if($params['on_init']){
-            $options['onInit'] = 'function(){'.$params['on_init'].'}';
+        if($params['on_init']) {
+            $options['onInit'] = 'function() {'.$params['on_init'].'}';
         }
 
-        if($params['toolbar']){
+        if($params['toolbar']) {
             /*
              * Validate the toolbar
              */
-            if(!is_array($params['toolbar'])){
+            if(!is_array($params['toolbar'])) {
                 throw new CoreException('editors_summernote(): Specified toolbar option is invalid, must be an array', 'invalid');
             }
 
@@ -207,19 +207,19 @@ function editors_summernote($params = null){
                                'redo',
                                'help');
 
-            foreach($params['toolbar'] as $group => $buttons){
+            foreach($params['toolbar'] as $group => $buttons) {
                 $entry = array($group);
 
-                if(!is_array($buttons)){
+                if(!is_array($buttons)) {
                     throw new CoreException(tr('editors_summernote(): Specified toolbar group ":group" is invalid, must be an array', array(':group' => $group)), 'invalid');
                 }
 
-                foreach($buttons as $button){
-                    if(!is_scalar($button)){
+                foreach($buttons as $button) {
+                    if(!is_scalar($button)) {
                         throw new CoreException(tr('editors_summernote(): Specified toolbar group ":group" contains an invalid button. Button name should be scalar', array(':group' => $group)), 'invalid');
                     }
 
-                    if(!in_array($button, $available)){
+                    if(!in_array($button, $available)) {
                         throw new CoreException(tr('editors_summernote(): Specified toolbar group ":group" contains unknown button ":button". Buttons should be one of ""', array(':group' => $group, ':button' => $button)), 'unknown');
                     }
                 }
@@ -235,12 +235,12 @@ function editors_summernote($params = null){
         /*
          * Move all functions out of the way so we won't break them with json
          */
-        foreach($options as $key => &$value){
-            if(is_scalar($value)){
+        foreach($options as $key => &$value) {
+            if(is_scalar($value)) {
                 /*
                  * Look for values starting with 'function('
                  */
-                if((strpos($value, 'function(') === 0) or (strpos($value, '(function(') === 0)){
+                if((strpos($value, 'function(') === 0) or (strpos($value, '(function(') === 0)) {
                     /*
                      * Store function string.
                      */
@@ -260,11 +260,11 @@ function editors_summernote($params = null){
         /*
          * Build JS options array
          */
-        if(!empty($options)){
+        if(!empty($options)) {
             $options = json_encode($options);
             $options = str_replace($replace_keys, $value_arr, $options);
 
-        }else{
+        } else {
             $options = '';
         }
 
@@ -273,7 +273,7 @@ function editors_summernote($params = null){
 
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('editors_summernote(): Failed', $e);
     }
 }

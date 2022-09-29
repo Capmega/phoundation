@@ -23,11 +23,11 @@
  *
  * @return void
  */
-function tasks_library_init(){
+function tasks_library_init() {
     try{
         load_config('tasks');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('tasks_library_init(): Failed', $e);
     }
 }
@@ -47,7 +47,7 @@ function tasks_library_init(){
  * @param params $task The task to be added to the database
  * @return params The added task, validated and with the tasks id added
  */
-function tasks_insert($task){
+function tasks_insert($task) {
     try{
         array_ensure($task);
         array_default($task, 'status'      , 'new');
@@ -77,14 +77,14 @@ function tasks_insert($task){
 
         log_console(tr('Added new task ":description" with id ":id"', array(':description' => $task['description'], ':id' => $task['id'])), 'green');
 
-        if($task['auto_execute']){
+        if($task['auto_execute']) {
             log_console(tr('Auto starting tasks manager in background'), 'cyan');
             run_background('base/tasks execute --env '.ENVIRONMENT.(VERBOSE ? (VERYVERBOSE ? ' --very-verbose' : ' --verbose') : ''), true, false);
         }
 
         return $task;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('tasks_insert(): Failed', $e);
     }
 }
@@ -104,7 +104,7 @@ function tasks_insert($task){
  * @param params $task The task to be updated in the database
  * @return params The updated task, validated
  */
-function tasks_update($task, $executed = false){
+function tasks_update($task, $executed = false) {
     try{
         $task = tasks_validate($task);
 
@@ -118,7 +118,7 @@ function tasks_update($task, $executed = false){
                          ':pid'      => get_null($task['pid']),
                          ':results'  => $task['results']);
 
-        if($executed){
+        if($executed) {
             $execute[':time_spent'] = $task['time_spent'];
         }
 
@@ -139,7 +139,7 @@ function tasks_update($task, $executed = false){
 
         return $task;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('tasks_update(): Failed', $e);
     }
 }
@@ -174,7 +174,7 @@ function tasks_update($task, $executed = false){
  * @params boolean $verbose
  * @return params The validated task
  */
-function tasks_validate($task){
+function tasks_validate($task) {
     global $_CONFIG;
 
     try{
@@ -182,7 +182,7 @@ function tasks_validate($task){
 
         $v = new ValidateForm($task, 'status,command,after,data,results,method,timeout,executed,time_spent,parents_id,parrallel,verbose');
 
-        if($task['timeout'] === ''){
+        if($task['timeout'] === '') {
             $task['timeout'] = $_CONFIG['tasks']['default_timeout'];
         }
 
@@ -202,21 +202,21 @@ function tasks_validate($task){
         $v->isNatural($task['pid'], 1, tr('Please specify a valid pid (process id)'), VALIDATE_ALLOW_EMPTY_NULL);
         $v->isBetween($task['pid'], 1, 65535, tr('Please specify a valid pid (process id)'), VALIDATE_ALLOW_EMPTY_NULL);
 
-        if($task['parents_id']){
+        if($task['parents_id']) {
             $exists = sql_get('SELECT `id`, `method` FROM `tasks` WHERE `id` = :id', array(':id' => $task['parents_id']));
 
-            if(!$exists){
+            if(!$exists) {
                 $v->setError(tr('Specified parent tasks id ":id" does not exist', array(':id' => $task['parents_id'])));
             }
 
-            if($task['parrallel'] and ($exists['method'] !== 'background')){
+            if($task['parrallel'] and ($exists['method'] !== 'background')) {
                 $v->setError(tr('Parrallel tasks require parent task running in mode "background"'));
             }
 
-        }else{
+        } else {
             $task['parents_id'] = null;
 
-            if($task['parrallel']){
+            if($task['parrallel']) {
                 $v->setError(tr('Parrallel was specified without parents_id'));
             }
         }
@@ -224,11 +224,11 @@ function tasks_validate($task){
         $task['verbose']   = (integer) (boolean) $task['verbose'];
         $task['parrallel'] = (integer) (boolean) $task['parrallel'];
 
-        if(is_object($task['data'])){
+        if(is_object($task['data'])) {
             $v->setError(tr('Specified task data is an object data type, which is not supported'));
         }
 
-        if(is_object($task['results'])){
+        if(is_object($task['results'])) {
             $v->setError(tr('Specified task results is an object data type, which is not supported'));
         }
 
@@ -240,7 +240,7 @@ function tasks_validate($task){
 
         return $task;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('tasks_validate(): Failed', $e);
     }
 }
@@ -250,10 +250,10 @@ function tasks_validate($task){
 /*
  * Validate the specified task status
  */
-function tasks_validate_status($status){
+function tasks_validate_status($status) {
     try{
-        foreach(array_force($status) as $entry){
-            switch($entry){
+        foreach(array_force($status) as $entry) {
+            switch($entry) {
                 case 'new':
                     // FALLTHROUGH
                 case 'processing':
@@ -274,7 +274,7 @@ function tasks_validate_status($status){
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('tasks_validate_status(): Failed', $e);
     }
 }
@@ -284,20 +284,20 @@ function tasks_validate_status($status){
 /*
  * Get a task with the specified status
  */
-function tasks_get($filters, $set_status = false, $min_id = null){
+function tasks_get($filters, $set_status = false, $min_id = null) {
     try{
-        if(is_natural($filters)){
+        if(is_natural($filters)) {
             $where   = ' WHERE `tasks`.`id` = :id ';
 
             $execute = array(':id' => $filters);
 
-        }else{
+        } else {
             $filters = array_force($filters);
             $execute = sql_in($filters, ':filter');
             $where   = ' WHERE  `tasks`.`status` IN('.implode(', ', array_keys($execute)).')
                          AND   (`tasks`.`after` IS NULL OR `tasks`.`after` <= UTC_TIMESTAMP()) ';
 
-            if($min_id){
+            if($min_id) {
                 $where .= ' AND `tasks`.`id` > :id ';
                 $execute['id'] = $min_id;
             }
@@ -339,8 +339,8 @@ function tasks_get($filters, $set_status = false, $min_id = null){
 
                          $execute);
 
-        if($task){
-            if($set_status){
+        if($task) {
+            if($set_status) {
                 tasks_validate_status($set_status);
                 meta_action($task['meta_id'], 'set-status', $set_status);
                 sql_query('UPDATE `tasks` SET `status` = :status WHERE `id` = :id', array(':id' => $task['id'], ':status' => $set_status));
@@ -349,7 +349,7 @@ function tasks_get($filters, $set_status = false, $min_id = null){
 
         return $task;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('tasks_get(): Failed', $e);
     }
 }
@@ -359,25 +359,25 @@ function tasks_get($filters, $set_status = false, $min_id = null){
 /*
  * List all tasts with the specified status
  */
-function tasks_list($status){
+function tasks_list($status) {
     try{
-        if($status){
+        if($status) {
             $status = array_force($status);
             tasks_validate_status($status);
 
-            if(count($status) == 1){
+            if(count($status) == 1) {
                 $status = array(':status' => array_shift($status));
                 $where  = 'WHERE    `tasks`.`status` = :status
                            AND     (`tasks`.`after` IS NULL OR `tasks`.`after` <= UTC_TIMESTAMP())';
 
-            }else{
+            } else {
                 $status = sql_in($status);
                 $where  = 'WHERE    `tasks`.`status` IN('.implode(', ', array_keys($status)).')
                            AND     (`tasks`.`after` IS NULL OR `tasks`.`after` <= UTC_TIMESTAMP())';
             }
 
 
-        }else{
+        } else {
             $where  = '';
             $status = array();
         }
@@ -416,7 +416,7 @@ function tasks_list($status){
 
         return $task;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('tasks_list(): Failed', $e);
     }
 }
@@ -428,7 +428,7 @@ function tasks_list($status){
  * Test if the core MySQL server is still available. If not, disconnect so that
  * later queries will auto reconnect
  */
-function task_test_mysql(){
+function task_test_mysql() {
     /*
      * Tasks may have affected the MySQL server or our connection
      * to it. Test MySQL connection. If dropped, restart our
@@ -437,10 +437,10 @@ function task_test_mysql(){
     try{
         sql_query('SELECT 1');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         $message = $e->getMessage();
 
-        if(!preg_match('/send of .+? bytes failed with .+? Broken pipe/', $message)){
+        if(!preg_match('/send of .+? bytes failed with .+? Broken pipe/', $message)) {
             /*
              * This is a different error, keep on throwing
              */
@@ -473,14 +473,14 @@ function task_test_mysql(){
  * @param boolean $reset If set to true, the results for this task will be reset
  * @return natural The amount of tasks that had their status updated
  */
-function tasks_status($tasks_id, $status, $reset = false){
+function tasks_status($tasks_id, $status, $reset = false) {
     try{
         $update = sql_query('UPDATE `tasks` SET `status` = :status '.($reset ? ' , `results` = null ' : '').' WHERE `id` = :id', array(':id' => $tasks_id, ':status' => $status));
 
-        if(!$update->rowCount()){
+        if(!$update->rowCount()) {
             $exists = sql_get('SELECT `id` FROM `tasks` WHERE `id` = :id', true, array(':id' => $tasks_id));
 
-            if($exists){
+            if($exists) {
                 return 0;
             }
 
@@ -490,14 +490,14 @@ function tasks_status($tasks_id, $status, $reset = false){
         $count    = 1;
         $children = sql_query('SELECT `id` FROM `tasks` WHERE `parents_id` = :parents_id', array(':parents_id' => $tasks_id));
 
-        while($child = sql_fetch($children, true)){
+        while($child = sql_fetch($children, true)) {
             tasks_status($child, $status, $reset);
             $count++;
         }
 
         return $count;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('tasks_status(): Failed', $e);
     }
 }
@@ -520,12 +520,12 @@ function tasks_status($tasks_id, $status, $reset = false){
  * @param natural $tasks_id The task to be updated
  * @return natural The amount of tasks that had their status updated
  */
-function tasks_reset($tasks_id){
+function tasks_reset($tasks_id) {
     try{
         log_console(tr('Task ":id" and all its children are being reset', array(':id' => $tasks_id)), 'warning');
         return tasks_status($tasks_id, null, true);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('tasks_reset(): Failed', $e);
     }
 }
@@ -548,12 +548,12 @@ function tasks_reset($tasks_id){
  * @param natural $tasks_id The task to be updated
  * @return natural The amount of tasks that had their status updated
  */
-function tasks_abort($tasks_id){
+function tasks_abort($tasks_id) {
     try{
         log_console(tr('Aborting task ":id" and all its children', array(':id' => $tasks_id)), 'warning');
         return tasks_status($tasks_id, 'aborted');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('tasks_abort(): Failed', $e);
     }
 }
@@ -576,12 +576,12 @@ function tasks_abort($tasks_id){
  * @param natural $tasks_id The task to be updated
  * @return natural The amount of tasks that had their status updated
  */
-function tasks_failed($tasks_id){
+function tasks_failed($tasks_id) {
     try{
         log_console(tr('Task ":id" failed, updating status for it, and all its children', array(':id' => $tasks_id)), 'warning');
         return tasks_status($tasks_id, 'failed');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('tasks_failed(): Failed', $e);
     }
 }
@@ -591,15 +591,15 @@ function tasks_failed($tasks_id){
 /*
  *
  */
-function tasks_check_pid($tasks_id){
+function tasks_check_pid($tasks_id) {
     try{
         $task = sql_get('SELECT `id`, `pid` FROM `tasks` WHERE `id` = :id', array(':id' => $tasks_id));
 
-        if(!$task){
+        if(!$task) {
             throw new CoreException(tr('tasks_check_pid(): Task ":task" does not exist', array(':task' => $tasks_id)), 'not-exists');
         }
 
-        if(!$task['pid']){
+        if(!$task['pid']) {
             throw new CoreException(tr('tasks_check_pid(): Task ":task" does not have a pid', array(':task' => $tasks_id)), 'empty');
         }
 
@@ -607,7 +607,7 @@ function tasks_check_pid($tasks_id){
 
         return cli_pid($task['pid']);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('tasks_check_pid(): Failed', $e);
     }
 }

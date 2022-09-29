@@ -13,11 +13,11 @@
 /*
  * Return an array of all available library files
  */
-function libs_list(){
+function libs_list() {
     try{
         return scandir(ROOT.'libs');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('libs_list(): Failed', $e);
     }
 }
@@ -27,11 +27,11 @@ function libs_list(){
 /*
  * Return the amount of available libraries
  */
-function libs_count(){
+function libs_count() {
     try{
         return count(libs_list());
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('libs_count(): Failed', $e);
     }
 }
@@ -41,11 +41,11 @@ function libs_count(){
 /*
  * Execute the specified callback function for each available library file
  */
-function libs_exec($callback){
+function libs_exec($callback) {
     try{
         return file_tree_execute(array('path' => ROOT.'libs'));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('libs_exec(): Failed', $e);
     }
 }

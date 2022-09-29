@@ -13,13 +13,13 @@
 /*
  * Returns an array with all currently active sessions
  */
-function session_list(){
+function session_list() {
     try{
         $path   = ini_get( 'session.save_path');
         $retval = array();
 
-        foreach(scandir($path) as $file){
-            if(($file == '.') or ($file == '..') or ($file == 'modules')){
+        foreach(scandir($path) as $file) {
+            if(($file == '.') or ($file == '..') or ($file == 'modules')) {
                 continue;
             }
 
@@ -28,7 +28,7 @@ function session_list(){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('session_list(): Failed', $e);
     }
 }
@@ -38,17 +38,17 @@ function session_list(){
 /*
  * Change the current session to the session with the specified ID
  */
-function session_take($session_id){
+function session_take($session_id) {
     try{
         $path = ini_get( 'session.save_path');
 
-        if(!file_exists(slash($path).'sess_'.$session_id)){
+        if(!file_exists(slash($path).'sess_'.$session_id)) {
             throw new CoreException('Specified session "'.str_log($session_id).'" does not exist', 'not-exists');
         }
 
         session_id($session_id);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('session_take(): Failed', $e);
     }
 }

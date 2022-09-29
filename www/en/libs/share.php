@@ -26,11 +26,11 @@
  *
  * @return void
  */
-function share_library_init(){
+function share_library_init() {
     try{
         load_config('share');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('share_library_init(): Failed', $e);
     }
 }
@@ -44,7 +44,7 @@ function share_buttons($buttons) {
     global $_CONFIG;
 
     try{
-        switch($_CONFIG['share']['provider']){
+        switch($_CONFIG['share']['provider']) {
             case 'addthis':
                 return share_addthis_buttons($buttons);
 

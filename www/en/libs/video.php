@@ -26,13 +26,13 @@
  *
  * @return void
  */
-function video_library_init(){
+function video_library_init() {
     try{
-        if(!file_which('ffmpeg')){
+        if(!file_which('ffmpeg')) {
             throw new CoreException(tr('video_library_init(): ffmpeg module not installed, run this command on your server: sudo apt update && sudo apt install ffmpeg libav-tools x264 x265;'), 'not_available');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('video_library_init(): Failed', $e);
     }
 }
@@ -52,14 +52,14 @@ function video_library_init(){
  * @params string $size The required size of the thumbnail in XxY format
  * @return string The generated thumbnail file
  */
-function video_get_thumbnail($file, $size = '50x50'){
+function video_get_thumbnail($file, $size = '50x50') {
     try{
         $retval = file_temp(false);
         safe_exec(array('commands' => array('ffmpeg', array('-i', '{'.$file.'}', '-deinterlace', '-an', '-ss', '00:00:01', '-t', '00:00:02', '-s', '{'.$size.'}', '-r', '1', '-y', '-vcodec', 'mjpeg', '-f', 'mjpeg', '{'.$retval.'}'))));
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('video_get_thumbnail(): Failed', $e);
     }
 }

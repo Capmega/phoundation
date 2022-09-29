@@ -12,10 +12,10 @@
 /*
  * Send a message
  */
-function messages_send($params){
+function messages_send($params) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('messages_send(): Failed', $e);
     }
 }

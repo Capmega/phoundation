@@ -26,11 +26,11 @@
  *
  * @return void
  */
-function apt_library_init(){
+function apt_library_init() {
     try{
         load_libs('servers');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('apt_library_init(): Failed', $e);
     }
 }
@@ -58,9 +58,9 @@ function apt_library_init(){
  * @param mixed $server
  * @return string The output from the apt-get install command
  */
-function apt_install($packages, $auto_update = true, $server = null){
+function apt_install($packages, $auto_update = true, $server = null) {
     try{
-        if($auto_update){
+        if($auto_update) {
             apt_update($server = null);
         }
 
@@ -75,8 +75,8 @@ function apt_install($packages, $auto_update = true, $server = null){
 
         return $results;
 
-    }catch(Exception $e){
-        switch($e->getRealCode()){
+    }catch(Exception $e) {
+        switch($e->getRealCode()) {
             case '100':
                 /*
                  * Package doesn't exist, proabably
@@ -90,14 +90,14 @@ function apt_install($packages, $auto_update = true, $server = null){
                  */
                 $data = $e->getData();
 
-                if($data){
+                if($data) {
                     /*
                      * All apt methods failures
                      */
                     $result = end($data);
                     $result = strtolower(trim($result));
 
-                    if(str_exists($result, 'dpkg was interrupted, you must manually run \'sudo dpkg --configure -a\' to correct the problem')){
+                    if(str_exists($result, 'dpkg was interrupted, you must manually run \'sudo dpkg --configure -a\' to correct the problem')) {
                         log_console(tr('apt reported dpkg was interrupted, trying to fix'), 'yellow');
 
                         /*
@@ -107,15 +107,15 @@ function apt_install($packages, $auto_update = true, $server = null){
                             apt_fix($server);
                             $method($server);
 
-                        }catch(Exception $f){
+                        }catch(Exception $f) {
                             throw new CoreException(tr('apt_install(): apt function ":function" failed, repair failed as well with ":f"', array(':function' => $method.'()', ':f' => $f->getMessage())), $e);
                         }
                     }
 
-                    foreach($data as $line){
+                    foreach($data as $line) {
                         $match = preg_match('/^Try "snap install ([a-z-_]+)"$/ius', $line, $matches);
 
-                        if($match){
+                        if($match) {
                             /*
                              * The specific package is not available in apt, try
                              * installing it with snap instead
@@ -131,12 +131,12 @@ function apt_install($packages, $auto_update = true, $server = null){
 
                         $match = preg_match('/^E: Unable to locate package ([a-z-_]+)$/ius', $line, $matches);
 
-                        if($match){
+                        if($match) {
                             throw new CoreException(tr('apt_install(): The specified apt package ":package" does not exist', array(':package' => $matches[1])), 'not-exists');
                         }
                     }
 
-                    if($fixed){
+                    if($fixed) {
                         return $data;
                     }
                 }
@@ -167,7 +167,7 @@ function apt_install($packages, $auto_update = true, $server = null){
  * @param mixed $server
  * @return string The output from the apt-get update command
  */
-function apt_update($server = null){
+function apt_update($server = null) {
     try{
         log_console(tr('Updating apt database'), 'cyan');
         $results = servers_exec($server, array('timeout'  => 120,
@@ -175,7 +175,7 @@ function apt_update($server = null){
                                                'commands' => array('apt-get', array('sudo' => true, 'update'))));
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         /*
          * Update failed, this may be a partial fail which
          * happens often, or a complete fail which is a problem.
@@ -185,11 +185,11 @@ function apt_update($server = null){
         $hits = 0;
         $data = $e->getData();
 
-        foreach($data as $line){
+        foreach($data as $line) {
             $code = substr($line, 0, 3);
             $code = strtolower($code);
 
-            switch($code){
+            switch($code) {
                 case 'get':
                     /*
                      * This was a hit, so we have internet and
@@ -224,7 +224,7 @@ function apt_update($server = null){
             }
         }
 
-        if(!$hits){
+        if(!$hits) {
             throw new CoreException(tr('apt_update(): apt update failed to download all resources, see exception data for more information'), $e);
         }
 
@@ -259,7 +259,7 @@ function apt_update($server = null){
  * @param mixed $server
  * @return string The output from the dpkg --configure -a command
  */
-function apt_fix($server = null){
+function apt_fix($server = null) {
     try{
         log_console(tr('Fixing apt database'), 'yellow');
 
@@ -269,7 +269,7 @@ function apt_fix($server = null){
                                                                    'apt-get', array('sudo' => true, 'install', '-f'))));
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('apt_fix(): Failed', $e);
     }
 }

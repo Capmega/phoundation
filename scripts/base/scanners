@@ -93,21 +93,21 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('scanimage,sane');
 
-switch(cli_method()){
+switch(cli_method()) {
     case 'list':
         cli_no_arguments_left();
         log_console(tr('Showing found SANE scanners'), 'white');
 
         $devices = scanimage_list();
 
-        if(!$devices->rowCount()){
+        if(!$devices->rowCount()) {
             log_console(tr('There are currently no devices available'), 'QUIET/yellow');
 
-        }else{
+        } else {
             log_console(tr('Showing currently available devices'), 'QUIET/white');
             log_console(str_size(tr('#id'), 6).' '.str_size(tr('Name'), 20).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 16).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.tr('Description'), 'QUIET/cyan');
 
-            while($device = sql_fetch($devices)){
+            while($device = sql_fetch($devices)) {
                 log_console(str_size($device['id'], 6).' '.str_size(not_empty($device['name'], '-'), 20).' '.str_size($device['type'], 20).' '.str_size(isset_get($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 16).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.$device['description']);
             }
         }
@@ -122,8 +122,8 @@ switch(cli_method()){
             cli_no_arguments_left();
             scanimage_kill($id, null, $hard);
 
-        }catch(Exception $e){
-            if($e->getRealCode() == 'not-specified'){
+        }catch(Exception $e) {
+            if($e->getRealCode() == 'not-specified') {
                 $e->makeWarning(true);
             }
 
@@ -140,8 +140,8 @@ switch(cli_method()){
             $runs = scanimage_runs($id);
             echo $runs;
 
-        }catch(Exception $e){
-            if($e->getRealCode() == 'not-specified'){
+        }catch(Exception $e) {
+            if($e->getRealCode() == 'not-specified') {
                 $e->makeWarning(true);
             }
 
@@ -171,19 +171,19 @@ switch(cli_method()){
         /*
          * Parse parameters for this specific device
          */
-        foreach($device['options'] as $key => $valid_values){
+        foreach($device['options'] as $key => $valid_values) {
             $value = cli_argument('--'.$key, true);
 
-            if($value){
+            if($value) {
                 /*
                  * Validate values
                  */
-                if(is_array($valid_values)){
-                    if(!in_array($value, $valid_values)){
+                if(is_array($valid_values)) {
+                    if(!in_array($value, $valid_values)) {
                         throw new CoreException(tr('Value ":value" for the specified option ":key" is invalid', array(':key' => $key, ':value' => $value)), 'warning/invalid');
                     }
 
-                }else{
+                } else {
                     /*
                      * Ensure range
                      */
@@ -204,8 +204,8 @@ switch(cli_method()){
                                 'batch-increment',
                                 'batch-double');
 
-        foreach($system_options as $option){
-            if($value = cli_argument('--'.$option, true)){
+        foreach($system_options as $option) {
+            if($value = cli_argument('--'.$option, true)) {
                 $scanimage['batch'] = true;
                 $scanimage['options'][$option] = $value;
             }
@@ -245,16 +245,16 @@ switch(cli_method()){
         try{
             $scanimage = scanimage($scanimage);
 
-            if(!file_exists($scanimage['file'])){
-                if(!$scanimage['batch']){
+            if(!file_exists($scanimage['file'])) {
+                if(!$scanimage['batch']) {
                     throw new CoreException(tr('Sane reported scan was saved to target file ":file", but the file was not found', array(':file' => $scanimage['file'])), 'not-found');
                 }
             }
 
             log_console(tr('Scanned image to file ":file"', array(':file' => $scanimage['file'])));
 
-        }catch(Exception $e){
-            switch($e->getRealCode()){
+        }catch(Exception $e) {
+            switch($e->getRealCode()) {
                 case 'busy':
                     // FALLTHGOUH
                 case 'stuck':
@@ -271,24 +271,24 @@ switch(cli_method()){
         /*
          * Show the scanned image?
          */
-        if($show){
+        if($show) {
             load_libs('view');
 
-            if($scanimage['batch']){
+            if($scanimage['batch']) {
                 $scanimage['file'] = str_replace('%d', '\d+', $scanimage['file']);
                 $scanimage['file'] = '/'.$scanimage['file'].'/';
 
                 $files = file_list_tree($scanimage['result'], $scanimage['file']);
 
-                if(!$files){
+                if(!$files) {
                     throw new CoreException(tr('No scanned target files found in ":path"', array(':path' => $scanimage['result'])), 'not-exist');
                 }
 
-                foreach($files as $file){
+                foreach($files as $file) {
                     view($file);
                 }
 
-            }else{
+            } else {
                 view($scanimage['file']);
             }
         }

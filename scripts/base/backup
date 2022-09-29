@@ -16,7 +16,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 
 load_libs('backup');
 
-switch(cli_method()){
+switch(cli_method()) {
     case 'all':
         break;
 
@@ -41,13 +41,13 @@ $mysql = cli_argument('mysql');
 $path  = cli_argument('path', true);
 $clear = cli_argument('clean') or cli_argument('clear');
 
-if($mysql){
+if($mysql) {
     $params['username'] = cli_argument('--username', true);
     $params['password'] = cli_argument('--password', true);
     $params['database'] = cli_argument('--database', true, true);
 }
 
-if($sync){
+if($sync) {
     $source = cli_argument('--source');
     $target = cli_argument('--target');
 }
@@ -58,14 +58,14 @@ $params['date'] = new DateTime();
 
 log_console(tr('Started backup with datetime stamp ":date"', array(':date' => date_convert($params['date']))), 'start', 'white');
 
-if($mysql){
+if($mysql) {
     $do     = true;
     $target = backup_mysql($params);
 
     log_console(tr('Finished MySQL backup to ":target"', array(':target' => $target)), 'green');
 }
 
-if($params['path'] = $path){
+if($params['path'] = $path) {
     /*
      *
      */
@@ -75,7 +75,7 @@ if($params['path'] = $path){
     log_console(tr('Finished path backup'), 'green');
 }
 
-if($sync){
+if($sync) {
     /*
      *
      */
@@ -88,7 +88,7 @@ if($sync){
     log_console(tr('Finished backup sync from ":source" to ":destination"', array(':source' => $params['source'], ':destination' => $params['destination'])), 'green');
 }
 
-if($clear){
+if($clear) {
     /*
      *
      */
@@ -98,7 +98,7 @@ if($clear){
     log_console(tr('Finished backup clear on ":target"', array(':target' => $target)), 'green');
 }
 
-if(empty($do)){
+if(empty($do)) {
     throw new CoreException('No methods specified.', 'not-specified');
 }
 ?>

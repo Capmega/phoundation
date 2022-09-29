@@ -13,14 +13,14 @@ try{
 
     load_libs('mailer');
 
-    if($count = mailer_stop($argv)){
+    if($count = mailer_stop($argv)) {
         log_console('Stopped "'.$count.'" mailers', '', 'white');
 
-    }else{
+    } else {
         log_console('No mailers stopped', '', 'yellow');
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     throw new CoreException('scripts/mailer/stop: Failed', $e);
 }
 ?>

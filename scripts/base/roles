@@ -16,12 +16,12 @@ require_once(__DIR__.'/../../libs/startup.php');
 
 load_libs('user,roles,paging');
 
-switch(cli_method()){
+switch(cli_method()) {
     case 'list':
         $rights = cli_argument('--rights') or cli_argument('-r');
         cli_no_arguments_left();
 
-        if($rights){
+        if($rights) {
             log_console(tr('Showing rights for currently available roles'), 'QUIET/white');
 
             $roles = sql_query('SELECT `id`,
@@ -35,7 +35,7 @@ switch(cli_method()){
 
             log_console(str_size('#id', 6).' '.str_size('Name', 20).' '.str_size('Status', 16).' Rights', 'QUIET/cyan');
 
-            while($role = sql_fetch($roles)){
+            while($role = sql_fetch($roles)) {
                 $rights = sql_list('SELECT    `rights`.`name`
 
                                     FROM      `roles_rights`
@@ -51,7 +51,7 @@ switch(cli_method()){
                 log_console(str_size($role['id'], 6, ' ', true).' '.str_size($role['name'], 20).' '.str_size(status($role['status']), 16).' '.str_force($rights, ', '));
             }
 
-        }else{
+        } else {
             log_console(tr('Showing currently available roles'), 'QUIET/white');
 
             $roles = sql_query('SELECT `id`,
@@ -66,7 +66,7 @@ switch(cli_method()){
 
             log_console(str_size('#id', 6).' '.str_size('Name', 20).' '.str_size('Status', 16).' Description', 'QUIET/cyan');
 
-            while($role = sql_fetch($roles)){
+            while($role = sql_fetch($roles)) {
                 log_console(str_size($role['id'], 6, ' ', true).' '.str_size($role['name'], 20).' '.str_size(status($role['status']), 16).' '.$role['description']);
             }
         }
@@ -90,7 +90,7 @@ switch(cli_method()){
             log_console(tr('Created new role ":role"', array(':role' => str_log($role['name']))), 'green');
             break;
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             throw new CoreException(tr('Failed to create new role'), $e);
         }
 
@@ -103,13 +103,13 @@ switch(cli_method()){
 
             cli_no_arguments_left();
 
-            if(!$role){
+            if(!$role) {
                 throw new CoreException(tr('No role specified'), 'warning/not-specified');
             }
 
             $old_role = sql_get('SELECT `id`, `name`, `description` FROM `roles` WHERE `id` = :role OR `name` = :role', array(':role' => $old_role_id));
 
-            if(!$old_role){
+            if(!$old_role) {
                 throw new CoreException(tr('Specified role ":role" does not exist', array(':role' => $old_role_id)), 'warning/not-specified');
             }
 
@@ -144,7 +144,7 @@ switch(cli_method()){
             log_console(tr('Modified role ":role"', array(':role' => $role['name'])), 'green');
             break;
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             throw new CoreException(tr('Failed to modify role'), $e);
         }
 
@@ -156,17 +156,17 @@ switch(cli_method()){
 
         cli_no_arguments_left();
 
-        if(empty($roles)){
+        if(empty($roles)) {
             throw new CoreException(tr('No roles specified'), 'warning/not-specified');
         }
 
         $in_name = sql_in($roles, 'name');
         $in_id   = sql_in($roles, 'id');
 
-        if(FORCE){
+        if(FORCE) {
             $status = '';
 
-        }else{
+        } else {
             $status = ' AND `status` IS NULL ';
         }
 
@@ -179,7 +179,7 @@ switch(cli_method()){
 
                          array_merge($in_name, $in_id));
 
-        switch(!$r->rowCount()){
+        switch(!$r->rowCount()) {
             case 0:
                 log_console(tr('Not deleted any roles'), 'error');
                 break;
@@ -200,17 +200,17 @@ switch(cli_method()){
 
         cli_no_arguments_left();
 
-        if(empty($roles)){
+        if(empty($roles)) {
             throw new CoreException(tr('No roles specified'), 'warning/not-specified');
         }
 
         $in_name = sql_in($roles, 'name');
         $in_id   = sql_in($roles, 'id');
 
-        if(FORCE){
+        if(FORCE) {
             $status = '';
 
-        }else{
+        } else {
             $status = ' AND `status` = "deleted" ';
         }
 
@@ -224,7 +224,7 @@ switch(cli_method()){
                          array_merge($in_name, $in_id));
 
 
-        switch(!$r->rowCount()){
+        switch(!$r->rowCount()) {
             case 0:
                 log_console(tr('Not undeleted any roles'), 'error');
                 break;
@@ -245,17 +245,17 @@ switch(cli_method()){
 
         cli_no_arguments_left();
 
-        if(empty($roles)){
+        if(empty($roles)) {
             throw new CoreException(tr('No roles specified'), 'warning/not-specified');
         }
 
         $in_name = sql_in($roles, 'name');
         $in_id   = sql_in($roles, 'id');
 
-        if(FORCE){
+        if(FORCE) {
             $status = '';
 
-        }else{
+        } else {
             $status = ' AND `status` = "deleted" ';
         }
 
@@ -266,7 +266,7 @@ switch(cli_method()){
 
                          array_merge($in_name, $in_id));
 
-        switch(!$r->rowCount()){
+        switch(!$r->rowCount()) {
             case 0:
                 log_console(tr('Not erased any roles'), 'error');
                 break;
@@ -291,7 +291,7 @@ switch(cli_method()){
         /*
          * Ensure that specified rights exist, and get more detailed rights data
          */
-        foreach($arguments as $key => $value){
+        foreach($arguments as $key => $value) {
             $right                  = rights_get($value, 'id,name');
             $rights[$right['name']] = $right;
         }
@@ -299,7 +299,7 @@ switch(cli_method()){
         /*
          * Add the specified rights
          */
-        foreach($rights as $right){
+        foreach($rights as $right) {
             $exist = sql_get('SELECT `id`
 
                               FROM `roles_rights`
@@ -310,7 +310,7 @@ switch(cli_method()){
                               'id', array(':roles_id'  => $role['id'],
                                           ':rights_id' => $right['id']));
 
-            if(!$exist){
+            if(!$exist) {
                 sql_query('INSERT INTO `roles_rights` (`rights_id`, `roles_id`)
                            VALUES                     (:rights_id , :roles_id )',
 
@@ -332,7 +332,7 @@ switch(cli_method()){
         /*
          * Ensure that specified rights exist, and get more detailed rights data
          */
-        foreach($arguments as $key => $value){
+        foreach($arguments as $key => $value) {
             $right                  = rights_get($value, 'id,name');
             $rights[$right['name']] = $right;
         }
@@ -340,7 +340,7 @@ switch(cli_method()){
         /*
          * Add the specified rights
          */
-        foreach($rights as $right){
+        foreach($rights as $right) {
             sql_query('DELETE FROM `roles_rights`
 
                        WHERE       `roles_id`  = :roles_id

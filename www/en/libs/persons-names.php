@@ -12,11 +12,11 @@
 /*
  *
  */
-function persons_names_get($gender, $name_count, $lastname_count){
+function persons_names_get($gender, $name_count, $lastname_count) {
     try{
         $retval = '';
 
-        switch(strtolower($gender)){
+        switch(strtolower($gender)) {
             case 'man':
                 // FALLTHROUGH
             case 'boy':
@@ -42,7 +42,7 @@ function persons_names_get($gender, $name_count, $lastname_count){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('persons_names_get(): Failed', $e);
     }
 }

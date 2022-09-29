@@ -31,7 +31,7 @@
  * @param string $params[source] The source directory to be compressored
  * @return void()
  */
-function pack_bzip2($params){
+function pack_bzip2($params) {
     try{
         $params = pack_validate($params);
         $target = $params['source'].'.bz2';
@@ -43,7 +43,7 @@ function pack_bzip2($params){
 
         return $target;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pack_bzip2(): Failed', $e);
     }
 }
@@ -68,7 +68,7 @@ function pack_bzip2($params){
  * @param string $params[source] The source directory to be compressored
  * @return void()
  */
-function pack_unbzip2($params){
+function pack_unbzip2($params) {
     try{
         $params = pack_validate($params);
         $target = Strings::until($params['source'], '.bz2');
@@ -80,7 +80,7 @@ function pack_unbzip2($params){
 
         return $target;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pack_unbzip2(): Failed', $e);
     }
 }
@@ -105,7 +105,7 @@ function pack_unbzip2($params){
  * @param string $params[source] The source directory to be compressored
  * @return void()
  */
-function pack_rar($params){
+function pack_rar($params) {
     try{
         $params = pack_validate($params);
         $target = $params['source'].'.rar';
@@ -116,7 +116,7 @@ function pack_rar($params){
 
         return $target;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pack_rar(): Failed', $e);
     }
 }
@@ -141,7 +141,7 @@ function pack_rar($params){
  * @param string $params[source] The source directory to be compressored
  * @return void()
  */
-function pack_unrar($params){
+function pack_unrar($params) {
     try{
         $params = pack_validate($params);
         $target = Strings::until($params['source'], '.rar');
@@ -152,7 +152,7 @@ function pack_unrar($params){
 
         return $target;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pack_unrar(): Failed', $e);
     }
 }
@@ -177,7 +177,7 @@ function pack_unrar($params){
  * @param string $params[source] The source directory to be compressored
  * @return void()
  */
-function pack_zip($params){
+function pack_zip($params) {
     try{
         $params = pack_validate($params);
         $target = $params['source'].'zip';
@@ -189,7 +189,7 @@ function pack_zip($params){
 
         return $target;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pack_zip(): Failed', $e);
     }
 }
@@ -214,7 +214,7 @@ function pack_zip($params){
  * @param string $params[source] The source directory to be compressored
  * @return void()
  */
-function pack_unzip($params){
+function pack_unzip($params) {
     try{
         $params = pack_validate($params);
         $target = Strings::until($params['source'], '.zip');
@@ -226,7 +226,7 @@ function pack_unzip($params){
 
         return $target;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pack_ungip(): Failed', $e);
     }
 }
@@ -251,7 +251,7 @@ function pack_unzip($params){
  * @param string $params[source] The source directory to be compressored
  * @return void()
  */
-function pack_gzip($params){
+function pack_gzip($params) {
     try{
         $params = pack_validate($params);
         $target = $params['source'].'.gz';
@@ -262,7 +262,7 @@ function pack_gzip($params){
 
         return $target;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pack_gzip(): Failed', $e);
     }
 }
@@ -287,7 +287,7 @@ function pack_gzip($params){
  * @param string $params[source] The source directory to be compressored
  * @return void()
  */
-function pack_ungzip($params){
+function pack_ungzip($params) {
     try{
         $params = pack_validate($params);
         $target = Strings::until($params['source'], '.gz');
@@ -298,7 +298,7 @@ function pack_ungzip($params){
 
         return $target;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pack_ungip(): Failed', $e);
     }
 }
@@ -323,7 +323,7 @@ function pack_ungzip($params){
  * @param string $params[source] The source directory to be compressored
  * @return void()
  */
-function pack_tar($params){
+function pack_tar($params) {
     try{
         $params = pack_validate($params);
         $target = $params['source'].'.tgz';
@@ -335,7 +335,7 @@ function pack_tar($params){
 
         return $params['target'];
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pack_tar(): Failed', $e);
     }
 }
@@ -360,7 +360,7 @@ function pack_tar($params){
  * @param string $params[source] The source directory to be compressored
  * @return void()
  */
-function pack_untar($params){
+function pack_untar($params) {
     try{
         $params = pack_validate($params);
         $target = Strings::until(Strings::until($params['source'], '.tar.gz'), '.tgz');
@@ -372,7 +372,7 @@ function pack_untar($params){
 
         return $target;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pack_ungip(): Failed', $e);
     }
 }
@@ -395,14 +395,14 @@ function pack_untar($params){
  * @param string $params[source] The source directory to be compressored
  * @return void()
  */
-function pack_validate($params){
+function pack_validate($params) {
     try{
         array_params($params, 'source');
         array_ensure($params, 'domain,background');
 
         return $params;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pack_validate(): Failed', $e);
     }
 }

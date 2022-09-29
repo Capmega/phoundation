@@ -13,22 +13,22 @@ $table    = cli_argument('table', true);
 $time     = new DateTime();
 $time     = $time->format('YmdHis');
 
-if(!$user = cli_argument('username', true)){
+if(!$user = cli_argument('username', true)) {
     throw new CoreException(tr('No database username specified'), 'not-specified');
 }
 
-if(!$password = cli_argument('password', true)){
+if(!$password = cli_argument('password', true)) {
     throw new CoreException(tr('No database password specified'), 'not-specified');
 }
 
-if(!$database){
+if(!$database) {
     throw new CoreException(tr('No database specified'), 'not-specified');
 }
 
 file_ensure_path(TMP.'dropload');
 file_ensure_path(ROOT.'data/backups/databases');
 
-if($table){
+if($table) {
     /*
      * Dump a temp from the table, and a complete backup of the entire database
      */
@@ -38,7 +38,7 @@ if($table){
     log_console('Dumping table ":table" from database ":database"', array(':table' => $table, ':database' => $database), 'cyan');
     safe_exec(array('commands' => array('mysqldump', array('-u', $user, '-p'.$password, '--database', $database, '--table', $table, 'redirect' => ' > '.$file.' 2> /dev/null'))));
 
-}else{
+} else {
     /*
      * Dump a temp from the table, and a complete backup of the entire database
      */
@@ -49,13 +49,13 @@ if($table){
     safe_exec(array('commands' => array('mysqldump', array('-u', $user, '-p'.$password, '--database', $database, '--table', $table, 'redirect' => ' > '.$file))));
 }
 
-if($backup){
+if($backup) {
     log_console(tr('Creating extra backup of database ":database" in data/backups/databases', array(':database' => $database)), 'cyan');
     safe_exec(array('commands' => array('mysqldump', array('-u', $user, '-p'.$password, '--database', $database, 'connector' =>'|'),
                                         'gzip'     , array('redirect' => ' > '.ROOT.'data/backups/databases/'.$database.'.'.$time.'.sql.gz'))));
 }
 
-if($table){
+if($table) {
     /*
      * Reload the table
      */
@@ -65,7 +65,7 @@ if($table){
     log_console('Reloading table ":table" from database ":database"', array(':table' => $table, ':database' => $database), 'cyan');
     safe_exec(array('commands' => array('mysql', array('-u', $user, '-p'.$password, '--database', $database, 'redirect' => ' < '.$file))));
 
-}else{
+} else {
     /*
      * Reload the database
      */
@@ -76,17 +76,17 @@ if($table){
     safe_exec(array('commands' => array('mysql', '-u', $user, '-p'.$password, '--database', $database, 'redirect' => ' < '.$file)));
 }
 
-if(!$noclean){
+if(!$noclean) {
     /*
      * Cleanup the temp files as best as possible
      */
     file_clear_path($file);
 }
 
-if($table){
+if($table) {
     log_console(tr('Fixed table ":table" from database ":database"', array(':table' => $table, ':database' => $database)), 'green');
 
-}else{
+} else {
     log_console(tr('Fixed database ":database"', array(':database' => $database)), 'green');
 }
 ?>

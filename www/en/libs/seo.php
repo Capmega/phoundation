@@ -51,14 +51,14 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
          */
         $id = 0;
 
-        if(empty($source)){
+        if(empty($source)) {
             /*
              * If the given string is empty, then treat seoname as null, this should not cause indexing issues
              */
             return null;
         }
 
-        if(is_array($source)){
+        if(is_array($source)) {
             /*
              * The specified source is a key => value array which can be used
              * for unique entries spanning multiple columns
@@ -69,8 +69,8 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
              *
              * NOTE: The first column will have the identifier added
              */
-            foreach($source as $column => &$value){
-                if(empty($first)){
+            foreach($source as $column => &$value) {
+                if(empty($first)) {
                     $first = array($column => $value);
                 }
 
@@ -79,22 +79,22 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
 
             unset($value);
 
-        }else{
+        } else {
             $source = trim(seo_string($source, $replace));
         }
 
         /*
          * Filter out the id of the record itself
          */
-        if($ownid){
-            if(is_scalar($ownid)){
+        if($ownid) {
+            if(is_scalar($ownid)) {
                 $ownid = ' AND `id` != '.$ownid;
 
-            }elseif(is_array($ownid)){
+            } elseif(is_array($ownid)) {
                 $key   = key($ownid);
 
-                if(!is_numeric($ownid[$key])){
-                    if(!is_scalar($ownid[$key])){
+                if(!is_numeric($ownid[$key])) {
+                    if(!is_scalar($ownid[$key])) {
                         throw new OutOfBoundsException(tr('seo_unique(): Invalid $ownid array value datatype specified, should be scalar and numeric, but is "%type%"', array('%type%' => gettype($ownid[$key]))), 'invalid');
                     }
 
@@ -103,11 +103,11 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
 
                 $ownid = ' AND `'.$key.'` != '.$ownid[$key];
 
-            }else{
+            } else {
                 throw new OutOfBoundsException(tr('seo_unique(): Invalid $ownid datatype specified, should be either scalar, or array, but is "%type%"', array('%type%' => gettype($ownid))), 'invalid');
             }
 
-        }else{
+        } else {
             $ownid = '';
         }
 
@@ -115,45 +115,45 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
          * If the seostring exists, add an identifier to it.
          */
         while(true) {
-            if(is_array($source)){
+            if(is_array($source)) {
                 /*
                  * Check on multiple columns, add identifier on first column value
                  */
                 if($id) {
-                    if($first_suffix){
+                    if($first_suffix) {
                         $source[key($first)] = reset($first).trim(seo_string($first_suffix, $replace));
                         $first_suffix        = null;
                         $id--;
 
-                    }else{
+                    } else {
                         $source[key($first)] = reset($first).$id;
                     }
                 }
 
                 $exists = sql_get('SELECT COUNT(*) AS `count` FROM `'.$table.'` WHERE `'.array_implode_with_keys($source, '" AND `', '` = "', true).'"'.$ownid.';', true, null, $connector_name);
 
-                if(!$exists){
+                if(!$exists) {
                     return $source[key($first)];
                 }
 
-            }else{
+            } else {
                 if(!$id) {
                     $str = $source;
 
                 } else {
-                    if($first_suffix){
+                    if($first_suffix) {
                         $source       = $source.trim(seo_string($first_suffix, $replace));
                         $first_suffix = null;
                         $id--;
 
-                    }else{
+                    } else {
                         $str = $source.$id;
                     }
                 }
 
                 $exists = sql_get('SELECT COUNT(*) AS `count` FROM `'.$table.'` WHERE `'.$column.'` = "'.$str.'"'.$ownid.';', true, null, $connector_name);
 
-                if(!$exists){
+                if(!$exists) {
                     return $str;
                 }
             }
@@ -161,7 +161,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
             $id++;
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new OutOfBoundsException('seo_unique(): Failed', $e);
     }
 }
@@ -173,7 +173,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
  */
 function seo_string($source, $replace = '-') {
     try{
-        if(str_is_utf8($source)){
+        if(str_is_utf8($source)) {
             load_libs('mb');
 
             //clean up string
@@ -198,7 +198,7 @@ function seo_string($source, $replace = '-') {
 
             return trim($last, '-');
 
-        }else{
+        } else {
             //clean up string
             $source  = strtolower(trim(strip_tags($source)));
             //convert spanish crap to english
@@ -221,7 +221,7 @@ function seo_string($source, $replace = '-') {
             return trim($last, '-');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new OutOfBoundsException('seo_string(): Failed', $e);
     }
 }
@@ -236,16 +236,16 @@ function seo_create_string($source, $replace = '-') {
     try{
         return seo_string($source, $replace = '-');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new OutOfBoundsException('seo_string(): Failed', $e);
     }
 }
 
-function seo_generate_unique_name($source, $table, $ownid = null, $field = 'seoname', $replace = '-', $first_suffix = null){
+function seo_generate_unique_name($source, $table, $ownid = null, $field = 'seoname', $replace = '-', $first_suffix = null) {
     try{
         return seo_unique($source, $table, $ownid, $field, $replace, $first_suffix);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new OutOfBoundsException('seo_generate_unique_name(): Failed', $e);
     }
 }
@@ -254,7 +254,7 @@ function seo_unique_string($source, $table, $ownid = null, $field = 'seoname', $
     try{
         return seo_unique($source, $table, $ownid, $field, $replace, $first_suffix);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new OutOfBoundsException('seo_unique_string(): Failed', $e);
     }
 }

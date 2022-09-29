@@ -9,7 +9,7 @@ $rights = array('admin' => 'This right allows the user to view admin only pages'
                 'devil' => 'This right allows the user to view NO rights managed pages at all (This right takes precedence over the "god" right)',
                 'users' => 'This right allows the user to access the user management area');
 
-foreach($rights as $name => $description){
+foreach($rights as $name => $description) {
     $p->execute(array(':name'        => $name,
                       ':update_name' => $name,
                       ':description' => $description));

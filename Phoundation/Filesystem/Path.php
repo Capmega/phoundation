@@ -35,10 +35,10 @@ class Path
         global $_CONFIG;
 
         try{
-            if($mode === null){
+            if($mode === null) {
                 $mode = $_CONFIG['file']['dir_mode'];
 
-                if(!$mode){
+                if(!$mode) {
                     /*
                      * Mode configuration is not available (yet?)
                      * Fall back to a default mode, 0770 for directories
@@ -47,7 +47,7 @@ class Path
                 }
             }
 
-            if($clear){
+            if($clear) {
                 /*
                  * Delete the currently existing file so we can  be sure we have an
                  * empty directory
@@ -55,7 +55,7 @@ class Path
                 file_delete($path, $restrictions);
             }
 
-            if(!file_exists(unslash($path))){
+            if(!file_exists(unslash($path))) {
                 /*
                  * The complete requested path doesn't exist. Try to create it, but
                  * directory by directory so that we can correct issues as we run in
@@ -64,16 +64,16 @@ class Path
                 $dirs = explode('/', str_starts_not($path, '/'));
                 $path = '';
 
-                foreach($dirs as $dir){
+                foreach($dirs as $dir) {
                     $path .= '/'.$dir;
 
-                    if(file_exists($path)){
-                        if(!is_dir($path)){
+                    if(file_exists($path)) {
+                        if(!is_dir($path)) {
                             /*
                              * Some normal file is in the way. Delete the file, and
                              * retry
                              */
-                            file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions){
+                            file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions) {
                                 file_delete($path, $restrictions);
                             });
 
@@ -82,11 +82,11 @@ class Path
 
                         continue;
 
-                    }elseif(is_link($path)){
+                    } elseif(is_link($path)) {
                         /*
                          * This is a dead symlink, delete it
                          */
-                        file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions){
+                        file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions) {
                             file_delete($path, $restrictions);
                         });
                     }
@@ -96,22 +96,22 @@ class Path
                          * Make sure that the parent path is writable when creating
                          * the directory
                          */
-                        file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode){
+                        file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode) {
                             mkdir($path, $mode);
                         });
 
-                    }catch(Exception $e){
+                    }catch(Exception $e) {
                         /*
                          * It sometimes happens that the specified path was created
                          * just in between the file_exists and mkdir
                          */
-                        if(!file_exists($path)){
+                        if(!file_exists($path)) {
                             throw $e;
                         }
                     }
                 }
 
-            }elseif(!is_dir($path)){
+            } elseif(!is_dir($path)) {
                 /*
                  * Some other file is in the way. Delete the file, and retry.
                  *
@@ -124,7 +124,7 @@ class Path
 
             return slash(realpath($path).'/');
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             throw new CoreException(tr('file_ensure_path(): Failed to ensure path ":path"', array(':path' => $path)), $e);
         }
     }

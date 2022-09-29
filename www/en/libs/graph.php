@@ -25,9 +25,9 @@
  * @$params string  $params[provider] the graph provider library to use
  * @return  string The HTML for the graph
  */
-function graph_generate(array $params = array()){
+function graph_generate(array $params = array()) {
     try{
-        switch($params['provider']){
+        switch($params['provider']) {
             case 'morris':
                 load_libs('graph-morris');
                 return graph_morris_generate($params);
@@ -41,7 +41,7 @@ function graph_generate(array $params = array()){
                 break;
         }
 
-     }catch(Exception $e){
+     }catch(Exception $e) {
         throw new CoreException('graph_generate(): Failed', $e);
     }
 }

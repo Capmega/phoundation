@@ -12,7 +12,7 @@ sql_query('CREATE TABLE IF NOT EXISTS `statistics` (`id`       INT(11)      NOT 
 													) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
 
-if(sql_column_exists('users', 'last_login')){
+if(sql_column_exists('users', 'last_login')) {
 	sql_query('ALTER TABLE `users` DROP COLUMN `last_login`;');
 }
 

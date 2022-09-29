@@ -145,19 +145,19 @@ setup DEVICE                    - Setup the specified device by automatically
 require_once(__DIR__.'/../../libs/startup.php');
 load_libs('devices');
 
-switch(cli_method()){
+switch(cli_method()) {
     case 'list':
         $type = cli_argument('-t,--type', true);
         cli_no_arguments_left();
 
-        if($type){
+        if($type) {
             $type  = devices_validate_types($type);
             $where = ' WHERE (`devices`.`status` IS NULL OR `devices`.`status` != "_new")
                        AND    `devices`.`type` = :type';
 
             $execute[':type'] = $type;
 
-        }else{
+        } else {
             $execute = null;
             $where   = ' WHERE `devices`.`status` IS NULL
                          OR    `devices`.`status` != "_new"';
@@ -197,14 +197,14 @@ switch(cli_method()){
 
                               $execute);
 
-        if(!$devices->rowCount()){
+        if(!$devices->rowCount()) {
             log_console(tr('There are currently no devices available'), 'QUIET/yellow');
 
-        }else{
+        } else {
             log_console(tr('Showing currently available devices'), 'QUIET/white');
             log_console(str_size(tr('#id'), 6, ' ', true).' '.str_size(tr('Name'), 20).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 12).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.str_size(tr('Description'), 32).' '.tr('Device string'), 'QUIET/cyan');
 
-            while($device = sql_fetch($devices)){
+            while($device = sql_fetch($devices)) {
                 log_console(str_size($device['id'], 6, ' ', true).' '.str_size(not_empty($device['name'], '-'), 20).' '.str_size($device['type'], 20).' '.str_size(not_empty($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 12).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.str_size($device['description'], 32).' '.$device['string']);
             }
         }
@@ -220,8 +220,8 @@ switch(cli_method()){
         try{
             $device = devices_get($id, $server);
 
-        }catch(Exception $e){
-            switch($e->getRealCode()){
+        }catch(Exception $e) {
+            switch($e->getRealCode()) {
                 case 'invalid':
                     // FALLTHROUGH
                 case 'not-specified':
@@ -229,38 +229,38 @@ switch(cli_method()){
             }
         }
 
-        if(!$device){
+        if(!$device) {
             throw new CoreException(tr('The specified device id ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
         }
 
         ksort($device);
 
-        foreach($device as $key => $value){
+        foreach($device as $key => $value) {
             log_console(cli_color($key.':', 'white').' '.$value);
         }
 
         $options = devices_list_option_keys($device['id']);
 
-        if(!$options){
+        if(!$options) {
             log_console();
             log_console(tr('This device does not have any configurable options available'), 'white');
 
-        }else{
+        } else {
             log_console();
             log_console(tr('Configurable options:'), 'white');
 
-            foreach($options as $key => $values){
-                if(isset($values['default'])){
+            foreach($options as $key => $values) {
+                if(isset($values['default'])) {
                     $default = $values['default'];
                     unset($values['default']);
 
-                }else{
+                } else {
                     $default = null;
                 }
 
                 log_console($key.':'.($default ? cli_color(' [ '.$default.' ]', 'cyan') : ''), 'white');
 
-                foreach($values as $value){
+                foreach($values as $value) {
                     log_console('        '.$value);
                 }
             }
@@ -284,99 +284,99 @@ switch(cli_method()){
 
             $device = devices_get($id);
 
-            if(!$device){
+            if(!$device) {
                 throw new CoreException(tr('The specified device id ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
             }
 
             /*
              * Validate category / company / branch / department / employee / customer / provider / inventory data
              */
-            if($assign_category){
+            if($assign_category) {
                 load_libs('categories');
                 $category = categories_get($assign_category);
 
-                if(!$category){
+                if(!$category) {
                     throw new CoreException(tr('The specified category ":category" does not exist', array(':category' => $assign_category)), 'not-exists');
                 }
             }
 
-            if($assign_inventory){
+            if($assign_inventory) {
                 load_libs('inventories');
                 $inventory = inventories_get($assign_inventory);
 
-                if(!$inventory){
+                if(!$inventory) {
                     throw new CoreException(tr('The specified inventory ":inventory" does not exist', array(':inventory' => $assign_inventory)), 'not-exists');
                 }
             }
 
-            if($assign_provider){
+            if($assign_provider) {
                 load_libs('providers');
                 $provider = providers_get($assign_provider);
 
-                if(!$provider){
+                if(!$provider) {
                     throw new CoreException(tr('The specified provider ":provider" does not exist', array(':provider' => $assign_provider)), 'not-exists');
                 }
             }
 
-            if($customer){
+            if($customer) {
                 load_libs('customers');
                 $device['customers_id'] = customers_get(array('columns' => 'id',
                                                               'filters' => array('seoname' => $customer)));
 
-                if(!$device['customers_id']){
+                if(!$device['customers_id']) {
                     throw new CoreException(tr('The specified customer ":customer" does not exist', array(':customer' => $customer)), 'not-exists');
                 }
             }
 
-            if($assign_company){
+            if($assign_company) {
                 load_libs('companies');
                 $company = categories_get($assign_company);
 
-                if(!$company){
+                if(!$company) {
                     throw new CoreException(tr('The specified company ":company" does not exist', array(':company' => $assign_company)), 'not-exists');
                 }
             }
 
-            if($assign_branch){
-                if(empty($company)){
+            if($assign_branch) {
+                if(empty($company)) {
                     throw new CoreException(tr('No company specified for the branch ":branch"', array(':branch' => $assign_branch)), 'not-specified');
                 }
 
                 $branch = categories_get_branch($assign_branch);
 
-                if(!$branch){
+                if(!$branch) {
                     throw new CoreException(tr('The specified branch ":branch" does not exist in the company', array(':branch' => $assign_branch, ':company' => $company['name'])), 'not-exists');
                 }
             }
 
-            if($assign_department){
-                if(empty($branch)){
+            if($assign_department) {
+                if(empty($branch)) {
                     throw new CoreException(tr('No branch specified for the department ":department"', array(':department' => $assign_department)), 'not-specified');
                 }
 
                 $department = categories_get_department($assign_department);
 
-                if(!$department){
+                if(!$department) {
                     throw new CoreException(tr('The specified department ":department" does not exist in the branch ":branch"', array(':department' => $assign_department, ':branch' => $branch['name'])), 'not-exists');
                 }
             }
 
-            if($assign_employee){
-                if(empty($department)){
+            if($assign_employee) {
+                if(empty($department)) {
                     throw new CoreException(tr('No department specified for the employee ":employee"', array(':employee' => $assign_employee)), 'not-specified');
                 }
 
                 $employee = categories_get_employee($assign_employee);
 
-                if(!$employee){
+                if(!$employee) {
                     throw new CoreException(tr('The specified employee ":employee" does not exist in the department ":department"', array(':employee' => $assign_employee, ':department' => $department['name'])), 'not-exists');
                 }
             }
 
             devices_update($device);
 
-        }catch(Exception $e){
-            switch($e->getRealCode()){
+        }catch(Exception $e) {
+            switch($e->getRealCode()) {
                 case 'not-exists':
                     throw $e->makeWarning(true);
             }
@@ -390,7 +390,7 @@ switch(cli_method()){
         $devices = devices_validate_types();
         log_console(tr('Supported device types:'), 'QUIET/white');
 
-        foreach($devices as $device => $type){
+        foreach($devices as $device => $type) {
             log_console($device);
         }
 
@@ -416,84 +416,84 @@ switch(cli_method()){
             /*
              * Validate category / company / branch / department / employee / customer / provider / inventory data
              */
-            if($assign_category){
+            if($assign_category) {
                 load_libs('categories');
                 $category = categories_get($assign_category);
 
-                if(!$category){
+                if(!$category) {
                     throw new CoreException(tr('The specified category ":category" does not exist', array(':category' => $assign_category)), 'not-exists');
                 }
             }
 
-            if($assign_inventory){
+            if($assign_inventory) {
                 load_libs('inventories');
                 $inventory = inventories_get($assign_inventory);
 
-                if(!$inventory){
+                if(!$inventory) {
                     throw new CoreException(tr('The specified inventory ":inventory" does not exist', array(':inventory' => $assign_inventory)), 'not-exists');
                 }
             }
 
-            if($assign_provider){
+            if($assign_provider) {
                 load_libs('providers');
                 $provider = providers_get($assign_provider);
 
-                if(!$provider){
+                if(!$provider) {
                     throw new CoreException(tr('The specified provider ":provider" does not exist', array(':provider' => $assign_provider)), 'not-exists');
                 }
             }
 
-            if($customer){
+            if($customer) {
                 load_libs('customers');
                 $device['customers_id'] = customers_get(array('columns' => 'id',
                                                               'filters' => array('seoname' => $customer)));
 
-                if(!$device['customers_id']){
+                if(!$device['customers_id']) {
                     throw new CoreException(tr('The specified customer ":customer" does not exist', array(':customer' => $customer)), 'not-exists');
                 }
             }
 
-            if($assign_company){
+            if($assign_company) {
                 load_libs('companies');
                 $company = categories_get($assign_company);
 
-                if(!$company){
+                if(!$company) {
                     throw new CoreException(tr('The specified company ":company" does not exist', array(':company' => $assign_company)), 'not-exists');
                 }
             }
 
-            if($assign_branch){
-                if(empty($company)){
+            if($assign_branch) {
+                if(empty($company)) {
                     throw new CoreException(tr('No company specified for the branch ":branch"', array(':branch' => $assign_branch)), 'not-specified');
                 }
 
                 $branch = categories_get_branch($assign_branch);
 
-                if(!$branch){
+                if(!$branch) {
                     throw new CoreException(tr('The specified branch ":branch" does not exist in the company', array(':branch' => $assign_branch, ':company' => $company['name'])), 'not-exists');
                 }
             }
 
-            if($assign_department){
-                if(empty($branch)){
+            if($assign_department) {
+                if(empty($branch)) {
                     throw new CoreException(tr('No branch specified for the department ":department"', array(':department' => $assign_department)), 'not-specified');
                 }
 
                 $department = categories_get_department($assign_department);
 
-                if(!$department){
+                if(!$department) {
                     throw new CoreException(tr('The specified department ":department" does not exist in the branch ":branch"', array(':department' => $assign_department, ':branch' => $branch['name'])), 'not-exists');
                 }
             }
 
-            if($assign_employee){
-                if(empty($department)){
+            if($assign_employee) {
+                if(empty($department)) {
                     throw new CoreException(tr('No department specified for the employee ":employee"', array(':employee' => $assign_employee)), 'not-specified');
                 }
 
                 $employee = categories_get_employee($assign_employee);
 
-                if(!$employee){
+                if(!$employee) {
                     throw new CoreException(tr('The specified employee ":employee" does not exist in the department ":department"', array(':employee' => $assign_employee, ':department' => $department['name'])), 'not-exists');
                 }
             }
@@ -502,8 +502,8 @@ switch(cli_method()){
 
             $servers_devices = devices_scan($types, $servers, $sudo);
 
-            foreach($servers_devices as $servers_id => $devices){
-                foreach($devices as $device){
+            foreach($servers_devices as $servers_id => $devices) {
+                foreach($devices as $device) {
                     /*
                      * Assign device to category / company / branch / department
                      */
@@ -517,11 +517,11 @@ switch(cli_method()){
                     try{
                         $device = devices_insert($device, $servers_id);
 
-                        if(empty($device['_exists'])){
+                        if(empty($device['_exists'])) {
                             $count++;
                         }
 
-                    }catch(Exception $e){
+                    }catch(Exception $e) {
                         /*
                          * Device failed to add. Log and continue to next device
                          */
@@ -531,15 +531,15 @@ switch(cli_method()){
                 }
             }
 
-            if($count){
+            if($count) {
                 log_console(tr('Added / updated ":count" devices', array(':count' => $count)), 'green');
 
-            }else{
+            } else {
                 log_console(tr('No devices added'), 'yellow');
             }
 
-        }catch(Exception $e){
-            switch($e->getRealCode()){
+        }catch(Exception $e) {
+            switch($e->getRealCode()) {
                 case 'not-exists':
                     throw $e->makeWarning(true);
             }
@@ -555,7 +555,7 @@ switch(cli_method()){
 
         $count = devices_clear($type);
 
-        switch($count){
+        switch($count) {
             case 0:
                 log_console(tr('Not deleted any devices'), 'error');
                 break;
@@ -572,14 +572,14 @@ switch(cli_method()){
 
         cli_no_arguments_left();
 
-        if(empty($devices)){
+        if(empty($devices)) {
             throw new CoreException(tr('No devices specified'), 'warning/not-specified');
         }
 
-        if(FORCE){
+        if(FORCE) {
             $status = '';
 
-        }else{
+        } else {
             $status = ' AND `status` IS NULL ';
         }
 
@@ -591,7 +591,7 @@ switch(cli_method()){
 
                         $in);
 
-        switch(!$r->rowCount()){
+        switch(!$r->rowCount()) {
             case 0:
                 log_console(tr('Not deleted any devices'), 'error');
                 break;
@@ -612,14 +612,14 @@ switch(cli_method()){
 
         cli_no_arguments_left();
 
-        if(empty($devices)){
+        if(empty($devices)) {
             throw new CoreException(tr('No devices specified'), 'warning/not-specified');
         }
 
-        if(FORCE){
+        if(FORCE) {
             $status = '';
 
-        }else{
+        } else {
             $status = ' AND `status` IS NULL ';
         }
 
@@ -631,7 +631,7 @@ switch(cli_method()){
 
                         $in);
 
-        switch(!$r->rowCount()){
+        switch(!$r->rowCount()) {
             case 0:
                 log_console(tr('Not undeleted any devices'), 'error');
                 break;
@@ -652,19 +652,19 @@ switch(cli_method()){
 
         cli_no_arguments_left();
 
-        if(FORCE){
+        if(FORCE) {
             $status = '';
 
-        }else{
+        } else {
             $status = ' AND `status` IS NULL ';
         }
 
-        switch(count($devices)){
+        switch(count($devices)) {
             case 0:
                 throw new CoreException(tr('No devices specified'), 'warning/not-specified');
 
             case 1:
-                if(isset_get($devices[1]) === 'all'){
+                if(isset_get($devices[1]) === 'all') {
                     $all = true;
                     $r   = sql_query('DELETE FROM `devices` WHERE TRUE '.$status);
                     break;
@@ -677,15 +677,15 @@ switch(cli_method()){
                 $r  = sql_query('DELETE FROM `devices` WHERE `id` IN ('.sql_in_columns($in).')'.$status, $in);
         }
 
-        if(!$r->rowCount()){
+        if(!$r->rowCount()) {
             log_console(tr('Not erased any devices'), 'yellow');
 
-        }else{
-            if(isset_get($all)){
+        } else {
+            if(isset_get($all)) {
                 log_console(tr('Erased ":count" devices', array(':count' => $r->rowCount())), 'green');
 
-            }else{
-                switch($r->rowCount()){
+            } else {
+                switch($r->rowCount()) {
                     case 0:
                         break;
 

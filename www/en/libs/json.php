@@ -15,23 +15,23 @@
 /*
  * Send correct JSON reply
  */
-function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'die'){
+function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'die') {
     global $core;
 
     try{
-        if(!$data){
+        if(!$data) {
             $data = array_force($data);
         }
 
         /*
          * Auto assume result = "OK" entry if not specified
          */
-        if(empty($data['data'])){
+        if(empty($data['data'])) {
             $data = array('data' => $data);
         }
 
-        if($result){
-            if(isset($data['result'])){
+        if($result) {
+            if(isset($data['result'])) {
                 throw new OutOfBoundsException(tr('json_reply(): Result was specifed both in the data array as ":result1" as wel as the separate variable as ":result2"', array(':result1' => $data['result'], ':result2' => $result)), 'invalid');
             }
 
@@ -44,7 +44,7 @@ function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'd
         /*
          * Send a new CSRF code with this payload?
          */
-        if(!empty($core->register['csrf_ajax'])){
+        if(!empty($core->register['csrf_ajax'])) {
             $data['csrf'] = $core->register['csrf_ajax'];
             unset($core->register['csrf_ajax']);
         }
@@ -59,7 +59,7 @@ function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'd
 
         echo $data;
 
-        switch($after){
+        switch($after) {
             case 'die':
                 /*
                  * We're done, kill the connection % process (default)
@@ -84,7 +84,7 @@ function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'd
                 throw new OutOfBoundsException(tr('json_reply(): Unknown after ":after" specified. Use one of "die", "continue", or "close_continue"', array(':after' => $after)), 'unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new OutOfBoundsException('json_reply(): Failed', $e);
     }
 }
@@ -110,65 +110,65 @@ function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'd
  * @param natural $http_code The HTTP code to send out with json_reply()
  * @return void (dies)
  */
-function json_error($message, $data = null, $result = null, $http_code = 500){
+function json_error($message, $data = null, $result = null, $http_code = 500) {
     global $_CONFIG;
 
     try{
-        if(!$message){
+        if(!$message) {
             $message = '';
 
-        }elseif(is_scalar($message)){
+        } elseif(is_scalar($message)) {
 
-        }elseif(is_array($message)){
-            if(empty($message['default'])){
+        } elseif(is_array($message)) {
+            if(empty($message['default'])) {
                 $default = tr('Something went wrong, please try again later');
 
-            }else{
+            } else {
                 $default = $message['default'];
                 unset($message['default']);
             }
 
-            if(empty($message['e'])){
-                if($_CONFIG['production']){
+            if(empty($message['e'])) {
+                if($_CONFIG['production']) {
                     $message = $default;
                     log_console('json_error(): No exception object specified for following error', 'yellow');
                     log_console($message, 'yellow');
 
-                }else{
-                    if(count($message) == 1){
+                } else {
+                    if(count($message) == 1) {
                         $message = array_pop($message);
                     }
                 }
 
-            }else{
-                if($_CONFIG['production']){
+            } else {
+                if($_CONFIG['production']) {
                     log_console($message['e']);
 
                     $code = $message['e']->getCode();
 
-                    if(empty($message[$code])){
+                    if(empty($message[$code])) {
                         $message = $default;
 
-                    }else{
+                    } else {
                         $message = $message[$code];
                     }
 
-                }else{
+                } else {
                     $message = $message['e']->getMessages("\n<br>");
                 }
             }
 
             $message = trim(Strings::from($message, '():'));
 
-        }elseif(is_object($message)){
+        } elseif(is_object($message)) {
             /*
              * Assume this is an BException object
              */
-            if(!($message instanceof BException)){
-                if(!($message instanceof Exception)){
+            if(!($message instanceof BException)) {
+                if(!($message instanceof Exception)) {
                     $type = gettype($message);
 
-                    if($type === 'object'){
+                    if($type === 'object') {
                         $type .= '/'.get_class($message);
                     }
 
@@ -177,20 +177,20 @@ function json_error($message, $data = null, $result = null, $http_code = 500){
 
                 $code = $message->getCode();
 
-                if(debug()){
+                if(debug()) {
                     /*
                      * This is a user visible message
                      */
                     $message = $message->getMessage();
 
-                }elseif(!empty($default)){
+                } elseif(!empty($default)) {
                     $message = $default;
                 }
 
-            }else{
+            } else {
                 $result = $message->getCode();
 
-                switch($result){
+                switch($result) {
                     case 'access-denied':
                         $http_code = '403';
                         break;
@@ -203,20 +203,20 @@ function json_error($message, $data = null, $result = null, $http_code = 500){
                         $http_code = '500';
                 }
 
-                if(Strings::until($result, '/') == 'warning'){
+                if(Strings::until($result, '/') == 'warning') {
                     $data = $message->getMessage();
 
-                }else{
-                    if(debug()){
+                } else {
+                    if(debug()) {
                         /*
                          * This is a user visible message
                          */
                         $messages = $message->getMessages();
 
-                        foreach($messages as $id => &$message){
+                        foreach($messages as $id => &$message) {
                             $message = trim(Strings::from($message, '():'));
 
-                            if($message == tr('Failed')){
+                            if($message == tr('Failed')) {
                                 unset($messages[$id]);
                             }
                         }
@@ -225,7 +225,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500){
 
                         $data = implode("\n", $messages);
 
-                    }elseif(!empty($default)){
+                    } elseif(!empty($default)) {
                         $message = $default;
                     }
                 }
@@ -236,7 +236,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500){
 
         json_reply($data, ($result ? $result : 'ERROR'), $http_code);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new OutOfBoundsException('json_error(): Failed', $e);
     }
 }
@@ -246,25 +246,25 @@ function json_error($message, $data = null, $result = null, $http_code = 500){
 /*
  *
  */
-function json_message($code, $data = null){
+function json_message($code, $data = null) {
     global $_CONFIG;
 
     try{
-        if(is_object($code)){
+        if(is_object($code)) {
             /*
              * This is (presumably) an exception
              */
             $code = $code->getRealCode();
         }
 
-        if(str_exists($code, '_')){
+        if(str_exists($code, '_')) {
             /*
              * Codes should always use -, never _
              */
             notify(new OutOfBoundsException(tr('json_message(): Specified code ":code" contains an _ which should never be used, always use a -', array(':code' => $code)), 'warning/invalid'));
         }
 
-        switch($code){
+        switch($code) {
             case 301:
                 // FALLTHROUGH
             case 'redirect':
@@ -370,7 +370,7 @@ function json_message($code, $data = null){
                 json_error(null, (debug() ? $data : null), 'ERROR', 500);
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new OutOfBoundsException('json_message(): Failed', $e);
     }
 }
@@ -380,12 +380,12 @@ function json_message($code, $data = null){
 /*
  * Custom JSON encoding function
  */
-function json_encode_custom($source, $internal = true){
+function json_encode_custom($source, $internal = true) {
     try{
-        if($internal){
+        if($internal) {
             $source = json_encode($source);
 
-            switch(json_last_error()){
+            switch(json_last_error()) {
                 case JSON_ERROR_NONE:
                     break;
 
@@ -430,22 +430,22 @@ function json_encode_custom($source, $internal = true){
 
             return $source;
 
-        }else{
-            if(is_null($source)){
+        } else {
+            if(is_null($source)) {
                 return 'null';
             }
 
-            if($source === false){
+            if($source === false) {
                 return 'false';
             }
 
-            if($source === true){
+            if($source === true) {
                 return 'true';
             }
 
-            if(is_scalar($source)){
-                if(is_numeric($source)){
-                    if(is_float($source)){
+            if(is_scalar($source)) {
+                if(is_numeric($source)) {
+                    if(is_float($source)) {
                         // Always use "." for floats.
                         $source = floatval(str_replace(',', '.', strval($source)));
                     }
@@ -454,7 +454,7 @@ function json_encode_custom($source, $internal = true){
                     return '"'.strval($source).'"';
                 }
 
-                if(is_string($source)){
+                if(is_string($source)) {
                     static $json_replaces = array(array("\\", "/", "\n", "\t", "\r", "\b", "\f", '"'), array('\\\\', '\\/', '\\n', '\\t', '\\r', '\\b', '\\f', '\"'));
                     return '"'.str_replace($json_replaces[0], $json_replaces[1], $source).'"';
                 }
@@ -464,8 +464,8 @@ function json_encode_custom($source, $internal = true){
 
             $is_list = true;
 
-            for($i = 0, reset($source); $i < count($source); $i++, next($source)){
-                if(key($source) !== $i){
+            for($i = 0, reset($source); $i < count($source); $i++, next($source)) {
+                if(key($source) !== $i) {
                     $is_list = false;
                     break;
                 }
@@ -473,22 +473,22 @@ function json_encode_custom($source, $internal = true){
 
             $result = array();
 
-            if($is_list){
-                foreach ($source as $v){
+            if($is_list) {
+                foreach ($source as $v) {
                     $result[] = json_encode_custom($v);
                 }
 
                 return '['.join(',', $result).']';
             }
 
-            foreach ($source as $k => $v){
+            foreach ($source as $k => $v) {
                 $result[] = json_encode_custom($k).':'.json_encode_custom($v);
             }
 
             return '{'.join(',', $result).'}';
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         $e->setData($source);
         throw new OutOfBoundsException(tr('json_encode_custom(): Failed with ":message"', array(':message' => json_last_error_msg())), $e);
     }
@@ -499,9 +499,9 @@ function json_encode_custom($source, $internal = true){
 /*
  * Validate the given JSON string
  */
-function json_decode_custom($json, $as_array = true){
+function json_decode_custom($json, $as_array = true) {
     try{
-        if($json === null){
+        if($json === null) {
             return null;
         }
 
@@ -513,7 +513,7 @@ function json_decode_custom($json, $as_array = true){
         /*
          * Switch and check possible JSON errors
          */
-        switch(json_last_error()){
+        switch(json_last_error()) {
             case JSON_ERROR_NONE:
                 break;
 
@@ -538,7 +538,7 @@ function json_decode_custom($json, $as_array = true){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         $e->setData($json);
         throw new OutOfBoundsException('json_decode_custom(): Failed', $e);
     }

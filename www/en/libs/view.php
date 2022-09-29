@@ -26,12 +26,12 @@
  *
  * @return void
  */
-function view_library_init(){
+function view_library_init() {
     try{
         load_libs('cli');
         load_config('view');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('view_library_init(): Failed'), $e);
     }
 }
@@ -52,27 +52,27 @@ function view_library_init(){
  * @param string $file The file to view
  * @return void
  */
-function view($file){
+function view($file) {
     try{
         /*
          * Validate argument
          */
-        if(!$file){
+        if(!$file) {
             /*
              * A directory was specified instead of a file.
              */
             throw new CoreException(tr('view(): No file specified'), 'invalid');
         }
 
-        if(!file_exists($file)){
+        if(!file_exists($file)) {
             /*
              * A directory was specified instead of a file.
              */
             throw new CoreException(tr('view(): The specified file ":file" does not exist', array(':file' => $file)), 'invalid');
         }
 
-        if(!is_file($file)){
-            if(is_dir($file)){
+        if(!is_file($file)) {
+            if(is_dir($file)) {
                 /*
                  * A directory was specified instead of a file.
                  */
@@ -85,7 +85,7 @@ function view($file){
         $mimetype = file_mimetype($file);
         $mimetype = Strings::until($mimetype, '/');
 
-        switch($mimetype){
+        switch($mimetype) {
             case 'image':
                 return view_image($file);
 
@@ -99,7 +99,7 @@ function view($file){
                 throw new CoreException(tr('view_image(): Unknown default image viewer ":viewer" specified', array(':viewer' => $_CONFIG['view']['images']['default'])), 'unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('view(): Failed'), $e);
     }
 }
@@ -120,11 +120,11 @@ function view($file){
  * @param string $file The image to view
  * @return void
  */
-function view_image($file){
+function view_image($file) {
     global $_CONFIG;
 
     try{
-        switch($_CONFIG['view']['images']['default']){
+        switch($_CONFIG['view']['images']['default']) {
             case 'feh':
                 return view_image_feh($file);
 
@@ -132,7 +132,7 @@ function view_image($file){
                 throw new CoreException(tr('view_image(): Unknown default image viewer ":viewer" specified', array(':viewer' => $_CONFIG['view']['images']['default'])), 'unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('view_image(): Failed'), $e);
     }
 }
@@ -153,9 +153,9 @@ function view_image($file){
  * @param string $file The image to view using feh
  * @return void
  */
-function view_image_feh($file){
+function view_image_feh($file) {
     try{
-        if(!file_which('feh')){
+        if(!file_which('feh')) {
             /*
              * feh isn't installed yet, try to install it
              */
@@ -166,7 +166,7 @@ function view_image_feh($file){
         safe_exec(array('background' => true,
                         'commands'   => array('feh', array($file))));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('view_image_feh(): Failed'), $e);
     }
 }

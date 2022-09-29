@@ -1,5 +1,5 @@
 // Return the string from the start until the specified character is encountered
-String.prototype.until = function(character, more, from){
+String.prototype.until = function(character, more, from) {
 	if(!from) from = 0;
 	if(!more) more = 0;
 
@@ -13,7 +13,7 @@ String.prototype.until = function(character, more, from){
 
 
 // Return the string from the specified character until the end
-String.prototype.from = function(character, more, from){
+String.prototype.from = function(character, more, from) {
 	if(!more) more = 0;
 	if(!from) from = 0;
 
@@ -27,7 +27,7 @@ String.prototype.from = function(character, more, from){
 
 
 // Return the string from the start until the specified character is encountered, reversed
-String.prototype.runtil = function(character, more, from){
+String.prototype.runtil = function(character, more, from) {
 	if(!more) more = 0;
 	if(!from) from = this.length;
 
@@ -41,7 +41,7 @@ String.prototype.runtil = function(character, more, from){
 
 
 // Return the string from the specified character until the end, reversed
-String.prototype.rfrom = function(character, more, from){
+String.prototype.rfrom = function(character, more, from) {
 	if(!more) more = 0;
 	if(!from) from = this.length;
 
@@ -55,10 +55,10 @@ String.prototype.rfrom = function(character, more, from){
 
 
 // Ensure that the string has minimum length, if not pad with character on left side
-String.prototype.lpad = function(character, length){
+String.prototype.lpad = function(character, length) {
 	var str = this;
 
-	while (str.length < length){
+	while (str.length < length) {
 		str = character + str;
 	}
 
@@ -68,10 +68,10 @@ String.prototype.lpad = function(character, length){
 
 
 // Ensure that the string has minimum length, if not pad with character on right side
-String.prototype.rpad = function(character, length){
+String.prototype.rpad = function(character, length) {
 	var str = this;
 
-	while (str.length < length){
+	while (str.length < length) {
 		str = character + str;
 	}
 

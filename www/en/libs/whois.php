@@ -12,10 +12,10 @@
 /*
  * Empty function
  */
-function whois($domain){
+function whois($domain) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('whois(): Failed', $e);
     }
 }

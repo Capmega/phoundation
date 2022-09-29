@@ -39,10 +39,10 @@
  * @param string $message
  * @return string The result
  */
-function messenger_send($platform, $message){
+function messenger_send($platform, $message) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('messenger_send(): Failed', $e);
     }
 }
@@ -61,10 +61,10 @@ function messenger_send($platform, $message){
  *
  * @return string An array containing the supported platforms, and if they are enabled
  */
-function messenger_list_supported(){
+function messenger_list_supported() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('messenger_list_supported(): Failed', $e);
     }
 }
@@ -86,10 +86,10 @@ function messenger_list_supported(){
  * @param string $size
  * @return string A url to the requested messenger icon
  */
-function messenger_icon($platform, $size){
+function messenger_icon($platform, $size) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('messenger_icon(): Failed', $e);
     }
 }

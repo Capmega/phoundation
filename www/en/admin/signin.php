@@ -3,7 +3,7 @@ include_once(dirname(__FILE__).'/../libs/startup.php');
 
 load_libs('validate');
 
-if(isset($_POST['dosignin'])){
+if(isset($_POST['dosignin'])) {
     try{
         $_POST = user_process_signin_fields($_POST);
 
@@ -22,17 +22,17 @@ if(isset($_POST['dosignin'])){
 
         $user = user_authenticate($_POST['username'], $_POST['password']);
 
-        if(!has_rights('admin', $user)){
+        if(!has_rights('admin', $user)) {
             throw new CoreException('signin: User "'.user_name($user).'" is not an administrator', 'accessdenied');
         }
 
         log_database('Admin authenticated: "'.$_POST['username'].'"', 'ADMIN');
         user_signin($user, false, '/admin/index.php');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         log_database('Sign in failed for user "'.str_log($_POST['username']).'" with code "'.$e->getCode().'" and message "'.$e->getMessage().'"', 'ADMIN');
 
-        switch($e->getCode()){
+        switch($e->getCode()) {
             case 'notfound':
                 // FALLTHROUGH
             case 'accessdenied':
@@ -50,7 +50,7 @@ if(isset($_POST['dosignin'])){
 /*
  * Get the form name for the password field in case save password option is not allowed
  */
-if(empty($_CONFIG['security']['signin']['save_password'])){
+if(empty($_CONFIG['security']['signin']['save_password'])) {
     $username = 'username'.str_random(8);
     $password = 'password'.str_random(8);
 
@@ -58,7 +58,7 @@ if(empty($_CONFIG['security']['signin']['save_password'])){
     $password = '<input type="password" style="display:none"/>
                  <input type="password" class="form-control" placeholder="'.tr('Your password').'" name="'.$password.'" id="'.$password.'">';
 
-}else{
+} else {
     $username = '<input type="text" class="form-control" placeholder="'.tr('Your email or username').'" name="username" id="username" value="'.isset_get($_POST['username']).'">';
     $password = '<input type="password" class="form-control" placeholder="'.tr('Your password').'" name="password" id="password">';
 }

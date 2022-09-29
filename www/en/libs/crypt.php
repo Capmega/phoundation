@@ -26,14 +26,14 @@
  *
  * @return void
  */
-function crypt_library_init(){
+function crypt_library_init() {
     global $core;
 
     try{
         load_config('crypt');
         load_libs('sodium');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('crypt_library_init(): Failed', $e);
     }
 }
@@ -59,11 +59,11 @@ function crypt_library_init(){
  * @param string $key The secret key to encrypt the text string with
  * @return string The data json encoded and encrypted with the specified key using the configured backend
  */
-function encrypt($data, $key, $method = null){
+function encrypt($data, $key, $method = null) {
     global $core;
 
     try{
-        switch($_CONFIG['crypt']['backend']){
+        switch($_CONFIG['crypt']['backend']) {
             case 'sodium':
                 $key  = crypt_pad_key($key);
                 $data = json_encode_custom($data);
@@ -76,7 +76,7 @@ function encrypt($data, $key, $method = null){
 
         return $data;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('encrypt(): Failed', $e);
     }
 }
@@ -102,11 +102,11 @@ function encrypt($data, $key, $method = null){
  * @param string $key The secret key to encrypt the text string with
  * @return string The encrypted ciphertext
  */
-function decrypt($data, $key, $method = null){
+function decrypt($data, $key, $method = null) {
     global $core;
 
     try{
-        if($data === false){
+        if($data === false) {
             throw new CoreException(tr('decrypt(): base64_decode() asppears to have failed to decode data, probably invalid base64 string'), 'invalid');
         }
 
@@ -114,7 +114,7 @@ function decrypt($data, $key, $method = null){
         $backend = Strings::until($data, '^');
         $data    = str_from ($data, '^');
 
-        switch($core->register('crypt_backend')){
+        switch($core->register('crypt_backend')) {
             case 'sodium':
                 $data = sodium_decrypt($data, $key);
                 break;
@@ -131,7 +131,7 @@ function decrypt($data, $key, $method = null){
 
         return $data;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('decrypt(): Failed', $e);
     }
 }
@@ -153,17 +153,17 @@ function decrypt($data, $key, $method = null){
  * @param string $character The character to pad the crypto key with
  * @return string
  */
-function crypt_pad_key($key, $character = '*'){
+function crypt_pad_key($key, $character = '*') {
     global $_CONFIG;
 
     try{
-        if($_CONFIG['crypt']['min_key_size'] and (strlen($key) < $_CONFIG['crypt']['min_key_size'])){
+        if($_CONFIG['crypt']['min_key_size'] and (strlen($key) < $_CONFIG['crypt']['min_key_size'])) {
             $key = $key.str_repeat($character, $_CONFIG['crypt']['min_key_size'] - strlen($key));
         }
 
         return $key;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('crypt_pad_key(): Failed', $e);
     }
 }

@@ -45,9 +45,9 @@ reprocess-images               - Will take all blog post images, and recompress
 require_once(__DIR__.'/../../libs/startup.php');
 load_config('blogs');
 
-switch(cli_method()){
+switch(cli_method()) {
     case 'list':
-        switch(cli_method(1)){
+        switch(cli_method(1)) {
             case 'blogs':
                 cli_no_arguments_left();
 
@@ -64,13 +64,13 @@ switch(cli_method()){
 
                                       WHERE  `status` IS NULL');
 
-                if(!$entries->rowCount()){
+                if(!$entries->rowCount()) {
                     log_console(tr('There are currently no blogs registered'), 'QUIET/yellow');
 
-                }else{
+                } else {
                     log_console(str_size(tr('#id'), 6).' '.str_size(tr('status'), 16).' '.str_size(tr('Created on'), 10).' '.str_size(tr('Created by'), 24).' '.str_size(tr('Name'), 12), 'QUIET/cyan');
 
-                    while($entry = sql_fetch($entries)){
+                    while($entry = sql_fetch($entries)) {
                         log_console(str_size($entry['id'], 6).' '.str_size(status($entry['status']), 16).' '.str_size($entry['createdon'], 10).' '.str_size(name($entry['createdby']), 24).' '.str_size($entry['name'], 80));
                     }
                 }
@@ -101,13 +101,13 @@ switch(cli_method()){
 
                                       ORDER BY  `blog` ASC, `blogs_posts`.`name` ASC');
 
-                if(!$entries->rowCount()){
+                if(!$entries->rowCount()) {
                     log_console(tr('There are currently no blog posts registered'), 'QUIET/yellow');
 
-                }else{
+                } else {
                     log_console(str_size(tr('#id'), 6).' '.str_size(tr('Blog'), 16).' '.str_size(tr('status'), 16).' '.str_size(tr('Created on'), 10).' '.str_size(tr('Created by'), 24).' '.str_size(tr('Name'), 12), 'QUIET/cyan');
 
-                    while($entry = sql_fetch($entries)){
+                    while($entry = sql_fetch($entries)) {
                         log_console(str_size($entry['id'], 6).' '.str_size($entry['blog'], 16).' '.str_size(status($entry['status']), 16).' '.str_size($entry['createdon'], 10).' '.str_size(name($entry['createdby']), 24).' '.str_size($entry['name'], 80));
                     }
                 }
@@ -130,10 +130,10 @@ switch(cli_method()){
         load_libs('blogs');
         $count = blogs_update_urls(isset_get($argv));
 
-        if($count){
+        if($count) {
             log_console(tr('Updated the URL for ":count" blog pages', array(':count' => $count)), 'green');
 
-        }else{
+        } else {
             log_console(tr('No blog page URL\'s have been updated'), 'warning');
         }
 
@@ -173,7 +173,7 @@ switch(cli_method()){
 
                     WHERE  `status` IS NULL ';
 
-        if($blogs){
+        if($blogs) {
             $blogs   = array_force($blogs, ',');
             $blogs   = array_clean($blogs);
             $in      = sql_in($blogs);
@@ -181,7 +181,7 @@ switch(cli_method()){
 
             $execute = $in;
 
-        }else{
+        } else {
             $execute = array();
         }
 
@@ -192,7 +192,7 @@ switch(cli_method()){
          */
         $blogs = sql_query($query, $execute);
 
-        while($blog = sql_fetch($blogs)){
+        while($blog = sql_fetch($blogs)) {
             log_console(tr('Processing photos for blog ":blog"', array(':blog' => $blog['name'])), 'white');
 
             $path   = ROOT.'data/content/photos/';
@@ -214,11 +214,11 @@ switch(cli_method()){
             /*
              * Process all photos for the current blog
              */
-            while($photo = sql_fetch($photos)){
-                if(VERBOSE){
+            while($photo = sql_fetch($photos)) {
+                if(VERBOSE) {
                     log_console(tr('Processing photo file group ":file"', array(':file' => $photo['file'])));
 
-                }else{
+                } else {
                     cli_dot(1);
                 }
 
@@ -229,17 +229,17 @@ switch(cli_method()){
                  */
                 $base_file = $path.$photo['file'];
 
-                foreach($source_types as $type){
+                foreach($source_types as $type) {
                     $source_file = $base_file.'-'.$type.'.jpg';
 
-                    if(file_exists($source_file)){
+                    if(file_exists($source_file)) {
                         break;
                     }
 
                     unset($source_file);
                 }
 
-                if(empty($source_file)){
+                if(empty($source_file)) {
                     /*
                      * No source file available for this image. Remove the image
                      * Ensure all other file formats are cleaned up as well.
@@ -261,18 +261,18 @@ switch(cli_method()){
                 /*
                  * Regenerate all formats according to the configured sizes for the current blog
                  */
-                foreach($formats as $format => $format_data){
+                foreach($formats as $format => $format_data) {
                     $file   = $base_file.'-'.$format.'.jpg';
                     $filex2 = $base_file.'-'.$format.'@2x.jpg';
 
-                    if($file === $source_file){
+                    if($file === $source_file) {
                         /*
                          * Don't process the source file
                          */
                         continue;
                     }
 
-                    if($format != $source_type){
+                    if($format != $source_type) {
                         $format_data['x']      = get_null($blog[$format.'_x']);
                         $format_data['y']      = get_null($blog[$format.'_y']);
                         $format_data['source'] = $source_file;
@@ -283,7 +283,7 @@ switch(cli_method()){
                     }
 
 
-                    if($format.'@2x' != $source_type){
+                    if($format.'@2x' != $source_type) {
                         $format_data['x']      = get_null($blog[$format.'_x']) * 2;
                         $format_data['y']      = get_null($blog[$format.'_y']) * 2;
                         $format_data['source'] = $source_file;

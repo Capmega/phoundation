@@ -25,11 +25,11 @@
  * @param
  * @return
  */
-function doc_library_init(){
+function doc_library_init() {
     try{
         load_config('doc');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_library_init(): Failed', $e);
     }
 }
@@ -46,7 +46,7 @@ function doc_library_init(){
  * @package doc
  *
  */
-function doc_parse_this(){
+function doc_parse_this() {
     try{
         load_libs('validate,seo');
         doc_clear(PROJECT);
@@ -55,20 +55,20 @@ function doc_parse_this(){
         $count   = doc_parse_path($project, ROOT, ROOT);
         $errors  = doc_errors();
 
-        if($errors){
+        if($errors) {
             log_console(tr('Finished documentation parsing with the following issues:'));
 
-            foreach($errors as $error){
+            foreach($errors as $error) {
                 log_console($error, 'yellow');
             }
 
-        }else{
+        } else {
             log_console(tr('Finished documentation parsing succesfully'));
         }
 
         return $count;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_project(): Failed', $e);
     }
 }
@@ -86,11 +86,11 @@ function doc_parse_this(){
  *
  * @param string $path The project that should be parsed
  */
-function doc_parse_project($project){
+function doc_parse_project($project) {
     try{
         $path = ROOT.'../'.$project;
 
-        if(!file_exists($path, $path)){
+        if(!file_exists($path, $path)) {
             throw new CoreException(tr('doc_parse_project(): Specified project ":project" does not exist', array(':project' => $project)), 'not-exists');
         }
 
@@ -101,20 +101,20 @@ function doc_parse_project($project){
         $count   = doc_parse_path($project, $path, $path);
         $errors  = doc_errors();
 
-        if($errors){
+        if($errors) {
             log_console(tr('Finished documentation parsing with the following issues:'));
 
-            foreach($errors as $error){
+            foreach($errors as $error) {
                 log_console($error, 'yellow');
             }
 
-        }else{
+        } else {
             log_console(tr('Finished documentation parsing succesfully'));
         }
 
         return $count;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_project(): Failed', $e);
     }
 }
@@ -132,9 +132,9 @@ function doc_parse_project($project){
  *
  * @param string $path The path that should be parsed
  */
-function doc_parse_path($project, $path, $root, $recursive = true){
+function doc_parse_path($project, $path, $root, $recursive = true) {
     try{
-        if(!file_exists($path)){
+        if(!file_exists($path)) {
             throw new CoreException(tr('doc_parse_path(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
@@ -143,13 +143,13 @@ function doc_parse_path($project, $path, $root, $recursive = true){
         $count = 0;
         $files = scandir($path);
 
-        foreach($files as $file){
-            if(substr($file, 0, 1) == '.'){
+        foreach($files as $file) {
+            if(substr($file, 0, 1) == '.') {
                 continue;
             }
 
-            if(!file_exists($path.$file)){
-                if(is_link($path.$file)){
+            if(!file_exists($path.$file)) {
+                if(is_link($path.$file)) {
                     log_console(tr('Ignoring broken symlink ":file"', array(':file' => $file)), 'VERYVERBOSEDOT/yellow');
                     continue;
                 }
@@ -157,21 +157,21 @@ function doc_parse_path($project, $path, $root, $recursive = true){
                 throw new CoreException(tr('doc_parse_path(): Found non existing file ":file"', array(':file' => $path.$file)), 'not-exists');
             }
 
-            if(is_dir($path.$file)){
-                if(is_link($path.$file)){
+            if(is_dir($path.$file)) {
+                if(is_link($path.$file)) {
                     log_console(tr('Ignoring symlink directory ":path"', array(':path' => $path)), 'VERYVERBOSE/yellow');
                     continue;
                 }
 
-                if($recursive){
+                if($recursive) {
                     $count += doc_parse_path($project, $path.$file.'/', $root, $recursive);
                 }
 
                 continue;
             }
 
-            if(is_file($path.$file)){
-                if(is_link($path.$file)){
+            if(is_file($path.$file)) {
+                if(is_link($path.$file)) {
                     log_console(tr('Ignoring symlink file ":file"', array(':file' => $file)), 'VERYVERBOSE/yellow');
                     continue;
                 }
@@ -183,7 +183,7 @@ function doc_parse_path($project, $path, $root, $recursive = true){
             log_console(tr('Ignoring file ":file" of type ":type"', array(':file' => $file, ':type' => file_type($path.$file))), 'VERBOSEDOT/yellow');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_path(): Failed', $e);
     }
 }
@@ -201,7 +201,7 @@ function doc_parse_path($project, $path, $root, $recursive = true){
  *
  * @param string $file
  */
-function doc_parse_file($project, $file, $root){
+function doc_parse_file($project, $file, $root) {
     try{
         $extension = Strings::fromReverse($file, '.');
         $extension = strtolower($extension);
@@ -212,42 +212,42 @@ function doc_parse_file($project, $file, $root){
         /*
          * Parse all supported extensions
          */
-        switch($extension){
+        switch($extension) {
             case 'php':
                 /*
                  * Detect file type
                  */
-                if(preg_match('/^config$/', $path)){
+                if(preg_match('/^config$/', $path)) {
                     $type = 'configuration';
 
-                }elseif(preg_match('/^config\/base$/', $path)){
+                } elseif(preg_match('/^config\/base$/', $path)) {
                     $type = 'configuration';
 
-                }elseif(preg_match('/^scripts$/', $path)){
+                } elseif(preg_match('/^scripts$/', $path)) {
                     $type = 'script';
 
-                }elseif(preg_match('/^scripts\/base$/', $path)){
+                } elseif(preg_match('/^scripts\/base$/', $path)) {
                     $type = 'script';
 
-                }elseif(preg_match('/^www\/en\/libs$/', $path)){
+                } elseif(preg_match('/^www\/en\/libs$/', $path)) {
                     $type = 'library';
 
-                }elseif(preg_match('/^www\/[a-z]{2}\/libs$/', $path)){
+                } elseif(preg_match('/^www\/[a-z]{2}\/libs$/', $path)) {
                     $type = 'ignore';
 
-                }elseif(preg_match('/^www\/en$/', $path)){
+                } elseif(preg_match('/^www\/en$/', $path)) {
                     $type = 'webpage';
 
-                }elseif(preg_match('/^www\/api$/', $path)){
+                } elseif(preg_match('/^www\/api$/', $path)) {
                     $type = 'api';
 
-                }elseif(preg_match('/^www\/en\/ajax$/', $path)){
+                } elseif(preg_match('/^www\/en\/ajax$/', $path)) {
                     $type = 'ajax';
 
-                }elseif(preg_match('/^www\/[a-z]{2}$/', $path)){
+                } elseif(preg_match('/^www\/[a-z]{2}$/', $path)) {
                     $type = 'ignore';
 
-                }elseif(preg_match('/^init\/[a-z-]+$/', $path)){
+                } elseif(preg_match('/^init\/[a-z-]+$/', $path)) {
                     $type = 'init';
 
                 }
@@ -255,7 +255,7 @@ function doc_parse_file($project, $file, $root){
                 /*
                  * Get file contents
                  */
-                switch($type){
+                switch($type) {
                     case 'ignore':
                         // FALLTHROUGH
                     case 'unknown':
@@ -267,7 +267,7 @@ function doc_parse_file($project, $file, $root){
                     default:
                         $contents = file_get_contents($file);
 
-                        if(!preg_match('/^<\?php/', $contents)){
+                        if(!preg_match('/^<\?php/', $contents)) {
                             doc_errors(tr('File ":file" is a PHP file but is missing a valid PHP open tag', array(':file' => $file)));
                             return false;
                         }
@@ -276,7 +276,7 @@ function doc_parse_file($project, $file, $root){
                 /*
                  * Parse all supported file types
                  */
-                switch($type){
+                switch($type) {
                     case 'library':
                         return doc_parse_library($project, $file, $contents);
 
@@ -328,7 +328,7 @@ function doc_parse_file($project, $file, $root){
                 log_console(tr('Ignoring file ":file", it\'s filetype is not supported', array(':file' => $file)), 'VERBOSE/yellow');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_file(): Failed', $e);
     }
 }
@@ -346,10 +346,10 @@ function doc_parse_file($project, $file, $root){
  *
  * @param string $file
  */
-function doc_parse_css_file($project, $file, $content){
+function doc_parse_css_file($project, $file, $content) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_css_file(): Failed', $e);
     }
 }
@@ -367,10 +367,10 @@ function doc_parse_css_file($project, $file, $content){
  *
  * @param string $file
  */
-function doc_parse_js_file($project, $file, $content){
+function doc_parse_js_file($project, $file, $content) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_js_file(): Failed', $e);
     }
 }
@@ -388,9 +388,9 @@ function doc_parse_js_file($project, $file, $content){
  *
  * @param string $file
  */
-function doc_parse_file_header($page, $file, $contents){
+function doc_parse_file_header($page, $file, $contents) {
     try{
-        if(!preg_match_all('/^<\?php\s\/\*(.+?)\*\//imus', $contents, $matches)){
+        if(!preg_match_all('/^<\?php\s\/\*(.+?)\*\//imus', $contents, $matches)) {
             doc_errors(tr('File ":file" does not have a valid file header'));
             return false;
         }
@@ -399,22 +399,22 @@ function doc_parse_file_header($page, $file, $contents){
         $headers = explode("\n", $headers);
         $current = 'title';
 
-        foreach($headers as $header){
+        foreach($headers as $header) {
             try{
                 $header = Strings::from($header, '*');
                 $header = trim($header);
 
-                if(!$header){
+                if(!$header) {
                     continue;
                 }
 
-                if(substr($header, 0, 1) === '@'){
+                if(substr($header, 0, 1) === '@') {
                     $value             = doc_parse_value($header);
                     $value['pages_id'] = $page['id'];
                     doc_insert_value($value);
 
-                }else{
-                    switch($current){
+                } else {
+                    switch($current) {
                         case 'title':
                             doc_insert_value(array('pages_id' => $page['id'],
                                                    'key'      => 'title',
@@ -430,7 +430,7 @@ function doc_parse_file_header($page, $file, $contents){
                     }
                 }
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 /*
                  * Register parsing error and continue
                  */
@@ -438,7 +438,7 @@ function doc_parse_file_header($page, $file, $contents){
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_file_header(): Failed', $e);
     }
 }
@@ -456,10 +456,10 @@ function doc_parse_file_header($page, $file, $contents){
  *
  * @param string $file
  */
-function doc_parse_configuration($project, $file, $content){
+function doc_parse_configuration($project, $file, $content) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_configuration(): Failed', $e);
     }
 }
@@ -477,10 +477,10 @@ function doc_parse_configuration($project, $file, $content){
  *
  * @param string $file
  */
-function doc_parse_init($project, $file, $content){
+function doc_parse_init($project, $file, $content) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_init(): Failed', $e);
     }
 }
@@ -498,10 +498,10 @@ function doc_parse_init($project, $file, $content){
  *
  * @param string $file
  */
-function doc_parse_webpage($project, $file, $content){
+function doc_parse_webpage($project, $file, $content) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_webpage(): Failed', $e);
     }
 }
@@ -519,10 +519,10 @@ function doc_parse_webpage($project, $file, $content){
  *
  * @param string $file
  */
-function doc_parse_api($project, $file, $content){
+function doc_parse_api($project, $file, $content) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_api(): Failed', $e);
     }
 }
@@ -540,10 +540,10 @@ function doc_parse_api($project, $file, $content){
  *
  * @param string $file
  */
-function doc_parse_ajax($project, $file, $content){
+function doc_parse_ajax($project, $file, $content) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_ajax(): Failed', $e);
     }
 }
@@ -561,7 +561,7 @@ function doc_parse_ajax($project, $file, $content){
  *
  * @param string $file
  */
-function doc_parse_library($project, $file, $content){
+function doc_parse_library($project, $file, $content) {
     try{
         /*
          * Generate page
@@ -585,10 +585,10 @@ function doc_parse_library($project, $file, $content){
          */
         $functions = preg_split('/\*\/\sfunction /imus', $content);
 
-        if(count($functions) < 2){
+        if(count($functions) < 2) {
             doc_errors(tr('File ":file" does not contain any function headers', array(':file' => $file)));
 
-        }else{
+        } else {
             /*
              * The first iterration will NOT have a function but will have the
              * header for the function for the next iterration
@@ -596,7 +596,7 @@ function doc_parse_library($project, $file, $content){
             $function = array_shift($functions);
             $header   = Strings::fromReverse($function, '/*');
 
-            foreach($functions as $function){
+            foreach($functions as $function) {
                 /*
                  * Split function into function / header sections
                  */
@@ -616,7 +616,7 @@ function doc_parse_library($project, $file, $content){
         /*
          * Add all functions to library index
          */
-        foreach($functions as $function){
+        foreach($functions as $function) {
             doc_insert_value(array('pages_id' => $libpage['id'],
                                    'key'      => 'function',
                                    'value'    => 'seoname'));
@@ -629,7 +629,7 @@ function doc_parse_library($project, $file, $content){
          * Parse all classes
          */
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_library(): Failed', $e);
     }
 }
@@ -651,7 +651,7 @@ function doc_parse_library($project, $file, $content){
  * @param string $content
  * @return params
  */
-function doc_parse_function($project, $parent, $file, $content){
+function doc_parse_function($project, $parent, $file, $content) {
     try{
         /*
          * Create function page
@@ -671,7 +671,7 @@ function doc_parse_function($project, $parent, $file, $content){
 
         return $page;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_function(): Failed', $e);
     }
 }
@@ -692,22 +692,22 @@ function doc_parse_function($project, $parent, $file, $content){
  * @param string $tag
  * @param string $tag
  */
-function doc_parse_function_header($page, $parent, $file, $content){
+function doc_parse_function_header($page, $parent, $file, $content) {
     try{
         $content = explode("\n", $content);
         $current = 'title';
 
-        foreach($content as $header){
+        foreach($content as $header) {
             try{
                 $header = Strings::from($header, '*');
                 $header = trim($header);
 
-                if(!$header){
+                if(!$header) {
                     continue;
                 }
 
-                if(substr($header, 0, 1) === '@'){
-                    switch($current){
+                if(substr($header, 0, 1) === '@') {
+                    switch($current) {
                         case 'example':
                             /*
                              * End multi line tag
@@ -722,8 +722,8 @@ function doc_parse_function_header($page, $parent, $file, $content){
 
                     doc_insert_value($value);
 
-                }else{
-                    switch($current){
+                } else {
+                    switch($current) {
                         case 'example':
                             /*
                              * This tag can span multiple lines
@@ -749,7 +749,7 @@ function doc_parse_function_header($page, $parent, $file, $content){
                     }
                 }
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 /*
                  * Register parsing error and continue
                  */
@@ -757,7 +757,7 @@ function doc_parse_function_header($page, $parent, $file, $content){
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_function_header(): Failed', $e);
     }
 }
@@ -776,7 +776,7 @@ function doc_parse_function_header($page, $parent, $file, $content){
  * @param params $project
  * @return params
  */
-function doc_insert_project($project, $language = null){
+function doc_insert_project($project, $language = null) {
     try{
         $project = doc_validate_project($project, $language);
 
@@ -793,7 +793,7 @@ function doc_insert_project($project, $language = null){
 
         return $project;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_insert_project(): Failed', $e);
     }
 }
@@ -812,9 +812,9 @@ function doc_insert_project($project, $language = null){
  * @param params $project
  * @return params
  */
-function doc_validate_project($project, $language = null){
+function doc_validate_project($project, $language = null) {
     try{
-        if(is_string($project)){
+        if(is_string($project)) {
             $project = array('name' => $project);
         }
 
@@ -836,7 +836,7 @@ function doc_validate_project($project, $language = null){
 
         return $project;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_validate_project(): Failed', $e);
     }
 }
@@ -855,7 +855,7 @@ function doc_validate_project($project, $language = null){
  * @param params $page
  * @return params
  */
-function doc_insert_page($page){
+function doc_insert_page($page) {
     try{
         $page = doc_validate_page($page);
 
@@ -875,7 +875,7 @@ function doc_insert_page($page){
 
         return $page;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_insert_page(): Failed', $e);
     }
 }
@@ -894,7 +894,7 @@ function doc_insert_page($page){
  * @param params $page
  * @return params
  */
-function doc_validate_page($page){
+function doc_validate_page($page) {
     try{
         $v = new ValidateForm($page, 'parents_id,projects_id,name,package,type');
 
@@ -909,33 +909,33 @@ function doc_validate_page($page){
 
         $exists = sql_get('SELECT `id` FROM `doc_projects` WHERE `id` = :id', true, array(':id' => $page['projects_id']));
 
-        if(!$exists){
+        if(!$exists) {
             $v->setError(tr('The specified projects_id ":projects_id" does not exist', array(':projects_id' => $page['projects_id'])));
         }
 
         /*
          * Validate the package
          */
-        if($page['package']){
+        if($page['package']) {
             $v->hasMinChars($page['package'],  2, tr('Please specifiy a page package with at least 2 characters'));
             $v->hasMaxChars($page['package'], 64, tr('Please specifiy a page package with less than 64 characters'));
 
-        }else{
+        } else {
             $page['package'] = null;
         }
 
         /*
          * Validate the parent
          */
-        if($page['parents_id']){
+        if($page['parents_id']) {
             $exists = sql_get('SELECT `id` FROM `doc_pages` WHERE `id` = :id', true, array(':id' => $page['parents_id']));
 
-            if(!$exists){
+            if(!$exists) {
                 $v->setError(tr('The specified parents page ":parent" does not exist', array(':parent' => $page['seoparent'])));
                 $page['parents_id'] = null;
             }
 
-        }else{
+        } else {
             $page['parents_id'] = null;
         }
 
@@ -946,7 +946,7 @@ function doc_validate_page($page){
 
         return $page;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_validate_page(): Failed', $e);
     }
 }
@@ -965,9 +965,9 @@ function doc_validate_page($page){
  * @param string $line
  * @return params
  */
-function doc_parse_value(string $line){
+function doc_parse_value(string $line) {
     try{
-        if(!preg_match_all('/^@\s?([a-z-]+)\s?:?\s?(.+)/', $line, $matches)){
+        if(!preg_match_all('/^@\s?([a-z-]+)\s?:?\s?(.+)/', $line, $matches)) {
             throw new CoreException(tr('doc_parse_value(): Specified line ":line" is of an incorrect format', array(':line' => $line)), 'invalid');
         }
 
@@ -976,7 +976,7 @@ function doc_parse_value(string $line){
 
         return $value;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_parse_value(): Failed', $e);
     }
 }
@@ -995,7 +995,7 @@ function doc_parse_value(string $line){
  * @param params $value
  * @return params
  */
-function doc_insert_value($value){
+function doc_insert_value($value) {
     try{
         $value = doc_validate_value($value);
 
@@ -1012,7 +1012,7 @@ function doc_insert_value($value){
 
         return $value;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_insert_value(): Failed', $e);
     }
 }
@@ -1031,7 +1031,7 @@ function doc_insert_value($value){
  * @param params $value
  * @return params
  */
-function doc_validate_value($value){
+function doc_validate_value($value) {
     try{
         $v = new ValidateForm($value, 'pages_id,key,value');
 
@@ -1042,7 +1042,7 @@ function doc_validate_value($value){
 
         $exists = sql_get('SELECT `id` FROM `doc_pages` WHERE `id` = :id', true, array(':id' => $value['pages_id']));
 
-        if(!$exists){
+        if(!$exists) {
             $v->setError(tr('The specified page with id ":pages_id" does not exist', array(':pages_id' => $value['pages_id'])));
         }
 
@@ -1050,7 +1050,7 @@ function doc_validate_value($value){
 
         return $value;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_validate_value(): Failed', $e);
     }
 }
@@ -1067,9 +1067,9 @@ function doc_validate_value($value){
  * @package doc
  *
  */
-function doc_generate($project = null){
+function doc_generate($project = null) {
     try{
-        if(!$project){
+        if(!$project) {
             $project = PROJECT;
         }
 
@@ -1077,7 +1077,7 @@ function doc_generate($project = null){
         $formats     = array('txt', 'html', 'include', 'pdf');
         $formats     = array('txt', 'html');
 
-        if(!$projects_id){
+        if(!$projects_id) {
             throw new CoreException(tr('Failed to generate documentation for project ":project", it does not exist', array(':project' => $project)), 'not-exists');
         }
 
@@ -1091,15 +1091,15 @@ function doc_generate($project = null){
 
         log_console(tr('Generating documentation in ":format" format', array(':format' => $format)), 'cyan');
 
-        foreach($formats as $format){
+        foreach($formats as $format) {
             $pages = sql_query('SELECT `id`, `name`, `seoname`, `type` FROM `doc_pages` WHERE `projects_id` = :projects_id', array(':projects_id' => $projects_id));
 
-            foreach($pages as $page){
+            foreach($pages as $page) {
                 try{
                     $page['values'] = sql_list('SELECT `id`, `key`, `value` FROM `doc_values` WHERE `pages_id` = :pages_id', array(':pages_id' => $page['id']));
                     doc_generate_page($format, $page);
 
-                }catch(Exception $e){
+                }catch(Exception $e) {
                     doc_errors(tr('Failed to generate documentation page ":page" because of error ":e"', array(':page' => $page, ':e' => $e->getMessage())));
                 }
             }
@@ -1107,18 +1107,18 @@ function doc_generate($project = null){
 
         $errors  = doc_errors();
 
-        if($errors){
+        if($errors) {
             log_console(tr('Finished documentation parsing with the following issues:'));
 
-            foreach($errors as $error){
+            foreach($errors as $error) {
                 log_console($error, 'yellow');
             }
 
-        }else{
+        } else {
             log_console(tr('Finished documentation parsing succesfully'));
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_generate(): Failed', $e);
     }
 }
@@ -1135,7 +1135,7 @@ function doc_generate($project = null){
  * @package doc
  *
  */
-function doc_generate_page($format, $page){
+function doc_generate_page($format, $page) {
     try{
         $path = ROOT.'data/doc/';
         $keys = array('category',
@@ -1161,31 +1161,31 @@ function doc_generate_page($format, $page){
         $data = file_get_contents($path.'templates/'.$format.'/'.$page['type'].'.'.$format);
         $data = str_replace(':name', isset_get($page['name']), $data);
 
-        foreach($multis as $multi){
+        foreach($multis as $multi) {
             $replace = '';
 
             /*
              * Replace all "multi values", that is to say, the values that have
              * only one key in the template, but multiple values in the database
              */
-            foreach($page['values'] as $key => $value){
-                if($value['key'] == $multi){
+            foreach($page['values'] as $key => $value) {
+                if($value['key'] == $multi) {
                     $replace .= $value['value']."\n";
                     unset($page['values'][$key]);
                 }
             }
 
-            if($replace){
+            if($replace) {
                 $data = str_replace(':'.$multi."\n", $replace, $data);
             }
         }
 
-        foreach($keys as $key){
+        foreach($keys as $key) {
             /*
              * Replace all the single values
              */
-            foreach($page['values'] as $value){
-                if($value['key'] == $key){
+            foreach($page['values'] as $value) {
+                if($value['key'] == $key) {
                     $data = str_replace(':'.$key, $value['value'], $data);
                     break;
                 }
@@ -1194,7 +1194,7 @@ function doc_generate_page($format, $page){
 
         file_put_contents($path.$format.'/'.$page['name'].'.'.$format, $data);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_generate_page(): Failed', $e);
     }
 }
@@ -1211,18 +1211,18 @@ function doc_generate_page($format, $page){
  * @package doc
  *
  */
-function doc_errors($error = null){
+function doc_errors($error = null) {
     static $errors = array();
 
     try{
-        if($error){
+        if($error) {
             $errors[] = $error;
             return $error;
         }
 
         return $errors;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_errors(): Failed', $e);
     }
 }
@@ -1239,11 +1239,11 @@ function doc_errors($error = null){
  * @package doc
  *
  */
-function doc_clear($project){
+function doc_clear($project) {
     try{
         $id = sql_get('SELECT `id` FROM `doc_projects` WHERE `name` = :name OR `seoname` = :seoname', true, array(':name' => $project, ':seoname' => $project));
 
-        if(!$project){
+        if(!$project) {
             log_console(tr('Not deleting project ":project", it does not exist', array(':project' => $project)), 'yellow');
             return false;
         }
@@ -1252,7 +1252,7 @@ function doc_clear($project){
         sql_query('DELETE FROM `doc_projects` WHERE `id`          = :id'         , array(':id'          => $id));
         return true;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('doc_errors(): Failed', $e);
     }
 }

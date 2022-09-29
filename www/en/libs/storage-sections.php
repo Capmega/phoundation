@@ -28,29 +28,29 @@
  * @params boolean $auto_create
  * @return null params The data for the requested section
  */
-function storage_sections_get($section = null, $auto_create = false){
+function storage_sections_get($section = null, $auto_create = false) {
     try{
-        if(empty($section)){
+        if(empty($section)) {
             /*
              * Get a _new record for the current user
              */
-            if(empty($_SESSION['user']['id'])){
+            if(empty($_SESSION['user']['id'])) {
                 $where   = ' WHERE  `status` = "_new"
                              AND    `createdby` IS NULL LIMIT 1';
                 $execute = null;
 
-            }else{
+            } else {
                 $where   = ' WHERE  `status`    = "_new"
                              AND    `createdby` = :createdby LIMIT 1';
                 $execute = array(':createdby' => $_SESSION['user']['id']);
             }
 
-        }elseif(is_numeric($section)){
+        } elseif(is_numeric($section)) {
             $where   = ' WHERE  `id` = :id
                          AND    `status` IS NULL';
             $execute = array(':id' => $section);
 
-        }else{
+        } else {
             $where   = ' WHERE  `seoname` = :seoname
                          AND    `status`  IS NULL';
             $execute = array(':seoname' => $section);
@@ -71,7 +71,7 @@ function storage_sections_get($section = null, $auto_create = false){
 
                               $execute);
 
-        if(empty($dbsection) and empty($section) and $auto_create){
+        if(empty($dbsection) and empty($section) and $auto_create) {
             return storage_sections_add(array('status'              => '_new',
                                               'random_ids'          => true,
                                               'restrict_file_types' => true), true);
@@ -79,7 +79,7 @@ function storage_sections_get($section = null, $auto_create = false){
 
         return $dbsection;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_sections_get(): Failed', $e);
     }
 }
@@ -101,7 +101,7 @@ function storage_sections_get($section = null, $auto_create = false){
  * @params boolean $pdo_statement If set to true, the function will not return an array list but a PDO statement
  * @return null array a list of the available sections
  */
-function storage_sections_list($status = null, $pdo_statement = true){
+function storage_sections_list($status = null, $pdo_statement = true) {
     try{
         $sections = sql_query('SELECT `id`,
                                       `createdby`,
@@ -117,7 +117,7 @@ function storage_sections_list($status = null, $pdo_statement = true){
 
         return $sections;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_sections_list(): Failed', $e);
     }
 }
@@ -127,7 +127,7 @@ function storage_sections_list($status = null, $pdo_statement = true){
 /*
  * Generate a new storage section
  */
-function storage_sections_add($section, $new = false){
+function storage_sections_add($section, $new = false) {
     try{
         $section = storage_sections_validate($section, $new);
 
@@ -147,7 +147,7 @@ function storage_sections_add($section, $new = false){
 
         return $section;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_sections_add(): Failed', $e);
     }
 }
@@ -157,7 +157,7 @@ function storage_sections_add($section, $new = false){
 /*
  * Update the specified storage section
  */
-function storage_sections_update($section, $new = false){
+function storage_sections_update($section, $new = false) {
     try{
         $section = storage_sections_validate($section);
         meta_action($section['meta_id'], ($new ? 'create-update' : 'update'));
@@ -186,7 +186,7 @@ function storage_sections_update($section, $new = false){
 
         return $section;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_sections_update(): Failed', $e);
     }
 }
@@ -196,11 +196,11 @@ function storage_sections_update($section, $new = false){
 /*
  * Validate and return the specified storage section
  */
-function storage_sections_validate($section, $new = false){
+function storage_sections_validate($section, $new = false) {
     try{
         load_libs('validate,seo');
 
-        if($new){
+        if($new) {
             $section = array('id'                  => null,
                              'status'              => '_new',
                              'name'                => '',
@@ -211,9 +211,9 @@ function storage_sections_validate($section, $new = false){
                              'description'         => '');
 
 
-        }else{
+        } else {
             $v = new ValidateForm($section, 'id,name,seoname,random_ids,restrict_file_types,slogan,description');
-            if(!$v->isNotEmpty($section['name'], tr('Please specify a section name'))){
+            if(!$v->isNotEmpty($section['name'], tr('Please specify a section name'))) {
                 $v->isAlphaNumeric($section['name'], tr('Please specify a valid alpha numeric section name (spaces, dashes and parentheses are allowed)'), VALIDATE_IGNORE_PARENTHESES|VALIDATE_IGNORE_SPACE|VALIDATE_IGNORE_DASH);
             }
 
@@ -231,7 +231,7 @@ function storage_sections_validate($section, $new = false){
 
         return $section;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_sections_validate(): Failed', $e);
     }
 }
@@ -241,10 +241,10 @@ function storage_sections_validate($section, $new = false){
 /*
  *
  */
-function storage_section_has_access($sections_id, $users_id = null){
+function storage_section_has_access($sections_id, $users_id = null) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_section_has_access(): Failed', $e);
     }
 }

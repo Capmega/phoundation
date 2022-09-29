@@ -29,11 +29,11 @@
  *
  * @return void
  */
-function code_library_init(){
+function code_library_init() {
     try{
         load_libs('git');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_library_init(): Failed', $e);
     }
 }
@@ -55,27 +55,27 @@ function code_library_init(){
  * @param string $version The version to get the version line from
  * @return string the version line for the specified version
  */
-function code_locate_phoundation(){
+function code_locate_phoundation() {
     static $found;
 
     try{
-        if(!$found){
+        if(!$found) {
             $paths = array(ROOT.'../phoundation/',
                            ROOT.'../../phoundation/',
                            '/var/www/html/phoundation/');
 
             $home = getenv('HOME');
 
-            if($home){
+            if($home) {
                 $paths[] = slash($home).'projects/phoundation/';
             }
 
-            foreach($paths as $path){
-                if(file_exists($path)){
+            foreach($paths as $path) {
+                if(file_exists($path)) {
                     /*
                      * Found something with the correct name!
                      */
-                    if(git_is_repository($path)){
+                    if(git_is_repository($path)) {
                         /*
                          * Its a git repository too!
                          * Check if its really the Phoundation repository by
@@ -86,8 +86,8 @@ function code_locate_phoundation(){
                             $result = git_show('290071b81e7bebab9c43aa1fd3a8b691ca1f9695', $path, array('check' => true));
                             $found  = slash(realpath($path));
 
-                        }catch(Exception $e){
-                            if($e->getCode() == 128){
+                        }catch(Exception $e) {
+                            if($e->getCode() == 128) {
                                 /*
                                  * The Phoundation initial commit does not
                                  * exist, this is not the Phoundation project!
@@ -105,13 +105,13 @@ function code_locate_phoundation(){
 
         }
 
-        if(!$found){
+        if(!$found) {
             throw new CoreException(tr('code_locate_phoundation(): Failed to find the Phoundation project in any of the search paths ":paths"', array(':paths' => $paths)), 'warning/not-exists');
         }
 
         return $found;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_locate_phoundation(): Failed', $e);
     }
 }
@@ -131,27 +131,27 @@ function code_locate_phoundation(){
  *
  * @return string the path of the Toolkit project
  */
-function code_locate_toolkit(){
+function code_locate_toolkit() {
     static $found;
 
     try{
-        if(!$found){
+        if(!$found) {
             $paths = array(ROOT.'../toolkit.capmega.com/',
                            ROOT.'../../capmega/toolkit.capmega.com/',
                            '/var/www/html/capmega/toolkit.capmega.com/');
 
             $home = getenv('HOME');
 
-            if($home){
+            if($home) {
                 $paths[] = slash($home).'projects/toolkit.capmega.com/';
             }
 
-            foreach($paths as $path){
-                if(file_exists($path)){
+            foreach($paths as $path) {
+                if(file_exists($path)) {
                     /*
                      * Found something with the correct name!
                      */
-                    if(git_is_repository($path)){
+                    if(git_is_repository($path)) {
                         /*
                          * Its a git repository too!
                          * Check if its really the Toolkit repository by
@@ -161,8 +161,8 @@ function code_locate_toolkit(){
                             $result = git_show('290071b81e7bebab9c43aa1fd3a8b691ca1f9695', $path, array('check' => true));
                             $found  = slash(realpath($path));
 
-                        }catch(Exception $e){
-                            if($e->getCode() == 128){
+                        }catch(Exception $e) {
+                            if($e->getCode() == 128) {
                                 /*
                                  * The Toolkit initial commit does not
                                  * exist, this is not the Toolkit project!
@@ -180,13 +180,13 @@ function code_locate_toolkit(){
 
         }
 
-        if(!$found){
+        if(!$found) {
             throw new CoreException(tr('code_locate_toolkit(): Failed to find the Toolkit project in any of the search paths ":paths"', array(':paths' => $paths)), 'warning/not-exists');
         }
 
         return $found;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_locate_toolkit(): Failed', $e);
     }
 }
@@ -208,14 +208,14 @@ function code_locate_toolkit(){
  * @param null params $params The fetch parameters
  * @return array Return the available versions for the git project
  */
-function code_phoundation_fetch($params = null){
+function code_phoundation_fetch($params = null) {
     try{
         $path    = code_locate_phoundation();
         $results = git_fetch($path, $params);
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_phoundation_fetch(): Failed', $e);
     }
 }
@@ -237,14 +237,14 @@ function code_phoundation_fetch($params = null){
  * @param null params $params The fetch parameters
  * @return array Return the available versions for the git project
  */
-function code_phoundation_branch_is_tag($branch = null){
+function code_phoundation_branch_is_tag($branch = null) {
     try{
         $path    = code_locate_phoundation();
         $results = git_branch_is_tag($branch, $path);
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_phoundation_branch_is_tag(): Failed', $e);
     }
 }
@@ -266,21 +266,21 @@ function code_phoundation_branch_is_tag($branch = null){
  * @param null params $params The fetch parameters
  * @return array Return the available versions for the git project
  */
-function code_phoundation_pull($remote = 'origin', $branch = null){
+function code_phoundation_pull($remote = 'origin', $branch = null) {
     try{
         $path    = code_locate_phoundation();
         $results = git_pull($path, $remote, $branch);
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         $data = $e->getData();
 
-        if($data){
+        if($data) {
             $data  = implode(' ', $data);
             $match = preg_match('/You asked to pull from the remote \'[a-z0-9-_]+\', but did not specify a branch\. Because this is not the default configured remote for your current branch, you must specify a branch on the command line\./', $data);
 
-            if($match){
+            if($match) {
                 throw new CoreException(tr('code_phoundation_pull(): No Phoundation remote branch was specified and the current branch ":branch" has no upstream / default remote branch specified', array(':branch' => git_branch())), 'not-specified');
             }
         }
@@ -306,14 +306,14 @@ function code_phoundation_pull($remote = 'origin', $branch = null){
  * @param string $branch The branch to checkout
  * @return array Return the current branch for the phoundation project
  */
-function code_phoundation_checkout($branch){
+function code_phoundation_checkout($branch) {
     try{
         $path   = code_locate_phoundation();
         $branch = git_checkout($branch, $path);
 
         return $branch;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_phoundation_checkout(): Failed', $e);
     }
 }
@@ -335,14 +335,14 @@ function code_phoundation_checkout($branch){
  * @param null string $branch If specified, set the phoudation project to this branch
  * @return array Return the available versions for the git project
  */
-function code_phoundation_branch($branch = null){
+function code_phoundation_branch($branch = null) {
     try{
         $path   = code_locate_phoundation();
         $branch = git_branch($branch, $path);
 
         return $branch;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_phoundation_branch(): Failed', $e);
     }
 }
@@ -362,14 +362,14 @@ function code_phoundation_branch($branch = null){
  *
  * @return array Return the available versions for the git project
  */
-function code_phoundation_status(){
+function code_phoundation_status() {
     try{
         $path   = code_locate_phoundation();
         $status = git_status($path);
 
         return $status;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_phoundation_status(): Failed', $e);
     }
 }
@@ -390,11 +390,11 @@ function code_phoundation_status(){
  * @param string $version The version to get the version line from
  * @return string the version line for the specified version
  */
-function code_get_version_line($version){
+function code_get_version_line($version) {
     try{
         return Strings::untilReverse($version, '.');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_get_version_line(): Failed', $e);
     }
 }
@@ -415,14 +415,14 @@ function code_get_version_line($version){
  *
  * @return array Return the available branches for the phoundation project
  */
-function code_get_phoundation_branch_lines(){
+function code_get_phoundation_branch_lines() {
     try{
         $path     = code_locate_phoundation();
         $branches = code_get_branch_lines($path);
 
         return $branches;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_get_phoundation_branch_lines(): Failed', $e);
     }
 }
@@ -444,14 +444,14 @@ function code_get_phoundation_branch_lines(){
  *
  * @return array Return the available version lines for the phoundation project
  */
-function code_get_phoundation_lines(){
+function code_get_phoundation_lines() {
     try{
         $path = code_locate_phoundation();
         $tags = code_get_available_lines($path);
 
         return $tags;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_get_phoundation_lines(): Failed', $e);
     }
 }
@@ -474,14 +474,14 @@ function code_get_phoundation_lines(){
  * @param string $version_lines
  * @return array Return the available versions for the phoundation project
  */
-function code_get_phoundation_versions($version_lines = null){
+function code_get_phoundation_versions($version_lines = null) {
     try{
         $path = code_locate_phoundation();
         $tags = code_get_available_versions($path, $version_lines);
 
         return $tags;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_get_phoundation_versions(): Failed', $e);
     }
 }
@@ -504,7 +504,7 @@ function code_get_phoundation_versions($version_lines = null){
  *
  * @return array Return the framework version for the phoundation project
  */
-function code_bump_phoundation_framework_version(){
+function code_bump_phoundation_framework_version() {
     try{
         $path     = code_locate_phoundation();
         $version  = code_get_framework_version($path);
@@ -518,7 +518,7 @@ function code_bump_phoundation_framework_version(){
 
         return $version;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_bump_phoundation_framework_version(): Failed', $e);
     }
 }
@@ -540,14 +540,14 @@ function code_bump_phoundation_framework_version(){
  *
  * @return array Return the framework version for the phoundation project
  */
-function code_get_phoundation_framework_version(){
+function code_get_phoundation_framework_version() {
     try{
         $path    = code_locate_phoundation();
         $version = code_get_framework_version($path);
 
         return $version;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_get_phoundation_framework_version(): Failed', $e);
     }
 }
@@ -569,14 +569,14 @@ function code_get_phoundation_framework_version(){
  *
  * @return array Return the current project version for the phoundation project
  */
-function code_get_phoundation_project_version(){
+function code_get_phoundation_project_version() {
     try{
         $path    = code_locate_phoundation();
         $version = code_get_project_version($path);
 
         return $version;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_get_phoundation_project_version(): Failed', $e);
     }
 }
@@ -597,19 +597,19 @@ function code_get_phoundation_project_version(){
  * @param string $path The root directory of the project where to find the version lines from
  * @return array Return the available branches for the git project
  */
-function code_get_branch_lines($path = ROOT){
+function code_get_branch_lines($path = ROOT) {
     try{
         $branches = git_list_branches($path, true);
 
-        foreach($branches as $id => $branch){
-            if(!str_is_version($branch.'.0')){
+        foreach($branches as $id => $branch) {
+            if(!str_is_version($branch.'.0')) {
                 unset($branches[$id]);
             }
         }
 
         return $branches;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_get_branch_lines(): Failed', $e);
     }
 }
@@ -632,15 +632,15 @@ function code_get_branch_lines($path = ROOT){
  * @param string $path The root directory of the project where to find the version lines from
  * @return array Return the available version lines for the git project
  */
-function code_get_available_lines($path = ROOT){
+function code_get_available_lines($path = ROOT) {
     try{
         $tags   = git_list_tags($path);
         $retval = array();
 
-        foreach($tags as $tag){
+        foreach($tags as $tag) {
             $version = Strings::from($tag, 'v');
 
-            if(str_is_version($version)){
+            if(str_is_version($version)) {
                 $version  = code_get_version_line($version);
                 $retval[] = $version;
             }
@@ -648,7 +648,7 @@ function code_get_available_lines($path = ROOT){
 
         return array_unique($retval);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_get_available_lines(): Failed', $e);
     }
 }
@@ -671,23 +671,23 @@ function code_get_available_lines($path = ROOT){
  * @param string $path The root directory of the project where to find the versions from
  * @return array Return the available version for the git project
  */
-function code_get_available_versions($path = ROOT, $version_lines = null){
+function code_get_available_versions($path = ROOT, $version_lines = null) {
     try{
         $tags   = git_list_tags($path);
         $retval = array();
 
-        if($version_lines){
+        if($version_lines) {
             $version_lines = array_force($version_lines);
         }
 
-        foreach($tags as $tag){
+        foreach($tags as $tag) {
             $tag     = strtolower($tag);
             $version = Strings::from($tag, 'v');
 
-            if(str_is_version($version)){
+            if(str_is_version($version)) {
                 $line = code_get_version_line($version);
 
-                if(empty($version_lines) or in_array($line, $version_lines)){
+                if(empty($version_lines) or in_array($line, $version_lines)) {
                     $retval[] = $version;
                 }
             }
@@ -695,7 +695,7 @@ function code_get_available_versions($path = ROOT, $version_lines = null){
 
         return array_unique($retval);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_get_available_versions(): Failed', $e);
     }
 }
@@ -715,24 +715,24 @@ function code_get_available_versions($path = ROOT, $version_lines = null){
  * @param string $path The root directory of the project where to get the framework version from
  * @return string The current version for the specified Phoundation type  project path
  */
-function code_get_framework_version($path = ROOT){
+function code_get_framework_version($path = ROOT) {
     try{
         $file = slash($path).'libs/system.php';
 
-        if(!file_exists($file)){
+        if(!file_exists($file)) {
             throw new CoreException(tr('code_get_framework_version(): No system library file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
         }
 
         $data   = file_get_contents($file);
         $exists = preg_match_all('/define\(\'FRAMEWORKCODEVERSION\',\s+\'(\d+\.\d+\.\d+)\'\);/', $data, $matches);
 
-        if(!$exists){
+        if(!$exists) {
             throw new CoreException(tr('code_get_framework_version(): Failed to extract project framework version from system library file of Phoundation project in specified path ":path"', array(':path' => $path)), 'failed');
         }
 
         return $matches[1][0];
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_get_framework_version(): Failed', $e);
     }
 }
@@ -752,11 +752,11 @@ function code_get_framework_version($path = ROOT){
  * @param string $path The root directory of the project where to get the framework version from
  * @return string The current version for the specified Phoundation type  project path
  */
-function code_update_framework_version($version, $path = ROOT){
+function code_update_framework_version($version, $path = ROOT) {
     try{
         $file = slash($path).'libs/system.php';
 
-        if(!file_exists($file)){
+        if(!file_exists($file)) {
             throw new CoreException(tr('code_get_framework_version(): No system library file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
         }
 
@@ -765,7 +765,7 @@ function code_update_framework_version($version, $path = ROOT){
 
         file_put_contents($file, $data);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_update_framework_version(): Failed', $e);
     }
 }
@@ -785,24 +785,24 @@ function code_update_framework_version($version, $path = ROOT){
  * @param string $path The root directory of the project where to get the project version from
  * @return string The current version for the specified Phoundation type  project path
  */
-function code_get_project_version($path = ROOT){
+function code_get_project_version($path = ROOT) {
     try{
         $file = slash($path).'config/project.php';
 
-        if(!file_exists($file)){
+        if(!file_exists($file)) {
             throw new CoreException(tr('code_get_project_version(): No project configuration file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
         }
 
         $data   = file_get_contents($file);
         $exists = preg_match_all('/define\(\'PROJECTCODEVERSION\',\s+\'(\d+\.\d+\.\d+)\'\);/', $data, $matches);
 
-        if(!$exists){
+        if(!$exists) {
             throw new CoreException(tr('code_get_project_version(): Failed to extract project code version from project file of Phoundation project in specified path ":path"', array(':path' => $path)), 'failed');
         }
 
         return $matches[1][0];
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_get_project_version(): Failed', $e);
     }
 }
@@ -824,12 +824,12 @@ function code_get_project_version($path = ROOT){
  * @param string $file The file to be checked
  * @return boolean True if the specified file exists in the Toolkit project, false if not
  */
-function code_file_exists_in_phoundation($file){
+function code_file_exists_in_phoundation($file) {
     try{
         $path = code_locate_phoundation();
         return file_exists($path.$file);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_file_exists_in_phoundation(): Failed', $e);
     }
 }
@@ -851,13 +851,13 @@ function code_file_exists_in_phoundation($file){
  * @param string $file The file to be checked
  * @return boolean True if the specified file exists in the Toolkit project, false if not
  */
-function code_file_exists_in_toolkit($file){
+function code_file_exists_in_toolkit($file) {
     try{
         $path = code_locate_toolkit();
         return file_exists($path.$file);
 
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_file_exists_in_toolkit(): Failed', $e);
     }
 }
@@ -880,12 +880,12 @@ function code_file_exists_in_toolkit($file){
  * @param string $file2 The second file to be compared
  * @return string The difference between the two files
  */
-function code_diff($file, $file2){
+function code_diff($file, $file2) {
     try{
         return safe_exec(array('ok_exitcodes' => 1,
                                'commands'     => array('diff', array($file, $file2))));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_diff(): Failed', $e);
     }
 }
@@ -908,12 +908,12 @@ function code_diff($file, $file2){
  * @param string $file2 The second file to be compared
  * @return string The difference between the two files
  */
-function code_diff_phoundation($file){
+function code_diff_phoundation($file) {
     try{
         $path = code_locate_phoundation();
         return code_diff(ROOT.$file, $path.$file);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_diff_phoundation(): Failed', $e);
     }
 }
@@ -936,12 +936,12 @@ function code_diff_phoundation($file){
  * @param string $file2 The second file to be compared
  * @return string The difference between the two files
  */
-function code_diff_toolkit($file){
+function code_diff_toolkit($file) {
     try{
         $path = code_locate_toolkit();
         return code_diff(ROOT.$file, $path.$file);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('code_diff_toolkit(): Failed', $e);
     }
 }
@@ -969,7 +969,7 @@ function code_diff_toolkit($file){
  * @param null array $params[restrictions] If set, restrict function access to the specified paths only
  * @return string The patch result, either "patched", "created" or "deleted"
  */
-function code_patch($params){
+function code_patch($params) {
     try{
         array_ensure($params, 'file,source_path,target_path,replaces,clean,restrictions');
         array_default($params, 'method'     , 'apply');
@@ -978,22 +978,22 @@ function code_patch($params){
 
         file_restrict($params);
 
-        if(!$params['target_path']){
+        if(!$params['target_path']) {
             throw new CoreException(tr('code_patch(): No target path specified'), 'empty');
         }
 
-        if(!file_exists($params['source_path'])){
+        if(!file_exists($params['source_path'])) {
             throw new CoreException(tr('code_patch(): Specified source path ":source" does not exist', array(':source' => $params['source_path'])), 'not-exist');
         }
 
-        if(!file_exists($params['target_path'])){
+        if(!file_exists($params['target_path'])) {
             throw new CoreException(tr('code_patch(): Specified target path ":target" does not exist', array(':target' => $params['target_path'])), 'not-exist');
         }
 
         $params['source_path'] = slash($params['source_path']);
         $params['target_path'] = slash($params['target_path']);
 
-        switch($params['method']){
+        switch($params['method']) {
             case 'diff':
                 log_console(tr('Showing diff patch for file ":file"', array(':file' => $params['file'])), 'white');
                 echo git_diff($params['file'], !NOCOLOR);
@@ -1006,37 +1006,37 @@ function code_patch($params){
             case 'patch':
                 log_console(tr('Trying to patch ":file"', array(':file' => $params['file'])), 'VERBOSE/cyan');
 
-                if(file_exists($params['target_path'].$params['file'])){
+                if(file_exists($params['target_path'].$params['file'])) {
                     /*
                      * The target file exists. Send the changed by patch
                      */
                     $patch      = git_diff($params['source_path'].$params['file']);
                     $patch_file = slash($params['target_path']).sha1($params['file']).'.patch';
 
-                    if(empty($patch)){
+                    if(empty($patch)) {
                         throw new CoreException(tr('code_patch(): The function git_diff() returned empty patch data for file ":file"', array(':file' => $params['file'])), 'empty');
                     }
 
-                    if($params['replaces']){
+                    if($params['replaces']) {
                         /*
                          * Perform a search / replace on the patch data
                          */
-                        foreach($params['replaces'] as $search => $replace){
+                        foreach($params['replaces'] as $search => $replace) {
                             $patch = str_replace($search, $replace, $patch);
                         }
                     }
 
                     file_put_contents($patch_file, implode("\n", $patch)."\n");
 
-                    if($params['method'] == 'create'){
+                    if($params['method'] == 'create') {
                         /*
                          * Don't actually apply the patch
                          */
 
-                    }else{
+                    } else {
                         git_apply($patch_file);
 
-                        if($params['clean']){
+                        if($params['clean']) {
                             file_delete($patch_file, $params['restrictions']);
                         }
                     }
@@ -1054,7 +1054,7 @@ function code_patch($params){
                 throw new CoreException(tr('code_patch(): Unknown method ":method" specified', array(':method' => $params['method'])), 'unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('code_patch(): Failed for file ":file"', array(':file' => $params['file'])), $e, array('patch_file' => isset_get($patch_file)));
     }
 }

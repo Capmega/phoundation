@@ -23,11 +23,11 @@
  *
  * @return void
  */
-function progress_library_init(){
+function progress_library_init() {
     try{
         load_config('progress');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('progress_library_init(): Failed', $e);
     }
 }
@@ -61,7 +61,7 @@ function progress_library_init(){
  * @param $params resource
  * @return string HTML for a categories select box within the specified parameters
  */
-function progress_validate_process($process){
+function progress_validate_process($process) {
     try{
         load_libs('validate,seo');
 
@@ -74,26 +74,26 @@ function progress_validate_process($process){
         /*
          * Validate basic data
          */
-        if($process['description']){
+        if($process['description']) {
             $v->hasMinChars($process['description'],    8, tr('Please ensure the process\'s description has at least 8 characters'));
             $v->hasMaxChars($process['description'], 2047, tr('Please ensure the process\'s description has less than 2047 characters'));
 
-        }else{
+        } else {
             $process['description'] = null;
         }
 
         /*
          * Validate category
          */
-        if($process['category']){
+        if($process['category']) {
             load_libs('categories');
             $process['categories_id'] = categories_get($process['category'], 'id');
 
-            if(!$process['categories_id']){
+            if(!$process['categories_id']) {
                 $v->setError(tr('Specified category does not exist'));
             }
 
-        }else{
+        } else {
             $process['categories_id'] = null;
         }
 
@@ -102,22 +102,22 @@ function progress_validate_process($process){
          */
         $exists = sql_get('SELECT `id` FROM `progress_processes` WHERE `name` = :name AND `id` != :id AND `categories_id` = :categories_id', array(':name' => $process['name'], ':categories_id' => $process['categories_id'], ':id' => isset_get($process['id'])));
 
-        if($exists){
+        if($exists) {
             $v->setError(tr('The process ":process" already exists with id ":id"', array(':process' => $process['name'], ':id' => $id)));
         }
 
         /*
          * Validate process steps
          */
-        if(!empty($process['steps'])){
-            foreach($process['steps'] as $id => &$step){
-                if(!is_natural($id, 0)){
+        if(!empty($process['steps'])) {
+            foreach($process['steps'] as $id => &$step) {
+                if(!is_natural($id, 0)) {
                     $v->setError(tr('Step ":id" is invalid', array(':id' => $id)));
 
-                }else{
+                } else {
                     array_ensure($step, 'name,url,description');
 
-                    if(!$step['name']){
+                    if(!$step['name']) {
                         /*
                          * Remove this step
                          */
@@ -132,25 +132,25 @@ function progress_validate_process($process){
                     $v->hasMaxChars($step['name'], 64, tr('Please ensure the process step names have less than 64 characters'));
                     $v->isAlphaNumeric($process['name'], tr('Please specify valid process step names'), VALIDATE_IGNORE_ALL);
 
-                    if($step['url']){
+                    if($step['url']) {
                         $v->hasMaxChars($step['url'], 255, tr('Please ensure the process step URLs have less than 255 characters'));
 
-                        if(preg_match('/^[a-z-]+:\/\//', $step['url'])){
+                        if(preg_match('/^[a-z-]+:\/\//', $step['url'])) {
                             $v->isURL($step['url'], tr('Please a valid URL'));
 
-                        }else{
+                        } else {
                             $v->isAlphaNumeric($step['url'], tr('Please specify valid process step program'), VALIDATE_IGNORE_DASH);
                         }
 
-                    }else{
+                    } else {
                         $step['url'] = null;
                     }
 
-                   if($step['description']){
+                   if($step['description']) {
                         $v->hasMinChars($step['description'],    8, tr('Please ensure the process step descriptions has at least 8 characters'));
                         $v->hasMaxChars($step['description'], 2047, tr('Please ensure the process step descriptions has less than 2047 characters'));
 
-                    }else{
+                    } else {
                         $step['description'] = null;
                     }
 
@@ -169,7 +169,7 @@ function progress_validate_process($process){
 
         return $process;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('progress_validate_process(): Failed'), $e);
     }
 }
@@ -191,30 +191,30 @@ function progress_validate_process($process){
  * @param string $column The specific column that has to be returned
  * @return mixed The category data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified category does not exist, NULL will be returned.
  */
-function progress_get_process($process, $column = null, $status = null){
+function progress_get_process($process, $column = null, $status = null) {
     try{
-        if(is_numeric($process)){
+        if(is_numeric($process)) {
             $where[] = ' `progress_processes`.`id` = :id ';
             $execute[':id'] = $process;
 
-        }else{
+        } else {
             $where[] = ' `progress_processes`.`seoname` = :seoname ';
             $execute[':seoname'] = $process;
         }
 
-        if($status !== false){
+        if($status !== false) {
             $execute[':status'] = $status;
             $where[] = ' `progress_processes`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
 
-        if($column){
+        if($column) {
             $process = sql_get('SELECT `'.$column.'`
 
                                 FROM   `progress_processes`'.$where, true, $execute);
 
-        }else{
+        } else {
             $process = sql_get('SELECT    `progress_processes`.`id`,
                                           `progress_processes`.`createdon`,
                                           `progress_processes`.`createdby`,
@@ -236,7 +236,7 @@ function progress_get_process($process, $column = null, $status = null){
 
         return $process;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('progress_get_process(): Failed', $e);
     }
 }
@@ -259,38 +259,38 @@ function progress_get_process($process, $column = null, $status = null){
  * @param string $column The specific column that has to be returned
  * @return mixed The category data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified category does not exist, NULL will be returned.
  */
-function progress_get_step($processes_id, $step, $column = null, $status = null){
+function progress_get_step($processes_id, $step, $column = null, $status = null) {
     try{
         $where[] = ' `progress_steps`.`processes_id` = :processes_id ';
         $execute[':processes_id'] = $processes_id;
 
-        if($step){
-            if(is_numeric($step)){
+        if($step) {
+            if(is_numeric($step)) {
                 $where[] = ' `progress_steps`.`id` = :id ';
                 $execute[':id'] = $step;
 
-            }else{
+            } else {
                 $where[] = ' `progress_steps`.`seoname` = :seoname ';
                 $execute[':seoname'] = $step;
             }
 
-        }else{
+        } else {
             $where[] = ' `progress_steps`.`parents_id` IS NULL';
         }
 
-        if($status !== false){
+        if($status !== false) {
             $execute[':status'] = $status;
             $where[] = ' `progress_steps`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where);
 
-        if($column){
+        if($column) {
             $process = sql_get('SELECT `'.$column.'`
 
                                 FROM   `progress_steps`'.$where, true, $execute);
 
-        }else{
+        } else {
             $process = sql_get('SELECT `id`,
                                        `createdon`,
                                        `createdby`,
@@ -307,7 +307,7 @@ function progress_get_step($processes_id, $step, $column = null, $status = null)
 
         return $process;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('progress_get_step(): Failed', $e);
     }
 }
@@ -328,27 +328,27 @@ function progress_get_step($processes_id, $step, $column = null, $status = null)
  * @param integer $processes_id
  * @return array
  */
-function progress_get_steps($processes_id, $columns = null, $status = null){
+function progress_get_steps($processes_id, $columns = null, $status = null) {
     try{
-        if(!$processes_id){
+        if(!$processes_id) {
             return null;
         }
 
-        if(!is_numeric($processes_id)){
+        if(!is_numeric($processes_id)) {
             throw new CoreException(tr('progress_get_steps(): Invalid processes_id ":id" specified', array(':id' => $processes_id)), 'invalid');
         }
 
         $execute[':processes_id'] = $processes_id;
         $where[]                  = ' `progress_steps`.`processes_id` = :processes_id ';
 
-        if($status !== false){
+        if($status !== false) {
             $execute[':status'] = $status;
             $where[]            = ' `progress_steps`.`status` '.sql_is($status, ':status');
         }
 
         $where = ' WHERE '.implode(' AND ', $where);
 
-        if(!$columns){
+        if(!$columns) {
             $columns = '`progress_steps`.`id`,
                         `progress_steps`.`name`,
                         `progress_steps`.`seoname`,
@@ -377,7 +377,7 @@ function progress_get_steps($processes_id, $columns = null, $status = null){
 
         return $steps;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('progress_get_steps(): Failed', $e);
     }
 }
@@ -397,14 +397,14 @@ function progress_get_steps($processes_id, $columns = null, $status = null){
  * @param array $steps
  * @return
  */
-function progress_update_steps($processes_id, $steps){
+function progress_update_steps($processes_id, $steps) {
     try{
         $insert = sql_prepare('INSERT INTO `progress_steps` (`createdby`, `meta_id`, `processes_id`, `parents_id`, `name`, `seoname`, `url`, `description`)
                                VALUES                       (:createdby , :meta_id , :processes_id , :parents_id , :name , :seoname , :url , :description )');
 
         sql_query('DELETE FROM `progress_steps`WHERE `processes_id` = :processes_id', array(':processes_id' => $processes_id));
 
-        foreach($steps as $id => $step){
+        foreach($steps as $id => $step) {
             $insert ->execute(array(':createdby'    => isset_get($_SESSION['user']['id']),
                                     ':meta_id'      => meta_action(),
                                     ':processes_id' => $processes_id,
@@ -419,7 +419,7 @@ function progress_update_steps($processes_id, $steps){
 
         return count($steps);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('progress_update(): Failed', $e);
     }
 }
@@ -438,10 +438,10 @@ function progress_update_steps($processes_id, $steps){
  * @param
  * @return
  */
-function progress_next($processes_id){
+function progress_next($processes_id) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('progress_next(): Failed', $e);
     }
 }
@@ -473,7 +473,7 @@ function progress_next($processes_id){
  * @param $params resource
  * @return string HTML for a progress process select box within the specified parameters
  */
-function progress_processes_select($params = null){
+function progress_processes_select($params = null) {
     try{
         array_ensure($params);
         array_default($params, 'name'         , 'process');
@@ -487,20 +487,20 @@ function progress_processes_select($params = null){
         array_default($params, 'extra'        , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby'      , '`name`');
 
-        if($params['categories_id']){
+        if($params['categories_id']) {
             $where[] = ' `categories_id` = :categories_id ';
             $execute[':categories_id'] = $params['categories_id'];
         }
 
-        if($params['status'] !== false){
+        if($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)){
+        if(empty($where)) {
             $where = '';
 
-        }else{
+        } else {
             $where = ' WHERE '.implode(' AND ', $where).' ';
         }
 
@@ -510,7 +510,7 @@ function progress_processes_select($params = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('progress_processes_select(): Failed', $e);
     }
 }
@@ -542,7 +542,7 @@ function progress_processes_select($params = null){
  * @param $params resource
  * @return string HTML for a progress process select box within the specified parameters
  */
-function progress_steps_select($params = null){
+function progress_steps_select($params = null) {
     try{
         array_ensure($params);
         array_default($params, 'name'        , 'step');
@@ -560,7 +560,7 @@ function progress_steps_select($params = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('progress_steps_select(): Failed', $e);
     }
 }
@@ -592,22 +592,22 @@ function progress_steps_select($params = null){
  * @param $params resource
  * @return string HTML for a progress process select box within the specified parameters
  */
-function progress_exec_step($project){
+function progress_exec_step($project) {
     try{
         $step_data = progress_get_step($project['processes_id'], $project['steps_id']);
 
-        if(!$step_data){
+        if(!$step_data) {
             throw new CoreException(tr('progress_redirect_to_step(): Specified step ":step" for progress ":process" in project ":project" does not exist', array(':project' => $project['id'], ':step' => $project['steps_id'], ':process' => $project['processes_id'])), 'not-exists');
         }
 
-        if(preg_match('/^[a-z-]+:\/\//', $step_data['url'])){
+        if(preg_match('/^[a-z-]+:\/\//', $step_data['url'])) {
             redirect($step_data['url']);
         }
 
         $step_data['url'] = 'projects/'.$project['seoname'].'/'.$step_data['url'];
         page_show($step_data['url'], array('project' => $project));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('progress_exec_step(): Failed', $e);
     }
 }

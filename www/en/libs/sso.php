@@ -33,7 +33,7 @@
  *
  * @return void
  */
-function sso_library_init(){
+function sso_library_init() {
    try{
         ensure_installed(array('name'      => 'hybridauth',
                                'project'   => 'hybridauth',
@@ -43,7 +43,7 @@ function sso_library_init(){
 
         load_config('sso');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('sso_library_init(): Failed'), $e);
     }
 }
@@ -65,7 +65,7 @@ function sso_library_init(){
  * @param params $params A parameters array
  * @return void
  */
-function sso_install($params){
+function sso_install($params) {
    try{
         /*
          * Download the hybridauth v2 library, and install it in the vendor
@@ -90,14 +90,14 @@ function sso_install($params){
         /*
          * Install library and clean up
          */
-        file_execute_mode(ROOT.'www/en/libs/vendor', 0770, function(){
+        file_execute_mode(ROOT.'www/en/libs/vendor', 0770, function() {
             file_delete(ROOT.'www/en/libs/vendor/hybridauth', ROOT.'www/en/libs/vendor');
             rename($path, ROOT.'www/en/libs/vendor/hybridauth');
         });
 
         file_delete(TMP.'hybridauth');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('sso_install(): Failed'), $e);
     }
 }
@@ -107,11 +107,11 @@ function sso_install($params){
 /*
  * Single Sign On
  */
-function sso($provider, $method, $redirect, $role = 'user'){
+function sso($provider, $method, $redirect, $role = 'user') {
     global $_CONFIG;
 
     try{
-        switch($provider){
+        switch($provider) {
             case 'facebook':
                 // FALLTHROUGH
             case 'twitter':
@@ -126,15 +126,15 @@ function sso($provider, $method, $redirect, $role = 'user'){
                 throw new CoreException(tr('sso(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
         }
 
-        switch($method){
+        switch($method) {
             case 'authorized':
                 include_once(ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php');
                 include_once(ROOT.'libs/vendor/hybridauth/Hybrid/Endpoint.php');
 
-                if(isset($_REQUEST['hauth_start']) or isset($_REQUEST['hauth_done'])){
+                if(isset($_REQUEST['hauth_start']) or isset($_REQUEST['hauth_done'])) {
                     Hybrid_Endpoint::process();
 
-                }else{
+                } else {
                     /*
                      * Invalid request!
                      */
@@ -155,7 +155,7 @@ function sso($provider, $method, $redirect, $role = 'user'){
                 try{
                     $birthday = date_convert($profile['birthYear'].'-'.$profile['birthMonth'].'-'.$profile['birthDay'], 'mysql');
 
-                }catch(Exception $e){
+                }catch(Exception $e) {
                     /*
                      * Invalid birthday data available
                      */
@@ -181,7 +181,7 @@ function sso($provider, $method, $redirect, $role = 'user'){
 
                                  array(':email'  => $profile['email']));
 
-                if(!$user){
+                if(!$user) {
                     /*
                      * Account doesn't exist yet, create it first
                      */
@@ -289,8 +289,8 @@ function sso($provider, $method, $redirect, $role = 'user'){
                 throw new CoreException(tr('sso(): Unknown method ":method" specified', array(':method' => $method)), 'unknown');
         }
 
-    }catch(Exception $e){
-        switch($e->getCode()){
+    }catch(Exception $e) {
+        switch($e->getCode()) {
             case 0:
                 throw new CoreException(tr('sso(): Unspecified error'), $e);
 
@@ -334,11 +334,11 @@ function sso($provider, $method, $redirect, $role = 'user'){
 /*
  * Generate hybridauth configuration file, and return file name
  */
-function sso_config($provider){
+function sso_config($provider) {
     global $_CONFIG;
 
     try{
-        if(empty($_CONFIG['sso'][$provider]['appid'])){
+        if(empty($_CONFIG['sso'][$provider]['appid'])) {
             throw new CoreException(tr('sso_config(): The specified provider ":provider" is not configured'), 'not-exist');
         }
 
@@ -348,16 +348,16 @@ function sso_config($provider){
         /*
          * Check if a cached config file exists.
          */
-        if(file_exists($file) and ($_CONFIG['sso']['cache_config'] and ((time() - filemtime($file)) > $_CONFIG['sso']['cache_config']))){
+        if(file_exists($file) and ($_CONFIG['sso']['cache_config'] and ((time() - filemtime($file)) > $_CONFIG['sso']['cache_config']))) {
             chmod($path, 0700);
             chmod($file, 0660);
             file_delete($file, ROOT.'data/cache/sso');
         }
 
-        if(!file_exists($file)){
+        if(!file_exists($file)) {
 
 // :DELETE: Delete this crap
-            //switch($provider){
+            //switch($provider) {
             //    case 'facebook':
             //        $key    = 'id';
             //        $secret = 'secret';
@@ -393,7 +393,7 @@ function sso_config($provider){
             /*
              * Add provider specific data
              */
-            switch($provider){
+            switch($provider) {
                 case 'facebook':
                     $config['providers'][str_capitalize($provider)]['scope']                  = $_CONFIG['sso'][$provider]['scope'];
                     $config['providers'][str_capitalize($provider)]['keys']['id']             = $_CONFIG['sso'][$provider]['appid'];
@@ -428,7 +428,7 @@ function sso_config($provider){
 
         return $file;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('sso_config(): Failed'), $e);
     }
 }
@@ -438,16 +438,16 @@ function sso_config($provider){
 /*
  * Handle SSO failure gracefully
  */
-function sso_fail($message, $redirect = null){
+function sso_fail($message, $redirect = null) {
     try{
         load_libs('html');
         html_flash_set($message, 'error');
 
-        if(empty($redirect)){
+        if(empty($redirect)) {
             page_show(500);
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         page_show(500);
     }
 }

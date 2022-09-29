@@ -27,11 +27,11 @@
  *
  * @return void
  */
-function chat_library_init(){
+function chat_library_init() {
     try{
         load_config('chat');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('chat_library_init(): Failed', $e);
     }
 }
@@ -105,7 +105,7 @@ function chat_library_init(){
  * @param string $template[bar]
  * @return params The specified template, validated and sanitized
  */
-function chat_add_user($user){
+function chat_add_user($user) {
     try{
         $user = chat_validate_user($user);
 
@@ -123,7 +123,7 @@ function chat_add_user($user){
 
         return sql_insert_id('chat');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('chat_add_user(): Failed'), $e);
     }
 }
@@ -157,7 +157,7 @@ function chat_add_user($user){
  * @param string $params[bar]
  * @return boolean True if the user was updated, false if not. If not updated, this might be because no data has changed
  */
-function chat_update_user($user){
+function chat_update_user($user) {
     static $fail = false;
 
     try{
@@ -180,19 +180,19 @@ function chat_update_user($user){
 
                             'chat');
 
-        if(!$r->rowCount()){
+        if(!$r->rowCount()) {
             /*
              * This means either no data has been changed, or the specified ID doesn't exist.
              * The former is okay, the latter should never happen.
              */
-            if(!sql_get('SELECT `user_id` FROM `users` WHERE `user_id` = :user_id', 'user_id', array(':user_id' => $user['id']), 'chat')){
-                if($fail){
+            if(!sql_get('SELECT `user_id` FROM `users` WHERE `user_id` = :user_id', 'user_id', array(':user_id' => $user['id']), 'chat')) {
+                if($fail) {
                     /*
                      * > first failure, notify of failure
                      */
                     throw new CoreException(tr('chat_update_user(): Specified user ":user" does not exist', array(':user' => name($user))), 'not-exists');
 
-                }else{
+                } else {
                     /*
                      * First failure, user doesnt exist. Try adding it and try
                      * update again
@@ -204,7 +204,7 @@ function chat_update_user($user){
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('chat_update_user(): Failed'), $e);
     }
 }
@@ -223,7 +223,7 @@ function chat_update_user($user){
  * @param array $user The user to validate
  * @return array The validated and cleaned $user array
  */
-function chat_validate_user($user){
+function chat_validate_user($user) {
     try{
         load_libs('validate,seo');
 
@@ -239,10 +239,10 @@ function chat_validate_user($user){
         /*
          * Validate alt_name
          */
-        if(empty($user['alt_name'])){
+        if(empty($user['alt_name'])) {
             $user['alt_name'] = '';
 
-        }else{
+        } else {
             $v->hasMinChars($user['alt_name'], 2, tr('Please ensure the alt name has at least 2 characters'));
             $v->hasMaxChars($user['alt_name'], 128, tr('Please ensure the alt name has less than 128 characters'));
 
@@ -252,10 +252,10 @@ function chat_validate_user($user){
         /*
          * Validate user_name
          */
-        if(empty($user['user_name'])){
+        if(empty($user['user_name'])) {
             $user['user_name'] = '';
 
-        }else{
+        } else {
             $v->hasMinChars($user['user_name'], 2, tr('Please ensure the user user_name has at least 2 characters'));
             $v->hasMaxChars($user['user_name'], 128, tr('Please ensure the user user_name has less than 128 characters'));
 
@@ -265,10 +265,10 @@ function chat_validate_user($user){
         /*
          * Validate user_email
          */
-        if(empty($user['user_email'])){
+        if(empty($user['user_email'])) {
             $user['user_email'] = '';
 
-        }else{
+        } else {
             $v->isEmail($user['user_email'], tr('Please specify a valid email'));
         }
 
@@ -280,19 +280,19 @@ function chat_validate_user($user){
         /*
          * Set rank
          */
-        if(has_rights('admin', $user)){
+        if(has_rights('admin', $user)) {
             $user['rank'] = 5;
 
-        }elseif(has_rights('moderator', $user)){
+        } elseif(has_rights('moderator', $user)) {
             $user['rank'] = 3;
 
-        }else{
+        } else {
             $user['rank'] = 1;
         }
 
         return $user;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('chat_validate_user(): Failed', $e);
     }
 }
@@ -302,11 +302,11 @@ function chat_validate_user($user){
 /*
  *
  */
-function chat_get_user($user){
+function chat_get_user($user) {
     try{
         return sql_get('SELECT `user_name`, `user_password` FROM `users` WHERE `user_id` = :user_id', array(':user_id' => $user['id']), null, 'chat');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('chat_get_user(): Failed'), $e);
     }
 }
@@ -316,11 +316,11 @@ function chat_get_user($user){
 /*
  *
  */
-function chat_start($user){
+function chat_start($user) {
     global $_CONFIG;
 
     try{
-        if(!$user){
+        if(!$user) {
             /*
              * This user doesnt exist yet
              */
@@ -332,7 +332,7 @@ function chat_start($user){
 
         return '<iframe src="'.PROTOCOL.'chat.'.$_CONFIG['domain'].'" frameborder="0" class="chat"></iframe>';
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('chat_start(): Failed'), $e);
     }
 }
@@ -342,7 +342,7 @@ function chat_start($user){
 /*
  *
  */
-function chat_end($userid){
+function chat_end($userid) {
     try{
         sql_query('UPDATE `users`
 
@@ -355,7 +355,7 @@ function chat_end($userid){
 
                    null, 'chat');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('chat_end(): Failed'), $e);
     }
 }
@@ -365,15 +365,15 @@ function chat_end($userid){
 /*
  *
  */
-function chat_update_rank($user){
+function chat_update_rank($user) {
     try{
-        if(has_rights('god', $user)){
+        if(has_rights('god', $user)) {
             $rank = 5;
 
-        }elseif(has_rights('moderator', $user)){
+        } elseif(has_rights('moderator', $user)) {
             $rank = 3;
 
-        }else{
+        } else {
             $rank = 1;
         }
 
@@ -386,18 +386,18 @@ function chat_update_rank($user){
                         array(':user_id'   => $user['id'],
                               ':user_rank' => $rank), null, 'chat');
 
-        if(!$r->rowCount()){
+        if(!$r->rowCount()) {
             /*
              * This means either no data has been changed, or the specified ID doesn't exist.
              * The former is okay, the latter should never happen.
              */
-            if(!sql_get('SELECT `user_id` FROM `users` WHERE `user_id` = :user_id', 'user_id', array(':user_id' => $user['id']))){
+            if(!sql_get('SELECT `user_id` FROM `users` WHERE `user_id` = :user_id', 'user_id', array(':user_id' => $user['id']))) {
                 load_libs('user');
                 throw new CoreException(tr('chat_update_rank(): Specified user ":user" does not exist', array(':user' => name($user))), 'not-exists');
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('chat_update_rank(): Failed'), $e);
     }
 }
@@ -409,7 +409,7 @@ function chat_update_rank($user){
  * Those that exist in the chat database and do not exist in the igotit database should be removed
  * If users in igotit have status, then ensure that this status is reflected in chat as well
  */
-function chat_sync_users($user, $log_console = false){
+function chat_sync_users($user, $log_console = false) {
     try{
         /*
          * List all users form igotit site, and ensure they are in the chat
@@ -418,21 +418,21 @@ function chat_sync_users($user, $log_console = false){
 
         $s = sql_prepare('SELECT `user_id`, `user_name`, `user_email`, `user_status` FROM `users` WHERE `user_id` = :user_id');
 
-        while($user = sql_fetch($r)){
+        while($user = sql_fetch($r)) {
             try{
-                if(!$chat_user = $s->execute(array(':user_id' => $user['id']))){
+                if(!$chat_user = $s->execute(array(':user_id' => $user['id']))) {
                     chat_add_user($user);
 
-                }else{
+                } else {
                     chat_update_user($user);
                 }
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 throw new CoreException(tr('chat_sync_users(): Failed to process user ":user"', array(':user' => name($user))), $e);
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('chat_sync_users(): Failed'), $e);
     }
 }
@@ -442,7 +442,7 @@ function chat_sync_users($user, $log_console = false){
 /*
  * Update user avatar
  */
-function chat_update_avatar($user, $avatar){
+function chat_update_avatar($user, $avatar) {
     try{
         $r = sql_query('UPDATE `users`
 
@@ -455,7 +455,7 @@ function chat_update_avatar($user, $avatar){
                               ':avatar'      => $avatar,
                               ':user_avatar' => $avatar), 'chat');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('chat_update_avatar(): Failed'), $e);
     }
 }

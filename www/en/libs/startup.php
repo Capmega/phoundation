@@ -66,7 +66,7 @@
  * Set LIBS here because the system library MAY be loaded  by the router
  * library, in which case they will both be loaded from /en/.
  */
-if(!class_exists('core')){
+if(!class_exists('core')) {
     require_once(__DIR__.'/system.php');
 }
 

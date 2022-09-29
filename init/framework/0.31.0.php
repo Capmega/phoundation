@@ -255,8 +255,8 @@ $p->execute(array(':domain'    => $_CONFIG['domain'],
 $domains_id = sql_insert_id();
 
 
-if(!empty($_CONFIG['email']['users'])){
-    foreach($_CONFIG['email']['users'] as $email => $userdata){
+if(!empty($_CONFIG['email']['users'])) {
+    foreach($_CONFIG['email']['users'] as $email => $userdata) {
         $name = Strings::until($email, '@');
 
         $q->execute(array('domains_id' => $domains_id,

@@ -20,19 +20,19 @@ $execute   = array();
 /*
  * Process filters
  */
-if(!empty($_GET['user'])){
+if(!empty($_GET['user'])) {
     $where[]              = ' `log`.`createdby` = :users_id ';
     $execute[':users_id'] = cfi($_GET['user']);
 }
 
-if(!empty($_GET['filter'])){
+if(!empty($_GET['filter'])) {
     $where[]          = ' (`log`.`type` LIKE :type OR `log`.`ip` LIKE :ip OR `users`.`name` LIKE :name)';
     $execute[':ip']   = '%'.$_GET['filter'].'%';
     $execute[':type'] = '%'.$_GET['filter'].'%';
     $execute[':name'] = '%'.$_GET['filter'].'%';
 }
 
-if(!empty($where)){
+if(!empty($where)) {
     $where = ' WHERE '.implode(' AND ', $where);
 }
 
@@ -100,10 +100,10 @@ $html   = ' <div class="row">
                         <form action="'.domain(true).'" method="post">
                            <div class="panel-body">';
 
-if(!$r->rowCount()){
+if(!$r->rowCount()) {
     $html .= '<p>'.tr('No log activities found').'</p>';
 
-}else{
+} else {
     $html .= '  <div class="table-responsive">
                     <table class="select table mb-none table-striped">
                         <thead>
@@ -114,7 +114,7 @@ if(!$r->rowCount()){
                             <th>'.tr('Message').'</th>
                         </thead>';
 
-    while($log = sql_fetch($r)){
+    while($log = sql_fetch($r)) {
         $html .= '  <tr>
                         <td style="white-space: nowrap;">'.$log['createdon'].'</a></td>
                         <td>'.$log['ip'].'</a></td>

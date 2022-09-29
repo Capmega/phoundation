@@ -26,11 +26,11 @@
  *
  * @return void
  */
-function go_library_init(){
+function go_library_init() {
     try{
         load_libs('linux');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('go_library_init(): Failed', $e);
     }
 }
@@ -57,17 +57,17 @@ function go_library_init(){
  * @param mixed $server
  * @return string The output from the go command
  */
-function go_exists($file, $server = null){
+function go_exists($file, $server = null) {
     try{
         $exists = linux_file_exists($server, ROOT.'data/go/'.$file, $server);
 
-        if(!$exists){
+        if(!$exists) {
             linux_ensure_path($server, ROOT.'data/go/');
         }
 
         return $exists;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('go_exists(): Failed'), $e);
     }
 }
@@ -94,7 +94,7 @@ function go_exists($file, $server = null){
  * @param mixed $server
  * @return string The output from the go command
  */
-function go_exec($params){
+function go_exec($params) {
     try{
         global $core;
 
@@ -104,15 +104,15 @@ function go_exec($params){
          * Validate the requested commands, ensure that go_exec() is only used
          * when the system is ready to go
          */
-        if(!$core->register['ready']){
+        if(!$core->register['ready']) {
             throw new CoreException(tr('go_exec(): Startup has not yet finished and base is not ready to start working properly. go_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
         }
 
-        if(!$params['commands']){
+        if(!$params['commands']) {
             throw new CoreException(tr('go_exec(): No commands specified'), 'not-specified');
         }
 
-        if(!is_array($params['commands'])){
+        if(!is_array($params['commands'])) {
             throw new CoreException(tr('go_exec(): Invalid commands specified'), 'invalid');
         }
 
@@ -125,23 +125,23 @@ function go_exec($params){
          */
         $count = 0;
 
-        foreach($params['commands'] as $id => &$item){
-            if(fmod(++$count, 2)){
+        foreach($params['commands'] as $id => &$item) {
+            if(fmod(++$count, 2)) {
                 /*
                  * This must be a go command
                  */
-                if(!is_string($item)){
+                if(!is_string($item)) {
                     throw new CoreException(tr('go_exec(): Invalid commands structure specified, entry ":id" is an ":datatype" while it should be a string. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
                 }
 
 // :TODO: Add support for remote server execution
                 $item = ROOT.'data/go/'.$item;
 
-            }else{
+            } else {
                 /*
                  * These must be arguments
                  */
-                if(!is_array($item)){
+                if(!is_array($item)) {
                     throw new CoreException(tr('go_exec(): Invalid commands structure specified, entry ":id" is a ":datatype" while it should be an array. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
                 }
             }
@@ -152,7 +152,7 @@ function go_exec($params){
          */
         return safe_exec($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('go_exec(): Failed'), $e);
     }
 }
@@ -179,11 +179,11 @@ function go_exec($params){
  * @param mixed $server
  * @return string The output from the go command
  */
-function go_build($path, $server){
+function go_build($path, $server) {
     try{
         $server = servers_get($server);
 
-        if(!linux_file_exists($server, $path)){
+        if(!linux_file_exists($server, $path)) {
             throw new CoreException(tr('go_build(): Specified build path ":path" does not exist on server ":server"', array(':path' => $path, ':server' => $server)), 'not-exist');
         }
 
@@ -194,7 +194,7 @@ function go_build($path, $server){
                                            'commands' => array('cd', array($path),
                                                                'go', array('build'))));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('go_build(): Failed'), $e);
     }
 }

@@ -4,7 +4,7 @@
  */
 require_once(__DIR__.'/../libs/startup.php');
 
-if(ENVIRONMENT == 'production'){
+if(ENVIRONMENT == 'production') {
 	page_show(404);
 }
 

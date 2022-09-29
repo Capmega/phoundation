@@ -27,9 +27,9 @@
  *
  * @return void
  */
-function webpush_library_init(){
+function webpush_library_init() {
     try{
-        if(version_compare(PHP_VERSION, '5.6') === -1){
+        if(version_compare(PHP_VERSION, '5.6') === -1) {
             throw new CoreException(tr('webpush_library_init(): The current PHP version is ":version" while version "5.6.0" or higher is required to use the webpush library', array(':version' => PHP_VERSION)), 'version');
         }
 
@@ -42,7 +42,7 @@ function webpush_library_init(){
         require_once(__DIR__.'/ext/webpush/vendor/autoload.php');
         require_once(__DIR__.'/ext/webpush/vendor/minishlink/web-push/src/WebPush.php');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('webpush_library_init(): Failed', $e);
     }
 }
@@ -61,7 +61,7 @@ function webpush_library_init(){
  *                              If some required params are empty returns false
  *                              Any other case always returns true
  */
-function webpush_notify_user($users_id, $subject = '', $payload = '', $flush = false){
+function webpush_notify_user($users_id, $subject = '', $payload = '', $flush = false) {
     global $_CONFIG;
 
     try{
@@ -69,15 +69,15 @@ function webpush_notify_user($users_id, $subject = '', $payload = '', $flush = f
 
         $user = sql_get('SELECT `webpush` FROM `users` WHERE `id` = :id', array(':id' => $users_id));
 
-        if(empty($user)){
+        if(empty($user)) {
             throw new CoreException(tr('webpush_notify_user(): Specified user ":user" does not exist', array(':user' => $users_id)), 'not-exists');
         }
 
-        if(empty($_CONFIG['webpush']['public_key']) or empty($_CONFIG['webpush']['private_key'])){
+        if(empty($_CONFIG['webpush']['public_key']) or empty($_CONFIG['webpush']['private_key'])) {
             throw new CoreException(tr('webpush_notify_user(): webpush has not been configured, see $_CONFIG[webpush]'), 'not-configured');
         }
 
-        if(!$user['webpush']){
+        if(!$user['webpush']) {
             return false;
         }
 
@@ -92,7 +92,7 @@ function webpush_notify_user($users_id, $subject = '', $payload = '', $flush = f
                                  $payload,
                                  $flush);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('webpush_notify_user(): Failed'), $e);
     }
 }
@@ -122,13 +122,13 @@ function webpush_notify($public_key, $private_key, $p256dh, $auth, $endpoint, $s
         $webPush = new \Minishlink\WebPush\WebPush($authentication);
         $result  = $webPush->sendNotification($endpoint, $payload, $p256dh, $auth, $flush);
 
-        if($flush and ($result !== true)){
+        if($flush and ($result !== true)) {
             return $result;
         }
 
         return true;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('send_notification(): Failed'), $e);
     }
 }
@@ -138,17 +138,17 @@ function webpush_notify($public_key, $private_key, $p256dh, $auth, $endpoint, $s
 /*
  *
  */
-function webpush_subscribe($subscription){
+function webpush_subscribe($subscription) {
     try{
         if (!empty($subscription)) {
             $subscription_json = json_decode_custom($subscription, true);
 
-            if(!empty($subscription_json['endpoint'])){
+            if(!empty($subscription_json['endpoint'])) {
                 sql_query('UPDATE `users` SET `webpush` = :webpush WHERE `id` = :id', array(':webpush' => $subscription, ':id' => $_SESSION['user']['id']));
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('webpush_subscribe(): Failed'), $e);
     }
 }

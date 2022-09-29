@@ -25,12 +25,12 @@
  *
  * @return void
  */
-function monitors_library_init(){
+function monitors_library_init() {
     try{
         load_config('monitors');
 
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('monitors_library_init(): Failed', $e);
     }
 }
@@ -49,11 +49,11 @@ function monitors_library_init(){
  * @param
  * @return
  */
-function monitors_validate_host($host){
+function monitors_validate_host($host) {
     try{
 
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('monitors_validate_host(): Failed', $e);
     }
 }
@@ -74,7 +74,7 @@ function monitors_validate_host($host){
  * @params string hostname
  * @return The specified host, but validated, with the table id added
  */
-function monitors_insert_host($host){
+function monitors_insert_host($host) {
     try{
         $host = monitors_validate_host($host);
 
@@ -88,7 +88,7 @@ function monitors_insert_host($host){
 
         return $host;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('monitors_insert_host(): Failed', $e);
     }
 }
@@ -109,7 +109,7 @@ function monitors_insert_host($host){
  * @params string hostname
  * @return The specified host, but validated
  */
-function monitors_update_host($host){
+function monitors_update_host($host) {
     try{
         $host = monitors_validate_host($host);
 
@@ -124,7 +124,7 @@ function monitors_update_host($host){
 
         return $result;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('monitors_update_host(): Failed', $e);
     }
 }
@@ -143,19 +143,19 @@ function monitors_update_host($host){
  * @params mixed $host
  * @return params The found host, or null if no host was found
  */
-function monitors_get_host($host){
+function monitors_get_host($host) {
     try{
-        if(is_numeric($host)){
+        if(is_numeric($host)) {
             $where   = ' WHERE  `id` = :id ';
             $execute = array(':id' => $host);
 
-        }elseif(is_string($host)){
+        } elseif(is_string($host)) {
             $where   = ' WHERE  `ip`       = :ip
                         OR      `hostname` = :hostname';
             $execute = array(':id'       => $host,
                              ':hostname' => $host);
 
-        }else{
+        } else {
             throw new CoreException(tr(''), 'invalid');
         }
 
@@ -171,7 +171,7 @@ function monitors_get_host($host){
 
         return $host;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('monitors_get_host(): Failed', $e);
     }
 }
@@ -191,16 +191,16 @@ function monitors_get_host($host){
  * @params array $interfaces
  * @return
  */
-function monitors_update_interfaces($host, $interfaces){
+function monitors_update_interfaces($host, $interfaces) {
     try{
-        if(!is_array($host)){
+        if(!is_array($host)) {
             $host = monitors_get_host($host);
         }
 
 
 
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('monitors_update_interfaces(): Failed', $e);
     }
 }

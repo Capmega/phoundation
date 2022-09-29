@@ -15,12 +15,12 @@
  * Initialize the library
  * Automatically executed by libs_load()
  */
-function uxdm_library_init(){
+function uxdm_library_init() {
     try{
         // Github URL https://github.com/DivineOmega/uxdm.git
         // Composer command composer require divineomega/uxdm
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('uxdm_library_init(): Failed', $e);
     }
 }

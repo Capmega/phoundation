@@ -21,11 +21,11 @@
  *
  * @return void
  */
-function mbox_library_init(){
+function mbox_library_init() {
     try{
         load_config('mbox');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mbox_library_init(): Failed', $e);
     }
 }
@@ -44,14 +44,14 @@ function mbox_library_init(){
  * @param
  * @return
  */
-function mbox_import_file($domain, $user, $file, $box = 'Archives', $mail_path = ''){
+function mbox_import_file($domain, $user, $file, $box = 'Archives', $mail_path = '') {
     try{
         $path  = mbox_test_access($mail_path);
         $path .= $path.'vhosts/'.$domain.'/'.$user.'/mail/';
 
         file_ensure_path($path);
 
-        if(file_exists($path.$box)){
+        if(file_exists($path.$box)) {
             /*
              * We need to concat these files together
              */
@@ -59,14 +59,14 @@ function mbox_import_file($domain, $user, $file, $box = 'Archives', $mail_path =
             file_delete($path.$box, false);
             rename($path.$box.'~ ', $path.$box);
 
-        }else{
+        } else {
             /*
              * Just drop the file in place
              */
             rename($file, $path.$box);
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mbox_import_file(): Failed', $e);
     }
 }
@@ -85,13 +85,13 @@ function mbox_import_file($domain, $user, $file, $box = 'Archives', $mail_path =
  * @param string $path
  * @return string The converted mbox file
  */
-function mbox_convert_maildir($maildir_path, $box, $mail_path){
+function mbox_convert_maildir($maildir_path, $box, $mail_path) {
     try{
         $path  = mbox_test_access($mail_path);
         $path .= $path.'vhosts/'.$domain.'/'.$user.'/mail/';
         safe_exec(array('commands' => array(ROOT.'scripts/md2mb.py', array($path))));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mbox_convert_maildir(): Failed', $e);
     }
 }
@@ -110,21 +110,21 @@ function mbox_convert_maildir($maildir_path, $box, $mail_path){
  * @param string $path
  * @return string The converted mbox file
  */
-function mbox_test_access($path){
+function mbox_test_access($path) {
     global $_CONFIG;
 
     try{
-        if(!$path){
+        if(!$path) {
             $path = $_CONFIG['mbox']['path'];
         }
 
         $path = slash($path);
 
-        if(!file_exists($path)){
+        if(!file_exists($path)) {
             throw new CoreException(tr('mbox_test_access(): The configured (or specified) mail directory ":path" does not exist. Please check the configuration option $_CONFIG[mbox][path]', array(':path' => $path)), 'not-exists');
         }
 
-        if(file_exists($path.'base-test')){
+        if(file_exists($path.'base-test')) {
             file_delete($path.'base-test', false);
         }
 
@@ -133,7 +133,7 @@ function mbox_test_access($path){
 
         return $path;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mbox_test_access(): Failed', $e);
     }
 }

@@ -94,11 +94,11 @@ cli_no_arguments_left();
 /*
  * Check environment
  */
-if(empty($environment)){
+if(empty($environment)) {
     throw new CoreException(tr('No source environment specified to sync from'), 'warning/not-specified');
 }
 
-if($environment == ENVIRONMENT){
+if($environment == ENVIRONMENT) {
     throw new CoreException(tr('Cannot sync from own environment ":env"', array(':env' => ENVIRONMENT)), 'warning/invalid');
 }
 
@@ -117,7 +117,7 @@ load_config('sync');
 try{
     $source_config = array_merge_complete(config_get_for_environment('production'), config_get_for_environment($environment));
 
-    if(!isset($source_config['deploy'][$environment])){
+    if(!isset($source_config['deploy'][$environment])) {
         throw new CoreException(tr('The specified environment ":env" does not exist', array(':env' => $environment)), 'warning/not-exist');
     }
 
@@ -126,8 +126,8 @@ try{
     $project       = strtolower(PROJECT);
     $dumpfile      = uniqid().'.sql';
 
-}catch(Exception $e){
-    if($e->getRealCode() === 'not-exists'){
+}catch(Exception $e) {
+    if($e->getRealCode() === 'not-exists') {
         $e->makeWarning(true);
     }
 
@@ -139,7 +139,7 @@ try{
 /*
  * Should we use sudo? if so, what sudo command?
  */
-if($no_times or !empty($source_config['deploy'][ENVIRONMENT]['no_times'])){
+if($no_times or !empty($source_config['deploy'][ENVIRONMENT]['no_times'])) {
     $no_times = ' --no-times ';
 }
 
@@ -149,19 +149,19 @@ if($no_times or !empty($source_config['deploy'][ENVIRONMENT]['no_times'])){
  * Should we use sudo? This would cause problems if the current user has no sudo
  * rights!
  */
-if(empty($deploy_config['sudo'])){
+if(empty($deploy_config['sudo'])) {
     /*
      * Don't use sudo at all
      */
     $sudo = '';
 
-}elseif(isset_get($deploy_config['sudo']) === true){
+} elseif(isset_get($deploy_config['sudo']) === true) {
     /*
      * Use default sudo
      */
     $sudo = ' sudo ';
 
-}else{
+} else {
     /*
      * Use configured sudo line
      */
@@ -173,7 +173,7 @@ if(empty($deploy_config['sudo'])){
 /*
  * Environment exists?
  */
-if(empty($deploy_config)){
+if(empty($deploy_config)) {
     throw new CoreException(tr('The specified environment ":env" does not exist', array(':env' => $environment)), 'warning/not-exist');
 }
 
@@ -182,14 +182,14 @@ if(empty($deploy_config)){
 /*
  * SQL dump of source DB
  */
-if($nodump){
+if($nodump) {
     log_console(tr('Skipping creating SQL dump file on remote server due to "--no-dump" command line parameters'), 'yellow');
 
-}else{
+} else {
     log_console(tr('Creating SQL dump file on remote server'), 'white');
     passthru($command = 'ssh -p '.$deploy_config['target_port'].' -t '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].' "'.($deploy_config['sudo'] ? ' sudo ' : '').'rm /tmp/'.$project.'_'.$dumpfile.'* -f; '.($deploy_config['sudo'] ? ' sudo ' : '').'mysqldump --single-transaction -n -e '.(cli_argument('nofunctions') ? '' : '-R ').'--dump-date --no-autocommit --add-drop-database -u '.$source_config['db']['core']['user'].' -p\''.str_replace('$', '\$', $source_config['db']['core']['pass']).'\' -B '.$source_config['db']['core']['db'].' > /tmp/'.$project.'_'.$dumpfile.' && '.($deploy_config['sudo'] ? ' sudo ' : '').' gzip -q /tmp/'.$project.'_'.$dumpfile.' "', $exitcode);
 
-    if($exitcode){
+    if($exitcode) {
         throw new CoreException(tr('Remote mysqldump failed with exit code ":code"', array(':code' => $exitcode)), 'remote');
     }
 }
@@ -199,10 +199,10 @@ if($nodump){
 /*
  * SCP SQL dump to local server
  */
-if($nocopy){
+if($nocopy) {
     log_console(tr('Skipping copying remote SQL file locally due to "--no-copy" command line parameters'), 'yellow');
 
-}else{
+} else {
     log_console(tr('Copying remote SQL file locally'), 'white');
 
 	$temp_file = file_temp(false, $project.'_'.$dumpfile);
@@ -210,7 +210,7 @@ if($nocopy){
     passthru('rm '.$temp_file.' '.$temp_file.'.gz -f');
     passthru($command = 'scp -P '.$deploy_config['target_port'].' '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].':/tmp/'.$project.'_'.$dumpfile.'.gz '.$temp_file.'.gz', $exitcode);
 
-    if($exitcode){
+    if($exitcode) {
         throw new CoreException(tr('Copy of remote mysqldump file to local server failed with exit code ":code"', array(':code' => $exitcode)), 'remote');
     }
 }
@@ -220,10 +220,10 @@ if($nocopy){
 /*
  * Import SQL file to local database
  */
-if($noimport){
+if($noimport) {
     log_console(tr('Skipping importing remote SQL dump file in local MySQL server due to "--no-import" command line parameters'), 'yellow');
 
-}else{
+} else {
     /*
      * mysqldump always adds a "USE databasename" which is horrifyingly anoying, because the dump will be imported in the wrong database!
      * Remove it first!
@@ -231,14 +231,14 @@ if($noimport){
     log_console(tr('Preparing remote SQL dump file ":file"', array(':file' => ''.$temp_file)), 'white');
     passthru($command = 'cd /tmp/; rm '.$temp_file.' -f; gunzip '.$temp_file.'.gz', $exitcode);
 
-    if($exitcode){
+    if($exitcode) {
         throw new CoreException(tr('Gunzip of mysqldump file failed with exit code ":code"', array(':code' => $exitcode)), 'gunzip');
     }
 
     log_console(tr('Importing remote SQL dump file ":file" in local MySQL server', array(':file' => ''.$temp_file)), 'white');
     passthru($command = 'cd /tmp/; sed -i -e"s/USE \`'.$source_config['db']['core']['db'].'\`;/USE \`'.$_CONFIG['db']['core']['db'].'\`;/" '.$temp_file, $exitcode);
 
-    if($exitcode){
+    if($exitcode) {
         throw new CoreException(tr('Rewrite of "USE DATABASENAME" in mysqldump file failed with exit code ":code"', array(':code' => $exitcode)), 'sql');
     }
 
@@ -249,7 +249,7 @@ if($noimport){
 
     passthru($command = 'cat '.$temp_file.' | mysql -u '.$_CONFIG['db']['core']['user'].' -p"'.$_CONFIG['db']['core']['pass'].'" -B '.$_CONFIG['db']['core']['db'], $exitcode);
 
-    if($exitcode){
+    if($exitcode) {
         throw new CoreException(tr('MySQL import of mysqldump file failed with exit code ":code"', array(':code' => $exitcode)), 'mysql');
     }
 }
@@ -259,20 +259,20 @@ if($noimport){
 /*
  * Remove temporary SQL dump file on source
  */
-if($nodelete){
+if($nodelete) {
     log_console(tr('NOT removing temporary remote SQL dump file from local and remote server due to "--no-delete" command line parameters'), 'yellow');
 
-}else{
+} else {
     log_console(tr('Removing temporary remote SQL dump file from local and remote server'), 'white');
     passthru($command = 'ssh -p '.$deploy_config['target_port'].' -t '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].' \''.($deploy_config['sudo'] ? ' sudo ' : '').'rm -f '.$temp_file.'*\'', $exitcode);
 
-    if($exitcode){
+    if($exitcode) {
         throw new CoreException(tr('Removal of temporary mysqldump file on remote server failed with exit code ":code"', array(':code' => $exitcode)), 'remote');
     }
 
     passthru($command = 'rm -f '.$temp_file.'*', $exitcode);
 
-    if($exitcode){
+    if($exitcode) {
         throw new CoreException(tr('Removal of temporary mysqldump file on local server failed with exit code ":code"', array(':code' => $exitcode)), 'remote');
     }
 }
@@ -283,7 +283,7 @@ if($nodelete){
  * Clear local content data to avoid broken links and other possible problems,
  * just work with clean data from the target environment
  */
-if($cleardata){
+if($cleardata) {
     log_console(tr('Clearing local content data due to "--clear-data" command line parameter'), 'white');
     file_delete(ROOT.'data/content', false);
 }
@@ -293,15 +293,15 @@ if($cleardata){
 /*
  * Sync all
  */
-if($nofiles){
+if($nofiles) {
     log_console(tr('Skipping syncing remote paths with local server due to "--no-files" command line parameters'), 'yellow');
 
-}else{
+} else {
     log_console(tr('Syncing remote paths with local server'), 'white');
 
     array_params($_CONFIG['sync']);
 
-    if(!in_array('data/content', $_CONFIG['sync']) and !in_array('data/content', $_CONFIG['sync'])){
+    if(!in_array('data/content', $_CONFIG['sync']) and !in_array('data/content', $_CONFIG['sync'])) {
         $_CONFIG['sync'][] = 'data/content';
     }
 
@@ -311,13 +311,13 @@ if($nofiles){
 // :TODO: Change this for file_chmod()
     safe_exec(array('commands' => array('chmod', array('sudo' => $sudo, 'timeout' => 120, 'ug+w', ROOT, '-R'))));
 
-    foreach($_CONFIG['sync'] as $path){
+    foreach($_CONFIG['sync'] as $path) {
         try{
             if(!$path) continue;
 
             log_console(tr('Syncing path ":path"', array(':path' => $path)), 'white');
 
-            if($deletesync){
+            if($deletesync) {
                 log_console(tr('Deleting local path ":path"', array(':path' => $path)), 'white');
                 file_delete(ROOT.$path, ROOT.$path);
             }
@@ -326,15 +326,15 @@ if($nofiles){
 // :TODO: Change this for rsync();
                 passthru($command = 'rsync -aczvAXHS '.$no_times.' --no-perms --progress -p '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].':'.slash($deploy_config['target_dir']).slash($path).' '.ROOT.slash($path).' --exclude="*.php" --exclude="*.css" --exclude="*.js" --exclude="/scripts/*" --exclude="/data/doc" --exclude="/data/system" --exclude="/data/mock*" --exclude="/data/sources" --exclude=".htaccess" --exclude=".git*" --exclude="/pub/*"', $exitcode);
 
-                if($exitcode){
+                if($exitcode) {
                     throw new CoreException(tr('Rsync of remote files with local server failed with exit code ":code"', array(':code' => $exitcode)), 'rsync');
                 }
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 log_console(tr('Failed to get path ":path" from environment ":environment"', array(':path' => $path, ':environment' => $environment)), 'yellow');
             }
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             log_console($e);
         }
     }
@@ -345,10 +345,10 @@ if($nofiles){
 /*
  * Fix definer
  */
-if($nodefinerfix){
+if($nodefinerfix) {
     log_console(tr('Skpping running definer fix due to "--no-definerfix" command line parameter'), 'yellow');
 
-}else{
+} else {
     log_console(tr('Fixing function definers'));
 
     sql_query('UPDATE mysql.proc
@@ -368,10 +368,10 @@ if($nodefinerfix){
 /*
  *
  */
-if($noinit){
+if($noinit) {
     log_console(tr('Skipping running init due to "--no-init" command line parameter'), 'yellow');
 
-}else{
+} else {
     /*
      * The init script wll check the database version, but that is very likely already read by now into a constant.
      * After a sync, the REAL current database version is very likely different and will have to be re-read. This can
@@ -382,7 +382,7 @@ if($noinit){
 // :TODO: Change this for init() call directly
     passthru(ROOT.'scripts/base/init --env '.ENVIRONMENT, $exitcode);
 
-    if($exitcode){
+    if($exitcode) {
         throw new CoreException(tr('Local init failed with exit code ":code"', array(':code' => $exitcode)), 'init');
     }
 }
@@ -392,7 +392,7 @@ if($noinit){
 /*
  * Clear cache to avoid working with cache instead of newly synced data
  */
-if(!$nocacheclear){
+if(!$nocacheclear) {
     load_libs('cache');
     cache_clear();
     log_console(tr('Cleared cache'), 'green');
@@ -404,10 +404,10 @@ if(!$nocacheclear){
  * Blog URL's will contain links that work for the specified environment,
  * but not the local environment, update them
  */
-if($noinit or $noblogupdateurl){
+if($noinit or $noblogupdateurl) {
     log_console(tr('Skipping blog url update due to "--no-init" or "--no-blog-update-url" command line parameter'), 'yellow');
 
-}else{
+} else {
     load_libs('blogs');
 
     /*
@@ -423,7 +423,7 @@ if($noinit or $noblogupdateurl){
 /*
  * Clear badges_cached on users table
  */
-if(!$nobadgescached){
+if(!$nobadgescached) {
     init_hook('sync_badges_cached', $nohooks);
 }
 

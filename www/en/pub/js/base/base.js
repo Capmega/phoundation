@@ -1,17 +1,17 @@
-(function($){
-    $(document).ajaxSuccess(function(event, jqXHR, settings, data){
+(function($) {
+    $(document).ajaxSuccess(function(event, jqXHR, settings, data) {
 //console.log(jqXHR.responseJSON);
 //console.log(jqXHR.responseText);
         if (typeof jqXHR.responseJSON != 'object') {
             console.log("Failed to parse json for url \"" + settings.url + "\", assuming plain text");
 
-        }else{
+        } else {
             if(typeof jqXHR.responseJSON.result == 'undefined') {
                 throw "json contained no result text for url \"" + settings.url + "\"";
 
             }
 
-            if(typeof jqXHR.responseJSON.data == 'undefined'){
+            if(typeof jqXHR.responseJSON.data == 'undefined') {
                 throw "json contained no data object for url \"" + settings.url + "\"";
             }
 
@@ -30,14 +30,14 @@
                     throw "invalid json status \"" + jqXHR.responseJSON.result + "\" for url \"" + settings.url + "\"";
             }
 
-            if(jqXHR.responseJSON.csrf){
+            if(jqXHR.responseJSON.csrf) {
                 // Server sent updated CSRF code, update local value for next request
                 $('#ajax_csrf').val(jqXHR.responseJSON.csrf);
             }
         }
     });
 
-    $(document).ajaxError(function(event, jqXHR, settings, thrownError){
+    $(document).ajaxError(function(event, jqXHR, settings, thrownError) {
         var message = tr("Something went wrong while trying to communicate with the server for url \"" + settings.url + "\". Please try again in a few moments");
 
         if (typeof jqXHR.responseJSON != 'object') {
@@ -93,8 +93,8 @@
         /*
          * By default, try to show the js flash message
          */
-        if(jqXHR.status == 404){
-            if(settings.url.indexOf('/sweetalert.')){
+        if(jqXHR.status == 404) {
+            if(settings.url.indexOf('/sweetalert.')) {
                 console.error('Failed to load sweetalert');
                 return false;
             }
@@ -150,19 +150,19 @@
         }
     };
 
-    $.flashMessage = function(message, type, autoClose, selector, opacity){
+    $.flashMessage = function(message, type, autoClose, selector, opacity) {
         // Auto loader for flahs message library
         if (typeof cdnprefix === 'undefined') {
             console.error("cdnprefix is not defined!");
 
-        }else{
+        } else {
             $.getScript(cdnprefix+"js/base/flash.js")
-                .done(function( ){
+                .done(function( ) {
                     console.log(message);
                     console.log("aaaaaaaaaaaaaaaaaaaaa");
                     $.flashMessage(message, type, autoClose, selector, opacity);
                 })
-                .fail(function(e, data){
+                .fail(function(e, data) {
                     console.error("Failed to load the flash.js library because of next error");
                     console.error(e);
                     console.error(data);
@@ -236,10 +236,10 @@
                       href: url}).appendTo('head');
     };
 
-    $.geoLocation = function(cb, cbe){
+    $.geoLocation = function(cb, cbe) {
         try {
-            if(!cbe){
-                cbe = function(){
+            if(!cbe) {
+                cbe = function() {
                     console.info("User denied current position, or missing browser support, trying geoplugin.net");
 
                     // geoplugin failed, try site itself
@@ -247,7 +247,7 @@
                     console.info("Trying geolocation through " + url);
 
                     $.getJSON(url)
-                        .done(function(data){
+                        .done(function(data) {
                             console.info("Got geolocation through " + url);
                             cb(data);
                         })
@@ -286,18 +286,18 @@
 
 
 //
-$(document).ready(function(){
+$(document).ready(function() {
     $(document)
-        .on("click", ".btn.navigate.back,.button.navigate.back", function(e){
+        .on("click", ".btn.navigate.back,.button.navigate.back", function(e) {
             e.stopPropagation();
 
             var $target = $(e.target);
             var steps   = $target.data("steps");
 
-            if(steps){
+            if(steps) {
                 steps = -steps;
 
-            }else{
+            } else {
                 steps = -1;
             }
 
@@ -305,12 +305,12 @@ $(document).ready(function(){
             return false;
         })
 
-        .on("click", ".nolink", function(e){
+        .on("click", ".nolink", function(e) {
             e.stopPropagation();
             return false;
         })
 
-        .on("click", "td.checkbox", function(e){
+        .on("click", "td.checkbox", function(e) {
             if ($(e.target)[0].nodeName != "INPUT") {
                 $(this).find("input").trigger("click");
             }
@@ -320,7 +320,7 @@ $(document).ready(function(){
 
     // Allow that I can click anywhere on the row to select the link
     $("table.base-link tr")
-        .click(function(e){
+        .click(function(e) {
             if (e.target.nodeName != 'TD') {
                 return true;
             }
@@ -341,7 +341,7 @@ $(document).ready(function(){
 
     // Allow the (de)select all checkbox
     $("table.base-select input[type=\"checkbox\"].all")
-        .click(function(){
+        .click(function() {
             $(this).closest("table").find("input[type=\"checkbox\"][name=\"" + $(this).prop("name") + "\"]").prop("checked", $(this).is(':checked'));
         });
 
@@ -367,6 +367,6 @@ function isFunction(variable) {
 
 
 // Translation marker
-function tr(text){
+function tr(text) {
     return text;
 }

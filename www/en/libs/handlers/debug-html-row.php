@@ -1,32 +1,32 @@
 <?php
 try{
-    if($type === null){
+    if($type === null) {
         $type = gettype($value);
     }
 
-    if($key === null){
+    if($key === null) {
         $key = tr('Unknown');
     }
 
-    switch($type){
+    switch($type) {
         case 'string':
-            if(is_numeric($value)){
+            if(is_numeric($value)) {
                 $type = tr('numeric');
 
-                if(is_integer($value)){
+                if(is_integer($value)) {
                     $type .= tr(' (integer)');
 
-                }elseif(is_float($value)){
+                } elseif(is_float($value)) {
                     $type .= tr(' (float)');
 
-                }elseif(is_string($value)){
+                } elseif(is_string($value)) {
                     $type .= tr(' (string)');
 
-                }else{
+                } else {
                     $type .= tr(' (unknown)');
                 }
 
-            }else{
+            } else {
                 $type = tr('string');
             }
 
@@ -81,7 +81,7 @@ try{
 
             ksort($value);
 
-            foreach($value as $subkey => $subvalue){
+            foreach($value as $subkey => $subvalue) {
                 $retval .= debug_html_row($subvalue, $subkey);
             }
 
@@ -121,7 +121,7 @@ try{
                     </tr>';
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     throw new CoreException('debug_html_row(): Failed', $e);
 }
 ?>

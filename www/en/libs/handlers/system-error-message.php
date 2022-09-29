@@ -10,19 +10,19 @@ try{
     array_default($messages, 'validation', $e->getMessages());
     array_default($messages, 'captcha'   , $e->getMessages());
 
-    if(debug()){
-        if($e instanceof BException){
+    if(debug()) {
+        if($e instanceof BException) {
             return $e->getMessages();
         }
 
-        if($e instanceof Exception){
+        if($e instanceof Exception) {
             return $e->getMessage();
         }
 
         throw new CoreException(tr('error_message(): Specified $e is not an exception object'), 'invalid');
 
-    }elseif(empty($messages[$e->getCode()])){
-        if(!$default){
+    } elseif(empty($messages[$e->getCode()])) {
+        if(!$default) {
             return tr('Something went wrong, please try again');
         }
 
@@ -31,7 +31,7 @@ try{
 
     return $messages[$e->getCode()];
 
-}catch(Exception $e){
+}catch(Exception $e) {
     throw new CoreException('error_message(): Failed', $e);
 }
 ?>

@@ -26,29 +26,29 @@
  * @param null string $query The query to be executed if the database exists. If the query starts with an exclamation mark (!), the query will be executed if the database does NOT exist
  * @return boolean True if the specified index exists, false otherwise
  */
-function sql_database_exists($database, $query = null, $connector = null){
+function sql_database_exists($database, $query = null, $connector = null) {
     try{
         $retval = sql_query('SHOW DATABASES LIKE "'.cfm($database).'"', null, $connector);
 
-        if(substr($query, 0, 1) == '!'){
+        if(substr($query, 0, 1) == '!') {
             $not   = true;
             $query = substr($query, 1);
 
-        }else{
+        } else {
             $not = false;
         }
 
-        if(empty($retval) xor $not){
+        if(empty($retval) xor $not) {
             return false;
         }
 
-        if($query){
+        if($query) {
             sql_query($query, null, $connector);
         }
 
         return array_shift($retval);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sql_database_exists(): Failed', $e);
     }
 }
@@ -73,31 +73,31 @@ function sql_database_exists($database, $query = null, $connector = null){
  * @param null mixed $connector If specified, executed this function on the specified database connector. If not specified, use the current database connector
  * @return boolean True if the specified index exists, false otherwise
  */
-function sql_table_exists($table, $query = null, $connector = null){
+function sql_table_exists($table, $query = null, $connector = null) {
     global $pdo;
 
     try{
         $retval = sql_list('SHOW TABLES LIKE "'.cfm($table).'"', null, null, $connector);
 
-        if(substr($query, 0, 1) == '!'){
+        if(substr($query, 0, 1) == '!') {
             $not   = true;
             $query = substr($query, 1);
 
-        }else{
+        } else {
             $not = false;
         }
 
-        if(empty($retval) xor $not){
+        if(empty($retval) xor $not) {
             return false;
         }
 
-        if($query){
+        if($query) {
             sql_query($query, null, $connector);
         }
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sql_table_exists(): Failed', $e);
     }
 }
@@ -122,31 +122,31 @@ function sql_table_exists($table, $query = null, $connector = null){
  * @param null mixed $connector If specified, executed this function on the specified database connector. If not specified, use the current database connector
  * @return boolean True if the specified index exists, false otherwise
  */
-function sql_index_exists($table, $index, $query = null, $connector = null){
+function sql_index_exists($table, $index, $query = null, $connector = null) {
     global $pdo;
 
     try{
         $retval = sql_list('SHOW INDEX FROM `'.cfm($table).'` WHERE `Key_name` = "'.cfm($index).'"', null, null, $connector);
 
-        if(substr($query, 0, 1) == '!'){
+        if(substr($query, 0, 1) == '!') {
             $not   = true;
             $query = substr($query, 1);
 
-        }else{
+        } else {
             $not = false;
         }
 
-        if(empty($retval) xor $not){
+        if(empty($retval) xor $not) {
             return false;
         }
 
-        if($query){
+        if($query) {
             sql_query($query, null, $connector);
         }
 
         return array_shift($retval);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sql_index_exists(): Failed', $e);
     }
 }
@@ -171,31 +171,31 @@ function sql_index_exists($table, $index, $query = null, $connector = null){
  * @param null mixed $connector If specified, executed this function on the specified database connector. If not specified, use the current database connector
  * @return boolean True if the specified index exists, false otherwise
  */
-function sql_column_exists($table, $column, $query = null, $connector = null){
+function sql_column_exists($table, $column, $query = null, $connector = null) {
     global $pdo;
 
     try{
         $retval = sql_get('SHOW COLUMNS FROM `'.cfm($table).'` WHERE `Field` = "'.cfm($column).'"', null, null, $connector);
 
-        if(substr($query, 0, 1) == '!'){
+        if(substr($query, 0, 1) == '!') {
             $not   = true;
             $query = substr($query, 1);
 
-        }else{
+        } else {
             $not = false;
         }
 
-        if(empty($retval) xor $not){
+        if(empty($retval) xor $not) {
             return false;
         }
 
-        if($query){
+        if($query) {
             sql_query($query, null, $connector);
         }
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sql_column_exists(): Failed', $e);
     }
 }
@@ -220,7 +220,7 @@ function sql_column_exists($table, $column, $query = null, $connector = null){
  * @param null mixed $connector If specified, executed this function on the specified database connector. If not specified, use the current database connector
  * @return boolean True if the specified index exists, false otherwise
  */
-function sql_foreignkey_exists($table, $foreign_key, $query = null, $connector = null){
+function sql_foreignkey_exists($table, $foreign_key, $query = null, $connector = null) {
     global $pdo, $_CONFIG;
 
     try{
@@ -236,25 +236,25 @@ function sql_foreignkey_exists($table, $foreign_key, $query = null, $connector =
                               AND    `TABLE_NAME`        = "'.cfm($table).'"
                               AND    `CONSTRAINT_NAME`   = "'.cfm($foreign_key).'"', null, null, $connector);
 
-        if(substr($query, 0, 1) == '!'){
+        if(substr($query, 0, 1) == '!') {
             $not   = true;
             $query = substr($query, 1);
 
-        }else{
+        } else {
             $not = false;
         }
 
-        if(empty($retval) xor $not){
+        if(empty($retval) xor $not) {
             return false;
         }
 
-        if($query){
+        if($query) {
             sql_query($query, null, $connector);
         }
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sql_foreignkey_exists(): Failed', $e);
     }
 }
@@ -279,13 +279,13 @@ function sql_foreignkey_exists($table, $foreign_key, $query = null, $connector =
  * @param null mixed $connector If specified, executed this function on the specified database connector. If not specified, use the current database connector
  * @return boolean True if the specified index exists, false otherwise
  */
-function sql_function_exists($name, $query = null, $database = null, $connector = null){
+function sql_function_exists($name, $query = null, $database = null, $connector = null) {
     global $pdo, $_CONFIG;
 
     try{
         $connector = sql_connector_name($connector);
 
-        if(!$database){
+        if(!$database) {
             $database = $_CONFIG['db'][$connector]['db'];
         }
 
@@ -297,25 +297,25 @@ function sql_function_exists($name, $query = null, $database = null, $connector 
                            AND    `ROUTINE_TYPE`   = "FUNCTION"
                            AND    `ROUTINE_NAME`   = "'.cfm($name).'"', null, null, $connector);
 
-        if(substr($query, 0, 1) == '!'){
+        if(substr($query, 0, 1) == '!') {
             $not   = true;
             $query = substr($query, 1);
 
-        }else{
+        } else {
             $not = false;
         }
 
-        if(empty($retval) xor $not){
+        if(empty($retval) xor $not) {
             return false;
         }
 
-        if($query){
+        if($query) {
             sql_query($query, null, $connector);
         }
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sql_function_exists(): Failed', $e);
     }
 }
@@ -337,7 +337,7 @@ function sql_function_exists($name, $query = null, $database = null, $connector 
  * @return array The foreign keys for the specified table and column
  */
 
-function sql_list_foreignkeys($table, $column = null, $connector = null){
+function sql_list_foreignkeys($table, $column = null, $connector = null) {
     try{
         $list = sql_query('SELECT TABLE_NAME,
                                   COLUMN_NAME,
@@ -352,7 +352,7 @@ function sql_list_foreignkeys($table, $column = null, $connector = null){
 
         return $list;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sql_list_foreignkeys(): Failed', $e);
     }
 }
@@ -362,12 +362,12 @@ function sql_list_foreignkeys($table, $column = null, $connector = null){
 /*
  * OBSOLETE FUNCTIONS, DO NOT USE THEM!
  */
-function sql_list_fk($table, $column = null){
+function sql_list_fk($table, $column = null) {
     try{
         obsolete('sql_list_fk()');
         return sql_list_foreignkeys($table, $column);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sql_list_foreignkeys(): Failed', $e);
     }
 }

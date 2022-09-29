@@ -115,19 +115,19 @@ $languages = cli_argument('-l,--languages', 'all');
 /*
  * Validate command line parameters
  */
-if($languages === null){
-    if($_CONFIG['language']['supported']){
+if($languages === null) {
+    if($_CONFIG['language']['supported']) {
         $languages = array_keys($_CONFIG['language']['supported']);
     }
 
-    if(empty($languages)){
+    if(empty($languages)) {
         throw new CoreException(tr('This project is not a multi-lingual project. Please check the $_CONFIG[language][supported] configuration, or specify languages on the command line'), 'warning/not-specified');
     }
 
     log_console(tr('Using configured languages ":languages"', array(':languages' => implode(', ', $languages))));
 
-}else{
-    if(empty($languages)){
+} else {
+    if(empty($languages)) {
         throw new CoreException(tr('Please specify languages when using -l or --languages'), 'warning/not-specified');
     }
 
@@ -140,8 +140,8 @@ if($languages === null){
 /*
  * Validate requested languages
  */
-foreach($languages as $language){
-    if(!preg_match('/^[a-z]{2}$/', $language)){
+foreach($languages as $language) {
+    if(!preg_match('/^[a-z]{2}$/', $language)) {
         throw new CoreException(tr('Specified language ":language" is invalid, please use a ISO 639-2 compatible language code', array(':language' => $language)), 'validation');
     }
 }
@@ -151,12 +151,12 @@ foreach($languages as $language){
 /*
  * Process requested actions
  */
-switch(cli_method()){
+switch(cli_method()) {
     case 'clear':
         cli_no_arguments_left();
 
-        foreach($languages as $language){
-            if($language == 'en'){
+        foreach($languages as $language) {
+            if($language == 'en') {
                 continue;
             }
 
@@ -180,18 +180,18 @@ switch(cli_method()){
                                        'post'           => array('method' => 'test'),
                                        'httpheaders'    => false));
 
-            if(TEST){
+            if(TEST) {
                 show($response);
             }
 
-            if($response['data'] !== 'OK'){
+            if($response['data'] !== 'OK') {
                 throw new CoreException(tr('Failed test connection with translation server ":url"', array(':url' => $_CONFIG['translate']['url'])), 'failed');
             }
 
             log_console(tr('Successfully tested connection with translation server ":url"', array(':url' => $_CONFIG['translate']['url'])), 'green');
 
-        }catch(Exception $e){
-            if(substr($e->getCode(), 0, 4) == 'HTTP'){
+        }catch(Exception $e) {
+            if(substr($e->getCode(), 0, 4) == 'HTTP') {
                 $server_message = $e->getData()['data'];
                 $code           = $e->getCode();
 
@@ -210,14 +210,14 @@ switch(cli_method()){
         $ignore_html = cli_argument('--ignore-html');
         $mode        = cli_argument('--mode', true, $_CONFIG['translate']['mode']);
 
-        if(cli_method() == 'translate'){
+        if(cli_method() == 'translate') {
             $noutf8check = (cli_argument('--no-utf') or cli_argument('--no-utf8')   or cli_argument('--no-utf8-check'));
 
-            if(!in_array($mode, $available_modes)){
+            if(!in_array($mode, $available_modes)) {
                 throw new CoreException(tr('Unknown mode ":mode" specified', array(':mode' => $mode)), 'warning/unknown');
             }
 
-        }else{
+        } else {
             $noutf8check = (cli_argument('--no-utf') or cli_argument('--no-utf8')   or cli_argument('--no-utf8-check'));
 
             log_console(tr('Scanning for translatable strings'), 'white');
@@ -225,16 +225,16 @@ switch(cli_method()){
 
         cli_no_arguments_left();
 
-        if($noutf8check){
+        if($noutf8check) {
             log_console(tr('Skipping UTF8 check due to "noutf8check" command line parameter'), 'yellow');
         }
 
-        foreach($languages as $id => $language){
-            if(!preg_match('/\w{2}/', $language)){
+        foreach($languages as $id => $language) {
+            if(!preg_match('/\w{2}/', $language)) {
                 throw new CoreException(tr('Invalid language ":language" specified', array(':language' => $language)), 'warning/invalid');
             }
 
-            if($language == 'en'){
+            if($language == 'en') {
                 unset($languages[$id]);
                 log_console(tr('Ignoring language "en - English"'), 'yellow');
             }
@@ -248,14 +248,14 @@ switch(cli_method()){
         file_tree_execute(array('path'      => ROOT.'www/en',
                                 'recursive' => true,
                                 'params'    => array('noutf8check' => $noutf8check),
-                                'callback'  => function($file, $type, $params) use (&$results){
+                                'callback'  => function($file, $type, $params) use (&$results) {
 
             global $_CONFIG;
 
             $extension = file_get_extension($file);
 
-//            if(($extension != 'php') and ($extension != 'js')){
-            if($extension != 'php'){
+//            if(($extension != 'php') and ($extension != 'js')) {
+            if($extension != 'php') {
                 /*
                  * Only translate PHP and JS files
                  */
@@ -268,8 +268,8 @@ switch(cli_method()){
             /*
              * UTF8 check!
              */
-            if(!$params['noutf8check']){
-                if(!str_is_utf8($content)){
+            if(!$params['noutf8check']) {
+                if(!str_is_utf8($content)) {
                     /*
                      * Crap, this file is not UTF8 and will bork the translator. Update file contents, and safe file to force all files be UTF8
                      */
@@ -285,21 +285,21 @@ switch(cli_method()){
 //            preg_match_all('/tr\([\'"](.*?)[\'"](:?\s*,\s*array\((.*)\))?\)/iu', $content , $matches, PREG_PATTERN_ORDER);
             preg_match_all('/tr\([\'"](.*?)[\'"](:?\s*,\s*array\((.*)\))?\)/iu', $content , $matches, PREG_PATTERN_ORDER);
 
-            if(!empty($matches[1])){
-                foreach($matches[1] as $key => $value){
-                    if(strip_tags($value, isset_get($_CONFIG['translate']['allowed_tags'])) != $value){
+            if(!empty($matches[1])) {
+                foreach($matches[1] as $key => $value) {
+                    if(strip_tags($value, isset_get($_CONFIG['translate']['allowed_tags'])) != $value) {
                         /*
                          * Translation string contains HTML!
                          */
                         $results['failed_html'][$value] = $file;
 
-                    }elseif(strstr($value,'.$')){
+                    } elseif(strstr($value,'.$')) {
                         /*
                          * Translation string contains PHP variables!
                          */
                         $results['failed_php'][$value] = $file;
 
-                    }else{
+                    } else {
                         /*
                          * Translation string is ok
                          */
@@ -318,20 +318,20 @@ switch(cli_method()){
         /*
          *
          */
-        if(count($results['failed_html']) > 0){
+        if(count($results['failed_html']) > 0) {
             $crash = false;
 
-            foreach($results['failed_html'] as $string => $file){
-                if($ignore_html){
+            foreach($results['failed_html'] as $string => $file) {
+                if($ignore_html) {
                     log_console(tr('Ignoring file ":file" because of HTML', array(':file' => Strings::from($file, ROOT))), 'VERBOSE/yellow');
 
-                }else{
+                } else {
                     log_console(tr('Found HTML code ":html" in file ":file"', array(':html' => preg_replace('/<br\s*\/?>/', '.<.b.r.>. ', $string), ':file' => Strings::from($file, ROOT))), 'red');
                     $crash = true;
                 }
             }
 
-            if(!empty($crash)){
+            if(!empty($crash)) {
                 throw new CoreException(tr('Translatable strings with disallowed HTML tags found'), 'warning/not-allowed');
             }
 
@@ -343,20 +343,20 @@ switch(cli_method()){
         /*
          *
          */
-        if(count($results['failed_php']) > 0){
+        if(count($results['failed_php']) > 0) {
             $crash = false;
 
-            foreach($results['failed_php'] as $string => $file){
-                if($ignore_php){
+            foreach($results['failed_php'] as $string => $file) {
+                if($ignore_php) {
                     log_console(tr('Ignoring file ":file" because of PHP', array(':file' => Strings::from($file, ROOT))), 'VERBOSE/yellow');
 
-                }else{
+                } else {
                     log_console(tr('Found PHP code ":php" in file ":file"', array(':php' => preg_replace('/<br\s*\/?>/', '.<.b.r.>. ', $string), ':file' => Strings::from($file, ROOT))), 'red');
                     $crash = true;
                 }
             }
 
-            if(!empty($crash)){
+            if(!empty($crash)) {
                 throw new CoreException(tr('Translatable strings with PHP code found'), 'warning/not-allowed');
             }
 
@@ -368,7 +368,7 @@ switch(cli_method()){
         /*
          *
          */
-        if(cli_method() == 'scan'){
+        if(cli_method() == 'scan') {
             log_console(tr('Found ":count" strings in ":files" files', array(':count' => number_format($results['count']), ':files' => number_format(count($results['translations'])))), 'green');
             log_console(tr('Sending translatable strings to server ":server" (This might take a little bit)', array(':server' => $_CONFIG['translate']['url'])), 'cyan');
 
@@ -386,12 +386,12 @@ switch(cli_method()){
                                                                      'translations' => json_encode_custom($results['translations'])),
                                            'httpheaders'    => false));
 
-            }catch(Exception $e){
-                if(substr($e->getCode(), 0, 4) == 'HTTP'){
+            }catch(Exception $e) {
+                if(substr($e->getCode(), 0, 4) == 'HTTP') {
                     $server_message = $e->getData()['data'];
                     $code           = $e->getCode();
 
-                    switch(substr($e->getCode(), 4)){
+                    switch(substr($e->getCode(), 4)) {
                         case 403:
                             throw new CoreException(tr('Translation server said that access to project ":project" was denied', array(':project' => PROJECT)), 'warning');
 
@@ -406,17 +406,17 @@ switch(cli_method()){
                 throw new CoreException(tr('Error trying to connect with server : ":error"', array(':error' => $e->getMessage())), $e);
             }
 
-            if(empty($response['status'])){
+            if(empty($response['status'])) {
                 throw new CoreException(tr('Error trying to connect with server'), $response['status']);
             }
 
             $result = json_decode_custom($response['data']);
 
-            if(TEST){
+            if(TEST) {
                 show($result);
             }
 
-            if($result['status'] != 'success'){
+            if($result['status'] != 'success') {
                 throw new CoreException(tr('Failed to send translatable strings'), $result['status'], $result);
             }
 
@@ -432,7 +432,7 @@ switch(cli_method()){
         /*
          * Translate to specified languages
          */
-        foreach($languages as $language){
+        foreach($languages as $language) {
             $source_dir = ROOT.'www/en';
             $target_dir = ROOT.'www/'.$language;
 
@@ -454,12 +454,12 @@ switch(cli_method()){
                                                                      'translations'    => json_encode_custom($results['translations'])),
                                            'httpheaders'    => false));
 
-            }catch(Exception $e){
-                if(substr($e->getCode(), 0, 4) == 'HTTP'){
+            }catch(Exception $e) {
+                if(substr($e->getCode(), 0, 4) == 'HTTP') {
                     $server_message = $e->getData()['data'];
                     $code           = $e->getCode();
 
-                    switch(substr($e->getCode(), 4)){
+                    switch(substr($e->getCode(), 4)) {
                         case 403:
                             throw new CoreException(tr('Translation server said that access to project ":project" was denied', array(':project' => PROJECT)), 'warning');
 
@@ -474,23 +474,23 @@ switch(cli_method()){
                 throw new CoreException(tr('Error trying to connect with server : ":error"', array(':error' => $e->getMessage())), $e);
             }
 
-            if(empty($response['status'])){
+            if(empty($response['status'])) {
                 throw new CoreException(tr('Error trying to connect with server'), $response['status']);
             }
 
             $retval = json_decode_custom($response['data']);
 
-            if(TEST){
+            if(TEST) {
                 show($retval);
             }
 
-            if(!is_array($retval) or (isset_get($retval['status']) != 'success') or (!is_array(isset_get($retval['translations'])))){
+            if(!is_array($retval) or (isset_get($retval['status']) != 'success') or (!is_array(isset_get($retval['translations'])))) {
                 throw new CoreException(tr('Failed to receive translations', 'error'));
             }
 
             $count = 0;
 
-            foreach($retval['translations'] as $translations){
+            foreach($retval['translations'] as $translations) {
                 $count += count($translations);
             }
 
@@ -518,19 +518,19 @@ switch(cli_method()){
 
                 log_console(tr('Applying translations'), '', true);
 
-                foreach($retval['translations'] as $short_file => $data){
+                foreach($retval['translations'] as $short_file => $data) {
                     log_console(tr('Translating ":file"', array(':file' => $short_file)), 'VERBOSEDOT/cyan');
 
-                    if(!empty($forcedutf8[$short_file])){
+                    if(!empty($forcedutf8[$short_file])) {
                         log_console(tr('*FORCED-UTF8* '), 'VERBOSE/yellow');
                     }
 
-                    if(!file_exists(ROOT.$short_file)){
+                    if(!file_exists(ROOT.$short_file)) {
                         log_console(tr('File ":file" not found', array(':file' => ROOT.$short_file)), 'yellow');
                         continue;
                     }
 
-                    if(file_path_contains_symlink($short_file, ROOT)){
+                    if(file_path_contains_symlink($short_file, ROOT)) {
                         log_console(tr('File ":file" contains a symlink and will be ignored', array(':file' => $short_file)), 'VERBOSEDOT/yellow');
                         continue;
                     }
@@ -540,7 +540,7 @@ switch(cli_method()){
                     $target_file = str_replace($source_dir, $target_dir, ROOT.$short_file);
 
                     //replace strings
-                    foreach($data as $source => $translation){
+                    foreach($data as $source => $translation) {
                         cli_dot();
 
                         $from     = array('tr("'.$source.'"'     , "tr('".$source."'");
@@ -554,13 +554,13 @@ switch(cli_method()){
 
                 cli_dot(false);
 
-                if($retval['stats']['translations_missing'] > 0){
+                if($retval['stats']['translations_missing'] > 0) {
                     log_console(tr('Missing ":count" translations', array(':count' => number_format($retval['stats']['translations_missing']))), 'yellow');
                 }
 
                 log_console(tr('Successfully translated ":count" sections', array(':count' => number_format($retval['stats']['translations_done']))), 'green');
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 throw new CoreException(tr('Error applying ":lang" translations', array(':lang' => $language)), $e);
             }
         }

@@ -2,11 +2,11 @@
 global $core, $_CONFIG;
 
 try{
-    if(!$core->register['ready']){
+    if(!$core->register['ready']) {
         throw new CoreException(tr('safe_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
     }
 
-    if(!is_array($params)){
+    if(!is_array($params)) {
         throw new CoreException(tr('safe_exec(): Specified $params ":params" is a ":datatype" but should be a params array', array(':params' => $params, ':datatype' => gettype($params))), 'invalid');
     }
 
@@ -20,7 +20,7 @@ try{
     array_default($params, 'include_exitcode', false);
     array_default($params, 'output_log'      , ((VERBOSE or $params['debug']) ? ROOT.'data/log/syslog' : '/dev/null'));
 
-    if($params['domain']){
+    if($params['domain']) {
         /*
          * Execute this command on the specified domain instead
          */
@@ -34,11 +34,11 @@ try{
     /*
      * Validate command structure
      */
-    if(empty($params['commands'])){
+    if(empty($params['commands'])) {
         throw new CoreException(tr('safe_exec(): No commands specified'), 'invalid');
     }
 
-    if(is_array($params['commands'])){
+    if(is_array($params['commands'])) {
         /*
          * Build commands from the specified commands array safely
          */
@@ -49,7 +49,7 @@ try{
     /*
      * Add $PATH
      */
-    if(!empty($params['path'])){
+    if(!empty($params['path'])) {
         $params['commands'] = 'export PATH="'.$_CONFIG['exec']['path'].'"; '.$params['commands'];
     }
 
@@ -60,23 +60,23 @@ try{
     /*
      * Log and debug display options
      */
-    if($params['debug']){
+    if($params['debug']) {
         $color = 'cyan';
         show($params['commands']);
 
-    }else{
+    } else {
         $color = (PLATFORM_HTTP ? '' : ($params['log'] ? '' : 'VERY')).'VERBOSE/cyan';
     }
 
     /*
      * Execute the command
      */
-    switch($params['function']){
+    switch($params['function']) {
         case 'exec':
             log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), $color);
             $lastline = exec($params['commands'], $output, $exitcode);
 
-            if($params['background']){
+            if($params['background']) {
                 /*
                  * Last command section was executed as background process,
                  * return PID
@@ -89,7 +89,7 @@ try{
         case 'shell_exec':
             log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), $color);
 
-            if($params['background']){
+            if($params['background']) {
                 throw new CoreException(tr('safe_exec(): The specified command ":command" requires background execution (because of the & at the end) which is not supported by the shell_exec()', array(':command' => $params['commands'])), 'not-supported');
             }
 
@@ -115,7 +115,7 @@ try{
 
             log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), $color);
 
-            if($params['background']){
+            if($params['background']) {
                 throw new CoreException(tr('safe_exec(): The specified command ":command" requires background execution which is not supported by PHP passthru()', array(':command' => $params['commands'])), 'not-supported');
             }
 
@@ -128,14 +128,14 @@ try{
              * Get output and exitcode from temp files
              * NOTE: In case of errors, these output files may NOT exist!
              */
-            if(file_exists($exitcode_file)){
+            if(file_exists($exitcode_file)) {
                 $exitcode = trim(file_get_contents($exitcode_file));
             }
 
-            if(file_exists($output_file)){
+            if(file_exists($output_file)) {
                 $output = file($output_file);
 
-            }else{
+            } else {
                 $output = '';
             }
 
@@ -153,7 +153,7 @@ try{
             $output   = array();
             $lastline = system($params['commands'], $exitcode);
 
-            if($params['background']){
+            if($params['background']) {
                 /*
                  * Background commands cannot use "exec()" because that one will always wait for the exit code
                  */
@@ -175,7 +175,7 @@ under_construction();
     /*
      * In VERYVERBOSE we also log the command output
      */
-    if(VERYVERBOSE or $params['debug']){
+    if(VERYVERBOSE or $params['debug']) {
         log_console('Command output:', 'purple');
         log_console($output);
     }
@@ -187,22 +187,22 @@ under_construction();
      * get an exit code from a background process, do not add the exit code in
      * that case
      */
-    if($params['include_exitcode'] and !$params['background']){
+    if($params['include_exitcode'] and !$params['background']) {
         $output[] = $exitcode;
     }
 
     /*
      * Shell command reported something went wrong (possibly)
      */
-    if($exitcode){
-        if(!in_array($exitcode, array_force($params['ok_exitcodes']))){
+    if($exitcode) {
+        if(!in_array($exitcode, array_force($params['ok_exitcodes']))) {
             log_console(tr('Command ":command" stopped with exit code ":exitcode". This may be a problem, or no problem at all. See output below for more information', array(':command' => $params['commands'], ':exitcode' => $exitcode)), 'VERBOSE/warning');
 
-            if(!isset($output)){
+            if(!isset($output)) {
                 $output = '*** NO OUTPUT AVAILABLE, COMMAND PROBABLY HAS NOT YET BEEN EXECUTED ***';
             }
 
-            if($exitcode === 124){
+            if($exitcode === 124) {
                 throw new CoreException(tr('safe_exec(): Received exitcode 124 from executed program, which very likely is a timeout'), 124, $output);
             }
 
@@ -212,27 +212,27 @@ under_construction();
 
     return $output;
 
-}catch(Exception $e){
-    if(!is_string($params)){
+}catch(Exception $e) {
+    if(!is_string($params)) {
         /*
          * Store the output in the data property of the exception
          */
-        if($params['function'] === 'passthru'){
+        if($params['function'] === 'passthru') {
             /*
              * passthru method creates temp files. Ensure they are deleted
              */
-            if(isset($exitcode_file)){
+            if(isset($exitcode_file)) {
                 file_delete(array('patterns'   => $exitcode_file,
                                   'clean_path' => false));
             }
 
-            if(isset($exitcode_file)){
+            if(isset($exitcode_file)) {
                 file_delete(array('patterns'   => $exitcode_file,
                                   'clean_path' => false));
             }
         }
 
-        if($e->getRealCode() === 124){
+        if($e->getRealCode() === 124) {
             throw new CoreException(tr('safe_exec(): Command appears to have been terminated by timeout'), $e);
         }
     }

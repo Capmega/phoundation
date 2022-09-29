@@ -27,11 +27,11 @@
  *
  * @return void
  */
-function coinpayments_library_init(){
+function coinpayments_library_init() {
     try{
         load_config('coinpayments');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('coinpayments_library_init(): Failed', $e);
     }
 }
@@ -42,7 +42,7 @@ function coinpayments_library_init(){
  * Make the call to the coinpayment system API
  * Code based off example taken from https://www.coinpayments.net/downloads/api-example.phps
  */
-function coinpayments_call($command, $post = array()){
+function coinpayments_call($command, $post = array()) {
     global $_CONFIG;
 
     try{
@@ -83,7 +83,7 @@ function coinpayments_call($command, $post = array()){
          */
         $results = json_decode_custom($results['data']);
 
-        switch(isset_get($results['error'])){
+        switch(isset_get($results['error'])) {
             case '':
                 // FALLTHROUGH
             case 'ok':
@@ -98,7 +98,7 @@ function coinpayments_call($command, $post = array()){
 
         return $results['result'];
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('coinpayments_call(): Failed', $e);
     }
 }
@@ -108,48 +108,48 @@ function coinpayments_call($command, $post = array()){
 /*
  * Validate IPN calls coming from coinpayments
  */
-function coinpayments_get_ipn_transaction(){
+function coinpayments_get_ipn_transaction() {
     global $_CONFIG;
 
     try{
         load_libs('validate');
         $v = new ValidateForm($_POST, 'createdon,modifiedon,users_id,status,status_text,type,mode,currency,confirms,api_transactions_id,tx_id,merchant,address,amount,amounti,amount_btc,amount_usd,amount_usd_rounded,fee,feei,exchange_rate,description,data');
 
-        if(empty($_SERVER['HTTP_HMAC']) or empty($_SERVER['HTTP_HMAC'])){
+        if(empty($_SERVER['HTTP_HMAC']) or empty($_SERVER['HTTP_HMAC'])) {
             throw new CoreException(tr('coinpayments_get_ipn_transaction(): No HMAC sent'), 'not-specified');
         }
 
         $request = file_get_contents('php://input');
 
-        if(empty($_POST['address'])){
+        if(empty($_POST['address'])) {
             log_file(tr('Received invalid request, missing "address"'), 'coinpayments');
         }
 
         log_file(tr('Starting ":type" transaction for address ":address"', array(':type' => isset_get($_POST['ipn_type']), ':address' => isset_get($_POST['address']))), 'crypto');
 
-        if(empty($_POST)){
+        if(empty($_POST)) {
             throw new CoreException(tr('coinpayments_get_ipn_transaction(): Error reading POST data'), 'failed');
         }
 
-        if(empty($_POST['merchant'])){
+        if(empty($_POST['merchant'])) {
             throw new CoreException(tr('coinpayments_get_ipn_transaction(): No Merchant ID specified'), 'not-specified');
         }
 
-        if($_POST['merchant'] != $_CONFIG['coinpayments']['ipn']['merchants_id']){
+        if($_POST['merchant'] != $_CONFIG['coinpayments']['ipn']['merchants_id']) {
             throw new CoreException(tr('coinpayments_get_ipn_transaction(): Specified merchant ID ":id" is invalid', array(':id' => $_POST['merchant'])), 'invalid');
         }
 
         $hmac = hash_hmac('sha512', $request, $_CONFIG['coinpayments']['ipn']['secret']);
 
-        if($hmac !== $_SERVER['HTTP_HMAC']){
+        if($hmac !== $_SERVER['HTTP_HMAC']) {
             throw new CoreException(tr('coinpayments_get_ipn_transaction(): Specified HMAC ":hmac" is invalid', array(':hmac' => $_SERVER['HTTP_HMAC'])), 'invalid');
         }
 
         log_file(tr('Authenticated IPN transaction for address ":address"', array(':address' => isset_get($_POST['address']))), 'crypto');
         return $_POST;
 
-    }catch(Exception $e){
-        if(!$_CONFIG['production']){
+    }catch(Exception $e) {
+        if(!$_CONFIG['production']) {
             /*
              * Ignore all issues, we're testing!
              */
@@ -166,13 +166,13 @@ function coinpayments_get_ipn_transaction(){
 /*
  * Make the call to the coinpayment system
  */
-function coinpayments_get_account_info(){
+function coinpayments_get_account_info() {
     try{
         $results = coinpayments_call('get_basic_info');
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('coinpayments_get_account_info(): Failed', $e);
     }
 }
@@ -182,13 +182,13 @@ function coinpayments_get_account_info(){
 /*
  * Make the call to the coinpayment system
  */
-function coinpayments_get_rates($currencies = null){
+function coinpayments_get_rates($currencies = null) {
     try{
         $results = coinpayments_call('rates');
 
-        if($currencies){
-            foreach(array_force($currencies) as $currency){
-                if(empty($results[$currency])){
+        if($currencies) {
+            foreach(array_force($currencies) as $currency) {
+                if(empty($results[$currency])) {
                     throw new CoreException(tr('coinpayments_get_rates(): Specified coin ":coin" was not found', array(':coin' => $currency)), 'not-exists');
                 }
 
@@ -200,7 +200,7 @@ function coinpayments_get_rates($currencies = null){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('coinpayments_get_rates(): Failed', $e);
     }
 }
@@ -210,17 +210,17 @@ function coinpayments_get_rates($currencies = null){
 /*
  * Get balances (for specified coin, if needed)
  */
-function coinpayments_get_balances($currencies = true){
+function coinpayments_get_balances($currencies = true) {
     try{
-        if($currency === true){
+        if($currency === true) {
             $results = coinpayments_call('balances', array('all' => 1));
 
-        }else{
+        } else {
             $results = coinpayments_call('balances');
 
-            if($currencies){
-                foreach(array_force($currencies) as $currency){
-                    if(empty($results[$currency])){
+            if($currencies) {
+                foreach(array_force($currencies) as $currency) {
+                    if(empty($results[$currency])) {
                         throw new CoreException(tr('coinpayments_get_balances(): Specified coin ":coin" was not found', array(':coin' => $currency)), 'not-exists');
                     }
 
@@ -233,7 +233,7 @@ function coinpayments_get_balances($currencies = true){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('coinpayments_get_balances(): Failed', $e);
     }
 }
@@ -243,13 +243,13 @@ function coinpayments_get_balances($currencies = true){
 /*
  * Get balances (for specified coin, if needed)
  */
-function coinpayments_get_address($currency){
+function coinpayments_get_address($currency) {
     try{
         $results = coinpayments_call('get_deposit_address', array('currency' => $currency));
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('coinpayments_get_address(): Failed', $e);
     }
 }
@@ -259,9 +259,9 @@ function coinpayments_get_address($currency){
 /*
  * Get balances (for specified coin, if needed)
  */
-function coinpayments_get_deposit_address($currency, $callback_url = null){
+function coinpayments_get_deposit_address($currency, $callback_url = null) {
     try{
-        if(!$callback_url){
+        if(!$callback_url) {
             $callback_url = domain('/api/coinpayments');
         }
 
@@ -269,7 +269,7 @@ function coinpayments_get_deposit_address($currency, $callback_url = null){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('coinpayments_get_deposit_address(): Failed', $e);
     }
 }

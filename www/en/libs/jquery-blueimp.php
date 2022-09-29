@@ -13,7 +13,7 @@
 /*
  *
  */
-function jquery_blueimp($area_selector, $link_selector, $params = null, $options = null){
+function jquery_blueimp($area_selector, $link_selector, $params = null, $options = null) {
     try{
         array_ensure($params);
         array_default($params, 'title'     , '');
@@ -26,8 +26,8 @@ function jquery_blueimp($area_selector, $link_selector, $params = null, $options
         array_ensure($options);
         array_default($options, 'index'   , 'link');
         array_default($options, 'event'   , 'event');
-        array_default($options, 'onclosed', '   function(){
-                                                    setTimeout(function(){
+        array_default($options, 'onclosed', '   function() {
+                                                    setTimeout(function() {
                                                         $("body").css("overflow","");
                                                     },200);
                                                 }');
@@ -59,7 +59,7 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
         return $html.html_script($script);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('jquery_blueimp(): Failed', $e);
     }
 }

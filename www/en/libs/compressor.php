@@ -33,12 +33,12 @@ under_construction();
  * @param string $params[target] The compressored target file
  * @return void()
  */
-function compressor_bzip2($params){
+function compressor_bzip2($params) {
     try{
         compressor_validate($params);
         safe_exec(array('commands' => array('bzip2', array($source['source'], $source['target']))));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('compressor_bzip2(): Failed', $e);
     }
 }
@@ -64,12 +64,12 @@ function compressor_bzip2($params){
  * @param string $params[target] The compressored target file
  * @return void()
  */
-function compressor_unbzip2($params){
+function compressor_unbzip2($params) {
     try{
         compressor_validate($params);
         safe_exec(array('commands' => array('unbzip2', array($source['source'], $source['target']))));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('compressor_unbzip2(): Failed', $e);
     }
 }
@@ -95,7 +95,7 @@ function compressor_unbzip2($params){
  * @param string $params[target] The compressored target file
  * @return void()
  */
-function compressor_rar($params){
+function compressor_rar($params) {
     try{
         compressor_validate($params);
 
@@ -103,7 +103,7 @@ function compressor_rar($params){
                         'background' => $domain['background'],
                         'commands'   => array('rar', array('a', $source['source'], $source['target']))));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('compressor_rar(): Failed', $e);
     }
 }
@@ -129,12 +129,12 @@ function compressor_rar($params){
  * @param string $params[target] The compressored target file
  * @return void()
  */
-function compressor_unrar($params){
+function compressor_unrar($params) {
     try{
         compressor_validate($params);
         safe_exec(array('commands' => array('unrar', array('x', $source['source'], $source['target']))));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('compressor_unrar(): Failed', $e);
     }
 }
@@ -160,14 +160,14 @@ function compressor_unrar($params){
  * @param string $params[target] The compressored target file
  * @return void()
  */
-function compressor_zip($params){
+function compressor_zip($params) {
     try{
         compressor_validate($params);
         safe_exec(array('commands' => array('zip', array($source['source'], $source['target']))));
 
         return $source['source'].'.gz';
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('compressor_zip(): Failed', $e);
     }
 }
@@ -193,14 +193,14 @@ function compressor_zip($params){
  * @param string $params[target] The compressored target file
  * @return void()
  */
-function compressor_unzip($params){
+function compressor_unzip($params) {
     try{
         compressor_validate($params);
         safe_exec(array('commands' => array('unzip', array($source['source']))));
 
         return substr($source['source'], 0, -3);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('compressor_ungip(): Failed', $e);
     }
 }
@@ -223,23 +223,23 @@ function compressor_unzip($params){
  * @param string $params[target] The compressored target file
  * @return void()
  */
-function compressor_validate(&$params){
+function compressor_validate(&$params) {
     try{
         array_ensure($params);
 
-        if(empty($params['source'])){
+        if(empty($params['source'])) {
             throw new CoreException(tr('compressor_validate(): No source specified'), 'not-specified');
         }
 
-        if(empty($params['target'])){
+        if(empty($params['target'])) {
             throw new CoreException(tr('compressor_validate(): No target specified'), 'not-specified');
         }
 
-        if(!file_exists($params['source'])){
+        if(!file_exists($params['source'])) {
             throw new CoreException(tr('compressor_validate(): Specified source ":source" does not exist', array(':source' => $params['source'])), 'not-exists');
         }
 
-        if(!file_exists($params['source'])){
+        if(!file_exists($params['source'])) {
             throw new CoreException(tr('compressor_validate(): Specified target ":target" already exist', array(':target' => $params['target'])), 'exists');
         }
 
@@ -249,7 +249,7 @@ function compressor_validate(&$params){
          */
         file_restrict_path($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('compressor_validate(): Failed', $e);
     }
 }

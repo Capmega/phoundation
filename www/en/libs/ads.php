@@ -24,11 +24,11 @@
  *
  * @return void
  */
-function ads_library_init(){
+function ads_library_init() {
     try{
         load_config('ads');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ads_library_init(): Failed', $e);
     }
 }
@@ -62,11 +62,11 @@ function ads_library_init(){
  * @param params $campaign
  * @return params The specified campaign, validated and sanitized
  */
-function ads_validate_campaign($campaign){
+function ads_validate_campaign($campaign) {
     try{
         load_libs('validate');
 
-        if($old_campaign){
+        if($old_campaign) {
             $campaign = array_merge($old_campaign, $campaign);
         }
 
@@ -88,20 +88,20 @@ function ads_validate_campaign($campaign){
         $v->isNotEmpty ($campaign['class'],      tr('No class is specified'));
         $v->isNotEmpty ($campaign['animation'],  tr('No animation is specified'));
 
-        if(is_numeric(substr($campaign['name'], 0, 1))){
+        if(is_numeric(substr($campaign['name'], 0, 1))) {
             $v->setError(tr('Please ensure that the campaign\'s name does not start with a number'));
         }
 
         /*
          * Does the campaign already exist?
          */
-        if(empty($campaign['id'])){
-            if($id = sql_get('SELECT `id` FROM `ads_campaigns` WHERE `name` = :name', array(':name' => $campaign['name']))){
+        if(empty($campaign['id'])) {
+            if($id = sql_get('SELECT `id` FROM `ads_campaigns` WHERE `name` = :name', array(':name' => $campaign['name']))) {
                 $v->setError(tr('The right ":campaign" already exists with id ":id"', array(':campaign' => $campaign['name'], ':id' => $id)));
             }
 
-        }else{
-            if($id = sql_get('SELECT `id` FROM `ads_campaigns` WHERE `name` = :name AND `id` != :id', array(':name' => $campaign['name'], ':id' => $campaign['id']))){
+        } else {
+            if($id = sql_get('SELECT `id` FROM `ads_campaigns` WHERE `name` = :name AND `id` != :id', array(':name' => $campaign['name'], ':id' => $campaign['id']))) {
                 $v->setError(tr('The right ":campaign" already exists with id ":id"', array(':campaign' => $campaign['name'], ':id' => $id)));
             }
 
@@ -111,7 +111,7 @@ function ads_validate_campaign($campaign){
 
         return $campaign;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('ads_validate_campaign(): Failed'), $e);
     }
 }
@@ -121,11 +121,11 @@ function ads_validate_campaign($campaign){
 /*
  *
  */
-function ads_validate_image($image, $old_image = null){
+function ads_validate_image($image, $old_image = null) {
     try{
         load_libs('validate');
 
-        if($old_image){
+        if($old_image) {
             $image = array_merge($old_image, $image);
         }
 
@@ -136,7 +136,7 @@ function ads_validate_image($image, $old_image = null){
         $v->hasMinChars($image['description'],    2, tr('Please ensure the image\'s description has at least 2 characters'));
         $v->hasMaxChars($image['description'], 2047, tr('Please ensure the image\'s description has less than 2047 characters'));
 
-        switch($image['platform']){
+        switch($image['platform']) {
             case 'unknown':
                 // FALLTHROUGH
             case 'android':
@@ -158,7 +158,7 @@ function ads_validate_image($image, $old_image = null){
                 $v->setError(tr('Please specify a valid platform, must be one of "unknown", "android", "ios", "mobile", "linux", "mac", "windows", or "desktop"'));
         }
 
-        if(is_numeric(substr($image['file'], 0, 1))){
+        if(is_numeric(substr($image['file'], 0, 1))) {
             $v->setError(tr('Please ensure that the file\'s name does not start with a number'));
         }
 
@@ -166,7 +166,7 @@ function ads_validate_image($image, $old_image = null){
 
         return $image;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('ads_validate_image(): Failed'), $e);
     }
 }
@@ -176,9 +176,9 @@ function ads_validate_image($image, $old_image = null){
 /*
  * Return requested campaign. If no campaign was requested, create one now
  */
-function ads_campaign_get($campaign = null, $columns = null){
+function ads_campaign_get($campaign = null, $columns = null) {
     try{
-        if(!$campaign){
+        if(!$campaign) {
 
             /*
              * Is there already a post available for this user?
@@ -193,7 +193,7 @@ function ads_campaign_get($campaign = null, $columns = null){
 
         }
 
-        if(!$columns){
+        if(!$columns) {
             /*
              * Select default columns
              */
@@ -218,10 +218,10 @@ function ads_campaign_get($campaign = null, $columns = null){
                         `modifiedby`.`email` AS `modifiedby_email`';
         }
 
-        if(is_numeric($campaign)){
+        if(is_numeric($campaign)) {
             $where = ' WHERE `ads_campaigns`.`id`   = :campaign';
 
-        }else{
+        } else {
             $where = ' WHERE `ads_campaigns`.`name` = :campaign';
         }
 
@@ -242,7 +242,7 @@ function ads_campaign_get($campaign = null, $columns = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ads_post_get(): Failed', $e);
     }
 }
@@ -252,13 +252,13 @@ function ads_campaign_get($campaign = null, $columns = null){
 /*
  * Return requested data for specified rights
  */
-function ads_image_get($image){
+function ads_image_get($image) {
     try{
-        if(!$image){
+        if(!$image) {
             throw new CoreException(tr('ads_image_get(): No image specified'), 'not-specified');
         }
 
-        if(!is_scalar($image)){
+        if(!is_scalar($image)) {
             throw new CoreException(tr('ads_image_get(): Specified image ":image" is not scalar', array(':image' => $image)), 'invalid');
         }
 
@@ -283,7 +283,7 @@ function ads_image_get($image){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ads_image_get(): Failed', $e);
     }
 }
@@ -293,7 +293,7 @@ function ads_image_get($image){
 /*
  * Process uploaded image
  */
-function ads_image_upload($files, $ad){
+function ads_image_upload($files, $ad) {
     global $_CONFIG;
 
     try{
@@ -303,7 +303,7 @@ function ads_image_upload($files, $ad){
         load_libs('upload');
         upload_check_files(1);
 
-        if(!empty($_FILES['files'][0]['error'])){
+        if(!empty($_FILES['files'][0]['error'])) {
             throw new CoreException(isset_get($_FILES['files'][0]['error_message'], $_FILES['files'][0]['error']), 'uploaderror');
         }
 
@@ -313,7 +313,7 @@ function ads_image_upload($files, $ad){
 
         return ads_image_process($ad, $file, $original);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ads_image_upload(): Failed', $e);
     }
 }
@@ -323,7 +323,7 @@ function ads_image_upload($files, $ad){
 /*
  * Process ads image file
  */
-function ads_image_process($ad, $file, $original = null){
+function ads_image_process($ad, $file, $original = null) {
     global $_CONFIG;
 
     try{
@@ -338,11 +338,11 @@ function ads_image_process($ad, $file, $original = null){
 
                              WHERE  `ads_campaigns`.`id` = '.cfi($ad['campaign']));
 
-        if(!$campaign){
+        if(!$campaign) {
             throw new CoreException(tr('ads_image_process(): Unknown ad campaign ":campaign" specified', array(':campaign' => $ad['campaign'])), 'unknown');
         }
 
-        if((PLATFORM_HTTP) and ($campaign['createdby'] != $_SESSION['user']['id']) and !has_rights('god')){
+        if((PLATFORM_HTTP) and ($campaign['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
             throw new CoreException('ads_image_process(): Cannot upload images, this campaign is not yours', 'access-denied');
         }
 
@@ -394,7 +394,7 @@ function ads_image_process($ad, $file, $original = null){
                      'file'        => $media,
                      'description' => '');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ads_image_process(): Failed', $e);
     }
 }
@@ -404,9 +404,9 @@ function ads_image_process($ad, $file, $original = null){
 /*
  * Update image description
  */
-function ads_update_image_description($user, $image_id, $description){
+function ads_update_image_description($user, $image_id, $description) {
     try{
-        if(!is_numeric($image_id)){
+        if(!is_numeric($image_id)) {
             $image_id = Strings::from($image_id, 'photo');
         }
 
@@ -424,7 +424,7 @@ function ads_update_image_description($user, $image_id, $description){
             throw new CoreException('ads_update_image_description(): Unknown image specified', 'unknown');
         }
 
-        if(($image['createdby'] != $_SESSION['user']['id']) and !has_rights('god')){
+        if(($image['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
             throw new CoreException('ads_update_image_description(): Cannot upload images, this campaign is not yours', 'access-denied');
         }
 
@@ -437,7 +437,7 @@ function ads_update_image_description($user, $image_id, $description){
                    array(':description' => cfm($description),
                          ':id'          => cfi($image['id'])));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ads_update_image_description(): Failed', $e);
     }
 }
@@ -447,9 +447,9 @@ function ads_update_image_description($user, $image_id, $description){
 /*
  * Image cluster
  */
-function ads_update_image_cluster($user, $cluster, $image){
+function ads_update_image_cluster($user, $cluster, $image) {
     try{
-        if(!is_numeric($image)){
+        if(!is_numeric($image)) {
             $image = Strings::from($image, 'photo');
         }
 
@@ -464,7 +464,7 @@ function ads_update_image_cluster($user, $cluster, $image){
             throw new CoreException('ads_update_image_cluster(): Unknown cluster specified', 'unknown');
         }
 
-        if(($clusters['createdby'] != $_SESSION['user']['id']) and !has_rights('god')){
+        if(($clusters['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
             throw new CoreException('ads_update_image_cluster(): Cannot upload images, this cluster is not yours', 'access-denied');
         }
 
@@ -477,7 +477,7 @@ function ads_update_image_cluster($user, $cluster, $image){
                    array(':clusters_id' => cfi($clusters['id']),
                          ':id'          => cfi($image)));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ads_update_image_cluster(): Failed', $e);
     }
 }
@@ -487,9 +487,9 @@ function ads_update_image_cluster($user, $cluster, $image){
 ///*
 // * Get a full URL of the photo
 // */
-//function ads_photo_url($media, $size){
+//function ads_photo_url($media, $size) {
 //    try{
-//        switch($size){
+//        switch($size) {
 //            case 'large':
 //                // FALLTHROUGH
 //            case 'medium':
@@ -509,7 +509,7 @@ function ads_update_image_cluster($user, $cluster, $image){
 //                throw new CoreException(tr('ads_photo_url(): Unknown size ":size" specified', array(':size' => $size)), 'unknown');
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('ads_photo_url(): Failed', $e);
 //    }
 //}
@@ -519,7 +519,7 @@ function ads_update_image_cluster($user, $cluster, $image){
 /*
  * Return the ad HTML for be inserted
  */
-function ads_get(){
+function ads_get() {
     global $_CONFIG;
 
     try{
@@ -542,7 +542,7 @@ function ads_get(){
 
                               LIMIT 1');
 
-        if(empty($campaigns)){
+        if(empty($campaigns)) {
             /*
              * We have no ad campaigns
              */
@@ -551,7 +551,7 @@ function ads_get(){
 
         $campaigns['image_ttl'] = $campaigns['image_ttl'] * 1000;
 
-        switch($userdata['os']){
+        switch($userdata['os']) {
             case 'android':
                 // FALLTHROUGH
             case 'ios':
@@ -602,7 +602,7 @@ function ads_get(){
                                    ':platform1'    => $userdata['os1'],
                                    ':platform2'    => $userdata['os2']));
 
-        if(!$images->rowCount()){
+        if(!$images->rowCount()) {
             /*
              * This campaign have no images
              */
@@ -613,15 +613,15 @@ function ads_get(){
         $html = '   <div class="ads '.$campaigns['class'].'">
                         <ul class="'.$campaigns['class'].'">';
 
-        while($image = sql_fetch($images)){
-            if($image['description']){
+        while($image = sql_fetch($images)) {
+            if($image['description']) {
                 $images_list[] = $image['id'];
 
-                if($image['keyword']){
+                if($image['keyword']) {
                     $html .= '  <li>
                                     <a href="'.str_replace(':keyword', $image['keyword'], $url).'">'.html_img(domain('/photos/'.$image['file'].'-original.jpg'), $image['description']).'</a>
                                 </li>';
-                }else{
+                } else {
                     $html .= '  <li>
                                     '.html_img(domain('/photos/'.$image['file'].'-original.jpg'), $image['description']).'
                                 </li>';
@@ -647,7 +647,7 @@ function ads_get(){
         return array('class' => $campaigns['class'],
                      'html'  => $html);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ads_get(): Failed', $e);
     }
 }
@@ -657,7 +657,7 @@ function ads_get(){
 /*
  * Return the ad HTML for be inserted on AMP version
  */
-function amp_ads_get(){
+function amp_ads_get() {
     global $_CONFIG;
 
     try{
@@ -677,7 +677,7 @@ function amp_ads_get(){
 
                               LIMIT 1');
 
-        if(empty($campaigns)){
+        if(empty($campaigns)) {
             /*
              * We have no ad campaigns
              */
@@ -686,7 +686,7 @@ function amp_ads_get(){
 
         $campaigns['image_ttl'] = $campaigns['image_ttl'] * 1000;
 
-        switch($userdata['os']){
+        switch($userdata['os']) {
             case 'android':
                 // FALLTHROUGH
             case 'ios':
@@ -737,7 +737,7 @@ function amp_ads_get(){
                                    ':platform1'    => $userdata['os1'],
                                    ':platform2'    => $userdata['os2']));
 
-        if(!$images->rowCount()){
+        if(!$images->rowCount()) {
             /*
              * This campaign have no images
              */
@@ -747,15 +747,15 @@ function amp_ads_get(){
         $url  = $_CONFIG['ads']['url'];
         $html = '           <amp-carousel width="720" height="90" type="slides" class="ads '.$campaigns['class'].'">';
 
-        while($image = sql_fetch($images)){
-            if($image['description']){
+        while($image = sql_fetch($images)) {
+            if($image['description']) {
                 $images_list[] = $image['id'];
 
-                if($image['keyword']){
+                if($image['keyword']) {
                     $html .= '  <a href="'.str_replace(':keyword', $image['keyword'], $url).'">
                                     '.amp_img(domain('/photos/'.$image['file'].'-original.jpg'), $image['description'], 720, 90).'
                                 </a>';
-                }else{
+                } else {
                     $html .= '  '.amp_img(domain('/photos/'.$image['file'].'-original.jpg'), $image['description'], 720, 90);
                 }
             }
@@ -767,7 +767,7 @@ function amp_ads_get(){
 
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ads_get(): Failed', $e);
     }
 }
@@ -777,18 +777,18 @@ function amp_ads_get(){
 /*
  * When the image of campaigns is clicked, get the data user
  */
-function ads_insert_view($campaigns_id, $images_list, $userdata){
+function ads_insert_view($campaigns_id, $images_list, $userdata) {
     try{
 
-        if(empty($campaigns_id)){
+        if(empty($campaigns_id)) {
             throw new CoreException('ads_insert_view(): No campaigns id specified', 'not-specified');
         }
 
-        if(!is_numeric($campaigns_id)){
+        if(!is_numeric($campaigns_id)) {
             throw new CoreException(tr('ads_insert_view(): Specified campaign ":campaign" is not numeric', array(':campaign' => $campaign)), 'invalid');
         }
 
-        if(empty($images_list)){
+        if(empty($images_list)) {
             throw new CoreException('ads_insert_view(): No image id specified', 'not-specified');
         }
 
@@ -799,8 +799,8 @@ function ads_insert_view($campaigns_id, $images_list, $userdata){
         $insert = sql_prepare('INSERT INTO `ads_views` (`createdby`, `campaigns_id`, `images_id`, `ip`, `platform`, `reverse_host`, `latitude`, `longitude`, `referrer`, `user_agent`, `browser`)
                                VALUES                  (:createdby , :campaigns_id , :images_id , :ip , :platform , :reverse_host , :latitude , :longitude , :referrer , :user_agent , :browser )');
 
-        foreach($images_list as $images_id){
-            if(!is_numeric($images_id)){
+        foreach($images_list as $images_id) {
+            if(!is_numeric($images_id)) {
                 throw new CoreException(tr('ads_insert_view(): Specified image ":image" is not numeric', array(':image' => $images_id)), 'invalid');
             }
 
@@ -817,7 +817,7 @@ function ads_insert_view($campaigns_id, $images_list, $userdata){
                                    ':browser'      => $userdata['browser']));
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ads_insert_view(): Failed', $e);
     }
 }

@@ -22,8 +22,8 @@ try{
                                     </div>
                                 </div>'));
 
-}catch(Exception $e){
-    switch($e->getCode()){
+}catch(Exception $e) {
+    switch($e->getCode()) {
         case 'unknown':
             json_error(tr('Unknown blog post "'.str_log(isset_get($_POST['id'])).'" specified'));
             break;

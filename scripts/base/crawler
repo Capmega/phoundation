@@ -35,9 +35,9 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('curl');
 
-switch(cli_method()){
+switch(cli_method()) {
     case 'projects':
-        switch(cli_method(1)){
+        switch(cli_method(1)) {
             case 'add':
                 $project['name'] = cli_argument(0);
                 $project         = crawler_validate_project($project);

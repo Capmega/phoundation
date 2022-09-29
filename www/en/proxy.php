@@ -11,7 +11,7 @@ $getheaders = isset_get($_GET['getheaders'], false);
 
 load_libs('curl,json');
 
-if(empty($_GET['apikey']) or ($_GET['apikey'] != $_CONFIG['curl']['apikey'])){
+if(empty($_GET['apikey']) or ($_GET['apikey'] != $_CONFIG['curl']['apikey'])) {
 	http_response_code('401');
 	die('Unauthorized');
 }

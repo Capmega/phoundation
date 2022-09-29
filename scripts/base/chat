@@ -21,7 +21,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('chat');
 
-switch(cli_method()){
+switch(cli_method()) {
     case 'sync':
         log_console(tr('Syncing user accounts with chat database'), '', 'white');
 
@@ -35,7 +35,7 @@ switch(cli_method()){
 
         log_console(tr('Updating ":count" user accounts', array(':count' => $users->rowCount())));
 
-        while($user = sql_fetch($users)){
+        while($user = sql_fetch($users)) {
             cli_dot();
 
             $chat->execute(array(':user_id'       => $user['id'],

@@ -3,8 +3,8 @@
  * Rename "forwards" table to "forwarding" to avoid naming confusion
  * Fix forwards table to ensure correct structure
  */
-if(sql_table_exists('forwards')){
-    if(sql_table_exists('forwardings')){
+if(sql_table_exists('forwards')) {
+    if(sql_table_exists('forwardings')) {
         sql_query('DROP TABLE `forwardings`');
     }
 

@@ -27,7 +27,7 @@
  *
  * @return void
  */
-function node_library_init(){
+function node_library_init() {
     try{
         ensure_installed(array('name'     => 'node',
                                'callback' => 'node_setup',
@@ -37,7 +37,7 @@ function node_library_init(){
                                'callback' => 'node_setup_npm',
                                'which'    => array('npm')));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('node_library_init(): Failed', $e);
     }
 }
@@ -58,12 +58,12 @@ function node_library_init(){
  *
  * @return void
  */
-function node_setup(){
+function node_setup() {
     try{
         load_libs('linux');
         linux_install_package(null, 'nodejs');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('node_setup(): Failed', $e);
     }
 }
@@ -84,12 +84,12 @@ function node_setup(){
  *
  * @return void
  */
-function node_setup_npm(){
+function node_setup_npm() {
     try{
         load_libs('linux');
         linux_install_package(null, 'npm');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('node_setup_npm(): Failed', $e);
     }
 }
@@ -109,12 +109,12 @@ function node_setup_npm(){
  *
  * @return void
  */
-function node_exec($command, $arguments){
+function node_exec($command, $arguments) {
     try{
         return safe_exec(array('commands' => array('cd'         , array(ROOT.'node_modules/.bin'),
                                                    './'.$command, $arguments)));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('node_exec(): Failed', $e);
     }
 }
@@ -124,14 +124,14 @@ function node_exec($command, $arguments){
 /*
  * Check if node is installed and available
  */
-function node_find(){
+function node_find() {
     global $core;
 
     try{
         try{
             $core->register['node'] = file_which('nodejs');
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             /*
              * No "nodejs"? Maybe just "node" ?
              */
@@ -140,12 +140,12 @@ function node_find(){
 
         log_console(tr('Using node ":result"', array(':result' => $core->register['node'])), 'green');
 
-    }catch(Exception $e){
-        if($e->getCode() == 1){
+    }catch(Exception $e) {
+        if($e->getCode() == 1) {
             throw new CoreException('node_find(): Failed to find a node installation on this computer for this user. On Ubuntu, install node with "sudo apt-get install nodejs"', 'node_not_installed');
         }
 
-        if($e->getCode() == 'node_modules_path_not_found'){
+        if($e->getCode() == 'node_modules_path_not_found') {
             throw $e;
         }
 
@@ -158,7 +158,7 @@ function node_find(){
 /*
  * Check if node is installed and available
  */
-function node_find_modules(){
+function node_find_modules() {
     global $core;
 
     try{
@@ -167,7 +167,7 @@ function node_find_modules(){
         /*
          * Find node_modules path
          */
-        if(!$home = getenv('HOME')){
+        if(!$home = getenv('HOME')) {
             throw new CoreException('node_find_modules(): Environment variable "HOME" not found, failed to locate users home directory', 'environment_variable_not_found');
         }
 
@@ -177,24 +177,24 @@ function node_find_modules(){
         /*
          * Search for node_modules path
          */
-        foreach(array(ROOT, getcwd(), $home) as $path){
-            if($found){
+        foreach(array(ROOT, getcwd(), $home) as $path) {
+            if($found) {
                 break;
             }
 
-            foreach(array('node_modules', '.node_modules') as $subpath){
-                if(file_exists(slash($path).$subpath)){
+            foreach(array('node_modules', '.node_modules') as $subpath) {
+                if(file_exists(slash($path).$subpath)) {
                     $found = slash($path).$subpath;
                     break;
                 }
             }
         }
 
-        if(!$found){
+        if(!$found) {
             /*
              * Initialize the node_modules path
              */
-            file_execute_mode(ROOT, 0770, function() use (&$found){
+            file_execute_mode(ROOT, 0770, function() use (&$found) {
                 log_console(tr('node_find_modules(): node_modules path not found, initializing now with ROOT/node_modules'), 'yellow');
 
                 $found = ROOT.'node_modules/';
@@ -209,8 +209,8 @@ function node_find_modules(){
          * Delete the package-lock file if there
          */
 // :TODO: Improve this part. If the package-lock file exists, that means that a node install at least WAS busy, or still is busy in perhaps a parrallel process? Check if node is active, if not THEN delete and continue
-        if(file_exists(slash(dirname($found)).'package-lock.json')){
-            file_execute_mode(slash(dirname($found)), 0770, function() use ($found){
+        if(file_exists(slash(dirname($found)).'package-lock.json')) {
+            file_execute_mode(slash(dirname($found)), 0770, function() use ($found) {
                 /*
                  * Delete the package-lock.json file. It's okay to use the
                  * variable dirname($found) here for restrictions as $found can
@@ -225,12 +225,12 @@ function node_find_modules(){
             });
         }
 
-    }catch(Exception $e){
-        if($e->getCode() == 1){
+    }catch(Exception $e) {
+        if($e->getCode() == 1) {
             throw new CoreException('node_find_modules(): Failed to find a node installation on this computer for this user', 'not_installed');
         }
 
-        if($e->getCode() == 'path_not_found'){
+        if($e->getCode() == 'path_not_found') {
             throw $e;
         }
 
@@ -243,15 +243,15 @@ function node_find_modules(){
 /*
  * Check if npm is installed and available
  */
-function node_find_npm(){
+function node_find_npm() {
     global $core;
 
     try{
         $core->register['npm'] = file_which('npm');
         log_console(tr('Using npm ":result"', array(':result' => $core->register['npm'])), 'green');
 
-    }catch(Exception $e){
-        if($e->getCode() == 1){
+    }catch(Exception $e) {
+        if($e->getCode() == 1) {
             throw new CoreException('node_find_npm(): Failed to find an npm installation on this computer for this user. On Ubuntu, install with "sudo apt-get install npm"', 'npm_not_installed');
         }
 
@@ -273,13 +273,13 @@ function node_find_npm(){
  * @param string list $packages
  * @return natural The amount of installed pacakges
  */
-function node_install_npm($packages){
+function node_install_npm($packages) {
     try{
         $packages = array_force($packages);
 
         log_console(tr('node_install_npm(): Installing packages ":packages"', array(':packages' => $packages)), 'VERBOSE/cyan');
 
-        file_execute_mode(ROOT, 0770, function() use ($packages){
+        file_execute_mode(ROOT, 0770, function() use ($packages) {
             file_ensure_path(ROOT.'node_modules');
 
             /*
@@ -291,7 +291,7 @@ function node_install_npm($packages){
                              'recursive'    => true,
                              'restrictions' => false));
 
-            foreach($packages as $package){
+            foreach($packages as $package) {
                 log_console(tr('node_install_npm(): Installing packages ":packages"', array(':packages' => $packages)), 'VERYVERBOSE/cyan');
 
                 safe_exec(array('timeout'  => 45,
@@ -310,7 +310,7 @@ function node_install_npm($packages){
 
         return count($packages);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('node_install_npm(): Failed', $e);
     }
 }
@@ -320,20 +320,20 @@ function node_install_npm($packages){
 /*
  * OBSOLETE WRAPPER FUNCTIONS
  */
-function node_check(){
+function node_check() {
     try{
         node_find();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('node_check(): Failed', $e);
     }
 }
 
-function node_check_npm(){
+function node_check_npm() {
     try{
         node_find_npm();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('node_check_npm(): Failed', $e);
     }
 }

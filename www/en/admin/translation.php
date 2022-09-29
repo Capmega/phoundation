@@ -9,10 +9,10 @@ load_libs('paging');
  * Process requested actions
  */
 try{
-    if($_POST){
-        foreach($_POST as $key => $value){
-            if($key == 'action'){
-                switch($value){
+    if($_POST) {
+        foreach($_POST as $key => $value) {
+            if($key == 'action') {
+                switch($value) {
                     case '':
                        break;
 
@@ -21,11 +21,11 @@ try{
                                 if((substr($key,0,3) == 'tr-')) {
                                     $id = str_replace('tr-', '', $key);
 
-                                    if(empty($value) and empty($_POST['alttrans-'.$id])){
+                                    if(empty($value) and empty($_POST['alttrans-'.$id])) {
                                         continue;
                                     }
 
-                                    if(empty($value)){
+                                    if(empty($value)) {
                                         $value = $_POST['alttrans-'.$id];
                                     }
 
@@ -34,11 +34,11 @@ try{
                                                       WHERE `id`  = :id',
                                                       array(':id' => $id));
 
-                                    if(!$entry){
+                                    if(!$entry) {
                                         throw new CoreException(tr('Error getting entry from dictionary'), 'data_not_found');
                                     }
 
-                                    if($entry['translation'] != $value){
+                                    if($entry['translation'] != $value) {
                                         sql_query('UPDATE `dictionary`
 
                                                    SET    `translation` = :translation,
@@ -53,11 +53,11 @@ try{
                         break;
 
                     case 'mark_as_good':
-                        if(empty($_POST['id'])){
+                        if(empty($_POST['id'])) {
                             throw new CoreException(tr('Cannot mark translations, no translations selected'), 'notspecified');
                         }
 
-                        if(!is_array($_POST['id'])){
+                        if(!is_array($_POST['id'])) {
                             throw new CoreException(tr('Cannot mark translations, invalid data specified'), 'invalid');
                         }
 
@@ -73,11 +73,11 @@ try{
                         break;
 
                     case 'mark_as_bad':
-                        if(empty($_POST['id'])){
+                        if(empty($_POST['id'])) {
                             throw new CoreException(tr('Cannot mark translations, no translations selected'), 'notspecified');
                         }
 
-                        if(!is_array($_POST['id'])){
+                        if(!is_array($_POST['id'])) {
                             throw new CoreException(tr('Cannot mark translations, invalid data specified'), 'invalid');
                         }
 
@@ -93,11 +93,11 @@ try{
                         break;
 
                     case 'delete':
-                        if(empty($_POST['id'])){
+                        if(empty($_POST['id'])) {
                             throw new CoreException(tr('Cannot delete translations, no translations selected'), 'notspecified');
                         }
 
-                        if(!is_array($_POST['id'])){
+                        if(!is_array($_POST['id'])) {
                             throw new CoreException(tr('Cannot delete translations, invalid data specified'), 'invalid');
                         }
 
@@ -113,11 +113,11 @@ try{
                         break;
 
                     case 'undelete':
-                        if(empty($_POST['id'])){
+                        if(empty($_POST['id'])) {
                             throw new CoreException(tr('Cannot undelete translations, no translations selected'), 'notspecified');
                         }
 
-                        if(!is_array($_POST['id'])){
+                        if(!is_array($_POST['id'])) {
                             throw new CoreException(tr('Cannot undelete translations, invalid data specified'), 'invalid');
                         }
 
@@ -133,11 +133,11 @@ try{
                         break;
 
                     case 'erase':
-                        if(empty($_POST['id'])){
+                        if(empty($_POST['id'])) {
                             throw new CoreException(tr('Cannot erase translations, no translations selected'), 'notspecified');
                         }
 
-                        if(!is_array($_POST['id'])){
+                        if(!is_array($_POST['id'])) {
                             throw new CoreException(tr('Cannot erase translations, invalid data specified'), 'invalid');
                         }
 
@@ -158,16 +158,16 @@ try{
                          */
                         html_flash_set(tr('Unknown action "%action%" specified', '%action%', str_log($_POST['action'])), 'error');
                 }
-            }else if($key == 'submit_translations'){
+            } else if($key == 'submit_translations') {
                 foreach($_POST as $key => $value) {
                     if((substr($key,0,3) == 'tr-')) {
                         $id = str_replace('tr-', '', $key);
 
-                        if(empty($value) and empty($_POST['alttrans-'.$id])){
+                        if(empty($value) and empty($_POST['alttrans-'.$id])) {
                             continue;
                         }
 
-                        if(empty($value)){
+                        if(empty($value)) {
                             $value = $_POST['alttrans-'.$id];
                         }
 
@@ -175,11 +175,11 @@ try{
                                           FROM  `dictionary`
                                           WHERE `id`  = :id',
                                           array(':id' => $id));
-                        if(!$entry){
+                        if(!$entry) {
                             throw new CoreException(tr('Error getting entry from dictionary'), 'data_not_found');
                         }
 
-                        if($entry['translation'] != $value){
+                        if($entry['translation'] != $value) {
                             sql_query('UPDATE `dictionary`
 
                                        SET    `translation` = :translation
@@ -193,7 +193,7 @@ try{
             }
         }
     }
-}catch(Exception $e){
+}catch(Exception $e) {
     html_flash_set($e);
 }
 
@@ -261,8 +261,8 @@ $paging  = 'SELECT    `dictionary`.`string`,
 /*
  * Apply project filter
  */
-if(isset_get($_GET['project'])){
-    if($_GET['project'] != 'none'){
+if(isset_get($_GET['project'])) {
+    if($_GET['project'] != 'none') {
         $where[]             = ' `projects`.`name` = :project';
         $execute[':project'] = cfm($_GET['project']);
     }
@@ -280,7 +280,7 @@ $default_actions = array('submit'               => tr('Submit translations'),
                          'undelete'             => tr('Undelete selected translations'),
                          'erase'                => tr('Permantly delete translations'));
 
-switch(isset_get($_GET['status'])){
+switch(isset_get($_GET['status'])) {
     case '':
         // FALLTHROUGH
 
@@ -346,8 +346,8 @@ switch(isset_get($_GET['status'])){
 /*
  * Apply language filter
  */
-if(isset_get($_GET['language'])){
-    if($_GET['language'] != 'none'){
+if(isset_get($_GET['language'])) {
+    if($_GET['language'] != 'none') {
         $where[]              = ' `dictionary`.`language` = :language';
         $execute[':language'] = cfm($_GET['language']);
     }
@@ -357,7 +357,7 @@ if(isset_get($_GET['language'])){
 /*
  * Apply generic filter
  */
-if(!empty($_GET['filter'])){
+if(!empty($_GET['filter'])) {
     $where[]            = ' (`dictionary`.`string` LIKE :filter OR `dictionary`.`language` LIKE :filter OR `dictionary`.`translation` LIKE :filter OR `dictionary`.`file` LIKE :filter OR `projects`.`name` LIKE :filter)';
     $execute[':filter'] = '%'.$_GET['filter'].'%';
 }
@@ -366,7 +366,7 @@ if(!empty($_GET['filter'])){
 /*
  * Execute query
  */
-if(!empty($where)){
+if(!empty($where)) {
     $query  .= ' WHERE '.implode(' AND ', $where);
     $paging .= ' WHERE '.implode(' AND ', $where);
 }
@@ -428,10 +428,10 @@ $html = '   <div class="row">
                             <div class="panel-body">
                                 <div class="dataTables_wrapper no-footer">';
 
-if(!$r->rowCount()){
+if(!$r->rowCount()) {
     $html .= '<p>'.tr('No translations were found with the current filter').'</p>';
 
-}else{
+} else {
     $html .= '  <div class="table-responsive">
                     <table class="select table mb-none table-striped table-hover">
                         <thead>
@@ -445,7 +445,7 @@ if(!$r->rowCount()){
                             <th>'.tr('Translation').'</th>
                         </thead>';
 
-    while($entry = sql_fetch($r)){
+    while($entry = sql_fetch($r)) {
 
         $alt_trans = sql_query('SELECT DISTINCT `translation`
                                 FROM  `dictionary`
@@ -470,7 +470,7 @@ if(!$r->rowCount()){
                             <td>
                                 <textarea name="tr-'.$entry['id'].'">'.htmlentities($entry['translation']).'</textarea>';
 
-        if(sql_num_rows($alt_trans)){
+        if(sql_num_rows($alt_trans)) {
             $html .= '          <select style="width:200px;" class="alttrans" name="alttrans-'.$entry['id'].'">
                                     <option value="0">'.tr('Select suggested translation').'</option>';
 

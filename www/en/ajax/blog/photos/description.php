@@ -4,7 +4,7 @@ include_once(dirname(__FILE__).'/../../../libs/startup.php');
 try{
     load_libs('admin,json,blogs');
 
-    if(empty($_POST['id'])){
+    if(empty($_POST['id'])) {
         throw new CoreException(tr('No photo specified'));
     }
 
@@ -13,8 +13,8 @@ try{
     blogs_photo_description($user, $_POST['id'], isset_get($_POST['desc'], ''));
     json_reply();
 
-}catch(Exception $e){
-    switch($e->getCode()){
+}catch(Exception $e) {
+    switch($e->getCode()) {
         case 'unknown':
             json_error(tr('Unknown photo id specified'));
             break;

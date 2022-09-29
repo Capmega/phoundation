@@ -28,17 +28,17 @@
  *
  * @return void
  */
-function sodium_library_init(){
+function sodium_library_init() {
     try{
-        if(!defined('SODIUM_LIBRARY_MAJOR_VERSION')){
+        if(!defined('SODIUM_LIBRARY_MAJOR_VERSION')) {
             throw new CoreException(tr('sodium_library_init(): PHP module "sodium" appears is not available, please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-libsodium" to install and enable the module. After this, a restart of your webserver or php-fpm server may be needed'), 'not-exists');
         }
 
-        if(!function_exists('sodium_crypto_secretbox')){
+        if(!function_exists('sodium_crypto_secretbox')) {
             sodium_install();
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sodium_library_init(): Failed', $e);
     }
 }
@@ -57,11 +57,11 @@ function sodium_library_init(){
  * @param
  * @return
  */
-function sodium_install($params){
+function sodium_install($params) {
     try{
         return safe_exec(array('commands' => array('apt-get', array('install', 'php-libsodium', 'sudo' => true))));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sodium_install(): Failed to auto install php-libsodium', $e);
     }
 }
@@ -79,11 +79,11 @@ function sodium_install($params){
  *
  * @return a unique and safe nonce for use with sodium
  */
-function sodium_nonce(){
+function sodium_nonce() {
     try{
         return random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sodium_nonce(): Failed', $e);
     }
 }
@@ -102,9 +102,9 @@ function sodium_nonce(){
  * @param string $type The type of random string to be returned
  * @return string the random string
  */
-function sodium_random($type){
+function sodium_random($type) {
     try{
-        switch($type){
+        switch($type) {
             case 'nonce':
                 return sodium_nonce();
 
@@ -118,7 +118,7 @@ function sodium_random($type){
                 throw new CoreException(tr('sodium_random(: Unknown type ":type" specified', array(':type' => $type)), 'unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sodium_random(): Failed', $e);
     }
 }
@@ -140,7 +140,7 @@ function sodium_random($type){
  * @param string $key The secret key to encrypt the text string with
  * @return string The encrypted ciphertext
  */
-function sodium_encrypt($data, $key){
+function sodium_encrypt($data, $key) {
     try{
         $key         = sodium_pad_key($key);
         $nonce       = sodium_nonce();
@@ -153,7 +153,7 @@ function sodium_encrypt($data, $key){
         sodium_memzero($key);
         return $cipher_data;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         sodium_memzero($key);
         throw new CoreException('sodium_encrypt(): Failed', $e);
     }
@@ -176,13 +176,13 @@ function sodium_encrypt($data, $key){
  * @param string $key The secret key to decrypt the ciphertext string with
  * @return
  */
-function sodium_decrypt($cipher_data, $key){
+function sodium_decrypt($cipher_data, $key) {
     try{
         $key   = sodium_pad_key($key);
         $nonce = Strings::until($cipher_data, '$');
         $nonce = base64_decode($nonce);
 
-        if(!$nonce){
+        if(!$nonce) {
             throw new CoreException(tr('sodium_decrypt(): Specified ciphertext does not contain a nonce prefix'), 'not-exists');
         }
 
@@ -190,14 +190,14 @@ function sodium_decrypt($cipher_data, $key){
         $cipher_data = base64_decode($cipher_data);
         $data        = sodium_crypto_secretbox_open($cipher_data, $nonce, $key);
 
-        if($data === false){
+        if($data === false) {
             throw new CoreException(tr('sodium_decrypt(): Specified ciphertext does not contain a nonce prefix'), 'not-exists');
         }
 
         sodium_memzero($key);
         return $data;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         sodium_memzero($key);
         throw new CoreException('sodium_decrypt(): Failed', $e);
     }
@@ -220,7 +220,7 @@ function sodium_decrypt($cipher_data, $key){
  * @param string $key The secret key to encrypt the text string with
  * @return string The encrypted ciphertext
  */
-function sodium_sign_mac($data, $key){
+function sodium_sign_mac($data, $key) {
     try{
         $key  = sodium_pad_key($key);
         $mac  = sodium_crypto_auth($data, $key);
@@ -229,7 +229,7 @@ function sodium_sign_mac($data, $key){
         sodium_memzero($key);
         return $data;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         sodium_memzero($key);
         throw new CoreException('sodium_sign_mac(): Failed', $e);
     }
@@ -252,26 +252,26 @@ function sodium_sign_mac($data, $key){
  * @param string $key The secret key required to verify the MAC signature
  * @return string The specified string without the MAC signature
  */
-function sodium_verify_mac($data, $key){
+function sodium_verify_mac($data, $key) {
     try{
         $key = sodium_pad_key($key);
         $mac = Strings::from($data, '$');
 
-        if(!$mac){
+        if(!$mac) {
             throw new CoreException(tr('sodium_verify_mac(): Specified string does not contain a mac prefix'), 'not-exists');
         }
 
         $data = Strings::from($data, '$');
         $data = sodium_crypto_auth_verify($mac, $data, $key);
 
-        if($data === false){
+        if($data === false) {
             throw new CoreException(tr('sodium_verify_mac(): Specified text signature contains an invalid MAC'), 'invalid');
         }
 
         sodium_memzero($key);
         return $data;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         sodium_memzero($key);
         throw new CoreException('sodium_verify_mac(): Failed', $e);
     }
@@ -294,20 +294,20 @@ function sodium_verify_mac($data, $key){
  * @param string $character The character to pad the crypto key with
  * @return string
  */
-function sodium_pad_key($key, $character = '*'){
+function sodium_pad_key($key, $character = '*') {
     global $_CONFIG;
 
     try{
-        if(strlen($key) < SODIUM_CRYPTO_SECRETBOX_KEYBYTES){
+        if(strlen($key) < SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
             $key = $key.str_repeat($character, SODIUM_CRYPTO_SECRETBOX_KEYBYTES - strlen($key));
 
-        }elseif(strlen($key) > SODIUM_CRYPTO_SECRETBOX_KEYBYTES){
+        } elseif(strlen($key) > SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
             $key = substr($key, 0, SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
         }
 
         return $key;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sodium_pad_key(): Failed', $e);
     }
 }

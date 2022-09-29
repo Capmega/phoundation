@@ -16,7 +16,7 @@
 /*
  *
  */
-function databases_validate_accounts($database){
+function databases_validate_accounts($database) {
     global $_CONFIG;
 
     try{
@@ -28,7 +28,7 @@ function databases_validate_accounts($database){
         $v->isValid();
         return $database;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('databases_validate_accounts(): Failed', $e);
     }
 }
@@ -55,7 +55,7 @@ function databases_validate_accounts($database){
  * @param string $params[joins]
  * @return mixed The database account data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified template does not exist, NULL will be returned.
  */
-function databases_get_account($params){
+function databases_get_account($params) {
     try{
         array_params($params, 'seoname', 'id');
 
@@ -79,7 +79,7 @@ function databases_get_account($params){
 
         return sql_simple_get($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('databases_get_account(): Failed'), $e);
     }
 }
@@ -101,7 +101,7 @@ function databases_get_account($params){
  * @param params $params The list parameters
  * @return mixed The list of available databases_accounts
  */
-function databases_list_accounts($params){
+function databases_list_accounts($params) {
     try{
         array_ensure($params);
 
@@ -113,7 +113,7 @@ function databases_list_accounts($params){
         array_default($params, 'filters', array());
         return sql_simple_list($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('databases_list_accounts(): Failed'), $e);
     }
 }

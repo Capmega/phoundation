@@ -27,13 +27,13 @@
  *
  * @return void
  */
-function freeradius_library_init(){
+function freeradius_library_init() {
     try{
         ensure_installed(array('name'      => 'freeradius',
                                'callback'  => 'freeradius_install',
                                'which'     => 'freeradius'));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('freeradius_library_init(): Failed', $e);
     }
 }
@@ -53,9 +53,9 @@ function freeradius_library_init(){
  * @param
  * @return
  */
-function freeradius_install($params){
+function freeradius_install($params) {
     try{
-        if(!file_which('freeradius')){
+        if(!file_which('freeradius')) {
             /*
              * Install freeradius
              */
@@ -63,7 +63,7 @@ function freeradius_install($params){
             apt_install('freeradius');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('freeradius_install(): Failed', $e);
     }
 }
@@ -88,19 +88,19 @@ function freeradius_install($params){
  *
  * @return void
  */
-function freeradius_sync_server($devices_local){
+function freeradius_sync_server($devices_local) {
     try{
 
         $devices_remote = sql_list('SELECT `username` FROM `radcheck`', null, false, 'radius');
 
-        foreach($devices_local as $device){
-            if(in_array($device['mac_address'], $devices_remote)){
-                if($device['status'] == 'deleted'){
+        foreach($devices_local as $device) {
+            if(in_array($device['mac_address'], $devices_remote)) {
+                if($device['status'] == 'deleted') {
                     radius_delete_device_server($device);
                 }
 
-            }else{
-                if($device['status'] === null){
+            } else {
+                if($device['status'] === null) {
                     radius_insert_device_server($device);
                 }
             }
@@ -108,13 +108,13 @@ function freeradius_sync_server($devices_local){
 
         $devices_local_mac  = sql_list('SELECT `mac_address` FROM `radius_devices`');
 
-        foreach($devices_remote as $device){
-            if(!in_array($device, $devices_local_mac)){
+        foreach($devices_remote as $device) {
+            if(!in_array($device, $devices_local_mac)) {
                 radius_delete_device_server(array('mac_address' => $device, 'status' => 'DELETED'));
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_sync_server(): Failed', $e);
     }
 }
@@ -144,7 +144,7 @@ function freeradius_sync_server($devices_local){
  * @param string $device['mac_address']
  * @return void
  */
-function freeradius_update_device_server($old_device, $device){
+function freeradius_update_device_server($old_device, $device) {
     try{
         sql_query('UPDATE `radcheck`
 
@@ -159,7 +159,7 @@ function freeradius_update_device_server($old_device, $device){
                          ':old_value'    => $old_device['mac_address'],
                          ':old_username' => $old_device['mac_address']), 'radius');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_update_device_server(): Failed', $e);
     }
 }
@@ -186,7 +186,7 @@ function freeradius_update_device_server($old_device, $device){
  * @param string $device['mac_address']
  * @return void
  */
-function freeradius_insert_device_server($device){
+function freeradius_insert_device_server($device) {
     try {
         sql_query('INSERT INTO `radcheck` (`username`, `attribute`         , `op`, `value`)
                    VALUES                 (:username , "Cleartext-Password", ":=", :value);',
@@ -194,7 +194,7 @@ function freeradius_insert_device_server($device){
                    array(':value'    => $device['mac_address'],
                          ':username' => $device['mac_address']), 'radius');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_insert_device_server(): Failed', $e);
     }
 
@@ -222,7 +222,7 @@ function freeradius_insert_device_server($device){
  * @param string $device['mac_address']
  * @return void
  */
-function freeradius_delete_device_server($device){
+function freeradius_delete_device_server($device) {
     try {
         sql_query('DELETE FROM `radcheck`
                    WHERE       `username` = :username OR `value` = :value',
@@ -231,7 +231,7 @@ function freeradius_delete_device_server($device){
                          ':username' => $device['mac_address']), 'radius');
 
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('radius_delete_device_server(): Failed', $e);
     }
 
@@ -260,7 +260,7 @@ function freeradius_delete_device_server($device){
  * @param string $device[mac_address]
  * @return boolean True if the specified device MAC address works, false if not
  */
-function freeradius_test_device($device){
+function freeradius_test_device($device) {
     global $_CONFIG;
 
     try {
@@ -270,10 +270,10 @@ function freeradius_test_device($device){
 
         return !str_exists($results, 'Access-Reject');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         load_libs('linux');
 
-        if(!linux_which($_CONFIG['radius']['server'], 'radtest')){
+        if(!linux_which($_CONFIG['radius']['server'], 'radtest')) {
             throw new CoreException(tr('freeradius_test_device(): The program "radtest" is not installed on server""', array(':server' => $_CONFIG['radius']['server'])), $e);
         };
 

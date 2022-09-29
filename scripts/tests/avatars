@@ -7,16 +7,16 @@ require_once(dirname(__FILE__).'/../../libs/startup.php');
 cli_only(true);
 load_libs('test,facebook,google,microsoft');
 
-//test('facebook_get_avatar()', 'Function should obtain facebook avatar for specified facebook id (Sven Oostenbrink) and convert it into the configured number of sub avatars', function(){
+//test('facebook_get_avatar()', 'Function should obtain facebook avatar for specified facebook id (Sven Oostenbrink) and convert it into the configured number of sub avatars', function() {
 //    global $_CONFIG;
 //
 //    $avatar = facebook_get_avatar(array('fb_id' => 1368195482));
 //
-//    foreach($_CONFIG['avatars']['types'] as $type => $data){
-//        if(!file_exists($file = ROOT.'www/avatars/'.$avatar.'_'.$type.'.jpg')){
+//    foreach($_CONFIG['avatars']['types'] as $type => $data) {
+//        if(!file_exists($file = ROOT.'www/avatars/'.$avatar.'_'.$type.'.jpg')) {
 //            throw new CoreException('Did not create avatar type "'.str_log($type).'"');
 //
-//        }else{
+//        } else {
 //            /*
 //             * Remove the temporary avatar file
 //             */

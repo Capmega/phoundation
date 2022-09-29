@@ -12,10 +12,10 @@ $s = sql_prepare('UPDATE `blogs_photos` SET `priority` = :priority WHERE `id` = 
 
 load_libs('blogs');
 
-while($post = sql_fetch($r)){
+while($post = sql_fetch($r)) {
     $u = sql_query('SELECT `id` FROM `blogs_photos` WHERE `blogs_posts_id` = :blogs_posts_id AND `priority` IS NULL', array(':blogs_posts_id' => $post['id']));
 
-    while($photo = sql_fetch($u)){
+    while($photo = sql_fetch($u)) {
         $s->execute(array(':id'       => $photo['id'],
                           ':priority' => blogs_photos_get_free_priority($post['id'])));
     }

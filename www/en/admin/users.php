@@ -12,7 +12,7 @@ $limit     = sql_valid_limit(isset_get($_GET['limit']), $std_limit);
  * Process requested actions
  */
 try{
-    switch(isset_get($_POST['action'])){
+    switch(isset_get($_POST['action'])) {
         case '':
             break;
 
@@ -23,25 +23,25 @@ try{
             /*
              * Erase the specified users
              */
-            if(empty($_POST['id'])){
+            if(empty($_POST['id'])) {
                 throw new CoreException('Cannot erase users, no users selected', 'notspecified');
             }
 
-            if(!is_array($_POST['id'])){
+            if(!is_array($_POST['id'])) {
                 throw new CoreException('Cannot erase users, invalid data specified', 'invalid');
             }
 
-            if(in_array($_SESSION['user']['id'], $_POST['id'])){
+            if(in_array($_SESSION['user']['id'], $_POST['id'])) {
                 throw new CoreException('You cannot delete yourself', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
             $r  = sql_query('UPDATE `users` SET `status` = "deleted" WHERE `id` IN ('.implode(',', array_keys($in)).')', $in);
 
-            if(!$r->rowCount()){
+            if(!$r->rowCount()) {
                 html_flash_set('No user users have been deleted', 'warning');
 
-            }else{
+            } else {
                 html_flash_set(log_database('Deleted "'.$r->rowCount().'" users "', 'users_deleted'), 'success');
             }
 
@@ -51,25 +51,25 @@ try{
             /*
              * Erase the specified users
              */
-            if(empty($_POST['id'])){
+            if(empty($_POST['id'])) {
                 throw new CoreException('Cannot undelete users, no users selected', 'notspecified');
             }
 
-            if(!is_array($_POST['id'])){
+            if(!is_array($_POST['id'])) {
                 throw new CoreException('Cannot undelete users, invalid data specified', 'invalid');
             }
 
-            if(in_array($_SESSION['user']['id'], $_POST['id'])){
+            if(in_array($_SESSION['user']['id'], $_POST['id'])) {
                 throw new CoreException('You cannot undelete yourself', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
             $r  = sql_query('UPDATE `users` SET `status` = NULL WHERE `id` IN ('.implode(',', array_keys($in)).')', $in);
 
-            if(!$r->rowCount()){
+            if(!$r->rowCount()) {
                 html_flash_set('No user users have been undeleted', 'warning');
 
-            }else{
+            } else {
                 html_flash_set(log_database('Undeleted "'.$r->rowCount().'" users "', 'users_undeleted'), 'success');
             }
 
@@ -79,25 +79,25 @@ try{
             /*
              * Erase the specified users
              */
-            if(empty($_POST['id'])){
+            if(empty($_POST['id'])) {
                 throw new CoreException('Cannot erase users, no users selected', 'notspecified');
             }
 
-            if(!is_array($_POST['id'])){
+            if(!is_array($_POST['id'])) {
                 throw new CoreException('Cannot erase users, invalid data specified', 'invalid');
             }
 
-            if(in_array($_SESSION['user']['id'], $_POST['id'])){
+            if(in_array($_SESSION['user']['id'], $_POST['id'])) {
                 throw new CoreException('You cannot erase yourself', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
             $r  = sql_query('DELETE FROM `users` WHERE `id` IN ('.implode(',', array_keys($in)).')', $in);
 
-            if(!$r->rowCount()){
+            if(!$r->rowCount()) {
                 html_flash_set('No user users have been erased', 'warning');
 
-            }else{
+            } else {
                 html_flash_set(log_database('Erased "'.$r->rowCount().'" users "', 'users_erased'), 'success');
             }
 
@@ -110,7 +110,7 @@ try{
             html_flash_set(tr('Unknown action "%action%" specified', '%action%', str_log($_POST['action'])), 'error');
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     html_flash_set($e);
 }
 
@@ -164,16 +164,16 @@ $query   = 'SELECT `users`.`id`,
 /*
  * Consider only users with a specific type as real users?
  */
-if($_CONFIG['users']['type_filter'] !== false){
-    if($_CONFIG['users']['type_filter'] === null){
+if($_CONFIG['users']['type_filter'] !== false) {
+    if($_CONFIG['users']['type_filter'] === null) {
         $where[]          = ' `users`.`type` IS NULL';
 
-    }else{
+    } else {
         $where[]          = ' `users`.`type` = :type';
         $execute[':type'] = $_CONFIG['users']['type_filter'];
     }
 
-}else{
+} else {
     /*
      * Don't filter on type
      */
@@ -184,7 +184,7 @@ if($_CONFIG['users']['type_filter'] !== false){
 /*
  * Select sections dependant on the view
  */
-switch(isset_get($_GET['view'])){
+switch(isset_get($_GET['view'])) {
     case '':
     case 'normal':
         $where[] = ' `users`.`status` IS NULL';
@@ -240,11 +240,11 @@ switch(isset_get($_GET['view'])){
 /*
  * Apply role filter
  */
-if(isset_get($_GET['role'])){
-    if($_GET['role'] == 'none'){
+if(isset_get($_GET['role'])) {
+    if($_GET['role'] == 'none') {
         $where[]          = ' `users`.`role` IS NULL';
 
-    }else{
+    } else {
         $where[]          = ' `users`.`role` = :role';
         $execute[':role'] = cfm($_GET['role']);
     }
@@ -254,7 +254,7 @@ if(isset_get($_GET['role'])){
 /*
  * Apply generic filter
  */
-if(!empty($_GET['filter'])){
+if(!empty($_GET['filter'])) {
     $where[]              = ' (`users`.`name` LIKE :name OR `users`.`email` LIKE :email OR `users`.`username` LIKE :username)';
     $execute[':name']     = '%'.$_GET['filter'].'%';
     $execute[':email']    = '%'.$_GET['filter'].'%';
@@ -265,13 +265,13 @@ if(!empty($_GET['filter'])){
 /*
  * Execute query
  */
-if(!empty($where)){
+if(!empty($where)) {
     $query .= ' WHERE '.implode(' AND ', $where);
 }
 
 $query .= ' ORDER BY `users`.`name`';
 
-if($limit){
+if($limit) {
     $query .= ' LIMIT '.$limit;
 }
 
@@ -322,10 +322,10 @@ $html = '   <div class="row">
                         <form action="'.domain(true).'" method="post">
                             <div class="panel-body">';
 
-if(!$r->rowCount()){
+if(!$r->rowCount()) {
     $html .= '<p>'.tr('No users were found with the current filter').'</p>';
 
-}else{
+} else {
     $html .= '  <div class="table-responsive">
                     <table class="link select table mb-none table-striped table-hover">
                         <thead>
@@ -341,7 +341,7 @@ if(!$r->rowCount()){
                             <th>'.tr('Commentary').'</th>
                         </thead>';
 
-    while($user = sql_fetch($r)){
+    while($user = sql_fetch($r)) {
         $a = '<a href="'.domain('/admin/user.php?user='.$user['username']).'">';
 
         $html .= '  <tr>

@@ -26,7 +26,7 @@
  *
  * @return void
  */
-function test_library_init(){
+function test_library_init() {
     try{
         $core->register['timers']['tests']['errors'] = array('all'     => array(),
                                                              'test'    => array(),
@@ -36,7 +36,7 @@ function test_library_init(){
 
         define('TESTPATH', ROOT.'data/tests/content/');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('test_library_init(): Failed', $e);
     }
 }
@@ -46,25 +46,25 @@ function test_library_init(){
 /*
  * Execute the specified test and show results
  */
-function test($name, $description, $function){
+function test($name, $description, $function) {
     global $core;
 
     try{
         log_console($name.' [TEST] '.$description, '', false);
 
-        if(!is_callable($function)){
+        if(!is_callable($function)) {
             throw new CoreException(tr('test(): Specified function is not a function but a ":type"', array(':type' => gettype($function))), 'invalid');
         }
 
         $results = $function();
 
-        if($results){
+        if($results) {
             echo ' ['.$results.']';
         }
 
         log_console(' [ OK ]', 'green');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         log_console(' [ FAIL ]', 'red');
         log_console($e->getMessage(), 'red');
 

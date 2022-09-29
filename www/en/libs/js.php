@@ -13,9 +13,9 @@
 /*
  * Add hidden javascript flash HTML that can be activated by javascript
  */
-function js_flash($id = 'jsFlashMessage'){
+function js_flash($id = 'jsFlashMessage') {
     try{
-        if(PLATFORM != 'http'){
+        if(PLATFORM != 'http') {
             throw new CoreException('js_flash(): This function can only be executed on a webserver!');
         }
 
@@ -23,7 +23,7 @@ function js_flash($id = 'jsFlashMessage'){
 
         return '<div '.($id ? 'id="'.$id.'" ' : '').'class="sys_msg" style="display:none;"></div>';
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('js_flash(): Failed', $e);
     }
 }
@@ -43,25 +43,25 @@ function js_flash($id = 'jsFlashMessage'){
     });
  *
  */
-function js_zclip_copy($click_selector, $copy, $add_script_tag = false, $params = null){
+function js_zclip_copy($click_selector, $copy, $add_script_tag = false, $params = null) {
     try{
-        if(is_array($add_script_tag)){
+        if(is_array($add_script_tag)) {
             $params         = $add_script_tag;
             $add_script_tag = false;
         }
 
-        if(!$params){
-            $params = "afterCopy : function(){ $.flashMessage(\"".tr('The information has been copied to your clipboard')."\", 'info'); }\n";
+        if(!$params) {
+            $params = "afterCopy : function() { $.flashMessage(\"".tr('The information has been copied to your clipboard')."\", 'info'); }\n";
 
-        }else{
-            if(!is_array($params)){
+        } else {
+            if(!is_array($params)) {
                 throw new CoreException('js_zclip_copy(): $params should be specified as an array but is an "'.gettype($params).'"');
             }
 
             /*
              * Use script tags may be set in params
              */
-            if(isset($params['add_script_tag'])){
+            if(isset($params['add_script_tag'])) {
                 $add_script_tag = $params['add_script_tag'];
                 unset($params['add_script_tag']);
             }
@@ -80,13 +80,13 @@ function js_zclip_copy($click_selector, $copy, $add_script_tag = false, $params 
     copy : '.$copy.",\n".$params.'
 });';
 
-        if(!$add_script_tag){
+        if(!$add_script_tag) {
             return $retval;
         }
 
         return html_script($retval);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('js_zclip_copy(): Failed', $e);
     }
 }

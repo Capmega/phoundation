@@ -27,7 +27,7 @@ under_construction();
  *
  * @return void
  */
-function xapian_library_init(){
+function xapian_library_init() {
     try{
         load_config('xapian');
 
@@ -37,7 +37,7 @@ function xapian_library_init(){
 
         include_once(ROOT.'libs/external/xapian/xapian.php');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('xapian_library_init(): Failed', $e);
     }
 }
@@ -57,10 +57,10 @@ function xapian_library_init(){
  * @param
  * @return
  */
-function xapian_install($params){
+function xapian_install($params) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('xapian_install(): Failed', $e);
     }
 }
@@ -81,10 +81,10 @@ function xapian_install($params){
  *
  * @return
  */
-function xapian_create(){
+function xapian_create() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('xapian_create(): Failed', $e);
     }
 }
@@ -104,10 +104,10 @@ function xapian_create(){
  *
  * @return
  */
-function xapian_add(){
+function xapian_add() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('xapian_add(): Failed', $e);
     }
 }
@@ -127,10 +127,10 @@ function xapian_add(){
  *
  * @return
  */
-function xapian_query(){
+function xapian_query() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('xapian_query(): Failed', $e);
     }
 }
@@ -150,10 +150,10 @@ function xapian_query(){
  *
  * @return
  */
-function xapian_add(){
+function xapian_add() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('xapian_add(): Failed', $e);
     }
 }
@@ -173,10 +173,10 @@ function xapian_add(){
  *
  * @return
  */
-function xapian_query(){
+function xapian_query() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('xapian_query(): Failed', $e);
     }
 }
@@ -196,10 +196,10 @@ function xapian_query(){
  *
  * @return
  */
-function xapian_add(){
+function xapian_add() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('xapian_add(): Failed', $e);
     }
 }
@@ -219,10 +219,10 @@ function xapian_add(){
  *
  * @return
  */
-function xapian_rename(){
+function xapian_rename() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('xapian_rename(): Failed', $e);
     }
 }

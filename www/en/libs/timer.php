@@ -17,7 +17,7 @@ $core->register['timers'] = array();
 /*
  * Register timer in the database
  */
-function timer_start($process){
+function timer_start($process) {
     try{
         sql_query('INSERT INTO `timers` (`createdby`, `process`, `start`)
                    VALUES               (:createdby , :process , NOW())',
@@ -30,7 +30,7 @@ function timer_start($process){
 
         return $id;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('timer_start(): Failed', $e);
     }
 }
@@ -40,9 +40,9 @@ function timer_start($process){
 /*
  * Update existing timer in database with stop time
  */
-function timer_stop($id){
+function timer_stop($id) {
     try{
-        if(empty($core->register['timers'][$id])){
+        if(empty($core->register['timers'][$id])) {
             throw new CoreException(tr('timer_stop(): Specified timers id %id%" is not registered as a timer', array('%id%' => $id)), 'not-exists');
         }
 
@@ -57,7 +57,7 @@ function timer_stop($id){
                            array(':id'   => $id,
                                  ':time' => $time));
 
-        if(!$r->rowCount()){
+        if(!$r->rowCount()) {
             throw new CoreException(tr('timer_stop(): Specified id %id%" exist in memory, but not in the database', array('%id%' => $id)), 'not-exists');
         }
 
@@ -65,7 +65,7 @@ function timer_stop($id){
 
         return $time;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('timer_stop(): Failed', $e);
     }
 }
@@ -75,15 +75,15 @@ function timer_stop($id){
 /*
  * Return timer information for the specified process
  */
-function timer_get($process, $type = 'average'){
+function timer_get($process, $type = 'average') {
     try{
-        if($time = sql_get('SELECT AVG(`time`) AS `time` FROM `timers` WHERE `process` = :process', 'time', array(':process' => $process))){
+        if($time = sql_get('SELECT AVG(`time`) AS `time` FROM `timers` WHERE `process` = :process', 'time', array(':process' => $process))) {
             return $time;
         }
 
         throw new CoreException('timer_get(): Specified process "%process%" was not found', array('%process%' => $process), 'not-exists');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('timer_get(): Failed', $e);
     }
 }

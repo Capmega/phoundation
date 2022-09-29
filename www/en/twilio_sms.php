@@ -99,7 +99,7 @@ try{
     /*
      * MMS message?
      */
-    for($i = 0; $i < 20; $i++){
+    for($i = 0; $i < 20; $i++) {
         if(empty($_REQUEST['MediaUrl'.$i])){
             break;
         }

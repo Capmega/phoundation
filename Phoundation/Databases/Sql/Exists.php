@@ -36,7 +36,7 @@ class SqlExists
                 $not   = true;
                 $query = substr($query, 1);
 
-            }else{
+            } else {
                 $not = false;
             }
 
@@ -85,7 +85,7 @@ class SqlExists
                 $not   = true;
                 $query = substr($query, 1);
 
-            }else{
+            } else {
                 $not = false;
             }
 
@@ -134,7 +134,7 @@ class SqlExists
                 $not   = true;
                 $query = substr($query, 1);
 
-            }else{
+            } else {
                 $not = false;
             }
 
@@ -183,7 +183,7 @@ class SqlExists
                 $not   = true;
                 $query = substr($query, 1);
 
-            }else{
+            } else {
                 $not = false;
             }
 
@@ -242,7 +242,7 @@ class SqlExists
                 $not   = true;
                 $query = substr($query, 1);
 
-            }else{
+            } else {
                 $not = false;
             }
 
@@ -303,7 +303,7 @@ class SqlExists
                 $not   = true;
                 $query = substr($query, 1);
 
-            }else{
+            } else {
                 $not = false;
             }
 

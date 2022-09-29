@@ -5,7 +5,7 @@
  *
  * If the current user already is registerd, then just ensure
  */
-if(!$user = sql_get('SELECT `id`, `name`, `username` FROM `users` WHERE `username` = :username', array(':username' => $_SERVER['USER']))){
+if(!$user = sql_get('SELECT `id`, `name`, `username` FROM `users` WHERE `username` = :username', array(':username' => $_SERVER['USER']))) {
     $user = array('username' => $_SERVER['USER'],
                   'name'     => $_SERVER['USER'],
                   'email'    => 'unknown@localhost',
@@ -30,7 +30,7 @@ if(!$user = sql_get('SELECT `id`, `name`, `username` FROM `users` WHERE `usernam
 
                      array(':username' => $user['username']));
 
-    if(!$user){
+    if(!$user) {
         /*
          * Erw, something went wrong?
          */

@@ -1,5 +1,5 @@
 <?php
-//if(!headers_sent()){header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
+//if(!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
 /*
  * Phoundation uncaught exception handler
  *
@@ -34,7 +34,7 @@ static $executed = false;
 
 try{
     try{
-        if($executed){
+        if($executed) {
             /*
              * We seem to be stuck in an uncaught exception loop, cut it out now!
              */
@@ -44,16 +44,16 @@ try{
 
         $executed = true;
 
-        if(isset($core)){
-            if(empty($core->register['script'])){
+        if(isset($core)) {
+            if(empty($core->register['script'])) {
                 $core->register('script', 'unknown');
             }
 
-            if($core->register['ready']){
+            if($core->register['ready']) {
                 log_file(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':type' => $core->callType(), ':script' => isset_get($core->register['script']))), 'uncaught-exception', 'exception');
                 log_file($e, 'uncaught-exception', 'exception');
 
-            }else{
+            } else {
                 /*
                  * System is not ready, we cannot log to syslog
                  */
@@ -62,27 +62,27 @@ try{
                 die(1);
             }
 
-        }else{
+        } else {
             error_log(tr('*** UNCAUGHT PRE-CORE-AVAILABLE EXCEPTION ":code" ***', array(':code' => $e->getCode())));
             error_log($e->getMessage(), 'uncaught-exception');
             die(1);
         }
 
-        if(!defined('PLATFORM')){
+        if(!defined('PLATFORM')) {
             /*
              * Wow, system crashed before platform detection. See $core->__constructor()
              */
             die('exception before platform detection');
         }
 
-        switch(PLATFORM){
+        switch(PLATFORM) {
             case 'cli':
                 /*
                  * Ensure that required defines are available
                  */
                 load_libs('cli');
 
-                if(!defined('VERYVERBOSE')){
+                if(!defined('VERYVERBOSE')) {
                     define('VERYVERBOSE', (cli_argument('-VV,--very-verbose') ? 'VERYVERBOSE' : null));
                 }
 
@@ -100,33 +100,33 @@ try{
                                  'STATUS'   => cli_argument('-S,--status' , true),
                                  'STARTDIR' => slash(getcwd()));
 
-                foreach($defines as $key => $value){
-                    if(!defined($key)){
+                foreach($defines as $key => $value) {
+                    if(!defined($key)) {
                         define($key, $value);
                     }
                 }
 
                 notify($e, false, false);
 
-                if($e->getCode() === 'parameters'){
+                if($e->getCode() === 'parameters') {
                     log_console(trim(Strings::from($e->getMessage(), '():')), 'warning');
                     $GLOBALS['core'] = false;
                     die(1);
                 }
 
-                if(!$core->register['ready']){
+                if(!$core->register['ready']) {
                     /*
                      * Configuration hasn't been loaded yet, we cannot even know if
                      * we are in debug mode or not!
                      *
                      * Log to the webserver error log files at the very least
                      */
-                    if(method_exists($e, 'getMessages')){
-                        foreach($e->getMessages() as $message){
+                    if(method_exists($e, 'getMessages')) {
+                        foreach($e->getMessages() as $message) {
                             error_log($message);
                         }
 
-                    }else{
+                    } else {
                         error_log($e->getMessage());
                     }
 
@@ -141,8 +141,8 @@ try{
                  * If not using VERBOSE mode, then try to give nice error messages
                  * for known issues
                  */
-                if(!VERBOSE){
-                    if(Strings::until($e->getCode(), '/') === 'warning'){
+                if(!VERBOSE) {
+                    if(Strings::until($e->getCode(), '/') === 'warning') {
                         /*
                          * This is just a simple general warning, no backtrace and
                          * such needed, only show the principal message
@@ -152,7 +152,7 @@ try{
                         die($core->register['exit_code']);
                     }
 
-                    switch((string) $e->getCode()){
+                    switch((string) $e->getCode()) {
                         case 'already-running':
                             log_console(tr('Failed: :message', array(':message' => trim(Strings::from($e->getMessage(), '():')))), 'yellow');
                             $core->register['exit_code'] = 254;
@@ -183,7 +183,7 @@ try{
                             die($core->register['exit_code']);
 
                         case 'validation':
-                            if($core->register['script'] === 'init'){
+                            if($core->register['script'] === 'init') {
                                 /*
                                  * In the init script, all validations are fatal!
                                  */
@@ -191,20 +191,20 @@ try{
                                 break;
                             }
 
-                            if(method_exists($e, 'getMessages')){
+                            if(method_exists($e, 'getMessages')) {
                                 $messages = $e->getMessages();
 
-                            }else{
+                            } else {
                                 $messages = $e->getMessage();
                             }
 
-                            if(count($messages) > 2){
+                            if(count($messages) > 2) {
                                 array_pop($messages);
                                 array_pop($messages);
                                 log_console(tr('Validation failed'), 'yellow');
                                 log_console($messages, 'yellow');
 
-                            }else{
+                            } else {
                                 log_console($messages, 'yellow');
                             }
 
@@ -217,12 +217,12 @@ try{
                 log_console(tr('*** UNCAUGHT EXCEPTION ":code" IN CONSOLE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'])), 'exception');
                 debug(true);
 
-                if($e instanceof BException){
-                    if($e->getCode() === 'no-trace'){
+                if($e instanceof BException) {
+                    if($e->getCode() === 'no-trace') {
                         $messages = $e->getMessages();
                         log_console(array_pop($messages), 'exception');
 
-                    }else{
+                    } else {
                         /*
                          * Show the entire exception
                          */
@@ -237,34 +237,34 @@ try{
                         log_console(tr('Exception location: ":file@:line"', array(':file' => $file, ':line' => $line)), 'exception');
                         log_console(tr('Exception messages trace:'), 'exception');
 
-                        foreach($messages as $message){
+                        foreach($messages as $message) {
                             log_console('    '.$message, 'exception');
                         }
 
                         log_console('    '.$core->register['script'].': Failed', 'exception');
                         log_console(tr('Exception function trace:'), 'exception');
 
-                        if($trace){
+                        if($trace) {
                             log_console(str_log($trace), 'exception');
 
-                        }else{
+                        } else {
                             log_console(tr('N/A'), 'exception');
                         }
 
-                        if($data){
+                        if($data) {
                             log_console(tr('Exception data:'), 'exception');
                             log_console(str_log($data), 'exception');
                         }
                     }
 
-                }else{
+                } else {
                     /*
                      * Treat this as a normal PHP Exception object
                      */
-                    if($e->getCode() === 'no-trace'){
+                    if($e->getCode() === 'no-trace') {
                         log_console($e->getMessage(), 'exception');
 
-                    }else{
+                    } else {
                         /*
                          * Show the entire exception
                          */
@@ -279,7 +279,7 @@ try{
                 /*
                  * Remove all caching headers
                  */
-                if(!headers_sent()){
+                if(!headers_sent()) {
                     header_remove('ETag');
                     header_remove('Cache-Control');
                     header_remove('Expires');
@@ -295,7 +295,7 @@ try{
                 /*
                  * Ensure that required defines are available
                  */
-                if(!defined('VERYVERBOSE')){
+                if(!defined('VERYVERBOSE')) {
                     define('VERYVERBOSE', (getenv('VERYVERBOSE') ? 'VERYVERBOSE' : null));
                 }
 
@@ -314,15 +314,15 @@ try{
                                  'DELETED'  => (getenv('DELETED')                  ? 'DELETED' : null),
                                  'STATUS'   => (getenv('STATUS')                   ? 'STATUS'  : null));
 
-                foreach($defines as $key => $value){
-                    if(!defined($key)){
+                foreach($defines as $key => $value) {
+                    if(!defined($key)) {
                         define($key, $value);
                     }
                 }
 
                 notify($e, false, false);
 
-                if(!$core->register['ready']){
+                if(!$core->register['ready']) {
                     /*
                      * Configuration hasn't been loaded yet, we cannot even know
                      * if we are in debug mode or not!
@@ -331,29 +331,29 @@ try{
                      * headers so that at least there will be a visible page
                      * with the right mimetype
                      */
-                    if(!headers_sent()){
+                    if(!headers_sent()) {
                         header('Content-Type: text/html', true);
                     }
 
 
-                    if(method_exists($e, 'getMessages')){
-                        foreach($e->getMessages() as $message){
+                    if(method_exists($e, 'getMessages')) {
+                        foreach($e->getMessages() as $message) {
                             error_log($message);
                         }
 
-                    }else{
+                    } else {
                         error_log($e->getMessage());
                     }
 
                     die(tr('Pre ready exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
                 }
 
-                if($e->getCode() === 'validation'){
+                if($e->getCode() === 'validation') {
                     $e->setCode(400);
                 }
 
-                if(($e instanceof BException) and is_numeric($e->getRealCode()) and ($e->getRealCode() > 100) and page_show($e->getRealCode(), array('exists' => true))){
-                    if($e->isWarning()){
+                if(($e instanceof BException) and is_numeric($e->getRealCode()) and ($e->getRealCode() > 100) and page_show($e->getRealCode(), array('exists' => true))) {
+                    if($e->isWarning()) {
                         html_flash_set($e->getMessage(), 'warning', $e->getRealCode());
                     }
 
@@ -361,16 +361,16 @@ try{
                     page_show($e->getRealCode(), array('message' =>$e->getMessage()));
                 }
 
-                if(debug()){
+                if(debug()) {
                     /*
                      * We're trying to show an html error here!
                      */
-                    if(!headers_sent()){
+                    if(!headers_sent()) {
                         http_response_code(500);
                         header('Content-Type: text/html', true);
                     }
 
-                    switch($core->callType()){
+                    switch($core->callType()) {
                         case 'api':
                             // FALLTHROUGH
                         case 'ajax':
@@ -446,7 +446,7 @@ try{
 
                     echo $retval;
 
-                    if($e instanceof BException){
+                    if($e instanceof BException) {
                         /*
                          * Clean data
                          */
@@ -461,11 +461,11 @@ try{
                  */
                 notify($e, false, false);
 
-                switch($core->callType()){
+                switch($core->callType()) {
                     case 'api':
                         // FALLTHROUGH
                     case 'ajax':
-                        if($e instanceof BException){
+                        if($e instanceof BException) {
                             json_message($e->getRealCode(), array('reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')));
                         }
 
@@ -479,15 +479,15 @@ try{
                 page_show($e->getCode());
         }
 
-    }catch(Exception $f){
-        if(!isset($core)){
+    }catch(Exception $f) {
+        if(!isset($core)) {
             error_log(tr('*** UNCAUGHT PRE CORE AVAILABLE EXCEPTION HANDLER CRASHED ***'));
             error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
             error_log($f->getMessage());
             die('Pre core available exception with handling failure. Please your application or webserver error log files, or enable the first line in the exception handler file for more information');
         }
 
-        if(!defined('PLATFORM') or !$core->register['ready']){
+        if(!defined('PLATFORM') or !$core->register['ready']) {
             error_log(tr('*** UNCAUGHT PRE READY EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])));
             error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
             error_log($f->getMessage());
@@ -497,7 +497,7 @@ try{
         log_file('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!', 'exception-handler', 'exception');
         log_file($f, 'exception-handler');
 
-        switch(PLATFORM){
+        switch(PLATFORM) {
             case 'cli':
                 log_console(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])), 'exception');
                 log_console(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'), 'exception');
@@ -507,12 +507,12 @@ try{
                 showdie($e);
 
             case 'http':
-                if(!headers_sent()){
+                if(!headers_sent()) {
                     http_response_code(500);
                     header('Content-Type: text/html');
                 }
 
-                if(!debug()){
+                if(!debug()) {
                     notify($f, false, false);
                     notify($e, false, false);
                     page_show(500);
@@ -526,7 +526,7 @@ try{
         }
     }
 
-}catch(Exception $g){
+}catch(Exception $g) {
     /*
      * Well, we tried. Here we just give up all together
      */

@@ -14,7 +14,7 @@
  * Custom page loader. Will add header and footer to the given HTML, then send
  * HTTP headers, and then HTML to client
  */
-function c_page($params, $meta, $html){
+function c_page($params, $meta, $html) {
     try{
         array_params($params);
         array_default($params, 'cache_namespace', 'htmlpage');
@@ -28,7 +28,7 @@ function c_page($params, $meta, $html){
 
         return cache_write($html, $params['cache_key'], $params['cache_namespace']);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('c_page(): Failed', $e);
     }
 }
@@ -38,7 +38,7 @@ function c_page($params, $meta, $html){
 /*
  * Create and return the page header
  */
-function c_html_header($params, $meta, $html){
+function c_html_header($params, $meta, $html) {
     global $_CONFIG;
 
     try{
@@ -55,7 +55,7 @@ function c_html_header($params, $meta, $html){
 
         return html_header($params, $meta, $html).$html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('c_html_header(): Failed', $e);
     }
 }
@@ -65,7 +65,7 @@ function c_html_header($params, $meta, $html){
 /*
  * Create and return the page header
  */
-function c_page_header($params){
+function c_page_header($params) {
     global $_CONFIG;
 
     try{
@@ -73,7 +73,7 @@ function c_page_header($params){
 
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('c_page_header(): Failed', $e);
     }
 }
@@ -83,13 +83,13 @@ function c_page_header($params){
 /*
  * Create and return the page footer
  */
-function c_html_footer($params){
+function c_html_footer($params) {
     try{
         $html = '';
 
         return $html.html_footer();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('c_html_footer(): Failed', $e);
     }
 }

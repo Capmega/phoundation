@@ -27,11 +27,11 @@ use Twilio\Rest\Client;
  *
  * @return void
  */
-function twilio_library_init(){
+function twilio_library_init() {
     try{
         load_config('twilio');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_library_init(): Failed', $e);
     }
 }
@@ -51,21 +51,21 @@ function twilio_library_init(){
  *
  * @return void
  */
-function twilio_install(){
+function twilio_install() {
     try{
         log_console('twilio_install(): Installing Twilio library', 'cyan');
 
         /*
          * Ensure the ROOT/libs/external path exists
          */
-        file_execute_mode(ROOT.'libs', 0770, function(){
+        file_execute_mode(ROOT.'libs', 0770, function() {
             file_ensure_path(ROOT.'libs/external', 0550);
 
             /*
              * Download the twilio PHP library and install it in
              * ROOT/libs/external
              */
-            file_execute_mode(ROOT.'libs/external', 0770, function(){
+            file_execute_mode(ROOT.'libs/external', 0770, function() {
                 file_ensure_path(ROOT.'libs/external');
                 file_delete(TMP.'twilio_install.zip');
                 file_delete(ROOT.'libs/external/twilio-php-master', ROOT.'libs/external/');
@@ -82,7 +82,7 @@ function twilio_install(){
             });
         });
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_install(): Failed', $e);
     }
 }
@@ -104,7 +104,7 @@ function twilio_install(){
  * @param boolean $auto_install If set to true and the Twilio library is not found, the system will install the Twilio library automatically
  * @return object Twilio\Rest\Client\Client A Twilio client object interface
  */
-function twilio_load($source, $auto_install = true){
+function twilio_load($source, $auto_install = true) {
     try{
         /*
          * Load Twilio library
@@ -112,16 +112,16 @@ function twilio_load($source, $auto_install = true){
          */
         $file = ROOT.'libs/external/twilio/Twilio/autoload.php';
 
-        if(!file_exists($file)){
+        if(!file_exists($file)) {
             log_console('twilio_load(): Twilio API library not found', 'warning');
 
-            if(!$auto_install){
+            if(!$auto_install) {
                 throw new CoreException(tr('twilio_load(): Twilio API library file ":file" was not found', array(':file' => $file)), 'notinstalled');
             }
 
             twilio_install();
 
-            if(!file_exists($file)){
+            if(!file_exists($file)) {
                 throw new CoreException(tr('twilio_load(): Twilio API library file ":file" was not found, and auto install seems to have failed', array(':file' => $file)), 'notinstalled');
             }
         }
@@ -133,13 +133,13 @@ function twilio_load($source, $auto_install = true){
          */
         $account = twilio_get_account_by_phone_number($source);
 
-        if(!$account){
+        if(!$account) {
             throw new CoreException(tr('twilio_load(): No Twilio account found for source ":source"', array(':source' => $source)), 'not-exists');
         }
 
         return new Client($account['account_id'], $account['account_token']);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_load(): Failed', $e);
     }
 }
@@ -164,23 +164,23 @@ function twilio_load($source, $auto_install = true){
  * @param string $from The Twilio phone number from which to send the message
  * @return void
  */
-function twilio_name_phones($numbers, $non_numeric = null){
+function twilio_name_phones($numbers, $non_numeric = null) {
     try{
         load_libs('sms');
 
         $numbers = sms_full_phones($numbers);
         $numbers = array_force($numbers);
 
-        foreach($numbers as &$number){
-            if(!is_numeric($number)){
-                if($non_numeric){
+        foreach($numbers as &$number) {
+            if(!is_numeric($number)) {
+                if($non_numeric) {
                     $number = $non_numeric;
                 }
 
-            }else{
+            } else {
                 $label = sql_get('SELECT `name` FROM `twilio_numbers` WHERE `number` = :number', 'name', array(':number' => $number));
 
-                if($label){
+                if($label) {
                     $number = $label;
                 }
             }
@@ -188,7 +188,7 @@ function twilio_name_phones($numbers, $non_numeric = null){
 
         return str_force($numbers, ', ');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_name_phones(): Failed', $e);
     }
 }
@@ -208,14 +208,14 @@ function twilio_name_phones($numbers, $non_numeric = null){
  * @param mixed $number The message to be sent.
  * @return void
  */
-function twilio_verify_source_phone($number){
+function twilio_verify_source_phone($number) {
     try{
         load_libs('sms');
 
         $number = sms_full_phones($number);
         return sql_get('SELECT `number` FROM `twilio_numbers` WHERE `number` = :number', 'number', array(':number' => $number));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_verify_source_phone(): Failed', $e);
     }
 }
@@ -248,29 +248,29 @@ function twilio_verify_source_phone($number){
  * @param string $from The Twilio phone number from which to send the message
  * @return void
  */
-function twilio_send_message($message, $to, $from = null){
+function twilio_send_message($message, $to, $from = null) {
     static $account;
 
     try{
         $source = sql_get('SELECT `number` FROM `twilio_numbers` WHERE `number` = :number', 'number', array(':number' => $from));
 
-        if(!$source){
+        if(!$source) {
             throw new CoreException(tr('twilio_send_message(): Specified source phone ":from" is not known', array(':from' => $from)), 'unknown');
         }
 
-        if(empty($account)){
+        if(empty($account)) {
             $account = twilio_load($source);
         }
 
-        if(is_array($message)){
+        if(is_array($message)) {
             /*
              * This is an MMS message
              */
-            if(empty($message['message'])){
+            if(empty($message['message'])) {
                 throw new CoreException(tr('twilio_send_message(): No message specified'), 'not-specified');
             }
 
-            if(empty($message['media'])){
+            if(empty($message['media'])) {
                 throw new CoreException(tr('twilio_send_message(): No media specified'), 'not-specified');
             }
 
@@ -285,7 +285,7 @@ function twilio_send_message($message, $to, $from = null){
         return $account->messages->create($to, array('body' => $message,
                                                      'from' => $source));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('twilio_send_message(): Failed'), $e);
     }
 }
@@ -309,7 +309,7 @@ function twilio_send_message($message, $to, $from = null){
  * @param string $mimetype The mimetype for the specified URL
  * @return void
  */
-function twilio_add_image($messages_id, $url, $mimetype){
+function twilio_add_image($messages_id, $url, $mimetype) {
     try{
         sql_query('INSERT INTO `sms_images` (`sms_messages_id`, `url`, `mimetype`)
                    VALUES                   (:sms_messages_id , :url , :mimetype )',
@@ -320,7 +320,7 @@ function twilio_add_image($messages_id, $url, $mimetype){
 
         run_background('base/sms getimages');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('twilio_add_image(): Failed'), $e);
     }
 }
@@ -343,7 +343,7 @@ function twilio_add_image($messages_id, $url, $mimetype){
  * @param string $url The URL for the image
  * @return string The file under which the image was stored
  */
-function twilio_download_image($messages_id, $url){
+function twilio_download_image($messages_id, $url) {
     try{
         $file = download($url);
         $file = file_move_to_target($file, ROOT.'data/sms/images', 'jpg');
@@ -362,7 +362,7 @@ function twilio_download_image($messages_id, $url){
 
         return $file;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('twilio_download_image(): Failed'), $e);
     }
 }
@@ -384,7 +384,7 @@ function twilio_download_image($messages_id, $url){
  * @param array $number The Twilio group data
  * @return array The specified Twilio group data, validated and sanitized
  */
-function twilio_validate_group($group){
+function twilio_validate_group($group) {
     try{
         load_libs('validate,seo');
 
@@ -394,28 +394,28 @@ function twilio_validate_group($group){
         $v->hasMaxChars($group['name'], 32, tr('Please ensure the twilio name has less than 32 characters'));
         $v->isRegex($group['name'], '/^[a-z-]{2,32}$/', tr('Please ensure the twilio name contains only lower case letters, and dashes'));
 
-        if($group['description']){
+        if($group['description']) {
             $v->hasMinChars($group['description'], 2, tr('Please ensure the twilio description has at least 2 characters'));
             $v->hasMaxChars($group['description'], 2047, tr('Please ensure the twilio description has less than 2047 characters'));
 
-        }else{
+        } else {
             $group['description'] = null;
         }
 
-        if(is_numeric(substr($group['name'], 0, 1))){
+        if(is_numeric(substr($group['name'], 0, 1))) {
             $v->setError(tr('Please ensure that the name does not start with a number'));
         }
 
         /*
          * Does the twilio phone number already exist?
          */
-        if(empty($group['id'])){
-            if($id = sql_get('SELECT `id` FROM `twilio_groups` WHERE `name` = :name', array(':name' => $group['name']))){
+        if(empty($group['id'])) {
+            if($id = sql_get('SELECT `id` FROM `twilio_groups` WHERE `name` = :name', array(':name' => $group['name']))) {
                 $v->setError(tr('The group ":group" already exists with id ":id"', array(':group' => $group['name'], ':id' => $id)));
             }
 
-        }else{
-            if($id = sql_get('SELECT `id` FROM `twilio_groups` WHERE `name` = :name AND `id` != :id', array(':name' => $group['name'], ':id' => $group['id']))){
+        } else {
+            if($id = sql_get('SELECT `id` FROM `twilio_groups` WHERE `name` = :name AND `id` != :id', array(':name' => $group['name'], ':id' => $group['id']))) {
                 $v->setError(tr('The group ":group" already exists with id ":id"', array(':group' => $group['name'], ':id' => $id)));
             }
         }
@@ -426,7 +426,7 @@ function twilio_validate_group($group){
 
         return $group;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('twilio_validate_group(): Failed'), $e);
     }
 }
@@ -447,13 +447,13 @@ function twilio_validate_group($group){
  * @param mixed $group
  * @return array The Twilio group data for the specified Twilio number
  */
-function twilio_get_group($group){
+function twilio_get_group($group) {
     try{
-        if(!$group){
+        if(!$group) {
             throw new CoreException(tr('twilio_get_group(): No twilio specified'), 'not-specified');
         }
 
-        if(!is_scalar($group)){
+        if(!is_scalar($group)) {
             throw new CoreException(tr('twilio_get_group(): Specified twilio ":group" is not scalar', array(':group' => $group)), 'invalid');
         }
 
@@ -479,7 +479,7 @@ function twilio_get_group($group){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_get_group(): Failed', $e);
     }
 }
@@ -501,7 +501,7 @@ function twilio_get_group($group){
  * @param array $number The Twilio account data
  * @return array The specified Twilio account data, validated and sanitized
  */
-function twilio_validate_account($account){
+function twilio_validate_account($account) {
     try{
         load_libs('validate,seo');
 
@@ -520,13 +520,13 @@ function twilio_validate_account($account){
         /*
          * Does the twilio already exist?
          */
-        if(empty($account['id'])){
-            if($id = sql_get('SELECT `id` FROM `twilio_accounts` WHERE `email` = :email', array(':email' => $account['email']))){
+        if(empty($account['id'])) {
+            if($id = sql_get('SELECT `id` FROM `twilio_accounts` WHERE `email` = :email', array(':email' => $account['email']))) {
                 $v->setError(tr('The Twilio account ":account" already exists with id ":id"', array(':account' => $account['email'], ':id' => $id)));
             }
 
-        }else{
-            if($id = sql_get('SELECT `id` FROM `twilio_accounts` WHERE `email` = :email AND `id` != :id', array(':email' => $account['email'], ':id' => $account['id']))){
+        } else {
+            if($id = sql_get('SELECT `id` FROM `twilio_accounts` WHERE `email` = :email AND `id` != :id', array(':email' => $account['email'], ':id' => $account['id']))) {
                 $v->setError(tr('The Twilio account ":account" already exists with id ":id"', array(':account' => $account['email'], ':id' => $id)));
             }
         }
@@ -537,7 +537,7 @@ function twilio_validate_account($account){
 
         return $account;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('twilio_validate_account(): Failed'), $e);
     }
 }
@@ -558,25 +558,25 @@ function twilio_validate_account($account){
  * @param mixed $account
  * @return array The Twilio account data for the specified Twilio number
  */
-function twilio_get_account($account){
+function twilio_get_account($account) {
     try{
-        if(!$account){
+        if(!$account) {
             throw new CoreException(tr('twilio_get_account(): No twilio account specified'), 'not-specified');
         }
 
-        if(!is_scalar($account)){
+        if(!is_scalar($account)) {
             throw new CoreException(tr('twilio_get_account(): Specified twilio account ":account" is not scalar', array(':account' => $account)), 'invalid');
         }
 
-        if(is_numeric($account)){
+        if(is_numeric($account)) {
             $where   = ' WHERE `twilio_accounts`.`id` = :id ';
             $execute = array(':id' => $account);
 
-        }elseif(filter_var($account, FILTER_VALIDATE_EMAIL)){
+        } elseif(filter_var($account, FILTER_VALIDATE_EMAIL)) {
             $where   = ' WHERE `twilio_accounts`.`email` = :email ';
             $execute = array(':email' => $account);
 
-        }else{
+        } else {
             $where   = ' WHERE `twilio_accounts`.`account_id` = :account_id ';
             $execute = array(':account_id' => $account);
         }
@@ -603,7 +603,7 @@ function twilio_get_account($account){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_get_account(): Failed', $e);
     }
 }
@@ -625,13 +625,13 @@ function twilio_get_account($account){
  * @param array $number The Twilio phone number for which the account data must be found
  * @return array The Twilio account data for the specified Twilio number
  */
-function twilio_get_account_by_phone_number($number){
+function twilio_get_account_by_phone_number($number) {
     try{
-        if(!$number){
+        if(!$number) {
             throw new CoreException(tr('twilio_get_account_by_phone_number(): No twilio number specified'), 'not-specified');
         }
 
-        if(!is_scalar($number)){
+        if(!is_scalar($number)) {
             throw new CoreException(tr('twilio_get_account_by_phone_number(): Specified twilio number ":number" is not scalar', array(':numbers' => $numbers)), 'invalid');
         }
 
@@ -659,7 +659,7 @@ function twilio_get_account_by_phone_number($number){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_get_account_by_phone_number(): Failed', $e);
     }
 }
@@ -679,7 +679,7 @@ function twilio_get_account_by_phone_number($number){
  * @param array $number The Twilio phone number data
  * @return array The specified Twilio phone number data, validated and sanitized
  */
-function twilio_validate_number($number){
+function twilio_validate_number($number) {
     try{
         load_libs('validate,seo');
 
@@ -694,17 +694,17 @@ function twilio_validate_number($number){
         $v->isNotEmpty($number['accounts_id'], tr('No account specified'));
         $v->isNumeric($number['accounts_id'], tr('Invalid account specified'));
 
-        if($number['groups_id']){
+        if($number['groups_id']) {
             $v->isNumeric($number['groups_id'], tr('Invalid group specified'));
 
-        }else{
+        } else {
             $number['groups_id'] = null;
         }
 
         /*
          * Does the twilio already exist?
          */
-        if(empty($number['id'])){
+        if(empty($number['id'])) {
             $id = sql_get('SELECT `id`
 
                            FROM   `twilio_numbers`
@@ -715,11 +715,11 @@ function twilio_validate_number($number){
                           'id', array(':name'   => $number['name'],
                                       ':number' => $number['number']));
 
-            if($id){
+            if($id) {
                 $v->setError(tr('The twilio number ":number" or name ":name" already exists with id ":id"', array(':name' => $number['name'], ':number' => $number['number'], ':id' => $id)));
             }
 
-        }else{
+        } else {
             $id = sql_get('SELECT `id`
 
                            FROM   `twilio_numbers`
@@ -732,7 +732,7 @@ function twilio_validate_number($number){
                                       ':name'   => $number['name'],
                                       ':number' => $number['number']));
 
-            if($id){
+            if($id) {
                 $v->setError(tr('The twilio number ":number" or name ":name" already exists with id ":id"', array(':name' => $number['name'], ':number' => $number['number'], ':id' => $id)));
             }
         }
@@ -743,7 +743,7 @@ function twilio_validate_number($number){
 
         return $number;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('twilio_validate_number(): Failed'), $e);
     }
 }
@@ -765,13 +765,13 @@ function twilio_validate_number($number){
  * @param string The Twilio phone number from which the data must be returned
  * @return array All available data on the Twilio phone number
  */
-function twilio_get_number($number){
+function twilio_get_number($number) {
     try{
-        if(!$number){
+        if(!$number) {
             throw new CoreException(tr('twilio_get_number(): No number specified'), 'not-specified');
         }
 
-        if(!is_scalar($number)){
+        if(!is_scalar($number)) {
             throw new CoreException(tr('twilio_get_number(): Specified twilio number ":number" is not scalar', array(':number' => $number)), 'invalid');
         }
 
@@ -809,7 +809,7 @@ function twilio_get_number($number){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_get_number(): Failed', $e);
     }
 }
@@ -829,7 +829,7 @@ function twilio_get_number($number){
  *
  * @return array All available twilio accounts
  */
-function twilio_list_accounts(){
+function twilio_list_accounts() {
     try{
         $accounts = sql_list('SELECT `twilio_accounts`.`id`,
                                      `twilio_accounts`.`email`,
@@ -842,7 +842,7 @@ function twilio_list_accounts(){
 
         return $accounts;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_list_accounts(): Failed', $e);
     }
 }
@@ -866,15 +866,15 @@ function twilio_list_accounts(){
  * @param boolean $array If true, the list will be returned in an array instead of an object
  * @return mixed Array containing the Twilio data for the specified phone number. Returns NULL in case the number does not exist
  */
-function twilio_api_get_number($number, $array = true){
+function twilio_api_get_number($number, $array = true) {
     try{
         $account = twilio_get_account_by_phone_number($number);
         $client  = twilio_load($account);
         $numbers = $client->IncomingPhoneNumbers->read();
 
-        foreach($numbers as $number){
-            if($number->phoneNumber === $phone_number){
-                if($array){
+        foreach($numbers as $number) {
+            if($number->phoneNumber === $phone_number) {
+                if($array) {
                     return twilio_number_to_array($number);
                 }
 
@@ -882,7 +882,7 @@ function twilio_api_get_number($number, $array = true){
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_api_get_number(): Failed', $e);
     }
 }
@@ -906,23 +906,23 @@ function twilio_api_get_number($number, $array = true){
  * @param boolean $array If true, the list will be returned in an array instead of an object
  * @return mixed The available Twilio phone numbers
  */
-function twilio_api_list_numbers($account, $array = true){
+function twilio_api_list_numbers($account, $array = true) {
     try{
         $client  = twilio_load($account);
         $numbers = $client->IncomingPhoneNumbers->read();
 
-        foreach($numbers as $number){
-            if($array){
+        foreach($numbers as $number) {
+            if($array) {
                 $retval[$number->phoneNumber] = twilio_number_to_array($number);
 
-            }else{
+            } else {
                 $retval[$number->phoneNumber] = $number;
             }
         }
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_api_list_numbers(): Failed', $e);
     }
 }
@@ -944,7 +944,7 @@ function twilio_api_list_numbers($account, $array = true){
  * @param object $number The twilio number object, must be a ....... class
  * @return array The twilio number data in an associative array
  */
-function twilio_number_to_array($number){
+function twilio_number_to_array($number) {
     try{
         $retval['accounts_sid']           = $number->accountSid;
         $retval['address_sid']            = $number->addressSid;
@@ -979,7 +979,7 @@ function twilio_number_to_array($number){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_number_to_array(): Failed', $e);
     }
 }
@@ -1006,7 +1006,7 @@ function twilio_number_to_array($number){
  * @param string $params[empty] The default text displayed on the select box if no Twilio accounts are available
  * @return string The HTML for the Twilio number select
  */
-function twilio_select_accounts($params){
+function twilio_select_accounts($params) {
     try{
         array_ensure($params);
         array_default($params, 'name' , 'number');
@@ -1018,7 +1018,7 @@ function twilio_select_accounts($params){
         $html = html_select($params);
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_select_accounts(): Failed', $e);
     }
 }
@@ -1046,7 +1046,7 @@ function twilio_select_accounts($params){
  * @param string $params[account] If specified, the numbers will be filtered to show only the numbers from the specified account
  * @return string The HTML for the Twilio number select
  */
-function twilio_select_number($params){
+function twilio_select_number($params) {
     try{
         array_ensure($params);
         array_default($params, 'name'   , 'number');
@@ -1054,10 +1054,10 @@ function twilio_select_number($params){
         array_default($params, 'empty'  , tr('No numbers available'));
         array_default($params, 'account', null);
 
-        if($params['account']){
+        if($params['account']) {
             $accounts_id = twilio_get_account($params['account']);
 
-            if(!$accounts_id){
+            if(!$accounts_id) {
                 throw new CoreException(tr('twilio_select_number(): Specified Twilio account ":account" does not exist', array(':account' => $params['account'])), 'not-exists');
             }
 
@@ -1068,7 +1068,7 @@ function twilio_select_number($params){
 
             $execute = array(':accounts_id' => $accounts_id);
 
-        }else{
+        } else {
             $where   = 'WHERE    `status` IS NULL
                         AND      `number` != ""
                         AND      `name`   != ""';
@@ -1090,7 +1090,7 @@ function twilio_select_number($params){
         $html = html_select($params);
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twilio_select_number(): Failed', $e);
     }
 }

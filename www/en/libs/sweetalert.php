@@ -27,7 +27,7 @@
  *
  * @return void
  */
-function sweetalert_library_init(){
+function sweetalert_library_init() {
     try{
         ensure_installed(array('name'      => 'sweetalert',
                                'project'   => 'sweetalert',
@@ -39,7 +39,7 @@ function sweetalert_library_init(){
         html_load_js('sweetalert/sweetalert');
         html_load_css('sweetalert/sweetalert');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sweetalert_library_init(): Failed', $e);
     }
 }
@@ -61,21 +61,21 @@ function sweetalert_library_init(){
  * @param params $params A parameters array
  * @return void
  */
-function sweetalert_install($params){
+function sweetalert_install($params) {
     try{
         $css = download('https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.css');
         $js  = download('https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.js');
 
-        file_execute_mode(ROOT.'pub/js/', 0770, function(){
+        file_execute_mode(ROOT.'pub/js/', 0770, function() {
             file_ensure_path(ROOT.'pub/js/sweetalert/', 0550);
 
-            file_execute_mode(ROOT.'pub/js/sweetalert/', 0770, function(){
+            file_execute_mode(ROOT.'pub/js/sweetalert/', 0770, function() {
                 rename($js , ROOT.'pub/js/sweetalert/sweetalert.js');
                 rename($css, ROOT.'pub/css/sweetalert/sweetalert.css');
             });
         });
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sweetalert_install(): Failed', $e);
     }
 }
@@ -85,7 +85,7 @@ function sweetalert_install($params){
 /*
  * Return the required javascript code to show a sweet alert
  */
-function sweetalert($params, $html = '', $type = '', $options = array()){
+function sweetalert($params, $html = '', $type = '', $options = array()) {
     try{
         array_params ($params, 'title');
         array_default($params, 'title'  , '');
@@ -121,30 +121,30 @@ function sweetalert($params, $html = '', $type = '', $options = array()){
         $options['html']  = $params['html'];
         $options['type']  = $params['type'];
 
-        if($params['options']['confirmAction']){
+        if($params['options']['confirmAction']) {
             $then['confirm'] = $params['options']['confirmAction'];
             unset($params['options']['confirmAction']);
         }
 
-        if($params['options']['cancelAction']){
+        if($params['options']['cancelAction']) {
             $then['cancel'] = $params['options']['cancelAction'];
             unset($params['options']['cancelAction']);
         }
 
-        foreach($params['options'] as $key => $value){
+        foreach($params['options'] as $key => $value) {
             if($value === null) continue;
             $options[$key] = $value;
         }
 
         $retval = 'swal('.json_encode_custom($options).')';
 
-        if(!empty($then)){
+        if(!empty($then)) {
             $retval .= '.then('.isset_get($then['confirm'], 'undefined').', '.isset_get($then['cancel'], 'undefined').')';
         }
 
         return $retval.';';
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sweetalert(): Failed', $e);
     }
 }
@@ -154,7 +154,7 @@ function sweetalert($params, $html = '', $type = '', $options = array()){
 /*
  * Show a sweet alert directly
  */
-function sweetalert_queue($params){
+function sweetalert_queue($params) {
     try{
         array_params ($params);
         array_default($params, 'modals'             , null);
@@ -163,19 +163,19 @@ function sweetalert_queue($params){
         array_default($params, 'animation'          , false);
         array_default($params, 'progress_steps'     , true);
 
-        if(empty($params['modals'])){
+        if(empty($params['modals'])) {
             throw new CoreException('sweetalert_queue(): No modals specified', 'not-specified');
         }
 
-        if(!is_array($params['modals'])){
+        if(!is_array($params['modals'])) {
             throw new CoreException('sweetalert_queue(): Specified modals list should be an array', 'invalid');
         }
 
         /*
          * Translate options
          */
-        foreach($params as $key => $value){
-            switch($key){
+        foreach($params as $key => $value) {
+            switch($key) {
                 case 'modals':
                     break;
 
@@ -192,11 +192,11 @@ function sweetalert_queue($params){
                     break;
 
                 case 'progress_steps':
-                    if($value){
-                        if($value === true){
+                    if($value) {
+                        if($value === true) {
                             $value = array_keys($params['modals']);
 
-                        }else{
+                        } else {
                             $options['progressSteps'] = $value;
                         }
                     }
@@ -215,7 +215,7 @@ function sweetalert_queue($params){
 
         return $javascript;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('sweetalert_queue(): Failed', $e);
     }
 }

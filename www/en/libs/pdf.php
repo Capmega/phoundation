@@ -15,7 +15,7 @@
 /*
  * Convert the specified PDF file to string text
  */
-function pdf_string($file){
+function pdf_string($file) {
     try{
         $textArray = array ();
         $objStart  = 0;
@@ -28,11 +28,11 @@ function pdf_string($file){
         $search_tag_start       = chr(13).chr(10).'stream';
         $search_tag_start_lenght = strlen ($search_tag_start);
 
-        while (($objStart = strpos($content, $search_tag_start, $objStart)) and ($objEnd = strpos ($content, 'endstream', $objStart + 1))){
+        while (($objStart = strpos($content, $search_tag_start, $objStart)) and ($objEnd = strpos ($content, 'endstream', $objStart + 1))) {
             $data = substr($content, $objStart + $search_tag_start_lenght + 2, $objEnd - ($objStart + $search_tag_start_lenght) - 2);
             $data = gzuncompress($data);
 
-            if (($data !== false) and (strpos($data, 'BT') !== false) and (strpos($data, 'ET') !== false)){
+            if (($data !== false) and (strpos($data, 'BT') !== false) and (strpos($data, 'ET') !== false)) {
                 $textArray [] = pdf_extract_text($data);
             }
 
@@ -41,7 +41,7 @@ function pdf_string($file){
 
         return $textArray;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pdf2string(): Failed', $e);
     }
 }
@@ -51,12 +51,12 @@ function pdf_string($file){
 /*
  * Extract plain string text from the specified postscript data
  */
-function pdf_extract_text($postscript_data){
+function pdf_extract_text($postscript_data) {
     try{
-        while ((($textStart = strpos($postscript_data, '(', $textStart)) && ($textEnd = strpos($postscript_data, ')', $textStart + 1)) && substr($postscript_data, $textEnd - 1) != '\\')){
+        while ((($textStart = strpos($postscript_data, '(', $textStart)) && ($textEnd = strpos($postscript_data, ')', $textStart + 1)) && substr($postscript_data, $textEnd - 1) != '\\')) {
             $plainText .= substr($postscript_data, $textStart + 1, $textEnd - $textStart - 1);
 
-            if (substr($postscript_data, $textEnd + 1, 1) == ']'){ //this adds quite some additional spaces between the words
+            if (substr($postscript_data, $textEnd + 1, 1) == ']') { //this adds quite some additional spaces between the words
                 $plainText .= ' ';
             }
 
@@ -65,7 +65,7 @@ function pdf_extract_text($postscript_data){
 
         return stripslashes($plainText);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('pdf_extract_text(): Failed', $e);
     }
 }

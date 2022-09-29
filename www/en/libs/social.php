@@ -27,11 +27,11 @@
  *
  * @return void
  */
-function social_library_init(){
+function social_library_init() {
     try{
         load_config('social');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('social_library_init(): Failed', $e);
     }
 }
@@ -41,34 +41,34 @@ function social_library_init(){
 /*
  *
  */
-function social_links($params = false, $returnas = 'string', $separator = ' | '){
+function social_links($params = false, $returnas = 'string', $separator = ' | ') {
     global $_CONFIG;
 
     try{
         $retval = array();
 
-        if(!$params){
+        if(!$params) {
             $params = $_CONFIG['social']['links'];
         }
 
-        foreach($params as $key => $value){
-            switch($key){
+        foreach($params as $key => $value) {
+            switch($key) {
                 case 'youtube';
-                    if($value){
+                    if($value) {
                         $retval[] = '<a href="http://www.youtube.com/user/'.$value.'" class="social youtube"'.(empty($params['target']) ? '' : ' target="'.$params['target'].'"').'>Youtube</a>';
                     }
 
                     break;
 
                 case 'facebook';
-                    if($value){
+                    if($value) {
                         $retval[] = '<a href="https://www.facebook.com/'.$value.'" class="social facebook"'.(empty($params['target']) ? '' : ' target="'.$params['target'].'"').'>Facebook</a>';
                     }
 
                     break;
 
                 case 'twitter';
-                    if($value){
+                    if($value) {
                         $retval[] = '<a href="https://twitter.com/'.$value.'" class="social twitter"'.(empty($params['target']) ? '' : ' target="'.$params['target'].'"').'>Twitter</a>';
                     }
 
@@ -76,11 +76,11 @@ function social_links($params = false, $returnas = 'string', $separator = ' | ')
             }
         }
 
-        if($retval){
+        if($retval) {
             html_load_css('social');
         }
 
-        switch($returnas){
+        switch($returnas) {
             case 'array':
                 return $retval;
 
@@ -91,7 +91,7 @@ function social_links($params = false, $returnas = 'string', $separator = ' | ')
                 throw new CoreException('social_links(): Unknown returnas "'.str_log($returnas).'" specified', 'unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('social_links(): Failed', $e);
     }
 }

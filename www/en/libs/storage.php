@@ -30,31 +30,31 @@
 /*
  *
  */
-function storage_url($url, $section = null, $page = null, $language = null){
+function storage_url($url, $section = null, $page = null, $language = null) {
     try{
-        if(!$language){
+        if(!$language) {
             $language = LANGUAGE;
         }
 
         $url = str_replace(':language', $language, $url);
 
-        if($section){
+        if($section) {
             $url = str_replace(':seosection', $section['seoname'], $url);
 
-        }else{
+        } else {
             $url = str_replace(':seosection', '', $url);
         }
 
-        if($page and !empty($page['seoname'])){
+        if($page and !empty($page['seoname'])) {
             $url = str_replace(':seodocument', $page['seoname'], $url);
 
-        }else{
+        } else {
            $url = str_replace(':seodocument', '', $url);
         }
 
         return $url;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_url(): Failed', $e);
     }
 }
@@ -65,9 +65,9 @@ function storage_url($url, $section = null, $page = null, $language = null){
  * Ensure that the specified section is a section array, and not just a
  * section id
  */
-function storage_ensure_section($section){
+function storage_ensure_section($section) {
     try{
-        if(is_array($section)){
+        if(is_array($section)) {
             return $section;
         }
 
@@ -76,7 +76,7 @@ function storage_ensure_section($section){
         $section = storage_sections_get($section, false);
         return $section;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_url(): Failed', $e);
     }
 }

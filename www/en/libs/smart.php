@@ -25,14 +25,14 @@
  *
  * @return void
  */
-function smart_library_init(){
+function smart_library_init() {
     try{
         ensure_installed(array('name'      => 'empty',
                                'project'   => 'emptyear',
                                'callback'  => 'empty_install',
                                'checks'    => array(ROOT.'libs/external/empty/')));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('smart_library_init(): Failed', $e);
     }
 }
@@ -51,12 +51,12 @@ function smart_library_init(){
  * @param
  * @return
  */
-function smart_install(){
+function smart_install() {
     try{
         load_libs('linux');
         linux_install_package(null, 'smartmontools');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('smart_install(): Failed', $e);
     }
 }
@@ -98,10 +98,10 @@ function smart_install(){
  * @params string $params[bar]
  * @return string The result
  */
-function empty_function($params){
+function empty_function($params) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('empty(): Failed', $e);
     }
 }

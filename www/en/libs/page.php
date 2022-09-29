@@ -13,21 +13,21 @@
 /*
  * Get a page from the database
  */
-function page_get($seoname){
+function page_get($seoname) {
     try{
         $page = sql_get('SELECT `data`, `status` FROM `pages` WHERE `seoname` = :seoname', array(':seoname' => $seoname));
 
-        if(!$page){
+        if(!$page) {
             throw new CoreException('page_get(): Page with seoname "'.str_log($seoname).'" does not exist', 'not-exists');
         }
 
-        if($page['status'] !== null){
+        if($page['status'] !== null) {
             throw new CoreException('page_get(): Page with seoname "'.str_log($seoname).'" has status "'.str_log($page['status']).'" and cannot be displayed', 'status');
         }
 
         return $page['data'];
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('page_get(): Failed', $e);
     }
 }
@@ -37,7 +37,7 @@ function page_get($seoname){
 /*
  * Store the specified page data the database
  */
-function page_put($name, $data, $status = null){
+function page_put($name, $data, $status = null) {
     try{
         sql_query('INSERT INTO `pages` (`status`, `name`, `seoname`, `data`)
                    VALUES              (:status , :name , :seoname , :data )
@@ -53,7 +53,7 @@ function page_put($name, $data, $status = null){
 
         return $seoname;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('page_put(): Failed', $e);
     }
 }

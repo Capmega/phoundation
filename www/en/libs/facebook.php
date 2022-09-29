@@ -56,7 +56,7 @@ function facebook_post_message($msg, $token) {
 
         return $response;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('facebook_post_message(): Failed', $e);
     }
 }
@@ -78,13 +78,13 @@ function facebook_redirect_to_authorize($return = false) {
         FacebookSession::setDefaultApplication($app_id, $app_secret);
         $helper = new FacebookRedirectLoginHelper($redirect);
 
-        if($return){
+        if($return) {
             return $helper->getLoginUrl($scope);
         }
 
         redirect($helper->getLoginUrl($scope));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('facebook_redirect_to_authorize(): Failed', $e);
     }
 }
@@ -107,7 +107,7 @@ function facebook_get_user_token() {
         $helper  = new FacebookRedirectLoginHelper($redirect);
         $session = $helper->getSessionFromRedirect();
 
-        if($session){
+        if($session) {
             return $session->getToken();
         }
 
@@ -139,7 +139,7 @@ function facebook_user_info($token) {
 
         return $response;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('facebook_user_info(): Failed', $e);
     }
 }
@@ -150,7 +150,7 @@ function facebook_user_info($token) {
  *
  */
 // :TODO: Update so that this works okay for base project!
-function facebook_signin(){
+function facebook_signin() {
     global $_CONFIG;
 
     try{
@@ -309,7 +309,7 @@ function facebook_signin(){
                                                   'redirect_uri' => $_CONFIG['sso']['facebook']['redirect'])), false);
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('facebook_connect(): Failed', $e);
     }
 }
@@ -319,15 +319,15 @@ function facebook_signin(){
 /*
  * Get the avatar from the facebook account of the specified user
  */
-function facebook_get_avatar($user){
+function facebook_get_avatar($user) {
     global $_CONFIG;
 
     try{
         load_libs('file,image,user');
 
-        if(is_array($user)){
-            if(empty($user['fb_id'])){
-                if(empty($user['id'])){
+        if(is_array($user)) {
+            if(empty($user['fb_id'])) {
+                if(empty($user['id'])) {
                     throw new CoreException('facebook_get_avatar: Specified user array contains no "id" or "fb_id"');
                 }
 
@@ -340,7 +340,7 @@ function facebook_get_avatar($user){
             $user = $user['fb_id'];
         }
 
-        if(!$user){
+        if(!$user) {
             throw new CoreException('facebook_get_avatar(): No facebook ID specified');
         }
 
@@ -358,7 +358,7 @@ function facebook_get_avatar($user){
         file_clear_path($file);
         return user_update_avatar($user, $retval);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('facebook_get_avatar(): Failed', $e);
     }
 }
@@ -489,7 +489,7 @@ function facebook_sdk_js() {
             }(document, \'script\', \'facebook-jssdk\'));</script>';
 }
 
-function facebook_button($params){
+function facebook_button($params) {
     try{
         /*
          * See https://developers.facebook.com/docs/plugins/like-button
@@ -505,7 +505,7 @@ function facebook_button($params){
 
         $html = '';
 
-        foreach(array_force($params['type']) as $type){
+        foreach(array_force($params['type']) as $type) {
             switch($type) {
                 case 'share':
                     $html .= '<div class="fb-share-button" data-href="'.$params['url'].'"data-layout="'.$params['layout'].'">
@@ -526,7 +526,7 @@ function facebook_button($params){
 
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('facebook_button(): Failed', $e);
     }
 }
@@ -535,7 +535,7 @@ function facebook_button($params){
 /*
  *
  */
-function facebook_load_sdk(){
+function facebook_load_sdk() {
     try{
         $html = '   <!-- Load Facebook SDK for JavaScript -->
                     <div id="fb-root"></div>
@@ -560,7 +560,7 @@ function facebook_load_sdk(){
 
         return $html;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('facebook_load_sdk(): Failed', $e);
     }
 }

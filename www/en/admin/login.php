@@ -10,15 +10,15 @@ if(isset($_GET['logout'])) {
 }
 
 if(isset($_POST['dosubmit'])) {
-	if(empty($_POST['username']) or empty($_POST['password'])){
+	if(empty($_POST['username']) or empty($_POST['password'])) {
 		log_database('Login failed : NO OR PARTIAL CREDENDIALS','ADMIN');
 		$flash = tr('Please specify a user and password');
 
-	}elseif(empty($_CONFIG['admins'][$_POST['username']]) or ($_CONFIG['admins'][$_POST['username']]['password'] != $_POST['password'])) {
+	} elseif(empty($_CONFIG['admins'][$_POST['username']]) or ($_CONFIG['admins'][$_POST['username']]['password'] != $_POST['password'])) {
 		log_database('Login failed : User "'.$_POST['username'].'"','ADMIN');
 		$flash = tr('Invalid credentials');
 
-	}else{
+	} else {
 		//login!
 		$_SESSION['admin'] = array('name'  => $_POST['username'],
 								   'admin' => true,

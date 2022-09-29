@@ -21,11 +21,11 @@
  *
  * @return void
  */
-function emailapi_library_init(){
+function emailapi_library_init() {
     try{
         load_libs('api');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('emailapi_library_init(): Failed', $e);
     }
 }
@@ -42,11 +42,11 @@ function emailapi_library_init(){
  *
  * @return array
  */
-function emailapi_init(){
+function emailapi_init() {
     try{
         return api_call_base($server, '/email/init');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('emailapi_init(): Failed', $e);
     }
 }
@@ -63,11 +63,11 @@ function emailapi_init(){
  *
  * @return array
  */
-function emailapi_clear_all($server){
+function emailapi_clear_all($server) {
     try{
         return api_call_base($server, '/email/clear-all');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('emailapi_clear_all(): Failed', $e);
     }
 }
@@ -84,11 +84,11 @@ function emailapi_clear_all($server){
  *
  * @return array
  */
-function emailapi_create_domains($domains){
+function emailapi_create_domains($domains) {
     try{
         return api_call_base($server, '/email/create-domains', array('domains' => $domains));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('emailapi_create_domains(): Failed', $e);
     }
 }
@@ -105,11 +105,11 @@ function emailapi_create_domains($domains){
  *
  * @return array
  */
-function emailapi_create_accounts($accounts){
+function emailapi_create_accounts($accounts) {
     try{
         return api_call_base($server, '/email/create-accounts', array('accounts' => $accounts));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('emailapi_create_accounts(): Failed', $e);
     }
 }
@@ -126,11 +126,11 @@ function emailapi_create_accounts($accounts){
  *
  * @return array
  */
-function emailapi_create_aliases($aliases){
+function emailapi_create_aliases($aliases) {
     try{
         return api_call_base($server, '/email/create-aliases', array('aliases' => $aliases));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('emailapi_create_aliases(): Failed', $e);
     }
 }
@@ -147,11 +147,11 @@ function emailapi_create_aliases($aliases){
  *
  * @return array
  */
-function emailapi_delete_domains($domains){
+function emailapi_delete_domains($domains) {
     try{
         return api_call_base($server, '/email/delete-domains', array('domains' => $domains));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('emailapi_delete_domains(): Failed', $e);
     }
 }
@@ -168,11 +168,11 @@ function emailapi_delete_domains($domains){
  *
  * @return array
  */
-function emailapi_delete_accounts($accounts){
+function emailapi_delete_accounts($accounts) {
     try{
         return api_call_base($server, '/email/delete-accounts', array('accounts' => $accounts));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('emailapi_delete_accounts(): Failed', $e);
     }
 }
@@ -189,11 +189,11 @@ function emailapi_delete_accounts($accounts){
  *
  * @return array
  */
-function emailapi_delete_aliases($aliases){
+function emailapi_delete_aliases($aliases) {
     try{
         return api_call_base($server, '/email/delete-aliases', array('aliases' => $aliases));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('emailapi_delete_aliases(): Failed', $e);
     }
 }
@@ -210,11 +210,11 @@ function emailapi_delete_aliases($aliases){
  *
  * @return array
  */
-function emailapi_list_domains($server){
+function emailapi_list_domains($server) {
     try{
         return api_call_base($server, '/email/list-domains');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('emailapi_list_domains(): Failed', $e);
     }
 }
@@ -231,11 +231,11 @@ function emailapi_list_domains($server){
  *
  * @return array
  */
-function emailapi_list_accounts($server, $domain){
+function emailapi_list_accounts($server, $domain) {
     try{
         return api_call_base($server, '/email/list-accounts', array('domain' => $domain));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('emailapi_list_accounts(): Failed', $e);
     }
 }
@@ -252,11 +252,11 @@ function emailapi_list_accounts($server, $domain){
  *
  * @return array
  */
-function emailapi_list_aliases($server, $domain){
+function emailapi_list_aliases($server, $domain) {
     try{
         return api_call_base($server, '/email/list-accounts', array('domain' => $domain));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('emailapi_list_aliases(): Failed', $e);
     }
 }
@@ -275,11 +275,11 @@ function emailapi_list_aliases($server, $domain){
  * @param array $servers
  * @return array The validated parameter data
  */
-function emailapi_update_password($account, $password){
+function emailapi_update_password($account, $password) {
     try{
         return api_call_base($server, '/email/update-password', array('accounts' => $accounts));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('emailapi_update_password(): Failed', $e);
     }
 }

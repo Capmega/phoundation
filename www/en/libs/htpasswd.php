@@ -16,15 +16,15 @@
 /*
  * Validate the specified htpassd filename
  */
-function htpasswd_validate($file){
+function htpasswd_validate($file) {
     try{
         $basefile = basename($file);
 
-        if($basefile != '.htpasswd'){
+        if($basefile != '.htpasswd') {
             throw new CoreException(tr('htpasswd_validate(): Specified file ":file" is not a .htpasswd file', array(':file' => $file)), 'invalid');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('htpasswd_validate(): Failed', $e);
     }
 }
@@ -34,11 +34,11 @@ function htpasswd_validate($file){
 /*
  * Create htpasswd file with the specified data
  */
-function htpasswd_create($file, $username, $password){
+function htpasswd_create($file, $username, $password) {
     try{
         htpasswd_validate($file);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('htpasswd_create(): Failed', $e);
     }
 }
@@ -48,11 +48,11 @@ function htpasswd_create($file, $username, $password){
 /*
  * Update the htpasswd file with the specified user
  */
-function htpasswd_update($file){
+function htpasswd_update($file) {
     try{
         htpasswd_validate($file);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('htpasswd_update(): Failed', $e);
     }
 }
@@ -62,11 +62,11 @@ function htpasswd_update($file){
 /*
  * Create htpasswd file with the specified data
  */
-function htpasswd_list($file){
+function htpasswd_list($file) {
     try{
         htpasswd_validate($file);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('htpasswd_list(): Failed', $e);
     }
 }
@@ -76,11 +76,11 @@ function htpasswd_list($file){
 /*
  * Authenticate the specified username with the specified password using the specified .htpasswd file
  */
-function htpasswd_authenticate($file, $username, $password){
+function htpasswd_authenticate($file, $username, $password) {
     try{
         htpasswd_validate($file);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('htpasswd_authenticate(): Failed', $e);
     }
 }

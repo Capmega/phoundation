@@ -23,11 +23,11 @@
  *
  * @return void
  */
-function projects_library_init(){
+function projects_library_init() {
     try{
         load_config('projects');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('projects_library_init(): Failed', $e);
     }
 }
@@ -57,7 +57,7 @@ function projects_library_init(){
  *
  * @return
  */
-function projects_validate($project, $reload_only = false){
+function projects_validate($project, $reload_only = false) {
     global $_CONFIG;
 
     try{
@@ -68,34 +68,34 @@ function projects_validate($project, $reload_only = false){
         /*
          * Validate category
          */
-        if($project['seocategory']){
+        if($project['seocategory']) {
             load_libs('categories');
             $project['categories_id'] = categories_get($project['seocategory'], 'id', null, $_CONFIG['projects']['categories_parent']);
 
-            if(!$project['categories_id']){
+            if(!$project['categories_id']) {
                 $v->setError(tr('Specified category does not exist'));
             }
 
-        }else{
+        } else {
             $project['categories_id'] = null;
         }
 
         /*
          * Validate customer
          */
-        if($project['seocustomer']){
+        if($project['seocustomer']) {
             load_libs('customers');
             $project['customers_id'] = customers_get(array('columns' => 'id',
                                                            'filters' => array('seoname' => $project['seocustomer'])));
 
-            if(!$project['customers_id']){
+            if(!$project['customers_id']) {
                 $v->setError(tr('Specified customer does not exist'));
             }
 
-        }else{
+        } else {
             $project['customers_id'] = null;
 
-            if(!$reload_only){
+            if(!$reload_only) {
                 $v->setError(tr('No customer specified'));
             }
         }
@@ -103,42 +103,42 @@ function projects_validate($project, $reload_only = false){
         /*
          * Validate process
          */
-        if($project['seoprocess']){
+        if($project['seoprocess']) {
             $project['processes_id'] = progress_get_process($project['seoprocess'], 'id');
 
-            if(!$project['processes_id']){
+            if(!$project['processes_id']) {
                 $v->setError(tr('The specified process does not exist'));
             }
 
-            if($project['seostep']){
+            if($project['seostep']) {
                 $project['steps_id'] = progress_get_step($project['processes_id'], $project['seostep'], 'id');
 
-                if(!$project['steps_id']){
+                if(!$project['steps_id']) {
                     $v->setError(tr('The specified step does not exist for this process'));
                 }
 
-            }else{
+            } else {
                 /*
                  * No step specified, so it should start with the first step
                  */
                 $project['steps_id'] = progress_get_step($project['processes_id'], null, 'id');
             }
 
-        }else{
+        } else {
             $project['processes_id'] = null;
             $project['steps_id']     = null;
         }
 
         $v->isValid();
 
-        if($reload_only){
+        if($reload_only) {
             return $project;
         }
 
         /*
          * Validate name
          */
-        if(!$v->isNotEmpty ($project['name'], tr('No projects name specified'))){
+        if(!$v->isNotEmpty ($project['name'], tr('No projects name specified'))) {
             $v->hasMinChars($project['name'], 2, tr('Please ensure the project\'s name has at least 2 characters'));
             $v->hasMaxChars($project['name'], 64, tr('Please ensure the project\'s name has less than 64 characters'));
             $v->isAlphaNumeric($project['name'], tr('Please specify a valid project name'), VALIDATE_IGNORE_ALL);
@@ -146,7 +146,7 @@ function projects_validate($project, $reload_only = false){
 
         $project['name'] = str_clean($project['name']);
 
-        if($project['code']){
+        if($project['code']) {
             $v->hasMinChars($project['code'], 2, tr('Please ensure the project\'s code has at least 2 characters'));
             $v->hasMaxChars($project['code'], 32, tr('Please ensure the project\'s code has less than 32 characters'));
             $v->isAlphaNumeric($project['code'], tr('Please ensure the project\'s code contains no spaces'), VALIDATE_IGNORE_UNDERSCORE);
@@ -154,35 +154,35 @@ function projects_validate($project, $reload_only = false){
             $project['code'] = str_clean($project['code']);
             $project['code'] = strtoupper($project['code']);
 
-        }else{
+        } else {
             $project['code'] = null;
         }
 
-        if($project['api_key']){
+        if($project['api_key']) {
             $v->hasMinChars($project['api_key'], 32, tr('Please ensure the project\'s api_key has at least 32 characters'));
             $v->hasMaxChars($project['api_key'], 64, tr('Please ensure the project\'s api_key has less than 64 characters'));
             $v->isAlphaNumeric($project['api_key'], tr('Please ensure the project\'s api_key contains no spaces'));
 
-        }else{
+        } else {
             $project['api_key'] = null;
         }
 
-        if($project['fcm_api_key']){
+        if($project['fcm_api_key']) {
             $v->hasMinChars($project['fcm_api_key'], 11, tr('Please ensure the project\'s fcm_api_key has at least 11 characters'));
             $v->hasMaxChars($project['fcm_api_key'], 511, tr('Please ensure the project\'s fcm_api_key has less than 511 characters'));
             $v->isAlphaNumeric($project['fcm_api_key'], tr('Please ensure the project\'s fcm_api_key is alpha numeric with only dashes'), VALIDATE_IGNORE_DASH);
 
-        }else{
+        } else {
             $project['fcm_api_key'] = null;
         }
 
         $v->hasMaxChars($project['description'], 2047, tr('Please ensure the project\'s description has less than 2047 characters'), VALIDATE_ALLOW_EMPTY_NULL);
         $v->isText($project['description'], tr('Please ensure the project\'s description is valid'), VALIDATE_ALLOW_EMPTY_NULL);
 
-        if($project['documents_id']){
+        if($project['documents_id']) {
             $v->isNatural($project['documents_id'], 1, tr('Please ensure the project\'s linked documents_id is a valid number'));
 
-        }else{
+        } else {
             $project['documents_id'] = null;
         }
 
@@ -196,7 +196,7 @@ function projects_validate($project, $reload_only = false){
          */
         $exists = sql_get('SELECT `id` FROM `storage_documents` WHERE `id` = :id', true, array(':id' => $project['documents_id']));
 
-        if($exists){
+        if($exists) {
             $v->setError(tr('The linked document does not exist'));
         }
 
@@ -205,7 +205,7 @@ function projects_validate($project, $reload_only = false){
          */
         $exists = sql_get('SELECT `id` FROM `projects` WHERE `name` = :name AND `id` != :id', true, array(':name' => $project['name'], ':id' => isset_get($project['id'], 0)));
 
-        if($exists){
+        if($exists) {
             $v->setError(tr('The name ":name" already exists for project id ":id"', array(':name' => $project['name'], ':id' => $exists)));
         }
 
@@ -214,7 +214,7 @@ function projects_validate($project, $reload_only = false){
          */
         $exists = sql_get('SELECT `id` FROM `projects` WHERE `code` = :code AND `id` != :id', true, array(':code' => $project['code'], ':id' => isset_get($project['id'], 0)));
 
-        if($exists){
+        if($exists) {
             $v->setError(tr('The project code ":code" already exists for project id ":id"', array(':code' => $project['code'], ':id' => $exists)));
         }
 
@@ -227,7 +227,7 @@ function projects_validate($project, $reload_only = false){
 
         return $project;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('projects_validate(): Failed'), $e);
     }
 }
@@ -253,7 +253,7 @@ function projects_validate($project, $reload_only = false){
  * @param string $project[]
  * @return params The specified project, validated and sanitized
  */
-function projects_insert($project){
+function projects_insert($project) {
     try{
         $project = projects_validate($project);
 
@@ -277,7 +277,7 @@ function projects_insert($project){
 
         return $project;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('projects_insert(): Failed'), $e);
     }
 }
@@ -302,7 +302,7 @@ function projects_insert($project){
  * @param string $project[]
  * @return boolean True if the user was updated, false if not. If not updated, this might be because no data has changed
  */
-function projects_update($project){
+function projects_update($project) {
     try{
         $project = projects_validate($project);
 
@@ -338,7 +338,7 @@ function projects_update($project){
         $project['_updated'] = (boolean) $update->rowCount();
         return $project;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('projects_update(): Failed'), $e);
     }
 }
@@ -368,7 +368,7 @@ function projects_update($project){
  * @param $params resource
  * @return string HTML for a projects select box within the specified parameters
  */
-function projects_select($params = null){
+function projects_select($params = null) {
     try{
         array_ensure($params);
         array_default($params, 'name'        , 'seoproject');
@@ -381,30 +381,30 @@ function projects_select($params = null){
         array_default($params, 'none'        , tr('Select a project'));
         array_default($params, 'orderby'     , '`name`');
 
-        if($params['seocustomer']){
+        if($params['seocustomer']) {
             load_libs('customers');
             $params['customers_id'] = customers_get(array('columns' => 'id',
                                                           'filters' => array('seoname' => $params['seocustomer'])));
 
-            if(!$params['customers_id']){
+            if(!$params['customers_id']) {
                 throw new CoreException(tr('projects_select(): The reqested customer ":customer" is not available', array(':customer' => $params['seocustomer'])), 'not-available');
             }
         }
 
-        if($params['customers_id'] !== false){
+        if($params['customers_id'] !== false) {
             $where[] = ' `customers_id` '.sql_is($params['customers_id'], ':customers_id');
             $execute[':customers_id'] = $params['customers_id'];
         }
 
-        if($params['status'] !== false){
+        if($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)){
+        if(empty($where)) {
             $where = '';
 
-        }else{
+        } else {
             $where = ' WHERE '.implode(' AND ', $where).' ';
         }
 
@@ -414,7 +414,7 @@ function projects_select($params = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('projects_select(): Failed', $e);
     }
 }
@@ -439,7 +439,7 @@ function projects_select($params = null){
  * @param natural $categories_id Filter by the specified categories_id. If NULL, the project must NOT belong to any category
  * @return mixed The project data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified project does not exist, NULL will be returned.
  */
-function projects_get($params){
+function projects_get($params) {
     try{
         array_ensure($params, 'seoproject');
 
@@ -480,7 +480,7 @@ function projects_get($params){
 
         return sql_simple_get($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('projects_get(): Failed', $e);
     }
 }
@@ -502,7 +502,7 @@ function projects_get($params){
  * @param params $params The list parameters
  * @return mixed The list of available templates
  */
-function projects_list($params){
+function projects_list($params) {
     try{
         array_ensure($params);
         array_default($params, 'columns', 'seoname,name');
@@ -512,7 +512,7 @@ function projects_list($params){
 
         return sql_simple_list($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('projects_list(): Failed', $e);
     }
 }

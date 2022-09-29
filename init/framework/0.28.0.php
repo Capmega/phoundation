@@ -7,7 +7,7 @@ $r = sql_query('SHOW TABLES');
 
 log_console(tr('Fixing table charset and collate'), '', 'white');
 
-while($table = sql_fetch($r, 'Tables_in_'.$_CONFIG['db']['core']['db'])){
+while($table = sql_fetch($r, 'Tables_in_'.$_CONFIG['db']['core']['db'])) {
     cli_dot(1);
     sql_query('ALTER TABLE `'.$table.'` CHARACTER SET '.$_CONFIG['db']['core']['charset'].' COLLATE '.$_CONFIG['db']['core']['collate'].';');
 }

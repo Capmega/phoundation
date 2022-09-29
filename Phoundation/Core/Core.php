@@ -1012,7 +1012,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * @param string $code
 //     * @param mixed $data
 //     */
-//    function __construct($messages, $code, $data = null){
+//    function __construct($messages, $code, $data = null) {
 //        return include(__DIR__.'/handlers/system-bexception-construct.php');
 //    }
 //
@@ -1030,16 +1030,16 @@ function page_show($pagename, $params = null, $get = null)
 //     * @param string $message The message you wish to add to the exceptions messages list
 //     * @return object $this, so that you can string multiple calls together
 //     */
-//    public function addMessages($messages){
-//        if(is_object($messages)){
-//            if(!($messages instanceof BException)){
+//    public function addMessages($messages) {
+//        if(is_object($messages)) {
+//            if(!($messages instanceof BException)) {
 //                throw new OutOfBoundsException(tr('BException::addMessages(): Only supported object class to add to messages is BException'), 'invalid');
 //            }
 //
 //            $messages = $messages->getMessages();
 //        }
 //
-//        foreach(array_force($messages) as $message){
+//        foreach(array_force($messages) as $message) {
 //            $this->messages[] = $message;
 //        }
 //
@@ -1060,7 +1060,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * @param string $code The new exception code you wish to set BException::code to
 //     * @return object $this, so that you can string multiple calls together
 //     */
-//    public function setCode($code){
+//    public function setCode($code) {
 //        $this->code = $code;
 //        return $this;
 //    }
@@ -1078,7 +1078,7 @@ function page_show($pagename, $params = null, $get = null)
 //     *
 //     * @return string The current BException::code value from the first /
 //     */
-//    public function getRealCode(){
+//    public function getRealCode() {
 //        return Strings::from($this->code, '/');
 //    }
 //
@@ -1096,8 +1096,8 @@ function page_show($pagename, $params = null, $get = null)
 //     * @param string $separator If specified, all messages will be returned as a string, each message separated by the specified $separator. If not specified, the messages will be returned as an array
 //     * @return mixed An array with the messages list for this exception. If $separator has been specified, this method will return all messages in one string, each message separated by $separator
 //     */
-//    public function getMessages($separator = null){
-//        if($separator === null){
+//    public function getMessages($separator = null) {
+//        if($separator === null) {
 //            return $this->messages;
 //        }
 //
@@ -1117,7 +1117,7 @@ function page_show($pagename, $params = null, $get = null)
 //     *
 //     * @return mixed Returns the content for BException::data
 //     */
-//    public function getData(){
+//    public function getData() {
 //        return $this->data;
 //    }
 //
@@ -1134,7 +1134,7 @@ function page_show($pagename, $params = null, $get = null)
 //     *
 //     * @param mixed $data The content for this exception
 //     */
-//    public function setData($data){
+//    public function setData($data) {
 //        $this->data = array_force($data);
 //    }
 //
@@ -1154,11 +1154,11 @@ function page_show($pagename, $params = null, $get = null)
 //     * @param boolean $value Specify true if this exception should be a warning, false if not
 //     * @return object $this, so that you can string multiple calls together
 //     */
-//    public function makeWarning($value){
-//        if($value){
+//    public function makeWarning($value) {
+//        if($value) {
 //            $this->code = str_starts($this->code, 'warning/');
 //
-//        }else{
+//        } else {
 //            $this->code = str_starts_not($this->code, 'warning/');
 //        }
 //
@@ -1180,7 +1180,7 @@ function page_show($pagename, $params = null, $get = null)
 //     *
 //     * @return boolean True if thie exception is a warning, false if it is a real exception
 //     */
-//    public function isWarning(){
+//    public function isWarning() {
 //        return (substr($this->code, 0, 7) === 'warning');
 //    }
 //}

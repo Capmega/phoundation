@@ -13,7 +13,7 @@
 /*
  *
  */
-function base_header(){
+function base_header() {
     return '<header>
     <h1><a href="index.php">BASE</a></h1>
 </header>';
@@ -24,7 +24,7 @@ function base_header(){
 /*
  *
  */
-function base_footer(){
+function base_footer() {
     return '<footer>
     (C) 2013, Sven Oostenbrink
 </footer>';
@@ -35,8 +35,8 @@ function base_footer(){
 /*
  *
  */
-function base_main($content){
-    if(!empty($_SESSION['flash'])){
+function base_main($content) {
+    if(!empty($_SESSION['flash'])) {
 showdie($_SESSION['flash']);
     }
 

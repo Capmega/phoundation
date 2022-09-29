@@ -13,14 +13,14 @@ try{
 
     load_libs('mailer');
 
-    if($count = mailer_delete($argv)){
+    if($count = mailer_delete($argv)) {
         log_console('Deleted "'.$count.'" mailers', '', 'white');
 
-    }else{
+    } else {
         log_console('No mailers deleted', '', 'yellow');
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     throw new CoreException('scripts/mailer/delete: Failed', $e);
 }
 ?>

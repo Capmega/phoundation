@@ -12,7 +12,7 @@ try{
     /*
      * Update password
      */
-    if(isset_get($_POST['doupdate'])){
+    if(isset_get($_POST['doupdate'])) {
         /*
          * Validate data
          */
@@ -26,7 +26,7 @@ try{
         html_flash_set(log_database('Updated password for user "'.str_log(user_name($_SESSION['user'])).'"', 'update-password'), 'success');
         redirect(domain('/admin/profile.php'));
 
-    }elseif(isset_get($_POST['doupdate2'])){
+    } elseif(isset_get($_POST['doupdate2'])) {
         /*
          * Update pin
          * Validate data
@@ -43,7 +43,7 @@ try{
         redirect(domain('/admin/profile.php'));
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     html_flash_set($e);
 }
 
@@ -170,7 +170,7 @@ echo ca_page($html, $params);
 /*
  *
  */
-function s_validate_password(&$user, $id = null){
+function s_validate_password(&$user, $id = null) {
     try{
         // Validate input
         $v = new validate_form($user, 'password,password2,cpassword');
@@ -184,7 +184,7 @@ function s_validate_password(&$user, $id = null){
          */
         user_authenticate($_SESSION['user']['name'], $params['cpassword']);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('s_validate_password(): Failed', $e);
     }
 }
@@ -193,7 +193,7 @@ function s_validate_password(&$user, $id = null){
 /*
  *
  */
-function s_validate_pin(&$user, $id = null){
+function s_validate_pin(&$user, $id = null) {
     try{
         // Validate input
         $v = new validate_form($user, 'pin,pin2,cpassword');
@@ -204,7 +204,7 @@ function s_validate_pin(&$user, $id = null){
         $v->isEqual     ($user['pin']       , $user['pin2'], tr('Please ensure that the pin and validation pin match'));
         $v->isNumeric   ($user['pin']                      , tr('Please ensure that the pin is numeric'));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('s_validate_pin(): Failed', $e);
     }
 }

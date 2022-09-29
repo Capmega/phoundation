@@ -16,7 +16,7 @@
 /*
  * Send the specified file to the specified CDN server
  */
-function cdn_send_files($files, $server, $section, $group = null){
+function cdn_send_files($files, $server, $section, $group = null) {
     global $_CONFIG;
 
     try{
@@ -29,7 +29,7 @@ function cdn_send_files($files, $server, $section, $group = null){
 
         return $result;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_send_files(): Failed', $e);
     }
 }
@@ -39,13 +39,13 @@ function cdn_send_files($files, $server, $section, $group = null){
 /*
  * Removes the specified files from all CDN servers
  */
-function cdn_delete_files($list, $column = 'file'){
+function cdn_delete_files($list, $column = 'file') {
     global $_CONFIG;
 
     try{
         load_libs('api');
 
-        if(!$list){
+        if(!$list) {
             throw new CoreException(tr('cdn_delete_files(): No files specified'), 'not-specified');
         }
 
@@ -79,8 +79,8 @@ function cdn_delete_files($list, $column = 'file'){
 
                         $in);
 
-        while($row = sql_fetch($r)){
-            if(empty($servers[$row['server']])){
+        while($row = sql_fetch($r)) {
+            if(empty($servers[$row['server']])) {
                 $servers[$row['server']] = array();
             }
 
@@ -91,7 +91,7 @@ function cdn_delete_files($list, $column = 'file'){
         /*
          * Delete files from each CDN server
          */
-        foreach($servers as $server => $files){
+        foreach($servers as $server => $files) {
             $files['project'] = PROJECT;
             $api_account      = cdn_get_api_account($server);
 
@@ -103,14 +103,14 @@ function cdn_delete_files($list, $column = 'file'){
          */
         $delete = sql_prepare('DELETE FROM `cdn_files` WHERE `file` = :file');
 
-        foreach($files as $file){
+        foreach($files as $file) {
             /*
              * Delete this file from the cdn_files table
              */
             $delete->execute(array(':file' => $file));
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_delete_files(): Failed', $e);
     }
 }
@@ -120,11 +120,11 @@ function cdn_delete_files($list, $column = 'file'){
 /*
  * Removes the specified groups within the specified groups from all CDN servers
  */
-function cdn_delete_groups($groups){
+function cdn_delete_groups($groups) {
     try{
         return cdn_delete_files($groups, 'group');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_delete_groups(): Failed', $e);
     }
 }
@@ -135,11 +135,11 @@ function cdn_delete_groups($groups){
  * Removes the specified sections within the specified sections from all CDN
  * servers
  */
-function cdn_delete_sections($sections){
+function cdn_delete_sections($sections) {
     try{
         return cdn_delete_files($groups, 'section');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_delete_sections(): Failed', $e);
     }
 }
@@ -149,7 +149,7 @@ function cdn_delete_sections($sections){
 /*
  * Assigns random CDN servers for the file to be stored in the CDN
  */
-function cdn_assign_servers(){
+function cdn_assign_servers() {
     global $_CONFIG;
 
     try{
@@ -170,7 +170,7 @@ function cdn_assign_servers(){
                              array(':environment' => ENVIRONMENT));
         return $servers;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_assign_servers(): Failed', $e);
     }
 }
@@ -180,25 +180,25 @@ function cdn_assign_servers(){
 /*
  * Returns a CDN server id from $_CONFIG[‘cdn’][servers’] or the specified cdns list
  */
-function cdn_pick_server($cdns){
+function cdn_pick_server($cdns) {
     global $_CONFIG;
     static $key = null;
 
     try{
-        if(!$cdns){
+        if(!$cdns) {
             throw new CoreException(tr('cdn_pick_server(): No CDNs specified'), 'not-specified');
         }
 
-        if(!is_array($cdns)){
+        if(!is_array($cdns)) {
             throw new CoreException(tr('cdn_pick_server(): Invalid CDN ":cdns" specified, must be array', array(':cdns' => $cdns)), 'invalid');
         }
 
-        if(!array_diff($_CONFIG['cdn']['servers'], $cdns)){
+        if(!array_diff($_CONFIG['cdn']['servers'], $cdns)) {
             throw new CoreException(tr('cdn_pick_server(): Specified CDN ":cdns" does not exist, check "$_CONFIG[cdn][servers]" configuration', array(':cdns' => $cdns)), 'invalid');
         }
 
-        if($key === null){
-            if(empty($_SESSION['cdn']['first_id'])){
+        if($key === null) {
+            if(empty($_SESSION['cdn']['first_id'])) {
                 /*
                  * Get $_SESSION['cdn'] data first!
                  */
@@ -208,13 +208,13 @@ function cdn_pick_server($cdns){
             $key = $_SESSION['cdn']['first_id'];
         }
 
-        if(++$key > count($cdns) - 1){
+        if(++$key > count($cdns) - 1) {
             $key = 0;
         }
 
         return $cdns[$key];
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_pick_server(): Failed', $e);
     }
 }
@@ -224,12 +224,12 @@ function cdn_pick_server($cdns){
 /*
  * Will balance all files over the available CDN servers using the configured amount of required copies
  */
-function cdn_balance($params){
+function cdn_balance($params) {
     global $_CONFIG;
 
     try{
         //
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_balance(): Failed', $e);
     }
 }
@@ -239,12 +239,12 @@ function cdn_balance($params){
 /*
  * Update $_SESSION[‘cdn’] from the CDN filesystem structure
  */
-function cdn_update_session(){
+function cdn_update_session() {
     global $_CONFIG;
 
     try{
         //
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_update_session(): Failed', $e);
     }
 }
@@ -254,14 +254,14 @@ function cdn_update_session(){
 /*
  *
  */
-function cdn_get_url($table, $filename){
+function cdn_get_url($table, $filename) {
     global $_CONFIG;
 
     try{
 
 //        return /'.$_CONFIG['domain'].'/'.$table.'/'.$filename.'/';
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_get_url(): Failed', $e);
     }
 }
@@ -271,13 +271,13 @@ function cdn_get_url($table, $filename){
 /*
  *
  */
-function cdn_get_domain($cdn_id){
+function cdn_get_domain($cdn_id) {
     global $_CONFIG;
 
     try{
         return str_replace(':id', $cdn_id, $_CONFIG['cdn']['domain']);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_get_url(): Failed', $e);
     }
 }
@@ -287,7 +287,7 @@ function cdn_get_domain($cdn_id){
 /*
  * Validate CDN server
  */
-function cdn_validate_server($server){
+function cdn_validate_server($server) {
 
     try{
         load_libs('validate,seo');
@@ -304,13 +304,13 @@ function cdn_validate_server($server){
 
         $server['api_accounts_id'] = sql_get('SELECT `id` FROM `api_accounts` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $server['api_account']));
 
-        if(!$server['api_accounts_id']){
+        if(!$server['api_accounts_id']) {
             $v->setError(tr('Specified API account ":account" does not exist', array(':account' => $server['api_account'])));
         }
 
         $exists = sql_exists('cdn_servers', 'name', $server['name'], $server['id']);
 
-        if($exists){
+        if($exists) {
             $v->setError(tr('The domain ":name" already exists', array(':name' => $server['name'])));
         }
 
@@ -320,7 +320,7 @@ function cdn_validate_server($server){
 
         return $server;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('cdn_validate_server(): Failed'), $e);
     }
 }
@@ -330,7 +330,7 @@ function cdn_validate_server($server){
 /*
  * Validate CDN project
  */
-function cdn_validate_project($project, $insert = true){
+function cdn_validate_project($project, $insert = true) {
 
     try{
         load_libs('validate,seo');
@@ -341,10 +341,10 @@ function cdn_validate_project($project, $insert = true){
         $v->hasMinChars($project['name'],  2, tr('Please ensure the path has at least 2 characters'));
         $v->hasMaxChars($project['name'], 32, tr('Please ensure the path has less than 32 characters'));
 
-        if(empty($project['desdription'])){
+        if(empty($project['desdription'])) {
             $project['desdription'] = '';
 
-        }else{
+        } else {
             $v->hasMinChars($project['desdription'],   16, tr('Please ensure the description has at least 16 characters, or empty'));
             $v->hasMaxChars($project['desdription'], 2047, tr('Please ensure the description has less than 2047 characters'));
         }
@@ -355,7 +355,7 @@ function cdn_validate_project($project, $insert = true){
 
         return $project;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('cdn_validate_project(): Failed'), $e);
     }
 }
@@ -365,7 +365,7 @@ function cdn_validate_project($project, $insert = true){
 /*
  *
  */
-function cdn_get_api_account($server){
+function cdn_get_api_account($server) {
     try{
         load_libs('api');
 
@@ -384,13 +384,13 @@ function cdn_get_api_account($server){
                                 true, array(':seoname'     => $server,
                                             ':environment' => ENVIRONMENT));
 
-        if(!$api_account){
+        if(!$api_account) {
             throw new CoreException(tr('cdn_validate_project(): Specified server ":server" does not exist or is not available', array(':server' => $server)), 'warning/not-exists');
         }
 
         return $api_account;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_get_api_account(): Failed', $e);
     }
 }
@@ -400,7 +400,7 @@ function cdn_get_api_account($server){
 /*
  * Get information from specified CDN server
  */
-function cdn_get_server_info($server){
+function cdn_get_server_info($server) {
     try{
         load_libs('api');
 
@@ -409,7 +409,7 @@ function cdn_get_server_info($server){
 
         return $result;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_get_server_info(): Failed', $e);
     }
 }
@@ -419,7 +419,7 @@ function cdn_get_server_info($server){
 /*
  * Test specified CDN server
  */
-function cdn_test_server($server){
+function cdn_test_server($server) {
     try{
         load_libs('api');
         $api_account = cdn_get_api_account($server);
@@ -430,7 +430,7 @@ function cdn_test_server($server){
         sql_query('UPDATE `cdn_servers` SET `status` = NULL WHERE `seoname` = :seoname', array(':seoname' => $server));
         return $result;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_test_server(): Failed', $e);
     }
 }
@@ -440,7 +440,7 @@ function cdn_test_server($server){
 /*
  * Register this project at the specified CDN server
  */
-function cdn_register_project($server){
+function cdn_register_project($server) {
     global $_CONFIG;
 
     try{
@@ -449,7 +449,7 @@ function cdn_register_project($server){
         $api_account = cdn_get_api_account($server);
         $result      = api_call_base($api_account, '/cdn/project-exists', array('project' => PROJECT));
 
-        if(empty($result['exists'])){
+        if(empty($result['exists'])) {
             sql_query('UPDATE `cdn_servers` SET `status` = "registering" WHERE `seoname` = :seoname', array(':seoname' => $server));
             $result = api_call_base($api_account, '/cdn/create-project', array('name' => PROJECT));
 
@@ -462,7 +462,7 @@ function cdn_register_project($server){
          */
         return false;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_register_project(): Failed', $e);
     }
 }
@@ -472,14 +472,14 @@ function cdn_register_project($server){
 /*
  * Unregister this project from the specified CDN server
  */
-function cdn_unregister_project($server){
+function cdn_unregister_project($server) {
     try{
         load_libs('api');
 
         $api_account = cdn_get_api_account($server);
         $result      = api_call_base($api_account, '/cdn/project-exists', array('project' => PROJECT));
 
-        if(!empty($result['exists'])){
+        if(!empty($result['exists'])) {
             /*
              * Project does not exist on specified serv
              */
@@ -490,7 +490,7 @@ function cdn_unregister_project($server){
         $result = api_call_base($api_account, '/cdn/delete-project', array('name' => PROJECT));
         return $result;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_unregister_project(): Failed', $e);
     }
 }
@@ -500,10 +500,10 @@ function cdn_unregister_project($server){
 /*
  * Update all
  */
-function cdn_update_pub(){
+function cdn_update_pub() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cdn_update_pub(): Failed', $e);
     }
 }

@@ -18,15 +18,15 @@ function gcm_send_notification($registatoin_ids, $message) {
     global $_CONFIG;
 
     try{
-        if(!function_exists('curl_init')){
+        if(!function_exists('curl_init')) {
             throw new CoreException('gcm_send_notification(): PHP CURL is not installed, this function cannot work without this library');
         }
 
-        if(!is_array($registatoin_ids)){
+        if(!is_array($registatoin_ids)) {
             $registatoin_ids = array($registatoin_ids);
         }
 
-        if(!is_array($message)){
+        if(!is_array($message)) {
             $message = array('message' => $message);
         }
 
@@ -64,7 +64,7 @@ function gcm_send_notification($registatoin_ids, $message) {
 
         return $result;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new isException('gcm_send_notification(): Failed with "'.curl_error($e->getMessage()).'"');
     }
 }

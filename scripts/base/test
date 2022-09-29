@@ -6,17 +6,17 @@
 require_once(__DIR__.'/../../libs/startup.php');
 
 try{
-    if(cli_exclusive()){
+    if(cli_exclusive()) {
         echo "This script is already running and it cannot run twice!\n";
 
-    }else{
-        while(true){
+    } else {
+        while(true) {
             echo "WHHEEE!! I got the world to my own!!\n";
             sleep(1);
         }
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     throw new CoreException('scripts/test: Failed', $e);
 }
 ?>

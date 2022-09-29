@@ -290,7 +290,7 @@ $subregions = array('1A' => array('region' => 1, 'name' => 'Central Africa'),
                     '6B' => array('region' => 6, 'name' => 'Pacific'),
                     '6C' => array('region' => 6, 'name' => 'South Pacific Ocean'));
 
-foreach($subregions as $code => $data){
+foreach($subregions as $code => $data) {
 //    sql_query('INSERT INTO geo_subregions (`regions_id`, `code`, `name`, `seoname`) VALUES ('.$data['region'].', "'.$code.'", "'.$data['name'].'", "'.seo_create_string($data['name']).'")');
 }
 
@@ -306,13 +306,13 @@ $count = 0;
 
 log_console('Populating geo_features table', '', '', false);
 
-while($line = fgets($h, 8192)){
+while($line = fgets($h, 8192)) {
     /*
      * TSV file, CODE NAME DESCRIPTION
      */
     $line = explode("\t", $line);
 
-    if(count($line) != 3){
+    if(count($line) != 3) {
         /*
          * Skip lines that do not have 3 items
          */
@@ -337,7 +337,7 @@ $count = 0;
 
 log_console('Populating geo_timezones table', '', '', false);
 
-while($line = fgets($h, 16384)){
+while($line = fgets($h, 16384)) {
     /*
      * Skip first line, it contains the definitions
      * TSV file, CC*	Coordinates*	TZ*	Comments*	UTC offset	UTC DST offset	Notes
@@ -346,16 +346,16 @@ while($line = fgets($h, 16384)){
 
     $line = explode("\t", $line);
 
-    while(count($line) < 7){
+    while(count($line) < 7) {
         array_unshift($line, '');
     }
 
-    foreach($line as $key => &$item){
-        if(!$item){
+    foreach($line as $key => &$item) {
+        if(!$item) {
             $item = 'NULL';
 
-        }else{
-            switch($key){
+        } else {
+            switch($key) {
                 case 2:
                     $seoname = '"'.seo_generate_unique_name(str_replace('/', '--', cfm($item)), 'geo_timezones').'"';
                     break;
@@ -388,7 +388,7 @@ log_console('Done', '');
 //
 //log_console('Populating geo_countries table', '', '', false);
 //
-//while($line = fgets($h, 16384)){
+//while($line = fgets($h, 16384)) {
 //    /*
 //     * Skip first line, it contains the definitions
 //     *
@@ -398,18 +398,18 @@ log_console('Done', '');
 //
 //    $line = explode("\t", $line);
 //
-//    if($line[1] == '-'){
+//    if($line[1] == '-') {
 //        $line[1] = '';
 //    }
 //
 //    $line[2] = substr($line[2], 1, 2);
 //
-//    foreach($line as $key => &$item){
-//        if(!$item){
+//    foreach($line as $key => &$item) {
+//        if(!$item) {
 //            $item = 'NULL';
 //
-//        }else{
-//            if($key == 3){
+//        } else {
+//            if($key == 3) {
 //                $seoname = '"'.seo_generate_unique_name(cfm($item), 'geo_countries').'"';
 //            }
 //

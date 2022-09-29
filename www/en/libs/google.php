@@ -13,15 +13,15 @@
 /*
  * Get the avatar from the google account of the specified user
  */
-function google_get_avatar($user){
+function google_get_avatar($user) {
     global $_CONFIG;
 
     try{
         load_libs('image,user');
 
-        if(is_array($user)){
-            if(empty($user['gp_id'])){
-                if(empty($user['id'])){
+        if(is_array($user)) {
+            if(empty($user['gp_id'])) {
+                if(empty($user['id'])) {
                     throw new CoreException('google_get_avatar: Specified user array contains no "id" or "gp_id"');
                 }
 
@@ -34,7 +34,7 @@ function google_get_avatar($user){
             $user = $user['gp_id'];
         }
 
-        if(!$user){
+        if(!$user) {
             throw new CoreException('google_get_avatar(): No google ID specified');
         }
 
@@ -50,7 +50,7 @@ function google_get_avatar($user){
         // Update the user avatar
         return user_update_avatar($user, $retval);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('facebook_get_avatar(): Failed', $e);
     }
 }
@@ -65,12 +65,12 @@ function google_get_avatar($user){
  *
  * @obsolete analytics_google()
  */
-function google_get_analytics($code){
+function google_get_analytics($code) {
     try{
         load_libs('analytics');
         return analytics_google($code);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('google_get_analytics(): Failed', $e);
     }
 }

@@ -64,7 +64,7 @@
     }
 
 
-function printMSNdata($data,$topic){
+function printMSNdata($data,$topic) {
         echo "<h1>$topic</h1><pre>";
         print_r($data);
         echo "</pre><br>";

@@ -27,7 +27,7 @@
  *
  * @return void
  */
-function templates_library_init(){
+function templates_library_init() {
     try{
         ensure_installed(array('name'      => 'template',
                                'callback'  => 'templates_install',
@@ -35,7 +35,7 @@ function templates_library_init(){
                                'functions' => 'template,foobar',
                                'which'     => 'template,foobar'));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('templates_library_init(): Failed'), $e);
     }
 }
@@ -55,12 +55,12 @@ function templates_library_init(){
  * @param
  * @return
  */
-function templates_install($params){
+function templates_install($params) {
     try{
         load_libs('apt');
         apt_install('template');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('templates_install(): Failed'), $e);
     }
 }
@@ -79,7 +79,7 @@ function templates_install($params){
  * @param array $template The template to validate
  * @return array The validated and cleaned $template parameter array
  */
-function templates_validate($template){
+function templates_validate($template) {
     try{
         load_libs('validate,seo');
 
@@ -95,10 +95,10 @@ function templates_validate($template){
         /*
          * Validate description
          */
-        if(empty($template['description'])){
+        if(empty($template['description'])) {
             $template['description'] = null;
 
-        }else{
+        } else {
             $v->hasMinChars($template['description'],   16, tr('Please ensure the template description has at least 16 characters'));
             $v->hasMaxChars($template['description'], 2047, tr('Please ensure the template description has less than 2047 characters'));
 
@@ -117,7 +117,7 @@ function templates_validate($template){
 
       return $template;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('templates_validate(): Failed'), $e);
     }
 }
@@ -150,7 +150,7 @@ function templates_validate($template){
  * @param string $template[bar]
  * @return params The specified template, validated and sanitized
  */
-function templates_insert($template){
+function templates_insert($template) {
     try{
         $template = templates_validate($template);
 
@@ -165,7 +165,7 @@ function templates_insert($template){
 
         return $template;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('templates_insert(): Failed'), $e);
     }
 }
@@ -199,7 +199,7 @@ function templates_insert($template){
  * @param string $params[bar]
  * @return boolean True if the user was updated, false if not. If not updated, this might be because no data has changed
  */
-function templates_update($template){
+function templates_update($template) {
     try{
         $template = templates_validate($template);
 
@@ -219,7 +219,7 @@ function templates_update($template){
         $template['_updated'] = (boolean) $update->rowCount();
         return $template;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('templates_update(): Failed'), $e);
     }
 }
@@ -245,7 +245,7 @@ function templates_update($template){
  * @param string $params[joins]
  * @return mixed The template data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified template does not exist, NULL will be returned.
  */
-function templates_get($params){
+function templates_get($params) {
     try{
         array_params($params, 'seotemplate', 'id');
 
@@ -278,7 +278,7 @@ function templates_get($params){
 
         return sql_simple_get($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('templates_get(): Failed'), $e);
     }
 }
@@ -299,7 +299,7 @@ function templates_get($params){
  * @param params $params The list parameters
  * @return mixed The list of available templates
  */
-function templates_list($params){
+function templates_list($params) {
     try{
         array_params($params, 'status');
 
@@ -318,7 +318,7 @@ function templates_list($params){
 
         return sql_simple_list($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('templates_list(): Failed'), $e);
     }
 }
@@ -350,7 +350,7 @@ function templates_list($params){
  * @param $params resource
  * @return string HTML for a templates select box within the specified parameters
  */
-function templates_select($params = null){
+function templates_select($params = null) {
     try{
         array_ensure($params);
         array_default($params, 'name'      , 'seotemplate');
@@ -366,15 +366,15 @@ function templates_select($params = null){
 
         $execute = array();
 
-        if($params['remove']){
-            if(count(array_force($params['remove'])) == 1){
+        if($params['remove']) {
+            if(count(array_force($params['remove'])) == 1) {
                 /*
                  * Filter out only one entry
                  */
                 $where[] = ' `id` != :id ';
                 $execute[':id'] = $params['remove'];
 
-            }else{
+            } else {
                 /*
                  * Filter out multiple entries
                  */
@@ -384,23 +384,23 @@ function templates_select($params = null){
             }
         }
 
-        if($params['parents_id']){
+        if($params['parents_id']) {
             $where[] = ' `parents_id` = :parents_id ';
             $execute[':parents_id'] = $params['parents_id'];
 
-        }else{
+        } else {
             $where[] = ' `parents_id` IS NULL ';
         }
 
-        if($params['status'] !== false){
+        if($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)){
+        if(empty($where)) {
             $where = '';
 
-        }else{
+        } else {
             $where = ' WHERE '.implode(' AND ', $where).' ';
         }
 
@@ -410,7 +410,7 @@ function templates_select($params = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('templates_select(): Failed'), $e);
     }
 }
@@ -452,10 +452,10 @@ function templates_select($params = null){
  * @param string $params[bar]
  * @return string The result
  */
-function templates_function($params){
+function templates_function($params) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('templates_function(): Failed'), $e);
     }
 }

@@ -73,7 +73,7 @@ $.fn.autocomplete = function(options) {
 		}
 	}
 
-	function onChange(event){
+	function onChange(event) {
 		var value = self.val();
 		if(value.length>=options.minLength && event.keyCode!=40 && event.keyCode!=38 && event.keyCode!=13) {
 			if(loading == false) {
@@ -88,7 +88,7 @@ $.fn.autocomplete = function(options) {
 						if(data.result=='OK' && data.count>0) {
 							target.html(data.html).show();
 							//add onclicks
-							$(document).on("click","." + options.returnClass + " li", function(event){
+							$(document).on("click","." + options.returnClass + " li", function(event) {
 								self.val($(this).prop('title'));
 								target.hide();
 								if(options.autoSubmit==true) {
@@ -96,10 +96,10 @@ $.fn.autocomplete = function(options) {
 								}
 							 });
 							//add onhovers
-							$(document).on("mouseenter","." + options.returnClass + " li", function(event){
+							$(document).on("mouseenter","." + options.returnClass + " li", function(event) {
 								$(this).addClass(options.returnClass + '_hover');
 							});
-							$(document).on("mouseleave","." + options.returnClass + " li", function(event){
+							$(document).on("mouseleave","." + options.returnClass + " li", function(event) {
 								$(this).removeClass(options.returnClass + '_hover');
 							});
 						} else {

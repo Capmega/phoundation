@@ -26,10 +26,10 @@
  *
  * @return void
  */
-function phones_library_init(){
+function phones_library_init() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('phones_library_init(): Failed', $e);
     }
 }
@@ -62,12 +62,12 @@ function phones_library_init(){
  * @param string $number The phone number that must have its formatting stripped
  * @return string The phone number clean without formatting
  */
-function phones_clean_number($number){
+function phones_clean_number($number) {
     try{
         $number = str_replace(array(' ', '-', '(', ')'), '', $number);
         return $number;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('phones_clean_number(): Failed', $e);
     }
 }
@@ -100,7 +100,7 @@ function phones_clean_number($number){
  * @param string $number The phone number that must be formatted
  * @return string The formatted phone number
  */
-function phones_format_number($number){
+function phones_format_number($number) {
     try{
         /*
          * First ensure that this phone number does not have any formatting at all
@@ -108,13 +108,13 @@ function phones_format_number($number){
         $number = phones_clean_number($number);
         $plus   = (substr($number, 0, 1) == '+');
 
-        if($plus){
+        if($plus) {
             $number = substr($number, 1);
         }
 
         $digits = strlen($number);
 
-        switch($digits){
+        switch($digits) {
             case 0:
                 // FALLTHROUGH
             case 1:
@@ -155,13 +155,13 @@ function phones_format_number($number){
                 break;
         }
 
-        if($plus){
+        if($plus) {
             $number = '+'.$number;
         }
 
         return $number;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('phones_format_number(): Failed', $e);
     }
 }

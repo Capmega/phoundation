@@ -27,12 +27,12 @@
  *
  * @return void
  */
-function git_library_init(){
+function git_library_init() {
     try{
         load_libs('cli');
         load_config('git');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_library_init(): Failed', $e);
     }
 }
@@ -54,11 +54,11 @@ function git_library_init(){
  * @param string $path The path to be checked
  * @return boolean True if the specified path is part of a git repository, false if not
  */
-function git_is_repository($path = ROOT){
+function git_is_repository($path = ROOT) {
     try{
         return (boolean) git_check_path($path, false);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_is_repository(): Failed', $e);
     }
 }
@@ -77,11 +77,11 @@ function git_is_repository($path = ROOT){
  *
  * @return boolean True if the git command is available, false if not
  */
-function git_is_available(){
+function git_is_available() {
     try{
         return (boolean) file_which('git');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_is_available(): Failed', $e);
     }
 }
@@ -101,28 +101,28 @@ function git_is_available(){
  * @param boolean $exception If set true, this function will throw an exception if the specified path is not a git repository
  * @return The specified path, checked
  */
-function git_check_path($path, $exception = true){
+function git_check_path($path, $exception = true) {
     static $paths;
 
     try{
-        if(isset($paths[$path])){
+        if(isset($paths[$path])) {
             return $paths[$path];
         }
 
-        if(!$path){
+        if(!$path) {
             $path = ROOT;
         }
 
-        if(!file_exists($path)){
-            if($exception){
+        if(!file_exists($path)) {
+            if($exception) {
                 throw new CoreException(tr('git_check_path(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
             }
 
             return false;
         }
 
-        if(!file_scan($path, '.git')){
-            if($exception){
+        if(!file_scan($path, '.git')) {
+            if($exception) {
                 throw new CoreException(tr('git_check_path(): Specified path ":path" is not a git repository', array(':path' => $path)), 'git');
             }
 
@@ -132,7 +132,7 @@ function git_check_path($path, $exception = true){
         $paths[$path] = $path;
         return $path;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_check_path(): Failed', $e);
     }
 }
@@ -153,15 +153,15 @@ function git_check_path($path, $exception = true){
  * @param null array $arguments
  * @return
  */
-function git_exec($path, $arguments, $check_path = true){
+function git_exec($path, $arguments, $check_path = true) {
     try{
-        if($check_path){
+        if($check_path) {
             $path = git_check_path($path);
         }
 
         git_wait_no_process($path);
 
-        if(!$arguments){
+        if(!$arguments) {
             $arguments = array();
         }
 
@@ -172,7 +172,7 @@ function git_exec($path, $arguments, $check_path = true){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_exec(): Failed', $e);
     }
 }
@@ -191,39 +191,39 @@ function git_exec($path, $arguments, $check_path = true){
  *
  * @return void
  */
-function git_wait_no_process($path){
+function git_wait_no_process($path) {
     global $_CONFIG;
 
     try{
         $pids = cli_pgrep('git');
 
-        foreach($pids as $pid){
+        foreach($pids as $pid) {
             $process = cli_pidgrep($pid);
             $process = Strings::until($process, ' ');
 
-            if($process === 'git'){
+            if($process === 'git') {
                 /*
                  * We found a git process, but is it on the specified path?
                  */
                 $git_path = cli_get_cwd($pid, true);
                 $exists   = (str_exists($git_path, $path) or str_exists($path, $git_path));
 
-                if(!isset($retry)){
+                if(!isset($retry)) {
                     $retry = $_CONFIG['git']['retries'];
                 }
 
-                while($exists){
+                while($exists) {
                     /*
                      * Git is already being used on our target path! Wait up to
                      * the one second and retry the configured amount of times
                      */
-                    if($retry <= 0){
+                    if($retry <= 0) {
                         throw new CoreException(tr('git_wait_no_process(): The target path ":path" is occupied by the process ":pid", and the waiting period timed out after ":tries" tries', array(':path' => $path, ':pid' => $pid, ':tries' => $_CONFIG['git']['retries'])), 'busy');
                     }
 
                     log_console(tr('Found git process already working on target path ":path", retrying ":tries" times in 1 second.', array(':path' => $path, ':tries' => $retry)), 'yellow');
 
-                    if(cli_pidgrep($pid)){
+                    if(cli_pidgrep($pid)) {
                         sleep(1);
                         $retry--;
                         continue;
@@ -239,7 +239,7 @@ function git_wait_no_process($path){
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_wait_no_process(): Failed', $e);
     }
 }
@@ -259,14 +259,14 @@ function git_wait_no_process($path){
  * @param string $patch_file
  * @return
  */
-function git_am($file, $patch_file){
+function git_am($file, $patch_file) {
     try{
         $path    = dirname($patch_file);
         $results = git_exec($path, array('am', basename($patch_file), '<'));
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_am(): Failed', $e);
     }
 }
@@ -285,18 +285,18 @@ function git_am($file, $patch_file){
  * @param string $file
  * @return
  */
-function git_apply($file){
+function git_apply($file) {
     try{
         $path    = dirname($file);
         $results = git_exec($path, array('apply', basename($file)));
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         $data = array_force($e->getData());
         $data = array_pop($data);
 
-        if(strstr($data, 'patch does not apply')){
+        if(strstr($data, 'patch does not apply')) {
             throw new CoreException(tr('git_apply(): patch ":file" does not apply', array(':file' => $file)), 'failed');
         }
 
@@ -319,9 +319,9 @@ function git_apply($file){
  * @param string $path
  * @return
  */
-function git_branch($branch = null, $path = ROOT){
+function git_branch($branch = null, $path = ROOT) {
     try{
-        if($branch){
+        if($branch) {
             /*
              * Set the branch
              */
@@ -333,8 +333,8 @@ function git_branch($branch = null, $path = ROOT){
          */
         $results = git_exec($path, array('branch'));
 
-        foreach($results as $branch){
-            if(substr(trim($branch), 0, 1) == '*'){
+        foreach($results as $branch) {
+            if(substr(trim($branch), 0, 1) == '*') {
                 $branch = trim(substr(trim($branch), 1));
                 $branch = strtolower(Strings::cut(($branch, '(', ')'));
                 $branch = trim(Strings::from($branch, 'head detached at'));
@@ -345,7 +345,7 @@ function git_branch($branch = null, $path = ROOT){
 
         throw new CoreException(tr('git_branch(): Could not find current branch for ":path"', array(':path' => $path)), 'not-exists');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_branch(): Failed', $e);
     }
 }
@@ -365,7 +365,7 @@ function git_branch($branch = null, $path = ROOT){
  * @param boolean $all If set to true, list both remote-tracking branches and local branches.
  * @return array All available branches on the specified git project path
  */
-function git_list_branches($path = ROOT, $all = false){
+function git_list_branches($path = ROOT, $all = false) {
     try{
         /*
          * Get and return the branch
@@ -373,7 +373,7 @@ function git_list_branches($path = ROOT, $all = false){
         $retval  = array();
         $results = git_exec($path, array('branch', '-a', '-q'));
 
-        foreach($results as $branch){
+        foreach($results as $branch) {
             $branch = Strings::until($branch, '->');
             $branch = trim($branch);
             $branch = Strings::fromReverse($branch, '/');
@@ -385,7 +385,7 @@ function git_list_branches($path = ROOT, $all = false){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_list_branches(): Failed', $e);
     }
 }
@@ -406,16 +406,16 @@ function git_list_branches($path = ROOT, $all = false){
  * @param boolean $create
  * @return
  */
-function git_checkout($branch = null, $path = ROOT, $create = false){
+function git_checkout($branch = null, $path = ROOT, $create = false) {
     try{
-        if($branch){
+        if($branch) {
             $results = git_exec($path, array('checkout', ($create ? ' -B ' : ''), $branch));
 
-        }else{
-            if(is_dir($path)){
+        } else {
+            if(is_dir($path)) {
                 $results = git_exec($path, array('checkout', '--', $path));
 
-            }else{
+            } else {
                 $file    = basename($path);
                 $path    = dirname($path);
                 $results = git_exec($path, array('checkout', '--', $file));
@@ -424,7 +424,7 @@ function git_checkout($branch = null, $path = ROOT, $create = false){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_checkout(): Failed', $e);
     }
 }
@@ -445,12 +445,12 @@ function git_checkout($branch = null, $path = ROOT, $create = false){
  * @param boolean $force
  * @return
  */
-function git_clean($path = ROOT, $directories = false, $force = false){
+function git_clean($path = ROOT, $directories = false, $force = false) {
     try{
         $results = git_exec($path, array('clean', ($directories ? ' -d' : ''), ($force ? ' -f' : '')));
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_clean(): Failed', $e);
     }
 }
@@ -471,14 +471,14 @@ function git_clean($path = ROOT, $directories = false, $force = false){
  * @param boolean $clean If set to true, this function will remove the .git repository directory from the cloned project, leaving only the working tree
  * @return string The path of the cloned repository
  */
-function git_clone($repository, $path, $clean = false){
+function git_clone($repository, $path, $clean = false) {
     try{
         /*
          * Clone the repository
          */
         $results = git_exec($path, array('clone', $repository), false);
 
-        if($clean){
+        if($clean) {
             /*
              * Delete the .git repository file, leaving on the working tree
              */
@@ -487,7 +487,7 @@ function git_clone($repository, $path, $clean = false){
 
         return slash($path).$repository;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_clone(): Failed', $e);
     }
 }
@@ -507,14 +507,14 @@ function git_clone($repository, $path, $clean = false){
  * @param string $color
  * @return
  */
-function git_diff($file, $color = false){
+function git_diff($file, $color = false) {
     try{
         $path    = dirname($file);
         $results = git_exec($path, array('diff', ($color ? '' : '--no-color '), '--', basename($file)));
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_diff(): Failed', $e);
     }
 }
@@ -534,13 +534,13 @@ function git_diff($file, $color = false){
  * @param string $path
  * @return
  */
-function git_show($commit, $path = ROOT, $params = null){
+function git_show($commit, $path = ROOT, $params = null) {
     try{
         array_ensure($params, 'check');
 
         $arguments = array('show');
 
-        if($params['check']){
+        if($params['check']) {
             $arguments[] = '--check';
         }
 
@@ -550,7 +550,7 @@ function git_show($commit, $path = ROOT, $params = null){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_show(): Failed', $e);
     }
 }
@@ -569,17 +569,17 @@ function git_show($commit, $path = ROOT, $params = null){
  * @param params $params
  * @return
  */
-function git_fetch($path = ROOT, $params = null){
+function git_fetch($path = ROOT, $params = null) {
     try{
         array_ensure($params, 'tags,all');
 
         $arguments = array('fetch');
 
-        if($params['all']){
+        if($params['all']) {
             $arguments[] = '--all';
         }
 
-        if($params['tags']){
+        if($params['tags']) {
             $arguments[] = '--tags';
         }
 
@@ -590,7 +590,7 @@ function git_fetch($path = ROOT, $params = null){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_fetch(): Failed', $e);
     }
 }
@@ -609,7 +609,7 @@ function git_fetch($path = ROOT, $params = null){
  * @param string $file
  * @return
  */
-function git_format_patch($file){
+function git_format_patch($file) {
     try{
 under_construction();
         $path    = dirname($file);
@@ -617,7 +617,7 @@ under_construction();
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_format_patch(): Failed', $e);
     }
 }
@@ -636,12 +636,12 @@ under_construction();
  * @param string $branch
  * @return
  */
-function git_branch_is_tag($branch = null, $path = ROOT){
+function git_branch_is_tag($branch = null, $path = ROOT) {
     try{
         $tags     = git_list_tags($path);
         $branches = git_list_branches($path);
 
-        if(!$branch){
+        if(!$branch) {
             /*
              * Get the current branch
              */
@@ -651,20 +651,20 @@ function git_branch_is_tag($branch = null, $path = ROOT){
         /*
          * Does the specified branch exist as a tag?
          */
-        if(in_array($branch, $tags)){
+        if(in_array($branch, $tags)) {
             return true;
         }
 
         /*
          * Does the specified branch exist as a branch?
          */
-        if(in_array($branch, $branches)){
+        if(in_array($branch, $branches)) {
             return false;
         }
 
         throw new CoreException(tr('git_branch_is_tag(): Specified branch or tag ":branch" does not exist', array(':branch' => $branch)), 'not-exists');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_branch_is_tag(): Failed', $e);
     }
 }
@@ -685,13 +685,13 @@ function git_branch_is_tag($branch = null, $path = ROOT){
  * @param string $branch
  * @return
  */
-function git_pull($path = ROOT, $remote, $branch){
+function git_pull($path = ROOT, $remote, $branch) {
     try{
         $results = git_exec($path, array('pull', $remote, $branch));
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_pull(): Failed', $e);
     }
 }
@@ -713,22 +713,22 @@ function git_pull($path = ROOT, $remote, $branch){
  * @param boolean $tags
  * @return
  */
-function git_push($path = ROOT, $remote = null, $branch = null, $tags = true){
+function git_push($path = ROOT, $remote = null, $branch = null, $tags = true) {
     try{
-        if($branch and !$remote){
+        if($branch and !$remote) {
             throw new CoreException(tr('git_push(): Branch ":branch" was specified without remote', array(':branch' => $branch)), 'invalid');
         }
 
         $results = git_exec($path, array('push', $remote, $branch));
 
-        if($tags){
+        if($tags) {
             $tags    = git_exec($path, array('push', '--tags', $remote, $branch));
             $results = array_merge($results, $tags);
         }
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_push(): Failed', $e);
     }
 }
@@ -748,18 +748,18 @@ function git_push($path = ROOT, $remote = null, $branch = null, $tags = true){
  * @param null string $commit
  * @return
  */
-function git_reset($commit = 'HEAD', $path = ROOT, $params = null){
+function git_reset($commit = 'HEAD', $path = ROOT, $params = null) {
     try{
         $file = $path;
 
-        if(!is_dir($path)){
+        if(!is_dir($path)) {
             $path = dirname($file);
         }
 
         array_ensure($params, 'hard');
         $options = '';
 
-        if($params['hard']){
+        if($params['hard']) {
             $options .= ' --hard ';
         }
 
@@ -767,7 +767,7 @@ function git_reset($commit = 'HEAD', $path = ROOT, $params = null){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_reset(): Failed', $e);
     }
 }
@@ -787,7 +787,7 @@ function git_reset($commit = 'HEAD', $path = ROOT, $params = null){
  * @param null array $filters
  * @return
  */
-function git_status($path = ROOT, $filters = null){
+function git_status($path = ROOT, $filters = null) {
     try{
         /*
          * Check if we dont have any changes that should be committed first
@@ -795,19 +795,19 @@ function git_status($path = ROOT, $filters = null){
         $retval  = array();
         $results = git_exec($path, array('status', '--porcelain'));
 
-        foreach($results as $line){
+        foreach($results as $line) {
             if(!$line) continue;
 
             $status = substr($line, 0, 2);
 
-            if($filters){
+            if($filters) {
                 /*
                  * Only allow files that have status in the filter
                  */
                 $skip = true;
 
-                foreach($filters as $filter){
-                    if($status == $filter){
+                foreach($filters as $filter) {
+                    if($status == $filter) {
                         $skip = false;
                     }
                 }
@@ -815,7 +815,7 @@ function git_status($path = ROOT, $filters = null){
                 if($skip) continue;
             }
 
-            switch($status){
+            switch($status) {
                 case 'D ':
                     $status = 'deleted';
                     break;
@@ -873,7 +873,7 @@ function git_status($path = ROOT, $filters = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_status(): Failed', $e);
     }
 }
@@ -892,7 +892,7 @@ function git_status($path = ROOT, $filters = null){
  * @param string $path
  * @return array The available tags for the specified git repository
  */
-function git_list_tags($path = ROOT){
+function git_list_tags($path = ROOT) {
     try{
         /*
          * Check if we dont have any changes that should be committed first
@@ -901,7 +901,7 @@ function git_list_tags($path = ROOT){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_list_tags(): Failed', $e);
     }
 }
@@ -920,7 +920,7 @@ function git_list_tags($path = ROOT){
  * @param string $path
  * @return
  */
-function git_stash($path = ROOT){
+function git_stash($path = ROOT) {
     try{
         $results_add   = git_exec($path, array('add', '.'));
         $results_stash = git_exec($path, array('stash'));
@@ -928,7 +928,7 @@ function git_stash($path = ROOT){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_stash(): Failed', $e);
     }
 }
@@ -947,7 +947,7 @@ function git_stash($path = ROOT){
  * @param string $path
  * @return
  */
-function git_stash_pop($path = ROOT){
+function git_stash_pop($path = ROOT) {
     try{
         $results_pop   = git_exec($path, array('stash', 'pop'));
         $results_reset = git_exec($path, array('reset', 'HEAD'));
@@ -955,7 +955,7 @@ function git_stash_pop($path = ROOT){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_stash_pop(): Failed', $e);
     }
 }
@@ -974,18 +974,18 @@ function git_stash_pop($path = ROOT){
  * @param string $path
  * @return
  */
-function git_add($path = ROOT){
+function git_add($path = ROOT) {
     try{
-        if(is_dir($path)){
+        if(is_dir($path)) {
             $results = git_exec($path, array('add', $path));
 
-        }else{
+        } else {
             $results = git_exec(dirname($path), array('add', $path));
         }
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_add(): Failed', $e);
     }
 }
@@ -1004,13 +1004,13 @@ function git_add($path = ROOT){
  * @param string $path
  * @return
  */
-function git_commit($message, $path = ROOT){
+function git_commit($message, $path = ROOT) {
     try{
         $results = git_exec($path, array('commit', '-m', $message));
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('git_commit(): Failed', $e);
     }
 }

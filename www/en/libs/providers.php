@@ -23,11 +23,11 @@
  *
  * @return void
  */
-function providers_library_init(){
+function providers_library_init() {
     try{
         load_config('providers');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('providers_library_init(): Failed', $e);
     }
 }
@@ -48,7 +48,7 @@ function providers_library_init(){
  * @param $params $provider
  * @return
  */
-function providers_validate($provider){
+function providers_validate($provider) {
     try{
         load_libs('validate,seo');
 
@@ -61,67 +61,67 @@ function providers_validate($provider){
         /*
          * Validate category
          */
-        if($provider['seocategory']){
+        if($provider['seocategory']) {
             load_libs('categories');
 
             $provider['categories_id'] = categories_get($provider['seocategory'], 'id');
 
-            if(!$provider['categories_id']){
+            if(!$provider['categories_id']) {
                 $v->setError(tr('Specified category does not exist'));
             }
 
-        }else{
+        } else {
             $provider['categories_id'] = null;
         }
 
         /*
          * Validate basic data
          */
-        if($provider['description']){
+        if($provider['description']) {
             $v->hasMinChars($provider['description'],    8, tr('Please ensure the description has at least 8 characters'));
             $v->hasMaxChars($provider['description'], 2047, tr('Please ensure the description has less than 2047 characters'));
 
             $provider['description'] = str_clean($provider['description']);
 
-        }else{
+        } else {
             $provider['description'] = null;
         }
 
-        if($provider['url']){
+        if($provider['url']) {
             $v->hasMaxChars($provider['url'], 255, tr('Please ensure the URL has less than 255 characters'));
             $v->isURL($provider['url'], tr('Please a valid URL'));
 
-        }else{
+        } else {
             $provider['url'] = null;
         }
 
-        if($provider['email']){
+        if($provider['email']) {
             $v->hasMaxChars($provider['email'], 64, tr('Please ensure the email has less than 96 characters'));
             $v->isEmail($provider['email'], tr('Please specify a valid emailaddress'));
 
-        }else{
+        } else {
             $provider['email'] = null;
         }
 
-        if($provider['phones']){
+        if($provider['phones']) {
             $v->hasMaxChars($provider['phones'], 36, tr('Please ensure the phones field has less than 36 characters'));
 
-            foreach(array_force($provider['phones']) as &$phone){
+            foreach(array_force($provider['phones']) as &$phone) {
                 $v->isPhonenumber($phone, tr('Please ensure the phone number ":phone" is valid', array(':phone' => $phone)));
             }
 
             $provider['phones'] = str_force($provider['phones']);
 
-        }else{
+        } else {
             $provider['phones'] = null;
         }
 
-        if($provider['code']){
+        if($provider['code']) {
             $v->hasMinChars($provider['code'],  2, tr('Please ensure the provider\'s description has at least 2 characters'));
             $v->hasMaxChars($provider['code'], 64, tr('Please ensure the provider\'s description has less than 64 characters'));
             $v->isAlphaNumeric($provider['code'], tr('Please ensure the provider\'s description has less than 64 characters'), VALIDATE_IGNORE_SPACE|VALIDATE_IGNORE_DASH|VALIDATE_IGNORE_UNDERSCORE);
 
-        }else{
+        } else {
             $provider['code'] = null;
         }
 
@@ -130,7 +130,7 @@ function providers_validate($provider){
          */
         $exists = sql_get('SELECT `id` FROM `providers` WHERE `name` = :name AND `id` != :id', true, array(':name' => $provider['name'], ':id' => isset_get($provider['id'])));
 
-        if($exists){
+        if($exists) {
             $v->setError(tr('The provider ":provider" already exists with id ":id"', array(':provider' => $provider['name'], ':id' => $exists)));
         }
 
@@ -140,7 +140,7 @@ function providers_validate($provider){
 
         return $provider;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('providers_validate(): Failed'), $e);
     }
 }
@@ -169,7 +169,7 @@ function providers_validate($provider){
  * @param string $provider[]
  * @return params The specified provider, validated and sanitized
  */
-function providers_insert($provider){
+function providers_insert($provider) {
     try{
         $provider = providers_validate($provider);
 
@@ -190,7 +190,7 @@ function providers_insert($provider){
 
         return $provider;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('providers_insert(): Failed'), $e);
     }
 }
@@ -220,7 +220,7 @@ function providers_insert($provider){
  * @param string $provider[]
  * @return params The specified provider, validated and sanitized
  */
-function providers_update($provider){
+function providers_update($provider) {
     try{
         $provider = providers_validate($provider);
 
@@ -252,7 +252,7 @@ function providers_update($provider){
         $provider['_updated'] = (boolean) $update->rowCount();
         return $provider;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('providers_update(): Failed'), $e);
     }
 }
@@ -282,7 +282,7 @@ function providers_update($provider){
  * @param $params resource
  * @return string HTML for a providers select box within the specified parameters
  */
-function providers_select($params = null){
+function providers_select($params = null) {
     try{
         array_ensure($params);
         array_default($params, 'name'         , 'seoprovider');
@@ -294,20 +294,20 @@ function providers_select($params = null){
         array_default($params, 'none'         , tr('Select a provider'));
         array_default($params, 'orderby'      , '`name`');
 
-        if($params['categories_id'] !== false){
+        if($params['categories_id'] !== false) {
             $where[] = ' `categories_id` '.sql_is($params['categories_id'], ':categories_id');
             $execute[':categories_id'] = $params['categories_id'];
         }
 
-        if($params['status'] !== false){
+        if($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)){
+        if(empty($where)) {
             $where = '';
 
-        }else{
+        } else {
             $where = ' WHERE '.implode(' AND ', $where).' ';
         }
 
@@ -317,7 +317,7 @@ function providers_select($params = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('providers_select(): Failed', $e);
     }
 }
@@ -342,7 +342,7 @@ function providers_select($params = null){
  * @param natural $categories_id Filter by the specified categories_id. If NULL, the provider must NOT belong to any category
  * @return mixed The provider data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified provider does not exist, NULL will be returned.
  */
-function providers_get($params){
+function providers_get($params) {
     try{
         array_params($params, 'seoname', 'id');
 
@@ -373,7 +373,7 @@ function providers_get($params){
 
         return sql_simple_get($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('providers_get(): Failed', $e);
     }
 }
@@ -396,7 +396,7 @@ function providers_get($params){
  * @param params $params The list parameters
  * @return mixed The list of available providers
  */
-function providers_list($params){
+function providers_list($params) {
     try{
         array_ensure($params);
         array_default($params, 'columns', 'seoname,name');
@@ -407,7 +407,7 @@ function providers_list($params){
 
         return sql_simple_list($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('providers_list(): Failed', $e);
     }
 }

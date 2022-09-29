@@ -12,13 +12,13 @@
  * Initialize the library
  * Automatically executed by libs_load()
  */
-function iptables_library_init(){
+function iptables_library_init() {
     try{
         load_libs('servers');
         define('IPTABLES_CLEAR' , '__CLEAR__');
         define('IPTABLES_BUFFER', '__BUFFER__');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_library_init(): Failed', $e);
     }
 }
@@ -32,11 +32,11 @@ function iptables_library_init(){
  * @param string $parameters
  * @return mixed The output of servers_exec() for the specified host with the specified parameters
  */
-function iptables_exec($server, $parameters = null){
+function iptables_exec($server, $parameters = null) {
     static $commands = array();
 
     try{
-        switch($server){
+        switch($server) {
             case IPTABLES_CLEAR:
                 $commands = array();
                 return false;
@@ -49,7 +49,7 @@ function iptables_exec($server, $parameters = null){
                 return false;
 
             default:
-                if($commands){
+                if($commands) {
                     /*
                      * Execute all commands from the
                      */
@@ -59,7 +59,7 @@ function iptables_exec($server, $parameters = null){
                     servers_exec($server, $command);
                 }
 
-                if(!$parameters){
+                if(!$parameters) {
                     /*
                      * Don't do anything, this is usually used to flush the command
                      * buffer
@@ -70,7 +70,7 @@ function iptables_exec($server, $parameters = null){
                 return servers_exec($server, 'sudo iptables '.$parameters);
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_exec(): Failed', $e);
     }
 }
@@ -80,11 +80,11 @@ function iptables_exec($server, $parameters = null){
 /*
  * @param mixed $server The unique name or id of the host where to execute the iptables command
  */
-function iptables_set_forward($server, $value = 1){
+function iptables_set_forward($server, $value = 1) {
     try{
         servers_exec($server, 'sudo bash -c "echo '.$value.' > /proc/sys/net/ipv4/ip_forward"');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_set_forward(): Failed', $e);
     }
 }
@@ -94,11 +94,11 @@ function iptables_set_forward($server, $value = 1){
 /*
  * @param mixed $server The unique name or id of the host where to execute the iptables command
  */
-function iptables_flush_nat_rules($server){
+function iptables_flush_nat_rules($server) {
     try{
         servers_exec($server, 'iptables -t nat -F');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_flush_nat_rules(): Failed', $e);
     }
 }
@@ -117,7 +117,7 @@ function iptables_flush_nat_rules($server){
  * @param string $destination_ip
  * @return void
  */
-function iptables_set_prerouting($server, $protocol, $origin_port, $destination_port, $destination_ip, $operation = 'add'){
+function iptables_set_prerouting($server, $protocol, $origin_port, $destination_port, $destination_ip, $operation = 'add') {
     try{
         $protocol         = iptables_validate_protocol($protocol);
         $origin_port      = iptables_validate_port($origin_port);
@@ -131,7 +131,7 @@ function iptables_set_prerouting($server, $protocol, $origin_port, $destination_
 
         iptables_exec($server, ' -t nat '.$operation.' PREROUTING -p tcp --dport '.$origin_port.' -j DNAT --to-destination '.$destination_ip.':'.$destination_port);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_add_prerouting(): Failed', $e);
     }
 }
@@ -149,7 +149,7 @@ function iptables_set_prerouting($server, $protocol, $origin_port, $destination_
  * @param string  $destination_ip
  * @return void
  */
-function iptables_set_postrouting($server, $protocol, $port, $source_ip, $destination_ip, $operation = 'add'){
+function iptables_set_postrouting($server, $protocol, $port, $source_ip, $destination_ip, $operation = 'add') {
     try{
         $protocol       = iptables_validate_protocol($protocol);
         $port           = iptables_validate_port($port);
@@ -158,7 +158,7 @@ function iptables_set_postrouting($server, $protocol, $port, $source_ip, $destin
 
         iptables_exec($server, '-t nat '.$operation.' POSTROUTING -p tcp -d '.$destination_ip.' --dport '.$port.' -j SNAT --to-source '.$source_ip);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_add_postrouting(): Failed', $e);
     }
 }
@@ -171,11 +171,11 @@ function iptables_set_postrouting($server, $protocol, $port, $source_ip, $destin
  * @param mixed $server The unique name or id of the host where to execute the iptables command
  * @return void
  */
-function iptables_flush_all($server){
+function iptables_flush_all($server) {
     try{
         iptables_exec($server, '-F');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_flush_all(): Failed', $e);
     }
 }
@@ -189,11 +189,11 @@ function iptables_flush_all($server){
  * @param mixed $server The unique name or id of the host where to execute the iptables command
  * @return void
  */
-function iptables_clean_chain_nat($server){
+function iptables_clean_chain_nat($server) {
     try{
         iptables_exec($server, '-t nat -F');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_clean_chain_nat(): Failed', $e);
     }
 }
@@ -206,11 +206,11 @@ function iptables_clean_chain_nat($server){
  * @param string $server The unique name or id of the host where to execute the iptables command
  * @return void
  */
-function iptables_delete_all($server){
+function iptables_delete_all($server) {
     try{
         iptables_exec($server, '-X');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_delete_all(): Failed', $e);
     }
 }
@@ -227,18 +227,18 @@ function iptables_delete_all($server){
  * @param string $protocol
  * @return void
  */
-function iptables_accept_traffic($server, $ip, $port, $protocol){
+function iptables_accept_traffic($server, $ip, $port, $protocol) {
     try{
         $result = servers_exec($server, 'if sudo iptables -L -v -n|grep '.$ip.'.*dpt:'.$port.'; then echo "exists"; else echo 0; fi');
 
         /*
          * If rule does not exist, we add it
          */
-        if(!$result[0]){
+        if(!$result[0]) {
             iptables_exec($server, ' -A INPUT -p '.$protocol.' -s '.$ip.' --dport '.$port.' -j ACCEPT');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_accept_traffic(): Failed', $e);
     }
 }
@@ -254,15 +254,15 @@ function iptables_accept_traffic($server, $ip, $port, $protocol){
  * @param string $protocol
  * @return void
  */
-function iptables_stop_accepting_traffic($server, $ip, $port, $protocol){
+function iptables_stop_accepting_traffic($server, $ip, $port, $protocol) {
     try{
         $result = servers_exec($server, 'if sudo iptables -L -v -n|grep '.$ip.'.*dpt:'.$port.'; then echo 1; else echo 0; fi');
 
-        if($result[0]){
+        if($result[0]) {
             iptables_exec($server, '-D INPUT -p '.$protocol.' -s '.$ip.' --dport '.$port.' -j ACCEPT');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_stop_traffic(): Failed', $e);
     }
 }
@@ -278,15 +278,15 @@ function iptables_stop_accepting_traffic($server, $ip, $port, $protocol){
  * @see iptables_validate_protocol()
  * @see iptables_validate_chain_type()
  */
- function iptables_validate_ip($ip){
+ function iptables_validate_ip($ip) {
     try{
-        if(filter_var($ip, FILTER_VALIDATE_IP) === false){
+        if(filter_var($ip, FILTER_VALIDATE_IP) === false) {
             throw new CoreException(tr('iptables_validate_ip(): Specified ip ":ip" is not valid', array(':ip' => $ip)), 'invalid');
         }
 
         return $ip;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_validate_ip(): Failed', $e);
     }
 }
@@ -299,15 +299,15 @@ function iptables_stop_accepting_traffic($server, $ip, $port, $protocol){
  * @param string $protocol
  * @return string $protocol
  */
-function iptables_validate_protocol($protocol){
+function iptables_validate_protocol($protocol) {
     try{
-        if(empty($protocol)){
+        if(empty($protocol)) {
             throw new CoreException(tr('iptables_validate_protocol(): No protocol specified'), 'not-specified');
         }
 
         $protocol = strtolower($protocol);
 
-        switch($protocol){
+        switch($protocol) {
             case 'tcp':
                 // FALLTHROUGH
             case 'udp':
@@ -322,7 +322,7 @@ function iptables_validate_protocol($protocol){
 
         return $protocol;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_validate_protocol(): Failed', $e);
     }
 }
@@ -337,19 +337,19 @@ function iptables_validate_protocol($protocol){
  * @see iptables_validate_protocol()
  * @see iptables_validate_chain_type()
  */
-function iptables_validate_port($port){
+function iptables_validate_port($port) {
     try{
-        if(empty($port)){
+        if(empty($port)) {
             throw new CoreException(tr('iptables_validate_port(): No port specified'), 'not-specified');
         }
 
-        if(!is_natural($port) or ($port > 65535)){
+        if(!is_natural($port) or ($port > 65535)) {
             throw new CoreException(tr('iptables_validate_port(): Invalid port ":port" specified', array(':port' => $port)), 'invalid');
         }
 
         return $port;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_validate_port(): Failed', $e);
     }
 }
@@ -364,15 +364,15 @@ function iptables_validate_port($port){
  * @see iptables_validate_chain_port()
  * @see iptables_validate_chain_protocol()
  */
-function iptables_validate_chain_type($chain_type){
+function iptables_validate_chain_type($chain_type) {
     try{
-        if(empty($chain_type)){
+        if(empty($chain_type)) {
             throw new CoreException(tr('iptables_validate_chain_type(): No chain type specified'), 'not-specified');
         }
 
         $chain_type = strtolower($chain_type);
 
-        switch($chain_type){
+        switch($chain_type) {
             case 'prerouting':
                 // FALLTHROUGH
             case 'postrouting':
@@ -385,7 +385,7 @@ function iptables_validate_chain_type($chain_type){
 
         return $chain_type;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_validate_chain_type(): Failed', $e);
     }
 }
@@ -401,17 +401,17 @@ function iptables_validate_chain_type($chain_type){
  * @param string $destination_ip
  * @return boolean
  */
-function iptables_prerouting_exists($server, $origin_port, $destination_port, $destination_ip){
+function iptables_prerouting_exists($server, $origin_port, $destination_port, $destination_ip) {
     try{
         $result = servers_exec($server, 'if sudo iptables -t nat -L -n|grep "DNAT.*dpt:'.$origin_port.' to:'.$destination_ip.':'.$destination_port.'"; then echo 1; else echo 0; fi');
 
-        if($result[0]){
+        if($result[0]) {
             return true;
         }
 
         return false;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_prerouting_exists(): Failed', $e);
     }
 }
@@ -426,17 +426,17 @@ function iptables_prerouting_exists($server, $origin_port, $destination_port, $d
  * @param string $source_ip
  * @return boolean
  */
-function iptables_postrouting_exists($server, $port, $source_ip){
+function iptables_postrouting_exists($server, $port, $source_ip) {
     try{
         $result = servers_exec($server, 'if sudo iptables -t nat -L -n|grep "SNAT.*dpt:'.$port.' to:'.$source_ip.'"; then echo 1; else echo 0; fi');
 
-        if($result[0]){
+        if($result[0]) {
             return true;
         }
 
         return false;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptables_postrouting_exists(): Failed', $e);
     }
 }
@@ -449,11 +449,11 @@ function iptables_postrouting_exists($server, $port, $source_ip){
  * @param mixed, server id or hostname for specified server
  * @return void
  */
-function iptalbes_drop_all($server){
+function iptalbes_drop_all($server) {
     try{
         iptables_exec($server, '-P INPUT DROP');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('iptalbes_drop_all(): Failed', $e);
     }
 }

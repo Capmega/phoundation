@@ -12,9 +12,9 @@
 /*
  * Show help information
  */
-function help($section){
+function help($section) {
     try{
-        switch($section){
+        switch($section) {
             case 'system':
                 log_console('System options:', 'white');
                 echo load_content('help/system')."\n";
@@ -24,7 +24,7 @@ function help($section){
                 throw new CoreException(tr('help(): Unknown section ":section" specified', array(':section' => $section)), 'unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('help(): Failed', $e);
     }
 }

@@ -14,7 +14,7 @@
  * Extracts and returns the gmail forwarding code and source email address from
  * gmail forwarding email
  */
-function gmail_get_forward_code($email){
+function gmail_get_forward_code($email) {
     try{
         /*
          * Attemps to find google verification codes
@@ -23,11 +23,11 @@ function gmail_get_forward_code($email){
         preg_match_all('/'.regex_email(true).'/i', $email['text']   , $matches_from);
         preg_match_all('/\d{9}/'                 , $email['subject'], $matches_code);
 
-        if(!$matches_from[0]){
+        if(!$matches_from[0]) {
             throw new CoreException(tr('gmail_get_forward_code(): Could not find gmail forwarder address in specified email text'), 'not-exists');
         }
 
-        if(!$matches_code[0]){
+        if(!$matches_code[0]) {
             throw new CoreException(tr('gmail_get_forward_code(): Could not find gmail forwarding code in specified email text'), 'not-exists');
         }
 
@@ -38,7 +38,7 @@ function gmail_get_forward_code($email){
                      'source' => isset_get($matches_from[0][0]),
                      'target' => isset_get($matches_from[0][1]));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('gmail_get_forward_code(): Failed'), $e);
     }
 }

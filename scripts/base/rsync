@@ -49,8 +49,8 @@ $params['monitor_task']        = cli_argument('--monitor-task');
 try{
     rsync($params);
 
-}catch(Exception $e){
-    switch($e->getRealCode()){
+}catch(Exception $e) {
+    switch($e->getRealCode()) {
         case 'invalid':
             throw $e->makeWarning(true);
     }

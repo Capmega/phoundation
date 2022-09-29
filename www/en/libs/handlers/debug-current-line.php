@@ -1,7 +1,7 @@
 <?php
 $backtrace = debug_backtrace();
 
-if(!isset($backtrace[$trace + 1])){
+if(!isset($backtrace[$trace + 1])) {
     return -1;
 }
 

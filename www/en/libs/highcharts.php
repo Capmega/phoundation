@@ -14,14 +14,14 @@
  * $params['class'] => Aditional css classes to chart
  */
 // :OBSOLETE: This library is obsolete, see the library graph-highcharts
-function highchart_line($params){
+function highchart_line($params) {
     try{
         $params['type'] = 'line';
         load_libs('graph-highcharts');
         obsolete();
         return graph_highcharts($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('highchart_line(): Failed', $e);
     }
 }

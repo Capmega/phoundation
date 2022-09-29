@@ -6,11 +6,11 @@
  */
 require_once(__DIR__.'/../../libs/startup.php');
 
-if(!$language = cli_argument(0)){
+if(!$language = cli_argument(0)) {
     throw new CoreException('No language specified, please specify one of "en"', 'not-specified');
 }
 
-if($language == 'clear'){
+if($language == 'clear') {
     /*
      * Don't import, just clear the synonyms table.
      */
@@ -19,12 +19,12 @@ if($language == 'clear'){
     exit(0);
 }
 
-if(!in_array($language, array('en'))){
+if(!in_array($language, array('en'))) {
     throw new CoreException('No valid language specified, please specify one of "en"', 'not-specified');
 }
 
-if($count = sql_get('SELECT COUNT(`id`) AS count FROM `synonyms`;', 'count')){
-    if(!cli_argument('force')){
+if($count = sql_get('SELECT COUNT(`id`) AS count FROM `synonyms`;', 'count')) {
+    if(!cli_argument('force')) {
         return cli_die(0, 'Synonyms table already contains data', 'yellow');
     }
 
@@ -61,26 +61,26 @@ sql_query('ALTER TABLE `synonyms` DISABLE KEYS;');
 $p = sql_prepare('INSERT INTO `synonyms` (`language`, `word`, `type`, `synonyms`)
                   VALUES                 (:language , :word , :type , :synonyms )');
 
-while($line = fgets($f)){
+while($line = fgets($f)) {
     usleep(10);
 
-    if(strpos($line, '|') === false){
+    if(strpos($line, '|') === false) {
         continue;
     }
 
-    if($lcount <= 0){
+    if($lcount <= 0) {
         $execute['word'] = Strings::until($line, '|');
         $lcount          = (integer) Strings::from($line, '|');
 
-        if(!fmod(++$count, 200)){
+        if(!fmod(++$count, 200)) {
             log_console('.', '', 'green', false);
 
-            if(!fmod($count, 1000)){
+            if(!fmod($count, 1000)) {
                 sql_query('COMMIT;');
             }
         }
 
-    }else{
+    } else {
         /*
          * This line should contain synonyms
          */

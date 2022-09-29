@@ -14,11 +14,11 @@
  * Initialize the library
  * Automatically executed by libs_load()
  */
-function apache_library_init(){
+function apache_library_init() {
     try{
         load_libs('servers');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('apache_library_init(): Failed', $e);
     }
 }
@@ -45,15 +45,15 @@ function apache_library_init(){
  * @param integer $port The port for this vhost, valid numbers are 1 - 65535
  * @return void
  */
-function apache_write_vhost($hostname, $vhost_name, $params, $port){
+function apache_write_vhost($hostname, $vhost_name, $params, $port) {
     try{
-        if(!is_array($params)){
+        if(!is_array($params)) {
             throw new CoreException(tr('apache_write_vhost(): Invalid data for params. Params must be  an array', 'invalid'));
         }
 
         $os = servers_detect_os($hostname);
 
-        switch($os['name']){
+        switch($os['name']) {
             case 'debian':
                 // FALLTHROUGH
             case 'ubuntu':
@@ -67,7 +67,7 @@ function apache_write_vhost($hostname, $vhost_name, $params, $port){
                 $command  = '> '.$full_path.';';
                 $command .= 'echo "<VirtualHost *:'.$port.'>" >> '.$full_path.';';
 
-                foreach($params as $key => $value){
+                foreach($params as $key => $value) {
                     $command .= 'echo  "  '.$key.' '.$value.'" >> '.$full_path.';';
                 }
 
@@ -87,7 +87,7 @@ function apache_write_vhost($hostname, $vhost_name, $params, $port){
                 throw new CoreException(tr('apache_write_vhost(): Unknown operating system ":os" detected', array(':os' => $os['name'])), 'unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('apache_write_vhost(): Failed', $e);
     }
 }
@@ -107,18 +107,18 @@ function apache_write_vhost($hostname, $vhost_name, $params, $port){
  * @param string $hostname
  * @param array $params, must be an array example: $params = array('ServerName'=>'domain.com',....,'ServerSignature'=>'Off');
  */
-function apache_set_identification($hostname, $params){
+function apache_set_identification($hostname, $params) {
     try{
         $command     = '';
         $config_path = apache_get_config_path($hostname);;
 
-        foreach($params as $key => $value){
+        foreach($params as $key => $value) {
             $command .= 'if grep "'.$key.'" "'.$config_path.'"; then sed -i "s/'.$key.'[[:space:]]*.*/'.$key.' '.$value.'/g" "'.$config_path.'"; else echo "'.$key.' '.$value.'" >> '.$config_path.'; fi;';
         }
 
         servers_exec($hostname, $command);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('apache_set_identification(): Failed', $e);
     }
 }
@@ -131,12 +131,12 @@ function apache_set_identification($hostname, $params){
  * @param string $server_os The operating system name
  * @return string The path where the virtual host configuration files are located
  */
-function apache_get_vhosts_path($server_os){
+function apache_get_vhosts_path($server_os) {
     try{
-        if(empty($server_os)){
+        if(empty($server_os)) {
             throw new CoreException(tr('apache_get_vhosts_path(): No operating system specified'), 'not-specified');
         }
-        switch($server_os){
+        switch($server_os) {
             case 'mint':
                 //FALL THROUGH
             case 'ubuntu':
@@ -153,7 +153,7 @@ function apache_get_vhosts_path($server_os){
 
         return $vhost_path;
 
-    } catch(Exception $e){
+    } catch(Exception $e) {
         throw new CoreException('apache_get_vhosts_path(): Failed', $e);
     }
 }
@@ -166,11 +166,11 @@ function apache_get_vhosts_path($server_os){
  * @param string $hostname
  * @return string
  */
-function apache_get_config_path($hostname){
+function apache_get_config_path($hostname) {
     try{
         $server_os = servers_detect_os($hostname);
 
-        switch($server_os['name']){
+        switch($server_os['name']) {
             case 'mint':
                 //FALL THROUGH
             case 'ubuntu':
@@ -187,7 +187,7 @@ function apache_get_config_path($hostname){
 
         return $path;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('apache_get_config_path(): Failed', $e);
     }
 }

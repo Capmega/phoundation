@@ -29,7 +29,7 @@
  * @param null string $provider
  * @return mixed If a provider was specified and exist, that provider will be returned. If no provider was specified, an array containing all supported providers will be returned
  */
-function fonts_providers($provider = null){
+function fonts_providers($provider = null) {
     static $providers = array('fontawesome'       => true,
                               'themify'           => true,
                               'fontello'          => false,
@@ -111,8 +111,8 @@ function fonts_providers($provider = null){
                               'fontviewer'        => false);
 
     try{
-        if($provider){
-            if(empty($providers[$provider])){
+        if($provider) {
+            if(empty($providers[$provider])) {
                 throw new CoreException(tr('fonts_providers(): Unknown provider ":provider" specified'), 'unknown');
             }
 
@@ -121,7 +121,7 @@ function fonts_providers($provider = null){
 
         return $providers;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fonts_providers(): Failed', $e);
     }
 }
@@ -131,7 +131,7 @@ function fonts_providers($provider = null){
 /*
  * Convert ufpdf font to normal ttf font file
  */
-function fonts_convert_ufpdf($params){
+function fonts_convert_ufpdf($params) {
     try{
 under_construction();
         array_ensure($params);
@@ -141,8 +141,8 @@ under_construction();
         /*
          * If multiple fonts have been specified, handle them one by one
          */
-        if(is_array($params['font'])){
-            foreach($params['font'] as $font){
+        if(is_array($params['font'])) {
+            foreach($params['font'] as $font) {
                 $params['font'] = $font;
                 fonts_convert_ufpdf($params);
             }
@@ -153,7 +153,7 @@ under_construction();
         /*
          * If no font was specified we can't continue.
          */
-        if(!$params['font']){
+        if(!$params['font']) {
             throw(BException(zxc('fonts_convert_ufpdf(): No font specified'), 'fonts'));
         }
 
@@ -168,7 +168,7 @@ under_construction();
         /*
          * If a font file was specified, then remove file data
          */
-        if(strpos($params['font'], '.ttf')){
+        if(strpos($params['font'], '.ttf')) {
             $params['font'] = basename($params['font'], '.ttf');
         }
 
@@ -192,7 +192,7 @@ under_construction();
          */
         sh_mv($params['font'].($params['unicode'] ? '_uni' : '').'*', $kernel->config('paths', 'var').'fonts/', false);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('fonts_convert_ufpdf(): Failed', $e);
     }
 }

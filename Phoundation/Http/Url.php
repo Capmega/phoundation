@@ -108,7 +108,7 @@ class Url {
              */
             $url_params['domain'] = get_domain();
 
-        }elseif ($url_params['domain'] === true) {
+        } elseif ($url_params['domain'] === true) {
             /*
              * Use current domain name
              */
@@ -133,10 +133,10 @@ class Url {
         if (!$url_params['url']) {
             $retval = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '') . $url_params['prefix'];
 
-        }elseif ($url_params['url'] === true) {
+        } elseif ($url_params['url'] === true) {
             $retval = PROTOCOL.$url_params['domain'].Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
 
-        }else{
+        } else {
             $retval = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '') . $url_params['prefix'].Strings::startsNotWith($url_params['url'], '/');
         }
 
@@ -182,11 +182,11 @@ class Url {
                      */
                     $retval = str_replace('en/', $url_params['language'].'/', $retval);
 
-                }else{
+                } else {
                     if (empty($core->register['route_map'][$url_params['language']])) {
                         notify(new CoreException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $retval, ':language' => $url_params['language'])), 'not-specified'));
 
-                    }else{
+                    } else {
                         $retval = str_replace('en/', $url_params['language'].'/', $retval);
 
                         foreach ($core->register['route_map'][$url_params['language']] as $foreign => $english) {
@@ -201,7 +201,7 @@ class Url {
             load_libs('inet');
             $retval = url_add_query($retval, $url_params['query']);
 
-        }elseif ($url_params['query'] === false) {
+        } elseif ($url_params['query'] === false) {
             $retval = Strings::until($retval, '?');
         }
 
@@ -251,7 +251,7 @@ class Url {
                          */
                         $url = self::addToQuery($url, $value);
 
-                    }else{
+                    } else {
                         $url = self::addToQuery($url, $key . '=' . $value);
                     }
                 }
@@ -286,14 +286,14 @@ class Url {
                  */
                 $url .= '?' . $query;
 
-            }elseif (str_contains($url, $key . '=')) {
+            } elseif (str_contains($url, $key . '=')) {
                 /*
                  * The query already exists in the specified URL, replace it.
                  */
                 $replace = Strings::cut($url, $key . '=', '&');
                 $url     = str_replace($key . '=' . $replace, $key . '=' . Strings::from($query, '='), $url);
 
-            }else{
+            } else {
                 /*
                  * Append the query to the URL
                  */

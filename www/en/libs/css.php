@@ -27,7 +27,7 @@
  *
  * @return void
  */
-function css_library_init(){
+function css_library_init() {
     try{
         ensure_installed(array('name'     => 'css',
                                'callback' => 'css_setup',
@@ -35,7 +35,7 @@ function css_library_init(){
 
         load_config('css');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('css_library_init(): Failed', $e);
     }
 }
@@ -55,7 +55,7 @@ function css_library_init(){
  * @param
  * @return
  */
-function css_setup($params){
+function css_setup($params) {
     try{
         ///*
         // * Ensure all targets are clean
@@ -73,7 +73,7 @@ function css_setup($params){
         // * Move library to ROOT/libs/vendor directory and ensure its readonly
         // */
         //file_ensure_path(ROOT.'libs/vendor');
-        //file_execute_mode(ROOT.'libs/vendor', 0770, function(){
+        //file_execute_mode(ROOT.'libs/vendor', 0770, function() {
         //    rename(TMP.'Purge', ROOT.'libs/vendor/purge-css');
         //    file_delete(TMP.'Purge');
         //
@@ -93,7 +93,7 @@ function css_setup($params){
         load_libs('node');
         node_install_npm('purgecss');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('css_setup(): Failed', $e);
     }
 }
@@ -115,7 +115,7 @@ function css_setup($params){
  * @param string $css The CSS file to use
  * @return string The purged CSS file
  */
-function css_purge($html, $css){
+function css_purge($html, $css) {
     global $_CONFIG, $core;
 
     try{
@@ -140,24 +140,24 @@ function css_purge($html, $css){
         /*
          * Add list of selectors that should be whitelisted
          */
-        if(!empty($_CONFIG['css']['whitelist'][$core->register['script']])){
+        if(!empty($_CONFIG['css']['whitelist'][$core->register['script']])) {
             /*
              * Use the whitelist specifically for this page
              */
             $whitelist = &$_CONFIG['css']['whitelist'][$core->register['script']];
 
-        }else{
+        } else {
             /*
              * Use the default whitelist
              */
             $whitelist = &$_CONFIG['css']['whitelist']['default'];
         }
 
-        if($whitelist){
+        if($whitelist) {
             $arguments[] = '--whitelist';
 
-            foreach(array_force($whitelist) as $selector){
-                if($selector){
+            foreach(array_force($whitelist) as $selector) {
+                if($selector) {
                     $arguments[] = $selector;
                 }
             }
@@ -174,7 +174,7 @@ function css_purge($html, $css){
 
         return $purged_css;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('css_purge(): Failed', $e);
     }
 }

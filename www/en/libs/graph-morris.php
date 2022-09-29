@@ -25,11 +25,11 @@
  *
  * @return void
  */
-function graph_morris_library_init(){
+function graph_morris_library_init() {
     try{
         html_load_js('plugins/icheck/icheck.min.js,js/plugins/mcustomscrollbar/jquery.mCustomScrollbar.min,plugins/morris/raphael-min,plugins/morris/morris.min');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('graph_morris_library_init(): Failed', $e);
     }
 }
@@ -53,7 +53,7 @@ function graph_morris_library_init(){
  * @param array  $param optional options for morris chart for more information plese check http://morrisjs.github.io/morris.js/#getting-started
  * @return string The HTML for the top widget
  */
-function graph_morris_generate(array $params){
+function graph_morris_generate(array $params) {
     try{
         array_ensure($params);
         array_default($params, 'type'   , 'bar');
@@ -66,15 +66,15 @@ function graph_morris_generate(array $params){
                               element: \''.$params['element'].'\',
                               data: [';
 
-        foreach($params['items'] as $key => $item){
-            if($params['type'] == 'Donut'){
+        foreach($params['items'] as $key => $item) {
+            if($params['type'] == 'Donut') {
                 $script .= '{label: "'.$key.'", value: '.$item.'},';
 
-            }else{
-                if(is_array($item)){
+            } else {
+                if(is_array($item)) {
                     // :TODO: add validation for multiples values
                     //
-                }else{
+                } else {
                     $script .= '    { y: \''.$key.'\', a: '.$item.'},';
                 }
             }
@@ -85,11 +85,11 @@ function graph_morris_generate(array $params){
          */
         $optional_params = '';
 
-        foreach($params['options'] as $key => $value){
-            if(is_numeric($value)){
+        foreach($params['options'] as $key => $value) {
+            if(is_numeric($value)) {
                 $optional_params .= $key.': '.$value.','.PHP_EOL;
 
-            }else{
+            } else {
                 $optional_params .= $key.': \''.$value.'\','.PHP_EOL;
             }
         }
@@ -107,7 +107,7 @@ function graph_morris_generate(array $params){
 
         return html_script($script);
 
-     }catch(Exception $e){
+     }catch(Exception $e) {
         throw new CoreException('graph_morris_generate(): Failed', $e);
     }
 }

@@ -10,14 +10,14 @@ load_libs('test');
 /*
  * Test cli_list_processes()
  */
-test('cli_list_processes()', 'This test will use cli_list_processes() to find this process itself', function(){
+test('cli_list_processes()', 'This test will use cli_list_processes() to find this process itself', function() {
     /*
      * Results should include this process itself
      */
     $results = cli_list_processes('php');
 
-    foreach($results as $result){
-        if(str_exists($result, 'scripts/tests/cli')){
+    foreach($results as $result) {
+        if(str_exists($result, 'scripts/tests/cli')) {
             return $result;
         }
     }

@@ -57,7 +57,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('csf');
 
-switch(cli_method()){
+switch(cli_method()) {
     case 'install':
         $hostname = cli_argument(1);
 
@@ -123,7 +123,7 @@ switch(cli_method()){
 
         cli_no_arguments_left();
 
-        switch($rule_type){
+        switch($rule_type) {
             case 'allow':
                 $result = csf_allow_rule($hostname, $protocol, $connection_type, $port, $ip, $comments);
                 break;
@@ -153,7 +153,7 @@ switch(cli_method()){
 
         cli_no_arguments_left();
 
-        switch($rule_type){
+        switch($rule_type) {
             case 'allow':
                 $result = csf_remove_allow_rule($hostname, $protocol, $connection_type, $port, $ip);
                 break;

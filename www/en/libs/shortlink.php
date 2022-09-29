@@ -25,12 +25,12 @@
  *
  * @return void
  */
-function shortlink_library_init(){
+function shortlink_library_init() {
     try{
         load_libs('json,curl');
         load_config('shortlink');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('shortlink_library_init(): Failed', $e);
     }
 }
@@ -52,11 +52,11 @@ function shortlink_library_init(){
  * @param string $provider The provider that should be validate, or no provider (in which case the default )
  * @return Either the specified provider, or if no provider was specified, the default provider
  */
-function shortlink_get_provider($provider = null){
+function shortlink_get_provider($provider = null) {
     global $_CONFIG;
 
     try {
-        switch($provider){
+        switch($provider) {
             case 'default':
                 throw new CoreException(tr('shortlink_get_provider(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
 
@@ -69,7 +69,7 @@ function shortlink_get_provider($provider = null){
                 // FALLTHROUGH
 
             default:
-                if(empty($_CONFIG['shortlink'][$provider])){
+                if(empty($_CONFIG['shortlink'][$provider])) {
                     throw new CoreException(tr('shortlink_get_provider(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
                 }
         }
@@ -97,13 +97,13 @@ function shortlink_get_provider($provider = null){
  *
  * @return
  */
-function shortlink_get_access_token($provider = null){
+function shortlink_get_access_token($provider = null) {
     global $_CONFIG;
 
     try {
         $provider = shortlink_get_provider($provider);
 
-        switch($provider){
+        switch($provider) {
             case 'capmega':
                 $results = curl_get(array('url'      => 'https://api.capmega.com/oauth/access_token',
                                           'user_pwd' => $_CONFIG['shortlink']['capmega']['account']));
@@ -145,7 +145,7 @@ function shortlink_create($url, $provider = null) {
     try{
         $token = shortlink_get_access_token($provider);
 
-        switch($provider){
+        switch($provider) {
             case 'capmega':
 under_construction();
 
@@ -161,19 +161,19 @@ under_construction();
 
                     $result = json_decode_custom($result);
 
-                    if(empty($result['link'])){
+                    if(empty($result['link'])) {
                         throw new CoreException(tr('shortlink_create(): Invalid response received from provider "bitly" for the specified URL ":url"', array(':url' => $url)), 'invalid');
                     }
 
                     return $result['link'];
 
-                }catch(Exception $e){
+                }catch(Exception $e) {
                     /*
                      * The bitly provider regularly fails. If failure is detected, simply
                      * retry a few times
                      */
-                    if($e->getRealCode() === 'CURL7'){
-                        if(--$count >= 0){
+                    if($e->getRealCode() === 'CURL7') {
+                        if(--$count >= 0) {
                             log_console(tr('Failed to connect to bitly provider to create shortlink. Retrying ":count" more times', array(':count' => $count)), 'warning');
                             usleep(mt_rand(1000, 1000000));
 
@@ -183,7 +183,7 @@ under_construction();
                 }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('shortlink_create(): Failed', $e);
     }
 }

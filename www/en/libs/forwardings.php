@@ -14,11 +14,11 @@
  * Initialize the library
  * Automatically executed by libs_load()
  */
-function forwardings_library_init(){
+function forwardings_library_init() {
     try{
         load_libs('iptables');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_library_init(): Failed', $e);
     }
 }
@@ -31,17 +31,17 @@ function forwardings_library_init(){
  * @param mixed $server
  * @return void
  */
-function forwardings_apply_server($server){
+function forwardings_apply_server($server) {
     try{
         $forwardings = forwardings_list($server);
 
-        if($forwardings){
-            foreach($forwardings as $forward){
+        if($forwardings) {
+            foreach($forwardings as $forward) {
                 forwardings_apply_rule($forward);
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_apply_server(): Failed', $e);
     }
 }
@@ -54,17 +54,17 @@ function forwardings_apply_server($server){
  * @param mixed $server
  * @return void
  */
-function forwardings_remove_server($server){
+function forwardings_remove_server($server) {
     try{
         $forwardings = forwardings_list($server);
 
-        if($forwardings){
-            foreach($forwardings as $forward){
+        if($forwardings) {
+            foreach($forwardings as $forward) {
                 forwardings_delete($forward);
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_remove_server(): Failed', $e);
     }
 }
@@ -77,22 +77,22 @@ function forwardings_remove_server($server){
  * @param array $forward
  * $return void
  */
-function forwardings_apply_rule($forward, $flush = true){
+function forwardings_apply_rule($forward, $flush = true) {
     try{
-        if($forward['protocol'] != 'ssh'){
+        if($forward['protocol'] != 'ssh') {
             iptables_set_forward(IPTABLES_BUFFER);
             iptables_set_prerouting(IPTABLES_BUFFER,                                      'tcp', $forward['source_port'], $forward['target_port'], $forward['target_ip']);
             iptables_set_postrouting(($flush ? $forward['servers_id'] : IPTABLES_BUFFER), 'tcp', $forward['target_port'], $forward['source_ip'],   $forward['target_ip']);
         }
 
-        if($forward['target_id']){
+        if($forward['target_id']) {
             /*
              * Set rules on target server to start acceting the request from source server
              */
              forwardings_only_accept_traffic($forward);
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         iptables_exec(IPTABLES_CLEAR);
         throw new CoreException('forwardings_apply_rule(): Failed', $e);
     }
@@ -106,20 +106,20 @@ function forwardings_apply_rule($forward, $flush = true){
  * @param array
  * @return boolean
  */
-function forwardings_exists($forward){
+function forwardings_exists($forward) {
     try{
         /*
          * Checking if prerouting exist
          */
         $result = servers_exec($forward['servers_id'], 'if sudo iptables -t nat -L -n -v|grep "DNAT.*tcp[[:space:]]dpt:'.$forward['source_port'].'[[:space:]]to:"; then echo 1; else echo 0; fi');
 
-        if($result[0]){
+        if($result[0]) {
             return true;
         }
 
         return false;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_exists(): Failed', $e);
     }
 }
@@ -133,7 +133,7 @@ function forwardings_exists($forward){
  * @param integer $createdby
  * @return integer, id for the new created record
  */
-function forwardings_insert($forward, $createdby = null){
+function forwardings_insert($forward, $createdby = null) {
     try{
         array_ensure($forward, '');
         array_default($forward, 'apply', false);
@@ -156,13 +156,13 @@ function forwardings_insert($forward, $createdby = null){
 
         $forward_id = sql_insert_id();
 
-        if($forward_id and $forward['apply']){
+        if($forward_id and $forward['apply']) {
             forwardings_apply_rule($forward);
         }
 
         return $forward_id;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_insert(): Failed', $e);
     }
 }
@@ -181,18 +181,18 @@ function forwardings_insert($forward, $createdby = null){
  * @param array $forward
  * @retur void
  */
-function forwardings_delete($forward){
+function forwardings_delete($forward) {
     try{
         array_ensure($forward , '');
         array_default($forward, 'apply', true);
 
         sql_query('DELETE FROM `forwardings` WHERE `id` = :id', array(':id' => $forward['id']));
 
-        if($forward['apply']){
+        if($forward['apply']) {
             forwardings_delete_apply($forward);
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_delete(): Failed', $e);
     }
 }
@@ -211,29 +211,29 @@ function forwardings_delete($forward){
  * @param array $forward
  * @return void
  */
-function forwardings_delete_apply($forward){
+function forwardings_delete_apply($forward) {
     try{
-        if($forward['protocol'] != 'ssh'){
+        if($forward['protocol'] != 'ssh') {
             /*
              * Removing forwarding
              */
             $exists = iptables_prerouting_exists($forward['servers_id'], $forward['source_port'], $forward['target_port'], $forward['target_ip']);
 
-            if($exists){
+            if($exists) {
                 iptables_set_prerouting (IPTABLES_BUFFER,        'tcp', $forward['source_port'], $forward['target_port'], $forward['target_ip'], 'removed');
                 iptables_set_postrouting($forward['servers_id'], 'tcp', $forward['target_port'], $forward['source_ip'],   $forward['target_ip'], 'removed');
 
             }
         }
 
-        if($forward['target_id']){
+        if($forward['target_id']) {
             /*
              * Stop accepting traffic
              */
             iptables_stop_accepting_traffic($forward['target_id'], $forward['source_ip'], $forward['target_port'], 'tcp');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_delete_apply(): Failed', $e);
     }
 }
@@ -247,7 +247,7 @@ function forwardings_delete_apply($forward){
  * @param integer $createdby
  * @return void
  */
-function forwardings_update($forward, $modifiedby = null){
+function forwardings_update($forward, $modifiedby = null) {
     try{
         array_ensure($forward , '');
         array_default($forward, 'apply', true);
@@ -298,11 +298,11 @@ function forwardings_update($forward, $modifiedby = null){
                          ':protocol'    => $forward['protocol'],
                          ':description' => $forward['description']));
 
-        if($forward['apply']){
+        if($forward['apply']) {
             forwardings_update_apply($forward, $old_forward);
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_update(): Failed', $e);
     }
 }
@@ -314,7 +314,7 @@ function forwardings_update($forward, $modifiedby = null){
  * @param array $forward
  * @return void
  */
-function forwardings_update_apply($forward, $old_forward){
+function forwardings_update_apply($forward, $old_forward) {
     try{
         /*
          * Add new rule
@@ -326,7 +326,7 @@ function forwardings_update_apply($forward, $old_forward){
          */
         forwardings_delete_apply($old_forward);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_update_apply(): Failed', $e);
     }
 }
@@ -339,7 +339,7 @@ function forwardings_update_apply($forward, $old_forward){
  * @param array $forward
  * @return array
  */
-function forwardings_validate($forward){
+function forwardings_validate($forward) {
     try{
         load_libs('validate');
         array_ensure($forward);
@@ -349,72 +349,72 @@ function forwardings_validate($forward){
         $v->isNotEmpty($forward['source_ip'], tr('Please specifiy a source ip'));
         $v->isNotEmpty($forward['source_port'], tr('Please specifiy a source port'));
 
-        if(!is_natural($forward['source_port']) or ($forward['source_port'] > 65535)){
+        if(!is_natural($forward['source_port']) or ($forward['source_port'] > 65535)) {
             $v->setError(tr('Please specify a valid port for source port field'));
         }
 
         $v->isFilter($forward['source_ip'], FILTER_VALIDATE_IP, tr('Please specify a valid IP address for source IP field'));
 
-        if($forward['servers_id']){
+        if($forward['servers_id']) {
 
-            if(is_natural($forward['servers_id'])){
+            if(is_natural($forward['servers_id'])) {
                 $exists = sql_get('SELECT `id` FROM `servers` WHERE `id` = :id', array(':id' => $forward['servers_id']), true);
 
-            }else{
+            } else {
                 $exists = sql_get('SELECT `id` FROM `servers` WHERE `seohostname` = :seohostname', array(':seohostname' => $forward['servers_id']), true);
             }
 
-            if(!$exists){
+            if(!$exists) {
                 $v->setError(tr('Specified proxy ":source" does not exist', array(':source' => $forward['servers_id'])));
 
-            }else{
+            } else {
                 $forward['servers_id'] = $exists;
 
             }
         }
 
-        if($forward['source_id']){
-            if(is_natural($forward['source_id'])){
+        if($forward['source_id']) {
+            if(is_natural($forward['source_id'])) {
                 $exists = sql_get('SELECT `id` FROM `servers` WHERE `id` = :id', array(':id' => $forward['source_id']), true);
 
-            }else{
+            } else {
                 $exists = sql_get('SELECT `id` FROM `servers` WHERE `seohostname` = :seohostname', array(':seohostname' => $forward['source_id']), true);
             }
 
-            if(!$exists){
+            if(!$exists) {
                 $v->setError(tr('Specified proxy ":source" does not exist', array(':source' => $forward['source_id'])));
 
-            }else{
+            } else {
                 $forward['source_id'] = $exists;
 
             }
         }
 
-        if($forward['target_id']){
-            if(is_natural($forward['target_id'])){
+        if($forward['target_id']) {
+            if(is_natural($forward['target_id'])) {
                 $exists = sql_get('SELECT `id` FROM `servers` WHERE `id` = :id', array(':id' => $forward['target_id']), true);
 
-            }else{
+            } else {
                 $exists = sql_get('SELECT `id` FROM `servers` WHERE `seohostname` = :seohostname', array(':seohostname' => $forward['target_id']), true);
             }
 
-            if(!$exists){
+            if(!$exists) {
                 $v->setError(tr('Specified proxy ":source" does not exist', array(':source' => $forward['target_id'])));
 
-            }else{
+            } else {
                 $forward['target_id'] = $exists;
             }
         }
 
 
-        if(!empty($forward['target_port']) and (!is_natural($forward['target_port']) or ($forward['target_port'] > 65535))){
+        if(!empty($forward['target_port']) and (!is_natural($forward['target_port']) or ($forward['target_port'] > 65535))) {
             $v->setError(tr('Please specify a valid port for target port field'));
         }
 
         $v->isFilter($forward['target_ip'], FILTER_VALIDATE_IP, tr('Please specify a valid IP address for target IP field'));
 
-        if($forward['protocol']){
-            switch($forward['protocol']){
+        if($forward['protocol']) {
+            switch($forward['protocol']) {
                 case 'ssh':
                     // FALLTHROUGH
                 case 'http':
@@ -439,7 +439,7 @@ function forwardings_validate($forward){
 
         return $forward;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_validate(): Failed', $e);
     }
 }
@@ -452,9 +452,9 @@ function forwardings_validate($forward){
  * @param integer $forward, id on database to get the information from
  * @return array
  */
-function forwardings_get($forwardings_id){
+function forwardings_get($forwardings_id) {
     try{
-        if(empty($forwardings_id)){
+        if(empty($forwardings_id)) {
             throw new CoreException(tr('forwardings_get(): No forwarding specified'), 'not-specified');
         }
 
@@ -490,7 +490,7 @@ function forwardings_get($forwardings_id){
 
         return $forward;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_get(): Failed', $e);
     }
 }
@@ -503,10 +503,10 @@ function forwardings_get($forwardings_id){
  * @param mixed server Either servers_id, or hostname of specified server
  * @return array
  */
-function forwardings_list($server){
+function forwardings_list($server) {
     try{
-        if(!is_numeric($server)){
-            if(!is_string($server)){
+        if(!is_numeric($server)) {
+            if(!is_string($server)) {
                 throw new CoreException(tr('forwardings_list(): Server ":server" is not valid. Must be an id or a hostname.'), 'invalid');
             }
 
@@ -540,7 +540,7 @@ function forwardings_list($server){
 
         return $forwardings;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_list(): Failed', $e);
     }
 }
@@ -553,14 +553,14 @@ function forwardings_list($server){
  * @param array $forward
  * @return void
  */
-function forwardings_only_accept_traffic($forward){
+function forwardings_only_accept_traffic($forward) {
     try{
         /*
          * Accept traffic from source ip to target port on target_ip
          */
         iptables_accept_traffic($forward['target_id'], $forward['source_ip'], $forward['target_port'], 'tcp');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_only_accept_traffic(): Failed', $e);
     }
 }
@@ -573,18 +573,18 @@ function forwardings_only_accept_traffic($forward){
  * @param array $forwardings, array of forward rules
  * @return void
  */
-function forwardings_delete_list($forwardings, $apply = true){
+function forwardings_delete_list($forwardings, $apply = true) {
     try{
-        if(empty($forwardings)){
+        if(empty($forwardings)) {
             throw new CoreException(tr('forwardings_delete_list(): No forwardings specified'), 'not-specified');
         }
 
-        foreach($forwardings as $forward){
+        foreach($forwardings as $forward) {
             $forward['apply'] = $apply;
             forwardings_delete($forward);
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_delete_list(): Failed', $e);
     }
 }
@@ -597,11 +597,11 @@ function forwardings_delete_list($forwardings, $apply = true){
  * @param meixed, server id or hostname for specified server
  * @return void
  */
-function forwardings_destroy($server){
+function forwardings_destroy($server) {
     try{
         iptables_flush_all(IPTABLES_BUFFER);
         iptables_clean_chain_nat($server);
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_destroy(): Failed', $e);
     }
 }
@@ -613,7 +613,7 @@ function forwardings_destroy($server){
  * @param integer $server, id for specified server
  * @return array
  */
-function forwardings_get_by_protocol($server, $protocol){
+function forwardings_get_by_protocol($server, $protocol) {
     try{
         $forward = sql_get('SELECT     `id`,
                                        `servers_id`,
@@ -635,7 +635,7 @@ function forwardings_get_by_protocol($server, $protocol){
 
         return $forward;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_get_by_protocol(): Failed', $e);
     }
 }
@@ -645,10 +645,10 @@ function forwardings_get_by_protocol($server, $protocol){
 /*
  *
  */
-function forwardings_deny_access($server){
+function forwardings_deny_access($server) {
     try{
         iptalbes_drop_all($server);
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('forwardings_deny_access(): Failed', $e);
     }
 }

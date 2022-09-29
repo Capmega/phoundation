@@ -15,7 +15,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 
 load_libs('user,rights');
 
-switch(cli_method()){
+switch(cli_method()) {
     case 'list':
         $rights = sql_query('SELECT `name`,
                                     `status`,
@@ -26,14 +26,14 @@ switch(cli_method()){
                              WHERE  `status` IS NULL
                              OR     `status` != "_new" '.sql_limit());
 
-        if(!$rights->rowCount()){
+        if(!$rights->rowCount()) {
             log_console(tr('There are currently no rights available'), 'QUIET/yellow');
 
-        }else{
+        } else {
             log_console(tr('Showing currently available rights'), 'QUIET/white');
             log_console(str_size('Name', 20).' '.str_size('Status', 16).' Description', 'QUIET/cyan');
 
-            while($right = sql_fetch($rights)){
+            while($right = sql_fetch($rights)) {
                 log_console(str_size($right['name'], 20).' '.str_size(status($right['status']), 16).' '.$right['description']);
             }
         }
@@ -44,7 +44,7 @@ switch(cli_method()){
         $requested = cli_argument(1);
         cli_no_arguments_left();
 
-        if(!$requested){
+        if(!$requested) {
             throw new CoreException(tr('No user specified'), 'warning/not-specified');
         }
 
@@ -65,7 +65,7 @@ switch(cli_method()){
                                ':email'    => $requested,
                                ':username' => $requested));
 
-        if(!$user){
+        if(!$user) {
             throw new CoreException(tr('Specified user ":user" does not exist', array(':user' => $requested)), 'warning/not-exist');
         }
 
@@ -82,14 +82,14 @@ switch(cli_method()){
 
                              array(':users_id' => $user['id']));
 
-        if(!$rights->rowCount()){
+        if(!$rights->rowCount()) {
             log_console(tr('This user has no rights assigned'), 'QUIET/yellow');
 
-        }else{
+        } else {
             log_console(tr('Showing rights for user ":user"', array(':user' => name($user))), 'QUIET/white');
             log_console(str_size('Name', 16).'Description', 'QUIET/cyan');
 
-            while($right = sql_fetch($rights)){
+            while($right = sql_fetch($rights)) {
                 log_console(str_size($right['name'], 16).$right['description']);
             }
         }
@@ -113,7 +113,7 @@ switch(cli_method()){
             log_console(tr('Created new right ":right"', array(':right' => $right['name'])), 'green');
             break;
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             throw new CoreException(tr('Failed to create new right'), $e);
         }
 
@@ -123,7 +123,7 @@ switch(cli_method()){
         try{
             $old_right = cli_argument(1);
 
-            if(!$old_right){
+            if(!$old_right) {
                 throw new CoreException(tr('No right specified'), 'warning/not-specified');
             }
 
@@ -141,7 +141,7 @@ switch(cli_method()){
                                   OR     `name` = :name', array(':id'   => $old_right,
                                                                 ':name' => $old_right));
 
-            if(!$old_right){
+            if(!$old_right) {
                 throw new CoreException(tr('Specified right ":right" does not exist', array(':right' => $old_right)), 'warning/not-specified');
             }
 
@@ -176,7 +176,7 @@ switch(cli_method()){
             log_console(tr('Modified right ":right"', array(':right' => $right['name'])), 'green');
             break;
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             throw new CoreException(tr('Failed to modify right'), $e);
         }
 
@@ -185,17 +185,17 @@ switch(cli_method()){
     case 'delete':
         $rights = arguments();
 
-        if(empty($rights)){
+        if(empty($rights)) {
             throw new CoreException(tr('No rights specified'), 'warning/not-specified');
         }
 
         $in_name = sql_in($rights, 'name');
         $in_id   = sql_in($rights, 'id');
 
-        if(FORCE){
+        if(FORCE) {
             $status = '';
 
-        }else{
+        } else {
             $status = ' AND `status` IS NULL ';
         }
 
@@ -208,7 +208,7 @@ switch(cli_method()){
 
                          array_merge($in_name, $in_id));
 
-        switch(!$r->rowCount()){
+        switch(!$r->rowCount()) {
             case 0:
                 log_console(tr('Not deleted any rights'), 'error');
                 break;
@@ -226,17 +226,17 @@ switch(cli_method()){
     case 'undelete':
         $rights = arguments();
 
-        if(empty($rights)){
+        if(empty($rights)) {
             throw new CoreException(tr('No rights specified'), 'warning/not-specified');
         }
 
         $in_name = sql_in($rights, 'name');
         $in_id   = sql_in($rights, 'id');
 
-        if(FORCE){
+        if(FORCE) {
             $status = '';
 
-        }else{
+        } else {
             $status = ' AND `status` = "deleted" ';
         }
 
@@ -249,7 +249,7 @@ switch(cli_method()){
 
                          array_merge($in_name, $in_id));
 
-        switch(!$r->rowCount()){
+        switch(!$r->rowCount()) {
             case 0:
                 log_console(tr('Not undeleted any rights'), 'error');
                 break;
@@ -267,17 +267,17 @@ switch(cli_method()){
     case 'erase':
         $rights = arguments();
 
-        if(empty($rights)){
+        if(empty($rights)) {
             throw new CoreException(tr('No rights specified'), 'warning/not-specified');
         }
 
         $in_name = sql_in($rights, 'name');
         $in_id   = sql_in($rights, 'id');
 
-        if(FORCE){
+        if(FORCE) {
             $status = '';
 
-        }else{
+        } else {
             $status = ' AND `status` = "deleted" ';
         }
 
@@ -305,11 +305,11 @@ switch(cli_method()){
 
                          $in);
 
-        if(!$r->rowCount()){
+        if(!$r->rowCount()) {
             log_console(tr('Not erased any rights'), 'error');
 
-        }else{
-            switch($r->rowCount()){
+        } else {
+            switch($r->rowCount()) {
                 case 0:
                     break;
 

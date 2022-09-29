@@ -28,7 +28,7 @@
  *
  * @return void
  */
-function base58_library_init(){
+function base58_library_init() {
     try{
         ensure_installed(array('name'      => 'base58',
                                'callback'  => 'base58_install',
@@ -40,7 +40,7 @@ function base58_library_init(){
                             'base58php/GMPService.php',
                             'base58php/Base58.php'));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('base58_library_init(): Failed', $e);
     }
 }
@@ -62,19 +62,19 @@ function base58_library_init(){
  * @param params $params A parameters array
  * @return void
  */
-function base58_install($params){
+function base58_install($params) {
     try{
         /*
          * PHP bcmath extension is missing
          */
         load_libs('git,linux');
 
-        file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs/external/', 0770, function(){
+        file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs/external/', 0770, function() {
             $path = git_clone('https://github.com/stephen-hill/base58php.git', TMP, true);
             rename($path, ROOT.'www/'.LANGUAGE.'/libs/external/base58php');
         });
 
-        if(!function_exists('bcadd')){
+        if(!function_exists('bcadd')) {
             /*
              * PHP bcmath extension is missing
              */
@@ -82,7 +82,7 @@ function base58_install($params){
             linux_install_package(null, 'php-bcmath');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('base58_install(): Failed', $e);
     }
 }
@@ -92,9 +92,9 @@ function base58_install($params){
 /*
  * Encode the specified string into a base58 string
  */
-function base58_encode($source, $reduced = false){
+function base58_encode($source, $reduced = false) {
     try{
-        switch($reduced){
+        switch($reduced) {
             case false:
                 $alphabet = '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
                 break;
@@ -115,8 +115,8 @@ function base58_encode($source, $reduced = false){
 
 		return $converter->encode($source);
 
-    }catch(Exception $e){
-        if($e->getMessage() == 'Please install the BC Math or GMP extension.'){
+    }catch(Exception $e) {
+        if($e->getMessage() == 'Please install the BC Math or GMP extension.') {
             throw new CoreException(tr('base58_encode(): The PHP BC Math or PHP GMP extensions are not installed. On ubuntu, please install or enable these extensions using "sudo apt-get install php-bcmath", "sudo phpenmod bcmath", "sudo apt-get install php-gmp", or "sudo phpenmod gmp"'), 'not-available');
         }
 
@@ -129,9 +129,9 @@ function base58_encode($source, $reduced = false){
 /*
  * Decode the specified base58 string
  */
-function base58_decode($base58, $reduced = false){
+function base58_decode($base58, $reduced = false) {
     try{
-        switch($reduced){
+        switch($reduced) {
             case false:
                 $alphabet = '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
                 break;
@@ -152,8 +152,8 @@ function base58_decode($base58, $reduced = false){
 
 		return $converter->decode($source);
 
-    }catch(Exception $e){
-        if($e->getMessage() == 'Please install the BC Math or GMP extension.'){
+    }catch(Exception $e) {
+        if($e->getMessage() == 'Please install the BC Math or GMP extension.') {
             throw new CoreException(tr('base58_decode(): The PHP BC Math or PHP GMP extensions are not installed. On ubuntu, please install or enable these extensions using "sudo apt-get install php-bcmath", "sudo phpenmod bcmath", "sudo apt-get install php-gmp", or "sudo phpenmod gmp"'), 'not-available');
         }
 

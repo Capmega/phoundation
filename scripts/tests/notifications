@@ -7,7 +7,7 @@ require_once(dirname(__FILE__).'/../../libs/startup.php');
 cli_only(true);
 load_libs('test');
 
-//test('notify()', 'Function call should send notification for class "developers"', function(){
+//test('notify()', 'Function call should send notification for class "developers"', function() {
 //    notify('test', 'this is a test notification', 'test');
 //});
 ?>

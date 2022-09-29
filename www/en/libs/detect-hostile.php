@@ -24,7 +24,7 @@ RewriteRule .* - [F]
 /*
  * Detect hostile URL's and auto block the offending IP
  */
-function detect_hostile_urls(){
+function detect_hostile_urls() {
     try{
 /*
 ?=PHPE9568F36-D428-11d2-A769-00AA001ACF42
@@ -32,7 +32,7 @@ function detect_hostile_urls(){
 ?=PHPB8B5F2A0-3C92-11d3-A3A9-4C7B08C10000
 ?=PHPE9568F34-D428-11d2-A769-00AA001ACF42
 */
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('detect_hostile_urls(): Failed', $e);
     }
 }
@@ -43,10 +43,10 @@ function detect_hostile_urls(){
  * Detect certain amount of hostile IP's in one /8 or /16 block, and
  * csf block the entire block if so
  */
-function detect_hostile_ip_block(){
+function detect_hostile_ip_block() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('detect_hostile_ip_block(): Failed', $e);
     }
 }

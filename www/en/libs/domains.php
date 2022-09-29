@@ -24,11 +24,11 @@
  *
  * @return void
  */
-function domains_library_init(){
+function domains_library_init() {
     try{
         load_config('domains');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('domains_library_init(): Failed', $e);
     }
 }
@@ -38,7 +38,7 @@ function domains_library_init(){
 /*
  *
  */
-function domains_validate($domain){
+function domains_validate($domain) {
     global $_CONFIG;
 
     try{
@@ -50,25 +50,25 @@ function domains_validate($domain){
         /*
          * Validate provider, customer
          */
-        if($domain['provider']){
+        if($domain['provider']) {
             $domain['providers_id'] = sql_get('SELECT `id` FROM `providers` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $domain['provider']), 'core');
 
-            if(!$domain['providers_id']){
+            if(!$domain['providers_id']) {
                 $v->setError(tr('Specified provider ":provider" does not exist', array(':provider' => $domain['provider'])));
             }
 
-        }else{
+        } else {
             $domain['providers_id'] = null;
         }
 
-        if($domain['customer']){
+        if($domain['customer']) {
             $domain['customers_id'] = sql_get('SELECT `id` FROM `customers` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $domain['customer']), 'core');
 
-            if(!$domain['customers_id']){
+            if(!$domain['customers_id']) {
                 $v->setError(tr('Specified customer ":customer" does not exist', array(':customer' => $domain['customer'])));
             }
 
-        }else{
+        } else {
             $domain['customers_id'] = null;
         }
 
@@ -80,7 +80,7 @@ function domains_validate($domain){
          */
         $exists = sql_get('SELECT `id` FROM `domains` WHERE `domain` = :domain AND `id` != :id', true, array(':domain' => $domain['domain'], ':id' => isset_get($domain['id'], 0)), 'core');
 
-        if($exists){
+        if($exists) {
             $v->setError(tr('Domain ":domain" already exists', array(':domain' => $domain['domain'])));
         }
 
@@ -89,23 +89,23 @@ function domains_validate($domain){
         /*
          * Validate specified server
          */
-        if(!$domain['servers']){
+        if(!$domain['servers']) {
             $domain['servers'] = null;
 
-        }else{
-            if(!is_array($domain['servers'])){
+        } else {
+            if(!is_array($domain['servers'])) {
                 throw new CoreException(tr('Invalid servers data specified'), 'invalid');
 
-            }else{
+            } else {
                 $servers = array();
 
-                foreach($domain['servers'] as $server){
+                foreach($domain['servers'] as $server) {
                     if(!$server) continue;
 
                     $servers_id = sql_get('SELECT `id` FROM `servers` WHERE `seodomain` = :seodomain AND `status` IS NULL', true, array(':seodomain' => $server), 'core');
                     $servers[] = $servers_id;
 
-                    if(!$servers_id){
+                    if(!$servers_id) {
                         $v->setError(tr('Specified server ":server" does not exist', array(':server' => $server)));
                     }
                 }
@@ -117,7 +117,7 @@ function domains_validate($domain){
         $v->isValid();
         return $domain;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('domains_validate(): Failed', $e);
     }
 }
@@ -127,7 +127,7 @@ function domains_validate($domain){
 /*
  *
  */
-function domains_validate_keyword($keyword){
+function domains_validate_keyword($keyword) {
     global $_CONFIG;
 
     try{
@@ -145,7 +145,7 @@ function domains_validate_keyword($keyword){
 
         $exists = sql_get('SELECT `id` FROM `domains_keywords` WHERE `keyword` = :keyword', true, array(':keyword' => $keyword['keyword']), 'core');
 
-        if($exists){
+        if($exists) {
             $v->setError(tr('Specified keyword ":keyword" already exists', array(':keyword' => $keyword['keyword'])));
         }
 
@@ -155,7 +155,7 @@ function domains_validate_keyword($keyword){
 
         return $keyword;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('domains_validate_keyword(): Failed', $e);
     }
 }
@@ -165,7 +165,7 @@ function domains_validate_keyword($keyword){
 /*
  *
  */
-function domains_get($domain = null){
+function domains_get($domain = null) {
     global $_CONFIG;
 
     try{
@@ -201,8 +201,8 @@ function domains_get($domain = null){
                   LEFT JOIN `email_servers` AS `mx_domains`
                   ON        `mx_domains`.`id`      = `domains`.`mx_domains_id` ';
 
-        if($domain){
-            if(!is_string($domain)){
+        if($domain) {
+            if(!is_string($domain)) {
                 throw new CoreException(tr('domains_get(): Specified domain name ":name" is not a string', array(':name' => $domain)), 'invalid');
             }
 
@@ -214,7 +214,7 @@ function domains_get($domain = null){
                               array(':domain'    => $domain,
                                     ':seodomain' => $domain), false, 'core');
 
-        }else{
+        } else {
             /*
              * Pre-create a new domain
              */
@@ -225,7 +225,7 @@ function domains_get($domain = null){
 
                               array(':createdby' => $_SESSION['user']['id']), false, 'core');
 
-            if(!$retval){
+            if(!$retval) {
                 sql_query('INSERT INTO `domains` (`createdby`, `meta_id`, `status`)
                            VALUES                (:createdby , :meta_id , :status )',
 
@@ -239,7 +239,7 @@ function domains_get($domain = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('domains_get(): Failed', $e);
     }
 }
@@ -258,7 +258,7 @@ function domains_get($domain = null){
  * @param mixed $domain The domain for which the servers must be returned. May be specified by id, domain, seodomain, or domains array
  * @return array The servers for the specified domain
  */
-function domains_list_servers($domain){
+function domains_list_servers($domain) {
     global $_CONFIG;
 
     try{
@@ -279,7 +279,7 @@ function domains_list_servers($domain){
 
         return $servers;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('domains_list_servers(): Failed', $e);
     }
 }
@@ -299,7 +299,7 @@ function domains_list_servers($domain){
  * @param array $servers
  * @return The amount of servers added for the domain
  */
-function domains_update_servers($domain, $servers = null){
+function domains_update_servers($domain, $servers = null) {
     global $_CONFIG;
 
     try{
@@ -307,21 +307,21 @@ function domains_update_servers($domain, $servers = null){
 
         sql_query('DELETE FROM `domains_servers` WHERE `domains_id` = :domains_id', array(':domains_id' => $domain), 'core');
 
-        if(empty($servers)){
+        if(empty($servers)) {
             return false;
         }
 
         $insert = sql_prepare('INSERT INTO `domains_servers` (`domains_id`, `servers_id`)
                                VALUES                        (:domains_id , :servers_id )', 'core');
 
-        foreach($servers as $servers_id){
+        foreach($servers as $servers_id) {
             $insert->execute(array(':domains_id' => $domain,
                                    ':servers_id' => $servers_id));
         }
 
         return count($servers);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('domains_update_servers(): Failed', $e);
     }
 }
@@ -341,7 +341,7 @@ function domains_update_servers($domain, $servers = null){
  * @param string $keyword
  * @return integer Amount of scaneable domains generated from the added keyword
  */
-function domains_add_keyword($keyword){
+function domains_add_keyword($keyword) {
     global $_CONFIG;
 
     try{
@@ -371,36 +371,36 @@ function domains_add_keyword($keyword){
         $insert           = sql_prepare('INSERT INTO `domains` (`createdby`, `meta_id`, `domain`, `type`)
                                          VALUES                (:createdby , :meta_id , :domain , "scan")', 'core');
 
-        while($combination = sql_fetch($combination_list, true)){
-            if($combination === '1'){
+        while($combination = sql_fetch($combination_list, true)) {
+            if($combination === '1') {
                 $combination = '';
             }
 
-            foreach(array_force($_CONFIG['domains']['scanner']['default_tlds']) as $tld){
-                foreach($options as $option){
-                    foreach($reverses as $reverse){
-                        if(!$combination){
+            foreach(array_force($_CONFIG['domains']['scanner']['default_tlds']) as $tld) {
+                foreach($options as $option) {
+                    foreach($reverses as $reverse) {
+                        if(!$combination) {
                             /*
                              * Never combine "" with an option
                              */
-                            if($option){
+                            if($option) {
                                 continue;
                             }
 
                             $domain = $keyword['keyword'].'.'.$tld;
 
-                        }else{
-                            if($reverse){
+                        } else {
+                            if($reverse) {
                                 $domain = $combination.$option.$keyword['keyword'].'.'.$tld;
 
-                            }else{
+                            } else {
                                 $domain = $keyword['keyword'].$option.$combination.'.'.$tld;
                             }
                         }
 
                         $exists = sql_get('SELECT `id` FROM `domains` WHERE `domain` = :domain', true, array(':domain' => $domain), 'core');
 
-                        if(!$exists){
+                        if(!$exists) {
                             $count++;
                             $insert->execute(array(':createdby' => isset_get($_SESSION['user']['id']),
                                                    ':meta_id'   => meta_action(),
@@ -413,7 +413,7 @@ function domains_add_keyword($keyword){
 
         return $count;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('domains_add_keyword(): Failed', $e);
     }
 }
@@ -431,15 +431,15 @@ function domains_add_keyword($keyword){
  *
  * @return
  */
-function domains_scan_keywords(){
+function domains_scan_keywords() {
     try{
         $domains = sql_query('SELECT `domain` FROM `domains` WHERE `type` = "scan" AND `status` IS NULL', null, 'core');
 
-        while($domain = sql_fetch($domains)){
+        while($domain = sql_fetch($domains)) {
 
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('domains_scan_keywords(): Failed', $e);
     }
 }
@@ -458,7 +458,7 @@ function domains_scan_keywords(){
  * @param string $domain The domain section that is being searched for
  * @return array The list of domains that was found
  */
-function domains_like($domain){
+function domains_like($domain) {
     try{
         $domain = sql_get('SELECT `domain`
 
@@ -470,18 +470,18 @@ function domains_like($domain){
                            true, array(':domain'    => '%'.$domain.'%',
                                        ':seodomain' => '%'.$domain.'%'), 'core');
 
-        if(!$domain){
+        if(!$domain) {
             /*
              * Specified domain not found in the default domains list, try domains list
              */
-            if(!$domain){
+            if(!$domain) {
                 throw new CoreException(tr('domains_like(): Specified domain ":domain" does not exist', array(':domain' => $domain)), 'not-exists');
             }
         }
 
         return $domain;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('domains_like(): Failed', $e);
     }
 }
@@ -504,7 +504,7 @@ function domains_like($domain){
  * @param params $domain
  * @return array The inserted domain with the id column set
  */
-function domains_insert($domain){
+function domains_insert($domain) {
     try{
             $domain = domains_validate($domain);
 
@@ -528,7 +528,7 @@ function domains_insert($domain){
 
         return $domain;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('domains_insert(): Failed', $e);
     }
 }
@@ -551,7 +551,7 @@ function domains_insert($domain){
  * @param params $domain
  * @return array The updated domain
  */
-function domains_update($domain, $new = false){
+function domains_update($domain, $new = false) {
     try{
         $domain = domains_validate($domain);
         meta_action($domain['meta_id'], 'update');
@@ -582,7 +582,7 @@ function domains_update($domain, $new = false){
 
         return $domain;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('domains_update(): Failed', $e);
     }
 }
@@ -601,11 +601,11 @@ function domains_update($domain, $new = false){
  * @param string $domain
  * @return integer The database table id for the specified domain
  */
-function domains_ensure($domain, $column = 'id'){
+function domains_ensure($domain, $column = 'id') {
     try{
         $exists = domains_get($domain);
 
-        if($exists){
+        if($exists) {
             return $exists[$column];
         }
 
@@ -613,7 +613,7 @@ function domains_ensure($domain, $column = 'id'){
 
         return $domain[$column];
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
 		throw new CoreException('domains_ensure(): Failed', $e);
 	}
 }
@@ -632,23 +632,23 @@ function domains_ensure($domain, $column = 'id'){
  * @param mixed $domain
  * @param integer The domains_id
  */
-function domains_get_id($domain){
+function domains_get_id($domain) {
     try{
-        if(!$domain){
+        if(!$domain) {
             return null;
         }
 
-        if(is_array($domain)){
+        if(is_array($domain)) {
             $domain = $domain['id'];
 
-        }elseif(!is_numeric($domain)){
+        } elseif(!is_numeric($domain)) {
             $domain = domains_get($domain);
             $domain = $domain['id'];
         }
 
         return $domain;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
 		throw new CoreException('domains_get_id(): Failed', $e);
 	}
 }

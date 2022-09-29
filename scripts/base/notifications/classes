@@ -19,32 +19,32 @@ load_libs('notifications');
 /*
  *
  */
-if(!function_exists('s_set_status')){
-    function s_set_status($list, $status){
+if(!function_exists('s_set_status')) {
+    function s_set_status($list, $status) {
         try{
             $in    = sql_in($list);
             $found = sql_list('SELECT `id` FROM `notifications_classes` WHERE `id` IN ('.implode(',', array_keys($in)).') OR `name` IN ('.implode(',', array_keys($in)).')', 'id', $in);
 
-            if(!$found){
+            if(!$found) {
                 throw new CoreException(tr('s_set_status(): Specified notifications classes not found'));
             }
 
             $in            = sql_in($found);
 
-            if($status == 'erased'){
+            if($status == 'erased') {
                 /*
                  * Erase instead of setting status
                  */
                 $r = sql_query('DELETE FROM `notifications_classes` WHERE `id` IN ('.implode(',', array_keys($in)).') AND `status` = "deleted"', $in);
 
-            }else{
+            } else {
                 $in[':status'] = $status;
                 $r             = sql_query('UPDATE `notifications_classes` SET `status` = :status WHERE `id` IN ('.implode(',', array_keys($in)).')', $in);
             }
 
             return $r->rowCount();
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             throw new CoreException('s_set_status(): Failed', $e);
         }
     }
@@ -55,7 +55,7 @@ if(!function_exists('s_set_status')){
 try{
     cli_only();
 
-    switch($method = cli_argument(0)){
+    switch($method = cli_argument(0)) {
         case 'add':
             // FALLTHROUGH
         case 'create':
@@ -74,7 +74,7 @@ try{
 
                 log_console(tr('Created new notifications class "%class%"', array('%class%' => $class['name'])), '', 'green');
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 throw new CoreException(tr('Failed to create new notifications class'), $e);
             }
 
@@ -87,7 +87,7 @@ try{
                 $class     = cli_argument(1);
                 $old_class = sql_get('SELECT `id`, `name`, `methods`, `description` FROM `notifications_classes` WHERE `id` = :class OR `name` = :class', array(':class' => $class));
 
-                if(!$old_class){
+                if(!$old_class) {
                     throw new CoreException(tr('The specified class "%class%" does not exist', array('%class%' => $class)), 'not-exists');
                 }
 
@@ -112,7 +112,7 @@ try{
 
                 log_console(tr('Modified notifications class "%class%"', array('%class%' => $old_class['name'])), '', 'green');
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 throw new CoreException(tr('Failed to update notifications class'), $e);
             }
 
@@ -135,13 +135,13 @@ try{
 
                               GROUP BY  `notifications_classes`.`id`');
 
-            if(!$r->rowCount()){
+            if(!$r->rowCount()) {
                 throw new CoreException(tr('No classes found'), 'notfound');
             }
 
             log_console('#id   Name             Methods                Members Description', '', 'white');
 
-            while($class = sql_fetch($r)){
+            while($class = sql_fetch($r)) {
                 log_console(str_size($class['id'], 5, ' ', true).' '.str_size($class['name'], 16).' '.str_size($class['methods'], 22).' '.str_size($class['members'], 8).' '.str_size($class['description'], 80), '');
             }
 
@@ -152,7 +152,7 @@ try{
                 $count = s_set_status(cli_argument(null), 'delete');
                 log_console(tr('Deleted "%count%" notification classes', array('%count%' => $count)), '', 'green');
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 throw new CoreException(tr('Failed to delete notifications classes'), $e);
             }
 
@@ -163,7 +163,7 @@ try{
                 $count = s_set_status(cli_argument(null), NULL);
                 log_console(tr('Undeleted "%count%" notification classes', array('%count%' => $count)), '', 'green');
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 throw new CoreException(tr('Failed to undelete notifications classes'), $e);
             }
 
@@ -174,7 +174,7 @@ try{
                 $count = s_set_status(cli_argument(null), 'erase');
                 log_console(tr('Erased "%count%" notification classes', array('%count%' => $count)), '', 'green');
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 throw new CoreException(tr('Failed to erase notifications classes'), $e);
             }
 
@@ -184,7 +184,7 @@ try{
             throw new CoreException(tr('Unknown method "%method%" specified', array('%method%' => $method)), 'unknown');
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     cli_error($e);
 }
 ?>

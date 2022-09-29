@@ -73,7 +73,7 @@
 //    /*
 //     * Check what platform we're in
 //     */
-//    switch(php_sapi_name()){
+//    switch(php_sapi_name()) {
 //        case 'cli':
 //            define('PLATFORM'     , 'cli');
 //            define('PLATFORM_HTTP', false);
@@ -123,14 +123,14 @@
 //             */
 //            $env = getenv(PROJECT.'_ENVIRONMENT');
 //
-//            if(empty($env)){
+//            if(empty($env)) {
 //                /*
 //                 * No environment set in ENV, maybe given by parameter?
 //                 */
 //                die('startup: Required environment not specified for project "'.PROJECT.'"');
 //            }
 //
-//            if(strstr($env, '_')){
+//            if(strstr($env, '_')) {
 //                die('startup: Specified environment "'.$env.'" is invalid, environment names cannot contain the underscore character');
 //            }
 //
@@ -155,7 +155,7 @@
 //            global $_CONFIG;
 //            define('PROTOCOL', 'http'.($_CONFIG['sessions']['secure'] ? 's' : '').'://');
 //
-//            if($_CONFIG['security']['url_cloaking']['enabled']){
+//            if($_CONFIG['security']['url_cloaking']['enabled']) {
 //                /*
 //                 * URL cloaking enabled. Load the URL library so that the URL cloaking
 //                 * functions are available
@@ -166,7 +166,7 @@
 //            break;
 //    }
 //
-//}catch(Exception $e){
+//}catch(Exception $e) {
 //    /*
 //     * Startup failed miserably, we will NOT have log_file() or exception
 //     * handler available!
@@ -174,12 +174,12 @@
 //     * Unregister shutdown handler by kicking the entire array to avoid issues
 //     * with those shutdown handlers!
 //     */
-//    if(isset($core)){
+//    if(isset($core)) {
 //        $core->register = array();
 //    }
 //
-//    if(defined('PLATFORM_HTTP')){
-//        if(PLATFORM_HTTP){
+//    if(defined('PLATFORM_HTTP')) {
+//        if(PLATFORM_HTTP) {
 //            /*
 //             * Died in browser
 //             */
@@ -244,11 +244,11 @@
 //     *
 //     * @return void
 //     */
-//    public function startup(){
+//    public function startup() {
 //        global $_CONFIG, $core;
 //
 //        try{
-//            if(isset($this->register['startup'])){
+//            if(isset($this->register['startup'])) {
 //                /*
 //                 * Core already started up
 //                 */
@@ -259,7 +259,7 @@
 //            /*
 //             * Detect platform and execute specific platform startup sequence
 //             */
-//            switch(PLATFORM){
+//            switch(PLATFORM) {
 //                case 'http':
 //                    /*
 //                     * Determine what our target file is. With direct execution,
@@ -268,10 +268,10 @@
 //                     * cannot use that. Route will store the file being executed
 //                     * in $this->register['script_path'] instead
 //                     */
-//                    if(isset($this->register['script_path'])){
+//                    if(isset($this->register['script_path'])) {
 //                        $file = '/'.$this->register['script_path'];
 //
-//                    }else{
+//                    } else {
 //                        $file = '/'.$_SERVER['PHP_SELF'];
 //                    }
 //
@@ -279,29 +279,29 @@
 //                     * Auto detect what http call type we're on from the script
 //                     * being executed
 //                     */
-//                    if(str_exists($file, '/admin/')){
+//                    if(str_exists($file, '/admin/')) {
 //                        $this->callType = 'admin';
 //
-//                    }elseif(str_exists($file, '/ajax/')){
+//                    } elseif(str_exists($file, '/ajax/')) {
 //                        $this->callType = 'ajax';
 //
-//                    }elseif(str_exists($file, '/api/')){
+//                    } elseif(str_exists($file, '/api/')) {
 //                        $this->callType = 'api';
 //
-//                    }elseif((substr($_SERVER['SERVER_NAME'], 0, 3) === 'api') and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])){
+//                    } elseif((substr($_SERVER['SERVER_NAME'], 0, 3) === 'api') and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
 //                        $this->callType = 'api';
 //
-//                    }elseif((substr($_SERVER['SERVER_NAME'], 0, 3) === 'cdn') and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])){
+//                    } elseif((substr($_SERVER['SERVER_NAME'], 0, 3) === 'cdn') and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
 //                        $this->callType = 'api';
 //
-//                    }elseif($_CONFIG['amp']['enabled'] and !empty($_GET['amp'])){
+//                    } elseif($_CONFIG['amp']['enabled'] and !empty($_GET['amp'])) {
 //                        $this->callType = 'amp';
 //
-//                    }elseif(is_numeric(substr($file, -3, 3))){
+//                    } elseif(is_numeric(substr($file, -3, 3))) {
 //                        $this->register['http_code'] = substr($file, -3, 3);
 //                        $this->callType = 'system';
 //
-//                    }else{
+//                    } else {
 //                        $this->callType = 'http';
 //                    }
 //
@@ -324,20 +324,20 @@
 //            /*
 //             * Verify project data integrity
 //             */
-//            if(!defined('SEED') or !SEED or (PROJECTCODEVERSION == '0.0.0')){
-//                if($core->register['script'] !== 'setup'){
-//                    if(!FORCE){
+//            if(!defined('SEED') or !SEED or (PROJECTCODEVERSION == '0.0.0')) {
+//                if($core->register['script'] !== 'setup') {
+//                    if(!FORCE) {
 //                        throw new CoreException(tr('startup: Project data in "ROOT/config/project.php" has not been fully configured. Please ensure that PROJECT is not empty, SEED is not empty, and PROJECTCODEVERSION is valid and not "0.0.0"'), 'project-not-setup');
 //                    }
 //                }
 //            }
 //
-//        }catch(Error $e){
+//        }catch(Error $e) {
 //            throw new CoreException(tr('core::startup(): Failed calltype ":calltype" with PHP error', array(':calltype' => $this->callType)), $e);
 //
-//        }catch(Exception $e){
-//            if(PLATFORM_HTTP and headers_sent($file, $line)){
-//                if(preg_match('/debug-.+\.php$/', $file)){
+//        }catch(Exception $e) {
+//            if(PLATFORM_HTTP and headers_sent($file, $line)) {
+//                if(preg_match('/debug-.+\.php$/', $file)) {
 //                    throw new CoreException(tr('core::startup(): Failed because headers were already sent on ":location", so probably some added debug code caused this issue', array(':location' => $file.'@'.$line)), $e);
 //                }
 //
@@ -361,7 +361,7 @@
 //     *
 //     * @return void
 //     */
-//    public function executedQuery($query_data){
+//    public function executedQuery($query_data) {
 //        $this->register['debug_queries'][] = $query_data;
 //        return count($this->register['debug_queries']);
 //    }
@@ -381,16 +381,16 @@
 //     * @param mixed $value The data that has to be stored. If no value is specified, the function will return the value for the specified key.
 //     * @return mixed If a value is specified, this function will return the specified value. If no value is specified, it will return the value for the specified key.
 //     */
-//    public function register($key, $value = null){
-//        if($value === null){
+//    public function register($key, $value = null) {
+//        if($value === null) {
 //            return isset_get($this->register[$key]);
 //        }
 //
-//        if(is_array($value)){
+//        if(is_array($value)) {
 //            /*
 //             * If value is an array, then build up a list
 //             */
-//            if(!isset($this->register[$key])){
+//            if(!isset($this->register[$key])) {
 //                $this->register[$key] = array();
 //            }
 //
@@ -415,9 +415,9 @@
 //     * @param (optional)string $type The call type you wish to compare to, or nothing if you wish to receive the current core::callType
 //     * @return mixed If $type is specified, this function will return true if $type matches core::callType, or false if it does not. If $type is not specified, it will return core::callType
 //     */
-//    public function callType($type = null){
-//        if($type){
-//            switch($type){
+//    public function callType($type = null) {
+//        if($type) {
+//            switch($type) {
 //                case 'http':
 //                    // FALLTHROUGH
 //                case 'admin':
@@ -474,7 +474,7 @@
 //     * @param string $code
 //     * @param mixed $data
 //     */
-//    function __construct($messages, $code, $data = null){
+//    function __construct($messages, $code, $data = null) {
 //        return include(__DIR__.'/handlers/system-bexception-construct.php');
 //    }
 //
@@ -492,16 +492,16 @@
 //     * @param string $message The message you wish to add to the exceptions messages list
 //     * @return object $this, so that you can string multiple calls together
 //     */
-//    public function addMessages($messages){
-//        if(is_object($messages)){
-//            if(!($messages instanceof BException)){
+//    public function addMessages($messages) {
+//        if(is_object($messages)) {
+//            if(!($messages instanceof BException)) {
 //                throw new CoreException(tr('BException::addMessages(): Only supported object class to add to messages is BException'), 'invalid');
 //            }
 //
 //            $messages = $messages->getMessages();
 //        }
 //
-//        foreach(array_force($messages) as $message){
+//        foreach(array_force($messages) as $message) {
 //            $this->messages[] = $message;
 //        }
 //
@@ -522,7 +522,7 @@
 //     * @param string $code The new exception code you wish to set BException::code to
 //     * @return object $this, so that you can string multiple calls together
 //     */
-//    public function setCode($code){
+//    public function setCode($code) {
 //        $this->code = $code;
 //        return $this;
 //    }
@@ -540,7 +540,7 @@
 //     *
 //     * @return string The current BException::code value from the first /
 //     */
-//    public function getRealCode(){
+//    public function getRealCode() {
 //        return Strings::from($this->code, '/');
 //    }
 //
@@ -558,8 +558,8 @@
 //     * @param string $separator If specified, all messages will be returned as a string, each message separated by the specified $separator. If not specified, the messages will be returned as an array
 //     * @return mixed An array with the messages list for this exception. If $separator has been specified, this method will return all messages in one string, each message separated by $separator
 //     */
-//    public function getMessages($separator = null){
-//        if($separator === null){
+//    public function getMessages($separator = null) {
+//        if($separator === null) {
 //            return $this->messages;
 //        }
 //
@@ -579,7 +579,7 @@
 //     *
 //     * @return mixed Returns the content for BException::data
 //     */
-//    public function getData(){
+//    public function getData() {
 //        return $this->data;
 //    }
 //
@@ -596,7 +596,7 @@
 //     *
 //     * @param mixed $data The content for this exception
 //     */
-//    public function setData($data){
+//    public function setData($data) {
 //        $this->data = array_force($data);
 //    }
 //
@@ -616,11 +616,11 @@
 //     * @param boolean $value Specify true if this exception should be a warning, false if not
 //     * @return object $this, so that you can string multiple calls together
 //     */
-//    public function makeWarning($value){
-//        if($value){
+//    public function makeWarning($value) {
+//        if($value) {
 //            $this->code = str_starts($this->code, 'warning/');
 //
-//        }else{
+//        } else {
 //            $this->code = str_starts_not($this->code, 'warning/');
 //        }
 //
@@ -642,7 +642,7 @@
 //     *
 //     * @return boolean True if thie exception is a warning, false if it is a real exception
 //     */
-//    public function isWarning(){
+//    public function isWarning() {
 //        return (substr($this->code, 0, 7) === 'warning');
 //    }
 //}
@@ -663,7 +663,7 @@
 // * @param boolean $value Specify true if this exception should be a warning, false if not
 // * @return object $this, so that you can string multiple calls together
 // */
-//function php_error_handler($errno, $errstr, $errfile, $errline, $errcontext){
+//function php_error_handler($errno, $errstr, $errfile, $errline, $errcontext) {
 //    return include(__DIR__.'/handlers/system-php-error-handler.php');
 //}
 //
@@ -683,7 +683,7 @@
 // * @param boolean $value Specify true if this exception should be a warning, false if not
 // * @return object $this, so that you can string multiple calls together
 // */
-//function uncaught_exception($e, $die = 1){
+//function uncaught_exception($e, $die = 1) {
 //    return include(__DIR__.'/handlers/system-uncaught-exception.php');
 //}
 //
@@ -704,14 +704,14 @@
 // * @param mixed (optional) $alt_return
 // * @return mixed
 // */
-//function isset_get(&$variable, $return = null, $alt_return = null){
-//    if(isset($variable)){
+//function isset_get(&$variable, $return = null, $alt_return = null) {
+//    if(isset($variable)) {
 //        return $variable;
 //    }
 //
 //    unset($variable);
 //
-//    if($return === null){
+//    if($return === null) {
 //        return $alt_return;
 //    }
 //
@@ -733,11 +733,11 @@
 // * @param mixed $initialize The value to initialize the variable with
 // * @return mixed the value of the variable. Either the value of the existing variable, or the value of the $initialize variable, if the variable did not exist, or was NULL
 // */
-//function ensure_variable(&$variable, $initialize){
-//    if(isset($variable)){
+//function ensure_variable(&$variable, $initialize) {
+//    if(isset($variable)) {
 //        $variable = $initialize;
 //
-//    }elseif($variable === null){
+//    } elseif($variable === null) {
 //        $variable = $initialize;
 //    }
 //
@@ -774,12 +774,12 @@
 // * @param boolean $verify
 // * @return string
 // */
-//function tr($text, $replace = null, $verify = true){
+//function tr($text, $replace = null, $verify = true) {
 //    global $_CONFIG;
 //
 //    try{
-//        if($replace){
-//            foreach($replace as &$value){
+//        if($replace) {
+//            foreach($replace as &$value) {
 //                $value = str_log($value);
 //            }
 //
@@ -790,10 +790,10 @@
 //            /*
 //             * Only on non production machines, crash when not all entries were replaced as an extra check.
 //             */
-//            if(empty($_CONFIG['production']) and $verify){
-//                if($count != count($replace)){
-//                    foreach($replace as $value){
-//                        if(strstr($value, ':')){
+//            if(empty($_CONFIG['production']) and $verify) {
+//                if($count != count($replace)) {
+//                    foreach($replace as $value) {
+//                        if(strstr($value, ':')) {
 //                            /*
 //                             * The one of the $replace values contains :blah
 //                             * This will cause the detector to fire off
@@ -816,7 +816,7 @@
 //
 //        return $text;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        /*
 //         * Do NOT use tr() here for obvious endless loop reasons!
 //         */
@@ -838,25 +838,25 @@
 // * @param boolean $enable If set to true, will enable debug mode. If set to false, will disable debug mode. If not set at all, will only return the current debug mode setting.
 // * @return boolean the current debug mode setting
 // */
-//function debug($enabled = null){
+//function debug($enabled = null) {
 //    global $_CONFIG, $core;
 //
 //    try{
-//        if(!$core->register['ready']){
+//        if(!$core->register['ready']) {
 //            throw new CoreException(tr('debug(): Startup has not yet finished and base is not ready to start working properly. debug() may not be called until configuration is fully loaded and available'), 'invalid');
 //        }
 //
-//        if(!is_array($_CONFIG['debug'])){
+//        if(!is_array($_CONFIG['debug'])) {
 //            throw new CoreException(tr('debug(): Invalid configuration, $_CONFIG[debug] is boolean, and it should be an array. Please check your config/ directory for "$_CONFIG[\'debug\']"'), 'invalid');
 //        }
 //
-//        if($enabled !== null){
+//        if($enabled !== null) {
 //            $_CONFIG['debug']['enabled'] = (boolean) $enabled;
 //        }
 //
 //        return $_CONFIG['debug']['enabled'];
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('debug(): Failed'), $e);
 //    }
 //}
@@ -898,13 +898,13 @@
 // * @param boolean $throw If set to true, if the notification is an exception and the system is non production, it will throw the exception instead of notifying
 // * @return void
 // */
-//function notify($notification, $log = true, $throw = true){
+//function notify($notification, $log = true, $throw = true) {
 //    try{
 //        load_libs('notifications');
 //        return notifications($notification, $log, $throw);
 //
-//    }catch(Exception $e){
-//        if($e){
+//    }catch(Exception $e) {
+//        if($e) {
 //            /*
 //             * This is just the notification being thrown as an exception, keep
 //             * on throwing
@@ -942,13 +942,13 @@
 // * @param mixed $files Either array or CSV string with the files to be loaded
 // * @return void
 // */
-//function load_external($files){
+//function load_external($files) {
 //    try{
-//        foreach(array_force($files) as $file){
+//        foreach(array_force($files) as $file) {
 //            include_once(ROOT.'www/en/libs/external/'.$files);
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('load_external(): Failed'), $e);
 //    }
 //}
@@ -974,15 +974,15 @@
 // * @param mixed $files Either array or CSV string with the libraries to be loaded
 // * @return void
 // */
-//function load_libs($libraries){
+//function load_libs($libraries) {
 //    global $_CONFIG, $core;
 //    static $loaded = array();
 //
 //    try{
-//        if(defined('LIBS')){
+//        if(defined('LIBS')) {
 //            $libs = LIBS;
 //
-//        }else{
+//        } else {
 //            /*
 //             * LIBS is not defined yet. This may happen when load_libs() is
 //             * called during the startup sequence (for example, location
@@ -992,20 +992,20 @@
 //            $libs = slash(__DIR__);
 //        }
 //
-//        foreach(array_force($libraries) as $library){
-//            if(!$library){
+//        foreach(array_force($libraries) as $library) {
+//            if(!$library) {
 //                notify(new BException('load_libs(): Empty library specified', 'warning/not-specified'));
 //                continue;
 //            }
 //
-//            if(isset($loaded[$library])){
+//            if(isset($loaded[$library])) {
 //                /*
 //                 * This library has already been loaded, skip
 //                 */
 //                continue;
 //            }
 //
-//            if($core->register['ready'] and str_exists('http,strings,array,sql,mb,meta,file,json', $library)){
+//            if($core->register['ready'] and str_exists('http,strings,array,sql,mb,meta,file,json', $library)) {
 //                /*
 //                 * These are system libraries that are always loaded. Do not
 //                 * load them again
@@ -1018,7 +1018,7 @@
 //            $function         = str_replace('-', '_', $library).'_library_init';
 //            $loaded[$library] = true;
 //
-//            if(is_callable($function)){
+//            if(is_callable($function)) {
 //                /*
 //                 * Auto initialize the library
 //                 */
@@ -1026,22 +1026,22 @@
 //            }
 //        }
 //
-//    }catch(Error $e){
-//        if(isset($library)){
+//    }catch(Error $e) {
+//        if(isset($library)) {
 //            $e = new BException(tr('load_libs(): Failed to load library ":library"', array(':library' => $library)), $e);
 //
-//        }else{
+//        } else {
 //            $e = new BException(tr('load_libs(): Failed to load libraries ":libraries"', array(':libraries' => $libraries)), $e);
 //        }
 //
 //        throw $e->setCode('load-libs-fail');
 //
-//    }catch(Exception $e){
-//        if(empty($library)){
+//    }catch(Exception $e) {
+//        if(empty($library)) {
 //            throw new CoreException(tr('load_libs(): Failed to load one or more of libraries ":libraries"', array(':libraries' => $libraries)), $e);
 //        }
 //
-//        if(!file_exists($libs.$library.'.php')){
+//        if(!file_exists($libs.$library.'.php')) {
 //            throw new CoreException(tr('load_libs(): Failed to load library ":library", the library does not exist', array(':library' => $library)), $e);
 //        }
 //
@@ -1070,12 +1070,12 @@
 // * @param mixed $files Either array or CSV string with the libraries to be loaded
 // * @return void
 // */
-//function load_config($files = ''){
+//function load_config($files = '') {
 //    global $_CONFIG, $core;
 //    static $paths;
 //
 //    try{
-//        if(!$paths){
+//        if(!$paths) {
 //            $paths = array(ROOT.'config/base/',
 //                           ROOT.'config/production',
 //                           ROOT.'config/'.ENVIRONMENT);
@@ -1083,7 +1083,7 @@
 //
 //        $files = array_force($files);
 //
-//        foreach($files as $file){
+//        foreach($files as $file) {
 //            $loaded = false;
 //            $file   = trim($file);
 //
@@ -1092,34 +1092,34 @@
 //             * production configuration file, if available, and then, if
 //             * available, the environment file
 //             */
-//            foreach($paths as $id => $path){
-//                if(!$file){
+//            foreach($paths as $id => $path) {
+//                if(!$file) {
 //                    /*
 //                     * Trying to load default configuration files again
 //                     */
-//                    if(!$id){
+//                    if(!$id) {
 //                        $path .= 'default.php';
 //
-//                    }else{
+//                    } else {
 //                        $path .= '.php';
 //                    }
 //
-//                }else{
-//                    if($id){
+//                } else {
+//                    if($id) {
 //                        $path .= '_'.$file.'.php';
 //
-//                    }else{
+//                    } else {
 //                        $path .= $file.'.php';
 //                    }
 //                }
 //
-//                if(file_exists($path)){
+//                if(file_exists($path)) {
 //                    include($path);
 //                    $loaded = true;
 //                }
 //            }
 //
-//            if(!$loaded){
+//            if(!$loaded) {
 //                throw new CoreException(tr('load_config(): No configuration file was found for requested configuration ":file"', array(':file' => $file)), 'not-exists');
 //            }
 //        }
@@ -1130,7 +1130,7 @@
 //         */
 //        $core->register['ready'] = true;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('load_config(): Failed to load some or all of config file(s) ":file"', array(':file' => $files)), $e);
 //    }
 //}
@@ -1152,47 +1152,47 @@
 // * @param string $environment
 // * @return array The requested configuration array
 // */
-//function read_config($file = null, $environment = null){
+//function read_config($file = null, $environment = null) {
 //    try{
-//        if(!$environment){
+//        if(!$environment) {
 //            $environment = ENVIRONMENT;
 //        }
 //
-//        if($file === 'deploy'){
+//        if($file === 'deploy') {
 //            include(ROOT.'config/deploy.php');
 //            return $_CONFIG;
 //        }
 //
-//        if($file){
-//            if(file_exists(ROOT.'config/base/'.$file.'.php')){
+//        if($file) {
+//            if(file_exists(ROOT.'config/base/'.$file.'.php')) {
 //                $loaded = true;
 //                include(ROOT.'config/base/'.$file.'.php');
 //            }
 //
 //            $file = '_'.$file;
 //
-//        }else{
+//        } else {
 //            $loaded = true;
 //            include(ROOT.'config/base/default.php');
 //        }
 //
-//        if(file_exists(ROOT.'config/production'.$file.'.php')){
+//        if(file_exists(ROOT.'config/production'.$file.'.php')) {
 //            $loaded = true;
 //            include(ROOT.'config/production'.$file.'.php');
 //        }
 //
-//        if(file_exists(ROOT.'config/'.$environment.$file.'.php')){
+//        if(file_exists(ROOT.'config/'.$environment.$file.'.php')) {
 //            $loaded = true;
 //            include(ROOT.'config/'.$environment.$file.'.php');
 //        }
 //
-//        if(empty($loaded)){
+//        if(empty($loaded)) {
 //            throw new CoreException(tr('The specified configuration ":config" does not exist', array(':config' => $file)), 'not-exists');
 //        }
 //
 //        return $_CONFIG;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('read_config(): Failed', $e);
 //    }
 //}
@@ -1222,7 +1222,7 @@
 // * @param (optional, default 'exec') string $function One of 'exec', 'passthru', or 'system'. The function to be used internally by safe_exec(). Each function will have different execution and different output. 'passthru' will send all command output directly to the client (browser or command line), 'exec' will return the complete output of the command, but cannot be used for background commands as it will check the process exit code, 'system' can run background processes.
 // * @return mixed The output from the command. The exact format of this output depends on the exact function used within safe exec, specified with $function (See description of that parameter)
 // */
-//function safe_exec($params){
+//function safe_exec($params) {
 //    return include(__DIR__.'/handlers/system-safe-exec.php');
 //}
 //
@@ -1248,7 +1248,7 @@
 // * @param "passthru" mixed $function One of "passthru", "exec", "shell_exec" or "system"
 // * @return mixed The output from the command. The exact format of this output depends on the exact function used within safe exec, specified with $function (See description of that parameter)
 // */
-//function script_exec($params){
+//function script_exec($params) {
 //    return include(__DIR__.'/handlers/system-script-exec.php');
 //}
 //
@@ -1275,30 +1275,30 @@
 // * @param (optional, default false) $validate
 // * @return string The content of the specified content file
 // */
-//function load_content($file, $replace = false, $language = null, $autocreate = null, $validate = true){
+//function load_content($file, $replace = false, $language = null, $autocreate = null, $validate = true) {
 //    global $_CONFIG, $core;
 //
 //    try{
 //        /*
 //         * Set default values
 //         */
-//        if($language === null){
-//            if($core->callType('cli')){
+//        if($language === null) {
+//            if($core->callType('cli')) {
 //                $language = '';
 //
-//            }else{
+//            } else {
 //                $language = LANGUAGE.'/';
 //            }
 //
-//        }else{
+//        } else {
 //            $language = slash($language);
 //        }
 //
-//        if(!isset($replace['###SITENAME###'])){
+//        if(!isset($replace['###SITENAME###'])) {
 //            $replace['###SITENAME###'] = str_capitalize(isset_get($_SESSION['domain']));
 //        }
 //
-//        if(!isset($replace['###DOMAIN###'])){
+//        if(!isset($replace['###DOMAIN###'])) {
 //            $replace['###DOMAIN###'] = isset_get($_SESSION['domain']);
 //        }
 //
@@ -1307,7 +1307,7 @@
 //         */
 //        $realfile = realpath(ROOT.'data/content/'.$language.cfm($file).'.html');
 //
-//        if($realfile){
+//        if($realfile) {
 //            /*
 //             * File exists, we're okay, get and return contents.
 //             */
@@ -1317,11 +1317,11 @@
 //            /*
 //             * Make sure no replace markers are left
 //             */
-//            if($validate and preg_match('/###[a-z]+?###/i', $retval, $matches)){
+//            if($validate and preg_match('/###[a-z]+?###/i', $retval, $matches)) {
 //                /*
 //                 * Oops, specified $from array does not contain all replace markers
 //                 */
-//                if(!$_CONFIG['production']){
+//                if(!$_CONFIG['production']) {
 //                    throw new CoreException(tr('load_content(): Missing markers ":markers" for content file ":file"', array(':markers' => $matches, ':file' => $realfile)), 'missing-markers');
 //                }
 //            }
@@ -1334,7 +1334,7 @@
 //        /*
 //         * From here, the file does not exist.
 //         */
-//        if(!$_CONFIG['production']){
+//        if(!$_CONFIG['production']) {
 //            notify(array('code'    => 'not-exist',
 //                         'groups'  => 'developers',
 //                         'title'   => tr('Content file missing'),
@@ -1343,11 +1343,11 @@
 //            return '';
 //        }
 //
-//        if($autocreate === null){
+//        if($autocreate === null) {
 //            $autocreate = $_CONFIG['content']['autocreate'];
 //        }
 //
-//        if(!$autocreate){
+//        if(!$autocreate) {
 //            throw new CoreException(tr('load_content(): Specified file ":file" does not exist for language ":language"', array(':file' => $file, ':language' => $language)), 'not-exists');
 //        }
 //
@@ -1361,16 +1361,16 @@
 //
 //        file_put_contents($realfile, $default);
 //
-//        if($replace){
+//        if($replace) {
 //            return str_replace(array_keys($replace), array_values($replace), $default);
 //        }
 //
 //        return $default;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        notify($e);
 //
-//        switch($e->getCode()){
+//        switch($e->getCode()) {
 //            case 'not-exist':
 //                log_file(tr('load_content(): File ":language/:file" does not exist', array(':language' => $language, ':file' => $file)), 'warning');
 //                break;
@@ -1425,11 +1425,11 @@
 // * @param null string $mimetype If specified, the mimetype that must be tested if accepted by the client
 // * @return mixed If $mimetype was specified, true if the client accepts it, false if not. If $mimetype was not specified, a string will be returned containing the first requested mimetype
 // */
-//function accepts($mimetype = null){
+//function accepts($mimetype = null) {
 //    static $headers = null;
 //
 //    try{
-//        if(!$headers){
+//        if(!$headers) {
 //            /*
 //             * Cleanup the HTTP accept headers (opera aparently puts spaces in
 //             * there, wtf?), then convert them to an array where the accepted
@@ -1441,7 +1441,7 @@
 //            $headers = array_flip($headers);
 //        }
 //
-//        if($mimetype){
+//        if($mimetype) {
 //            /*
 //             * Return if the browser supports the specified mimetype
 //             */
@@ -1451,7 +1451,7 @@
 //        reset($headers);
 //        return key($headers);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('accepts(): Failed'), $e);
 //    }
 //}
@@ -1472,44 +1472,44 @@
 // *
 // * @return array The list of accepted languages and locales as specified by the HTTP client
 // */
-//function accepts_languages(){
+//function accepts_languages() {
 //    global $_CONFIG;
 //
 //    try{
-//        if(empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
+//        if(empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
 //            /*
 //             * No accept language headers were specified
 //             */
 //            $retval  = array('1.0' => array('language' => isset_get($_CONFIG['language']['default'], 'en'),
 //                                            'locale'   => Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
 //
-//        }else{
+//        } else {
 //            $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 //            $headers = array_force($headers, ',');
 //            $default = array_shift($headers);
 //            $retval  = array('1.0' => array('language' => Strings::until($default, '-'),
 //                                            'locale'   => (str_exists($default, '-') ? Strings::from($default, '-') : null)));
 //
-//            if(empty($retval['1.0']['language'])){
+//            if(empty($retval['1.0']['language'])) {
 //                /*
 //                 * Specified accept language headers contain no language
 //                 */
 //                $retval['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
 //            }
 //
-//            if(empty($retval['1.0']['locale'])){
+//            if(empty($retval['1.0']['locale'])) {
 //                /*
 //                 * Specified accept language headers contain no locale
 //                 */
 //                $retval['1.0']['locale'] = Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
 //            }
 //
-//            foreach($headers as $header){
+//            foreach($headers as $header) {
 //                $requested =  Strings::until($header, ';');
 //                $requested =  array('language' => Strings::until($requested, '-'),
 //                                    'locale'   => (str_exists($requested, '-') ? Strings::from($requested, '-') : null));
 //
-//                if(empty($_CONFIG['language']['supported'][$requested['language']])){
+//                if(empty($_CONFIG['language']['supported'][$requested['language']])) {
 //                    continue;
 //                }
 //
@@ -1520,7 +1520,7 @@
 //        krsort($retval);
 //        return $retval;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('accepts_languages(): Failed'), $e);
 //    }
 //}
@@ -1530,11 +1530,11 @@
 ///*
 // * Parse flags from the specified log text color
 // */
-//function log_flags($color){
+//function log_flags($color) {
 //    try{
-//        switch(Strings::until($color, '/')){
+//        switch(Strings::until($color, '/')) {
 //            case 'VERBOSE':
-//                if(!VERBOSE){
+//                if(!VERBOSE) {
 //                    /*
 //                     * Only log this if we're in verbose mode
 //                     */
@@ -1548,7 +1548,7 @@
 //                break;
 //
 //            case 'VERBOSEDOT':
-//                if(!VERBOSE){
+//                if(!VERBOSE) {
 //                    /*
 //                     * Only log this if we're in verbose mode
 //                     */
@@ -1564,7 +1564,7 @@
 //                break;
 //
 //            case 'VERYVERBOSE':
-//                if(!VERYVERBOSE){
+//                if(!VERYVERBOSE) {
 //                    /*
 //                     * Only log this if we're in verbose mode
 //                     */
@@ -1578,7 +1578,7 @@
 //                break;
 //
 //            case 'VERYVERBOSEDOT':
-//                if(!VERYVERBOSE){
+//                if(!VERYVERBOSE) {
 //                    /*
 //                     * Only log this if we're in verbose mode
 //                     */
@@ -1594,7 +1594,7 @@
 //                break;
 //
 //            case 'QUIET':
-//                if(QUIET){
+//                if(QUIET) {
 //                    /*
 //                     * Only log this if we're in verbose mode
 //                     */
@@ -1608,7 +1608,7 @@
 //                break;
 //
 //            case 'DEBUG':
-//                if(!debug()){
+//                if(!debug()) {
 //                    /*
 //                     * Only log this if we're in debug mode
 //                     */
@@ -1623,7 +1623,7 @@
 //
 //        return $color;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('log_flags(): Failed'), $e);
 //    }
 //}
@@ -1648,50 +1648,50 @@
 // * @param boolean $filter_double
 // * @return null string $class
 // */
-//function log_sanitize($messages, $color, $filter_double = true, &$class = null){
+//function log_sanitize($messages, $color, $filter_double = true, &$class = null) {
 //    static $last;
 //
 //    try{
-//        if($filter_double and ($messages == $last)){
+//        if($filter_double and ($messages == $last)) {
 //            /*
 //            * We already displayed this message, skip!
 //            */
 //            return array();
 //        }
 //
-//        if(is_scalar($messages)){
+//        if(is_scalar($messages)) {
 //            $messages = array($messages);
 //
-//        }elseif(is_array($messages)){
+//        } elseif(is_array($messages)) {
 //            /*
 //             * Do nothing, we're good
 //             */
 //
-//        }elseif(is_object($messages)){
-//            if($messages instanceof BException){
+//        } elseif(is_object($messages)) {
+//            if($messages instanceof BException) {
 //                $data = $messages->getData();
 //
-//                if($messages->isWarning()){
+//                if($messages->isWarning()) {
 //                    $messages = array($messages->getMessage());
 //                    $color    = 'warning';
 //
-//                }else{
+//                } else {
 //                    $messages = $messages->getMessages();
 //                    $color    = 'error';
 //                }
 //
-//                if($data){
+//                if($data) {
 //                    /*
 //                     * Add data to messages
 //                     */
 //                    $messages[] = cli_color('Exception data:', 'error', null, true);
 //
-//                    foreach(array_force($data) as $line){
-//                        if($line){
-//                            if(is_scalar($line)){
+//                    foreach(array_force($data) as $line) {
+//                        if($line) {
+//                            if(is_scalar($line)) {
 //                                $messages[] = cli_color($line, 'error', null, true);
 //
-//                            }elseif(is_array($line)){
+//                            } elseif(is_array($line)) {
 //                                /*
 //                                 * This is a multi dimensional array or object,
 //                                 * we cannot cli_color() these, so just JSON it.
@@ -1702,17 +1702,17 @@
 //                    }
 //                }
 //
-//                if(!$class){
+//                if(!$class) {
 //                    $class = 'exception';
 //                }
 //
-//            }elseif($messages instanceof Exception){
+//            } elseif($messages instanceof Exception) {
 //                $messages = array($messages->getMessage());
 //
-//            }elseif($messages instanceof Error){
+//            } elseif($messages instanceof Error) {
 //                $messages = array($messages->getMessage());
 //
-//            }else{
+//            } else {
 //                $messages = $messages->__toString();
 //            }
 //        }
@@ -1721,7 +1721,7 @@
 //
 //        return $messages;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('log_sanitize(): Failed', $e);
 //    }
 //}
@@ -1751,12 +1751,12 @@
 // * @param boolean $log_file
 // * @return array the sanitized log messages in array format
 // */
-//function log_console($messages = '', $color = null, $newline = true, $filter_double = false, $log_file = true){
+//function log_console($messages = '', $color = null, $newline = true, $filter_double = false, $log_file = true) {
 //    global $core;
 //    static $c;
 //
 //    try{
-//        if($color and !is_scalar($color)){
+//        if($color and !is_scalar($color)) {
 //            log_console(tr('[ WARNING ] log_console(): Invalid color ":color" specified for the following message, color has been stripped', array(':color' => $color)), 'warning');
 //            $color = null;
 //        }
@@ -1766,7 +1766,7 @@
 //         */
 //        $color = log_flags($color);
 //
-//        if($color === false){
+//        if($color === false) {
 //            /*
 //             * log_flags() returned false, do not log anything at all
 //             */
@@ -1776,11 +1776,11 @@
 //        /*
 //         * Always log to file log as well
 //         */
-//        if($log_file){
+//        if($log_file) {
 //            log_file($messages, $core->register['real_script'], $color);
 //        }
 //
-//        if(!PLATFORM_CLI){
+//        if(!PLATFORM_CLI) {
 //            /*
 //             * Only log to console on CLI platform
 //             */
@@ -1789,23 +1789,23 @@
 //
 //        $messages = log_sanitize($messages, $color, $filter_double);
 //
-//        if($color){
-//            if(defined('NOCOLOR') and !NOCOLOR){
-//                if(empty($c)){
-//                    if(!class_exists('Colors')){
+//        if($color) {
+//            if(defined('NOCOLOR') and !NOCOLOR) {
+//                if(empty($c)) {
+//                    if(!class_exists('Colors')) {
 //                        /*
 //                         * This log_console() was called before the "cli" library
 //                         * was loaded. Show the line without color
 //                         */
 //                        $color = '';
 //
-//                    }else{
+//                    } else {
 //                        $c = new Colors();
 //                    }
 //                }
 //            }
 //
-//            switch($color){
+//            switch($color) {
 //                case 'yellow':
 //                    // FALLTHROUGH
 //                case 'warning':
@@ -1817,21 +1817,21 @@
 //            }
 //        }
 //
-//        foreach($messages as $message){
-//            if($color and defined('NOCOLOR') and !NOCOLOR){
+//        foreach($messages as $message) {
+//            if($color and defined('NOCOLOR') and !NOCOLOR) {
 //                $message = $c->getColoredString($message, $color);
 //            }
 //
-//            if(QUIET){
+//            if(QUIET) {
 //                $message = trim($message);
 //            }
 //
 //            $message = stripslashes(br2nl($message)).($newline ? "\n" : '');
 //
-//            if(empty($error)){
+//            if(empty($error)) {
 //                echo $message;
 //
-//            }else{
+//            } else {
 //                /*
 //                 * Log to STDERR instead of STDOUT
 //                 */
@@ -1841,7 +1841,7 @@
 //
 //        return $messages;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('log_console(): Failed', $e, array('message' => $messages));
 //    }
 //}
@@ -1870,13 +1870,13 @@
 // * @param string $color
 // * @return array the sanitized log messages in array format
 // */
-//function log_file($messages, $class = 'syslog', $color = null, $filter_double = true){
+//function log_file($messages, $class = 'syslog', $color = null, $filter_double = true) {
 //    global $_CONFIG, $core;
 //    static $h   = array(),
 //           $log = true;
 //
 //    try{
-//        if(!$log){
+//        if(!$log) {
 //            /*
 //             * Do not log!
 //             */
@@ -1888,7 +1888,7 @@
 //         */
 //        $color = log_flags($color);
 //
-//        if($color === false){
+//        if($color === false) {
 //            /*
 //             * log_flags() returned false, do not log anything at all
 //             */
@@ -1897,8 +1897,8 @@
 //
 //        $messages = log_sanitize($messages, $color, $filter_double, $class);
 //
-//        if(!is_scalar($class)){
-//            if($class){
+//        if(!is_scalar($class)) {
+//            if($class) {
 //                throw new CoreException(tr('log_file(): Specified class ":class" is not scalar', array(':class' => str_truncate(json_encode_custom($class), 20))), 'invalid');
 //            }
 //
@@ -1908,25 +1908,25 @@
 //        /*
 //         * Add session data
 //         */
-//        if(PLATFORM_HTTP){
+//        if(PLATFORM_HTTP) {
 //            $session = '('.substr(session_id(), -8, 8).' / '.REQUEST.') ';
 //
-//        }else{
+//        } else {
 //            $session = '(CLI-'.getmypid().' / '.REQUEST.') ';
 //        }
 //
 //        /*
 //         * Single log or multi log?
 //         */
-//        if(!$core or !$core->register('ready')){
+//        if(!$core or !$core->register('ready')) {
 //            $file  = 'syslog';
 //            $class = $session.cli_color('[ '.$class.' ] ', 'white', null, true);
 //
-//        }elseif($_CONFIG['log']['single']){
+//        } elseif($_CONFIG['log']['single']) {
 //            $file  = 'syslog';
 //            $class = $session.cli_color('[ '.$class.' ] ', 'white', null, true);
 //
-//        }else{
+//        } else {
 //            $file  = $class;
 //            $class = $session;
 //        }
@@ -1934,17 +1934,17 @@
 //        /*
 //         * Write log entries
 //         */
-//        if(empty($h[$file])){
+//        if(empty($h[$file])) {
 //            file_ensure_path(ROOT.'data/log');
 //
 //            try{
 //                $h[$file] = @fopen(ROOT.'data/log/'.$file, 'a+');
 //
-//            }catch(Exception $e){
+//            }catch(Exception $e) {
 //                throw new CoreException(tr('log_file(): Failed to open logfile ":file" to store messages ":messages"', array(':file' => $file, ':messages' => $messages)), $e);
 //            }
 //
-//            if(!$h[$file]){
+//            if(!$h[$file]) {
 //                throw new CoreException(tr('log_file(): Failed to open logfile ":file" to store messages ":messages"', array(':file' => $file, ':messages' => $messages)), 'failed');
 //            }
 //        }
@@ -1952,38 +1952,38 @@
 //        $date = new DateTime();
 //        $date = $date->format('Y/m/d H:i:s');
 //
-//        foreach($messages as $key => $message){
-//            if(!is_scalar($message)){
-//                if(is_array($message) or is_object($message)){
+//        foreach($messages as $key => $message) {
+//            if(!is_scalar($message)) {
+//                if(is_array($message) or is_object($message)) {
 //                    $message = json_encode_custom($message);
 //
-//                }else{
+//                } else {
 //                    $message = '* '.gettype($message).' *';
 //                }
 //            }
 //
-//            if(count($messages) > 1){
+//            if(count($messages) > 1) {
 //                /*
 //                 * There are multiple messages in this log_file() call. Display
 //                 * them all using their keys
 //                 */
-//                if(!is_scalar($message)){
+//                if(!is_scalar($message)) {
 //                    $message = str_log($message);
 //                }
 //
-//                if(!empty($color)){
+//                if(!empty($color)) {
 //                    $message = cli_color($message, $color, null, true);
 //                }
 //
 //                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.$core->register['real_script'].' '.$class.$key.' => '.$message."\n");
 //
-//            }else{
+//            } else {
 //                /*
 //                 * There is only one message in this log_file() call, even when
 //                 * the log_file() was called with an array, it only contained
 //                 * one entry
 //                 */
-//                if(!empty($color)){
+//                if(!empty($color)) {
 //                    $message = cli_color($message, $color, null, true);
 //                }
 //
@@ -1993,18 +1993,18 @@
 //
 //        return $messages;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        /*
 //         * We encountered an exception trying to log, don't log ever again
 //         */
 //        $log = false;
 //
-//        if(empty($file)){
+//        if(empty($file)) {
 //            throw new CoreException('log_file(): Failed before $file was determined', $e, array('message' => $messages));
 //        }
 //
-//        if(!is_writable(slash(ROOT.'data/log').$file)){
-//            if(PLATFORM_HTTP){
+//        if(!is_writable(slash(ROOT.'data/log').$file)) {
+//            if(PLATFORM_HTTP) {
 //                error_log(tr('log_file() failed because log file ":file" is not writable', array(':file' => $file)));
 //            }
 //
@@ -2016,13 +2016,13 @@
 //         */
 //        error_log(tr('log_file() failed to log the following exception:'));
 //
-//        foreach($e->getMessages() as $message){
+//        foreach($e->getMessages() as $message) {
 //            error_log($message);
 //        }
 //
 //        $message = $e->getMessage();
 //
-//        if(strstr($message, 'data/log') and strstr($message, 'failed to open stream: Permission denied')){
+//        if(strstr($message, 'data/log') and strstr($message, 'failed to open stream: Permission denied')) {
 //            /*
 //             * We cannot write to the log file
 //             */
@@ -2039,32 +2039,32 @@
 // * Calculate the hash value for the given password with the (possibly) given
 // * algorithm
 // */
-//function password($source, $algorithm, $add_meta = true){
+//function password($source, $algorithm, $add_meta = true) {
 //    return get_hash($source, $algorithm, $add_meta );
 //}
 //
-//function get_hash($source, $algorithm, $add_meta = true){
+//function get_hash($source, $algorithm, $add_meta = true) {
 //    global $_CONFIG;
 //
 //    try{
 //        try{
 //            $source = hash($algorithm, SEED.$source);
 //
-//        }catch(Exception $e){
-//            if(strstr($e->getMessage(), 'Unknown hashing algorithm')){
+//        }catch(Exception $e) {
+//            if(strstr($e->getMessage(), 'Unknown hashing algorithm')) {
 //                throw new CoreException(tr('get_hash(): Unknown hash algorithm ":algorithm" specified', array(':algorithm' => $algorithm)), 'unknown-algorithm');
 //            }
 //
 //            throw $e;
 //        }
 //
-//        if($add_meta){
+//        if($add_meta) {
 //            return '*'.$algorithm.'*'.$source;
 //        }
 //
 //        return $source;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('get_hash(): Failed', $e);
 //    }
 //}
@@ -2084,27 +2084,27 @@
 // * @param string $language a language code
 // * @return null string a valid language that is supported by the systems configuration
 // */
-//function get_language($language){
+//function get_language($language) {
 //    global $_CONFIG;
 //
 //    try{
-//        if(empty($_CONFIG['language']['supported'])){
+//        if(empty($_CONFIG['language']['supported'])) {
 //            return '';
 //        }
 //
 //        /*
 //         * Multilingual site
 //         */
-//        if($language === null){
+//        if($language === null) {
 //            $language = LANGUAGE;
 //        }
 //
-//        if($language){
+//        if($language) {
 //            /*
 //             * This is a multilingual website. Ensure language is supported and
 //             * add language selection to the URL.
 //             */
-//            if(empty($_CONFIG['language']['supported'][$language])){
+//            if(empty($_CONFIG['language']['supported'][$language])) {
 //                $language = $_CONFIG['language']['default'];
 //
 //                notify(array('code'    => 'unknown',
@@ -2116,7 +2116,7 @@
 //
 //        return $language;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('get_language(): Failed', $e);
 //    }
 //}
@@ -2135,17 +2135,17 @@
 // *
 // * @return void
 // */
-//function get_domain(){
+//function get_domain() {
 //    global $_CONFIG;
 //
 //    try{
-//        if(PLATFORM_HTTP){
+//        if(PLATFORM_HTTP) {
 //            return $_SERVER['HTTP_HOST'];
 //        }
 //
 //        return $_CONFIG['domain'];
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('get_domain(): Failed', $e);
 //    }
 //}
@@ -2172,12 +2172,12 @@
 // * @param null boolean $allow_cloak
 // * @return string the URL
 // */
-//function domain($url_params = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_cloak = true){
+//function domain($url_params = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_cloak = true) {
 //    global $_CONFIG, $core;
 //
 //    try{
-//        if(!is_array($url_params)){
-//            if(!is_string($url_params) and !is_bool($url_params) and ($url_params !== null)){
+//        if(!is_array($url_params)) {
+//            if(!is_string($url_params) and !is_bool($url_params) and ($url_params !== null)) {
 //                throw new CoreException(tr('domain(): Specified $url_params should be either null, a string, or a parameters array but is an ":type"', array(':type' => gettype($url_params))), 'invalid');
 //            }
 //
@@ -2191,14 +2191,14 @@
 //
 //        array_default($url_params, 'from_language', LANGUAGE);
 //
-//        if(preg_match('/^(?:(?:https?)|(?:ftp):)?\/\//i', $url_params['url'])){
+//        if(preg_match('/^(?:(?:https?)|(?:ftp):)?\/\//i', $url_params['url'])) {
 //            /*
 //             * Absolute URL specified, don't modify
 //             */
 //            return $url_params['url'];
 //        }
 //
-//        if(!$url_params['domain']){
+//        if(!$url_params['domain']) {
 //            /*
 //             * Use current domain.
 //             * Current domain MAY not be the same as the configured domain, so
@@ -2209,7 +2209,7 @@
 //             */
 //            $url_params['domain'] = get_domain();
 //
-//        }elseif($url_params['domain'] === true){
+//        } elseif($url_params['domain'] === true) {
 //            /*
 //             * Use current domain name
 //             */
@@ -2220,7 +2220,7 @@
 //         * Use url_prefix, for URL's like domain.com/en/admin/page.html, where
 //         * "/admin/" is the prefix
 //         */
-//        if($url_params['prefix'] === null){
+//        if($url_params['prefix'] === null) {
 //            $url_params['prefix'] = $_CONFIG['url_prefix'];
 //        }
 //
@@ -2231,13 +2231,13 @@
 //        /*
 //         * Build up the URL part
 //         */
-//        if(!$url_params['url']){
+//        if(!$url_params['url']) {
 //            $retval = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '').$url_params['prefix'];
 //
-//        }elseif($url_params['url'] === true){
+//        } elseif($url_params['url'] === true) {
 //            $retval = PROTOCOL.$url_params['domain'].str_starts_not($_SERVER['REQUEST_URI'], '/');
 //
-//        }else{
+//        } else {
 //            $retval = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '').$url_params['prefix'].str_starts_not($url_params['url'], '/');
 //        }
 //
@@ -2245,8 +2245,8 @@
 //         * Do language mapping, but only if routemap has been set
 //         */
 //// :TODO: This will fail when using multiple CDN servers (WHY?)
-//        if(!empty($_CONFIG['language']['supported']) and ($url_params['domain'] !== $_CONFIG['cdn']['domain'].'/')){
-//            if($url_params['from_language'] !== 'en'){
+//        if(!empty($_CONFIG['language']['supported']) and ($url_params['domain'] !== $_CONFIG['cdn']['domain'].'/')) {
+//            if($url_params['from_language'] !== 'en') {
 //                /*
 //                 * Translate the current non-English URL to English first
 //                 * because the specified could be in dutch whilst we want to end
@@ -2260,8 +2260,8 @@
 //                $retval = str_replace('/'.$url_params['from_language'].'/', '/en/', '/'.$retval);
 //                $retval = substr($retval, 1);
 //
-//                if(!empty($core->register['route_map'])){
-//                    foreach($core->register['route_map'][$url_params['from_language']] as $foreign => $english){
+//                if(!empty($core->register['route_map'])) {
+//                    foreach($core->register['route_map'][$url_params['from_language']] as $foreign => $english) {
 //                        $retval = str_replace($foreign, $english, $retval);
 //                    }
 //                }
@@ -2272,25 +2272,25 @@
 //             * English here, then conversion from local language to English
 //             * right above failed
 //             */
-//            if($url_params['language'] !== 'en'){
+//            if($url_params['language'] !== 'en') {
 //                /*
 //                 * Map the english URL to the requested non-english URL
 //                 * Only map if routemap has been set for the requested language
 //                 */
-//                if(empty($core->register['route_map'])){
+//                if(empty($core->register['route_map'])) {
 //                    /*
 //                     * No route_map was set, only translate language selector
 //                     */
 //                    $retval = str_replace('en/', $url_params['language'].'/', $retval);
 //
-//                }else{
-//                    if(empty($core->register['route_map'][$url_params['language']])){
+//                } else {
+//                    if(empty($core->register['route_map'][$url_params['language']])) {
 //                        notify(new BException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $retval, ':language' => $url_params['language'])), 'not-specified'));
 //
-//                    }else{
+//                    } else {
 //                        $retval = str_replace('en/', $url_params['language'].'/', $retval);
 //
-//                        foreach($core->register['route_map'][$url_params['language']] as $foreign => $english){
+//                        foreach($core->register['route_map'][$url_params['language']] as $foreign => $english) {
 //                            $retval = str_replace($english, $foreign, $retval);
 //                        }
 //                    }
@@ -2298,15 +2298,15 @@
 //            }
 //        }
 //
-//        if($url_params['query']){
+//        if($url_params['query']) {
 //            load_libs('inet');
 //            $retval = url_add_query($retval, $url_params['query']);
 //
-//        }elseif($url_params['query'] === false){
+//        } elseif($url_params['query'] === false) {
 //            $retval = Strings::until($retval, '?');
 //        }
 //
-//        if($url_params['allow_cloak'] and $_CONFIG['security']['url_cloaking']['enabled']){
+//        if($url_params['allow_cloak'] and $_CONFIG['security']['url_cloaking']['enabled']) {
 //            /*
 //             * Cloak the URL before returning it
 //             */
@@ -2315,7 +2315,7 @@
 //
 //        return $retval;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('domain(): Failed', $e);
 //    }
 //}
@@ -2342,12 +2342,12 @@
 // * @param null boolean $allow_url_cloak
 // * @return string the URL
 // */
-//function api_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true){
+//function api_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true) {
 //    try{
 //        load_config('api');
 //        return domain($url, $query, $prefix, $_CONFIG['api']['domain'], $language, $allow_url_cloak);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('api_domain(): Failed', $e);
 //    }
 //}
@@ -2374,24 +2374,24 @@
 // * @param null boolean $allow_url_cloak
 // * @return string the URL
 // */
-//function ajax_domain($url = null, $query = null, $language = null, $allow_url_cloak = true){
+//function ajax_domain($url = null, $query = null, $language = null, $allow_url_cloak = true) {
 //    global $_CONFIG;
 //
 //    try{
-//        if($_CONFIG['ajax']['prefix']){
+//        if($_CONFIG['ajax']['prefix']) {
 //            $prefix = $_CONFIG['ajax']['prefix'];
 //
-//        }else{
+//        } else {
 //            $prefix = null;
 //        }
 //
-//        if($_CONFIG['ajax']['domain']){
+//        if($_CONFIG['ajax']['domain']) {
 //            return domain($url, $query, $prefix, $_CONFIG['ajax']['domain'], $language, $allow_url_cloak);
 //        }
 //
 //        return domain($url, $query, $prefix, null, $language, $allow_url_cloak);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('ajax_domain(): Failed', $e);
 //    }
 //}
@@ -2426,12 +2426,12 @@
 // * @param null function $callback If specified, download will execute this callback with either the filename or file contents (depending on $section)
 // * @return string The downloaded file
 // */
-//function download($url, $contents = false, $callback = null){
+//function download($url, $contents = false, $callback = null) {
 //    try{
 //        load_libs('wget');
 //        $file = wget($url);
 //
-//        if($contents){
+//        if($contents) {
 //            /*
 //             * Do not return the filename but the file contents instead
 //             * When doing this, automatically delete the temporary file in
@@ -2440,7 +2440,7 @@
 //            $retval = file_get_contents($file);
 //            file_delete($file);
 //
-//            if($callback){
+//            if($callback) {
 //                $callback($retval);
 //            }
 //
@@ -2450,7 +2450,7 @@
 //        /*
 //         * No section was specified, return contents of file instead.
 //         */
-//        if($callback){
+//        if($callback) {
 //            /*
 //             * Execute the callbacks before returning the data, delete the
 //             * temporary file after
@@ -2461,7 +2461,7 @@
 //
 //        return $file;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('download(): Failed', $e);
 //    }
 //}
@@ -2473,12 +2473,12 @@
 // * This function will automatically load the rights for this user if
 // * they are not yet in the session variable
 // */
-//function has_rights($rights, &$user = null){
+//function has_rights($rights, &$user = null) {
 //    global $_CONFIG;
 //
 //    try{
-//        if($user === null){
-//            if(empty($_SESSION['user'])){
+//        if($user === null) {
+//            if(empty($_SESSION['user'])) {
 //                /*
 //                 * No user specified and there is no session user either,
 //                 * so there are absolutely no rights at all
@@ -2488,15 +2488,15 @@
 //
 //            $user = &$_SESSION['user'];
 //
-//        }elseif(!is_array($user)){
+//        } elseif(!is_array($user)) {
 //            throw new CoreException(tr('has_rights(): Specified user is not an array'), 'invalid');
 //        }
 //
 //        /*
 //         * Dynamically load the user rights
 //         */
-//        if(empty($user['rights'])){
-//            if(empty($user)){
+//        if(empty($user['rights'])) {
+//            if(empty($user)) {
 //                /*
 //                 * There is no user, so there are no rights at all
 //                 */
@@ -2507,17 +2507,17 @@
 //            $user['rights'] = user_load_rights($user);
 //        }
 //
-//        if(empty($rights)){
+//        if(empty($rights)) {
 //            throw new CoreException('has_rights(): No rights specified');
 //        }
 //
-//        if(!empty($user['rights']['god'])){
+//        if(!empty($user['rights']['god'])) {
 //            return true;
 //        }
 //
-//        foreach(array_force($rights) as $right){
-//            if(empty($user['rights'][$right]) or !empty($user['rights']['devil']) or !empty($fail)){
-//                if((PLATFORM_CLI) and VERBOSE){
+//        foreach(array_force($rights) as $right) {
+//            if(empty($user['rights'][$right]) or !empty($user['rights']['devil']) or !empty($fail)) {
+//                if((PLATFORM_CLI) and VERBOSE) {
 //                    load_libs('user');
 //                    log_console(tr('has_rights(): Access denied for user ":user" in page ":page" for missing right ":right"', array(':user' => name($_SESSION['user']), ':page' => $_SERVER['PHP_SELF'], ':right' => $right)), 'yellow');
 //                }
@@ -2528,7 +2528,7 @@
 //
 //        return true;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('has_rights(): Failed', $e);
 //    }
 //}
@@ -2543,12 +2543,12 @@
 // * This function will automatically load the groups for this user if
 // * they are not yet in the session variable
 // */
-//function has_groups($groups, &$user = null){
+//function has_groups($groups, &$user = null) {
 //    global $_CONFIG;
 //
 //    try{
-//        if($user === null){
-//            if(empty($_SESSION['user'])){
+//        if($user === null) {
+//            if(empty($_SESSION['user'])) {
 //                /*
 //                 * No user specified and there is no session user either,
 //                 * so there are absolutely no groups at all
@@ -2558,15 +2558,15 @@
 //
 //            $user = &$_SESSION['user'];
 //
-//        }elseif(!is_array($user)){
+//        } elseif(!is_array($user)) {
 //            throw new CoreException(tr('has_groups(): Specified user is not an array'), 'invalid');
 //        }
 //
 //        /*
 //         * Dynamically load the user groups
 //         */
-//        if(empty($user['groups'])){
-//            if(empty($user)){
+//        if(empty($user['groups'])) {
+//            if(empty($user)) {
 //                /*
 //                 * There is no user, so there are no groups at all
 //                 */
@@ -2577,17 +2577,17 @@
 //            $user['groups'] = user_load_groups($user);
 //        }
 //
-//        if(empty($groups)){
+//        if(empty($groups)) {
 //            throw new CoreException('has_groups(): No groups specified');
 //        }
 //
-//        if(!empty($user['rights']['god'])){
+//        if(!empty($user['rights']['god'])) {
 //            return true;
 //        }
 //
-//        foreach(array_force($groups) as $group){
-//            if(empty($user['groups'][$group]) or !empty($user['rights']['devil']) or !empty($fail)){
-//                if((PLATFORM_CLI) and VERBOSE){
+//        foreach(array_force($groups) as $group) {
+//            if(empty($user['groups'][$group]) or !empty($user['rights']['devil']) or !empty($fail)) {
+//                if((PLATFORM_CLI) and VERBOSE) {
 //                    load_libs('user');
 //                    log_console(tr('has_groups(): Access denied for user ":user" in page ":page" for missing group ":group"', array(':user' => name($_SESSION['user']), ':page' => $_SERVER['PHP_SELF'], ':group' => $group)), 'yellow');
 //                }
@@ -2598,7 +2598,7 @@
 //
 //        return true;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('has_groups(): Failed', $e);
 //    }
 //}
@@ -2608,19 +2608,19 @@
 ///*
 // * Either a user is logged in or the person will be redirected to the specified URL
 // */
-//function user_or_signin(){
+//function user_or_signin() {
 //    global $_CONFIG, $core;
 //
 //    try{
-//        if(PLATFORM_CLI){
+//        if(PLATFORM_CLI) {
 //            return $_SESSION['user'];
 //        }
 //
-//        if(empty($_SESSION['user']['id'])){
+//        if(empty($_SESSION['user']['id'])) {
 //            /*
 //             * No session
 //             */
-//            if($core->callType('api') or $core->callType('ajax')){
+//            if($core->callType('api') or $core->callType('ajax')) {
 //                json_reply(tr('Specified token ":token" has no session', array(':token' => isset_get($_POST['PHPSESSID']))), 'signin');
 //            }
 //
@@ -2631,16 +2631,16 @@
 //            redirect($url, 302);
 //        }
 //
-//        if(!empty($_SESSION['force_page'])){
+//        if(!empty($_SESSION['force_page'])) {
 //            /*
 //             * Session is, but locked
 //             * Redirect all pages EXCEPT the lock page itself!
 //             */
-//            if(empty($_CONFIG['redirects'][$_SESSION['force_page']])){
+//            if(empty($_CONFIG['redirects'][$_SESSION['force_page']])) {
 //                throw new CoreException(tr('user_or_signin(): Forced page ":page" does not exist in $_CONFIG[redirects]', array(':page' => $_SESSION['force_page'])), 'not-exist');
 //            }
 //
-//            if($_CONFIG['redirects'][$_SESSION['force_page']] !== Strings::until(Strings::fromReverse($_SERVER['REQUEST_URI'], '/'), '?')){
+//            if($_CONFIG['redirects'][$_SESSION['force_page']] !== Strings::until(Strings::fromReverse($_SERVER['REQUEST_URI'], '/'), '?')) {
 //                log_file(tr('User ":user" has forced page ":page"', array(':user' => name($_SESSION['user']), ':page' => $_SESSION['force_page'])), 'user-or-signin', 'VERBOSE/yellow');
 //                redirect(domain($_CONFIG['redirects'][$_SESSION['force_page']].'?redirect='.urlencode($_SERVER['REQUEST_URI'])));
 //            }
@@ -2649,8 +2649,8 @@
 //        /*
 //         * Is user restricted to a page? if so, keep him there
 //         */
-//        if(empty($_SESSION['lock']) and !empty($_SESSION['user']['redirect'])){
-//            if(Strings::from($_SESSION['user']['redirect'], '://') != $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']){
+//        if(empty($_SESSION['lock']) and !empty($_SESSION['user']['redirect'])) {
+//            if(Strings::from($_SESSION['user']['redirect'], '://') != $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']) {
 //                log_file(tr('User ":user" has is restricted to page ":page"', array(':user' => name($_SESSION['user']), ':page' => $_SESSION['user']['redirect'])), 'user-or-signin', 'VERBOSE/yellow');
 //                redirect(domain($_SESSION['user']['redirect']));
 //            }
@@ -2658,7 +2658,7 @@
 //
 //        return $_SESSION['user'];
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('user_or_signin(): Failed', $e);
 //    }
 //}
@@ -2668,17 +2668,17 @@
 ///*
 // * The current user has the specified rights, or will be redirected or get shown "access denied"
 // */
-//function rights_or_access_denied($rights, $url = null){
+//function rights_or_access_denied($rights, $url = null) {
 //    global $_CONFIG;
 //
 //    try{
-//        if(!$rights){
+//        if(!$rights) {
 //            return true;
 //        }
 //
 //        user_or_signin();
 //
-//        if(PLATFORM_CLI or has_rights($rights)){
+//        if(PLATFORM_CLI or has_rights($rights)) {
 //            /*
 //             * We're on CLI or the user has the required rights
 //             */
@@ -2689,14 +2689,14 @@
 //         * If user has no admin permissions we're not even showing 403, we're
 //         * simply showing the signin page
 //         */
-//        if(in_array('admin', array_force($rights))){
+//        if(in_array('admin', array_force($rights))) {
 //            redirect(domain(isset_get($url, $_CONFIG['redirects']['signin'])));
 //        }
 //
 //        log_file(tr('User ":user" is missing one or more of the rights ":rights"', array(':user' => name($_SESSION['user']), ':rights' => $rights)), 'rights-or-access-denied', 'yellow');
 //        page_show(403);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('rights_or_access_denied(): Failed', $e);
 //    }
 //}
@@ -2706,23 +2706,23 @@
 ///*
 // * The current user has the specified groups, or will be redirected or get shown "access denied"
 // */
-//function groups_or_access_denied($groups){
+//function groups_or_access_denied($groups) {
 //    global $_CONFIG;
 //
 //    try{
 //        user_or_signin();
 //
-//        if(PLATFORM_CLI or has_groups($groups)){
+//        if(PLATFORM_CLI or has_groups($groups)) {
 //            return $_SESSION['user'];
 //        }
 //
-//        if(in_array('admin', array_force($groups))){
+//        if(in_array('admin', array_force($groups))) {
 //            redirect(domain($_CONFIG['redirects']['signin']));
 //        }
 //
 //        page_show($_CONFIG['redirects']['access-denied']);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('groups_or_access_denied(): Failed', $e);
 //    }
 //}
@@ -2732,8 +2732,8 @@
 ///*
 // * Either a user is logged in or  the person will be shown specified page.
 // */
-//function user_or_page($page){
-//    if(empty($_SESSION['user'])){
+//function user_or_page($page) {
+//    if(empty($_SESSION['user'])) {
 //        page_show($page);
 //        return false;
 //    }
@@ -2747,15 +2747,15 @@
 // * Return $with_rights if the current user has the specified rights
 // * Return $without_rights if not
 // */
-//function return_with_rights($rights, $with_rights, $without_rights = null){
+//function return_with_rights($rights, $with_rights, $without_rights = null) {
 //    try{
-//        if(has_rights($rights)){
+//        if(has_rights($rights)) {
 //            return $with_rights;
 //        }
 //
 //        return $without_rights;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('return_with_rights(): Failed', $e);
 //    }
 //}
@@ -2766,15 +2766,15 @@
 // * Return $with_groups if the current user is member of the specified groups
 // * Return $without_groups if not
 // */
-//function return_with_groups($groups, $with_groups, $without_groups = null){
+//function return_with_groups($groups, $with_groups, $without_groups = null) {
 //    try{
-//        if(has_groups($groups)){
+//        if(has_groups($groups)) {
 //            return $with_groups;
 //        }
 //
 //        return $without_groups;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('return_with_groups(): Failed', $e);
 //    }
 //}
@@ -2784,11 +2784,11 @@
 ///*
 // * Read extended signin
 // */
-//function check_extended_session(){
+//function check_extended_session() {
 //    global $_CONFIG;
 //
 //    try{
-//        if(empty($_CONFIG['sessions']['extended']['enabled'])){
+//        if(empty($_CONFIG['sessions']['extended']['enabled'])) {
 //            return false;
 //        }
 //
@@ -2801,21 +2801,21 @@
 //            if($ext['users_id']) {
 //                $user = sql_get('SELECT * FROM `users` WHERE `users`.`id` = :id', array(':id' => cfi($ext['users_id'])));
 //
-//                if($user['id']){
+//                if($user['id']) {
 //                    /*
 //                     * Auto sign in user
 //                     */
 //                    load_libs('user');
 //                    user_signin($user, true);
 //
-//                }else{
+//                } else {
 //                    /*
 //                     * Remove cookie
 //                     */
 //                    setcookie('extsession', 'stub', 1);
 //                }
 //
-//            }else{
+//            } else {
 //                /*
 //                 * Remove cookie
 //                 */
@@ -2823,7 +2823,7 @@
 //            }
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('user_create_extended_session(): Failed', $e);
 //    }
 //}
@@ -2833,9 +2833,9 @@
 ///*
 // * Return the first non empty argument
 // */
-//function not_empty(){
-//    foreach(func_get_args() as $argument){
-//        if($argument){
+//function not_empty() {
+//    foreach(func_get_args() as $argument) {
+//        if($argument) {
 //            return $argument;
 //        }
 //    }
@@ -2848,8 +2848,8 @@
 ///*
 // * Return the first non null argument
 // */
-//function not_null(){
-//    foreach(func_get_args() as $argument){
+//function not_null() {
+//    foreach(func_get_args() as $argument) {
 //        if($argument === null) continue;
 //        return $argument;
 //    }
@@ -2860,7 +2860,7 @@
 ///*
 // * Return the first non empty argument
 // */
-//function pick_random($count){
+//function pick_random($count) {
 //    try{
 //        $args = func_get_args();
 //
@@ -2869,7 +2869,7 @@
 //         */
 //        array_shift($args);
 //
-//        if(!$count){
+//        if(!$count) {
 //            /*
 //             * Get a random count
 //             */
@@ -2877,20 +2877,20 @@
 //            $array = true;
 //        }
 //
-//        if(($count < 1) or ($count > count($args))){
+//        if(($count < 1) or ($count > count($args))) {
 //            throw new CoreException(tr('pick_random(): Invalid count ":count" specified for ":args" arguments', array(':count' => $count, ':args' => count($args))), 'invalid');
 //
-//        }elseif($count == 1){
-//            if(empty($array)){
+//        } elseif($count == 1) {
+//            if(empty($array)) {
 //                return $args[array_rand($args, $count)];
 //            }
 //
 //            return array($args[array_rand($args, $count)]);
 //
-//        }else{
+//        } else {
 //            $retval = array();
 //
-//            for($i = 0; $i < $count; $i++){
+//            for($i = 0; $i < $count; $i++) {
 //                $retval[] = $args[$key = array_rand($args)];
 //                unset($args[$key]);
 //            }
@@ -2898,7 +2898,7 @@
 //            return $retval;
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('pick_random(): Failed'), $e);
 //    }
 //}
@@ -2908,13 +2908,13 @@
 ///*
 // * Return display status for specified status
 // */
-//function status($status, $list = null){
+//function status($status, $list = null) {
 //    try{
-//        if(is_array($list)){
+//        if(is_array($list)) {
 //            /*
 //             * $list contains list of possible statusses
 //             */
-//            if(isset($list[$status])){
+//            if(isset($list[$status])) {
 //                return $list[$status];
 //            }
 //
@@ -2922,8 +2922,8 @@
 //            return 'Unknown';
 //        }
 //
-//        if($status === null){
-//            if($list){
+//        if($status === null) {
+//            if($list) {
 //                /*
 //                 * Alternative name specified
 //                 */
@@ -2935,7 +2935,7 @@
 //
 //        return str_capitalize(str_replace('-', ' ', $status));
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('status(): Failed'), $e);
 //    }
 //}
@@ -2945,43 +2945,43 @@
 ///*
 // * Generate a CSRF code and set it in the $_SESSION[csrf] array
 // */
-//function set_csrf($prefix = ''){
+//function set_csrf($prefix = '') {
 //    global $_CONFIG, $core;
 //
 //    try{
-//        if(empty($_CONFIG['security']['csrf']['enabled'])){
+//        if(empty($_CONFIG['security']['csrf']['enabled'])) {
 //            /*
 //             * CSRF check system has been disabled
 //             */
 //            return false;
 //        }
 //
-//        if($core->register('csrf')){
+//        if($core->register('csrf')) {
 //            return $core->register('csrf');
 //        }
 //
 //        /*
 //         * Avoid people messing around
 //         */
-//        if(isset($_SESSION['csrf']) and (count($_SESSION['csrf']) >= $_CONFIG['security']['csrf']['buffer_size'])){
+//        if(isset($_SESSION['csrf']) and (count($_SESSION['csrf']) >= $_CONFIG['security']['csrf']['buffer_size'])) {
 //            /*
 //             * Too many csrf, so too many post requests open. Remove the oldest
 //             * CSRF code and add a new one
 //             */
-//            if(count($_SESSION['csrf']) >= ($_CONFIG['security']['csrf']['buffer_size'] + 5)){
+//            if(count($_SESSION['csrf']) >= ($_CONFIG['security']['csrf']['buffer_size'] + 5)) {
 //                /*
 //                 * WTF? How did we get so many?? Throw it all away, start over
 //                 */
 //                unset($_SESSION['csrf']);
 //
-//            }else{
+//            } else {
 //                array_shift($_SESSION['csrf']);
 //            }
 //        }
 //
 //        $csrf = $prefix.unique_code('sha256');
 //
-//        if(empty($_SESSION['csrf'])){
+//        if(empty($_SESSION['csrf'])) {
 //            $_SESSION['csrf'] = array();
 //        }
 //
@@ -2991,7 +2991,7 @@
 //        $core->register('csrf', $csrf);
 //        return $csrf;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('set_csrf(): Failed'), $e);
 //    }
 //}
@@ -3001,45 +3001,45 @@
 ///*
 // *
 // */
-//function check_csrf(){
+//function check_csrf() {
 //    global $_CONFIG, $core;
 //
 //    try{
-//        if(empty($_CONFIG['security']['csrf']['enabled'])){
+//        if(empty($_CONFIG['security']['csrf']['enabled'])) {
 //            /*
 //             * CSRF check system has been disabled
 //             */
 //            return false;
 //        }
 //
-//        if(!$core->callType('http') and !$core->callType('admin')){
+//        if(!$core->callType('http') and !$core->callType('admin')) {
 //            /*
 //             * CSRF only works for HTTP or ADMIN requests
 //             */
 //            return false;
 //        }
 //
-//        if(!empty($core->register['csrf_ok'])){
+//        if(!empty($core->register['csrf_ok'])) {
 //            /*
 //             * CSRF check has already been executed for this post, all okay!
 //             */
 //            return true;
 //        }
 //
-//        if(empty($_POST)){
+//        if(empty($_POST)) {
 //            /*
 //             * There is no POST data
 //             */
 //            return false;
 //        }
 //
-//        if(empty($_POST['csrf'])){
+//        if(empty($_POST['csrf'])) {
 //log_file($core->callType());
 //            throw new CoreException(tr('check_csrf(): No CSRF field specified'), 'warning/not-specified');
 //        }
 //
-//        if($core->callType('ajax')){
-//            if(substr($_POST['csrf'], 0, 5) != 'ajax_'){
+//        if($core->callType('ajax')) {
+//            if(substr($_POST['csrf'], 0, 5) != 'ajax_') {
 //                /*
 //                 * Invalid CSRF code is sppokie, don't make this a warning
 //                 */
@@ -3047,7 +3047,7 @@
 //            }
 //        }
 //
-//        if(empty($_SESSION['csrf'][$_POST['csrf']])){
+//        if(empty($_SESSION['csrf'][$_POST['csrf']])) {
 //            throw new CoreException(tr('check_csrf(): Specified CSRF ":code" does not exist', array(':code' => $_POST['csrf'])), 'warning/not-exist');
 //        }
 //
@@ -3062,15 +3062,15 @@
 //        /*
 //         * Code timed out?
 //         */
-//        if($_CONFIG['security']['csrf']['timeout']){
-//            if(($timestamp + $_CONFIG['security']['csrf']['timeout']) < $now->getTimestamp()){
+//        if($_CONFIG['security']['csrf']['timeout']) {
+//            if(($timestamp + $_CONFIG['security']['csrf']['timeout']) < $now->getTimestamp()) {
 //                throw new CoreException(tr('check_csrf(): Specified CSRF ":code" timed out', array(':code' => $_POST['csrf'])), 'warning/timeout');
 //            }
 //        }
 //
 //        $core->register['csrf_ok'] = true;
 //
-//        if($core->callType('ajax')){
+//        if($core->callType('ajax')) {
 //            /*
 //             * Send new CSRF code with the AJAX return payload
 //             */
@@ -3079,12 +3079,12 @@
 //
 //        return true;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        /*
 //         * CSRF check failed, drop $_POST
 //         */
-//        foreach($_POST as $key => $value){
-//            if(substr($key, -6, 6) === 'submit'){
+//        foreach($_POST as $key => $value) {
+//            if(substr($key, -6, 6) === 'submit') {
 //                unset($_POST[$key]);
 //            }
 //        }
@@ -3100,28 +3100,28 @@
 ///*
 // * Update the session with values directly from $_REQUEST
 // */
-//function session_request_register($key, $valid = null){
+//function session_request_register($key, $valid = null) {
 //    try{
 //        $_SESSION[$key] = isset_get($_REQUEST[$key], isset_get($_SESSION[$key]));
 //
-//        if($valid){
+//        if($valid) {
 //            /*
 //             * Only accept values in this valid list (AND empty!)
 //             * Invalid values will be set to null
 //             */
-//            if(!in_array($_SESSION[$key], array_force($valid))){
+//            if(!in_array($_SESSION[$key], array_force($valid))) {
 //                $_SESSION[$key] = null;
 //            }
 //        }
 //
-//        if(empty($_SESSION[$key])){
+//        if(empty($_SESSION[$key])) {
 //            unset($_SESSION[$key]);
 //            return null;
 //        }
 //
 //        return $_SESSION[$key];
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('session_request_register(): Failed', $e);
 //    }
 //}
@@ -3131,19 +3131,19 @@
 ///*
 // * Will return $return if the specified item id is in the specified source.
 // */
-//function in_source($source, $key, $return = true){
+//function in_source($source, $key, $return = true) {
 //    try{
-//        if(!is_array($source)){
+//        if(!is_array($source)) {
 //            throw new CoreException(tr('in_source(): Specified source ":source" should be an array', array(':source' => $source)), 'invalid');
 //        }
 //
-//        if(isset_get($source[$key])){
+//        if(isset_get($source[$key])) {
 //            return $return;
 //        }
 //
 //        return '';
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('in_source(): Failed', $e);
 //    }
 //}
@@ -3153,23 +3153,23 @@
 ///*
 // *
 // */
-//function is_natural($number, $start = 1){
+//function is_natural($number, $start = 1) {
 //    try{
-//        if(!is_numeric($number)){
+//        if(!is_numeric($number)) {
 //            return false;
 //        }
 //
-//        if($number < $start){
+//        if($number < $start) {
 //            return false;
 //        }
 //
-//        if($number != (integer) $number){
+//        if($number != (integer) $number) {
 //            return false;
 //        }
 //
 //        return true;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('is_natural(): Failed', $e);
 //    }
 //}
@@ -3189,12 +3189,12 @@
 // * @param string $version The version to be validated
 // * @return boolean True if the specified $version is an N.N.N version string
 // */
-//function is_version($version){
+//function is_version($version) {
 //    try{
 //        $valid = preg_match('/\d+\.\d+\.\d+/', $version);
 //        return $valid;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('is_version(): Failed', $e);
 //    }
 //}
@@ -3204,23 +3204,23 @@
 ///*
 // *
 // */
-//function is_new($entry){
+//function is_new($entry) {
 //    try{
-//        if(!is_array($entry)){
+//        if(!is_array($entry)) {
 //            throw new CoreException(tr('is_new(): Specified entry is not an array'), 'invalid');
 //        }
 //
-//        if(isset_get($entry['status']) === '_new'){
+//        if(isset_get($entry['status']) === '_new') {
 //            return true;
 //        }
 //
-//        if(isset_get($entry['id']) === null){
+//        if(isset_get($entry['id']) === null) {
 //            return true;
 //        }
 //
 //        return false;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('is_new(): Failed', $e);
 //    }
 //}
@@ -3230,23 +3230,23 @@
 ///*
 // *
 // */
-//function force_natural($number, $default = 1, $start = 1){
+//function force_natural($number, $default = 1, $start = 1) {
 //    try{
-//        if(!is_numeric($number)){
+//        if(!is_numeric($number)) {
 //            return (integer) $default;
 //        }
 //
-//        if($number < $start){
+//        if($number < $start) {
 //            return (integer) $default;
 //        }
 //
-//        if(!is_int($number)){
+//        if(!is_int($number)) {
 //            return (integer) round($number);
 //        }
 //
 //        return (integer) $number;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('force_natural(): Failed', $e);
 //    }
 //}
@@ -3256,13 +3256,13 @@
 ///*
 // * Return a code that is guaranteed unique
 // */
-//function unique_code($hash = 'sha512'){
+//function unique_code($hash = 'sha512') {
 //    global $_CONFIG;
 //
 //    try{
 //        return hash($hash, uniqid('', true).microtime(true).$_CONFIG['security']['seed']);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('unique_code(): Failed', $e);
 //    }
 //}
@@ -3272,15 +3272,15 @@
 ///*
 // *
 // */
-//function name($user = null, $key_prefix = '', $default = null){
+//function name($user = null, $key_prefix = '', $default = null) {
 //    try{
-//        if($user){
-//            if($key_prefix){
+//        if($user) {
+//            if($key_prefix) {
 //                $key_prefix = str_ends($key_prefix, '_');
 //            }
 //
-//            if(is_scalar($user)){
-//                if(!is_numeric($user)){
+//            if(is_scalar($user)) {
+//                if(!is_numeric($user)) {
 //                    /*
 //                     * String, assume its a username
 //                     */
@@ -3291,24 +3291,24 @@
 //                 * This is not a user assoc array, but a user ID.
 //                 * Fetch user data from DB, then treat it as an array
 //                 */
-//                if(!$user = sql_get('SELECT `nickname`, `name`, `username`, `email` FROM `users` WHERE `id` = :id', array(':id' => $user))){
+//                if(!$user = sql_get('SELECT `nickname`, `name`, `username`, `email` FROM `users` WHERE `id` = :id', array(':id' => $user))) {
 //                    throw new CoreException('name(): Specified user id ":id" does not exist', array(':id' => str_log($user)), 'not-exists');
 //                }
 //            }
 //
-//            if(!is_array($user)){
+//            if(!is_array($user)) {
 //                throw new CoreException(tr('name(): Invalid data specified, please specify either user id, name, or an array containing username, email and or id'), 'invalid');
 //            }
 //
 //            $user = not_empty(isset_get($user[$key_prefix.'nickname']), isset_get($user[$key_prefix.'name']), isset_get($user[$key_prefix.'username']), isset_get($user[$key_prefix.'email']));
 //            $user = trim($user);
 //
-//            if($user){
+//            if($user) {
 //                return $user;
 //            }
 //        }
 //
-//        if($default === null){
+//        if($default === null) {
 //            $default = tr('Guest');
 //        }
 //
@@ -3317,7 +3317,7 @@
 //         */
 //        return $default;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('name(): Failed'), $e);
 //    }
 //}
@@ -3333,30 +3333,30 @@
 // * @category Function reference
 // * @package system
 // */
-//function page_show($pagename, $params = null, $get = null){
+//function page_show($pagename, $params = null, $get = null) {
 //    global $_CONFIG, $core;
 //
 //    try{
 //        array_ensure($params, 'message');
 //
-//        if($get){
-//            if(!is_array($get)){
+//        if($get) {
+//            if(!is_array($get)) {
 //                throw new CoreException(tr('page_show(): Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
 //            }
 //
 //            $_GET = $get;
 //        }
 //
-//        if(defined('LANGUAGE')){
+//        if(defined('LANGUAGE')) {
 //            $language = LANGUAGE;
 //
-//        }else{
+//        } else {
 //            $language = 'en';
 //        }
 //
 //        $params['page'] = $pagename;
 //
-//        if(is_numeric($pagename)){
+//        if(is_numeric($pagename)) {
 //            /*
 //             * This is a system page, HTTP code. Use the page code as http code as well
 //             */
@@ -3365,11 +3365,11 @@
 //
 //        $core->register['real_script'] = $pagename;
 //
-//        switch($core->callType()){
+//        switch($core->callType()) {
 //            case 'ajax':
 //                $include = ROOT.'www/'.$language.'/ajax/'.$pagename.'.php';
 //
-//                if(isset_get($params['exists'])){
+//                if(isset_get($params['exists'])) {
 //                    return file_exists($include);
 //                }
 //
@@ -3382,7 +3382,7 @@
 //            case 'api':
 //                $include = ROOT.'www/api/'.(is_numeric($pagename) ? 'system/' : '').$pagename.'.php';
 //
-//                if(isset_get($params['exists'])){
+//                if(isset_get($params['exists'])) {
 //                    return file_exists($include);
 //                }
 //
@@ -3397,10 +3397,10 @@
 //                // FALLTHROUGH
 //
 //            default:
-//                if(is_numeric($pagename)){
+//                if(is_numeric($pagename)) {
 //                    $include = ROOT.'www/'.$language.isset_get($admin).'/system/'.$pagename.'.php';
 //
-//                    if(isset_get($params['exists'])){
+//                    if(isset_get($params['exists'])) {
 //                        return file_exists($include);
 //                    }
 //
@@ -3412,10 +3412,10 @@
 //                     */
 //                    usleep(mt_rand(1, 250));
 //
-//                }else{
+//                } else {
 //                    $include = ROOT.'www/'.$language.isset_get($admin).'/'.$pagename.'.php';
 //
-//                    if(isset_get($params['exists'])){
+//                    if(isset_get($params['exists'])) {
 //                        return file_exists($include);
 //                    }
 //
@@ -3424,15 +3424,15 @@
 //
 //                $result = include($include);
 //
-//                if(isset_get($params['return'])){
+//                if(isset_get($params['return'])) {
 //                    return $result;
 //                }
 //        }
 //
 //        die();
 //
-//    }catch(Exception $e){
-//        if(isset($include) and !file_exists($include)){
+//    }catch(Exception $e) {
+//        if(isset($include) and !file_exists($include)) {
 //            throw new CoreException(tr('page_show(): The requested page ":page" does not exist', array(':page' => $pagename)), 'not-exists');
 //        }
 //
@@ -3445,8 +3445,8 @@
 ///*
 // * Throw an "under-construction" exception
 // */
-//function under_construction($functionality = ''){
-//    if($functionality){
+//function under_construction($functionality = '') {
+//    if($functionality) {
 //        throw new CoreException(tr('The functionality ":f" is under construction!', array(':f' => $functionality)), 'under-construction');
 //    }
 //
@@ -3458,7 +3458,7 @@
 ///*
 // * Throw an "obsolete" exception
 // */
-//function obsolete($functionality = ''){
+//function obsolete($functionality = '') {
 //    notify(array('code'    => 'obsolete',
 //                 'groups'  => 'developers',
 //                 'title'   => tr('Obsolete function used'),
@@ -3467,7 +3467,7 @@
 //                                                                                                               ':line'     => current_line(),
 //                                                                                                               ':project'  => PROJECT))));
 //
-//    if($functionality){
+//    if($functionality) {
 //        throw new CoreException(tr('The functionality ":f" is obsolete!', array(':f' => $functionality)), 'obsolete');
 //    }
 //
@@ -3479,8 +3479,8 @@
 ///*
 // * Throw an "not-supported" exception
 // */
-//function not_supported($functionality = ''){
-//    if($functionality){
+//function not_supported($functionality = '') {
+//    if($functionality) {
 //        throw new CoreException(tr('The functionality ":f" is not support!', array(':f' => $functionality)), 'not-supported');
 //    }
 //
@@ -3514,11 +3514,11 @@
 // * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
 // * @return mixed Either $source or null, depending on if $source is empty or not
 // */
-//function get_null($source){
+//function get_null($source) {
 //    try{
 //        return get_empty($source, null);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('get_null(): Failed'), $e);
 //    }
 //}
@@ -3550,15 +3550,15 @@
 // * @param mixed $default The value to be returned if $source evalidates to empty
 // * @return mixed Either $source or $default, depending on if $source is empty or not
 // */
-//function get_empty($source, $default){
+//function get_empty($source, $default) {
 //    try{
-//        if($source){
+//        if($source) {
 //            return $source;
 //        }
 //
 //        return $default;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('get_empty(): Failed'), $e);
 //    }
 //}
@@ -3568,15 +3568,15 @@
 ///*
 // * Return the value quoted if non numeric string
 // */
-//function quote($value){
+//function quote($value) {
 //    try{
-//        if(!is_numeric($value) and is_string($value)){
+//        if(!is_numeric($value) and is_string($value)) {
 //            return '"'.$value.'"';
 //        }
 //
 //        return $value;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('quote(): Failed'), $e);
 //    }
 //}
@@ -3587,23 +3587,23 @@
 // * Ensure that the specifed library is installed. If not, install it before
 // * continuing
 // */
-//function ensure_installed($params){
+//function ensure_installed($params) {
 //    try{
 //        array_ensure($params);
 //
 //        /*
 //         * Check if specified library is installed
 //         */
-//        if(!isset($params['name'])){
+//        if(!isset($params['name'])) {
 //            throw new CoreException(tr('ensure_installed(): No name specified for library'), 'not-specified');
 //        }
 //
 //        /*
 //         * Test available files
 //         */
-//        if(isset($params['checks'])){
-//            foreach(array_force($params['checks']) as $path){
-//                if(!file_exists($path)){
+//        if(isset($params['checks'])) {
+//            foreach(array_force($params['checks']) as $path) {
+//                if(!file_exists($path)) {
 //                    $fail = 'path '.$path;
 //                    break;
 //                }
@@ -3613,9 +3613,9 @@
 //        /*
 //         * Test available functions
 //         */
-//        if(isset($params['functions']) and !isset($fail)){
-//            foreach(array_force($params['functions']) as $function){
-//                if(!function_exists($function)){
+//        if(isset($params['functions']) and !isset($fail)) {
+//            foreach(array_force($params['functions']) as $function) {
+//                if(!function_exists($function)) {
 //                    $fail = 'function '.$function;
 //                    break;
 //                }
@@ -3625,9 +3625,9 @@
 //        /*
 //         * Test available functions
 //         */
-//        if(isset($params['which']) and !isset($fail)){
-//            foreach(array_force($params['which']) as $program){
-//                if(!file_which($program)){
+//        if(isset($params['which']) and !isset($fail)) {
+//            foreach(array_force($params['which']) as $program) {
+//                if(!file_which($program)) {
 //                    $fail = 'which '.$program;
 //                    break;
 //                }
@@ -3637,12 +3637,12 @@
 //        /*
 //         * If a test failed, run the installer for this function
 //         */
-//        if(!empty($fail)){
+//        if(!empty($fail)) {
 //            log_file(tr('Installation test ":test" failed, running installer ":installer"', array(':test' => $fail, ':installer' => $params['callback'])), 'ensure-installed', 'yellow');
 //            return $params['callback']($params);
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('ensure_installed(): Failed'), $e);
 //    }
 //}
@@ -3652,15 +3652,15 @@
 ///*
 // *
 // */
-//function ensure_value($value, $enum, $default){
+//function ensure_value($value, $enum, $default) {
 //    try{
-//        if(in_array($value, $enum)){
+//        if(in_array($value, $enum)) {
 //           return $value;
 //        }
 //
 //        return $default;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('ensure_value(): Failed'), $e);
 //    }
 //}
@@ -3670,9 +3670,9 @@
 ///*
 // * Disconnect from webserver but continue working
 // */
-//function disconnect(){
+//function disconnect() {
 //    try{
-//        switch(php_sapi_name()){
+//        switch(php_sapi_name()) {
 //            case 'fpm-fcgi':
 //                fastcgi_finish_request();
 //                break;
@@ -3684,7 +3684,7 @@
 //                throw new CoreException(tr('disconnect(): Unknown SAPI ":sapi" detected', array(':sapi' => php_sapi_name())), 'unknown');
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('disconnect(): Failed'), $e);
 //    }
 //}
@@ -3705,15 +3705,15 @@
 // * @param null params $params
 //  * @return string The results from the callback function, or null if no callback function was specified
 // */
-//function execute_callback($callback, $params = null){
+//function execute_callback($callback, $params = null) {
 //    try{
-//        if(is_callable($callback)){
+//        if(is_callable($callback)) {
 //            return $callback($params);
 //        }
 //
 //        return null;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('execute_callback(): Failed'), $e);
 //    }
 //}
@@ -3723,9 +3723,9 @@
 ///*
 // *
 // */
-//function get_boolean($value){
+//function get_boolean($value) {
 //    try{
-//        switch(strtolower($value)){
+//        switch(strtolower($value)) {
 //            case 'off':
 //                return false;
 //
@@ -3748,7 +3748,7 @@
 //                throw new CoreException(tr('get_boolean(): Unknown value ":value"', array(':value' => $value)), 'unknown');
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('get_boolean(): Failed'), $e);
 //    }
 //}
@@ -3758,14 +3758,14 @@
 ///*
 // *
 // */
-//function language_lock($language, $script = null){
+//function language_lock($language, $script = null) {
 //    global $core;
 //
 //    static $checked   = false;
 //    static $incorrect = false;
 //
 //    try{
-//        if(is_array($script)){
+//        if(is_array($script)) {
 //            /*
 //             * Script here will contain actually a list of all scripts for
 //             * each language. This can then be used to determine the name
@@ -3777,15 +3777,15 @@
 //        /*
 //         *
 //         */
-//        if(!$checked){
+//        if(!$checked) {
 //            $checked = true;
 //
-//            if($language and (LANGUAGE !== $language)){
+//            if($language and (LANGUAGE !== $language)) {
 //                $incorrect = true;
 //            }
 //        }
 //
-//        if(!is_array($script)){
+//        if(!is_array($script)) {
 //            /*
 //             * Show the specified script, it will create the content for
 //             * this $core->register['script']
@@ -3796,11 +3796,11 @@
 //        /*
 //         * Script and language match, continue
 //         */
-//        if($incorrect){
+//        if($incorrect) {
 //            page_show(404);
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('language_lock(): Failed'), $e);
 //    }
 //}
@@ -3813,23 +3813,23 @@
 // * If $_SESSION[cache][$key] does not exist, then execute the callback and
 // * store the resulting value in $_SESSION[cache][$key]
 // */
-//function session_cache($key, $callback){
+//function session_cache($key, $callback) {
 //    try{
-//        if(empty($_SESSION)){
+//        if(empty($_SESSION)) {
 //            return null;
 //        }
 //
-//        if(!isset($_SESSION['cache'])){
+//        if(!isset($_SESSION['cache'])) {
 //            $_SESSION['cache'] = array();
 //        }
 //
-//        if(!isset($_SESSION['cache'][$key])){
+//        if(!isset($_SESSION['cache'][$key])) {
 //            $_SESSION['cache'][$key] = $callback();
 //        }
 //
 //        return $_SESSION['cache'][$key];
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('session_cache(): Failed'), $e);
 //    }
 //}
@@ -3845,21 +3845,21 @@
 ///*
 // * Adds the required amount of copies of the specified file to random CDN servers
 // */
-//function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
+//function cdn_add_files($files, $section = 'pub', $group = null, $delete = true) {
 //    global $_CONFIG;
 //
 //    try{
-//        if(!$_CONFIG['cdn']['enabled']){
+//        if(!$_CONFIG['cdn']['enabled']) {
 //            return false;
 //        }
 //
 //        log_file(tr('cdn_add_files(): Adding files ":files"', array(':files' => $files)), 'DEBUG/cdn');
 //
-//        if(!$section){
+//        if(!$section) {
 //            throw new CoreException(tr('cdn_add_files(): No section specified'), 'not-specified');
 //        }
 //
-//        if(!$files){
+//        if(!$files) {
 //            throw new CoreException(tr('cdn_add_files(): No files specified'), 'not-specified');
 //        }
 //
@@ -3875,8 +3875,8 @@
 //         * Register at what CDN servers the files will be uploaded, and send the
 //         * files there
 //         */
-//        foreach($servers as $servers_id => $server){
-//            foreach($files as $url => $file){
+//        foreach($servers as $servers_id => $server) {
+//            foreach($files as $url => $file) {
 //                log_file(tr('cdn_add_files(): Added file ":file" with url ":url" to CDN server ":server"', array(':file' => $file, ':url' => $url, ':server' => $server)), 'DEBUG/cdn');
 //
 //                $file_insert->execute(array(':servers_id' => $servers_id,
@@ -3895,15 +3895,15 @@
 //         * Now that the file has been sent to the CDN system delete the file
 //         * locally
 //         */
-//        if($delete){
-//            foreach($files as $url => $file){
+//        if($delete) {
+//            foreach($files as $url => $file) {
 //                file_delete($file, ROOT);
 //            }
 //        }
 //
 //        return count($files);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('cdn_add_files(): Failed', $e);
 //    }
 //}
@@ -3928,24 +3928,24 @@
 // * @params boolean $force_cdn
 // * @return string The result
 // */
-//function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = false){
+//function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = false) {
 //    global $_CONFIG;
 //// :TODO: Database CDN servers (for the CDN network) have their own protocol (http or https) specified and thus will ignore the $_CONFIG[session][secure] directive, fix this!!!
 //    try{
-//        if(!$_CONFIG['cdn']['enabled'] and !$force_cdn){
-//            if($section == 'pub'){
+//        if(!$_CONFIG['cdn']['enabled'] and !$force_cdn) {
+//            if($section == 'pub') {
 //                $section = not_empty($_CONFIG['cdn']['prefix'], '/');
 //            }
 //
 //            return domain($file, null, $section, $_CONFIG['cdn']['domain'], null, false);
 //        }
 //
-//        if($section == 'pub'){
+//        if($section == 'pub') {
 //            /*
 //             * Process pub files, "system" files like .css, .js, static website
 //             * images ,etc
 //             */
-//            if(!isset($_SESSION['cdn'])){
+//            if(!isset($_SESSION['cdn'])) {
 //                /*
 //                 * Get a CDN server for this session
 //                 */
@@ -3957,7 +3957,7 @@
 //
 //                                            ORDER BY RAND() LIMIT 1', true);
 //
-//                if(empty($_SESSION['cdn'])){
+//                if(empty($_SESSION['cdn'])) {
 //                    /*
 //                     * There are no CDN servers available!
 //                     * Switch to working without CDN servers
@@ -3970,12 +3970,12 @@
 //                    $_CONFIG['cdn']['enabled'] = false;
 //                    return cdn_domain($file, $section);
 //
-//                }else{
+//                } else {
 //                    $_SESSION['cdn'] = slash($_SESSION['cdn']).'pub/'.strtolower(str_replace('_', '-', PROJECT).'/');
 //                }
 //            }
 //
-//            if(!empty($_CONFIG['cdn']['prefix'])){
+//            if(!empty($_CONFIG['cdn']['prefix'])) {
 //                $file = $_CONFIG['cdn']['prefix'].$file;
 //            }
 //
@@ -4004,7 +4004,7 @@
 //
 //                        array(':file' => $file));
 //
-//        if($url){
+//        if($url) {
 //            /*
 //             * Yay, found the file in the CDN database!
 //             */
@@ -4015,7 +4015,7 @@
 //         * The specified file is not found in the CDN system, return a default
 //         * image instead
 //         */
-//        if(!$default){
+//        if(!$default) {
 //            $default = $_CONFIG['cdn']['img']['default'];
 //        }
 //
@@ -4025,10 +4025,10 @@
 //        ///*
 //        // * We have a CDN server in session? If not, get one.
 //        // */
-//        //if(isset_get($_SESSION['cdn']) === null){
+//        //if(isset_get($_SESSION['cdn']) === null) {
 //        //    $server = sql_get('SELECT `baseurl` FROM `cdn_servers` WHERE `status` IS NULL ORDER BY RAND() LIMIT 1', true);
 //        //
-//        //    if(!$server){
+//        //    if(!$server) {
 //        //        /*
 //        //         * Err we have no CDN servers, though CDN is configured.. Just
 //        //         * continue locally?
@@ -4043,7 +4043,7 @@
 //        //
 //        //return $_SESSION['cdn'].$url;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('cdn_domain(): Failed', $e);
 //    }
 //}
@@ -4077,11 +4077,11 @@
 // * @params string $stop The character(s) to stop the cut
 // * @return string The $source string between the first occurrences of start and $stop
 // */
-//function Strings::cut(($source, $start, $stop){
+//function Strings::cut(($source, $start, $stop) {
 //    try{
 //        return Strings::until(Strings::from($source, $start), $stop);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('Strings::cut((): Failed'), $e);
 //    }
 //}
@@ -4116,11 +4116,11 @@
 // * @params string $needle The string that will be searched for in $haystack
 // * @return boolean True if the $needle exists in $haystack, false otherwise
 // */
-//function str_exists($haystack, $needle){
+//function str_exists($haystack, $needle) {
 //    try{
 //        return (strpos($haystack, $needle) !== false);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('str_exists(): Failed'), $e);
 //    }
 //}
@@ -4130,15 +4130,15 @@
 ///*
 // * Cleanup string
 // */
-//function str_clean($source, $utf8 = true){
+//function str_clean($source, $utf8 = true) {
 //    try{
-//        if(!is_scalar($source)){
-//            if(!is_null($source)){
+//        if(!is_scalar($source)) {
+//            if(!is_null($source)) {
 //                throw new CoreException(tr('str_clean(): Specified source ":source" from ":location" should be datatype "string" but has datatype ":datatype"', array(':source' => $source, ':datatype' => gettype($source), ':location' => current_file(1).'@'.current_line(1))), 'invalid');
 //            }
 //        }
 //
-//        if($utf8){
+//        if($utf8) {
 //            load_libs('utf8');
 //
 //            $source = mb_trim(html_entity_decode(utf8_unescape(strip_tags(utf8_escape($source)))));
@@ -4150,7 +4150,7 @@
 //
 //        return mb_trim(html_entity_decode(strip_tags($source)));
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('str_clean(): Failed with string ":string"', array(':string' => $source)), $e);
 //    }
 //// :TODO:SVEN:20130709: Check if we should be using mysqli_escape_string() or addslashes(), since the former requires SQL connection, but the latter does NOT have correct UTF8 support!!
@@ -4162,16 +4162,16 @@
 ///*
 // * Return the given string from the specified needle
 // */
-//function Strings::from($source, $needle, $more = 0, $require = false){
+//function Strings::from($source, $needle, $more = 0, $require = false) {
 //    try{
-//        if(!$needle){
+//        if(!$needle) {
 //            throw new CoreException('Strings::from(): No needle specified', 'not-specified');
 //        }
 //
 //        $pos = mb_strpos($source, $needle);
 //
-//        if($pos === false){
-//            if($require){
+//        if($pos === false) {
+//            if($require) {
 //                return '';
 //            }
 //
@@ -4180,7 +4180,7 @@
 //
 //        return mb_substr($source, $pos + mb_strlen($needle) - $more);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('Strings::from(): Failed for string ":string"', array(':string' => $source)), $e);
 //    }
 //}
@@ -4190,16 +4190,16 @@
 ///*
 // * Return the given string from 0 until the specified needle
 // */
-//function Strings::until($source, $needle, $more = 0, $start = 0, $require = false){
+//function Strings::until($source, $needle, $more = 0, $start = 0, $require = false) {
 //    try{
-//        if(!$needle){
+//        if(!$needle) {
 //            throw new CoreException('Strings::until(): No needle specified', 'not-specified');
 //        }
 //
 //        $pos = mb_strpos($source, $needle);
 //
-//        if($pos === false){
-//            if($require){
+//        if($pos === false) {
+//            if($require) {
 //                return '';
 //            }
 //
@@ -4208,7 +4208,7 @@
 //
 //        return mb_substr($source, $start, $pos + $more);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('Strings::until(): Failed for string ":string"', array(':string' => $source)), $e);
 //    }
 //}
@@ -4218,9 +4218,9 @@
 ///*
 // * Return the given string from the specified needle, starting from the end
 // */
-//function Strings::fromReverse($source, $needle, $more = 0){
+//function Strings::fromReverse($source, $needle, $more = 0) {
 //    try{
-//        if(!$needle){
+//        if(!$needle) {
 //            throw new CoreException('Strings::fromReverse(): No needle specified', 'not-specified');
 //        }
 //
@@ -4230,7 +4230,7 @@
 //
 //        return mb_substr($source, $pos + mb_strlen($needle) - $more);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('Strings::fromReverse(): Failed for string ":string"', array(':string' => $source)), $e);
 //    }
 //}
@@ -4240,9 +4240,9 @@
 ///*
 // * Return the given string from 0 until the specified needle, starting from the end
 // */
-//function Strings::untilReverse($source, $needle, $more = 0, $start = 0){
+//function Strings::untilReverse($source, $needle, $more = 0, $start = 0) {
 //    try{
-//        if(!$needle){
+//        if(!$needle) {
 //            throw new CoreException('Strings::untilReverse(): No needle specified', 'not-specified');
 //        }
 //
@@ -4252,7 +4252,7 @@
 //
 //        return mb_substr($source, $start, $pos + $more);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('Strings::untilReverse(): Failed for string ":string"', array(':string' => $source)), $e);
 //    }
 //}
@@ -4262,15 +4262,15 @@
 ///*
 // * Ensure that specified source string starts with specified string
 // */
-//function str_starts($source, $string){
+//function str_starts($source, $string) {
 //    try{
-//        if(mb_substr($source, 0, mb_strlen($string)) == $string){
+//        if(mb_substr($source, 0, mb_strlen($string)) == $string) {
 //            return $source;
 //        }
 //
 //        return $string.$source;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('str_starts(): Failed for ":source"', array(':source' => $source)), $e);
 //    }
 //}
@@ -4280,15 +4280,15 @@
 ///*
 // * Ensure that specified source string starts NOT with specified string
 // */
-//function str_starts_not($source, $string){
+//function str_starts_not($source, $string) {
 //    try{
-//        while(mb_substr($source, 0, mb_strlen($string)) == $string){
+//        while(mb_substr($source, 0, mb_strlen($string)) == $string) {
 //            $source = mb_substr($source, mb_strlen($string));
 //        }
 //
 //        return $source;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('str_starts_not(): Failed for ":source"', array(':source' => $source)), $e);
 //    }
 //}
@@ -4298,17 +4298,17 @@
 ///*
 // * Ensure that specified string ends with specified character
 // */
-//function str_ends($source, $string){
+//function str_ends($source, $string) {
 //    try{
 //        $length = mb_strlen($string);
 //
-//        if(mb_substr($source, -$length, $length) == $string){
+//        if(mb_substr($source, -$length, $length) == $string) {
 //            return $source;
 //        }
 //
 //        return $source.$string;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('str_ends(): Failed', $e);
 //    }
 //}
@@ -4318,21 +4318,21 @@
 ///*
 // * Ensure that specified string ends NOT with specified character
 // */
-//function str_ends_not($source, $strings, $loop = true){
+//function str_ends_not($source, $strings, $loop = true) {
 //    try{
-//        if(is_array($strings)){
+//        if(is_array($strings)) {
 //            /*
 //             * For array test, we always loop
 //             */
 //            $redo = true;
 //
-//            while($redo){
+//            while($redo) {
 //                $redo = false;
 //
-//                foreach($strings as $string){
+//                foreach($strings as $string) {
 //                    $new = str_ends_not($source, $string, true);
 //
-//                    if($new != $source){
+//                    if($new != $source) {
 //                        // A change was made, we have to rerun over it.
 //                        $redo = true;
 //                    }
@@ -4341,13 +4341,13 @@
 //                }
 //            }
 //
-//        }else{
+//        } else {
 //            /*
 //             * Check for only one character
 //             */
 //            $length = mb_strlen($strings);
 //
-//            while(mb_substr($source, -$length, $length) == $strings){
+//            while(mb_substr($source, -$length, $length) == $strings) {
 //                $source = mb_substr($source, 0, -$length);
 //                if(!$loop) break;
 //            }
@@ -4355,7 +4355,7 @@
 //
 //        return $source;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('str_ends_not(): Failed', $e);
 //    }
 //}
@@ -4365,11 +4365,11 @@
 ///*
 // * Ensure that specified string ends with slash
 // */
-//function slash($string){
+//function slash($string) {
 //    try{
 //        return str_ends($string, '/');
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('slash(): Failed', $e);
 //    }
 //}
@@ -4379,11 +4379,11 @@
 ///*
 // * Ensure that specified string ends NOT with slash
 // */
-//function unslash($string, $loop = true){
+//function unslash($string, $loop = true) {
 //    try{
 //        return str_ends_not($string, '/', $loop);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('unslash(): Failed', $e);
 //    }
 //}
@@ -4393,9 +4393,9 @@
 ///*
 // * Remove double "replace" chars
 // */
-//function str_nodouble($source, $replace = '\1', $character = null, $case_insensitive = true){
+//function str_nodouble($source, $replace = '\1', $character = null, $case_insensitive = true) {
 //    try{
-//        if($character){
+//        if($character) {
 //            /*
 //             * Remove specific character
 //             */
@@ -4407,7 +4407,7 @@
 //         */
 //        return preg_replace('/(.)\\1+/u'.($case_insensitive ? 'i' : ''), $replace, $source);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('str_nodouble(): Failed', $e);
 //    }
 //}
@@ -4443,13 +4443,13 @@
 // * @param booelan $on_word
 // * @return string The string, truncated if required, according to the specified truncating rules
 // */
-//function str_truncate($source, $length, $fill = ' ... ', $method = 'right', $on_word = false){
+//function str_truncate($source, $length, $fill = ' ... ', $method = 'right', $on_word = false) {
 //    try{
-//        if(!$length or ($length < (mb_strlen($fill) + 1))){
+//        if(!$length or ($length < (mb_strlen($fill) + 1))) {
 //            throw new CoreException('str_truncate(): No length or insufficient length specified. You must specify a length of minimal $fill length + 1', 'invalid');
 //        }
 //
-//        if($length >= mb_strlen($source)){
+//        if($length >= mb_strlen($source)) {
 //            /*
 //             * No need to truncate, the string is short enough
 //             */
@@ -4461,11 +4461,11 @@
 //         */
 //        $length -= mb_strlen($fill);
 //
-//        switch($method){
+//        switch($method) {
 //            case 'right':
 //                $retval = mb_substr($source, 0, $length);
-//                if($on_word and (strpos(substr($source, $length, 2), ' ') === false)){
-//                    if($pos = strrpos($retval, ' ')){
+//                if($on_word and (strpos(substr($source, $length, 2), ' ') === false)) {
+//                    if($pos = strrpos($retval, ' ')) {
 //                        $retval = substr($retval, 0, $pos);
 //                    }
 //                }
@@ -4478,8 +4478,8 @@
 //            case 'left':
 //                $retval = mb_substr($source, -$length, $length);
 //
-//                if($on_word and substr($retval)){
-//                    if($pos = strpos($retval, ' ')){
+//                if($on_word and substr($retval)) {
+//                    if($pos = strpos($retval, ' ')) {
 //                        $retval = substr($retval, $pos);
 //                    }
 //                }
@@ -4490,7 +4490,7 @@
 //                throw new CoreException(tr('str_truncate(): Unknown method ":method" specified, please use "left", "center", or "right" or undefined which will default to "right"', array(':method' => $method)), 'unknown');
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('str_truncate(): Failed for ":source"', array(':source' => $source)), $e);
 //    }
 //}
@@ -4526,35 +4526,35 @@
 // * @param booelan $on_word
 // * @return string The string, truncated if required, according to the specified truncating rules
 // */
-//function str_log($source, $truncate = 8187, $separator = ', '){
+//function str_log($source, $truncate = 8187, $separator = ', ') {
 //    try{
 //        try{
 //            $json_encode = 'json_encode_custom';
 //
-//        }catch(Exception $e){
+//        }catch(Exception $e) {
 //            /*
 //             * Fuck...
 //             */
 //            $json_encode = 'json_encode';
 //        }
 //
-//        if(!$source){
-//            if(is_numeric($source)){
+//        if(!$source) {
+//            if(is_numeric($source)) {
 //                return 0;
 //            }
 //
 //            return '';
 //        }
 //
-//        if(!is_scalar($source)){
-//            if(is_array($source)){
-//                foreach($source as $key => &$value){
-//                    if(strstr($key, 'password')){
+//        if(!is_scalar($source)) {
+//            if(is_array($source)) {
+//                foreach($source as $key => &$value) {
+//                    if(strstr($key, 'password')) {
 //                        $value = '*** HIDDEN ***';
 //                        continue;
 //                    }
 //
-//                    if(strstr($key, 'ssh_key')){
+//                    if(strstr($key, 'ssh_key')) {
 //                        $value = '*** HIDDEN ***';
 //                        continue;
 //                    }
@@ -4564,18 +4564,18 @@
 //
 //                $source = mb_trim($json_encode($source));
 //
-//            }elseif(is_object($source) and ($source instanceof BException)){
+//            } elseif(is_object($source) and ($source instanceof BException)) {
 //                $source = $source->getCode().' / '.$source->getMessage();
 //
-//            }else{
+//            } else {
 //                $source = mb_trim($json_encode($source));
 //            }
 //        }
 //
 //        return str_nodouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', str_truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
 //
-//    }catch(Exception $e){
-//        if($e->getRealCode() === 'invalid'){
+//    }catch(Exception $e) {
+//        if($e->getRealCode() === 'invalid') {
 //            notify($e->makeWarning(true));
 //            return "Data converted using print_r() instead of json_encode() because json_encode_custom() failed on this data: ".print_r($source, true);
 //        }
@@ -4600,12 +4600,12 @@
 // * @param array $source The source array from which the first value must be returned
 // * @return mixed The first value of the specified source array
 // */
-//function array_first($source){
+//function array_first($source) {
 //    try{
 //        reset($source);
 //        return current($source);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('array_first(): Failed', $e);
 //    }
 //}
@@ -4627,11 +4627,11 @@
 // * @param array $source The source array from which the last value must be returned
 // * @return mixed The last value of the specified source array
 // */
-//function array_last($source){
+//function array_last($source) {
 //    try{
 //        return end($source);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('array_last(): Failed', $e);
 //    }
 //}
@@ -4653,40 +4653,40 @@
 // * @param mixed (optional) $trim_existing
 // * @return array
 // */
-//function array_ensure(&$source, $keys = '', $default_value = null, $trim_existing = false){
+//function array_ensure(&$source, $keys = '', $default_value = null, $trim_existing = false) {
 //    try{
-//        if(!$source){
+//        if(!$source) {
 //            $source = array();
 //
-//        }elseif(!is_array($source)){
-//            if(is_object($source)){
+//        } elseif(!is_array($source)) {
+//            if(is_object($source)) {
 //                throw new CoreException(tr('array_ensure(): Specified source is not an array but an object of the class ":class"', array(':class' => get_class($source))), 'invalid');
 //            }
 //
 //            throw new CoreException(tr('array_ensure(): Specified source is not an array but a ":type"', array(':type' => gettype($source))), 'invalid');
 //        }
 //
-//        if($keys){
-//            foreach(array_force($keys) as $key){
-//                if(!$key){
+//        if($keys) {
+//            foreach(array_force($keys) as $key) {
+//                if(!$key) {
 //                    continue;
 //                }
 //
-//                if(array_key_exists($key, $source)){
-//                    if($trim_existing and is_string($source[$key])){
+//                if(array_key_exists($key, $source)) {
+//                    if($trim_existing and is_string($source[$key])) {
 //                        /*
 //                         * Automatically trim the found value
 //                         */
 //                        $source[$key] = trim($source[$key], (is_bool($trim_existing) ? ' ' : $trim_existing));
 //                    }
 //
-//                }else{
+//                } else {
 //                    $source[$key] = $default_value;
 //                }
 //            }
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('array_ensure(): Failed', $e);
 //    }
 //}
@@ -4727,14 +4727,14 @@
 // * @param string $separator
 // * @return array The specified $source, but now converted to an array data type (if it was not an array yet)
 // */
-//function array_force($source, $separator = ','){
+//function array_force($source, $separator = ',') {
 //    try{
-//        if(($source === '') or ($source === null)){
+//        if(($source === '') or ($source === null)) {
 //            return array();
 //        }
 //
-//        if(!is_array($source)){
-//            if(!is_string($source)){
+//        if(!is_array($source)) {
+//            if(!is_string($source)) {
 //                return array($source);
 //            }
 //
@@ -4743,7 +4743,7 @@
 //
 //        return $source;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('array_force(): Failed', $e);
 //    }
 //}
@@ -4762,7 +4762,7 @@
 // * @see log_console()
 // * @example
 // * code
-// * for($i=0; $i < 100; $i++){
+// * for($i=0; $i < 100; $i++) {
 // *     cli_dot();
 // * }
 // * /code
@@ -4779,30 +4779,30 @@
 // * @param boolean $quiet
 // * @return boolean True if a dot was printed, false if not
 // */
-//function cli_dot($each = 10, $color = 'green', $dot = '.', $quiet = false){
+//function cli_dot($each = 10, $color = 'green', $dot = '.', $quiet = false) {
 //    static $count  = 0,
 //           $l_each = 0;
 //
 //    try{
-//        if(!PLATFORM_CLI){
+//        if(!PLATFORM_CLI) {
 //            return false;
 //        }
 //
-//        if($quiet and QUIET){
+//        if($quiet and QUIET) {
 //            /*
 //             * Don't show this in QUIET mode
 //             */
 //            return false;
 //        }
 //
-//        if($each === false){
-//            if($count){
+//        if($each === false) {
+//            if($count) {
 //                /*
 //                 * Only show "Done" if we have shown any dot at all
 //                 */
 //                log_console(tr('Done'), $color);
 //
-//            }else{
+//            } else {
 //                log_console('');
 //            }
 //
@@ -4813,18 +4813,18 @@
 //
 //        $count++;
 //
-//        if($l_each != $each){
+//        if($l_each != $each) {
 //            $l_each = $each;
 //            $count  = 0;
 //        }
 //
-//        if($count >= $l_each){
+//        if($count >= $l_each) {
 //            $count = 0;
 //            log_console($dot, $color, false);
 //            return true;
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('cli_dot(): Failed', $e);
 //    }
 //}
@@ -4882,7 +4882,7 @@
 //            $this->background_colors['cyan']         = '46';
 //            $this->background_colors['light_gray']   = '47';
 //
-//        }catch(Exception $e){
+//        }catch(Exception $e) {
 //            throw new CoreException(tr('Color::__construct(): Failed'), $e);
 //        }
 //    }
@@ -4894,20 +4894,20 @@
 //        try{
 //            $colored_string = '';
 //
-//            if(!is_scalar($string)){
+//            if(!is_scalar($string)) {
 //                log_console(tr('[ WARNING ] colors::getColoredString(): Specified text ":text" is not a string or scalar. Forcing text to string', array(':text' => $string)), 'warning');
 //                $string = str_log($string);
 //            }
 //
-//            if(NOCOLOR and !$force){
+//            if(NOCOLOR and !$force) {
 //                /*
 //                 * Do NOT apply color
 //                 */
 //                return $string;
 //            }
 //
-//            if($foreground_color){
-//                if(!is_string($foreground_color) or !isset($this->foreground_colors[$foreground_color])){
+//            if($foreground_color) {
+//                if(!is_string($foreground_color) or !isset($this->foreground_colors[$foreground_color])) {
 //                    /*
 //                     * If requested colors do not exist, return no
 //                     */
@@ -4921,8 +4921,8 @@
 //                }
 //            }
 //
-//            if($background_color){
-//                if(!is_string($background_color) or !isset($this->background_colors[$background_color])){
+//            if($background_color) {
+//                if(!is_string($background_color) or !isset($this->background_colors[$background_color])) {
 //                    /*
 //                     * If requested colors do not exist, return no
 //                     */
@@ -4943,13 +4943,13 @@
 //             */
 //            $colored_string .=  $string;
 //
-//            if($reset){
+//            if($reset) {
 //                $colored_string .= cli_reset_color();
 //            }
 //
 //            return $colored_string;
 //
-//        }catch(Exception $e){
+//        }catch(Exception $e) {
 //            throw new CoreException(tr('Color::getColoredString(): Failed'), $e);
 //        }
 //    }
@@ -4957,7 +4957,7 @@
 //    /*
 //     * Returns all foreground color names
 //     */
-//    public function getForegroundColors(){
+//    public function getForegroundColors() {
 //        return array_keys($this->foreground_colors);
 //    }
 //
@@ -4981,17 +4981,17 @@
 ///*
 // * Return the specified string in the specified color
 // */
-//function cli_color($string, $fore_color = null, $back_color = null, $force = false, $reset = true){
+//function cli_color($string, $fore_color = null, $back_color = null, $force = false, $reset = true) {
 //    try{
 //        static $color;
 //
-//        if(!$color){
+//        if(!$color) {
 //            $color = new Colors();
 //        }
 //
 //        return $color->getColoredString($string, $fore_color, $back_color, $force, $reset);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('cli_color(): Failed', $e);
 //    }
 //}
@@ -5001,15 +5001,15 @@
 ///*
 // * Return or echo CLI code to reset all colors
 // */
-//function cli_reset_color($echo = false){
+//function cli_reset_color($echo = false) {
 //    try{
-//        if(!$echo){
+//        if(!$echo) {
 //            return "\033[0m";
 //        }
 //
 //        echo "\033[0m";
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('cli_reset_color(): Failed', $e);
 //    }
 //}
@@ -5019,20 +5019,20 @@
 ///*
 // *
 // */
-//function date_convert($date = null, $requested_format = 'human_datetime', $to_timezone = null, $from_timezone = null){
+//function date_convert($date = null, $requested_format = 'human_datetime', $to_timezone = null, $from_timezone = null) {
 //    global $_CONFIG;
 //
 //    try{
 //        /*
 //         * Ensure we have some valid date string
 //         */
-//        if($date === null){
+//        if($date === null) {
 //            $date = date('Y-m-d H:i:s');
 //
-//        }elseif(!$date){
+//        } elseif(!$date) {
 //            return '';
 //
-//        }elseif(is_numeric($date)){
+//        } elseif(is_numeric($date)) {
 //            $date = date('Y-m-d H:i:s', $date);
 //        }
 //
@@ -5041,30 +5041,30 @@
 //         * Older systems will still have the timezone specified as a single string, newer as an array
 //         * The difference between these two can result in systems no longer starting up after an update
 //         */
-//        if($to_timezone === null){
+//        if($to_timezone === null) {
 //            $to_timezone = TIMEZONE;
 //        }
 //
-//        if($from_timezone === null){
+//        if($from_timezone === null) {
 //            $from_timezone = $_CONFIG['timezone']['system'];
 //        }
 //
 //        /*
 //         * Ensure we have a valid format
 //         */
-//        if($requested_format == 'mysql'){
+//        if($requested_format == 'mysql') {
 //            /*
 //             * Use mysql format
 //             */
 //            $format = 'Y-m-d H:i:s';
 //
-//        }elseif(isset($_CONFIG['formats'][$requested_format])){
+//        } elseif(isset($_CONFIG['formats'][$requested_format])) {
 //            /*
 //             * Use predefined format
 //             */
 //            $format = $_CONFIG['formats'][$requested_format];
 //
-//        }else{
+//        } else {
 //            /*
 //             * Use custom format
 //             */
@@ -5074,14 +5074,14 @@
 //        /*
 //         * Force 12 or 24 hour format?
 //         */
-//        if($requested_format == 'object'){
+//        if($requested_format == 'object') {
 //            /*
 //             * Return a PHP DateTime object
 //             */
 //            $format = $requested_format;
 //
-//        }else{
-//            switch($_CONFIG['formats']['force1224']){
+//        } else {
+//            switch($_CONFIG['formats']['force1224']) {
 //                case false:
 //                    break;
 //
@@ -5089,10 +5089,10 @@
 //                    /*
 //                     * Only add AM/PM in case original spec has 24H and no AM/PM
 //                     */
-//                    if(($requested_format != 'mysql') and strstr($format, 'g')){
+//                    if(($requested_format != 'mysql') and strstr($format, 'g')) {
 //                        $format = str_replace('H', 'g', $format);
 //
-//                        if(!strstr($format, 'a')){
+//                        if(!strstr($format, 'a')) {
 //                            $format .= ' a';
 //                        }
 //                    }
@@ -5115,16 +5115,16 @@
 //         *
 //         * If specified date is already a DateTime object, then from_timezone will not work
 //         */
-//        if(is_scalar($date)){
+//        if(is_scalar($date)) {
 //            $date = new DateTime($date, ($from_timezone ? new DateTimeZone($from_timezone) : null));
 //
-//        }else{
-//            if(!($date instanceof DateTime)){
+//        } else {
+//            if(!($date instanceof DateTime)) {
 //                throw new CoreException(tr('date_convert(): Specified date variable is a ":type" which is invalid. Should be either scalar or a DateTime object', array(':type' => gettype($date))), 'invalid');
 //            }
 //        }
 //
-//        if($to_timezone){
+//        if($to_timezone) {
 //            /*
 //             * Output to specified timezone
 //             */
@@ -5132,24 +5132,24 @@
 //        }
 //
 //        try{
-//            if($format === 'object'){
+//            if($format === 'object') {
 //                return $date;
 //            }
 //
 //            $retval = $date->format($format);
 //
-//            if(LANGUAGE === 'en'){
+//            if(LANGUAGE === 'en') {
 //                return $retval;
 //            }
 //
 //            load_libs('date');
 //            return date_translate($retval);
 //
-//        }catch(Exception $e){
+//        }catch(Exception $e) {
 //            throw new CoreException(tr('date_convert(): Failed to convert to format ":format" because ":e"', array(':format' => $format, ':e' => $e)), 'invalid');
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('date_convert(): Failed', $e);
 //    }
 //}
@@ -5162,41 +5162,41 @@
 // * @param mixed $source
 // * @return mixed The variable with the datatype interpreted by this function
 // */
-//function force_datatype($source){
+//function force_datatype($source) {
 //    try{
-//        if(!is_scalar($source)){
+//        if(!is_scalar($source)) {
 //            return $source;
 //        }
 //
-//        if(is_numeric($source)){
-//            if((int) $source === $source){
+//        if(is_numeric($source)) {
+//            if((int) $source === $source) {
 //                return (int) $source;
 //            }
 //
 //            return (float) $source;
 //        }
 //
-//        if($source === true){
+//        if($source === true) {
 //            return true;
 //        }
 //
-//        if($source === false){
+//        if($source === false) {
 //            return false;
 //        }
 //
-//        if($source === 'true'){
+//        if($source === 'true') {
 //            return true;
 //        }
 //
-//        if($source === 'false'){
+//        if($source === 'false') {
 //            return false;
 //        }
 //
-//        if($source === 'null'){
+//        if($source === 'null') {
 //            return null;
 //        }
 //
-//        if(!$source){
+//        if(!$source) {
 //            /*
 //             * Assume null
 //             */
@@ -5205,7 +5205,7 @@
 //
 //        return (string) $source;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('force_datatype(): Failed', $e);
 //    }
 //}
@@ -5221,7 +5221,7 @@
 ///*
 // * Show the correct HTML flash error message
 // */
-//function error_message($e, $messages = array(), $default = null){
+//function error_message($e, $messages = array(), $default = null) {
 //    return include(__DIR__.'/handlers/system-error-message.php');
 //}
 //
@@ -5230,7 +5230,7 @@
 ///*
 // * Switch to specified site type, and redirect back
 // */
-//function switch_type($type, $redirect = ''){
+//function switch_type($type, $redirect = '') {
 //    return include(__DIR__.'/handlers/system-switch-type.php');
 //}
 //
@@ -5239,7 +5239,7 @@
 ///*
 // *
 // */
-//function get_global_data_path($section = '', $writable = true){
+//function get_global_data_path($section = '', $writable = true) {
 //    return include(__DIR__.'/handlers/system-get-global-data-path.php');
 //}
 //
@@ -5273,7 +5273,7 @@
 // * @param string $term
 // * @return natural The PID of the background process executing the requested command
 // */
-//function run_background($cmd, $log = true, $single = true, $term = 'xterm', $wait = 0){
+//function run_background($cmd, $log = true, $single = true, $term = 'xterm', $wait = 0) {
 //    return include(__DIR__.'/handlers/system-run-background.php');
 //}
 //
@@ -5308,7 +5308,7 @@
 // * @param integer $trace
 // * @return string The file where this call was made. If $trace is specified and not zero, it will return the file $trace amount of function calls before of after that call was made
 // */
-//function current_file($trace = 0){
+//function current_file($trace = 0) {
 //    return include(__DIR__.'/handlers/debug-current-file.php');
 //}
 //
@@ -5337,7 +5337,7 @@
 // * @param integer $trace
 // * @return string The line number in the file where this call was made. If $trace is specified and not zero, it will return the line number in the file $trace amount of function calls before of after that call was made
 // */
-//function current_line($trace = 0){
+//function current_line($trace = 0) {
 //    return include(__DIR__.'/handlers/debug-current-line.php');
 //}
 //
@@ -5366,7 +5366,7 @@
 // * @param integer $trace
 // * @return string The name of the function where this call was made. If $trace is specified and not zero, it will return the function name $trace amount of functions before of after that call was made
 // */
-//function current_function($trace = 0){
+//function current_function($trace = 0) {
 //    return include(__DIR__.'/handlers/debug-current-function.php');
 //}
 //
@@ -5399,7 +5399,7 @@
 // * @param natural $size
 // * @return string The value to be inserted.
 // */
-//function value($format, $size = null){
+//function value($format, $size = null) {
 //    if(!debug()) return '';
 //    return include(__DIR__.'/handlers/debug-value.php');
 //}
@@ -5421,7 +5421,7 @@
 // * @param boolean $quiet
 // * @return void
 // */
-//function show($data = null, $trace_offset = null, $quiet = false){
+//function show($data = null, $trace_offset = null, $quiet = false) {
 //    return include(__DIR__.'/handlers/debug-show.php');
 //}
 //
@@ -5443,7 +5443,7 @@
 // * @param integer $trace_offset
 // * @return void
 // */
-//function showdie($data = null, $trace_offset = null){
+//function showdie($data = null, $trace_offset = null) {
 //    return include(__DIR__.'/handlers/debug-showdie.php');
 //}
 //
@@ -5464,7 +5464,7 @@
 // * @param integer $trace_offset
 // * @return
 // */
-//function debug_html($value, $key = null, $trace_offset = 0){
+//function debug_html($value, $key = null, $trace_offset = 0) {
 //    return include(__DIR__.'/handlers/debug-html.php');
 //}
 //
@@ -5485,7 +5485,7 @@
 // * @param string $type
 // * @return
 // */
-//function debug_html_row($value, $key = null, $type = null){
+//function debug_html_row($value, $key = null, $type = null) {
 //    return include(__DIR__.'/handlers/debug-html-row.php');
 //}
 //
@@ -5506,7 +5506,7 @@
 // * @param boolean $return_only
 // * @return
 // */
-//function debug_sql($query, $execute = null, $return_only = false){
+//function debug_sql($query, $execute = null, $return_only = false) {
 //    return include(__DIR__.'/handlers/debug-sql.php');
 //}
 //
@@ -5527,7 +5527,7 @@
 // * @param boolean $skip_own If specified as true, will skip the debug_trace() call and its handler inclusion from the trace
 // * @return array The debug_backtrace() output with the specified keys filtered out
 // */
-//function debug_trace($filters = 'args', $skip_own = true){
+//function debug_trace($filters = 'args', $skip_own = true) {
 //    return include(__DIR__.'/handlers/debug-trace.php');
 //}
 //
@@ -5544,7 +5544,7 @@
 // *
 // * @return string The HTML that can be included at the end of the web page which will show the debug bar.
 // */
-//function debug_bar(){
+//function debug_bar() {
 //    return include(__DIR__.'/handlers/debug-bar.php');
 //}
 //
@@ -5561,22 +5561,22 @@
 // *
 // * @return
 // */
-//function debug_bar_sort($a, $b){
+//function debug_bar_sort($a, $b) {
 //    try{
-//        if($a['time'] > $b['time']){
+//        if($a['time'] > $b['time']) {
 //            return -1;
 //
-//        }elseif($a['time'] < $b['time']){
+//        } elseif($a['time'] < $b['time']) {
 //            return 1;
 //
-//        }else{
+//        } else {
 //            /*
 //             * They're the same, so ordering doesn't matter
 //             */
 //            return 0;
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('debug_bar_sort(): Failed'), $e);
 //    }
 //}
@@ -5595,7 +5595,7 @@
 // * @param mixed $variable
 // * @return
 // */
-//function die_in($count, $message = null){
+//function die_in($count, $message = null) {
 //    return include(__DIR__.'/handlers/debug-die-in.php');
 //}
 //
@@ -5613,7 +5613,7 @@
 // * @param mixed $variable
 // * @return
 // */
-//function variable_zts_safe($variable, $level = 0){
+//function variable_zts_safe($variable, $level = 0) {
 //    return include(__DIR__.'/handlers/variable-zts-safe.php');
 //}
 //
@@ -5635,11 +5635,11 @@
 // * @param mixed $source The variable that should be forced to be a string data type
 // * @return float The specified $source variable being a string datatype
 // */
-//function cfm($source, $utf8 = true){
+//function cfm($source, $utf8 = true) {
 //    try{
 //        return str_clean($source, $utf8);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('cfm(): Failed'), $e);
 //    }
 //}
@@ -5658,15 +5658,15 @@
 // * @param mixed $source The variable that should be forced to be a integer data type
 // * @return float The specified $source variable being a integer datatype
 // */
-//function cfi($source, $allow_null = true){
+//function cfi($source, $allow_null = true) {
 //    try{
-//        if(!$source and $allow_null){
+//        if(!$source and $allow_null) {
 //            return null;
 //        }
 //
 //        return (integer) $source;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('cfi(): Failed'), $e);
 //    }
 //}
@@ -5685,15 +5685,15 @@
 // * @param mixed $source The variable that should be forced to be a float data type
 // * @return float The specified $source variable being a float datatype
 // */
-//function cf($source, $allow_null = true){
+//function cf($source, $allow_null = true) {
 //    try{
-//        if(!$source and $allow_null){
+//        if(!$source and $allow_null) {
 //            return null;
 //        }
 //
 //        return (float) $source;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('cf(): Failed'), $e);
 //    }
 //}
@@ -5713,9 +5713,9 @@
 // * @param boolean $default
 // * @return boolean
 // */
-//function get_true_false($value, $default){
+//function get_true_false($value, $default) {
 //    try{
-//        switch($value){
+//        switch($value) {
 //            case '':
 //                return $default;
 //
@@ -5733,7 +5733,7 @@
 //                throw new CoreException(tr('get_true_false(): Please specify y / yes or n / no, or nothing for the default value.'), 'warning');
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('get_true_false(): Failed'), $e);
 //    }
 //}
@@ -5752,19 +5752,19 @@
 // * @param boolean $value The true or false value to be asserted
 // * @return string "yes" for boolean true, "no" for boolean false
 // */
-//function get_yes_no($value){
+//function get_yes_no($value) {
 //    try{
-//        if($value === true){
+//        if($value === true) {
 //            return 'yes';
 //        }
 //
-//        if($value === false){
+//        if($value === false) {
 //            return 'no';
 //        }
 //
 //        throw new CoreException(tr('get_yes_no(): Please specify true or false'), 'warning');
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('get_yes_no(): Failed'), $e);
 //    }
 //}
@@ -5786,23 +5786,23 @@
 // * @param boolean $value The true or false value to be asserted
 // * @return void
 // */
-//function shutdown(){
+//function shutdown() {
 //    global $core, $_CONFIG;
 //
 //    try{
 //        /*
 //         * Do we need to run other shutdown functions?
 //         */
-//        if(empty($core->register['script'])){
+//        if(empty($core->register['script'])) {
 //           error_log(tr('Shutdown procedure started before $core->register[script] was ready, possibly on script ":script"', array(':script' => $_SERVER['PHP_SELF'])));
 //           return;
 //       }
 //
 //        log_console(tr('Starting shutdown procedure for script ":script"', array(':script' => $core->register['script'])), 'VERYVERBOSE/cyan');
 //
-//        foreach($core->register as $key => $value){
+//        foreach($core->register as $key => $value) {
 //            try{
-//                if(substr($key, 0, 9) !== 'shutdown_'){
+//                if(substr($key, 0, 9) !== 'shutdown_') {
 //                    continue;
 //                }
 //
@@ -5811,21 +5811,21 @@
 //                /*
 //                 * Execute this shutdown function with the specified value
 //                 */
-//                if(is_array($value)){
+//                if(is_array($value)) {
 //                    /*
 //                     * Shutdown function value is an array. Execute it for each entry
 //                     */
-//                    foreach($value as $entry){
+//                    foreach($value as $entry) {
 //                        log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key.'()', ':value' => $entry)), 'VERBOSE/cyan');
 //                        $key($entry);
 //                    }
 //
-//                }else{
+//                } else {
 //                    log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key.'()', ':value' => $value)), 'VERBOSE/cyan');
 //                    $key($value);
 //                }
 //
-//            }catch(Exception $e){
+//            }catch(Exception $e) {
 //                notify($e);
 //            }
 //        }
@@ -5835,13 +5835,13 @@
 //         */
 //        $level = mt_rand(0, 100);
 //
-//        if(!empty($_CONFIG['shutdown'])){
-//            if(!is_array($_CONFIG['shutdown'])){
+//        if(!empty($_CONFIG['shutdown'])) {
+//            if(!is_array($_CONFIG['shutdown'])) {
 //                throw new CoreException(tr('shutdown(): Invalid $_CONFIG[shutdown], it should be an array'), 'invalid');
 //            }
 //
-//            foreach($_CONFIG['shutdown'] as $name => $parameters){
-//                if($parameters['interval'] and ($level < $parameters['interval'])){
+//            foreach($_CONFIG['shutdown'] as $name => $parameters) {
+//                if($parameters['interval'] and ($level < $parameters['interval'])) {
 //                    log_file(tr('Executing periodical shutdown function ":function()"', array(':function' => $name)), 'shutdown', 'cyan');
 //                    load_libs($parameters['library']);
 //                    $parameters['function']();
@@ -5849,7 +5849,7 @@
 //            }
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('shutdown(): Failed'), $e);
 //    }
 //}
@@ -5875,13 +5875,13 @@
 // * @param null mixed $value The value to be sent to the shutdown function. If $value is an array, and the function was already regsitered, the previous and current array will be mixed. See shutdown() for more on this subject
 // * @return mixed The value as it is registered with the specified shutdown function. If the function name was already registered before, and the specified value was an array, then the return value will now contain the specified array merged with the already existing array
 // */
-//function register_shutdown($name, $value = null){
+//function register_shutdown($name, $value = null) {
 //    global $core;
 //
 //    try{
 //        return $core->register('shutdown_'.$name, $value);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('register_shutdown(): Failed', $e);
 //    }
 //}
@@ -5905,7 +5905,7 @@
 // * @param string $name The function name to be executed
 // * @return mixed The value of the shutdown function in case it existed
 // */
-//function unregister_shutdown($name){
+//function unregister_shutdown($name) {
 //    global $core;
 //
 //    try{
@@ -5913,7 +5913,7 @@
 //        unset($core->register['shutdown_'.$name]);
 //        return $value;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('unregister_shutdown(): Failed'), $e);
 //    }
 //}
@@ -5935,18 +5935,18 @@
 // * @return void
 // */
 //
-//function set_timeout($timeout = null){
+//function set_timeout($timeout = null) {
 //    global $core, $_CONFIG;
 //
 //    try{
-//        if($timeout === null){
+//        if($timeout === null) {
 //            $timeout = getenv('TIMEOUT') ? getenv('TIMEOUT') : $_CONFIG['exec']['timeout'];
 //        }
 //
 //        $core->register['timeout'] = $timeout;
 //        set_time_limit($timeout);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('set_timeout(): Failed'), $e);
 //    }
 //}
@@ -5968,13 +5968,13 @@
 // * @param params $params A parameters array
 // * @return void
 // */
-//function limit_request_method($method){
+//function limit_request_method($method) {
 //    try{
-//        if($_SERVER['REQUEST_METHOD'] !== $method){
+//        if($_SERVER['REQUEST_METHOD'] !== $method) {
 //            throw new CoreException(tr('limit_request_method(): This request was made with HTTP method ":server_method" but for this page or call only HTTP method ":method" is allowed', array(':method' => $method, ':server_method' => $_SERVER['REQUEST_METHOD'])), 'warning/method-not-allowed');
 //        }
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('limit_request_method(): Failed'), $e);
 //    }
 //}
@@ -6006,41 +6006,41 @@
 // * @param optional $string LC_MESSAGES Default value for LC_MESSAGES parameter
 // * @return string the LC_ALL locale
 // */
-//function set_locale($data = null){
+//function set_locale($data = null) {
 //    global $_CONFIG;
 //
 //    try{
 //        $retval = '';
 //
-//        if(!$data){
+//        if(!$data) {
 //            $data = $_CONFIG['locale'];
 //        }
 //
-//        if(!is_array($data)){
+//        if(!is_array($data)) {
 //            throw new CoreException(tr('set_locale(): Specified $data should be an array but is an ":type"', array(':type' => gettype($data))), 'invalid');
 //        }
 //
 //        /*
 //         * Determine language and location
 //         */
-//        if(defined('LANGUAGE')){
+//        if(defined('LANGUAGE')) {
 //            $language = LANGUAGE;
 //
-//        }else{
+//        } else {
 //            $language = $_CONFIG['language']['default'];
 //        }
 //
-//        if(isset($_SESSION['location']['country']['code'])){
+//        if(isset($_SESSION['location']['country']['code'])) {
 //            $country = strtoupper($_SESSION['location']['country']['code']);
 //
-//        }else{
+//        } else {
 //            $country = $_CONFIG['location']['default_country'];
 //        }
 //
 //        /*
 //         * First set LC_ALL as a baseline, then each individual entry
 //         */
-//        if(isset($data[LC_ALL])){
+//        if(isset($data[LC_ALL])) {
 //            $data[LC_ALL] = str_replace(':LANGUAGE', $language, $data[LC_ALL]);
 //            $data[LC_ALL] = str_replace(':COUNTRY' , $country , $data[LC_ALL]);
 //
@@ -6052,15 +6052,15 @@
 //        /*
 //         * Apply all parameters
 //         */
-//        foreach($data as $key => $value){
-//            if($key === 'country'){
+//        foreach($data as $key => $value) {
+//            if($key === 'country') {
 //                /*
 //                 * Ignore this key
 //                 */
 //                continue;
 //            }
 //
-//            if($value){
+//            if($value) {
 //                /*
 //                 * Ignore this empty value
 //                 */
@@ -6075,7 +6075,7 @@
 //
 //        return $retval;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException(tr('set_locale(): Failed'), $e);
 //    }
 //}
@@ -6091,29 +6091,29 @@
 ///*
 // * OBSOLETE
 // */
-//function log_database($messages, $class = 'syslog'){
+//function log_database($messages, $class = 'syslog') {
 //    try{
 //        return str_force(log_file($messages, $class));
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('log_database(): Failed', $e);
 //    }
 //}
 //
-//function get_config($file = null, $environment = null){
+//function get_config($file = null, $environment = null) {
 //    try{
 //        return read_config($file, $environment);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('get_config(): Failed', $e);
 //    }
 //}
 //
-//function mapped_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true){
+//function mapped_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true) {
 //    try{
 //        return domain($url, $query, $prefix, $domain, $language, $allow_url_cloak);
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('mapped_domain(): Failed', $e);
 //    }
 //}

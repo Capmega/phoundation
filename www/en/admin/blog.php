@@ -8,10 +8,10 @@ load_libs('validate');
  * Edit or add?
  */
 try{
-    if(empty($_GET['blog'])){
+    if(empty($_GET['blog'])) {
         $mode  = 'create';
 
-        switch(isset_get($_POST['formaction'])){
+        switch(isset_get($_POST['formaction'])) {
             case 'Create':
                 load_libs('seo,blogs');
 
@@ -20,13 +20,13 @@ try{
                  */
                 $blog = s_validate_blog($_POST);
 
-                if(sql_get('SELECT `id` FROM `blogs` WHERE `name` = :name', array(':name' => $blog['name']), 'id')){
+                if(sql_get('SELECT `id` FROM `blogs` WHERE `name` = :name', array(':name' => $blog['name']), 'id')) {
                     /*
                      * A blog with this name already exists
                      */
                     throw new CoreException(tr('A blog with the name "%blog%" already exists', '%blog%', $blog['name']), 'exists');
 
-                }else{
+                } else {
                     $blog['seoname']     = seo_generate_unique_name($blog['name'], 'blogs', $blog['id']);
                     $blog['keywords']    = blogs_clean_keywords($blog['keywords']);
                     $blog['seokeywords'] = blogs_seo_keywords($blog['keywords']);
@@ -54,10 +54,10 @@ try{
                 }
         }
 
-    }else{
+    } else {
         $mode  = 'modify';
 
-        if(!$blog = sql_get('SELECT * FROM `blogs` WHERE `seoname` = :seoname',  array(':seoname' => $_GET['blog']))){
+        if(!$blog = sql_get('SELECT * FROM `blogs` WHERE `seoname` = :seoname',  array(':seoname' => $_GET['blog']))) {
             /*
              * This blog does not exist
              */
@@ -65,11 +65,11 @@ try{
             redirect('/admin/blogs.php');
         }
 
-        switch(isset_get($_POST['formaction'])){
+        switch(isset_get($_POST['formaction'])) {
             case 'Update':
                 load_libs('seo,blogs');
 
-                if(empty($_GET['blog'])){
+                if(empty($_GET['blog'])) {
                     throw new CoreException('No blog specified to update', 'not_specified');
                 }
 
@@ -78,27 +78,27 @@ try{
                  */
                 $blog = s_validate_blog($_POST);
 
-                if(!$dbblog = sql_get('SELECT * FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))){
+                if(!$dbblog = sql_get('SELECT * FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
                     /*
                      * Cannot update this blog, it does not exist!
                      */
                     throw new CoreException(tr('The specified blogs id "'.str_log($blog['id']).'" does not exist'), 'notexists');
                 }
 
-                if(($dbblog['createdby'] != $_SESSION['user']['id']) and !has_rights('admin')){
+                if(($dbblog['createdby'] != $_SESSION['user']['id']) and !has_rights('admin')) {
                     /*
                      * This blog is not from this user and this user is also not an admin!
                      */
                     throw new CoreException(tr('This blog is not yours, and you are not an admin'), 'accessdenied');
                 }
 
-                if(sql_get('SELECT `id` FROM `blogs` WHERE `name` = :name AND `seoname` != :seoname', array(':name' => $blog['name'], ':seoname' => $_GET['blog']), 'id')){
+                if(sql_get('SELECT `id` FROM `blogs` WHERE `name` = :name AND `seoname` != :seoname', array(':name' => $blog['name'], ':seoname' => $_GET['blog']), 'id')) {
                     /*
                      * Another blog with this name already exists
                      */
                     throw new CoreException(tr('A blog with the name "%blog%" already exists', '%blog%', $blog['name']));
 
-                }else{
+                } else {
                     /*
                      * Copy new blog data over existing
                      */
@@ -161,7 +161,7 @@ try{
         }
     }
 
-}catch(Exception $e){
+}catch(Exception $e) {
     html_flash_set($e);
 }
 
@@ -195,7 +195,7 @@ $html = '   <form id="blog" name="blog" action="'.domain('/admin/blog.php'.(isse
                                     </div>
                                 </div>';
 
-if(!empty($blog['id'])){
+if(!empty($blog['id'])) {
     $html .= '  <div class="form-group">
                     <label class="col-md-3 control-label" for="status">'.tr('Status').'</label>
                     <div class="col-md-9">
@@ -317,7 +317,7 @@ echo ca_page($html, $params);
 /*
  *
  */
-function s_validate_blog($blog){
+function s_validate_blog($blog) {
     try{
         // Validate input
         $v = new validate_form($blog, 'name,url_template,slogan,keywords,description,thumbs_x,thumbs_y,medium_x,medium_y,images_x,images_y');
@@ -348,56 +348,56 @@ function s_validate_blog($blog){
         $v->hasMinChars($blog['description'],  32, tr('Please ensure that the description has a minimum of 32 characters'));
         $v->hasMaxChars($blog['description'], 160, tr('Please ensure that the description has a maximum of 160 characters'));
 
-        if(!$blog['thumbs_x']){
+        if(!$blog['thumbs_x']) {
             $blog['thumbs_x'] = null;
 
-        }else{
-            if(($blog['thumbs_x'] < 10) or ($blog['thumbs_x'] > 500)){
+        } else {
+            if(($blog['thumbs_x'] < 10) or ($blog['thumbs_x'] > 500)) {
                 $v->setError(tr('Please ensure that the thumbs x value is between 10 and 500'));
             }
         }
 
-        if(!$blog['thumbs_y']){
+        if(!$blog['thumbs_y']) {
             $blog['thumbs_y'] = null;
 
-        }else{
-            if(($blog['thumbs_y'] < 10) or ($blog['thumbs_y'] > 500)){
+        } else {
+            if(($blog['thumbs_y'] < 10) or ($blog['thumbs_y'] > 500)) {
                 $v->setError(tr('Please ensure that the thumbs y value is between 10 and 500'));
             }
         }
 
-        if(!$blog['medium_x']){
+        if(!$blog['medium_x']) {
             $blog['medium_x'] = null;
 
-        }else{
-            if(($blog['medium_x'] < 25) or ($blog['medium_x'] > 2500)){
+        } else {
+            if(($blog['medium_x'] < 25) or ($blog['medium_x'] > 2500)) {
                 $v->setError(tr('Please ensure that the medium x value is between 25 and 2500'));
             }
         }
 
-        if(!$blog['medium_y']){
+        if(!$blog['medium_y']) {
             $blog['medium_y'] = null;
 
-        }else{
-            if(($blog['medium_y'] < 25) or ($blog['medium_y'] > 2500)){
+        } else {
+            if(($blog['medium_y'] < 25) or ($blog['medium_y'] > 2500)) {
                 $v->setError(tr('Please ensure that the medium y value is between 25 and 2500'));
             }
         }
 
-        if(!$blog['images_x']){
+        if(!$blog['images_x']) {
             $blog['images_x'] = null;
 
-        }else{
-            if(($blog['images_x'] < 50) or ($blog['images_x'] > 5000)){
+        } else {
+            if(($blog['images_x'] < 50) or ($blog['images_x'] > 5000)) {
                 $v->setError(tr('Please ensure that the images x value is between 50 and 5000'));
             }
         }
 
-        if(!$blog['images_y']){
+        if(!$blog['images_y']) {
             $blog['images_y'] = null;
 
-        }else{
-            if(($blog['images_y'] < 50) or ($blog['images_y'] > 5000)){
+        } else {
+            if(($blog['images_y'] < 50) or ($blog['images_y'] > 5000)) {
                 $v->setError(tr('Please ensure that the images y value is between 50 and 5000'));
             }
         }
@@ -408,7 +408,7 @@ function s_validate_blog($blog){
 
         return $blog;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('s_validate_blog(): Failed', $e);
     }
 }

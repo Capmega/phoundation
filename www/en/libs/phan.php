@@ -24,12 +24,12 @@
  *
  * @return void
  */
-function phan_library_init(){
+function phan_library_init() {
     try{
         // Github URL https://github.com/phan/phan.git
         // Composer command composer require phan/phan
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('phan_library_init(): Failed', $e);
     }
 }

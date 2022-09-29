@@ -25,10 +25,10 @@
  *
  * @return void()
  */
-function log_rotate(){
+function log_rotate() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('log_rotate(): Failed', $e);
     }
 }

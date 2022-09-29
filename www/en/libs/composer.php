@@ -26,19 +26,19 @@
  *
  * @return void
  */
-function composer_library_init(){
+function composer_library_init() {
     try{
         ensure_installed(array('name'     => 'composer',
                                'callback' => 'composer_setup',
                                'checks'   => array(ROOT.'www/en/libs/composer.phar')));
 
-        if(!file_exists(ROOT.'/libs/composer.json')){
+        if(!file_exists(ROOT.'/libs/composer.json')) {
             composer_init_file();
         }
 
         load_config('composer');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('composer_library_init(): Failed', $e);
     }
 }
@@ -60,7 +60,7 @@ function composer_library_init(){
  * @param params $params
  * @return void
  */
-function composer_setup($params){
+function composer_setup($params) {
     try{
         file_ensure_path(TMP.'composer');
 
@@ -69,7 +69,7 @@ function composer_setup($params){
         $required_hash = download('https://composer.github.io/installer.sig', true);
         $required_hash = trim($required_hash);
 
-        if($file_hash !== $required_hash){
+        if($file_hash !== $required_hash) {
             throw new CoreException(tr('composer_setup(): File hash check failed for composer-setup.php'), 'hash-fail');
         }
 
@@ -79,7 +79,7 @@ function composer_setup($params){
 
         file_delete(TMP.'composer');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('composer_setup(): Failed', $e);
     }
 }
@@ -89,20 +89,20 @@ function composer_setup($params){
 /*
  *
  */
-function composer_init_file(){
+function composer_init_file() {
     try{
-        if(file_exists(ROOT.'composer.json')){
-            if(!FORCE){
+        if(file_exists(ROOT.'composer.json')) {
+            if(!FORCE) {
                 throw new CoreException('Composer has already been initialized for this project', 'already-initialized');
             }
         }
 
-        file_execute_mode(ROOT, 0770, function(){
+        file_execute_mode(ROOT, 0770, function() {
             file_put_contents(ROOT.'www/'.LANGUAGE.'/libs/composer.json', "{\n}");
             chmod(ROOT.'libs/composer.json', 0660);
         });
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('composer_init_file(): Failed', $e);
     }
 }
@@ -129,26 +129,26 @@ function composer_init_file(){
  * @param string $package The package to be installed
  * @return void
  */
-function composer_exec($commands, $path = null){
+function composer_exec($commands, $path = null) {
     try{
-        if(!$commands){
+        if(!$commands) {
             throw new CoreException(tr('composer_exec(): No commands specified'), 'not-specified');
         }
 
-        file_execute_mode(ROOT, 0770, function() use ($commands, $path){
-            if($path){
-                file_execute_mode($path, 0770, function() use ($commands, $path){
+        file_execute_mode(ROOT, 0770, function() use ($commands, $path) {
+            if($path) {
+                file_execute_mode($path, 0770, function() use ($commands, $path) {
                     safe_exec(array('function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                     'timeout'  => 30,
                                     'commands' => array('cd'                                      , array($path),
                                                         ROOT.'www/'.LANGUAGE.'/libs/composer.phar', $commands)));
                 });
 
-            }else{
-                file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($commands){
+            } else {
+                file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($commands) {
                     file_ensure_path(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0550);
 
-                    file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0770, function() use ($commands){
+                    file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0770, function() use ($commands) {
                         file_chmod(array('path'         => ROOT.'www/'.LANGUAGE.'/libs/vendor',
                                          'mode'         => 'ug+w',
                                          'recursive'    => true,
@@ -168,7 +168,7 @@ function composer_exec($commands, $path = null){
             }
         });
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('composer_exec(): Failed', $e);
     }
 }
@@ -194,17 +194,17 @@ function composer_exec($commands, $path = null){
  * @param string $package The package to be installed
  * @return void
  */
-function composer_require($packages){
+function composer_require($packages) {
     try{
-        if(!$packages){
+        if(!$packages) {
             throw new CoreException(tr('composer_require(): No package specified'), 'not-specified');
         }
 
-        foreach(array_force($packages) as $package){
+        foreach(array_force($packages) as $package) {
             composer_exec(array('require', $package));
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('composer_require(): Failed', $e);
     }
 }
@@ -230,15 +230,15 @@ function composer_require($packages){
  * @param string $package The package to be installed
  * @return void
  */
-function composer_install($path){
+function composer_install($path) {
     try{
-        if(!$path){
+        if(!$path) {
             throw new CoreException(tr('composer_install(): No path specified'), 'not-specified');
         }
 
         composer_exec(array('install'), $path);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('composer_install(): Failed', $e);
     }
 }

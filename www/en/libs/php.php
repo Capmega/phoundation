@@ -26,11 +26,11 @@
  * @param string $module The module that has to be enabled
  * @return string The result
  */
-function php_enmod($module){
+function php_enmod($module) {
     try{
         safe_exec(array('commands' => array('phpenmod', array('sudo' => true, $module))));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('php_enmod(): Failed', $e);
     }
 }

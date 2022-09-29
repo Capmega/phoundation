@@ -12,15 +12,15 @@
 /*
  * Get the avatar from the microsoft account of the specified user
  */
-function microsoft_get_avatar($user){
+function microsoft_get_avatar($user) {
     global $_CONFIG;
 
     try{
         load_libs('image,user');
 
-        if(is_array($user)){
-            if(empty($user['ms_id'])){
-                if(empty($user['id'])){
+        if(is_array($user)) {
+            if(empty($user['ms_id'])) {
+                if(empty($user['id'])) {
                     throw new CoreException('microsoft_get_avatar: Specified user array contains no "id" or "ms_id"');
                 }
 
@@ -33,7 +33,7 @@ function microsoft_get_avatar($user){
             $user = $user['ms_id'];
         }
 
-        if(!$user){
+        if(!$user) {
             throw new CoreException('microsoft_get_avatar(): No microsoft ID specified');
         }
 
@@ -49,7 +49,7 @@ function microsoft_get_avatar($user){
         // Update the user avatar
         return user_update_avatar($user, $retval);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('facebook_get_avatar(): Failed', $e);
     }
 }

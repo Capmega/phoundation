@@ -23,10 +23,10 @@
  *
  * @return void
  */
-function twiml_library_init(){
+function twiml_library_init() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twiml_library_init(): Failed', $e);
     }
 }
@@ -48,20 +48,20 @@ function twiml_library_init(){
  * @param $root
  * @return void
  */
-function twiml_write($name, $data, $root = null){
+function twiml_write($name, $data, $root = null) {
     try{
-        if(empty($root)){
+        if(empty($root)) {
             $root = ROOT.'twiml/';
         }
 
-        if(!preg_match('/[a-z0-9-]+/', $name)){
+        if(!preg_match('/[a-z0-9-]+/', $name)) {
             throw new CoreException(tr('twiml_write(): Invalid twiml file name ":name" specified, use only a-z, 0-9 and -', array(':name' => $name)), 'invalid');
         }
 
         file_ensure_path($root);
         file_put_contents($root.$name, $data);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twiml_write(): Failed', $e);
     }
 }
@@ -80,11 +80,11 @@ function twiml_write($name, $data, $root = null){
  * @param
  * @return
  */
-function twiml_create($params){
+function twiml_create($params) {
     try{
         array_ensure($params, 'root,name,type');
 
-        switch($params['type']){
+        switch($params['type']) {
             case 'forward':
                 $data = twilm_create_forward($params);
                 break;
@@ -99,7 +99,7 @@ function twiml_create($params){
 
         twiml_write($params['name'], $data, $params['root']);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twiml_create(): Failed', $e);
     }
 }
@@ -118,22 +118,22 @@ function twiml_create($params){
  * @param
  * @return
  */
-function twiml_create_forward($params){
+function twiml_create_forward($params) {
     try{
         array_ensure($params, 'phone_number,caller_id,fail_url,timeout,allowed_callers');
         $data = '';
 
-        if(!$params['phone_number']){
+        if(!$params['phone_number']) {
             throw new CoreException(tr('twiml_create_forward(): No forward phone number specified'), 'not-specified');
         }
 
-        if(!$params['timeout']){
+        if(!$params['timeout']) {
             $params['timeout'] = 20;
         }
 
         $data = '<Dial action="/forward?Dial=true" timeout="'.$params['timeout'].($params['fail_url'] ? '&FailUrl='.urlencode($params['fail_url']) : '').'"'.($params['caller_id'] ? ' callerId="'.$params['caller_id'].'"' : '').'>'.$params['phone_number'].'</Dial>';
 
-        if($params['allowed_callers']){
+        if($params['allowed_callers']) {
             /*
              * This functionality is not supported
              */
@@ -144,7 +144,7 @@ function twiml_create_forward($params){
 
         return $data;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('twiml_create_forward(): Failed', $e);
     }
 }

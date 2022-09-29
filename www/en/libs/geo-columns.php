@@ -11,7 +11,7 @@
 /*
  * Return the columns of the geo_features table
  */
-function geo_features_columns(){
+function geo_features_columns() {
     return array('addedon',
                  'code',
                  'name',
@@ -23,7 +23,7 @@ function geo_features_columns(){
 /*
  * Return the columns of the geo_timezones table
  */
-function geo_timezones_columns(){
+function geo_timezones_columns() {
     return array('addedon',
                  'cc',
                  'coordinates',
@@ -40,7 +40,7 @@ function geo_timezones_columns(){
 /*
  * Return the columns of the geo_regions table
  */
-function geo_regions_columns(){
+function geo_regions_columns() {
     return array('geonames_id',
                  'code',
                  'name',
@@ -52,7 +52,7 @@ function geo_regions_columns(){
 /*
  * Return the columns of the geo_subregions table
  */
-function geo_subregions_columns(){
+function geo_subregions_columns() {
     return array('geonames_id',
                  'regions_id',
                  'code',
@@ -65,7 +65,7 @@ function geo_subregions_columns(){
 /*
  * Return the columns of the geo_countries table
  */
-function geo_countries_columns(){
+function geo_countries_columns() {
     return array('geonames_id',
                  'regions_id',
                  'subregions_id',
@@ -81,7 +81,7 @@ function geo_countries_columns(){
 /*
  * Return the columns of the geo_states table
  */
-function geo_states_columns(){
+function geo_states_columns() {
     return array('geonames_id',
                  'countries_id',
                  'regions_id',
@@ -99,7 +99,7 @@ function geo_states_columns(){
 /*
  * Return the columns of the geo_counties table
  */
-function geo_counties_columns(){
+function geo_counties_columns() {
     return array('geonames_id',
                  'states_id',
                  'countries_id',
@@ -118,7 +118,7 @@ function geo_counties_columns(){
 /*
  * Return the columns of the geo_cities table
  */
-function geo_cities_columns(){
+function geo_cities_columns() {
     return array('geonames_id',
                  'counties_id',
                  'states_id',

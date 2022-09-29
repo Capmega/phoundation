@@ -2,7 +2,7 @@
 require_once(__DIR__.'/../libs/startup.php');
 header('HTTP/1.0 403 Forbidden');
 
-if(empty($_GET['page'])){
+if(empty($_GET['page'])) {
     page_404();
 }
 

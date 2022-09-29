@@ -6,14 +6,14 @@ load_libs('user');
 
 $selected = isset_get($_GET['blog']);
 
-if($selected){
+if($selected) {
     $selected_blog = sql_get('SELECT * FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $selected));
 
-    if($selected_blog){
+    if($selected_blog) {
         /*
          *
          */
-        switch(isset_get($_POST['doblogaction'])){
+        switch(isset_get($_POST['doblogaction'])) {
             case 'modify_blog':
                 redirect(domain('/admin/blog.php?blog='.$selected_blog['seoname']));
 
@@ -34,7 +34,7 @@ if($selected){
 /*
  *
  */
-switch(isset_get($_POST['doaction'])){
+switch(isset_get($_POST['doaction'])) {
     case tr('create'):
         redirect('/admin/blog.php');
 
@@ -43,7 +43,7 @@ switch(isset_get($_POST['doaction'])){
             /*
              * Delete the specified blogs
              */
-            if(empty($_POST['id'])){
+            if(empty($_POST['id'])) {
                 throw new CoreException('No blogs selected to delete', 'notspecified');
             }
 
@@ -55,14 +55,14 @@ switch(isset_get($_POST['doaction'])){
 
                        $list);
 
-            if($r->rowCount()){
+            if($r->rowCount()) {
                 html_flash_set(tr('Deleted %count% blogs', '%count%', $r->rowCount()), 'success');
 
-            }else{
+            } else {
                 throw new CoreException(tr('Found no blogs to delete'), 'notfound');
             }
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             html_flash_set(tr('Failed to delete blogs because "%message%"', array('%message%' => $e->getMessage())), 'error');
         }
 
@@ -73,7 +73,7 @@ switch(isset_get($_POST['doaction'])){
             /*
              * Delete the specified blogs
              */
-            if(empty($_POST['id'])){
+            if(empty($_POST['id'])) {
                 throw new CoreException('No blogs selected to undelete', 'notspecified');
             }
 
@@ -85,14 +85,14 @@ switch(isset_get($_POST['doaction'])){
 
                        $list);
 
-            if($r->rowCount()){
+            if($r->rowCount()) {
                 html_flash_set(tr('Undeleted %count% blogs', '%count%', $r->rowCount()), 'success');
 
-            }else{
+            } else {
                 throw new CoreException(tr('Found no blogs to undelete'), 'notfound');
             }
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             html_flash_set(tr('Failed to undelete blogs because "%message%"', array('%message%' => $e->getMessage())), 'error');
         }
 
@@ -103,7 +103,7 @@ switch(isset_get($_POST['doaction'])){
             /*
              * Delete the specified blogs
              */
-            if(empty($_POST['id'])){
+            if(empty($_POST['id'])) {
                 throw new CoreException('No blogs selected to erase', 'notspecified');
             }
 
@@ -111,14 +111,14 @@ switch(isset_get($_POST['doaction'])){
 
             $r = sql_query('DELETE FROM `blogs` WHERE `status` = "deleted" AND `id` IN ('.implode(', ', array_keys($list)).')', $list);
 
-            if($r->rowCount()){
+            if($r->rowCount()) {
                 html_flash_set(tr('Erased %count% blogs', '%count%', $r->rowCount()), 'success');
 
-            }else{
+            } else {
                 throw new CoreException(tr('Found no blogs to erase'), 'notfound');
             }
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             html_flash_set(tr('Failed to erase blogs because "%message%"', array('%message%' => $e->getMessage())), 'error');
         }
 }
@@ -132,7 +132,7 @@ $filters = array();
 /*
  * Do we have view filters?
  */
-switch (isset_get($_GET['view'])){
+switch (isset_get($_GET['view'])) {
     case 'all':
         $title     = '<h2 class="panel-title">'.tr('All blogs').'</h2>';
 
@@ -211,7 +211,7 @@ $query = 'SELECT    `blogs`.`id`           AS blog_id,
 /*
  * Do we have a generic filter?
  */
-if(!empty($_GET['filter'])){
+if(!empty($_GET['filter'])) {
     $filters[] = ' (`users`.`name` LIKE :name OR `leaders`.`name` LIKE :leader OR `users`.`code` LIKE :code OR `users`.`phones` LIKE :phone) ';
 
     $execute[':name']   = '%'.$_GET['filter'].'%';
@@ -224,7 +224,7 @@ if(!empty($_GET['filter'])){
 /*
  * Add filters to the query
  */
-if(!empty($filters)){
+if(!empty($filters)) {
     $query .= ' WHERE '.implode(' AND ', $filters);
 }
 
@@ -269,10 +269,10 @@ $html = '   <div class="row">
                         <form action="'.domain(true).'" method="post">
                             <div class="panel-body">';
 
-if(!$r->rowCount()){
+if(!$r->rowCount()) {
     $html .= '<p>'.tr('No blogs found with this filter').'</p>';
 
-}else{
+} else {
     $html .= '  <div class="table-responsive">
                     <table class="link select table mb-none table-striped table-hover">
                         <thead>
@@ -284,7 +284,7 @@ if(!$r->rowCount()){
                             <th>'.tr('Status').'</th>
                         </thead>';
 
-    while($blog = sql_fetch($r)){
+    while($blog = sql_fetch($r)) {
         $html .= '<tr'.($selected == $blog['blog_seoname'] ? ' class="selected"' : '').'>
                       <td class="select"><input type="checkbox" name="id[]" value="'.$blog['blog_id'].'"></td>
                       <td><a href="'.domain('/admin/blogs.php?blog='.$blog['blog_seoname']).'">'.$blog['blog_name'].'</a></td>
@@ -311,8 +311,8 @@ $html .=                    (empty($actions) ? '' : html_select($actions)).'
 /*
  * If a blog was selected, show it here
  */
-if($selected){
-    if(!$selected_blog){
+if($selected) {
+    if(!$selected_blog) {
         /*
          * Specified blog does not exist
          */
@@ -331,7 +331,7 @@ if($selected){
                                     </div>
                                 </div>';
 
-    }else{
+    } else {
         $count_all        = sql_get('SELECT COUNT(`id`) AS count FROM `blogs_posts`      WHERE                            `blogs_id` = :id', array(':id' => $selected_blog['id']), 'count');
         $count_published  = sql_get('SELECT COUNT(`id`) AS count FROM `blogs_posts`      WHERE `status` = "published" AND `blogs_id` = :id', array(':id' => $selected_blog['id']), 'count');
         $count_categories = sql_get('SELECT COUNT(`id`) AS count FROM `blogs_categories` WHERE                            `blogs_id` = :id', array(':id' => $selected_blog['id']), 'count');

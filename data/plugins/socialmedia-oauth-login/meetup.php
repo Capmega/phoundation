@@ -36,7 +36,7 @@ $code = ($_REQUEST["code"]) ?  ($_REQUEST["code"]) : "";
 
 if(empty($code)) {
 	$oauth->Authorize();
-}else{
+} else {
 	$oauth->code = $code;
 #	$oauth->getAccessToken();
 	$getData = json_decode($oauth->getUserProfile());

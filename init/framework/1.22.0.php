@@ -165,7 +165,7 @@ $update = sql_prepare('UPDATE `users` SET `meta_id` = :meta_id WHERE `id` = :id'
 
 log_console(tr('Setting up meta_id for users table'), '', false);
 
-while($users_id = sql_fetch($users, true)){
+while($users_id = sql_fetch($users, true)) {
     cli_dot(1);
     $meta_id = meta_action();
     $update->execute(array(':id'      => $users_id,
@@ -182,7 +182,7 @@ $servers = sql_query('SELECT `id`, `domain`, `seodomain`, `ipv4` FROM `servers`'
 load_libs('seo,servers,domains');
 log_console(tr('Updating `domains` table with `domains` from `servers` table'));
 
-while($server = sql_fetch($servers)){
+while($server = sql_fetch($servers)) {
     domains_ensure($server['domain']);
     servers_add_domain($server['id'], $server['domain']);
 }

@@ -11,10 +11,10 @@
 /*
  * Empty function
  */
-function empty_function(){
+function empty_function() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('empty(): Failed', $e);
     }
 }

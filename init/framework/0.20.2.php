@@ -2,7 +2,7 @@
 /*
  * Change the entire "twilio" storage to "sms" storage
  */
-if(sql_table_exists('twilio_messages')){
+if(sql_table_exists('twilio_messages')) {
     sql_table_exists('sms_messages', 'DROP TABLE `sms_messages`');
     sql_foreignkey_exists('twilio_messages', 'fk_twilio_messages_twilio_conversations_id', 'ALTER TABLE `twilio_messages` DROP FOREIGN KEY `fk_twilio_messages_twilio_conversations_id`');
     sql_foreignkey_exists('twilio_messages', 'fk_twilio_messages_reply_to_id'            , 'ALTER TABLE `twilio_messages` DROP FOREIGN KEY `fk_twilio_messages_reply_to_id`');
@@ -14,7 +14,7 @@ if(sql_table_exists('twilio_messages')){
     sql_query('RENAME TABLE `twilio_messages` TO `sms_messages`');
 }
 
-if(sql_table_exists('twilio_conversations')){
+if(sql_table_exists('twilio_conversations')) {
     sql_table_exists('sms_conversations', 'DROP TABLE `sms_conversations`');
     sql_query('RENAME TABLE `twilio_conversations` TO `sms_conversations`');
 }

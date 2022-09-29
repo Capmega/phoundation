@@ -27,12 +27,12 @@
  *
  * @return void
  */
-function shortlink_library_init(){
+function shortlink_library_init() {
     try{
         load_libs('curl');
         load_config('shortlink');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('shortlink_library_init(): Failed', $e);
     }
 }
@@ -56,7 +56,7 @@ function shortlink_library_init(){
  * @param params $link The shortlink array to sanitize
  * @return parans the shortlink array, validated and sanitized
  */
-function shortlink_validate($link){
+function shortlink_validate($link) {
     try{
         load_libs('validate,seo');
 
@@ -65,21 +65,21 @@ function shortlink_validate($link){
         /*
          * Validate name
          */
-        if($link['name']){
+        if($link['name']) {
             $v->hasMinChars($link['name'],  2, tr('Please ensure the link name has at least 2 characters'));
 
-        }else{
+        } else {
             $link['name'] = '';
         }
 
         /*
          * Validate description
          */
-        if($link['description']){
+        if($link['description']) {
             $v->hasMinChars($link['description'], 16, tr('Please ensure the link description has at least 16 characters'));
             $v->hasMaxChars($link['description'], 2047, tr('Please ensure the link description has less than 2047 characters'));
 
-        }else{
+        } else {
             $link['description'] = '';
         }
 
@@ -92,7 +92,7 @@ function shortlink_validate($link){
 
         return $link;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('shortlink_validate(): Failed', $e);
     }
 }
@@ -116,7 +116,7 @@ function shortlink_validate($link){
  * @param params $link The shortlink array to insert
  * @return params The inserted link array with id added
  */
-function shortlink_create($link){
+function shortlink_create($link) {
     try{
         $link = shortlink_validate($link);
 
@@ -140,7 +140,7 @@ function shortlink_create($link){
 
         return $link;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('shortlink_create(): Failed', $e);
     }
 }
@@ -165,7 +165,7 @@ function shortlink_create($link){
  * @param params $link The shortlink array to update
  * @return params The updated link array
  */
-function shortlink_update($link){
+function shortlink_update($link) {
     try{
         $link = shortlink_validate($link);
 
@@ -186,7 +186,7 @@ function shortlink_update($link){
 
         return $link;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('shortlink_update(): Failed', $e);
     }
 }
@@ -208,13 +208,13 @@ function shortlink_update($link){
  *
  * @return string a unique code
  */
-function shortlink_get_code(){
+function shortlink_get_code() {
     try{
-        while(++$attempts < 32){
+        while(++$attempts < 32) {
             $code   = str_random(8);
             $exists = sql_get('SELECT `id` FROM `shortlinks` WHERE `code` = :code', true, array(':code' => $code));
 
-            if($exists){
+            if($exists) {
                 log_file(tr('Generated random code ":code" already exists for entry ":entry", trying a new code', array(':code' => $code, ':entry' => $exists)), 'shortlink', 'yellow');
                 continue;
             }
@@ -227,7 +227,7 @@ function shortlink_get_code(){
 
         throw new CoreException(tr('shortlink_get_code(): Failed to find a unique URL code after ":tries" tries', array(':tries' => $attempts)), 'failed');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('shortlink_get_code(): Failed', $e);
     }
 }
@@ -255,11 +255,11 @@ function shortlink_get_code(){
  * @param params $params A parameters array
  * @return void
  */
-function shortlink_redirect($code){
+function shortlink_redirect($code) {
     try{
         $url = sql_get('SELECT `url` FROM `shortlinks` WHERE `code` = :code', true, array('code' => $code));
 
-        if(!$url){
+        if(!$url) {
             /*
              * Specified shortlink code does not exist
              */
@@ -269,7 +269,7 @@ function shortlink_redirect($code){
         log_file(tr('Redirecting IP ":ip" to URL ":url" for code ":code"', array(':ip' => $_SERVER['REMOTE_ADDR'], ':url' => $url, ':code' => $code)), 'shortlink', 'cyan');
         redirect($url);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('shortlink_redirect(): Failed', $e);
     }
 }
@@ -291,11 +291,11 @@ function shortlink_redirect($code){
  * @param string $provider The provider that should be validate, or no provider (in which case the default )
  * @return Either the specified provider, or if no provider was specified, the default provider
  */
-function shortlink_get_provider($provider = null){
+function shortlink_get_provider($provider = null) {
     global $_CONFIG;
 
     try {
-        switch($provider){
+        switch($provider) {
             case '':
                 /*
                  * No provider specified, use the default provider, and validate
@@ -338,13 +338,13 @@ function shortlink_get_provider($provider = null){
  *
  * @return
  */
-function shortlink_get_access_token($provider = null){
+function shortlink_get_access_token($provider = null) {
     global $_CONFIG;
 
     try {
         $provider = shortlink_get_provider($provider);
 
-        switch($provider){
+        switch($provider) {
             case 'capmega':
                 $results = curl_get(array('url'      => 'https://api.capmega.com/oauth/access_token',
                                           'user_pwd' => $_CONFIG['shortlink']['capmega']['account']));
@@ -384,7 +384,7 @@ function shortlink_create($url, $provider = null) {
     try{
         $token = shortlink_get_access_token($provider);
 
-        switch($provider){
+        switch($provider) {
             case 'capmega':
 under_construction();
 
@@ -399,14 +399,14 @@ under_construction();
 
                 $result = json_decode_custom($result);
 
-                if(empty($result['link'])){
+                if(empty($result['link'])) {
                     throw new CoreException(tr('shortlink_create(): Invalid response received from provider "bitly" for the specified URL ":url"', array(':url' => $url)), 'invalid');
                 }
 
                 return $result['link'];
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('shortlink_create(): Failed', $e);
     }
 }

@@ -15,7 +15,7 @@
  */
 load_config('jqueryui');
 
-if(empty($_CONFIG['jquery-ui']['theme'])){
+if(empty($_CONFIG['jquery-ui']['theme'])) {
     throw new CoreException(tr('jqueryui(): No jquery-ui theme specified, please check $_CONFIG[jquery-ui][theme]'), 'not-exists');
 }
 
@@ -27,12 +27,12 @@ html_load_css('jquery/jquery-ui,base/jquery-ui/themes/'.$_CONFIG['jquery-ui']['t
 /*
  * Creates HTML for a jquery-ui accordeon function
  */
-function jqueryui_accordeon($selector, $options = 'collapsible: true,heightStyle: "content"'){
+function jqueryui_accordeon($selector, $options = 'collapsible: true,heightStyle: "content"') {
     try{
-        if($options){
+        if($options) {
             $options = str_ends(str_starts(str_force($options), '{'), '}');
 
-        }else{
+        } else {
             $options = '';
         }
 
@@ -40,7 +40,7 @@ function jqueryui_accordeon($selector, $options = 'collapsible: true,heightStyle
                                 $("'.$selector.'").accordion('.$options.');
                             });');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('jqueryui_accordeon(): Failed', $e);
     }
 }
@@ -50,7 +50,7 @@ function jqueryui_accordeon($selector, $options = 'collapsible: true,heightStyle
 /*
  * Creates HTML for a jquery-ui date object
  */
-function jqueryui_date($selector, $params = null){
+function jqueryui_date($selector, $params = null) {
     global $_CONFIG;
 
     try{
@@ -66,13 +66,13 @@ function jqueryui_date($selector, $params = null){
         array_default($params, 'date_format'     , $_CONFIG['jqueryui']['date_format']);
         array_default($params, 'jq_date_format'  , $_CONFIG['jqueryui']['jq_date_format']);
 
-        if($params['auto_submit']){
+        if($params['auto_submit']) {
             array_default($params, 'on_select', '   function (date) {
                                                         $(this).closest("form").submit();
                                                     }');
         }
 
-        if(isset_get($params['value'])){
+        if(isset_get($params['value'])) {
             $params['value'] = date_convert($params['value'], $params['date_format']);
         }
 
@@ -91,7 +91,7 @@ function jqueryui_date($selector, $params = null){
             });
         });');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('jqueryui_date(): Failed', $e);
     }
 }
@@ -101,7 +101,7 @@ function jqueryui_date($selector, $params = null){
 /*
  * Creates HTML for a jquery-ui time object
  */
-function jqueryui_time($selector, $params = null){
+function jqueryui_time($selector, $params = null) {
     global $_CONFIG;
 
     try{
@@ -119,7 +119,7 @@ function jqueryui_time($selector, $params = null){
         array_default($params, 'force_round_time'   , false);
         array_default($params, 'use_select'         , false);
 
-        //if($params['auto_submit']){
+        //if($params['auto_submit']) {
         //    array_default($params, 'on_select', '   function (time) {
         //                                                $(this).closest("form").submit();
         //                                            }');
@@ -139,15 +139,15 @@ function jqueryui_time($selector, $params = null){
                             '.(isset_get($params['on_close'])       ? 'onClose:       "'.$params['on_close'].'",'       : '').'
                             useSelect: '.($params['use_select'] ? 'true' : 'false');
 
-        if($params['disable_time_ranges']){
-            if(!is_array($params['disable_time_ranges'])){
+        if($params['disable_time_ranges']) {
+            if(!is_array($params['disable_time_ranges'])) {
                 throw new CoreException('jqueryui_time(): $params[disable_time_ranges] should be either false or an array containing sub arrays', 'invalid');
             }
 
             $script  = '"disableTimeRanges": [';
 
-            foreach($params['disable_time_ranges'] as $range){
-                if(!is_array($range)){
+            foreach($params['disable_time_ranges'] as $range) {
+                if(!is_array($range)) {
                     throw new CoreException(tr('jqueryui_time(): All $params[disable_time_ranges] entries should be arrays, ":range" is not', array(':range' => $range)), 'invalid');
                 }
 
@@ -165,7 +165,7 @@ function jqueryui_time($selector, $params = null){
 
         return $html.html_script($script);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('jqueryui_time(): Failed', $e);
     }
 }
@@ -176,7 +176,7 @@ function jqueryui_time($selector, $params = null){
  * Creates HTML for a jquery-ui datepair object
  * See http://jonthornton.github.io/Datepair.js/
  */
-function jqueryui_datepair($selector, $params = null){
+function jqueryui_datepair($selector, $params = null) {
 // :IMPLEMENT: Still not finished
 throw new CoreException('jqueryui_datepair(): This function is not yet implemented', 'not_implemented');
     //global $_CONFIG;
@@ -196,7 +196,7 @@ throw new CoreException('jqueryui_datepair(): This function is not yet implement
     //
     //
     //
-    //    if($params['auto_submit']){
+    //    if($params['auto_submit']) {
     //        array_default($params, 'on_select', '   function (datepair) {
     //                                                    $(this).closest("form").submit();
     //                                                }');
@@ -218,15 +218,15 @@ throw new CoreException('jqueryui_datepair(): This function is not yet implement
     //                        '.(isset_get($params['on_select'])      ? 'onSelect:      "'.$params['on_select'].'",'      : '').'
     //                        numberOfMonths: '.$params['numberofmonths'];
     //
-    //    if($params['disable_datepair_ranges']){
-    //        if(!is_array($params['disable_datepair_ranges'])){
+    //    if($params['disable_datepair_ranges']) {
+    //        if(!is_array($params['disable_datepair_ranges'])) {
     //            throw new CoreException('jqueryui_datepair(): $params[disable_datepair_ranges] should be either false or an array containing sub arrays', 'invalid');
     //        }
     //
     //        $script  = '"disabledatepairRanges": [';
     //
-    //        foreach($params['disable_datepair_ranges'] as $range){
-    //            if(!is_array($range)){
+    //        foreach($params['disable_datepair_ranges'] as $range) {
+    //            if(!is_array($range)) {
     //                throw new CoreException('jqueryui_datepair(): All $params[disable_datepair_ranges] entries should be arrays, "'.str_log($range).'" is not', 'invalid');
     //            }
     //
@@ -241,7 +241,7 @@ throw new CoreException('jqueryui_datepair(): This function is not yet implement
     //
     //    return $html.html_script($script);
     //
-    //}catch(Exception $e){
+    //}catch(Exception $e) {
     //    throw new CoreException('jqueryui_datepair(): Failed', $e);
     //}
 }
@@ -251,7 +251,7 @@ throw new CoreException('jqueryui_datepair(): This function is not yet implement
 /*
  * Creates HTML for a jquery-ui date object
  */
-function jqueryui_date_range($params = null){
+function jqueryui_date_range($params = null) {
     global $_CONFIG;
 
     try{
@@ -287,45 +287,45 @@ function jqueryui_date_range($params = null){
         /*
          * Validate date / time values
          */
-        if($params['time']){
+        if($params['time']) {
             $params['start'] = substr(cfm(isset_get($params['start'], '')), 0, 10);
             $params['stop']  = substr(cfm(isset_get($params['stop'] , '')), 0, 10);
 
             $params['start_t'] = substr(cfm(isset_get($params['start_t'], '')), 0, 8);
             $params['stop_t']  = substr(cfm(isset_get($params['stop_t'] , '')), 0, 8);
 
-        }else{
+        } else {
             $params['start'] = substr(cfm(isset_get($params['start'], '')), 0, 10);
             $params['stop']  = substr(cfm(isset_get($params['stop'] , '')), 0, 10);
         }
 
-        if($params['auto_submit']){
+        if($params['auto_submit']) {
             array_default($params, 'on_select', '   function (date) {
                                                         $(this).closest("form").submit();
                                                     }');
 
-        }else{
+        } else {
             array_default($params, 'on_select', '   function (date) {
                                                     }');
         }
 
         html_load_css('base/jquery-ui/jquery.ui.datepicker');
 
-        if(empty($params['options'])){
+        if(empty($params['options'])) {
             $params['options'] = '';
 
-        }else{
+        } else {
             $params['options'] = str_ends(str_starts(str_force($params['options']), '{'), '}');
         }
 
-        if($params['time']){
+        if($params['time']) {
             $start_t = $params;
             $stop_t  = $params;
 
             $start_t['default_time'] = isset_get($params['start_t']);
             $stop_t['default_time']  = isset_get($params['stop_t']);
 
-            if($params['labels']){
+            if($params['labels']) {
                 $html = '   <label class="'.$params['label_class'].'" for="'.$params['start_selector'].'">'.$params['labels']['start'].'</label>
                             <input class="'.$params['class'].'" type="text" id="'.$params['start_selector'].'" name="'.$params['start_selector'].'" value="'.$params['start'].'" placeholder="'.isset_get($params['placeholders']['start']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>
                             '.jqueryui_time($params['start_selector'].'_t', $start_t).' '.$params['separator'].'
@@ -333,24 +333,24 @@ function jqueryui_date_range($params = null){
                             <input class="'.$params['class'].'" type="text" id="'.$params['stop_selector'].'" name="'.$params['stop_selector'].'" value="'.$params['stop'].'" placeholder="'.isset_get($params['placeholders']['stop']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>
                             '.jqueryui_time($params['stop_selector'].'_t', $stop_t);
 
-            }else{
+            } else {
                 $html = '   <input class="'.$params['class'].'" type="text" id="'.$params['start_selector'].'" name="'.$params['start_selector'].'" value="'.$params['start'].'" placeholder="'.isset_get($params['placeholders']['start']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>
                             '.jqueryui_time($params['start_selector'].'_t', $start_t).' '.$params['separator'].'
                             <input class="'.$params['class'].'" type="text" id="'.$params['stop_selector'].'" name="'.$params['stop_selector'].'" value="'.$params['stop'].'" placeholder="'.isset_get($params['placeholders']['stop']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>
                             '.jqueryui_time($params['stop_selector'].'_t', $stop_t);
             }
 
-        }else{
+        } else {
             $html = '';
 
-            if($params['labels']['start']){
+            if($params['labels']['start']) {
                 $html .= '  <label class="'.$params['label_class'].'" for="'.$params['start_selector'].'">'.$params['labels']['start'].'</label>';
             }
 
             $html .= '      <input class="'.$params['class'].'" type="text" id="'.$params['start_selector'].'" name="'.$params['start_selector'].'" value="'.$params['start'].'" placeholder="'.isset_get($params['placeholders']['start']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>'.
                             $params['separator'];
 
-            if($params['labels']['stop']){
+            if($params['labels']['stop']) {
                 $html .= '  <label class="'.$params['label_class'].'" for="'.$params['stop_selector'].'">'.$params['labels']['stop'].'</label>';
             }
 
@@ -384,7 +384,7 @@ function jqueryui_date_range($params = null){
             });
         });');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('jqueryui_date_range(): Failed', $e);
     }
 }
@@ -399,7 +399,7 @@ function jqueryui_date_range($params = null){
  * @$params['item_template']    Template HTML for all images in $params['resource']. Each item will duplicate this template HTML. The HTML should at least contain :image
  * @$params['gallery_template'] Template HTML that will contain all item_template data. If empty, will be ignored. If used, it should contain :item_template where the items will be inserted
  */
-function jqueryui_fancybox($params){
+function jqueryui_fancybox($params) {
     try{
         array_ensure($params);
         array_default($params, 'gallery_id'      , 'fancybox');
@@ -424,21 +424,21 @@ function jqueryui_fancybox($params){
 
         html_load_js('fancybox/jquery.fancybox');
 
-        if($params['close_click'] and $params['next_click']){
+        if($params['close_click'] and $params['next_click']) {
             throw new CoreException(tr('jqueryui_fancybox(): Both $params["close_click"] and $params["next_click"] have been set to true, but these options are mutually exclusive. Please set one (or both) to false.'), 'not-specified');
         }
 
-        if($params['load_css']){
+        if($params['load_css']) {
             html_load_css($params['load_css']);
         }
 
-        if(!strstr($params['item_template'], ':image')){
+        if(!strstr($params['item_template'], ':image')) {
             throw new CoreException(tr('jqueryui_fancybox(): Parameter $params["item_template"] does not contain :image to add the images in the template HTML'), 'not-specified');
         }
 
         $items = '';
 
-        foreach($params['resource']as $data){
+        foreach($params['resource']as $data) {
             $html   = $params['item_template'];
             $image  = html_img($data['src'], $data['alt'], isset_get($data['width']), isset_get($data['height']));
 
@@ -449,14 +449,14 @@ function jqueryui_fancybox($params){
             $items .= $html;
         }
 
-        if($params['gallery_template']){
-            if(!strstr($params['gallery_template'], ':item_template')){
+        if($params['gallery_template']) {
+            if(!strstr($params['gallery_template'], ':item_template')) {
                 throw new CoreException(tr('jqueryui_fancybox(): Parameter $params["gallery_template"] contains a template, but does not contain :item_template to add the items in there'), 'not-specified');
             }
 
             $retval = str_replace(':item_template', $items, $params['gallery_template']);
 
-        }else{
+        } else {
             $retval = $items;
         }
 
@@ -488,7 +488,7 @@ function jqueryui_fancybox($params){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('jqueryui_fancybox(): Failed', $e);
     }
 }
@@ -498,10 +498,10 @@ function jqueryui_fancybox($params){
 /*
  * Install jquery fancybox automatically
  */
-function jqueryui_fancybox_install(){
+function jqueryui_fancybox_install() {
     try{
 throw new CoreException(tr('jqueryui_fancybox_install(): This function has not yet been implemented'), 'not_implemented');
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('jqueryui_fancybox_install(): Failed', $e);
     }
 }

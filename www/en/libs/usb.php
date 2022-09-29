@@ -26,11 +26,11 @@
  *
  * @return void
  */
-function usb_library_init(){
+function usb_library_init() {
     try{
         load_libs('servers');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('usb_library_init(): Failed', $e);
     }
 }
@@ -52,12 +52,12 @@ function usb_library_init(){
  * @params null mixed $server
  * @return array
  */
-function usb_list($libusb = null, $server = null){
+function usb_list($libusb = null, $server = null) {
     try{
         $results = servers_exec(array('commands' => array('lsusb')));
         $devices = array();
 
-        foreach($results as $result){
+        foreach($results as $result) {
             //Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
             preg_match('/Bus (\d{3}) Device (\d{3}): ID ([0-9a-f]{4}):([0-9a-f]{4}) (.+)/', $result, $matches);
 
@@ -68,8 +68,8 @@ function usb_list($libusb = null, $server = null){
                             'product' => $matches[4],
                             'name'    => $matches[5]);
 
-            if($libusb){
-                if($libusb == $device['bus'].':'.$device['device']){
+            if($libusb) {
+                if($libusb == $device['bus'].':'.$device['device']) {
                     /*
                      *
                      */
@@ -88,7 +88,7 @@ function usb_list($libusb = null, $server = null){
 
         return $devices;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('usb_list(): Failed', $e);
     }
 }
@@ -113,7 +113,7 @@ function usb_list($libusb = null, $server = null){
  * @params null mixed $server
  * @return array
  */
-function usb_scan($regex_filter, $server = null){
+function usb_scan($regex_filter, $server = null) {
     try{
         $results = safe_exec(array('commands' => array('lsusb', array('-v'))));
         $devices = array();
@@ -123,14 +123,14 @@ function usb_scan($regex_filter, $server = null){
         /*
          * Divide the result lines into USB devices
          */
-        foreach($results as $result){
+        foreach($results as $result) {
             $result = trim($result);
 
-            if($result){
+            if($result) {
                 $device .= $result."\n";
 
-            }else{
-                if(!$device){
+            } else {
+                if(!$device) {
                     /*
                      * We have no device data yet, probably an empty line at the
                      * top of the file or a double empty line. Ignore and
@@ -144,18 +144,18 @@ function usb_scan($regex_filter, $server = null){
             }
         }
 
-        foreach($devices as $devices){
+        foreach($devices as $devices) {
             //Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
             $found = preg_match($regex_filter, $devices, $matches);
 
-            if($found){
+            if($found) {
                 $retval[] = $device;
             }
         }
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('usb_scan(): Failed', $e);
     }
 }

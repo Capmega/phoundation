@@ -25,14 +25,14 @@
  *
  * @return void
  */
-function mysqlr_library_init(){
+function mysqlr_library_init() {
     global $_CONFIG;
 
     try{
         load_config('mysqlr');
         load_libs('linux,cli,rsync');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mysqlr_library_init(): Failed', $e);
     }
 }
@@ -52,7 +52,7 @@ function mysqlr_library_init(){
  * @param
  * @return
  */
-function mysqlr_update_server_replication_status($params, $status){
+function mysqlr_update_server_replication_status($params, $status) {
     try{
         /*
          * Update server replication_status
@@ -60,18 +60,18 @@ function mysqlr_update_server_replication_status($params, $status){
         array_ensure($params);
         array_default($params, 'servers_id' , '');
 
-        if(empty($params['servers_id'])){
+        if(empty($params['servers_id'])) {
             throw new CoreException(tr('mysqlr_update_server_replication_status(): No servers_id specified'), 'not-specified');
         }
 
-        if(empty($status)){
+        if(empty($status)) {
             throw new CoreException(tr('mysqlr_update_server_replication_status(): No status specified'), 'not-specified');
         }
 
         /*
          * Update server replication_lock
          */
-        switch($status){
+        switch($status) {
             case 'preparing':
                 sql_query('UPDATE `servers` SET `replication_lock` = :replication_lock WHERE `id` = :id', array(':replication_lock' => 1, ':id' => $params['servers_id']));
                 break;
@@ -97,7 +97,7 @@ function mysqlr_update_server_replication_status($params, $status){
                 throw new CoreException(tr('Unknown status ":status"', array(':status' => $status)), 'unknown');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysqlr_update_server_replication_status(): Failed'), $e);
     }
 }
@@ -117,7 +117,7 @@ function mysqlr_update_server_replication_status($params, $status){
  * @param
  * @return
  */
-function mysqlr_update_replication_status($params, $status){
+function mysqlr_update_replication_status($params, $status) {
     try{
         /*
          * Update server and database replication_status
@@ -126,22 +126,22 @@ function mysqlr_update_replication_status($params, $status){
         array_default($params, 'databases_id', '');
         array_default($params, 'servers_id' , '');
 
-        if(empty($params['databases_id'])){
+        if(empty($params['databases_id'])) {
             throw new CoreException(tr('mysqlr_update_replication_status(): No database specified'), 'not-specified');
         }
 
-        if(empty($params['servers_id'])){
+        if(empty($params['servers_id'])) {
             throw new CoreException(tr('mysqlr_update_replication_status(): No servers_id specified'), 'not-specified');
         }
 
-        if(empty($status)){
+        if(empty($status)) {
             throw new CoreException(tr('mysqlr_update_replication_status(): No status specified'), 'not-specified');
         }
 
         /*
          * Update server replication_lock
          */
-        switch($status){
+        switch($status) {
             case 'disabling':
                 // FALLTHROUGH
             case 'resuming':
@@ -171,7 +171,7 @@ function mysqlr_update_replication_status($params, $status){
          */
         sql_query('UPDATE `databases` SET `replication_status` = :replication_status WHERE `id` = :id', array(':replication_status' => $status, ':id' => $params['databases_id']));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysqlr_update_replication_status(): Failed'), $e);
     }
 }
@@ -194,7 +194,7 @@ function mysqlr_update_replication_status($params, $status){
  * @param
  * @return
  */
-function mysqlr_master_replication_setup($params){
+function mysqlr_master_replication_setup($params) {
     global $_CONFIG;
 
     try{
@@ -210,7 +210,7 @@ function mysqlr_master_replication_setup($params){
          */
         $slave = $_CONFIG['mysqlr']['domain'];
 
-        if(empty($slave)){
+        if(empty($slave)) {
             throw new CoreException(tr('mysqlr_master_replication_setup(): MySQL configuration for replicator domain is not set'), 'not-specified');
         }
 
@@ -303,7 +303,7 @@ function mysqlr_master_replication_setup($params){
 
         return $database;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         mysqlr_update_server_replication_status($database, 'disabled_lock');
         mysqlr_update_replication_status($database, 'disabled');
         throw new CoreException(tr('mysqlr_master_replication_setup(): Failed'), $e);
@@ -329,7 +329,7 @@ function mysqlr_master_replication_setup($params){
  * @param
  * @return
  */
-function mysqlr_slave_replication_setup($params){
+function mysqlr_slave_replication_setup($params) {
     global $_CONFIG;
 
     try{
@@ -340,7 +340,7 @@ function mysqlr_slave_replication_setup($params){
          */
         $slave = $_CONFIG['mysqlr']['domain'];
 
-        if(empty($slave)){
+        if(empty($slave)) {
             throw new CoreException(tr('mysqlr_slave_replication_setup(): MySQL configuration for replicator domain is not set'), 'not-specified');
         }
 
@@ -401,7 +401,7 @@ function mysqlr_slave_replication_setup($params){
         /*
          * Check if this server was already replicating
          */
-        if($database['servers_replication_status'] == 'enabled' and empty($params['force_channel'])){
+        if($database['servers_replication_status'] == 'enabled' and empty($params['force_channel'])) {
             mysqlr_update_replication_status($database, 'enabled');
             return 0;
         }
@@ -443,7 +443,7 @@ function mysqlr_slave_replication_setup($params){
         mysqlr_update_server_replication_status($database, 'enabled');
         log_console(tr('MySQL replication setup finished!'), 'white');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         mysqlr_update_server_replication_status($database, 'disabled_lock');
         mysqlr_update_replication_status($database, 'disabled');
         throw new CoreException(tr('mysqlr_slave_replication_setup(): Failed'), $e);
@@ -463,7 +463,7 @@ function mysqlr_slave_replication_setup($params){
  *
  * @param
  */
-function mysqlr_pause_replication($db, $restart_mysql = true){
+function mysqlr_pause_replication($db, $restart_mysql = true) {
     global $_CONFIG;
 
     try{
@@ -474,7 +474,7 @@ function mysqlr_pause_replication($db, $restart_mysql = true){
          */
         $slave = $_CONFIG['mysqlr']['domain'];
 
-        if(empty($slave)){
+        if(empty($slave)) {
             throw new CoreException(tr('mysqlr_pause_replication(): MySQL Configuration for replicator domain is not set'), 'not-specified');
         }
 
@@ -483,7 +483,7 @@ function mysqlr_pause_replication($db, $restart_mysql = true){
          */
         $database = mysql_get_database($db);
 
-        if(empty($database)){
+        if(empty($database)) {
             throw new CoreException(tr('mysqlr_pause_replication(): The specified database :database does not exist', array(':database' => $database)), 'not-exists');
         }
 
@@ -502,7 +502,7 @@ function mysqlr_pause_replication($db, $restart_mysql = true){
         /*
          * Close PDO connection before restarting MySQL
          */
-        if($restart_mysql){
+        if($restart_mysql) {
             log_console(tr('Restarting Slave MySQL service'), 'VERBOSEDOT');
             linux_service($slave, 'mysql', 'restart');
         }
@@ -512,7 +512,7 @@ function mysqlr_pause_replication($db, $restart_mysql = true){
 
         return 0;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysqlr_pause_replication(): Failed'), $e);
     }
 }
@@ -530,7 +530,7 @@ function mysqlr_pause_replication($db, $restart_mysql = true){
  *
  * @param
  */
-function mysqlr_resume_replication($db, $restart_mysql = true){
+function mysqlr_resume_replication($db, $restart_mysql = true) {
     global $_CONFIG;
 
     try{
@@ -541,7 +541,7 @@ function mysqlr_resume_replication($db, $restart_mysql = true){
          */
         $slave = $_CONFIG['mysqlr']['domain'];
 
-        if(empty($slave)){
+        if(empty($slave)) {
             throw new CoreException(tr('mysqlr_resume_replication(): MySQL Configuration for replicator domain is not set'), 'not-specified');
         }
 
@@ -550,7 +550,7 @@ function mysqlr_resume_replication($db, $restart_mysql = true){
          */
         $database = mysql_get_database($db);
 
-        if(empty($database)){
+        if(empty($database)) {
             throw new CoreException(tr('mysqlr_resume_replication(): The specified database :database does not exist', array(':database' => $database)), 'not-exists');
         }
 
@@ -569,7 +569,7 @@ function mysqlr_resume_replication($db, $restart_mysql = true){
         /*
          * Close PDO connection before restarting MySQL
          */
-        if($restart_mysql){
+        if($restart_mysql) {
             log_console(tr('Restarting Slave MySQL service'), 'VERBOSEDOT');
             linux_service($slave, 'mysql', 'restart');
         }
@@ -579,7 +579,7 @@ function mysqlr_resume_replication($db, $restart_mysql = true){
 
         return 0;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysqlr_resume_replication(): Failed'), $e);
     }
 }
@@ -597,7 +597,7 @@ function mysqlr_resume_replication($db, $restart_mysql = true){
  *
  * @param
  */
-function mysqlr_check_configuration_path($server_target){
+function mysqlr_check_configuration_path($server_target) {
     try{
         $mysql_cnf_path = '/etc/mysql/mysql.conf.d/mysqld.cnf';
 
@@ -610,21 +610,21 @@ function mysqlr_check_configuration_path($server_target){
         /*
          * Mysql conf file does not exist
          */
-        if(!$mysql_cnf[0]){
+        if(!$mysql_cnf[0]) {
             /*
              * Try with other possible configuration file
              */
             $mysql_cnf_path = '/etc/mysql/my.cnf';
             $mysql_cnf      = servers_exec($server_target, 'test -f '.$mysql_cnf_path.' && echo "1" || echo "0"');
 
-            if(!$mysql_cnf[0]){
+            if(!$mysql_cnf[0]) {
                 throw new CoreException(tr('mysqlr_check_configuration_path(): MySQL configuration file :file does not exist on server :server', array(':file' => $mysql_cnf_path, ':server' => $server_target)), 'not-exists');
             }
         }
 
         return $mysql_cnf_path;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysqlr_check_configuration_path(): Failed'), $e);
     }
 }
@@ -642,7 +642,7 @@ function mysqlr_check_configuration_path($server_target){
  *
  * @param
  */
-function mysqlr_slave_ssh_tunnel($server, $slave){
+function mysqlr_slave_ssh_tunnel($server, $slave) {
     global $_CONFIG;
 
     try{
@@ -658,7 +658,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave){
          * If server was specified by just name, then lookup the server data in
          * the database
          */
-        if($server['domain']){
+        if($server['domain']) {
             $dbserver = sql_get('SELECT    `ssh_accounts`.`username`,
                                            `ssh_accounts`.`ssh_key`,
                                            `servers`.`id`,
@@ -672,14 +672,14 @@ function mysqlr_slave_ssh_tunnel($server, $slave){
 
                                  WHERE     `servers`.`domain` = :domain', array(':domain' => $server['domain']));
 
-            if(!$dbserver){
+            if(!$dbserver) {
                 throw new CoreException(tr('ssh_mysql_slave_tunnel(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exists');
             }
 
             $server = sql_merge($server, $dbserver);
         }
 
-        if(!$server['hostkey_check']){
+        if(!$server['hostkey_check']) {
             $server['arguments'] .= ' -o StrictHostKeyChecking=no -o UserKnownHostsFile='.ROOT.'data/ssh/known_hosts ';
         }
 
@@ -713,17 +713,17 @@ function mysqlr_slave_ssh_tunnel($server, $slave){
         chmod($keyfile, 0600);
         file_delete($keyfile, ROOT.'data/ssh/keys');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         /*
          * Try deleting the keyfile anyway!
          */
         try{
-            if(!empty($keyfile)){
+            if(!empty($keyfile)) {
                 safe_exec(chmod($keyfile, 0600));
                 file_delete($keyfile, ROOT.'data/ssh/keys');
             }
 
-        }catch(Exception $f){
+        }catch(Exception $f) {
             /*
              * Cannot be deleted, just ignore and notify
              */
@@ -747,7 +747,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave){
  *
  * @param
  */
-function mysqlr_full_backup(){
+function mysqlr_full_backup() {
     global $_CONFIG;
 
     try{
@@ -763,7 +763,7 @@ function mysqlr_full_backup(){
 
                               WHERE  `replication_status` = "enabled"');
 
-        if(!$servers->rowCount()){
+        if(!$servers->rowCount()) {
             /*
              * There are no servers in replication status
              */
@@ -779,7 +779,7 @@ function mysqlr_full_backup(){
         /*
          * For each server get the databases replicating
          */
-        while($server = sql_fetch($servers)){
+        while($server = sql_fetch($servers)) {
             $databases = sql_list('SELECT `id`,
                                            `name`
 
@@ -790,7 +790,7 @@ function mysqlr_full_backup(){
 
                                    array(':servers_id' => $server['id']));
 
-            if(!count($databases)){
+            if(!count($databases)) {
                 /*
                  * There are no databases replicating at this time
                  * Skip to next server
@@ -803,7 +803,7 @@ function mysqlr_full_backup(){
             /*
              * Disable replication of each database
              */
-            foreach($databases as $id => $name){
+            foreach($databases as $id => $name) {
                 log_console(tr('Disabling replication of database :database', array(':database' => $name)), 'VERBOSEDOT');
                 mysqlr_pause_replication($id, false);
             }
@@ -819,7 +819,7 @@ function mysqlr_full_backup(){
             $server_backup_path = $backup_path.'/'.$server['domain'];
             servers_exec($slave, 'sudo mkdir '.$server_backup_path);
 
-            foreach($databases as $id => $name){
+            foreach($databases as $id => $name) {
                 $db                 = mysql_get_database($id);
                 $db['root_db_user'] = 'root';
 
@@ -856,7 +856,7 @@ function mysqlr_full_backup(){
         linux_delete($slave, $backup_path, true);
         log_console(tr('mysqlr_full_backup(): Finished backups'), 'VERBOSEDOT');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysqlr_full_backup(): Failed'), $e);
     }
 }
@@ -876,7 +876,7 @@ function mysqlr_full_backup(){
  * @param
  * @return
  */
-function mysqlr_scp_database($server, $source, $destnation, $from_server = false){
+function mysqlr_scp_database($server, $source, $destnation, $from_server = false) {
     try{
 obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USING THE NEW AVAILABLE FUNCTIONS');
         array_ensure($server);
@@ -891,7 +891,7 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
          * If server was specified by just name, then lookup the server data in
          * the database
          */
-        if($server['domain']){
+        if($server['domain']) {
             $dbserver = sql_get('SELECT    `ssh_accounts`.`username`,
                                            `ssh_accounts`.`ssh_key`,
                                            `servers`.`id`,
@@ -907,14 +907,14 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
 
                                  array(':domain' => $server['domain']));
 
-            if(!$dbserver){
+            if(!$dbserver) {
                 throw new CoreException(tr('mysqlr_scp_database(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exists');
             }
 
             $server = sql_merge($server, $dbserver);
         }
 
-        if(!$server['hostkey_check']){
+        if(!$server['hostkey_check']) {
             $server['arguments'] .= ' -o StrictHostKeyChecking=no -o UserKnownHostsFile='.ROOT.'data/ssh/known_hosts ';
         }
 
@@ -934,10 +934,10 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
         file_put_contents($keyfile, $server['ssh_key'], FILE_APPEND);
         chmod($keyfile, 0400);
 
-        if($from_server){
+        if($from_server) {
             $command = $server['username'].'@'.$server['domain'].':'.$source.' '.$destnation;
 
-        }else{
+        } else {
             $command = $source.' '.$server['username'].'@'.$server['domain'].':'.$destnation;
         }
 
@@ -950,19 +950,19 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
 
         return $result;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         notify(tr('mysqlr_scp_database() exception'), $e, 'developers');
 
         /*
          * Try deleting the keyfile anyway!
          */
         try{
-            if(!empty($keyfile)){
+            if(!empty($keyfile)) {
                 chmod($keyfile, 0600);
                 file_delete($keyfile, ROOT.'data/ssh/keys');
             }
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             /*
              * Cannot be deleted, just ignore and notify
              */
@@ -988,7 +988,7 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
  * @param
  * @return
  */
-function mysqlr_add_log($params){
+function mysqlr_add_log($params) {
     try{
         /*
          * Validate
@@ -998,18 +998,18 @@ function mysqlr_add_log($params){
         array_default($params, 'type'        , '');
         array_default($params, 'message'     , '');
 
-        if(empty($params['databases_id'])){
+        if(empty($params['databases_id'])) {
             throw new CoreException(tr('No database specified'), 'not-specified');
         }
 
-        if(empty($params['type'])){
+        if(empty($params['type'])) {
             throw new CoreException(tr('No type specified'), 'not-specified');
         }
 
         /*
          * Validate log type
          */
-        switch($params['type']){
+        switch($params['type']) {
             case 'mysql_issue':
                 // FALLTHROUGH
             case 'ssh_tunnel':
@@ -1028,7 +1028,7 @@ function mysqlr_add_log($params){
                 throw new CoreException(tr('Specified type is not valid'), 'not-valid');
         }
 
-        if(empty($params['message'])){
+        if(empty($params['message'])) {
             throw new CoreException(tr('No message specified'), 'not-specified');
         }
 
@@ -1057,7 +1057,7 @@ function mysqlr_add_log($params){
                      'title'       => tr('mysqlr monitoring failed with code ":code"', array(':code' => $params['type'])),
                      'description' => $params['message']));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysqlr_add_log(): Failed'), $e);
     }
 }
@@ -1076,14 +1076,14 @@ function mysqlr_add_log($params){
  * @param
  * @return
  */
-function mysqlr_get_logs($database, $limit = 50){
+function mysqlr_get_logs($database, $limit = 50) {
     try{
         load_libs('mysql');
 
         /*
          * Validate data
          */
-        if(empty($database)){
+        if(empty($database)) {
             throw new CoreException(tr('No database specified'), 'not-specified');
         }
 
@@ -1129,7 +1129,7 @@ function mysqlr_get_logs($database, $limit = 50){
 
         return $replicator_logs;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysqlr_add_log(): Failed'), $e);
     }
 }
@@ -1149,7 +1149,7 @@ function mysqlr_get_logs($database, $limit = 50){
  * @param
  * @return
  */
-function mysqlr_monitor_database($database){
+function mysqlr_monitor_database($database) {
     global $_CONFIG;
 
     try{
@@ -1158,7 +1158,7 @@ function mysqlr_monitor_database($database){
         /*
          * Validate data
          */
-        if(empty($database)){
+        if(empty($database)) {
             throw new CoreException(tr('No database specified'), 'not-specified');
         }
 
@@ -1172,12 +1172,12 @@ function mysqlr_monitor_database($database){
         /*
          * Check if this db can replicate
          */
-        if(!mysqlr_db_can_replicate($database['database_name'])){
+        if(!mysqlr_db_can_replicate($database['database_name'])) {
             log_console(tr('This database can not replicate due to more databases with the same name, skipping'), 'yellow');
             return false;
         }
 
-        if($database['server_replication_lock']){
+        if($database['server_replication_lock']) {
             /*
              * Server is currently making another replication
              * do not monitor this, next time
@@ -1193,7 +1193,7 @@ function mysqlr_monitor_database($database){
         $result         = servers_exec(array('domain'   => $database['domain'],
                                              'commands' => array('grep', array('-q', '-F', 'binlog_do_db = '.$database['database_name'], $mysql_cnf_path, 'connector' => ' && echo "1" || echo "0"'))));
 
-        if(!$result[0]){
+        if(!$result[0]) {
             /*
              * Database is not in binlog then it is disabled
              */
@@ -1210,7 +1210,7 @@ function mysqlr_monitor_database($database){
          */
         $result = sql_get('SHOW SLAVE STATUS FOR CHANNEL :channel', array(':channel' => $database['domain']), null, 'replicator');
 
-        if(empty($result)){
+        if(empty($result)) {
             /*
              * No slave channel for this server
              */
@@ -1221,11 +1221,11 @@ function mysqlr_monitor_database($database){
             return false;
         }
 
-        if(strtolower($result['Slave_IO_Running']) != 'yes' or strtolower($result['Slave_SQL_Running']) != 'yes'){
+        if(strtolower($result['Slave_IO_Running']) != 'yes' or strtolower($result['Slave_SQL_Running']) != 'yes') {
             /*
              * Fix possible MYSQL Slave issues
              */
-            switch($result['Last_IO_Errno']){
+            switch($result['Last_IO_Errno']) {
                 case 1236:
                     /*
                      * Got fatal error 1236 from master when reading data from binary log:
@@ -1266,7 +1266,7 @@ function mysqlr_monitor_database($database){
             /*
              * Fix possible MYSQL Slave issues
              */
-            switch($result['Last_Errno']){
+            switch($result['Last_Errno']) {
                 case 1146:
                     /*
                      *
@@ -1301,7 +1301,7 @@ function mysqlr_monitor_database($database){
                     mysqlr_slave_ssh_tunnel($database, $slave);
             }
 
-            if($result['Last_Errno'] == 0 and $result['Last_IO_Errno'] == 0){
+            if($result['Last_Errno'] == 0 and $result['Last_IO_Errno'] == 0) {
                 /*
                  * The Slave is not running on this channel
                  * Just try restarting the mysql server
@@ -1324,15 +1324,15 @@ function mysqlr_monitor_database($database){
         mysqlr_update_replication_status($database, 'enabled');
         return true;
 
-    }catch(Exception $e){
-        if(strstr($e->getMessage(), 'MySQL server has gone away')){
+    }catch(Exception $e) {
+        if(strstr($e->getMessage(), 'MySQL server has gone away')) {
             /*
              * Close the current connector so the next monitoring cycle can
              * generate a new one
              */
             sql_close('replicator');
 
-        }else{
+        } else {
             throw new CoreException(tr('mysqlr_monitor_database(): Failed'), $e);
         }
     }
@@ -1351,10 +1351,10 @@ function mysqlr_monitor_database($database){
  * @param
  * @return
  */
-function mysqlr_log_type_human($type){
+function mysqlr_log_type_human($type) {
     try{
         $retval = '';
-        switch($type){
+        switch($type) {
             case 'mysql_issue':
                 $retval = 'MySQL Issue';
                 break;
@@ -1381,7 +1381,7 @@ function mysqlr_log_type_human($type){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysqlr_log_html_tag_type(): Failed'), $e);
     }
 }
@@ -1399,20 +1399,20 @@ function mysqlr_log_type_human($type){
  * @param
  * @return
  */
-function mysqlr_db_can_replicate($database_name){
+function mysqlr_db_can_replicate($database_name) {
     try{
         /*
          * Check if there is duplicate database names on other servers
          */
         $duplicates = sql_query('SELECT `id`,`name` FROM `databases` WHERE `name` = :name', array(':name' => $database_name));
 
-        if($duplicates->rowCount() > 1){
+        if($duplicates->rowCount() > 1) {
             return false;
         }
 
         return true;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysqlr_log_html_tag_type(): Failed'), $e);
     }
 }

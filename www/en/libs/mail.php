@@ -19,11 +19,11 @@
  *
  * @return array
  */
-function mail_library_init(){
+function mail_library_init() {
     try{
         load_config('mail');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mail_library_init(): Failed', $e);
     }
 }
@@ -33,13 +33,13 @@ function mail_library_init(){
 /*
  * Send a templated email
  */
-function mail_send_templated_email($params, $subject, $body, $language = false, $template = 'email/template'){
+function mail_send_templated_email($params, $subject, $body, $language = false, $template = 'email/template') {
     global $_CONFIG;
 
     try{
         array_ensure($params);
 
-        if(empty($params['to_email'])){
+        if(empty($params['to_email'])) {
             throw new CoreException('mail_send_templated_email(): No to_email specified', 'notpsecified');
         }
 
@@ -50,21 +50,21 @@ function mail_send_templated_email($params, $subject, $body, $language = false, 
         /*
          * On development servers do not send out mails to clients
          */
-        if(!$_CONFIG['production']){
-            //if(!$_CONFIG['notifications']['force']){
+        if(!$_CONFIG['production']) {
+            //if(!$_CONFIG['notifications']['force']) {
             //    return false;
             //}
 
 // :DELETE: The following lines were for when notifications were still configured by means of config files.
-            //foreach($_CONFIG['notifications']['users'] as $user){
+            //foreach($_CONFIG['notifications']['users'] as $user) {
             //    if($params['to_email'] == $user['email']) {
             //        $dev = true;
             //        break;
             //    }
             //}
             //
-            //if(empty($dev)){
-            //    if(!$_CONFIG['mail']['developer']){
+            //if(empty($dev)) {
+            //    if(!$_CONFIG['mail']['developer']) {
             //        throw new CoreException('No developer email specified on environment "'.ENVIRONMENT.'"');
             //    }
             //
@@ -114,7 +114,7 @@ function mail_send_templated_email($params, $subject, $body, $language = false, 
 
         return true;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mail_send_templated_email(): Failed', $e);
     }
 }
@@ -142,7 +142,7 @@ function mail_headers($headers = array()) {
 
         return $string;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mail_headers(): Failed', $e);
     }
 }
@@ -157,7 +157,7 @@ function mail_trace($email) {
         //make save for transport
         return '#IDS#'.base64_encode(encrypt($email, 'sometimesitworks')).'#IDE#';
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mail_trace(): Failed', $e);
     }
 }
@@ -167,11 +167,11 @@ function mail_trace($email) {
 /*
  * Send a feedback message back to sven
  */
-function mail_feedback($subject, $message){
+function mail_feedback($subject, $message) {
     global $_CONFIG;
 
     try{
-        foreach($_CONFIG['feedback']['emails'] as $name => $email){
+        foreach($_CONFIG['feedback']['emails'] as $name => $email) {
             if(!mail($email, $subject, $message)) {
                 throw new CoreException('mail_feedback(): The PHP mail() command failed (is package "sendmail" installed?)', 'mailfail');
             }
@@ -179,7 +179,7 @@ function mail_feedback($subject, $message){
 
         return true;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mail_feedback(): Failed', $e);
     }
 }

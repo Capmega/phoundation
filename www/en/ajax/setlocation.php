@@ -4,7 +4,7 @@
     try{
         //load_libs('googlemaps,json');
         //
-        //if(empty($_GET['latitude']) or !is_numeric($_GET['latitude']) or empty($_GET['longitude']) or !is_numeric($_GET['longitude'])){
+        //if(empty($_GET['latitude']) or !is_numeric($_GET['latitude']) or empty($_GET['longitude']) or !is_numeric($_GET['longitude'])) {
         //    throw new CoreException('Invalid location parameters specified');
         //}
         //
@@ -14,7 +14,7 @@
         //$address   = array();
         //$city      = array();
         //
-        //if(empty($locations[0])){
+        //if(empty($locations[0])) {
         //    /*
         //     * No location found for the specified lat/long
         //     */
@@ -25,7 +25,7 @@
         ///*
         // * Get all address components
         // */
-        //foreach($locations[0]['address_components'] as $component){
+        //foreach($locations[0]['address_components'] as $component) {
         //    $_SESSION['location']['components'][$component['types'][0]] = array('long_name'  => $component['long_name'],
         //                                                                        'short_name' => $component['short_name']);
         //}
@@ -44,8 +44,8 @@
         ///*
         // * Build city formatted address
         // */
-        //foreach($_SESSION['location']['components'] as $key => $value){
-        //    switch($key){
+        //foreach($_SESSION['location']['components'] as $key => $value) {
+        //    switch($key) {
         //        case 'country':
         //            $city['a']       = $value['short_name'];
         //            $address['a']    = $value['short_name'];
@@ -59,7 +59,7 @@
         //            break;
         //
         //        case 'administrative_area_level_2':
-        //            if($_SESSION['location']['components']['locality'] != $value){
+        //            if($_SESSION['location']['components']['locality'] != $value) {
         //                $city['c']    = $value['short_name'];
         //                $address['c'] = $value['short_name'];
         //            }
@@ -76,19 +76,19 @@
         //            break;
         //
         //        case 'route':
-        //            if(empty($address['g'])){
+        //            if(empty($address['g'])) {
         //                $address['g'] = $value['short_name'];
         //
-        //            }else{
+        //            } else {
         //                $address['g'] = $address['g'].' '.$value['short_name'];
         //            }
         //            break;
         //
         //        case 'street_number':
-        //            if(empty($address['g'])){
+        //            if(empty($address['g'])) {
         //                $address['g'] = $value['short_name'];
         //
-        //            }else{
+        //            } else {
         //                $address['g'] = $value['short_name'].' '.$address['g'];
         //            }
         //            break;
@@ -115,7 +115,7 @@
         load_libs('geo,json,googlemaps,json');
         load_config('geo');
 
-        if(empty($_GET['latitude']) or !is_numeric($_GET['latitude']) or empty($_GET['longitude']) or !is_numeric($_GET['longitude'])){
+        if(empty($_GET['latitude']) or !is_numeric($_GET['latitude']) or empty($_GET['longitude']) or !is_numeric($_GET['longitude'])) {
             throw new CoreException('Invalid location parameters specified');
         }
 
@@ -133,7 +133,7 @@
 //$_GET['latitude']=36.0671636;
 //$_GET['longitude']=-115.0288261;
 
-        switch($_CONFIG['geo']['lookup']){
+        switch($_CONFIG['geo']['lookup']) {
             case 'geonames':
                 $_SESSION['location']['detected'] = array('latitude'  => $_GET['latitude'],
                                                           'longitude' => $_GET['longitude']);
@@ -156,10 +156,10 @@
                  */
                 $_SESSION['location']['country'] = c_get_country($country);
 
-                if(!$_SESSION['location']['country']){
+                if(!$_SESSION['location']['country']) {
                     $_SESSION['location']['country'] = c_get_country('%'.$country.'%');
 
-                    if(!$_SESSION['location']['country']){
+                    if(!$_SESSION['location']['country']) {
                         throw new CoreException(tr('Indicated country "%country%" was not found', array('%country%' => $country)), 'notexists');
                     }
                 }
@@ -170,10 +170,10 @@
                  */
                 $_SESSION['location']['state'] = c_get_state($state, $_SESSION['location']['country']['id']);
 
-                if(!$_SESSION['location']['state']){
+                if(!$_SESSION['location']['state']) {
                     $_SESSION['location']['state'] = c_get_state('%'.$state.'%', $_SESSION['location']['country']['id']);
 
-                    if(!$_SESSION['location']['state']){
+                    if(!$_SESSION['location']['state']) {
                         throw new CoreException(tr('Indicated state "%state%" was not found', array('%state%' => $state)), 'notexists');
                     }
                 }
@@ -184,10 +184,10 @@
                  */
                 $_SESSION['location']['city'] = c_get_city($city, $_SESSION['location']['state']['id']);
 
-                if(!$_SESSION['location']['city']){
+                if(!$_SESSION['location']['city']) {
                     $_SESSION['location']['city'] = c_get_state('%'.$state.'%', $_SESSION['location']['state']['id']);
 
-                    if(!$_SESSION['location']['city']){
+                    if(!$_SESSION['location']['city']) {
                         throw new CoreException(tr('Indicated city "%city%" was not found', array('%city%' => $state)), 'notexists');
                     }
                 }
@@ -212,7 +212,7 @@
 // :TEST:
 //        json_reply(c_domain_location(LANGUAGE, '', ''), 'REDIRECT');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         json_error($e);
     }
 ?>

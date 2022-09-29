@@ -25,10 +25,10 @@
  *
  * @return void
  */
-function mysql_library_init(){
+function mysql_library_init() {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mysql_library_init(): Failed', $e);
     }
 }
@@ -52,45 +52,45 @@ function mysql_library_init(){
  *
  * @return
  */
-function mysql_exec($server, $query, $root = false, $simple_quotes = false){
+function mysql_exec($server, $query, $root = false, $simple_quotes = false) {
     try{
         load_libs('servers');
 
         $query  = addslashes($query);
         $server = servers_get($server, true);
 
-        if(empty($server['database_accounts_id'])){
+        if(empty($server['database_accounts_id'])) {
             throw new CoreException(tr('mysql_exec(): Cannot execute query on server ":server", it does not have a database account specified', array(':server' => $server['domain'])), 'not-specified');
         }
 
         /*
          * Are we going to execute as root?
          */
-        if($root){
+        if($root) {
             mysql_create_password_file('root', $server['db_root_password'], $server);
 
-        }else{
+        } else {
             mysql_create_password_file($server['db_username'], $server['db_password'], $server);
         }
 
-        if($simple_quotes){
+        if($simple_quotes) {
             $results = servers_exec($server, 'mysql -e \''.str_ends($query, ';').'\'');
 
-        }else{
+        } else {
             $results = servers_exec($server, 'mysql -e \"'.str_ends($query, ';').'\"');
         }
 
         mysql_delete_password_file($server);
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         /*
          * Make sure the password file gets removed!
          */
         try{
             mysql_delete_password_file($server);
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             $e->addMessages($e->getMessages());
         }
 
@@ -115,12 +115,12 @@ function mysql_exec($server, $query, $root = false, $simple_quotes = false){
  *
  * @return
  */
-function mysql_create_password_file($user, $password, $server = null){
+function mysql_create_password_file($user, $password, $server = null) {
     try{
         load_libs('servers');
         servers_exec($server, "rm ~/.my.cnf -f; touch ~/.my.cnf; chmod 0600 ~/.my.cnf; echo '[client]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysql]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysqldump]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysqldiff]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n' >> ~/.my.cnf");
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysql_create_password_file(): Failed'), $e);
     }
 }
@@ -140,12 +140,12 @@ function mysql_create_password_file($user, $password, $server = null){
  *
  * @return
  */
-function mysql_delete_password_file($server = null){
+function mysql_delete_password_file($server = null) {
     try{
         load_libs('servers');
         servers_exec($server, 'rm ~/.my.cnf -f');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysql_delete_password_file(): Failed'), $e);
     }
 }
@@ -165,7 +165,7 @@ function mysql_delete_password_file($server = null){
  * @param array $params
  * @return
  */
-function mysql_dump($params){
+function mysql_dump($params) {
     try{
         array_ensure($params);
         array_default($params, 'server'  , '');
@@ -177,7 +177,7 @@ function mysql_dump($params){
 
         load_libs('servers');
 
-        if(!$params['database']){
+        if(!$params['database']) {
             throw new CoreException(tr('mysql_dump(): No database specified'), 'not-specified');
         }
 
@@ -190,7 +190,7 @@ function mysql_dump($params){
         servers_exec($params['server'], 'mysqldump '.$options.' '.$params['database'].($params['gzip'] == 'yes' ? ' | gzip' : $params['gzip']).' '.($params['redirect'] == 'yes' ? ' > ' : $params['redirect']).' '.$params['file']);
         mysql_delete_password_file($server);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysql_dump(): Failed'), $e);
     }
 }
@@ -209,7 +209,7 @@ function mysql_dump($params){
  * @param array $params
  * @return
  */
-function mysql_get_database($db_name){
+function mysql_get_database($db_name) {
     try{
         $database = sql_get('SELECT    `databases`.`id`,
                                        `databases`.`id` AS `databases_id`,
@@ -244,13 +244,13 @@ function mysql_get_database($db_name){
 
                              array(':name' => $db_name));
 
-        if(!$database){
+        if(!$database) {
             throw new CoreException(tr('mysql_get_database(): Specified database ":database" does not exist', array(':database' => $db_name)), 'not-exists');
         }
 
         return $database;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysql_get_database(): Failed'), $e);
     }
 }
@@ -271,10 +271,10 @@ function mysql_get_database($db_name){
  * @param mixed $password
  * @return
  */
-function mysql_reset_password($server, $username, $password){
+function mysql_reset_password($server, $username, $password) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysql_get_database(): Failed'), $e);
     }
 }
@@ -293,13 +293,13 @@ function mysql_reset_password($server, $username, $password){
  * @param mixed $server
  * @return
  */
-function mysql_register_databases($server){
+function mysql_register_databases($server) {
     try{
         $results = mysql_exec($server, 'SHOW DATABASES');
         $count   = 0;
 
-        foreach($databases as $database){
-            switch($database){
+        foreach($databases as $database) {
+            switch($database) {
                 case '':
                     // FALLTHROUGH
                 case 'Database':
@@ -330,7 +330,7 @@ function mysql_register_databases($server){
 
         return $count;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('mysql_register_databases(): Failed'), $e);
     }
 }
@@ -351,7 +351,7 @@ function mysql_register_databases($server){
  * @param boolean $password_strength
  * @return array
  */
-function mysql_validate_database($database, $structure_only = false){
+function mysql_validate_database($database, $structure_only = false) {
     global $_CONFIG;
 
     try{
@@ -359,7 +359,7 @@ function mysql_validate_database($database, $structure_only = false){
 
         $v = new ValidateForm($database, 'createdby,status,servers_id,projects_id,replication_status,name,description,error');
 
-        if($structure_only){
+        if($structure_only) {
             return $database;
         }
 
@@ -373,10 +373,10 @@ function mysql_validate_database($database, $structure_only = false){
         /*
          * Description
          */
-        if(empty($database['description'])){
+        if(empty($database['description'])) {
             $database['description'] = '';
 
-        }else{
+        } else {
             $v->hasMinChars($database['description'],   16, tr('Please specifiy a minimum of 16 characters for the description'));
             $v->hasMaxChars($database['description'], 2047, tr('Please specifiy a maximum of 2047 characters for the description'));
 
@@ -393,10 +393,10 @@ function mysql_validate_database($database, $structure_only = false){
         /*
          * Error data
          */
-        if(empty($database['error'])){
+        if(empty($database['error'])) {
             $database['error'] = '';
 
-        }else{
+        } else {
             $v->hasMaxChars($database['error'], 2047, tr('Please specifiy a maximum of 2047 characters for the error'));
 
             $database['error'] = cfm($database['error']);
@@ -407,27 +407,27 @@ function mysql_validate_database($database, $structure_only = false){
         /*
          * Validate server and project
          */
-        if($database['server']){
+        if($database['server']) {
             $database['servers_id'] = servers_get($database['server']);
 
-            if(!$database['servers_id']){
+            if(!$database['servers_id']) {
                 $v->setError(tr('Specified server ":server" does not exist', array(':server' => $database['server'])));
             }
 
-        }else{
+        } else {
             $database['servers_id'] = null;
             //$v->setError(tr('Please specify a server'));
         }
 
-        if($database['project']){
+        if($database['project']) {
             $database['projects_id'] = projects_get(array('column'  => 'id',
                                                           'filters' => array('seoname' => $database['project'])));
 
-            if(!$database['projects_id']){
+            if(!$database['projects_id']) {
                 $v->setError(tr('Specified project ":project" does not exist', array(':project' => $database['project'])));
             }
 
-        }else{
+        } else {
             $database['projects_id'] = null;
         }
 
@@ -436,7 +436,7 @@ function mysql_validate_database($database, $structure_only = false){
          */
         $exists = mysql_exists_database($database['domain'], isset_get($database['id'], 0));
 
-        if($exists){
+        if($exists) {
             $v->setError(tr('A database with name ":domain" already exists', array(':name' => $database['name'])));
         }
 
@@ -446,7 +446,7 @@ function mysql_validate_database($database, $structure_only = false){
 
         return $database;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mysql_validate_database(): Failed', $e);
     }
 }
@@ -465,7 +465,7 @@ function mysql_validate_database($database, $structure_only = false){
  * @param params $database The server data to be inserted into the database
  * @return params The validated server data, including server[id]
  */
-function mysql_exists_database($database_name, $id = null){
+function mysql_exists_database($database_name, $id = null) {
     try{
         $exists = sql_get('SELECT `id`
 
@@ -481,7 +481,7 @@ function mysql_exists_database($database_name, $id = null){
 
         return $exists;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mysql_exists_database(): Failed', $e);
     }
 }
@@ -500,7 +500,7 @@ function mysql_exists_database($database_name, $id = null){
  * @param params $database The server data to be inserted into the database
  * @return params The validated server data, including server[id]
  */
-function mysql_insert_database($database){
+function mysql_insert_database($database) {
     try{
         $database = mysql_validate_database($database);
 
@@ -521,7 +521,7 @@ function mysql_insert_database($database){
 
         return $database;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mysql_insert_database(): Failed', $e);
     }
 }
@@ -540,7 +540,7 @@ function mysql_insert_database($database){
  * @param params $database The database data to be updated into the database
  * @return params The validated database data
  */
-function mysql_update_database($database){
+function mysql_update_database($database) {
     try{
         $database = mysql_validate_database($database);
         meta_action($database['meta_id'], 'update');
@@ -566,7 +566,7 @@ function mysql_update_database($database){
 
         return $database;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('mysql_update_database(): Failed', $e);
     }
 }

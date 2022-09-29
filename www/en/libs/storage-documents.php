@@ -24,11 +24,11 @@
  *
  * @return void
  */
-function storage_documents_library_init(){
+function storage_documents_library_init() {
     try{
         load_libs('storage');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_documents_library_init(): Failed', $e);
     }
 }
@@ -51,23 +51,23 @@ function storage_documents_library_init(){
  * @param string $status
  * @return params The requested document
  */
-function storage_documents_get($section, $document = null, $auto_create = false, $column = null, $status = null){
+function storage_documents_get($section, $document = null, $auto_create = false, $column = null, $status = null) {
     try{
         $section = storage_ensure_section($section);
 
-        if(empty($document)){
+        if(empty($document)) {
             /*
              * Get a _new record for the current user
              */
-            if(empty($_SESSION['user']['id'])){
-                if($status === false){
+            if(empty($_SESSION['user']['id'])) {
+                if($status === false) {
                     $where   = ' WHERE `sections_id` = :sections_id
                                  AND   `status`      = "_new"
                                  AND   `createdby`   IS NULL LIMIT 1';
 
                     $execute = array(':sections_id' => $section['id']);
 
-                }else{
+                } else {
                     $where   = ' WHERE `sections_id` = :sections_id
                                  AND   `status`      = "_new"
                                  AND   `createdby`   IS NULL LIMIT 1';
@@ -76,8 +76,8 @@ function storage_documents_get($section, $document = null, $auto_create = false,
                                      ':sections_id' => $section['id']);
                 }
 
-            }else{
-                if($status === false){
+            } else {
+                if($status === false) {
                     $where   = ' WHERE `sections_id` = :sections_id
                                  AND   `status`      = "_new"
                                  AND   `createdby`   = :createdby LIMIT 1';
@@ -85,7 +85,7 @@ function storage_documents_get($section, $document = null, $auto_create = false,
                     $execute = array(':sections_id' => $section['id'],
                                      ':createdby'   => $_SESSION['user']['id']);
 
-                }else{
+                } else {
                     $where   = ' WHERE `sections_id` = :sections_id
                                  AND   `status`      = "_new"
                                  AND   `createdby`   = :createdby LIMIT 1';
@@ -96,11 +96,11 @@ function storage_documents_get($section, $document = null, $auto_create = false,
                 }
             }
 
-        }elseif(is_numeric($document)){
+        } elseif(is_numeric($document)) {
             /*
              * Assume this is pages id
              */
-            if($status === false){
+            if($status === false) {
                 $where   = ' WHERE  `sections_id` = :sections_id
                              AND    `id`          = :id
                              AND    `status`      IN ("published", "unpublished", "_new")';
@@ -108,7 +108,7 @@ function storage_documents_get($section, $document = null, $auto_create = false,
                 $execute = array(':sections_id' => $section['id'],
                                  ':id'          => $document);
 
-            }else{
+            } else {
                 $where   = ' WHERE  `sections_id` = :sections_id
                              AND    `id`          = :id
                              AND    `storage_documents`.`status` '.sql_is($status, ':status');
@@ -118,11 +118,11 @@ function storage_documents_get($section, $document = null, $auto_create = false,
                                  ':id'          => $document);
             }
 
-        }else{
+        } else {
             throw new CoreException(tr('storage_documents_get(): Invalid document specified, is datatype ":type", should be null, numeric, string, or array', array(':type' => gettype($document))), 'invalid');
         }
 
-        if($column){
+        if($column) {
             $document = sql_get('SELECT `'.$column.'`,
 
                                  FROM   `storage_documents`
@@ -131,7 +131,7 @@ function storage_documents_get($section, $document = null, $auto_create = false,
 
                                  true, $execute);
 
-        }else{
+        } else {
             $document = sql_get('SELECT `id`,
                                         `meta_id`,
                                         `createdby`,
@@ -162,13 +162,13 @@ function storage_documents_get($section, $document = null, $auto_create = false,
                                  $execute);
         }
 
-        if(empty($document) and empty($document) and $auto_create){
+        if(empty($document) and empty($document) and $auto_create) {
             $document = storage_documents_add(array('status' => '_new'));
         }
 
         return $document;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_documents_get(): Failed', $e);
     }
 }
@@ -190,12 +190,12 @@ function storage_documents_get($section, $document = null, $auto_create = false,
  * @params boolean $pdo_statement If set to true, the function will not return an array list but a PDO statement
  * @return null array a list of the available documents
  */
-function storage_documents_list($status = null, $section = null, $pdo_statement = true){
+function storage_documents_list($status = null, $section = null, $pdo_statement = true) {
     try{
-        if($section){
+        if($section) {
             $dbsection = storage_sections_get($section);
 
-            if(!$dbsection){
+            if(!$dbsection) {
                 throw new CoreException(tr('storage_documents_list(): The specified section ":section" does not exist', array(':section' => $section)), 'not-exists');
             }
 
@@ -224,7 +224,7 @@ function storage_documents_list($status = null, $section = null, $pdo_statement 
 
         return $documents;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_documents_list(): Failed', $e);
     }
 }
@@ -244,15 +244,15 @@ function storage_documents_list($status = null, $section = null, $pdo_statement 
  * @param mixed $section
  * @return params The newly added document, validated and with the documents id added
  */
-function storage_documents_add($document, $section = null){
+function storage_documents_add($document, $section = null) {
     try{
         $document = storage_documents_validate($document);
 
-        if(!$section){
+        if(!$section) {
             $section = storage_sections_get($document['sections_id'], false);
         }
 
-        if($section['random_ids']){
+        if($section['random_ids']) {
             $document['id'] = sql_random_id('storage_documents');
         }
 
@@ -285,7 +285,7 @@ function storage_documents_add($document, $section = null){
         $document['id'] = sql_insert_id();
         return $document;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_documents_add(): Failed', $e);
     }
 }
@@ -305,7 +305,7 @@ function storage_documents_add($document, $section = null){
  * @param mixed $section
  * @return params The updated document, validated
  */
-function storage_documents_update($document, $new = false){
+function storage_documents_update($document, $new = false) {
     try{
         $document = storage_documents_validate($document);
         meta_action($document['meta_id'], ($new ? 'create-update' : 'update'));
@@ -356,7 +356,7 @@ function storage_documents_update($document, $new = false){
 
         return $document;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_documents_update(): Failed', $e);
     }
 }
@@ -375,7 +375,7 @@ function storage_documents_update($document, $new = false){
  * @param params $document
  * @return params The validated document
  */
-function storage_documents_validate($document){
+function storage_documents_validate($document) {
     try{
         load_libs('validate');
 
@@ -426,7 +426,7 @@ function storage_documents_validate($document){
 
         return $document;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_documents_validate(): Failed', $e);
     }
 }
@@ -446,13 +446,13 @@ function storage_documents_validate($document){
  * @param natural $users_id
  * @return boolean True if the specified user (or if not specified, the user of the current session) has access, false if not
  */
-function storage_document_has_access($documents_id, $users_id = null){
+function storage_document_has_access($documents_id, $users_id = null) {
     try{
-        if(empty($users_id)){
+        if(empty($users_id)) {
             $users_id = $_SESSION['user']['id'];
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('storage_document_has_access(): Failed', $e);
     }
 }

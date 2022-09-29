@@ -28,11 +28,11 @@
  *
  * @return void
  */
-function paypal_library_init(){
+function paypal_library_init() {
     try{
         load_config('paypal');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('paypal_library_init(): Failed', $e);
     }
 }
@@ -55,7 +55,7 @@ function paypal_version() {
     global $_CONFIG;
     try{
         return $_CONFIG['paypal']['version'];
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('paypal_version(): Failed', $e);
     }
 }
@@ -108,7 +108,7 @@ function paypal_change_subscription_status($profile_id, $action='Cancel') {
         // An associative array is more usable than a parameter string
         parse_str( $response, $parsed_response );
         return $parsed_response;
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('paypal_change_subscription_status(): Failed', $e);
     }
 }
@@ -165,7 +165,7 @@ function paypal_subscription_button($params=array()) {
             <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
         </form>';
         return $html;
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('paypal_subscription_button(): Failed', $e);
     }
 }
@@ -178,7 +178,7 @@ function paypal_ipn_log() {
 
     try{
         //they can submit with post and get
-        if(empty($_POST)){
+        if(empty($_POST)) {
             $_POST=$_GET;
         }
 
@@ -188,7 +188,7 @@ function paypal_ipn_log() {
         } else {
             throw new CoreException('paypal_ipn_log(): Failed ipn check','ipn_check_fail');
         }
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('paypal_ipn_log(): Failed', $e);
     }
 }
@@ -238,7 +238,7 @@ function paypal_check_ipn_request() {
                 throw new CoreException('paypal_check_ipn_request(): Returned FALSE', '');
             }
         }
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('paypal_check_ipn_request(): Failed', $e);
     }
 }

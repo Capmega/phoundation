@@ -38,22 +38,22 @@ cli_no_arguments_left();
 
 
 
-if($params['proxies']){
+if($params['proxies']) {
     $params['proxies'] = array_force($params['proxies']);
 }
 
-if($params['noproxy']){
+if($params['noproxy']) {
     $params['proxy'] = false;
 }
 
-if(!$params['url']){
+if(!$params['url']) {
     throw new CoreException(tr('Please specify a URL'), 'notspecfied');
 }
 
 $data = curl_get($params);
 
-if(substr($data['data'], 0, 12) == 'PROXY_RESULT'){
-    if($decode){
+if(substr($data['data'], 0, 12) == 'PROXY_RESULT') {
+    if($decode) {
         $data         = json_decode(substr($data, 12));
         $data['data'] = base64_decode($data['data']);
     }

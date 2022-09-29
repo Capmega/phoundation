@@ -23,14 +23,14 @@
  *
  * @return void
  */
-function dig_library_init(){
+function dig_library_init() {
     try{
-        if(!file_which('dig')){
+        if(!file_which('dig')) {
             throw new CoreException(tr('dig_library_init(): The "dig" command was not found. To install "dig" on ubuntu, please execute "sudo apt-get install dnsutils"'), 'not-exists');
         }
 
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('dig_library_init(): Failed', $e);
     }
 }
@@ -49,12 +49,12 @@ function dig_library_init(){
  * @param params $params
  * @return
  */
-function dig_install($params){
+function dig_install($params) {
     try{
         $params['methods'] = array('apt-get' => array('commands'  => 'sudo apt-get install dnsutils'));
         return install($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('dig_install(): Failed', $e);
     }
 }
@@ -73,7 +73,7 @@ function dig_install($params){
  * @param string $line The dig output line that contains record information;
  * @return string the cleaned up line data
  */
-function dig_clean_line($line){
+function dig_clean_line($line) {
     try{
         $line = trim($line);
         $line = str_replace("\t", ' ', $line);
@@ -82,7 +82,7 @@ function dig_clean_line($line){
 
         return $line;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('dig_clean_line(): Failed', $e);
     }
 }
@@ -102,24 +102,24 @@ function dig_clean_line($line){
  * @param string $$dns_server Should be an IP or DNS hostname. If specified, have dig request this information from this specified DNS server
  * @return array IP's reported by dig
  */
-function dig($hostname, $command, $dns_server = null){
+function dig($hostname, $command, $dns_server = null) {
     try{
         $results = safe_exec(array('commands' => array('dig', array($command, ($dns_server ? '@'.$dns_server : ''), $hostname))));
         $start   = false;
         $stop    = false;
         $retval  = array();
 
-        foreach($results as $result){
-            if(strstr($result, 'ANSWER SECTION:')){
+        foreach($results as $result) {
+            if(strstr($result, 'ANSWER SECTION:')) {
                 $start = true;
                 continue;
             }
 
-            if(!$start){
+            if(!$start) {
                 continue;
             }
 
-            if(!$result){
+            if(!$result) {
                 break;
             }
 
@@ -133,7 +133,7 @@ function dig($hostname, $command, $dns_server = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('dig(): Failed', $e);
     }
 }
@@ -153,11 +153,11 @@ function dig($hostname, $command, $dns_server = null){
  * @param string $$dns_server Should be an IP or DNS hostname. If specified, have dig request this information from this specified DNS server
  * @return array IP's reported by dig
  */
-function dig_a($hostname, $dns_server = null){
+function dig_a($hostname, $dns_server = null) {
     try{
         return dig('', $hostname, $dns_server);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('dig_a(): Failed', $e);
     }
 }
@@ -177,11 +177,11 @@ function dig_a($hostname, $dns_server = null){
  * @param string $$dns_server Should be an IP or DNS hostname. If specified, have dig request this information from this specified DNS server
  * @return array IP's reported by dig
  */
-function dig_mx($hostname, $dns_server = null){
+function dig_mx($hostname, $dns_server = null) {
     try{
         return dig('MX', $hostname, $dns_server);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('dig_mx(): Failed', $e);
     }
 }

@@ -26,13 +26,13 @@
  *
  * @return void
  */
-function whatsapp_library_init(){
+function whatsapp_library_init() {
     try{
         ensure_installed(array('name'     => 'whatsapp',
                                'callback' => 'whatsapp_install',
                                'checks'   => array(ROOT.'libs/external/whatsapp/')));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('whatsapp_library_init(): Failed', $e);
     }
 }

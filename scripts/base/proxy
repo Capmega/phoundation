@@ -37,15 +37,15 @@ test                            - Test all configured proxy machines
 require_once(__DIR__.'/../../libs/startup.php');
 load_libs('curl');
 
-switch(cli_method()){
+switch(cli_method()) {
     case 'list':
         cli_no_arguments_left();
 
-        if(empty($_CONFIG['curl']['proxies'])){
+        if(empty($_CONFIG['curl']['proxies'])) {
             throw new CoreException(tr('No proxies have been configured, please check $_CONFIG[curl][proxies]'), 'not-configured');
         }
 
-        foreach($_CONFIG['curl']['proxies'] as $proxy){
+        foreach($_CONFIG['curl']['proxies'] as $proxy) {
             log_console($proxy);
         }
 
@@ -57,36 +57,36 @@ switch(cli_method()){
         $proxies = cli_argument('--proxies', 'all');
         cli_no_arguments_left();
 
-        if(!$url){
+        if(!$url) {
             throw new CoreException(tr('No url specified'), 'not-specified');
         }
 
-        if(empty($proxies)){
-            if(empty($_CONFIG['curl']['proxies'])){
+        if(empty($proxies)) {
+            if(empty($_CONFIG['curl']['proxies'])) {
                 throw new CoreException(tr('No proxies have been configured, please check $_CONFIG[curl][proxies], or specify --proxies'), 'not-configured');
             }
 
             $proxies = $_CONFIG['curl']['proxies'];
 
-        }else{
+        } else {
             $proxies = array_force($proxies);
         }
 
-        foreach($proxies as $proxy){
+        foreach($proxies as $proxy) {
             try{
                 $data  = curl_get_proxy($url, null, $proxy);
                 log_console(tr('Proxy ":proxy" works correctly', array(':proxy' => $proxy)), 'green');
 
-            }catch(Exception $e){
+            }catch(Exception $e) {
                 $errors++;
                 log_console(tr('Proxy ":proxy" failed with ":e"', array(':proxy' => $proxy, ':e' => $e)), 'red');
             }
         }
 
-        if($errors){
+        if($errors) {
             log_console(tr('Tested ":count" proxies, found ":errors" errors', array(':count' => count($proxies), ':errors' => $errors)), 'yellow');
 
-        }else{
+        } else {
             log_console(tr('Tested ":count" proxies, no errors found', array(':count' => count($proxies))), 'green');
         }
 

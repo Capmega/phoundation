@@ -18,12 +18,12 @@
  *
  * @obsolete analytics_matomo();
  */
-function matomo_get_code($sites_id){
+function matomo_get_code($sites_id) {
     try{
         load_libs('analytics');
         return analytics_matomo($sites_id);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('matomo_get_code(): Failed', $e);
     }
 }

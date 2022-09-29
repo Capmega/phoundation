@@ -23,13 +23,13 @@
  *
  * @return void
  */
-function ssh_library_init(){
+function ssh_library_init() {
     try{
         load_config('ssh');
         load_libs('cli');
         file_ensure_path(ROOT.'data/run/ssh');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_library_init(): Failed', $e);
     }
 }
@@ -55,16 +55,16 @@ function ssh_library_init(){
  * @param string $ok_exitcodes Time in seconds after which the program execution will be automatically aborted. 0 for no limit, defaults to $_CONFIG[exec][timeout]
  * @return array The results of the executed SSH commands in an array, each entry containing one line of the output
  */
-function ssh_exec($server, $params){
+function ssh_exec($server, $params) {
     global $core, $_CONFIG;
     static $retry = 0;
 
     try{
-        if(!is_array($params)){
+        if(!is_array($params)) {
             throw new CoreException(tr('ssh_exec(): Invalid command parameters ":params" specified, should be a parameter array containing a "commands" key', array(':params' => $params)), 'invalid');
         }
 
-        if($retry > 1){
+        if($retry > 1) {
             throw new CoreException(tr('ssh_exec(): Command ":command" retried ":retry" times, command failed', array(':command' => isset_get($params['commands']), ':retry' => $retry)), 'failed');
         }
 
@@ -76,7 +76,7 @@ function ssh_exec($server, $params){
          * If no domain is specified, then don't execute this command on a
          * remote server, just use safe_exec and execute it locally
          */
-        if(empty($server) or empty($server['domain'])){
+        if(empty($server) or empty($server['domain'])) {
             $retry = 0;
             return safe_exec($params);
         }
@@ -84,7 +84,7 @@ function ssh_exec($server, $params){
         /*
          * Ensure we have valid login credentials
          */
-        if(empty($server['identity_file']) and empty($server['password'])){
+        if(empty($server['identity_file']) and empty($server['password'])) {
             throw new CoreException(tr('ssh_exec(): No identity file or password specified'), 'invalid');
         }
 
@@ -95,15 +95,15 @@ function ssh_exec($server, $params){
         $background           = isset_get($params['background']);
         $params['background'] = false;
 
-        if($params['commands']){
+        if($params['commands']) {
             $params['commands'] = cli_build_commands_string($params);
 
-        }else{
+        } else {
             /*
              * No individual commands were specified. This is okay if we're
              * setting up an SSH tunnel
              */
-            if(empty($params['tunnel'])){
+            if(empty($params['tunnel'])) {
                 throw new CoreException(tr('ssh_exec(): No shell commands or SSH tunnel parameter specified'), 'not-specified');
             }
         }
@@ -118,10 +118,10 @@ function ssh_exec($server, $params){
          * Background task? Then the SSH command itself must be background too
          * and return its PID
          */
-        if($params['background']){
+        if($params['background']) {
             $params['commands'] .= ' >> '.$params['output_log'].' 2>&1 3>&1 & echo $! ';
 
-        }elseif($params['include_ssh_errors']){
+        } elseif($params['include_ssh_errors']) {
             /*
              * Output will contain SSH errors
              */
@@ -137,8 +137,8 @@ function ssh_exec($server, $params){
         /*
          * Remove SSH warning
          */
-        if(is_array($results)){
-            if(preg_match('/Warning: Permanently added \'\[.+?\]:\d{1,5}\' \(\w+\) to the list of known hosts\./', isset_get($results[0]))){
+        if(is_array($results)) {
+            if(preg_match('/Warning: Permanently added \'\[.+?\]:\d{1,5}\' \(\w+\) to the list of known hosts\./', isset_get($results[0]))) {
                 /*
                  * Remove known host warning from results
                  */
@@ -146,15 +146,15 @@ function ssh_exec($server, $params){
             }
         }
 
-        if(!empty($params['tunnel'])){
-            if(empty($params['tunnel']['persist'])){
+        if(!empty($params['tunnel'])) {
+            if(empty($params['tunnel']['persist'])) {
 // :TODO: Add persist timeouts, so that these SSL tunnels can still be closed after X amount of time
                 /*
                  * This SSH tunnel must be closed automatically once the script finishes
                  */
                 $core->register('shutdown_ssh_close_tunnel', $results);
 
-            }else{
+            } else {
 
                 log_console(tr('Created PERSISTENT SSH tunnel ":source_port::target_domain::target_port" to domain ":domain"', array(':domain' => isset_get($server['domain']), ':source_port' => $params['tunnel']['source_port'], ':target_domain' => $params['tunnel']['target_domain'], ':target_port' => $params['tunnel']['target_port'])));
             }
@@ -163,8 +163,8 @@ function ssh_exec($server, $params){
         $retry = 0;
         return $results;
 
-    }catch(Exception $e){
-        switch($e->getRealCode()){
+    }catch(Exception $e) {
+        switch($e->getRealCode()) {
             case 'not-exists':
                 // FALLTHROUGH
             case 'invalid':
@@ -176,23 +176,23 @@ function ssh_exec($server, $params){
                  */
                 $data = $e->getData();
 
-                if($data){
+                if($data) {
                     $data = array_force($data);
                     $data = array_pop($data);
                     $data = strtolower(trim($data));
 
-                    if(str_exists($data, 'permission denied')){
-                        if(strtolower(substr($data, 0, 5)) !== 'bash:'){
+                    if(str_exists($data, 'permission denied')) {
+                        if(strtolower(substr($data, 0, 5)) !== 'bash:') {
                             $e = new BException(tr('ssh_exec(): Got access denied when trying to connect to server ":server"', array(':server' => $server['domain'])), $e);
                             $e->setCode('access-denied');
                             throw $e->makeWarning(true);
                         }
                     }
 
-                    if(str_exists($data, 'host key verification failed')){
+                    if(str_exists($data, 'host key verification failed')) {
                         $known = ssh_host_is_known($server['domain'], $server['port']);
 
-                        if(!$known){
+                        if(!$known) {
                             /*
                              * There are no fingerprints availabe in either the
                              * `ssh_fingerprints` table or known_hosts file
@@ -200,7 +200,7 @@ function ssh_exec($server, $params){
                             $e->setCode('host-verification-failed');
                             throw new CoreException(tr('ssh_exec(): The domain ":domain" has no fingerprints available in neither the known_hosts file nor `ssh_fingerprints`', array(':domain' => $server['domain'])), $e);
 
-                        }elseif(is_numeric($known)){
+                        } elseif(is_numeric($known)) {
                             /*
                              * There are no fingerprints availabe in the known_hosts
                              * file, but they were in the `ssh_fingerprints` table.
@@ -217,18 +217,18 @@ function ssh_exec($server, $params){
                     /*
                      * Check if SSH can connect to the specified server / port
                      */
-                    if(empty($not_check_inet) and isset($params['port'])){
+                    if(empty($not_check_inet) and isset($params['port'])) {
                         try{
                             load_libs('inet');
                             inet_test_host_port(array('host' => $server['domain'],
                                                       'port' => $server['port']));
 
-                        }catch(Exception $f){
+                        }catch(Exception $f) {
                             throw new CoreException(tr('ssh_exec(): inet_test_host_port() failed with ":e"', array(':e' => $f->getMessage())), $e);
                         }
                     }
 
-                }catch(BException $f){
+                }catch(BException $f) {
                     $f = new BException(tr('ssh_exec(): Failed to auto resolve ssh_exec() exception ":e"', array(':e' => $e)), $f);
                     notify($f);
                     throw  $f;
@@ -265,7 +265,7 @@ function ssh_exec($server, $params){
  * @params array options
  * @return string The connection string
  */
-function ssh_build_command($server, &$params){
+function ssh_build_command($server, &$params) {
     global $_CONFIG;
 
     try{
@@ -276,17 +276,17 @@ function ssh_build_command($server, &$params){
         /*
          * Validate minimum requirements
          */
-        if(empty($server['domain'])){
+        if(empty($server['domain'])) {
             throw new CoreException(tr('ssh_build_command(): No required domain specified'), 'not-specified');
         }
 
-        if(empty($server['username'])){
-            if(!$server['no_user_server']){
+        if(empty($server['username'])) {
+            if(!$server['no_user_server']) {
                 throw new CoreException(tr('ssh_build_command(): No required username specified'), 'not-specified');
             }
         }
 
-        if(empty($server['identity_file'])){
+        if(empty($server['identity_file'])) {
             throw new CoreException(tr('ssh_build_command(): No required identity_file specified'), 'not-specified');
         }
 
@@ -295,10 +295,10 @@ function ssh_build_command($server, &$params){
          */
         $params = array_merge_null($_CONFIG['ssh']['arguments'], $params);
 
-        if(empty($server['password'])){
+        if(empty($server['password'])) {
             $command = $params['ssh_command'].ssh_build_options(isset_get($params['options']));
 
-        }else{
+        } else {
             $command .= ' SSHPASS="$PASSWORD" sshpass -e '.$params['ssh_command'].ssh_build_options(isset_get($params['options']));
 showdie($command);
         }
@@ -306,7 +306,7 @@ showdie($command);
         /*
          * "tunnel" option requires (and automatically assumes) no_command, background, and remote_connect
          */
-        if(!empty($params['tunnel'])){
+        if(!empty($params['tunnel'])) {
 //            $params['goto_background'] = true;
             $params['background']      = true;
             $params['no_command']      = true;
@@ -316,14 +316,14 @@ showdie($command);
         /*
          * Check if ControlMasters are already running for this connection
          */
-        if(file_exists(ROOT.'data/run/ssh/'.$server['username'].'@'.$server['domain'].':'.$server['port'].(isset_get($params['tunnel']) ? 'T' : ''))){
+        if(file_exists(ROOT.'data/run/ssh/'.$server['username'].'@'.$server['domain'].':'.$server['port'].(isset_get($params['tunnel']) ? 'T' : ''))) {
             /*
              * A master is already  running, so this connection should NOT be a
              * master, just reuse the existing one
              */
             $master = 'no';
 
-        }else{
+        } else {
             /*
              * No master is running yet, so if a persistent connection was
              * requested, this has to be a master
@@ -334,8 +334,8 @@ showdie($command);
         /*
          * Process command parameters
          */
-        foreach($params as $parameter => &$value){
-            switch($parameter){
+        foreach($params as $parameter => &$value) {
+            switch($parameter) {
                 case 'options':
                     /*
                      * Options are processed in ssh_get_otions();
@@ -343,12 +343,12 @@ showdie($command);
                     break;
 
                 case 'log':
-                    if($value){
-                        if(!is_string($value)){
+                    if($value) {
+                        if(!is_string($value)) {
                             throw new CoreException(tr('ssh_build_command(): Specified option "log" requires string value containing the path to the identity file, but contains ":value"', array(':value' => $value)), 'invalid');
                         }
 
-                        if(!file_exists($value)){
+                        if(!file_exists($value)) {
                             throw new CoreException(tr('ssh_build_command(): Specified log file directory ":path" does not exist', array(':file' => dirname($value))), 'not-exists');
                         }
 
@@ -369,14 +369,14 @@ showdie($command);
                      * SSH in the background and immediately return command
                      * prompt, this does NOT work in PHP, it will hang instead!
                      */
-                    if($value){
+                    if($value) {
                         $command .= ' -f';
                     }
 
                     break;
 
                 case 'remote_connect':
-                    if($value){
+                    if($value) {
                         $command .= ' -g';
                     }
 
@@ -386,7 +386,7 @@ showdie($command);
                 //    /*
                 //     * Setup a reusable master connection
                 //     */
-                //    if($value){
+                //    if($value) {
                 //        $command .= ' -M';
                 //    }
                 //
@@ -397,7 +397,7 @@ showdie($command);
                      * Do not execute a command, this is useful to setup SSH
                      * tunnels, for example.
                      */
-                    if($value){
+                    if($value) {
                         $command .= ' -N';
                     }
 
@@ -418,28 +418,28 @@ showdie($command);
                     /*
                      * Validate variables
                      */
-                    if(!$value['persist'] and !empty($server['proxies'])){
+                    if(!$value['persist'] and !empty($server['proxies'])) {
                         throw new CoreException(tr('ssh_build_command(): A non persistent SSH tunnel with proxies was requested, but since SSH proxies will cause another SSH process with unknown PID, we will not be able to close them automatically. Use "persisten" for this tunnel or tunnel without proxies'), 'warning/invalid');
                     }
 
-                    if(!is_natural($value['source_port']) or ($value['source_port'] > 65535)){
-                        if(!$value['source_port']){
+                    if(!is_natural($value['source_port']) or ($value['source_port'] > 65535)) {
+                        if(!$value['source_port']) {
                             throw new CoreException(tr('ssh_build_command(): No source_port specified for parameter "tunnel". Value should be 1-65535'), 'invalid');
                         }
 
                         throw new CoreException(tr('ssh_build_command(): Invalid source_port specified for parameter "tunnel". Value should be 1-65535'), 'invalid');
                     }
 
-                    if(!is_natural($value['target_port']) or ($value['target_port'] > 65535)){
-                        if(!$value['target_port']){
+                    if(!is_natural($value['target_port']) or ($value['target_port'] > 65535)) {
+                        if(!$value['target_port']) {
                             throw new CoreException(tr('ssh_build_command(): No source_port specified for parameter "tunnel". Value should be 1-65535'), 'invalid');
                         }
 
                         throw new CoreException(tr('ssh_build_command(): Invalid target_port specified for parameter "tunnel". Value should be 1-65535'), 'invalid');
                     }
 
-                    if(!is_scalar($value['target_domain']) or (strlen($value['target_domain']) < 1) or (strlen($value['target_domain']) > 253)){
-                        if(!$value['target_domain']){
+                    if(!is_scalar($value['target_domain']) or (strlen($value['target_domain']) < 1) or (strlen($value['target_domain']) > 253)) {
+                        if(!$value['target_domain']) {
                             throw new CoreException(tr('ssh_build_command(): No target_domain specified for parameter "tunnel". Value should be the target hosts FQDN, IP, localhost, or host defined in the /etc/hosts of the target machine'), 'invalid');
                         }
 
@@ -453,15 +453,15 @@ showdie($command);
                     break;
 
                 case 'force_terminal':
-                    if($value){
+                    if($value) {
                         $command .= ' -t';
                     }
 
                     break;
 
                 case 'disable_terminal':
-                    if($value){
-                        if(!empty($server['force_terminal'])){
+                    if($value) {
+                        if(!empty($server['force_terminal'])) {
                             throw new CoreException(tr('ssh_build_command(): Both "force_terminal" and "disable_terminal" were specified. These options are mutually exclusive, please use only one or the other'), 'invalid');
                         }
 
@@ -485,14 +485,14 @@ showdie($command);
         /*
          * Process server specific parameters
          */
-        if($server['port']){
-            if(!is_numeric($server['port']) or ($server['port'] < 1) or ($server['port'] > 65535)){
-                if($server['port'] !== ':proxy_port'){
+        if($server['port']) {
+            if(!is_numeric($server['port']) or ($server['port'] < 1) or ($server['port'] > 65535)) {
+                if($server['port'] !== ':proxy_port') {
                     throw new CoreException(tr('ssh_build_command(): Specified port natural numeric value between 1 - 65535, but ":value" was specified', array(':value' => $server['port'])), 'invalid');
                 }
             }
 
-            switch($params['ssh_command']){
+            switch($params['ssh_command']) {
                 case 'ssh':
                     // FALLTHROUGH
                 case 'autossh':
@@ -510,16 +510,16 @@ showdie($command);
             }
         }
 
-        if($server['identity_file']){
+        if($server['identity_file']) {
             /*
              * Use the specified identity_file for the SSH connection
              */
-            if($server['identity_file']){
-                if(!is_string($server['identity_file'])){
+            if($server['identity_file']) {
+                if(!is_string($server['identity_file'])) {
                     throw new CoreException(tr('ssh_build_command(): Specified option "identity_file" requires string value containing the path to the identity file, but contains ":value"', array(':value' => $server['identity_file'])), 'invalid');
                 }
 
-                if(!file_exists($server['identity_file'])){
+                if(!file_exists($server['identity_file'])) {
                     throw new CoreException(tr('ssh_build_command(): Specified identity file ":file" does not exist', array(':file' => $server['identity_file'])), 'not-exists');
                 }
 
@@ -527,7 +527,7 @@ showdie($command);
             }
         }
 
-        if(isset_get($server['proxies'])){
+        if(isset_get($server['proxies'])) {
             /*
              * Configure connection to pass over one or multiple
              * proxies. Each proxy can require a different SSH port
@@ -543,13 +543,13 @@ showdie($command);
              * ssh command line ProxyCommand example: -o ProxyCommand="ssh -p  -o ProxyCommand=\"ssh -p  40220 s1.s.ingiga.com nc s2.s.ingiga.com 40220\"  40220 s2.s.ingiga.com nc s3.s.ingiga.com 40220"
              * To connect to this server, one must pass through a number of SSH proxies
              */
-            if($proxies === ':proxy_template'){
+            if($proxies === ':proxy_template') {
                 /*
                  * We're building a proxy_template command, which itself as proxy template has just the string ":proxy_template"
                  */
                 $command .= ' :proxy_template';
 
-            }else{
+            } else {
                 $template             = $server;
                 $template['domain']   = ':proxy_host';
                 $template['port']     = ':proxy_port';
@@ -564,10 +564,10 @@ showdie($command);
                 $target_server  = $server['domain'];
                 $target_port    = $server['port'];
 
-                foreach($proxies as $id => $proxy){
+                foreach($proxies as $id => $proxy) {
                     $proxy_string = $proxy_template;
 
-                    for($escape = 0; $escape < $escapes; $escape++){
+                    for($escape = 0; $escape < $escapes; $escape++) {
                         $proxy_string = addcslashes($proxy_string, '"\\');
                     }
 
@@ -607,15 +607,15 @@ showdie($command);
         /*
          * Add the user@server, if allowed
          */
-        if(!$params['no_user_server']){
+        if(!$params['no_user_server']) {
             $command .= ' "'.$server['username'].'@'.$server['domain'].'"';
         }
 
-        if(isset_get($params['commands'])){
+        if(isset_get($params['commands'])) {
             $command .= ' "'.$params['commands'].'"';
         }
 
-        if(isset_get($params['background'])){
+        if(isset_get($params['background'])) {
             /*
              * Background commands do STDOUT to /dev/null to ensure PHP won't
              * hang waiting for output even on background
@@ -625,7 +625,7 @@ showdie($command);
 
         return $command;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_build_command(): Failed', $e);
     }
 }
@@ -644,18 +644,18 @@ showdie($command);
  * @param array $options The SSH options to be used to build the options string
  * @return array The validated parameter data
  */
-function ssh_build_options($options = null){
+function ssh_build_options($options = null) {
     global $_CONFIG;
 
     try{
         /*
          * Get options from  default configuration and specified options
          */
-        if($options){
+        if($options) {
             $string  = '';
             $options = array_merge($_CONFIG['ssh']['options'], $options);
 
-        }else{
+        } else {
             $string  = '';
             $options = $_CONFIG['ssh']['options'];
         }
@@ -663,8 +663,8 @@ function ssh_build_options($options = null){
         /*
          * Easy short cut to disable strict host key checks
          */
-        if(isset($options['check_hostkey'])){
-            if(!$options['check_hostkey']){
+        if(isset($options['check_hostkey'])) {
+            if(!$options['check_hostkey']) {
                 $options['check_host_ip']            = false;
                 $options['strict_host_key_checking'] = false;
             }
@@ -675,12 +675,12 @@ function ssh_build_options($options = null){
         /*
          * The known_hosts file for this user defaults to ROOT/data/ss/known_hosts
          */
-        if(empty($options['user_known_hosts_file'])){
+        if(empty($options['user_known_hosts_file'])) {
             $string .= ' -o UserKnownHostsFile="'.ROOT.'data/ssh/known_hosts"';
 
-        }else{
-            if($value){
-                if(!is_string($value)){
+        } else {
+            if($value) {
+                if(!is_string($value)) {
                     throw new CoreException(tr('ssh_get_conect_string(): Specified option "user_known_hosts_file" requires a string value, but ":value" was specified', array(':value' => $value)), 'invalid');
                 }
 
@@ -693,11 +693,11 @@ function ssh_build_options($options = null){
         /*
          * Validate and apply each option
          */
-        foreach($options as $option => $value){
-            switch($option){
+        foreach($options as $option => $value) {
+            switch($option) {
                 case 'connect_timeout':
-                    if($value){
-                        if(!is_numeric($value)){
+                    if($value) {
+                        if(!is_numeric($value)) {
                             throw new CoreException(tr('ssh_get_conect_string(): Specified option "connect_timeout" requires a numeric value, but ":value" was specified', array(':value' => $value)), 'invalid');
                         }
 
@@ -707,7 +707,7 @@ function ssh_build_options($options = null){
                     break;
 
                 case 'check_host_ip':
-                    if(!is_bool($value)){
+                    if(!is_bool($value)) {
                         throw new CoreException(tr('ssh_get_conect_string(): Specified option "check_host_ip" requires a boolean value, but ":value" was specified', array(':value' => $value)), 'invalid');
                     }
 
@@ -715,7 +715,7 @@ function ssh_build_options($options = null){
                     break;
 
                 case 'strict_host_key_checking':
-                    if(!is_bool($value)){
+                    if(!is_bool($value)) {
                         throw new CoreException(tr('ssh_get_conect_string(): Specified option "strict_host_key_checking" requires a boolean value, but ":value" was specified', array(':value' => $value)), 'invalid');
                     }
 
@@ -729,7 +729,7 @@ function ssh_build_options($options = null){
 
         return $string;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_build_options(): Failed', $e);
     }
 }
@@ -747,17 +747,17 @@ function ssh_build_options($options = null){
 // *
 // * @param
 // */
-//function ssh_start_control_master($server, $socket = null){
+//function ssh_start_control_master($server, $socket = null) {
 //    global $_CONFIG;
 //
 //    try{
 //        file_ensure_path(TMP);
 //
-//        if(!$socket){
+//        if(!$socket) {
 //            $socket = file_temp();
 //        }
 //
-//        if(ssh_get_control_master($socket)){
+//        if(ssh_get_control_master($socket)) {
 //            return $socket;
 //        }
 //
@@ -769,7 +769,7 @@ function ssh_build_options($options = null){
 //
 //        return $socket;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('ssh_start_control_master(): Failed', $e);
 //    }
 //}
@@ -787,7 +787,7 @@ function ssh_build_options($options = null){
 // *
 // * @param
 // */
-//function ssh_get_control_master($socket = null){
+//function ssh_get_control_master($socket = null) {
 //    global $_CONFIG;
 //
 //    try{
@@ -801,7 +801,7 @@ function ssh_build_options($options = null){
 //
 //        return $pid;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('ssh_get_control_master(): Failed', $e);
 //    }
 //}
@@ -819,19 +819,19 @@ function ssh_build_options($options = null){
 // *
 // * @param
 // */
-//function ssh_stop_control_master($socket = null){
+//function ssh_stop_control_master($socket = null) {
 //    global $_CONFIG;
 //
 //    try{
 //        $pid = ssh_get_control_master($socket);
 //
-//        if(!posix_kill($pid, 15)){
+//        if(!posix_kill($pid, 15)) {
 //            return posix_kill($pid, 9);
 //        }
 //
 //        return true;
 //
-//    }catch(Exception $e){
+//    }catch(Exception $e) {
 //        throw new CoreException('ssh_stop_control_master(): Failed', $e);
 //    }
 //}
@@ -853,7 +853,7 @@ function ssh_build_options($options = null){
  * @param params $account The ssh account to be added
  * @return array The specified $account, validated and sanitized with the accounts id added
  */
-function ssh_insert_account($account){
+function ssh_insert_account($account) {
     try{
         $account = ssh_validate_account($account);
 
@@ -874,7 +874,7 @@ function ssh_insert_account($account){
 
         return $account;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_insert_account(): Failed', $e);
     }
 }
@@ -896,7 +896,7 @@ function ssh_insert_account($account){
  * @param params $account The ssh account to be added
  * @return array The specified $account, validated and sanitized
  */
-function ssh_update_account($account){
+function ssh_update_account($account) {
     try{
         $account = ssh_validate_account($account);
 
@@ -921,7 +921,7 @@ function ssh_update_account($account){
 
         return $account;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('template_function(): Failed', $e);
     }
 }
@@ -942,7 +942,7 @@ function ssh_update_account($account){
  * @param array $account
  * @return array the specified $account array validated and clean
  */
-function ssh_validate_account($account){
+function ssh_validate_account($account) {
     try{
         load_libs('validate,seo');
 
@@ -960,7 +960,7 @@ function ssh_validate_account($account){
         $v->isNotEmpty ($account['description'], tr('No description specified'));
         $v->hasMinChars($account['description'], 2, tr('Please ensure the description has at least 2 characters'));
 
-        if(is_numeric(substr($account['name'], 0, 1))){
+        if(is_numeric(substr($account['name'], 0, 1))) {
             $v->setError(tr('Please ensure that the account name does not start with a number'));
         }
 
@@ -968,7 +968,7 @@ function ssh_validate_account($account){
 
         $exists = sql_get('SELECT `id` FROM `ssh_accounts` WHERE (`name` = :name OR `username` = :username) AND `id` != :id LIMIT 1', true, array(':name' => $account['name'], ':username' => $account['username'], ':id' => isset_get($account['id'], 0)), 'core');
 
-        if($exists){
+        if($exists) {
             $v->setError(tr('An SSH account with the username ":username" or name ":name" already exists', array(':name' => $account['name'], ':username' => $account['username'])));
         }
 
@@ -978,7 +978,7 @@ function ssh_validate_account($account){
 
         return $account;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('ssh_validate_account(): Failed'), $e);
     }
 }
@@ -997,14 +997,14 @@ function ssh_validate_account($account){
  * @param natural $accounts_id The table ID for the account
  * @return array The account data for the specified $accounts_id
  */
-function ssh_get_account($account){
+function ssh_get_account($account) {
     try{
-        if(!$account){
+        if(!$account) {
             throw new CoreException(tr('ssh_get_account(): No accounts id specified'), 'not-specified');
         }
 
-        if(!is_numeric($account)){
-            if(!is_string($account)){
+        if(!is_numeric($account)) {
+            if(!is_string($account)) {
                 throw new CoreException(tr('ssh_get_account(): Specified account ":account" should be either a numeric accounts id or an accounts name string', array(':account' => $account)), 'invalid');
             }
 
@@ -1016,7 +1016,7 @@ function ssh_get_account($account){
                              ':seoname'  => $account,
                              ':username' => $account);
 
-        }else{
+        } else {
             $where   = ' WHERE `ssh_accounts`.`id` = :id';
             $execute = array(':id' => $account);
         }
@@ -1042,7 +1042,7 @@ function ssh_get_account($account){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_get_account(): Failed', $e);
     }
 }
@@ -1063,13 +1063,13 @@ function ssh_get_account($account){
  * @param string $domain
  * @param natural $port
  */
-function ssh_add_known_host($domain, $port){
+function ssh_add_known_host($domain, $port) {
     try{
         $port         = ssh_get_port($port);
         $fingerprints = ssh_get_fingerprints($domain, $port);
         $count        = 0;
 
-        if(empty($fingerprints)){
+        if(empty($fingerprints)) {
             throw new CoreException(tr('ssh_add_known_host(): ssh-keyscan found no public keys for domain ":domain"', array(':domain' => $domain)), 'not-exists');
         }
 
@@ -1079,7 +1079,7 @@ function ssh_add_known_host($domain, $port){
         try{
             $server = servers_get($domain, false, false, true);
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             $server = array('id' => null);
         }
 
@@ -1088,24 +1088,24 @@ function ssh_add_known_host($domain, $port){
          */
         $dbfingerprints = sql_list('SELECT `fingerprint`, `algorithm` FROM `ssh_fingerprints` WHERE `domain` = :domain AND `port` = :port', array(':domain' => $domain, ':port' => $port));
 
-        if($dbfingerprints){
+        if($dbfingerprints) {
             /*
              * This host is already registered in the ssh_fingerprints table. We
              * should be able to find all its fingerprints
              */
-            foreach($fingerprints as $fingerprint){
+            foreach($fingerprints as $fingerprint) {
                 $exists = array_key_exists($fingerprint['fingerprint'], $dbfingerprints);
 
-                if(!$exists){
+                if(!$exists) {
                     throw new CoreException(tr('ssh_add_known_host(): The domain ":domain" gave fingerprint ":fingerprint", which does not match any of the already registered fingerprints', array(':domain' => $fingerprint['domain'], ':fingerprint' => $fingerprint['fingerprint'])), 'not-exists');
                 }
 
-                if($dbfingerprints[$fingerprint['fingerprint']] != $fingerprint['algorithm']){
+                if($dbfingerprints[$fingerprint['fingerprint']] != $fingerprint['algorithm']) {
                     throw new CoreException(tr('ssh_add_known_host(): The domain ":domain" gave fingerprint ":fingerprint", which does match an already registered fingerprints, but for the wrong algorithm ":algorithm"', array(':domain' => $fingerprint['domain'], ':fingerprint' => $fingerprint['fingerprint'], ':algorithm' => $fingerprint['algorithm'])), 'not-match');
                 }
             }
 
-        }else{
+        } else {
             /*
              * This host is not yet registered in the ssh_fingerprints table.
              * Regiser its fingerprints now.
@@ -1114,7 +1114,7 @@ function ssh_add_known_host($domain, $port){
                                    VALUES                         (:createdby , :meta_id , :servers_id , :domain , :seodomain , :port , :fingerprint , :algorithm )');
 
 
-            foreach($fingerprints as $fingerprint){
+            foreach($fingerprints as $fingerprint) {
                 $insert->execute(array(':createdby'   => isset_get($_SESSION['user']['id']),
                                        ':meta_id'     => meta_action(),
                                        'servers_id'   => $server['id'],
@@ -1125,10 +1125,10 @@ function ssh_add_known_host($domain, $port){
                                        ':algorithm'   => $fingerprint['algorithm']));
             }
 
-            if($server['id']){
+            if($server['id']) {
                 log_console(tr('Added ":count" fingerprints for registered domain ":domain" with servers id ":id"', array(':count' => count($fingerprints), ':domain' => $domain, ':id' => $server['id'])));
 
-            }else{
+            } else {
                 log_console(tr('Added ":count" fingerprints for unregistered domain ":domain"', array(':count' => count($fingerprints), ':domain' => $domain)));
             }
         }
@@ -1136,8 +1136,8 @@ function ssh_add_known_host($domain, $port){
         /*
          * Now add them to the known_hosts file
          */
-        foreach($fingerprints as $fingerprint){
-            if(ssh_append_fingerprint($fingerprint)){
+        foreach($fingerprints as $fingerprint) {
+            if(ssh_append_fingerprint($fingerprint)) {
                 $count++;
             }
         }
@@ -1146,7 +1146,7 @@ function ssh_add_known_host($domain, $port){
         sql_query('UPDATE `servers` SET `status` = NULL WHERE `domain` = :domain', array(':domain' => $domain));
         return $count;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_add_known_host(): Failed', $e);
     }
 }
@@ -1168,22 +1168,22 @@ function ssh_add_known_host($domain, $port){
  * @param natural $port
  * @return natural The amount of fingerprints removed
  */
-function ssh_remove_known_host($domain, $port = null){
+function ssh_remove_known_host($domain, $port = null) {
     try{
-        if(empty($domain)){
+        if(empty($domain)) {
             throw new CoreException(tr('ssh_remove_known_host(): No domain specified'), 'not-specified');
         }
 
         $count = 0;
 
-        if($port){
+        if($port) {
             /*
              * Delete only the specified domain and port combination
              */
             $port = ssh_get_port($port);
             sql_query('DELETE FROM `ssh_fingerprints` WHERE `domain` = :domain AND `port` = :port', array(':domain' => $domain, ':port' => $port));
 
-        }else{
+        } else {
             /*
              * Delete everything for the specified domain
              */
@@ -1199,18 +1199,18 @@ function ssh_remove_known_host($domain, $port = null){
         $f1 = fopen(ROOT.'data/ssh/known_hosts'       , 'r');
         $f2 = fopen(ROOT.'data/ssh/known_hosts~update', 'w+');
 
-        while($line = fgets($f1)){
-            if($port){
+        while($line = fgets($f1)) {
+            if($port) {
                 $found = preg_match('/^\['.$domain.'\]\:'.$port.'\s+/', $line);
 
-            }else{
+            } else {
                 $found = preg_match('/^\['.$domain.'\]/', $line);
             }
 
-            if(!$found){
+            if(!$found) {
                 fputs($f2, $line);
 
-            }else{
+            } else {
                 $count++;
             }
         }
@@ -1226,15 +1226,15 @@ function ssh_remove_known_host($domain, $port = null){
 
         return $count;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         /*
          * Close the files
          */
-        if(isset($f1)){
+        if(isset($f1)) {
             fclose($f1);
         }
 
-        if(isset($f2)){
+        if(isset($f2)) {
             fclose($f2);
         }
 
@@ -1262,14 +1262,14 @@ function ssh_remove_known_host($domain, $port = null){
  * @params natural fingerprint
  * @return boolean
  */
-function ssh_append_fingerprint($fingerprint){
+function ssh_append_fingerprint($fingerprint) {
     try{
         file_ensure_file(ROOT.'data/ssh/known_hosts', 0640, 0750);
 
         $exists = safe_exec(array('ok_exitcodes' => '0,1',
                                   'commands'     => array('grep', array('"\['.$fingerprint['domain'].'\]:'.$fingerprint['port'].' '.$fingerprint['algorithm'].' '.$fingerprint['fingerprint'].'"', ROOT.'data/ssh/known_hosts'))));
 
-        if($exists){
+        if($exists) {
             log_console(tr('Skipping fingerprint ":fingerprint" for domain ":domain", it already exists in known_hosts', array(':fingerprint' => $fingerprint['fingerprint'], ':domain' => $fingerprint['domain'])), 'VERYVERBOSE');
             return false;
         }
@@ -1278,7 +1278,7 @@ function ssh_append_fingerprint($fingerprint){
         file_put_contents(ROOT.'data/ssh/known_hosts', '['.$fingerprint['domain'].']:'.$fingerprint['port'].' '.$fingerprint['algorithm'].' '.$fingerprint['fingerprint']."\n", FILE_APPEND);
         return true;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_append_fingerprint(): Failed', $e);
     }
 }
@@ -1302,9 +1302,9 @@ function ssh_append_fingerprint($fingerprint){
  * @param natural $port
  * @return array The found fingerprints for the specified domain and port
  */
-function ssh_get_fingerprints($domain, $port){
+function ssh_get_fingerprints($domain, $port) {
     try{
-        if(empty($domain)){
+        if(empty($domain)) {
             throw new CoreException(tr('ssh_get_fingerprints(): No domain specified'), 'not-specified');
         }
 
@@ -1314,7 +1314,7 @@ function ssh_get_fingerprints($domain, $port){
         $retval  = array();
         $results = safe_exec(array('commands' => array('ssh-keyscan', array('-p', $port, $domain))));
 
-        foreach($results as $result){
+        foreach($results as $result) {
             if(substr($result, 0, 1) === '#') continue;
 
             preg_match_all('/\[(.+?)\](?:\:(\d{1,5}))\s+([a-z0-9-]+)\s+([a-z0-9+\/]+)/i', $result, $matches);
@@ -1327,8 +1327,8 @@ function ssh_get_fingerprints($domain, $port){
             /*
              * Validate domain format
              */
-            if(!filter_var($entry['domain'], FILTER_VALIDATE_DOMAIN)){
-                if(!filter_var($entry['domain'], FILTER_VALIDATE_IP)){
+            if(!filter_var($entry['domain'], FILTER_VALIDATE_DOMAIN)) {
+                if(!filter_var($entry['domain'], FILTER_VALIDATE_IP)) {
                     throw new CoreException(tr('ssh_get_fingerprints(): ssh-keyscan returned invalid domain name ":domain"', array(':domain' => $entry['domain'])), '');
                 }
             }
@@ -1338,7 +1338,7 @@ function ssh_get_fingerprints($domain, $port){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_get_fingerprints(): Failed', $e);
     }
 }
@@ -1359,9 +1359,9 @@ function ssh_get_fingerprints($domain, $port){
  *
  * @return natural The amount of finger prints added to the known_hosts file
  */
-function ssh_rebuild_known_hosts($clear = false){
+function ssh_rebuild_known_hosts($clear = false) {
     try{
-        if($clear){
+        if($clear) {
             /*
              * Clear the SSH known hosts file
              */
@@ -1374,15 +1374,15 @@ function ssh_rebuild_known_hosts($clear = false){
         $count        = 0;
         $fingerprints = sql_query('SELECT `id`, `domain`, `port`, `algorithm`, `fingerprint` FROM `ssh_fingerprints` WHERE `status` IS NULL');
 
-        while($fingerprint = sql_fetch($fingerprints)){
-            if(ssh_append_fingerprint($fingerprint)){
+        while($fingerprint = sql_fetch($fingerprints)) {
+            if(ssh_append_fingerprint($fingerprint)) {
                 $count++;
             }
         }
 
         return $count;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_rebuild_known_hosts(): Failed', $e);
     }
 }
@@ -1405,7 +1405,7 @@ function ssh_rebuild_known_hosts($clear = false){
  * @params boolean $auto_register If set to true, if the domain is not specified in the ROOT/data/ssh/known_hosts file but is available in the ssh_fingerprints table, then the function will automatically add the fingerprints to the ROOT/data/ssh/known_hosts file
  * @return boolean True if the specified domain:port is registered in the ROOT/data/ssh/known_hosts file
  */
-function ssh_host_is_known($domain, $port, $auto_register = true){
+function ssh_host_is_known($domain, $port, $auto_register = true) {
     try{
         file_ensure_file(ROOT.'data/ssh/known_hosts', 0640, 0750);
 
@@ -1415,14 +1415,14 @@ function ssh_host_is_known($domain, $port, $auto_register = true){
                                                           'wc'  , array('-l'))));
         $file_count = array_shift($file_count);
 
-        if($file_count){
+        if($file_count) {
             /*
              * Fingerprints are avaialble in the known_hosts file
              */
             return true;
         }
 
-        if(!$db_count or !$auto_register){
+        if(!$db_count or !$auto_register) {
             /*
              * No fingerprints available at all, or we cannot auto register
              */
@@ -1436,7 +1436,7 @@ function ssh_host_is_known($domain, $port, $auto_register = true){
         log_console(tr('The host ":domain::port" has no SSH key fingerprint in the ROOT/data/ssh/known_hosts file, but the keys were found in the ssh_fingerprints table. Adding fingerprints now.', array(':domain' => $domain, ':port' => $port)), 'yellow');
         return ssh_add_known_host($domain, $port);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_host_is_known(): Failed', $e);
     }
 }
@@ -1462,7 +1462,7 @@ function ssh_host_is_known($domain, $port, $auto_register = true){
  * @param boolean $reuse If set to true, ssh_tunnel() will first check if a tunnel with the requested configuration already exists. If it does, no new tunnel will be created and the PID for the already existing tunnel will be returned instead
  * @return natural The process id of the created (or reused) SSH tunnel.
  */
-function ssh_tunnel($params, $reuse = true){
+function ssh_tunnel($params, $reuse = true) {
     try{
         array_ensure ($params, 'domain,source_port,target_port,target_domain,persist,server');
         array_default($params, 'tunnel'     , 'localhost');
@@ -1476,14 +1476,14 @@ function ssh_tunnel($params, $reuse = true){
          * Is a tunnel with the requested configuration already available? If
          * so, use that, don't make a new one!
          */
-        if($reuse){
+        if($reuse) {
             $exists = ssh_tunnel_exists($params['domain'], $params['target_port'], $params['target_domain'], $params['server']);
 
-            if($exists){
-                if($params['source_port'] === $exists['source_port']){
+            if($exists) {
+                if($params['source_port'] === $exists['source_port']) {
                     log_console(tr('Found pre-existing SSH tunnel for requested configuration ":source_port::target_domain::target_port" with pid ":pid" on the requested source port, not creating a new one', array(':source_port' => $params['source_port'], ':target_domain' => $params['target_domain'], ':target_port' => $params['target_port'], ':pid' => $exists['pid'])), 'VERBOSE/green');
 
-                }else{
+                } else {
                     log_console(tr('Found pre-existing SSH tunnel for requested configuration ":source_port::target_domain::target_port" with pid ":pid" on different source port ":different_port", not creating a new one', array(':source_port' => $params['source_port'], ':target_domain' => $params['target_domain'], ':target_port' => $params['target_port'], ':pid' => $exists['pid'], ':different_port' => $exists['source_port'])), 'VERBOSE/green');
                 }
 
@@ -1491,15 +1491,15 @@ function ssh_tunnel($params, $reuse = true){
             }
         }
 
-        if($params['source_port']){
+        if($params['source_port']) {
             /*
              * Ensure port is available.
              */
-            if(!inet_port_available($params['source_port'], '127.0.0.1', $params['server'])){
+            if(!inet_port_available($params['source_port'], '127.0.0.1', $params['server'])) {
                 throw new CoreException(tr('ssh_tunnel(): Source port ":port" is already in use', array(':port' => $params['source_port'])), 'not-available');
             }
 
-        }else{
+        } else {
             /*
              * Ensure Assign a random local port
              */
@@ -1525,15 +1525,15 @@ function ssh_tunnel($params, $reuse = true){
          * This is a blocking section, we will NOT continue until the tunnel is
          * availabe
          */
-        if(!$params['test_tries']){
+        if(!$params['test_tries']) {
             log_console(tr('Not confirming SSH tunnel existence due to "tries" set to 0. Waiting 1 second instead to ensure tunnel has had time to be created'), 'warning');
             usleep(1000000);
 
-        }else{
+        } else {
             log_console(tr('Confirming SSH tunnel existence by testing tunnel in ":count" tries', array(':count' => $params['test_tries'])), 'VERBOSE/cyan');
             $tries = $params['test_tries'];
 
-            while(--$tries > 0){
+            while(--$tries > 0) {
                 usleep(100000);
 
                 /*
@@ -1543,13 +1543,13 @@ function ssh_tunnel($params, $reuse = true){
                                                     'port'   => $params['tunnel']['source_port'],
                                                     'server' => $params['server']));
 
-                if($exists){
+                if($exists) {
                     log_console(tr('SSH tunnel confirmed working'), 'VERBOSE/green');
                     break;
                 }
             }
 
-            if($tries <= 0){
+            if($tries <= 0) {
                 /*
                  * Tunnel either failed to build, or no target was listening
                  */
@@ -1560,7 +1560,7 @@ function ssh_tunnel($params, $reuse = true){
         return array('pid'         => $pid,
                      'source_port' => $params['tunnel']['source_port']);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_tunnel(): Failed', $e);
     }
 }
@@ -1581,21 +1581,21 @@ function ssh_tunnel($params, $reuse = true){
  * @param numeric $target_domain
  * @return array Resulting array either is null, or an arry containing the pid (process id) and source_port of the found tunnel
  */
-function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server = null){
+function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server = null) {
     global $core;
 
     try{
         load_libs('linux');
 
-        if(!$target_domain){
+        if(!$target_domain) {
             $target_domain = 'localhost';
         }
 
         $results   = array();
         $processes = cli_list_processes('ssh,-L');
 
-        foreach($processes as $pid => $process){
-            if(!preg_match_all('/(\d+)(\:.+?\:\d+)/', $process, $matches)){
+        foreach($processes as $pid => $process) {
+            if(!preg_match_all('/(\d+)(\:.+?\:\d+)/', $process, $matches)) {
                 /*
                  * Failed to identify the tunnel configuration
                  */
@@ -1607,13 +1607,13 @@ function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server
             $process_source_port   = isset_get($matches[1][0]);
             $process_configuration = isset_get($matches[2][0]);
 
-            if($process_domain === $domain){
+            if($process_domain === $domain) {
                 /*
                  * Target server matches, check tunnel configuration
                  * In case of 127.0.0.1 or localhost, check for both alternatives
                  */
 // :TODO: Check if maybe in the future we should check all possible domain names and IP's
-                switch($target_domain){
+                switch($target_domain) {
                     case 'localhost':
                         $alt_domain = '127.0.0.1';
                         break;
@@ -1623,13 +1623,13 @@ function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server
                         break;
                 }
 
-                if(($process_configuration === (':'.$target_domain.':'.$target_port)) or ($process_configuration === (':'.$alt_domain.':'.$target_port))){
+                if(($process_configuration === (':'.$target_domain.':'.$target_port)) or ($process_configuration === (':'.$alt_domain.':'.$target_port))) {
                     $results[$pid] = $process_source_port;
                 }
             }
         }
 
-        switch(count($results)){
+        switch(count($results)) {
             case 0:
                 /*
                  * No tunnel with the requeste configuration found
@@ -1648,7 +1648,7 @@ function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server
                                                          'port'   => $source_port,
                                                          'server' => $server));
 
-                if($works){
+                if($works) {
                     /*
                      * This tunnel works, yay!
                      */
@@ -1677,7 +1677,7 @@ function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server
                 return array_random_value($pids);
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_tunnel_exists(): Failed', $e);
     }
 }
@@ -1696,17 +1696,17 @@ function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server
  * @param numeric $pid
  * @return void
  */
-function ssh_close_tunnel($pid){
+function ssh_close_tunnel($pid) {
     global $core;
 
     try{
         /*
          * Ensure that the PID for this tunnel is no longer on the shutdown list
          */
-        if(isset($core->register['shutdown_ssh_close_tunnel'])){
-            if(is_array($core->register['shutdown_ssh_close_tunnel'])){
-                foreach($core->register['shutdown_ssh_close_tunnel'] as $key => $registered_pid){
-                    if($pid == $registered_pid){
+        if(isset($core->register['shutdown_ssh_close_tunnel'])) {
+            if(is_array($core->register['shutdown_ssh_close_tunnel'])) {
+                foreach($core->register['shutdown_ssh_close_tunnel'] as $key => $registered_pid) {
+                    if($pid == $registered_pid) {
                         unset($core->register['shutdown_ssh_close_tunnel'][$key]);
                     }
                 }
@@ -1716,7 +1716,7 @@ function ssh_close_tunnel($pid){
         load_libs('cli');
         cli_kill($pid);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_close_tunnel(): Failed', $e);
     }
 }
@@ -1735,25 +1735,25 @@ function ssh_close_tunnel($pid){
  * @param natural $port
  * @return natural If the specified port was not empty, it will be returned. If the specified port was empty, the default port configuration will be returned
  */
-function ssh_get_port($port = null){
+function ssh_get_port($port = null) {
     global $_CONFIG;
 
     try{
-        if($port){
-            if(!is_natural($port) or ($port > 65535)){
+        if($port) {
+            if(!is_natural($port) or ($port > 65535)) {
               throw new CoreException(tr('ssh_get_port(): No port specified'), 'not-specified');
           }
 
           return $port;
         }
 
-        if($_CONFIG['servers']['ssh']['default_port']){
+        if($_CONFIG['servers']['ssh']['default_port']) {
             return $_CONFIG['servers']['ssh']['default_port'];
         }
 
         return 22;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_get_port(): Failed', $e);
     }
 }
@@ -1772,7 +1772,7 @@ function ssh_get_port($port = null){
  * @param string $socket The socket file
  * @return natural the PID for the specified socket file
  */
-function ssh_persistent_pid($socket){
+function ssh_persistent_pid($socket) {
     try{
         $results = ssh_exec(array('commands' => array('ssh', array('-O', 'check', 'foobar', '-o', 'controlpath="'.$socket.'"'))));
         $result  = array_shift($results);
@@ -1780,7 +1780,7 @@ function ssh_persistent_pid($socket){
 
         return $result;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_persistent_pid(): Failed', $e);
     }
 }
@@ -1801,22 +1801,22 @@ function ssh_persistent_pid($socket){
  *
  * @return array The list of all persisten SSH connections
  */
-function ssh_list_persistent($close = false){
+function ssh_list_persistent($close = false) {
     try{
         $retval = array();
 
-        foreach(scandir(ROOT.'data/ssh/control') as $socket){
+        foreach(scandir(ROOT.'data/ssh/control') as $socket) {
             $pid          = ssh_persistent_pid($socket);
             $retval[$pid] = $socket;
 
-            if($close){
+            if($close) {
                 cli_kill($pid);
             }
         }
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ssh_list_persistent(): Failed', $e);
     }
 }

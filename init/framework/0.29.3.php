@@ -6,7 +6,7 @@ $tables = array('html_img',
                 'blogs_posts',
                 'curl_cache');
 
-foreach($tables as $table){
+foreach($tables as $table) {
     sql_index_exists($table, 'url',  'ALTER TABLE `'.$table.'` DROP INDEX `url`');
     sql_query('ALTER TABLE `'.$table.'` ADD INDEX (`url`)');
 }

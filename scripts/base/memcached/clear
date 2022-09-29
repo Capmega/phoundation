@@ -6,8 +6,8 @@
 require_once(__DIR__.'/../../../libs/startup.php');
 
 try{
-    if(!memcached_connect()){
-        if($_CONFIG['memcached']){
+    if(!memcached_connect()) {
+        if($_CONFIG['memcached']) {
             throw new CoreException('Could not connect to any of the configured memcached servers', 'failed');
         }
 
@@ -17,7 +17,7 @@ try{
     $GLOBALS['memcached']->flush(cli_argument('delay', true, 0));
     log_console('Finished clearing all objects in memcached with a delay of "'.cli_argument('delay', true, 0).'" seconds', 'finished', 'white');
 
-}catch(Exception $e){
+}catch(Exception $e) {
     throw new CoreException('scripts/memcached/clear: Failed', $e);
 }
 ?>

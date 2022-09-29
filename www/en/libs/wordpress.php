@@ -25,26 +25,26 @@
  *
  * @return array an associative array containing a cURL object.
  */
-function wp_admin_signin($params){
+function wp_admin_signin($params) {
     try{
         array_ensure($params);
         array_default($params, 'rememberme', true);                      // Check the "remember me" box in the admin login screen
         array_default($params, 'simulation', false);                     // false, partial, or full. "partial" will sign in, but not really post, full will not sign in and not post at all. False will just sign in and post normally.
         array_default($params, 'redirect'  , isset_get($params['url'])); //
 
-        if(empty($params['url'])){
+        if(empty($params['url'])) {
             throw new CoreException('wp_signin_admin(): No URL specified', 'not-specified');
         }
 
-        if(strpos($params['url'], 'wp-admin') !== false){
+        if(strpos($params['url'], 'wp-admin') !== false) {
             throw new CoreException('wp_signin_admin(): The specified URL contains "wp-admin" section. Please specify the URL without this part', 'not-specified');
         }
 
-        if(empty($params['username'])){
+        if(empty($params['username'])) {
             throw new CoreException('wp_signin_admin(): No username specified', 'not-specified');
         }
 
-        if(empty($params['password'])){
+        if(empty($params['password'])) {
             throw new CoreException('wp_signin_admin(): No password specified', 'not-specified');
         }
 
@@ -52,7 +52,7 @@ function wp_admin_signin($params){
 
         $simulation = $params['simulation'];
 
-        if($params['simulation'] == 'partial'){
+        if($params['simulation'] == 'partial') {
             $params['simulation'] = false;
         }
 
@@ -76,21 +76,21 @@ function wp_admin_signin($params){
                                                      'redirect_to' => slash($params['url']).'wp-admin/',
                                                      'testcookie'  => 1)));
 
-        if($failed = Strings::from($curl['data'], '<div id="login_error">')){
+        if($failed = Strings::from($curl['data'], '<div id="login_error">')) {
             /*
              * Oops, login failed
              */
             $failed = Strings::until($failed, '</div>');
 
-            if(strpos($failed, 'The password you entered for the username') !== false){
+            if(strpos($failed, 'The password you entered for the username') !== false) {
                 throw new CoreException('wp_admin_signin(): Signin on site "'.str_log($params['url']).'" failed because the specified password for user "'.$params['username'].'" is incorrect', 'passwordincorrect');
             }
 
             throw new CoreException('wp_admin_signin(): Signin on site "'.str_log($params['url']).'" failed with "'.str_log($failed).'"', 'signinfailed');
         }
 
-        if(!$curl['user_id'] = Strings::cut(($curl['data'], '"uid":"', '"')){
-            if(!$params['simulation']){
+        if(!$curl['user_id'] = Strings::cut(($curl['data'], '"uid":"', '"')) {
+            if(!$params['simulation']) {
                 throw new CoreException('wp_signin_admin(): Failed to find user id', 'failed');
             }
 
@@ -105,7 +105,7 @@ function wp_admin_signin($params){
         unset($curl['data']);
         return $curl;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('wp_signin_admin(): Failed', $e);
     }
 }
@@ -115,7 +115,7 @@ function wp_admin_signin($params){
 /*
  * Submit a new page
  */
-function wp_admin_post($params, $force_new = false){
+function wp_admin_post($params, $force_new = false) {
     static $retry;
 
     try{
@@ -123,24 +123,24 @@ function wp_admin_post($params, $force_new = false){
         array_default($params, 'sleep'  , 15);    // Sleep howmany seconds between retries
         array_default($params, 'retries',  5);    // Retry howmany time on postid failures
 
-        if(empty($params['curl'])){
+        if(empty($params['curl'])) {
             throw new CoreException('wp_admin_post(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
         }
 
-        if(empty($params['title'])){
+        if(empty($params['title'])) {
             throw new CoreException('wp_admin_post(): No title specified', 'not-specified');
         }
 
-        if(empty($params['type'])){
-            if(empty($params['post_type'])){
+        if(empty($params['type'])) {
+            if(empty($params['post_type'])) {
                 throw new CoreException('wp_admin_post(): No type specified (typically one of page or post)', 'not-specified');
             }
 
             $params['type'] = $params['post_type'];
         }
 
-        if(empty($params['user_id'])){
-            if(empty($params['curl']['user_id'])){
+        if(empty($params['user_id'])) {
+            if(empty($params['curl']['user_id'])) {
                 throw new CoreException('wp_admin_post(): No user_id specified', 'not-specified');
             }
 
@@ -158,7 +158,7 @@ function wp_admin_post($params, $force_new = false){
         /*
          * New document? or update existing document?
          */
-        if(empty($params['post_id']) or $force_new){
+        if(empty($params['post_id']) or $force_new) {
             $params['curl'] = curl_get(array('url'      => slash($params['curl']['baseurl']).'wp-admin/post-new.php?post_type='.$params['type'],
                                              'redirect' => slash($params['curl']['baseurl']).'wp-admin/',
                                              'curl'     => $params['curl']));
@@ -171,18 +171,18 @@ function wp_admin_post($params, $force_new = false){
                               'samplepermalinknonce',
                               '_ajax_nonce-add-meta');
 
-            foreach($keywords as $keyword){
+            foreach($keywords as $keyword) {
                 $lower = strtolower($keyword);
 
-                if(!$params[$lower] = Strings::until(Strings::from($params['curl']['data'], "input type='hidden' id='".$keyword."' name='".$keyword."' value='"), "' />")){
+                if(!$params[$lower] = Strings::until(Strings::from($params['curl']['data'], "input type='hidden' id='".$keyword."' name='".$keyword."' value='"), "' />")) {
                     $params[$lower] = Strings::until(Strings::from($params['curl']["data"], 'input type="hidden" id="'.$keyword.'" name="'.$keyword.'" value="'), '" />');
                 }
 
                 $retval[$lower] = $params[$lower];
             }
 
-            if(empty($params['post_id']) or !is_numeric($params['post_id'])){
-                if(empty($params['curl']['simulation'])){
+            if(empty($params['post_id']) or !is_numeric($params['post_id'])) {
+                if(empty($params['curl']['simulation'])) {
                     throw new CoreException('wp_admin_post(): Unable to find a valid post id from the wordpress post-new.php page', 'postid');
                 }
 
@@ -257,18 +257,18 @@ function wp_admin_post($params, $force_new = false){
         /*
          * Get the new page URL
          */
-        if(!$retval['post_url'] = Strings::cut(($retval['curl']['data'], '<div id="message" class="updated">', '</div>')){
+        if(!$retval['post_url'] = Strings::cut(($retval['curl']['data'], '<div id="message" class="updated">', '</div>')) {
             /*
              * Looks like the page was not updated successfully
              */
-            if(empty($retval['curl']['simulation'])){
+            if(empty($retval['curl']['simulation'])) {
 show($retval['curl']['data']);
                throw new CoreException('wp_admin_post(): Failed to find post URL', 'posturl');
             }
 
             $retval['post_url'] = 'simulation_'.uniqid();
 
-        }else{
+        } else {
             $retval['post_url'] = Strings::cut(($retval['post_url'], '<a href="', '">');
             unset($retval['curl']['data']);
         }
@@ -276,8 +276,8 @@ show($retval['curl']['data']);
         $retry = 0;
         return $retval;
 
-    }catch(Exception $e){
-        if((($e->getCode() == 'postid') or ($e->getCode() == 'posturl')) and (++$retry <= $params['retries'])){
+    }catch(Exception $e) {
+        if((($e->getCode() == 'postid') or ($e->getCode() == 'posturl')) and (++$retry <= $params['retries'])) {
             /*
              * For whatever reason, connection gave HTTP code 0 which probably
              * means that the server died off completely. This again may mean
@@ -299,23 +299,23 @@ show($retval['curl']['data']);
 /*
  * Trash a page
  */
-function wp_admin_trash($params){
+function wp_admin_trash($params) {
     try{
         array_ensure($params);
 
-        if(empty($params['curl'])){
+        if(empty($params['curl'])) {
             throw new CoreException('wp_admin_trash(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
         }
 
-        if(empty($params['type'])){
-            if(empty($params['delete_type'])){
+        if(empty($params['type'])) {
+            if(empty($params['delete_type'])) {
                 throw new CoreException('wp_admin_trash(): No type specified (typically one of page or delete)', 'not-specified');
             }
 
             $params['type'] = $params['delete_type'];
         }
 
-        if(empty($params['post_id'])){
+        if(empty($params['post_id'])) {
             throw new CoreException('wp_admin_trash(): No post_id specified', 'not-specified');
         }
 
@@ -331,7 +331,7 @@ function wp_admin_trash($params){
         $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=all&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php&action=trash&m=0&paged=1';
 //        $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=all&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_type%3Dpage&action=trash&m=0&paged=1';
 
-        foreach(array_force($params['post_id']) as $post_id){
+        foreach(array_force($params['post_id']) as $post_id) {
             $url .= '&post%5B%5D='.cfi($post_id);
         }
 
@@ -344,7 +344,7 @@ function wp_admin_trash($params){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('wp_admin_trash(): Failed', $e);
     }
 }
@@ -354,23 +354,23 @@ function wp_admin_trash($params){
 /*
  * Restore a page (undelete)
  */
-function wp_admin_restore($params){
+function wp_admin_restore($params) {
     try{
         array_ensure($params);
 
-        if(empty($params['curl'])){
+        if(empty($params['curl'])) {
             throw new CoreException('wp_admin_restore(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
         }
 
-        if(empty($params['type'])){
-            if(empty($params['delete_type'])){
+        if(empty($params['type'])) {
+            if(empty($params['delete_type'])) {
                 throw new CoreException('wp_admin_restore(): No type specified (typically one of page or delete)', 'not-specified');
             }
 
             $params['type'] = $params['delete_type'];
         }
 
-        if(empty($params['post_id'])){
+        if(empty($params['post_id'])) {
             throw new CoreException('wp_admin_restore(): No post_id specified', 'not-specified');
         }
 
@@ -384,7 +384,7 @@ function wp_admin_restore($params){
         $nonce = Strings::until(Strings::from($params['curl']['data'], '_wpnonce" value="'), '"');
         $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=trash&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_status%3Dtrash%26post_type%3Dpage&action=delete&m=0&paged=1';
 
-        foreach(array_force($params['post_id']) as $post_id){
+        foreach(array_force($params['post_id']) as $post_id) {
             $url .= '&post%5B%5D='.cfi($post_id);
         }
 
@@ -397,7 +397,7 @@ function wp_admin_restore($params){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('wp_admin_restore(): Failed', $e);
     }
 }
@@ -407,23 +407,23 @@ function wp_admin_restore($params){
 /*
  * Remove a page permanently (erase)
  */
-function wp_admin_remove_permanently($params){
+function wp_admin_remove_permanently($params) {
     try{
         array_ensure($params);
 
-        if(empty($params['curl'])){
+        if(empty($params['curl'])) {
             throw new CoreException('wp_admin_remove_permanently(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
         }
 
-        if(empty($params['type'])){
-            if(empty($params['delete_type'])){
+        if(empty($params['type'])) {
+            if(empty($params['delete_type'])) {
                 throw new CoreException('wp_admin_remove_permanently(): No type specified (typically one of page or delete)', 'not-specified');
             }
 
             $params['type'] = $params['delete_type'];
         }
 
-        if(empty($params['post_id'])){
+        if(empty($params['post_id'])) {
             throw new CoreException('wp_admin_remove_permanently(): No post_id specified', 'not-specified');
         }
 
@@ -437,7 +437,7 @@ function wp_admin_remove_permanently($params){
         $nonce = Strings::until(Strings::from($params['curl']['data'], '_wpnonce" value="'), '"');
         $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=trash&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_status%3Dtrash%26post_type%3Dpage&action=untrash&m=0&paged=1';
 
-        foreach(array_force($params['post_id']) as $post_id){
+        foreach(array_force($params['post_id']) as $post_id) {
             $url .= '&post%5B%5D='.cfi($post_id);
         }
 
@@ -450,7 +450,7 @@ function wp_admin_remove_permanently($params){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('wp_admin_remove_permanently(): Failed', $e);
     }
 }
@@ -460,19 +460,19 @@ function wp_admin_remove_permanently($params){
 /*
  * Get a new page or post
  */
-function wp_admin_get($post_id, $curl){
+function wp_admin_get($post_id, $curl) {
     try{
         array_ensure($params);
 
-        if(!is_array($curl)){
+        if(!is_array($curl)) {
             throw new CoreException('wp_admin_get(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
         }
 
-        if(empty($post_id)){
+        if(empty($post_id)) {
             throw new CoreException('wp_admin_get(): No post_id specified', 'not-specified');
         }
 
-        if(!is_numeric($post_id)){
+        if(!is_numeric($post_id)) {
             throw new CoreException('wp_admin_get(): Invalid post_id specified', 'invalid');
         }
 
@@ -499,18 +499,18 @@ function wp_admin_get($post_id, $curl){
                           'samplepermalinknonce',
                           '_ajax_nonce-add-meta');
 
-        foreach($keywords as $keyword){
+        foreach($keywords as $keyword) {
             $lower = strtolower($keyword);
 
-            if(!$retval['data'][$lower] = Strings::until(Strings::from($retval['data']['raw'], "input type='hidden' id='".$keyword."' name='".$keyword."' value='"), "' />")){
+            if(!$retval['data'][$lower] = Strings::until(Strings::from($retval['data']['raw'], "input type='hidden' id='".$keyword."' name='".$keyword."' value='"), "' />")) {
                 $retval['data'][$lower] = Strings::until(Strings::from($retval['data']['raw'], 'input type="hidden" id="'.$keyword.'" name="'.$keyword.'" value="'), '" />');
             }
 
             $retval['data'][$lower] = $retval['data'][$lower];
         }
 
-        if(empty($retval['data']['post_id']) or !is_numeric($retval['data']['post_id'])){
-            if(empty($retval['curl']['simulation'])){
+        if(empty($retval['data']['post_id']) or !is_numeric($retval['data']['post_id'])) {
+            if(empty($retval['curl']['simulation'])) {
                 throw new CoreException('wp_admin_post(): Unable to find a valid post id from the wordpress post-new.php page', 'postid');
             }
 
@@ -519,7 +519,7 @@ function wp_admin_get($post_id, $curl){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('wp_admin_get(): Failed', $e);
     }
 }
@@ -529,46 +529,46 @@ function wp_admin_get($post_id, $curl){
 /*
  * Make a post using the xmlrpc interface
  */
-function wp_xmlrpc_post($params){
+function wp_xmlrpc_post($params) {
     try{
         array_ensure($params);
         array_default($params, 'encoding'  , 'UTF-8');
         array_default($params, 'keywords'  , '');
         array_default($params, 'categories', '');
 
-        if(empty($params['url'])){
+        if(empty($params['url'])) {
             throw new CoreException('wp_xmlrpc_post(): No URL specified', 'not-specified');
         }
 
-        if(strpos($params['url'], 'wp-admin') !== false){
+        if(strpos($params['url'], 'wp-admin') !== false) {
             throw new CoreException('wp_xmlrpc_post(): The specified URL contains "wp-admin" section. Please specify the URL without this part', 'not-specified');
         }
 
-        if(empty($params['username'])){
+        if(empty($params['username'])) {
             throw new CoreException('wp_xmlrpc_post(): No username specified', 'not-specified');
         }
 
-        if(empty($params['password'])){
+        if(empty($params['password'])) {
             throw new CoreException('wp_xmlrpc_post(): No password specified', 'not-specified');
         }
 
-        if(empty($params['title'])){
+        if(empty($params['title'])) {
             throw new CoreException('wp_xmlrpc_post(): No title specified', 'not-specified');
         }
 
-        if(empty($params['content'])){
+        if(empty($params['content'])) {
             throw new CoreException('wp_xmlrpc_post(): No content specified', 'not-specified');
         }
 
-        if(empty($params['type'])){
+        if(empty($params['type'])) {
             throw new CoreException('wp_xmlrpc_post(): No type specified (typically one of page or post)', 'not-specified');
         }
 
-        if(empty($params['author'])){
+        if(empty($params['author'])) {
             throw new CoreException('wp_xmlrpc_post(): No author specified', 'not-specified');
         }
 
-        if(empty($params['status'])){
+        if(empty($params['status'])) {
             throw new CoreException('wp_xmlrpc_post(): No status specified', 'not-specified');
         }
 
@@ -584,15 +584,15 @@ function wp_xmlrpc_post($params){
                          'mt_allow_comments' => (isset_get($params['allow_comments']) ? 1 : 0),
                          'mt_allow_pings'    => (isset_get($params['allow_pings'])    ? 1 : 0));
 
-        if(isset_get($params['keywords'])){
+        if(isset_get($params['keywords'])) {
             $content['mt_keywords'] = htmlentities($params['keywords'], ENT_NOQUOTES, $params['encoding']);
         }
 
-        if(isset_get($params['categories'])){
+        if(isset_get($params['categories'])) {
             $content['categories'] = array_force($params['categories']);
         }
 
-        if(isset_get($params['parents_id'])){
+        if(isset_get($params['parents_id'])) {
             $content['parents_id']  = (integer) $params['parents_id'];
             $content['post_parent'] = (integer) $params['parents_id'];
         }
@@ -603,7 +603,7 @@ function wp_xmlrpc_post($params){
         return curl_get(array('url'  => slash($params['url']).'xmlrpc.php',
                               'post' => $request));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('wp_xmlrpc_post(): Failed', $e);
     }
 }
@@ -613,11 +613,11 @@ function wp_xmlrpc_post($params){
 /*
  * Wrapper for wp_admin_trash() since under base we usually use delete, undelete, and erase
  */
-function wp_admin_delete($params){
+function wp_admin_delete($params) {
     try{
         return wp_admin_trash($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('wp_admin_delete(): Failed', $e);
     }
 }
@@ -627,11 +627,11 @@ function wp_admin_delete($params){
 /*
  * Wrapper for wp_admin_restore() since under base we usually use delete, undelete, and erase
  */
-function wp_admin_undelete($params){
+function wp_admin_undelete($params) {
     try{
         return wp_admin_restore($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('wp_admin_undelete(): Failed', $e);
     }
 }
@@ -641,11 +641,11 @@ function wp_admin_undelete($params){
 /*
  * Wrapper for wp_admin_remove_permanently() since under base we usually use delete, undelete, and erase
  */
-function wp_admin_erase($params){
+function wp_admin_erase($params) {
     try{
         return wp_admin_remove_permanently($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('wp_admin_erase(): Failed', $e);
     }
 }

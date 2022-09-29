@@ -4,11 +4,11 @@
  */
 load_libs('synonyms');
 
-if(!debug()){
+if(!debug()) {
     return '';
 }
 
-switch($format){
+switch($format) {
     case 'username':
         // FALLTHROUGH
     case 'word':
@@ -46,14 +46,14 @@ switch($format){
         return 'aaaaaaaa';
 
     case 'money':
-        if(!$size){
+        if(!$size) {
             $size = 5000;
         }
 
         return mt_rand(1, $size) / 100;
 
     case 'checked':
-        if($size){
+        if($size) {
             return ' checked ';
         }
 

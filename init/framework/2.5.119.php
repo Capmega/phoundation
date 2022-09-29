@@ -2,11 +2,11 @@
 /*
  * Fix missing seoname column in database_accounts table
  */
-if(sql_table_exists('database_accounts')){
+if(sql_table_exists('database_accounts')) {
     sql_column_exists('database_accounts', 'seoname', '!ALTER TABLE `database_accounts` ADD COLUMN     `seoname` VARCHAR(32) NULL AFTER `name`');
     sql_index_exists ('database_accounts', 'seoname', '!ALTER TABLE `database_accounts` ADD UNIQUE KEY `seoname` (`seoname`)');
 
-}else{
+} else {
     /*
      * Some projects have this table missing, for some reason
      */

@@ -383,7 +383,7 @@ class Cli
      * @see log_console()
      * @example
      * code
-     * for($i=0; $i < 100; $i++){
+     * for($i=0; $i < 100; $i++) {
      *     cli_dot();
      * }
      * /code

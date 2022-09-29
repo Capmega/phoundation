@@ -14,21 +14,21 @@
  * Initialize the library
  * Automatically executed by libs_load()
  */
-function cloudflare_library_init(){
+function cloudflare_library_init() {
     global $_CONFIG;
 
     try{
         load_config('cloudflare');
         load_libs('ext/cloudflare');
 
-        if(!empty($core->register['cf_connector'])){
+        if(!empty($core->register['cf_connector'])) {
             return null;
         }
 
         $cf = new cloudflare_api($_CONFIG['cloudflare']['email'], $_CONFIG['cloudflare']['API-key']);
         $core->register['cf_connector'] = $cf;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cloudflare_library_init(): Failed', $e);
     }
 }
@@ -38,12 +38,12 @@ function cloudflare_library_init(){
 /*
  *  Returns an associative array  which elements are : domain => zone_identifier
  */
-function cf_zone_list(){
+function cf_zone_list() {
     try{
         cf_init();
         $response = $core->register['cf_connector']->zone_load_multi();
 
-        if($response->result != 'success'){
+        if($response->result != 'success') {
             throw new CoreException('cf_zone_list(): Response from CloudFlare was unsuccessfull. MessaMessage : "'.$response->msg.'"');
         }
 
@@ -55,7 +55,7 @@ function cf_zone_list(){
 
         return $zones;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cf_zone_list(): Failed', $e);
     }
 }
@@ -67,16 +67,16 @@ function cf_zone_list(){
  *   Adding an IP to the whitelist automatically removes it from blacklist
  *   Notice that domain support is not yet implemented
  */
-function cf_whitelist($ip, $domain=null){
+function cf_whitelist($ip, $domain=null) {
     try{
         cf_init();
         $response = $core->register['cf_connector']->wl($ip);
 
-        if($response->result != 'success'){
+        if($response->result != 'success') {
             throw new CoreException('cf_whitelist(): Response from CloudFlare was unsuccessfull. MessaMessage : "'.$response->msg.'"');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cf_whitelist(): Failed', $e);
     }
 }
@@ -88,16 +88,16 @@ function cf_whitelist($ip, $domain=null){
  *   Adding an IP to the blacklist automatically removes it from whitelist
  *   Notice that domain support is not yet implemented
  */
-function cf_blacklist($ip, $domain=null){
+function cf_blacklist($ip, $domain=null) {
     try{
         cf_init();
         $response = $core->register['cf_connector']->ban($ip);
 
-        if($response->result != 'success'){
+        if($response->result != 'success') {
             throw new CoreException('cf_blacklist(): Response from CloudFlare was unsuccessfull. Message : '.$response->msg);
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cf_blacklist(): Failed', $e);
     }
 }
@@ -108,16 +108,16 @@ function cf_blacklist($ip, $domain=null){
  *   Removes an IP from whitelist or from blacklist depending on where it is located
  *   Notice that domain support is not yet implemented
  */
-function cf_unwhitelist($ip, $domain=null){
+function cf_unwhitelist($ip, $domain=null) {
     try{
         cf_init();
         $response = $core->register['cf_connector']->nul($ip);
 
-        if($response->result != 'success'){
+        if($response->result != 'success') {
             throw new CoreException('cf_unwhitelist(): Response from CloudFlare was unsuccessfull. MessaMessage : "'.$response->msg.'"');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cf_unwhitelist(): Failed', $e);
     }
 }
@@ -128,16 +128,16 @@ function cf_unwhitelist($ip, $domain=null){
  *   Removes an IP from whitelist or from blacklist depending on where it is located
  *   Notice that domain support is not yet implemented
  */
-function cf_unblacklist($ip, $domain=null){
+function cf_unblacklist($ip, $domain=null) {
     try{
         cf_init();
         $response = $core->register['cf_connector']->nul($ip);
 
-        if($response->result != 'success'){
+        if($response->result != 'success') {
             throw new CoreException('cf_unblacklist(): Response from CloudFlare was unsuccessfull. Message : "'.$response->msg.'"');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cf_unblacklist(): Failed', $e);
     }
 }
@@ -147,16 +147,16 @@ function cf_unblacklist($ip, $domain=null){
 /*
  *
  */
-function cf_clear_cache($domain){
+function cf_clear_cache($domain) {
     try{
         cf_init();
         $response = $core->register['cf_connector']->fpurge_ts($domain);
 
-        if($response->result != 'success'){
+        if($response->result != 'success') {
             throw new CoreException('cf_clear_cache(): Response from CloudFlare was unsuccessfull. Message : "'.$response->msg.'"');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cf_clear_cache(): Failed', $e);
     }
 }
@@ -166,17 +166,17 @@ function cf_clear_cache($domain){
 /*
  *
  */
-function cf_install_apache_module(){
+function cf_install_apache_module() {
     try{
         passthru('sudo apt-get update && sudo apt-get -y install libtool apache2-dev', $return);
 
-        if($return == 0){
+        if($return == 0) {
             passthru('wget -O '.TMP.'mod_cloudflare.c https://www.cloudflare.com/static/misc/mod_cloudflare/mod_cloudflare.c', $return);
 
-            if($return == 0){
+            if($return == 0) {
                 passthru('sudo apxs -a -i -c '.TMP.'mod_cloudflare.c', $return);
 
-                if($return == 0){
+                if($return == 0) {
                     passthru('sudo service apache2 restart');
                     return true;
                 }
@@ -185,7 +185,7 @@ function cf_install_apache_module(){
 
         return false;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cf_install_apache_module(): Failed', $e);
     }
 
@@ -196,11 +196,11 @@ function cf_install_apache_module(){
 /*
  *
  */
-function cf_is_apache_module_installed(){
+function cf_is_apache_module_installed() {
     try{
         return shell_exec('apachectl -M | grep cloudflare_module');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cf_is_apache_module_installed(): Failed', $e);
     }
 }

@@ -22,7 +22,7 @@
  * @param array $params
  * returns array The specified parameters, now validated and clean
  */
-function statistics_add($params){
+function statistics_add($params) {
     try{
         $params = statistics_validate($params);
 
@@ -39,7 +39,7 @@ function statistics_add($params){
 
         return sql_insert_id();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('statistics_add(): Failed', $e);
     }
 }
@@ -58,7 +58,7 @@ function statistics_add($params){
  * @param array $params
  * returns array The specified parameters, now validated and clean
  */
-function statistics_validate($params){
+function statistics_validate($params) {
     try{
         load_libs('validate');
         $v = new ValidateForm($params, 'event,subevent,details,resource1,resource2');
@@ -66,21 +66,21 @@ function statistics_validate($params){
         $v->isNotEmpty($params['event'], tr('Please specify an event'));
         $v->isNotEmpty($params['details'], tr('Please specify event details'));
 
-        if(empty($params['subevent'])){
+        if(empty($params['subevent'])) {
             $params['subevent'] = null;
         }
 
-        if(empty($params['resource1'])){
+        if(empty($params['resource1'])) {
             $params['resource1'] = null;
 
-            if($params['resource2']){
+            if($params['resource2']) {
                 $v->setError(tr('Resource2 cannot be specified without resource1'));
             }
 
-        }else{
+        } else {
             $v->isNatural($params['resource1'], 1, tr('statistics_add(): Invalid resource1 specified, please ensure it is a natural number'));
 
-            if($params['resource2']){
+            if($params['resource2']) {
                 $v->isNatural($params['resource2'], 1, tr('statistics_add(): Invalid resource2 specified, please ensure it is a natural number'));
             }
         }
@@ -89,7 +89,7 @@ function statistics_validate($params){
 
         return $params;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('statistics_validate(): Failed', $e);
     }
 }

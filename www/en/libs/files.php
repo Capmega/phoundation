@@ -27,11 +27,11 @@
  *
  * @return void
  */
-function files_library_init(){
+function files_library_init() {
     try{
         load_config('files');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('files_library_init(): Failed', $e);
     }
 }
@@ -52,15 +52,15 @@ function files_library_init(){
  * @param boolean $require_unique If set to true, the file has to be unique in the system
  * @return params The specified template, validated and sanitized
  */
-function files_insert($file, $require_unique = false){
+function files_insert($file, $require_unique = false) {
     global $_CONFIG;
 
     try{
-        if(is_string($file)){
+        if(is_string($file)) {
             $file = array('filename' => $file,
                           'original' => basename($file));
 
-        }elseif(isset($file['name']) and isset($file['tmp_name'])){
+        } elseif(isset($file['name']) and isset($file['tmp_name'])) {
             /*
              * This is a PHP uploaded file array. Correct file names
              */
@@ -79,13 +79,13 @@ function files_insert($file, $require_unique = false){
         $base_path = slash($base_path);
         $target    = file_assign_target($base_path, $extension);
 
-        if(isset($file['name']) and isset($file['tmp_name'])){
+        if(isset($file['name']) and isset($file['tmp_name'])) {
             /*
              * Move uploaded file to its final position
              */
             move_uploaded_file($file['filename'], $base_path.$target);
 
-        }else{
+        } else {
             /*
              * Move the normal file to the base path position
              */
@@ -104,10 +104,10 @@ function files_insert($file, $require_unique = false){
         /*
          * File must be unique?
          */
-        if($require_unique){
+        if($require_unique) {
             $exists = sql_get('SELECT `id` FROM `files` WHERE `hash` = :hash', array($file['hash']));
 
-            if($exists){
+            if($exists) {
                 throw new CoreException(tr('files_insert(): Specified file ":filename" already exists with id ":id"', array(':filename' => $base_path.$target, ':id' => $exists)), 'exists');
             }
         }
@@ -133,7 +133,7 @@ function files_insert($file, $require_unique = false){
 
         return $file;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('files_insert(): Failed', $e);
     }
 }
@@ -143,11 +143,11 @@ function files_insert($file, $require_unique = false){
 /*
  * Delete a file
  */
-function files_delete($file, $base_path = ROOT.'data/files/'){
+function files_delete($file, $base_path = ROOT.'data/files/') {
     try{
         $dbfile = files_get($file);
 
-        if(!$dbfile){
+        if(!$dbfile) {
             throw new CoreException(tr('files_delete(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
@@ -158,7 +158,7 @@ function files_delete($file, $base_path = ROOT.'data/files/'){
 
         return $dbfile;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('files_delete(): Failed', $e);
     }
 }
@@ -168,17 +168,17 @@ function files_delete($file, $base_path = ROOT.'data/files/'){
 /*
  * Retrieve history for specified file
  */
-function files_get_history($file){
+function files_get_history($file) {
     try{
         $meta_id = sql_get('SELECT `meta_id` FROM `files` WHERE `name` = :name, `hash` = :hash', true, array(':name' => $file, ':hash' => $file));
 
-        if(!$meta_id){
+        if(!$meta_id) {
             throw new CoreException(rt('files_get_history(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
         return meta_history($meta_id);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('files_get_history(): Failed', $e);
     }
 }
@@ -202,7 +202,7 @@ function files_get_history($file){
  * @param natural $categories_id Filter by the specified categories_id. If NULL, the file must NOT belong to any category
  * @return mixed The file data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified file does not exist, NULL will be returned.
  */
-function files_get($params){
+function files_get($params) {
     try{
         array_ensure($params, 'filename');
 
@@ -220,7 +220,7 @@ function files_get($params){
 
         return sql_simple_get($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('files_get(): Failed', $e);
     }
 }
@@ -242,7 +242,7 @@ function files_get($params){
  * @param params $params The list parameters
  * @return mixed The list of available templates
  */
-function files_list($params){
+function files_list($params) {
     try{
         array_ensure($params);
         array_default($params, 'columns', 'hash,filename');
@@ -252,7 +252,7 @@ function files_list($params){
 
         return sql_simple_list($params);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('files_list(): Failed', $e);
     }
 }
@@ -270,7 +270,7 @@ function files_list($params){
  *
  * @return natural The amount of orphaned files, and orphaned `files` entries found and processed
  */
-function files_search_orphans(){
+function files_search_orphans() {
     try{
         $root       = ROOT.'data/files/';
         $quarantine = $root.'quarantine/orphans/';
@@ -280,18 +280,18 @@ function files_search_orphans(){
         log_file('Searching `files` table for orphaned entries', 'cyan');
         file_ensure_path($quarantine);
 
-        foreach($files as $file){
-            if(!file_exists($root.$file['file'])){
+        foreach($files as $file) {
+            if(!file_exists($root.$file['file'])) {
                 $update->execute(array(':hash' => $file['file']));
                 log_file('Files entry `:file` has the file missing, set the entry to status "orphaned"', array(':file' => $file['hash']), 'yellow');
             }
         }
 
         file_tree_execute(array('path'     => $root,
-                                'function' => function($entry) use ($update, $root, $quarantine, &$count){
+                                'function' => function($entry) use ($update, $root, $quarantine, &$count) {
                                     $exists = file_exists($entry);
 
-                                    if(!$exists){
+                                    if(!$exists) {
                                         $count++;
                                         $file = file_from($entry, $root);
 
@@ -315,7 +315,7 @@ function files_search_orphans(){
 
         return $count;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('files_search_orphans(): Failed', $e);
     }
 }
@@ -333,26 +333,26 @@ function files_search_orphans(){
  *
  * @return natural The amount of orphaned files, and orphaned `files` entries found and processed
  */
-function files_clear_quarantine($section = null){
+function files_clear_quarantine($section = null) {
     try{
         $path = ROOT.'data/files';
 
-        if($section){
+        if($section) {
             log_console(tr('Clearing all quarantined files in the ":section" section', array(':section' => $section)), 'yellow');
 
-            if(!is_string($section)){
+            if(!is_string($section)) {
                 throw new CoreException(tr('files_clear_quarantine(): Invalid section ":section" specified', array(':section' => $section)), $e);
             }
 
             $path .= '/'.$section;
 
-        }else{
+        } else {
             log_console(tr('Clearing all quarantined files'), 'yellow');
         }
 
         return file_delete($path, ROOT.'data/files');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('files_clear_quarantine(): Failed'), $e);
     }
 }

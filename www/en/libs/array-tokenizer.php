@@ -15,15 +15,15 @@
  * @param string $string The PHP code string to be converted into a PHP array
  * @return array The PHP array parsed from the given PHP string
  */
-function array_tokenizer($string){
+function array_tokenizer($string) {
     static $scanner;
 
     try{
-        if(empty($scanner)){
+        if(empty($scanner)) {
             $scanner = new ArrayTokenScanner();
         }
 
-        if(!is_string($string)){
+        if(!is_string($string)) {
             throw new CoreException(tr('array_tokenizer(): Specified variable is not a string but datatype ":type"', array(':type' => gettype($string))), 'invalid');
         }
 
@@ -33,7 +33,7 @@ function array_tokenizer($string){
 
         return $scanner->scan($string);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('array_tokenizer(): Failed'), $e);
     }
 }
@@ -124,7 +124,7 @@ class ArrayTokenScanner
                         $index = $assoc = (int) $assoc;
                     }
 
-                    if((substr($assoc, 0, 1) == '"') or (substr($assoc, 0, 1) == "'")){
+                    if((substr($assoc, 0, 1) == '"') or (substr($assoc, 0, 1) == "'")) {
                         $assoc = substr($assoc, 1, -1);
                     }
 

@@ -27,11 +27,11 @@
  *
  * @return void
  */
-function notifications_library_init(){
+function notifications_library_init() {
     try{
         load_config('notifications');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_library_init(): Failed', $e);
     }
 }
@@ -73,7 +73,7 @@ function notifications_library_init(){
  * @param boolean $throw If set to true, if the notification is an exception and the system is non production, it will throw the exception instead of notifying
  * @return natural The notifications id
  */
-function notifications($notification, $log, $throw){
+function notifications($notification, $log, $throw) {
     global $_CONFIG, $core;
 return 0;
     try{
@@ -82,21 +82,21 @@ return 0;
         /*
          * Add the notification to the database for later lookup
          */
-        if($core->register['script'] === 'init'){
+        if($core->register['script'] === 'init') {
             $notification = notifications_validate($notification, $log, $throw);
 
-        }else{
+        } else {
             $notification = notifications_insert($notification, $log);
         }
 
-        if($notification['exception'] and !$_CONFIG['production'] and $notification['throw']){
+        if($notification['exception'] and !$_CONFIG['production'] and $notification['throw']) {
             /*
              * Exception in non production environments, don't send
              * notifications since we're working on this project!
              */
             $code = $notification['code'];
 
-            if(Strings::until($code, '/') === 'warning'){
+            if(Strings::until($code, '/') === 'warning') {
                 /*
                  * Just ignore warnings in non production environments, they
                  * already have been logged.
@@ -117,12 +117,12 @@ return 0;
 
         return isset_get($notification['id']);
 
-    }catch(Exception $e){
-        if(!$_CONFIG['production']){
+    }catch(Exception $e) {
+        if(!$_CONFIG['production']) {
             throw new CoreException(tr('notifications(): Failed'), $e);
         }
 
-        if(is_array($notification) and !empty($notification['exception'])){
+        if(is_array($notification) and !empty($notification['exception'])) {
             /*
              * This is just the notification being thrown as an exception, keep
              * on throwing
@@ -134,13 +134,13 @@ return 0;
         log_console(tr('notifications(): Notification system failed with ":exception"', array(':exception' => $e->getMessage())), 'warning');
         log_console(tr('notifications(): No further exception will be thrown to avoid that one causing another notification which then would cause an endless loop'), 'warning');
 
-        if($core->register['script'] != 'init'){
-            if(empty($_CONFIG['mail']['developer'])){
+        if($core->register['script'] != 'init') {
+            if(empty($_CONFIG['mail']['developer'])) {
                 log_console('[notifications() FAILED : '.strtoupper(isset_get($_SESSION['domain'])).' / '.strtoupper(php_uname('n')).' / '.strtoupper(ENVIRONMENT).']', 'error');
                 log_console(tr("notifications() failed with: ".implode("\n", $e->getMessages())."\n\nOriginal notification was: \":params\"", array(':params' => $notification)), 'error');
                 log_console('WARNING! $_CONFIG[mail][developer] IS NOT SET, EMERGENCY NOTIFICATIONS CANNOT BE SENT!', 'error');
 
-            }else{
+            } else {
                 load_libs('email');
                 log_console(tr('Attempting to send out a notification email to the $_CONFIG[mail][developer] email ":email" to let them know the notification system has failed', array(':email' => $_CONFIG['mail']['developer'])), 'warning');
 
@@ -170,7 +170,7 @@ return 0;
  * @param boolean $log If set to true, will log the notification
  * @return return void()
  */
-function notifications_validate($notification, $log, $throw = null){
+function notifications_validate($notification, $log, $throw = null) {
     global $_CONFIG;
 
     try{
@@ -179,7 +179,7 @@ function notifications_validate($notification, $log, $throw = null){
         /*
          * Process Error, Exception, and BException objects first
          */
-        if(is_object($notification) and ($notification instanceof Error)){
+        if(is_object($notification) and ($notification instanceof Error)) {
             /*
              * This is a PHP Error.
              */
@@ -191,12 +191,12 @@ function notifications_validate($notification, $log, $throw = null){
                                   'real_code' => $notification->getCode(),
                                   'code'      => 'error');
 
-            if($log){
+            if($log) {
                 log_file($notification['title'].' '.$notification['message'], 'notification-'.strtolower($notification['code']), 'error');
             }
 
-        }elseif(is_object($notification) and ($notification instanceof Exception)){
-            if(is_object($notification) and ($notification instanceof BException) and (strtolower(substr($notification->getCode(), 0, 3)) !== 'php')){
+        } elseif(is_object($notification) and ($notification instanceof Exception)) {
+            if(is_object($notification) and ($notification instanceof BException) and (strtolower(substr($notification->getCode(), 0, 3)) !== 'php')) {
                 /*
                  * Notify about a BException
                  */
@@ -209,12 +209,12 @@ function notifications_validate($notification, $log, $throw = null){
                                       'real_code' => $notification->getRealCode(),
                                       'code'      => ($notification->isWarning() ? 'warning' : 'error'));
 
-                if($log){
+                if($log) {
                     log_file($notification['title']  , 'notification-'.strtolower($notification['code']), $notification['code']);
                     log_file($notification['message'], 'notification-'.strtolower($notification['code']), $notification['code']);
                 }
 
-            }else{
+            } else {
                 /*
                  * Notify about another PHP exception
                  */
@@ -224,12 +224,12 @@ function notifications_validate($notification, $log, $throw = null){
                                       'message'   => $notification->getMessage(),
                                       'code'      => 'exception');
 
-                if($log){
+                if($log) {
                     log_file($notification['title'].' '.$notification['message'], 'notification-'.strtolower($notification['code']), 'exception');
                 }
             }
 
-        }else{
+        } else {
             /*
              * This is a normal notification
              */
@@ -237,17 +237,17 @@ function notifications_validate($notification, $log, $throw = null){
 
             $notification['exception'] = false;
 
-            if($log){
+            if($log) {
                 log_file(not_empty($notification['title'].' '.$notification['message'], tr('No message specified')), 'notification-'.strtolower($notification['code']), 'yellow');
             }
         }
 
-        if(isset_get($e) and $e->getRealCode() === 'load-libs-fail'){
+        if(isset_get($e) and $e->getRealCode() === 'load-libs-fail') {
             /*
              * A library failed to load. If this is the validation library,
              * then the next ValidateForm thing will mess us up badly!
              */
-            if(array_search('load_libs(): Failed to load library "validate"', $e->getMessages())){
+            if(array_search('load_libs(): Failed to load library "validate"', $e->getMessages())) {
                 /*
                  * Yeah, validate library hasn't been loaded, so panic
                  */
@@ -266,12 +266,12 @@ function notifications_validate($notification, $log, $throw = null){
         /*
          * Validate title
          */
-        if($notification['title']){
+        if($notification['title']) {
             $v->hasMinChars($notification['title'], 4, tr('Please ensure that the notification message has more than 4 characters'));
             $v->hasMaxChars($notification['title'], 4090, tr('Please ensure that the notification message has less than 4090 characters'));
             $v->hasNoHTML($notification['title'], tr('Please ensure that the notification title has no HTML'));
 
-        }else{
+        } else {
             $notification['title'] = '';
         }
 
@@ -279,7 +279,7 @@ function notifications_validate($notification, $log, $throw = null){
          * Validate message
          * Messages can NOT have HTML!
          */
-        if($notification['message']){
+        if($notification['message']) {
             $v->hasMinChars($notification['message'], 4, tr('Please ensure that the notification message has more than 4 characters'));
 
             /*
@@ -287,7 +287,7 @@ function notifications_validate($notification, $log, $throw = null){
              */
             $notification['message'] = str_truncate($notification['message'], 4090, '...', 'center');
 
-        }else{
+        } else {
             $notification['message'] = '';
 
         }
@@ -295,7 +295,7 @@ function notifications_validate($notification, $log, $throw = null){
         /*
          * At least title or message must have been specified!
          */
-        if(!$notification['title'] and !$notification['message']){
+        if(!$notification['title'] and !$notification['message']) {
             $v->setError(tr('Please ensure that at least $notification[title] and or $notification[message] have been set'));
         }
 
@@ -308,22 +308,22 @@ function notifications_validate($notification, $log, $throw = null){
         /*
          * Validate priority
          */
-        if(!$notification['priority']){
+        if(!$notification['priority']) {
             $notification['priority'] = isset_get($_CONFIG['notifications']['defaults']['priority']);
         }
 
-        if($notification['priority']){
+        if($notification['priority']) {
             $v->isNatural($notification['priority'], 0, tr('Please ensure that the notification priority is a natural number'));
             $v->isBetween($notification['priority'], 0, 9, tr('Please ensure that the notification priority is a natural number between 0 (highest) and 9 (lowest)'));
 
-        }else{
+        } else {
             $notification['priority'] = 5;
         }
 
         /*
          * Default groups
          */
-        switch($notification['code']){
+        switch($notification['code']) {
             case 'error':
                 // FALLTHROUGH
             case 'exception':
@@ -345,13 +345,13 @@ function notifications_validate($notification, $log, $throw = null){
          */
 // :TODO: For now, notifications are still mostly disabled until the system is finished
 $notification['groups'] = array();
-        foreach($notification['groups'] as &$group){
+        foreach($notification['groups'] as &$group) {
             $groups_id = notifications_get_group($group, 'id');
 
-            if($groups_id){
+            if($groups_id) {
                 $group = $groups_id;
 
-            }else{
+            } else {
                 $v->setError(tr('The notifications group ":group" does not exist', array(':group' => $group)));
             }
         }
@@ -369,7 +369,7 @@ $notification['groups'] = array();
 
         return $notification;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_validate(): Failed', $e);
     }
 }
@@ -391,14 +391,14 @@ $notification['groups'] = array();
  * @param params $group The parameters for this notification group
  * @return return void()
  */
-function notifications_validate_group($group){
+function notifications_validate_group($group) {
     try{
         load_libs('validate');
         $v = new ValidateForm($group, '');
 
         return $group;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_validate_group(): Failed', $e);
     }
 }
@@ -420,14 +420,14 @@ function notifications_validate_group($group){
  * @param params $member The parameters for this notification member
  * @return return void()
  */
-function notifications_validate_member($member){
+function notifications_validate_member($member) {
     try{
         load_libs('validate');
         $v = new ValidateForm($member, '');
 
         return $member;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_validate_member(): Failed', $e);
     }
 }
@@ -449,14 +449,14 @@ function notifications_validate_member($member){
  * @param params $method The parameters for this notification method
  * @return return void()
  */
-function notifications_validate_method($method){
+function notifications_validate_method($method) {
     try{
         load_libs('validate');
         $v = new ValidateForm($method, '');
 
         return $method;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_validate_method(): Failed', $e);
     }
 }
@@ -479,7 +479,7 @@ function notifications_validate_method($method){
  * @param params $notification The parameters for this notification
  * @return return array The notification, validated and sanitized with the database id added
  */
-function notifications_insert($notification, $log){
+function notifications_insert($notification, $log) {
     try{
         $notification = notifications_validate($notification, $log);
 
@@ -501,7 +501,7 @@ function notifications_insert($notification, $log){
 
         return $notification;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         error_log(tr('PHOUNDATION WARNING (":project"): Failed to store notification ":message" in notifications table', array(':project' => PROJECT, ':message' => $notification['message'])));
 
         /*
@@ -529,7 +529,7 @@ function notifications_insert($notification, $log){
  * @param params $notification The parameters for this notification
  * @return return array The notification, validated and sanitized with the database id added
  */
-function notifications_insert_group($group){
+function notifications_insert_group($group) {
     try{
         $group = notifications_validate_group($group);
 
@@ -544,7 +544,7 @@ function notifications_insert_group($group){
 
         return $group;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_insert_group(): Failed', $e);
     }
 }
@@ -567,7 +567,7 @@ function notifications_insert_group($group){
  * @param params $notification The parameters for this notification
  * @return return array The notification, validated and sanitized with the database id added
  */
-function notifications_insert_member($member){
+function notifications_insert_member($member) {
     try{
         $member = notifications_validate_member($member);
 
@@ -582,7 +582,7 @@ function notifications_insert_member($member){
 
         return $member;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_insert_member(): Failed', $e);
     }
 }
@@ -605,7 +605,7 @@ function notifications_insert_member($member){
  * @param params $notification The parameters for this notification
  * @return return array The notification, validated and sanitized with the database id added
  */
-function notifications_insert_method($method){
+function notifications_insert_method($method) {
     try{
         $method = notifications_validate_method($method);
 
@@ -620,7 +620,7 @@ function notifications_insert_method($method){
 
         return $method;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_insert_method(): Failed', $e);
     }
 }
@@ -642,17 +642,17 @@ function notifications_insert_method($method){
  * @param params $notification The parameters for this notification
  * @return return void()
  */
-function notifications_insert_groups($notification){
+function notifications_insert_groups($notification) {
     try{
         $insert = sql_prepare('INSERT INTO `notifications_groups` (`notifications_id`, `groups_id`)
                                VALUES                             (:notifications_id , :groups_id )', 'core');
 
-        foreach($notification['groups'] as $groups_id){
+        foreach($notification['groups'] as $groups_id) {
             $insert->execute(array(':groups_id'        => $groups_id,
                                    ':notifications_id' => $notification['id']));
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_insert(): Failed', $e);
     }
 }
@@ -675,9 +675,9 @@ function notifications_insert_groups($notification){
  * @param natural The id for the required notification
  * @return return array the specified notification
  */
-function notifications_get($notifications_id){
+function notifications_get($notifications_id) {
     try{
-        if(!is_natural($notifications_id)){
+        if(!is_natural($notifications_id)) {
             throw new CoreException(tr('notifications_get(): Invalid notifications id ":id" specified', array(':id' => $notifications_id)), 'invalid');
         }
 
@@ -702,7 +702,7 @@ function notifications_get($notifications_id){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_get(): Failed', $e);
     }
 }
@@ -725,30 +725,30 @@ function notifications_get($notifications_id){
  * @param natural The id for the required notification
  * @return return array the specified notification
  */
-function notifications_get_group($group, $column = null){
+function notifications_get_group($group, $column = null) {
     try{
         /*
          * Validate
          */
-        if(is_natural($group)){
+        if(is_natural($group)) {
             $where = ' WHERE `id`     = :id
                        AND   `status` = NULL ';
             $execute[':id'] = $group;
 
-        }elseif(is_string($group)){
+        } elseif(is_string($group)) {
             $where = ' WHERE `seoname` = :seoname
                        AND   `status`  = NULL ';
             $execute[':seoname'] = $group;
 
-        }else{
+        } else {
             throw new CoreException(tr('notifications_get_group(): Specified group ":group" is invalid', array(':group' => $group)), 'invalid');
         }
 
-        if($column){
+        if($column) {
             $single  = true;
             $columns = ' `'.$column.'` ';
 
-        }else{
+        } else {
             $single  = false;
             $columns = '`id`,
                         `createdby`,
@@ -767,7 +767,7 @@ function notifications_get_group($group, $column = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_get_group(): Failed', $e);
     }
 }
@@ -790,30 +790,30 @@ function notifications_get_group($group, $column = null){
  * @param natural The id for the required notification
  * @return return array the specified notification
  */
-function notifications_get_method($method, $column = null){
+function notifications_get_method($method, $column = null) {
     try{
         /*
          * Validate
          */
-        if(is_natural($method)){
+        if(is_natural($method)) {
             $where = ' WHERE `id`     = :id
                        AND   `status` = NULL ';
             $execute[':id'] = $method;
 
-        }elseif(is_string($method)){
+        } elseif(is_string($method)) {
             $where = ' WHERE `seoname` = :seoname
                        AND   `status`  = NULL ';
             $execute[':seoname'] = $method;
 
-        }else{
+        } else {
             throw new CoreException(tr('notifications_get_method(): Specified method ":method" is invalid', array(':method' => $method)), 'invalid');
         }
 
-        if($column){
+        if($column) {
             $single  = true;
             $columns = ' `'.$column.'` ';
 
-        }else{
+        } else {
             $single  = false;
             $columns = '`id`,
                         `createdby`,
@@ -832,7 +832,7 @@ function notifications_get_method($method, $column = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_get_method(): Failed', $e);
     }
 }
@@ -855,30 +855,30 @@ function notifications_get_method($method, $column = null){
  * @param natural The id for the required notification
  * @return return array the specified notification
  */
-function notifications_get_member($member, $column = null){
+function notifications_get_member($member, $column = null) {
     try{
         /*
          * Validate
          */
-        if(is_natural($member)){
+        if(is_natural($member)) {
             $where = ' WHERE `id`     = :id
                        AND   `status` = NULL ';
             $execute[':id'] = $member;
 
-        }elseif(is_string($member)){
+        } elseif(is_string($member)) {
             $where = ' WHERE `seoname` = :seoname
                        AND   `status`  = NULL ';
             $execute[':seoname'] = $member;
 
-        }else{
+        } else {
             throw new CoreException(tr('notifications_get_member(): Specified member ":member" is invalid', array(':member' => $member)), 'invalid');
         }
 
-        if($column){
+        if($column) {
             $single  = true;
             $columns = ' `'.$column.'` ';
 
-        }else{
+        } else {
             $single  = false;
             $columns = '`id`,
                         `createdby`,
@@ -897,7 +897,7 @@ function notifications_get_member($member, $column = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_get_member(): Failed', $e);
     }
 }
@@ -920,12 +920,12 @@ function notifications_get_member($member, $column = null){
  * @param natural The id for the required notification
  * @return return array the specified notification
  */
-function notifications_list_groups($members_id){
+function notifications_list_groups($members_id) {
     try{
         /*
          * Validate
          */
-        if(!is_natural($members_id)){
+        if(!is_natural($members_id)) {
             throw new CoreException(tr('notifications_list_groups(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
         }
 
@@ -939,7 +939,7 @@ function notifications_list_groups($members_id){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_list_groups(): Failed', $e);
     }
 }
@@ -962,12 +962,12 @@ function notifications_list_groups($members_id){
  * @param natural The id for the required notification
  * @return return array the specified notification
  */
-function notifications_list_methods($members_id){
+function notifications_list_methods($members_id) {
     try{
         /*
          * Validate
          */
-        if(!is_natural($members_id)){
+        if(!is_natural($members_id)) {
             throw new CoreException(tr('notifications_list_methods(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
         }
 
@@ -981,7 +981,7 @@ function notifications_list_methods($members_id){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_list_methods(): Failed', $e);
     }
 }
@@ -1004,12 +1004,12 @@ function notifications_list_methods($members_id){
  * @param natural The id for the required notification
  * @return return array the specified notification
  */
-function notifications_list_members($members_id){
+function notifications_list_members($members_id) {
     try{
         /*
          * Validate
          */
-        if(!is_natural($members_id)){
+        if(!is_natural($members_id)) {
             throw new CoreException(tr('notifications_list_members(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
         }
 
@@ -1023,7 +1023,7 @@ function notifications_list_members($members_id){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_list_members(): Failed', $e);
     }
 }
@@ -1046,12 +1046,12 @@ function notifications_list_members($members_id){
  * @param natural The id for the required notification
  * @return return array the specified notification
  */
-function notifications_get_url($notification){
+function notifications_get_url($notification) {
     global $_CONFIG;
 
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_get_url(): Failed', $e);
     }
 }
@@ -1074,18 +1074,18 @@ function notifications_get_url($notification){
  * @param params $notification The parameters for this notification email
  * @return return void()
  */
-function notifications_send($notification = null){
+function notifications_send($notification = null) {
     global $_CONFIG;
 
     try{
-        if(!$notification){
+        if(!$notification) {
             /*
              * Attempt to send all notifications that have not yet been sent out
              */
             $count         = 0;
             $notifications = notifications_list();
 
-            foreach($notifications as $notification){
+            foreach($notifications as $notification) {
                 notifications_send($notification);
                 $count++;
             }
@@ -1093,7 +1093,7 @@ function notifications_send($notification = null){
             return $count;
         }
 
-        if(is_numeric($notification)){
+        if(is_numeric($notification)) {
             $notification = notifications_get($notification);
         }
 
@@ -1102,14 +1102,14 @@ function notifications_send($notification = null){
          */
         $groups = notifications_list_methods($notification);
 
-        while($group = sql_fetch($groups)){
+        while($group = sql_fetch($groups)) {
             $members = notifications_list_members($group);
 
-            while($member = sql_fetch($members)){
+            while($member = sql_fetch($members)) {
                 $methods = notifications_get_methods($member);
 
-                foreach($methods as $method){
-                    switch($method){
+                foreach($methods as $method) {
+                    switch($method) {
                         case 'sms':
                             notifications_sms($notification);
                             break;
@@ -1173,7 +1173,7 @@ function notifications_send($notification = null){
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_send(): Failed', $e);
     }
 }
@@ -1195,14 +1195,14 @@ function notifications_send($notification = null){
  * @param params $notification The parameters for this notification email
  * @return return void()
  */
-function notifications_email($notification){
+function notifications_email($notification) {
     global $_CONFIG;
 
     try{
         load_libs('email');
         email_send(array());
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_email(): Failed', $e);
     }
 }
@@ -1224,12 +1224,12 @@ function notifications_email($notification){
  * @param params $notification The parameters for this notification email
  * @return return void()
  */
-function notifications_sms($event, $message, $users){
+function notifications_sms($event, $message, $users) {
     global $_CONFIG;
 
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_sms(): Failed', $e);
     }
 }
@@ -1251,12 +1251,12 @@ function notifications_sms($event, $message, $users){
  * @param params $notification The parameters for this notification email
  * @return return void()
  */
-function notifications_prowl($event, $message, $users){
+function notifications_prowl($event, $message, $users) {
     global $_CONFIG;
 
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_prowl(): Failed', $e);
     }
 }
@@ -1278,12 +1278,12 @@ function notifications_prowl($event, $message, $users){
  * @param params $notification The parameters for this notification email
  * @return return void()
  */
-function notifications_pushcap($event, $message, $users){
+function notifications_pushcap($event, $message, $users) {
     global $_CONFIG;
 
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_pushcap(): Failed', $e);
     }
 }
@@ -1308,10 +1308,10 @@ function notifications_pushcap($event, $message, $users){
  * @param params $notification The parameters for this notification email
  * @return return void()
  */
-function notifications_desktop($notification){
+function notifications_desktop($notification) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_desktop(): Failed', $e);
     }
 }
@@ -1333,10 +1333,10 @@ function notifications_desktop($notification){
  * @param params $notification The parameters for this notification email
  * @return return void()
  */
-function notifications_web($notification){
+function notifications_web($notification) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_web(): Failed', $e);
     }
 }
@@ -1358,10 +1358,10 @@ function notifications_web($notification){
  * @param params $notification The parameters for this notification email
  * @return return void()
  */
-function notifications_push($notification){
+function notifications_push($notification) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_push(): Failed', $e);
     }
 }
@@ -1383,10 +1383,10 @@ function notifications_push($notification){
  * @param params $notification The parameters for this notification email
  * @return return void()
  */
-function notifications_api($notification){
+function notifications_api($notification) {
     try{
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_api(): Failed', $e);
     }
 }
@@ -1408,12 +1408,12 @@ function notifications_api($notification){
  * @param params $notification The parameters for this notification email
  * @return return void()
  */
-function notifications_messenger($notification, $method){
+function notifications_messenger($notification, $method) {
     try{
         load_libs('messenger');
         messenger_send($method, $notification['priority'].' '.$notification['title'].' '.$notification['url']);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_messenger(): Failed', $e);
     }
 }
@@ -1436,7 +1436,7 @@ function notifications_messenger($notification, $method){
  * @param $time        Time the notification is displayed not work in firefox, firefox close notification in 4 seconds, 0 means never close
  * @return array
  */
-function notifications_webpush($server, $check_every, $icon, $js_client = '', $time = 4000){
+function notifications_webpush($server, $check_every, $icon, $js_client = '', $time = 4000) {
     global $_CONFIG;
 
     try{
@@ -1469,10 +1469,10 @@ function notifications_webpush($server, $check_every, $icon, $js_client = '', $t
             ');
         }
         html_script('
-             function showNotify(title,text, link = ""){
-                 if(Notification.permission !== "granted"){
+             function showNotify(title,text, link = "") {
+                 if(Notification.permission !== "granted") {
                      Notification.requestPermission();
-                 }else{
+                 } else {
                      var notification = new Notification(title,
                          {
                              icon: "'.$icon.'",
@@ -1480,8 +1480,8 @@ function notifications_webpush($server, $check_every, $icon, $js_client = '', $t
                          }
                      );
 
-                     if(link!=""){
-                         notification.onclick = function(){
+                     if(link!="") {
+                         notification.onclick = function() {
                              window.open(link);
                          }
                      }
@@ -1490,15 +1490,15 @@ function notifications_webpush($server, $check_every, $icon, $js_client = '', $t
                  }
              }
 
-            // switch(){
+            // switch() {
             //
             // }
 
-             if(Notification.permission !== "granted"){
+             if(Notification.permission !== "granted") {
                  Notification.requestPermission();
 
-             }else if(Notification.permission == "granted"){
-                 setInterval(function(){
+             } else if(Notification.permission == "granted") {
+                 setInterval(function() {
                      $.ajax({
                          method: "GET",
                          dataType: "json",
@@ -1511,12 +1511,12 @@ function notifications_webpush($server, $check_every, $icon, $js_client = '', $t
                      });
                  }, '.$check_every.');
 
-             }else{
+             } else {
 
              }
         ');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('notifications_webpush(): Failed', $e);
     }
 }

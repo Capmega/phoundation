@@ -71,7 +71,7 @@
     }
 
 
-function printdata($data,$topic){
+function printdata($data,$topic) {
         echo "<h1>$topic</h1><pre>";
         print_r($data);
         echo "</pre><br>";

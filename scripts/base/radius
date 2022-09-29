@@ -51,7 +51,7 @@ try{
     cli_only();
     load_libs('radius');
 
-    switch(cli_method()){
+    switch(cli_method()) {
         case 'list':
             $filter  = cli_argument('--filter', true);
             $execute = array();
@@ -59,7 +59,7 @@ try{
 
             cli_no_arguments_left();
 
-            if(!empty($filter)){
+            if(!empty($filter)) {
                 $where[]                 = ' (`radius_devices`.`mac_address` LIKE :mac_address OR `radius_devices`.`description` LIKE :description OR `radius_devices`.`type` LIKE :type) ';
                 $execute[':mac_address'] = '%'.$filter.'%';
                 $execute[':description'] = '%'.$filter.'%';
@@ -89,20 +89,20 @@ try{
                         LEFT JOIN `users` AS `users_id`
                         ON        `users_id`.`id` = `radius_devices`.`users_id`';
 
-            if(empty($where)){
+            if(empty($where)) {
                 $where = '';
 
-            }else{
+            } else {
                 $where = ' WHERE '.implode(' AND ', $where);
             }
 
             $order   = ' ORDER BY `radius_devices`.`status` IS NOT NULL DESC ';
             $devices = sql_query($query.$where.$order.(LIMIT ? ' LIMIT '.LIMIT : ''), $execute);
 
-            if(!$devices->rowCount()){
+            if(!$devices->rowCount()) {
                     log_console(tr('There are currently no devices registered'), 'QUIET/yellow');
 
-            }else{
+            } else {
 
                 log_console(str_size(tr('#id'), 7).
                             str_size(tr('Assigned to'), 21).
@@ -112,7 +112,7 @@ try{
                             str_size(tr('Created on'), 13).
                             str_size(tr('Created by'), 32), 'QUIET/cyan');
 
-                while($device = sql_fetch($devices)){
+                while($device = sql_fetch($devices)) {
                     log_console(str_size($device['id'], 6, ' ', true).' '.
                                 str_size($device['assigned_user'], 20).' '.
                                 str_size($device['type'], 12).' '.
@@ -139,7 +139,7 @@ try{
             $device = cli_argument();
             cli_no_arguments_left();
 
-            if(!$device){
+            if(!$device) {
                 throw new CoreException(tr('No mac address or ID specified'), 'warning/not-specified');
             }
 
@@ -155,15 +155,15 @@ try{
             $device = cli_argument();
             cli_no_arguments_left();
 
-            if(!$device){
+            if(!$device) {
                 throw new CoreException(tr('No mac address or ID specified'), 'warning/not-specified');
             }
 
             $device = radius_get_device($device);
 
-            if($device['status'] === null){
+            if($device['status'] === null) {
                 throw new CoreException(tr('This device is already enabled'), 'warning/not-specified');
-            }else{
+            } else {
                 radius_insert_device_server($device);
             }
             sql_query('UPDATE `radius_devices` SET `status` = null WHERE `id` = :id', array(':id' => $device['id']));
@@ -180,7 +180,7 @@ try{
             $device = cli_argument();
             cli_no_arguments_left();
 
-            if(!$device){
+            if(!$device) {
                 throw new CoreException(tr('No mac address or ID specified'), 'warning/not-specified');
             }
 
@@ -195,8 +195,8 @@ try{
             throw new CoreException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
     }
 
-}catch(Exception $e){
-    switch($e->getRealCode()){
+}catch(Exception $e) {
+    switch($e->getRealCode()) {
         case 'not-exist':
             // FALLTHROUGH
         case 'multiple':

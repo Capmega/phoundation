@@ -199,7 +199,7 @@ requires jQuery 1.7+
 
 		option: function(key, value)
 		{
-			return this.each(function(){
+			return this.each(function() {
 				var self = $(this);
 				var settings = self.data('timepicker-settings');
 				var list = self.data('timepicker-list');
@@ -355,7 +355,7 @@ requires jQuery 1.7+
 			}
 
 			// sort by starting time
-			settings.disableTimeRanges = settings.disableTimeRanges.sort(function(a, b){
+			settings.disableTimeRanges = settings.disableTimeRanges.sort(function(a, b) {
 				return a[0] - b[0];
 			});
 
@@ -401,7 +401,7 @@ requires jQuery 1.7+
 
 			if ($.isArray(settings.noneOption)) {
 				for (var i in settings.noneOption) {
-					if (parseInt(i, 10) == i){
+					if (parseInt(i, 10) == i) {
 						var noneElement = _generateNoneElement(settings.noneOption[i], settings.useSelect);
 						list.append(noneElement);
 					}
@@ -493,13 +493,13 @@ requires jQuery 1.7+
 				list.val(_roundAndFormatTime(self.val(), settings));
 			}
 
-			list.on('focus', function(){
+			list.on('focus', function() {
 				$(this).data('timepicker-input').trigger('showTimepicker');
 			});
-			list.on('blur', function(){
+			list.on('blur', function() {
 				$(this).data('timepicker-input').trigger('hideTimepicker');
 			});
-			list.on('change', function(){
+			list.on('change', function() {
 				_setTimeValue(self, $(this).val(), 'select');
 			});
 
@@ -521,7 +521,7 @@ requires jQuery 1.7+
 				// to deal with the fact that IE fires 'focus'
 				// events asynchronously
 				self.off('focus.timepicker');
-				self.on('focus.timepicker-ie-hack', function(){
+				self.on('focus.timepicker-ie-hack', function() {
 					self.off('focus.timepicker-ie-hack');
 					self.on('focus.timepicker', methods.show);
 				});
@@ -705,7 +705,7 @@ requires jQuery 1.7+
 		}
 
 		// check that time isn't within disabled time ranges
-		$.each(settings.disableTimeRanges, function(){
+		$.each(settings.disableTimeRanges, function() {
 			if (seconds >= this[0] && seconds < this[1]) {
 				rangeError = true;
 				return false;

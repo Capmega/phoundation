@@ -12,7 +12,7 @@ $rights = array('profile'        => 'This right will allow the user access to th
                 'profile_update' => 'This right will allow the user to update their profile information',
                 'password'       => 'This right will allow the user access to the user passwords update page');
 
-foreach($rights as $name => $description){
+foreach($rights as $name => $description) {
     $p->execute(array(':name'        => $name,
                       ':description' => $description));
 }

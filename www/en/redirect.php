@@ -5,7 +5,7 @@ try{
     load_libs('redirect');
     redirect_from_code(isset_get($_GET['code']));
 
-}catch(Exception $e){
+}catch(Exception $e) {
     page_show(404);
 }
 ?>
