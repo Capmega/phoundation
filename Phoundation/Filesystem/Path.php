@@ -2,6 +2,9 @@
 
 namespace Phoundation\Filesystem;
 
+use Phoundation\Core\Strings;
+use Phoundation\Filesystem\Exception\FilesystemException;
+
 /**
  * Path class
  *
@@ -30,102 +33,135 @@ class Path
      * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
      * @return string The specified file
      */
-    public static function ensure(string $path, ?string $mode = null, bool $clear = false, string|array $restrictions = ROOT): string
+    public static function ensure(string $path, ?string $mode = null, ?bool $clear = false, ?Restrictions $restrictions = null): string
     {
-        global $_CONFIG;
+        if($mode === null) {
+            $mode = $_CONFIG['file']['dir_mode'];
 
-        try{
-            if($mode === null) {
-                $mode = $_CONFIG['file']['dir_mode'];
+            if(!$mode) {
+                /*
+                 * Mode configuration is not available (yet?)
+                 * Fall back to a default mode, 0770 for directories
+                 */
+                $mode = 0770;
+            }
+        }
 
-                if(!$mode) {
+        if($clear) {
+            /*
+             * Delete the currently existing file so we can  be sure we have an
+             * empty directory
+             */
+            file_delete($path, $restrictions);
+        }
+
+        if(!file_exists(Strings::unslash($path))) {
+            /*
+             * The complete requested path doesn't exist. Try to create it, but
+             * directory by directory so that we can correct issues as we run in
+             * to them
+             */
+            $dirs = explode('/', Strings::startsNotWith($path, '/'));
+            $path = '';
+
+            foreach($dirs as $dir) {
+                $path .= '/'.$dir;
+
+                if(file_exists($path)) {
+                    if(!is_dir($path)) {
+                        /*
+                         * Some normal file is in the way. Delete the file, and
+                         * retry
+                         */
+                        File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions) {
+                            File::delete($path, $restrictions);
+                        });
+
+                        return Path::ensure($path, $mode);
+                    }
+
+                    continue;
+
+                } elseif(is_link($path)) {
                     /*
-                     * Mode configuration is not available (yet?)
-                     * Fall back to a default mode, 0770 for directories
+                     * This is a dead symlink, delete it
                      */
-                    $mode = 0770;
-                }
-            }
-
-            if($clear) {
-                /*
-                 * Delete the currently existing file so we can  be sure we have an
-                 * empty directory
-                 */
-                file_delete($path, $restrictions);
-            }
-
-            if(!file_exists(unslash($path))) {
-                /*
-                 * The complete requested path doesn't exist. Try to create it, but
-                 * directory by directory so that we can correct issues as we run in
-                 * to them
-                 */
-                $dirs = explode('/', str_starts_not($path, '/'));
-                $path = '';
-
-                foreach($dirs as $dir) {
-                    $path .= '/'.$dir;
-
-                    if(file_exists($path)) {
-                        if(!is_dir($path)) {
-                            /*
-                             * Some normal file is in the way. Delete the file, and
-                             * retry
-                             */
-                            file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions) {
-                                file_delete($path, $restrictions);
-                            });
-
-                            return file_ensure_path($path, $mode);
-                        }
-
-                        continue;
-
-                    } elseif(is_link($path)) {
-                        /*
-                         * This is a dead symlink, delete it
-                         */
-                        file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions) {
-                            file_delete($path, $restrictions);
-                        });
-                    }
-
-                    try{
-                        /*
-                         * Make sure that the parent path is writable when creating
-                         * the directory
-                         */
-                        file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode) {
-                            mkdir($path, $mode);
-                        });
-
-                    }catch(Exception $e) {
-                        /*
-                         * It sometimes happens that the specified path was created
-                         * just in between the file_exists and mkdir
-                         */
-                        if(!file_exists($path)) {
-                            throw $e;
-                        }
-                    }
+                    File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions) {
+                        File::delete($path, $restrictions);
+                    });
                 }
 
-            } elseif(!is_dir($path)) {
-                /*
-                 * Some other file is in the way. Delete the file, and retry.
-                 *
-                 * Ensure that the "file" is not accidentally specified as a
-                 * directory ending in a /
-                 */
-                file_delete(str_ends_not($path, '/'), $restrictions);
-                return file_ensure_path($path, $mode);
+                try{
+                    /*
+                     * Make sure that the parent path is writable when creating
+                     * the directory
+                     */
+                    File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode) {
+                        mkdir($path, $mode);
+                    });
+
+                }catch(Exception $e) {
+                    /*
+                     * It sometimes happens that the specified path was created
+                     * just in between the file_exists and mkdir
+                     */
+                    if(!file_exists($path)) {
+                        throw $e;
+                    }
+                }
             }
 
-            return slash(realpath($path).'/');
+        } elseif(!is_dir($path)) {
+            /*
+             * Some other file is in the way. Delete the file, and retry.
+             *
+             * Ensure that the "file" is not accidentally specified as a
+             * directory ending in a /
+             */
+            File::delete(Strings::endsNotWith($path, '/'), $restrictions);
+            return file_ensure_path($path, $mode);
+        }
 
-        }catch(Exception $e) {
-            throw new CoreException(tr('file_ensure_path(): Failed to ensure path ":path"', array(':path' => $path)), $e);
+        return Strings::slash(realpath($path).'/');
+    }
+
+
+
+    /**
+     * realpath() wrapper that won't crash with an exception if the specified string is not a real path
+     *
+     * @version 2.8.40: Added function and documentation
+     * @example
+     * code
+     * show(is_path('test'));
+     * showdie(is_path('/bin'));
+     * /code
+     *
+     * This would return
+     * code
+     * false
+     * /bin
+     * /code
+     *
+     * @param string $path
+     * @return ?string string The real path extrapolated from the specified $path, if exists. False if whatever was
+     *                 specified does not exist.
+     */
+    public static function real(string $path): ?string
+    {
+        try{
+            return realpath($path);
+
+        }catch(\Throwable $e) {
+            // If PHP threw an error for the path not being a path at all, just return false
+            $data = $e->getData(true);
+
+            if(str_contains($data, 'expects parameter 1 to be a valid path')) {
+                return null;
+            }
+
+            // This is some other error, keep throwing
+            throw new FilesystemException(tr('Failed'), previous: $e);
         }
     }
 }
