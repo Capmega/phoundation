@@ -2187,43 +2187,61 @@ class File
      */
     public static function ensureWritable(string $file, ?int $file_mode = null, ?int $directory_mode = null, string $type = 'file'): string
     {
-        try{
-            // If the specified file exists and is writable, then we're done.
-            if(is_writable($file)){
+        // If the specified file exists and is writable, then we're done.
+        if(is_writable($file)){
 
-                return false;
-            }
-
-            // From here the file is not writable. It may not exist or it may simply not be writable. Lets continue...
-
-            // Get configuration. We need file and directory default modes
-            $file_mode = Config::get('filesystem.mode.default.file', 0660, $file_mode);
-            $directory_mode = Config::get('filesystem.mode.default.directory', 0750, $directory_mode);
-
-            if (file_exists($file)) {
-                // Great! The file exists but it is not writable at this moment. Try to make it writable.
-                try {
-                    Log::warning(tr('The specified file ":file" (Realpath ":path") is not writable. Attempting to apply default file mode "' . $file_mode . '"', [':file' => $file, ':path' => realpath($file)]);
-                    self::chmod($file, 'u+w');
-                    return $file;
-                } catch (ProcessesException $e) {
-                    throw new FileNotWritableException(
-                        'The specified file ":file" (Realpath ":path") is not writable, and could not be made writable',
-                        [':file' => $file, ':path' => realpath($file)]
-                    );
-                }
-            }
-
-            // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
-            Path::ensure(dirname($file));
-
-            //
-
-            return $perms;
-
-        }catch(Exception $e){
-            throw new CoreException(tr('file_ensure_writable(): Failed'), $e);
+            return false;
         }
+
+        // From here the file is not writable. It may not exist or it may simply not be writable. Lets continue...
+
+        // Get configuration. We need file and directory default modes
+        $file_mode = Config::get('filesystem.mode.default.file', 0660, $file_mode);
+        $directory_mode = Config::get('filesystem.mode.default.directory', 0750, $directory_mode);
+
+        if (file_exists($file)) {
+            // Great! The file exists, but it is not writable at this moment. Try to make it writable.
+            try {
+                Log::warning(tr('The specified file ":file" (Realpath ":path") is not writable. Attempting to apply default file mode "' . $file_mode . '"', [':file' => $file, ':path' => realpath($file)]);
+                self::chmod($file, 'u+w');
+                return $file;
+            } catch (ProcessesException $e) {
+                throw new FileNotWritableException(tr(
+                    'The specified file ":file" (Realpath ":path") is not writable, and could not be made writable',
+                    [
+                        ':file' => $file,
+                        ':path' => realpath($file)
+                    ]
+                ));
+            }
+        }
+
+        // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
+        Path::ensure(dirname($file));
+        Log::warning(tr(
+            'The specified file ":file" (Realpath ":path") does not exist. Attempting to create it with file mode "' . $file_mode . '"',
+            [
+                ':file' => $file,
+                ':path' => realpath($file)
+            ]
+        ));
+
+        switch ($type) {
+            case 'file':
+                touch($file);
+                chmod($file, $file_mode);
+                break;
+
+            case 'directory':
+                mkdir($file);
+                chmod($file, $directory_mode);
+                break;
+
+            default:
+                throw new OutOfBoundsException('The specified type "' . Strings::log($type) . '" is invalid, it should be one of "file" or "directory"');
+        }
+
+        return realpath($file);
     }
 
 
@@ -2234,68 +2252,62 @@ class File
      * Idea taken from http://php.net/manual/en/function.fileperms.php
      */
     public static function type($file){
-        try{
-            $perms  = fileperms($file);
+        $perms     = fileperms($file);
+        $socket    = (($perms & 0xC000) == 0xC000);
+        $symlink   = (($perms & 0xA000) == 0xA000);
+        $regular   = (($perms & 0x8000) == 0x8000);
+        $bdevice   = (($perms & 0x6000) == 0x6000);
+        $cdevice   = (($perms & 0x2000) == 0x2000);
+        $directory = (($perms & 0x4000) == 0x4000);
+        $fifopipe  = (($perms & 0x1000) == 0x1000);
 
-            $socket    = (($perms & 0xC000) == 0xC000);
-            $symlink   = (($perms & 0xA000) == 0xA000);
-            $regular   = (($perms & 0x8000) == 0x8000);
-            $bdevice   = (($perms & 0x6000) == 0x6000);
-            $cdevice   = (($perms & 0x2000) == 0x2000);
-            $directory = (($perms & 0x4000) == 0x4000);
-            $fifopipe  = (($perms & 0x1000) == 0x1000);
-
-            if($socket){
-                /*
-                 * This file is a socket
-                 */
-                return 'socket';
-
-            }elseif($symlink){
-                /*
-                 * This file is a symbolic link
-                 */
-                return 'symbolic link';
-
-            }elseif($regular){
-                /*
-                 * This file is a regular file
-                 */
-                return 'regular file';
-
-            }elseif($bdevice){
-                /*
-                 * This file is a block device
-                 */
-                return 'block device';
-
-            }elseif($directory){
-                /*
-                 * This file is a directory
-                 */
-                return 'directory';
-
-            }elseif($cdevice){
-                /*
-                 * This file is a character device
-                 */
-                return 'character device';
-
-            }elseif($fifopipe){
-                /*
-                 * This file is a FIFO pipe
-                 */
-                return 'fifo pipe';
-            }
-
+        if($socket){
             /*
-             * This file is an unknown type
+             * This file is a socket
              */
-            return 'unknown';
+            return 'socket';
 
-        }catch(Exception $e){
-            throw new CoreException(tr('file_type(): Failed for file ":file"', array(':file' => $file)), $e);
+        }elseif($symlink) {
+            /*
+             * This file is a symbolic link
+             */
+            return 'symbolic link';
+
+        }elseif($regular){
+            /*
+             * This file is a regular file
+             */
+            return 'regular file';
+
+        }elseif($bdevice){
+            /*
+             * This file is a block device
+             */
+            return 'block device';
+
+        }elseif($directory){
+            /*
+             * This file is a directory
+             */
+            return 'directory';
+
+        }elseif($cdevice){
+            /*
+             * This file is a character device
+             */
+            return 'character device';
+
+        }elseif($fifopipe){
+            /*
+             * This file is a FIFO pipe
+             */
+            return 'fifo pipe';
         }
+
+        /*
+         * This file is an unknown type
+         */
+        return 'unknown';
     }
 
 
