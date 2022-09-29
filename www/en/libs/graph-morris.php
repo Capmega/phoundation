@@ -55,7 +55,7 @@ function graph_morris_library_init() {
  */
 function graph_morris_generate(array $params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'type'   , 'bar');
         array_default($params, 'labels' , 'label1');
         array_default($params, 'colors' , '#33414E');

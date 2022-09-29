@@ -21,7 +21,7 @@ class Dependencies
     function ensure_installed($params)
     {
         try {
-            array_ensure($params);
+            Arrays::ensure($params);
 
             /*
              * Check if specified library is installed
@@ -34,7 +34,7 @@ class Dependencies
              * Test available files
              */
             if (isset($params['checks'])) {
-                foreach (array_force($params['checks']) as $path) {
+                foreach (Arrays::force($params['checks']) as $path) {
                     if (!file_exists($path)) {
                         $fail = 'path ' . $path;
                         break;
@@ -46,7 +46,7 @@ class Dependencies
              * Test available functions
              */
             if (isset($params['functions']) and !isset($fail)) {
-                foreach (array_force($params['functions']) as $function) {
+                foreach (Arrays::force($params['functions']) as $function) {
                     if (!function_exists($function)) {
                         $fail = 'function ' . $function;
                         break;
@@ -58,7 +58,7 @@ class Dependencies
              * Test available functions
              */
             if (isset($params['which']) and !isset($fail)) {
-                foreach (array_force($params['which']) as $program) {
+                foreach (Arrays::force($params['which']) as $program) {
                     if (!file_which($program)) {
                         $fail = 'which ' . $program;
                         break;

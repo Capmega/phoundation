@@ -489,7 +489,7 @@ function fprint_test_device($timeout = 0.5) {
 
     }catch(Exception $e) {
         $results = $e->getData();
-        $results = array_force($results);
+        $results = Arrays::force($results);
         $result  = array_pop($results);
 
         if(strstr($result, 'No devices available')) {
@@ -527,7 +527,7 @@ function fprint_process_result() {
     $fprint = isset_get($_SESSION['fprint']);
     unset($_SESSION['fprint']);
 
-    array_ensure($fprint, 'result');
+    Arrays::ensure($fprint, 'result');
 
     switch($fprint['result']) {
         case '':

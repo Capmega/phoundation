@@ -106,7 +106,7 @@ function providers_validate($provider) {
         if($provider['phones']) {
             $v->hasMaxChars($provider['phones'], 36, tr('Please ensure the phones field has less than 36 characters'));
 
-            foreach(array_force($provider['phones']) as &$phone) {
+            foreach(Arrays::force($provider['phones']) as &$phone) {
                 $v->isPhonenumber($phone, tr('Please ensure the phone number ":phone" is valid', array(':phone' => $phone)));
             }
 
@@ -284,7 +284,7 @@ function providers_update($provider) {
  */
 function providers_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'         , 'seoprovider');
         array_default($params, 'class'        , 'form-control');
         array_default($params, 'selected'     , null);
@@ -398,7 +398,7 @@ function providers_get($params) {
  */
 function providers_list($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));
 

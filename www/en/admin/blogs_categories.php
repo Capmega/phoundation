@@ -281,7 +281,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
                 throw new CoreException('No categories selected to delete', 'notspecified');
             }
 
-            $list = array_prefix(array_force($_POST['id']), ':id', true);
+            $list = array_prefix(Arrays::force($_POST['id']), ':id', true);
 
             $r    = sql_query('UPDATE `blogs_categories`
                                SET    `status` = "deleted"
@@ -311,7 +311,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
                 throw new CoreException('No categories selected to undelete', 'notspecified');
             }
 
-            $list = array_prefix(array_force($_POST['id']), ':id', true);
+            $list = array_prefix(Arrays::force($_POST['id']), ':id', true);
 
             $r = sql_query('UPDATE `blogs_categories`
                             SET    `status` = NULL
@@ -341,7 +341,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
                 throw new CoreException('No categories selected to erase', 'notspecified');
             }
 
-            $list = array_prefix(array_force($_POST['id']), ':id', true);
+            $list = array_prefix(Arrays::force($_POST['id']), ':id', true);
 
             $r = sql_query('DELETE FROM `blogs_categories` WHERE `status` = "deleted" AND `id` IN ('.implode(', ', array_keys($list)).')', $list);
 

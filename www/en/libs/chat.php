@@ -327,8 +327,8 @@ function chat_start($user) {
             throw new CoreException(tr('chat_start(): Specified user ":user" doesn\'t exist in the chat database', array(':user' => $user['id'])), 'not-exists');
         }
 
-        setcookie('username', $user['user_name']    , time() + 86400, '/', ''.str_starts($_SESSION['domain'], '.'));
-        setcookie('password', $user['user_password'], time() + 86400, '/', ''.str_starts($_SESSION['domain'], '.'));
+        setcookie('username', $user['user_name']    , time() + 86400, '/', ''.Strings::startsWith($_SESSION['domain'], '.'));
+        setcookie('password', $user['user_password'], time() + 86400, '/', ''.Strings::startsWith($_SESSION['domain'], '.'));
 
         return '<iframe src="'.PROTOCOL.'chat.'.$_CONFIG['domain'].'" frameborder="0" class="chat"></iframe>';
 

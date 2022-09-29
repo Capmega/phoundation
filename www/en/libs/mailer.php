@@ -86,8 +86,8 @@ function mailer_insert($params) {
         /*
          * Validate from / to
          */
-        $params['from'] = array_force($params['from']);
-        $params['to']   = array_force($params['to']);
+        $params['from'] = Arrays::force($params['from']);
+        $params['to']   = Arrays::force($params['to']);
 
         if(count($params['from']) != count($params['to'])) {
             throw new CoreException('mailer_insert(): The element count specified in "from" ('.count($params['from']).'), does not match the element count specified in "to" ('.count($params['to']).')', 'invalid');
@@ -197,7 +197,7 @@ function mailer_add_users($users, $mailing, $validate_mailing = true) {
         /*
          * Only add specified users
          */
-        foreach(array_force($users) as $users_id) {
+        foreach(Arrays::force($users) as $users_id) {
             $name     = $users_id;
             $users_id = sql_get('SELECT `id`, `mailings`
 
@@ -282,7 +282,7 @@ function mailer_unsubscribe($user, $validate_user = true) {
  */
 function mailer_get($params, $columns = false) {
     try{
-        array_ensure($params, 'name', 'id');
+        Arrays::ensure($params, 'name', 'id');
 
         foreach(array('id', 'name') as $key) {
             if(isset_get($params[$key])) {
@@ -738,7 +738,7 @@ function mailer_status($mailers, $status) {
                  * Set status for specific mailers
                  */
                 $count   = 0;
-                $mailers = array_force($mailers);
+                $mailers = Arrays::force($mailers);
 
                 if(empty($mailers)) {
                     throw new CoreException('mailer_status(): No mailer names specified');

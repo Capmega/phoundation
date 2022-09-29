@@ -21,7 +21,7 @@
  */
 function synonym($source, $params = array()) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'synonyms', null);
         array_default($params, 'chance'  , 50);
         array_default($params, 'skip'    , null);
@@ -31,17 +31,17 @@ function synonym($source, $params = array()) {
         }
 
         if($params['skip']) {
-            $params['skip'] = array_force(strtolower(str_force($params['skip'])));
+            $params['skip'] = Arrays::force(strtolower(str_force($params['skip'])));
         }
 
         /*
          * Do replace from specified synonyms list
          */
         if(!empty($params['synonyms'])) {
-            $params['synonyms'] = array_force($params['synonyms']);
+            $params['synonyms'] = Arrays::force($params['synonyms']);
 
             foreach($params['synonyms'] as $list) {
-                $list = array_force($list);
+                $list = Arrays::force($list);
 
                 foreach($list as $synonym) {
                     if(mt_rand(0, 100) < $params['chance']) {

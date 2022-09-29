@@ -69,7 +69,7 @@ switch(cli_method()) {
             $proxies = $_CONFIG['curl']['proxies'];
 
         } else {
-            $proxies = array_force($proxies);
+            $proxies = Arrays::force($proxies);
         }
 
         foreach($proxies as $proxy) {

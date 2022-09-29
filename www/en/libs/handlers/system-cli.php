@@ -131,13 +131,13 @@ try{
                             $e = new BException(tr('core::startup(): Sorry, this script has no help text defined'), 'warning');
                         }
 
-                        $GLOBALS['help'] = array_force($GLOBALS['help'], "\n");
+                        $GLOBALS['help'] = Arrays::force($GLOBALS['help'], "\n");
 
                         if(count($GLOBALS['help']) == 1) {
                             log_console(array_shift($GLOBALS['help']), 'white');
 
                         } else {
-                            foreach(array_force($GLOBALS['help'], "\n") as $line) {
+                            foreach(Arrays::force($GLOBALS['help'], "\n") as $line) {
                                 log_console($line, 'white');
                             }
 

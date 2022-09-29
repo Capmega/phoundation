@@ -450,7 +450,7 @@ try{
                         /*
                          * Clean data
                          */
-                        $e->setData(array_hide(array_force($e->getData()), 'GLOBALS,%pass,ssh_key'));
+                        $e->setData(array_hide(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
                     }
 
                     showdie($e);

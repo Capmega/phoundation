@@ -117,7 +117,7 @@ function email_poll($params) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'account'       , null);
         array_default($params, 'mail_box'      , null);
         array_default($params, 'criteria'      , 'ALL');
@@ -447,7 +447,7 @@ function email_get_conversation($email) {
         /*
          *
          */
-        array_ensure($email, 'subject');
+        Arrays::ensure($email, 'subject');
 
         $conversation = sql_get('SELECT `id`,
                                         `users_id`,
@@ -464,8 +464,8 @@ function email_get_conversation($email) {
                                        ':them1'     => '%'.$email['from'].'%',
                                        ':us2'       => '%'.$email['to'].'%',
                                        ':them2'     => '%'.$email['from'].'%',
-                                       ':subject'   => mb_trim(str_starts_not($email['subject'], 'RE:')),
-                                       ':resubject' => str_starts($email['subject'], 'RE:')));
+                                       ':subject'   => mb_trim(Strings::startsNotWith($email['subject'], 'RE:')),
+                                       ':resubject' => Strings::startsWith($email['subject'], 'RE:')));
 
         if(!$conversation) {
             /*
@@ -913,7 +913,7 @@ function email_send($email, $smtp = null, $account = null) {
     global $_CONFIG;
 
     try{
-        array_ensure($email);
+        Arrays::ensure($email);
         array_default($email, 'delayed'     , true);
         array_default($email, 'conversation', true);
         array_default($email, 'validate'    , true);
@@ -1022,7 +1022,7 @@ function email_send($email, $smtp = null, $account = null) {
         $mail->AltBody = $email['text'];
 
         if(!empty($email['attachments'])) {
-            foreach(array_force($email['attachments']) as $attachment) {
+            foreach(Arrays::force($email['attachments']) as $attachment) {
 // :IMPLEMENT:
             //$mail->AddAttachment("/var/tmp/file.tar.gz"); // attachment
             //$mail->AddAttachment("/tmp/image.jpg", "new.jpg"); // attachment
@@ -1230,8 +1230,8 @@ function email_prepare($email) {
     global $_CONFIG;
 
     try{
-        array_ensure($email, 'replace,template');
-        array_ensure($email['replace']);
+        Arrays::ensure($email, 'replace,template');
+        Arrays::ensure($email['replace']);
 
         array_default($email, 'header', isset_get($_CONFIG['email']['header']));
         array_default($email, 'footer', isset_get($_CONFIG['email']['footer']));
@@ -1250,7 +1250,7 @@ function email_prepare($email) {
                 throw new CoreException(tr('email_prepare(): Unkown template ":template"', array(':template' => $email['template'])), 'unkown');
             }
 
-            array_ensure($_CONFIG['email']['templates'][$email['template']], 'subject,file');
+            Arrays::ensure($_CONFIG['email']['templates'][$email['template']], 'subject,file');
 
             /*
              * Apply the design template, and the specific template
@@ -1557,7 +1557,7 @@ function email_delay($email) {
     global $_CONFIG;
 
     try{
-        array_ensure($email);
+        Arrays::ensure($email);
         array_default($email, 'auto_start', isset_get($_CONFIG['email']['delayed']['auto_start']));
 
         log_console(tr('Delaying email from ":from" to ":to" with subject ":subject"', array(':to' => $email['to'], ':from' => $email['from'], ':subject' => $email['subject'])), 'cyan');
@@ -1811,7 +1811,7 @@ function email_validate_account($account, $client) {
  */
 function email_delete($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'account' , '');
         array_default($params, 'mail_box', '');
         array_default($params, 'criteria', '');

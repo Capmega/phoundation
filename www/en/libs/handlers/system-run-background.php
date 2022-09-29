@@ -22,7 +22,7 @@ try{
     if($path == './') {
         $path = ROOT.'scripts/';
 
-    } elseif(str_starts_not($path, '/') == 'base/') {
+    } elseif(Strings::startsNotWith($path, '/') == 'base/') {
         $path = ROOT.'scripts/base/';
     }
 
@@ -61,7 +61,7 @@ try{
             /*
              * Log output to the TMP directory instead of the normal log output
              */
-            $log = TMP.str_starts_not(substr($log, 3), '/');
+            $log = TMP.Strings::startsNotWith(substr($log, 3), '/');
 
         } else {
             $log = ROOT.'data/log/'.$log;

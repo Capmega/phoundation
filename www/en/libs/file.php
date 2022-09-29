@@ -433,7 +433,7 @@ function file_ensure_path($path, $mode = null, $clear = false, $restrictions = R
              * directory by directory so that we can correct issues as we run in
              * to them
              */
-            $dirs = explode('/', str_starts_not($path, '/'));
+            $dirs = explode('/', Strings::startsNotWith($path, '/'));
             $path = '';
 
             foreach($dirs as $dir) {
@@ -490,7 +490,7 @@ function file_ensure_path($path, $mode = null, $clear = false, $restrictions = R
              * Ensure that the "file" is not accidentally specified as a
              * directory ending in a /
              */
-            file_delete(str_ends_not($path, '/'), $restrictions);
+            file_delete(Strings::endsNotWith($path, '/'), $restrictions);
             return file_ensure_path($path, $mode);
         }
 
@@ -992,8 +992,8 @@ function file_delete($params, $restrictions = null) {
          * Both patterns and restrictions should be arrays, make them so now to
          * avoid them being converted multiple times later on
          */
-        $params['patterns']     = array_force($params['patterns']);
-        $params['restrictions'] = array_force($params['restrictions']);
+        $params['patterns']     = Arrays::force($params['patterns']);
+        $params['restrictions'] = Arrays::force($params['restrictions']);
 
         /*
          * Delete all specified patterns
@@ -1071,7 +1071,7 @@ function file_safe_pattern($pattern) {
          * Escape patterns manually here, safe_exec() will be told NOT to
          * escape them to avoid issues with *
          */
-        $pattern = array_force($pattern, '*');
+        $pattern = Arrays::force($pattern, '*');
 
         foreach($pattern as &$item) {
             $item = escapeshellarg($item);
@@ -1484,7 +1484,7 @@ function file_temp_dir($prefix = '', $mode = null) {
 function file_chmod($params, $mode = null, $restrictions = null) {
     try{
         array_params($params, 'path');
-        array_ensure($params, 'recursive,sudo');
+        Arrays::ensure($params, 'recursive,sudo');
         array_default($params, 'timeout'     , 30);
         array_default($params, 'mode'        , $mode);
         array_default($params, 'restrictions', $restrictions);
@@ -1497,7 +1497,7 @@ function file_chmod($params, $mode = null, $restrictions = null) {
             throw new CoreException(tr('No path specified'), 'not-specified');
         }
 
-        foreach(array_force($params['path']) as $path) {
+        foreach(Arrays::force($params['path']) as $path) {
             file_restrict($path, $params['restrictions']);
 
             $arguments      = array();
@@ -1572,11 +1572,11 @@ function file_get_local($url, &$is_downloaded = false, $context = null) {
         $message = $e->getMessage();
         $message = strtolower($message);
 
-        if(str_exists($message, '404 not found')) {
+        if(str_contains($message, '404 not found')) {
             throw new CoreException(tr('file_get_local(): URL ":file" does not exist', array(':file' => $url)), 'file-404');
         }
 
-        if(str_exists($message, '400 bad request')) {
+        if(str_contains($message, '400 bad request')) {
             throw new CoreException(tr('file_get_local(): URL ":file" is invalid', array(':file' => $url)), 'file-400');
         }
 
@@ -1668,7 +1668,7 @@ function file_session_store($label, $file = null, $path = TMP) {
            file_delete($_SESSION['files'][$label]);
         }
 
-        array_ensure($_SESSION, 'files');
+        Arrays::ensure($_SESSION, 'files');
 
         $target = file_move_to_target($file, $path, false, true, 1);
 
@@ -1724,7 +1724,7 @@ function file_http_download($params) {
     global $_CONFIG;
 
     try{
-        array_ensure($params, 'file,data,name');
+        Arrays::ensure($params, 'file,data,name');
         array_default($params, 'restrictions', ROOT.'data/downloads');
         array_default($params, 'compression' , $_CONFIG['file']['download']['compression']);
         array_default($params, 'filename'    , basename($params['file']));
@@ -1900,7 +1900,7 @@ function file_is_binary($primary, $secondary = null) {
          * Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
          */
         if(!$secondary) {
-            if(!str_exists($primary, '/')) {
+            if(!str_contains($primary, '/')) {
                 throw new CoreException(tr('file_is_compressed(): Invalid primary mimetype data "" specified. Either specify the complete mimetype in $primary, or specify the independant primary and secondary sections in $primary and $secondary', array(':primary' => $primary)), $e);
             }
 
@@ -1979,7 +1979,7 @@ function file_is_compressed($primary, $secondary = null) {
          * Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
          */
         if(!$secondary) {
-            if(!str_exists($primary, '/')) {
+            if(!str_contains($primary, '/')) {
                 throw new CoreException(tr('file_is_compressed(): Invalid primary mimetype data "" specified. Either specify the complete mimetype in $primary, or specify the independant primary and secondary sections in $primary and $secondary', array(':primary' => $primary)), $e);
             }
 
@@ -1990,13 +1990,13 @@ function file_is_compressed($primary, $secondary = null) {
         /*
          * Check the mimetype data
          */
-        if(str_exists($secondary, 'compressed')) {
+        if(str_contains($secondary, 'compressed')) {
             /*
              * This file is already compressed
              */
             return true;
 
-        } elseif(str_exists($secondary, 'zip')) {
+        } elseif(str_contains($secondary, 'zip')) {
             /*
              * This file is already compressed
              */
@@ -2063,7 +2063,7 @@ function file_http_send($params) {
     global $_CONFIG;
 
     try{
-        array_ensure($params, 'file,data,name');
+        Arrays::ensure($params, 'file,data,name');
         array_default($params, 'restrictions', ROOT.'data/downloads');
         array_default($params, 'compression' , $_CONFIG['file']['download']['compression']);
         array_default($params, 'filename'    , basename($params['file']));
@@ -2526,7 +2526,7 @@ function file_get_permissions($file) {
  */
 function file_tree_execute($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'ignore_exceptions', true);
         array_default($params, 'path'             , null);
         array_default($params, 'filters'          , null);
@@ -2573,7 +2573,7 @@ function file_tree_execute($params) {
         /*
          * Filter this path?
          */
-        foreach(array_force($params['filters']) as $filter) {
+        foreach(Arrays::force($params['filters']) as $filter) {
             if(preg_match($filter, $params['path'])) {
                 if(VERBOSE and PLATFORM_CLI) {
                     log_console(tr('file_tree_execute(): Skipping file ":file" because of filter ":filter"', array(':file' => $params['path'], ':filter' => $filter)), 'yellow');
@@ -2650,7 +2650,7 @@ function file_tree_execute($params) {
                                      */
                                     $skip = false;
 
-                                    foreach(array_force($params['filters']) as $filter) {
+                                    foreach(Arrays::force($params['filters']) as $filter) {
                                         if(preg_match($filter, $file)) {
                                             if(VERBOSE and PLATFORM_CLI) {
                                                 log_console(tr('file_tree_execute(): Skipping file ":file" because of filter ":filter"', array(':file' => $params['path'], ':filter' => $filter)), 'yellow');
@@ -2847,7 +2847,7 @@ function file_execute_mode($path, $mode, $callback, $params = null) {
             $message = array_shift($message);
             $message = strtolower($message);
 
-            if(str_exists($message, 'operation not permitted')) {
+            if(str_contains($message, 'operation not permitted')) {
                 throw new CoreException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified path ":path", operation not permitted', array(':mode' => decoct($mode), ':path' => $path)), $e);
             }
 
@@ -3131,10 +3131,10 @@ function file_path_contains_symlink($path, $prefix = null) {
                 throw new CoreException(tr('file_path_contains_symlink(): The specified path ":path" is relative, which requires an absolute $prefix but it is ":prefix"', array(':path' => $path, ':prefix' => $prefix)), 'invalid');
             }
 
-            $location = str_ends($prefix, '/');
+            $location = Strings::endsWith($prefix, '/');
         }
 
-        $path = str_ends_not(str_starts_not($path, '/'), '/');
+        $path = Strings::endsNotWith(Strings::startsNotWith($path, '/'), '/');
 
         foreach(explode('/', $path) as $section) {
             $location .= $section;
@@ -3213,7 +3213,7 @@ function file_create_stream_context($context) {
  */
 function file_sed($params) {
     try{
-        array_ensure($params, 'ok_exitcodes,function,sudo,background,domain');
+        Arrays::ensure($params, 'ok_exitcodes,function,sudo,background,domain');
 
         if(empty($params['source'])) {
             throw new CoreException(tr('file_sed(): No source file specified'), 'not-specified');
@@ -3271,7 +3271,7 @@ function file_sed($params) {
  */
 function file_cat($params) {
     try{
-        array_ensure($params, 'ok_exitcodes,function,sudo,background,domain');
+        Arrays::ensure($params, 'ok_exitcodes,function,sudo,background,domain');
 
         if(empty($params['source'])) {
             throw new CoreException(tr('file_cat(): No source file specified'), 'not-specified');
@@ -3372,7 +3372,7 @@ function file_restrict($params, &$restrictions = null) {
              * Restrictions may have been specified as a CSV list, ensure its an
              * array so we can process then all
              */
-            $restrictions = array_force($restrictions);
+            $restrictions = Arrays::force($restrictions);
         }
 
         /*
@@ -3540,7 +3540,7 @@ function file_from_part($file) {
         file_tree_execute(array('execute_directory' => true,
                                 'path'              => dirname($file),
                                 'callback'          => function($path) use ($file, &$target) {
-                                                           if(str_exists($path, $file)) {
+                                                           if(str_contains($path, $file)) {
                                                                if($target) {
                                                                    /*
                                                                     * We already found another file matching the specified path part
@@ -3600,7 +3600,7 @@ function file_is_path($path) {
          */
         $data = $e->getData(true);
 
-        if(str_exists($data, 'expects parameter 1 to be a valid path')) {
+        if(str_contains($data, 'expects parameter 1 to be a valid path')) {
             return false;
         }
 

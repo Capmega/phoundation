@@ -65,7 +65,7 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
 
         log_console(tr('Using proxy ":proxy"', array(':proxy' => Strings::cut((str_log($serverurl), '://', '/'))), 'VERBOSE');
 
-        $data = curl_get(array('url'        => str_ends($serverurl, '?apikey='.$_CONFIG['curl']['apikey'].'&url=').urlencode($url),
+        $data = curl_get(array('url'        => Strings::endsWith($serverurl, '?apikey='.$_CONFIG['curl']['apikey'].'&url=').urlencode($url),
                                'getheaders' => false,
                                'proxies'    => false));
 

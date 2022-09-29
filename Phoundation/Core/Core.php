@@ -315,13 +315,13 @@ class Core {
                      * Auto detect what http call type we're on from the script
                      * being executed
                      */
-                    if (str_exists($file, '/admin/')) {
+                    if (str_contains($file, '/admin/')) {
                         $this->callType = 'admin';
 
-                    } elseif (str_exists($file, '/ajax/')) {
+                    } elseif (str_contains($file, '/ajax/')) {
                         $this->callType = 'ajax';
 
-                    } elseif (str_exists($file, '/api/')) {
+                    } elseif (str_contains($file, '/api/')) {
                         $this->callType = 'api';
 
                     } elseif ((substr($_SERVER['SERVER_NAME'], 0, 3) === 'api') and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
@@ -617,7 +617,7 @@ function page_show($pagename, $params = null, $get = null)
     global $_CONFIG, $core;
 
     try {
-        array_ensure($params, 'message');
+        Arrays::ensure($params, 'message');
 
         if ($get) {
             if (!is_array($get)) {
@@ -1039,7 +1039,7 @@ function page_show($pagename, $params = null, $get = null)
 //            $messages = $messages->getMessages();
 //        }
 //
-//        foreach(array_force($messages) as $message) {
+//        foreach(Arrays::force($messages) as $message) {
 //            $this->messages[] = $message;
 //        }
 //
@@ -1135,7 +1135,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * @param mixed $data The content for this exception
 //     */
 //    public function setData($data) {
-//        $this->data = array_force($data);
+//        $this->data = Arrays::force($data);
 //    }
 //
 //
@@ -1156,10 +1156,10 @@ function page_show($pagename, $params = null, $get = null)
 //     */
 //    public function makeWarning($value) {
 //        if($value) {
-//            $this->code = str_starts($this->code, 'warning/');
+//            $this->code = Strings::startsWith($this->code, 'warning/');
 //
 //        } else {
-//            $this->code = str_starts_not($this->code, 'warning/');
+//            $this->code = Strings::startsNotWith($this->code, 'warning/');
 //        }
 //
 //        return $this;
@@ -1238,7 +1238,7 @@ function page_show($pagename, $params = null, $get = null)
 //             * Only accept values in this valid list (AND empty!)
 //             * Invalid values will be set to null
 //             */
-//            if (!in_array($_SESSION[$key], array_force($valid))) {
+//            if (!in_array($_SESSION[$key], Arrays::force($valid))) {
 //                $_SESSION[$key] = null;
 //            }
 //        }

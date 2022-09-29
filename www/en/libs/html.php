@@ -480,7 +480,7 @@ function html_generate_css() {
         foreach($core->register['css'] as $file => $meta) {
             if(!$file) continue;
 
-            if(!str_exists(substr($file, 0, 8), '//')) {
+            if(!str_contains(substr($file, 0, 8), '//')) {
                 $file = cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'css/'.($min ? Strings::until($file, '.min').'.min.css' : $file.'.css'));
             }
 
@@ -545,7 +545,7 @@ function html_load_js($files, $list = 'page') {
     try{
         $config = &$_CONFIG['cdn']['js'];
 
-        foreach(array_force($files) as $file) {
+        foreach(Arrays::force($files) as $file) {
             if(strstr($file, '://')) {
                 /*
                  * Compatibility code: ALL LOCAL JS FILES SHOULD ALWAYS BE
@@ -805,7 +805,7 @@ function html_header($params, $meta, &$html) {
     global $_CONFIG, $core;
 
     try{
-        array_ensure($params, 'links,extra');
+        Arrays::ensure($params, 'links,extra');
         array_default($params, 'http'          , 'html');
         array_default($params, 'captcha'       , false);
         array_default($params, 'doctype'       , '<!DOCTYPE html>');
@@ -910,7 +910,7 @@ function html_header($params, $meta, &$html) {
                         break;
 
                     default:
-                        if(!str_exists($font, 'fonts.googleapis.com')) {
+                        if(!str_contains($font, 'fonts.googleapis.com')) {
                             throw new CoreException(tr('html_header(): Unknown font type ":type" specified for font ":font"', array(':type' => $extension, ':font' => $font)), 'unknown');
                         }
 
@@ -962,7 +962,7 @@ function html_meta($meta) {
          * Only add keywords with contents, all that have none are considerred
          * as false, and do-not-add
          */
-        array_ensure($meta, 'title,description,og');
+        Arrays::ensure($meta, 'title,description,og');
 
 //<meta property="og:locale" content="en_GB" />
 //<meta property="og:locale:alternate" content="fr_FR" />
@@ -1072,8 +1072,8 @@ function html_og($og, $meta) {
     global $_CONFIG, $core;
 
     try{
-        array_ensure($meta, 'title,description');
-        array_ensure($og, 'description,url,image');
+        Arrays::ensure($meta, 'title,description');
+        Arrays::ensure($og, 'description,url,image');
         array_default($og, 'url'        , domain(true));
         array_default($og, 'site_name'  , $_CONFIG['name']);
         array_default($og, 'title'      , $meta['title']);
@@ -2266,7 +2266,7 @@ function html_favicon($icon = null, $mobile_icon = null, $sizes = null, $precomp
             $params['sizes'] = array('');
 
         } else {
-            $params['sizes'] = array_force($params['sizes']);
+            $params['sizes'] = Arrays::force($params['sizes']);
         }
 
         foreach($params['sizes'] as $sizes) {
@@ -2314,7 +2314,7 @@ function html_list($params, $selected = '') {
 
         if(!$params['disabled']) {
             if($params['class']) {
-                $params['class'] = str_ends($params['class'], ' ');
+                $params['class'] = Strings::endsWith($params['class'], ' ');
             }
 
             $params['class'].'hover';
@@ -2463,15 +2463,15 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
          * Check if the URL comes from this domain. This info will be needed
          * below
          */
-        $external = str_exists($src, '://');
+        $external = str_contains($src, '://');
 
         if($external) {
 // :TODO: This will fail with the dynamic CDN system!
-            if(str_exists($src, cdn_domain('', ''))) {
+            if(str_contains($src, cdn_domain('', ''))) {
                 /*
                  * The src contains the CDN domain
                  */
-                $file_part = str_starts(Strings::from($src, cdn_domain('', '')), '/');
+                $file_part = Strings::startsWith(Strings::from($src, cdn_domain('', '')), '/');
                 $external  = false;
 
                 if(substr($file_part, 0, 5) === '/pub/') {
@@ -2481,11 +2481,11 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
                     $file_src = ROOT.'data/content'.$file_part;
                 }
 
-            } elseif(str_exists($src, domain(''))) {
+            } elseif(str_contains($src, domain(''))) {
                 /*
                  * Here, mistakenly, the main domain was used for CDN data
                  */
-                $file_part = str_starts(Strings::from($src, domain('')), '/');
+                $file_part = Strings::startsWith(Strings::from($src, domain('')), '/');
                 $file_src  = ROOT.'data/content'.$file_part;
                 $external  = false;
 
@@ -2500,7 +2500,7 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
             /*
              * Assume all images are PUB images
              */
-            $file_part = '/pub'.str_starts($src, '/');
+            $file_part = '/pub'.Strings::startsWith($src, '/');
             $file_src  = ROOT.'www/'.LANGUAGE.$file_part;
             $src       = cdn_domain($src, $section);
         }
@@ -2892,7 +2892,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                     /*
                      * Determine the file target name and src
                      */
-                    if(str_exists($params['src'], '@2x')) {
+                    if(str_contains($params['src'], '@2x')) {
                         $pre    = Strings::until($params['src'], '@2x');
                         $post   = str_from ($params['src'], '@2x');
                         $target = $pre.'@'.$params['width'].'x'.$params['height'].'@2x'.$post;
@@ -2972,7 +2972,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
 
         if($params['lazy']) {
             if($params['extra']) {
-                if(str_exists($params['extra'], 'class="')) {
+                if(str_contains($params['extra'], 'class="')) {
                     /*
                      * Add lazy class to the class definition in "extra"
                      */
@@ -3141,7 +3141,7 @@ function html_video($params) {
     global $_CONFIG;
 
     try{
-        array_ensure($params, 'src,width,height,more,type');
+        Arrays::ensure($params, 'src,width,height,more,type');
         array_default($params, 'controls', true);
 
         if(!$_CONFIG['production']) {
@@ -3188,7 +3188,7 @@ function html_video($params) {
             /*
              * This is a local video
              */
-            $params['src']  = ROOT.'www/en'.str_starts($params['src'], '/');
+            $params['src']  = ROOT.'www/en'.Strings::startsWith($params['src'], '/');
             $params['type'] = mime_content_type($params['src']);
 
         } else {
@@ -3196,7 +3196,7 @@ function html_video($params) {
                 /*
                  * This is a local video with domain specification
                  */
-                $params['src']  = ROOT.'www/en'.str_starts(Strings::from($params['src'], domain()), '/');
+                $params['src']  = ROOT.'www/en'.Strings::startsWith(Strings::from($params['src'], domain()), '/');
                 $params['type'] = mime_content_type($params['src']);
 
             } elseif(!$_CONFIG['production']) {
@@ -3261,7 +3261,7 @@ function html_autosuggest($params) {
     static $sent = array();
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'class'          , '');
         array_default($params, 'input_class'    , 'form-control');
         array_default($params, 'name'           , '');
@@ -3428,7 +3428,7 @@ function html_form($params = null) {
     global $_CONFIG;
 
     try{
-        array_ensure($params, 'extra');
+        Arrays::ensure($params, 'extra');
         array_default($params, 'id'    , 'form');
         array_default($params, 'name'  , $params['id']);
         array_default($params, 'method', 'post');
@@ -3529,7 +3529,7 @@ function html_set_js_cdn_url() {
 function html_filter_tags($html, $tags, $exception = false) {
     try{
         $list = array();
-        $tags = array_force($tags);
+        $tags = Arrays::force($tags);
         $dom  = new DOMDocument();
 
         $dom->loadHTML($html);
@@ -3732,7 +3732,7 @@ function html_loader_screen($params) {
  */
 function html_strip_attributes($source, $allowed_attributes = null) {
     try{
-        $allowed_attributes = array_force($allowed_attributes);
+        $allowed_attributes = Arrays::force($allowed_attributes);
 
         /*
          * If specified source string is empty, then we're done right away

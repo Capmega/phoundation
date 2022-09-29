@@ -376,7 +376,7 @@ function domains_add_keyword($keyword) {
                 $combination = '';
             }
 
-            foreach(array_force($_CONFIG['domains']['scanner']['default_tlds']) as $tld) {
+            foreach(Arrays::force($_CONFIG['domains']['scanner']['default_tlds']) as $tld) {
                 foreach($options as $option) {
                     foreach($reverses as $reverse) {
                         if(!$combination) {

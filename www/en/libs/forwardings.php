@@ -135,7 +135,7 @@ function forwardings_exists($forward) {
  */
 function forwardings_insert($forward, $createdby = null) {
     try{
-        array_ensure($forward, '');
+        Arrays::ensure($forward, '');
         array_default($forward, 'apply', false);
 
         $forward = forwardings_validate($forward);
@@ -183,7 +183,7 @@ function forwardings_insert($forward, $createdby = null) {
  */
 function forwardings_delete($forward) {
     try{
-        array_ensure($forward , '');
+        Arrays::ensure($forward , '');
         array_default($forward, 'apply', true);
 
         sql_query('DELETE FROM `forwardings` WHERE `id` = :id', array(':id' => $forward['id']));
@@ -249,7 +249,7 @@ function forwardings_delete_apply($forward) {
  */
 function forwardings_update($forward, $modifiedby = null) {
     try{
-        array_ensure($forward , '');
+        Arrays::ensure($forward , '');
         array_default($forward, 'apply', true);
 
         $forward     = forwardings_validate($forward);
@@ -342,7 +342,7 @@ function forwardings_update_apply($forward, $old_forward) {
 function forwardings_validate($forward) {
     try{
         load_libs('validate');
-        array_ensure($forward);
+        Arrays::ensure($forward);
 
         $v = new ValidateForm($forward, 'source_ip,source_port,target_ip,target_port,servers_id');
         $v->isNotEmpty($forward['servers_id'], tr('Please specifiy a server'));

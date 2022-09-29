@@ -342,7 +342,7 @@ function blogs_post_update($post, $params = null) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'sitemap_priority'        , 1);
         array_default($params, 'sitemap_change_frequency', 'weekly');
         array_default($params, 'label_code'              , '');
@@ -554,7 +554,7 @@ function blogs_update_post_status($blog, $params, $list, $status) {
     try{
         load_libs('sitemap');
 
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'sitemap_priority'        , 1);
         array_default($params, 'sitemap_change_frequency', 'daily');
 
@@ -1110,7 +1110,7 @@ function blogs_update_keywords($post) {
         $p = sql_prepare('INSERT INTO `blogs_keywords` (`blogs_id`, `blogs_posts_id`, `name`, `seoname`)
                           VALUES                       (:blogs_id , :blogs_posts_id , :name , :seoname )');
 
-        foreach(array_force($post['keywords'], ',') as $keyword) {
+        foreach(Arrays::force($post['keywords'], ',') as $keyword) {
             if(strlen($keyword) < 2) continue;
 
             $p->execute(array(':blogs_id'       => $post['blogs_id'],
@@ -1137,7 +1137,7 @@ function blogs_clean_keywords($keywords, $allow_empty = false) {
 
         $retval = array();
 
-        foreach(array_force($keywords) as $keyword) {
+        foreach(Arrays::force($keywords) as $keyword) {
             $retval[] = mb_trim($keyword);
         }
 
@@ -1165,7 +1165,7 @@ function blogs_seo_keywords($keywords) {
     try{
         $retval = array();
 
-        foreach(array_force($keywords) as $keyword) {
+        foreach(Arrays::force($keywords) as $keyword) {
             $retval[] = seo_create_string($keyword);
         }
 
@@ -1309,7 +1309,7 @@ function blogs_validate_post($post, $params = null) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'force_id'         , false);
         array_default($params, 'use_id'           , false);
         array_default($params, 'namemax'          , 64);
@@ -2377,7 +2377,7 @@ function blogs_update_urls($blogs = null, $category = null) {
 
         $params = array();
 
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'status'                  , 'published');
         array_default($params, 'sitemap_priority'        , 1);
         array_default($params, 'sitemap_change_frequency', 'weekly');
@@ -2419,7 +2419,7 @@ function blogs_update_urls($blogs = null, $category = null) {
             return $count;
         }
 
-        foreach(array_force($blogs) as $blogname) {
+        foreach(Arrays::force($blogs) as $blogname) {
             try{
                 /*
                  * Get blog data either from ID or seoname

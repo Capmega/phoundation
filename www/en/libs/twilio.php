@@ -169,7 +169,7 @@ function twilio_name_phones($numbers, $non_numeric = null) {
         load_libs('sms');
 
         $numbers = sms_full_phones($numbers);
-        $numbers = array_force($numbers);
+        $numbers = Arrays::force($numbers);
 
         foreach($numbers as &$number) {
             if(!is_numeric($number)) {
@@ -1008,7 +1008,7 @@ function twilio_number_to_array($number) {
  */
 function twilio_select_accounts($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name' , 'number');
         array_default($params, 'none' , tr('Select number'));
         array_default($params, 'empty', tr('No numbers available'));
@@ -1048,7 +1048,7 @@ function twilio_select_accounts($params) {
  */
 function twilio_select_number($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'   , 'number');
         array_default($params, 'none'   , tr('Select number'));
         array_default($params, 'empty'  , tr('No numbers available'));

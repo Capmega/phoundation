@@ -176,7 +176,7 @@ function route($regex, $target, $flags = null) {
          * more than 255 characters in their URL.
          */
         $query = Strings::from($_SERVER['REQUEST_URI']      , '?');
-        $uri   = str_starts_not($_SERVER['REQUEST_URI'], '/');
+        $uri   = Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
         $uri   = Strings::until($uri                        , '?');
 
         if(strlen($uri) > 255) {
@@ -189,7 +189,7 @@ function route($regex, $target, $flags = null) {
          * different things
          */
         $flags  = strtoupper($flags);
-        $flags  = array_force($flags);
+        $flags  = Arrays::force($flags);
         $until  = false;    // By default, do not store this rule
         $block  = false;    // By default, do not block this request
         $static = true;     // By default, do check for static rules, if configured so
@@ -208,7 +208,7 @@ function route($regex, $target, $flags = null) {
                     $uri .= '?'.$query;
                     log_file(tr('Adding query to URI ":uri"', array(':uri' => $uri)), 'route', 'VERYVERBOSE/green');
 
-                    if(!str_exists(str_force($flags), 'Q')) {
+                    if(!str_contains(str_force($flags), 'Q')) {
                         /*
                          * Auto imply Q
                          */
@@ -238,7 +238,7 @@ function route($regex, $target, $flags = null) {
                     $uri    = $exists['uri'];
                     $regex  = $exists['regex'];
                     $target = $exists['target'];
-                    $flags  = array_force($exists['flags']);
+                    $flags  = Arrays::force($exists['flags']);
 
                     sql_query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', array(':id' => $exists['id']));
 
@@ -351,7 +351,7 @@ function route($regex, $target, $flags = null) {
                 }
             }
 
-            if(str_exists($route, '$')) {
+            if(str_contains($route, '$')) {
                 /*
                  * There are regex variables left that were not replaced.
                  * Replace them with nothing
@@ -547,7 +547,7 @@ function route($regex, $target, $flags = null) {
              * keys if they have actions specified
              */
             foreach($get as $key => $value) {
-                if(str_exists($key, '=')) {
+                if(str_contains($key, '=')) {
                     /*
                      * Regenerate the key as a $key => $value instead of $key=$value => null
                      */
@@ -725,7 +725,7 @@ function route($regex, $target, $flags = null) {
              * attempt. Since we are going to act as if the static rule AND URI
              * apply, we don't know really, avoid unneeded red flags
              */
-            $flags = array_force($flags);
+            $flags = Arrays::force($flags);
 
             foreach($flags as $id => $flag) {
                 switch($flag[0]) {

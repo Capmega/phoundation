@@ -117,7 +117,7 @@ function detect_client() {
                     }
 
                     $ua = get_browser(null, true);
-                    array_ensure($ua, 'majorver,minorver');
+                    Arrays::ensure($ua, 'majorver,minorver');
 
                 }catch(Exception $e) {
                     /*

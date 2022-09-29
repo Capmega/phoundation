@@ -6,7 +6,7 @@ try{
     /*
      * Set some default message codes
      */
-    array_ensure($messages);
+    Arrays::ensure($messages);
     array_default($messages, 'validation', $e->getMessages());
     array_default($messages, 'captcha'   , $e->getMessages());
 

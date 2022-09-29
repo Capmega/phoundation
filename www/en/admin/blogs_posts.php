@@ -148,7 +148,7 @@ if(isset_get($_POST['status'])) {
                     throw new CoreException('No '.$params['object_name'].' selected to publish', 'notspecified');
                 }
 
-                $list = array_prefix(array_force($_POST['id']), ':id', true);
+                $list = array_prefix(Arrays::force($_POST['id']), ':id', true);
 
                 if($blog) {
                     $list[':blogs_id'] = $blog['id'];
@@ -187,7 +187,7 @@ if(isset_get($_POST['status'])) {
                     throw new CoreException('No '.$params['object_name'].' selected to delete', 'notspecified');
                 }
 
-                $list = array_prefix(array_force($_POST['id']), ':id', true);
+                $list = array_prefix(Arrays::force($_POST['id']), ':id', true);
 
                 if($blog) {
                     $list[':blogs_id'] = $blog['id'];
@@ -224,7 +224,7 @@ if(isset_get($_POST['status'])) {
                     throw new CoreException('No '.$params['object_name'].' selected to undelete', 'notspecified');
                 }
 
-                $list = array_prefix(array_force($_POST['id']), ':id', true);
+                $list = array_prefix(Arrays::force($_POST['id']), ':id', true);
 
                 if($blog) {
                     $list[':blogs_id'] = $blog['id'];
@@ -261,7 +261,7 @@ if(isset_get($_POST['status'])) {
                     throw new CoreException('No '.$params['object_name'].' selected to erase', 'notspecified');
                 }
 
-                $list = array_prefix(array_force($_POST['id']), ':id', true);
+                $list = array_prefix(Arrays::force($_POST['id']), ':id', true);
 
                 if($blog) {
                     $list[':blogs_id'] = $blog['id'];
@@ -298,7 +298,7 @@ if(isset_get($_POST['status'])) {
                     throw new CoreException(tr('No %object% selected for status change', array('%object%' => $params['object_name'].'(s)')), 'notspecified');
                 }
 
-                $list = array_prefix(array_force($_POST['id']), ':id', true);
+                $list = array_prefix(Arrays::force($_POST['id']), ':id', true);
 
                 if($blog) {
                     $list[':blogs_id'] = $blog['id'];

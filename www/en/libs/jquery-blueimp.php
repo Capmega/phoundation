@@ -15,7 +15,7 @@
  */
 function jquery_blueimp($area_selector, $link_selector, $params = null, $options = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'title'     , '');
         array_default($params, 'prev'      , '‹');
         array_default($params, 'next'      , '›');
@@ -23,7 +23,7 @@ function jquery_blueimp($area_selector, $link_selector, $params = null, $options
         array_default($params, 'play_pause', '');
         array_default($params, 'indicator' , '');
 
-        array_ensure($options);
+        Arrays::ensure($options);
         array_default($options, 'index'   , 'link');
         array_default($options, 'event'   , 'event');
         array_default($options, 'onclosed', '   function() {

@@ -225,7 +225,7 @@ function compressor_unzip($params) {
  */
 function compressor_validate(&$params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
 
         if(empty($params['source'])) {
             throw new CoreException(tr('compressor_validate(): No source specified'), 'not-specified');

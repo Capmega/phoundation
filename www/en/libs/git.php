@@ -206,7 +206,7 @@ function git_wait_no_process($path) {
                  * We found a git process, but is it on the specified path?
                  */
                 $git_path = cli_get_cwd($pid, true);
-                $exists   = (str_exists($git_path, $path) or str_exists($path, $git_path));
+                $exists   = (str_contains($git_path, $path) or str_contains($path, $git_path));
 
                 if(!isset($retry)) {
                     $retry = $_CONFIG['git']['retries'];
@@ -293,7 +293,7 @@ function git_apply($file) {
         return $results;
 
     }catch(Exception $e) {
-        $data = array_force($e->getData());
+        $data = Arrays::force($e->getData());
         $data = array_pop($data);
 
         if(strstr($data, 'patch does not apply')) {
@@ -536,7 +536,7 @@ function git_diff($file, $color = false) {
  */
 function git_show($commit, $path = ROOT, $params = null) {
     try{
-        array_ensure($params, 'check');
+        Arrays::ensure($params, 'check');
 
         $arguments = array('show');
 
@@ -571,7 +571,7 @@ function git_show($commit, $path = ROOT, $params = null) {
  */
 function git_fetch($path = ROOT, $params = null) {
     try{
-        array_ensure($params, 'tags,all');
+        Arrays::ensure($params, 'tags,all');
 
         $arguments = array('fetch');
 
@@ -756,7 +756,7 @@ function git_reset($commit = 'HEAD', $path = ROOT, $params = null) {
             $path = dirname($file);
         }
 
-        array_ensure($params, 'hard');
+        Arrays::ensure($params, 'hard');
         $options = '';
 
         if($params['hard']) {

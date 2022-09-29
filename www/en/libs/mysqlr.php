@@ -57,7 +57,7 @@ function mysqlr_update_server_replication_status($params, $status) {
         /*
          * Update server replication_status
          */
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'servers_id' , '');
 
         if(empty($params['servers_id'])) {
@@ -122,7 +122,7 @@ function mysqlr_update_replication_status($params, $status) {
         /*
          * Update server and database replication_status
          */
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'databases_id', '');
         array_default($params, 'servers_id' , '');
 
@@ -203,7 +203,7 @@ function mysqlr_master_replication_setup($params) {
         /*
          * Validate params
          */
-        array_ensure($params, 'domain,database');
+        Arrays::ensure($params, 'domain,database');
 
         /*
          * Check Slave domain
@@ -646,7 +646,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave) {
     global $_CONFIG;
 
     try{
-        array_ensure($server);
+        Arrays::ensure($server);
         array_default($server, 'server'       , '');
         array_default($server, 'domain'       , '');
         array_default($server, 'ssh_key'      , '');
@@ -879,7 +879,7 @@ function mysqlr_full_backup() {
 function mysqlr_scp_database($server, $source, $destnation, $from_server = false) {
     try{
 obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USING THE NEW AVAILABLE FUNCTIONS');
-        array_ensure($server);
+        Arrays::ensure($server);
         array_default($server, 'server'       , '');
         array_default($server, 'domain'       , '');
         array_default($server, 'ssh_key'      , '');
@@ -993,7 +993,7 @@ function mysqlr_add_log($params) {
         /*
          * Validate
          */
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'databases_id', '');
         array_default($params, 'type'        , '');
         array_default($params, 'message'     , '');

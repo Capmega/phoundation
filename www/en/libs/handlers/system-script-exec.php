@@ -6,7 +6,7 @@
 try{
     global $core;
 
-    array_ensure($params, 'script,arguments,function,ok_exitcodes,background,timeout,delay');
+    Arrays::ensure($params, 'script,arguments,function,ok_exitcodes,background,timeout,delay');
 
     /*
      * Validate the requested commands, ensure that script_exec() is only used

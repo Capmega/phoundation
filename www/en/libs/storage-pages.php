@@ -258,7 +258,7 @@ function storage_pages_validate($page, $params = false) {
 
         $empty = !$params;
 
-        array_ensure($params, 'errors', array());
+        Arrays::ensure($params, 'errors', array());
         array_default($params['errors'], 'valid_id'                , tr('Please specify a valid created by id'));
         array_default($params['errors'], 'valid_meta_id'           , tr('Please specify a valid meta id'));
         array_default($params['errors'], 'valid_sections_id'       , tr('Please specify a valid sections id'));

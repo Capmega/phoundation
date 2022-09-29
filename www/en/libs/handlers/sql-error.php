@@ -148,7 +148,7 @@ try{
                     /*
                      * Syntax error or access violation
                      */
-                    if(str_exists(strtoupper($query), 'DELIMITER')) {
+                    if(str_contains(strtoupper($query), 'DELIMITER')) {
                         throw new CoreException(tr('sql_error(): Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', array(':query' => debug_sql($query, $execute, true))), $e);
                     }
 

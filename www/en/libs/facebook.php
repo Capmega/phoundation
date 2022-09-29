@@ -495,7 +495,7 @@ function facebook_button($params) {
          * See https://developers.facebook.com/docs/plugins/like-button
          *     https://developers.facebook.com/docs/plugins/share-button
          */
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'type'      , 'like');    // possible values : 'like' or 'share'
         array_default($params, 'width'     , 225);       // this is the minimal
         array_default($params, 'layout'    , 'button');  // each button type has its own layouts
@@ -505,7 +505,7 @@ function facebook_button($params) {
 
         $html = '';
 
-        foreach(array_force($params['type']) as $type) {
+        foreach(Arrays::force($params['type']) as $type) {
             switch($type) {
                 case 'share':
                     $html .= '<div class="fb-share-button" data-href="'.$params['url'].'"data-layout="'.$params['layout'].'">

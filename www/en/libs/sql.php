@@ -80,7 +80,7 @@ function sql_query($query, $execute = null, $connector_name = null) {
                 }
 
                 if(VERYVERBOSE) {
-                    log_console(str_ends(str_replace("\n", '', debug_sql($query->queryString, $execute, true)), ';'));
+                    log_console(Strings::endsWith(str_replace("\n", '', debug_sql($query->queryString, $execute, true)), ';'));
                 }
 
                 $query->execute($execute);
@@ -100,7 +100,7 @@ function sql_query($query, $execute = null, $connector_name = null) {
         }
 
         if(VERYVERBOSE) {
-            log_console(str_ends(str_replace("\n", '', debug_sql($query, $execute, true)), ';'));
+            log_console(Strings::endsWith(str_replace("\n", '', debug_sql($query, $execute, true)), ';'));
         }
 
         if(!$execute) {
@@ -582,7 +582,7 @@ function sql_connect(&$connector, $use_database = true){
     global $_CONFIG;
 
     try{
-        array_ensure($connector);
+        Arrays::ensure($connector);
         array_default($connector, 'driver' , null);
         array_default($connector, 'host'   , null);
         array_default($connector, 'user'   , null);
@@ -755,7 +755,7 @@ function sql_columns($source, $columns){
             throw new CoreException('sql_columns(): Specified source is not an array');
         }
 
-        $columns = array_force($columns);
+        $columns = Arrays::force($columns);
         $retval  = array();
 
         foreach($source as $key => $value){
@@ -787,8 +787,8 @@ function sql_columns($source, $columns){
 //            throw new CoreException('sql_set(): Specified source is not an array', 'invalid');
 //        }
 //
-//        $columns = array_force($columns);
-//        $filter  = array_force($filter);
+//        $columns = Arrays::force($columns);
+//        $filter  = Arrays::force($filter);
 //        $retval  = array();
 //
 //        foreach($source as $key => $value){
@@ -836,7 +836,7 @@ function sql_values($source, $columns, $prefix = ':'){
             throw new CoreException('sql_values(): Specified source is not an array');
         }
 
-        $columns = array_force($columns);
+        $columns = Arrays::force($columns);
         $retval  = array();
 
         foreach($source as $key => $value){
@@ -1044,8 +1044,8 @@ function sql_in($source, $column = ':value', $filter_null = false, $null_string 
             throw new CoreException(tr('sql_in(): Specified source is empty'), 'not-specified');
         }
 
-        $column = str_starts($column, ':');
-        $source = array_force($source);
+        $column = Strings::startsWith($column, ':');
+        $source = Arrays::force($source);
 
         return array_sequential_keys($source, $column, $filter_null, $null_string);
 
@@ -1256,7 +1256,7 @@ function sql_merge($database_entry, $post, $skip = null){
             $post = array();
         }
 
-        $skip = array_force($skip);
+        $skip = Arrays::force($skip);
 
         /*
          * Copy all POST variables over DB
@@ -1554,10 +1554,10 @@ function sql_exec($server, $query, $root = false, $simple_quotes = false){
         }
 
         if($simple_quotes){
-            $results = servers_exec($server, 'mysql -e \''.str_ends($query, ';').'\'');
+            $results = servers_exec($server, 'mysql -e \''.Strings::endsWith($query, ';').'\'');
 
         } else {
-            $results = servers_exec($server, 'mysql -e \"'.str_ends($query, ';').'\"');
+            $results = servers_exec($server, 'mysql -e \"'.Strings::endsWith($query, ';').'\"');
         }
 
         sql_delete_password_file($server);
@@ -2082,7 +2082,7 @@ function sql_simple_execute($column, $values, $extra = null){
         }
 
         if(is_scalar($values) or ($values === null)){
-            $values = array(str_starts($column, ':') => $values);
+            $values = array(Strings::startsWith($column, ':') => $values);
 
         } elseif(is_array($values)){
             $values = sql_in($values, ':value', true, true);
@@ -2408,7 +2408,7 @@ function sql_get_columns_string($columns, $table){
             throw new CoreException(tr('sql_get_columns_string(): No columns specified'));
         }
 
-        $columns = array_force($columns);
+        $columns = Arrays::force($columns);
 
         foreach($columns as $id => &$column){
             if(!$column){
@@ -2422,7 +2422,7 @@ function sql_get_columns_string($columns, $table){
                 $column = $table.'.'.$column;
             }
 
-            if(str_exists($column, ' as ')){
+            if(str_contains($column, ' as ')){
                 $target  = trim(Strings::from($column, ' as '));
                 $column  = trim(Strings::until($column, ' as '));
                 $column  = '`'.str_replace('.', '`.`', trim($column)).'`';
@@ -2530,7 +2530,7 @@ function sql_get_orderby_string($orderby){
  */
 function sql_simple_list($params){
     try{
-        array_ensure($params, 'joins,debug,limit,page,combine');
+        Arrays::ensure($params, 'joins,debug,limit,page,combine');
 
         if(empty($params['table'])){
             throw new CoreException(tr('sql_simple_list(): No table specified'), 'not-specified');
@@ -2619,7 +2619,7 @@ function sql_simple_list($params){
  */
 function sql_simple_get($params){
     try{
-        array_ensure($params, 'joins,debug,combine');
+        Arrays::ensure($params, 'joins,debug,combine');
 
         if(empty($params['table'])){
             throw new CoreException(tr('sql_simple_get(): No table specified'), 'not-specified');
@@ -2636,7 +2636,7 @@ function sql_simple_get($params){
         array_default($params, 'page'       , null);
         array_default($params, 'template'   , false);
 
-        $params['columns'] = array_force($params['columns']);
+        $params['columns'] = Arrays::force($params['columns']);
 
         /*
          * Apply automatic filter settings

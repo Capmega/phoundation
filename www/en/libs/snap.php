@@ -59,8 +59,8 @@ function snap_library_init() {
  */
 function snap_install($packages, $server = null) {
     try{
-        $packages  = array_force($packages);
-        $arguments = array_merge(array('sudo' => true, 'install', '--classic'), array_force($packages, ' '));
+        $packages  = Arrays::force($packages);
+        $arguments = array_merge(array('sudo' => true, 'install', '--classic'), Arrays::force($packages, ' '));
 
         return servers_exec($server, array('timeout'  => 180,
                                            'function' => (PLATFORM_CLI ? 'passthru' : 'exec'),

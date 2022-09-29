@@ -66,8 +66,8 @@ function apt_install($packages, $auto_update = true, $server = null) {
 
         log_console(tr('Installing packages ":packages" using apt', array(':packages' => $packages)), 'cyan');
 
-        $packages  = array_force($packages);
-        $arguments = array_merge(array('sudo' => true, '-y', 'install'), array_force($packages, ' '));
+        $packages  = Arrays::force($packages);
+        $arguments = array_merge(array('sudo' => true, '-y', 'install'), Arrays::force($packages, ' '));
 
         $results   = servers_exec($server, array('timeout'  => 180,
                                                  'function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
@@ -97,7 +97,7 @@ function apt_install($packages, $auto_update = true, $server = null) {
                     $result = end($data);
                     $result = strtolower(trim($result));
 
-                    if(str_exists($result, 'dpkg was interrupted, you must manually run \'sudo dpkg --configure -a\' to correct the problem')) {
+                    if(str_contains($result, 'dpkg was interrupted, you must manually run \'sudo dpkg --configure -a\' to correct the problem')) {
                         log_console(tr('apt reported dpkg was interrupted, trying to fix'), 'yellow');
 
                         /*

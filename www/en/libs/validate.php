@@ -100,7 +100,7 @@ function verify_js($params) {
     try{
         html_load_js('verify');
 
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'rules'      , null);
         array_default($params, 'group_rules', null);
         array_default($params, 'submit'     , null);
@@ -223,7 +223,7 @@ class ValidateJquery {
                 $params = array('id' => $params);
             }
 
-            $params['id'] = str_starts($params['id'], '#');
+            $params['id'] = Strings::startsWith($params['id'], '#');
 
             $html = 'validator = $("'.$params['id'].'").validate({
                 ignore: ".ignore",
@@ -390,7 +390,7 @@ class ValidateForm {
                 $source = array();
             }
 
-            array_ensure($source, $columns, $default_value, true);
+            Arrays::ensure($source, $columns, $default_value, true);
 
             if($invalidate_more_columns) {
                 if(!is_bool($invalidate_more_columns)) {
@@ -404,7 +404,7 @@ class ValidateForm {
                  * If any other columns beyond the ones specified in $columns
                  * exist, invalidate everything
                  */
-                $columns          = array_force($columns);
+                $columns          = Arrays::force($columns);
                 $columns          = array_flip($columns);
                 $columns['limit'] = true;
 
@@ -1231,7 +1231,7 @@ class ValidateForm {
                 return $this->setError($message);
             }
 
-            foreach(array_force($chars) as $char) {
+            foreach(Arrays::force($chars) as $char) {
                 if($this->not xor !strpos($this->testValue, $char)) {
                     return $this->setError($message);
                 }
@@ -1262,7 +1262,7 @@ class ValidateForm {
                 return $this->setError($message);
             }
 
-            foreach(array_force($chars) as $char) {
+            foreach(Arrays::force($chars) as $char) {
                 if($this->not xor strpos($this->testValue, $char)) {
                     return $this->setError($message);
                 }
@@ -1793,7 +1793,7 @@ class ValidateForm {
                 return $this->setError($message);
             }
 
-            if($this->not xor !in_array($this->testValue, array_force($array))) {
+            if($this->not xor !in_array($this->testValue, Arrays::force($array))) {
                 return $this->setError($message);
             }
 

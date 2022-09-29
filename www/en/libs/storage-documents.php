@@ -379,7 +379,7 @@ function storage_documents_validate($document) {
     try{
         load_libs('validate');
 
-        array_ensure($params, 'errors', array());
+        Arrays::ensure($params, 'errors', array());
         array_default($params['errors'], 'valid_page_id'       , tr('Please specify a valid created by id number'));
         array_default($params['errors'], 'valid_meta_id'       , tr('Please specify a valid meta id number'));
         array_default($params['errors'], 'valid_sections_id'   , tr('Please specify a valid sections id number'));

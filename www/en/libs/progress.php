@@ -115,7 +115,7 @@ function progress_validate_process($process) {
                     $v->setError(tr('Step ":id" is invalid', array(':id' => $id)));
 
                 } else {
-                    array_ensure($step, 'name,url,description');
+                    Arrays::ensure($step, 'name,url,description');
 
                     if(!$step['name']) {
                         /*
@@ -475,7 +475,7 @@ function progress_next($processes_id) {
  */
 function progress_processes_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'         , 'process');
         array_default($params, 'class'        , 'form-control');
         array_default($params, 'selected'     , null);
@@ -544,7 +544,7 @@ function progress_processes_select($params = null) {
  */
 function progress_steps_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'        , 'step');
         array_default($params, 'class'       , 'form-control');
         array_default($params, 'selected'    , null);

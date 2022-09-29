@@ -20,7 +20,7 @@ function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'd
 
     try{
         if(!$data) {
-            $data = array_force($data);
+            $data = Arrays::force($data);
         }
 
         /*
@@ -232,7 +232,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500) {
             }
         }
 
-        $data = array_force($data);
+        $data = Arrays::force($data);
 
         json_reply($data, ($result ? $result : 'ERROR'), $http_code);
 
@@ -257,7 +257,7 @@ function json_message($code, $data = null) {
             $code = $code->getRealCode();
         }
 
-        if(str_exists($code, '_')) {
+        if(str_contains($code, '_')) {
             /*
              * Codes should always use -, never _
              */

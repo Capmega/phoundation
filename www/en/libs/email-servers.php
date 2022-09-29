@@ -326,7 +326,7 @@ function email_servers_list($params = null) {
  */
 function email_servers_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'    , 'seodomain');
         array_default($params, 'class'   , 'form-control');
         array_default($params, 'selected', null);
@@ -610,7 +610,7 @@ function email_servers_scan_domains($params = null) {
 
         load_libs('databases');
 
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'seocustomer', $_SESSION['user']['customer']['seoname']);
 
         $retval      = array();
@@ -687,7 +687,7 @@ function email_servers_scan_domains($params = null) {
  */
 function email_servers_select_domain($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'         , 'seodomain');
         array_default($params, 'class'        , 'form-control');
         array_default($params, 'selected'     , null);
@@ -1116,7 +1116,7 @@ function email_servers_check_seo($params) {
     try{
         load_libs('seo');
 
-        array_ensure($params, 'server,domain,rerun');
+        Arrays::ensure($params, 'server,domain,rerun');
         array_default($params, 'column', 'name');
         array_default($params, 'rerun' , true);
 

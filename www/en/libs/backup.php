@@ -63,7 +63,7 @@ function backup_library_init() {
 //        /*
 //         * See config file for more documentation on the various $_CONFIG['backups']['mysql'] options
 //         */
-//        array_ensure($params);
+//        Arrays::ensure($params);
 //        array_default($params, 'table'          , '');
 //        array_default($params, 'database'       , '');
 //        array_default($params, 'date'           , null);

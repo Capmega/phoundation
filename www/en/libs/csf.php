@@ -426,7 +426,7 @@ function csf_validate_ports($ports, $single = false) {
             throw new CoreException(tr('csf_validate_ports(): No ports specified'), 'not-specified');
         }
 
-        $ports = array_force($ports);
+        $ports = Arrays::force($ports);
 
         if($single and (count($ports) > 1)) {
             throw new CoreException(tr('csf_validate_ports(): Multiple ports specified with single port flag'), 'multiple');

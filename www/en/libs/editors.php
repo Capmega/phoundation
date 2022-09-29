@@ -43,7 +43,7 @@ function editors_library_init() {
  */
 function editors_nicedit($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name' , 'editor');
         array_default($params, 'value', '');
         array_default($params, 'cols' , 40);
@@ -83,7 +83,7 @@ function editors_nicedit($params) {
 */
 function editors_tinymce($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'         , 'editor');
         array_default($params, 'value'        , '');
         array_default($params, 'plugins'      , 'advlist autolink lists link image charmap print preview anchor searchreplace visualblocks code fullscreen insertdatetime media table contextmenu paste jbimages emoticons textcolor');
@@ -141,7 +141,7 @@ function editors_tinymce($params) {
  */
 function editors_summernote($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'            , 'editor');
         array_default($params, 'class'           , 'summernote editor');
         array_default($params, 'extra'           , '');

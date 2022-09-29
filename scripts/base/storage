@@ -83,7 +83,7 @@ switch(cli_method()) {
                     log_console(str_size('#id', 6).' '.str_size('Status', 16).' '.str_size('Createdby', 16).' '.str_size('Created on', 19).' '.str_size('Name', 40), 'cyan');
                 }
 
-                $sections = storage_sections_list(array_force($status));
+                $sections = storage_sections_list(Arrays::force($status));
 
                 while($section = sql_fetch($sections)) {
                     log_console(str_size($section['id'], 6).' '.cli_status_color(str_size($section['status'], 16, ' ', true)).' '.str_size(name($section['createdby']), 16).' '.str_size(date_convert($section['createdon'], 'human_datetime'), 19, ' ', true).' '.str_size($section['name'], 40));
@@ -120,7 +120,7 @@ switch(cli_method()) {
                     log_console(str_size('Section', 16).' '.str_size('#id', 12, ' ', true).' '.str_size('Page count', 10), 'cyan');
                 }
 
-                $documents = storage_documents_list(array_force($status));
+                $documents = storage_documents_list(Arrays::force($status));
 
                 while($document = sql_fetch($documents)) {
                     log_console(str_size($document['section'], 16).' '.str_size($document['id'], 12, ' ', true).' '.cli_status_color(str_size($document['page_count'], 10, ' ', true)));

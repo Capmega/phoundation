@@ -268,7 +268,7 @@ function freeradius_test_device($device) {
         $results = servers_exec($_CONFIG['radius']['server'], 'radtest '.$device['mac_address'].' '.$device['mac_address'].' 127.0.0.1 1812 '.$_CONFIG['radius']['secret']);
         $results = end($results);
 
-        return !str_exists($results, 'Access-Reject');
+        return !str_contains($results, 'Access-Reject');
 
     }catch(Exception $e) {
         load_libs('linux');

@@ -15,8 +15,8 @@
  */
 function rights_give($users, $rights) {
     try{
-        $users  = array_force($users);
-        $rights = array_force($rights);
+        $users  = Arrays::force($users);
+        $rights = Arrays::force($rights);
 
         /*
          * Ensure we have all users id's
@@ -122,8 +122,8 @@ function rights_give($users, $rights) {
  */
 function rights_take($users, $rights) {
     try{
-        $users  = array_force($users);
-        $rights = array_force($rights);
+        $users  = Arrays::force($users);
+        $rights = Arrays::force($rights);
 
         /*
          * Ensure we have all users id's

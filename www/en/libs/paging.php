@@ -75,7 +75,7 @@ function paging_generate($params) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
 
         array_default($params, 'current'       , isset_get($_GET['page']));
         array_default($params, 'prev_next'     , isset_get($_CONFIG['paging']['prev_next']));

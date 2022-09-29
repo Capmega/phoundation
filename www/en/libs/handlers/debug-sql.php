@@ -60,10 +60,10 @@ try{
      * VERYVERBOSE already logs the query, don't log it again
      */
     if(!VERYVERBOSE) {
-        log_file(str_ends($query, ';'), 'debug-sql');
+        log_file(Strings::endsWith($query, ';'), 'debug-sql');
     }
 
-    return show(str_ends($query, ';'), 6);
+    return show(Strings::endsWith($query, ';'), 6);
 
 }catch(Exception $e) {
     throw new CoreException('debug_sql(): Failed', $e);

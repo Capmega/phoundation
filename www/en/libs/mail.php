@@ -37,7 +37,7 @@ function mail_send_templated_email($params, $subject, $body, $language = false, 
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
 
         if(empty($params['to_email'])) {
             throw new CoreException('mail_send_templated_email(): No to_email specified', 'notpsecified');

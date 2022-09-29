@@ -1188,14 +1188,14 @@ class Arrays {
 
         } elseif (!is_array($source)) {
             if (is_object($source)) {
-                throw new CoreException(tr('array_ensure(): Specified source is not an array but an object of the class ":class"', array(':class' => get_class($source))), 'invalid');
+                throw new CoreException(tr('Arrays::ensure(): Specified source is not an array but an object of the class ":class"', array(':class' => get_class($source))), 'invalid');
             }
 
-            throw new CoreException(tr('array_ensure(): Specified source is not an array but a ":type"', array(':type' => gettype($source))), 'invalid');
+            throw new CoreException(tr('Arrays::ensure(): Specified source is not an array but a ":type"', array(':type' => gettype($source))), 'invalid');
         }
 
         if ($keys) {
-            foreach (array_force($keys) as $key) {
+            foreach (Arrays::force($keys) as $key) {
                 if (!$key) {
                     continue;
                 }
@@ -1227,7 +1227,7 @@ class Arrays {
      * @see Strings::force()
      * @example
      * code
-     * print_r(array_force(array('test')));
+     * print_r(Arrays::force(array('test')));
      * /code
      *
      * This will return something like
@@ -1237,7 +1237,7 @@ class Arrays {
      * /code
      *
      * code
-     * print_r(array_force('test'));
+     * print_r(Arrays::force('test'));
      * /code
      *
      * This will return something like

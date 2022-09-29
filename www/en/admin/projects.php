@@ -3,7 +3,7 @@ require_once(__DIR__.'/../libs/startup.php');
 
 page_404();
 
-array_ensure($_GET, 'blog', 'projects');
+Arrays::ensure($_GET, 'blog', 'projects');
 
 $params['blogs_post']      = 'project.php?';
 $params['categories_none'] = tr('Filter by project');

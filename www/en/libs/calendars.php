@@ -244,7 +244,7 @@ function calendars_update($calendar) {
  */
 function calendars_get($calendar, $column = null, $status = null, $parent = false) {
     try{
-        array_ensure($params, 'seocalendar');
+        Arrays::ensure($params, 'seocalendar');
 
         $params['table']   = 'calendars';
 
@@ -297,7 +297,7 @@ function calendars_get($calendar, $column = null, $status = null, $parent = fals
  */
 function calendars_list($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
 
         $params['table'] = 'calendars';
 
@@ -337,7 +337,7 @@ function calendars_list($params) {
  */
 function calendars_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'      , 'seocalendar');
         array_default($params, 'class'     , 'form-control');
         array_default($params, 'selected'  , null);
@@ -352,7 +352,7 @@ function calendars_select($params = null) {
         $execute = array();
 
         if($params['remove']) {
-            if(count(array_force($params['remove'])) == 1) {
+            if(count(Arrays::force($params['remove'])) == 1) {
                 /*
                  * Filter out only one entry
                  */
@@ -363,7 +363,7 @@ function calendars_select($params = null) {
                 /*
                  * Filter out multiple entries
                  */
-                $in      = sql_in(array_force($params['remove']));
+                $in      = sql_in(Arrays::force($params['remove']));
                 $where[] = ' `id` NOT IN ('.implode(', ', array_keys($in)).') ';
                 $execute = array_merge($execute, $in);
             }
@@ -580,7 +580,7 @@ function calendars_update_event($event) {
  */
 function calendars_get_event($event, $column = null, $status = null, $parent = false) {
     try{
-        array_ensure($params, 'seocalendar');
+        Arrays::ensure($params, 'seocalendar');
 
         $params['table']   = 'calendars';
 
@@ -633,7 +633,7 @@ function calendars_get_event($event, $column = null, $status = null, $parent = f
  */
 function calendars_list_events($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
 
         $params['table'] = 'calendars';
 
@@ -673,7 +673,7 @@ function calendars_list_events($params) {
  */
 function calendars_select_event($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'      , 'seocalendar');
         array_default($params, 'class'     , 'form-control');
         array_default($params, 'selected'  , null);
@@ -688,7 +688,7 @@ function calendars_select_event($params = null) {
         $execute = array();
 
         if($params['remove']) {
-            if(count(array_force($params['remove'])) == 1) {
+            if(count(Arrays::force($params['remove'])) == 1) {
                 /*
                  * Filter out only one entry
                  */
@@ -699,7 +699,7 @@ function calendars_select_event($params = null) {
                 /*
                  * Filter out multiple entries
                  */
-                $in      = sql_in(array_force($params['remove']));
+                $in      = sql_in(Arrays::force($params['remove']));
                 $where[] = ' `id` NOT IN ('.implode(', ', array_keys($in)).') ';
                 $execute = array_merge($execute, $in);
             }

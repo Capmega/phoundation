@@ -134,7 +134,7 @@ function fonts_providers($provider = null) {
 function fonts_convert_ufpdf($params) {
     try{
 under_construction();
-        array_ensure($params);
+        Arrays::ensure($params);
         ensure_key($params, 'font'	 , '');
         ensure_key($params, 'unicode', true);
 

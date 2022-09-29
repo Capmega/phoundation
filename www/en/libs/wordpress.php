@@ -27,7 +27,7 @@
  */
 function wp_admin_signin($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'rememberme', true);                      // Check the "remember me" box in the admin login screen
         array_default($params, 'simulation', false);                     // false, partial, or full. "partial" will sign in, but not really post, full will not sign in and not post at all. False will just sign in and post normally.
         array_default($params, 'redirect'  , isset_get($params['url'])); //
@@ -119,7 +119,7 @@ function wp_admin_post($params, $force_new = false) {
     static $retry;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'sleep'  , 15);    // Sleep howmany seconds between retries
         array_default($params, 'retries',  5);    // Retry howmany time on postid failures
 
@@ -301,7 +301,7 @@ show($retval['curl']['data']);
  */
 function wp_admin_trash($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
 
         if(empty($params['curl'])) {
             throw new CoreException('wp_admin_trash(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
@@ -331,7 +331,7 @@ function wp_admin_trash($params) {
         $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=all&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php&action=trash&m=0&paged=1';
 //        $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=all&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_type%3Dpage&action=trash&m=0&paged=1';
 
-        foreach(array_force($params['post_id']) as $post_id) {
+        foreach(Arrays::force($params['post_id']) as $post_id) {
             $url .= '&post%5B%5D='.cfi($post_id);
         }
 
@@ -356,7 +356,7 @@ function wp_admin_trash($params) {
  */
 function wp_admin_restore($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
 
         if(empty($params['curl'])) {
             throw new CoreException('wp_admin_restore(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
@@ -384,7 +384,7 @@ function wp_admin_restore($params) {
         $nonce = Strings::until(Strings::from($params['curl']['data'], '_wpnonce" value="'), '"');
         $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=trash&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_status%3Dtrash%26post_type%3Dpage&action=delete&m=0&paged=1';
 
-        foreach(array_force($params['post_id']) as $post_id) {
+        foreach(Arrays::force($params['post_id']) as $post_id) {
             $url .= '&post%5B%5D='.cfi($post_id);
         }
 
@@ -409,7 +409,7 @@ function wp_admin_restore($params) {
  */
 function wp_admin_remove_permanently($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
 
         if(empty($params['curl'])) {
             throw new CoreException('wp_admin_remove_permanently(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
@@ -437,7 +437,7 @@ function wp_admin_remove_permanently($params) {
         $nonce = Strings::until(Strings::from($params['curl']['data'], '_wpnonce" value="'), '"');
         $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=trash&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_status%3Dtrash%26post_type%3Dpage&action=untrash&m=0&paged=1';
 
-        foreach(array_force($params['post_id']) as $post_id) {
+        foreach(Arrays::force($params['post_id']) as $post_id) {
             $url .= '&post%5B%5D='.cfi($post_id);
         }
 
@@ -462,7 +462,7 @@ function wp_admin_remove_permanently($params) {
  */
 function wp_admin_get($post_id, $curl) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
 
         if(!is_array($curl)) {
             throw new CoreException('wp_admin_get(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
@@ -531,7 +531,7 @@ function wp_admin_get($post_id, $curl) {
  */
 function wp_xmlrpc_post($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'encoding'  , 'UTF-8');
         array_default($params, 'keywords'  , '');
         array_default($params, 'categories', '');
@@ -589,7 +589,7 @@ function wp_xmlrpc_post($params) {
         }
 
         if(isset_get($params['categories'])) {
-            $content['categories'] = array_force($params['categories']);
+            $content['categories'] = Arrays::force($params['categories']);
         }
 
         if(isset_get($params['parents_id'])) {

@@ -133,7 +133,7 @@ class Http
                 /*
                  * Add CORS / Access-Control-Allow-.... headers
                  */
-                $params['cors'] = array_merge($_CONFIG['cors'], array_force($params['cors']));
+                $params['cors'] = array_merge($_CONFIG['cors'], Arrays::force($params['cors']));
 
                 foreach ($params['cors'] as $key => $value) {
                     switch ($key) {
@@ -909,7 +909,7 @@ class Http
 //                 */
 //                $headers = isset_get($_SERVER['HTTP_ACCEPT']);
 //                $headers = str_replace(', ', '', $headers);
-//                $headers = array_force($headers);
+//                $headers = Arrays::force($headers);
 //                $headers = array_flip($headers);
 //            }
 //
@@ -957,10 +957,10 @@ class Http
 //
 //            } else {
 //                $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-//                $headers = array_force($headers, ',');
+//                $headers = Arrays::force($headers, ',');
 //                $default = array_shift($headers);
 //                $retval = array('1.0' => array('language' => Strings::until($default, '-'),
-//                    'locale' => (str_exists($default, '-') ? Strings::from($default, '-') : null)));
+//                    'locale' => (str_contains($default, '-') ? Strings::from($default, '-') : null)));
 //
 //                if (empty($retval['1.0']['language'])) {
 //                    /*
@@ -979,7 +979,7 @@ class Http
 //                foreach ($headers as $header) {
 //                    $requested = Strings::until($header, ';');
 //                    $requested = array('language' => Strings::until($requested, '-'),
-//                        'locale' => (str_exists($requested, '-') ? Strings::from($requested, '-') : null));
+//                        'locale' => (str_contains($requested, '-') ? Strings::from($requested, '-') : null));
 //
 //                    if (empty($_CONFIG['language']['supported'][$requested['language']])) {
 //                        continue;
@@ -1071,7 +1071,7 @@ class Http
                 $url_params['prefix'] = $_CONFIG['url_prefix'];
             }
 
-            $url_params['prefix'] = str_starts_not(str_ends($url_params['prefix'], '/'), '/');
+            $url_params['prefix'] = Strings::startsNotWith(Strings::endsWith($url_params['prefix'], '/'), '/');
             $url_params['domain'] = slash($url_params['domain']);
             $url_params['language'] = get_language($url_params['language']);
 
@@ -1082,10 +1082,10 @@ class Http
                 $retval = PROTOCOL . $url_params['domain'] . ($url_params['language'] ? $url_params['language'] . '/' : '') . $url_params['prefix'];
 
             } elseif ($url_params['url'] === true) {
-                $retval = PROTOCOL . $url_params['domain'] . str_starts_not($_SERVER['REQUEST_URI'], '/');
+                $retval = PROTOCOL . $url_params['domain'] . Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
 
             } else {
-                $retval = PROTOCOL . $url_params['domain'] . ($url_params['language'] ? $url_params['language'] . '/' : '') . $url_params['prefix'] . str_starts_not($url_params['url'], '/');
+                $retval = PROTOCOL . $url_params['domain'] . ($url_params['language'] ? $url_params['language'] . '/' : '') . $url_params['prefix'] . Strings::startsNotWith($url_params['url'], '/');
             }
 
             /*

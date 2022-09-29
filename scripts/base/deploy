@@ -160,7 +160,7 @@ if(strlen($root) > strlen(ROOT)) {
     $rootdiff = Strings::from(ROOT, $root);
 }
 
-$rootdiff = str_ends_not($rootdiff, '/');
+$rootdiff = Strings::endsNotWith($rootdiff, '/');
 
 
 
@@ -208,7 +208,7 @@ if(cli_argument('list')) {
             if(empty($config['categories'])) continue;
             $categories = array();
 
-            foreach(array_force($config['categories']) as $category) {
+            foreach(Arrays::force($config['categories']) as $category) {
                 $categories[] = $category;
             }
         }
@@ -315,11 +315,11 @@ if(!$targets) {
     /*
      * Get the targets from the specified categories
      */
-    foreach(array_force($categories) as $category) {
+    foreach(Arrays::force($categories) as $category) {
         foreach($_CONFIG['deploy'] as $target => $deploy) {
             if(empty($deploy['categories'])) continue;
 
-            $deploy['categories'] = array_force($deploy['categories']);
+            $deploy['categories'] = Arrays::force($deploy['categories']);
 
             if(in_array($category, $deploy['categories'])) {
                 $targets[] = $target;
@@ -710,7 +710,7 @@ foreach($targets as $target_environment) {
     $deploy_config['target_dir']           = unslash($deploy_config['target_dir']);
     $deploy_config['preserve_owner_group'] = (!$no_preserve_og and isset_get($deploy_config['preserve_owner_group'], true));
 
-    array_ensure($deploy_config, 'target_user,target_server,target_port,target_dir,categories,modes,include_dirs,exclude_dirs,rsync_parrallel,sudo,user,group,dir_mode,file_mode,www_mode');
+    Arrays::ensure($deploy_config, 'target_user,target_server,target_port,target_dir,categories,modes,include_dirs,exclude_dirs,rsync_parrallel,sudo,user,group,dir_mode,file_mode,www_mode');
 
     if($deploy_config['target_user']) {
         /*

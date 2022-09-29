@@ -259,7 +259,7 @@ function inventories_validate($item, $reload_only = false) {
          * Validate set_with
          */
         if($item['set_with']) {
-            foreach(array_force($item['set_with']) as $code) {
+            foreach(Arrays::force($item['set_with']) as $code) {
                 $exist = sql_get('SELECT `id` FROM `inventories` WHERE `code` = :code', true, array(':code' => $code));
 
                 if(!$exist) {
@@ -315,7 +315,7 @@ function inventories_validate($item, $reload_only = false) {
  */
 function inventories_select($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'         , 'seocompany');
         array_default($params, 'selected'     , null);
         array_default($params, 'category'     , null);
@@ -394,7 +394,7 @@ function inventories_select($params) {
  */
 function inventories_autosuggest($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'         , 'seocompany');
         array_default($params, 'class'        , 'form-control');
         array_default($params, 'selected'     , null);
@@ -704,7 +704,7 @@ function inventories_validate_item($item, $reload_only = false) {
  */
 function inventories_select_item($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'         , 'items_id');
         array_default($params, 'class'        , 'form-control');
         array_default($params, 'selected'     , null);

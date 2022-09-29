@@ -161,9 +161,9 @@ try{
                 notify(array('code'    => 'configuration',
                              'groups'  => 'developers',
                              'title'   => tr('Invalid cookie domain'),
-                             'message' => tr('core::startup(): Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', array(':domain' => str_starts_not($_CONFIG['sessions']['domain'], '.'), ':cookie_domain' => $_CONFIG['sessions']['domain'], ':current_domain' => $domain))));
+                             'message' => tr('core::startup(): Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', array(':domain' => Strings::startsNotWith($_CONFIG['sessions']['domain'], '.'), ':cookie_domain' => $_CONFIG['sessions']['domain'], ':current_domain' => $domain))));
 
-                redirect(PROTOCOL.str_starts_not($_CONFIG['sessions']['domain'], '.'));
+                redirect(PROTOCOL.Strings::startsNotWith($_CONFIG['sessions']['domain'], '.'));
             }
 
             ini_set('session.cookie_domain', $_CONFIG['sessions']['domain']);

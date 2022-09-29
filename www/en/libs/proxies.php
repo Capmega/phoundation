@@ -397,7 +397,7 @@ function proxies_insert($root_hostname, $insert_hostname, $target_hostname, $loc
         $location  = proxies_validate_location($location);
         $root      = proxies_get_server($root_hostname, true);
         $insert    = proxies_get_server($insert_hostname, false);
-        $protocols = array_force($protocols);
+        $protocols = Arrays::force($protocols);
         $on_chain  = proxies_validate_on_chain($root['proxies'], $insert_hostname);
         $next      = array();
         $prev      = array();

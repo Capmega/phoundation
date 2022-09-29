@@ -677,7 +677,7 @@ function code_get_available_versions($path = ROOT, $version_lines = null) {
         $retval = array();
 
         if($version_lines) {
-            $version_lines = array_force($version_lines);
+            $version_lines = Arrays::force($version_lines);
         }
 
         foreach($tags as $tag) {
@@ -971,7 +971,7 @@ function code_diff_toolkit($file) {
  */
 function code_patch($params) {
     try{
-        array_ensure($params, 'file,source_path,target_path,replaces,clean,restrictions');
+        Arrays::ensure($params, 'file,source_path,target_path,replaces,clean,restrictions');
         array_default($params, 'method'     , 'apply');
         array_default($params, 'source_path', ROOT);
         array_default($params, 'clean'      , true);

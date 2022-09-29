@@ -194,7 +194,7 @@ function companies_select($params = null) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'         , 'seocompany');
         array_default($params, 'class'        , 'form-control');
         array_default($params, 'selected'     , null);
@@ -347,7 +347,7 @@ function companies_get($params, $column = null, $status = null) {
  */
 function companies_list($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));
 
@@ -489,7 +489,7 @@ function companies_select_branch($params = null) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'        , 'seobranch');
         array_default($params, 'class'       , 'form-control');
         array_default($params, 'selected'    , null);
@@ -667,7 +667,7 @@ function companies_get_branch($params, $branch, $column = null, $status = null) 
  */
 function companies_list_branches($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));
 
@@ -824,7 +824,7 @@ function companies_select_department($params = null) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'        , 'seodepartment');
         array_default($params, 'class'       , 'form-control');
         array_default($params, 'selected'    , null);
@@ -1021,7 +1021,7 @@ function companies_get_department($params, $branch, $department, $column = null,
  */
 function companies_list_departments($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));
 
@@ -1202,7 +1202,7 @@ function companies_validate_employee($employee, $reload_only = false) {
  */
 function companies_select_employee($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'          , 'seoemployee');
         array_default($params, 'class'         , 'form-control');
         array_default($params, 'selected'      , null);
@@ -1304,7 +1304,7 @@ function companies_select_employee($params = null) {
 function companies_get_employee($params) {
     try{
         array_params($params, 'seoname', 'id');
-        array_ensure($params, 'companies_id,branches_id,departments_id,seoname,id');
+        Arrays::ensure($params, 'companies_id,branches_id,departments_id,seoname,id');
 
         $params['table']     = 'employees';
         $params['connector'] = 'core';
@@ -1391,7 +1391,7 @@ function companies_get_employee($params) {
  */
 function companies_list_employees($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));
 

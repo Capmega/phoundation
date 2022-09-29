@@ -68,7 +68,7 @@ function ssh_exec($server, $params) {
             throw new CoreException(tr('ssh_exec(): Command ":command" retried ":retry" times, command failed', array(':command' => isset_get($params['commands']), ':retry' => $retry)), 'failed');
         }
 
-        array_ensure($params, 'domain,port,commands');
+        Arrays::ensure($params, 'domain,port,commands');
         array_default($params, 'output_log'        , (VERBOSE ? ROOT.'data/log/syslog' : '/dev/null'));
         array_default($params, 'include_ssh_errors', true);
 
@@ -177,11 +177,11 @@ function ssh_exec($server, $params) {
                 $data = $e->getData();
 
                 if($data) {
-                    $data = array_force($data);
+                    $data = Arrays::force($data);
                     $data = array_pop($data);
                     $data = strtolower(trim($data));
 
-                    if(str_exists($data, 'permission denied')) {
+                    if(str_contains($data, 'permission denied')) {
                         if(strtolower(substr($data, 0, 5)) !== 'bash:') {
                             $e = new BException(tr('ssh_exec(): Got access denied when trying to connect to server ":server"', array(':server' => $server['domain'])), $e);
                             $e->setCode('access-denied');
@@ -189,7 +189,7 @@ function ssh_exec($server, $params) {
                         }
                     }
 
-                    if(str_exists($data, 'host key verification failed')) {
+                    if(str_contains($data, 'host key verification failed')) {
                         $known = ssh_host_is_known($server['domain'], $server['port']);
 
                         if(!$known) {
@@ -269,7 +269,7 @@ function ssh_build_command($server, &$params) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'ssh_command'   , 'ssh');
         array_default($params, 'no_user_server', false);
 

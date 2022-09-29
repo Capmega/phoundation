@@ -194,7 +194,7 @@ function store_post($redirect) {
  */
 function http_get_to_post($keys, $overwrite = true) {
     try{
-        foreach(array_force($keys) as $key) {
+        foreach(Arrays::force($keys) as $key) {
             if(isset($_GET[$key]) and ($overwrite or empty($_POST[$key]))) {
                 $_POST[$key] = $_GET[$key];
             }
@@ -334,7 +334,7 @@ function http_headers($params, $content_length) {
             /*
              * Add CORS / Access-Control-Allow-.... headers
              */
-            $params['cors'] = array_merge($_CONFIG['cors'], array_force($params['cors']));
+            $params['cors'] = array_merge($_CONFIG['cors'], Arrays::force($params['cors']));
 
             foreach($params['cors'] as $key => $value) {
                 switch($key) {
@@ -608,7 +608,7 @@ function http_cache($params, $http_code, $headers = array()) {
     global $_CONFIG, $core;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
 
         if($_CONFIG['cache']['http']['enabled'] === 'auto') {
             /*
@@ -830,7 +830,7 @@ function http_set_ssl_default_context($params = null) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'verify_peer'      , isset_get($_CONFIG['security']['ssl']['verify_peer']));
         array_default($params, 'verify_peer_name' , isset_get($_CONFIG['security']['ssl']['verify_peer_name']));
         array_default($params, 'allow_self_signed', isset_get($_CONFIG['security']['ssl']['allow_self_signed']));

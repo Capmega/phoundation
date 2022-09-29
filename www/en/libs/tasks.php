@@ -49,7 +49,7 @@ function tasks_library_init() {
  */
 function tasks_insert($task) {
     try{
-        array_ensure($task);
+        Arrays::ensure($task);
         array_default($task, 'status'      , 'new');
         array_default($task, 'method'      , 'normal');
         array_default($task, 'timeout'     , 30);
@@ -252,7 +252,7 @@ function tasks_validate($task) {
  */
 function tasks_validate_status($status) {
     try{
-        foreach(array_force($status) as $entry) {
+        foreach(Arrays::force($status) as $entry) {
             switch($entry) {
                 case 'new':
                     // FALLTHROUGH
@@ -292,7 +292,7 @@ function tasks_get($filters, $set_status = false, $min_id = null) {
             $execute = array(':id' => $filters);
 
         } else {
-            $filters = array_force($filters);
+            $filters = Arrays::force($filters);
             $execute = sql_in($filters, ':filter');
             $where   = ' WHERE  `tasks`.`status` IN('.implode(', ', array_keys($execute)).')
                          AND   (`tasks`.`after` IS NULL OR `tasks`.`after` <= UTC_TIMESTAMP()) ';
@@ -362,7 +362,7 @@ function tasks_get($filters, $set_status = false, $min_id = null) {
 function tasks_list($status) {
     try{
         if($status) {
-            $status = array_force($status);
+            $status = Arrays::force($status);
             tasks_validate_status($status);
 
             if(count($status) == 1) {

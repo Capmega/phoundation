@@ -71,24 +71,24 @@ test('str_truncate()', 'Function should truncate string after 24 characters, wit
     }
 });
 
-test('str_ends_not()', 'Function should remove last / character only', function() {
-    $test = str_ends_not('test//', '/', false);
+test('Strings::endsNotWith()', 'Function should remove last / character only', function() {
+    $test = Strings::endsNotWith('test//', '/', false);
 
     if($test !== 'test/') {
         throw new CoreException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
     }
 });
 
-test('str_ends_not()', 'Function should remove all / characters at the end', function() {
-    $test = str_ends_not('test//', '/');
+test('Strings::endsNotWith()', 'Function should remove all / characters at the end', function() {
+    $test = Strings::endsNotWith('test//', '/');
 
     if($test !== 'test') {
         throw new CoreException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
     }
 });
 
-test('str_ends_not()', 'Function should remove all t and / characters at the end', function() {
-    $test = str_ends_not('test//', array('t', '/'));
+test('Strings::endsNotWith()', 'Function should remove all t and / characters at the end', function() {
+    $test = Strings::endsNotWith('test//', array('t', '/'));
 
     if($test !== 'tes') {
         throw new CoreException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');

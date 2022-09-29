@@ -275,7 +275,7 @@ function node_find_npm() {
  */
 function node_install_npm($packages) {
     try{
-        $packages = array_force($packages);
+        $packages = Arrays::force($packages);
 
         log_console(tr('node_install_npm(): Installing packages ":packages"', array(':packages' => $packages)), 'VERBOSE/cyan');
 

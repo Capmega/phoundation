@@ -30,7 +30,7 @@ html_load_css('jquery/jquery-ui,base/jquery-ui/themes/'.$_CONFIG['jquery-ui']['t
 function jqueryui_accordeon($selector, $options = 'collapsible: true,heightStyle: "content"') {
     try{
         if($options) {
-            $options = str_ends(str_starts(str_force($options), '{'), '}');
+            $options = Strings::endsWith(Strings::startsWith(str_force($options), '{'), '}');
 
         } else {
             $options = '';
@@ -56,7 +56,7 @@ function jqueryui_date($selector, $params = null) {
     try{
         html_load_css('jquery.ui/jquery.ui.datepicker');
 
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'placeholder'     , tr('Select a date'));
         array_default($params, 'number_of_months', 1);
         array_default($params, 'change_month'    , true);
@@ -105,7 +105,7 @@ function jqueryui_time($selector, $params = null) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'placeholder'        , '');
         array_default($params, 'default_time'       , '');
         array_default($params, 'class'              , '');
@@ -182,7 +182,7 @@ throw new CoreException('jqueryui_datepair(): This function is not yet implement
     //global $_CONFIG;
     //
     //try{
-    //    array_ensure($params);
+    //    Arrays::ensure($params);
     //    array_default($params, 'placeholder'        , '');
     //    array_default($params, 'default_datepair'       , '');
     //    array_default($params, 'auto_submit'        , true);
@@ -255,7 +255,7 @@ function jqueryui_date_range($params = null) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'number_of_months', 1);
         array_default($params, 'change_month'    , true);
         array_default($params, 'change_year'     , true);
@@ -315,7 +315,7 @@ function jqueryui_date_range($params = null) {
             $params['options'] = '';
 
         } else {
-            $params['options'] = str_ends(str_starts(str_force($params['options']), '{'), '}');
+            $params['options'] = Strings::endsWith(Strings::startsWith(str_force($params['options']), '{'), '}');
         }
 
         if($params['time']) {
@@ -401,7 +401,7 @@ function jqueryui_date_range($params = null) {
  */
 function jqueryui_fancybox($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'gallery_id'      , 'fancybox');
         array_default($params, 'gallery_template', '');
         array_default($params, 'item_template'   , '');

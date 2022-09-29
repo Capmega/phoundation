@@ -41,7 +41,7 @@ function crypto_currencies_supported($currencies) {
         return false;
     }
 
-    foreach(array_force($currencies) as $currency) {
+    foreach(Arrays::force($currencies) as $currency) {
         if(!in_array($currency, $_CONFIG['crypto']['currencies'])) {
             throw new CoreException(tr('crypto_currencies_supported(): Specified currency ":currency" is not supported', array(':currency' => $currency)), 'not-supported');
         }

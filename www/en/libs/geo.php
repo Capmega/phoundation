@@ -697,7 +697,7 @@ function geo_get_city_from_location($latitude, $longitude, $filters = null, $sin
                         break;
 
                     case 'feature_code':
-                        $in              = sql_in(array_force($value), ':fc');
+                        $in              = sql_in(Arrays::force($value), ':fc');
                         $execute         = array_merge($execute, $in);
                         $where[]         = ' `feature_code` IN ('.implode(',', array_keys($in)).') ';
                         break;
@@ -854,7 +854,7 @@ function geo_detect_client_location($params = null) {
     try{
         html_load_js('base/base');
 
-        array_ensure($params);
+        Arrays::ensure($params);
 
         array_default($params, 'success_url'     , domain($_CONFIG['geo']['detect']['urls']['success']));
         array_default($params, 'success_callback', '');

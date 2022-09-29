@@ -31,7 +31,7 @@
  */
 function environments_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name' , 'environment');
         array_default($params, 'empty', tr('No environments available'));
         array_default($params, 'none' , tr('Select an environment'));

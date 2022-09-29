@@ -854,7 +854,7 @@ function devices_list_option_keys($devices_id, $inactive = false) {
  */
 function devices_list_option_values($devices_id, $key) {
     try{
-        array_ensure($params, '');
+        Arrays::ensure($params, '');
 
         if(empty($devices_id)) {
             throw new CoreException(tr('devices_list_options(): No devices_id specified'), 'not-specified');
@@ -892,7 +892,7 @@ function devices_get_option_html_element($params) {
     global $core;
 
     try{
-        array_ensure($params, '');
+        Arrays::ensure($params, '');
         array_default($params, 'key'       , '');
         array_default($params, 'devices_id', '');
         array_default($params, 'name'      , $params['key']);
@@ -1158,7 +1158,7 @@ function devices_get($device, $server = null) {
  */
 function devices_select($product, $category = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'       , 'seodevice');
         array_default($params, 'class'      , 'form-control');
         array_default($params, 'selected'   , null);
@@ -1289,11 +1289,11 @@ function devices_scan($types, $server = null, $sudo = false) {
             return $retval;
         }
 
-        if(str_exists($server, ',')) {
+        if(str_contains($server, ',')) {
             /*
              * A specific list of servers was specified
              */
-            $servers = array_force($server);
+            $servers = Arrays::force($server);
             $retval  = array();
 
             foreach($servers as $server) {
@@ -1316,10 +1316,10 @@ function devices_scan($types, $server = null, $sudo = false) {
         $server['persist'] = true;
         $servers_id        = $server['id'];
         $retval            = array();
-        $types             = array_force($types);
+        $types             = Arrays::force($types);
         $types             = devices_validate_types($types, true);
 
-        foreach(array_force($types) as $type => $filter) {
+        foreach(Arrays::force($types) as $type => $filter) {
             log_console(tr('Scanning server ":server" for ":type" type devices', array(':server' => $server['domain'], ':type' => $type)), 'VERBOSE/cyan');
 
             switch($type) {
@@ -1480,7 +1480,7 @@ function devices_validate_types($types = null, $return_filters = false) {
              */
             if(is_string($types)) {
                 foreach($supported as $support => $filter) {
-                    if(str_exists($support, $types)) {
+                    if(str_contains($support, $types)) {
                         if(isset($match)) {
                             throw new CoreException(tr('devices_validate_types(): Specified device type ":type" matches multiple supported devices', array(':type' => $types)), 'multiple');
                         }

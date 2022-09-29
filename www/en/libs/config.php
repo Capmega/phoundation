@@ -128,7 +128,7 @@ function config_read($environment, $section = null) {
                     /*
                      * Clean value, and correct datatype
                      */
-                    $section['__value__'] = str_ends_not($section['__value__'], ';');
+                    $section['__value__'] = Strings::endsNotWith($section['__value__'], ';');
                     $section['__value__'] = force_datatype($section['__value__']);
 
                     if((substr($section['__value__'], 0, 1) == '"') or (substr($section['__value__'], 0, 1) == "'")) {
@@ -246,7 +246,7 @@ function config_update($environment, $keys, $value) {
             throw new CoreException(tr('config_update(): No environment specified.'), 'not-specified');
         }
 
-        $keys    = array_force($keys);
+        $keys    = Arrays::force($keys);
         $basekey = current($keys);
         $section = false;
 

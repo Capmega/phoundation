@@ -21,7 +21,7 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package array
- * @see array_ensure()
+ * @see Arrays::ensure()
  * @note The default value for this function for non assigned values is boolean false, not null. The reason for this is that many of its dependancies use "false" as "do not use" because "null" would be interpreted as "compare to null"
  * @version 2.5.119: Added function and documentation
  *
@@ -44,7 +44,7 @@ function array_params(&$params, $string_key = null, $numeric_key = null, $defaul
         }
 
         if(is_array($params)) {
-            array_ensure($params, array($string_key, $numeric_key), $default);
+            Arrays::ensure($params, array($string_key, $numeric_key), $default);
             return;
         }
 
@@ -165,7 +165,7 @@ function array_next_value(&$array, $currentvalue, $delete = false, $restart = fa
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package array
- * @see array_ensure()
+ * @see Arrays::ensure()
  * @note: $source is passed by reference and will be modified directly
  * @version 1.22.0: Added documentation
  * code
@@ -216,7 +216,7 @@ function array_key_check($source, $keys) {
             throw new CoreException(tr('array_key_check(): Specified source should be an array, but is a ":type"', array(':type' => gettype($source))), 'invalid');
         }
 
-        foreach(array_force($keys) as $key) {
+        foreach(Arrays::force($keys) as $key) {
             if(!array_key_exists($key, $source)) {
                 throw new CoreException(tr('array_key_check(): Key ":key" was not specified in array', array(':key' => str_log($key))), 'not_specified');
             }
@@ -239,7 +239,7 @@ function array_key_check($source, $keys) {
 function array_clear(&$array, $keys, $value = null) {
     try{
         $array = array();
-        return array_ensure($array, $keys, $value);
+        return Arrays::ensure($array, $keys, $value);
 
     }catch(Exception $e) {
         throw new CoreException('array_clear(): Failed', $e);
@@ -449,7 +449,7 @@ function array_filter_values($source, $values) {
             throw new CoreException(tr('array_filter_values(): Specified source is not an array'), 'invalid');
         }
 
-        foreach(array_force($values) as $value) {
+        foreach(Arrays::force($values) as $value) {
             if(($key = array_search($value, $source)) !== false) {
                 unset($source[$key]);
             }
@@ -536,7 +536,7 @@ function array_keep($source, $keys) {
     try{
         $retval = array();
 
-        foreach(array_force($keys) as $key) {
+        foreach(Arrays::force($keys) as $key) {
             if(array_key_exists($key, $source)) {
                 $retval[$key] = $source[$key];
             }
@@ -556,7 +556,7 @@ function array_keep($source, $keys) {
  */
 function array_remove($source, $keys) {
     try{
-        foreach(array_force($keys) as $key) {
+        foreach(Arrays::force($keys) as $key) {
             unset($source[$key]);
         }
 
@@ -745,7 +745,7 @@ function array_find($array, $keyword) {
  */
 function array_copy_clean($target, $source, $skip = 'id') {
     try{
-        $skip = array_force($skip);
+        $skip = Arrays::force($skip);
 
         foreach($source as $key => $value) {
             if(in_array($key, $skip)) continue;
@@ -798,7 +798,7 @@ function array_extract_first($source, $keys) {
             throw new CoreException(tr('array_extract(): Specified source is not an array'));
         }
 
-        foreach(array_force($keys) as $key) {
+        foreach(Arrays::force($keys) as $key) {
             if(!empty($source[$key])) {
                 return $source[$key];
             }
@@ -1185,7 +1185,7 @@ function array_hide($source, $keys = 'GLOBALS,%pass,ssh_key', $hide = '*** HIDDE
             throw new CoreException(tr('array_hide(): Specified source is not an array'), 'invalid');
         }
 
-        $keys = array_force($keys);
+        $keys = Arrays::force($keys);
 
         foreach($source as $source_key => &$source_value) {
             foreach($keys as $key) {

@@ -82,7 +82,7 @@ function twiml_write($name, $data, $root = null) {
  */
 function twiml_create($params) {
     try{
-        array_ensure($params, 'root,name,type');
+        Arrays::ensure($params, 'root,name,type');
 
         switch($params['type']) {
             case 'forward':
@@ -120,7 +120,7 @@ function twiml_create($params) {
  */
 function twiml_create_forward($params) {
     try{
-        array_ensure($params, 'phone_number,caller_id,fail_url,timeout,allowed_callers');
+        Arrays::ensure($params, 'phone_number,caller_id,fail_url,timeout,allowed_callers');
         $data = '';
 
         if(!$params['phone_number']) {

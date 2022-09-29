@@ -60,7 +60,7 @@ function stream($params) {
     global $_CONFIG;
 
     try{
-        array_ensure($params, 'file,mimetype');
+        Arrays::ensure($params, 'file,mimetype');
         array_default($params, 'strict'       , $_CONFIG['stream']['strict']);
         array_default($params, 'cache_max_age', $_CONFIG['stream']['cache_max_age']);
 
@@ -176,7 +176,7 @@ function stream_open(&$params) {
  */
 function stream_close($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
 
         array_default($params, 'die', true);
 
@@ -270,7 +270,7 @@ function stream_video($params) {
  */
 function stream_video_data_headers($params) {
     try{
-        array_ensure($params, 'mimetype,cache_max_age,start,end,size');
+        Arrays::ensure($params, 'mimetype,cache_max_age,start,end,size');
 
         if(empty($params['resource'])) {
             throw new CoreException(tr('stream_video_data_headers(): No video file resource opened. Please open one first using stream_open(), or just use stream()'), 'not-specified');
@@ -361,7 +361,7 @@ function stream_video_data($params) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'buffer', $_CONFIG['stream']['buffer']);
 
 

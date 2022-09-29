@@ -247,8 +247,8 @@ function linux_file_delete($server, $params, $restrictions = null) {
          * Both patterns and restrictions should be arrays, make them so now to
          * avoid them being converted multiple times later on
          */
-        $params['patterns']     = array_force($params['patterns']);
-        $params['restrictions'] = array_force($params['restrictions']);
+        $params['patterns']     = Arrays::force($params['patterns']);
+        $params['restrictions'] = Arrays::force($params['restrictions']);
 
         $server = servers_get($server);
 
@@ -530,7 +530,7 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_t
  */
 function linux_list_processes($server, $filters) {
     try{
-        $filters = array_force($filters);
+        $filters = Arrays::force($filters);
         $results = safe_exec(array('ok_exitcodes' => '0,1',
                                    'commands'     => array('ps'  , array('ax', 'connector' => '|'),
                                                            'grep', array_merge(array('--color=never', 'connector' => '|'), $filters),
@@ -674,7 +674,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false) {
             throw new CoreException(tr('linux_ensure_path(): Specified path ":path" is not absolute', array(':path' => $path)), 'invalid');
         }
 
-        if(str_exists($path, '..')) {
+        if(str_contains($path, '..')) {
             throw new CoreException(tr('linux_ensure_path(): Specified path ":path" contains parent path sections', array(':path' => $path)), 'invalid');
         }
 
@@ -694,7 +694,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false) {
                 // FALLTHROUGH
             case 'localhost':
                 try{
-                    if(str_exists(ROOT, linux_realpath($server, $path))) {
+                    if(str_contains(ROOT, linux_realpath($server, $path))) {
                         throw new CoreException(tr('linux_ensure_path(): Specified path ":path" is ROOT or parent of ROOT', array(':path' => $path)), 'invalid');
                     }
 
@@ -1208,7 +1208,7 @@ function linux_ls($server, $path, $sudo = false, $restrictions = null) {
  */
 function linux_find($server, $params) {
     try{
-        array_ensure($params, 'debug,cwd,exec,maxdepth,path,type,sudo');
+        Arrays::ensure($params, 'debug,cwd,exec,maxdepth,path,type,sudo');
 
         $commands = array();
 
@@ -1379,7 +1379,7 @@ function linux_restrict($server, $params, $restrictions = null) {
              * Restrictions may have been specified as a CSV list, ensure its an
              * array so we can process then all
              */
-            $restrictions = array_force($restrictions);
+            $restrictions = Arrays::force($restrictions);
         }
 
         /*

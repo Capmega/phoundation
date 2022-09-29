@@ -108,7 +108,7 @@ function customers_validate($customer) {
         if($customer['phones']) {
             $v->hasMaxChars($customer['phones'], 36, tr('Please ensure the phones field has less than 36 characters'));
 
-            foreach(array_force($customer['phones']) as &$phone) {
+            foreach(Arrays::force($customer['phones']) as &$phone) {
                 $v->isPhonenumber($phone, tr('Please ensure the phone number ":phone" is valid', array(':phone' => $phone)));
             }
 
@@ -460,7 +460,7 @@ function customers_select($params = null) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'         , 'seocustomer');
         array_default($params, 'class'        , 'form-control');
         array_default($params, 'selected'     , null);
@@ -612,7 +612,7 @@ function customers_get($params) {
  */
 function customers_list($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));
 

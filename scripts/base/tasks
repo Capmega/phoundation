@@ -603,7 +603,7 @@ under_construction('add');
 
                         $task['results'] = $e->getMessages();
                     } else {
-                        $task['results'] = array_merge($e->getMessages(), array(' '), array_force($e->getData()));
+                        $task['results'] = array_merge($e->getMessages(), array(' '), Arrays::force($e->getData()));
                     }
 
                     if($e->getRealCode() == '124') {

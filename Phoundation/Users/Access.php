@@ -61,7 +61,7 @@ cclass Access
                 return true;
             }
 
-            foreach (array_force($rights) as $right) {
+            foreach (Arrays::force($rights) as $right) {
                 if (empty($user['rights'][$right]) or !empty($user['rights']['devil']) or !empty($fail)) {
                     if ((PLATFORM_CLI) and VERBOSE) {
                         load_libs('user');
@@ -128,7 +128,7 @@ cclass Access
                 return true;
             }
 
-            foreach (array_force($groups) as $group) {
+            foreach (Arrays::force($groups) as $group) {
                 if (empty($user['groups'][$group]) or !empty($user['rights']['devil']) or !empty($fail)) {
                     if ((PLATFORM_CLI) and VERBOSE) {
                         load_libs('user');
@@ -232,7 +232,7 @@ cclass Access
              * If user has no admin permissions we're not even showing 403, we're
              * simply showing the signin page
              */
-            if (in_array('admin', array_force($rights))) {
+            if (in_array('admin', Arrays::force($rights))) {
                 redirect(domain(isset_get($url, $_CONFIG['redirects']['signin'])));
             }
 
@@ -259,7 +259,7 @@ cclass Access
                 return $_SESSION['user'];
             }
 
-            if (in_array('admin', array_force($groups))) {
+            if (in_array('admin', Arrays::force($groups))) {
                 redirect(domain($_CONFIG['redirects']['signin']));
             }
 

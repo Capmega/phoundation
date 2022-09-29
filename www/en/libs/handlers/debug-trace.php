@@ -4,7 +4,7 @@ try{
         return array();
     }
 
-    $filters = array_force($filters);
+    $filters = Arrays::force($filters);
     $trace   = array();
 
     foreach(debug_backtrace() as $key => $value) {

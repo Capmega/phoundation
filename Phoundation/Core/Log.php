@@ -559,7 +559,7 @@ Class Log {
 //                         */
 //                        $messages[] = cli_color('Exception data:', 'error', null, true);
 //
-//                        foreach (array_force($data) as $line) {
+//                        foreach (Arrays::force($data) as $line) {
 //                            if ($line) {
 //                                if (is_scalar($line)) {
 //                                    $messages[] = cli_color($line, 'error', null, true);

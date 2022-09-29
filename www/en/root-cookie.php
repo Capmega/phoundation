@@ -12,7 +12,7 @@ if(empty($_GET['redirect'])) {
     /*
      * The redirect domain must be a sub domain of this root domain
      */
-    if(!str_exists($_GET['redirect'], $_SESSION['domain'])){
+    if(!str_contains($_GET['redirect'], $_SESSION['domain'])){
         /*
          * Invalid redirect domain, ignore entire redirect and go to the
          * home page of the root domain

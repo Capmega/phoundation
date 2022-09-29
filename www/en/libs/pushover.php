@@ -17,7 +17,7 @@ function pushover_send_msg($user, $params) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'msg'      , 'Empty message');
         array_default($params, 'title'    , 'Empty title');
         array_default($params, 'url-title', 'Empty url-title');

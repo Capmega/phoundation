@@ -625,9 +625,9 @@ function s_validate_user(&$user, $id = null) {
                  * One or more phone numbers already exist with one or multiple users. Cross check and
                  * create a list of where the number was found
                  */
-                foreach(array_force($user['phones']) as $value) {
+                foreach(Arrays::force($user['phones']) as $value) {
                     foreach($exists as $exist) {
-                        $key = array_search($value, array_force($exist['phones']));
+                        $key = array_search($value, Arrays::force($exist['phones']));
 
                         if($key !== false) {
                             /*

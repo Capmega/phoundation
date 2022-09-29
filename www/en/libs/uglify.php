@@ -130,7 +130,7 @@ function uglify_css($paths = null, $force = false) {
             $paths = implode(',', $paths);
         }
 
-        foreach(array_force($paths) as $path) {
+        foreach(Arrays::force($paths) as $path) {
             if(!file_exists($path)) continue;
 
             log_console(tr('uglify_css(): Minifying all CSS files in ":path"', array(':path' => $path)), 'VERBOSEDOT');
@@ -486,7 +486,7 @@ function uglify_js($paths = null, $force = false) {
             $paths = ROOT.'www/'.LANGUAGE.'/pub/js/,'.ROOT.'www/'.LANGUAGE.'/admin/pub/js/';
         }
 
-        foreach(array_force($paths) as $path) {
+        foreach(Arrays::force($paths) as $path) {
             if(!file_exists($path)) continue;
 
             log_console(tr('uglify_js(): Minifying all javascript files in ":path"', array(':path' => $path)), 'VERBOSEDOT');

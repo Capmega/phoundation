@@ -11,6 +11,6 @@ if($counter++ >= $count) {
      */
     unregister_shutdown('route_404');
 
-    die(str_ends(str_replace('%count%', $count, $message), "\n"));
+    die(Strings::endsWith(str_replace('%count%', $count, $message), "\n"));
 }
 ?>

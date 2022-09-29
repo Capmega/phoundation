@@ -111,7 +111,7 @@ function is_ipv6($version = null) {
  */
 function inet_test_host_port($params) {
     try{
-        array_ensure($params, 'host,port,server');
+        Arrays::ensure($params, 'host,port,server');
         array_default($params, 'timeout'  , 5);
         array_default($params, 'exception', false);
         array_default($params, 'protocol' , 'tcp');
@@ -129,7 +129,7 @@ function inet_test_host_port($params) {
         $results = array_shift($results);
         $results = strtolower($results);
 
-        if(str_exists($results, 'connection refused')) {
+        if(str_contains($results, 'connection refused')) {
             if($params['exception']) {
                 throw new OutOfBoundsException(tr('inet_test_host_port(): Failed to connect to specified host:port ":host:%port"', array(':host' => $params['host'], '%port' => $params['port'])), 'warning/failed');
             }
@@ -137,7 +137,7 @@ function inet_test_host_port($params) {
             return false;
         }
 
-        if(str_exists($results, 'succeeded!')) {
+        if(str_contains($results, 'succeeded!')) {
             /*
              * Yei!
              */
@@ -174,7 +174,7 @@ function inet_test_host_port($params) {
  */
 function inet_telnet($params) {
     try{
-        array_ensure($params, 'host,port,server');
+        Arrays::ensure($params, 'host,port,server');
         array_default($params, 'timeout', 1);
 
         inet_validate_port($params['port']);
@@ -196,7 +196,7 @@ function inet_telnet($params) {
  */
 function inet_get_domain($strip = array('www', 'dev', 'm')) {
     try{
-        if(in_array(Strings::until($_SERVER['HTTP_HOST'], '.'), array_force($strip))) {
+        if(in_array(Strings::until($_SERVER['HTTP_HOST'], '.'), Arrays::force($strip))) {
             return Strings::from($_SERVER['HTTP_HOST']);
         }
 
@@ -246,7 +246,7 @@ function inet_get_subdomain($domain = null, $root = null, $ignore_start = 'cdn,a
 
         if($subdomain) {
             if($ignore_start) {
-                $ignore_start = array_force($ignore_start);
+                $ignore_start = Arrays::force($ignore_start);
 
                 foreach($ignore_start as $value) {
                     if(substr($subdomain, 0, strlen($value)) == $value) {
@@ -348,12 +348,12 @@ function inet_add_query($url) {
                  */
                 $url = preg_replace('/'.substr($query, 1).'/', '', $url);
                 $url = str_replace('&&'                      , '', $url);
-                $url = str_ends_not($url                     , '?');
+                $url = Strings::endsNotWith($url                     , '?');
 
                 continue;
             }
 
-            $url = str_ends_not($url, '?');
+            $url = Strings::endsNotWith($url, '?');
 
             if(!preg_match('/.+?=.*?/', $query)) {
                 throw new OutOfBoundsException(tr('inet_add_query(): Invalid query ":query" specified. Please ensure it has the "key=value" format', array(':query' => $query)), 'invalid');
@@ -378,7 +378,7 @@ function inet_add_query($url) {
                 /*
                  * Append the query to the URL
                  */
-                $url = str_ends($url, '&').$query;
+                $url = Strings::endsWith($url, '&').$query;
             }
         }
 
@@ -401,7 +401,7 @@ function url_remove_keys($url, $keys) {
         $query = explode('&', $query);
 
         foreach($query as $id => $kv) {
-            foreach(array_force($keys) as $key) {
+            foreach(Arrays::force($keys) as $key) {
                 if(Strings::until($kv, '=') == $key) {
                     unset($query[$id]);
 
@@ -450,7 +450,7 @@ function inet_dig($domain, $section = false) {
              * then store those lowercased in an array for easy lookup
              */
             $section = strtolower(str_force($section));
-            $section = array_flip(array_force($section));
+            $section = array_flip(Arrays::force($section));
         }
 
         /*

@@ -18,11 +18,11 @@
  */
 function storage_ui_panel_header($params, $section, $page = null) {
     try{
-        array_ensure($params);
-        array_ensure($params['files']);
-        array_ensure($params['urls']);
-        array_ensure($params['tabs']);
-        array_ensure($params['labels']);
+        Arrays::ensure($params);
+        Arrays::ensure($params['files']);
+        Arrays::ensure($params['urls']);
+        Arrays::ensure($params['tabs']);
+        Arrays::ensure($params['labels']);
 
         array_default($params, 'header_type'     , 'tabs');
         array_default($params, 'html_flash_class', 'storage');
@@ -443,7 +443,7 @@ function storage_ui_file($file, $tabindex = 0) {
  */
 function storage_ui_categories_select($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'number'      , 1);
         array_default($params, 'selected'    , 0);
         array_default($params, 'class'       , '');
@@ -457,7 +457,7 @@ function storage_ui_categories_select($params) {
         array_default($params, 'parent'      , false);
         array_default($params, 'filter'      , array());
 
-        array_ensure($params['labels']);
+        Arrays::ensure($params['labels']);
         array_default($params['labels'], 'select_category', tr('Select a category'));
         array_default($params['labels'], 'empty_category' , tr('Select a category'));
         array_default($params['labels'], 'none_category'  , tr('Select a category'));

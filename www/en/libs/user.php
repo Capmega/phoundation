@@ -269,7 +269,7 @@ function user_is_group_member($group_list, $user = null) {
             $groups = &$user['groups'];
         }
 
-        foreach(array_force($group_list) as $group) {
+        foreach(Arrays::force($group_list) as $group) {
             if(!in_array($group, $groups)) {
                 return false;
             }
@@ -327,7 +327,7 @@ function user_add_to_group($user, $groups, $validate = true) {
                 /*
                  * Groups specified as CSV list
                  */
-                $groups = array_force($groups);
+                $groups = Arrays::force($groups);
             }
 
             /*
@@ -424,7 +424,7 @@ function user_remove_from_group($user, $groups, $validate = true) {
                 /*
                  * Groups specified as CSV list
                  */
-                $groups = array_force($groups);
+                $groups = Arrays::force($groups);
             }
 
             /*
@@ -1267,7 +1267,7 @@ function user_signup($user, $options = null) {
     global $_CONFIG;
 
     try{
-        array_ensure($options, 'no_password,role');
+        Arrays::ensure($options, 'no_password,role');
 
         if($options['role']) {
             /*
@@ -1429,8 +1429,8 @@ function user_update_password($params, $current = true) {
     global $_CONFIG;
 
     try{
-        array_ensure($params);
-        array_ensure($params, 'id,password,password2,cpassword');
+        Arrays::ensure($params);
+        Arrays::ensure($params, 'id,password,password2,cpassword');
 
         array_default($params, 'validated'             , false);
         array_default($params, 'check_banned_passwords', true);
@@ -2224,9 +2224,9 @@ function user_validate($user, $options = array()) {
                  * One or more phone numbers already exist with one or multiple users. Cross check and
                  * create a list of where the number was found
                  */
-                foreach(array_force($user['phones']) as $value) {
+                foreach(Arrays::force($user['phones']) as $value) {
                     foreach($exists as $exist) {
-                        $key = array_search($value, array_force($exist['phones']));
+                        $key = array_search($value, Arrays::force($exist['phones']));
 
                         if($key !== false) {
                             /*
@@ -2797,7 +2797,7 @@ function user_update_location($user) {
         /*
          * Validate data
          */
-        array_ensure($user, 'id,users_id,latitude,longitude,accuracy,cities_id,states_id,countries_id');
+        Arrays::ensure($user, 'id,users_id,latitude,longitude,accuracy,cities_id,states_id,countries_id');
 
         if($user['users_id']) {
             $user['id'] = $user['users_id'];

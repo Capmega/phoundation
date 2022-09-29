@@ -155,7 +155,7 @@ function categories_validate($category) {
  */
 function categories_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'      , 'seocategory');
         array_default($params, 'class'     , 'form-control');
         array_default($params, 'selected'  , null);
@@ -216,7 +216,7 @@ function categories_select($params = null) {
         $execute = array();
 
         if($params['remove']) {
-            if(count(array_force($params['remove'])) == 1) {
+            if(count(Arrays::force($params['remove'])) == 1) {
                 /*
                  * Filter out only one entry
                  */
@@ -227,7 +227,7 @@ function categories_select($params = null) {
                 /*
                  * Filter out multiple entries
                  */
-                $in      = sql_in(array_force($params['remove']));
+                $in      = sql_in(Arrays::force($params['remove']));
                 $where[] = ' `id` NOT IN ('.implode(', ', array_keys($in)).') ';
                 $execute = array_merge($execute, $in);
             }

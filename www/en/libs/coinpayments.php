@@ -187,7 +187,7 @@ function coinpayments_get_rates($currencies = null) {
         $results = coinpayments_call('rates');
 
         if($currencies) {
-            foreach(array_force($currencies) as $currency) {
+            foreach(Arrays::force($currencies) as $currency) {
                 if(empty($results[$currency])) {
                     throw new CoreException(tr('coinpayments_get_rates(): Specified coin ":coin" was not found', array(':coin' => $currency)), 'not-exists');
                 }
@@ -219,7 +219,7 @@ function coinpayments_get_balances($currencies = true) {
             $results = coinpayments_call('balances');
 
             if($currencies) {
-                foreach(array_force($currencies) as $currency) {
+                foreach(Arrays::force($currencies) as $currency) {
                     if(empty($results[$currency])) {
                         throw new CoreException(tr('coinpayments_get_balances(): Specified coin ":coin" was not found', array(':coin' => $currency)), 'not-exists');
                     }

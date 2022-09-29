@@ -666,7 +666,7 @@ function cli_argument($keys = null, $next = null, $default = null){
 
         if($keys === null){
             $retval = array_shift($argv);
-            $retval = str_starts_not($retval, '-');
+            $retval = Strings::startsNotWith($retval, '-');
             return $retval;
         }
 
@@ -675,7 +675,7 @@ function cli_argument($keys = null, $next = null, $default = null){
          * is specified
          */
         if(is_array($keys) or (is_string($keys) and strstr($keys, ','))){
-            $keys    = array_force($keys);
+            $keys    = Arrays::force($keys);
             $results = array();
 
             foreach($keys as $key){
@@ -813,7 +813,7 @@ function cli_arguments($arguments = null){
 
         $retval = array();
 
-        foreach(array_force($arguments) as $argument){
+        foreach(Arrays::force($arguments) as $argument){
             if(is_numeric($argument)){
                 /*
                  * If the key would be numeric, argument() would get into an endless loop
@@ -862,7 +862,7 @@ function cli_highlight($string, $keywords, $fore_color, $back_color = null){
             $color = new Colors();
         }
 
-        foreach(array_force($keywords) as $keyword){
+        foreach(Arrays::force($keywords) as $keyword){
             $string = str_replace($keyword, $color->getColoredString($string, $fore_color, $back_color), $string);
         }
 
@@ -904,7 +904,7 @@ function cli_show_usage($usage, $color){
             log_console(tr('Sorry, this script has no usage description defined yet'), 'yellow');
 
         } else {
-            $usage = array_force(trim($usage), "\n");
+            $usage = Arrays::force(trim($usage), "\n");
 
             if(count($usage) == 1){
                 log_console(tr('Usage:')       , $color);
@@ -913,7 +913,7 @@ function cli_show_usage($usage, $color){
             } else {
                 log_console(tr('Usage:'), $color);
 
-                foreach(array_force($usage, "\n") as $line){
+                foreach(Arrays::force($usage, "\n") as $line){
                     log_console($line, $color);
                 }
 
@@ -1311,7 +1311,7 @@ function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
             $signal = 15;
         }
 
-        $pids  = array_force($pids);
+        $pids  = Arrays::force($pids);
         $count = 0;
 
         foreach($pids as $pid){
@@ -1327,7 +1327,7 @@ function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
                 $results = array_shift($results);
                 $results = strtolower($results);
 
-                if(str_exists($results, 'no such process')){
+                if(str_contains($results, 'no such process')){
                     /*
                      * Process didn't exist!
                      */
@@ -1604,7 +1604,7 @@ function cli_pid($pid){
  */
 function cli_list_processes($filters){
     try{
-        $filters  = array_force($filters);
+        $filters  = Arrays::force($filters);
         $commands = array('ps', array('ax', 'connector' => '|'));
 
         foreach($filters as $filter){
@@ -1722,7 +1722,7 @@ function cli_is_builtin($command){
             return $cache[$command];
         }
 
-        if(str_exists($command, '/')){
+        if(str_contains($command, '/')){
             /*
              * This command includes a path, so automatically is external
              */
@@ -1909,7 +1909,7 @@ function cli_build_commands_string(&$params){
                         /*
                          * Do not escape this argument
                          */
-                        $special = str_starts_not($special, '#');
+                        $special = Strings::startsNotWith($special, '#');
 
                         if(!$special){
                             $special = 'nothing';
@@ -2150,7 +2150,7 @@ function cli_restart($delay = 1){
  */
 function cli_find($params){
     try{
-        array_ensure($params, 'sudo,timeout,start');
+        Arrays::ensure($params, 'sudo,timeout,start');
         array_default($params, 'timeout', 30);
 
         if(empty($params['start'])){
@@ -2160,7 +2160,7 @@ function cli_find($params){
         /*
          * Escape each path section
          */
-        $params['start'] = array_force($params['start'], ',');
+        $params['start'] = Arrays::force($params['start'], ',');
 
         foreach($params['start'] as &$item){
             $item = escapeshellarg($item);

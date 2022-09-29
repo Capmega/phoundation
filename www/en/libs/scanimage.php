@@ -217,11 +217,11 @@ function scanimage($params) {
                             throw new CoreException(tr('scanimage(): Scanner document feeder has no documents'), 'empty');
                     }
 
-                    if(str_exists($line, 'sane_start')) {
+                    if(str_contains($line, 'sane_start')) {
                         break;
                     }
 
-                    if(str_exists($line, 'scanimage:')) {
+                    if(str_contains($line, 'scanimage:')) {
                         break;
                     }
 
@@ -1097,7 +1097,7 @@ function scanimage_get($device, $server = null) {
  */
 function scanimage_select($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'      , 'scanner');
         array_default($params, 'autosubmit', true);
         array_default($params, 'none'      , false);
@@ -1140,7 +1140,7 @@ function scanimage_select($params) {
  */
 function scanimage_select_resolution($params) {
     try{
-        array_ensure($params, 'string');
+        Arrays::ensure($params, 'string');
         array_default($params, 'name'      , 'scanner');
         array_default($params, 'autosubmit', true);
         array_default($params, 'none'      , false);
@@ -1208,7 +1208,7 @@ function scanimage_runs($device, $server = null) {
 
             if($processes) {
                 foreach($processes as $id => $process) {
-                    if(!str_exists($process, $dbdevice['string'])) {
+                    if(!str_contains($process, $dbdevice['string'])) {
                         unset($processes[$id]);
                     }
                 }

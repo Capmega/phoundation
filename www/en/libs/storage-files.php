@@ -18,7 +18,7 @@
  */
 function storage_files_insert($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'sections_id' , null);
         array_default($params, 'documents_id', null);
         array_default($params, 'originals_id', null);
@@ -111,7 +111,7 @@ function storage_files_validate($params) {
  */
 function storage_files_delete($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'sections_id' , null);
         array_default($params, 'documents_id', null);
         array_default($params, 'pages_id'    , null);

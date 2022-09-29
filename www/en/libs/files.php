@@ -68,7 +68,7 @@ function files_insert($file, $require_unique = false) {
             $file['original'] = $file['name'];
         }
 
-        array_ensure($file, 'filename,type,status,original,meta1,meta2,description');
+        Arrays::ensure($file, 'filename,type,status,original,meta1,meta2,description');
 
         /*
          * Ensure that the files base path exists
@@ -204,7 +204,7 @@ function files_get_history($file) {
  */
 function files_get($params) {
     try{
-        array_ensure($params, 'filename');
+        Arrays::ensure($params, 'filename');
 
         array_default($params, 'filters', array('filename' => $params['filename']));
 
@@ -244,7 +244,7 @@ function files_get($params) {
  */
 function files_list($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'columns', 'hash,filename');
         array_default($params, 'orderby', array('filename' => 'asc'));
 

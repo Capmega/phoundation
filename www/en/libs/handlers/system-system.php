@@ -74,7 +74,7 @@ try{
              */
             if(empty($this->register['route_exec'])) {
                 $url      = $_SERVER['REQUEST_URI'];
-                $url      = str_starts_not($url, '/');
+                $url      = Strings::startsNotWith($url, '/');
                 $language = Strings::until($url, '/');
 
                 if(!array_key_exists($language, $_CONFIG['language']['supported'])) {

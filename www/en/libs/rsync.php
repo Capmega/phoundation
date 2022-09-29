@@ -51,7 +51,7 @@ function rsync($params) {
         /*
          * The optional parameters
          */
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'append'             , false);
         array_default($params, 'append_verify'      , false);
         array_default($params, 'archive'            , true);
@@ -136,13 +136,13 @@ function rsync($params) {
                             // FALLTHROUGH
                         case 'localhost':
                             foreach(array('source', 'target') as $subitem) {
-                                if(str_exists($params[$subitem], ':')) {
+                                if(str_contains($params[$subitem], ':')) {
                                     /*
                                      * We're syncing to THIS server, are we not
                                      * syncing to ROOT or its parents somehow?
                                      */
                                     try{
-                                        if(str_exists(ROOT, linux_realpath($server, Strings::from($params[$subitem], ':')))) {
+                                        if(str_contains(ROOT, linux_realpath($server, Strings::from($params[$subitem], ':')))) {
                                             throw new CoreException(tr('rsync(): Specified remote ":subitem" path ":path" is ROOT or parent of ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
                                         }
 
@@ -156,7 +156,7 @@ function rsync($params) {
                                     }
 
                                 } else {
-                                    if(str_exists(ROOT, realpath($params[$subitem]))) {
+                                    if(str_contains(ROOT, realpath($params[$subitem]))) {
                                         throw new CoreException(tr('rsync(): Specified local ":subitem" path ":path" is ROOT or parent of ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
                                     }
                                 }

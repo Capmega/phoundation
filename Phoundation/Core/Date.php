@@ -244,7 +244,7 @@ class Date {
      */
     public static function timezones_select($params = null) {
         try{
-            array_ensure($params);
+            Arrays::ensure($params);
             array_default($params, 'name', 'timezone');
 
             $params['resource'] = Date::timezonesList();

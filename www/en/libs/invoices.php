@@ -244,7 +244,7 @@ function invoices_update($invoice) {
  */
 function invoices_get($invoice, $column = null, $status = null, $parent = false) {
     try{
-        array_ensure($params, 'seoinvoice');
+        Arrays::ensure($params, 'seoinvoice');
 
         $params['table']   = 'invoices';
 
@@ -297,7 +297,7 @@ function invoices_get($invoice, $column = null, $status = null, $parent = false)
  */
 function invoices_list($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
 
         $params['table'] = 'invoices';
 
@@ -337,7 +337,7 @@ function invoices_list($params) {
  */
 function invoices_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'      , 'seoinvoice');
         array_default($params, 'class'     , 'form-control');
         array_default($params, 'selected'  , null);
@@ -352,7 +352,7 @@ function invoices_select($params = null) {
         $execute = array();
 
         if($params['remove']) {
-            if(count(array_force($params['remove'])) == 1) {
+            if(count(Arrays::force($params['remove'])) == 1) {
                 /*
                  * Filter out only one entry
                  */
@@ -363,7 +363,7 @@ function invoices_select($params = null) {
                 /*
                  * Filter out multiple entries
                  */
-                $in      = sql_in(array_force($params['remove']));
+                $in      = sql_in(Arrays::force($params['remove']));
                 $where[] = ' `id` NOT IN ('.implode(', ', array_keys($in)).') ';
                 $execute = array_merge($execute, $in);
             }

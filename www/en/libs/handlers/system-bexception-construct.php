@@ -10,7 +10,7 @@ if($code === 'missing-module') {
     }
 }
 
-$messages = array_force($messages, "\n");
+$messages = Arrays::force($messages, "\n");
 
 if(is_object($code)) {
     /*
@@ -41,7 +41,7 @@ if(is_object($code)) {
     $code       = $e->getCode();
 
     if($data) {
-        $this->data = array_force($data);
+        $this->data = Arrays::force($data);
 
     } elseif(method_exists($e, 'getData')) {
 // :TODO: Check if this is neede, as BException::getData() should only exist for BException classes and this is already checked and copied above.
@@ -69,7 +69,7 @@ if(is_object($code)) {
     }
 
     $orgmessage = reset($messages);
-    $this->data = array_force($data);
+    $this->data = Arrays::force($data);
 }
 
 if(!$messages) {

@@ -74,10 +74,10 @@ function mysql_exec($server, $query, $root = false, $simple_quotes = false) {
         }
 
         if($simple_quotes) {
-            $results = servers_exec($server, 'mysql -e \''.str_ends($query, ';').'\'');
+            $results = servers_exec($server, 'mysql -e \''.Strings::endsWith($query, ';').'\'');
 
         } else {
-            $results = servers_exec($server, 'mysql -e \"'.str_ends($query, ';').'\"');
+            $results = servers_exec($server, 'mysql -e \"'.Strings::endsWith($query, ';').'\"');
         }
 
         mysql_delete_password_file($server);
@@ -167,7 +167,7 @@ function mysql_delete_password_file($server = null) {
  */
 function mysql_dump($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'server'  , '');
         array_default($params, 'database', '');
         array_default($params, 'path'    , '');

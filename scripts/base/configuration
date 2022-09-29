@@ -42,7 +42,7 @@ under_construction();
         }
 
         $default = true;
-        $keys    = array_force($keys);
+        $keys    = Arrays::force($keys);
         $basekey = current($keys);
 
         if(!isset($_CONFIG[$basekey])) {

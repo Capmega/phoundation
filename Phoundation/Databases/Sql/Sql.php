@@ -617,7 +617,7 @@ class Sql
         global $_CONFIG;
 
         try {
-            array_ensure($connector);
+            Arrays::ensure($connector);
             array_default($connector, 'driver', null);
             array_default($connector, 'host', null);
             array_default($connector, 'user', null);
@@ -792,7 +792,7 @@ class Sql
                 throw new SqlException('Sql::columns(): Specified source is not an array');
             }
 
-            $columns = array_force($columns);
+            $columns = Arrays::force($columns);
             $retval = array();
 
             foreach ($source as $key => $value) {
@@ -824,8 +824,8 @@ class Sql
     //            throw new SqlException('Sql::set(): Specified source is not an array', 'invalid');
     //        }
     //
-    //        $columns = array_force($columns);
-    //        $filter  = array_force($filter);
+    //        $columns = Arrays::force($columns);
+    //        $filter  = Arrays::force($filter);
     //        $retval  = array();
     //
     //        foreach ($source as $key => $value) {
@@ -874,7 +874,7 @@ class Sql
                 throw new SqlException('Sql::values(): Specified source is not an array');
             }
 
-            $columns = array_force($columns);
+            $columns = Arrays::force($columns);
             $retval = array();
 
             foreach ($source as $key => $value) {
@@ -1305,7 +1305,7 @@ class Sql
                 $post = array();
             }
 
-            $skip = array_force($skip);
+            $skip = Arrays::force($skip);
 
             /*
              * Copy all POST variables over DB

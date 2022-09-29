@@ -98,7 +98,7 @@ function share_sharethis_buttons($buttons) {
             throw new CoreException('share_sharethis_buttons(): No buttons specified');
         }
 
-        foreach (array_force($buttons) as $button) {
+        foreach (Arrays::force($buttons) as $button) {
             switch($button) {
                 case 'facebook':
                     $html .= '<span class="st_facebook_large" displayText="Facebook"></span>';
@@ -208,7 +208,7 @@ function share_addtoany_buttons($buttons) {
             throw new CoreException('share_addtoany_buttons(): No buttons specified');
         }
 
-        foreach(array_force($buttons) as $button) {
+        foreach(Arrays::force($buttons) as $button) {
             switch($button) {
                 case 'facebook':
                     $html.=  '<a class="a2a_button_facebook"></a>';

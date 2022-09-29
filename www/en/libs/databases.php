@@ -103,7 +103,7 @@ function databases_get_account($params) {
  */
 function databases_list_accounts($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
 
         $params['table']     = 'database_accounts';
         $params['connector'] = 'core';

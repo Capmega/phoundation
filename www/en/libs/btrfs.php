@@ -88,7 +88,7 @@ function btrfs_install() {
  */
 function btrfs_defragment($params) {
     try{
-        array_ensure($params, 'verbose,path,server');
+        Arrays::ensure($params, 'verbose,path,server');
 
         if($params['verbose'] or VERBOSE) {
             $verbose = '-v';

@@ -164,7 +164,7 @@ foreach($roles as $name => $data) {
 
     $q->execute(array(':roles_id' => $roles_id));
 
-    foreach(array_force($data['rights']) as $right) {
+    foreach(Arrays::force($data['rights']) as $right) {
         $rights_id = sql_get('SELECT `id` FROM `rights` WHERE `name` = :name', 'id', array(':name' => $right));
 
         $r->execute(array(':roles_id'  => $roles_id,

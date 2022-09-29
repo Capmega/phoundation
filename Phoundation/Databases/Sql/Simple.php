@@ -69,7 +69,7 @@ class SqlSimple
      */
     public function list($params)
     {
-        array_ensure($params, 'joins,debug,limit,page,combine');
+        Arrays::ensure($params, 'joins,debug,limit,page,combine');
 
         if (empty($params['table'])) {
             throw new SqlException(tr('Sql::simple_list(): No table specified'), 'not-specified');
@@ -153,7 +153,7 @@ class SqlSimple
      */
     public function get($params)
     {
-        array_ensure($params, 'joins,debug,combine');
+        Arrays::ensure($params, 'joins,debug,combine');
 
         if (empty($params['table'])) {
             throw new SqlException(tr('Sql::simple_get(): No table specified'), 'not-specified');
@@ -170,7 +170,7 @@ class SqlSimple
         array_default($params, 'page', null);
         array_default($params, 'template', false);
 
-        $params['columns'] = array_force($params['columns']);
+        $params['columns'] = Arrays::force($params['columns']);
 
         /*
          * Apply automatic filter settings
@@ -332,7 +332,7 @@ class SqlSimple
             }
 
             if (is_scalar($values) or ($values === null)) {
-                $values = array(str_starts($column, ':') => $values);
+                $values = array(Strings::startsWith($column, ':') => $values);
 
             } elseif (is_array($values)) {
                 $values = Sql::in($values, ':value', true, true);
@@ -660,7 +660,7 @@ class SqlSimple
                 throw new SqlException(tr('Sql::getColumnsString(): No columns specified'));
             }
 
-            $columns = array_force($columns);
+            $columns = Arrays::force($columns);
 
             foreach ($columns as $id => &$column) {
                 if (!$column) {
@@ -674,7 +674,7 @@ class SqlSimple
                     $column = $table . '.' . $column;
                 }
 
-                if (str_exists($column, ' as ')) {
+                if (str_contains($column, ' as ')) {
                     $target = trim(Strings::from($column, ' as '));
                     $column = trim(Strings::until($column, ' as '));
                     $column = '`' . str_replace('.', '`.`', trim($column)) . '`';

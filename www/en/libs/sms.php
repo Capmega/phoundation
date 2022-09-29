@@ -260,7 +260,7 @@ function sms_full_phones($phones) {
     global $_CONFIG;
 
     try{
-        $phones = array_force($phones);
+        $phones = Arrays::force($phones);
 
         foreach($phones as &$phone) {
             $phone = trim($phone);
@@ -297,7 +297,7 @@ function sms_no_country_phones($phones) {
     global $_CONFIG;
 
     try{
-        $phones = array_force($phones);
+        $phones = Arrays::force($phones);
 
         foreach($phones as &$phone) {
             $phone = trim($phone);
@@ -379,7 +379,7 @@ function sms_block($phone_numbers, $status = null) {
 
                                       ON DUPLICATE KEY UPDATE `id` = `id`');
 
-        foreach(array_force($phone_numbers) as $phone_number) {
+        foreach(Arrays::force($phone_numbers) as $phone_number) {
             $insert->execute(array(':createdby' => isset_get($_SESSION['user']['id']),
                                    ':meta_id'   => meta_action(),
                                    ':status'    => $status,

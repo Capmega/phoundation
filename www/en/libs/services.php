@@ -415,7 +415,7 @@ function services_clear($server) {
  */
 function services_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'    , 'seoservice');
         array_default($params, 'class'   , 'form-control');
         array_default($params, 'selected', null);

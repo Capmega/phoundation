@@ -21,7 +21,7 @@ cclass Users
         try {
             if ($user) {
                 if ($key_prefix) {
-                    $key_prefix = str_ends($key_prefix, '_');
+                    $key_prefix = Strings::endsWith($key_prefix, '_');
                 }
 
                 if (is_scalar($user)) {

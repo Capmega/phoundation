@@ -111,7 +111,7 @@ function image_convert($params) {
     global $_CONFIG;
 
     try{
-        array_ensure($params, 'source,target,format');
+        Arrays::ensure($params, 'source,target,format');
 
         /*
          * Extract source and target
@@ -130,7 +130,7 @@ function image_convert($params) {
             throw new CoreException(tr('image_convert(): Destination file ":file" already exists', array(':file' => $target)), 'exists');
         }
 
-        array_ensure($params, 'log,nice');
+        Arrays::ensure($params, 'log,nice');
 
         ///*
         // * Validate format
@@ -170,7 +170,7 @@ function image_convert($params) {
             $arguments['redirect'] = ' >> '.$params['log'];
         }
 
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'degrees'   , null);
         array_default($params, 'x'         , null);
         array_default($params, 'y'         , null);
@@ -590,7 +590,7 @@ function image_convert($params) {
             $line = $e->getData();
             $line = array_pop($line);
 
-            if(str_exists($line, 'delegate failed') and str_exists($line, 'error/delegate.c/InvokeDelegate')) {
+            if(str_contains($line, 'delegate failed') and str_contains($line, 'error/delegate.c/InvokeDelegate')) {
                 /*
                  * WebP conversion failed. Very likely this is due to webp being
                  * not installed. Install it and retry
@@ -623,7 +623,7 @@ function image_convert($params) {
             throw new CoreException(tr('image_convert(): Failed'), $e);
 
         } else {
-            foreach(array_force($contents) as $line) {
+            foreach(Arrays::force($contents) as $line) {
                 if(strstr($line, '/usr/bin/convert: not found')) {
                     /*
                      * Dumbo! You don't have imagemagick installed!
@@ -1017,7 +1017,7 @@ function image_fancybox($params = null) {
  */
 function image_watermark($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'image'    , '');
         array_default($params, 'watermark', '');
         array_default($params, 'target'   , '');
@@ -1197,7 +1197,7 @@ function image_picker($params) {
         html_load_js('image-picker/image-picker');
         html_load_css('image-picker');
 
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'resource'  , null);
         array_default($params, 'name'      , 'image-picker');
         array_default($params, 'id'        , 'image-picker');
@@ -1300,7 +1300,7 @@ console.log("imagesloaded");
  */
 function image_slider($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'library' , 'bxslider');
         array_default($params, 'selector', '#slider');
         array_default($params, 'options'  , array());

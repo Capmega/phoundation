@@ -149,7 +149,7 @@ function servers_validate($server, $structure_only = false, $password_strength =
         $server['allow_sshd_modification'] = (boolean) $server['allow_sshd_modification'];
 
         if($server['domains']) {
-            $server['domains'] = array_force($server['domains'], "\n");
+            $server['domains'] = Arrays::force($server['domains'], "\n");
 
             foreach($server['domains'] as &$domain) {
                 $domain = trim($domain);
@@ -494,7 +494,7 @@ function servers_like($domain) {
  */
 function servers_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'    , 'seoserver');
         array_default($params, 'class'   , 'form-control');
         array_default($params, 'selected', null);
@@ -811,7 +811,7 @@ function servers_exec_on_all($params) {
             $params['callback'] = $params;
         }
 
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'status', null);
 
         $server = sql_query('SELECT `servers`.`id`,

@@ -37,7 +37,7 @@ class Cdn
             /*
              * In what servers are we going to store these files?
              */
-            $files = array_force($files);
+            $files = Arrays::force($files);
             $servers = cdn_assign_servers();
             $file_insert = sql_prepare('INSERT IGNORE INTO `cdn_files` (`servers_id`, `section`, `group`, `file`)
                                     VALUES                         (:servers_id , :section , :group , :file )');
@@ -53,7 +53,7 @@ class Cdn
                     $file_insert->execute(array(':servers_id' => $servers_id,
                         ':section' => $section,
                         ':group' => $group,
-                        ':file' => str_starts($url, '/')));
+                        ':file' => Strings::startsWith($url, '/')));
                 }
 
                 /*
@@ -151,7 +151,7 @@ class Cdn
                     $file = $_CONFIG['cdn']['prefix'] . $file;
                 }
 
-                return $_SESSION['cdn'] . str_starts_not($file, '/');
+                return $_SESSION['cdn'] . Strings::startsNotWith($file, '/');
             }
 
             /*

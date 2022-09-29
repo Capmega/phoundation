@@ -308,7 +308,7 @@ function radius_validate_device($device) {
  */
 function radius_type_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name' , 'type');
         array_default($params, 'empty', tr('No device types available'));
         array_default($params, 'none' , tr('Select a device type'));
@@ -349,7 +349,7 @@ function radius_type_select($params = null) {
  */
 function radius_users_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'        , 'users_id');
         array_default($params, 'class'       , 'form-control');
         array_default($params, 'selected'    , null);

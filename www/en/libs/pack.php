@@ -398,7 +398,7 @@ function pack_untar($params) {
 function pack_validate($params) {
     try{
         array_params($params, 'source');
-        array_ensure($params, 'domain,background');
+        Arrays::ensure($params, 'domain,background');
 
         return $params;
 

@@ -279,13 +279,13 @@
 //                     * Auto detect what http call type we're on from the script
 //                     * being executed
 //                     */
-//                    if(str_exists($file, '/admin/')) {
+//                    if(str_contains($file, '/admin/')) {
 //                        $this->callType = 'admin';
 //
-//                    } elseif(str_exists($file, '/ajax/')) {
+//                    } elseif(str_contains($file, '/ajax/')) {
 //                        $this->callType = 'ajax';
 //
-//                    } elseif(str_exists($file, '/api/')) {
+//                    } elseif(str_contains($file, '/api/')) {
 //                        $this->callType = 'api';
 //
 //                    } elseif((substr($_SERVER['SERVER_NAME'], 0, 3) === 'api') and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
@@ -501,7 +501,7 @@
 //            $messages = $messages->getMessages();
 //        }
 //
-//        foreach(array_force($messages) as $message) {
+//        foreach(Arrays::force($messages) as $message) {
 //            $this->messages[] = $message;
 //        }
 //
@@ -597,7 +597,7 @@
 //     * @param mixed $data The content for this exception
 //     */
 //    public function setData($data) {
-//        $this->data = array_force($data);
+//        $this->data = Arrays::force($data);
 //    }
 //
 //
@@ -618,10 +618,10 @@
 //     */
 //    public function makeWarning($value) {
 //        if($value) {
-//            $this->code = str_starts($this->code, 'warning/');
+//            $this->code = Strings::startsWith($this->code, 'warning/');
 //
 //        } else {
-//            $this->code = str_starts_not($this->code, 'warning/');
+//            $this->code = Strings::startsNotWith($this->code, 'warning/');
 //        }
 //
 //        return $this;
@@ -944,7 +944,7 @@
 // */
 //function load_external($files) {
 //    try{
-//        foreach(array_force($files) as $file) {
+//        foreach(Arrays::force($files) as $file) {
 //            include_once(ROOT.'www/en/libs/external/'.$files);
 //        }
 //
@@ -992,7 +992,7 @@
 //            $libs = slash(__DIR__);
 //        }
 //
-//        foreach(array_force($libraries) as $library) {
+//        foreach(Arrays::force($libraries) as $library) {
 //            if(!$library) {
 //                notify(new BException('load_libs(): Empty library specified', 'warning/not-specified'));
 //                continue;
@@ -1005,7 +1005,7 @@
 //                continue;
 //            }
 //
-//            if($core->register['ready'] and str_exists('http,strings,array,sql,mb,meta,file,json', $library)) {
+//            if($core->register['ready'] and str_contains('http,strings,array,sql,mb,meta,file,json', $library)) {
 //                /*
 //                 * These are system libraries that are always loaded. Do not
 //                 * load them again
@@ -1081,7 +1081,7 @@
 //                           ROOT.'config/'.ENVIRONMENT);
 //        }
 //
-//        $files = array_force($files);
+//        $files = Arrays::force($files);
 //
 //        foreach($files as $file) {
 //            $loaded = false;
@@ -1437,7 +1437,7 @@
 //             */
 //            $headers = isset_get($_SERVER['HTTP_ACCEPT']);
 //            $headers = str_replace(', ', '', $headers);
-//            $headers = array_force($headers);
+//            $headers = Arrays::force($headers);
 //            $headers = array_flip($headers);
 //        }
 //
@@ -1485,10 +1485,10 @@
 //
 //        } else {
 //            $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-//            $headers = array_force($headers, ',');
+//            $headers = Arrays::force($headers, ',');
 //            $default = array_shift($headers);
 //            $retval  = array('1.0' => array('language' => Strings::until($default, '-'),
-//                                            'locale'   => (str_exists($default, '-') ? Strings::from($default, '-') : null)));
+//                                            'locale'   => (str_contains($default, '-') ? Strings::from($default, '-') : null)));
 //
 //            if(empty($retval['1.0']['language'])) {
 //                /*
@@ -1507,7 +1507,7 @@
 //            foreach($headers as $header) {
 //                $requested =  Strings::until($header, ';');
 //                $requested =  array('language' => Strings::until($requested, '-'),
-//                                    'locale'   => (str_exists($requested, '-') ? Strings::from($requested, '-') : null));
+//                                    'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null));
 //
 //                if(empty($_CONFIG['language']['supported'][$requested['language']])) {
 //                    continue;
@@ -1686,7 +1686,7 @@
 //                     */
 //                    $messages[] = cli_color('Exception data:', 'error', null, true);
 //
-//                    foreach(array_force($data) as $line) {
+//                    foreach(Arrays::force($data) as $line) {
 //                        if($line) {
 //                            if(is_scalar($line)) {
 //                                $messages[] = cli_color($line, 'error', null, true);
@@ -2224,7 +2224,7 @@
 //            $url_params['prefix'] = $_CONFIG['url_prefix'];
 //        }
 //
-//        $url_params['prefix']   = str_starts_not(str_ends($url_params['prefix'], '/'), '/');
+//        $url_params['prefix']   = Strings::startsNotWith(Strings::endsWith($url_params['prefix'], '/'), '/');
 //        $url_params['domain']   = slash($url_params['domain']);
 //        $url_params['language'] = get_language($url_params['language']);
 //
@@ -2235,10 +2235,10 @@
 //            $retval = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '').$url_params['prefix'];
 //
 //        } elseif($url_params['url'] === true) {
-//            $retval = PROTOCOL.$url_params['domain'].str_starts_not($_SERVER['REQUEST_URI'], '/');
+//            $retval = PROTOCOL.$url_params['domain'].Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
 //
 //        } else {
-//            $retval = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '').$url_params['prefix'].str_starts_not($url_params['url'], '/');
+//            $retval = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '').$url_params['prefix'].Strings::startsNotWith($url_params['url'], '/');
 //        }
 //
 //        /*
@@ -2515,7 +2515,7 @@
 //            return true;
 //        }
 //
-//        foreach(array_force($rights) as $right) {
+//        foreach(Arrays::force($rights) as $right) {
 //            if(empty($user['rights'][$right]) or !empty($user['rights']['devil']) or !empty($fail)) {
 //                if((PLATFORM_CLI) and VERBOSE) {
 //                    load_libs('user');
@@ -2585,7 +2585,7 @@
 //            return true;
 //        }
 //
-//        foreach(array_force($groups) as $group) {
+//        foreach(Arrays::force($groups) as $group) {
 //            if(empty($user['groups'][$group]) or !empty($user['rights']['devil']) or !empty($fail)) {
 //                if((PLATFORM_CLI) and VERBOSE) {
 //                    load_libs('user');
@@ -2689,7 +2689,7 @@
 //         * If user has no admin permissions we're not even showing 403, we're
 //         * simply showing the signin page
 //         */
-//        if(in_array('admin', array_force($rights))) {
+//        if(in_array('admin', Arrays::force($rights))) {
 //            redirect(domain(isset_get($url, $_CONFIG['redirects']['signin'])));
 //        }
 //
@@ -2716,7 +2716,7 @@
 //            return $_SESSION['user'];
 //        }
 //
-//        if(in_array('admin', array_force($groups))) {
+//        if(in_array('admin', Arrays::force($groups))) {
 //            redirect(domain($_CONFIG['redirects']['signin']));
 //        }
 //
@@ -3109,7 +3109,7 @@
 //             * Only accept values in this valid list (AND empty!)
 //             * Invalid values will be set to null
 //             */
-//            if(!in_array($_SESSION[$key], array_force($valid))) {
+//            if(!in_array($_SESSION[$key], Arrays::force($valid))) {
 //                $_SESSION[$key] = null;
 //            }
 //        }
@@ -3276,7 +3276,7 @@
 //    try{
 //        if($user) {
 //            if($key_prefix) {
-//                $key_prefix = str_ends($key_prefix, '_');
+//                $key_prefix = Strings::endsWith($key_prefix, '_');
 //            }
 //
 //            if(is_scalar($user)) {
@@ -3337,7 +3337,7 @@
 //    global $_CONFIG, $core;
 //
 //    try{
-//        array_ensure($params, 'message');
+//        Arrays::ensure($params, 'message');
 //
 //        if($get) {
 //            if(!is_array($get)) {
@@ -3589,7 +3589,7 @@
 // */
 //function ensure_installed($params) {
 //    try{
-//        array_ensure($params);
+//        Arrays::ensure($params);
 //
 //        /*
 //         * Check if specified library is installed
@@ -3602,7 +3602,7 @@
 //         * Test available files
 //         */
 //        if(isset($params['checks'])) {
-//            foreach(array_force($params['checks']) as $path) {
+//            foreach(Arrays::force($params['checks']) as $path) {
 //                if(!file_exists($path)) {
 //                    $fail = 'path '.$path;
 //                    break;
@@ -3614,7 +3614,7 @@
 //         * Test available functions
 //         */
 //        if(isset($params['functions']) and !isset($fail)) {
-//            foreach(array_force($params['functions']) as $function) {
+//            foreach(Arrays::force($params['functions']) as $function) {
 //                if(!function_exists($function)) {
 //                    $fail = 'function '.$function;
 //                    break;
@@ -3626,7 +3626,7 @@
 //         * Test available functions
 //         */
 //        if(isset($params['which']) and !isset($fail)) {
-//            foreach(array_force($params['which']) as $program) {
+//            foreach(Arrays::force($params['which']) as $program) {
 //                if(!file_which($program)) {
 //                    $fail = 'which '.$program;
 //                    break;
@@ -3866,7 +3866,7 @@
 //        /*
 //         * In what servers are we going to store these files?
 //         */
-//        $files       = array_force($files);
+//        $files       = Arrays::force($files);
 //        $servers     = cdn_assign_servers();
 //        $file_insert = sql_prepare('INSERT IGNORE INTO `cdn_files` (`servers_id`, `section`, `group`, `file`)
 //                                    VALUES                         (:servers_id , :section , :group , :file )');
@@ -3882,7 +3882,7 @@
 //                $file_insert->execute(array(':servers_id' => $servers_id,
 //                                            ':section'    => $section,
 //                                            ':group'      => $group,
-//                                            ':file'       => str_starts($url, '/')));
+//                                            ':file'       => Strings::startsWith($url, '/')));
 //            }
 //
 //            /*
@@ -3979,7 +3979,7 @@
 //                $file = $_CONFIG['cdn']['prefix'].$file;
 //            }
 //
-//            return $_SESSION['cdn'].str_starts_not($file, '/');
+//            return $_SESSION['cdn'].Strings::startsNotWith($file, '/');
 //        }
 //
 //        /*
@@ -4103,7 +4103,7 @@
 // * @version 1.26.1: Added function and documentation
 // * @example
 // * code
-// * $result = str_exists('This function is completely foobar', 'foobar');
+// * $result = str_contains('This function is completely foobar', 'foobar');
 // * showdie($result);
 // * /code
 // *
@@ -4116,12 +4116,12 @@
 // * @params string $needle The string that will be searched for in $haystack
 // * @return boolean True if the $needle exists in $haystack, false otherwise
 // */
-//function str_exists($haystack, $needle) {
+//function str_contains($haystack, $needle) {
 //    try{
 //        return (strpos($haystack, $needle) !== false);
 //
 //    }catch(Exception $e) {
-//        throw new CoreException(tr('str_exists(): Failed'), $e);
+//        throw new CoreException(tr('str_contains(): Failed'), $e);
 //    }
 //}
 //
@@ -4262,7 +4262,7 @@
 ///*
 // * Ensure that specified source string starts with specified string
 // */
-//function str_starts($source, $string) {
+//function Strings::startsWith($source, $string) {
 //    try{
 //        if(mb_substr($source, 0, mb_strlen($string)) == $string) {
 //            return $source;
@@ -4271,7 +4271,7 @@
 //        return $string.$source;
 //
 //    }catch(Exception $e) {
-//        throw new CoreException(tr('str_starts(): Failed for ":source"', array(':source' => $source)), $e);
+//        throw new CoreException(tr('Strings::startsWith(): Failed for ":source"', array(':source' => $source)), $e);
 //    }
 //}
 //
@@ -4280,7 +4280,7 @@
 ///*
 // * Ensure that specified source string starts NOT with specified string
 // */
-//function str_starts_not($source, $string) {
+//function Strings::startsNotWith($source, $string) {
 //    try{
 //        while(mb_substr($source, 0, mb_strlen($string)) == $string) {
 //            $source = mb_substr($source, mb_strlen($string));
@@ -4289,7 +4289,7 @@
 //        return $source;
 //
 //    }catch(Exception $e) {
-//        throw new CoreException(tr('str_starts_not(): Failed for ":source"', array(':source' => $source)), $e);
+//        throw new CoreException(tr('Strings::startsNotWith(): Failed for ":source"', array(':source' => $source)), $e);
 //    }
 //}
 //
@@ -4298,7 +4298,7 @@
 ///*
 // * Ensure that specified string ends with specified character
 // */
-//function str_ends($source, $string) {
+//function Strings::endsWith($source, $string) {
 //    try{
 //        $length = mb_strlen($string);
 //
@@ -4309,7 +4309,7 @@
 //        return $source.$string;
 //
 //    }catch(Exception $e) {
-//        throw new CoreException('str_ends(): Failed', $e);
+//        throw new CoreException('Strings::endsWith(): Failed', $e);
 //    }
 //}
 //
@@ -4318,7 +4318,7 @@
 ///*
 // * Ensure that specified string ends NOT with specified character
 // */
-//function str_ends_not($source, $strings, $loop = true) {
+//function Strings::endsNotWith($source, $strings, $loop = true) {
 //    try{
 //        if(is_array($strings)) {
 //            /*
@@ -4330,7 +4330,7 @@
 //                $redo = false;
 //
 //                foreach($strings as $string) {
-//                    $new = str_ends_not($source, $string, true);
+//                    $new = Strings::endsNotWith($source, $string, true);
 //
 //                    if($new != $source) {
 //                        // A change was made, we have to rerun over it.
@@ -4356,7 +4356,7 @@
 //        return $source;
 //
 //    }catch(Exception $e) {
-//        throw new CoreException('str_ends_not(): Failed', $e);
+//        throw new CoreException('Strings::endsNotWith(): Failed', $e);
 //    }
 //}
 //
@@ -4367,7 +4367,7 @@
 // */
 //function slash($string) {
 //    try{
-//        return str_ends($string, '/');
+//        return Strings::endsWith($string, '/');
 //
 //    }catch(Exception $e) {
 //        throw new CoreException('slash(): Failed', $e);
@@ -4381,7 +4381,7 @@
 // */
 //function unslash($string, $loop = true) {
 //    try{
-//        return str_ends_not($string, '/', $loop);
+//        return Strings::endsNotWith($string, '/', $loop);
 //
 //    }catch(Exception $e) {
 //        throw new CoreException('unslash(): Failed', $e);
@@ -4653,21 +4653,21 @@
 // * @param mixed (optional) $trim_existing
 // * @return array
 // */
-//function array_ensure(&$source, $keys = '', $default_value = null, $trim_existing = false) {
+//function Arrays::ensure(&$source, $keys = '', $default_value = null, $trim_existing = false) {
 //    try{
 //        if(!$source) {
 //            $source = array();
 //
 //        } elseif(!is_array($source)) {
 //            if(is_object($source)) {
-//                throw new CoreException(tr('array_ensure(): Specified source is not an array but an object of the class ":class"', array(':class' => get_class($source))), 'invalid');
+//                throw new CoreException(tr('Arrays::ensure(): Specified source is not an array but an object of the class ":class"', array(':class' => get_class($source))), 'invalid');
 //            }
 //
-//            throw new CoreException(tr('array_ensure(): Specified source is not an array but a ":type"', array(':type' => gettype($source))), 'invalid');
+//            throw new CoreException(tr('Arrays::ensure(): Specified source is not an array but a ":type"', array(':type' => gettype($source))), 'invalid');
 //        }
 //
 //        if($keys) {
-//            foreach(array_force($keys) as $key) {
+//            foreach(Arrays::force($keys) as $key) {
 //                if(!$key) {
 //                    continue;
 //                }
@@ -4687,7 +4687,7 @@
 //        }
 //
 //    }catch(Exception $e) {
-//        throw new CoreException('array_ensure(): Failed', $e);
+//        throw new CoreException('Arrays::ensure(): Failed', $e);
 //    }
 //}
 //
@@ -4704,7 +4704,7 @@
 // * @see str_force()
 // * @example
 // * code
-// * print_r(array_force(array('test')));
+// * print_r(Arrays::force(array('test')));
 // * /code
 // *
 // * This will return something like
@@ -4714,7 +4714,7 @@
 // * /code
 // *
 // * code
-// * print_r(array_force('test'));
+// * print_r(Arrays::force('test'));
 // * /code
 // *
 // * This will return something like
@@ -4727,7 +4727,7 @@
 // * @param string $separator
 // * @return array The specified $source, but now converted to an array data type (if it was not an array yet)
 // */
-//function array_force($source, $separator = ',') {
+//function Arrays::force($source, $separator = ',') {
 //    try{
 //        if(($source === '') or ($source === null)) {
 //            return array();
@@ -4744,7 +4744,7 @@
 //        return $source;
 //
 //    }catch(Exception $e) {
-//        throw new CoreException('array_force(): Failed', $e);
+//        throw new CoreException('Arrays::force(): Failed', $e);
 //    }
 //}
 //

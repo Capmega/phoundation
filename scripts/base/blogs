@@ -174,7 +174,7 @@ switch(cli_method()) {
                     WHERE  `status` IS NULL ';
 
         if($blogs) {
-            $blogs   = array_force($blogs, ',');
+            $blogs   = Arrays::force($blogs, ',');
             $blogs   = array_clean($blogs);
             $in      = sql_in($blogs);
             $query  .= 'AND `seoname` IN ('.implode(',', array_keys($in)).')';

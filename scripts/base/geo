@@ -726,7 +726,7 @@ switch(cli_method()) {
              */
             log_console(tr('ONLY ADDING FOR THESE COUNTRIES:'), 'yellow');
 
-            foreach(array_force($country_list) as $country) {
+            foreach(Arrays::force($country_list) as $country) {
                 if(strtolower($country) == 'all') {
 
                 } else {

@@ -218,7 +218,7 @@ class Config{
 //                    ROOT . 'config/' . ENVIRONMENT);
 //            }
 //
-//            $files = array_force($files);
+//            $files = Arrays::force($files);
 //
 //            foreach ($files as $file) {
 //                $loaded = false;

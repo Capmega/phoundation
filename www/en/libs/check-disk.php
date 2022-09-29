@@ -49,7 +49,7 @@ function check_disk($params = null) {
     global $_CONFIG;
 
     try{
-        array_ensure($params, 'percentage,bytes');
+        Arrays::ensure($params, 'percentage,bytes');
         array_default($params, 'bytes'     , $_CONFIG['check_disk']['bytes']);
         array_default($params, 'percentage', $_CONFIG['check_disk']['percentage']);
 

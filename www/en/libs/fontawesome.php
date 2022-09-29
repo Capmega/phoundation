@@ -15,7 +15,7 @@
  */
 function fontawesome_select($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'sort', true);
         array_default($params, 'none', tr('Select a fontawesome icon'));
 

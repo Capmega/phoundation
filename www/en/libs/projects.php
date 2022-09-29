@@ -370,7 +370,7 @@ function projects_update($project) {
  */
 function projects_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'        , 'seoproject');
         array_default($params, 'class'       , 'form-control');
         array_default($params, 'selected'    , null);
@@ -441,7 +441,7 @@ function projects_select($params = null) {
  */
 function projects_get($params) {
     try{
-        array_ensure($params, 'seoproject');
+        Arrays::ensure($params, 'seoproject');
 
         array_default($params, 'filters', array('projects.seoname' => $params['seoproject'],
                                                 'projects.status'  => null));
@@ -504,7 +504,7 @@ function projects_get($params) {
  */
 function projects_list($params) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));
 

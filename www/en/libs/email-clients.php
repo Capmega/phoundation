@@ -235,7 +235,7 @@ function email_servers_validate_domain($domain) {
  */
 function email_servers_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'    , 'seodomain');
         array_default($params, 'class'   , 'form-control');
         array_default($params, 'selected', null);

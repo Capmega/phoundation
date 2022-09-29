@@ -480,7 +480,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
              * Auto authenticate
              */
             try{
-                $json = curl_get(array('url'            => str_starts_not($account_data['baseurl'], '/').'/authenticate',
+                $json = curl_get(array('url'            => Strings::startsNotWith($account_data['baseurl'], '/').'/authenticate',
                                        'posturlencoded' => true,
                                        'verify_ssl'     => isset_get($account_data['verify_ssl']),
                                        'getheaders'     => false,
@@ -508,7 +508,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
                 $signin = true;
 
             }catch(Exception $e) {
-                $url = str_starts_not($account_data['baseurl'], '/').'/authenticate';
+                $url = Strings::startsNotWith($account_data['baseurl'], '/').'/authenticate';
 
                 switch($e->getCode()) {
                     case 'HTTP403':
@@ -537,7 +537,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
              */
             $count = 0;
 
-            foreach(array_force($files) as $url => $file) {
+            foreach(Arrays::force($files) as $url => $file) {
                 $data['file'.$count++] =  curl_file_create($file, file_mimetype($file), str_replace('/', '_', str_replace('_', '', $url)));
             }
         }
@@ -546,7 +546,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
          * Make the API call
          */
         try{
-            $json = curl_get(array('url'        => str_starts_not($account_data['baseurl'], '/').str_starts($call, '/'),
+            $json = curl_get(array('url'        => Strings::startsNotWith($account_data['baseurl'], '/').Strings::startsWith($call, '/'),
                                    'verify_ssl' => isset_get($account_data['verify_ssl']),
                                    'getheaders' => false,
                                    'post'       => $data));
@@ -592,7 +592,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
             }
 
         }catch(Exception $e) {
-            $url = str_starts_not($account_data['baseurl'], '/').str_starts($call, '/');
+            $url = Strings::startsNotWith($account_data['baseurl'], '/').Strings::startsWith($call, '/');
 
             switch($e->getCode()) {
                 case 'HTTP403':

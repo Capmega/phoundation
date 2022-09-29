@@ -98,7 +98,7 @@ function go_exec($params) {
     try{
         global $core;
 
-        array_ensure($params, 'commands,server');
+        Arrays::ensure($params, 'commands,server');
 
         /*
          * Validate the requested commands, ensure that go_exec() is only used

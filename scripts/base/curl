@@ -39,7 +39,7 @@ cli_no_arguments_left();
 
 
 if($params['proxies']) {
-    $params['proxies'] = array_force($params['proxies']);
+    $params['proxies'] = Arrays::force($params['proxies']);
 }
 
 if($params['noproxy']) {

@@ -212,7 +212,7 @@ $rights         = array('name'       => 'rights[]',
  * Ensure that all rights are unique and ordered by name. Do this separately from the s_validate_role() because
  * this data may not be validated (in case of new role that got form reloaded)
  */
-$role['rights'] = array_force(isset_get($role['rights']));
+$role['rights'] = Arrays::force(isset_get($role['rights']));
 $role['rights'] = array_unique($role['rights']);
 sort($role['rights']);
 

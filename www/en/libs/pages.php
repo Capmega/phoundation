@@ -28,12 +28,12 @@
  */
 function pages_list($params) {
     try{
-        array_ensure($params, 'filters');
+        Arrays::ensure($params, 'filters');
 
         $retval = array();
         $pages  = scandir(ROOT.'www/en/');
 
-        $params['filters'] = array_force($params['filters']);
+        $params['filters'] = Arrays::force($params['filters']);
 
         foreach($pages as $id => $page) {
             $page = strtolower($page);
@@ -47,7 +47,7 @@ function pages_list($params) {
                     continue;
                 }
 
-                if(($key === 'name') and !str_exists($page, $value)) {
+                if(($key === 'name') and !str_contains($page, $value)) {
                     continue;
                 }
 
@@ -94,7 +94,7 @@ function pages_list($params) {
  */
 function pages_select($params = null) {
     try{
-        array_ensure($params);
+        Arrays::ensure($params);
         array_default($params, 'name'      , 'seopages');
         array_default($params, 'class'     , 'form-control');
         array_default($params, 'selected'  , null);
@@ -109,7 +109,7 @@ function pages_select($params = null) {
         $execute = array();
 
         if($params['remove']) {
-            if(count(array_force($params['remove'])) == 1) {
+            if(count(Arrays::force($params['remove'])) == 1) {
                 /*
                  * Filter out only one entry
                  */
@@ -120,7 +120,7 @@ function pages_select($params = null) {
                 /*
                  * Filter out multiple entries
                  */
-                $in      = sql_in(array_force($params['remove']));
+                $in      = sql_in(Arrays::force($params['remove']));
                 $where[] = ' `id` NOT IN ('.implode(', ', array_keys($in)).') ';
                 $execute = array_merge($execute, $in);
             }

@@ -26,7 +26,7 @@ class Json
 
         try {
             if (!$data) {
-                $data = array_force($data);
+                $data = Arrays::force($data);
             }
 
             /*
@@ -240,7 +240,7 @@ class Json
                 }
             }
 
-            $data = array_force($data);
+            $data = Arrays::force($data);
 
             Json::reply($data, ($result ? $result : 'ERROR'), $http_code);
 
@@ -265,7 +265,7 @@ class Json
                 $code = $code->getRealCode();
             }
 
-            if (str_exists($code, '_')) {
+            if (str_contains($code, '_')) {
                 /*
                  * Codes should always use -, never _
                  */

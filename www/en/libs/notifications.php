@@ -233,7 +233,7 @@ function notifications_validate($notification, $log, $throw = null) {
             /*
              * This is a normal notification
              */
-            array_ensure($notification, 'code,priority,title,message,data,throw');
+            Arrays::ensure($notification, 'code,priority,title,message,data,throw');
 
             $notification['exception'] = false;
 
@@ -337,7 +337,7 @@ function notifications_validate($notification, $log, $throw = null) {
                 break;
 
             default:
-                $notification['groups'] = array_force($notification['groups']);
+                $notification['groups'] = Arrays::force($notification['groups']);
         }
 
         /*

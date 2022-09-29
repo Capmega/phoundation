@@ -110,7 +110,7 @@ try{
             $output_file   = file_temp();
 
             $params['commands'] = trim($params['commands']);
-            $params['commands'] = str_ends_not($params['commands'], ';');
+            $params['commands'] = Strings::endsNotWith($params['commands'], ';');
             $params['commands'] = 'bash -c "set -o pipefail; '.$params['commands'].' | tee '.$output_file.'"; echo $? > '.$exitcode_file;
 
             log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), $color);
@@ -195,7 +195,7 @@ under_construction();
      * Shell command reported something went wrong (possibly)
      */
     if($exitcode) {
-        if(!in_array($exitcode, array_force($params['ok_exitcodes']))) {
+        if(!in_array($exitcode, Arrays::force($params['ok_exitcodes']))) {
             log_console(tr('Command ":command" stopped with exit code ":exitcode". This may be a problem, or no problem at all. See output below for more information', array(':command' => $params['commands'], ':exitcode' => $exitcode)), 'VERBOSE/warning');
 
             if(!isset($output)) {

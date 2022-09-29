@@ -358,8 +358,8 @@ try{
             }
 
             if(STATUS) {
-                $execute = array_merge($execute, sql_in(array_force(STATUS)));
-                $where[] = ' `servers`.`status` IN ('.implode(', ', array_keys(array_force(STATUS))).') ';
+                $execute = array_merge($execute, sql_in(Arrays::force(STATUS)));
+                $where[] = ' `servers`.`status` IN ('.implode(', ', array_keys(Arrays::force(STATUS))).') ';
             }
 
             if($customer) {

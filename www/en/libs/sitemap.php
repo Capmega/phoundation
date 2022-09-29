@@ -566,7 +566,7 @@ function sitemap_delete_entry($list) {
             /*
              * Delete by one or multiple id's
              */
-            $in = sql_in(array_force($list));
+            $in = sql_in(Arrays::force($list));
             $r  = sql_query('DELETE FROM `sitemaps_data` WHERE `id` IN ('.sql_in_columns($in).')', $in);
 
         } else {
@@ -605,7 +605,7 @@ function sitemap_delete_entry($list) {
  */
 function sitemap_insert_entry($entry) {
     try{
-        array_ensure($entry);
+        Arrays::ensure($entry);
         array_default($entry, 'url'             , '');
         array_default($entry, 'priority'        , '');
         array_default($entry, 'page_modifiedon' , null);
