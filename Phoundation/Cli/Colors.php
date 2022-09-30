@@ -69,9 +69,10 @@ class Colors
      * @param string $source
      * @param string|null $foreground_color
      * @param string|null $background_color
+     * @param bool $reset
      * @return string
      */
-    public static function apply(string $source, ?string $foreground_color, ?string $background_color = null): string
+    public static function apply(string $source, ?string $foreground_color, ?string $background_color = null, bool $reset = true): string
     {
         if (NOCOLOR) {
             /*
@@ -96,7 +97,7 @@ class Colors
         $retval .= "\033[" . self::$available_background_colors[$background_color] . "m";
 
         // Add the specified string that should be colored and the coloring end-tag
-        $retval .= $source . "\033[0m";
+        $retval .= $source . self::getColorReset();
 
         return $retval;
     }
@@ -104,90 +105,37 @@ class Colors
 
 
     /**
-     * Returns colored string
-     */
-    public function getColoredString($string, $foreground_color = null, $background_color = null, $force = false, $reset = true)
-    {
-        try {
-            $colored_string = '';
-
-            if (NOCOLOR and !$force) {
-                /*
-                 * Do NOT apply color
-                 */
-                return $string;
-            }
-
-            if ($foreground_color) {
-                if (!is_string($foreground_color) or !isset($this->foreground_colors[$foreground_color])) {
-                    /*
-                     * If requested colors do not exist, return no
-                     */
-                    log_console(tr('[ WARNING ] colors::getColoredString(): specified foreground color ":color" for the next line does not exist. The line will be displayed without colors', array(':color' => $foreground_color)), 'warning');
-                    return $string;
-                }
-
-                // Check if given foreground color found
-                if (isset($this->foreground_colors[$foreground_color])) {
-                    $colored_string .= "\033[" . $this->foreground_colors[$foreground_color] . 'm';
-                }
-            }
-
-            if ($background_color) {
-                if (!is_string($background_color) or !isset($this->background_colors[$background_color])) {
-                    /*
-                     * If requested colors do not exist, return no
-                     */
-                    log_console(tr('[ WARNING ] getColoredString(): specified background color ":color" for the next line does not exist. The line will be displayed without colors', array(':color' => $background_color)), 'warning');
-                    return $string;
-                }
-
-                /*
-                 * Check if given background color found
-                 */
-                if (isset($this->background_colors[$background_color])) {
-                    $colored_string .= "\033[" . $this->background_colors[$background_color] . 'm';
-                }
-            }
-
-            /*
-             * Add string and end coloring
-             */
-            $colored_string .= $string;
-
-            if ($reset) {
-                $colored_string .= cli_reset_color();
-            }
-
-            return $colored_string;
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException(tr('Color::getColoredString(): Failed'), $e);
-        }
-    }
-
-    /*
      * Returns all foreground color names
+     *
+     * @return array
      */
-    public function getForegroundColors()
+    public static function getForegroundColors(): array
     {
-        return array_keys($this->foreground_colors);
+        return array_keys(self::$available_foreground_colors);
     }
 
-    /*
+
+
+    /**
      * Returns all background color names
+     *
+     * @return array
      */
-    public function getBackgroundColors()
+    public static function getBackgroundColors(): array
     {
-        return array_keys($this->background_colors);
+        return array_keys(self::$available_background_colors);
     }
 
-    /*
-     * Returns all background color names
-     */
-    public function resetColors()
-    {
 
+
+    /**
+     * Returns all background color names
+     *
+     * @return string
+     */
+    public static function getColorReset(): string
+    {
+        return '"\033[0m"';
     }
 }
 
