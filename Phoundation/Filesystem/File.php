@@ -8,8 +8,12 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Processes\Exception\ProcessesException;
 use Throwable;
 
@@ -78,7 +82,7 @@ class File
                 self::checkReadable($source, 'source', $e);
             }
 
-            while(!feof($source_h)) {
+            while (!feof($source_h)) {
                 $data = fread($source_h, 8192);
                 fwrite($target_h, $data);
             }
@@ -341,11 +345,6 @@ class File
     /**
      * Ensure that the specified file exists in the specified path
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @note Will log to the console in case the file was created
      * @version 2.4.16: Added documentation, improved log output
      *
@@ -379,165 +378,130 @@ class File
     /**
      * Delete the path, and each parent directory until a non-empty directory is encountered
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @template Function reference
-     * @package files
-     * @see Restrict::restrict() This function uses file location restrictions, see Restrict::restrict() for more information
-     *
+     * @see $restrictions->apply() This function uses file location restrictions, see $restrictions->apply() for more information
      * @param array|string $paths A list of path patterns to be cleared
      * @param ?Restrictions $restrictions A list of paths to which file_delete() operations will be restricted
      * @return void
      */
     public static function clearPath(array|string $paths, ?Restrictions $restrictions = null): void
     {
-        try{
-            /*
-             * Multiple paths specified, clear all
-             */
-            if (is_array($paths)) {
-                foreach($paths as $path) {
-                    file_clear_path($path, $restrictions);
-                }
+        // Multiple paths specified, clear all
+        if (is_array($paths)) {
+            foreach($paths as $path) {
+                file_clear_path($path, $restrictions);
+            }
 
+            return;
+        }
+
+        $path = $paths;
+
+        // Restrict location access
+        $restrictions::apply($path, $restrictions);
+
+        if (!file_exists($path)) {
+            // This section does not exist, jump up to the next section
+            $path = dirname($path);
+
+            try {
+                $restrictions::apply($path, $restrictions);
+                File::clearPath($path, $restrictions);
+
+            }catch(RestrictionsException $e) {
+                // We no longer have access to move up more, stop here.
+                Log::warning(tr('Stopped recursing upward on path ":path" because filesystem restrictions do not permit to move further up', [':path' => $path]));
+                return;
+            }
+        }
+
+        if (!is_dir($path)) {
+            // This is a normal file. Delete it and continue with the directory above
+            unlink($path);
+
+        } else {
+            // This is a directory. See if its empty
+            $h        = opendir($path);
+            $contents = false;
+
+            while (($file = readdir($h)) !== false) {
+                // Skip . and ..
+                if (($file == '.') or ($file == '..')) continue;
+
+                $contents = true;
+                break;
+            }
+
+            closedir($h);
+
+            if ($contents) {
+                // Do not remove anything more, there is contents here!
                 return;
             }
 
-            $path = $paths;
-
-            /*
-             * Restrict location access
-             */
-            Restrictions::restrict($path, $restrictions);
-
-            if (!file_exists($path)) {
-                /*
-                 * This section does not exist, jump up to the next section
-                 */
-                $path = dirname($path);
-
-                try{
-                    Restrictions::restrict($path, $restrictions);
-                    File::clearPath($path, $restrictions);
-
-                }catch(Exception $e) {
-                    if ($e->getRealCode() === 'access-denied') {
-                        /*
-                         * We no longer have access to move up more, stop here.
-                         */
-                        Log::warning(tr('Stopped recursing upward on path ":path" because filesystem restrictions do not permit to move further up', [':path' => $path]));
-                        return;
-                    }
-                }
-            }
-
-            if (!is_dir($path)) {
-                /*
-                 * This is a normal file. Delete it and continue with the directory above
-                 */
-                unlink($path);
-
-            } else {
-                /*
-                 * This is a directory. See if its empty
-                 */
-                $h        = opendir($path);
-                $contents = false;
-
-                while(($file = readdir($h)) !== false) {
-                    /*
-                     * Skip . and ..
-                     */
-                    if (($file == '.') or ($file == '..')) continue;
-
-                    $contents = true;
-                    break;
-                }
-
-                closedir($h);
-
-                if ($contents) {
-                    /*
-                     * Do not remove anything more, there is contents here!
-                     */
-                    return;
-                }
-
-                /*
-                 * Remove this entry and continue;
-                 */
-                try{
-                    File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($restrictions, $path) {
-                        file_delete(array('patterns'       => $path,
-                            'clean_path'     => false,
-                            'force_writable' => true,
-                            'restrictions'   => $restrictions));
-                    });
-
-                }catch(Exception $e) {
-                    /*
-                     * The directory WAS empty, but cannot be removed
-                     *
-                     * In all probability, a parrallel process added a new content
-                     * in this directory, so it's no longer empty. Just register
-                     * the event and leave it be.
-                     */
-                    log_console(tr('file_clear_path(): Failed to remove empty path ":path" with exception ":e"', array(':path' => $path, ':e' => $e)), 'warning');
-                    return;
-                }
-            }
-
-            /*
-             * Go one entry up, check if we're still within restrictions, and
-             * continue deleting
-             */
-            $path = dirname($path);
-
-            try{
-                file_clear_path($path, $restrictions);
+            // Remove this entry and continue;
+            try {
+                File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($restrictions, $path) {
+                    file_delete([
+                        'patterns'       => $path,
+                        'clean_path'     => false,
+                        'force_writable' => true,
+                        'restrictions'   => $restrictions
+                    ]);
+                });
 
             }catch(Exception $e) {
-                if ($e->getRealCode() === 'access-denied') {
-                    /*
-                     * We no longer have access to move up more, stop here.
-                     */
-                    log_console(tr('file_clear_path(): Stopped recursing upward on path ":path" because restrictions do not allow us to move further up', array(':path' => $path)), 'warning');
-                    return;
-                }
+                /*
+                 * The directory WAS empty, but cannot be removed
+                 *
+                 * In all probability, a parrallel process added a new content
+                 * in this directory, so it's no longer empty. Just register
+                 * the event and leave it be.
+                 */
+                Log::warning(tr('file_clear_path(): Failed to remove empty path ":path" with exception ":e"', [':path' => $path, ':e' => $e]));
+                return;
             }
+        }
 
-        }catch(Exception $e) {
-            throw new FilesystemException(tr('file_clear_path(): Failed'), $e);
+        // Go one entry up, check if we're still within restrictions, and continue deleting
+        $path = dirname($path);
+
+        try {
+            File::clearPath($path, $restrictions);
+
+        }catch(RestrictionsException $e) {
+            // We no longer have access to move up more, stop here.
+            Log::warning(tr('file_clear_path(): Stopped recursing upward on path ":path" because restrictions do not allow us to move further up', [':path' => $path]));
+            return;
         }
     }
 
 
 
-    /*
+    /**
      * Return the extension of the specified filename
+     *
+     * @param string $filename
+     * @return string
      */
-    public static function get_extension($filename) {
-        try{
-            return Strings::fromReverse($filename, '.');
-
-        }catch(Exception $e) {
-            throw new FilesystemException(tr('file_get_extension(): Failed'), $e);
-        }
+    public static function getExtension(string $filename): string
+    {
+        return Strings::fromReverse($filename, '.');
+//        return pathinfo($file, PATHINFO_EXTENSION);
     }
 
 
 
-    /*
+    /**
      * Return a file path for a temporary file
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
+     * @param bool|string $create If set to false, only the file path will be returned, the temporary file will NOT be
+     *                            created. If set to true, the file will be created. If set to a string, the temp file
+     *                            will be created with as contents the $create string
+     * @param bool $extension If specified, use ROOT/data/tmp/$name instead of a randomly generated filename
+     * @param bool $limit_to_session
+     * @return string The filename for the temp file
      * @version 2.5.90: Added documentation, expanded $create to be able to contain data for the temp file
-     * @note: If the resolved temp file path already exist, it will be deleted, so take care when using $name!
+     * @note: If the resolved temp file path already exist, it will be deleted!
      * @example
      * code
      * $result = file_temp('This is temporary data!');
@@ -548,300 +512,185 @@ class File
      * code
      * This is temporary data!
      * /code
-     *
-     * @param boolean string $create If set to false, only the file path will be returned, the temporary file will NOT be created. If set to true, the file will be created. If set to a string, the temp file will be created with as contents the $create string
-     * @param null string $name If specified, use ROOT/data/tmp/$name instead of a randomly generated filename
-     * @return string The filename for the temp file
      */
-    public static function temp($create = true, $extension = null, $limit_to_session = true) {
-        try{
-            Path::ensure(TMP);
+    public static function temp(bool|string $create = true, bool $extension = null, bool $limit_to_session = true) : string
+    {
+        Path::ensure(TMP);
 
-            /*
-             * Temp file will contain the session ID
-             */
-            if ($limit_to_session) {
-                $session_id = session_id();
-                $name       = substr(hash('sha1', uniqid().microtime()), 0, 12);
+        // Temp file will contain the session ID
+        if ($limit_to_session) {
+            $session_id = session_id();
+            $name       = substr(hash('sha1', uniqid().microtime()), 0, 12);
 
-                if ($session_id) {
-                    $name = $session_id.'-'.$name;
-                }
+            if ($session_id) {
+                $name = $session_id.'-'.$name;
+            }
+
+        } else {
+            $name = substr(hash('sha1', uniqid().microtime()), 0, 12);
+        }
+
+        if ($extension) {
+            // Temp file will have specified extension
+            $name .= '.'.$extension;
+        }
+
+        $file = TMP.$name;
+
+        // Temp file can not exist
+        if (file_exists($file)) {
+            File::delete($file);
+        }
+
+        if ($create) {
+            if ($create === true) {
+                touch($file);
 
             } else {
-                $name = substr(hash('sha1', uniqid().microtime()), 0, 12);
-            }
-
-            if ($extension) {
-                /*
-                 * Temp file will have specified extension
-                 */
-                $name .= '.'.$extension;
-            }
-
-            $file = TMP.$name;
-
-            /*
-             * Temp file can not exist
-             */
-            if (file_exists($file)) {
-                file_delete($file);
-            }
-
-            if ($create) {
-                if ($create === true) {
-                    touch($file);
-
-                } else {
-                    if (!is_string($create)) {
-                        throw new FilesystemException(tr('file_temp(): Specified $create variable is of datatype ":type" but should be either false, true, or a data string that should be written to the temp file', array(':type' => gettype($create))), $e);
-                    }
-
-                    file_put_contents($file, $create);
+                if (!is_string($create)) {
+                    throw new FilesystemException(tr('Specified $create variable is of datatype ":type" but should be either false, true, or a data string that should be written to the temp file', [':type' => gettype($create)]));
                 }
+
+                file_put_contents($file, $create);
             }
-
-            return $file;
-
-        }catch(Exception $e) {
-            throw new FilesystemException(tr('file_temp(): Failed'), $e);
         }
+
+        return $file;
     }
 
 
 
-    /*
+    /**
      * Return the absolute path for the specified path
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
-     * @version 2.4: Added function and documentation
      *
      * @param string $path
      * @return string The absolute path
      */
-    public static function absolute_path($path) {
-        try{
-            if (!$path) {
-                return getcwd();
-            }
-
-            if ($path[0] === '/') {
-                return $path;
-            }
-
-            return Strings::slash(getcwd()).Strings::unslash($path);
-
-        }catch(Exception $e) {
-            throw new FilesystemException('file_absolute_path(): Failed', $e);
+    public static function absolutePath(string $path): string
+    {
+        if (!$path) {
+            return getcwd();
         }
+
+        if ($path[0] === '/') {
+            return $path;
+        }
+
+        return Strings::slash(getcwd()).Strings::unslash($path);
     }
 
 
 
-    /*
+    /**
      * Returns the mimetype data for the specified file
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @version 2.4: Added documentation
-     *
      * @param string $file to be tested
      * @return string The mimetype data for the specified file
      */
-    public static function mimetype($file) {
+    public static function mimetype(string $file): string
+    {
         static $finfo = false;
 
-        try{
-            /*
-             * Check the specified file
-             */
-            if (!$file) {
-                throw new FilesystemException(tr('file_mimetype(): No file specified'), 'not-specified');
-            }
-
-            if (!is_file($file)) {
-                if (!file_exists($file)) {
-                    throw new FilesystemException(tr('file_mimetype(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
-                }
-
-                if (is_dir($file)) {
-                    throw new FilesystemException(tr('file_mimetype(): Specified file ":file" is not a normal file but a directory', array(':file' => $file)), 'invalid');
-                }
-
-                throw new FilesystemException(tr('file_mimetype(): Specified file ":file" is not a file', array(':file' => $file)), 'invalid');
-            }
-
-            if (!$finfo) {
-                $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
-            }
-
-            return finfo_file($finfo, $file);
-
-        }catch(Exception $e) {
-            throw new FilesystemException(tr('file_mimetype(): Failed'), $e);
+        /*
+         * Check the specified file
+         */
+        if (!$file) {
+            throw new OutOfBoundsException(tr('No file specified'));
         }
+
+        if (!$finfo) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
+        }
+
+        $mimetype = finfo_file($finfo, $file);
+
+        if (!$mimetype) {
+            // We failed to get mimetype data. Find out why and throw exception
+            self::checkReadable($file, '', true, new FilesystemException(tr('Failed to get mimetype information for file ":file"', [':file' => $file])));
+        }
+
+        return $mimetype;
     }
 
 
 
-    /*
+    /**
      * Returns true or false if file is ASCII or not
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @version 2.4: Added documentation
-     *
-     * @param string $file to be tested
-     * @return bolean True if the file is a text file, false if not
-     */
-    public static function is_text($file) {
-        try{
-            if (Strings::until(file_mimetype($file), '/') == 'text') return true;
-            if (Strings::from(file_mimetype($file), '/') == 'xml' ) return true;
-
-            return false;
-
-        }catch(Exception $e) {
-            throw new FilesystemException(tr('file_is_text(): Failed'), $e);
-        }
-    }
-
-
-
-    /*
-     * Returns true if the specified file exists and is a file
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
-     * @version 2.4: Added documentation
-     *
      * @param string $file The file to be tested
-     * @return bolean True if the file exists and is a file
+     * @return bool True if the file is a text file, false if not
      */
-    public static function check($file) {
-        if (!file_exists($file)) {
-            throw new FilesystemException(tr('file_check(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
-        }
+    public static function isText(string $file): bool
+    {
+        if (Strings::until(file_mimetype($file), '/') == 'text') return true;
+        if (Strings::from(file_mimetype($file), '/') == 'xml' ) return true;
 
-        if (!is_file($file)) {
-            throw new FilesystemException(tr('file_check(): Specified file ":file" is not a file', array(':file' => $file)), 'notafile');
-        }
+        return false;
     }
 
 
 
-    /*
+    /**
      * Return all files in a directory that match the specified pattern with optional recursion.
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @version 2.4.40: Added documentation, upgraded function
-     *
      * @param string $path The path from which
-     * @param string $pattern
-     * @param boolean $recursive If set to true, return all files below the specified path, including in sub directories
+     * @param ?string $pattern
+     * @param boolean $recursive If set to true, return all files below the specified path, including in sub-directories
      * @return array The matched files
      */
-    public static function listTree($path, $pattern = null, $recursive = true) {
-        try{
-            /*
-             * Validate path
-             */
-            if (!is_dir($path)) {
-                if (!is_file($path)) {
-                    if (!file_exists($path)) {
-                        throw new FilesystemException(tr('file_list_tree(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
-                    }
+    public static function listTree(string $path, ?string $pattern = null, bool $recursive = true): array
+    {
+        // Validate path
+        Path::checkReadable($path);
 
-                    throw new FilesystemException(tr('file_list_tree(): Specified path ":path" is not a directory or a file', array(':path' => $path)), 'invalid');
-                }
+        $retval = [];
+        $fh    = opendir($path);
 
-                return array($path);
+        // Go over all files
+        while (($filename = readdir($fh)) !== false) {
+            // Loop through the files, skipping . and .. and recursing if necessary
+            if (($filename == '.') or ($filename == '..')) {
+                continue;
             }
 
-            $retval = array();
-            $fh    = opendir($path);
+            // Does the file match the specified pattern?
+            if ($pattern) {
+                $match = preg_match($pattern, $filename);
 
-            /*
-             * Go over all files
-             */
-            while(($filename = readdir($fh)) !== false) {
-                /*
-                 * Loop through the files, skipping . and .. and recursing if necessary
-                 */
-                if (($filename == '.') or ($filename == '..')) {
+                if (!$match) {
                     continue;
                 }
-
-                /*
-                 * Does the file match the specified pattern?
-                 */
-                if ($pattern) {
-                    $match = preg_match($pattern, $filename);
-
-                    if (!$match) {
-                        continue;
-                    }
-                }
-
-                /*
-                 * Get the complete file path
-                 */
-                $file = Strings::slash($path).$filename;
-
-                /*
-                 * Add the file to the list. If the file is a directory, then
-                 * recurse instead.
-                 *
-                 * Do NOT add the directory itself, only files!
-                 */
-                if (is_dir($file) and $recursive) {
-                    $retval = array_merge($retval, file_list_tree($file));
-
-                } else {
-                    $retval[] = $file;
-                }
             }
 
-            closedir($fh);
+            // Get the complete file path
+            $file = Strings::slash($path).$filename;
 
-            return $retval;
+            // Add the file to the list. If the file is a directory, then recurse instead. Do NOT add the directory
+            // itself, only files!
+            if (is_dir($file) and $recursive) {
+                $retval = array_merge($retval, file_list_tree($file));
 
-        }catch(Exception $e) {
-            throw new FilesystemException(tr('file_list_tree(): Failed for ":path"', array(':path' => $path)), $e);
+            } else {
+                $retval[] = $file;
+            }
         }
+
+        closedir($fh);
+
+        return $retval;
     }
 
 
 
-    /*
+    /**
      * Delete a file weather it exists or not, without error, using the "rm" command
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @template Function reference
-     * @package files
-     * @see file_safe_pattern()
-     * @see Restrict::restrict() This function uses file location restrictions, see Restrict::restrict() for more information
+     * @see File::safePattern()
+     * @see $restrictions->apply() This function uses file location restrictions, see $restrictions->apply() for more information
      * @version 2.7.60: Fixed safe file pattern issues
-     *
      * @param params $params
      * @param list $params[patterns] A list of path patterns to be deleted
      * @param null list $params[restrictions] A list of paths to which file_delete() operations will be restricted
@@ -850,122 +699,97 @@ class File
      * @param boolean $params[force_writable] If specified true, the function will first execute chmod ug+w on each specified patterns before deleting them
      * @return natural The amount of orphaned files, and orphaned `files` entries found and processed
      */
-    public static function delete($params, $restrictions = null) {
-        try{
-            if (!$params) {
-                throw new FilesystemException(tr('file_delete(): No files or parameters specified'), 'not-specified');
-            }
+    public static function delete(string|array $patterns, bool $clean_path = true, bool $sudo = false, bool $force_writable = false, ?Restrictions $restrictions = null): void
+    {
+        // Both patterns and restrictions should be arrays, make them so now to avoid them being converted multiple
+        // times later on
+        $patterns     = Arrays::force($patterns);
+        $restrictions = Arrays::force($restrictions);
 
-            array_params ($params, 'patterns');
-            array_ensure ($params, 'patterns,restrictions,sudo');
-            array_default($params, 'restrictions'  , $restrictions);
-            array_default($params, 'clean_path'    , true);
-            array_default($params, 'force_writable', false);
-
+        /*
+         * Delete all specified patterns
+         */
+        foreach($patterns as $pattern) {
             /*
-             * Both patterns and restrictions should be arrays, make them so now to
-             * avoid them being converted multiple times later on
+             * Restrict pattern access
              */
-            $params['patterns']     = Arrays::force($params['patterns']);
-            $params['restrictions'] = Arrays::force($params['restrictions']);
+            $restrictions::apply($pattern);
 
-            /*
-             * Delete all specified patterns
-             */
-            foreach($params['patterns'] as $pattern) {
-                /*
-                 * Restrict pattern access
-                 */
-                Restrict::restrict($pattern, $params['restrictions']);
+            if ($force_writable) {
+                try {
+                    /*
+                     * First ensure that the files to be deleted are writable
+                     */
+                    File::chmod([
+                        'path'         => $pattern,
+                        'mode'         => 'ug+w',
+                        'recursive'    => true,
+                        'restrictions' => $restrictions
+                    ]);
 
-                if ($params['force_writable']) {
-                    try{
-                        /*
-                         * First ensure that the files to be deleted are writable
-                         */
-                        file_chmod(array('path'         => $pattern,
-                            'mode'         => 'ug+w',
-                            'recursive'    => true,
-                            'restrictions' => $params['restrictions']));
+                }catch(Exception $e) {
+                    /*
+                     * If chmod failed because the pattern doesn't exist, then
+                     * ignore the issue, and continue as the files have to be
+                     * deleted anyway
+                     */
+                    $data = $e->getData();
+                    $data = array_shift($data);
 
-                    }catch(Exception $e) {
-                        /*
-                         * If chmod failed because the pattern doesn't exist, then
-                         * ignore the issue, and continue as the files have to be
-                         * deleted anyway
-                         */
-                        $data = $e->getData();
-                        $data = array_shift($data);
-
-                        if (preg_match('/chmod: cannot access .+?: No such file or directory/', $data)) {
-                            continue;
-                        }
+                    if (preg_match('/chmod: cannot access .+?: No such file or directory/', $data)) {
+                        continue;
                     }
                 }
-
-                /*
-                 * Execute the rm command
-                 */
-                safe_exec(array('commands' => array('rm', array('sudo' => $params['sudo'], '-rf', '#' => file_safe_pattern($pattern)))));
-
-                /*
-                 * If specified to do so, clear the path upwards from the specified
-                 * pattern
-                 */
-                if ($params['clean_path']) {
-                    file_clear_path(dirname($pattern), $params['restrictions']);
-                }
             }
 
-        }catch(Exception $e) {
-            throw new FilesystemException(tr('file_delete(): Failed'), $e);
+            /*
+             * Execute the rm command
+             */
+            safe_exec(array('commands' => array('rm', array('sudo' => $sudo, '-rf', '#' => File::safePattern($pattern)))));
+
+            /*
+             * If specified to do so, clear the path upwards from the specified
+             * pattern
+             */
+            if ($params['clean_path']) {
+                file_clear_path(dirname($pattern), $restrictions);
+            }
         }
     }
 
 
 
-    /*
+    /**
      * Returns a safe version of the specified pattern
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
-     * @see file_delete()
-     * @see file_chown()
+     * @see File::delete()
+     * @see File::chown()
      * @version 2.7.60: Added function and documentation
-     *
      * @param string $pattern The pattern to make safe
      * @return string The safe pattern
      */
-    public static function safePattern($pattern) {
-        try{
-            /*
-             * Escape patterns manually here, safe_exec() will be told NOT to
-             * escape them to avoid issues with *
-             */
-            $pattern = Arrays::force($pattern, '*');
+    public static function safePattern(string|array $pattern): string
+    {
+        /*
+         * Escape patterns manually here, safe_exec() will be told NOT to
+         * escape them to avoid issues with *
+         */
+        $pattern = Arrays::force($pattern, '*');
 
-            foreach($pattern as &$item) {
-                $item = escapeshellarg($item);
-            }
-
-            return implode('*', $pattern);
-
-        }catch(Exception $e) {
-            throw new FilesystemException(tr('file_safe_pattern(): Failed'), $e);
+        foreach($pattern as &$item) {
+            $item = escapeshellarg($item);
         }
+
+        return implode('*', $pattern);
     }
 
 
 
-    /*
+    /**
      * Copy an entire tree with replace option
      *
-     * Extensions (may be string or array with strings) sets which
-     * file extensions will have search / replace. If set to false
-     * all files will have search / replace applied.
+     * Extensions (may be string or array with strings) sets which file extensions will have search / replace. If set to
+     * false all files will have search / replace applied.
      *
      * If either search or replace are not specified, both will be
      * set to null, and no replacements will be done
@@ -976,10 +800,13 @@ class File
      * set $mode to the default value, specified in $_CONFIG, and then
      * do the same as 0000
      */
-    public static function copyTree($source, $destination, $search = null, $replace = null, $extensions = null, $mode = true, $novalidate = false, $restrictions = null) {
+    public static function copyTree(string $source, string $destination, array $search = null, array $replace = null, string|array $extensions = null, mixed $mode = true, bool $novalidate = false, ?Restrictions $restrictions = null): string
+    {
+        throw new UnderConstructionException('File::copyTree() is under construction');
+
         global $_CONFIG;
 
-        try{
+        try {
             /*
              * Choose between copy filemode (mode is null), set filemode ($mode is a string or octal number) or preset filemode (take from config, TRUE)
              */
@@ -1235,7 +1062,7 @@ class File
                     /*
                      * Update file mode
                      */
-                    try{
+                    try {
                         chmod($destination, $filemode);
 
                     }catch(Exception $e) {
@@ -1252,12 +1079,20 @@ class File
     }
 
 
-
-    /*
-     * Seach for $search file in $source, and move them all to $destination using the $rename result expression
+    /**
+     * Search for $search file in $source, and move them all to $destination using the $rename result expression
+     *
+     * @param string $source
+     * @param string $destination
+     * @param $search
+     * @param $rename
+     * @return void
      */
-    public static function rename($source, $destination, $search, $rename) {
-        try{
+    public static function rename(string $source, string $destination, $search, $rename): void
+    {
+        throw new UnderConstructionException('File::copyTree() is under construction');
+
+        try {
             /*
              * Validations
              */
@@ -1292,178 +1127,62 @@ class File
     }
 
 
-
-    /*
-     * Create temporary directory (sister function from tempnam)
-     */
-    public static function temp_dir($prefix = '', $mode = null) {
-        global $_CONFIG;
-
-        try{
-            /*
-             * Use default configged mode, or specific mode?
-             */
-            if ($mode === null) {
-                $mode = $_CONFIG['file']['dir_mode'];
-            }
-
-            Path::ensure($path = TMP);
-
-            while(true) {
-                $unique = uniqid($prefix);
-
-                if (!file_exists($path.$unique)) {
-                    break;
-                }
-            }
-
-            $path = $path.$unique;
-
-            /*
-             * Make sure the temp dir exists
-             */
-            Path::ensure($path);
-
-            return Strings::slash($path);
-
-        }catch(Exception $e) {
-            throw new FilesystemException(tr('file_tempdir(): Failed'), $e);
-        }
-    }
-
-
-
-    /*
+    /**
      * Change file mode, optionally recursively
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
-     * @see file_safe_pattern()
+     * @param string $path
+     * @param string $mode The mode to apply to the specified path (and all files below if recursive is specified)
+     * @param boolean $recursive If set to true, apply specified mode to the specified path and all files below by recursion
+     * @param bool $sudo
+     * @param int $timeout
+     * @param ?Restrictions $restrictions
+     * @return void
+     * @see File::safePattern()
      * @version 2.6.30: Added function and documentation
      * @version 2.7.60: Fixed safe file pattern issues
-     *
-     * @param params $params A parameters array
-     * @param string $mode
-     * @param list $restrictions
-     * @param string $params[path]
-     * @param boolean $params[recursive] If set to true, apply specified mode to the specified path and all files below by recursion
-     * @param octal string $params[mode] The mode to apply to the specified path (and all files below if recursive is specified)
-     * @param list $params[restrictions]
-     * @param natural $params[timeout]
-     * @return void
      */
-    public static function chmod($params, $mode = null, $restrictions = null) {
-        try{
-            array_params($params, 'path');
-            Arrays::ensure($params, 'recursive,sudo');
-            array_default($params, 'timeout'     , 30);
-            array_default($params, 'mode'        , $mode);
-            array_default($params, 'restrictions', $restrictions);
+    public static function chmod(string $path, string $mode, bool $recursive = false, bool $sudo = false, int $timeout = 30, ?Restrictions $restrictions = null): void
+    {
+        if (!($mode)) {
+            throw new OutOfBoundsException(tr('No file mode specified'));
+        }
 
-            if (!($params['mode'])) {
-                throw new FilesystemException(tr('No file mode specified'), 'not-specified');
+        if (!$path) {
+            throw new OutOfBoundsException(tr('No path specified'));
+        }
+
+        foreach(Arrays::force($path) as $path) {
+            $restrictions->apply($path, $restrictions);
+
+            $arguments      = array();
+            $arguments[]    = $mode;
+            $arguments['#'] = File::safePattern($path);
+
+            if ($recursive) {
+                $arguments[] = '-R';
             }
 
-            if (!$params['path']) {
-                throw new FilesystemException(tr('No path specified'), 'not-specified');
+            if ($sudo) {
+                $arguments['sudo'] = $sudo;
             }
 
-            foreach(Arrays::force($params['path']) as $path) {
-                Restrict::restrict($path, $params['restrictions']);
-
-                $arguments      = array();
-                $arguments[]    = $params['mode'];
-                $arguments['#'] = file_safe_pattern($path);
-
-                if ($params['recursive']) {
-                    $arguments[] = '-R';
-                }
-
-                if ($params['sudo']) {
-                    $arguments['sudo'] = $params['sudo'];
-                }
-
-                safe_exec(array('timeout'  => $params['timeout'],
-                    'commands' => array('chmod', $arguments)));
-            }
-
-        }catch(Exception $e) {
-            throw new FilesystemException('file_chmod(): Failed', $e);
+            safe_exec([
+                'timeout'  => $timeout,
+                'commands' => array('chmod', $arguments
+            ]);
         }
     }
 
 
-
-    /*
-     * Return the extension for the specified file
-     */
-    public static function extension($file) {
-        return pathinfo($file, PATHINFO_EXTENSION);
-    }
-
-
-
-    /*
-     * If the specified file is an HTTP, HTTPS, or FTP URL, then get it locally as a temp file
-     */
-    public static function get_local($url, &$is_downloaded = false, $context = null) {
-        try{
-            $context = file_create_stream_context($context);
-            $url     = trim($url);
-
-            if ((stripos($url, 'http:') === false) and (stripos($url, 'https:') === false) and (stripos($url, 'ftp:') === false)) {
-                if (!file_exists($url)) {
-                    throw new FilesystemException(tr('file_get_local(): Specified file ":file" does not exist', array(':file' => $url)), 'not-exists');
-                }
-
-                if (is_uploaded_file($url)) {
-                    $tmp  = file_get_uploaded($url);
-                    $file = file_temp($url, null, false);
-
-                    rename($tmp, $file);
-                    return $file;
-                }
-
-                return $url;
-            }
-
-            /*
-             * First download the file to a temporary location
-             */
-            $file          = str_replace(array('://', '/'), '-', $url);
-            $file          = file_temp($file);
-            $is_downloaded = true;
-
-            Path::ensure(dirname($file));
-            file_put_contents($file, file_get_contents($url, false, $context));
-
-            return $file;
-
-        }catch(Exception $e) {
-            $message = $e->getMessage();
-            $message = strtolower($message);
-
-            if (str_contains($message, '404 not found')) {
-                throw new FilesystemException(tr('file_get_local(): URL ":file" does not exist', array(':file' => $url)), 'file-404');
-            }
-
-            if (str_contains($message, '400 bad request')) {
-                throw new FilesystemException(tr('file_get_local(): URL ":file" is invalid', array(':file' => $url)), 'file-400');
-            }
-
-            throw new FilesystemException(tr('file_get_local(): Failed for file ":file"', array(':file' => $url)), $e);
-        }
-    }
-
-
-
-    /*
+    /**
      * Return a system path for the specified type
+     *
+     * @param string $type
+     * @param string $path
+     * @return string
      */
-    public static function system_path($type, $path = '') {
+    public static function systemPath(string $type, string $path = ''): string
+    {
         switch($type) {
             case 'img':
                 // FALLTHROUGH
@@ -1476,41 +1195,35 @@ class File
                 return '/pub/css/'.$path;
 
             default:
-                throw new FilesystemException(tr('file_system_path(): Unknown type ":type" specified', array(':type' => $type)), 'unknown');
+                throw new OutOfBoundsException(tr('Unknown type ":type" specified', [':type' => $type]));
         }
     }
 
 
-
-    /*
+    /**
      * Pick and return a random file name from the specified path
      *
-     * Warning: This function reads all files into memory, do NOT use with huge directory (> 10000 files) listings!
+     * @note This function reads all files into memory, do NOT use with huge directory (> 10000 files) listings!
+     *
+     * @param string $path
+     * @return string
      */
-    public static function random($path) {
-        try{
-            if (!file_exists($path)) {
-                throw new FilesystemException(tr('file_random(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
-            }
-
-            if (!file_exists($path)) {
-                throw new FilesystemException(tr('file_random(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
-            }
-
-            $files = scandir($path);
-
-            unset($files[array_search('.' , $files)]);
-            unset($files[array_search('..', $files)]);
-
-            if (!$files) {
-                throw new FilesystemException(tr('file_random(): The specified path ":path" contains no files', array(':path' => $path)), 'not-exists');
-            }
-
-            return Strings::slash($path).array_get_random($files);
-
-        }catch(Exception $e) {
-            throw new FilesystemException(tr('file_random(): Failed'), $e);
+    public static function random(string $path): string
+    {
+        if (!file_exists($path)) {
+            throw new FileNotExistException(tr('The specified path ":path" does not exist', [':path' => $path]));
         }
+
+        $files = scandir($path);
+
+        unset($files[array_search('.' , $files)]);
+        unset($files[array_search('..', $files)]);
+
+        if (!$files) {
+            throw new FilesystemException(tr('file_random(): The specified path ":path" contains no files', array(':path' => $path)), 'not-exists');
+        }
+
+        return Strings::slash($path) . array_get_random($files);
     }
 
 
@@ -1518,8 +1231,9 @@ class File
     /*
      * Store a file temporarily with a label in $_SESSION['files'][label]
      */
-    public static function session_store($label, $file = null, $path = TMP) {
-        try{
+    public static function sessionStore($label, $file = null, $path = TMP)
+    {
+        try {
             if ($file === null) {
                 /*
                  * No file specified, return the file name for the specified label
@@ -1560,8 +1274,9 @@ class File
     /*
      * Checks if the specified path exists, is a dir, and optionally, if its writable or not
      */
-    public static function check_dir($path, $writable = false) {
-        try{
+    public static function checkDir($path, $writable = false)
+    {
+        try {
             if (!file_exists($path)) {
                 throw new FilesystemException(tr('file_check_dir(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
             }
@@ -1581,23 +1296,76 @@ class File
 
 
 
+    /**
+     * If the specified file is an HTTP, HTTPS, or FTP URL, then get it locally as a temp file
+     *
+     * @param string $url
+     * @param bool $is_downloaded
+     * @param ?array $context
+     * @return string
+     */
+    public static function getLocal($url, bool &$is_downloaded = false, ?array $context = null): string
+    {
+        try {
+            $context = File::createStreamContext($context);
+            $url     = trim($url);
+
+            if (str_contains($url, 'http:') and str_contains($url, 'https:') and str_contains($url, 'ftp:')) {
+                if (!file_exists($url)) {
+                    throw new FileNotExistException(tr('Specified file ":file" does not exist', [':file' => $url]));
+                }
+
+                if (is_uploaded_file($url)) {
+                    $tmp  = file_get_uploaded($url);
+                    $file = File::temp($url, null, false);
+
+                    rename($tmp, $file);
+                    return $file;
+                }
+
+                return $url;
+            }
+
+            // First download the file to a temporary location
+            $file          = str_replace(array('://', '/'), '-', $url);
+            $file          = file_temp($file);
+            $is_downloaded = true;
+
+            Path::ensure(dirname($file));
+            file_put_contents($file, file_get_contents($url, false, $context));
+
+            return $file;
+
+        }catch(Exception $e) {
+            $message = $e->getMessage();
+            $message = strtolower($message);
+
+            if (str_contains($message, '404 not found')) {
+                throw new FilesystemException(tr('file_get_local(): URL ":file" does not exist', array(':file' => $url)), 'file-404');
+            }
+
+            if (str_contains($message, '400 bad request')) {
+                throw new FilesystemException(tr('file_get_local(): URL ":file" is invalid', array(':file' => $url)), 'file-400');
+            }
+
+            throw new FilesystemException(tr('file_get_local(): Failed for file ":file"', array(':file' => $url)), $e);
+        }
+    }
+
+
+
     /*
      * Send the specified file to the client as a download using the HTTP protocol with correct headers
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @version 2.5.89: Rewrote function and added documentation
-     *
      * @param params $params The file parameters
      * @return void
      */
-    public static function httpDownload($params) {
+    public static function httpDownload($params)
+    {
         global $_CONFIG;
 
-        try{
+        try {
             Arrays::ensure($params, 'file,data,name');
             array_default($params, 'restrictions', ROOT.'data/downloads');
             array_default($params, 'compression' , $_CONFIG['file']['download']['compression']);
@@ -1654,7 +1422,7 @@ class File
                 throw new FilesystemException(tr('file_http_download(): Specified file ":file" exists but is not readable', array(':file' => $params['file'])), 'not-readable');
             }
 
-            Restrict::restrict($params['file'], $params['restrictions']);
+            $restrictions->apply($params['file'], $restrictions);
 
             /*
              * We have to send the right content type headers and we might need to
@@ -1756,19 +1524,13 @@ class File
     /*
      * Return true if the specified mimetype is for a binary file or false if it is for a text file
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @version 2.5.90: Added function and documentation
-     *
      * @param string $mimetype The primary mimetype section to check. If the mimetype is "text/plain", this variable would receive "text". You can also leave $secondary empty and specify the complete mimetype "text/plain" here, both will work
      * @param string $mimetype The secondary mimetype section to check. If the mimetype is "text/plain", this variable would receive "plain". If the complete mimetype is specified in $primary, you can leave this one empty
      * @return boolean True if the specified mimetype is for a binary file, false if it is a text file
      */
     public static function isBinary($primary, $secondary = null) {
-        try{
+        try {
 // :TODO: IMPROVE THIS! Loads of files that are not text/ are still not binary
             /*
              * Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
@@ -1835,19 +1597,13 @@ class File
      *
      * This function will check the primary and secondary sections of the mimetype and depending on their values, determine if the file format should use compression or not
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @version 2.5.90: Added function and documentation
-     *
      * @param string $mimetype The primary mimetype section to check. If the mimetype is "text/plain", this variable would receive "text". You can also leave $secondary empty and specify the complete mimetype "text/plain" here, both will work
      * @param string $mimetype The secondary mimetype section to check. If the mimetype is "text/plain", this variable would receive "plain". If the complete mimetype is specified in $primary, you can leave this one empty
      * @return boolean True if the specified mimetype is for a compressed file, false if not
      */
     public static function isCompressed($primary, $secondary = null) {
-        try{
+        try {
 // :TODO: IMPROVE THIS! Loads of files that may be mis detected
             /*
              * Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
@@ -1923,20 +1679,14 @@ class File
     /*
      * Send the specified file to the client using the HTTP protocol with correct headers
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @version 2.5.92: Rewrote function and added documentation
-     *
      * @param $file
      * @return void
      */
     public static function httpSend($params) {
         global $_CONFIG;
 
-        try{
+        try {
             Arrays::ensure($params, 'file,data,name');
             array_default($params, 'restrictions', ROOT.'data/downloads');
             array_default($params, 'compression' , $_CONFIG['file']['download']['compression']);
@@ -2004,7 +1754,7 @@ class File
                 throw new FilesystemException(tr('file_http_download(): Specified file ":file" exists but is not readable', array(':file' => $params['file'])), 'not-readable');
             }
 
-            Restrict::restrict($params['file'], $params['restrictions']);
+            $restrictions->apply($params['file'], $restrictions);
 
             /*
              * We have to send the right content type headers
@@ -2052,7 +1802,7 @@ class File
      * file_copy_progress($source, $target, 'stream_notification_callback');
      */
     public static function copyProgress($source, $target, $callback) {
-        try{
+        try {
             $c = stream_context_create();
             stream_context_set_params($c, array('notification' => $callback));
             copy($source, $target, $c);
@@ -2068,7 +1818,7 @@ class File
      *
      */
     public static function modeReadable($mode) {
-        try{
+        try {
             $retval = '';
             $mode   = substr((string) decoct($mode), -3, 3);
 
@@ -2113,7 +1863,7 @@ class File
      * @$method (string) either "size" or "count", the required value to return
      */
     public static function tree($path, $method) {
-        try{
+        try {
             if (!file_exists($path)) {
                 throw new FilesystemException(tr('file_tree(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
             }
@@ -2158,6 +1908,7 @@ class File
     }
 
 
+
     /**
      * Check if the specified file exists and is readable. If not both, an exception will be thrown
      *
@@ -2169,10 +1920,11 @@ class File
      *
      * @param string $file
      * @param string|null $type
+     * @param bool $no_directories
      * @param Throwable|null $previous_e
      * @return void
      */
-    public static function checkReadable(string $file, ?string $type = null, ?Throwable $previous_e = null) : void
+    public static function checkReadable(string $file, ?string $type = null, bool $no_directories = false, ?Throwable $previous_e = null) : void
     {
         if (!file_exists($file)) {
             if (!file_exists(dirname($file))) {
@@ -2187,11 +1939,16 @@ class File
             throw new FilesystemException(tr('The:type file ":file" cannot be read', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
         }
 
+        if ($no_directories and is_dir($file)) {
+            throw new FilesystemException(tr('The:type file ":file" cannot be read because it is a directory', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
+        }
+
         if ($previous_e) {
             // This method was called because a read action failed, throw an exception for it
             throw new FilesystemException(tr('The:type file ":file" cannot be read because of an unknown error', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
         }
     }
+
 
 
     /**
@@ -2376,7 +2133,7 @@ class File
      * Idea taken from http://php.net/manual/en/function.fileperms.php
      */
     public static function getPermissions($file) {
-        try{
+        try {
             $perms  = fileperms($file);
             $retval = array();
 
@@ -2506,7 +2263,7 @@ class File
      * Execute the specified callback on all files in the specified tree
      */
     public static function treeExecute($params) {
-        try{
+        try {
             Arrays::ensure($params);
             array_default($params, 'ignore_exceptions', true);
             array_default($params, 'path'             , null);
@@ -2528,24 +2285,24 @@ class File
                 throw new FilesystemException(tr('file_tree_execute(): Specified callback is not a function'), 'invalid');
             }
 
-            if (!($params['path'])) {
+            if (!($path)) {
                 throw new FilesystemException(tr('file_tree_execute(): No path specified'), 'not-specified');
             }
 
-            if (substr($params['path'], 0, 1) !== '/') {
+            if (substr($path, 0, 1) !== '/') {
                 throw new FilesystemException(tr('file_tree_execute(): No absolute path specified'), 'invalid');
             }
 
-            if (!file_exists($params['path'])) {
-                throw new FilesystemException(tr('file_tree_execute(): Specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exists');
+            if (!file_exists($path)) {
+                throw new FilesystemException(tr('file_tree_execute(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
             }
 
             /*
              * Follow hidden files?
              */
-            if ((substr(basename($params['path']), 0, 1) == '.') and !$params['follow_hidden']) {
+            if ((substr(basename($path), 0, 1) == '.') and !$params['follow_hidden']) {
                 if (VERBOSE and PLATFORM_CLI) {
-                    log_console(tr('file_tree_execute(): Skipping file ":file" because its hidden', array(':file' => $params['path'])), 'yellow');
+                    log_console(tr('file_tree_execute(): Skipping file ":file" because its hidden', array(':file' => $path)), 'yellow');
                 }
 
                 return 0;
@@ -2555,9 +2312,9 @@ class File
              * Filter this path?
              */
             foreach(Arrays::force($params['filters']) as $filter) {
-                if (preg_match($filter, $params['path'])) {
+                if (preg_match($filter, $path)) {
                     if (VERBOSE and PLATFORM_CLI) {
-                        log_console(tr('file_tree_execute(): Skipping file ":file" because of filter ":filter"', array(':file' => $params['path'], ':filter' => $filter)), 'yellow');
+                        log_console(tr('file_tree_execute(): Skipping file ":file" because of filter ":filter"', array(':file' => $path, ':filter' => $filter)), 'yellow');
                     }
 
                     return 0;
@@ -2565,30 +2322,30 @@ class File
             }
 
             $count = 0;
-            $type  = file_type($params['path']);
+            $type  = file_type($path);
 
             switch($type) {
                 case 'regular file':
-                    $params['callback']($params['path']);
+                    $params['callback']($path);
                     $count++;
 
-                    log_console(tr('file_tree_execute(): Executed code for file ":file"', array(':file' => $params['path'])), 'VERYVERBOSEDOT/green');
+                    log_console(tr('file_tree_execute(): Executed code for file ":file"', array(':file' => $path)), 'VERYVERBOSEDOT/green');
                     break;
 
                 case 'symlink':
                     if ($params['follow_symlinks']) {
-                        $params['path'] = readlink($params['path']);
+                        $path = readlink($path);
                         $count += file_tree_execute($params);
                     }
 
                     break;
 
                 case 'directory':
-                    $h    = opendir($params['path']);
-                    $path = Strings::slash($params['path']);
+                    $h    = opendir($path);
+                    $path = Strings::slash($path);
 
-                    while(($file = readdir($h)) !== false) {
-                        try{
+                    while (($file = readdir($h)) !== false) {
+                        try {
                             if (($file == '.') or ($file == '..')) continue;
 
                             if ((substr(basename($file), 0, 1) == '.') and !$params['follow_hidden']) {
@@ -2634,7 +2391,7 @@ class File
                                         foreach(Arrays::force($params['filters']) as $filter) {
                                             if (preg_match($filter, $file)) {
                                                 if (VERBOSE and PLATFORM_CLI) {
-                                                    log_console(tr('file_tree_execute(): Skipping file ":file" because of filter ":filter"', array(':file' => $params['path'], ':filter' => $filter)), 'yellow');
+                                                    log_console(tr('file_tree_execute(): Skipping file ":file" because of filter ":filter"', array(':file' => $path, ':filter' => $filter)), 'yellow');
                                                 }
 
                                                 $skip = true;
@@ -2657,8 +2414,8 @@ class File
                                         }
                                     }
 
-                                    if (($type == 'directory') and $params['recursive']) {
-                                        $params['path'] = $file;
+                                    if (($type == 'directory') and $recursive) {
+                                        $path = $file;
                                         $count         += file_tree_execute($params);
                                     }
 
@@ -2697,7 +2454,7 @@ class File
                      * Skip this unsupported file type
                      */
                     if (VERBOSE and PLATFORM_CLI) {
-                        log_console(tr('file_tree_execute(): Skipping file ":file" with unsupported file type ":type"', array(':file' => $file, ':type' => $params['path'])), 'yellow');
+                        log_console(tr('file_tree_execute(): Skipping file ":file" with unsupported file type ":type"', array(':file' => $file, ':type' => $path)), 'yellow');
                     }
             }
 
@@ -2715,7 +2472,7 @@ class File
      * from the current working directory
      */
     public static function absolute($path, $root = null) {
-        try{
+        try {
             if (empty($root)) {
                 $root = Strings::slash(getcwd());
             }
@@ -2738,7 +2495,7 @@ class File
      * within ROOT
      */
     public static function root($path) {
-        try{
+        try {
             if (substr($path, 0, 1) !== '/') {
                 $path = ROOT.$path;
             }
@@ -2757,22 +2514,16 @@ class File
      * specified path. Once the callback has finished, the path will have its
      * original file mode applied again
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @see Path::ensure()
      * @version 2.7.13: Added function and documentation
      * @note: If the specified path has an asterix (*) in front of it, ALL sub directories will be updated with the specified mode, and each will have their original file mode restored after
-     *
      * @param string array $path The path that will have its mode updated. When * is added in front of the path, ALL sub directories will be updated with the new mode as well, and placed back with their old modes after the command has executed
      * @param string $mode The mode to which the specified directory should be set during execution
      * @param function $callback The function to be executed after the file mode of the specified path has been updated
      * @return string The result from the callback function
      */
     public static function executeMode($path, $mode, $callback, $params = null) {
-        try{
+        try {
             /*
              * Apply to all directories below?
              */
@@ -2795,7 +2546,7 @@ class File
             /*
              * Set the requested mode
              */
-            try{
+            try {
                 if (is_dir($path) and $multi) {
                     $paths = cli_find(array('type'  => 'd',
                         'start' => $path));
@@ -2896,7 +2647,7 @@ class File
      * $replaces should be a $search => $replace key value array, where the $search values are regex expressions
      */
     public static function searchReplace($source, $target, $replaces) {
-        try{
+        try {
             if (!file_exists($source)) {
                 throw new FilesystemException(tr('file_search_replace(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
             }
@@ -2916,7 +2667,7 @@ class File
             $length   = 8192;
             $filesize = filesize($source);
 
-            while($position < $filesize) {
+            while ($position < $filesize) {
                 $data      = fread($fs, $length);
                 $position += $length;
                 fseek($fs, $position);
@@ -2945,7 +2696,7 @@ class File
      * Return line count for this file
      */
     public static function lineCount($source) {
-        try{
+        try {
             if (!file_exists($source)) {
                 throw new FilesystemException(tr('file_line_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
             }
@@ -2961,7 +2712,7 @@ class File
      * Return word count for this file
      */
     public static function wordCount($source) {
-        try{
+        try {
             if (!file_exists($source)) {
                 throw new FilesystemException(tr('file_word_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
             }
@@ -2979,12 +2730,12 @@ class File
      * all the way to root /
      */
     public static function scan($path, $file) {
-        try{
+        try {
             if (!file_exists($path)) {
                 throw new FilesystemException(tr('file_scan(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
             }
 
-            while(strlen($path) > 1) {
+            while (strlen($path) > 1) {
                 $path = Strings::slash($path);
 
                 if (file_exists($path.$file)) {
@@ -3010,7 +2761,7 @@ class File
      * Move specified path to a backup
      */
     public static function moveToBackup($path) {
-        try{
+        try {
             if (!file_exists($path)) {
                 /*
                  * Specified path doesn't exist, just ignore
@@ -3048,7 +2799,7 @@ class File
      * Update the specified file owner and group
      */
     public static function chown($file, $user = null, $group = null) {
-        try{
+        try {
             if (!$user) {
                 $user = posix_getpwuid(posix_getuid());
                 $user = $user['name'];
@@ -3081,18 +2832,12 @@ class File
     /*
      *
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
-     *
      * @param string $path
      * @param string $prefix
      * @return boolean True if the specified $path (optionally prefixed by $prefix) contains a symlink, false if not
      */
     public static function pathContainsSymlink($path, $prefix = null) {
-        try{
+        try {
             if (!$path) {
                 throw new FilesystemException(tr('file_path_contains_symlink(): No path specified'), 'not-specified');
             }
@@ -3143,32 +2888,27 @@ class File
     /*
      *
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @see https://secure.php.net/manual/en/migration56.openssl.php
      * @see https://secure.php.net/manual/en/function.stream-context-create.php
      * @see https://secure.php.net/manual/en/wrappers.php
      * @see https://secure.php.net/manual/en/context.php
-     *
      * @param array $context The stream context
      * @param string $prefix
      * @return boolean True if the specified $path (optionally prefixed by $prefix) contains a symlink, false if not
      */
-    public static function createStreamContext($context) {
-        try{
+    public static function createStreamContext(array $context)
+    {
+        try {
             if (!$context) return null;
 
             if (!is_array($context)) {
-                throw new FilesystemException(tr('file_create_stream_context(): Specified context is invalid, should be an array but is an ":type"', array(':type' => gettype($context))), 'invalid');
+                throw new FilesystemException(tr('File::createStreamContext(): Specified context is invalid, should be an array but is an ":type"', array(':type' => gettype($context))), 'invalid');
             }
 
             return stream_context_create($context);
 
         }catch(Exception $e) {
-            throw new FilesystemException(tr('file_create_stream_context(): Failed'), $e);
+            throw new FilesystemException(tr('File::createStreamContext(): Failed'), $e);
         }
     }
 
@@ -3177,14 +2917,8 @@ class File
     /*
      * Perform a "sed" action on the specified file
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @see safe_exec()
      * @version 2.4.22: Added function and documentation
-     *
      * @param params $params The parameters for sed
      * @param null mixed $params[ok_exitcodes]
      * @param null boolean $params[sudo] If set to true, the sed command will be executed using sudo
@@ -3193,7 +2927,7 @@ class File
      * @return void()
      */
     public static function sed($params) {
-        try{
+        try {
             Arrays::ensure($params, 'ok_exitcodes,function,sudo,background,domain');
 
             if (empty($params['source'])) {
@@ -3215,8 +2949,8 @@ class File
                 $arguments['redirect'] = '> '.$params['target'];
             }
 
-            if (!empty($params['sudo'])) {
-                $arguments['sudo'] = $params['sudo'];
+            if (!empty($sudo)) {
+                $arguments['sudo'] = $sudo;
             }
 
             safe_exec(array('domain'       => $params['domain'],
@@ -3235,14 +2969,8 @@ class File
     /*
      * Cat the output from one file to another
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @see safe_exec()
      * @version 2.4.22: Added function and documentation
-     *
      * @param params $params The parameters for sed
      * @param null mixed $params[ok_exitcodes]
      * @param null boolean $params[sudo] If set to true, the sed command will be executed using sudo
@@ -3251,7 +2979,7 @@ class File
      * @return void()
      */
     public static function cat($params) {
-        try{
+        try {
             Arrays::ensure($params, 'ok_exitcodes,function,sudo,background,domain');
 
             if (empty($params['source'])) {
@@ -3262,8 +2990,8 @@ class File
                 throw new FilesystemException(tr('file_cat(): No target file specified'), 'not-specified');
             }
 
-            if (!empty($params['sudo'])) {
-                $arguments['sudo'] = $params['sudo'];
+            if (!empty($sudo)) {
+                $arguments['sudo'] = $sudo;
             }
 
             safe_exec(array('domain'       => $params['domain'],
@@ -3300,13 +3028,7 @@ class File
      *
      * If $params[unrestricted] is specified, the function will not test anything
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @version 2.4.24: Added function and documentation
-     *
      * @param mixed $params The parameters on which to restrict the specified file or path. May also simply be a file string, in which case the default parameters apply
      * @param null mixed $params[source]
      * @param null mixed $params[target]
@@ -3317,7 +3039,7 @@ class File
      * @return void
      */
     public static function restrict($params, &$restrictions = null) {
-        try{
+        try {
             /*
              * Determine what restrictions apply. The restrictions is a white list
              * containing the paths where the calling function is allowed to work
@@ -3327,8 +3049,8 @@ class File
                  * If the file was specified as an array, then the restrictions may
                  * have been included in there for convenience.
                  */
-                if (is_array($params) and isset($params['restrictions'])) {
-                    $restrictions = $params['restrictions'];
+                if (is_array($params) and isset($restrictions)) {
+                    $restrictions = $restrictions;
                 }
 
                 if (!$restrictions) {
@@ -3382,7 +3104,7 @@ class File
                 }
 
                 unset($restriction);
-                throw new FilesystemException(tr('Restrict::restrict(): The specified file or path ":path" is outside of the authorized paths ":authorized"', array(':path' => $params, ':authorized' => $restrictions)), 'access-denied', $restrictions);
+                throw new FilesystemException(tr('$restrictions->apply(): The specified file or path ":path" is outside of the authorized paths ":authorized"', array(':path' => $params, ':authorized' => $restrictions)), 'access-denied', $restrictions);
             }
 
             /*
@@ -3395,17 +3117,17 @@ class File
                     /*
                      * All these must be tested
                      */
-                    try{
-                        Restrict::restrict($params[$key], $restrictions);
+                    try {
+                        $restrictions->apply($params[$key], $restrictions);
 
                     }catch(Exception $e) {
-                        throw new FilesystemException(tr('Restrict::restrict(): Failed for key ":key" test', array(':key' => $key)), $e);
+                        throw new FilesystemException(tr('$restrictions->apply(): Failed for key ":key" test', array(':key' => $key)), $e);
                     }
                 }
             }
 
         }catch(Exception $e) {
-            throw new FilesystemException('Restrict::restrict(): Failed', $e);
+            throw new FilesystemException('$restrictions->apply(): Failed', $e);
         }
     }
 
@@ -3415,20 +3137,14 @@ class File
     /*
      * Locates the specifed command and returns it path
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @version 2.0.5: Added function and documentation
      * @version 2.4.16: Added $whereis support
-     *
      * @param string $command The command searched for
      * @param boolean $whereis If set to true, instead of "which", "whereis" will be used
      * @return string The path of the specified file
      */
     public static function which($command, $whereis = false) {
-        try{
+        try {
             $result = safe_exec(array('ok_exitcodes' => '0,1',
                 'commands'     => array(($whereis ? 'whereis' : 'which'), array($command))));
 
@@ -3449,20 +3165,14 @@ class File
     /*
      * Search / replace the specified file
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
      * @see file_copy_tree()
-     *
      * @param array string $search The key(s) for which should be searched
      * @param array string $replace The values that will replace the specified key(s)
      * @param string $file The file that needs to have the search / replace done
      * @return string The $file
      */
     public static function replace($search, $replace, $file) {
-        try{
+        try {
             $data = file_get_contents($file);
             $data = str_replace($search, $replace, $file);
 
@@ -3480,7 +3190,7 @@ class File
      * DEPRECATED FUNCTIONS
      */
     public static function chmodTree($path, $filemode, $dirmode = 0770) {
-        try{
+        try {
             return file_chmod($path, $filemode, $dirmode = 0770);
 
         }catch(Exception $e) {
@@ -3493,11 +3203,8 @@ class File
     /*
      * Return a single file from the specified file section
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
+     * @param string $file
+     * @return string The result
      * @version 2.8.21: Added function and documentation
      * @note This function throws an exception if multiple files matched
      * @example
@@ -3510,12 +3217,9 @@ class File
      * code
      * /etc/passwd
      * /code
-     *
-     * @param string $file
-     * @return string The result
      */
     public static function fromPart($file) {
-        try{
+        try {
             $target = null;
 
             file_tree_execute(array('execute_directory' => true,

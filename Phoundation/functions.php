@@ -39,7 +39,7 @@ use Phoundation\Core\Strings;
  */
 function tr(string $text, ?array $replace = null, bool $verify = true): string
 {
-    try{
+    try {
         if ($replace) {
             foreach ($replace as &$value) {
                 $value = Strings::log($value);

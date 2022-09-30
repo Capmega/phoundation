@@ -241,7 +241,7 @@ class Core {
      */
     public static function getInstance(string $target = null): Log
     {
-        try{
+        try {
             if (!isset(self::$instance)) {
                 self::$instance = new Core($target);
             }

@@ -27,7 +27,7 @@ Class Init
     {
         global $_CONFIG, $core;
 
-        try{
+        try {
             /*
              * Are we allowed to init?
              */
@@ -232,7 +232,7 @@ Class Init
                                 /*
                                  * This init file is higher than the DB version, but lower than the code version, so it must be executed
                                  */
-                                try{
+                                try {
                                     if (file_exists($hook = $initpath.'hooks/pre_'.$file)) {
                                         log_console(tr('Executing newer init "pre" hook file with version ":version"', array(':version' => $version)), 'cyan');
                                         include_once($hook);
@@ -245,7 +245,7 @@ Class Init
                                     throw new CoreException(tr('init(:type): Init "pre" hook file ":file" failed', array(':type' => $type, ':file' => $file)), $e);
                                 }
 
-                                try{
+                                try {
                                     log_console(tr('Executing newer init file with version ":version"', array(':version' => $version)), 'VERBOSE/cyan');
                                     init_include($initpath.$file);
 
@@ -256,7 +256,7 @@ Class Init
                                     throw new CoreException('init('.$type.'): Init file "'.$file.'" failed', $e);
                                 }
 
-                                try{
+                                try {
                                     if (file_exists($hook = $initpath.'hooks/post_'.$file)) {
                                         log_console(tr('Executing newer init "post" hook file with version ":version"', array(':version' => $version)), 'VERBOSE/cyan');
                                         include_once($hook);
@@ -360,7 +360,7 @@ Class Init
     {
         global $_CONFIG, $core;
 
-        try{
+        try {
             switch($core->register['real_script']) {
                 case 'base/info':
                     // FALLTHROUGH
@@ -420,7 +420,7 @@ Class Init
     {
         global $_CONFIG, $core;
 
-        try{
+        try {
             $r = $core->sql['core']->query('SHOW TABLES WHERE `Tables_in_'.$_CONFIG['db']['core']['db'].'` = "versions";');
 
             if ($r->rowCount($r)) {
@@ -453,7 +453,7 @@ Class Init
      */
     public static function hook(string $hook, bool $disabled = false, array $params = null): ?array
     {
-        try{
+        try {
             /*
              * Reshuffle arguments, if needed
              */
@@ -488,7 +488,7 @@ Class Init
      */
     public static function versionUpgrade(string $version, string $part): string
     {
-        try{
+        try {
             if (!Strings::isVersion($version)) {
                 throw new CoreException('init_version_upgrade(): Specified version is not a valid n.n.n version format');
             }
@@ -529,7 +529,7 @@ Class Init
     {
         global $_CONFIG;
 
-        try{
+        try {
             include_once($file);
 
         }catch(Exception $e) {
@@ -558,7 +558,7 @@ Class Init
     {
         global $_CONFIG, $core;
 
-        try{
+        try {
             load_libs('sql_exists');
 
             $path = ROOT.'init/'.$section.'/';
@@ -648,7 +648,7 @@ Class Init
                         /*
                          * This init file is higher than the DB version, but lower than the code version, so it must be executed
                          */
-                        try{
+                        try {
                             if (file_exists($hook = $path.'hooks/pre_'.$file)) {
                                 log_console('Executing newer init "pre" hook file with version "'.$version.'"', 'cyan');
                                 include_once($hook);
@@ -661,7 +661,7 @@ Class Init
                             throw new CoreException('init('.$section.'): Init "pre" hook file "'.$file.'" failed', $e);
                         }
 
-                        try{
+                        try {
                             log_console('Executing newer init file with version "'.$version.'"', 'VERBOSE/cyan');
                             init_include($path.$file, $section);
 
@@ -672,7 +672,7 @@ Class Init
                             throw new CoreException('init('.$section.'): Init file "'.$file.'" failed', $e);
                         }
 
-                        try{
+                        try {
                             if (file_exists($hook = $path.'hooks/post_'.$file)) {
                                 log_console('Executing newer init "post" hook file with version "'.$version.'"', 'VERBOSE/cyan');
                                 include_once($hook);
@@ -746,12 +746,12 @@ Class Init
      */
     public static function reset()
     {
-        try{
+        try {
             $versions = Sql::query('SELECT `id`, `framework`, `project` FROM `versions`');
             $erase    = Sql::prepare('DELETE FROM `versions` WHERE `id` = :id');
             $changed  = 0;
 
-            while($version = Sql::fetch($versions)) {
+            while ($version = Sql::fetch($versions)) {
                 if (version_compare($version['framework'], FRAMEWORKCODEVERSION) > 0) {
                     $erase->execute(array(':id' => $version['id']));
                     $changed++;
@@ -788,7 +788,7 @@ Class Init
      * @return string The highest init file version available for the specified section
      */
     public static function get_highest_file_version($section) {
-        try{
+        try {
             switch($section) {
                 case 'framework':
                     // FALLTHROUGH

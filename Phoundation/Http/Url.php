@@ -324,7 +324,7 @@ class Url {
      */
     public static function cloak(string $url): string
     {
-        try{
+        try {
             $cloak = Sql::get('SELECT `cloak`
 
                           FROM   `url_cloaks`
@@ -382,7 +382,7 @@ class Url {
     {
         global $_CONFIG, $core;
 
-        try{
+        try {
             $data = Sql::get('SELECT `createdby`, `url` FROM `url_cloaks` WHERE `cloak` = :cloak', array(':cloak' => $cloak));
 
             if (mt_rand(0, 100) <= $_CONFIG['security']['url_cloaking']['interval']) {

@@ -819,7 +819,7 @@ class Sql
     // *
     // */
     //public static function set($source, $columns, $filter = 'id') {
-    //    try{
+    //    try {
     //        if (!is_array($source)) {
     //            throw new SqlException('Sql::set(): Specified source is not an array', 'invalid');
     //        }
@@ -1649,7 +1649,7 @@ class Sql
     // * @return array
     // */
     //public static function exec_get($server, $query, $root = false, $simple_quotes = false) {
-    //    try{
+    //    try {
     //
     //    } catch (Exception $e) {
     //        throw new SqlException(tr('Sql::exec_get(): Failed'), $e);

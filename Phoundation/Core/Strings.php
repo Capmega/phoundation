@@ -486,7 +486,7 @@ class Strings
      */
     public static function caps(string $string, string $type): string
     {
-        try{
+        try {
             /*
              * First find all words
              */

@@ -135,7 +135,7 @@ class Route
         static $count = 1,
         $init  = false;
 
-        try{
+        try {
             $type = ($_POST ?  'POST' : 'GET');
             $ip   = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
 
@@ -325,7 +325,7 @@ class Route
                 }
 
                 foreach ($replacements[1] as $replacement) {
-                    try{
+                    try {
                         if (!$replacement[0] or empty($matches[$replacement[0]])) {
                             throw new RouteException(tr('route(): Non existing regex replacement ":replacement" specified in route ":route"', array(':replacement' => '$' . $replacement[0], ':route' => $route)), 'invalid');
                         }
@@ -828,7 +828,7 @@ class Route
     {
         global $_CONFIG, $core;
 
-        try{
+        try {
             $core->register['Route::exec'] = $target;
 
             if (substr($target, -3, 3) === 'php') {
@@ -900,7 +900,7 @@ class Route
     protected static function shutdown() {
         global $_CONFIG;
 
-        try{
+        try {
             /*
              * Test the URI for known hacks. If so, apply configured response
              */
@@ -941,7 +941,7 @@ class Route
     {
         global $core, $_CONFIG;
 
-        try{
+        try {
             $core->register['Route::exec']  = 'en/404.php';
             $core->register['script_path'] = 'system/404';
             $core->register['script']      = 404;
@@ -1016,7 +1016,7 @@ class Route
      */
     protected static function insertStatic($route): void
     {
-        try{
+        try {
             $route = Route::validateStatic($route);
 
             Log::notice(tr('Storing static routing rule ":rule" for IP ":ip"', [':rule' => $route['target'], ':ip' => $route['ip']]));

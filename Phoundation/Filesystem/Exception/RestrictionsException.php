@@ -1,0 +1,19 @@
+<?php
+
+namespace Phoundation\Filesystem\Exception;
+
+
+
+/**
+ * Class RestrictionsException
+ *
+ * This exception is the base exception for file / path access restriction issues
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Filesystem
+ */
+class RestrictionsException extends FilesystemException
+{
+}

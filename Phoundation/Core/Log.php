@@ -147,7 +147,7 @@ Class Log {
      */
     public static function getInstance(string $target = null): Log
     {
-        try{
+        try {
             if (!isset(self::$instance)) {
                 self::$instance = new Log($target);
             }
@@ -241,7 +241,7 @@ Class Log {
      */
     public static function setFile(string $file = null): string
     {
-        try{
+        try {
             $return = self::$file;
 
             if ($file === null) {
@@ -869,7 +869,7 @@ Class Log {
      */
     protected static function dumpTrace(array $backtrace, int $level = 9, ?int $display = null): int
     {
-        try{
+        try {
             $count = 0;
 
             // Parse backtrace data and log the information

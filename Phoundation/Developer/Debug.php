@@ -192,7 +192,7 @@ class Debug {
             return null;
         }
 
-        try{
+        try {
             if ($trace_offset === null) {
                 if (PLATFORM_HTTP) {
                     $trace_offset = 3;
@@ -309,7 +309,7 @@ class Debug {
                 die(tr('Debug::show() command at ":file@:line" failed with ":e"', array(':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset), ':e' => $e->getMessage())));
             }
 
-            try{
+            try {
                 notify($e);
 
             } catch (Exception $e) {

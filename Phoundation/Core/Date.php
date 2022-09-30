@@ -143,7 +143,7 @@ class Date {
             $date->setTimezone(new DateTimeZone($to_timezone));
         }
 
-        try{
+        try {
             if ($format === 'object') {
                 return $date;
             }
@@ -173,7 +173,7 @@ class Date {
      * @throws CoreException
      */
     public static function relative($timestamp, $now = null, $periods = null) {
-        try{
+        try {
             if (!$now) {
                 $now = time();
             }
@@ -209,7 +209,7 @@ class Date {
      * @throws CoreException
      */
     public static function random($min = null, $max = null) {
-        try{
+        try {
             if ($min) {
                 $min = new DateTime(Date::convert($min, 'y-m-d'));
                 $min = $min->getTimestamp();
@@ -243,7 +243,7 @@ class Date {
      * @throws CoreException
      */
     public static function timezones_select($params = null) {
-        try{
+        try {
             Arrays::ensure($params);
             array_default($params, 'name', 'timezone');
 
@@ -277,7 +277,7 @@ class Date {
      * @throws CoreException
      */
     public static function timezonesExists(string $timezone) {
-        try{
+        try {
             return isset_get(Date::timezonesList()[strtolower($timezone)]);
 
         }catch(Exception $e) {
@@ -291,7 +291,7 @@ class Date {
      * Returns a list of all timezones supported by PHP
      */
     public static function timezonesList() {
-        try{
+        try {
             $list = array();
 
             foreach (timezone_abbreviations_list() as $abbriviation => $zones) {
@@ -319,7 +319,7 @@ class Date {
      * Return date will be formatted according to Date::convert() $format
      */
     public static function interval($date, $interval, $format = null) {
-        try{
+        try {
             $date = Date::convert($date, 'd-m-Y');
             $date = new DateTime($date);
 
@@ -372,7 +372,7 @@ class Date {
      * @return string The result
      */
     public static function translate($date) {
-        try{
+        try {
             /*
              * First check if there are any translatable words in the specified date
              */

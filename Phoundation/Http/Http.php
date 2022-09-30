@@ -497,7 +497,7 @@ class Http
     {
         global $_CONFIG, $core;
 
-        try{
+        try {
             $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . $etag);
 
             if (!$_CONFIG['cache']['http']['enabled']) {
@@ -537,7 +537,7 @@ class Http
     protected static function cacheEtag() {
         global $_CONFIG, $core;
 
-        try{
+        try {
             /*
              * ETAG requires HTTP caching enabled
              * Ajax and API calls do not use ETAG
@@ -582,7 +582,7 @@ class Http
      */
     public static function addVariable(string $url, string $key, int|float|string|array $value): string
     {
-        try{
+        try {
             if (!$key or !$value) {
                 return $url;
             }
@@ -610,7 +610,7 @@ class Http
      */
     public static function removeVariable(string $url, string $key): string
     {
-        try{
+        try {
             throw new UnderConstructionException('Http::removeVariable() is under construction!');
             //if (!$key) {
             //    return $url;
@@ -825,7 +825,7 @@ class Http
     public static function getSubmit() {
         static $submit;
 
-        try{
+        try {
             if ($submit !== null) {
                 /*
                  * We have a cached value
