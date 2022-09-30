@@ -13,7 +13,7 @@
  * Show help information
  */
 function help($section) {
-    try{
+    try {
         switch($section) {
             case 'system':
                 log_console('System options:', 'white');

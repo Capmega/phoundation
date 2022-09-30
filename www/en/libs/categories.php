@@ -24,7 +24,7 @@
  * @return void
  */
 function categories_library_init() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('categories_library_init(): Failed', $e);
@@ -46,7 +46,7 @@ function categories_library_init() {
  * @return array The validated and cleaned $category array
  */
 function categories_validate($category) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($category, 'name,seoparent,description');
@@ -154,7 +154,7 @@ function categories_validate($category) {
  * @return string HTML for a categories select box within the specified parameters
  */
 function categories_select($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'      , 'seocategory');
         array_default($params, 'class'     , 'form-control');
@@ -284,7 +284,7 @@ function categories_select($params = null) {
  * @return mixed The category data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified category does not exist, NULL will be returned.
  */
 function categories_get($category, $column = null, $status = null, $parent = false) {
-    try{
+    try {
         if (is_numeric($category)) {
             $where[] = ' `categories`.`id` = :id ';
             $execute[':id'] = $category;
@@ -380,7 +380,7 @@ function categories_get($category, $column = null, $status = null, $parent = fal
  * @return array An array containing the list of categories
  */
 function categories_get_children($category) {
-    try{
+    try {
         if (!is_numeric($category)) {
             $categories_id = categories_get($category, 'id');
 

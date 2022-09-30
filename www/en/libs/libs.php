@@ -14,7 +14,7 @@
  * Return an array of all available library files
  */
 function libs_list() {
-    try{
+    try {
         return scandir(ROOT.'libs');
 
     }catch(Exception $e) {
@@ -28,7 +28,7 @@ function libs_list() {
  * Return the amount of available libraries
  */
 function libs_count() {
-    try{
+    try {
         return count(libs_list());
 
     }catch(Exception $e) {
@@ -42,7 +42,7 @@ function libs_count() {
  * Execute the specified callback function for each available library file
  */
 function libs_exec($callback) {
-    try{
+    try {
         return file_tree_execute(array('path' => ROOT.'libs'));
 
     }catch(Exception $e) {

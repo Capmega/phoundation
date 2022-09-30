@@ -28,7 +28,7 @@
  * @return void
  */
 function template_library_init() {
-    try{
+    try {
         ensure_installed(array('name'      => 'template',
                                'callback'  => 'template_install',
                                'checks'    => ROOT.'libs/external/template/template,'.ROOT.'libs/external/template/foobar',
@@ -56,7 +56,7 @@ function template_library_init() {
  * @return
  */
 function template_install($params) {
-    try{
+    try {
         load_libs('apt');
         apt_install('template');
 
@@ -106,7 +106,7 @@ function template_install($params) {
  * @return string The result
  */
 function template_function($params) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('template_function(): Failed', $e);

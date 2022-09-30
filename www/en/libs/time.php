@@ -12,7 +12,7 @@
  * Returns the diference in times with the pointed precision
  */
 function time_difference($start, $stop, $precision = 'auto', $decimals = 2) {
-    try{
+    try {
         $time  = cf($stop) - cf($start);
 
         switch($precision) {
@@ -129,7 +129,7 @@ function time_difference($start, $stop, $precision = 'auto', $decimals = 2) {
  * $original should be the original date and time in Unix format
  */
 function time_ago($original) {
-    try{
+    try {
         /*
          * Common time periods as an array of arrays
          */
@@ -182,7 +182,7 @@ function time_ago($original) {
  * Can check both 12H or 24H format
  */
 function time_validate($time, $format = false, $separator = ':') {
-    try{
+    try {
         $time = trim($time);
 
         /*

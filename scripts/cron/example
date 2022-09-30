@@ -5,7 +5,7 @@
  */
 require_once(dirname(__FILE__).'/../../libs/startup.php');
 
-try{
+try {
     $commands = array('base/backup database mysql',
                       '');
 

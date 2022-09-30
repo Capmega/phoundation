@@ -35,7 +35,7 @@ switch(cli_method()) {
 
         log_console(tr('Updating ":count" user accounts', array(':count' => $users->rowCount())));
 
-        while($user = sql_fetch($users)) {
+        while ($user = sql_fetch($users)) {
             cli_dot();
 
             $chat->execute(array(':user_id'       => $user['id'],

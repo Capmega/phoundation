@@ -18,7 +18,7 @@
  * Automatically executed by libs_load()
  */
 function openssl_library_init() {
-    try{
+    try {
         if (!function_exists('openssl_encrypt')) {
             throw new CoreException(tr('openssl_library_init(): PHP module "openssl" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-openssl; sudo phpenmod openssl" to install and enable the module., on Redhat and alikes use "sudo yum -y install php-openssl" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'not-exists');
         }
@@ -37,7 +37,7 @@ under_construction();
 function openssl_simple_encrypt($data, $password, $seed = false) {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * Default and test cipher
          */
@@ -83,7 +83,7 @@ function openssl_simple_encrypt($data, $password, $seed = false) {
 function openssl_simple_decrypt($data, $password, $cipher = null) {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * Default and test cipher
          */
@@ -116,7 +116,7 @@ function openssl_simple_decrypt($data, $password, $cipher = null) {
 
 
 function openssl_simple_test_cypher($cipher) {
-    try{
+    try {
         if (!in_array($cipher, openssl_get_cipher_methods())) {
             throw new CoreException(tr('openssl_simple_test_cypher(): Unknown cipher ":cipher" specifed', array(':cipher' => $cipher)), 'unknown');
         }

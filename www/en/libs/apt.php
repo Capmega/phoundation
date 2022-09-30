@@ -27,7 +27,7 @@
  * @return void
  */
 function apt_library_init() {
-    try{
+    try {
         load_libs('servers');
 
     }catch(Exception $e) {
@@ -59,7 +59,7 @@ function apt_library_init() {
  * @return string The output from the apt-get install command
  */
 function apt_install($packages, $auto_update = true, $server = null) {
-    try{
+    try {
         if ($auto_update) {
             apt_update($server = null);
         }
@@ -103,7 +103,7 @@ function apt_install($packages, $auto_update = true, $server = null) {
                         /*
                          * Some previous install failed. Repair and retry
                          */
-                        try{
+                        try {
                             apt_fix($server);
                             $method($server);
 
@@ -168,7 +168,7 @@ function apt_install($packages, $auto_update = true, $server = null) {
  * @return string The output from the apt-get update command
  */
 function apt_update($server = null) {
-    try{
+    try {
         log_console(tr('Updating apt database'), 'cyan');
         $results = servers_exec($server, array('timeout'  => 120,
                                                'function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
@@ -260,7 +260,7 @@ function apt_update($server = null) {
  * @return string The output from the dpkg --configure -a command
  */
 function apt_fix($server = null) {
-    try{
+    try {
         log_console(tr('Fixing apt database'), 'yellow');
 
         $results = servers_exec($server, array('timeout'  => 120,

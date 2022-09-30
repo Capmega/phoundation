@@ -29,7 +29,7 @@
  * @return null params The data for the requested section
  */
 function storage_sections_get($section = null, $auto_create = false) {
-    try{
+    try {
         if (empty($section)) {
             /*
              * Get a _new record for the current user
@@ -102,7 +102,7 @@ function storage_sections_get($section = null, $auto_create = false) {
  * @return null array a list of the available sections
  */
 function storage_sections_list($status = null, $pdo_statement = true) {
-    try{
+    try {
         $sections = sql_query('SELECT `id`,
                                       `createdby`,
                                       `createdon`,
@@ -128,7 +128,7 @@ function storage_sections_list($status = null, $pdo_statement = true) {
  * Generate a new storage section
  */
 function storage_sections_add($section, $new = false) {
-    try{
+    try {
         $section = storage_sections_validate($section, $new);
 
         sql_query('INSERT INTO `storage_sections` (`id`, `createdby`, `meta_id`, `status`, `name`, `seoname`, `random_ids`, `restrict_file_types`, `slogan`, `description`)
@@ -158,7 +158,7 @@ function storage_sections_add($section, $new = false) {
  * Update the specified storage section
  */
 function storage_sections_update($section, $new = false) {
-    try{
+    try {
         $section = storage_sections_validate($section);
         meta_action($section['meta_id'], ($new ? 'create-update' : 'update'));
 
@@ -197,7 +197,7 @@ function storage_sections_update($section, $new = false) {
  * Validate and return the specified storage section
  */
 function storage_sections_validate($section, $new = false) {
-    try{
+    try {
         load_libs('validate,seo');
 
         if ($new) {
@@ -242,7 +242,7 @@ function storage_sections_validate($section, $new = false) {
  *
  */
 function storage_section_has_access($sections_id, $users_id = null) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('storage_section_has_access(): Failed', $e);

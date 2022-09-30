@@ -39,7 +39,7 @@ $config  = array('project'    => array('seed' => str_random(mt_rand(16, 32))),
 /*
  * Get project name
  */
-while($fail) {
+while ($fail) {
     $config['project']['name'] = cli_readline(tr('What is the name of your project'.($name ? ' ['.$name.'] ' : '').'?'), false, 'cyan');
 
     $match = preg_match('/[a-z-]{2,32}/', $config['project']['name']);
@@ -62,7 +62,7 @@ while($fail) {
 /*
  * Get project version
  */
-while($fail) {
+while ($fail) {
     $config['project']['version'] = cli_readline(tr('What is the version of your project [:default] ?', array(':default' => $version)), false, 'cyan');
 
     if (!$config['project']['version']) {
@@ -84,7 +84,7 @@ while($fail) {
 /*
  * Get project production domain
  */
-while($fail) {
+while ($fail) {
     $config['production']['']['domain']['__value__'] = cli_readline(tr('What is the production FQDN (Fully Qualified Domain Name, without http://, or https://) [:fqdn] ?', array(':fqdn' => $config['project']['name'].'.com')), false, 'cyan');
 
     if (!$config['production']['']['domain']['__value__']) {
@@ -106,8 +106,8 @@ while($fail) {
 /*
  * Get project production domain
  */
-while($fail) {
-    try{
+while ($fail) {
+    try {
         $multiple_sub_domains = cli_readline(tr('Will your project domain use multiple sub domains [N]?'), false, 'cyan');
         $multiple_sub_domains = get_true_false($multiple_sub_domains, false);
         break;
@@ -125,7 +125,7 @@ while($fail) {
 if ($multiple_sub_domains) {
 
 } else {
-    while($fail) {
+    while ($fail) {
         $single_sub_domain = cli_readline(tr('Will your project domain use single sub domain? If no, just press enter, if yes, please specify the sub domain here: '), false, 'cyan');
 
         if (!$single_sub_domain) {
@@ -150,8 +150,8 @@ if ($multiple_sub_domains) {
 if ($multiple_sub_domains or $single_sub_domain) {
     $config['production']['']['whitelabels']['__value__'] = 'sub';
 
-    while($fail) {
-        try{
+    while ($fail) {
+        try {
             $sub_domain_cookies = cli_readline(tr('Will cookie scope include all sub domains [Y]?'), false, 'cyan');
             $sub_domain_cookies = get_true_false($sub_domain_cookies, true);
 
@@ -178,7 +178,7 @@ if ($multiple_sub_domains or $single_sub_domain) {
 /*
  * Get project production database
  */
-while($fail) {
+while ($fail) {
     $config['production']['']['db']['core']['db']['__value__'] = cli_readline(tr('What is the production database name [:default] ?', array(':default' => Strings::until($config['production']['']['domain']['__value__'], '.'))), false, 'cyan');
 
     if (!$config['production']['']['db']['core']['db']['__value__']) {
@@ -198,7 +198,7 @@ while($fail) {
 /*
  * Get project production database username
  */
-while($fail) {
+while ($fail) {
     $config['production']['']['db']['core']['user']['__value__'] = cli_readline(tr('What is the production database username [:default] ?', array(':default' => Strings::until($config['production']['']['domain']['__value__'], '.'))), false, 'cyan');
 
     if (!$config['production']['']['db']['core']['user']['__value__']) {
@@ -218,7 +218,7 @@ while($fail) {
 /*
  * Get project production database password
  */
-while($fail) {
+while ($fail) {
     $password = str_random(16);
 
     $config['production']['']['db']['core']['pass']['__value__'] = cli_readline(tr('What is the production database user password to access your main database [:password] ?', array(':password' => $password)), false, 'cyan');
@@ -234,7 +234,7 @@ while($fail) {
 /*
  * Get project production database timezone
  */
-while($fail) {
+while ($fail) {
     $timezone = 'UTC';
 
     $config['production']['']['db']['core']['timezone']['__value__'] = cli_readline(tr('What is the production database user password to access your main database [:default] ?', array(':default' => $timezone)), false, 'cyan');

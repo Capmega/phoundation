@@ -14,7 +14,7 @@
  * Add specified action to meta history for the specified meta_id
  */
 function meta_action($meta_id = null, $action = null, $data = null) {
-    try{
+    try {
         if (!$meta_id) {
             if (!$action) {
                 $action = 'create';
@@ -44,7 +44,7 @@ function meta_action($meta_id = null, $action = null, $data = null) {
  * Add specified action to meta history for the specified meta_id
  */
 function meta_add_history($meta_id, $action, $data = null) {
-    try{
+    try {
         sql_query('INSERT INTO `meta_history` (`createdby`, `meta_id`, `action`, `data`)
                    VALUES                     (:createdby , :meta_id , :action , :data )',
 
@@ -81,7 +81,7 @@ function meta_add_history($meta_id, $action, $data = null) {
  * Return array with all the history for the specified meta_id
  */
 function meta_history($meta_id) {
-    try{
+    try {
         $history = sql_list('SELECT    `meta_history`.`id`,
                                        `meta_history`.`createdby`,
                                        `meta_history`.`createdon`,
@@ -119,7 +119,7 @@ function meta_history($meta_id) {
  * has been erased first!
  */
 function meta_erase($meta_id) {
-    try{
+    try {
         sql_query('DELETE FROM `meta_history` WHERE `meta_id` = :meta_id', array(':meta_id' => $meta_id), 'core');
         sql_query('DELETE FROM `meta`         WHERE `id`      = :id'     , array(':id'      => $meta_id), 'core');
 
@@ -136,7 +136,7 @@ function meta_erase($meta_id) {
  *
  */
 function meta_clear($meta_id, $views_only = false) {
-    try{
+    try {
         if ($views_only) {
             sql_query('DELETE FROM `meta_history` WHERE `meta_id` = :meta_id AND `action` = "view"', array(':meta_id' => $meta_id), 'core');
             meta_action($meta_id, 'clear-views');
@@ -178,7 +178,7 @@ function meta_clear($meta_id, $views_only = false) {
  * @return natural The meta id assigned to the specified $table_id entry
  */
 function meta_link($table_id, $table) {
-    try{
+    try {
         $exists = sql_get('SELECT `meta_id` FROM `'.$table.'` WHERE `id` = :id', true, array(':id' => $table_id), 'core');
 
         if ($exists) {

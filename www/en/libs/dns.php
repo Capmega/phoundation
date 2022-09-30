@@ -24,7 +24,7 @@
  * @return void
  */
 function dns_library_init() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('dns_library_init(): Failed', $e);
@@ -49,7 +49,7 @@ function dns_library_init() {
  * @return
  */
 function dns_add_record_a($domain, $subdomain, $ip, $ttl) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('dns_add_record_a(): Failed', $e);
@@ -74,7 +74,7 @@ function dns_add_record_a($domain, $subdomain, $ip, $ttl) {
  * @return
  */
 function dns_add_record_aaaa($domain, $subdomain, $ip, $ttl) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('dns_add_record_aaaa(): Failed', $e);
@@ -99,7 +99,7 @@ function dns_add_record_aaaa($domain, $subdomain, $ip, $ttl) {
  * @return
  */
 function dns_add_record_cname($domain, $subdomain, $cname, $ttl) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('dns_add_record_cname(): Failed', $e);

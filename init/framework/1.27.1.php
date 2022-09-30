@@ -31,7 +31,7 @@ sql_column_exists('roles' , 'modifiedby', 'ALTER TABLE `roles`  DROP COLUMN `mod
 $servers = sql_query('SELECT `id` FROM `servers`');
 log_console(tr('Assigning missing meta_id to all servers...'), 'cyan', false);
 
-while($servers_id = sql_fetch($servers, true)) {
+while ($servers_id = sql_fetch($servers, true)) {
     meta_link($servers_id, 'servers');
     cli_dot();
 }

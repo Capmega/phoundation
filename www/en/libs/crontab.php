@@ -14,7 +14,7 @@
  * Add entry to crontab
  */
 function crontab_add_entry() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('crontab_add_entry(): Failed', $e);
@@ -27,7 +27,7 @@ function crontab_add_entry() {
  * List all crontab entries
  */
 function crontab_list() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('crontab_list(): Failed', $e);

@@ -20,7 +20,7 @@
  * @return array
  */
 function mail_library_init() {
-    try{
+    try {
         load_config('mail');
 
     }catch(Exception $e) {
@@ -36,7 +36,7 @@ function mail_library_init() {
 function mail_send_templated_email($params, $subject, $body, $language = false, $template = 'email/template') {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
 
         if (empty($params['to_email'])) {
@@ -127,7 +127,7 @@ function mail_send_templated_email($params, $subject, $body, $language = false, 
 function mail_headers($headers = array()) {
     global $_CONFIG;
 
-    try{
+    try {
 
         $defaults = array('MIME-Version' => '1.0',
                           'Content-type' => 'text/html; charset=UTF-8',
@@ -153,7 +153,7 @@ function mail_headers($headers = array()) {
  * Generate some id so we can always trace an email back to an account
  */
 function mail_trace($email) {
-    try{
+    try {
         //make save for transport
         return '#IDS#'.base64_encode(encrypt($email, 'sometimesitworks')).'#IDE#';
 
@@ -170,7 +170,7 @@ function mail_trace($email) {
 function mail_feedback($subject, $message) {
     global $_CONFIG;
 
-    try{
+    try {
         foreach($_CONFIG['feedback']['emails'] as $name => $email) {
             if (!mail($email, $subject, $message)) {
                 throw new CoreException('mail_feedback(): The PHP mail() command failed (is package "sendmail" installed?)', 'mailfail');

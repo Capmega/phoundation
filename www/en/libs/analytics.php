@@ -29,7 +29,7 @@
  * @return void
  */
 function analytics_library_init() {
-    try{
+    try {
         load_config('analytics');
 
     }catch(Exception $e) {
@@ -62,7 +62,7 @@ function analytics_library_init() {
 function analytics($sites_id, $provider = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$provider) {
             $provider = $_CONFIG['analytics']['provider'];
         }
@@ -106,7 +106,7 @@ function analytics($sites_id, $provider = null) {
 function analytics_matomo($sites_id) {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$sites_id) {
             throw new CoreException(tr('analytics_matomo(): No sites_id specified'), 'not-specified');
         }
@@ -183,7 +183,7 @@ function analytics_matomo($sites_id) {
  * @return string The HTML required to have the client register with google analytics
  */
 function analytics_google($sites_id) {
-    try{
+    try {
         if (!$sites_id) {
             throw new CoreException(tr('analytics_google(): No sites_id specified'), 'not-specified');
         }

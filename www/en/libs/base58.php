@@ -29,7 +29,7 @@
  * @return void
  */
 function base58_library_init() {
-    try{
+    try {
         ensure_installed(array('name'      => 'base58',
                                'callback'  => 'base58_install',
                                'checks'    => array(ROOT.'www/en/libs/external/base58php/Base58.php'),
@@ -63,7 +63,7 @@ function base58_library_init() {
  * @return void
  */
 function base58_install($params) {
-    try{
+    try {
         /*
          * PHP bcmath extension is missing
          */
@@ -93,7 +93,7 @@ function base58_install($params) {
  * Encode the specified string into a base58 string
  */
 function base58_encode($source, $reduced = false) {
-    try{
+    try {
         switch($reduced) {
             case false:
                 $alphabet = '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -130,7 +130,7 @@ function base58_encode($source, $reduced = false) {
  * Decode the specified base58 string
  */
 function base58_decode($base58, $reduced = false) {
-    try{
+    try {
         switch($reduced) {
             case false:
                 $alphabet = '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';

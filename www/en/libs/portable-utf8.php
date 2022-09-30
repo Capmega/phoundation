@@ -1515,7 +1515,7 @@ function utf8_ltrim( $string = '' , $chrs = '' )
 
     $count = 0;
 
-    while( isset( $s_look[$count] ) && isset( $chrs[ $s_look[$count] ] ) )
+    while ( isset( $s_look[$count] ) && isset( $chrs[ $s_look[$count] ] ) )
     {
         ++$count;
     }
@@ -1543,7 +1543,7 @@ function utf8_rtrim( $string = '' , $chrs = '' )
 
     $len    = count( $s_look );
 
-    while( $len && isset( $chrs[ $s_look[ $len - 1 ] ] ) )
+    while ( $len && isset( $chrs[ $s_look[ $len - 1 ] ] ) )
     {
         --$len;
     }
@@ -1985,7 +1985,7 @@ function utf8_ucwords( $str )
     {
         $pos    = -1;
 
-        while( true )
+        while ( true )
         {
             if ( ( $pos = utf8_strpos( $str , $ws , $pos + 1 ) ) === false )
             {

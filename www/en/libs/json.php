@@ -18,7 +18,7 @@
 function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'die') {
     global $core;
 
-    try{
+    try {
         if (!$data) {
             $data = Arrays::force($data);
         }
@@ -113,7 +113,7 @@ function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'd
 function json_error($message, $data = null, $result = null, $http_code = 500) {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$message) {
             $message = '';
 
@@ -249,7 +249,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500) {
 function json_message($code, $data = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if (is_object($code)) {
             /*
              * This is (presumably) an exception
@@ -381,7 +381,7 @@ function json_message($code, $data = null) {
  * Custom JSON encoding function
  */
 function json_encode_custom($source, $internal = true) {
-    try{
+    try {
         if ($internal) {
             $source = json_encode($source);
 
@@ -500,7 +500,7 @@ function json_encode_custom($source, $internal = true) {
  * Validate the given JSON string
  */
 function json_decode_custom($json, $as_array = true) {
-    try{
+    try {
         if ($json === null) {
             return null;
         }

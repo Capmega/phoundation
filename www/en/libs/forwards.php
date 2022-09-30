@@ -15,7 +15,7 @@
  * Automatically executed by libs_load()
  */
 function forwards_library_init() {
-    try{
+    try {
         load_libs('iptables');
 
     }catch(Exception $e) {
@@ -32,7 +32,7 @@ function forwards_library_init() {
  * @return void
  */
 function forwards_apply_server($server) {
-    try{
+    try {
         $forwards = forwards_list($server);
 
         if ($forwards) {
@@ -55,7 +55,7 @@ function forwards_apply_server($server) {
  * @return void
  */
 function forwards_remove_server($server) {
-    try{
+    try {
         $forwards = forwards_list($server);
 
         if ($forwards) {
@@ -78,7 +78,7 @@ function forwards_remove_server($server) {
  * $return void
  */
 function forwards_apply_rule($forward, $flush = true) {
-    try{
+    try {
         if ($forward['protocol'] != 'ssh') {
             iptables_set_forward(IPTABLES_BUFFER);
             iptables_set_prerouting(IPTABLES_BUFFER,                                      'tcp', $forward['source_port'], $forward['target_port'], $forward['target_ip']);
@@ -107,7 +107,7 @@ function forwards_apply_rule($forward, $flush = true) {
  * @return boolean
  */
 function forwards_exists($forward) {
-    try{
+    try {
         /*
          * Checking if prerouting exist
          */
@@ -134,7 +134,7 @@ function forwards_exists($forward) {
  * @return integer, id for the new created record
  */
 function forwards_insert($forward, $createdby = null) {
-    try{
+    try {
         Arrays::ensure($forward, '');
         array_default($forward, 'apply', false);
 
@@ -182,7 +182,7 @@ function forwards_insert($forward, $createdby = null) {
  * @retur void
  */
 function forwards_delete($forward) {
-    try{
+    try {
         Arrays::ensure($forward , '');
         array_default($forward, 'apply', true);
 
@@ -212,7 +212,7 @@ function forwards_delete($forward) {
  * @return void
  */
 function forwards_delete_apply($forward) {
-    try{
+    try {
         if ($forward['protocol'] != 'ssh') {
             /*
              * Removing forwarding
@@ -248,7 +248,7 @@ function forwards_delete_apply($forward) {
  * @return void
  */
 function forwards_update($forward, $modifiedby = null) {
-    try{
+    try {
         Arrays::ensure($forward , '');
         array_default($forward, 'apply', true);
 
@@ -315,7 +315,7 @@ function forwards_update($forward, $modifiedby = null) {
  * @return void
  */
 function forwards_update_apply($forward, $old_forward) {
-    try{
+    try {
         /*
          * Add new rule
          */
@@ -340,7 +340,7 @@ function forwards_update_apply($forward, $old_forward) {
  * @return array
  */
 function forwards_validate($forward) {
-    try{
+    try {
         load_libs('validate');
         Arrays::ensure($forward);
 
@@ -453,7 +453,7 @@ function forwards_validate($forward) {
  * @return array
  */
 function forwards_get($forwards_id) {
-    try{
+    try {
         if (empty($forwards_id)) {
             throw new CoreException(tr('forwards_get(): No forwarding specified'), 'not-specified');
         }
@@ -504,7 +504,7 @@ function forwards_get($forwards_id) {
  * @return array
  */
 function forwards_list($server) {
-    try{
+    try {
         if (!is_numeric($server)) {
             if (!is_string($server)) {
                 throw new CoreException(tr('forwards_list(): Server ":server" is not valid. Must be an id or a hostname.'), 'invalid');
@@ -554,7 +554,7 @@ function forwards_list($server) {
  * @return void
  */
 function forwards_only_accept_traffic($forward) {
-    try{
+    try {
         /*
          * Accept traffic from source ip to target port on target_ip
          */
@@ -574,7 +574,7 @@ function forwards_only_accept_traffic($forward) {
  * @return void
  */
 function forwards_delete_list($forwards, $apply = true) {
-    try{
+    try {
         if (empty($forwards)) {
             throw new CoreException(tr('forwards_delete_list(): No forwards specified'), 'not-specified');
         }
@@ -598,7 +598,7 @@ function forwards_delete_list($forwards, $apply = true) {
  * @return void
  */
 function forwards_destroy($server) {
-    try{
+    try {
         iptables_flush_all(IPTABLES_BUFFER);
         iptables_clean_chain_nat($server);
     }catch(Exception $e) {
@@ -614,7 +614,7 @@ function forwards_destroy($server) {
  * @return array
  */
 function forwards_get_by_protocol($server, $protocol) {
-    try{
+    try {
         $forward = sql_get('SELECT     `id`,
                                        `servers_id`,
                                        `source_ip`,
@@ -646,7 +646,7 @@ function forwards_get_by_protocol($server, $protocol) {
  *
  */
 function forwards_deny_access($server) {
-    try{
+    try {
         iptalbes_drop_all($server);
     }catch(Exception $e) {
         throw new CoreException('forwards_deny_access(): Failed', $e);

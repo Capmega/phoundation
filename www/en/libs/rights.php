@@ -14,7 +14,7 @@
  * Give the specified rights to the specified users
  */
 function rights_give($users, $rights) {
-    try{
+    try {
         $users  = Arrays::force($users);
         $rights = Arrays::force($rights);
 
@@ -82,7 +82,7 @@ function rights_give($users, $rights) {
 
         foreach($users as $user) {
             foreach($rights as $right) {
-                try{
+                try {
                     /*
                      * Only add the right if the user does not yet have it
                      */
@@ -91,7 +91,7 @@ function rights_give($users, $rights) {
                     $r->execute($execute);
 
                     if (!sql_fetch($r, 'id')) {
-                        try{
+                        try {
                             $execute = array(':addedby'   => $user,
                                              ':users_id'  => $user,
                                              ':rights_id' => $right['id'],
@@ -121,7 +121,7 @@ function rights_give($users, $rights) {
  * Take the specified rights from the specified users
  */
 function rights_take($users, $rights) {
-    try{
+    try {
         $users  = Arrays::force($users);
         $rights = Arrays::force($rights);
 
@@ -176,7 +176,7 @@ function rights_take($users, $rights) {
 
         foreach($users as $user) {
             foreach($rights as $right) {
-                try{
+                try {
                     $execute = array(':users_id'  => $user,
                                      ':rights_id' => $right);
 
@@ -199,7 +199,7 @@ function rights_take($users, $rights) {
  * Return requested data for specified rights
  */
 function rights_get($right) {
-    try{
+    try {
         if (!$right) {
             throw new CoreException(tr('rights_get(): No right specified'), 'not-specified');
         }
@@ -243,7 +243,7 @@ function rights_get($right) {
 function rights_select($select = '', $name = 'rights_id', $god = true) {
     global $pdo;
 
-    try{
+    try {
         if ($retval = cache_read('rights_'.$name.'_'.$select.($god ? '_all' : ''))) {
             return $retval;
         }
@@ -274,7 +274,7 @@ function rights_select($select = '', $name = 'rights_id', $god = true) {
  * NOTE: This user ONLY checks rights, so "admin" right column in user table is also ignored!
  */
 function rights_has($user, $right) {
-    try{
+    try {
         if (is_array($user)) {
             $user = array_extract_first($user, 'id,email,name');
         }
@@ -315,7 +315,7 @@ function rights_has($user, $right) {
  *
  */
 function rights_validate($right, $old_right = null) {
-    try{
+    try {
         load_libs('validate');
 
         if ($old_right) {

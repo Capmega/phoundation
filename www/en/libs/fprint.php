@@ -24,7 +24,7 @@
  * @return void
  */
 function fprint_library_init() {
-    try{
+    try {
         load_libs('linux');
         load_config('fprint');
 
@@ -56,7 +56,7 @@ function fprint_library_init() {
 function fprint_enroll($users_id, $finger = 'auto') {
     global $_CONFIG;
 
-    try{
+    try {
         $device = fprint_pick_device();
         $finger = fprint_verify_finger($finger);
         fprint_kill($device['servers_id']);
@@ -99,7 +99,7 @@ function fprint_enroll($users_id, $finger = 'auto') {
 function fprint_verify($user, $finger = 'auto') {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('user');
         $dbuser = user_get($user);
 
@@ -149,7 +149,7 @@ function fprint_verify($user, $finger = 'auto') {
  * @return array the found users that have their finger print registered
  */
 function fprint_list_users() {
-    try{
+    try {
         $device  = fprint_pick_device();
         $results = linux_scandir($device['servers_id'], '/var/lib/fprint');
 
@@ -175,7 +175,7 @@ function fprint_list_users() {
  * @return array the users registered in the fprint database
  */
 function fprint_list($users) {
-    try{
+    try {
         $device  = fprint_pick_device();
         $results = servers_exec($device['servers_id'], array('commands' => array('fprintd-list', array('sudo' => true, str_force($users, ' ')))));
 
@@ -202,7 +202,7 @@ function fprint_list($users) {
  * @return void
  */
 function fprint_delete($user) {
-    try{
+    try {
         $device = fprint_pick_device();
 
         if (!linux_file_exists($device['servers_id'], '/var/lib/fprint/'.$user)) {
@@ -237,7 +237,7 @@ function fprint_delete($user) {
  * @return void
  */
 function fprint_kill() {
-    try{
+    try {
         $device = fprint_pick_device();
         return linux_pkill($device['servers_id'], 'fprintd', 15, true);
 
@@ -261,7 +261,7 @@ function fprint_kill() {
  * @return natural
  */
 function fprint_process() {
-    try{
+    try {
         $device = fprint_pick_device();
         return linux_pgrep($device['servers_id'], 'fprintd');
 
@@ -286,7 +286,7 @@ function fprint_process() {
  * @return string The specified finger, validated
  */
 function fprint_verify_finger($finger) {
-    try{
+    try {
         switch($finger) {
             case 'auto':
                 return '';
@@ -340,7 +340,7 @@ function fprint_verify_finger($finger) {
  * @return void
  */
 function fprint_handle_exception($e, $user) {
-    try{
+    try {
          $data = $e->getData();
 
         if ($data) {
@@ -386,7 +386,7 @@ function fprint_handle_exception($e, $user) {
  * @return
  */
 function fprint_detect_software() {
-    try{
+    try {
         $device = fprint_pick_device();
 
         if (!linux_file_exists($device['servers_id'], '/var/lib/fprint')) {
@@ -413,7 +413,7 @@ function fprint_detect_software() {
  * @return
  */
 function fprint_detect_device() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('fprint_detect_device(): Failed', $e);
@@ -440,7 +440,7 @@ function fprint_detect_device() {
 function fprint_pick_device($category = null) {
     static $device;
 
-    try{
+    try {
 // :TODO: Implement support for category / company / branch / department / employee filtering per fingerprint reader
         if (!$device) {
             load_libs('devices');
@@ -477,7 +477,7 @@ function fprint_pick_device($category = null) {
  * @return
  */
 function fprint_test_device($timeout = 0.5) {
-   try{
+   try {
         $device = fprint_pick_device();
 
         fprint_kill($device['servers_id']);

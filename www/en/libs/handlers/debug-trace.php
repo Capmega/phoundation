@@ -1,5 +1,5 @@
 <?php
-try{
+try {
     if (!debug()) {
         return array();
     }

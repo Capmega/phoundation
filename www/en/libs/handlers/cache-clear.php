@@ -4,7 +4,7 @@
  */
 global $_CONFIG;
 
-try{
+try {
     /*
      * Clear normal cache
      */

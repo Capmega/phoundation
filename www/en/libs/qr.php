@@ -14,7 +14,7 @@
  *
  */
 function qr_check() {
-    try{
+    try {
         ensure_installed(array('name'      => 'qr',
                                'callback'  => 'qr_install',
                                'checks'    => ROOT.'www/en/libs/external/php-qrcode-decoder/QrReader.php',
@@ -43,7 +43,7 @@ function qr_check() {
  * @return void
  */
 function qr_install() {
-    try{
+    try {
         load_libs('git');
 
         $path = git_clone('https://github.com/khanamiryan/php-qrcode-detector-decoder.git', TMP, true);
@@ -70,7 +70,7 @@ function qr_install() {
  * Encode the specified data in a QR image
  */
 function qr_encode($data, $height = 300, $width = 300, $provider = 'google') {
-    try{
+    try {
         switch($provider) {
             case 'google':
                 load_libs('html');
@@ -95,7 +95,7 @@ under_construction();
  * Encode the specified data in a QR image
  */
 function qr_decode($image) {
-    try{
+    try {
         qr_check();
         load_external('php-qrcode-decoder/QrReader.php');
 

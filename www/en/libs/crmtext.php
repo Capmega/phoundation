@@ -18,7 +18,7 @@ load_config('crmtext');
 //function crm_authenticate() {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        $userid     = 'userid';
 //        $passwd     = 'password';
 //        $postFields = "method=optincustomer&phone_number=9995551212&firstname=&lastname=";
@@ -53,7 +53,7 @@ load_config('crmtext');
 function crmtext_send_message($message, $phone) {
     global $_CONFIG;
 
-    try{
+    try {
         if (is_array($message)) {
             throw new CoreException(tr('crmtext_send_message(): Specified message is an array which probably indicates an MMS message, which currently is not supported for crmtext SMS'), 'not-supported');
         }
@@ -94,7 +94,7 @@ function crmtext_send_message($message, $phone) {
 function crmtext_set_callback($url = null) {
     global $_CONFIG;
 
-    try{
+    try {
         $config = $_CONFIG['crmtext'];
 
         if (!$url) {
@@ -134,7 +134,7 @@ function crmtext_set_callback($url = null) {
 function crmtext_optin($phone, $lastname = '', $firstname = '') {
     global $_CONFIG;
 
-    try{
+    try {
         $phone      = sms_no_country_phones($phone);
         $config     = $_CONFIG['crmtext'];
         $postFields = 'method=optincustomer&firstname='.$firstname.'&lastname='.$lastname.'&phone_number='.$phone;
@@ -171,7 +171,7 @@ function crmtext_optin($phone, $lastname = '', $firstname = '') {
 function crmtext_optout($phone, $lastname = '', $firstname = '') {
     global $_CONFIG;
 
-    try{
+    try {
         $phone      = sms_no_country_phones($phone);
         $config     = $_CONFIG['crmtext'];
         $postFields = 'method=optoutcustomer&firstname='.$firstname.'&lastname='.$lastname.'&phone_number='.$phone;
@@ -206,7 +206,7 @@ function crmtext_optout($phone, $lastname = '', $firstname = '') {
  * Execute the cURL request and check for initial errors, then return results
  */
 function crmtext_execute($ch, $call) {
-    try{
+    try {
         $xml = curl_exec($ch);
 
         if ($error = curl_error($ch)) {

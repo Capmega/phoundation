@@ -27,7 +27,7 @@
  * @return void
  */
 function rating_library_init() {
-    try{
+    try {
         ensure_installed(array('name'     => 'rating',
                                'callback' => 'rating_install',
                                'checks'   => array(ROOT.'pub/js/rating/rating.js',
@@ -60,7 +60,7 @@ function rating_library_init() {
  * @return void
  */
 function rating_install($params) {
-    try{
+    try {
         $css = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.css', 'ratings');
         $js  = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.js' , 'ratings');
 
@@ -86,7 +86,7 @@ function rating_install($params) {
  * Show specified rating
  */
 function rating($stars) {
-    try{
+    try {
 //    $(".star").raty({
 //        starOff: "pub/img/base/raty/star-off.png",
 //        starOn : "pub/img/base/raty/star-on.png"
@@ -104,7 +104,7 @@ function rating($stars) {
  * Recalculate and update the value for the specified rating
  */
 function rating_calculate($rating) {
-    try{
+    try {
         $average = sql_get('SELECT AVG(`ratings_votes`.`rating`) FROM `ratings_votes` WHERE `ratings_id` = :ratings_id', array(':ratings_id' => $rating['id']));
         return $average;
 
@@ -119,7 +119,7 @@ function rating_calculate($rating) {
  * Update the value for the specified rating with the specified value
  */
 function rating_update($ratings_id, $value) {
-    try{
+    try {
         if (!is_numeric($value) or ($value > 5) or ($value < 0)) {
             throw new CoreException(tr('rating_calculate(): Specified value ":value" is invalid, it should be in between 0 and 5', array(':value' => $value)), $e);
         }

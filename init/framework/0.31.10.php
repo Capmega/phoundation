@@ -13,7 +13,7 @@ sql_index_exists ('blogs_media', 'type', '!ALTER TABLE `blogs_media` ADD INDEX (
 $r = sql_query('SELECT `blogs_posts_id` FROM `blogs_media` WHERE `blogs_id` = 0 OR `blogs_id` IS NULL GROUP BY `blogs_posts_id`');
 $p = sql_prepare('UPDATE `blogs_media` SET `blogs_id` = :blogs_id WHERE `blogs_posts_id` = :blogs_posts_id');
 
-while($entry = sql_fetch($r)) {
+while ($entry = sql_fetch($r)) {
     $blogs_id = sql_get('SELECT `blogs_id` FROM `blogs_posts` WHERE `id` = :id', 'blogs_id', array(':id' => $entry['blogs_posts_id']));
 
     $p->execute(array(':blogs_posts_id' => $entry['blogs_posts_id'],

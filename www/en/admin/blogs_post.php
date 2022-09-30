@@ -107,7 +107,7 @@ if (empty($_GET['post'])) {
     $post = array('blog' => isset($blog['seoname']));
 
     if (!empty($_POST['docreate'])) {
-        try{
+        try {
             /*
              * Create the specified post
              */
@@ -181,7 +181,7 @@ if (empty($_GET['post'])) {
         /*
          * Modify the specified post
          */
-        try{
+        try {
             $post = $_POST;
             blogs_validate_post($post, $blog, $params, isset_get($_GET['post']));
 
@@ -497,7 +497,7 @@ if (empty($post['id'])) {
             /*
              * Get photo dimensions
              */
-            try{
+            try {
                 $image = getimagesize(ROOT.'www/en/photos/'.$photo['file'].'_big.jpg');
 
             }catch(Exception $e) {

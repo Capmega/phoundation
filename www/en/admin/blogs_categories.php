@@ -50,7 +50,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
         redirect(domain(http_build_url($_SERVER['REQUEST_URI'], 'doaction=add')));
 
     case tr('create'):
-        try{
+        try {
             load_libs('seo');
 
             /*
@@ -138,7 +138,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
         break;
 
     case tr('update'):
-        try{
+        try {
             load_libs('seo');
 
             /*
@@ -273,7 +273,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
         break;
 
     case tr('delete'):
-        try{
+        try {
             /*
              * Delete the specified categories
              */
@@ -303,7 +303,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
         break;
 
     case tr('undelete'):
-        try{
+        try {
             /*
              * Delete the specified categories
              */
@@ -333,7 +333,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
         break;
 
     case tr('erase'):
-        try{
+        try {
             /*
              * Delete the specified categories
              */

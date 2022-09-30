@@ -1,5 +1,5 @@
 <?php
-try{
+try {
     global $_CONFIG, $core;
 
     if ($e->getMessage() == 'could not find driver') {

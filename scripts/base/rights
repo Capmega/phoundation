@@ -33,7 +33,7 @@ switch(cli_method()) {
             log_console(tr('Showing currently available rights'), 'QUIET/white');
             log_console(str_size('Name', 20).' '.str_size('Status', 16).' Description', 'QUIET/cyan');
 
-            while($right = sql_fetch($rights)) {
+            while ($right = sql_fetch($rights)) {
                 log_console(str_size($right['name'], 20).' '.str_size(status($right['status']), 16).' '.$right['description']);
             }
         }
@@ -89,7 +89,7 @@ switch(cli_method()) {
             log_console(tr('Showing rights for user ":user"', array(':user' => name($user))), 'QUIET/white');
             log_console(str_size('Name', 16).'Description', 'QUIET/cyan');
 
-            while($right = sql_fetch($rights)) {
+            while ($right = sql_fetch($rights)) {
                 log_console(str_size($right['name'], 16).$right['description']);
             }
         }
@@ -97,7 +97,7 @@ switch(cli_method()) {
         break;
 
     case 'create':
-        try{
+        try {
             $right = cli_arguments('--name,--description');
             $right = rights_validate($right);
 
@@ -120,7 +120,7 @@ switch(cli_method()) {
         break;
 
     case 'modify':
-        try{
+        try {
             $old_right = cli_argument(1);
 
             if (!$old_right) {

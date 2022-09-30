@@ -68,7 +68,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('servers');
 
-try{
+try {
     switch(cli_method()) {
         case 'list':
             cli_no_arguments_left();
@@ -121,7 +121,7 @@ try{
             } else {
                 log_console(str_size(tr('#id'), 7).str_size(tr('Name'), 33).str_size(tr('User name'), 33).str_size(tr('Status'), 13).str_size(tr('Created by'), 32), 'QUIET/cyan');
 
-                while($account = sql_fetch($accounts)) {
+                while ($account = sql_fetch($accounts)) {
                     log_console(str_size($account['id'], 6, ' ', true).' '.str_size($account['name'], 32).' '.str_size($account['username'], 32).' '.str_size($account['status'], 12).' '.name($account, 'user'));
                 }
             }
@@ -235,7 +235,7 @@ if (empty($commands)) {
                       'commands' => array('bash'));
 }
 
-try{
+try {
     $server                     = servers_like($domain);
     $server                     = servers_get($server);
     $server['force_terminal']   = isset_get($force_terminal);

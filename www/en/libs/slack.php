@@ -30,7 +30,7 @@
  * @return void
  */
 function slack_library_init() {
-    try{
+    try {
         ensure_installed(array('name'     => 'slack',
                                'callback' => 'slack_install',
                                'checks'   => array()));
@@ -60,7 +60,7 @@ function slack_library_init() {
  * @return void
  */
 function slack_install($params) {
-    try{
+    try {
         load_libs('composer');
         composer_install('slack-client');
 
@@ -75,7 +75,7 @@ function slack_install($params) {
  * Send a message to slack
  */
 function slack_send() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('slack_send(): Failed', $e);

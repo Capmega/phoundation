@@ -15,7 +15,7 @@ if (empty($_GET['confirm'])){
     $html = tr('If you wish to unsubscribe from ###DOMAIN###, please click <a href="###HERE###">HERE</a>', array('###HERE###', '###DOMAIN###'), array(current_domain('/unsubscribe.php?code='.$_GET['code'].'&confirm=yes'), $_CONFIG['domain']));
 
 } else {
-    try{
+    try {
         load_libs('mailer,html');
 
         $recipient = mailer_get_recipient($_GET['code']);

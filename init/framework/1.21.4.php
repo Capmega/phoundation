@@ -17,10 +17,10 @@ $doubles = sql_query('SELECT   COUNT(`servers`.`id`) AS `count`,
                       GROUP BY `servers`.`hostname`');
 
 if ($doubles->rowCount()) {
-    while($double = sql_fetch($doubles)) {
+    while ($double = sql_fetch($doubles)) {
         $servers = sql_query(' SELECT `id` FROM `servers` WHERE `hostname` = :hostname', array(':hostname' => $double['hostname']));
 
-        while($servers_id = sql_fetch($servers, true)) {
+        while ($servers_id = sql_fetch($servers, true)) {
             cli_dot(1);
 
             sql_query(' DELETE FROM `servers_hostnames` WHERE `servers_id` = :servers_id', array(':servers_id' => $servers_id));

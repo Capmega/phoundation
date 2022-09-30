@@ -10,11 +10,11 @@ sql_query('UPDATE `blogs_photos` SET `priority` = NULL');
 $r = sql_query('SELECT `id` FROM `blogs_posts`');
 $p = sql_prepare('UPDATE `blogs_photos` SET `priority` = :priority WHERE `id` = :id');
 
-while($post = sql_fetch($r)) {
+while ($post = sql_fetch($r)) {
     $priority = 0;
     $s        = sql_query('SELECT `id` FROM `blogs_photos` WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $post['id']));
 
-    while($photo = sql_fetch($s)) {
+    while ($photo = sql_fetch($s)) {
         $p->execute(array(':id'       => $photo['id'],
                           ':priority' => $priority++));
     }

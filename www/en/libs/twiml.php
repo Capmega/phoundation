@@ -24,7 +24,7 @@
  * @return void
  */
 function twiml_library_init() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('twiml_library_init(): Failed', $e);
@@ -49,7 +49,7 @@ function twiml_library_init() {
  * @return void
  */
 function twiml_write($name, $data, $root = null) {
-    try{
+    try {
         if (empty($root)) {
             $root = ROOT.'twiml/';
         }
@@ -81,7 +81,7 @@ function twiml_write($name, $data, $root = null) {
  * @return
  */
 function twiml_create($params) {
-    try{
+    try {
         Arrays::ensure($params, 'root,name,type');
 
         switch($params['type']) {
@@ -119,7 +119,7 @@ function twiml_create($params) {
  * @return
  */
 function twiml_create_forward($params) {
-    try{
+    try {
         Arrays::ensure($params, 'phone_number,caller_id,fail_url,timeout,allowed_callers');
         $data = '';
 

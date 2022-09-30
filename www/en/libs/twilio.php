@@ -28,7 +28,7 @@ use Twilio\Rest\Client;
  * @return void
  */
 function twilio_library_init() {
-    try{
+    try {
         load_config('twilio');
 
     }catch(Exception $e) {
@@ -52,7 +52,7 @@ function twilio_library_init() {
  * @return void
  */
 function twilio_install() {
-    try{
+    try {
         log_console('twilio_install(): Installing Twilio library', 'cyan');
 
         /*
@@ -105,7 +105,7 @@ function twilio_install() {
  * @return object Twilio\Rest\Client\Client A Twilio client object interface
  */
 function twilio_load($source, $auto_install = true) {
-    try{
+    try {
         /*
          * Load Twilio library
          * If Twilio isnt available, then try auto install
@@ -165,7 +165,7 @@ function twilio_load($source, $auto_install = true) {
  * @return void
  */
 function twilio_name_phones($numbers, $non_numeric = null) {
-    try{
+    try {
         load_libs('sms');
 
         $numbers = sms_full_phones($numbers);
@@ -209,7 +209,7 @@ function twilio_name_phones($numbers, $non_numeric = null) {
  * @return void
  */
 function twilio_verify_source_phone($number) {
-    try{
+    try {
         load_libs('sms');
 
         $number = sms_full_phones($number);
@@ -251,7 +251,7 @@ function twilio_verify_source_phone($number) {
 function twilio_send_message($message, $to, $from = null) {
     static $account;
 
-    try{
+    try {
         $source = sql_get('SELECT `number` FROM `twilio_numbers` WHERE `number` = :number', 'number', array(':number' => $from));
 
         if (!$source) {
@@ -310,7 +310,7 @@ function twilio_send_message($message, $to, $from = null) {
  * @return void
  */
 function twilio_add_image($messages_id, $url, $mimetype) {
-    try{
+    try {
         sql_query('INSERT INTO `sms_images` (`sms_messages_id`, `url`, `mimetype`)
                    VALUES                   (:sms_messages_id , :url , :mimetype )',
 
@@ -344,7 +344,7 @@ function twilio_add_image($messages_id, $url, $mimetype) {
  * @return string The file under which the image was stored
  */
 function twilio_download_image($messages_id, $url) {
-    try{
+    try {
         $file = download($url);
         $file = file_move_to_target($file, ROOT.'data/sms/images', 'jpg');
 
@@ -385,7 +385,7 @@ function twilio_download_image($messages_id, $url) {
  * @return array The specified Twilio group data, validated and sanitized
  */
 function twilio_validate_group($group) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($group, 'name,description');
@@ -448,7 +448,7 @@ function twilio_validate_group($group) {
  * @return array The Twilio group data for the specified Twilio number
  */
 function twilio_get_group($group) {
-    try{
+    try {
         if (!$group) {
             throw new CoreException(tr('twilio_get_group(): No twilio specified'), 'not-specified');
         }
@@ -502,7 +502,7 @@ function twilio_get_group($group) {
  * @return array The specified Twilio account data, validated and sanitized
  */
 function twilio_validate_account($account) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($account, 'email,account_id,account_token');
@@ -559,7 +559,7 @@ function twilio_validate_account($account) {
  * @return array The Twilio account data for the specified Twilio number
  */
 function twilio_get_account($account) {
-    try{
+    try {
         if (!$account) {
             throw new CoreException(tr('twilio_get_account(): No twilio account specified'), 'not-specified');
         }
@@ -626,7 +626,7 @@ function twilio_get_account($account) {
  * @return array The Twilio account data for the specified Twilio number
  */
 function twilio_get_account_by_phone_number($number) {
-    try{
+    try {
         if (!$number) {
             throw new CoreException(tr('twilio_get_account_by_phone_number(): No twilio number specified'), 'not-specified');
         }
@@ -680,7 +680,7 @@ function twilio_get_account_by_phone_number($number) {
  * @return array The specified Twilio phone number data, validated and sanitized
  */
 function twilio_validate_number($number) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($number, 'email,accounts_id,account_token');
@@ -766,7 +766,7 @@ function twilio_validate_number($number) {
  * @return array All available data on the Twilio phone number
  */
 function twilio_get_number($number) {
-    try{
+    try {
         if (!$number) {
             throw new CoreException(tr('twilio_get_number(): No number specified'), 'not-specified');
         }
@@ -830,7 +830,7 @@ function twilio_get_number($number) {
  * @return array All available twilio accounts
  */
 function twilio_list_accounts() {
-    try{
+    try {
         $accounts = sql_list('SELECT `twilio_accounts`.`id`,
                                      `twilio_accounts`.`email`,
                                      `twilio_accounts`.`account_id`,
@@ -867,7 +867,7 @@ function twilio_list_accounts() {
  * @return mixed Array containing the Twilio data for the specified phone number. Returns NULL in case the number does not exist
  */
 function twilio_api_get_number($number, $array = true) {
-    try{
+    try {
         $account = twilio_get_account_by_phone_number($number);
         $client  = twilio_load($account);
         $numbers = $client->IncomingPhoneNumbers->read();
@@ -907,7 +907,7 @@ function twilio_api_get_number($number, $array = true) {
  * @return mixed The available Twilio phone numbers
  */
 function twilio_api_list_numbers($account, $array = true) {
-    try{
+    try {
         $client  = twilio_load($account);
         $numbers = $client->IncomingPhoneNumbers->read();
 
@@ -945,7 +945,7 @@ function twilio_api_list_numbers($account, $array = true) {
  * @return array The twilio number data in an associative array
  */
 function twilio_number_to_array($number) {
-    try{
+    try {
         $retval['accounts_sid']           = $number->accountSid;
         $retval['address_sid']            = $number->addressSid;
         $retval['address_requirements']   = $number->addressRequirements;
@@ -1007,7 +1007,7 @@ function twilio_number_to_array($number) {
  * @return string The HTML for the Twilio number select
  */
 function twilio_select_accounts($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name' , 'number');
         array_default($params, 'none' , tr('Select number'));
@@ -1047,7 +1047,7 @@ function twilio_select_accounts($params) {
  * @return string The HTML for the Twilio number select
  */
 function twilio_select_number($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'   , 'number');
         array_default($params, 'none'   , tr('Select number'));

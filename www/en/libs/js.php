@@ -14,7 +14,7 @@
  * Add hidden javascript flash HTML that can be activated by javascript
  */
 function js_flash($id = 'jsFlashMessage') {
-    try{
+    try {
         if (PLATFORM != 'http') {
             throw new CoreException('js_flash(): This function can only be executed on a webserver!');
         }
@@ -44,7 +44,7 @@ function js_flash($id = 'jsFlashMessage') {
  *
  */
 function js_zclip_copy($click_selector, $copy, $add_script_tag = false, $params = null) {
-    try{
+    try {
         if (is_array($add_script_tag)) {
             $params         = $add_script_tag;
             $add_script_tag = false;

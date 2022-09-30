@@ -5,7 +5,7 @@
  */
 include_once(__DIR__.'/../../../libs/startup.php');
 
-try{
+try {
     $repair = cli_argument('repair');
     $show   = cli_argument('show');
 
@@ -52,7 +52,7 @@ try{
      * Start table repair
      */
     foreach($fails as $name) {
-        try{
+        try {
             $database = Strings::until($name, '.');
             $table    = str_from ($name, '.');
 

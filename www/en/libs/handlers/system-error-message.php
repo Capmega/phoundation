@@ -2,7 +2,7 @@
 /*
  * Handler code for error_message() function
  */
-try{
+try {
     /*
      * Set some default message codes
      */

@@ -45,7 +45,7 @@
  */
 // :TODO: Update to use bound variable queries
 function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replace = '-', $first_suffix = null, $connector_name = null) {
-    try{
+    try {
         /*
          * Prepare string
          */
@@ -114,7 +114,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
         /*
          * If the seostring exists, add an identifier to it.
          */
-        while(true) {
+        while (true) {
             if (is_array($source)) {
                 /*
                  * Check on multiple columns, add identifier on first column value
@@ -172,7 +172,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
  * Return a seo appropriate string for given source string
  */
 function seo_string($source, $replace = '-') {
-    try{
+    try {
         if (str_is_utf8($source)) {
             load_libs('mb');
 
@@ -233,7 +233,7 @@ function seo_string($source, $replace = '-') {
  * DO NOT USE THESE, THESE FUNCTIONS ARE DEPRECATED AND WILL BE DROPPED IN THE NEAR FUTURE!!
  */
 function seo_create_string($source, $replace = '-') {
-    try{
+    try {
         return seo_string($source, $replace = '-');
 
     }catch(Exception $e) {
@@ -242,7 +242,7 @@ function seo_create_string($source, $replace = '-') {
 }
 
 function seo_generate_unique_name($source, $table, $ownid = null, $field = 'seoname', $replace = '-', $first_suffix = null) {
-    try{
+    try {
         return seo_unique($source, $table, $ownid, $field, $replace, $first_suffix);
 
     }catch(Exception $e) {
@@ -251,7 +251,7 @@ function seo_generate_unique_name($source, $table, $ownid = null, $field = 'seon
 }
 
 function seo_unique_string($source, $table, $ownid = null, $field = 'seoname', $replace = '-', $first_suffix = null) {
-    try{
+    try {
         return seo_unique($source, $table, $ownid, $field, $replace, $first_suffix);
 
     }catch(Exception $e) {

@@ -27,7 +27,7 @@
  * @return void
  */
 function view_library_init() {
-    try{
+    try {
         load_libs('cli');
         load_config('view');
 
@@ -53,7 +53,7 @@ function view_library_init() {
  * @return void
  */
 function view($file) {
-    try{
+    try {
         /*
          * Validate argument
          */
@@ -123,7 +123,7 @@ function view($file) {
 function view_image($file) {
     global $_CONFIG;
 
-    try{
+    try {
         switch($_CONFIG['view']['images']['default']) {
             case 'feh':
                 return view_image_feh($file);
@@ -154,7 +154,7 @@ function view_image($file) {
  * @return void
  */
 function view_image_feh($file) {
-    try{
+    try {
         if (!file_which('feh')) {
             /*
              * feh isn't installed yet, try to install it

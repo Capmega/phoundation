@@ -21,7 +21,7 @@ load_libs('notifications');
  */
 if (!function_exists('s_set_status')) {
     function s_set_status($list, $status) {
-        try{
+        try {
             $in    = sql_in($list);
             $found = sql_list('SELECT `id` FROM `notifications_classes` WHERE `id` IN ('.implode(',', array_keys($in)).') OR `name` IN ('.implode(',', array_keys($in)).')', 'id', $in);
 
@@ -52,14 +52,14 @@ if (!function_exists('s_set_status')) {
 
 
 
-try{
+try {
     cli_only();
 
     switch($method = cli_argument(0)) {
         case 'add':
             // FALLTHROUGH
         case 'create':
-            try{
+            try {
                 $class = notifications_class_validate(array('name'        => cli_argument('name'       , true),
                                                             'methods'     => cli_argument('methods'    , true),
                                                             'description' => cli_argument('description', true)));
@@ -83,7 +83,7 @@ try{
         case 'update':
             // FALLTHROUGH
         case 'modify':
-            try{
+            try {
                 $class     = cli_argument(1);
                 $old_class = sql_get('SELECT `id`, `name`, `methods`, `description` FROM `notifications_classes` WHERE `id` = :class OR `name` = :class', array(':class' => $class));
 
@@ -141,14 +141,14 @@ try{
 
             log_console('#id   Name             Methods                Members Description', '', 'white');
 
-            while($class = sql_fetch($r)) {
+            while ($class = sql_fetch($r)) {
                 log_console(str_size($class['id'], 5, ' ', true).' '.str_size($class['name'], 16).' '.str_size($class['methods'], 22).' '.str_size($class['members'], 8).' '.str_size($class['description'], 80), '');
             }
 
             break;
 
         case 'delete':
-            try{
+            try {
                 $count = s_set_status(cli_argument(null), 'delete');
                 log_console(tr('Deleted "%count%" notification classes', array('%count%' => $count)), '', 'green');
 
@@ -159,7 +159,7 @@ try{
             break;
 
         case 'undelete':
-            try{
+            try {
                 $count = s_set_status(cli_argument(null), NULL);
                 log_console(tr('Undeleted "%count%" notification classes', array('%count%' => $count)), '', 'green');
 
@@ -170,7 +170,7 @@ try{
             break;
 
         case 'erase':
-            try{
+            try {
                 $count = s_set_status(cli_argument(null), 'erase');
                 log_console(tr('Erased "%count%" notification classes', array('%count%' => $count)), '', 'green');
 

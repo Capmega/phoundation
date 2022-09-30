@@ -47,7 +47,7 @@ undelete                        - Undelete a device';
 
 require_once(__DIR__.'/../../libs/startup.php');
 
-try{
+try {
     cli_only();
     load_libs('radius');
 
@@ -112,7 +112,7 @@ try{
                             str_size(tr('Created on'), 13).
                             str_size(tr('Created by'), 32), 'QUIET/cyan');
 
-                while($device = sql_fetch($devices)) {
+                while ($device = sql_fetch($devices)) {
                     log_console(str_size($device['id'], 6, ' ', true).' '.
                                 str_size($device['assigned_user'], 20).' '.
                                 str_size($device['type'], 12).' '.

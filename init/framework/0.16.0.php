@@ -47,7 +47,7 @@ $r = sql_query  ('SELECT `id`, `password` FROM `users` WHERE `status`');
 $p = sql_prepare('INSERT INTO `passwords` (`createdby`, `users_id`, `password`)
                   VALUES                  (:createdby , :users_id , :password )');
 
-while($password = sql_fetch($r)) {
+while ($password = sql_fetch($r)) {
     $p->execute(array(':createdby' => $_SESSION['user']['id'],
                       ':users_id'  => $password['id'],
                       ':password'  => $password['password']));

@@ -40,7 +40,7 @@ test('safe_exec()', 'Function call should return this file name', function() {
 });
 
 test('safe_exec()', 'Function call which causes error exit code should cause exception', function() {
-    try{
+    try {
         safe_exec('lkjerlkfwejf');
         throw new CoreException('No exception thrown', 'notok');
 
@@ -70,7 +70,7 @@ test('load_content()', 'Function call should create content file in correct loca
 });
 
 test('load_content()', 'Function call should detect missing markers', function() {
-    try{
+    try {
         load_content('html/test', array('###BBBB###'), array("TEST"), null, null, true);
 
     }catch(Exception $e) {

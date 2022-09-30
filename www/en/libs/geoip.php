@@ -30,7 +30,7 @@
  * @return string The geo data about where this IP is registered, null if not found
  */
 function geoip_get($ip = null, $columns = '*') {
-    try{
+    try {
         if ($ip === null) {
             $ip = isset_get($_SERVER['REMOTE_ADDR']);
 
@@ -96,7 +96,7 @@ function geoip_get($ip = null, $columns = '*') {
  * @return string The country where this IP is registered, null if not found
  */
 function geoip_get_country($ip = null) {
-    try{
+    try {
         return geoip_get($ip, 'country');
 
     }catch(Exception $e) {
@@ -121,7 +121,7 @@ function geoip_get_country($ip = null) {
  * @return string The city where this IP is registered, null if not found
  */
 function geoip_get_city($ip) {
-    try{
+    try {
         return geoip_get($ip, 'city');
 
     }catch(Exception $e) {
@@ -147,7 +147,7 @@ function geoip_get_city($ip) {
  * @return boolean True if the specified IP is registered to be located in a european country, false otherwise
  */
 function geoip_is_european($ip) {
-    try{
+    try {
         $country   = geoip_get_country($ip);
         $countries = array('austria',
                            'belgium',

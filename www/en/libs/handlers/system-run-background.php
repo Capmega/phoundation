@@ -1,5 +1,5 @@
 <?php
-try{
+try {
     $args = str_from ($cmd, ' ');
     $cmd  = Strings::until($cmd, ' ');
     $path = dirname($cmd);

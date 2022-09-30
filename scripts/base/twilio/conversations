@@ -67,7 +67,7 @@ switch(cli_method()) {
                               AND   (`to_phone`         = :from_phone
                               OR     `from_phone`       = :from_phone)');
 
-            while($message = sql_fetch($r)) {
+            while ($message = sql_fetch($r)) {
                 cli_dot(100);
                 $conversation = sms_get_conversation($message['from_phone'], $message['to_phone'], $message['type'], $message['createdon'], $repliedon_now);
 
@@ -120,7 +120,7 @@ switch(cli_method()) {
                               WHERE  `id`            = :id');
         }
 
-        while($conversation = sql_fetch($r)) {
+        while ($conversation = sql_fetch($r)) {
             cli_dot(100);
 
             $msg_count  = 0;

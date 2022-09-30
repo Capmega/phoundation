@@ -23,7 +23,7 @@
  * @return void
  */
 function sql_library_init() {
-    try{
+    try {
         if (!class_exists('PDO')) {
             /*
              * Wulp, PDO class not available, PDO driver is not loaded somehow
@@ -59,7 +59,7 @@ function sql_library_init() {
 function sql_query($query, $execute = null, $connector_name = null) {
     global $core;
 
-    try{
+    try {
         log_console(tr('Executing query ":query"', array(':query' => $query)), 'VERYVERBOSE/cyan');
 
         $connector_name = sql_connector_name($connector_name);
@@ -115,7 +115,7 @@ function sql_query($query, $execute = null, $connector_name = null) {
              */
             $pdo_statement = $core->sql[$connector_name]->prepare($query);
 
-            try{
+            try {
                 $pdo_statement->execute($execute);
 
             }catch(Exception $e) {
@@ -175,7 +175,7 @@ function sql_query($query, $execute = null, $connector_name = null) {
         return $pdo_statement;
 
     }catch(Exception $e) {
-        try{
+        try {
             /*
              * Let sql_error() try and generate more understandable errors
              */
@@ -209,7 +209,7 @@ function sql_query($query, $execute = null, $connector_name = null) {
 function sql_prepare($query, $connector_name = null) {
     global $core;
 
-    try{
+    try {
         $connector_name = sql_connector_name($connector_name);
         $connector_name = sql_init($connector_name);
 
@@ -234,7 +234,7 @@ function sql_prepare($query, $connector_name = null) {
  * @return
  */
 function sql_fetch($r, $single_column = false, $fetch_style = PDO::FETCH_ASSOC) {
-    try{
+    try {
         if (!is_object($r)) {
             throw new CoreException('sql_fetch(): Specified resource is not a PDO object', 'invalid');
         }
@@ -291,7 +291,7 @@ function sql_fetch($r, $single_column = false, $fetch_style = PDO::FETCH_ASSOC) 
  * @return
  */
 function sql_get($query, $single_column = null, $execute = null, $connector_name = null) {
-    try{
+    try {
         $connector_name = sql_connector_name($connector_name);
 
         if (is_array($single_column)) {
@@ -339,7 +339,7 @@ function sql_get($query, $single_column = null, $execute = null, $connector_name
  * @return
  */
 function sql_list($query, $execute = null, $numerical_array = false, $connector_name = null) {
-    try{
+    try {
         $connector_name = sql_connector_name($connector_name);
 
         if (is_object($query)) {
@@ -352,7 +352,7 @@ function sql_list($query, $execute = null, $numerical_array = false, $connector_
 
         $retval = array();
 
-        while($row = sql_fetch($r)) {
+        while ($row = sql_fetch($r)) {
             if (is_scalar($row)) {
                 $retval[] = $row;
 
@@ -402,7 +402,7 @@ function sql_list($query, $execute = null, $numerical_array = false, $connector_
 function sql_init($connector_name = null) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         $connector_name = sql_connector_name($connector_name);
 
         if (!empty($core->sql[$connector_name])) {
@@ -447,7 +447,7 @@ function sql_init($connector_name = null) {
                  * This can be disabled by setting $_CONFIG[db][CONNECTORNAME][init] to false
                  */
                 if (!empty($_CONFIG['db'][$connector_name]['init'])) {
-                    try{
+                    try {
                         $r = $core->sql[$connector_name]->query('SELECT `project`, `framework`, `offline_until` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
 
                     }catch(Exception $e) {
@@ -466,7 +466,7 @@ function sql_init($connector_name = null) {
                         }
                     }
 
-                    try{
+                    try {
                         if (empty($r) or !$r->rowCount()) {
                             log_console(tr('sql_init(): No versions table found or no versions in versions table found, assumed empty database ":db"', array(':db' => $_CONFIG['db'][$connector_name]['db'])), 'yellow');
 
@@ -554,7 +554,7 @@ function sql_init($connector_name = null) {
 function sql_close($connector = null){
     global $_CONFIG, $core;
 
-    try{
+    try {
         $connector = sql_connector_name($connector);
         unset($core->sql[$connector]);
 
@@ -581,7 +581,7 @@ function sql_close($connector = null){
 function sql_connect(&$connector, $use_database = true){
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($connector);
         array_default($connector, 'driver' , null);
         array_default($connector, 'host'   , null);
@@ -604,8 +604,8 @@ function sql_connect(&$connector, $use_database = true){
         $connector['pdo_attributes'][PDO::MYSQL_ATTR_INIT_COMMAND]       = 'SET NAMES '.strtoupper($connector['charset']);
         $retries = 7;
 
-        while(--$retries >= 0){
-            try{
+        while (--$retries >= 0){
+            try {
                 $connect_string = $connector['driver'].':host='.$connector['host'].(empty($connector['port']) ? '' : ';port='.$connector['port']).((empty($connector['db']) or !$use_database) ? '' : ';dbname='.$connector['db']);
                 $pdo            = new PDO($connect_string, $connector['user'], $connector['pass'], $connector['pdo_attributes']);
 
@@ -661,7 +661,7 @@ function sql_connect(&$connector, $use_database = true){
             }
         }
 
-        try{
+        try {
             $pdo->query('SET time_zone = "'.$connector['timezone'].'";');
 
         }catch(Exception $e){
@@ -750,7 +750,7 @@ function sql_import($file, $connector = null){
  * @return
  */
 function sql_columns($source, $columns){
-    try{
+    try {
         if (!is_array($source)){
             throw new CoreException('sql_columns(): Specified source is not an array');
         }
@@ -782,7 +782,7 @@ function sql_columns($source, $columns){
 // *
 // */
 //function sql_set($source, $columns, $filter = 'id'){
-//    try{
+//    try {
 //        if (!is_array($source)){
 //            throw new CoreException('sql_set(): Specified source is not an array', 'invalid');
 //        }
@@ -831,7 +831,7 @@ function sql_columns($source, $columns){
  * @return
  */
 function sql_values($source, $columns, $prefix = ':'){
-    try{
+    try {
         if (!is_array($source)){
             throw new CoreException('sql_values(): Specified source is not an array');
         }
@@ -868,7 +868,7 @@ function sql_values($source, $columns, $prefix = ':'){
 function sql_insert_id($connector = null){
     global $core;
 
-    try{
+    try {
         $connector = sql_connector_name($connector);
         return $core->sql[sql_connector_name($connector)]->lastInsertId();
 
@@ -891,7 +891,7 @@ function sql_insert_id($connector = null){
  * @return
  */
 function sql_get_id_or_name($entry, $seo = true, $code = false){
-    try{
+    try {
         if (is_array($entry)){
             if (!empty($entry['id'])){
                 $entry = $entry['id'];
@@ -965,13 +965,13 @@ function sql_get_id_or_name($entry, $seo = true, $code = false){
  * @return
  */
 function sql_unique_id($table, $column = 'id', $max = 10000000, $connector = null){
-    try{
+    try {
         $connector = sql_connector_name($connector);
 
         $retries    =  0;
         $maxretries = 50;
 
-        while(++$retries < $maxretries){
+        while (++$retries < $maxretries){
             $id = mt_rand(1, $max);
 
             if (!sql_get('SELECT `'.$column.'` FROM `'.$table.'` WHERE `'.$column.'` = :id', array(':id' => $id), null, $connector)){
@@ -1000,7 +1000,7 @@ function sql_unique_id($table, $column = 'id', $max = 10000000, $connector = nul
  * @return
  */
 function sql_filters($params, $columns, $table = ''){
-    try{
+    try {
         $retval  = array('filters' => array(),
                          'execute' => array());
 
@@ -1039,7 +1039,7 @@ function sql_filters($params, $columns, $table = ''){
  * @return
  */
 function sql_in($source, $column = ':value', $filter_null = false, $null_string = false){
-    try{
+    try {
         if (empty($source)){
             throw new CoreException(tr('sql_in(): Specified source is empty'), 'not-specified');
         }
@@ -1069,7 +1069,7 @@ function sql_in($source, $column = ':value', $filter_null = false, $null_string 
  * @return string a comma delimeted string of columns
  */
 function sql_in_columns($in, $column_starts_with = null){
-    try{
+    try {
         if ($column_starts_with){
             /*
              * Only return those columns that start with this string
@@ -1102,7 +1102,7 @@ function sql_in_columns($in, $column_starts_with = null){
  * @return
  */
 function sql_get_cached($key, $query, $column = false, $execute = false, $expiration_time = 86400, $connector = null){
-    try{
+    try {
         $connector = sql_connector_name($connector);
 
         if (($value = memcached_get($key, 'sql_')) === false){
@@ -1157,7 +1157,7 @@ function sql_get_cached($key, $query, $column = false, $execute = false, $expira
  * @return
  */
 function sql_list_cached($key, $query, $execute = false, $numerical_array = false, $connector = null, $expiration_time = 86400){
-    try{
+    try {
         $connector = sql_connector_name($connector);
 
         if (($list = memcached_get($key, 'sql_')) === false){
@@ -1191,7 +1191,7 @@ function sql_list_cached($key, $query, $execute = false, $numerical_array = fals
  * @return
  */
 function sql_fetch_column($r, $column){
-    try{
+    try {
         $row = sql_fetch($r);
 
         if (!isset($row[$column])){
@@ -1222,7 +1222,7 @@ function sql_fetch_column($r, $column){
  * @return array The specified datab ase entry, updated with all the data from the specified $_POST entry
  */
 function sql_merge($database_entry, $post, $skip = null){
-    try{
+    try {
         if (!$post){
             /*
              * No post was done, there is nothing to merge
@@ -1293,7 +1293,7 @@ function sql_merge($database_entry, $post, $skip = null){
 function sql_connector_name($connector_name){
     global $_CONFIG, $core;
 
-    try{
+    try {
         if (!$connector_name){
             $connector_name = $core->register('sql_connector');
 
@@ -1333,7 +1333,7 @@ function sql_connector_name($connector_name){
  * @return
  */
 function sql_is($value, $label, $not = false){
-    try{
+    try {
         if ($not){
             if ($value === null){
                 return ' IS NOT '.$label.' ';
@@ -1367,7 +1367,7 @@ function sql_is($value, $label, $not = false){
  * @return
  */
 function sql_log($enable){
-    try{
+    try {
         if ($enable){
             sql_query('SET global log_output = "FILE";');
             sql_query('SET global general_log_file="/var/log/mysql/queries.log";');
@@ -1396,7 +1396,7 @@ function sql_log($enable){
  * @return
  */
 function sql_exists($table, $column, $value, $id = null){
-    try{
+    try {
         if ($id){
             return sql_get('SELECT `id` FROM `'.$table.'` WHERE `'.$column.'` = :'.$column.' AND `id` != :id', true, array($column => $value, ':id' => $id));
         }
@@ -1427,7 +1427,7 @@ function sql_exists($table, $column, $value, $id = null){
 function sql_count($table, $where = '', $execute = null, $column = '`id`'){
     global $_CONFIG;
 
-    try{
+    try {
         load_config('sql_large');
 
         $expires = $_CONFIG['sql_large']['cache']['expires'];
@@ -1480,7 +1480,7 @@ function sql_count($table, $where = '', $execute = null, $column = '`id`'){
  * @return
  */
 function sql_current_database(){
-    try{
+    try {
         return sql_get('SELECT DATABASE() AS `database` FROM DUAL;');
 
     }catch(Exception $e){
@@ -1502,12 +1502,12 @@ function sql_current_database(){
  * @return
  */
 function sql_random_id($table, $min = 1, $max = 2147483648, $connector_name = null){
-    try{
+    try {
         $connector_name = sql_connector_name($connector_name);
         $exists         = true;
         $timeout        = 50; // Don't do more than 50 tries on this!
 
-        while($exists and --$timeout > 0){
+        while ($exists and --$timeout > 0){
             $id     = mt_rand($min, $max);
             $exists = sql_query('SELECT `id` FROM `'.$table.'` WHERE `id` = :id', array(':id' => $id), $connector_name);
         }
@@ -1534,7 +1534,7 @@ function sql_random_id($table, $min = 1, $max = 2147483648, $connector_name = nu
  * @return
  */
 function sql_exec($server, $query, $root = false, $simple_quotes = false){
-    try{
+    try {
         load_libs('servers');
 
         $query = addslashes($query);
@@ -1568,7 +1568,7 @@ function sql_exec($server, $query, $root = false, $simple_quotes = false){
         /*
          * Make sure the password file gets removed!
          */
-        try{
+        try {
             sql_delete_password_file($server);
 
         }catch(Exception $e){
@@ -1592,7 +1592,7 @@ function sql_exec($server, $query, $root = false, $simple_quotes = false){
 // * @return array
 // */
 //function sql_exec_get($server, $query, $root = false, $simple_quotes = false){
-//    try{
+//    try {
 //
 //    }catch(Exception $e){
 //        throw new CoreException(tr('sql_exec_get(): Failed'), $e);
@@ -1613,7 +1613,7 @@ function sql_exec($server, $query, $root = false, $simple_quotes = false){
  * @return
  */
 function sql_get_database($db_name){
-    try{
+    try {
         $database = sql_get('SELECT    `databases`.`id`,
                                        `databases`.`servers_id`,
                                        `databases`.`status`,
@@ -1672,7 +1672,7 @@ function sql_get_database($db_name){
 function sql_get_connector($connector_name){
     global $_CONFIG;
 
-    try{
+    try {
         if (!is_natural($connector_name)){
             /*
              * Connector was specified by name
@@ -1760,7 +1760,7 @@ function sql_get_connector($connector_name){
 function sql_make_connector($connector_name, $connector){
     global $_CONFIG;
 
-    try{
+    try {
         if (empty($connector['ssh_tunnel'])){
             $connector['ssh_tunnel'] = array();
         }
@@ -1799,7 +1799,7 @@ function sql_make_connector($connector_name, $connector){
  * @return array The specified connector data with all fields available
  */
 function sql_ensure_connector($connector){
-    try{
+    try {
         $template = array('driver'           => 'mysql',
                           'host'             => '127.0.0.1',
                           'port'             => null,
@@ -1852,7 +1852,7 @@ function sql_ensure_connector($connector){
 function sql_test_tunnel($server){
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('servers');
 
         $connector_name = 'test';
@@ -1913,7 +1913,7 @@ function sql_error($e, $query, $execute, $sql){
 function sql_valid_limit($limit, $connector = null){
     global $_CONFIG;
 
-    try{
+    try {
         $connector = sql_connector_name($connector);
         $limit     = force_natural($limit);
 
@@ -1944,7 +1944,7 @@ function sql_valid_limit($limit, $connector = null){
  * @return string The SQL " LIMIT X, Y " string
  */
 function sql_limit($limit = null, $page = null){
-    try{
+    try {
         load_libs('paging');
 
         if (!$limit){
@@ -1979,7 +1979,7 @@ function sql_limit($limit = null, $page = null){
  * @return
  */
 function sql_where_null($value, $not = false){
-    try{
+    try {
         if ($value === null){
             if ($not){
                 return ' IS NOT NULL ';
@@ -2016,7 +2016,7 @@ function sql_where_null($value, $not = false){
  * @return string The SQL " WHERE.... " string
  */
 function sql_simple_where($column, $values, $not = false, $extra = null){
-    try{
+    try {
         $extra  = '';
         $table  = Strings::until($column, '.', 0, 0, true);
         $column = str_from ($column, '.');
@@ -2076,7 +2076,7 @@ function sql_simple_where($column, $values, $not = false, $extra = null){
  * @return params The execute array corrected
  */
 function sql_simple_execute($column, $values, $extra = null){
-    try{
+    try {
         if (!$values){
             return $extra;
         }
@@ -2135,7 +2135,7 @@ function sql_simple_execute($column, $values, $extra = null){
  * @return string The WHERE string
  */
 function sql_get_where_string($filters, &$execute, $table, $combine = null){
-    try{
+    try {
         $where = '';
 
         if (!is_array($filters)){
@@ -2175,7 +2175,7 @@ function sql_get_where_string($filters, &$execute, $table, $combine = null){
              * ! will make it a NOT filter
              * # will allow arrays
              */
-            while(true){
+            while (true){
                 switch($key[0]){
                     case '*':
                         /*
@@ -2400,7 +2400,7 @@ function sql_get_where_string($filters, &$execute, $table, $combine = null){
  * @return string The columns with column quotes
  */
 function sql_get_columns_string($columns, $table){
-    try{
+    try {
         /*
          * Validate the columns
          */
@@ -2459,7 +2459,7 @@ function sql_get_columns_string($columns, $table){
  * @return string The columns with column quotes
  */
 function sql_get_orderby_string($orderby){
-    try{
+    try {
         /*
          * Validate the columns
          */
@@ -2529,7 +2529,7 @@ function sql_get_orderby_string($orderby){
  * @return mixed The entries from the requested table
  */
 function sql_simple_list($params){
-    try{
+    try {
         Arrays::ensure($params, 'joins,debug,limit,page,combine');
 
         if (empty($params['table'])){
@@ -2618,7 +2618,7 @@ function sql_simple_list($params){
  * @return mixed The entries from the requested table
  */
 function sql_simple_get($params){
-    try{
+    try {
         Arrays::ensure($params, 'joins,debug,combine');
 
         if (empty($params['table'])){

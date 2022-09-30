@@ -28,7 +28,7 @@
  * @return void
  */
 function files_library_init() {
-    try{
+    try {
         load_config('files');
 
     }catch(Exception $e) {
@@ -55,7 +55,7 @@ function files_library_init() {
 function files_insert($file, $require_unique = false) {
     global $_CONFIG;
 
-    try{
+    try {
         if (is_string($file)) {
             $file = array('filename' => $file,
                           'original' => basename($file));
@@ -144,7 +144,7 @@ function files_insert($file, $require_unique = false) {
  * Delete a file
  */
 function files_delete($file, $base_path = ROOT.'data/files/') {
-    try{
+    try {
         $dbfile = files_get($file);
 
         if (!$dbfile) {
@@ -169,7 +169,7 @@ function files_delete($file, $base_path = ROOT.'data/files/') {
  * Retrieve history for specified file
  */
 function files_get_history($file) {
-    try{
+    try {
         $meta_id = sql_get('SELECT `meta_id` FROM `files` WHERE `name` = :name, `hash` = :hash', true, array(':name' => $file, ':hash' => $file));
 
         if (!$meta_id) {
@@ -203,7 +203,7 @@ function files_get_history($file) {
  * @return mixed The file data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified file does not exist, NULL will be returned.
  */
 function files_get($params) {
-    try{
+    try {
         Arrays::ensure($params, 'filename');
 
         array_default($params, 'filters', array('filename' => $params['filename']));
@@ -243,7 +243,7 @@ function files_get($params) {
  * @return mixed The list of available templates
  */
 function files_list($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'columns', 'hash,filename');
         array_default($params, 'orderby', array('filename' => 'asc'));
@@ -271,7 +271,7 @@ function files_list($params) {
  * @return natural The amount of orphaned files, and orphaned `files` entries found and processed
  */
 function files_search_orphans() {
-    try{
+    try {
         $root       = ROOT.'data/files/';
         $quarantine = $root.'quarantine/orphans/';
         $files      = files_list(array('columns' => 'filename,hash',
@@ -334,7 +334,7 @@ function files_search_orphans() {
  * @return natural The amount of orphaned files, and orphaned `files` entries found and processed
  */
 function files_clear_quarantine($section = null) {
-    try{
+    try {
         $path = ROOT.'data/files';
 
         if ($section) {

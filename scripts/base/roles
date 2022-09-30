@@ -35,7 +35,7 @@ switch(cli_method()) {
 
             log_console(str_size('#id', 6).' '.str_size('Name', 20).' '.str_size('Status', 16).' Rights', 'QUIET/cyan');
 
-            while($role = sql_fetch($roles)) {
+            while ($role = sql_fetch($roles)) {
                 $rights = sql_list('SELECT    `rights`.`name`
 
                                     FROM      `roles_rights`
@@ -66,7 +66,7 @@ switch(cli_method()) {
 
             log_console(str_size('#id', 6).' '.str_size('Name', 20).' '.str_size('Status', 16).' Description', 'QUIET/cyan');
 
-            while($role = sql_fetch($roles)) {
+            while ($role = sql_fetch($roles)) {
                 log_console(str_size($role['id'], 6, ' ', true).' '.str_size($role['name'], 20).' '.str_size(status($role['status']), 16).' '.$role['description']);
             }
         }
@@ -74,7 +74,7 @@ switch(cli_method()) {
         break;
 
     case 'create':
-        try{
+        try {
             $role = cli_arguments('--name,--description');
             $role = roles_validate($role);
 
@@ -97,7 +97,7 @@ switch(cli_method()) {
         break;
 
     case 'modify':
-        try{
+        try {
             $old_role_id = cli_argument(1);
             $role        = cli_arguments('--name,--description');
 

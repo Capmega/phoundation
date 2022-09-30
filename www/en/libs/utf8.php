@@ -34,7 +34,7 @@
  * @return   string The escaped string
  */
 function utf8_escape($string) {
-    try{
+    try {
         return Zend_Utf8::escape((string) $string);
 
     }catch(Exception $e) {
@@ -55,7 +55,7 @@ function utf8_escape($string) {
  * @return   string The unescaped string
  */
 function utf8_unescape($string) {
-    try{
+    try {
         return Zend_Utf8::unescape($string);
 
     }catch(Exception $e) {
@@ -2069,7 +2069,7 @@ class Zend_Utf8
 
         $count = 0;
 
-        while( isset( $s_look[$count] ) && isset( $chrs[ $s_look[$count] ] ) )
+        while ( isset( $s_look[$count] ) && isset( $chrs[ $s_look[$count] ] ) )
         {
             ++$count;
         }
@@ -2097,7 +2097,7 @@ class Zend_Utf8
 
         $len    = count( $s_look );
 
-        while( $len && isset( $chrs[ $s_look[ $len - 1 ] ] ) )
+        while ( $len && isset( $chrs[ $s_look[ $len - 1 ] ] ) )
         {
             --$len;
         }
@@ -2539,7 +2539,7 @@ class Zend_Utf8
         {
             $pos    = -1;
 
-            while( true )
+            while ( true )
             {
                 if ( ( $pos = utf8_strpos( $str , $ws , $pos + 1 ) ) === false )
                 {

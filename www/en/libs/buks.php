@@ -16,7 +16,7 @@
  * Automatically executed by libs_load()
  */
 function buks_library_init() {
-    try{
+    try {
         load_libs('openssl');
 under_construction();
 
@@ -32,7 +32,7 @@ under_construction();
  * specified password
  */
 function buks_get_key($section, $users_id, $password) {
-    try{
+    try {
         $key = sql_query('SELECT `key` FROM `buks` WHERE `section` = :section AND `users_id` = :users_id AND `status` IS NULL', true, array('section' => $section, ':users_id' => $users_id));
 
         if (!$key) {
@@ -58,7 +58,7 @@ function buks_get_key($section, $users_id, $password) {
  * Add a new buks key for the specified section for the specified user
  */
 function buks_add_key($section, $password, $users_id, $existing_password = null, $existing_users_id = null) {
-    try{
+    try {
         $exists = sql_get('SELECT `id` FROM `buks` WHERE `section` = :section AND `users_id` = :users_id', array(':section' => $section, ':users_id' => $users_id));
 
         if ($exists) {
@@ -105,14 +105,14 @@ function buks_add_key($section, $password, $users_id, $existing_password = null,
  * Update the password for all buks keys for the specified user
  */
 function buks_update_password($old_password, $new_password, $users_id = null) {
-    try{
+    try {
         if (!$users_id) {
             $users_id = $_SESSION['user']['id'];
         }
 
         $sections = sql_query();
 
-        while($section = sql_fetch($sections)) {
+        while ($section = sql_fetch($sections)) {
             $key = buks_get_key($section, $users_id, $old_password);
             $key = open_ssl_encrypt($key, $new_password);
 
@@ -132,7 +132,7 @@ function buks_update_password($old_password, $new_password, $users_id = null) {
  *
  */
 function buks_encrypt($data, $section, $password, $user = null) {
-    try{
+    try {
         /*
          * Get users_id from specified user
          */
@@ -182,7 +182,7 @@ function buks_encrypt($data, $section, $password, $user = null) {
  *
  */
 function buks_decrypt($data, $section, $password, $user = null) {
-    try{
+    try {
         /*
          * Get users_id from specified user
          */

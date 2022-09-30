@@ -24,7 +24,7 @@
  * @return void
  */
 function dig_library_init() {
-    try{
+    try {
         if (!file_which('dig')) {
             throw new CoreException(tr('dig_library_init(): The "dig" command was not found. To install "dig" on ubuntu, please execute "sudo apt-get install dnsutils"'), 'not-exists');
         }
@@ -50,7 +50,7 @@ function dig_library_init() {
  * @return
  */
 function dig_install($params) {
-    try{
+    try {
         $params['methods'] = array('apt-get' => array('commands'  => 'sudo apt-get install dnsutils'));
         return install($params);
 
@@ -74,7 +74,7 @@ function dig_install($params) {
  * @return string the cleaned up line data
  */
 function dig_clean_line($line) {
-    try{
+    try {
         $line = trim($line);
         $line = str_replace("\t", ' ', $line);
         $line = Strings::from($line, ' ');
@@ -103,7 +103,7 @@ function dig_clean_line($line) {
  * @return array IP's reported by dig
  */
 function dig($hostname, $command, $dns_server = null) {
-    try{
+    try {
         $results = safe_exec(array('commands' => array('dig', array($command, ($dns_server ? '@'.$dns_server : ''), $hostname))));
         $start   = false;
         $stop    = false;
@@ -154,7 +154,7 @@ function dig($hostname, $command, $dns_server = null) {
  * @return array IP's reported by dig
  */
 function dig_a($hostname, $dns_server = null) {
-    try{
+    try {
         return dig('', $hostname, $dns_server);
 
     }catch(Exception $e) {
@@ -178,7 +178,7 @@ function dig_a($hostname, $dns_server = null) {
  * @return array IP's reported by dig
  */
 function dig_mx($hostname, $dns_server = null) {
-    try{
+    try {
         return dig('MX', $hostname, $dns_server);
 
     }catch(Exception $e) {

@@ -17,7 +17,7 @@
  * Validate the specified htpassd filename
  */
 function htpasswd_validate($file) {
-    try{
+    try {
         $basefile = basename($file);
 
         if ($basefile != '.htpasswd') {
@@ -35,7 +35,7 @@ function htpasswd_validate($file) {
  * Create htpasswd file with the specified data
  */
 function htpasswd_create($file, $username, $password) {
-    try{
+    try {
         htpasswd_validate($file);
 
     }catch(Exception $e) {
@@ -49,7 +49,7 @@ function htpasswd_create($file, $username, $password) {
  * Update the htpasswd file with the specified user
  */
 function htpasswd_update($file) {
-    try{
+    try {
         htpasswd_validate($file);
 
     }catch(Exception $e) {
@@ -63,7 +63,7 @@ function htpasswd_update($file) {
  * Create htpasswd file with the specified data
  */
 function htpasswd_list($file) {
-    try{
+    try {
         htpasswd_validate($file);
 
     }catch(Exception $e) {
@@ -77,7 +77,7 @@ function htpasswd_list($file) {
  * Authenticate the specified username with the specified password using the specified .htpasswd file
  */
 function htpasswd_authenticate($file, $username, $password) {
-    try{
+    try {
         htpasswd_validate($file);
 
     }catch(Exception $e) {

@@ -16,7 +16,7 @@
  * Automatically executed by libs_load()
  */
 function uxdm_library_init() {
-    try{
+    try {
         // Github URL https://github.com/DivineOmega/uxdm.git
         // Composer command composer require divineomega/uxdm
 

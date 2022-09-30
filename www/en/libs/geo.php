@@ -22,7 +22,7 @@
  * @return void
  */
 function geo_library_init() {
-    try{
+    try {
         load_config('geo');
 
     }catch(Exception $e) {
@@ -44,7 +44,7 @@ function geo_library_init() {
  * @param $params
  */
 function geo_countries_select($params) {
-    try{
+    try {
         array_params ($params);
         array_default($params, 'class'       , '');
         array_default($params, 'disabled'    , false);
@@ -87,7 +87,7 @@ function geo_countries_select($params) {
  * @param $params
  */
 function geo_states_select($params) {
-    try{
+    try {
         array_params ($params);
         array_default($params, 'selected'        , '');
         array_default($params, 'class'           , '');
@@ -143,7 +143,7 @@ function geo_states_select($params) {
  * @param $params
  */
 function geo_cities_select($params) {
-    try{
+    try {
         array_params ($params);
         array_default($params, 'selected'     , '');
         array_default($params, 'class'        , '');
@@ -197,7 +197,7 @@ function geo_cities_select($params) {
  * @return mixed
  */
 function geo_get_country($country, $single_column = false) {
-    try{
+    try {
         if (is_numeric($country)) {
             $where   = ' WHERE `id` = :id AND `status` IS NULL';
             $execute = array(':id' => $country);
@@ -274,7 +274,7 @@ function geo_get_country($country, $single_column = false) {
  * @return mixed
  */
 function geo_get_state($state, $country = null, $single_column = false) {
-    try{
+    try {
         if (is_numeric($state)) {
             $where   = ' WHERE `id` = :id AND `status` IS NULL';
             $execute = array(':id' => $state);
@@ -357,7 +357,7 @@ function geo_get_state($state, $country = null, $single_column = false) {
  * @return mixed
  */
 function geo_get_city($city, $state = null, $country = null, $single_column = false) {
-    try{
+    try {
         if (is_numeric($city)) {
             $where   = ' WHERE `id` = :id AND `status` IS NULL';
             $execute = array(':id' => $city);
@@ -468,7 +468,7 @@ function geo_get_city($city, $state = null, $country = null, $single_column = fa
 function geo_get_city_from_ip($ip = null, $filters = null, $single_column = false) {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$ip) {
             $ip = $_SERVER['REMOTE_ADDR'];
         }
@@ -509,7 +509,7 @@ function geo_get_city_from_ip($ip = null, $filters = null, $single_column = fals
 function geo_get_country_from_location($latitude, $longitude, $single_column = false) {
     global $_CONFIG;
 
-    try{
+    try {
         if ($single_column) {
             $country = sql_get('SELECT   `'.$single_column.'`,
                                          BASE_DISTANCE(`latitude`, `longitude`, :latitude, :longitude) AS `distance`
@@ -595,7 +595,7 @@ function geo_get_country_from_location($latitude, $longitude, $single_column = f
 function geo_get_state_from_location($latitude, $longitude, $single_column = false) {
     global $_CONFIG;
 
-    try{
+    try {
         if ($single_column) {
             $state = sql_get('SELECT     `'.$single_column.'`,
                                          BASE_DISTANCE(`latitude`, `longitude`, :latitude, :longitude) AS `distance`
@@ -671,7 +671,7 @@ function geo_get_state_from_location($latitude, $longitude, $single_column = fal
 function geo_get_city_from_location($latitude, $longitude, $filters = null, $single_column = false) {
     global $_CONFIG;
 
-    try{
+    try {
         $execute = array(':latitude'  => $latitude,
                          ':longitude' => $longitude);
 
@@ -817,7 +817,7 @@ function geo_get_city_from_location($latitude, $longitude, $filters = null, $sin
  * @param $ip
  */
 function geo_get_location_from_city($city) {
-    try{
+    try {
         $location['city']    = $city;
         $location['state']   = geo_get_state($city['states_id']);
         $location['country'] = geo_get_country($city['countries_id']);
@@ -851,7 +851,7 @@ function geo_get_location_from_city($city) {
 function geo_detect_client_location($params = null) {
     global $_CONFIG;
 
-    try{
+    try {
         html_load_js('base/base');
 
         Arrays::ensure($params);
@@ -907,7 +907,7 @@ function geo_detect_client_location($params = null) {
  * @return array
  */
 function geo_validate($geo) {
-    try{
+    try {
         load_libs('validate');
 
         if (isset($geo['coords'])) {
@@ -1026,7 +1026,7 @@ function geo_validate($geo) {
  * @return array The specified $geo data, possibly expanded, if specified so
  */
 function geo_set_session($geo, $expand_location = true) {
-    try{
+    try {
         $geo = geo_validate($geo);
 
         if ($expand_location) {
@@ -1071,7 +1071,7 @@ function geo_set_session($geo, $expand_location = true) {
  * @return boolean true if the geo database has been loaded
  */
 function geo_loaded() {
-    try{
+    try {
         $count = sql_get('SELECT COUNT(`id`) AS `count` FROM `geo_cities`', true);
         return (boolean) $count;
 
@@ -1112,7 +1112,7 @@ function geo_distance(float $latA, float $lonA, float $latB, float $lonB) {
  * OBSOLETE FUNCTIONS
  */
 function geo_get_nearest_city($latitude, $longitude, $filters = null, $single_column = false) {
-    try{
+    try {
         return geo_get_city_from_location($latitude, $longitude, $filters, $single_column);
 
     }catch(CoreException $e) {

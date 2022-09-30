@@ -12,7 +12,7 @@
  * Empty function
  */
 function empty_function() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('empty(): Failed', $e);

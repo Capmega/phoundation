@@ -31,7 +31,7 @@
  *
  */
 function storage_url($url, $section = null, $page = null, $language = null) {
-    try{
+    try {
         if (!$language) {
             $language = LANGUAGE;
         }
@@ -66,7 +66,7 @@ function storage_url($url, $section = null, $page = null, $language = null) {
  * section id
  */
 function storage_ensure_section($section) {
-    try{
+    try {
         if (is_array($section)) {
             return $section;
         }

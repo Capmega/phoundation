@@ -11,7 +11,7 @@ $limit     = sql_valid_limit(isset_get($_GET['limit']), $std_limit);
 /*
  * Process requested actions
  */
-try{
+try {
     switch(isset_get($_POST['action'])) {
         case '':
             break;
@@ -341,7 +341,7 @@ if (!$r->rowCount()) {
                             <th>'.tr('Commentary').'</th>
                         </thead>';
 
-    while($user = sql_fetch($r)) {
+    while ($user = sql_fetch($r)) {
         $a = '<a href="'.domain('/admin/user.php?user='.$user['username']).'">';
 
         $html .= '  <tr>

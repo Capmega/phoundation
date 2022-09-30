@@ -1,7 +1,7 @@
 <?php
 global $_CONFIG, $core;
 
-try{
+try {
     if ($trace_offset === null) {
         if (PLATFORM_HTTP) {
             $trace_offset = 3;
@@ -118,7 +118,7 @@ try{
         die(tr('show() command at ":file@:line" failed with ":e"', array(':file' => current_file($trace_offset), ':line' => current_line($trace_offset), ':e' => $e->getMessage())));
     }
 
-    try{
+    try {
         notify($e);
 
     }catch(Exception $e) {

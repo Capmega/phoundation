@@ -16,7 +16,7 @@
  * Convert the specified PDF file to string text
  */
 function pdf_string($file) {
-    try{
+    try {
         $textArray = array ();
         $objStart  = 0;
 
@@ -52,7 +52,7 @@ function pdf_string($file) {
  * Extract plain string text from the specified postscript data
  */
 function pdf_extract_text($postscript_data) {
-    try{
+    try {
         while ((($textStart = strpos($postscript_data, '(', $textStart)) && ($textEnd = strpos($postscript_data, ')', $textStart + 1)) && substr($postscript_data, $textEnd - 1) != '\\')) {
             $plainText .= substr($postscript_data, $textStart + 1, $textEnd - $textStart - 1);
 

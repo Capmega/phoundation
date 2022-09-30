@@ -110,7 +110,7 @@ function fonts_providers($provider = null) {
                               'betterfontfinder'  => false,
                               'fontviewer'        => false);
 
-    try{
+    try {
         if ($provider) {
             if (empty($providers[$provider])) {
                 throw new CoreException(tr('fonts_providers(): Unknown provider ":provider" specified'), 'unknown');
@@ -132,7 +132,7 @@ function fonts_providers($provider = null) {
  * Convert ufpdf font to normal ttf font file
  */
 function fonts_convert_ufpdf($params) {
-    try{
+    try {
 under_construction();
         Arrays::ensure($params);
         ensure_key($params, 'font'	 , '');

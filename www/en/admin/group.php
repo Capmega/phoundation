@@ -83,7 +83,7 @@ if (!empty($_POST['dosubmit'])) {
 /*
  * Process group actions
  */
-try{
+try {
     load_libs('seo');
 
     if (isset_get($_POST['docreate'])) {
@@ -162,7 +162,7 @@ try{
                              array(':reference_number' => $member), 'id');
 
             if (!empty($user)) {
-                try{
+                try {
                     /*
                      * Insert the user and the group
                      */
@@ -324,7 +324,7 @@ echo ca_page($html, $params);
  *
  */
 function s_validate_group(&$group) {
-    try{
+    try {
         $v = new validate_form($group, 'name,description');
 
         $v->isNotEmpty  ($group['name']     , tr('Please provide a name'));

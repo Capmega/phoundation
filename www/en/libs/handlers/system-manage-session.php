@@ -1,5 +1,5 @@
 <?php
-try{
+try {
     /*
      * Correctly detect the remote IP
      */
@@ -176,7 +176,7 @@ try{
     /*
      * Set session and cookie parameters
      */
-    try{
+    try {
         if ($_CONFIG['sessions']['enabled']) {
             /*
              * Force session cookie configuration
@@ -269,7 +269,7 @@ try{
                     /*
                      *
                      */
-                    try{
+                    try {
                         if (isset($_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
                             if (!is_string($_COOKIE[$_CONFIG['sessions']['cookie_name']]) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
                                 log_file(tr('Received invalid cookie ":cookie", dropping', array(':cookie' => $_COOKIE[$_CONFIG['sessions']['cookie_name']])), 'manage-session', 'yellow');
@@ -320,7 +320,7 @@ try{
                         /*
                          * Session startup failed. Clear session and try again
                          */
-                        try{
+                        try {
                             session_regenerate_id(true);
 
                         }catch(Exception $e) {
@@ -413,7 +413,7 @@ try{
                         $_SESSION['user']['timezone'] = $_CONFIG['timezone']['display'];
 
                     } else {
-                        try{
+                        try {
                             $check = new DateTimeZone($_SESSION['user']['timezone']);
 
                         }catch(Exception $e) {

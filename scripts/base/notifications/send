@@ -10,7 +10,7 @@ $help  = "Send event notifications to the specified classes";
 $quiet = true;
 require_once(__DIR__.'/../../../libs/startup.php');
 
-try{
+try {
     cli_only();
 
     $class   = cli_argument(0);

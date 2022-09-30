@@ -39,7 +39,7 @@ if (empty($_CONFIG['deploy'][$target])) {
 $deploy_config = $_CONFIG['deploy'][$target];
 $target_dir    = cli_argument('--target-dir', true, isset_get($deploy_config['target_dir'], ROOT));
 
-try{
+try {
     if (empty($_CONFIG['deploy'][$target])) {
         throw new CoreException(tr('Specified target environment ":target" has no deploy configuration $_CONFIG[deploy][:target] in ":ROOTconfig/deploy.php"', array(':target' => $target, ':ROOT' => ROOT)), 'missing-configuration');
     }

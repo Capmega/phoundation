@@ -28,7 +28,7 @@
  * @return void
  */
 function coinpayments_library_init() {
-    try{
+    try {
         load_config('coinpayments');
 
     }catch(Exception $e) {
@@ -45,7 +45,7 @@ function coinpayments_library_init() {
 function coinpayments_call($command, $post = array()) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('curl');
 
         /*
@@ -111,7 +111,7 @@ function coinpayments_call($command, $post = array()) {
 function coinpayments_get_ipn_transaction() {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('validate');
         $v = new ValidateForm($_POST, 'createdon,modifiedon,users_id,status,status_text,type,mode,currency,confirms,api_transactions_id,tx_id,merchant,address,amount,amounti,amount_btc,amount_usd,amount_usd_rounded,fee,feei,exchange_rate,description,data');
 
@@ -167,7 +167,7 @@ function coinpayments_get_ipn_transaction() {
  * Make the call to the coinpayment system
  */
 function coinpayments_get_account_info() {
-    try{
+    try {
         $results = coinpayments_call('get_basic_info');
 
         return $results;
@@ -183,7 +183,7 @@ function coinpayments_get_account_info() {
  * Make the call to the coinpayment system
  */
 function coinpayments_get_rates($currencies = null) {
-    try{
+    try {
         $results = coinpayments_call('rates');
 
         if ($currencies) {
@@ -211,7 +211,7 @@ function coinpayments_get_rates($currencies = null) {
  * Get balances (for specified coin, if needed)
  */
 function coinpayments_get_balances($currencies = true) {
-    try{
+    try {
         if ($currency === true) {
             $results = coinpayments_call('balances', array('all' => 1));
 
@@ -244,7 +244,7 @@ function coinpayments_get_balances($currencies = true) {
  * Get balances (for specified coin, if needed)
  */
 function coinpayments_get_address($currency) {
-    try{
+    try {
         $results = coinpayments_call('get_deposit_address', array('currency' => $currency));
 
         return $results;
@@ -260,7 +260,7 @@ function coinpayments_get_address($currency) {
  * Get balances (for specified coin, if needed)
  */
 function coinpayments_get_deposit_address($currency, $callback_url = null) {
-    try{
+    try {
         if (!$callback_url) {
             $callback_url = domain('/api/coinpayments');
         }

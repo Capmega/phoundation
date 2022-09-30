@@ -30,7 +30,7 @@
 function paging_library_init() {
     global $core, $_CONFIG;
 
-    try{
+    try {
         if (PLATFORM_HTTP) {
             $core->register['limit'] = isset_get($_GET['limit']);
             $core->register['page']  = isset_get($_GET['page']);
@@ -74,7 +74,7 @@ function paging_library_init() {
 function paging_generate($params) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
 
         array_default($params, 'current'       , isset_get($_GET['page']));
@@ -236,7 +236,7 @@ function paging_generate($params) {
 function paging_check_page($page, $page_max) {
     global $_CONFIG;
 
-    try{
+    try {
         $checked_page = force_natural($page, 1);
 
         if (($page and ($checked_page != $page)) or ($page > $page_max)) {
@@ -264,7 +264,7 @@ function paging_check_page($page, $page_max) {
 function paging_data($page, $limit, $rows) {
     global $_CONFIG;
 
-    try{
+    try {
         $retval['default_limit'] = $_CONFIG['paging']['limit'];
         $retval['limit']         = paging_limit($limit, $retval['default_limit']);
         $retval['display_limit'] = (($_CONFIG['paging']['limit'] == $retval['limit']) ? '' : $retval['limit']);
@@ -308,7 +308,7 @@ function paging_data($page, $limit, $rows) {
  * Return the correct URL for the specified page
  */
 function paging_get_url($url, $page = null, $disabled = false) {
-    try{
+    try {
         if ($disabled) {
             return '#';
         }
@@ -356,7 +356,7 @@ function paging_get_url($url, $page = null, $disabled = false) {
 function paging_limit($limit = null, $default_limit = null) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         if ($limit === 0) {
             return 0;
         }
@@ -399,7 +399,7 @@ function paging_limit($limit = null, $default_limit = null) {
 function paging_page($page = null) {
     global $core;
 
-    try{
+    try {
         if (!$page) {
             $page = $core->register('page');
         }

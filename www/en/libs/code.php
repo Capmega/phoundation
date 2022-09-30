@@ -30,7 +30,7 @@
  * @return void
  */
 function code_library_init() {
-    try{
+    try {
         load_libs('git');
 
     }catch(Exception $e) {
@@ -58,7 +58,7 @@ function code_library_init() {
 function code_locate_phoundation() {
     static $found;
 
-    try{
+    try {
         if (!$found) {
             $paths = array(ROOT.'../phoundation/',
                            ROOT.'../../phoundation/',
@@ -82,7 +82,7 @@ function code_locate_phoundation() {
                          * ensuring the first Phoundation commit hash is
                          * available
                          */
-                        try{
+                        try {
                             $result = git_show('290071b81e7bebab9c43aa1fd3a8b691ca1f9695', $path, array('check' => true));
                             $found  = Strings::slash(realpath($path));
 
@@ -134,7 +134,7 @@ function code_locate_phoundation() {
 function code_locate_toolkit() {
     static $found;
 
-    try{
+    try {
         if (!$found) {
             $paths = array(ROOT.'../toolkit.capmega.com/',
                            ROOT.'../../capmega/toolkit.capmega.com/',
@@ -157,7 +157,7 @@ function code_locate_toolkit() {
                          * Check if its really the Toolkit repository by
                          * ensuring the first Toolkit commit hash is available
                          */
-                        try{
+                        try {
                             $result = git_show('290071b81e7bebab9c43aa1fd3a8b691ca1f9695', $path, array('check' => true));
                             $found  = Strings::slash(realpath($path));
 
@@ -209,7 +209,7 @@ function code_locate_toolkit() {
  * @return array Return the available versions for the git project
  */
 function code_phoundation_fetch($params = null) {
-    try{
+    try {
         $path    = code_locate_phoundation();
         $results = git_fetch($path, $params);
 
@@ -238,7 +238,7 @@ function code_phoundation_fetch($params = null) {
  * @return array Return the available versions for the git project
  */
 function code_phoundation_branch_is_tag($branch = null) {
-    try{
+    try {
         $path    = code_locate_phoundation();
         $results = git_branch_is_tag($branch, $path);
 
@@ -267,7 +267,7 @@ function code_phoundation_branch_is_tag($branch = null) {
  * @return array Return the available versions for the git project
  */
 function code_phoundation_pull($remote = 'origin', $branch = null) {
-    try{
+    try {
         $path    = code_locate_phoundation();
         $results = git_pull($path, $remote, $branch);
 
@@ -307,7 +307,7 @@ function code_phoundation_pull($remote = 'origin', $branch = null) {
  * @return array Return the current branch for the phoundation project
  */
 function code_phoundation_checkout($branch) {
-    try{
+    try {
         $path   = code_locate_phoundation();
         $branch = git_checkout($branch, $path);
 
@@ -336,7 +336,7 @@ function code_phoundation_checkout($branch) {
  * @return array Return the available versions for the git project
  */
 function code_phoundation_branch($branch = null) {
-    try{
+    try {
         $path   = code_locate_phoundation();
         $branch = git_branch($branch, $path);
 
@@ -363,7 +363,7 @@ function code_phoundation_branch($branch = null) {
  * @return array Return the available versions for the git project
  */
 function code_phoundation_status() {
-    try{
+    try {
         $path   = code_locate_phoundation();
         $status = git_status($path);
 
@@ -391,7 +391,7 @@ function code_phoundation_status() {
  * @return string the version line for the specified version
  */
 function code_get_version_line($version) {
-    try{
+    try {
         return Strings::untilReverse($version, '.');
 
     }catch(Exception $e) {
@@ -416,7 +416,7 @@ function code_get_version_line($version) {
  * @return array Return the available branches for the phoundation project
  */
 function code_get_phoundation_branch_lines() {
-    try{
+    try {
         $path     = code_locate_phoundation();
         $branches = code_get_branch_lines($path);
 
@@ -445,7 +445,7 @@ function code_get_phoundation_branch_lines() {
  * @return array Return the available version lines for the phoundation project
  */
 function code_get_phoundation_lines() {
-    try{
+    try {
         $path = code_locate_phoundation();
         $tags = code_get_available_lines($path);
 
@@ -475,7 +475,7 @@ function code_get_phoundation_lines() {
  * @return array Return the available versions for the phoundation project
  */
 function code_get_phoundation_versions($version_lines = null) {
-    try{
+    try {
         $path = code_locate_phoundation();
         $tags = code_get_available_versions($path, $version_lines);
 
@@ -505,7 +505,7 @@ function code_get_phoundation_versions($version_lines = null) {
  * @return array Return the framework version for the phoundation project
  */
 function code_bump_phoundation_framework_version() {
-    try{
+    try {
         $path     = code_locate_phoundation();
         $version  = code_get_framework_version($path);
         $line     = Strings::untilReverse($version, '.');
@@ -541,7 +541,7 @@ function code_bump_phoundation_framework_version() {
  * @return array Return the framework version for the phoundation project
  */
 function code_get_phoundation_framework_version() {
-    try{
+    try {
         $path    = code_locate_phoundation();
         $version = code_get_framework_version($path);
 
@@ -570,7 +570,7 @@ function code_get_phoundation_framework_version() {
  * @return array Return the current project version for the phoundation project
  */
 function code_get_phoundation_project_version() {
-    try{
+    try {
         $path    = code_locate_phoundation();
         $version = code_get_project_version($path);
 
@@ -598,7 +598,7 @@ function code_get_phoundation_project_version() {
  * @return array Return the available branches for the git project
  */
 function code_get_branch_lines($path = ROOT) {
-    try{
+    try {
         $branches = git_list_branches($path, true);
 
         foreach($branches as $id => $branch) {
@@ -633,7 +633,7 @@ function code_get_branch_lines($path = ROOT) {
  * @return array Return the available version lines for the git project
  */
 function code_get_available_lines($path = ROOT) {
-    try{
+    try {
         $tags   = git_list_tags($path);
         $retval = array();
 
@@ -672,7 +672,7 @@ function code_get_available_lines($path = ROOT) {
  * @return array Return the available version for the git project
  */
 function code_get_available_versions($path = ROOT, $version_lines = null) {
-    try{
+    try {
         $tags   = git_list_tags($path);
         $retval = array();
 
@@ -716,7 +716,7 @@ function code_get_available_versions($path = ROOT, $version_lines = null) {
  * @return string The current version for the specified Phoundation type  project path
  */
 function code_get_framework_version($path = ROOT) {
-    try{
+    try {
         $file = Strings::slash($path).'libs/system.php';
 
         if (!file_exists($file)) {
@@ -753,7 +753,7 @@ function code_get_framework_version($path = ROOT) {
  * @return string The current version for the specified Phoundation type  project path
  */
 function code_update_framework_version($version, $path = ROOT) {
-    try{
+    try {
         $file = Strings::slash($path).'libs/system.php';
 
         if (!file_exists($file)) {
@@ -786,7 +786,7 @@ function code_update_framework_version($version, $path = ROOT) {
  * @return string The current version for the specified Phoundation type  project path
  */
 function code_get_project_version($path = ROOT) {
-    try{
+    try {
         $file = Strings::slash($path).'config/project.php';
 
         if (!file_exists($file)) {
@@ -825,7 +825,7 @@ function code_get_project_version($path = ROOT) {
  * @return boolean True if the specified file exists in the Toolkit project, false if not
  */
 function code_file_exists_in_phoundation($file) {
-    try{
+    try {
         $path = code_locate_phoundation();
         return file_exists($path.$file);
 
@@ -852,7 +852,7 @@ function code_file_exists_in_phoundation($file) {
  * @return boolean True if the specified file exists in the Toolkit project, false if not
  */
 function code_file_exists_in_toolkit($file) {
-    try{
+    try {
         $path = code_locate_toolkit();
         return file_exists($path.$file);
 
@@ -881,7 +881,7 @@ function code_file_exists_in_toolkit($file) {
  * @return string The difference between the two files
  */
 function code_diff($file, $file2) {
-    try{
+    try {
         return safe_exec(array('ok_exitcodes' => 1,
                                'commands'     => array('diff', array($file, $file2))));
 
@@ -909,7 +909,7 @@ function code_diff($file, $file2) {
  * @return string The difference between the two files
  */
 function code_diff_phoundation($file) {
-    try{
+    try {
         $path = code_locate_phoundation();
         return code_diff(ROOT.$file, $path.$file);
 
@@ -937,7 +937,7 @@ function code_diff_phoundation($file) {
  * @return string The difference between the two files
  */
 function code_diff_toolkit($file) {
-    try{
+    try {
         $path = code_locate_toolkit();
         return code_diff(ROOT.$file, $path.$file);
 
@@ -970,7 +970,7 @@ function code_diff_toolkit($file) {
  * @return string The patch result, either "patched", "created" or "deleted"
  */
 function code_patch($params) {
-    try{
+    try {
         Arrays::ensure($params, 'file,source_path,target_path,replaces,clean,restrictions');
         array_default($params, 'method'     , 'apply');
         array_default($params, 'source_path', ROOT);

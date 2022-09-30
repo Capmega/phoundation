@@ -28,7 +28,7 @@
  * @return void
  */
 function stream_library_init() {
-    try{
+    try {
         load_config('stream');
 
     }catch(Exception $e) {
@@ -59,7 +59,7 @@ function stream_library_init() {
 function stream($params) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params, 'file,mimetype');
         array_default($params, 'strict'       , $_CONFIG['stream']['strict']);
         array_default($params, 'cache_max_age', $_CONFIG['stream']['cache_max_age']);
@@ -128,7 +128,7 @@ function stream($params) {
  * @return void
  */
 function stream_open(&$params) {
-    try{
+    try {
         if (empty($params['file'])) {
             throw new CoreException(tr('stream_open(): No file specified'), 'not-specified');
         }
@@ -175,7 +175,7 @@ function stream_open(&$params) {
  * @param params $params The streaming parameters array
  */
 function stream_close($params) {
-    try{
+    try {
         Arrays::ensure($params);
 
         array_default($params, 'die', true);
@@ -212,7 +212,7 @@ function stream_close($params) {
  * @param params $params The streaming parameters array
  */
 function stream_audio($params) {
-    try{
+    try {
 under_construction('Audio streaming is still under construction');
         stream_audio_send_headers($params);
         stream_audio_send($params);
@@ -240,7 +240,7 @@ under_construction('Audio streaming is still under construction');
  * @param params $params The streaming parameters array
  */
 function stream_video($params) {
-    try{
+    try {
         stream_video_data_headers($params);
         stream_video_data($params);
         stream_end($params);
@@ -269,7 +269,7 @@ function stream_video($params) {
  * return void
  */
 function stream_video_data_headers($params) {
-    try{
+    try {
         Arrays::ensure($params, 'mimetype,cache_max_age,start,end,size');
 
         if (empty($params['resource'])) {
@@ -360,7 +360,7 @@ function stream_video_data_headers($params) {
 function stream_video_data($params) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'buffer', $_CONFIG['stream']['buffer']);
 
@@ -379,7 +379,7 @@ function stream_video_data($params) {
         set_time_limit(0);
         $i = $params['start'];
 
-        while(!feof($params['resource']) && $i <= $params['end']) {
+        while (!feof($params['resource']) && $i <= $params['end']) {
             $bytesToRead = $params['buffer'];
 
             if (($i + $bytesToRead) > $params['end']) {

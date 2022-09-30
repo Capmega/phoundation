@@ -30,7 +30,7 @@
  * @return string HTML for a environments select box within the specified parameters
  */
 function environments_select($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name' , 'environment');
         array_default($params, 'empty', tr('No environments available'));

@@ -16,7 +16,7 @@
 function google_get_avatar($user) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('image,user');
 
         if (is_array($user)) {
@@ -66,7 +66,7 @@ function google_get_avatar($user) {
  * @obsolete analytics_google()
  */
 function google_get_analytics($code) {
-    try{
+    try {
         load_libs('analytics');
         return analytics_google($code);
 

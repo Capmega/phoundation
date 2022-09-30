@@ -27,7 +27,7 @@
  * @return void
  */
 function whatsapp_library_init() {
-    try{
+    try {
         ensure_installed(array('name'     => 'whatsapp',
                                'callback' => 'whatsapp_install',
                                'checks'   => array(ROOT.'libs/external/whatsapp/')));

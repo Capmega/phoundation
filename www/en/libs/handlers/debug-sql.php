@@ -1,7 +1,7 @@
 <?php
 global $core;
 
-try{
+try {
     if (is_array($execute)) {
         /*
          * Reverse key sort to ensure that there are keys that contain at least parts of other keys will not be used incorrectly

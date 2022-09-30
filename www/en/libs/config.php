@@ -23,7 +23,7 @@
  * @return array
  */
 function config_get_for_environment($environment) {
-    try{
+    try {
         include(ROOT.'config/base/default.php');
         include(ROOT.'config/production.php');
         include(ROOT.'config/deploy.php');
@@ -66,7 +66,7 @@ function config_get_for_environment($environment) {
  * @example config_read('production', 'email') will return the configuration contents for the file ROOT/config/production_email.php
  */
 function config_read($environment, $section = null) {
-    try{
+    try {
         load_libs('array-tokenizer');
 
         if ($section) {
@@ -169,7 +169,7 @@ function config_read($environment, $section = null) {
  * @param $section
  */
 function config_write($data, $environment, $section = false) {
-    try{
+    try {
         $lines = array();
 
         if ($section) {
@@ -233,7 +233,7 @@ function config_write($data, $environment, $section = false) {
 function config_update($environment, $keys, $value) {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$keys) {
             throw new CoreException(tr('config_update(): No keys specified. Please specify a valid configuration key set'), 'not-specified');
         }
@@ -319,7 +319,7 @@ function config_update($environment, $keys, $value) {
  * @return array Returns an array with the lines for the specified key / value converted into PHP code
  */
 function config_lines($key, $value, $config_string = '$_CONFIG') {
-    try{
+    try {
         $lines = array();
 
         if (array_key_exists('__value__', $value)) {
@@ -360,7 +360,7 @@ function config_lines($key, $value, $config_string = '$_CONFIG') {
  * $return void
  */
 function config_write_project($project, $project_code_version, $seed) {
-    try{
+    try {
         $data = '<?php
 /*
  * Set some very very basic system variables. These are the only "configurable" variables outside
@@ -411,7 +411,7 @@ function config_write_project($project, $project_code_version, $seed) {
 function config_exists($file) {
     static $paths;
 
-    try{
+    try {
         if (!$paths) {
             $paths = array(ROOT.'config/base/',
                            ROOT.'config/production',

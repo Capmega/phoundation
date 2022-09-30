@@ -22,7 +22,7 @@
  * @return void
  */
 function email_servers_library_init() {
-    try{
+    try {
         load_libs('linux');
 
     }catch(Exception $e) {
@@ -53,7 +53,7 @@ function email_servers_library_init() {
  * @return The specified email server, validated
  */
 function email_servers_validate($email_server) {
-    try{
+    try {
         load_libs('validate,seo,domains,servers');
 
         $v = new ValidateForm($email_server, 'id,domain,server_seodomain,description');
@@ -122,7 +122,7 @@ function email_servers_validate($email_server) {
  * @return params The specified email server, validated and sanitized
  */
 function email_servers_insert($server) {
-    try{
+    try {
         $server = email_servers_validate($server);
 
         sql_query('INSERT INTO `email_servers` (`createdby`, `meta_id`, `domains_id`, `servers_id`, `domain`, `seodomain`, `description`)
@@ -166,7 +166,7 @@ function email_servers_insert($server) {
  * @return params The specified email server, validated and sanitized
  */
 function email_servers_update($server) {
-    try{
+    try {
         $server   = email_servers_validate($server);
         $dbserver = email_servers_get($server['id']);
 
@@ -223,7 +223,7 @@ function email_servers_update($server) {
  * @return mixed The email_server data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified email_server does not exist, NULL will be returned.
  */
 function email_servers_get($params) {
-    try{
+    try {
         array_params($params, 'seodomain', 'id');
 
         $params['table']     = 'email_servers';
@@ -281,7 +281,7 @@ function email_servers_get($params) {
  * @return mixed The list of available email_servers
  */
 function email_servers_list($params = null) {
-    try{
+    try {
         array_params($params, 'status');
 
         $params['table']     = 'email_servers';
@@ -325,7 +325,7 @@ function email_servers_list($params = null) {
  * @return string HTML for a email_servers select box within the specified parameters
  */
 function email_servers_select($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'    , 'seodomain');
         array_default($params, 'class'   , 'form-control');
@@ -377,7 +377,7 @@ function email_servers_select($params = null) {
  * @return params The specified domain validated and sanitized
  */
 function email_servers_validate_domain($domain) {
-    try{
+    try {
         load_libs('validate,seo,customers');
 
         $v = new ValidateForm($domain, 'id,name,seocustomer,description');
@@ -446,7 +446,7 @@ function email_servers_validate_domain($domain) {
  * @return params The specified email domain, validated and sanitized
  */
 function email_servers_insert_domain($domain) {
-    try{
+    try {
         $domain = email_servers_validate_domain($domain);
 
         sql_query('INSERT INTO `domains` (`name`, `seoname`, `customer`, `description`)
@@ -481,7 +481,7 @@ function email_servers_insert_domain($domain) {
  * @return params The specified email account, validated and sanitized
  */
 function email_servers_update_domain($domain) {
-    try{
+    try {
         $domain   = email_servers_validate_domain($domain);
         $update   = sql_query('UPDATE `domains`
 
@@ -524,7 +524,7 @@ function email_servers_update_domain($domain) {
  * @return mixed The email_server data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified email_server does not exist, NULL will be returned.
  */
 function email_servers_get_domain($params) {
-    try{
+    try {
         array_params($params, 'seoname', 'id');
 
         $params['table'] = 'domains';
@@ -564,7 +564,7 @@ function email_servers_get_domain($params) {
  * @return mixed The list of available email_servers
  */
 function email_servers_list_domains($params) {
-    try{
+    try {
         array_params($params, 'status');
 
         $params['table'] = 'domains';
@@ -595,7 +595,7 @@ function email_servers_list_domains($params) {
  * @return mixed The list of available email servers and domains
  */
 function email_servers_scan_domains($params = null) {
-    try{
+    try {
         if (isset($_SESSION['cache']['mail_servers'])) {
             return $_SESSION['cache']['mail_servers'];
         }
@@ -616,7 +616,7 @@ function email_servers_scan_domains($params = null) {
         $retval      = array();
         $mailservers = email_servers_list(array('columns' => 'seodomain,domain,servers_id'));
 
-        while($mailserver = sql_fetch($mailservers)) {
+        while ($mailserver = sql_fetch($mailservers)) {
             /*
              * Setup the database connector for this email server
              */
@@ -644,7 +644,7 @@ function email_servers_scan_domains($params = null) {
             /*
              * Add the domains where this customer has access to
              */
-            while($domain = sql_fetch($domains)) {
+            while ($domain = sql_fetch($domains)) {
                 $retval[$mailserver['seodomain']][$domain['seoname']] = $domain['name'];
             }
         }
@@ -686,7 +686,7 @@ function email_servers_scan_domains($params = null) {
  * @return string HTML for a email_servers select box within the specified parameters
  */
 function email_servers_select_domain($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'         , 'seodomain');
         array_default($params, 'class'        , 'form-control');
@@ -755,7 +755,7 @@ function email_servers_select_domain($params = null) {
  * @return The specified email account, validated
  */
 function email_servers_validate_account($account) {
-    try{
+    try {
         load_libs('email,seo,servers,domains');
 
         $v = new ValidateForm($account, 'id,email,server,domain,password,max_size,description');
@@ -766,7 +766,7 @@ function email_servers_validate_account($account) {
         /*
          * Validate the server
          */
-        try{
+        try {
             $account['servers_id'] = servers_like($account['server']);
             $account['servers_id'] = servers_get ($account['servers_id'], false, true, true);
 
@@ -896,7 +896,7 @@ function email_servers_validate_account($account) {
  * @return params The specified email account, validated and sanitized
  */
 function email_servers_insert_account($account) {
-    try{
+    try {
         $account  = email_servers_validate_account($account);
         $password = 'ENCRYPT(:password, CONCAT("$6$", SUBSTRING(SHA(RAND()), -16)))';
 
@@ -942,7 +942,7 @@ function email_servers_insert_account($account) {
  * @return params The specified email account, validated and sanitized
  */
 function email_servers_update_account($account) {
-    try{
+    try {
         $account = email_servers_validate_account($account);
         $update  = sql_query('UPDATE `accounts`
 
@@ -983,7 +983,7 @@ function email_servers_update_account($account) {
  * @return void
  */
 function email_servers_update_password($account, $password) {
-    try{
+    try {
         $update = sql_query('UPDATE `accounts`
 
                              SET    `password` = ENCRYPT(:password, CONCAT("$6$", SUBSTRING(SHA(RAND()), -16)))
@@ -1014,7 +1014,7 @@ function email_servers_update_password($account, $password) {
  * @return array An array with mailbox => bytes format
  */
 function email_servers_list_mailbox_sizes($server, $domain) {
-    try{
+    try {
         if (!filter_var($domain, FILTER_VALIDATE_DOMAIN)) {
             throw new CoreException(tr('email_servers_list_mailbox_sizes(): Specified domain ":domain" is not a valid domain', array(':domain' => $domain)), 'invalid');
         }
@@ -1066,7 +1066,7 @@ function email_servers_list_mailbox_sizes($server, $domain) {
  * @return array An array with all accounts that had issues in the format $key => $value email-address (or domain) => issue
  */
 function email_servers_check($server, $fix = true) {
-    try{
+    try {
         $failed['seodomains'] = email_servers_check_seo(array('fix'    => $fix,
                                                               'server' => $server,
                                                               'table'  => 'domains'));
@@ -1113,7 +1113,7 @@ function email_servers_check($server, $fix = true) {
  * @return array An array with all orphaned directories
  */
 function email_servers_check_seo($params) {
-    try{
+    try {
         load_libs('seo');
 
         Arrays::ensure($params, 'server,domain,rerun');
@@ -1130,7 +1130,7 @@ function email_servers_check_seo($params) {
         $failed  = array();
         $domains = sql_query('SELECT `id`, `'.$params['column'].'`, `seo'.$params['column'].'` FROM `'.$params['table'].'`');
 
-        while($domain = sql_fetch($domains)) {
+        while ($domain = sql_fetch($domains)) {
             if ($domain['seo'.$params['column']] === seo_string($domain[$params['column']])) {
                 /*
                  * Seo name maches, we're done!
@@ -1213,7 +1213,7 @@ function email_servers_check_seo($params) {
  * @return array An array with all orphaned directories
  */
 function email_servers_check_orphans($server, $add = true) {
-    try{
+    try {
         log_console(tr('Checking for orphaned email account data'), 'cyan');
 
         $retval  = array();
@@ -1224,7 +1224,7 @@ function email_servers_check_orphans($server, $add = true) {
             $accounts = linux_ls($server, '/var/mail/vhosts/'.$domain, true);
 
             foreach($accounts as $account) {
-                try{
+                try {
                     $exists = sql_get('SELECT `id`, `status` FROM `accounts` WHERE `email` = :email', array(':email' => $account.'@'.$domain));
 
                     if (!$exists) {

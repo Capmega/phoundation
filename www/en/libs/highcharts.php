@@ -15,7 +15,7 @@
  */
 // :OBSOLETE: This library is obsolete, see the library graph-highcharts
 function highchart_line($params) {
-    try{
+    try {
         $params['type'] = 'line';
         load_libs('graph-highcharts');
         obsolete();

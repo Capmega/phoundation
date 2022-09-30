@@ -26,7 +26,7 @@
  * @return void
  */
 function scanimage_library_init() {
-    try{
+    try {
         load_config('scanimage');
         load_libs('linux,image,devices');
 
@@ -57,14 +57,14 @@ function scanimage_library_init() {
  * @return string the file name for the scanned image
  */
 function scanimage($params) {
-    try{
+    try {
         $server = servers_get($params['domain']);
         $params = scanimage_validate($params);
 
         /*
          * Finish scan command and execute it
          */
-        try{
+        try {
             if ($params['domain'] !== '') {
                 load_libs('rsync');
             }
@@ -196,7 +196,7 @@ function scanimage($params) {
             $line = '';
 
             if (is_array($data)) {
-                while($data) {
+                while ($data) {
                     $line = array_shift($data);
                     $line = strtolower($line);
                     $line = trim($line);
@@ -291,7 +291,7 @@ function scanimage($params) {
 function scanimage_validate($params) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('validate');
 
         $v       = new ValidateForm($params, 'sudo,source,domain,device,batch,jpeg_quality,format,file,timeout,buffer_size,options');
@@ -574,7 +574,7 @@ function scanimage_validate($params) {
  * @return array All found scanner devices
  */
 function scanimage_list() {
-    try{
+    try {
         /*
          * Get device data from cache
          */
@@ -604,7 +604,7 @@ function scanimage_list() {
  * @return array All found scanner devices
  */
 function scanimage_detect_devices($server = null, $sudo = false) {
-    try{
+    try {
         $scanners = servers_exec($server, array('timeout'  => 90,
                                                 'commands' => array('scanimage', array('sudo' => $sudo, '-L', '-q'))));
         $devices  = array();
@@ -657,7 +657,7 @@ function scanimage_detect_devices($server = null, $sudo = false) {
                 /*
                  * Get device options
                  */
-                try{
+                try {
                     $device['options'] = scanimage_get_options($device['string'], $server, $sudo);
 
                 }catch(Exception $e) {
@@ -723,7 +723,7 @@ function scanimage_detect_devices($server = null, $sudo = false) {
 // * @return array All found scanner devices
 // */
 //function scanimage_update_devices() {
-//    try{
+//    try {
 //        load_libs('devices');
 //        devices_clear('scanner');
 //
@@ -733,7 +733,7 @@ function scanimage_detect_devices($server = null, $sudo = false) {
 //        foreach($scanners as $scanner) {
 //            unset($options);
 //
-//            try{
+//            try {
 //                $scanner = devices_insert($scanner, 'scanner');
 //                log_console(tr('Added device ":device" with device string ":string"', array(':device' => $scanner['description'], ':string' => $scanner['string'])), 'green');
 //
@@ -751,7 +751,7 @@ function scanimage_detect_devices($server = null, $sudo = false) {
 //                continue;
 //            }
 //
-//            try{
+//            try {
 //                $options = scanimage_get_options($scanner['string']);
 //                $count   = devices_insert_options($scanner['id'], $options);
 //
@@ -823,7 +823,7 @@ function scanimage_detect_devices($server = null, $sudo = false) {
  * @return
  */
 function scanimage_get_options($device, $server = null, $sudo = false) {
-    try{
+    try {
         $results = servers_exec($server, array('commands' => array('scanimage', array('sudo' => $sudo, '-A', '-d', $device))));
         $retval  = array();
 
@@ -1023,10 +1023,10 @@ function scanimage_get_options($device, $server = null, $sudo = false) {
  * @return
  */
 function scanimage_get_default() {
-    try{
+    try {
         $scanners = scanimage_list();
 
-        while($scanner = sql_fetch($scanners)) {
+        while ($scanner = sql_fetch($scanners)) {
             if ($scanner['default']) {
                 $scanner = scanimage_get($scanner['seostring'], $scanner['servers_id']);
                 return $scanner;
@@ -1055,7 +1055,7 @@ function scanimage_get_default() {
  * @return array All found data for the specified device
  */
 function scanimage_get($device, $server = null) {
-    try{
+    try {
         if (!$device) {
             /*
              * No specific device specified, use the default
@@ -1096,7 +1096,7 @@ function scanimage_get($device, $server = null) {
  * @return string The HTML for the select box
  */
 function scanimage_select($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'      , 'scanner');
         array_default($params, 'autosubmit', true);
@@ -1139,7 +1139,7 @@ function scanimage_select($params) {
  * @return string The HTML for the resolution select box
  */
 function scanimage_select_resolution($params) {
-    try{
+    try {
         Arrays::ensure($params, 'string');
         array_default($params, 'name'      , 'scanner');
         array_default($params, 'autosubmit', true);
@@ -1188,7 +1188,7 @@ function scanimage_select_resolution($params) {
  * @return natural The amount of processes found
  */
 function scanimage_runs($device, $server = null) {
-    try{
+    try {
         if (!$device) {
             throw new CoreException(tr('scanimage_runs(): No device specified'), 'not-specified');
         }
@@ -1243,7 +1243,7 @@ function scanimage_runs($device, $server = null) {
  * @return void()
  */
 function scanimage_kill($device, $server = null, $hard = false) {
-    try{
+    try {
         if (!$device) {
             throw new CoreException(tr('scanimage_kill(): No device specified'), 'not-specified');
         }

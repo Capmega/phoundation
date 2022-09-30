@@ -832,7 +832,7 @@ class simple_html_dom_node
                 elseif ($c >= 192) $bits=2;
                 else return false;
                 if (($i+$bits) > $len) return false;
-                while($bits > 1)
+                while ($bits > 1)
                 {
                     $i++;
                     $b=ord($str[$i]);

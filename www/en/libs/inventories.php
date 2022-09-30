@@ -27,7 +27,7 @@
  * @return void
  */
 function inventories_library_init() {
-    try{
+    try {
         load_config('inventories');
 
     }catch(Exception $e) {
@@ -50,7 +50,7 @@ function inventories_library_init() {
  * @return array The validated and cleaned $item array
  */
 function inventories_validate($item, $reload_only = false) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($item, 'seocategory,seocompany,seobranch,seodepartment,seoemployee,seocustomer,seoproject,items_id,code,set_with,serial,description');
@@ -314,7 +314,7 @@ function inventories_validate($item, $reload_only = false) {
  * @return string HTML for a companies select box within the specified parameters
  */
 function inventories_select($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'         , 'seocompany');
         array_default($params, 'selected'     , null);
@@ -393,7 +393,7 @@ function inventories_select($params) {
  * @return string HTML for a companies select box within the specified parameters
  */
 function inventories_autosuggest($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'         , 'seocompany');
         array_default($params, 'class'        , 'form-control');
@@ -433,7 +433,7 @@ function inventories_autosuggest($params) {
  * @return mixed The company data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified company does not exist, NULL will be returned.
  */
 function inventories_get($entry, $column = null, $status = null) {
-    try{
+    try {
         if (is_natural($entry)) {
             $where[] = ' `inventories`.`id` = :id ';
             $execute[':id'] = $entry;
@@ -559,7 +559,7 @@ function inventories_get($entry, $column = null, $status = null) {
  * @return array The validated and cleaned $branch array
  */
 function inventories_validate_item($item, $reload_only = false) {
-    try{
+    try {
         load_libs('validate,seo');
         $v = new ValidateForm($item, 'seocategory,seoprovider,brand,model,code,description');
 
@@ -703,7 +703,7 @@ function inventories_validate_item($item, $reload_only = false) {
  * @return string HTML for a companies select box within the specified parameters
  */
 function inventories_select_item($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'         , 'items_id');
         array_default($params, 'class'        , 'form-control');
@@ -778,7 +778,7 @@ function inventories_select_item($params = null) {
  * @return mixed The item data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified company does not exist, NULL will be returned.
  */
 function inventories_get_item($items_id, $category = null, $column = null, $status = null) {
-    try{
+    try {
         /*
          * Filter by specified id
          */
@@ -873,7 +873,7 @@ function inventories_get_item($items_id, $category = null, $column = null, $stat
  * @return string
  */
 function inventories_get_default_code($items_id, $companies_id) {
-    try{
+    try {
         $item = sql_get('SELECT `id`, `code` FROM `inventories_items` WHERE `id` = :id', array(':id' => $items_id));
 
         if (!$item) {

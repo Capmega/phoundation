@@ -24,7 +24,7 @@
  * @return void
  */
 function tasks_library_init() {
-    try{
+    try {
         load_config('tasks');
 
     }catch(Exception $e) {
@@ -48,7 +48,7 @@ function tasks_library_init() {
  * @return params The added task, validated and with the tasks id added
  */
 function tasks_insert($task) {
-    try{
+    try {
         Arrays::ensure($task);
         array_default($task, 'status'      , 'new');
         array_default($task, 'method'      , 'normal');
@@ -105,7 +105,7 @@ function tasks_insert($task) {
  * @return params The updated task, validated
  */
 function tasks_update($task, $executed = false) {
-    try{
+    try {
         $task = tasks_validate($task);
 
         meta_action($task['meta_id'], 'update');
@@ -177,7 +177,7 @@ function tasks_update($task, $executed = false) {
 function tasks_validate($task) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('validate');
 
         $v = new ValidateForm($task, 'status,command,after,data,results,method,timeout,executed,time_spent,parents_id,parrallel,verbose');
@@ -251,7 +251,7 @@ function tasks_validate($task) {
  * Validate the specified task status
  */
 function tasks_validate_status($status) {
-    try{
+    try {
         foreach(Arrays::force($status) as $entry) {
             switch($entry) {
                 case 'new':
@@ -285,7 +285,7 @@ function tasks_validate_status($status) {
  * Get a task with the specified status
  */
 function tasks_get($filters, $set_status = false, $min_id = null) {
-    try{
+    try {
         if (is_natural($filters)) {
             $where   = ' WHERE `tasks`.`id` = :id ';
 
@@ -360,7 +360,7 @@ function tasks_get($filters, $set_status = false, $min_id = null) {
  * List all tasts with the specified status
  */
 function tasks_list($status) {
-    try{
+    try {
         if ($status) {
             $status = Arrays::force($status);
             tasks_validate_status($status);
@@ -434,7 +434,7 @@ function task_test_mysql() {
      * to it. Test MySQL connection. If dropped, restart our
      * connection right now
      */
-    try{
+    try {
         sql_query('SELECT 1');
 
     }catch(Exception $e) {
@@ -474,7 +474,7 @@ function task_test_mysql() {
  * @return natural The amount of tasks that had their status updated
  */
 function tasks_status($tasks_id, $status, $reset = false) {
-    try{
+    try {
         $update = sql_query('UPDATE `tasks` SET `status` = :status '.($reset ? ' , `results` = null ' : '').' WHERE `id` = :id', array(':id' => $tasks_id, ':status' => $status));
 
         if (!$update->rowCount()) {
@@ -490,7 +490,7 @@ function tasks_status($tasks_id, $status, $reset = false) {
         $count    = 1;
         $children = sql_query('SELECT `id` FROM `tasks` WHERE `parents_id` = :parents_id', array(':parents_id' => $tasks_id));
 
-        while($child = sql_fetch($children, true)) {
+        while ($child = sql_fetch($children, true)) {
             tasks_status($child, $status, $reset);
             $count++;
         }
@@ -521,7 +521,7 @@ function tasks_status($tasks_id, $status, $reset = false) {
  * @return natural The amount of tasks that had their status updated
  */
 function tasks_reset($tasks_id) {
-    try{
+    try {
         log_console(tr('Task ":id" and all its children are being reset', array(':id' => $tasks_id)), 'warning');
         return tasks_status($tasks_id, null, true);
 
@@ -549,7 +549,7 @@ function tasks_reset($tasks_id) {
  * @return natural The amount of tasks that had their status updated
  */
 function tasks_abort($tasks_id) {
-    try{
+    try {
         log_console(tr('Aborting task ":id" and all its children', array(':id' => $tasks_id)), 'warning');
         return tasks_status($tasks_id, 'aborted');
 
@@ -577,7 +577,7 @@ function tasks_abort($tasks_id) {
  * @return natural The amount of tasks that had their status updated
  */
 function tasks_failed($tasks_id) {
-    try{
+    try {
         log_console(tr('Task ":id" failed, updating status for it, and all its children', array(':id' => $tasks_id)), 'warning');
         return tasks_status($tasks_id, 'failed');
 
@@ -592,7 +592,7 @@ function tasks_failed($tasks_id) {
  *
  */
 function tasks_check_pid($tasks_id) {
-    try{
+    try {
         $task = sql_get('SELECT `id`, `pid` FROM `tasks` WHERE `id` = :id', array(':id' => $tasks_id));
 
         if (!$task) {

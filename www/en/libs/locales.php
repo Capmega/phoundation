@@ -13,7 +13,7 @@
  * Return the locale for the specified IP
  */
 function locales_get_for_ip($ip) {
-    try{
+    try {
         load_libs('geoip,geo');
 
         if (!$country = geoip_get_country($ip)) {

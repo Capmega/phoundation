@@ -13,7 +13,7 @@
  * Automatically executed by libs_load()
  */
 function iptables_library_init() {
-    try{
+    try {
         load_libs('servers');
         define('IPTABLES_CLEAR' , '__CLEAR__');
         define('IPTABLES_BUFFER', '__BUFFER__');
@@ -35,7 +35,7 @@ function iptables_library_init() {
 function iptables_exec($server, $parameters = null) {
     static $commands = array();
 
-    try{
+    try {
         switch($server) {
             case IPTABLES_CLEAR:
                 $commands = array();
@@ -81,7 +81,7 @@ function iptables_exec($server, $parameters = null) {
  * @param mixed $server The unique name or id of the host where to execute the iptables command
  */
 function iptables_set_forward($server, $value = 1) {
-    try{
+    try {
         servers_exec($server, 'sudo bash -c "echo '.$value.' > /proc/sys/net/ipv4/ip_forward"');
 
     }catch(Exception $e) {
@@ -95,7 +95,7 @@ function iptables_set_forward($server, $value = 1) {
  * @param mixed $server The unique name or id of the host where to execute the iptables command
  */
 function iptables_flush_nat_rules($server) {
-    try{
+    try {
         servers_exec($server, 'iptables -t nat -F');
 
     }catch(Exception $e) {
@@ -118,7 +118,7 @@ function iptables_flush_nat_rules($server) {
  * @return void
  */
 function iptables_set_prerouting($server, $protocol, $origin_port, $destination_port, $destination_ip, $operation = 'add') {
-    try{
+    try {
         $protocol         = iptables_validate_protocol($protocol);
         $origin_port      = iptables_validate_port($origin_port);
         $destination_port = iptables_validate_port($destination_port);
@@ -150,7 +150,7 @@ function iptables_set_prerouting($server, $protocol, $origin_port, $destination_
  * @return void
  */
 function iptables_set_postrouting($server, $protocol, $port, $source_ip, $destination_ip, $operation = 'add') {
-    try{
+    try {
         $protocol       = iptables_validate_protocol($protocol);
         $port           = iptables_validate_port($port);
         $destination_ip = iptables_validate_ip($destination_ip);
@@ -172,7 +172,7 @@ function iptables_set_postrouting($server, $protocol, $port, $source_ip, $destin
  * @return void
  */
 function iptables_flush_all($server) {
-    try{
+    try {
         iptables_exec($server, '-F');
 
     }catch(Exception $e) {
@@ -190,7 +190,7 @@ function iptables_flush_all($server) {
  * @return void
  */
 function iptables_clean_chain_nat($server) {
-    try{
+    try {
         iptables_exec($server, '-t nat -F');
 
     }catch(Exception $e) {
@@ -207,7 +207,7 @@ function iptables_clean_chain_nat($server) {
  * @return void
  */
 function iptables_delete_all($server) {
-    try{
+    try {
         iptables_exec($server, '-X');
 
     }catch(Exception $e) {
@@ -228,7 +228,7 @@ function iptables_delete_all($server) {
  * @return void
  */
 function iptables_accept_traffic($server, $ip, $port, $protocol) {
-    try{
+    try {
         $result = servers_exec($server, 'if sudo iptables -L -v -n|grep '.$ip.'.*dpt:'.$port.'; then echo "exists"; else echo 0; fi');
 
         /*
@@ -255,7 +255,7 @@ function iptables_accept_traffic($server, $ip, $port, $protocol) {
  * @return void
  */
 function iptables_stop_accepting_traffic($server, $ip, $port, $protocol) {
-    try{
+    try {
         $result = servers_exec($server, 'if sudo iptables -L -v -n|grep '.$ip.'.*dpt:'.$port.'; then echo 1; else echo 0; fi');
 
         if ($result[0]) {
@@ -279,7 +279,7 @@ function iptables_stop_accepting_traffic($server, $ip, $port, $protocol) {
  * @see iptables_validate_chain_type()
  */
  function iptables_validate_ip($ip) {
-    try{
+    try {
         if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
             throw new CoreException(tr('iptables_validate_ip(): Specified ip ":ip" is not valid', array(':ip' => $ip)), 'invalid');
         }
@@ -300,7 +300,7 @@ function iptables_stop_accepting_traffic($server, $ip, $port, $protocol) {
  * @return string $protocol
  */
 function iptables_validate_protocol($protocol) {
-    try{
+    try {
         if (empty($protocol)) {
             throw new CoreException(tr('iptables_validate_protocol(): No protocol specified'), 'not-specified');
         }
@@ -338,7 +338,7 @@ function iptables_validate_protocol($protocol) {
  * @see iptables_validate_chain_type()
  */
 function iptables_validate_port($port) {
-    try{
+    try {
         if (empty($port)) {
             throw new CoreException(tr('iptables_validate_port(): No port specified'), 'not-specified');
         }
@@ -365,7 +365,7 @@ function iptables_validate_port($port) {
  * @see iptables_validate_chain_protocol()
  */
 function iptables_validate_chain_type($chain_type) {
-    try{
+    try {
         if (empty($chain_type)) {
             throw new CoreException(tr('iptables_validate_chain_type(): No chain type specified'), 'not-specified');
         }
@@ -402,7 +402,7 @@ function iptables_validate_chain_type($chain_type) {
  * @return boolean
  */
 function iptables_prerouting_exists($server, $origin_port, $destination_port, $destination_ip) {
-    try{
+    try {
         $result = servers_exec($server, 'if sudo iptables -t nat -L -n|grep "DNAT.*dpt:'.$origin_port.' to:'.$destination_ip.':'.$destination_port.'"; then echo 1; else echo 0; fi');
 
         if ($result[0]) {
@@ -427,7 +427,7 @@ function iptables_prerouting_exists($server, $origin_port, $destination_port, $d
  * @return boolean
  */
 function iptables_postrouting_exists($server, $port, $source_ip) {
-    try{
+    try {
         $result = servers_exec($server, 'if sudo iptables -t nat -L -n|grep "SNAT.*dpt:'.$port.' to:'.$source_ip.'"; then echo 1; else echo 0; fi');
 
         if ($result[0]) {
@@ -450,7 +450,7 @@ function iptables_postrouting_exists($server, $port, $source_ip) {
  * @return void
  */
 function iptalbes_drop_all($server) {
-    try{
+    try {
         iptables_exec($server, '-P INPUT DROP');
 
     }catch(Exception $e) {

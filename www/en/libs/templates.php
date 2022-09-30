@@ -28,7 +28,7 @@
  * @return void
  */
 function templates_library_init() {
-    try{
+    try {
         ensure_installed(array('name'      => 'template',
                                'callback'  => 'templates_install',
                                'checks'    => ROOT.'libs/external/template/template,'.ROOT.'libs/external/template/foobar',
@@ -56,7 +56,7 @@ function templates_library_init() {
  * @return
  */
 function templates_install($params) {
-    try{
+    try {
         load_libs('apt');
         apt_install('template');
 
@@ -80,7 +80,7 @@ function templates_install($params) {
  * @return array The validated and cleaned $template parameter array
  */
 function templates_validate($template) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($template, 'name');
@@ -151,7 +151,7 @@ function templates_validate($template) {
  * @return params The specified template, validated and sanitized
  */
 function templates_insert($template) {
-    try{
+    try {
         $template = templates_validate($template);
 
         sql_query('INSERT INTO `templates` (`createdby`, `meta_id`, `status`, )
@@ -200,7 +200,7 @@ function templates_insert($template) {
  * @return boolean True if the user was updated, false if not. If not updated, this might be because no data has changed
  */
 function templates_update($template) {
-    try{
+    try {
         $template = templates_validate($template);
 
         meta_action($template['meta_id'], 'update');
@@ -246,7 +246,7 @@ function templates_update($template) {
  * @return mixed The template data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified template does not exist, NULL will be returned.
  */
 function templates_get($params) {
-    try{
+    try {
         array_params($params, 'seotemplate', 'id');
 
         $params['table']   = 'templates';
@@ -300,7 +300,7 @@ function templates_get($params) {
  * @return mixed The list of available templates
  */
 function templates_list($params) {
-    try{
+    try {
         array_params($params, 'status');
 
         $params['table'] = 'templates';
@@ -351,7 +351,7 @@ function templates_list($params) {
  * @return string HTML for a templates select box within the specified parameters
  */
 function templates_select($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'      , 'seotemplate');
         array_default($params, 'class'     , 'form-control');
@@ -453,7 +453,7 @@ function templates_select($params = null) {
  * @return string The result
  */
 function templates_function($params) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException(tr('templates_function(): Failed'), $e);

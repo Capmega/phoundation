@@ -204,7 +204,7 @@ switch(cli_method()) {
             log_console(tr('Showing currently available devices'), 'QUIET/white');
             log_console(str_size(tr('#id'), 6, ' ', true).' '.str_size(tr('Name'), 20).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 12).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.str_size(tr('Description'), 32).' '.tr('Device string'), 'QUIET/cyan');
 
-            while($device = sql_fetch($devices)) {
+            while ($device = sql_fetch($devices)) {
                 log_console(str_size($device['id'], 6, ' ', true).' '.str_size(not_empty($device['name'], '-'), 20).' '.str_size($device['type'], 20).' '.str_size(not_empty($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 12).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.str_size($device['description'], 32).' '.$device['string']);
             }
         }
@@ -217,7 +217,7 @@ switch(cli_method()) {
 
         cli_no_arguments_left();
 
-        try{
+        try {
             $device = devices_get($id, $server);
 
         }catch(Exception $e) {
@@ -269,7 +269,7 @@ switch(cli_method()) {
         break;
 
     case 'modify':
-        try{
+        try {
             $assign_category   = cli_argument('--category'  , true);
             $assign_company    = cli_argument('--company'   , true);
             $assign_branch     = cli_argument('--branch'    , true);
@@ -397,7 +397,7 @@ switch(cli_method()) {
         break;
 
     case 'scan':
-        try{
+        try {
             $assign_category   = cli_argument('--category'  , true);
             $assign_company    = cli_argument('--company'   , true);
             $assign_branch     = cli_argument('--branch'    , true);
@@ -514,7 +514,7 @@ switch(cli_method()) {
                     $device['employees_id']   = isset_get($employee['id']);
                     $device['providers_id']   = isset_get($provider['id']);
 
-                    try{
+                    try {
                         $device = devices_insert($device, $servers_id);
 
                         if (empty($device['_exists'])) {

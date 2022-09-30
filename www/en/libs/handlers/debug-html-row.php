@@ -1,5 +1,5 @@
 <?php
-try{
+try {
     if ($type === null) {
         $type = gettype($value);
     }

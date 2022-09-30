@@ -47,7 +47,7 @@ function bytes($value, $unit = 'auto', $precision = 2) {
  * Convert specified amount explicitly to specified multiplier
  */
 function bytes_convert($amount, $unit = 'auto', $precision = 2, $add_suffix = false) {
-    try{
+    try {
         /*
          * Possibly shift parameters
          */
@@ -267,7 +267,7 @@ function bytes_convert($amount, $unit = 'auto', $precision = 2, $add_suffix = fa
  *
  */
 function human_readable($number, $thousand = 1000, $decimals = 0) {
-    try{
+    try {
         if ($number > pow($thousand, 5)) {
             return number_format($number / pow($thousand, 5), $decimals).'P';
         }
@@ -321,7 +321,7 @@ function human_readable($number, $thousand = 1000, $decimals = 0) {
  * @return string The step that can be used in the html <input type="number">
  */
 function numbers_get_step() {
-    try{
+    try {
         /*
          * Remove the $count argument from the list
          * Get default value from the list

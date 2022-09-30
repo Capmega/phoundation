@@ -47,7 +47,7 @@ if (empty($_CONFIG['security']['signin']['ip_lock'])) {
     /*
      * Use a dynamic IP, updated by users with ip_lcok right
      */
-    try{
+    try {
         switch(isset_get($_POST['action'])) {
             case '':
                 break;
@@ -227,7 +227,7 @@ if (empty($_CONFIG['security']['signin']['ip_lock'])) {
                                 <th>'.tr('IP').'</th>
                             </thead>';
 
-        while($ip = sql_fetch($r)) {
+        while ($ip = sql_fetch($r)) {
             if (isset($l[$ip['ip']])) {
                 $class = ' class="confirmed"';
                 unset($l[$ip['ip']]);

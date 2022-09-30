@@ -28,7 +28,7 @@
  * @return void
  */
 function sweetalert_library_init() {
-    try{
+    try {
         ensure_installed(array('name'      => 'sweetalert',
                                'project'   => 'sweetalert',
                                'callback'  => 'sweetalert_install',
@@ -62,7 +62,7 @@ function sweetalert_library_init() {
  * @return void
  */
 function sweetalert_install($params) {
-    try{
+    try {
         $css = download('https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.css');
         $js  = download('https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.js');
 
@@ -86,7 +86,7 @@ function sweetalert_install($params) {
  * Return the required javascript code to show a sweet alert
  */
 function sweetalert($params, $html = '', $type = '', $options = array()) {
-    try{
+    try {
         array_params ($params, 'title');
         array_default($params, 'title'  , '');
         array_default($params, 'html'   , $html);
@@ -155,7 +155,7 @@ function sweetalert($params, $html = '', $type = '', $options = array()) {
  * Show a sweet alert directly
  */
 function sweetalert_queue($params) {
-    try{
+    try {
         array_params ($params);
         array_default($params, 'modals'             , null);
         array_default($params, 'show_cancel_button' , false);

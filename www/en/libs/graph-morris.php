@@ -26,7 +26,7 @@
  * @return void
  */
 function graph_morris_library_init() {
-    try{
+    try {
         html_load_js('plugins/icheck/icheck.min.js,js/plugins/mcustomscrollbar/jquery.mCustomScrollbar.min,plugins/morris/raphael-min,plugins/morris/morris.min');
 
     }catch(Exception $e) {
@@ -54,7 +54,7 @@ function graph_morris_library_init() {
  * @return string The HTML for the top widget
  */
 function graph_morris_generate(array $params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'type'   , 'bar');
         array_default($params, 'labels' , 'label1');

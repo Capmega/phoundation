@@ -61,7 +61,7 @@ function file_concat($target, $sources) {
         foreach($sources as $source) {
             $source_h = fopen($source, 'r');
 
-            while(!feof($source_h)) {
+            while (!feof($source_h)) {
                 $data = fread($source_h, 8192);
                 fwrite($target_h, $data);
             }
@@ -84,7 +84,7 @@ function file_concat($target, $sources) {
 function file_get_uploaded($source) {
     global $_CONFIG;
 
-    try{
+    try {
         $destination = ROOT.'data/uploads/';
 
         if (is_array($source)) {
@@ -133,7 +133,7 @@ function file_get_uploaded($source) {
  * Create a target, but don't put anything in it
  */
 function file_assign_target($path, $extension = false, $singledir = false, $length = 4) {
-    try{
+    try {
         return file_move_to_target('', $path, $extension, $singledir, $length);
 
     }catch(Exception $e) {
@@ -147,7 +147,7 @@ function file_assign_target($path, $extension = false, $singledir = false, $leng
  * Create a target, but don't put anything in it, and return path+filename without extension
  */
 function file_assign_target_clean($path, $extension = false, $singledir = false, $length = 4) {
-    try{
+    try {
         return str_replace($extension, '', file_move_to_target('', $path, $extension, $singledir, $length));
 
     }catch(Exception $e) {
@@ -161,7 +161,7 @@ function file_assign_target_clean($path, $extension = false, $singledir = false,
  * Copy specified file, see file_move_to_target for implementation
  */
 function file_copy_to_target($file, $path, $extension = false, $singledir = false, $length = 4) {
-    try{
+    try {
         if (is_array($file)) {
             throw new CoreException(tr('file_copy_to_target(): Specified file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', array(':file' => str_log($file))));
         }
@@ -202,7 +202,7 @@ function file_copy_to_target($file, $path, $extension = false, $singledir = fals
  * @return string The target file
  */
 function file_move_to_target($file, $path, $extension = false, $singledir = false, $length = 4, $copy = false, $context = null) {
-    try{
+    try {
         if (is_array($file)) {
             $upload = $file;
             $file   = $file['name'];
@@ -308,7 +308,7 @@ function file_move_to_target($file, $path, $extension = false, $singledir = fals
 function file_create_target_path($path, $singledir = false, $length = false) {
     global $_CONFIG;
 
-    try{
+    try {
         if ($length === false) {
             $length = $_CONFIG['file']['target_path_size'];
         }
@@ -358,7 +358,7 @@ function file_create_target_path($path, $singledir = false, $length = false) {
 function file_ensure_file($file, $mode = null, $path_mode = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$mode) {
             $mode = $_CONFIG['file']['file_mode'];
         }
@@ -406,7 +406,7 @@ function file_ensure_file($file, $mode = null, $path_mode = null) {
 function file_ensure_path($path, $mode = null, $clear = false, $restrictions = ROOT) {
     global $_CONFIG;
 
-    try{
+    try {
         if ($mode === null) {
             $mode = $_CONFIG['file']['dir_mode'];
 
@@ -463,7 +463,7 @@ function file_ensure_path($path, $mode = null, $clear = false, $restrictions = R
                     });
                 }
 
-                try{
+                try {
                     /*
                      * Make sure that the parent path is writable when creating
                      * the directory
@@ -518,7 +518,7 @@ function file_ensure_path($path, $mode = null, $clear = false, $restrictions = R
  * @return void
  */
 function file_clear_path($paths, $restrictions = null) {
-    try{
+    try {
         /*
          * Multiple paths specified, clear all
          */
@@ -543,7 +543,7 @@ function file_clear_path($paths, $restrictions = null) {
              */
             $path = dirname($path);
 
-            try{
+            try {
                 Restrict::restrict($path, $restrictions);
                 return file_clear_path($path, $restrictions);
 
@@ -571,7 +571,7 @@ function file_clear_path($paths, $restrictions = null) {
             $h        = opendir($path);
             $contents = false;
 
-            while(($file = readdir($h)) !== false) {
+            while (($file = readdir($h)) !== false) {
                 /*
                  * Skip . and ..
                  */
@@ -593,7 +593,7 @@ function file_clear_path($paths, $restrictions = null) {
             /*
              * Remove this entry and continue;
              */
-            try{
+            try {
                 File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($restrictions, $path) {
                     file_delete(array('patterns'       => $path,
                                       'clean_path'     => false,
@@ -620,7 +620,7 @@ function file_clear_path($paths, $restrictions = null) {
          */
         $path = dirname($path);
 
-        try{
+        try {
             file_clear_path($path, $restrictions);
 
         }catch(Exception $e) {
@@ -644,7 +644,7 @@ function file_clear_path($paths, $restrictions = null) {
  * Return the extension of the specified filename
  */
 function file_get_extension($filename) {
-    try{
+    try {
         return Strings::fromReverse($filename, '.');
 
     }catch(Exception $e) {
@@ -680,7 +680,7 @@ function file_get_extension($filename) {
  * @return string The filename for the temp file
  */
 function file_temp($create = true, $extension = null, $limit_to_session = true) {
-    try{
+    try {
         file_ensure_path(TMP);
 
         /*
@@ -750,7 +750,7 @@ function file_temp($create = true, $extension = null, $limit_to_session = true) 
  * @return string The absolute path
  */
 function file_absolute_path($path) {
-    try{
+    try {
         if (!$path) {
             return getcwd();
         }
@@ -784,7 +784,7 @@ function file_absolute_path($path) {
 function file_mimetype($file) {
     static $finfo = false;
 
-    try{
+    try {
         /*
          * Check the specified file
          */
@@ -831,7 +831,7 @@ function file_mimetype($file) {
  * @return bolean True if the file is a text file, false if not
  */
 function file_is_text($file) {
-    try{
+    try {
         if (Strings::until(file_mimetype($file), '/') == 'text') return true;
         if (str_from (file_mimetype($file), '/') == 'xml' ) return true;
 
@@ -885,7 +885,7 @@ function file_check($file) {
  * @return array The matched files
  */
 function file_list_tree($path, $pattern = null, $recursive = true) {
-    try{
+    try {
         /*
          * Validate path
          */
@@ -907,7 +907,7 @@ function file_list_tree($path, $pattern = null, $recursive = true) {
         /*
          * Go over all files
          */
-        while(($filename = readdir($fh)) !== false) {
+        while (($filename = readdir($fh)) !== false) {
             /*
              * Loop through the files, skipping . and .. and recursing if necessary
              */
@@ -977,7 +977,7 @@ function file_list_tree($path, $pattern = null, $recursive = true) {
  * @return natural The amount of orphaned files, and orphaned `files` entries found and processed
  */
 function file_delete($params, $restrictions = null) {
-    try{
+    try {
         if (!$params) {
             throw new CoreException(tr('file_delete(): No files or parameters specified'), 'not-specified');
         }
@@ -1005,7 +1005,7 @@ function file_delete($params, $restrictions = null) {
             Restrict::restrict($pattern, $params['restrictions']);
 
             if ($params['force_writable']) {
-                try{
+                try {
                     /*
                      * First ensure that the files to be deleted are writable
                      */
@@ -1066,7 +1066,7 @@ function file_delete($params, $restrictions = null) {
  * @return string The safe pattern
  */
 function file_safe_pattern($pattern) {
-    try{
+    try {
         /*
          * Escape patterns manually here, safe_exec() will be told NOT to
          * escape them to avoid issues with *
@@ -1105,7 +1105,7 @@ function file_safe_pattern($pattern) {
 function file_copy_tree($source, $destination, $search = null, $replace = null, $extensions = null, $mode = true, $novalidate = false, $restrictions = null) {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * Choose between copy filemode (mode is null), set filemode ($mode is a string or octal number) or preset filemode (take from config, TRUE)
          */
@@ -1361,7 +1361,7 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
                 /*
                  * Update file mode
                  */
-                try{
+                try {
                     chmod($destination, $filemode);
 
                 }catch(Exception $e) {
@@ -1383,7 +1383,7 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
  * Seach for $search file in $source, and move them all to $destination using the $rename result expression
  */
 function file_rename($source, $destination, $search, $rename) {
-    try{
+    try {
         /*
          * Validations
          */
@@ -1425,7 +1425,7 @@ function file_rename($source, $destination, $search, $rename) {
 function file_temp_dir($prefix = '', $mode = null) {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * Use default configged mode, or specific mode?
          */
@@ -1435,7 +1435,7 @@ function file_temp_dir($prefix = '', $mode = null) {
 
         file_ensure_path($path = TMP);
 
-        while(true) {
+        while (true) {
             $unique = uniqid($prefix);
 
             if (!file_exists($path.$unique)) {
@@ -1482,7 +1482,7 @@ function file_temp_dir($prefix = '', $mode = null) {
  * @return void
  */
 function file_chmod($params, $mode = null, $restrictions = null) {
-    try{
+    try {
         array_params($params, 'path');
         Arrays::ensure($params, 'recursive,sudo');
         array_default($params, 'timeout'     , 30);
@@ -1536,7 +1536,7 @@ function file_extension($file) {
  * If the specified file is an HTTP, HTTPS, or FTP URL, then get it locally as a temp file
  */
 function file_get_local($url, &$is_downloaded = false, $context = null) {
-    try{
+    try {
         $context = file_create_stream_context($context);
         $url     = trim($url);
 
@@ -1614,7 +1614,7 @@ function file_system_path($type, $path = '') {
  * Warning: This function reads all files into memory, do NOT use with huge directory (> 10000 files) listings!
  */
 function file_random($path) {
-    try{
+    try {
         if (!file_exists($path)) {
             throw new CoreException(tr('file_random(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
@@ -1645,7 +1645,7 @@ function file_random($path) {
  * Store a file temporarily with a label in $_SESSION['files'][label]
  */
 function file_session_store($label, $file = null, $path = TMP) {
-    try{
+    try {
         if ($file === null) {
             /*
              * No file specified, return the file name for the specified label
@@ -1687,7 +1687,7 @@ function file_session_store($label, $file = null, $path = TMP) {
  * Checks if the specified path exists, is a dir, and optionally, if its writable or not
  */
 function file_check_dir($path, $writable = false) {
-    try{
+    try {
         if (!file_exists($path)) {
             throw new CoreException(tr('file_check_dir(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
@@ -1723,7 +1723,7 @@ function file_check_dir($path, $writable = false) {
 function file_http_download($params) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params, 'file,data,name');
         array_default($params, 'restrictions', ROOT.'data/downloads');
         array_default($params, 'compression' , $_CONFIG['file']['download']['compression']);
@@ -1894,7 +1894,7 @@ function file_http_download($params) {
  * @return boolean True if the specified mimetype is for a binary file, false if it is a text file
  */
 function file_is_binary($primary, $secondary = null) {
-    try{
+    try {
 // :TODO: IMPROVE THIS! Loads of files that are not text/ are still not binary
         /*
          * Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
@@ -1973,7 +1973,7 @@ function file_is_binary($primary, $secondary = null) {
  * @return boolean True if the specified mimetype is for a compressed file, false if not
  */
 function file_is_compressed($primary, $secondary = null) {
-    try{
+    try {
 // :TODO: IMPROVE THIS! Loads of files that may be mis detected
         /*
          * Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
@@ -2062,7 +2062,7 @@ function file_is_compressed($primary, $secondary = null) {
 function file_http_send($params) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params, 'file,data,name');
         array_default($params, 'restrictions', ROOT.'data/downloads');
         array_default($params, 'compression' , $_CONFIG['file']['download']['compression']);
@@ -2178,7 +2178,7 @@ function file_http_send($params) {
  * file_copy_progress($source, $target, 'stream_notification_callback');
  */
 function file_copy_progress($source, $target, $callback) {
-    try{
+    try {
         $c = stream_context_create();
         stream_context_set_params($c, array('notification' => $callback));
         copy($source, $target, $c);
@@ -2194,7 +2194,7 @@ function file_copy_progress($source, $target, $callback) {
  *
  */
 function file_mode_readable($mode) {
-    try{
+    try {
         $retval = '';
         $mode   = substr((string) decoct($mode), -3, 3);
 
@@ -2239,7 +2239,7 @@ function file_mode_readable($mode) {
  * @$method (string) either "size" or "count", the required value to return
  */
 function file_tree($path, $method) {
-    try{
+    try {
         if (!file_exists($path)) {
             throw new CoreException(tr('file_tree(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
@@ -2289,7 +2289,7 @@ function file_tree($path, $method) {
  *
  */
 function file_ensure_writable($path) {
-    try{
+    try {
         if (is_writable($path)) {
             return false;
         }
@@ -2323,7 +2323,7 @@ function file_ensure_writable($path) {
  * Idea taken from http://php.net/manual/en/function.fileperms.php
  */
 function file_type($file) {
-    try{
+    try {
         $perms  = fileperms($file);
 
         $socket    = (($perms & 0xC000) == 0xC000);
@@ -2395,7 +2395,7 @@ function file_type($file) {
  * Idea taken from http://php.net/manual/en/function.fileperms.php
  */
 function file_get_permissions($file) {
-    try{
+    try {
         $perms  = fileperms($file);
         $retval = array();
 
@@ -2525,7 +2525,7 @@ function file_get_permissions($file) {
  * Execute the specified callback on all files in the specified tree
  */
 function file_tree_execute($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'ignore_exceptions', true);
         array_default($params, 'path'             , null);
@@ -2606,8 +2606,8 @@ function file_tree_execute($params) {
                 $h    = opendir($params['path']);
                 $path = Strings::slash($params['path']);
 
-                while(($file = readdir($h)) !== false) {
-                    try{
+                while (($file = readdir($h)) !== false) {
+                    try {
                         if (($file == '.') or ($file == '..')) continue;
 
                         if ((substr(basename($file), 0, 1) == '.') and !$params['follow_hidden']) {
@@ -2734,7 +2734,7 @@ function file_tree_execute($params) {
  * from the current working directory
  */
 function file_absolute($path, $root = null) {
-    try{
+    try {
         if (empty($root)) {
             $root = Strings::slash(getcwd());
         }
@@ -2757,7 +2757,7 @@ function file_absolute($path, $root = null) {
  * within ROOT
  */
 function file_root($path) {
-    try{
+    try {
         if (substr($path, 0, 1) !== '/') {
             $path = ROOT.$path;
         }
@@ -2791,7 +2791,7 @@ function file_root($path) {
  * @return string The result from the callback function
  */
 function File::executeMode($path, $mode, $callback, $params = null) {
-    try{
+    try {
         /*
          * Apply to all directories below?
          */
@@ -2814,7 +2814,7 @@ function File::executeMode($path, $mode, $callback, $params = null) {
         /*
          * Set the requested mode
          */
-        try{
+        try {
             if (is_dir($path) and $multi) {
                 $paths = cli_find(array('type'  => 'd',
                                         'start' => $path));
@@ -2915,7 +2915,7 @@ function file_link_exists($file) {
  * $replaces should be a $search => $replace key value array, where the $search values are regex expressions
  */
 function file_search_replace($source, $target, $replaces) {
-    try{
+    try {
         if (!file_exists($source)) {
             throw new CoreException(tr('file_search_replace(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
         }
@@ -2935,7 +2935,7 @@ function file_search_replace($source, $target, $replaces) {
         $length   = 8192;
         $filesize = filesize($source);
 
-        while($position < $filesize) {
+        while ($position < $filesize) {
              $data      = fread($fs, $length);
              $position += $length;
              fseek($fs, $position);
@@ -2964,7 +2964,7 @@ function file_search_replace($source, $target, $replaces) {
  * Return line count for this file
  */
 function file_line_count($source) {
-    try{
+    try {
         if (!file_exists($source)) {
             throw new CoreException(tr('file_line_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
         }
@@ -2980,7 +2980,7 @@ function file_line_count($source) {
  * Return word count for this file
  */
 function file_word_count($source) {
-    try{
+    try {
         if (!file_exists($source)) {
             throw new CoreException(tr('file_word_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
         }
@@ -2998,12 +2998,12 @@ function file_word_count($source) {
  * all the way to root /
  */
 function file_scan($path, $file) {
-    try{
+    try {
         if (!file_exists($path)) {
             throw new CoreException(tr('file_scan(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
-        while(strlen($path) > 1) {
+        while (strlen($path) > 1) {
             $path = Strings::slash($path);
 
             if (file_exists($path.$file)) {
@@ -3029,7 +3029,7 @@ function file_scan($path, $file) {
  * Move specified path to a backup
  */
 function file_move_to_backup($path) {
-    try{
+    try {
         if (!file_exists($path)) {
             /*
              * Specified path doesn't exist, just ignore
@@ -3067,7 +3067,7 @@ function file_move_to_backup($path) {
  * Update the specified file owner and group
  */
 function file_chown($file, $user = null, $group = null) {
-    try{
+    try {
         if (!$user) {
              $user = posix_getpwuid(posix_getuid());
              $user = $user['name'];
@@ -3111,7 +3111,7 @@ function file_chown($file, $user = null, $group = null) {
  * @return boolean True if the specified $path (optionally prefixed by $prefix) contains a symlink, false if not
  */
 function file_path_contains_symlink($path, $prefix = null) {
-    try{
+    try {
         if (!$path) {
             throw new CoreException(tr('file_path_contains_symlink(): No path specified'), 'not-specified');
         }
@@ -3177,7 +3177,7 @@ function file_path_contains_symlink($path, $prefix = null) {
  * @return boolean True if the specified $path (optionally prefixed by $prefix) contains a symlink, false if not
  */
 function file_create_stream_context($context) {
-    try{
+    try {
         if (!$context) return null;
 
         if (!is_array($context)) {
@@ -3212,7 +3212,7 @@ function file_create_stream_context($context) {
  * @return void()
  */
 function file_sed($params) {
-    try{
+    try {
         Arrays::ensure($params, 'ok_exitcodes,function,sudo,background,domain');
 
         if (empty($params['source'])) {
@@ -3270,7 +3270,7 @@ function file_sed($params) {
  * @return void()
  */
 function file_cat($params) {
-    try{
+    try {
         Arrays::ensure($params, 'ok_exitcodes,function,sudo,background,domain');
 
         if (empty($params['source'])) {
@@ -3336,7 +3336,7 @@ function file_cat($params) {
  * @return void
  */
 function Restrict::restrict($params, &$restrictions = null) {
-    try{
+    try {
         /*
          * Determine what restrictions apply. The restrictions is a white list
          * containing the paths where the calling function is allowed to work
@@ -3414,7 +3414,7 @@ function Restrict::restrict($params, &$restrictions = null) {
                 /*
                  * All these must be tested
                  */
-                try{
+                try {
                     Restrict::restrict($params[$key], $restrictions);
 
                 }catch(Exception $e) {
@@ -3447,7 +3447,7 @@ function Restrict::restrict($params, &$restrictions = null) {
  * @return string The path of the specified file
  */
 function file_which($command, $whereis = false) {
-    try{
+    try {
         $result = safe_exec(array('ok_exitcodes' => '0,1',
                                   'commands'     => array(($whereis ? 'whereis' : 'which'), array($command))));
 
@@ -3481,7 +3481,7 @@ function file_which($command, $whereis = false) {
  * @return string The $file
  */
 function file_replace($search, $replace, $file) {
-    try{
+    try {
         $data = file_get_contents($file);
         $data = str_replace($search, $replace, $file);
 
@@ -3499,7 +3499,7 @@ function file_replace($search, $replace, $file) {
  * DEPRECATED FUNCTIONS
  */
 function file_chmod_tree($path, $filemode, $dirmode = 0770) {
-    try{
+    try {
         return file_chmod($path, $filemode, $dirmode = 0770);
 
     }catch(Exception $e) {
@@ -3534,7 +3534,7 @@ function file_chmod_tree($path, $filemode, $dirmode = 0770) {
  * @return string The result
  */
 function file_from_part($file) {
-    try{
+    try {
         $target = null;
 
         file_tree_execute(array('execute_directory' => true,
@@ -3586,7 +3586,7 @@ function file_from_part($file) {
  * @return boolean string The real path extrapolated from the specified $path, if exists. False if whatever was specified does not exist.
  */
 function file_is_path($path) {
-    try{
+    try {
         return realpath($path);
 
     }catch(Exception $e) {

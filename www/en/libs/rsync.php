@@ -47,7 +47,7 @@
 function rsync($params) {
     load_libs('servers');
 
-    try{
+    try {
         /*
          * The optional parameters
          */
@@ -101,7 +101,7 @@ function rsync($params) {
          * source file
          */
         foreach(array('source', 'target') as &$item) {
-            try{
+            try {
                 $server = Strings::until($params[$item], ':', 0, 0, true);
 
                 if ($server) {
@@ -141,7 +141,7 @@ function rsync($params) {
                                      * We're syncing to THIS server, are we not
                                      * syncing to ROOT or its parents somehow?
                                      */
-                                    try{
+                                    try {
                                         if (str_contains(ROOT, linux_realpath($server, Strings::from($params[$subitem], ':')))) {
                                             throw new CoreException(tr('rsync(): Specified remote ":subitem" path ":path" is ROOT or parent of ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
                                         }
@@ -282,7 +282,7 @@ function rsync($params) {
             $break = false;
         }
 
-        while(true) {
+        while (true) {
             log_console(tr('Rsyncing from ":source" to ":target"', array(':source' => $params['source'], ':target' => $params['target'])), 'cyan');
 
             $results = safe_exec(array('function'     => $params['function'],

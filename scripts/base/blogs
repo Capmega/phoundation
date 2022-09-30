@@ -70,7 +70,7 @@ switch(cli_method()) {
                 } else {
                     log_console(str_size(tr('#id'), 6).' '.str_size(tr('status'), 16).' '.str_size(tr('Created on'), 10).' '.str_size(tr('Created by'), 24).' '.str_size(tr('Name'), 12), 'QUIET/cyan');
 
-                    while($entry = sql_fetch($entries)) {
+                    while ($entry = sql_fetch($entries)) {
                         log_console(str_size($entry['id'], 6).' '.str_size(status($entry['status']), 16).' '.str_size($entry['createdon'], 10).' '.str_size(name($entry['createdby']), 24).' '.str_size($entry['name'], 80));
                     }
                 }
@@ -107,7 +107,7 @@ switch(cli_method()) {
                 } else {
                     log_console(str_size(tr('#id'), 6).' '.str_size(tr('Blog'), 16).' '.str_size(tr('status'), 16).' '.str_size(tr('Created on'), 10).' '.str_size(tr('Created by'), 24).' '.str_size(tr('Name'), 12), 'QUIET/cyan');
 
-                    while($entry = sql_fetch($entries)) {
+                    while ($entry = sql_fetch($entries)) {
                         log_console(str_size($entry['id'], 6).' '.str_size($entry['blog'], 16).' '.str_size(status($entry['status']), 16).' '.str_size($entry['createdon'], 10).' '.str_size(name($entry['createdby']), 24).' '.str_size($entry['name'], 80));
                     }
                 }
@@ -192,7 +192,7 @@ switch(cli_method()) {
          */
         $blogs = sql_query($query, $execute);
 
-        while($blog = sql_fetch($blogs)) {
+        while ($blog = sql_fetch($blogs)) {
             log_console(tr('Processing photos for blog ":blog"', array(':blog' => $blog['name'])), 'white');
 
             $path   = ROOT.'data/content/photos/';
@@ -214,7 +214,7 @@ switch(cli_method()) {
             /*
              * Process all photos for the current blog
              */
-            while($photo = sql_fetch($photos)) {
+            while ($photo = sql_fetch($photos)) {
                 if (VERBOSE) {
                     log_console(tr('Processing photo file group ":file"', array(':file' => $photo['file'])));
 

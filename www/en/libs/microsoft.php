@@ -15,7 +15,7 @@
 function microsoft_get_avatar($user) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('image,user');
 
         if (is_array($user)) {

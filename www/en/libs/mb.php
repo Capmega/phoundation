@@ -32,7 +32,7 @@
  * @return void
  */
 function mb_library_init() {
-    try{
+    try {
         if (!extension_loaded('mbstring')) {
             throw new CoreException(tr('mb_library_init: php module "mbstring" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-mbstring; sudo php5enmod mbstring" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-mbstring" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'mb');
         }
@@ -271,7 +271,7 @@ if (!function_exists('mb_string_url'))
  * Rewritten by Sven Oostenrink for use in BASE framework
  */
 function mb_strip_invalid($string, $replace = false) {
-    try{
+    try {
         $regex = <<<'END'
 /
   (
@@ -306,7 +306,7 @@ END;
  * Rewritten by Sven Oostenrink for use in BASE framework
  */
 function mb_utf8replacer($captures) {
-    try{
+    try {
         if ($captures[1] != "") {
             /*
              * Valid byte sequence. Return unmodified.
@@ -340,7 +340,7 @@ function mb_utf8replacer($captures) {
  * Rewritten by Sven Oostenbrink
  */
 function mb_utf8ize($source) {
-    try{
+    try {
         if (is_array($source)) {
             foreach ($source as $key => $value) {
                 $source[$key] = mb_utf8ize($value);

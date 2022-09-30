@@ -15,7 +15,7 @@
  * Automatically executed by libs_load()
  */
 function apache_library_init() {
-    try{
+    try {
         load_libs('servers');
 
     }catch(Exception $e) {
@@ -46,7 +46,7 @@ function apache_library_init() {
  * @return void
  */
 function apache_write_vhost($hostname, $vhost_name, $params, $port) {
-    try{
+    try {
         if (!is_array($params)) {
             throw new CoreException(tr('apache_write_vhost(): Invalid data for params. Params must be  an array', 'invalid'));
         }
@@ -108,7 +108,7 @@ function apache_write_vhost($hostname, $vhost_name, $params, $port) {
  * @param array $params, must be an array example: $params = array('ServerName'=>'domain.com',....,'ServerSignature'=>'Off');
  */
 function apache_set_identification($hostname, $params) {
-    try{
+    try {
         $command     = '';
         $config_path = apache_get_config_path($hostname);;
 
@@ -132,7 +132,7 @@ function apache_set_identification($hostname, $params) {
  * @return string The path where the virtual host configuration files are located
  */
 function apache_get_vhosts_path($server_os) {
-    try{
+    try {
         if (empty($server_os)) {
             throw new CoreException(tr('apache_get_vhosts_path(): No operating system specified'), 'not-specified');
         }
@@ -167,7 +167,7 @@ function apache_get_vhosts_path($server_os) {
  * @return string
  */
 function apache_get_config_path($hostname) {
-    try{
+    try {
         $server_os = servers_detect_os($hostname);
 
         switch($server_os['name']) {

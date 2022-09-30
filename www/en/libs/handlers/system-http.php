@@ -8,7 +8,7 @@
 
 
 
-try{
+try {
     /*
      * Set timeout
      * Define basic platform constants
@@ -66,7 +66,7 @@ under_construction();
      * This is normally done by checking the current dirname of the startup file,
      * this will be LANGUAGECODE/libs/handlers/system-webpage.php
      */
-    try{
+    try {
         if ($_CONFIG['language']['supported']) {
             /*
              * Language is defined by the www/LANGUAGE dir that is used.
@@ -163,7 +163,7 @@ under_construction();
      * Set timezone
      * See http://www.php.net/manual/en/timezones.php for more info
      */
-    try{
+    try {
         date_default_timezone_set($_CONFIG['timezone']['system']);
 
     }catch(Exception $e) {

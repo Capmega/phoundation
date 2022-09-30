@@ -29,7 +29,7 @@
 function cache_library_init() {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * Auto load the memcached or file library
          */
@@ -78,7 +78,7 @@ function cache_library_init() {
 function cache_read($key, $namespace = null) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         if (!$key) {
             throw new CoreException(tr('cache_read(): No cache key specified'), 'not-specified');
         }
@@ -139,7 +139,7 @@ function cache_read($key, $namespace = null) {
 function cache_read_file($key, $namespace = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if ($namespace) {
             $namespace = Strings::slash($namespace);
         }
@@ -183,7 +183,7 @@ function cache_read_file($key, $namespace = null) {
 function cache_write($value, $key, $namespace = null, $max_age = null) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         if (!$max_age) {
             $max_age = $_CONFIG['cache']['max_age'];
         }
@@ -246,7 +246,7 @@ function cache_write($value, $key, $namespace = null, $max_age = null) {
  * @return mixed The cache blob data if found, null otherwise
  */
 function cache_write_file($value, $key, $namespace = null) {
-    try{
+    try {
         if ($namespace) {
             $namespace = Strings::slash($namespace);
         }
@@ -284,8 +284,8 @@ function cache_write_file($value, $key, $namespace = null) {
 function cache_key_hash($key) {
     global $_CONFIG;
 
-    try{
-        try{
+    try {
+        try {
             get_hash($key, $_CONFIG['cache']['key_hash']);
 
         }catch(Exception $e) {
@@ -314,7 +314,7 @@ function cache_key_hash($key) {
 function cache_showpage($key = null, $namespace = 'htmlpage', $etag = null) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         if ($_CONFIG['cache']['method']) {
             /*
              * Default values

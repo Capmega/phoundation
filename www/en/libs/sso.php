@@ -34,7 +34,7 @@
  * @return void
  */
 function sso_library_init() {
-   try{
+   try {
         ensure_installed(array('name'      => 'hybridauth',
                                'project'   => 'hybridauth',
                                'callback'  => 'sso_install',
@@ -66,7 +66,7 @@ function sso_library_init() {
  * @return void
  */
 function sso_install($params) {
-   try{
+   try {
         /*
          * Download the hybridauth v2 library, and install it in the vendor
          * libraries path
@@ -110,7 +110,7 @@ function sso_install($params) {
 function sso($provider, $method, $redirect, $role = 'user') {
     global $_CONFIG;
 
-    try{
+    try {
         switch($provider) {
             case 'facebook':
                 // FALLTHROUGH
@@ -152,7 +152,7 @@ function sso($provider, $method, $redirect, $role = 'user') {
                 $profile    = array_from_object($profile);
 //showdie($profile);
 
-                try{
+                try {
                     $birthday = date_convert($profile['birthYear'].'-'.$profile['birthMonth'].'-'.$profile['birthDay'], 'mysql');
 
                 }catch(Exception $e) {
@@ -337,7 +337,7 @@ function sso($provider, $method, $redirect, $role = 'user') {
 function sso_config($provider) {
     global $_CONFIG;
 
-    try{
+    try {
         if (empty($_CONFIG['sso'][$provider]['appid'])) {
             throw new CoreException(tr('sso_config(): The specified provider ":provider" is not configured'), 'not-exist');
         }
@@ -439,7 +439,7 @@ function sso_config($provider) {
  * Handle SSO failure gracefully
  */
 function sso_fail($message, $redirect = null) {
-    try{
+    try {
         load_libs('html');
         html_flash_set($message, 'error');
 

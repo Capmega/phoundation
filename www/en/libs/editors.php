@@ -28,7 +28,7 @@
  * @return void
  */
 function editors_library_init() {
-    try{
+    try {
         load_config('editors');
 
     }catch(Exception $e) {
@@ -42,7 +42,7 @@ function editors_library_init() {
  * Return HTML and JS for a niceditor
  */
 function editors_nicedit($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name' , 'editor');
         array_default($params, 'value', '');
@@ -82,7 +82,7 @@ function editors_nicedit($params) {
         <a href="javascript:;" onmousedown="$('#content').tinymce().execCommand('mceReplaceContent',false,'<b>{$selection}</b>');">[Replace selection]</a>
 */
 function editors_tinymce($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'         , 'editor');
         array_default($params, 'value'        , '');
@@ -140,7 +140,7 @@ function editors_tinymce($params) {
  * Editor summernote to atlant template
  */
 function editors_summernote($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'            , 'editor');
         array_default($params, 'class'           , 'summernote editor');

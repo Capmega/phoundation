@@ -28,7 +28,7 @@
  * @return void
  */
 function social_library_init() {
-    try{
+    try {
         load_config('social');
 
     }catch(Exception $e) {
@@ -44,7 +44,7 @@ function social_library_init() {
 function social_links($params = false, $returnas = 'string', $separator = ' | ') {
     global $_CONFIG;
 
-    try{
+    try {
         $retval = array();
 
         if (!$params) {

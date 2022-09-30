@@ -27,7 +27,7 @@
  * @return void
  */
 function share_library_init() {
-    try{
+    try {
         load_config('share');
 
     }catch(Exception $e) {
@@ -43,7 +43,7 @@ function share_library_init() {
 function share_buttons($buttons) {
     global $_CONFIG;
 
-    try{
+    try {
         switch($_CONFIG['share']['provider']) {
             case 'addthis':
                 return share_addthis_buttons($buttons);
@@ -76,7 +76,7 @@ function share_buttons($buttons) {
  * It must be customized in www.addthis.com/dashboard
  */
 function share_addthis_buttons() {
-    try{
+    try {
         html_load_js('//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-55e77d50dd5d574b');
         return '<div class="addthis_sharing_toolbox"></div>';
 
@@ -91,7 +91,7 @@ function share_addthis_buttons() {
  *
  */
 function share_sharethis_buttons($buttons) {
-    try{
+    try {
         $html = '';
 
         if (empty($buttons)) {
@@ -199,7 +199,7 @@ function share_sharethis_js() {
  *
  */
 function share_addtoany_buttons($buttons) {
-    try{
+    try {
         html_load_js('https://static.addtoany.com/menu/page.js');
 
         $html = '<div class="a2a_kit a2a_kit_size_32 a2a_default_style">';

@@ -41,7 +41,7 @@ use Facebook\GraphSessionInfo;
 function facebook_post_message($msg, $token) {
     global $_CONFIG;
 
-    try{
+    try {
         $app_id     = $_CONFIG['sso']['facebook']['appid'];
         $app_secret = $_CONFIG['sso']['facebook']['secret'];
 
@@ -69,7 +69,7 @@ function facebook_post_message($msg, $token) {
 function facebook_redirect_to_authorize($return = false) {
     global $_CONFIG;
 
-    try{
+    try {
         $app_id     = $_CONFIG['sso']['facebook']['appid'];
         $app_secret = $_CONFIG['sso']['facebook']['secret'];
         $scope      = $_CONFIG['sso']['facebook']['scope'];
@@ -97,7 +97,7 @@ function facebook_redirect_to_authorize($return = false) {
 function facebook_get_user_token() {
     global $_CONFIG;
 
-    try{
+    try {
         $app_id     = $_CONFIG['sso']['facebook']['appid'];
         $app_secret = $_CONFIG['sso']['facebook']['secret'];
         $redirect   = $_CONFIG['sso']['facebook']['redirect'];
@@ -127,7 +127,7 @@ function facebook_get_user_token() {
 function facebook_user_info($token) {
     global $_CONFIG;
 
-    try{
+    try {
         $app_id     = $_CONFIG['sso']['facebook']['appid'];
         $app_secret = $_CONFIG['sso']['facebook']['secret'];
 
@@ -153,7 +153,7 @@ function facebook_user_info($token) {
 function facebook_signin() {
     global $_CONFIG;
 
-    try{
+    try {
         //Create our Application instance (replace this with your appId and secret).
         $facebook = new Facebook(array('appId'  => $_CONFIG['sso']['facebook']['appid'],
                                        'secret' => $_CONFIG['sso']['facebook']['secret'],
@@ -208,7 +208,7 @@ function facebook_signin() {
             //        $username = sgapps-ics-20120429-signed.ziptolower(preg_replace("/[^A-Za-z0-9]/", '', $fb_data['name']));
             //        $tel      = 1;
             //
-            //        while(!$found and !strlen($username) and !in_array($username,$_CONFIG['bl_usernames'])) {
+            //        while (!$found and !strlen($username) and !in_array($username,$_CONFIG['bl_usernames'])) {
             //            $test = sql_get("select uid from users where username='".cfm($username)."';");
             //
             //            if ($test['uid']>0) {
@@ -322,7 +322,7 @@ function facebook_signin() {
 function facebook_get_avatar($user) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('file,image,user');
 
         if (is_array($user)) {
@@ -411,7 +411,7 @@ function facebook_get_avatar($user) {
 //function facebook_queue_product_post(&$product,$uid,$username='') {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        if (empty($username)) {
 //            $user     = load_user_data($uid);
 //            $username = $user['username'];
@@ -437,7 +437,7 @@ function facebook_get_avatar($user) {
 // *
 // */
 //function facebook_queue_newuser_post($uid) {
-//    try{
+//    try {
 //        $message = array('message' => ('I have just signed up to EstáSúper!'),
 //                         'link'    => 'http://'.domain(),
 //                         'name'    => ('Follow me on EstáSúper!'),
@@ -456,7 +456,7 @@ function facebook_get_avatar($user) {
 // * add follow user post
 // */
 //function facebook_queue_follow_user_post($uid,$url) {
-//    try{
+//    try {
 //        sql_query("INSERT INTO fb_posts_queue (uid,type,data_array,date_added) VALUES (".cfi($uid).",'FOLLOW_USER','".$url."',".time().");");
 //
 //    } catch(Exception $e) {
@@ -470,7 +470,7 @@ function facebook_get_avatar($user) {
 // * add follow user post
 // */
 //function facebook_queue_follow_collection_post($uid,$url) {
-//    try{
+//    try {
 //        sql_query("INSERT INTO fb_posts_queue (uid,type,data_array,date_added) VALUES (".cfi($uid).",'FOLLOW_COLLECTION','".$url."',".time().");");
 //
 //    } catch(Exception $e) {
@@ -490,7 +490,7 @@ function facebook_sdk_js() {
 }
 
 function facebook_button($params) {
-    try{
+    try {
         /*
          * See https://developers.facebook.com/docs/plugins/like-button
          *     https://developers.facebook.com/docs/plugins/share-button
@@ -536,7 +536,7 @@ function facebook_button($params) {
  *
  */
 function facebook_load_sdk() {
-    try{
+    try {
         $html = '   <!-- Load Facebook SDK for JavaScript -->
                     <div id="fb-root"></div>
                     <script>(function(d, s, id) {

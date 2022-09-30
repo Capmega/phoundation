@@ -14,7 +14,7 @@
  * Do a redirect for the specified code
  */
 function redirect_from_code($code) {
-    try{
+    try {
         $url = sql_get('SELECT `url` FROM `redirects` WHERE `code` = :code', 'url', array(':code' => $code));
 
         if (!$url) {
@@ -34,7 +34,7 @@ function redirect_from_code($code) {
  * Add a code and the URL it should redirect to
  */
 function redirect_add_code($url, $code = null) {
-    try{
+    try {
         if (!$code) {
             $code = uniqid('', true);
         }

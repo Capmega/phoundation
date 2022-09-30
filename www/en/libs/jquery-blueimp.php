@@ -14,7 +14,7 @@
  *
  */
 function jquery_blueimp($area_selector, $link_selector, $params = null, $options = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'title'     , '');
         array_default($params, 'prev'      , '‹');

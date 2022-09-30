@@ -29,7 +29,7 @@
 function crypt_library_init() {
     global $core;
 
-    try{
+    try {
         load_config('crypt');
         load_libs('sodium');
 
@@ -62,7 +62,7 @@ function crypt_library_init() {
 function encrypt($data, $key, $method = null) {
     global $core;
 
-    try{
+    try {
         switch($_CONFIG['crypt']['backend']) {
             case 'sodium':
                 $key  = crypt_pad_key($key);
@@ -105,7 +105,7 @@ function encrypt($data, $key, $method = null) {
 function decrypt($data, $key, $method = null) {
     global $core;
 
-    try{
+    try {
         if ($data === false) {
             throw new CoreException(tr('decrypt(): base64_decode() asppears to have failed to decode data, probably invalid base64 string'), 'invalid');
         }
@@ -156,7 +156,7 @@ function decrypt($data, $key, $method = null) {
 function crypt_pad_key($key, $character = '*') {
     global $_CONFIG;
 
-    try{
+    try {
         if ($_CONFIG['crypt']['min_key_size'] and (strlen($key) < $_CONFIG['crypt']['min_key_size'])) {
             $key = $key.str_repeat($character, $_CONFIG['crypt']['min_key_size'] - strlen($key));
         }

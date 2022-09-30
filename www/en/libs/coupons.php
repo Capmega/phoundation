@@ -47,7 +47,7 @@
 function coupons_validate($coupon) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('validate,seo,categories');
 
         $v = new ValidateForm($coupon, 'id,category,code,reward,description');
@@ -137,7 +137,7 @@ function coupons_validate($coupon) {
  * @return params The specified coupon, validated, and sanitized
  */
 function coupons_insert($coupon) {
-    try{
+    try {
         $coupon = coupons_validate($coupon);
 
         sql_query('INSERT INTO `coupons` (`createdby`, `meta_id`, `categories_id`, `code`, `seocode`, `reward`, `description`, `count`, `expires`)
@@ -197,7 +197,7 @@ function coupons_insert($coupon) {
  * @return params The specified coupon, validated, and sanitized
  */
 function coupons_update($coupon) {
-    try{
+    try {
         $coupon = coupons_validate($coupon);
         meta_action($coupon['meta_id'], 'update');
 
@@ -260,7 +260,7 @@ function coupons_update($coupon) {
  * @return array the data for the requested coupon
  */
 function coupons_get($coupon, $column = null, $status = null, $categories_id = false, $available = false) {
-    try{
+    try {
         if (is_numeric($coupon)) {
             $where[] = ' `coupons`.`id` = :id ';
             $execute[':id'] = $coupon;
@@ -365,7 +365,7 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
  * @return string the used coupon code
  */
 function coupons_use($code) {
-    try{
+    try {
         $coupon = coupons_get($code, null, null, false, true);
 
         if (!$coupon) {
@@ -424,7 +424,7 @@ function coupons_use($code) {
  * @return string The result
  */
 function coupons_add_coupon($code, $new_amount = 0) {
-    try{
+    try {
         if ($code) {
             $coupon = coupons_get((is_array($code)?$code['code']:$code), null, null, false, true);
 
@@ -501,7 +501,7 @@ function coupons_add_coupon($code, $new_amount = 0) {
  * @return natural The amount of credits available for this user
  */
 function coupons_add_to_wallet($amount) {
-    try{
+    try {
         $amount  = intval($amount);
         $credits = sql_get('SELECT `credits` FROM `users` WHERE `id` = :id', true, array(':id' => $_SESSION['user']['id']));
         $amount  = $credits + $amount;

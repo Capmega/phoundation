@@ -1,5 +1,5 @@
 <?php
-try{
+try {
     if ($trace_offset === null) {
         if (PLATFORM_HTTP) {
             $trace_offset = 5;

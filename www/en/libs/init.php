@@ -25,7 +25,7 @@
 function init($projectfrom = null, $frameworkfrom = null) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         /*
          * Are we allowed to init?
          */
@@ -230,7 +230,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
                             /*
                              * This init file is higher than the DB version, but lower than the code version, so it must be executed
                              */
-                            try{
+                            try {
                                 if (file_exists($hook = $initpath.'hooks/pre_'.$file)) {
                                     log_console(tr('Executing newer init "pre" hook file with version ":version"', array(':version' => $version)), 'cyan');
                                     include_once($hook);
@@ -243,7 +243,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
                                 throw new CoreException(tr('init(:type): Init "pre" hook file ":file" failed', array(':type' => $type, ':file' => $file)), $e);
                             }
 
-                            try{
+                            try {
                                 log_console(tr('Executing newer init file with version ":version"', array(':version' => $version)), 'VERBOSE/cyan');
                                 init_include($initpath.$file);
 
@@ -254,7 +254,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
                                 throw new CoreException('init('.$type.'): Init file "'.$file.'" failed', $e);
                             }
 
-                            try{
+                            try {
                                 if (file_exists($hook = $initpath.'hooks/post_'.$file)) {
                                     log_console(tr('Executing newer init "post" hook file with version ":version"', array(':version' => $version)), 'VERBOSE/cyan');
                                     include_once($hook);
@@ -357,7 +357,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
 function init_process_version_diff() {
     global $_CONFIG, $core;
 
-    try{
+    try {
         switch($core->register['real_script']) {
             case 'base/info':
                 // FALLTHROUGH
@@ -416,7 +416,7 @@ function init_process_version_diff() {
 function init_process_version_fail($e) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         $r = $core->sql['core']->query('SHOW TABLES WHERE `Tables_in_'.$_CONFIG['db']['core']['db'].'` = "versions";');
 
         if ($r->rowCount($r)) {
@@ -443,7 +443,7 @@ function init_process_version_fail($e) {
  * Execute specified hook file
  */
 function init_hook($hook, $disabled = false, $params = null) {
-    try{
+    try {
         /*
          * Reshuffle arguments, if needed
          */
@@ -472,7 +472,7 @@ function init_hook($hook, $disabled = false, $params = null) {
  * Upgrade the specified part of the specified version
  */
 function init_version_upgrade($version, $part) {
-    try{
+    try {
         if (!str_is_version($version)) {
             throw new CoreException('init_version_upgrade(): Specified version is not a valid n.n.n version format');
         }
@@ -512,7 +512,7 @@ function init_version_upgrade($version, $part) {
 function init_include($file, $section = null) {
     global $_CONFIG;
 
-    try{
+    try {
         include_once($file);
 
     }catch(Exception $e) {
@@ -540,7 +540,7 @@ function init_include($file, $section = null) {
 function init_section($section, $version) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         load_libs('sql_exists');
 
         $path = ROOT.'init/'.$section.'/';
@@ -630,7 +630,7 @@ function init_section($section, $version) {
                     /*
                      * This init file is higher than the DB version, but lower than the code version, so it must be executed
                      */
-                    try{
+                    try {
                         if (file_exists($hook = $path.'hooks/pre_'.$file)) {
                             log_console('Executing newer init "pre" hook file with version "'.$version.'"', 'cyan');
                             include_once($hook);
@@ -643,7 +643,7 @@ function init_section($section, $version) {
                         throw new CoreException('init('.$section.'): Init "pre" hook file "'.$file.'" failed', $e);
                     }
 
-                    try{
+                    try {
                         log_console('Executing newer init file with version "'.$version.'"', 'VERBOSE/cyan');
                         init_include($path.$file, $section);
 
@@ -654,7 +654,7 @@ function init_section($section, $version) {
                         throw new CoreException('init('.$section.'): Init file "'.$file.'" failed', $e);
                     }
 
-                    try{
+                    try {
                         if (file_exists($hook = $path.'hooks/post_'.$file)) {
                             log_console('Executing newer init "post" hook file with version "'.$version.'"', 'VERBOSE/cyan');
                             include_once($hook);
@@ -727,12 +727,12 @@ function init_section($section, $version) {
  * @return natural The amount of entries removed from the `versions` table
  */
 function init_reset() {
-    try{
+    try {
         $versions = sql_query('SELECT `id`, `framework`, `project` FROM `versions`');
         $erase    = sql_prepare('DELETE FROM `versions` WHERE `id` = :id');
         $changed  = 0;
 
-        while($version = sql_fetch($versions)) {
+        while ($version = sql_fetch($versions)) {
             if (version_compare($version['framework'], FRAMEWORKCODEVERSION) > 0) {
                 $erase->execute(array(':id' => $version['id']));
                 $changed++;
@@ -769,7 +769,7 @@ function init_reset() {
  * @return string The highest init file version available for the specified section
  */
 function init_get_highest_file_version($section) {
-    try{
+    try {
         switch($section) {
             case 'framework':
                 // FALLTHROUGH

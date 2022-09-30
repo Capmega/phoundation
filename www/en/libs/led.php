@@ -15,7 +15,7 @@
  * Return HTML to show led
  */
 function led() {
-    try{
+    try {
         if (!debug()) {
             return '';
         }

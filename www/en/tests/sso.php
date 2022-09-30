@@ -42,7 +42,7 @@ if (empty($_GET['provider'])) {
 <?php
 
 } else {
-	try{
+	try {
 		load_libs('sso');
 		$result = sso($_GET['provider'], true);
 

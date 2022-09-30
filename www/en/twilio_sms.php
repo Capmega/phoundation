@@ -45,7 +45,7 @@
 
 require_once(__DIR__.'/libs/startup.php');
 
-try{
+try {
     load_libs('validate,twilio,sms');
 
     $v = new validate_form($_POST, 'ToCountry,ToState,SmsMessageSid,NumMedia,ToCity,FromZip,SmsSid,FromState,SmsStatus,FromCity,Body,FromCountry,To,ToZip,MessageSid,AccountSid,From,ApiVersion', '');

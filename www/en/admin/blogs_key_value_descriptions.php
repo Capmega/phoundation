@@ -35,7 +35,7 @@ array_default($params, 'validation_description'  , tr('Specified data is missing
 /*
  * Update the key-value descriptions
  */
-try{
+try {
     switch(isset_get($_POST['formaction'])) {
         case 'Update':
             load_libs('seo,blogs');
@@ -125,7 +125,7 @@ $r = sql_query('SELECT `key`,
 
 if ($r->rowCount()) {
 
-    while($row = sql_fetch($r)) {
+    while ($row = sql_fetch($r)) {
         $html .= '  <hr>
                     <div class="form-group">
                         <label class="col-md-3 control-label" for="key'.$count.'">'.tr('Key / Value').'</label>
@@ -208,7 +208,7 @@ echo ca_page($html, $params);
 function s_validate_data(&$data) {
     global $params;
 
-    try{
+    try {
         // Validate input
         $v = new validate_form($data);
 

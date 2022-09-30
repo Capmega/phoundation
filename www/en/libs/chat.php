@@ -28,7 +28,7 @@
  * @return void
  */
 function chat_library_init() {
-    try{
+    try {
         load_config('chat');
 
     }catch(Exception $e) {
@@ -106,7 +106,7 @@ function chat_library_init() {
  * @return params The specified template, validated and sanitized
  */
 function chat_add_user($user) {
-    try{
+    try {
         $user = chat_validate_user($user);
 
         sql_query('INSERT INTO `users` (`user_id`, `user_name`, `user_email`, `user_password`, `alt_name`, `user_ip`, `user_join`)
@@ -160,7 +160,7 @@ function chat_add_user($user) {
 function chat_update_user($user) {
     static $fail = false;
 
-    try{
+    try {
         $user = chat_validate_user($user);
 
         $r    = sql_query('UPDATE `users`
@@ -224,7 +224,7 @@ function chat_update_user($user) {
  * @return array The validated and cleaned $user array
  */
 function chat_validate_user($user) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($user, 'name,email,nickname');
@@ -303,7 +303,7 @@ function chat_validate_user($user) {
  *
  */
 function chat_get_user($user) {
-    try{
+    try {
         return sql_get('SELECT `user_name`, `user_password` FROM `users` WHERE `user_id` = :user_id', array(':user_id' => $user['id']), null, 'chat');
 
     }catch(Exception $e) {
@@ -319,7 +319,7 @@ function chat_get_user($user) {
 function chat_start($user) {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$user) {
             /*
              * This user doesnt exist yet
@@ -343,7 +343,7 @@ function chat_start($user) {
  *
  */
 function chat_end($userid) {
-    try{
+    try {
         sql_query('UPDATE `users`
 
                    SET    `user_status` = :user_status
@@ -366,7 +366,7 @@ function chat_end($userid) {
  *
  */
 function chat_update_rank($user) {
-    try{
+    try {
         if (has_rights('god', $user)) {
             $rank = 5;
 
@@ -410,7 +410,7 @@ function chat_update_rank($user) {
  * If users in igotit have status, then ensure that this status is reflected in chat as well
  */
 function chat_sync_users($user, $log_console = false) {
-    try{
+    try {
         /*
          * List all users form igotit site, and ensure they are in the chat
          */
@@ -418,8 +418,8 @@ function chat_sync_users($user, $log_console = false) {
 
         $s = sql_prepare('SELECT `user_id`, `user_name`, `user_email`, `user_status` FROM `users` WHERE `user_id` = :user_id');
 
-        while($user = sql_fetch($r)) {
-            try{
+        while ($user = sql_fetch($r)) {
+            try {
                 if (!$chat_user = $s->execute(array(':user_id' => $user['id']))) {
                     chat_add_user($user);
 
@@ -443,7 +443,7 @@ function chat_sync_users($user, $log_console = false) {
  * Update user avatar
  */
 function chat_update_avatar($user, $avatar) {
-    try{
+    try {
         $r = sql_query('UPDATE `users`
 
                         SET    `user_avatar` = :user_avatar,

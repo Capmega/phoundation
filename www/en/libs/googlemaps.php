@@ -22,7 +22,7 @@
  * @return void
  */
 function googlemaps_library_init() {
-    try{
+    try {
         load_config('googlemaps');
 
     }catch(Exception $e) {
@@ -49,7 +49,7 @@ function googlemaps_library_init() {
 function googlemaps_basic($latitude = null, $longitude = null, $zoom = 8, $api_key = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$api_key) {
             $api_key = $_CONFIG['google']['maps']['api_key'];
         }
@@ -141,7 +141,7 @@ function googlemaps_basic($latitude = null, $longitude = null, $zoom = 8, $api_k
 function googlemaps_get_streetview_image($lat, $long, $x = 640, $y = 480) {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * Validate sizes
          */
@@ -180,7 +180,7 @@ function googlemaps_get_streetview_image($lat, $long, $x = 640, $y = 480) {
  * Cache streetview images
  */
 function googlemaps_cache_streetmaps($lat, $long, $x = 640, $y = 480) {
-    try{
+    try {
         $cache_md5  = md5($lat.$long);
         $cache_dir  = ROOT.'www/streetview_cache/';
         $cache_file = str_interleave($cache_md5, '/', 4).'.jpg';
@@ -212,7 +212,7 @@ function googlemaps_cache_streetmaps($lat, $long, $x = 640, $y = 480) {
 function googlemaps_map_with_markers($markers = array(), $divid = 'map-canvas') {
     global $_CONFIG;
 
-    try{
+    try {
         //load external library
         html_load_js('<jquery,https://maps.googleapis.com/maps/api/js?key='.$_CONFIG['google_maps']['api_key']);
 
@@ -236,7 +236,7 @@ function googlemaps_map_with_markers($markers = array(), $divid = 'map-canvas') 
                 throw new CoreException('googlemaps_map_with_markers(): Failed to place any markers', isset_get($e, 'markerfailed'));
             }
             foreach($markers as $key => $data) {
-                try{
+                try {
                     if (empty($data['lat'])) {
                         throw new CoreException('googlemaps_map_with_markers(): No latitute specified for marker "'.$key.'"', isset_get($e, 'markerfailed'));
                     }
@@ -369,7 +369,7 @@ function googlemaps_map_with_markers($markers = array(), $divid = 'map-canvas') 
 function googlemaps_geocoding($street, $city, $state, $country) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('curl');
 
         $raw  = curl_get('http://maps.googleapis.com/maps/api/geocode/json?address='.urlencode($street).','.urlencode($city).','.urlencode($state).','.urlencode($country).'&sensor=false','http://'.$_SESSION['domain']);
@@ -394,7 +394,7 @@ function googlemaps_geocoding($street, $city, $state, $country) {
 function googlemaps_reverse_geocoding($latitude, $longitude, $sensor = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if (empty($latitude) or empty($longitude)) {
             throw new CoreException('googlemaps_reverse_geocoding(): Latitude or Longitude empty', 'invalid');
         }
@@ -432,7 +432,7 @@ function googlemaps_reverse_geocoding($latitude, $longitude, $sensor = null) {
 function googlemaps_markers($locations, $longitude = null) {
     global $_CONFIG;
 
-    try{
+    try {
         load_config('googlemaps');
 
         if (!is_array($locations)) {
@@ -464,7 +464,7 @@ function googlemaps_markers($locations, $longitude = null) {
 function googlemaps_map_drag_marker($lat, $lng, $divid = 'map-canvas') {
     global $_CONFIG;
 
-    try{
+    try {
         //load external library
         html_load_js('<jquery,script,https://maps.googleapis.com/maps/api/js?key='.$_CONFIG['google_maps']['api_key']);
 

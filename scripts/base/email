@@ -163,7 +163,7 @@ switch(cli_method()) {
 
             $r = sql_query('DELETE FROM `email_files`');
 
-            while($file = sql_fetch($r)) {
+            while ($file = sql_fetch($r)) {
                 file_delete($file, ROOT.'data/content/emails/');
             }
 
@@ -204,7 +204,7 @@ switch(cli_method()) {
 
         log_console(str_size(tr('Email'), 32).str_size(tr('User'), 32), 'cyan');
 
-        while($email = sql_fetch($r)) {
+        while ($email = sql_fetch($r)) {
             log_console(str_size($email['email'], 32).str_size($email['user'], 32));
         }
 
@@ -223,7 +223,7 @@ switch(cli_method()) {
                 cli_no_arguments_left();
                 load_libs('numbers');
 
-                while($account = sql_fetch($r)) {
+                while ($account = sql_fetch($r)) {
                     log_console(tr('Fetching information for email ":email"', array(':email' => $account['email'])), 'white');
                     $userdata = email_get_user($account['email']);
 
@@ -256,7 +256,7 @@ switch(cli_method()) {
 
                 $count = 0;
 
-                while($account = sql_fetch($r, 'email')) {
+                while ($account = sql_fetch($r, 'email')) {
                     log_console(tr('Fetching mail boxes for email ":email"', array(':email' => $account)), 'white');
                     $userdata = email_get_user($account);
 
@@ -290,7 +290,7 @@ switch(cli_method()) {
                 $mail_boxes = explode(',', $mail_boxes);
                 $total      = 0;
 
-                while($account = sql_fetch($r, 'email')) {
+                while ($account = sql_fetch($r, 'email')) {
                     log_console(tr('Deleting emails for account ":account"', array(':account' => $account)), 'white');
 
                     foreach($mail_boxes as $mail_box) {
@@ -345,7 +345,7 @@ switch(cli_method()) {
 
         proc_nice(5);
 
-        while($loops-- or $first) {
+        while ($loops-- or $first) {
             if ($loops) {
                 log_console(tr('Executing poll loop ":loop"', array(':loop' => abs($loops))), 'white');
 
@@ -357,7 +357,7 @@ switch(cli_method()) {
 
             $first = false;
 
-            while($account = sql_fetch($r, 'email')) {
+            while ($account = sql_fetch($r, 'email')) {
                 if (VERBOSE) {
                     log_console(tr('Processing account ":account"', array(':account' => $account)));
                 }
@@ -367,7 +367,7 @@ switch(cli_method()) {
                         log_console(tr('Processing mail box ":mailbox"', array(':mailbox' => $mail_box)));
                     }
 
-                    try{
+                    try {
                         $results = email_poll(array('account'  => $account,
                                                     'mail_box' => $mail_box,
                                                     'criteria' => $criteria,
@@ -449,7 +449,7 @@ switch(cli_method()) {
                               AND   (`to`               = :from
                               OR     `from`             = :from)');
 
-            while($message = sql_fetch($r)) {
+            while ($message = sql_fetch($r)) {
                 cli_dot();
 
                 $conversation = email_get_conversation($message);
@@ -503,7 +503,7 @@ switch(cli_method()) {
                               WHERE    `id` = :id');
         }
 
-        while($conversation = sql_fetch($r)) {
+        while ($conversation = sql_fetch($r)) {
             cli_dot();
 
             $msg_count  = 0;

@@ -27,7 +27,7 @@
  * @return void
  */
 function go_library_init() {
-    try{
+    try {
         load_libs('linux');
 
     }catch(Exception $e) {
@@ -58,7 +58,7 @@ function go_library_init() {
  * @return string The output from the go command
  */
 function go_exists($file, $server = null) {
-    try{
+    try {
         $exists = linux_file_exists($server, ROOT.'data/go/'.$file, $server);
 
         if (!$exists) {
@@ -95,7 +95,7 @@ function go_exists($file, $server = null) {
  * @return string The output from the go command
  */
 function go_exec($params) {
-    try{
+    try {
         global $core;
 
         Arrays::ensure($params, 'commands,server');
@@ -180,7 +180,7 @@ function go_exec($params) {
  * @return string The output from the go command
  */
 function go_build($path, $server) {
-    try{
+    try {
         $server = servers_get($server);
 
         if (!linux_file_exists($server, $path)) {

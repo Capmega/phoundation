@@ -20,7 +20,7 @@ load_libs('notifications');
  */
 if (!function_exists('s_get_user_class')) {
     function s_get_user_class($class, $user) {
-        try{
+        try {
             $retval['user']       = $user;
             $retval['class']      = $class;
 
@@ -45,12 +45,12 @@ if (!function_exists('s_get_user_class')) {
 
 
 
-try{
+try {
     cli_only();
 
     switch($method = cli_argument(0)) {
         case 'add':
-            try{
+            try {
                 $data = s_get_user_class(cli_argument(1), cli_argument(2));
 
                 if (sql_get('SELECT `id` FROM `notifications_members` WHERE `users_id` = :users_id AND `classes_id` = :classes_id', 'id', array(':users_id' => $data['users_id'], ':classes_id' => $data['classes_id']))) {
@@ -92,14 +92,14 @@ try{
 
             log_console('#id   Notifications class             User', '', 'white');
 
-            while($member = sql_fetch($r)) {
+            while ($member = sql_fetch($r)) {
                 log_console(str_size($member['id'], 5, ' ', true).' '.str_size($member['class_name'], 32).' '.str_size($member['user_name'], 32), '');
             }
 
             break;
 
         case 'remove':
-            try{
+            try {
                 $data = s_get_user_class(cli_argument(1), cli_argument(2));
                 $r    = sql_query('DELETE FROM `notifications_members` WHERE `classes_id` = :classes_id AND `users_id` = :users_id',
 

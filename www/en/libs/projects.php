@@ -24,7 +24,7 @@
  * @return void
  */
 function projects_library_init() {
-    try{
+    try {
         load_config('projects');
 
     }catch(Exception $e) {
@@ -60,7 +60,7 @@ function projects_library_init() {
 function projects_validate($project, $reload_only = false) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($project, 'seocategory,seocustomer,name,code,seoprocess,step,documents_id,api_key,fcm_api_key,description');
@@ -254,7 +254,7 @@ function projects_validate($project, $reload_only = false) {
  * @return params The specified project, validated and sanitized
  */
 function projects_insert($project) {
-    try{
+    try {
         $project = projects_validate($project);
 
         sql_query('INSERT INTO `projects` (`createdby`, `meta_id`, `categories_id`, `customers_id`, `processes_id`, `steps_id`, `code`, `name`, `seoname`, `api_key`, `fcm_api_key`, `description`)
@@ -303,7 +303,7 @@ function projects_insert($project) {
  * @return boolean True if the user was updated, false if not. If not updated, this might be because no data has changed
  */
 function projects_update($project) {
-    try{
+    try {
         $project = projects_validate($project);
 
         meta_action($project['meta_id'], 'update');
@@ -369,7 +369,7 @@ function projects_update($project) {
  * @return string HTML for a projects select box within the specified parameters
  */
 function projects_select($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'        , 'seoproject');
         array_default($params, 'class'       , 'form-control');
@@ -440,7 +440,7 @@ function projects_select($params = null) {
  * @return mixed The project data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified project does not exist, NULL will be returned.
  */
 function projects_get($params) {
-    try{
+    try {
         Arrays::ensure($params, 'seoproject');
 
         array_default($params, 'filters', array('projects.seoname' => $params['seoproject'],
@@ -503,7 +503,7 @@ function projects_get($params) {
  * @return mixed The list of available templates
  */
 function projects_list($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));

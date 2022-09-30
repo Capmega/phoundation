@@ -82,7 +82,7 @@ under_construction();
 
         cli_no_arguments_left();
 
-        try{
+        try {
             config_update($environment, $keys, $value);
 
         }catch(Exception $e) {

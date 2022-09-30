@@ -11,7 +11,7 @@ if (!empty($_POST['docreate'])) {
     /*
      * Create a new tag
      */
-    try{
+    try {
         load_libs('seo');
 
         sql_query('INSERT INTO `tags` (`addedby`, `status`, `name`, `seoname`, `description`)
@@ -38,7 +38,7 @@ if (!empty($_POST['docreate'])) {
     /*
      * Update the specified tag
      */
-    try{
+    try {
         load_libs('seo,validate');
 
         // Validate input
@@ -86,7 +86,7 @@ if (!empty($_POST['docreate'])) {
     /*
      * Delete selected tags
      */
-    try{
+    try {
         $in = sql_in(isset_get($_POST['id']));
 
         switch($_POST['setstatus']) {

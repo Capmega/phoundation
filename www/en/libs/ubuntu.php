@@ -27,7 +27,7 @@
  * @return void
  */
 function ubuntu_install_package($package, $server) {
-    try{
+    try {
         load_libs('apt');
         return apt_install($package, true, $server);
 

@@ -17,7 +17,7 @@ load_config('sms');
 function sms_send_message($message, $to, $from = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if ($from === 'crmtext') {
             $provider = $from;
 
@@ -63,7 +63,7 @@ function sms_send_message($message, $to, $from = null) {
 function sms_get_conversation($phone_local, $phone_remote, $type, $createdon = null, $repliedon_now = false) {
     global $_CONFIG;
 
-    try{
+    try {
         $phone_local  = sms_full_phones($phone_local);
         $phone_remote = sms_full_phones($phone_remote);
 
@@ -141,7 +141,7 @@ function sms_get_conversation($phone_local, $phone_remote, $type, $createdon = n
 function sms_update_conversation($conversation, $messages_id, $direction, $message, $datetime, $replied) {
     global $_CONFIG;
 
-    try{
+    try {
         if (empty($conversation['id'])) {
             throw new CoreException('sms_update_conversation(): No conversation id specified', 'not-specified');
         }
@@ -158,7 +158,7 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
          * Decode the current last_messages
          */
         if ($conversation['last_messages']) {
-            try{
+            try {
                 $conversation['last_messages'] = json_decode_custom($conversation['last_messages']);
 
             }catch(Exception $e) {
@@ -210,7 +210,7 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
         $last_messages  = json_encode_custom($conversation['last_messages']);
         $message_length = strlen($last_messages);
 
-        while($message_length > 4000) {
+        while ($message_length > 4000) {
             /*
              * The JSON string is too large to be stored, reduce the amount of messages and try again
              */
@@ -259,7 +259,7 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
 function sms_full_phones($phones) {
     global $_CONFIG;
 
-    try{
+    try {
         $phones = Arrays::force($phones);
 
         foreach($phones as &$phone) {
@@ -296,7 +296,7 @@ function sms_full_phones($phones) {
 function sms_no_country_phones($phones) {
     global $_CONFIG;
 
-    try{
+    try {
         $phones = Arrays::force($phones);
 
         foreach($phones as &$phone) {
@@ -332,7 +332,7 @@ function sms_no_country_phones($phones) {
 function sms_select_source($name, $selected, $provider, $class) {
     global $_CONFIG;
 
-    try{
+    try {
         load_config('twilio');
 
         $resource = array();
@@ -368,7 +368,7 @@ function sms_select_source($name, $selected, $provider, $class) {
  * @return integer The amount of phone numbers that were actually blocked
  */
 function sms_block($phone_numbers, $status = null) {
-    try{
+    try {
         /*
          * First block the number
          */
@@ -409,7 +409,7 @@ function sms_block($phone_numbers, $status = null) {
  * @return integer The amount of phone numbers that were actually unblocked
  */
 function sms_unblock($phone_numbers, $status = null) {
-    try{
+    try {
         /*
          * First unblock the number
          */
@@ -425,7 +425,7 @@ function sms_unblock($phone_numbers, $status = null) {
 
                                       WHERE  `number` = :number');
 
-        while($number = sql_fetch($numbers)) {
+        while ($number = sql_fetch($numbers)) {
             meta_action($number['meta_id'], 'removed');
 
             $delete->execute(array(':number' => $number['number']));

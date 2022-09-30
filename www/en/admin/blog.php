@@ -7,7 +7,7 @@ load_libs('validate');
 /*
  * Edit or add?
  */
-try{
+try {
     if (empty($_GET['blog'])) {
         $mode  = 'create';
 
@@ -318,7 +318,7 @@ echo ca_page($html, $params);
  *
  */
 function s_validate_blog($blog) {
-    try{
+    try {
         // Validate input
         $v = new validate_form($blog, 'name,url_template,slogan,keywords,description,thumbs_x,thumbs_y,medium_x,medium_y,images_x,images_y');
 

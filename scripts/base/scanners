@@ -107,7 +107,7 @@ switch(cli_method()) {
             log_console(tr('Showing currently available devices'), 'QUIET/white');
             log_console(str_size(tr('#id'), 6).' '.str_size(tr('Name'), 20).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 16).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.tr('Description'), 'QUIET/cyan');
 
-            while($device = sql_fetch($devices)) {
+            while ($device = sql_fetch($devices)) {
                 log_console(str_size($device['id'], 6).' '.str_size(not_empty($device['name'], '-'), 20).' '.str_size($device['type'], 20).' '.str_size(isset_get($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 16).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.$device['description']);
             }
         }
@@ -118,7 +118,7 @@ switch(cli_method()) {
         $id   = cli_argument(1);
         $hard = cli_argument('-h,--hard');
 
-        try{
+        try {
             cli_no_arguments_left();
             scanimage_kill($id, null, $hard);
 
@@ -136,7 +136,7 @@ switch(cli_method()) {
         $id = cli_argument(1);
         cli_no_arguments_left();
 
-        try{
+        try {
             $runs = scanimage_runs($id);
             echo $runs;
 
@@ -242,7 +242,7 @@ switch(cli_method()) {
         /*
          * Scan!
          */
-        try{
+        try {
             $scanimage = scanimage($scanimage);
 
             if (!file_exists($scanimage['file'])) {

@@ -14,7 +14,7 @@
  * Return requested data for specified groups
  */
 function groups_get($group, $createdby = null) {
-    try{
+    try {
         if (!$group) {
             throw new CoreException(tr('groups_get(): No group specified'), 'not-specified');
         }
@@ -66,7 +66,7 @@ function groups_get($group, $createdby = null) {
  *
  */
 function groups_validate($group, $old_group = null) {
-    try{
+    try {
         load_libs('validate,seo');
 
         if ($old_group) {
@@ -121,7 +121,7 @@ function groups_validate($group, $old_group = null) {
  *
  */
 function groups_get_users($group) {
-    try{
+    try {
         $retval = sql_get('SELECT    `groups`.`id`,
                                      `groups`.`name`,
                                      `groups`.`status`,
@@ -160,7 +160,7 @@ function groups_get_users($group) {
 
         $retval['users'] = array();
 
-        while($user = sql_fetch($users)) {
+        while ($user = sql_fetch($users)) {
             array_push($retval['users'], $user);
         }
 

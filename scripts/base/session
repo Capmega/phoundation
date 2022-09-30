@@ -11,7 +11,7 @@ $help  = "This script manages sessions. The \"list\" command can list all curren
 
 require_once(__DIR__.'/../../../libs/startup.php');
 
-try{
+try {
     load_libs('session');
 
     switch(cli_argument(0)) {

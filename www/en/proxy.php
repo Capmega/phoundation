@@ -28,7 +28,7 @@ if ((strtolower(substr($_GET['url'], 0, 4)) !== 'http')) {
 	die('Bad request');
 }
 
-try{
+try {
 	$start = microtime(true);
 	$data  = curl_get(array('url'        => $_GET['url'],
 							'getheaders' => $getheaders,

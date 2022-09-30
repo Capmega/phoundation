@@ -28,7 +28,7 @@
 function mysqlr_library_init() {
     global $_CONFIG;
 
-    try{
+    try {
         load_config('mysqlr');
         load_libs('linux,cli,rsync');
 
@@ -53,7 +53,7 @@ function mysqlr_library_init() {
  * @return
  */
 function mysqlr_update_server_replication_status($params, $status) {
-    try{
+    try {
         /*
          * Update server replication_status
          */
@@ -118,7 +118,7 @@ function mysqlr_update_server_replication_status($params, $status) {
  * @return
  */
 function mysqlr_update_replication_status($params, $status) {
-    try{
+    try {
         /*
          * Update server and database replication_status
          */
@@ -197,7 +197,7 @@ function mysqlr_update_replication_status($params, $status) {
 function mysqlr_master_replication_setup($params) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('mysql');
 
         /*
@@ -332,7 +332,7 @@ function mysqlr_master_replication_setup($params) {
 function mysqlr_slave_replication_setup($params) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('mysql');
 
         /*
@@ -466,7 +466,7 @@ function mysqlr_slave_replication_setup($params) {
 function mysqlr_pause_replication($db, $restart_mysql = true) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('mysql');
 
         /*
@@ -533,7 +533,7 @@ function mysqlr_pause_replication($db, $restart_mysql = true) {
 function mysqlr_resume_replication($db, $restart_mysql = true) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('mysql');
 
         /*
@@ -598,7 +598,7 @@ function mysqlr_resume_replication($db, $restart_mysql = true) {
  * @param
  */
 function mysqlr_check_configuration_path($server_target) {
-    try{
+    try {
         $mysql_cnf_path = '/etc/mysql/mysql.conf.d/mysqld.cnf';
 
         /*
@@ -645,7 +645,7 @@ function mysqlr_check_configuration_path($server_target) {
 function mysqlr_slave_ssh_tunnel($server, $slave) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($server);
         array_default($server, 'server'       , '');
         array_default($server, 'domain'       , '');
@@ -717,7 +717,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave) {
         /*
          * Try deleting the keyfile anyway!
          */
-        try{
+        try {
             if (!empty($keyfile)) {
                 safe_exec(chmod($keyfile, 0600));
                 file_delete($keyfile, ROOT.'data/ssh/keys');
@@ -750,7 +750,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave) {
 function mysqlr_full_backup() {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * Get all servers replicating
          */
@@ -779,7 +779,7 @@ function mysqlr_full_backup() {
         /*
          * For each server get the databases replicating
          */
-        while($server = sql_fetch($servers)) {
+        while ($server = sql_fetch($servers)) {
             $databases = sql_list('SELECT `id`,
                                            `name`
 
@@ -877,7 +877,7 @@ function mysqlr_full_backup() {
  * @return
  */
 function mysqlr_scp_database($server, $source, $destnation, $from_server = false) {
-    try{
+    try {
 obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USING THE NEW AVAILABLE FUNCTIONS');
         Arrays::ensure($server);
         array_default($server, 'server'       , '');
@@ -956,7 +956,7 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
         /*
          * Try deleting the keyfile anyway!
          */
-        try{
+        try {
             if (!empty($keyfile)) {
                 chmod($keyfile, 0600);
                 file_delete($keyfile, ROOT.'data/ssh/keys');
@@ -989,7 +989,7 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
  * @return
  */
 function mysqlr_add_log($params) {
-    try{
+    try {
         /*
          * Validate
          */
@@ -1077,7 +1077,7 @@ function mysqlr_add_log($params) {
  * @return
  */
 function mysqlr_get_logs($database, $limit = 50) {
-    try{
+    try {
         load_libs('mysql');
 
         /*
@@ -1152,7 +1152,7 @@ function mysqlr_get_logs($database, $limit = 50) {
 function mysqlr_monitor_database($database) {
     global $_CONFIG;
 
-    try{
+    try {
         $slave = $_CONFIG['mysqlr']['domain'];
 
         /*
@@ -1352,7 +1352,7 @@ function mysqlr_monitor_database($database) {
  * @return
  */
 function mysqlr_log_type_human($type) {
-    try{
+    try {
         $retval = '';
         switch($type) {
             case 'mysql_issue':
@@ -1400,7 +1400,7 @@ function mysqlr_log_type_human($type) {
  * @return
  */
 function mysqlr_db_can_replicate($database_name) {
-    try{
+    try {
         /*
          * Check if there is duplicate database names on other servers
          */

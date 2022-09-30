@@ -12,7 +12,7 @@
  *
  */
 function date_relative($timestamp, $now = null, $periods = null) {
-    try{
+    try {
         if (!$now) {
             $now = time();
         }
@@ -43,7 +43,7 @@ function date_relative($timestamp, $now = null, $periods = null) {
  * Return a random date
  */
 function date_random($min = null, $max = null){
-    try{
+    try {
         if ($min){
             $min = new DateTime(date_convert($min, 'y-m-d'));
             $min = $min->getTimestamp();
@@ -74,7 +74,7 @@ function date_random($min = null, $max = null){
  * Returns the HTML for a timezone selection HTML select
  */
 function date_timezones_select($params = null){
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name', 'timezone');
 
@@ -104,7 +104,7 @@ function date_timezones_select($params = null){
  * Returns true if the specified timezone exists, false if not
  */
 function date_timezones_exists($timezone){
-    try{
+    try {
         return isset_get(date_timezones_list()[strtolower($timezone)]);
 
     }catch(Exception $e){
@@ -118,7 +118,7 @@ function date_timezones_exists($timezone){
  * Returns a list of all timezones supported by PHP
  */
 function date_timezones_list(){
-    try{
+    try {
         $list = array();
 
         foreach(timezone_abbreviations_list() as $abbriviation => $zones){
@@ -146,7 +146,7 @@ function date_timezones_list(){
  * Return date will be formatted according to date_convert() $format
  */
 function date_interval($date, $interval, $format = null){
-    try{
+    try {
         $date = date_convert($date, 'd-m-Y');
         $date = new DateTime($date);
 
@@ -199,7 +199,7 @@ function date_interval($date, $interval, $format = null){
  * @return string The result
  */
 function date_translate($date){
-    try{
+    try {
         /*
          * First check if there are any translatable words in the specified date
          */

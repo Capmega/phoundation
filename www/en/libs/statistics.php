@@ -23,7 +23,7 @@
  * returns array The specified parameters, now validated and clean
  */
 function statistics_add($params) {
-    try{
+    try {
         $params = statistics_validate($params);
 
         sql_query('INSERT INTO `statistics` (`createdby`, `remote`, `event`, `details`, `resource1`, `resource2`)
@@ -59,7 +59,7 @@ function statistics_add($params) {
  * returns array The specified parameters, now validated and clean
  */
 function statistics_validate($params) {
-    try{
+    try {
         load_libs('validate');
         $v = new ValidateForm($params, 'event,subevent,details,resource1,resource2');
 

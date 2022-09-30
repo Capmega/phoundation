@@ -1,7 +1,7 @@
 <?php
 global $_CONFIG, $core;
 
-try{
+try {
     load_libs('numbers');
 
     if (!debug()) return '';

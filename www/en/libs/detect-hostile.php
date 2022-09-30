@@ -25,7 +25,7 @@ RewriteRule .* - [F]
  * Detect hostile URL's and auto block the offending IP
  */
 function detect_hostile_urls() {
-    try{
+    try {
 /*
 ?=PHPE9568F36-D428-11d2-A769-00AA001ACF42
 ?=PHPE9568F35-D428-11d2-A769-00AA001ACF42
@@ -44,7 +44,7 @@ function detect_hostile_urls() {
  * csf block the entire block if so
  */
 function detect_hostile_ip_block() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('detect_hostile_ip_block(): Failed', $e);

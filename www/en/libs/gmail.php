@@ -15,7 +15,7 @@
  * gmail forwarding email
  */
 function gmail_get_forward_code($email) {
-    try{
+    try {
         /*
          * Attemps to find google verification codes
          */

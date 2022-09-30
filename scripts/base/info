@@ -11,7 +11,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 
 cli_no_arguments_left();
 
-try{
+try {
     sql_query('SELECT 1');
 
 }catch(Exception $e) {

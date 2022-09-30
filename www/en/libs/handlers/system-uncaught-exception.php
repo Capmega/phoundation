@@ -32,8 +32,8 @@
 global $_CONFIG, $core;
 static $executed = false;
 
-try{
-    try{
+try {
+    try {
         if ($executed) {
             /*
              * We seem to be stuck in an uncaught exception loop, cut it out now!

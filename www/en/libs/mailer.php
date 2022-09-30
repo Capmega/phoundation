@@ -30,7 +30,7 @@
  * @return void
  */
 function mailer_library_init() {
-    try{
+    try {
         load_config('mailer');
 
     }catch(Exception $e) {
@@ -44,7 +44,7 @@ function mailer_library_init() {
  * Create a new mailing
  */
 function mailer_insert($params) {
-    try{
+    try {
         array_params ($params);
         array_default($params, 'content', null);
         array_default($params, 'starton', null);
@@ -164,7 +164,7 @@ function mailer_insert($params) {
  * Create a new mailing
  */
 function mailer_add_users($users, $mailing, $validate_mailing = true) {
-    try{
+    try {
         /*
          * Ensure that specified mailing exists.
          */
@@ -187,7 +187,7 @@ function mailer_add_users($users, $mailing, $validate_mailing = true) {
         if ($users === 'all') {
             $r = sql_query('SELECT `id` FROM `users`');
 
-            while($users_id = sql_fetch($r, 'id')) {
+            while ($users_id = sql_fetch($r, 'id')) {
                 $count += mailer_add_users($users_id, $mailings_id, false);
             }
 
@@ -254,7 +254,7 @@ function mailer_add_users($users, $mailing, $validate_mailing = true) {
  * Ensure to block the user also from currently running mailings
  */
 function mailer_unsubscribe($user, $validate_user = true) {
-    try{
+    try {
         if ($validate_user) {
             load_libs('user');
             $user = user_get($user, 'id');
@@ -281,7 +281,7 @@ function mailer_unsubscribe($user, $validate_user = true) {
  * Return requested data for specified mailer
  */
 function mailer_get($params, $columns = false) {
-    try{
+    try {
         Arrays::ensure($params, 'name', 'id');
 
         foreach(array('id', 'name') as $key) {
@@ -312,7 +312,7 @@ function mailer_get($params, $columns = false) {
  * Return an array of all running mailings
  */
 function mailer_list($status = null, $columns = '`id`, `name`') {
-    try{
+    try {
         user_or_signin();
 
         switch($status) {
@@ -360,7 +360,7 @@ function mailer_list($status = null, $columns = '`id`, `name`') {
 function mailer_send($count = null, $wait = null, $test = false) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('mail,user');
 
         $sent = 0;
@@ -388,8 +388,8 @@ function mailer_send($count = null, $wait = null, $test = false) {
 
                         WHERE  `status` = "started"');
 
-        while($mailing = sql_fetch($r)) {
-            try{
+        while ($mailing = sql_fetch($r)) {
+            try {
                 $mailing['to']   = json_decode_custom($mailing['to']);
                 $mailing['from'] = json_decode_custom($mailing['from']);
 $mailing['language'] = 'en';
@@ -444,7 +444,7 @@ $mailing['language'] = 'en';
                                         array(':mailings_id' => $mailing['id']));
 
                 foreach($recipients as $recipients_id => $recipient) {
-                    try{
+                    try {
                         $mailing['to'][] = $recipient['code'];
                         $mailing['to'][] = name($recipient);
                         $mailing['to'][] = $recipient['username'];
@@ -560,7 +560,7 @@ $mailing['language'] = 'en';
  * email has been viewed
  */
 function mailer_get_recipient($code, $status = null) {
-    try{
+    try {
         if ($status) {
             $execute = array(':code' => $code, ':status' => $status);
 
@@ -592,7 +592,7 @@ function mailer_get_recipient($code, $status = null) {
  * email has been viewed
  */
 function mailer_viewed($code) {
-    try{
+    try {
         $recipient = mailer_get_recipient($code, 'sent');
 
         if (!$recipient) {
@@ -620,7 +620,7 @@ function mailer_viewed($code) {
  * Start specified mailers
  */
 function mailer_start($mailers) {
-    try{
+    try {
         return mailer_status($mailers, 'started');
 
     }catch(Exception $e) {
@@ -634,7 +634,7 @@ function mailer_start($mailers) {
  * Stop specified mailers
  */
 function mailer_stop($mailers) {
-    try{
+    try {
         return mailer_status($mailers, 'stopped');
 
     }catch(Exception $e) {
@@ -648,7 +648,7 @@ function mailer_stop($mailers) {
  * Delete specified mailers
  */
 function mailer_delete($mailers) {
-    try{
+    try {
         return mailer_status($mailers, 'deleted');
 
     }catch(Exception $e) {
@@ -662,7 +662,7 @@ function mailer_delete($mailers) {
  * Cancel specified mailers
  */
 function mailer_cancel($mailers) {
-    try{
+    try {
         return mailer_status($mailers, 'canceled');
 
     }catch(Exception $e) {
@@ -676,7 +676,7 @@ function mailer_cancel($mailers) {
  * Set specified status for specified mailers
  */
 function mailer_status($mailers, $status) {
-    try{
+    try {
         switch($status) {
             case 'started':
                 // FALLTHROUGH
@@ -792,7 +792,7 @@ function mailer_access_image($code, $alt = 'Logo') {
  * Return the amount of recipients with the specified status (or status "all", so no status) for the specified mailing
  */
 function mailer_get_recipientcount($mailings_id, $status = 'all') {
-    try{
+    try {
         /*
          * Always filter on mailings_id
          */

@@ -18,7 +18,7 @@
 function array_tokenizer($string) {
     static $scanner;
 
-    try{
+    try {
         if (empty($scanner)) {
             $scanner = new ArrayTokenScanner();
         }
@@ -78,7 +78,7 @@ class ArrayTokenScanner
     protected function initialize(array $tokens)
     {
         $this->arrayKeys = [];
-        while($current = current($tokens)) {
+        while ($current = current($tokens)) {
             $next = next($tokens);
             if ($next[0] === T_DOUBLE_ARROW) {
                 $this->arrayKeys[] = $current[1];
@@ -100,7 +100,7 @@ class ArrayTokenScanner
             $assoc = false;
             $index = 0;
             $discriminator = ($token[0] === T_ARRAY) ? T_ARRAY_CLOSE : T_BRACKET_CLOSE;
-            while($token = $this->until($tokens, $discriminator)) {
+            while ($token = $this->until($tokens, $discriminator)) {
 
 
                 // Skip arrow ( => )
@@ -188,7 +188,7 @@ class ArrayTokenScanner
             if (!in_array($index, $this->arrayKeys, true)) {
                 return $index;
             }
-        } while(++$index);
+        } while (++$index);
     }
 
     /**

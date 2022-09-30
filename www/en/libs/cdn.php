@@ -19,7 +19,7 @@
 function cdn_send_files($files, $server, $section, $group = null) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('api');
 
         $api_account = cdn_get_api_account($server);
@@ -42,7 +42,7 @@ function cdn_send_files($files, $server, $section, $group = null) {
 function cdn_delete_files($list, $column = 'file') {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('api');
 
         if (!$list) {
@@ -79,7 +79,7 @@ function cdn_delete_files($list, $column = 'file') {
 
                         $in);
 
-        while($row = sql_fetch($r)) {
+        while ($row = sql_fetch($r)) {
             if (empty($servers[$row['server']])) {
                 $servers[$row['server']] = array();
             }
@@ -121,7 +121,7 @@ function cdn_delete_files($list, $column = 'file') {
  * Removes the specified groups within the specified groups from all CDN servers
  */
 function cdn_delete_groups($groups) {
-    try{
+    try {
         return cdn_delete_files($groups, 'group');
 
     }catch(Exception $e) {
@@ -136,7 +136,7 @@ function cdn_delete_groups($groups) {
  * servers
  */
 function cdn_delete_sections($sections) {
-    try{
+    try {
         return cdn_delete_files($groups, 'section');
 
     }catch(Exception $e) {
@@ -152,7 +152,7 @@ function cdn_delete_sections($sections) {
 function cdn_assign_servers() {
     global $_CONFIG;
 
-    try{
+    try {
         $servers = sql_list('SELECT `cdn_servers`.`id`,
                                     `cdn_servers`.`seoname`
 
@@ -184,7 +184,7 @@ function cdn_pick_server($cdns) {
     global $_CONFIG;
     static $key = null;
 
-    try{
+    try {
         if (!$cdns) {
             throw new CoreException(tr('cdn_pick_server(): No CDNs specified'), 'not-specified');
         }
@@ -227,7 +227,7 @@ function cdn_pick_server($cdns) {
 function cdn_balance($params) {
     global $_CONFIG;
 
-    try{
+    try {
         //
     }catch(Exception $e) {
         throw new CoreException('cdn_balance(): Failed', $e);
@@ -242,7 +242,7 @@ function cdn_balance($params) {
 function cdn_update_session() {
     global $_CONFIG;
 
-    try{
+    try {
         //
     }catch(Exception $e) {
         throw new CoreException('cdn_update_session(): Failed', $e);
@@ -257,7 +257,7 @@ function cdn_update_session() {
 function cdn_get_url($table, $filename) {
     global $_CONFIG;
 
-    try{
+    try {
 
 //        return /'.$_CONFIG['domain'].'/'.$table.'/'.$filename.'/';
 
@@ -274,7 +274,7 @@ function cdn_get_url($table, $filename) {
 function cdn_get_domain($cdn_id) {
     global $_CONFIG;
 
-    try{
+    try {
         return str_replace(':id', $cdn_id, $_CONFIG['cdn']['domain']);
 
     }catch(Exception $e) {
@@ -289,7 +289,7 @@ function cdn_get_domain($cdn_id) {
  */
 function cdn_validate_server($server) {
 
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($server, 'name,baseurl,api_account,description');
@@ -332,7 +332,7 @@ function cdn_validate_server($server) {
  */
 function cdn_validate_project($project, $insert = true) {
 
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($project, 'name,description');
@@ -366,7 +366,7 @@ function cdn_validate_project($project, $insert = true) {
  *
  */
 function cdn_get_api_account($server) {
-    try{
+    try {
         load_libs('api');
 
         $api_account = sql_get('SELECT `api_accounts`.`seoname`
@@ -401,7 +401,7 @@ function cdn_get_api_account($server) {
  * Get information from specified CDN server
  */
 function cdn_get_server_info($server) {
-    try{
+    try {
         load_libs('api');
 
         $api_account = cdn_get_api_account($server);
@@ -420,7 +420,7 @@ function cdn_get_server_info($server) {
  * Test specified CDN server
  */
 function cdn_test_server($server) {
-    try{
+    try {
         load_libs('api');
         $api_account = cdn_get_api_account($server);
 
@@ -443,7 +443,7 @@ function cdn_test_server($server) {
 function cdn_register_project($server) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('api');
 
         $api_account = cdn_get_api_account($server);
@@ -473,7 +473,7 @@ function cdn_register_project($server) {
  * Unregister this project from the specified CDN server
  */
 function cdn_unregister_project($server) {
-    try{
+    try {
         load_libs('api');
 
         $api_account = cdn_get_api_account($server);
@@ -501,7 +501,7 @@ function cdn_unregister_project($server) {
  * Update all
  */
 function cdn_update_pub() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('cdn_update_pub(): Failed', $e);

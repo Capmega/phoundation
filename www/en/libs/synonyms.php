@@ -20,7 +20,7 @@
  * chance a word will be replaced.
  */
 function synonym($source, $params = array()) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'synonyms', null);
         array_default($params, 'chance'  , 50);
@@ -87,7 +87,7 @@ function synonym($source, $params = array()) {
  *
  */
 function synonym_get($word) {
-    try{
+    try {
         if (!$data = sql_list('SELECT `synonyms` FROM `synonyms` WHERE `word` = :word', array(':word' => $word))) {
             if (!sql_get('SELECT COUNT(`id`) AS count FROM `synonyms`', 'count')) {
                 throw new CoreException(tr('synonym_get(): Synonyms table is empty. Please run ./scripts/base/importers/synonyms'), 'empty');
@@ -116,7 +116,7 @@ function synonym_get($word) {
  * Return a random word
  */
 function synonym_random($count = 1, $nospaces = false) {
-    try{
+    try {
         if ($nospaces) {
             if (!is_string($nospaces)) {
                 $nospaces = '';

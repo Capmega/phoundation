@@ -114,7 +114,7 @@ if (!$r->rowCount()) {
                             <th>'.tr('Message').'</th>
                         </thead>';
 
-    while($log = sql_fetch($r)) {
+    while ($log = sql_fetch($r)) {
         $html .= '  <tr>
                         <td style="white-space: nowrap;">'.$log['createdon'].'</a></td>
                         <td>'.$log['ip'].'</a></td>

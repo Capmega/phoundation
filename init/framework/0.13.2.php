@@ -36,7 +36,7 @@ $r     = sql_query('SELECT `blogs_keywords`.`id`,
                     LEFT JOIN `blogs_posts`
                     ON        `blogs_posts`.`id` = `blogs_keywords`.`blogs_posts_id`');
 
-while($keyword = sql_fetch($r)) {
+while ($keyword = sql_fetch($r)) {
     sql_query('UPDATE `blogs_keywords`
 
                SET    `blogs_keywords`.`blogs_id` = :blogs_id

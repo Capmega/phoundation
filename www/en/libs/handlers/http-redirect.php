@@ -1,5 +1,5 @@
 <?php
-try{
+try {
     global $_CONFIG;
 
     if (PLATFORM != 'http') {

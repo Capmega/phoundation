@@ -4,7 +4,7 @@
  */
 global $_CONFIG;
 
-try{
+try {
     switch($_CONFIG['cache']['method']) {
         case 'file':
             load_libs('numbers');

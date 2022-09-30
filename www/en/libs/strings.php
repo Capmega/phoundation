@@ -16,7 +16,7 @@
  * Fix urls that dont start with http://
  */
 function str_ensure_url($url, $protocol = 'http://') {
-    try{
+    try {
         if (substr($url, 0, mb_strlen($protocol)) != $protocol) {
             return $protocol.$url;
 
@@ -35,7 +35,7 @@ function str_ensure_url($url, $protocol = 'http://') {
  * Return "casa" or "casas" based on number
  */
 function str_plural($count, $single_text, $multiple_text) {
-    try{
+    try {
         if ($count == 1) {
             return $single_text;
 
@@ -54,7 +54,7 @@ function str_plural($count, $single_text, $multiple_text) {
  * Returns true if string is serialized, false if not
  */
 function str_is_serialized($data) {
-    try{
+    try {
         return (boolean) preg_match( "/^([adObis]:|N;)/u", $data );
 
     }catch(Exception $e) {
@@ -68,7 +68,7 @@ function str_is_serialized($data) {
  * Fix urls that dont start with http://
  */
 function str_ensure_utf8($string) {
-    try{
+    try {
         if (str_is_utf8($string)) {
             return $string;
         }
@@ -86,7 +86,7 @@ function str_ensure_utf8($string) {
  * Returns true if string is UTF-8, false if not
  */
 function str_is_utf8($source) {
-    try{
+    try {
         return mb_check_encoding($source, 'UTF8');
 
     }catch(Exception $e) {
@@ -111,7 +111,7 @@ function str_is_utf8($source) {
  * Return string will not contain HTML codes for Spanish haracters
  */
 function str_fix_spanish_chars($source) {
-    try{
+    try {
         $from = array('&Aacute;', '&aacute;', '&Eacute;', '&eacute;', '&Iacute;', '&iacute;', '&Oacute;', '&oacute;', '&Ntilde;', '&ntilde;', '&Uacute;', '&uacute;', '&Uuml;', '&uuml;','&iexcl;','&ordf;','&iquest;','&ordm;');
         $to   = array('Á'       , 'á'       , 'É'       , 'é'       , 'Í'       , 'í'       , 'Ó'       , 'ó'       , 'Ñ'       , 'ñ'       , 'Ú'       , 'ú'       , 'Ü'     , 'ü'     , '¡'     , 'ª'    , '¿'      , 'º'    );
 
@@ -128,7 +128,7 @@ function str_fix_spanish_chars($source) {
  * Return a lowercased string with the first letter capitalized
  */
 function str_capitalize($source, $position = 0) {
-    try{
+    try {
         if (!$position) {
             return mb_strtoupper(mb_substr($source, 0, 1)).mb_strtolower(mb_substr($source, 1));
         }
@@ -146,7 +146,7 @@ function str_capitalize($source, $position = 0) {
  * Return a random string
  */
 function str_random($length = 8, $unique = false, $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') {
-    try{
+    try {
         $string     = '';
         $charlen    = mb_strlen($characters);
 
@@ -181,7 +181,7 @@ function str_random($length = 8, $unique = false, $characters = '0123456789abcde
  * Is spanish alphanumeric
  */
 function str_is_alpha($s, $extra = '\s') {
-    try{
+    try {
         $reg   = "/[^\p{L}\d$extra]/u";
         $count = preg_match($reg, $s, $matches);
 
@@ -199,7 +199,7 @@ function str_is_alpha($s, $extra = '\s') {
  */
 // :DELETE: This is never used, where would it be used?
 function str_escape_for_jquery($source, $replace = '') {
-    try{
+    try {
         return preg_replace('/[#;&,.+*~\':"!^$[\]()=>|\/]/gu', '\\\\$&', $source);
 
     }catch(Exception $e) {
@@ -213,7 +213,7 @@ function str_escape_for_jquery($source, $replace = '') {
  *
  */
 function str_strip_function($string) {
-    try{
+    try {
         return trim(Strings::from($string, '():'));
 
     }catch(Exception $e) {
@@ -227,7 +227,7 @@ function str_strip_function($string) {
  * Will fix a base64 coded string with missing termination = marks before decoding it
  */
 function str_safe_base64_decode($source) {
-    try{
+    try {
         if ($mod = mb_strlen($source) % 4) {
             $source .= str_repeat('=', 4 - $mod);
         }
@@ -246,7 +246,7 @@ function str_safe_base64_decode($source) {
  */
 // :DELETE: Isn't this str_log()?
 function str_safe($source, $maxsize = 50) {
-    try{
+    try {
         return str_truncate(json_encode_custom($source), $maxsize);
 
     }catch(Exception $e) {
@@ -260,7 +260,7 @@ function str_safe($source, $maxsize = 50) {
  * Return the entire string in HEX ASCII
  */
 function str_hex($source) {
-    try{
+    try {
         return bin2hex($source);
 
     }catch(Exception $e) {
@@ -274,7 +274,7 @@ function str_hex($source) {
  * Return a camel cased string
  */
 function str_camelcase($source, $separator = ' ') {
-    try{
+    try {
         $source = explode($separator, mb_strtolower($source));
 
         foreach($source as $key => &$value) {
@@ -296,7 +296,7 @@ function str_camelcase($source, $separator = ' ') {
  * Fix PHP explode
  */
 function str_explode($separator, $source) {
-    try{
+    try {
         if (!$source) {
             return array();
         }
@@ -317,7 +317,7 @@ function str_explode($separator, $source) {
  *
  */
 function str_interleave($source, $interleave, $end = 0, $chunksize = 1) {
-    try{
+    try {
         if (!$source) {
             throw new OutOfBoundsException('str_interleave(): Empty source specified', 'empty');
         }
@@ -356,7 +356,7 @@ function str_interleave($source, $interleave, $end = 0, $chunksize = 1) {
  */
 // :TODO: Isnt this the same as str_fix_spanish_chars() ??
 function str_convert_accents($source) {
-    try{
+    try {
         $from = explode(',', "ç,æ,œ,á,é,í,ó,ú,à,è,ì,ò,ù,ä,ë,ï,ö,ü,ÿ,â,ê,î,ô,û,å,e,i,ø,u,Ú,ñ,Ñ,º");
         $to   = explode(',', "c,ae,oe,a,e,i,o,u,a,e,i,o,u,a,e,i,o,u,y,a,e,i,o,u,a,e,i,o,u,U,n,n,o");
 
@@ -373,7 +373,7 @@ function str_convert_accents($source) {
  * Strip whitespace
  */
 function str_strip_html_whitespace($string) {
-    try{
+    try {
         return preg_replace('/>\s+</u', '><', $string);
 
     }catch(Exception $e) {
@@ -389,7 +389,7 @@ function str_strip_html_whitespace($string) {
  * @param string $quote What quote (or other symbol) to use for the quoting
  */
 function str_quote($string, $quote = "'") {
-    try{
+    try {
         if (is_numeric($string) or is_bool(is_numeric($string))) {
             return $string;
         }
@@ -410,7 +410,7 @@ function str_quote($string, $quote = "'") {
  * @example showdie(str_is_version(phpversion())); This example should show a debug table with true
  */
 function str_is_version($source) {
-    try{
+    try {
         return preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}$/', $source);
 
     }catch(Exception $e) {
@@ -424,7 +424,7 @@ function str_is_version($source) {
  * Returns true if the specified source string contains HTML
  */
 function str_is_html($source) {
-    try{
+    try {
         return !preg_match('/<[^<]+>/', $source);
 
     }catch(Exception $e) {
@@ -438,7 +438,7 @@ function str_is_html($source) {
  * Return if specified source is a JSON string or not
  */
 function str_is_json($source) {
-    try{
+    try {
 //        return !preg_match('/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/', preg_replace('/"(\\.|[^"\\])*"/g', '', $source));
         return !empty($source) && is_string($source) && preg_match('/^("(\\.|[^"\\\n\r])*?"|[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t])+?$/', $source);
 
@@ -462,7 +462,7 @@ function str_is_json($source) {
  * IMPORTANT! COMMENT THE mb_trim() call in the mb.php libray!! The one there is NOT MB SAFE!!
  */
 function mb_trim($string) {
-    try{
+    try {
         return preg_replace("/(^\s+)|(\s+$)/us", "", $string);
 
     }catch(Exception $e) {
@@ -477,7 +477,7 @@ function mb_trim($string) {
 // * Taken from http://php.net/manual/en/function.str-split.php
 // */
 //function mb_str_split($source, $l = 0) {
-//    try{
+//    try {
 //        if ($l > 0) {
 //            $retval = array();
 //            $length = mb_strlen($source, 'UTF-8');
@@ -502,7 +502,7 @@ function mb_trim($string) {
  * Correctly converts <br> to \n
  */
 function br2nl($string, $nl = "\n") {
-    try{
+    try {
         $string = preg_replace("/(\r\n|\n|\r)/u", '' , $string);
         $string = preg_replace("/<br *\/?>/iu"  , $nl, $string);
 
@@ -519,7 +519,7 @@ function br2nl($string, $nl = "\n") {
  * Returns true if the specified text has one (or all) of the specified keywords
  */
 function str_has_keywords($text, $keywords, $has_all = false, $regex = false, $unicode = true) {
-    try{
+    try {
         if (!is_array($keywords)) {
             if (!is_string($keywords) and !is_numeric($keywords)) {
                 throw new OutOfBoundsException('str_has_keywords(): Specified keywords are neither string or array', 'invalid');
@@ -596,7 +596,7 @@ function str_has_keywords($text, $keywords, $has_all = false, $regex = false, $u
  * capscenterlower        ABCdEFG
  */
 function str_caps($string, $type) {
-    try{
+    try {
         /*
          * First find all words
          */
@@ -710,7 +710,7 @@ function str_caps($string, $type) {
  * capscenterlower         ABCdEFG
  */
 function str_caps_guess($string) {
-    try{
+    try {
         $posibilities = array('lowercase'             ,
                               'uppercase'             ,
                               'capitalize'            ,
@@ -746,7 +746,7 @@ function str_caps_guess($string) {
  * Force the specified source to be a string
  */
 function str_force($source, $separator = ',') {
-    try{
+    try {
         if (!is_scalar($source)) {
             if (!is_array($source)) {
                 if (!$source) {
@@ -784,7 +784,7 @@ function str_force($source, $separator = ',') {
  * Force the specified string to be the specified size.
  */
 function str_size($source, $size, $add = ' ', $prefix = false) {
-    try{
+    try {
         load_libs('cli');
         $strlen = mb_strlen(cli_strip_color($source));
 
@@ -813,7 +813,7 @@ function str_size($source, $size, $add = ' ', $prefix = false) {
  *
  */
 function str_escape($string, $escape = '"') {
-    try{
+    try {
         for($i = (mb_strlen($escape) - 1); $i <= 0; $i++) {
             $string = str_replace($escape[$i], '\\'.$escape[$i], $string);
         }
@@ -831,7 +831,7 @@ function str_escape($string, $escape = '"') {
  *
  */
 function str_xor($a, $b) {
-    try{
+    try {
         $diff   = $a ^ $b;
         $retval = '';
 
@@ -852,7 +852,7 @@ function str_xor($a, $b) {
  *
  */
 function str_similar($a, $b, $percent) {
-    try{
+    try {
         return similar_text($a, $b, $percent);
 
     }catch(Exception $e) {
@@ -866,7 +866,7 @@ function str_similar($a, $b, $percent) {
  * Recursively trim all strings in the specified array tree
  */
 function str_trim_array($source, $recurse = true) {
-    try{
+    try {
         foreach($source as $key => &$value) {
             if (is_string($value)) {
                 $value = mb_trim($value);
@@ -902,7 +902,7 @@ function str_trim_array($source, $recurse = true) {
  * @return natural If the specified port was not empty, it will be returned. If the specified port was empty, the default port configuration will be returned
  */
 function str_hide($string, $hide = '*** HIDDEN ***', $empty = '-') {
-    try{
+    try {
         if ($string) {
             return $hide;
         }
@@ -934,7 +934,7 @@ function str_hide($string, $hide = '*** HIDDEN ***', $empty = '-') {
 // * Adapted by Sven Oostnbrink support@capmega.com for use in BASE project
 // */
 //function str_diff() {
-//    try{
+//    try {
 //        foreach($old as $oindex => $ovalue) {
 //            $nkeys = array_keys($new, $ovalue);
 //
@@ -965,7 +965,7 @@ function str_hide($string, $hide = '*** HIDDEN ***', $empty = '-') {
  * Cleaned up for use in base by Sven Oostenbrink
  */
 function str_diff($old, $new) {
-    try{
+    try {
         $from_start = strspn($old ^ $new, "\0");
         $from_end   = strspn(strrev($old) ^ strrev($new), "\0");
 
@@ -995,7 +995,7 @@ function str_diff($old, $new) {
  *
  */
 function str_boolean($value) {
-    try{
+    try {
         if ($value) {
             return 'true';
         }
@@ -1034,8 +1034,8 @@ function str_boolean($value) {
  * @return string The result
  */
 function str_underscore_to_camelcase($string, $first_uppercase = false) {
-    try{
-        while(($pos = strpos($string, '_')) !== false) {
+    try {
+        while (($pos = strpos($string, '_')) !== false) {
             $character = $string[$pos + 1];
 
             if (!$pos) {
@@ -1093,7 +1093,7 @@ function str_underscore_to_camelcase($string, $first_uppercase = false) {
  * @return string The specified source string with empty HTML tags stripped
  */
 function str_trim_html($html) {
-    try{
+    try {
         if (!$html) {
             return '';
         }

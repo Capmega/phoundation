@@ -25,7 +25,7 @@
  * @return void
  */
 function ads_library_init() {
-    try{
+    try {
         load_config('ads');
 
     }catch(Exception $e) {
@@ -63,7 +63,7 @@ function ads_library_init() {
  * @return params The specified campaign, validated and sanitized
  */
 function ads_validate_campaign($campaign) {
-    try{
+    try {
         load_libs('validate');
 
         if ($old_campaign) {
@@ -122,7 +122,7 @@ function ads_validate_campaign($campaign) {
  *
  */
 function ads_validate_image($image, $old_image = null) {
-    try{
+    try {
         load_libs('validate');
 
         if ($old_image) {
@@ -177,7 +177,7 @@ function ads_validate_image($image, $old_image = null) {
  * Return requested campaign. If no campaign was requested, create one now
  */
 function ads_campaign_get($campaign = null, $columns = null) {
-    try{
+    try {
         if (!$campaign) {
 
             /*
@@ -253,7 +253,7 @@ function ads_campaign_get($campaign = null, $columns = null) {
  * Return requested data for specified rights
  */
 function ads_image_get($image) {
-    try{
+    try {
         if (!$image) {
             throw new CoreException(tr('ads_image_get(): No image specified'), 'not-specified');
         }
@@ -296,7 +296,7 @@ function ads_image_get($image) {
 function ads_image_upload($files, $ad) {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * Check for upload errors
          */
@@ -326,7 +326,7 @@ function ads_image_upload($files, $ad) {
 function ads_image_process($ad, $file, $original = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if (empty($ad['campaign'])) {
             throw new CoreException('ads_image_process(): No ad image specified', 'not-specified');
         }
@@ -405,7 +405,7 @@ function ads_image_process($ad, $file, $original = null) {
  * Update image description
  */
 function ads_update_image_description($user, $image_id, $description) {
-    try{
+    try {
         if (!is_numeric($image_id)) {
             $image_id = Strings::from($image_id, 'photo');
         }
@@ -448,7 +448,7 @@ function ads_update_image_description($user, $image_id, $description) {
  * Image cluster
  */
 function ads_update_image_cluster($user, $cluster, $image) {
-    try{
+    try {
         if (!is_numeric($image)) {
             $image = Strings::from($image, 'photo');
         }
@@ -488,7 +488,7 @@ function ads_update_image_cluster($user, $cluster, $image) {
 // * Get a full URL of the photo
 // */
 //function ads_photo_url($media, $size) {
-//    try{
+//    try {
 //        switch($size) {
 //            case 'large':
 //                // FALLTHROUGH
@@ -522,7 +522,7 @@ function ads_update_image_cluster($user, $cluster, $image) {
 function ads_get() {
     global $_CONFIG;
 
-    try{
+    try {
         html_load_js('unslider/unslider');
         html_load_css('unslider/unslider,ads');
 
@@ -613,7 +613,7 @@ function ads_get() {
         $html = '   <div class="ads '.$campaigns['class'].'">
                         <ul class="'.$campaigns['class'].'">';
 
-        while($image = sql_fetch($images)) {
+        while ($image = sql_fetch($images)) {
             if ($image['description']) {
                 $images_list[] = $image['id'];
 
@@ -660,7 +660,7 @@ function ads_get() {
 function amp_ads_get() {
     global $_CONFIG;
 
-    try{
+    try {
         $userdata  = inet_get_client_data();
         $campaigns = sql_get('SELECT   `id`,
                                        `image_ttl`,
@@ -747,7 +747,7 @@ function amp_ads_get() {
         $url  = $_CONFIG['ads']['url'];
         $html = '           <amp-carousel width="720" height="90" type="slides" class="ads '.$campaigns['class'].'">';
 
-        while($image = sql_fetch($images)) {
+        while ($image = sql_fetch($images)) {
             if ($image['description']) {
                 $images_list[] = $image['id'];
 
@@ -778,7 +778,7 @@ function amp_ads_get() {
  * When the image of campaigns is clicked, get the data user
  */
 function ads_insert_view($campaigns_id, $images_list, $userdata) {
-    try{
+    try {
 
         if (empty($campaigns_id)) {
             throw new CoreException('ads_insert_view(): No campaigns id specified', 'not-specified');

@@ -17,7 +17,7 @@
 function cloudflare_library_init() {
     global $_CONFIG;
 
-    try{
+    try {
         load_config('cloudflare');
         load_libs('ext/cloudflare');
 
@@ -39,7 +39,7 @@ function cloudflare_library_init() {
  *  Returns an associative array  which elements are : domain => zone_identifier
  */
 function cf_zone_list() {
-    try{
+    try {
         cf_init();
         $response = $core->register['cf_connector']->zone_load_multi();
 
@@ -68,7 +68,7 @@ function cf_zone_list() {
  *   Notice that domain support is not yet implemented
  */
 function cf_whitelist($ip, $domain=null) {
-    try{
+    try {
         cf_init();
         $response = $core->register['cf_connector']->wl($ip);
 
@@ -89,7 +89,7 @@ function cf_whitelist($ip, $domain=null) {
  *   Notice that domain support is not yet implemented
  */
 function cf_blacklist($ip, $domain=null) {
-    try{
+    try {
         cf_init();
         $response = $core->register['cf_connector']->ban($ip);
 
@@ -109,7 +109,7 @@ function cf_blacklist($ip, $domain=null) {
  *   Notice that domain support is not yet implemented
  */
 function cf_unwhitelist($ip, $domain=null) {
-    try{
+    try {
         cf_init();
         $response = $core->register['cf_connector']->nul($ip);
 
@@ -129,7 +129,7 @@ function cf_unwhitelist($ip, $domain=null) {
  *   Notice that domain support is not yet implemented
  */
 function cf_unblacklist($ip, $domain=null) {
-    try{
+    try {
         cf_init();
         $response = $core->register['cf_connector']->nul($ip);
 
@@ -148,7 +148,7 @@ function cf_unblacklist($ip, $domain=null) {
  *
  */
 function cf_clear_cache($domain) {
-    try{
+    try {
         cf_init();
         $response = $core->register['cf_connector']->fpurge_ts($domain);
 
@@ -167,7 +167,7 @@ function cf_clear_cache($domain) {
  *
  */
 function cf_install_apache_module() {
-    try{
+    try {
         passthru('sudo apt-get update && sudo apt-get -y install libtool apache2-dev', $return);
 
         if ($return == 0) {
@@ -197,7 +197,7 @@ function cf_install_apache_module() {
  *
  */
 function cf_is_apache_module_installed() {
-    try{
+    try {
         return shell_exec('apachectl -M | grep cloudflare_module');
 
     }catch(Exception $e) {

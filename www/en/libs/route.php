@@ -140,7 +140,7 @@ function route($regex, $target, $flags = null) {
     static $count = 1,
            $init  = false;
 
-    try{
+    try {
 // :LEGACY: 2.9 and up will have this functionality removed and only route_map() will function
         if ($regex === 'map') {
             return route_map($target);
@@ -339,7 +339,7 @@ function route($regex, $target, $flags = null) {
             }
 
             foreach($replacements[1] as $replacement) {
-                try{
+                try {
                     if (!$replacement[0] or empty($matches[$replacement[0]])) {
                         throw new CoreException(tr('route(): Non existing regex replacement ":replacement" specified in route ":route"', array(':replacement' => '$'.$replacement[0], ':route' => $route)), 'invalid');
                     }
@@ -798,7 +798,7 @@ function route($regex, $target, $flags = null) {
 function route_exec($target, $attachment, $restrictions) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         $core->register['route_exec'] = $target;
 
         if (substr($target, -3, 3) === 'php') {
@@ -870,7 +870,7 @@ function route_exec($target, $attachment, $restrictions) {
 function route_shutdown() {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * Test the URI for known hacks. If so, apply configured response
          */
@@ -910,7 +910,7 @@ function route_shutdown() {
 function route_404() {
     global $core, $_CONFIG;
 
-    try{
+    try {
         $core->register['route_exec']  = 'en/404.php';
         $core->register['script_path'] = 'system/404';
         $core->register['script']      = 404;
@@ -996,7 +996,7 @@ function route_404() {
 function route_map($map = null) {
     global $core, $_CONFIG;
 
-    try{
+    try {
         if (empty($map)) {
             /*
              * Set configured language map, if exists
@@ -1056,7 +1056,7 @@ function route_map($map = null) {
  * @return string The result
  */
 function route_insert_static($route) {
-    try{
+    try {
         $route = route_validate_static($route);
 
         log_file(tr('Storing static routing rule ":rule" for IP ":ip"', array(':rule' => $route['target'], ':ip' => $route['ip'])), 'route', 'VERYVERBOSE/cyan');
@@ -1094,7 +1094,7 @@ function route_insert_static($route) {
  * @return string HTML for a categories select box within the specified parameters
  */
 function route_validate_static($route) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($route, 'uri,regex,target,until,ip');

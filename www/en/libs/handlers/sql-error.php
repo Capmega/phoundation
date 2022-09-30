@@ -14,7 +14,7 @@ if (!$e instanceof PDOException) {
     }
 }
 
-try{
+try {
     if (!is_object($sql)) {
         if (empty($core->sql['core'])) {
             throw new CoreException('sql_error(): The $sql is not an object, cannot get more info from there', $e);
@@ -168,7 +168,7 @@ try{
                     /*
                      * Foreign key error, get the FK error data from mysql
                      */
-                    try{
+                    try {
                         $fk = sql_fetch(sql_query('SHOW ENGINE INNODB STATUS', null, null), 'Status');
                         $fk = str_from ($fk, 'LATEST FOREIGN KEY ERROR');
                         $fk = str_from ($fk, '------------------------');

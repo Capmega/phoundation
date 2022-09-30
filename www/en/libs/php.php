@@ -27,7 +27,7 @@
  * @return string The result
  */
 function php_enmod($module) {
-    try{
+    try {
         safe_exec(array('commands' => array('phpenmod', array('sudo' => true, $module))));
 
     }catch(Exception $e) {

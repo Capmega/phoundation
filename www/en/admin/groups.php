@@ -8,7 +8,7 @@ load_libs('paging');
 /*
  * Process requested actions
  */
-try{
+try {
     switch(isset_get($_POST['action'])) {
         case '':
             break;
@@ -312,7 +312,7 @@ if (!$r->rowCount()) {
                             <th>'.tr('Description').'</th>
                         </thead>';
 
-    while($group = sql_fetch($r)) {
+    while ($group = sql_fetch($r)) {
         $a      = '<a href="'.domain('/admin/group.php?group='.$group['seoname']).'">';
 
         $number = sql_get('SELECT COUNT(`id`) AS `count`

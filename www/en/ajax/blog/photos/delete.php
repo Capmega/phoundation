@@ -1,7 +1,7 @@
 <?php
 include_once(dirname(__FILE__).'/../../../libs/startup.php');
 
-try{
+try {
     load_libs('admin,json,file,upload');
 
     $user = rights_or_access_denied('admin', '/admin/signin.php', 'json');

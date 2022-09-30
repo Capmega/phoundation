@@ -57,7 +57,7 @@ try {
         $v->setError(tr('Unknown mode ":mode"', array(':mode' => $data['options']['mode'])));
     }
 
-    try{
+    try {
         $v->isValid();
 
     }catch(Exception $e) {

@@ -27,7 +27,7 @@
  * @return void
  */
 function composer_library_init() {
-    try{
+    try {
         ensure_installed(array('name'     => 'composer',
                                'callback' => 'composer_setup',
                                'checks'   => array(ROOT.'www/en/libs/composer.phar')));
@@ -61,7 +61,7 @@ function composer_library_init() {
  * @return void
  */
 function composer_setup($params) {
-    try{
+    try {
         file_ensure_path(TMP.'composer');
 
         $file          = download('https://getcomposer.org/installer');
@@ -90,7 +90,7 @@ function composer_setup($params) {
  *
  */
 function composer_init_file() {
-    try{
+    try {
         if (file_exists(ROOT.'composer.json')) {
             if (!FORCE) {
                 throw new CoreException('Composer has already been initialized for this project', 'already-initialized');
@@ -130,7 +130,7 @@ function composer_init_file() {
  * @return void
  */
 function composer_exec($commands, $path = null) {
-    try{
+    try {
         if (!$commands) {
             throw new CoreException(tr('composer_exec(): No commands specified'), 'not-specified');
         }
@@ -195,7 +195,7 @@ function composer_exec($commands, $path = null) {
  * @return void
  */
 function composer_require($packages) {
-    try{
+    try {
         if (!$packages) {
             throw new CoreException(tr('composer_require(): No package specified'), 'not-specified');
         }
@@ -231,7 +231,7 @@ function composer_require($packages) {
  * @return void
  */
 function composer_install($path) {
-    try{
+    try {
         if (!$path) {
             throw new CoreException(tr('composer_install(): No path specified'), 'not-specified');
         }

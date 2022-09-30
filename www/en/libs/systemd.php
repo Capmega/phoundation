@@ -28,7 +28,7 @@
  * @return void
  */
 function systemd_library_init() {
-    try{
+    try {
         ensure_installed(array('name'      => 'systemd',
                                'callback'  => 'systemd_install',
                                'checks'    => ROOT.'libs/external/systemd/systemd,'.ROOT.'libs/external/systemd/foobar',
@@ -56,7 +56,7 @@ function systemd_library_init() {
  * @return
  */
 function systemd_install($params) {
-    try{
+    try {
         load_libs('apt');
         apt_install('systemd');
 
@@ -106,7 +106,7 @@ function systemd_install($params) {
  * @return string The result
  */
 function systemd_function($params) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('systemd_function(): Failed', $e);

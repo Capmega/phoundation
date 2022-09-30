@@ -17,7 +17,7 @@
  * Automatically executed by libs_load()
  */
 function memcached_library_init() {
-    try{
+    try {
         if (!class_exists('Memcached')) {
             throw new OutOfBoundsException(tr('memcached_library_init(): php module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php5-memcached; sudo php5enmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'not_available');
         }
@@ -35,7 +35,7 @@ function memcached_library_init() {
 function memcached_connect() {
     global $_CONFIG, $core;
 
-    try{
+    try {
         if (empty($core->register['memcached'])) {
             /*
              * Memcached disabled?
@@ -60,7 +60,7 @@ function memcached_connect() {
                  * (To avoid memcached servers being down and nobody knows about it)
                  */
         //:TODO: Maybe we should check this just once every 10 connects or so? is it really needed?
-                try{
+                try {
                     $stats = $core->register['memcached']->getStats();
 
                     if ($stats) {
@@ -132,7 +132,7 @@ function memcached_connect() {
 function memcached_put($value, $key, $namespace = null, $expiration_time = null) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         if (!memcached_connect()) {
             return false;
         }
@@ -165,7 +165,7 @@ function memcached_put($value, $key, $namespace = null, $expiration_time = null)
 function memcached_add($value, $key, $namespace = null, $expiration_time = null) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         if (!memcached_connect()) {
             return false;
         }
@@ -200,7 +200,7 @@ function memcached_add($value, $key, $namespace = null, $expiration_time = null)
 function memcached_replace($value, $key, $namespace = null, $expiration_time = null) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         if (!memcached_connect()) {
             return false;
         }
@@ -235,7 +235,7 @@ function memcached_replace($value, $key, $namespace = null, $expiration_time = n
 function memcached_get($key, $namespace = null) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         if (!memcached_connect()) {
             return false;
         }
@@ -255,7 +255,7 @@ function memcached_get($key, $namespace = null) {
 function memcached_delete($key, $namespace = null) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         if (!memcached_connect()) {
             return false;
         }
@@ -286,7 +286,7 @@ function memcached_delete($key, $namespace = null) {
 function memcached_clear($delay = 0) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         if (!memcached_connect()) {
             return false;
         }
@@ -306,7 +306,7 @@ function memcached_clear($delay = 0) {
 function memcached_increment($key, $namespace = null) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         if (!memcached_connect()) {
             return false;
         }
@@ -328,7 +328,7 @@ function memcached_increment($key, $namespace = null) {
 function memcached_namespace($namespace, $delete = false) {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$namespace or !$_CONFIG['memcached']['namespaces']) {
             return '';
         }
@@ -346,7 +346,7 @@ function memcached_namespace($namespace, $delete = false) {
              * accessible and with time will be dumped automatically by memcached to make space for
              * newer keys.
              */
-            try{
+            try {
                 memcached_increment($namespace);
                 $key = memcached_get('ns:'.$namespace);
 
@@ -379,7 +379,7 @@ function memcached_namespace($namespace, $delete = false) {
 function memcached_stats() {
     global $core;
 
-    try{
+    try {
         if (!memcached_connect()) {
             return false;
         }

@@ -11,7 +11,7 @@ $limit     = sql_valid_limit(isset_get($_GET['limit']), $std_limit);
 /*
  * Process requested actions
  */
-try{
+try {
     switch(isset_get($_POST['action'])) {
         case '':
             break;
@@ -271,7 +271,7 @@ if (!$r->rowCount()) {
                             <th>'.tr('Rights').'</th>
                         </thead>';
 
-    while($role = sql_fetch($r)) {
+    while ($role = sql_fetch($r)) {
         $a                 = '<a href="'.domain('/admin/role.php?role='.$role['name']).'">';
 
         $role['createdon'] = new DateTime($role['createdon']);

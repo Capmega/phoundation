@@ -28,7 +28,7 @@
  * @return void
  */
 function webpush_library_init() {
-    try{
+    try {
         if (version_compare(PHP_VERSION, '5.6') === -1) {
             throw new CoreException(tr('webpush_library_init(): The current PHP version is ":version" while version "5.6.0" or higher is required to use the webpush library', array(':version' => PHP_VERSION)), 'version');
         }
@@ -64,7 +64,7 @@ function webpush_library_init() {
 function webpush_notify_user($users_id, $subject = '', $payload = '', $flush = false) {
     global $_CONFIG;
 
-    try{
+    try {
         load_config('webpush,json');
 
         $user = sql_get('SELECT `webpush` FROM `users` WHERE `id` = :id', array(':id' => $users_id));
@@ -114,7 +114,7 @@ function webpush_notify_user($users_id, $subject = '', $payload = '', $flush = f
  * @return  array|bool              Array with error data if @param $flush is true and send_notification fails, any other case always returns true
  */
 function webpush_notify($public_key, $private_key, $p256dh, $auth, $endpoint, $subject = '', $payload = '', $flush = false) {
-    try{
+    try {
         $authentication = array('VAPID' => array('subject'    => $subject,
                                                  'publicKey'  => $public_key,
                                                  'privateKey' => $private_key));
@@ -139,7 +139,7 @@ function webpush_notify($public_key, $private_key, $p256dh, $auth, $endpoint, $s
  *
  */
 function webpush_subscribe($subscription) {
-    try{
+    try {
         if (!empty($subscription)) {
             $subscription_json = json_decode_custom($subscription, true);
 

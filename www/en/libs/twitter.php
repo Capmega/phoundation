@@ -26,7 +26,7 @@ load_libs('ext/twitteroauth/twitteroauth');
 function twitter_get_bearer_token() {
     global $_CONFIG;
 
-    try{
+    try {
         // Step 1
         // step 1.1 - url encode the consumer_key and consumer_secret in accordance with RFC 1738
         $encoded_consumer_key    = urlencode($_CONFIG['sso']['twitter']['appid']);
@@ -93,7 +93,7 @@ function twitter_get_bearer_token() {
 function twitter_invalidate_bearer_token($bearer_token) {
     global $_CONFIG;
 
-    try{
+    try {
         $encoded_consumer_key          = urlencode($_CONFIG['sso']['twitter']['appid']);
         $encoded_consumer_secret       = urlencode($_CONFIG['sso']['twitter']['secret']);
         $consumer_token                = $encoded_consumer_key.':'.$encoded_consumer_secret;
@@ -138,7 +138,7 @@ function twitter_invalidate_bearer_token($bearer_token) {
 * Based on https://dev.twitter.com/docs/api/1.1/get/search/tweets
 */
 function twitter_search_for_a_term($bearer_token, $query, $result_type='mixed', $count='15') {
-    try{
+    try {
         $url        = "https://api.twitter.com/1.1/search/tweets.json"; // base url
         $q          = urlencode(trim($query)); // query term
         $formed_url = '?q='.$q; // fully formed url
@@ -185,7 +185,7 @@ invalidate_bearer_token($bearer_token); // invalidate the token
 function twitter_user_info($token, $secret) {
     global $_CONFIG;
 
-    try{
+    try {
         $app_id     = $_CONFIG['sso']['twitter']['appid'];
         $app_secret = $_CONFIG['sso']['twitter']['secret'];
 

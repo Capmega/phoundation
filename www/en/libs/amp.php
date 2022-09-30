@@ -48,7 +48,7 @@ function amp_component_carousel($params) {
  * Show the AMP verion of the specified page
  */
 function amp_page_cache() {
-    try{
+    try {
         load_libs('cache');
 
         $data = cache_read($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], 'amp');
@@ -71,7 +71,7 @@ function amp_page_cache() {
  * Show the AMP verion of the specified page
  */
 function amp_page($params) {
-    try{
+    try {
         array_params($params);
         array_default($params, 'template'  , null);
         array_default($params, 'canonical' , str_replace('/amp/', '/', domain(true)));
@@ -120,7 +120,7 @@ function amp_page($params) {
          */
         if ($params['components']) {
             foreach($params['components'] as $key => $component_data) {
-                try{
+                try {
                     $component      = str_replace(':', '', $key);
                     $component      = 'amp_component_'.$component;
                     $component_data = amp_component_carousel($component_data);
@@ -169,7 +169,7 @@ function amp_page($params) {
  * @return string The <amp-img> tag
  */
 function amp_img($params, $alt = null, $width = null, $height = null, $extra = 'layout="responsive"') {
-    try{
+    try {
 // :LEGACY: The following code block exists to support legacy apps that still use 5 arguments for html_img() instead of a params array
         if (!is_array($params)) {
             /*
@@ -197,7 +197,7 @@ function amp_img($params, $alt = null, $width = null, $height = null, $extra = '
  * Returns <amp-youtube> componet
  */
 function amp_youtube(array $attributes) {
-    try{
+    try {
         if (empty($attributes['hashtag'])) return '';
 
         array_default($attributes, 'width' , '480');
@@ -226,7 +226,7 @@ function amp_youtube(array $attributes) {
  * Returns <amp-video> componet
  */
 function amp_video(array $attributes) {
-    try{
+    try {
         $format_amp_video = '<amp-video width="'.$attributes['width'].'"
                                 height="'.$attributes['height'].'"
                                 src="'.$attributes['src'].'"
@@ -253,7 +253,7 @@ function amp_video(array $attributes) {
  * Convert the specified URL in an AMP url
  */
 function amp_url($url) {
-    try{
+    try {
         /*
          * Strip out protocol and domain from url
          */
@@ -275,7 +275,7 @@ function amp_url($url) {
  * Convert HTML to AMP HTML
  */
 function amp_content($html) {
-    try{
+    try {
         $search  = array();
         $replace = array();
 // :TODO: Add caching support!
@@ -407,7 +407,7 @@ continue;
  * Removes unallowed HTML tags for AMP
  */
 function amp_html_cleanup($html) {
-    try{
+    try {
         /*
          * List of things that need to be handled, populate list as needed
          */

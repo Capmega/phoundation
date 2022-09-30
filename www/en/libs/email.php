@@ -36,7 +36,7 @@ use PHPMailer\PHPMailer\Exception;
  * @return void
  */
 function email_library_init() {
-    try{
+    try {
         if (!extension_loaded('imap')) {
             throw new CoreException(tr('email_library_init(): The PHP "imap" module is not available, please install it first. On ubuntu install the module with "apt -y install php-imap"; a restart of the webserver or php fpm server may be required'), 'missing-module');
         }
@@ -59,7 +59,7 @@ function email_connect($userdata, $mail_box = null) {
     global $_CONFIG;
     static $connections = array();
 
-    try{
+    try {
         if ($mail_box) {
             if ($mail_box == 'inbox') {
                 $mail_box = 'INBOX';
@@ -116,7 +116,7 @@ function email_connect($userdata, $mail_box = null) {
 function email_poll($params) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'account'       , null);
         array_default($params, 'mail_box'      , null);
@@ -288,7 +288,7 @@ function email_poll($params) {
                     }
 
                     if ($params['store']) {
-                        try{
+                        try {
                             if (VERBOSE AND PLATFORM_CLI) {
                                 log_console(tr('Processing email ":subject"', array(':subject' => $mail['subject'])));
                             }
@@ -356,7 +356,7 @@ function email_poll($params) {
  *
  */
 function email_get_attachments($imap, $email, $data, $flags) {
-    try{
+    try {
         /*
          * Extract the images of the emails if there are
          */
@@ -378,7 +378,7 @@ function email_get_attachments($imap, $email, $data, $flags) {
          * Loop through each image
          */
         for($i = 0; $i < $count; $i++) {
-            try{
+            try {
                 $section = strval(2 + $i);
                 $decode  = imap_fetchbody($imap, $email, $section);
                 $img     = base64_decode($decode);
@@ -443,7 +443,7 @@ function email_get_attachments($imap, $email, $data, $flags) {
  * A conversation is a collection of email messages, in order of date, that share the same sender, receiver, and subject (subject may contain "RE: ")
  */
 function email_get_conversation($email) {
-    try{
+    try {
         /*
          *
          */
@@ -509,7 +509,7 @@ function email_get_conversation($email) {
 function email_update_conversation($email, $direction) {
     global $_CONFIG;
 
-    try{
+    try {
         $email = email_update_message($email, $direction);
 
         if (empty($direction)) {
@@ -537,7 +537,7 @@ function email_update_conversation($email, $direction) {
          * Decode the current last_messages
          */
         if ($conversation['last_messages']) {
-            try{
+            try {
                 $conversation['last_messages'] = json_decode_custom($conversation['last_messages']);
 
             }catch(\Exception $e) {
@@ -577,7 +577,7 @@ function email_update_conversation($email, $direction) {
         $last_messages  = json_encode_custom($conversation['last_messages']);
         $message_length = strlen($last_messages);
 
-        while($message_length > 2048) {
+        while ($message_length > 2048) {
             /*
              * The JSON string is too large to be stored, reduce the size of the largest messages and try again
              */
@@ -638,7 +638,7 @@ function email_update_conversation($email, $direction) {
  *
  */
 function email_update_message($email, $direction) {
-    try{
+    try {
         $email['users_id']          = email_get_users_id($email);
         $email['email_accounts_id'] = email_get_accounts_id($email);
         $email['conversation']      = email_get_conversation($email);
@@ -751,7 +751,7 @@ function email_update_message($email, $direction) {
  *
  */
 function email_cleanup($email) {
-    try{
+    try {
         foreach($email as $key => &$value) {
             if (is_scalar($value)) {
                 if (strstr($value, '?utf-8?B?')) {
@@ -782,7 +782,7 @@ function email_cleanup($email) {
  * and move them to the correct location
  */
 function email_check_images($email) {
-    try{
+    try {
         /*
          * If there are images insert them into `email_files` table
          */
@@ -791,7 +791,7 @@ function email_check_images($email) {
         $name   = Strings::until($email['to'], '@');
         $domain = str_from ($email['to'], '@');
 
-        while(!empty($email['img'.$i])) {
+        while (!empty($email['img'.$i])) {
             if (empty($path)) {
                 $path = ROOT.'data/email/images/'.$domain.'/'.$name.'/'.$email['id'];
                 file_ensure_path($path);
@@ -827,7 +827,7 @@ function email_check_images($email) {
  * Return the id of the last email for this conversation
  */
 function email_get_reply_to_id($email) {
-    try{
+    try {
         if (empty($email['conversation']['id'])) {
             return null;
         }
@@ -845,7 +845,7 @@ function email_get_reply_to_id($email) {
  *
  */
 function email_get_users_id($email) {
-    try{
+    try {
         if (!empty($email['users_id'])) {
             return $email['users_id'];
         }
@@ -876,7 +876,7 @@ function email_get_users_id($email) {
  *
  */
 function email_get_accounts_id($email) {
-    try{
+    try {
         if (!empty($email['email_accounts_id'])) {
             return $email['email_accounts_id'];
         }
@@ -912,7 +912,7 @@ function email_get_accounts_id($email) {
 function email_send($email, $smtp = null, $account = null) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($email);
         array_default($email, 'delayed'     , true);
         array_default($email, 'conversation', true);
@@ -1052,7 +1052,7 @@ function email_send($email, $smtp = null, $account = null) {
 function email_from_exists($email) {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * Validate email, extract it from "user <email>" if needed
          */
@@ -1117,7 +1117,7 @@ function email_from_exists($email) {
  * @return void
  */
 function email_load_phpmailer() {
-    try{
+    try {
         if (!file_exists(ROOT.'/libs/vendor/PHPMailer/PHPMailer.php')) {
             /*
              * phpmailer is not installed yet, install it now
@@ -1165,7 +1165,7 @@ function email_load_phpmailer() {
  * Validates the specified email array and returns correct email data
  */
 function email_validate($email) {
-    try{
+    try {
         load_libs('validate');
 
         $v     = new ValidateForm($email, 'validate_sender,body,subject,to,from');
@@ -1229,7 +1229,7 @@ function email_validate($email) {
 function email_prepare($email) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($email, 'replace,template');
         Arrays::ensure($email['replace']);
 
@@ -1355,7 +1355,7 @@ function email_prepare($email) {
  * Return userdata for the specified username
  */
 function email_get_account($email, $columns = null) {
-    try{
+    try {
         /*
          * Ensure we have only email address
          * Get domain name
@@ -1421,7 +1421,7 @@ function email_get_account($email, $columns = null) {
  * Return userdata for the specified username
  */
 function email_get_client_account($email, $columns = null) {
-    try{
+    try {
         /*
          * Ensure we have only email address
          * Get domain name
@@ -1490,7 +1490,7 @@ function email_get_client_account($email, $columns = null) {
  * Return domain data for the specified username
  */
 function email_get_domain($email_or_domain, $columns = null, $table = 'email_domains') {
-    try{
+    try {
         if (!$columns) {
             $columns = '`id`,
                         `createdby`,
@@ -1540,7 +1540,7 @@ function email_get_domain($email_or_domain, $columns = null, $table = 'email_dom
  * Return domain data for the specified username
  */
 function email_client_get_domain($email_or_domain, $columns = null) {
-    try{
+    try {
         return email_get_domain($email_or_domain, $columns, 'email_client_domains');
 
     }catch(\Exception $e) {
@@ -1556,7 +1556,7 @@ function email_client_get_domain($email_or_domain, $columns = null) {
 function email_delay($email) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($email);
         array_default($email, 'auto_start', isset_get($_CONFIG['email']['delayed']['auto_start']));
 
@@ -1599,7 +1599,7 @@ function email_delay($email) {
 function email_send_unsent() {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * Load the emails where status is "new"
          */
@@ -1637,7 +1637,7 @@ function email_send_unsent() {
          * update the `status` to "sent" and also update the `senton` date
          */
         $count = 0;
-        while($email = sql_fetch($r)) {
+        while ($email = sql_fetch($r)) {
             /*
              * Don't delay again, its already stored!
              * Don't validate again, its already processed and valid!
@@ -1646,7 +1646,7 @@ function email_send_unsent() {
             $email['delayed']  = false;
             $email['validate'] = false;
 
-            try{
+            try {
                 /*
                  * Send the email
                  */
@@ -1686,7 +1686,7 @@ function email_send_unsent() {
 function email_get_encryption_key() {
     global $_CONFIG;
 
-    try{
+    try {
         if (empty($_CONFIG['email']['encryption_key'])) {
             throw new CoreException(tr('email_get_encryption_key(): $_CONFIG[email][encryption_key] has not been specified. Please specify a random key first'), 'not-specified');
         }
@@ -1704,7 +1704,7 @@ function email_get_encryption_key() {
  * Validate the data of the specified email-domain
  */
 function email_validate_domain($domain, $table = 'email_domains') {
-    try{
+    try {
         load_libs('seo');
         $v = new ValidateForm($domain, 'name,imap,smpt_host,smtp_port,description,header,footer,poll_interval');
 
@@ -1751,7 +1751,7 @@ function email_validate_domain($domain, $table = 'email_domains') {
  * Validate the data of the specified email-user
  */
 function email_validate_account($account, $client) {
-    try{
+    try {
         load_libs('seo');
 
         if ($client) {
@@ -1810,7 +1810,7 @@ function email_validate_account($account, $client) {
  * Delete a group of email messages
  */
 function email_delete($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'account' , '');
         array_default($params, 'mail_box', '');
@@ -1845,7 +1845,7 @@ function email_delete($params) {
              */
             $params['filters']['old'] = strtoupper($params['filters']['old']);
 
-            try{
+            try {
                 $date = new DateTime();
                 $date->sub(new DateInterval('P'.$params['filters']['old']));
 
@@ -1941,7 +1941,7 @@ function email_delete($params) {
  *
  */
 function email_test_account($account, $mail_box = 'INBOX') {
-    try{
+    try {
 throw new CoreException(tr('email_test(): This functionality is still under construction'), 'under-construction');
         $userdata = email_get_client_account($account);
         $imap     = email_connect($userdata, $mail_box);
@@ -1970,7 +1970,7 @@ showdie($e);
  * OBSOLETE FUNCTIONS FOLLOW BELOW
  */
 function email_get_user($email, $columns = null) {
-    try{
+    try {
         return email_get_client_account($email, $columns = null);
 
     }catch(\Exception $e) {
@@ -1979,7 +1979,7 @@ function email_get_user($email, $columns = null) {
 }
 
 function email_validate_user($user) {
-    try{
+    try {
         return email_validate_account($user);
 
     }catch(\Exception $e) {

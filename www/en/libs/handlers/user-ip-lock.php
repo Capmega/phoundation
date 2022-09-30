@@ -1,5 +1,5 @@
 <?php
-    try{
+    try {
         $ips = $_CONFIG['security']['signin']['ip_lock'];
 
         if (($ips === true) or is_numeric($ips)) {

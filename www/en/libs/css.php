@@ -28,7 +28,7 @@
  * @return void
  */
 function css_library_init() {
-    try{
+    try {
         ensure_installed(array('name'     => 'css',
                                'callback' => 'css_setup',
                                'checks'   => ROOT.'node_modules/.bin/purgecss'));
@@ -56,7 +56,7 @@ function css_library_init() {
  * @return
  */
 function css_setup($params) {
-    try{
+    try {
         ///*
         // * Ensure all targets are clean
         // */
@@ -118,7 +118,7 @@ function css_setup($params) {
 function css_purge($html, $css) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         //$purged_css      = 'p-'.$css;
         //$purged_css_file = ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
         //$css_file        = ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');

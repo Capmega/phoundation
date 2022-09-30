@@ -28,7 +28,7 @@
  * @return void
  */
 function btrfs_library_init() {
-    try{
+    try {
         ensure_installed(array('name'     => 'btrfs',
                                'callback' => 'btrfs_install',
                                'which'    => '/bin/btrfs'));
@@ -56,7 +56,7 @@ function btrfs_library_init() {
  * @return void
  */
 function btrfs_install() {
-    try{
+    try {
         load_libs('linux');
         linux_install_package(null, 'btrfs-tools');
 
@@ -87,7 +87,7 @@ function btrfs_install() {
  * @return array The output lines from the "btrfs filesystem defrag" command
  */
 function btrfs_defragment($params) {
-    try{
+    try {
         Arrays::ensure($params, 'verbose,path,server');
 
         if ($params['verbose'] or VERBOSE) {
@@ -126,7 +126,7 @@ function btrfs_defragment($params) {
  * @return array The output lines from the "btrfs subvolume create" command
  */
 function btrfs_create_subvolume($params) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('btrfs_create_subvolume(): Failed', $e);
@@ -154,7 +154,7 @@ function btrfs_create_subvolume($params) {
  * @return array The output lines from the "btrfs subvolume snapshot" command
  */
 function btrfs_snapshot_subvolume($params) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('btrfs_snapshot_subvolume(): Failed', $e);

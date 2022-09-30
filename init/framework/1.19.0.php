@@ -37,7 +37,7 @@ $servers = sql_query('SELECT `id`, `hostname` FROM `servers` WHERE `status` IS N
 $insert  = sql_prepare('INSERT INTO `servers_hostnames` (`meta_id`, `servers_id`, `hostname`)
                         VALUES                          (:meta_id , :servers_id , :hostname )');
 
-while($server = sql_fetch($servers)) {
+while ($server = sql_fetch($servers)) {
     $insert->execute(array(':meta_id'    => meta_action(),
                            ':servers_id' => $server['id'],
                            ':hostname'   => $server['hostname']));

@@ -27,7 +27,7 @@
  * @return mixed The list of available pages
  */
 function pages_list($params) {
-    try{
+    try {
         Arrays::ensure($params, 'filters');
 
         $retval = array();
@@ -93,7 +93,7 @@ function pages_list($params) {
  * @return string HTML for a pages select box within the specified parameters
  */
 function pages_select($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'      , 'seopages');
         array_default($params, 'class'     , 'form-control');

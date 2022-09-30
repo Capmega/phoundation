@@ -1,7 +1,7 @@
 <?php
 static $style;
 
-try{
+try {
     if ($key === null) {
         $key = tr('Unknown');
     }

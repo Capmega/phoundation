@@ -470,7 +470,7 @@ switch(cli_method()) {
                                                         return;
                                                     }
 
-                                                    try{
+                                                    try {
                                                         $info = image_info($file, $no_exif);
                                                         s_display_info($info);
 
@@ -578,7 +578,7 @@ switch(cli_method()) {
                                                                 return;
                                                             }
 
-                                                            try{
+                                                            try {
                                                                 if ($params['backup']) {
                                                                     /*
                                                                      * Make a backup of
@@ -642,7 +642,7 @@ switch(cli_method()) {
                                                             }
 
                                                             if ($show_images) {
-                                                                try{
+                                                                try {
                                                                     if (empty($params['copy_to_temp'])) {
                                                                         if (TEST) {
                                                                             /*
@@ -678,7 +678,7 @@ switch(cli_method()) {
                                                             /*
                                                              *
                                                              */
-                                                            try{
+                                                            try {
                                                                 if (TEST and !$no_delete) {
                                                                     file_delete($target, ROOT);
                                                                 }
@@ -730,7 +730,7 @@ switch(cli_method()) {
  * Display image information
  */
 function s_display_info($info) {
-    try{
+    try {
         log_console(str_size(tr('File'), 20), 'cyan', false);
         log_console($info['path'].$info['filename'], 'white');
         log_console(str_size(tr('Path'), 20), 'cyan', false);

@@ -29,7 +29,7 @@
  * @return void
  */
 function paypal_library_init() {
-    try{
+    try {
         load_config('paypal');
 
     }catch(Exception $e) {
@@ -53,7 +53,7 @@ function paypal_get_subscr_id_from_custom($custom) {
  */
 function paypal_version() {
     global $_CONFIG;
-    try{
+    try {
         return $_CONFIG['paypal']['version'];
     }catch(Exception $e) {
         throw new CoreException('paypal_version(): Failed', $e);
@@ -68,7 +68,7 @@ function paypal_version() {
  */
 function paypal_change_subscription_status($profile_id, $action='Cancel') {
     global $_CONFIG;
-    try{
+    try {
         $api_request = 'USER=' . urlencode($_CONFIG['paypal'][paypal_version()]['api-username'])
                 .  '&PWD=' . urlencode($_CONFIG['paypal'][paypal_version()]['api-password'])
                 .  '&SIGNATURE=' . urlencode($_CONFIG['paypal'][paypal_version()]['api-signature'])
@@ -122,7 +122,7 @@ function paypal_change_subscription_status($profile_id, $action='Cancel') {
  */
 function paypal_subscription_button($params=array()) {
     global $_CONFIG;
-    try{
+    try {
         array_default($params,'business', $_CONFIG['paypal'][paypal_version()]['email']);            //webmerica  business email address
         array_default($params,'lc', 'ES');                                 //Country
         array_default($params,'item_name', 'unknown');                             //item name, displayed to user when paying
@@ -176,7 +176,7 @@ function paypal_subscription_button($params=array()) {
 function paypal_ipn_log() {
     global $_CONFIG;
 
-    try{
+    try {
         //they can submit with post and get
         if (empty($_POST)) {
             $_POST=$_GET;
@@ -198,7 +198,7 @@ function paypal_ipn_log() {
 //check with paypal if ipn request is valid
 function paypal_check_ipn_request() {
     global $_CONFIG;
-    try{
+    try {
         // Read the notification from PayPal and create the acknowledgement response
         $req = 'cmd=_notify-validate';               // add 'cmd' to beginning of the acknowledgement you send back to PayPal
 

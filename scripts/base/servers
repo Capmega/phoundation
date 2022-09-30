@@ -88,7 +88,7 @@ unregister DOMAIN [SSH-PORT]    - Remove the registered domain / port
 
 require_once(__DIR__.'/../../libs/startup.php');
 
-try{
+try {
     cli_only();
     load_libs('servers,ssh');
 
@@ -115,7 +115,7 @@ try{
             }
 
             foreach($domains as $domain) {
-                try{
+                try {
                     servers_insert(array('domain'      => $domain,
                                          'port'        => $port,
                                          'register'    => $register,
@@ -334,7 +334,7 @@ try{
             } else {
                 log_console(str_size(tr('#id'), 7).str_size(tr('Name'), 17).str_size(tr('Username'), 17).str_size(tr('Description'), 64), 'QUIET/cyan');
 
-                while($server = sql_fetch($servers)) {
+                while ($server = sql_fetch($servers)) {
                     log_console(str_size($server['id'], 6, ' ', true).' '.str_size($server['name'], 16).' '.str_size($server['username'], 16).' '.str_size($server['description'], 64));
                 }
             }
@@ -432,14 +432,14 @@ try{
                 if ($only_domains) {
                     log_console(tr('Hostname'), 'QUIET/cyan');
 
-                    while($server = sql_fetch($servers)) {
+                    while ($server = sql_fetch($servers)) {
                         log_console($server['domain']);
                     }
 
                 } else {
                     log_console(str_size(tr('#id'), 6, ' ', true).' '.str_size(tr('Customer'), 24).' '.str_size(tr('Provider'), 24).' '.str_size(tr('ipv4'), 15).' '.str_size(tr('Hostname'), 33).str_size(tr('Status'), 13).str_size(tr('Created by'), 32), 'QUIET/cyan');
 
-                    while($server = sql_fetch($servers)) {
+                    while ($server = sql_fetch($servers)) {
                         if (!$server['domain']) {
                             $server['domain'] = '*'.tr('This server').'*';
                             $server['ipv4']   = '-';
@@ -480,7 +480,7 @@ try{
 
                     log_console(tr('Inserting new server ":new" in chain for server ":root"', array(':new' => $new_domain, ':root' => $root_domain)), 'white');
 
-                    try{
+                    try {
                         proxies_insert($root_domain, $new_domain, $target_domain, $location, $protocols);
                     }catch(Exception $e) {
                         switch(Strings::from($e->getCode(), '/')) {
@@ -522,7 +522,7 @@ try{
                 $server['allow_tcp_forward'] = 'N/A';
 
             } else {
-                try{
+                try {
                     load_libs('linux');
                     $server['allow_tcp_forward'] = linux_get_ssh_tcp_forwarding($server);
 
@@ -576,7 +576,7 @@ try{
                 throw new CoreException(tr('No server specified'), 'warning/not-exist');
             }
 
-            try{
+            try {
                 $requested = servers_like($requested);
                 $server    = servers_get($requested, true);
 

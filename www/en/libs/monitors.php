@@ -26,7 +26,7 @@
  * @return void
  */
 function monitors_library_init() {
-    try{
+    try {
         load_config('monitors');
 
 
@@ -50,7 +50,7 @@ function monitors_library_init() {
  * @return
  */
 function monitors_validate_host($host) {
-    try{
+    try {
 
 
     }catch(Exception $e) {
@@ -75,7 +75,7 @@ function monitors_validate_host($host) {
  * @return The specified host, but validated, with the table id added
  */
 function monitors_insert_host($host) {
-    try{
+    try {
         $host = monitors_validate_host($host);
 
         sql_query('INSERT INTO `monitors` (``, ``)
@@ -110,7 +110,7 @@ function monitors_insert_host($host) {
  * @return The specified host, but validated
  */
 function monitors_update_host($host) {
-    try{
+    try {
         $host = monitors_validate_host($host);
 
         sql_query('UPDATE `monitors`
@@ -144,7 +144,7 @@ function monitors_update_host($host) {
  * @return params The found host, or null if no host was found
  */
 function monitors_get_host($host) {
-    try{
+    try {
         if (is_numeric($host)) {
             $where   = ' WHERE  `id` = :id ';
             $execute = array(':id' => $host);
@@ -192,7 +192,7 @@ function monitors_get_host($host) {
  * @return
  */
 function monitors_update_interfaces($host, $interfaces) {
-    try{
+    try {
         if (!is_array($host)) {
             $host = monitors_get_host($host);
         }

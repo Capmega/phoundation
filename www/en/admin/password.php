@@ -8,7 +8,7 @@ load_libs('user,validate');
 /*
  * Process user actions
  */
-try{
+try {
     /*
      * Update password
      */
@@ -171,7 +171,7 @@ echo ca_page($html, $params);
  *
  */
 function s_validate_password(&$user, $id = null) {
-    try{
+    try {
         // Validate input
         $v = new validate_form($user, 'password,password2,cpassword');
 
@@ -194,7 +194,7 @@ function s_validate_password(&$user, $id = null) {
  *
  */
 function s_validate_pin(&$user, $id = null) {
-    try{
+    try {
         // Validate input
         $v = new validate_form($user, 'pin,pin2,cpassword');
 

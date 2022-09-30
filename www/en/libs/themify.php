@@ -26,7 +26,7 @@
  * @return void
  */
 function themify_load() {
-    try{
+    try {
         html_load_css('themify-icons');
 
     }catch(Exception $e) {
@@ -40,7 +40,7 @@ function themify_load() {
  * Create HTML <select> with all themify font classes
  */
 function themify_select($params) {
-    try{
+    try {
         array_params($params);
 
         $html = cache_read('select'.isset_get($params['selected']), 'themify');

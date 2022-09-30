@@ -26,7 +26,7 @@
  * @return array an associative array containing a cURL object.
  */
 function wp_admin_signin($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'rememberme', true);                      // Check the "remember me" box in the admin login screen
         array_default($params, 'simulation', false);                     // false, partial, or full. "partial" will sign in, but not really post, full will not sign in and not post at all. False will just sign in and post normally.
@@ -118,7 +118,7 @@ function wp_admin_signin($params) {
 function wp_admin_post($params, $force_new = false) {
     static $retry;
 
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'sleep'  , 15);    // Sleep howmany seconds between retries
         array_default($params, 'retries',  5);    // Retry howmany time on postid failures
@@ -300,7 +300,7 @@ show($retval['curl']['data']);
  * Trash a page
  */
 function wp_admin_trash($params) {
-    try{
+    try {
         Arrays::ensure($params);
 
         if (empty($params['curl'])) {
@@ -355,7 +355,7 @@ function wp_admin_trash($params) {
  * Restore a page (undelete)
  */
 function wp_admin_restore($params) {
-    try{
+    try {
         Arrays::ensure($params);
 
         if (empty($params['curl'])) {
@@ -408,7 +408,7 @@ function wp_admin_restore($params) {
  * Remove a page permanently (erase)
  */
 function wp_admin_remove_permanently($params) {
-    try{
+    try {
         Arrays::ensure($params);
 
         if (empty($params['curl'])) {
@@ -461,7 +461,7 @@ function wp_admin_remove_permanently($params) {
  * Get a new page or post
  */
 function wp_admin_get($post_id, $curl) {
-    try{
+    try {
         Arrays::ensure($params);
 
         if (!is_array($curl)) {
@@ -530,7 +530,7 @@ function wp_admin_get($post_id, $curl) {
  * Make a post using the xmlrpc interface
  */
 function wp_xmlrpc_post($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'encoding'  , 'UTF-8');
         array_default($params, 'keywords'  , '');
@@ -614,7 +614,7 @@ function wp_xmlrpc_post($params) {
  * Wrapper for wp_admin_trash() since under base we usually use delete, undelete, and erase
  */
 function wp_admin_delete($params) {
-    try{
+    try {
         return wp_admin_trash($params);
 
     }catch(Exception $e) {
@@ -628,7 +628,7 @@ function wp_admin_delete($params) {
  * Wrapper for wp_admin_restore() since under base we usually use delete, undelete, and erase
  */
 function wp_admin_undelete($params) {
-    try{
+    try {
         return wp_admin_restore($params);
 
     }catch(Exception $e) {
@@ -642,7 +642,7 @@ function wp_admin_undelete($params) {
  * Wrapper for wp_admin_remove_permanently() since under base we usually use delete, undelete, and erase
  */
 function wp_admin_erase($params) {
-    try{
+    try {
         return wp_admin_remove_permanently($params);
 
     }catch(Exception $e) {

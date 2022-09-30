@@ -28,12 +28,12 @@
  * @return void
  */
 function validate_library_init() {
-    try{
+    try {
         /*
          * Ensure all required PHP modules are available
          */
         if (!extension_loaded('intl')) {
-            try{
+            try {
                 load_libs('linux');
                 linux_install_package(null, 'php-intl');
 
@@ -97,7 +97,7 @@ function validate_library_init() {
  * @version 2.4.69: Added documentation
  */
 function verify_js($params) {
-    try{
+    try {
         html_load_js('verify');
 
         Arrays::ensure($params);
@@ -202,7 +202,7 @@ class ValidateJquery {
     }
 
     function outputValidation($params, $script = '') {
-        try{
+        try {
             load_libs('array');
             html_load_js('base/jquery.validate');
 
@@ -378,7 +378,7 @@ class ValidateForm {
      *
      */
     function __construct(&$source = null, $columns = null, $invalidate_more_columns = false, $default_value = null) {
-        try{
+        try {
             if (!is_array($source)) {
                 if ($source !== null) {
                     /*
@@ -430,7 +430,7 @@ class ValidateForm {
      * Parse the flags given with the validation
      */
     private function parseFlags(&$value, $message, $flags, $allowEmpty = true) {
-        try{
+        try {
             $this->allowEmpty = 'no';
             $this->not        = false;
             $this->scalar     = is_scalar($value);
@@ -701,7 +701,7 @@ class ValidateForm {
      * data type
      */
     private function allowEmpty(&$value, $message = null) {
-        try{
+        try {
             if (!empty($value)) {
                 return true;
             }
@@ -734,7 +734,7 @@ class ValidateForm {
     function isScalar(&$value, $message = null, $flags = null) {
         global $_CONFIG;
 
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -774,7 +774,7 @@ class ValidateForm {
      *
      */
     function isNotEmpty(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags, false)) {
                 return true;
             }
@@ -801,7 +801,7 @@ class ValidateForm {
      * status can be NULL by default
      */
     function isStatus(&$value, $message = null, $flags = VALIDATE_ALLOW_EMPTY_NULL) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -827,7 +827,7 @@ class ValidateForm {
      * Only allow a valid (unverified!) email address
      */
     function isEmail(&$value, $message = null, $flags = null) {
-        try{
+        try {
             return $this->isFilter($value, FILTER_VALIDATE_EMAIL, $message, $flags);
 
         }catch(Exception $e) {
@@ -841,7 +841,7 @@ class ValidateForm {
      *
      */
     function isUrl(&$value, $message = null, $flags = null) {
-        try{
+        try {
             return $this->isFilter($value, FILTER_VALIDATE_URL, $message, $flags);
 
         }catch(Exception $e) {
@@ -855,7 +855,7 @@ class ValidateForm {
      *
      */
     function isDomain(&$value, $message = null, $flags = null) {
-        try{
+        try {
             return $this->isFilter($value, FILTER_VALIDATE_DOMAIN, $message, $flags);
 
         }catch(Exception $e) {
@@ -889,7 +889,7 @@ class ValidateForm {
      *      FILTER_FLAG_SCHEME_REQUIRED, FILTER_FLAG_HOST_REQUIRED, FILTER_FLAG_PATH_REQUIRED, FILTER_FLAG_QUERY_REQUIRED
      */
     function isFilter(&$value, $filter_flags, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -911,7 +911,7 @@ class ValidateForm {
      * Only allow numeric values (integers, floats, strings with numbers)
      */
     function isNumeric(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -937,7 +937,7 @@ class ValidateForm {
      * Only allow integer numbers 1 and up
      */
     function isNatural(&$value, $start, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -970,7 +970,7 @@ class ValidateForm {
      * Only allow alpha characters
      */
     function isAlpha(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -996,7 +996,7 @@ class ValidateForm {
      * Only allow alpha numeric characters
      */
     function isAlphaNumeric(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1022,7 +1022,7 @@ class ValidateForm {
      * Only allow alpha numeric and - characters
      */
     function isHexadecimal(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1052,7 +1052,7 @@ class ValidateForm {
      *
      */
     function isPhonenumber(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1100,7 +1100,7 @@ class ValidateForm {
      *
      */
     function isEqual(&$value, $value2, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags, false)) {
                 return true;
             }
@@ -1133,7 +1133,7 @@ class ValidateForm {
     // *
     // */
     //function isNotEqual(&$value, $value2, $message = null, $flags = null) {
-    //    try{
+    //    try {
     //        if (!$this->parseFlags($value, $message, $flags, false)) {
     //            return true;
     //        }
@@ -1166,7 +1166,7 @@ class ValidateForm {
      *
      */
     function isBetween(&$value, $min, $max, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1196,7 +1196,7 @@ class ValidateForm {
      *
      */
     function isEnabled(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags, false)) {
                 return true;
             }
@@ -1222,7 +1222,7 @@ class ValidateForm {
      *
      */
     function hasChars(&$value, $chars, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1253,7 +1253,7 @@ class ValidateForm {
      * VALIDATE_NOT flag
      */
     function hasNoChars(&$value, $chars, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1281,7 +1281,7 @@ class ValidateForm {
      *
      */
     function hasMinChars(&$value, $limit, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1307,7 +1307,7 @@ class ValidateForm {
      *
      */
     function hasMaxChars(&$value, $limit, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1333,7 +1333,7 @@ class ValidateForm {
      *
      */
     function isFacebookUserpage(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1363,7 +1363,7 @@ class ValidateForm {
      *
      */
     function isTwitterUserpage(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1393,7 +1393,7 @@ class ValidateForm {
      *
      */
     function isGoogleplusUserpage(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1423,7 +1423,7 @@ class ValidateForm {
      *
      */
     function isYoutubeUserpage(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1453,7 +1453,7 @@ class ValidateForm {
      *
      */
     function isLinkedinUserpage(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1483,7 +1483,7 @@ class ValidateForm {
      *
      */
     function isChecked(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags, false)) {
                 return true;
             }
@@ -1505,7 +1505,7 @@ class ValidateForm {
      *
      */
     function isRegex(&$value, $regex, $message = null, $flags = null) {
-         try{
+         try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1531,7 +1531,7 @@ class ValidateForm {
      *
      */
     function isText(&$value, $message = null, $flags = null) {
-         try{
+         try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1565,7 +1565,7 @@ class ValidateForm {
      * @return boolean
      */
     public function isDate($date, $format = 'Y-m-d', $message = "this is not a valid date") {
-        try{
+        try {
             $d = DateTime::createFromFormat($format, $date);
             if (!($d && $d->format($format) == $date)) {
                 return $this->setError($message);
@@ -1582,7 +1582,7 @@ class ValidateForm {
      *
      */
     function isDateTime(&$value, $message = null, $flags = null) {
-        try{
+        try {
 // :TODO: IMPLEMENT
 
         }catch(Exception $e) {
@@ -1596,7 +1596,7 @@ class ValidateForm {
      *
      */
     function isTime(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1607,7 +1607,7 @@ class ValidateForm {
 
             load_libs('time');
 
-            try{
+            try {
                 time_validate($this->testValue);
 
             }catch(Exception $e) {
@@ -1639,7 +1639,7 @@ class ValidateForm {
      *
      */
     function isLatitude(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1669,7 +1669,7 @@ class ValidateForm {
      *
      */
     function isLongitude(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1699,7 +1699,7 @@ class ValidateForm {
      *
      */
     function isTimezone(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1727,7 +1727,7 @@ class ValidateForm {
      *
      */
     function isPassword(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1755,7 +1755,7 @@ class ValidateForm {
      * Check if the specified $value contains any HTML or not
      */
     function hasNoHTML(&$value, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1784,7 +1784,7 @@ class ValidateForm {
      * Basically this is an enum check
      */
     function inArray(&$value, $array, $message = null, $flags = null) {
-        try{
+        try {
             if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
@@ -1821,7 +1821,7 @@ class ValidateForm {
      * @return boolean
      */
     public function isCity(string $city, string $message) {
-        try{
+        try {
 // :TODO: add this validate
         }catch(Exception $e) {
             throw new CoreException('ValidateForm::isCity(): Failed', $e);
@@ -1834,7 +1834,7 @@ class ValidateForm {
      *
      */
     function setError($message) {
-        try{
+        try {
             if (!$message) {
                 return false;
             }
@@ -1857,7 +1857,7 @@ class ValidateForm {
      *
      */
     function isValid($throw_exception = true) {
-        try{
+        try {
             if ($this->errors and $throw_exception) {
                 throw new CoreException($this->errors, 'warning/validation');
             }
@@ -1875,7 +1875,7 @@ class ValidateForm {
      *
      */
     function listErrors($separator = null) {
-        try{
+        try {
             if (!count($this->errors)) {
                 return null;
             }
@@ -1912,7 +1912,7 @@ class ValidateForm {
      * HERE BE OBSOLETE METHODS!
      */
     function getErrors($separator = null) {
-        try{
+        try {
             return $this->listErrors($separator);
 
         }catch(Exception $e) {

@@ -26,7 +26,7 @@
  * @return void
  */
 function smart_library_init() {
-    try{
+    try {
         ensure_installed(array('name'      => 'empty',
                                'project'   => 'emptyear',
                                'callback'  => 'empty_install',
@@ -52,7 +52,7 @@ function smart_library_init() {
  * @return
  */
 function smart_install() {
-    try{
+    try {
         load_libs('linux');
         linux_install_package(null, 'smartmontools');
 
@@ -99,7 +99,7 @@ function smart_install() {
  * @return string The result
  */
 function empty_function($params) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('empty(): Failed', $e);

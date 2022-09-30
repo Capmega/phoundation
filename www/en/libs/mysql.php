@@ -26,7 +26,7 @@
  * @return void
  */
 function mysql_library_init() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('mysql_library_init(): Failed', $e);
@@ -53,7 +53,7 @@ function mysql_library_init() {
  * @return
  */
 function mysql_exec($server, $query, $root = false, $simple_quotes = false) {
-    try{
+    try {
         load_libs('servers');
 
         $query  = addslashes($query);
@@ -87,7 +87,7 @@ function mysql_exec($server, $query, $root = false, $simple_quotes = false) {
         /*
          * Make sure the password file gets removed!
          */
-        try{
+        try {
             mysql_delete_password_file($server);
 
         }catch(Exception $e) {
@@ -116,7 +116,7 @@ function mysql_exec($server, $query, $root = false, $simple_quotes = false) {
  * @return
  */
 function mysql_create_password_file($user, $password, $server = null) {
-    try{
+    try {
         load_libs('servers');
         servers_exec($server, "rm ~/.my.cnf -f; touch ~/.my.cnf; chmod 0600 ~/.my.cnf; echo '[client]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysql]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysqldump]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysqldiff]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n' >> ~/.my.cnf");
 
@@ -141,7 +141,7 @@ function mysql_create_password_file($user, $password, $server = null) {
  * @return
  */
 function mysql_delete_password_file($server = null) {
-    try{
+    try {
         load_libs('servers');
         servers_exec($server, 'rm ~/.my.cnf -f');
 
@@ -166,7 +166,7 @@ function mysql_delete_password_file($server = null) {
  * @return
  */
 function mysql_dump($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'server'  , '');
         array_default($params, 'database', '');
@@ -210,7 +210,7 @@ function mysql_dump($params) {
  * @return
  */
 function mysql_get_database($db_name) {
-    try{
+    try {
         $database = sql_get('SELECT    `databases`.`id`,
                                        `databases`.`id` AS `databases_id`,
                                        `databases`.`servers_id`,
@@ -272,7 +272,7 @@ function mysql_get_database($db_name) {
  * @return
  */
 function mysql_reset_password($server, $username, $password) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException(tr('mysql_get_database(): Failed'), $e);
@@ -294,7 +294,7 @@ function mysql_reset_password($server, $username, $password) {
  * @return
  */
 function mysql_register_databases($server) {
-    try{
+    try {
         $results = mysql_exec($server, 'SHOW DATABASES');
         $count   = 0;
 
@@ -354,7 +354,7 @@ function mysql_register_databases($server) {
 function mysql_validate_database($database, $structure_only = false) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('validate,seo,projects,servers');
 
         $v = new ValidateForm($database, 'createdby,status,servers_id,projects_id,replication_status,name,description,error');
@@ -466,7 +466,7 @@ function mysql_validate_database($database, $structure_only = false) {
  * @return params The validated server data, including server[id]
  */
 function mysql_exists_database($database_name, $id = null) {
-    try{
+    try {
         $exists = sql_get('SELECT `id`
 
                            FROM   `servers`
@@ -501,7 +501,7 @@ function mysql_exists_database($database_name, $id = null) {
  * @return params The validated server data, including server[id]
  */
 function mysql_insert_database($database) {
-    try{
+    try {
         $database = mysql_validate_database($database);
 
         sql_query('INSERT INTO `databases` (`createdby`, `meta_id`, `status`, `servers_id`, `projects_id`, `replication_status`, `name`, `description`, `error`)
@@ -541,7 +541,7 @@ function mysql_insert_database($database) {
  * @return params The validated database data
  */
 function mysql_update_database($database) {
-    try{
+    try {
         $database = mysql_validate_database($database);
         meta_action($database['meta_id'], 'update');
 

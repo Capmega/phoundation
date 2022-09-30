@@ -29,7 +29,7 @@
  * @return void
  */
 function backup_library_init() {
-    try{
+    try {
         load_config('backup');
 
     }catch(Exception $e) {
@@ -58,7 +58,7 @@ function backup_library_init() {
 //function backup_mysql($params) {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //
 //        /*
 //         * See config file for more documentation on the various $_CONFIG['backups']['mysql'] options
@@ -115,7 +115,7 @@ function backup_library_init() {
 //            log_console('Starting backup of all databases', 'white');
 //
 //            foreach(sql_list('SHOW DATABASES', null, null, 'backup') as $database) {
-//                try{
+//                try {
 //                    //if ($database == 'information_schema') {
 //                    //    continue;
 //                    //}
@@ -160,7 +160,7 @@ function backup_library_init() {
 //             * First get a list of all available tables, then back them up one by one
 //             */
 //            foreach(sql_list('SHOW TABLES FROM '.cfm($params['database']), null, null, 'backup') as $table) {
-//                try{
+//                try {
 //                    $params['table'] = $table;
 //                    backup_mysql($params);
 //                    log_console('Backed up table "'.str_log($table).'"', 'backup');

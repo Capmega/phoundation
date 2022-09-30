@@ -30,7 +30,7 @@
  * @return void
  */
 function devices_library_init() {
-    try{
+    try {
         load_libs('linux');
         load_config('devices');
 
@@ -56,7 +56,7 @@ function devices_library_init() {
  * @return params The specified device parameter array, validated and sanitized
  */
 function devices_merge($device, $post, $server = null) {
-    try{
+    try {
         $device = sql_merge($device, $post);
         $device = devices_validate($device, $server, true);
 //showdie('TEST DEVICES_MERGE(), DEVICES_VALIDATE(), MAKE ALL companies_get_*() use sql_simple_get() and all companies_list_*() use sql_simple_list()');
@@ -84,7 +84,7 @@ function devices_merge($device, $post, $server = null) {
  * @return
  */
 function devices_insert($device, $server = null) {
-    try{
+    try {
         $device = devices_validate($device, $server, false);
 
         /*
@@ -174,7 +174,7 @@ function devices_insert($device, $server = null) {
  * @return
  */
 function devices_update($device, $server = null) {
-    try{
+    try {
         $device = devices_validate($device, $server);
         meta_action($device['meta_id'], 'update');
 
@@ -231,7 +231,7 @@ function devices_update($device, $server = null) {
  * @return params
  */
 function devices_validate($device, $server = null, $update = true) {
-    try{
+    try {
         load_libs('validate,seo,categories,companies,servers,customers,providers,inventories');
         $v = new ValidateForm($device, 'name,type,manufacturer,model,vendor,vendor_string,product,product_string,libusb,bus,device,string,default,category,company,branch,department,employee,customer,provider,inventory,server,description,options');
 
@@ -608,7 +608,7 @@ function devices_validate($device, $server = null, $update = true) {
  * @return
  */
 function devices_set_status($status, $device = null) {
-    try{
+    try {
         if (!$device) {
             /*
              * Update all devices
@@ -653,7 +653,7 @@ function devices_set_status($status, $device = null) {
  * @return
  */
 function devices_insert_options($devices_id, $options) {
-    try{
+    try {
         if (!$options) {
             /*
              * This device has no options
@@ -715,7 +715,7 @@ function devices_insert_options($devices_id, $options) {
  * @return
  */
 function devices_validate_options($option) {
-    try{
+    try {
         load_libs('validate');
         $v = new ValidateForm($device, 'key,value,default');
 
@@ -743,7 +743,7 @@ function devices_validate_options($option) {
  * @return
  */
 function devices_list_options($devices_id, $inactive = false) {
-    try{
+    try {
         if ($inactive) {
             $retval  = array();
             $options = sql_query('SELECT `key`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id', array(':devices_id' => $devices_id));
@@ -793,7 +793,7 @@ function devices_list_options($devices_id, $inactive = false) {
  * @return
  */
 function devices_list_option_keys($devices_id, $inactive = false) {
-    try{
+    try {
         if ($inactive) {
             $retval  = array();
             $options = sql_query('SELECT `key`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id', array(':devices_id' => $devices_id));
@@ -853,7 +853,7 @@ function devices_list_option_keys($devices_id, $inactive = false) {
  * @return
  */
 function devices_list_option_values($devices_id, $key) {
-    try{
+    try {
         Arrays::ensure($params, '');
 
         if (empty($devices_id)) {
@@ -891,7 +891,7 @@ function devices_list_option_values($devices_id, $key) {
 function devices_get_option_html_element($params) {
     global $core;
 
-    try{
+    try {
         Arrays::ensure($params, '');
         array_default($params, 'key'       , '');
         array_default($params, 'devices_id', '');
@@ -963,7 +963,7 @@ function devices_get_option_html_element($params) {
  * @return
  */
 function devices_list($type, $all = false, $default_only = false) {
-    try{
+    try {
         $execute = array();
 
         if ($type) {
@@ -1041,7 +1041,7 @@ function devices_list($type, $all = false, $default_only = false) {
  * @return
  */
 function devices_get($device, $server = null) {
-    try{
+    try {
         if (is_numeric($device)) {
             if (!is_natural($device)) {
                 throw new CoreException(tr('devices_get(): Invalid device ":device" specified', array(':device' => $device)), 'invalid');
@@ -1157,7 +1157,7 @@ function devices_get($device, $server = null) {
  * @return array The selected device
  */
 function devices_select($product, $category = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'       , 'seodevice');
         array_default($params, 'class'      , 'form-control');
@@ -1224,7 +1224,7 @@ function devices_select($product, $category = null) {
  * @return natural The amount of erased devices
  */
 function devices_clear($type = null) {
-    try{
+    try {
         if ($type) {
             $erase = sql_query('DELETE FROM `devices` WHERE `type` = :type', array(':type' => $type));
 
@@ -1260,7 +1260,7 @@ function devices_clear($type = null) {
 function devices_scan($types, $server = null, $sudo = false) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('servers');
 
         $sudo = ($sudo or $_CONFIG['devices']['sudo']);
@@ -1272,8 +1272,8 @@ function devices_scan($types, $server = null, $sudo = false) {
             $retval  = array();
             $servers = servers_list(true);
 
-            while($server = sql_fetch($servers)) {
-                try{
+            while ($server = sql_fetch($servers)) {
+                try {
                     log_console(tr('Scanning server ":server" for devices', array(':server' => $server['domain'])), 'VERBOSE/cyan');
                     $devices = devices_scan($types, $server['id'], $sudo);
 
@@ -1457,7 +1457,7 @@ function devices_validate_types($types = null, $return_filters = false) {
                               'barcode-scanner'    => 'barcode',
                               'webcam'             => 'webcam');
 
-    try{
+    try {
         if ($types) {
             /*
              * Device types list specified. Compare them all to the supported types

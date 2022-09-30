@@ -14,7 +14,7 @@ log_console(tr('Updating server IPv4\'s and server hostnames in multi hostnames 
 
 sql_query('TRUNCATE `servers_hostnames`');
 
-while($server = sql_fetch($servers)) {
+while ($server = sql_fetch($servers)) {
     if (!$server['ipv4']) {
         $server['ipv4'] = gethostbynamel($server['hostname']);
 

@@ -15,7 +15,7 @@
  * HTTP headers, and then HTML to client
  */
 function c_page($params, $meta, $html) {
-    try{
+    try {
         array_params($params);
         array_default($params, 'cache_namespace', 'htmlpage');
         array_default($params, 'cache_key'      , null);
@@ -41,7 +41,7 @@ function c_page($params, $meta, $html) {
 function c_html_header($params, $meta, $html) {
     global $_CONFIG;
 
-    try{
+    try {
         array_params($params);
         array_default($params, '', '');
 
@@ -68,7 +68,7 @@ function c_html_header($params, $meta, $html) {
 function c_page_header($params) {
     global $_CONFIG;
 
-    try{
+    try {
         $html = '';
 
         return $html;
@@ -84,7 +84,7 @@ function c_page_header($params) {
  * Create and return the page footer
  */
 function c_html_footer($params) {
-    try{
+    try {
         $html = '';
 
         return $html.html_footer();

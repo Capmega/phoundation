@@ -187,7 +187,7 @@ switch(cli_method()) {
                  * project. Update this project first to ensure both project
                  * have the same code
                  */
-                try{
+                try {
                     log_console(tr('Current framework version of this project is behind the found Phoundation framework version. Updating first'), 'yellow');
                     git_stash();
                     script_exec(array('timeout'  => 90,
@@ -208,7 +208,7 @@ switch(cli_method()) {
                 /*
                  * Okay, code changes were stashed, update was successful,
                  */
-                try{
+                try {
                     git_stash_pop();
 
                 }catch(Exception $e) {
@@ -283,7 +283,7 @@ switch(cli_method()) {
         }
 
         foreach($files as $file => &$status) {
-            try{
+            try {
                 $marked = false;
 
                 //switch($status) {
@@ -547,7 +547,7 @@ switch(cli_method()) {
             }
 
             foreach($list as $file => &$status) {
-                try{
+                try {
                     $changed   = false;
                     $skip_file = false;
 
@@ -657,7 +657,7 @@ switch(cli_method()) {
                                 /*
                                  * git patching failed. Cleanup phoundation and toolkit paths
                                  */
-                                try{
+                                try {
                                     git_clean($paths['phoundation'], true, true);
                                     git_checkout(null, $paths['phoundation']);
 

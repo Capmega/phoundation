@@ -24,9 +24,9 @@
  * @return void
  */
 function image_library_init() {
-    try{
+    try {
         if (!class_exists('Imagick')) {
-            try{
+            try {
                 load_libs('linux');
                 linux_install_package(null, 'php-imagick');
 
@@ -51,7 +51,7 @@ function image_library_init() {
 function image_get_text($image) {
     global $_CONFIG;
 
-    try{
+    try {
         $tmpfile = file_tmp();
 
         safe_exec([
@@ -68,7 +68,7 @@ function image_get_text($image) {
 
     }catch(Exception $e) {
         if (!file_which('tesseract')) {
-            try{
+            try {
                 load_libs('linux');
                 linux_install_package(null, 'tesseract-ocr');
 
@@ -87,7 +87,7 @@ function image_get_text($image) {
  * Standard image conversion function
  */
 function image_rotate($degrees, $source, $target = null) {
-    try{
+    try {
         if (!$target) {
             $target = $source;
         }
@@ -110,7 +110,7 @@ function image_rotate($degrees, $source, $target = null) {
 function image_convert($params) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params, 'source,target,format');
 
         /*
@@ -568,7 +568,7 @@ function image_convert($params) {
                  */
                 log_console(tr('image_convert(): The "convert" command could not be found, trying to install imagemagick'), 'warning');
 
-                try{
+                try {
                     load_libs('linux');
                     linux_install_package(null, 'imagemagick');
 
@@ -595,7 +595,7 @@ function image_convert($params) {
                  * WebP conversion failed. Very likely this is due to webp being
                  * not installed. Install it and retry
                  */
-                try{
+                try {
                     load_libs('linux');
                     linux_install_package(null, 'webp');
 
@@ -610,7 +610,7 @@ function image_convert($params) {
         /*
          * Get error information from the imagemagic_convert log file
          */
-        try{
+        try {
             if (file_exists(ROOT.'data/log/imagemagic_convert.log')) {
                 $contents = safe_exec(array('commands' => array('tail', array('-n', '3', ROOT.'data/log/imagemagic_convert.log'))));
             }
@@ -702,7 +702,7 @@ function image_interlace_valid($value, $source = false) {
  * @return string The image mimetype
  */
 function image_is_valid($file, $min_width = 0, $min_height = 0) {
-    try{
+    try {
         $mimetype = file_mimetype($file);
 
         if (Strings::until($mimetype, '/') !== 'image') {
@@ -733,7 +733,7 @@ function image_is_valid($file, $min_width = 0, $min_height = 0) {
 function image_create_avatars($file) {
     global $_CONFIG;
 
-    try{
+    try {
         $destination = file_assign_target(ROOT.'www/avatars/');
 
         foreach($_CONFIG['avatars']['types'] as $name => $type) {
@@ -761,7 +761,7 @@ function image_create_avatars($file) {
  * Returns image type name or false if file is valid image or not
  */
 function is_image($file) {
-    try{
+    try {
         return (boolean) image_type($file);
 
     }catch(Exception $e) {
@@ -784,7 +784,7 @@ function is_image($file) {
 function image_info($file, $no_exif = false) {
     global $_CONFIG;
 
-    try{
+    try {
         $mime = file_mimetype($file);
 
         if (Strings::until($mime, '/') !== 'image') {
@@ -806,7 +806,7 @@ function image_info($file, $no_exif = false) {
          */
         switch(Strings::from($mime, '/')) {
             case 'jpeg':
-                try{
+                try {
                     $retval['compression'] = safe_exec(array('commands' => array($_CONFIG['images']['imagemagick']['identify'], array('-format', '%Q', $file))));
                     $retval['compression'] = array_shift($retval['compression']);
 
@@ -815,7 +815,7 @@ function image_info($file, $no_exif = false) {
                 }
 
                 if (!$no_exif) {
-                    try{
+                    try {
                         $retval['exif'] = exif_read_data($file, null, true, true);
 
                     }catch(Exception $e) {
@@ -827,7 +827,7 @@ function image_info($file, $no_exif = false) {
 
             case 'tiff':
                 if (!$no_exif) {
-                    try{
+                    try {
                         $retval['exif'] = exif_read_data($file, null, true, true);
 
                     }catch(Exception $e) {
@@ -851,7 +851,7 @@ function image_info($file, $no_exif = false) {
  * Returns image type name or false if file is valid image or not
  */
 function image_type($file) {
-    try{
+    try {
         if (Strings::until(file_mimetype($file), '/') == 'image') {
             return Strings::from(file_mimetype($file), '/');
         }
@@ -869,7 +869,7 @@ function image_type($file) {
  * Sends specified image file to the client
  */
 function image_send($file, $cache_maxage = 86400) {
-    try{
+    try {
         if (!file_exists($file)) {
             /*
              * Requested image does not exist
@@ -920,7 +920,7 @@ function image_send($file, $cache_maxage = 86400) {
  * does not match, will fix the extension
  */
 function image_fix_extension($file) {
-    try{
+    try {
         /*
          * Get specified extension and determine file mimetype
          */
@@ -981,7 +981,7 @@ function image_fix_extension($file) {
  * See http://www.fancyapps.com/fancybox/#docs for documentation on options
  */
 function image_fancybox($params = null) {
-    try{
+    try {
         array_params($params);
         array_default($params, 'selector', '.fancy');
         array_default($params, 'options' , array());
@@ -1016,7 +1016,7 @@ function image_fancybox($params = null) {
  * Place a watermark over an image
  */
 function image_watermark($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'image'    , '');
         array_default($params, 'watermark', '');
@@ -1090,7 +1090,7 @@ function image_watermark($params) {
  * Google "Parse error</b>:  imagecreatefromjpeg(): gd-jpeg, libjpeg: recoverable error:" for more information
  */
 function imagecreatefromany($filename) {
-    try{
+    try {
         switch(exif_imagetype($filename)) {
             case IMAGETYPE_GIF:
                 $resource = @imagecreatefromgif ($filename);
@@ -1169,7 +1169,7 @@ function imagecreatefromany($filename) {
  *
  **/
 function imagecopymerge_alpha($dst_im, $src_im, $dst_x, $dst_y, $src_x, $src_y, $src_w, $src_h, $pct) {
-    try{
+    try {
         // creating a cut resource
         $cut = imagecreatetruecolor($src_w, $src_h);
 
@@ -1193,7 +1193,7 @@ function imagecopymerge_alpha($dst_im, $src_im, $dst_x, $dst_y, $src_x, $src_y, 
  * Create an HTML / JQuery image picker that sets the selected images as form values
  */
 function image_picker($params) {
-    try{
+    try {
         html_load_js('image-picker/image-picker');
         html_load_css('image-picker');
 
@@ -1299,7 +1299,7 @@ console.log("imagesloaded");
  *
  */
 function image_slider($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'library' , 'bxslider');
         array_default($params, 'selector', '#slider');
@@ -1362,7 +1362,7 @@ function image_slider($params = null) {
  * @return string The result
  */
 function image_glitch($file, $server = null) {
-    try{
+    try {
         $mimetype = image_is_valid($file);
 
         if (Strings::from($mimetype, '/') !== 'png') {
@@ -1405,7 +1405,7 @@ function image_glitch($file, $server = null) {
  * Please use view();
  */
 function image_view($file, $background = true) {
-    try{
+    try {
         load_libs('view');
         return view($file);
 

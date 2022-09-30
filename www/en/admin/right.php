@@ -70,7 +70,7 @@ if (!empty($_POST['dosubmit'])) {
 }
 
 
-try{
+try {
     if (isset_get($_POST['docreate'])) {
         /*
          * Validate data
@@ -225,7 +225,7 @@ echo ca_page($html, $params);
  * Validate the data of the specified right
  */
 function s_validate_right(&$right) {
-    try{
+    try {
         $v = new validate_form($right, 'name,description,rights');
 
         $v->isNotEmpty  ($right['name']     , tr('Please provide a name'));

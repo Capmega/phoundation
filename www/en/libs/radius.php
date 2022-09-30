@@ -29,7 +29,7 @@ load_libs('servers');
 function radius_library_init() {
     global $_CONFIG;
 
-    try{
+    try {
         load_config('radius');
 
         switch($_CONFIG['radius']['provider']) {
@@ -79,7 +79,7 @@ function radius_library_init() {
  * @return params the new device added with sql_id
  */
 function radius_insert_device($device) {
-    try{
+    try {
         $device = radius_validate_device($device);
 
         sql_query('INSERT INTO `radius_devices` (`createdby`, `users_id`, `meta_id`, `type`, `brand`, `model`, `mac_address`,`description`)
@@ -140,7 +140,7 @@ function radius_insert_device($device) {
  * @return array updated device
  */
 function radius_update_device($device) {
-    try{
+    try {
         $device     = radius_validate_device($device);
         $old_device = radius_get_device($device['id']);
 
@@ -192,7 +192,7 @@ function radius_update_device($device) {
 function radius_restart() {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('linux');
         linux_service($_CONFIG['radius']['server'], 'radius', 'restart');
 
@@ -220,7 +220,7 @@ function radius_restart() {
 function radius_validate_device($device) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('validate');
 
         $v = new validateForm($device, 'mac_address');
@@ -307,7 +307,7 @@ function radius_validate_device($device) {
  * @return string HTML for a type of devices select box
  */
 function radius_type_select($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name' , 'type');
         array_default($params, 'empty', tr('No device types available'));
@@ -348,7 +348,7 @@ function radius_type_select($params = null) {
  * @param string $params['selected'] Is the current selected user
  */
 function radius_users_select($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'        , 'users_id');
         array_default($params, 'class'       , 'form-control');
@@ -388,7 +388,7 @@ function radius_users_select($params = null) {
  * @return array with device selected
  */
 function radius_get_device($id) {
-    try{
+    try {
         return sql_get('SELECT `id`,
                                `users_id`,
                                `meta_id`,
@@ -434,7 +434,7 @@ function radius_get_device($id) {
  * @return array all devices
  */
 function radius_list_devices($id_list) {
-    try{
+    try {
         $in     = sql_in($id_list);
         $retval = sql_list('SELECT *
 
@@ -472,7 +472,7 @@ function radius_list_devices($id_list) {
 function radius_sync_server() {
     global $_CONFIG;
 
-    try{
+    try {
         $devices_local  = sql_list('SELECT `id`, `mac_address`, `status` FROM `radius_devices`');
 
         switch($_CONFIG['radius']['provider']) {
@@ -516,7 +516,7 @@ function radius_sync_server() {
 function radius_update_device_server($old_device, $device) {
     global $_CONFIG;
 
-    try{
+    try {
         switch($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 return freeradius_update_device_server($old_device, $device);
@@ -555,7 +555,7 @@ function radius_update_device_server($old_device, $device) {
 function radius_insert_device_server($device) {
     global $_CONFIG;
 
-    try{
+    try {
         switch($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 return freeradius_insert_device_server($device);
@@ -594,7 +594,7 @@ function radius_insert_device_server($device) {
 function radius_delete_device_server($device) {
     global $_CONFIG;
 
-    try{
+    try {
         switch($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 return freeradius_delete_device_server($device);
@@ -635,7 +635,7 @@ function radius_delete_device_server($device) {
 function radius_test_device($device) {
     global $_CONFIG;
 
-    try{
+    try {
         switch($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 return freeradius_test_device($device);

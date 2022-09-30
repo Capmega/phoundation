@@ -12,7 +12,7 @@ $selected = isset_get($_GET['id']);
  */
 switch(isset_get($_POST['doaction'])) {
     case tr('Delete'):
-        try{
+        try {
             /*
              * Delete the specified contact messages
              */
@@ -42,7 +42,7 @@ switch(isset_get($_POST['doaction'])) {
         break;
 
     case tr('Undelete'):
-        try{
+        try {
             /*
              * Delete the specified contact messages
              */
@@ -72,7 +72,7 @@ switch(isset_get($_POST['doaction'])) {
         break;
 
     case tr('Erase'):
-        try{
+        try {
             /*
              * Delete the specified contact messages
              */
@@ -116,7 +116,7 @@ if (!$r->rowCount()) {
 } else {
     $html .= '<thead><td class="select"><input type="checkbox" name="id[]" class="all"></td><td>'.tr('Created on').'</td><td>'.tr('Name').'</td><td>'.tr('Email').'</td><td>'.tr('message').'</td><td>'.tr('Status').'</td></thead>';
 
-    while($contact = sql_fetch($r)) {
+    while ($contact = sql_fetch($r)) {
         $html .= '<tr'.($selected == $contact['id'] ? ' class="selected"' : '').'>
                       <td class="select"><input type="checkbox" name="id[]" value="'.$contact['id'].'"></td>
                       <td>'.$contact['createdon'].'</td>

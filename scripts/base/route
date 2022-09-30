@@ -35,7 +35,7 @@ switch(cli_method()) {
                 } else {
                     log_console(str_size(tr('#id'), 7).str_size(tr('Status'), 11).str_size(tr('Created on'), 20).str_size(tr('Expires on'), 20).str_size(tr('Applied'), 8).str_size(tr('IP address'), 16).str_size(tr('uri'), 33).str_size(tr('Target'), 33).str_size(tr('Regular expression'), 33).str_size(tr('Flags'), 16), 'QUIET/cyan');
 
-                    while($route = sql_fetch($routes)) {
+                    while ($route = sql_fetch($routes)) {
                         log_console(str_size($route['id'], 6, ' ', true).' '.cli_status_color(str_size(status($route['status']), 10)).' '.date_convert($route['createdon'], 'human_datetime').' '.date_convert($route['expiredon'], 'human_datetime').' '.str_size($route['applied'], 7, ' ', true).' '.str_size($route['ip'], 15).' '.str_size($route['uri'], 32).' '.str_size($route['target'], 32).' '.str_size($route['regex'], 32).' '.str_size($route['flags'], 16));
                     }
                 }

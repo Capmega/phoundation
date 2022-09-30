@@ -27,7 +27,7 @@
  * @return boolean True if the specified index exists, false otherwise
  */
 function sql_database_exists($database, $query = null, $connector = null) {
-    try{
+    try {
         $retval = sql_query('SHOW DATABASES LIKE "'.cfm($database).'"', null, $connector);
 
         if (substr($query, 0, 1) == '!') {
@@ -76,7 +76,7 @@ function sql_database_exists($database, $query = null, $connector = null) {
 function sql_table_exists($table, $query = null, $connector = null) {
     global $pdo;
 
-    try{
+    try {
         $retval = sql_list('SHOW TABLES LIKE "'.cfm($table).'"', null, null, $connector);
 
         if (substr($query, 0, 1) == '!') {
@@ -125,7 +125,7 @@ function sql_table_exists($table, $query = null, $connector = null) {
 function sql_index_exists($table, $index, $query = null, $connector = null) {
     global $pdo;
 
-    try{
+    try {
         $retval = sql_list('SHOW INDEX FROM `'.cfm($table).'` WHERE `Key_name` = "'.cfm($index).'"', null, null, $connector);
 
         if (substr($query, 0, 1) == '!') {
@@ -174,7 +174,7 @@ function sql_index_exists($table, $index, $query = null, $connector = null) {
 function sql_column_exists($table, $column, $query = null, $connector = null) {
     global $pdo;
 
-    try{
+    try {
         $retval = sql_get('SHOW COLUMNS FROM `'.cfm($table).'` WHERE `Field` = "'.cfm($column).'"', null, null, $connector);
 
         if (substr($query, 0, 1) == '!') {
@@ -223,7 +223,7 @@ function sql_column_exists($table, $column, $query = null, $connector = null) {
 function sql_foreignkey_exists($table, $foreign_key, $query = null, $connector = null) {
     global $pdo, $_CONFIG;
 
-    try{
+    try {
         $connector = sql_connector_name($connector);
         $database  = $_CONFIG['db'][$connector]['db'];
 
@@ -282,7 +282,7 @@ function sql_foreignkey_exists($table, $foreign_key, $query = null, $connector =
 function sql_function_exists($name, $query = null, $database = null, $connector = null) {
     global $pdo, $_CONFIG;
 
-    try{
+    try {
         $connector = sql_connector_name($connector);
 
         if (!$database) {
@@ -338,7 +338,7 @@ function sql_function_exists($name, $query = null, $database = null, $connector 
  */
 
 function sql_list_foreignkeys($table, $column = null, $connector = null) {
-    try{
+    try {
         $list = sql_query('SELECT TABLE_NAME,
                                   COLUMN_NAME,
                                   CONSTRAINT_NAME,
@@ -363,7 +363,7 @@ function sql_list_foreignkeys($table, $column = null, $connector = null) {
  * OBSOLETE FUNCTIONS, DO NOT USE THEM!
  */
 function sql_list_fk($table, $column = null) {
-    try{
+    try {
         obsolete('sql_list_fk()');
         return sql_list_foreignkeys($table, $column);
 

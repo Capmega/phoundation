@@ -6,7 +6,7 @@
 $quiet = true;
 require_once(__DIR__.'/../../../libs/startup.php');
 
-try{
+try {
     cli_only();
     cli_exclusive();
 

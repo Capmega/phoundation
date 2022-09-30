@@ -28,7 +28,7 @@
  * @return void
  */
 function wget_library_init() {
-    try{
+    try {
         if (!file_which('wget')) {
             linux_install_package('wget');
         }
@@ -56,7 +56,7 @@ function wget_library_init() {
  * @return string The result
  */
 function wget($params) {
-    try{
+    try {
         array_params($params, 'url');
 
         if (empty($params['url'])) {

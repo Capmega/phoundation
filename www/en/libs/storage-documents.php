@@ -25,7 +25,7 @@
  * @return void
  */
 function storage_documents_library_init() {
-    try{
+    try {
         load_libs('storage');
 
     }catch(Exception $e) {
@@ -52,7 +52,7 @@ function storage_documents_library_init() {
  * @return params The requested document
  */
 function storage_documents_get($section, $document = null, $auto_create = false, $column = null, $status = null) {
-    try{
+    try {
         $section = storage_ensure_section($section);
 
         if (empty($document)) {
@@ -191,7 +191,7 @@ function storage_documents_get($section, $document = null, $auto_create = false,
  * @return null array a list of the available documents
  */
 function storage_documents_list($status = null, $section = null, $pdo_statement = true) {
-    try{
+    try {
         if ($section) {
             $dbsection = storage_sections_get($section);
 
@@ -245,7 +245,7 @@ function storage_documents_list($status = null, $section = null, $pdo_statement 
  * @return params The newly added document, validated and with the documents id added
  */
 function storage_documents_add($document, $section = null) {
-    try{
+    try {
         $document = storage_documents_validate($document);
 
         if (!$section) {
@@ -306,7 +306,7 @@ function storage_documents_add($document, $section = null) {
  * @return params The updated document, validated
  */
 function storage_documents_update($document, $new = false) {
-    try{
+    try {
         $document = storage_documents_validate($document);
         meta_action($document['meta_id'], ($new ? 'create-update' : 'update'));
 
@@ -376,7 +376,7 @@ function storage_documents_update($document, $new = false) {
  * @return params The validated document
  */
 function storage_documents_validate($document) {
-    try{
+    try {
         load_libs('validate');
 
         Arrays::ensure($params, 'errors', array());
@@ -447,7 +447,7 @@ function storage_documents_validate($document) {
  * @return boolean True if the specified user (or if not specified, the user of the current session) has access, false if not
  */
 function storage_document_has_access($documents_id, $users_id = null) {
-    try{
+    try {
         if (empty($users_id)) {
             $users_id = $_SESSION['user']['id'];
         }

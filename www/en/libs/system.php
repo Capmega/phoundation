@@ -62,7 +62,7 @@
 //
 //
 //
-//try{
+//try {
 //    /*
 //     * Create the core object and load the basic libraries
 //     */
@@ -247,7 +247,7 @@
 //    public function startup() {
 //        global $_CONFIG, $core;
 //
-//        try{
+//        try {
 //            if (isset($this->register['startup'])) {
 //                /*
 //                 * Core already started up
@@ -777,7 +777,7 @@
 //function tr($text, $replace = null, $verify = true) {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        if ($replace) {
 //            foreach($replace as &$value) {
 //                $value = str_log($value);
@@ -841,7 +841,7 @@
 //function debug($enabled = null) {
 //    global $_CONFIG, $core;
 //
-//    try{
+//    try {
 //        if (!$core->register['ready']) {
 //            throw new CoreException(tr('debug(): Startup has not yet finished and base is not ready to start working properly. debug() may not be called until configuration is fully loaded and available'), 'invalid');
 //        }
@@ -899,7 +899,7 @@
 // * @return void
 // */
 //function notify($notification, $log = true, $throw = true) {
-//    try{
+//    try {
 //        load_libs('notifications');
 //        return notifications($notification, $log, $throw);
 //
@@ -943,7 +943,7 @@
 // * @return void
 // */
 //function load_external($files) {
-//    try{
+//    try {
 //        foreach(Arrays::force($files) as $file) {
 //            include_once(ROOT.'www/en/libs/external/'.$files);
 //        }
@@ -978,7 +978,7 @@
 //    global $_CONFIG, $core;
 //    static $loaded = array();
 //
-//    try{
+//    try {
 //        if (defined('LIBS')) {
 //            $libs = LIBS;
 //
@@ -1074,7 +1074,7 @@
 //    global $_CONFIG, $core;
 //    static $paths;
 //
-//    try{
+//    try {
 //        if (!$paths) {
 //            $paths = array(ROOT.'config/base/',
 //                           ROOT.'config/production',
@@ -1153,7 +1153,7 @@
 // * @return array The requested configuration array
 // */
 //function read_config($file = null, $environment = null) {
-//    try{
+//    try {
 //        if (!$environment) {
 //            $environment = ENVIRONMENT;
 //        }
@@ -1278,7 +1278,7 @@
 //function load_content($file, $replace = false, $language = null, $autocreate = null, $validate = true) {
 //    global $_CONFIG, $core;
 //
-//    try{
+//    try {
 //        /*
 //         * Set default values
 //         */
@@ -1428,7 +1428,7 @@
 //function accepts($mimetype = null) {
 //    static $headers = null;
 //
-//    try{
+//    try {
 //        if (!$headers) {
 //            /*
 //             * Cleanup the HTTP accept headers (opera aparently puts spaces in
@@ -1475,7 +1475,7 @@
 //function accepts_languages() {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        if (empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
 //            /*
 //             * No accept language headers were specified
@@ -1531,7 +1531,7 @@
 // * Parse flags from the specified log text color
 // */
 //function log_flags($color) {
-//    try{
+//    try {
 //        switch(Strings::until($color, '/')) {
 //            case 'VERBOSE':
 //                if (!VERBOSE) {
@@ -1651,7 +1651,7 @@
 //function log_sanitize($messages, $color, $filter_double = true, &$class = null) {
 //    static $last;
 //
-//    try{
+//    try {
 //        if ($filter_double and ($messages == $last)) {
 //            /*
 //            * We already displayed this message, skip!
@@ -1755,7 +1755,7 @@
 //    global $core;
 //    static $c;
 //
-//    try{
+//    try {
 //        if ($color and !is_scalar($color)) {
 //            log_console(tr('[ WARNING ] log_console(): Invalid color ":color" specified for the following message, color has been stripped', array(':color' => $color)), 'warning');
 //            $color = null;
@@ -1875,7 +1875,7 @@
 //    static $h   = array(),
 //           $log = true;
 //
-//    try{
+//    try {
 //        if (!$log) {
 //            /*
 //             * Do not log!
@@ -1937,7 +1937,7 @@
 //        if (empty($h[$file])) {
 //            file_ensure_path(ROOT.'data/log');
 //
-//            try{
+//            try {
 //                $h[$file] = @fopen(ROOT.'data/log/'.$file, 'a+');
 //
 //            }catch(Exception $e) {
@@ -2046,8 +2046,8 @@
 //function get_hash($source, $algorithm, $add_meta = true) {
 //    global $_CONFIG;
 //
-//    try{
-//        try{
+//    try {
+//        try {
 //            $source = hash($algorithm, SEED.$source);
 //
 //        }catch(Exception $e) {
@@ -2087,7 +2087,7 @@
 //function get_language($language) {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        if (empty($_CONFIG['language']['supported'])) {
 //            return '';
 //        }
@@ -2138,7 +2138,7 @@
 //function get_domain() {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        if (PLATFORM_HTTP) {
 //            return $_SERVER['HTTP_HOST'];
 //        }
@@ -2175,7 +2175,7 @@
 //function domain($url_params = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_cloak = true) {
 //    global $_CONFIG, $core;
 //
-//    try{
+//    try {
 //        if (!is_array($url_params)) {
 //            if (!is_string($url_params) and !is_bool($url_params) and ($url_params !== null)) {
 //                throw new CoreException(tr('domain(): Specified $url_params should be either null, a string, or a parameters array but is an ":type"', array(':type' => gettype($url_params))), 'invalid');
@@ -2343,7 +2343,7 @@
 // * @return string the URL
 // */
 //function api_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true) {
-//    try{
+//    try {
 //        load_config('api');
 //        return domain($url, $query, $prefix, $_CONFIG['api']['domain'], $language, $allow_url_cloak);
 //
@@ -2377,7 +2377,7 @@
 //function ajax_domain($url = null, $query = null, $language = null, $allow_url_cloak = true) {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        if ($_CONFIG['ajax']['prefix']) {
 //            $prefix = $_CONFIG['ajax']['prefix'];
 //
@@ -2427,7 +2427,7 @@
 // * @return string The downloaded file
 // */
 //function download($url, $contents = false, $callback = null) {
-//    try{
+//    try {
 //        load_libs('wget');
 //        $file = wget($url);
 //
@@ -2476,7 +2476,7 @@
 //function has_rights($rights, &$user = null) {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        if ($user === null) {
 //            if (empty($_SESSION['user'])) {
 //                /*
@@ -2546,7 +2546,7 @@
 //function has_groups($groups, &$user = null) {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        if ($user === null) {
 //            if (empty($_SESSION['user'])) {
 //                /*
@@ -2611,7 +2611,7 @@
 //function user_or_signin() {
 //    global $_CONFIG, $core;
 //
-//    try{
+//    try {
 //        if (PLATFORM_CLI) {
 //            return $_SESSION['user'];
 //        }
@@ -2671,7 +2671,7 @@
 //function rights_or_access_denied($rights, $url = null) {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        if (!$rights) {
 //            return true;
 //        }
@@ -2709,7 +2709,7 @@
 //function groups_or_access_denied($groups) {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        user_or_signin();
 //
 //        if (PLATFORM_CLI or has_groups($groups)) {
@@ -2748,7 +2748,7 @@
 // * Return $without_rights if not
 // */
 //function return_with_rights($rights, $with_rights, $without_rights = null) {
-//    try{
+//    try {
 //        if (has_rights($rights)) {
 //            return $with_rights;
 //        }
@@ -2767,7 +2767,7 @@
 // * Return $without_groups if not
 // */
 //function return_with_groups($groups, $with_groups, $without_groups = null) {
-//    try{
+//    try {
 //        if (has_groups($groups)) {
 //            return $with_groups;
 //        }
@@ -2787,7 +2787,7 @@
 //function check_extended_session() {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        if (empty($_CONFIG['sessions']['extended']['enabled'])) {
 //            return false;
 //        }
@@ -2861,7 +2861,7 @@
 // * Return the first non empty argument
 // */
 //function pick_random($count) {
-//    try{
+//    try {
 //        $args = func_get_args();
 //
 //        /*
@@ -2909,7 +2909,7 @@
 // * Return display status for specified status
 // */
 //function status($status, $list = null) {
-//    try{
+//    try {
 //        if (is_array($list)) {
 //            /*
 //             * $list contains list of possible statusses
@@ -2948,7 +2948,7 @@
 //function set_csrf($prefix = '') {
 //    global $_CONFIG, $core;
 //
-//    try{
+//    try {
 //        if (empty($_CONFIG['security']['csrf']['enabled'])) {
 //            /*
 //             * CSRF check system has been disabled
@@ -3004,7 +3004,7 @@
 //function check_csrf() {
 //    global $_CONFIG, $core;
 //
-//    try{
+//    try {
 //        if (empty($_CONFIG['security']['csrf']['enabled'])) {
 //            /*
 //             * CSRF check system has been disabled
@@ -3101,7 +3101,7 @@
 // * Update the session with values directly from $_REQUEST
 // */
 //function session_request_register($key, $valid = null) {
-//    try{
+//    try {
 //        $_SESSION[$key] = isset_get($_REQUEST[$key], isset_get($_SESSION[$key]));
 //
 //        if ($valid) {
@@ -3132,7 +3132,7 @@
 // * Will return $return if the specified item id is in the specified source.
 // */
 //function in_source($source, $key, $return = true) {
-//    try{
+//    try {
 //        if (!is_array($source)) {
 //            throw new CoreException(tr('in_source(): Specified source ":source" should be an array', array(':source' => $source)), 'invalid');
 //        }
@@ -3154,7 +3154,7 @@
 // *
 // */
 //function is_natural($number, $start = 1) {
-//    try{
+//    try {
 //        if (!is_numeric($number)) {
 //            return false;
 //        }
@@ -3190,7 +3190,7 @@
 // * @return boolean True if the specified $version is an N.N.N version string
 // */
 //function is_version($version) {
-//    try{
+//    try {
 //        $valid = preg_match('/\d+\.\d+\.\d+/', $version);
 //        return $valid;
 //
@@ -3205,7 +3205,7 @@
 // *
 // */
 //function is_new($entry) {
-//    try{
+//    try {
 //        if (!is_array($entry)) {
 //            throw new CoreException(tr('is_new(): Specified entry is not an array'), 'invalid');
 //        }
@@ -3231,7 +3231,7 @@
 // *
 // */
 //function force_natural($number, $default = 1, $start = 1) {
-//    try{
+//    try {
 //        if (!is_numeric($number)) {
 //            return (integer) $default;
 //        }
@@ -3259,7 +3259,7 @@
 //function unique_code($hash = 'sha512') {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        return hash($hash, uniqid('', true).microtime(true).$_CONFIG['security']['seed']);
 //
 //    }catch(Exception $e) {
@@ -3273,7 +3273,7 @@
 // *
 // */
 //function name($user = null, $key_prefix = '', $default = null) {
-//    try{
+//    try {
 //        if ($user) {
 //            if ($key_prefix) {
 //                $key_prefix = Strings::endsWith($key_prefix, '_');
@@ -3336,7 +3336,7 @@
 //function page_show($pagename, $params = null, $get = null) {
 //    global $_CONFIG, $core;
 //
-//    try{
+//    try {
 //        Arrays::ensure($params, 'message');
 //
 //        if ($get) {
@@ -3515,7 +3515,7 @@
 // * @return mixed Either $source or null, depending on if $source is empty or not
 // */
 //function get_null($source) {
-//    try{
+//    try {
 //        return get_empty($source, null);
 //
 //    }catch(Exception $e) {
@@ -3551,7 +3551,7 @@
 // * @return mixed Either $source or $default, depending on if $source is empty or not
 // */
 //function get_empty($source, $default) {
-//    try{
+//    try {
 //        if ($source) {
 //            return $source;
 //        }
@@ -3569,7 +3569,7 @@
 // * Return the value quoted if non numeric string
 // */
 //function quote($value) {
-//    try{
+//    try {
 //        if (!is_numeric($value) and is_string($value)) {
 //            return '"'.$value.'"';
 //        }
@@ -3588,7 +3588,7 @@
 // * continuing
 // */
 //function ensure_installed($params) {
-//    try{
+//    try {
 //        Arrays::ensure($params);
 //
 //        /*
@@ -3653,7 +3653,7 @@
 // *
 // */
 //function ensure_value($value, $enum, $default) {
-//    try{
+//    try {
 //        if (in_array($value, $enum)) {
 //           return $value;
 //        }
@@ -3671,7 +3671,7 @@
 // * Disconnect from webserver but continue working
 // */
 //function disconnect() {
-//    try{
+//    try {
 //        switch(php_sapi_name()) {
 //            case 'fpm-fcgi':
 //                fastcgi_finish_request();
@@ -3706,7 +3706,7 @@
 //  * @return string The results from the callback function, or null if no callback function was specified
 // */
 //function execute_callback($callback, $params = null) {
-//    try{
+//    try {
 //        if (is_callable($callback)) {
 //            return $callback($params);
 //        }
@@ -3724,7 +3724,7 @@
 // *
 // */
 //function get_boolean($value) {
-//    try{
+//    try {
 //        switch(strtolower($value)) {
 //            case 'off':
 //                return false;
@@ -3764,7 +3764,7 @@
 //    static $checked   = false;
 //    static $incorrect = false;
 //
-//    try{
+//    try {
 //        if (is_array($script)) {
 //            /*
 //             * Script here will contain actually a list of all scripts for
@@ -3814,7 +3814,7 @@
 // * store the resulting value in $_SESSION[cache][$key]
 // */
 //function session_cache($key, $callback) {
-//    try{
+//    try {
 //        if (empty($_SESSION)) {
 //            return null;
 //        }
@@ -3848,7 +3848,7 @@
 //function cdn_add_files($files, $section = 'pub', $group = null, $delete = true) {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        if (!$_CONFIG['cdn']['enabled']) {
 //            return false;
 //        }
@@ -3931,7 +3931,7 @@
 //function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = false) {
 //    global $_CONFIG;
 //// :TODO: Database CDN servers (for the CDN network) have their own protocol (http or https) specified and thus will ignore the $_CONFIG[session][secure] directive, fix this!!!
-//    try{
+//    try {
 //        if (!$_CONFIG['cdn']['enabled'] and !$force_cdn) {
 //            if ($section == 'pub') {
 //                $section = not_empty($_CONFIG['cdn']['prefix'], '/');
@@ -4078,7 +4078,7 @@
 // * @return string The $source string between the first occurrences of start and $stop
 // */
 //function Strings::cut(($source, $start, $stop) {
-//    try{
+//    try {
 //        return Strings::until(Strings::from($source, $start), $stop);
 //
 //    }catch(Exception $e) {
@@ -4117,7 +4117,7 @@
 // * @return boolean True if the $needle exists in $haystack, false otherwise
 // */
 //function str_contains($haystack, $needle) {
-//    try{
+//    try {
 //        return (strpos($haystack, $needle) !== false);
 //
 //    }catch(Exception $e) {
@@ -4131,7 +4131,7 @@
 // * Cleanup string
 // */
 //function str_clean($source, $utf8 = true) {
-//    try{
+//    try {
 //        if (!is_scalar($source)) {
 //            if (!is_null($source)) {
 //                throw new CoreException(tr('str_clean(): Specified source ":source" from ":location" should be datatype "string" but has datatype ":datatype"', array(':source' => $source, ':datatype' => gettype($source), ':location' => current_file(1).'@'.current_line(1))), 'invalid');
@@ -4163,7 +4163,7 @@
 // * Return the given string from the specified needle
 // */
 //function Strings::from($source, $needle, $more = 0, $require = false) {
-//    try{
+//    try {
 //        if (!$needle) {
 //            throw new CoreException('Strings::from(): No needle specified', 'not-specified');
 //        }
@@ -4191,7 +4191,7 @@
 // * Return the given string from 0 until the specified needle
 // */
 //function Strings::until($source, $needle, $more = 0, $start = 0, $require = false) {
-//    try{
+//    try {
 //        if (!$needle) {
 //            throw new CoreException('Strings::until(): No needle specified', 'not-specified');
 //        }
@@ -4219,7 +4219,7 @@
 // * Return the given string from the specified needle, starting from the end
 // */
 //function Strings::fromReverse($source, $needle, $more = 0) {
-//    try{
+//    try {
 //        if (!$needle) {
 //            throw new CoreException('Strings::fromReverse(): No needle specified', 'not-specified');
 //        }
@@ -4241,7 +4241,7 @@
 // * Return the given string from 0 until the specified needle, starting from the end
 // */
 //function Strings::untilReverse($source, $needle, $more = 0, $start = 0) {
-//    try{
+//    try {
 //        if (!$needle) {
 //            throw new CoreException('Strings::untilReverse(): No needle specified', 'not-specified');
 //        }
@@ -4263,7 +4263,7 @@
 // * Ensure that specified source string starts with specified string
 // */
 //function Strings::startsWith($source, $string) {
-//    try{
+//    try {
 //        if (mb_substr($source, 0, mb_strlen($string)) == $string) {
 //            return $source;
 //        }
@@ -4281,8 +4281,8 @@
 // * Ensure that specified source string starts NOT with specified string
 // */
 //function Strings::startsNotWith($source, $string) {
-//    try{
-//        while(mb_substr($source, 0, mb_strlen($string)) == $string) {
+//    try {
+//        while (mb_substr($source, 0, mb_strlen($string)) == $string) {
 //            $source = mb_substr($source, mb_strlen($string));
 //        }
 //
@@ -4299,7 +4299,7 @@
 // * Ensure that specified string ends with specified character
 // */
 //function Strings::endsWith($source, $string) {
-//    try{
+//    try {
 //        $length = mb_strlen($string);
 //
 //        if (mb_substr($source, -$length, $length) == $string) {
@@ -4319,14 +4319,14 @@
 // * Ensure that specified string ends NOT with specified character
 // */
 //function Strings::endsNotWith($source, $strings, $loop = true) {
-//    try{
+//    try {
 //        if (is_array($strings)) {
 //            /*
 //             * For array test, we always loop
 //             */
 //            $redo = true;
 //
-//            while($redo) {
+//            while ($redo) {
 //                $redo = false;
 //
 //                foreach($strings as $string) {
@@ -4347,7 +4347,7 @@
 //             */
 //            $length = mb_strlen($strings);
 //
-//            while(mb_substr($source, -$length, $length) == $strings) {
+//            while (mb_substr($source, -$length, $length) == $strings) {
 //                $source = mb_substr($source, 0, -$length);
 //                if (!$loop) break;
 //            }
@@ -4366,7 +4366,7 @@
 // * Ensure that specified string ends with slash
 // */
 //function slash($string) {
-//    try{
+//    try {
 //        return Strings::endsWith($string, '/');
 //
 //    }catch(Exception $e) {
@@ -4380,7 +4380,7 @@
 // * Ensure that specified string ends NOT with slash
 // */
 //function unslash($string, $loop = true) {
-//    try{
+//    try {
 //        return Strings::endsNotWith($string, '/', $loop);
 //
 //    }catch(Exception $e) {
@@ -4394,7 +4394,7 @@
 // * Remove double "replace" chars
 // */
 //function str_nodouble($source, $replace = '\1', $character = null, $case_insensitive = true) {
-//    try{
+//    try {
 //        if ($character) {
 //            /*
 //             * Remove specific character
@@ -4444,7 +4444,7 @@
 // * @return string The string, truncated if required, according to the specified truncating rules
 // */
 //function str_truncate($source, $length, $fill = ' ... ', $method = 'right', $on_word = false) {
-//    try{
+//    try {
 //        if (!$length or ($length < (mb_strlen($fill) + 1))) {
 //            throw new CoreException('str_truncate(): No length or insufficient length specified. You must specify a length of minimal $fill length + 1', 'invalid');
 //        }
@@ -4527,8 +4527,8 @@
 // * @return string The string, truncated if required, according to the specified truncating rules
 // */
 //function str_log($source, $truncate = 8187, $separator = ', ') {
-//    try{
-//        try{
+//    try {
+//        try {
 //            $json_encode = 'json_encode_custom';
 //
 //        }catch(Exception $e) {
@@ -4601,7 +4601,7 @@
 // * @return mixed The first value of the specified source array
 // */
 //function array_first($source) {
-//    try{
+//    try {
 //        reset($source);
 //        return current($source);
 //
@@ -4628,7 +4628,7 @@
 // * @return mixed The last value of the specified source array
 // */
 //function array_last($source) {
-//    try{
+//    try {
 //        return end($source);
 //
 //    }catch(Exception $e) {
@@ -4654,7 +4654,7 @@
 // * @return array
 // */
 //function Arrays::ensure(&$source, $keys = '', $default_value = null, $trim_existing = false) {
-//    try{
+//    try {
 //        if (!$source) {
 //            $source = array();
 //
@@ -4728,7 +4728,7 @@
 // * @return array The specified $source, but now converted to an array data type (if it was not an array yet)
 // */
 //function Arrays::force($source, $separator = ',') {
-//    try{
+//    try {
 //        if (($source === '') or ($source === null)) {
 //            return array();
 //        }
@@ -4783,7 +4783,7 @@
 //    static $count  = 0,
 //           $l_each = 0;
 //
-//    try{
+//    try {
 //        if (!PLATFORM_CLI) {
 //            return false;
 //        }
@@ -4846,7 +4846,7 @@
 //    private $background_colors = array();
 //
 //    public function __construct() {
-//        try{
+//        try {
 //            /*
 //             * Set up shell colors
 //             */
@@ -4891,7 +4891,7 @@
 //     * Returns colored string
 //     */
 //    public function getColoredString($string, $foreground_color = null, $background_color = null, $force = false, $reset = true) {
-//        try{
+//        try {
 //            $colored_string = '';
 //
 //            if (!is_scalar($string)) {
@@ -4982,7 +4982,7 @@
 // * Return the specified string in the specified color
 // */
 //function cli_color($string, $fore_color = null, $back_color = null, $force = false, $reset = true) {
-//    try{
+//    try {
 //        static $color;
 //
 //        if (!$color) {
@@ -5002,7 +5002,7 @@
 // * Return or echo CLI code to reset all colors
 // */
 //function cli_reset_color($echo = false) {
-//    try{
+//    try {
 //        if (!$echo) {
 //            return "\033[0m";
 //        }
@@ -5022,7 +5022,7 @@
 //function date_convert($date = null, $requested_format = 'human_datetime', $to_timezone = null, $from_timezone = null) {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        /*
 //         * Ensure we have some valid date string
 //         */
@@ -5131,7 +5131,7 @@
 //            $date->setTimezone(new DateTimeZone($to_timezone));
 //        }
 //
-//        try{
+//        try {
 //            if ($format === 'object') {
 //                return $date;
 //            }
@@ -5163,7 +5163,7 @@
 // * @return mixed The variable with the datatype interpreted by this function
 // */
 //function force_datatype($source) {
-//    try{
+//    try {
 //        if (!is_scalar($source)) {
 //            return $source;
 //        }
@@ -5562,7 +5562,7 @@
 // * @return
 // */
 //function debug_bar_sort($a, $b) {
-//    try{
+//    try {
 //        if ($a['time'] > $b['time']) {
 //            return -1;
 //
@@ -5636,7 +5636,7 @@
 // * @return float The specified $source variable being a string datatype
 // */
 //function cfm($source, $utf8 = true) {
-//    try{
+//    try {
 //        return str_clean($source, $utf8);
 //
 //    }catch(Exception $e) {
@@ -5659,7 +5659,7 @@
 // * @return float The specified $source variable being a integer datatype
 // */
 //function cfi($source, $allow_null = true) {
-//    try{
+//    try {
 //        if (!$source and $allow_null) {
 //            return null;
 //        }
@@ -5686,7 +5686,7 @@
 // * @return float The specified $source variable being a float datatype
 // */
 //function cf($source, $allow_null = true) {
-//    try{
+//    try {
 //        if (!$source and $allow_null) {
 //            return null;
 //        }
@@ -5714,7 +5714,7 @@
 // * @return boolean
 // */
 //function get_true_false($value, $default) {
-//    try{
+//    try {
 //        switch($value) {
 //            case '':
 //                return $default;
@@ -5753,7 +5753,7 @@
 // * @return string "yes" for boolean true, "no" for boolean false
 // */
 //function get_yes_no($value) {
-//    try{
+//    try {
 //        if ($value === true) {
 //            return 'yes';
 //        }
@@ -5789,7 +5789,7 @@
 //function shutdown() {
 //    global $core, $_CONFIG;
 //
-//    try{
+//    try {
 //        /*
 //         * Do we need to run other shutdown functions?
 //         */
@@ -5801,7 +5801,7 @@
 //        log_console(tr('Starting shutdown procedure for script ":script"', array(':script' => $core->register['script'])), 'VERYVERBOSE/cyan');
 //
 //        foreach($core->register as $key => $value) {
-//            try{
+//            try {
 //                if (substr($key, 0, 9) !== 'shutdown_') {
 //                    continue;
 //                }
@@ -5878,7 +5878,7 @@
 //function register_shutdown($name, $value = null) {
 //    global $core;
 //
-//    try{
+//    try {
 //        return $core->register('shutdown_'.$name, $value);
 //
 //    }catch(Exception $e) {
@@ -5908,7 +5908,7 @@
 //function unregister_shutdown($name) {
 //    global $core;
 //
-//    try{
+//    try {
 //        $value = $core->register('shutdown_'.$name);
 //        unset($core->register['shutdown_'.$name]);
 //        return $value;
@@ -5938,7 +5938,7 @@
 //function set_timeout($timeout = null) {
 //    global $core, $_CONFIG;
 //
-//    try{
+//    try {
 //        if ($timeout === null) {
 //            $timeout = getenv('TIMEOUT') ? getenv('TIMEOUT') : $_CONFIG['exec']['timeout'];
 //        }
@@ -5969,7 +5969,7 @@
 // * @return void
 // */
 //function limit_request_method($method) {
-//    try{
+//    try {
 //        if ($_SERVER['REQUEST_METHOD'] !== $method) {
 //            throw new CoreException(tr('limit_request_method(): This request was made with HTTP method ":server_method" but for this page or call only HTTP method ":method" is allowed', array(':method' => $method, ':server_method' => $_SERVER['REQUEST_METHOD'])), 'warning/method-not-allowed');
 //        }
@@ -6009,7 +6009,7 @@
 //function set_locale($data = null) {
 //    global $_CONFIG;
 //
-//    try{
+//    try {
 //        $retval = '';
 //
 //        if (!$data) {
@@ -6092,7 +6092,7 @@
 // * OBSOLETE
 // */
 //function log_database($messages, $class = 'syslog') {
-//    try{
+//    try {
 //        return str_force(log_file($messages, $class));
 //
 //    }catch(Exception $e) {
@@ -6101,7 +6101,7 @@
 //}
 //
 //function get_config($file = null, $environment = null) {
-//    try{
+//    try {
 //        return read_config($file, $environment);
 //
 //    }catch(Exception $e) {
@@ -6110,7 +6110,7 @@
 //}
 //
 //function mapped_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true) {
-//    try{
+//    try {
 //        return domain($url, $query, $prefix, $domain, $language, $allow_url_cloak);
 //
 //    }catch(Exception $e) {

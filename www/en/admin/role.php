@@ -84,7 +84,7 @@ if (!empty($_POST['dosubmit'])) {
 }
 
 
-try{
+try {
     if (isset_get($_POST['docreate'])) {
         /*
          * Validate data
@@ -173,7 +173,7 @@ try{
          */
         $r = sql_query('SELECT `id` FROM `users` WHERE `roles_id` = :roles_id', array(':roles_id' => $role['id']));
 
-        while($user = sql_fetch($r)) {
+        while ($user = sql_fetch($r)) {
             $user['roles_id'] = $role['id'];
             user_update_rights($user);
         }
@@ -330,7 +330,7 @@ echo ca_page($html, $params);
  * Validate the data of the specified role
  */
 function s_validate_role(&$role) {
-    try{
+    try {
         $v = new validate_form($role, 'name,description,rights');
 
         $v->isNotEmpty  ($role['name']     , tr('Please provide a name'));
@@ -378,7 +378,7 @@ function s_validate_role(&$role) {
  *
  */
 function s_update_rights($role) {
-    try{
+    try {
         if (empty($role['id'])) {
             throw new CoreException('s_update_rights(): Cannot update rights, no role specified', 'not_specified');
         }

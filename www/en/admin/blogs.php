@@ -39,7 +39,7 @@ switch(isset_get($_POST['doaction'])) {
         redirect('/admin/blog.php');
 
     case tr('Delete'):
-        try{
+        try {
             /*
              * Delete the specified blogs
              */
@@ -69,7 +69,7 @@ switch(isset_get($_POST['doaction'])) {
         break;
 
     case tr('Undelete'):
-        try{
+        try {
             /*
              * Delete the specified blogs
              */
@@ -99,7 +99,7 @@ switch(isset_get($_POST['doaction'])) {
         break;
 
     case tr('Erase'):
-        try{
+        try {
             /*
              * Delete the specified blogs
              */
@@ -284,7 +284,7 @@ if (!$r->rowCount()) {
                             <th>'.tr('Status').'</th>
                         </thead>';
 
-    while($blog = sql_fetch($r)) {
+    while ($blog = sql_fetch($r)) {
         $html .= '<tr'.($selected == $blog['blog_seoname'] ? ' class="selected"' : '').'>
                       <td class="select"><input type="checkbox" name="id[]" value="'.$blog['blog_id'].'"></td>
                       <td><a href="'.domain('/admin/blogs.php?blog='.$blog['blog_seoname']).'">'.$blog['blog_name'].'</a></td>

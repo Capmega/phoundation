@@ -46,7 +46,7 @@ $params['times']               = cli_argument('-t,--times');
 $params['monitor_pid']         = cli_argument('--monitor-pid');
 $params['monitor_task']        = cli_argument('--monitor-task');
 
-try{
+try {
     rsync($params);
 
 }catch(Exception $e) {

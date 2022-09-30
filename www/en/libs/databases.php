@@ -19,7 +19,7 @@
 function databases_validate_accounts($database) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('validate,file,seo');
 
         $v = new ValidateForm($database, 'name,username,password,description');
@@ -56,7 +56,7 @@ function databases_validate_accounts($database) {
  * @return mixed The database account data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified template does not exist, NULL will be returned.
  */
 function databases_get_account($params) {
-    try{
+    try {
         array_params($params, 'seoname', 'id');
 
         $params['table']     = 'database_accounts';
@@ -102,7 +102,7 @@ function databases_get_account($params) {
  * @return mixed The list of available databases_accounts
  */
 function databases_list_accounts($params) {
-    try{
+    try {
         Arrays::ensure($params);
 
         $params['table']     = 'database_accounts';

@@ -26,7 +26,7 @@
 function companies_library_init() {
     global $_CONFIG;
 
-    try{
+    try {
         load_config('companies');
 
         //if (empty($_GET['seocompany']) and empty($_POST['seocompany'])) {
@@ -54,7 +54,7 @@ function companies_library_init() {
  * @return array The validated and cleaned $company array
  */
 function companies_validate($company) {
-    try{
+    try {
         load_libs('validate,seo,customers,providers');
 
         $v = new ValidateForm($company, 'name,seocategory,seocustomer,seoprovider,description');
@@ -193,7 +193,7 @@ function companies_validate($company) {
 function companies_select($params = null) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'         , 'seocompany');
         array_default($params, 'class'        , 'form-control');
@@ -281,7 +281,7 @@ function companies_select($params = null) {
  * @return mixed The company data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified company does not exist, NULL will be returned.
  */
 function companies_get($params, $column = null, $status = null) {
-    try{
+    try {
         array_params($params, 'seoname', 'id');
 
         array_default($params, 'filters', array('companies.id'      => $params['id'],
@@ -346,7 +346,7 @@ function companies_get($params, $column = null, $status = null) {
  * @return mixed The list of available customers
  */
 function companies_list($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));
@@ -376,7 +376,7 @@ function companies_list($params) {
  * @return array The validated and cleaned $branch array
  */
 function companies_validate_branch($branch, $reload_only = false) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($branch, 'name,seocompany,description');
@@ -488,7 +488,7 @@ function companies_validate_branch($branch, $reload_only = false) {
 function companies_select_branch($params = null) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'        , 'seobranch');
         array_default($params, 'class'       , 'form-control');
@@ -608,7 +608,7 @@ function companies_select_branch($params = null) {
  * @return mixed The company data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified company does not exist, NULL will be returned.
  */
 function companies_get_branch($params, $branch, $column = null, $status = null) {
-    try{
+    try {
         array_params($params, 'seoname', 'id');
 
         array_default($params, 'filters', array('branches.id'      => $params['id'],
@@ -666,7 +666,7 @@ function companies_get_branch($params, $branch, $column = null, $status = null) 
  * @return mixed The list of available customers
  */
 function companies_list_branches($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));
@@ -697,7 +697,7 @@ function companies_list_branches($params) {
  * @return array The validated and cleaned $department array
  */
 function companies_validate_department($department, $reload_only = false) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($department, 'name,seocompany,seobranch,description');
@@ -823,7 +823,7 @@ function companies_validate_department($department, $reload_only = false) {
 function companies_select_department($params = null) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'        , 'seodepartment');
         array_default($params, 'class'       , 'form-control');
@@ -954,7 +954,7 @@ function companies_select_department($params = null) {
  * @return mixed The company data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified company does not exist, NULL will be returned.
  */
 function companies_get_department($params, $branch, $department, $column = null, $status = null) {
-    try{
+    try {
         array_params($params, 'seoname', 'id');
 
         array_default($params, 'filters', array('departments.id'      => $params['id'],
@@ -1020,7 +1020,7 @@ function companies_get_department($params, $branch, $department, $column = null,
  * @return mixed The list of available customers
  */
 function companies_list_departments($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));
@@ -1051,7 +1051,7 @@ function companies_list_departments($params) {
  * @return array The validated and cleaned $employee array
  */
 function companies_validate_employee($employee, $reload_only = false) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($employee, 'name,username,seocompany,seobranch,seodepartment,description');
@@ -1201,7 +1201,7 @@ function companies_validate_employee($employee, $reload_only = false) {
  * @return string HTML for a companies select box within the specified parameters
  */
 function companies_select_employee($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'          , 'seoemployee');
         array_default($params, 'class'         , 'form-control');
@@ -1302,7 +1302,7 @@ function companies_select_employee($params = null) {
  * @return mixed The company data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified company does not exist, NULL will be returned.
  */
 function companies_get_employee($params) {
-    try{
+    try {
         array_params($params, 'seoname', 'id');
         Arrays::ensure($params, 'companies_id,branches_id,departments_id,seoname,id');
 
@@ -1390,7 +1390,7 @@ function companies_get_employee($params) {
  * @return mixed The list of available customers
  */
 function companies_list_employees($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));

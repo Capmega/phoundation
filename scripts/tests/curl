@@ -42,7 +42,7 @@ test('curl_get()', 'Function should return complete github.com page', function()
 });
 
 test('curl_get()', 'Function should return github.com 404 exception', function() {
-    try{
+    try {
         $results = curl_get('https://github.com//foobar');
         throw new CoreException(tr('Function did not throw exception for HTTP code ":code"', array(':code' => $results['status']['http_code'])), 'unexpected');
 

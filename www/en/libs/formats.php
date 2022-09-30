@@ -14,7 +14,7 @@
  * Return a correctly formatted phone number
  */
 function formats_phone($phone) {
-    try{
+    try {
         $phone = trim(str_replace(array(' ', '-', '.', '(', ')'), '', $phone));
 
         if ($phone[0] == '+') {

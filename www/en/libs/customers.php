@@ -24,7 +24,7 @@
  * @return void
  */
 function customers_library_init() {
-    try{
+    try {
         load_config('customers');
 
     }catch(Exception $e) {
@@ -49,7 +49,7 @@ function customers_library_init() {
  * @return string HTML for a categories select box within the specified parameters
  */
 function customers_validate($customer) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($customer, 'seocategory,name,code,url,company,email,phones,address1,address2,address3,zipcode,documents_id,seocountry,seostate,seocity,description');
@@ -313,7 +313,7 @@ function customers_validate($customer) {
  * @return params The specified customer, validated and sanitized
  */
 function customers_insert($customer) {
-    try{
+    try {
         $customer = customers_validate($customer);
 
         sql_query('INSERT INTO `customers` (`createdby`, `meta_id`, `name`, `seoname`, `code`, `email`, `phones`, `company`, `documents_id`, `categories_id`, `address1`, `address2`, `address3`, `zipcode`, `countries_id`, `states_id`, `cities_id`, `url`, `description`)
@@ -375,7 +375,7 @@ function customers_insert($customer) {
  * @return params The specified customer, validated and sanitized
  */
 function customers_update($customer) {
-    try{
+    try {
         $customer = customers_validate($customer);
 
         meta_action($customer['meta_id'], 'update');
@@ -459,7 +459,7 @@ function customers_update($customer) {
 function customers_select($params = null) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'         , 'seocustomer');
         array_default($params, 'class'        , 'form-control');
@@ -529,7 +529,7 @@ function customers_select($params = null) {
  * @return mixed The customer data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified customer does not exist, NULL will be returned.
  */
 function customers_get($params) {
-    try{
+    try {
         array_params($params, 'seoname', 'id');
 
         array_default($params, 'filters', array('customers.id'      => $params['id'],
@@ -611,7 +611,7 @@ function customers_get($params) {
  * @return mixed The list of available customers
  */
 function customers_list($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));

@@ -30,7 +30,7 @@
  * @return string The cloaked URL
  */
 function url_cloak($url) {
-    try{
+    try {
         $cloak = sql_get('SELECT `cloak`
 
                           FROM   `url_cloaks`
@@ -87,7 +87,7 @@ function url_cloak($url) {
 function url_decloak($cloak) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         $data = sql_get('SELECT `createdby`, `url` FROM `url_cloaks` WHERE `cloak` = :cloak', array(':cloak' => $cloak));
 
         if (mt_rand(0, 100) <= $_CONFIG['security']['url_cloaking']['interval']) {
@@ -126,7 +126,7 @@ function url_decloak($cloak) {
 function url_cloak_cleanup() {
     global $_CONFIG;
 
-    try{
+    try {
         log_console(tr('Cleaning up `url_cloaks` table'), 'VERBOSE/cyan');
 
         $r = sql_query('DELETE FROM `url_cloaks` WHERE `createdon` < DATE_SUB(NOW(), INTERVAL '.$_CONFIG['security']['url_cloaking']['expires'].' SECOND);');

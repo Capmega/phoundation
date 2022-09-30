@@ -19,7 +19,7 @@
  * @obsolete analytics_matomo();
  */
 function matomo_get_code($sites_id) {
-    try{
+    try {
         load_libs('analytics');
         return analytics_matomo($sites_id);
 

@@ -61,7 +61,7 @@ sql_query('ALTER TABLE `synonyms` DISABLE KEYS;');
 $p = sql_prepare('INSERT INTO `synonyms` (`language`, `word`, `type`, `synonyms`)
                   VALUES                 (:language , :word , :type , :synonyms )');
 
-while($line = fgets($f)) {
+while ($line = fgets($f)) {
     usleep(10);
 
     if (strpos($line, '|') === false) {

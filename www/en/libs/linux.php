@@ -31,7 +31,7 @@
  * @return void
  */
 function linux_library_init() {
-    try{
+    try {
         load_libs('servers');
 
     }catch(Exception $e) {
@@ -54,7 +54,7 @@ function linux_library_init() {
  * @return boolean True if AllowTcpForwarding is configured, False if not
  */
 function linux_get_ssh_tcp_forwarding($server) {
-    try{
+    try {
         $server   = servers_get($server);
         $results  = servers_exec($server, array('commands' => array('sshd', array('-T', 'redirect' => '2> /dev/null', 'connector' => '|'),
                                                                     'grep', array('-i', 'allowtcpforwarding'))));
@@ -95,7 +95,7 @@ function linux_get_ssh_tcp_forwarding($server) {
  * @return array
  */
 function linux_set_ssh_tcp_forwarding($server, $enable, $force = false) {
-    try{
+    try {
         $server = servers_get($server);
 
         if (!$server['allow_sshd_modification'] and !$force) {
@@ -131,7 +131,7 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false) {
  * @return boolean True if the file exists, false if not
  */
 function linux_file_exists($server, $path, $sudo = false) {
-    try{
+    try {
         if ($server === null) {
             /*
              * Do this locally!
@@ -165,7 +165,7 @@ function linux_file_exists($server, $path, $sudo = false) {
  * @return boolean True if the file exists, false if not
  */
 function linux_test($server, $flag, $path, $sudo = false) {
-    try{
+    try {
         $server  = servers_get($server);
         $results = servers_exec($server, array('include_exitcode' => true,
                                                'ok_exitcodes'     => 1,
@@ -198,7 +198,7 @@ function linux_test($server, $flag, $path, $sudo = false) {
  * @return boolean True if the file exists, false if not
  */
 function linux_scandir($server, $path) {
-    try{
+    try {
         $server  = servers_get($server);
         $results = servers_exec($server, array('commands' => array('ls', array($path))));
         $result  = array_shift($results);
@@ -230,7 +230,7 @@ function linux_scandir($server, $path) {
  * @return void
  */
 function linux_file_delete($server, $params, $restrictions = null) {
-    try{
+    try {
         if (!$server) {
             return file_delete($params, $clean_path, $sudo, $restrictions);
         }
@@ -285,7 +285,7 @@ function linux_file_delete($server, $params, $restrictions = null) {
  * @return
  */
 function linux_file_clear_path($server, $path, $sudo = false, $restrictions = null) {
-    try{
+    try {
         $server = servers_get($server);
 
         if (!linux_file_exists($server, $path, $sudo)) {
@@ -324,7 +324,7 @@ function linux_file_clear_path($server, $path, $sudo = false, $restrictions = nu
             /*
              * Remove this entry and continue;
              */
-            try{
+            try {
                 linux_File::executeMode($server, dirname($path), (linux_is_writable(dirname($path)) ? false : 0770), function($path) use ($restrictions) {
                     linux_file_delete($server, $path, false, false, $restrictions);
                 });
@@ -370,7 +370,7 @@ function linux_file_clear_path($server, $path, $sudo = false, $restrictions = nu
  * @return boolean True if the specified file is writable, false if not
  */
 function linux_is_writable($server, $file) {
-    try{
+    try {
         $server  = servers_get($server);
         $results = servers_exec($server, array('commands' => array('test', array('-w', $path, 'connector' => '&&'),
                                                                    'echo', array('writable'))));
@@ -400,7 +400,7 @@ function linux_is_writable($server, $file) {
  * @return array a list of all the process id's that were found
  */
 function linux_pgrep($server, $name) {
-    try{
+    try {
         $server  = servers_get($server);
         $results = servers_exec($server, array('ok_exitcodes' => '0,1',
                                                'commands'     => array('pgrep', array($name))));
@@ -437,7 +437,7 @@ function linux_pgrep($server, $name) {
  * @return boolean True if the specified file is writable, false if not
  */
 function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_tries = 3, $check_timeout = 1, $sigkill = true) {
-    try{
+    try {
         $server = servers_get($server);
 
         switch($signal) {
@@ -529,7 +529,7 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_t
  * @return numeric PID of the found tunnel with the specified parameters, null if no tunnel was found
  */
 function linux_list_processes($server, $filters) {
-    try{
+    try {
         $filters = Arrays::force($filters);
         $results = safe_exec(array('ok_exitcodes' => '0,1',
                                    'commands'     => array('ps'  , array('ax', 'connector' => '|'),
@@ -571,7 +571,7 @@ function linux_list_processes($server, $filters) {
  * @return boolean True if the specified PID is available on the specified server, false otherwise
  */
 function linux_pid($server, $pid) {
-    try{
+    try {
         return linux_file_exists($server, '/proc/'.$pid);
 
     }catch(Exception $e) {
@@ -595,7 +595,7 @@ function linux_pid($server, $pid) {
  * @return boolean True if the specified PID is available on the specified server, false otherwise
  */
 function linux_netstat($server, $options) {
-    try{
+    try {
 under_construction();
 //        return linux_file_exists($server, 'netstat '.$parameters);
 
@@ -623,7 +623,7 @@ under_construction();
  * @return string The path of the specified file
  */
 function linux_which($server, $command, $whereis = false) {
-    try{
+    try {
         $result = servers_exec($server, array('ok_exitcodes' => '0,1',
                                               'commands'     => array(($whereis ? 'whereis' : 'which'), array($command))));
 
@@ -654,7 +654,7 @@ function linux_which($server, $command, $whereis = false) {
 function linux_ensure_path($server, $path, $mode = null, $clear = false) {
     global $_CONFIG;
 
-    try{
+    try {
         if ($server === null) {
             /*
              * Do this locally!
@@ -693,7 +693,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false) {
             case '':
                 // FALLTHROUGH
             case 'localhost':
-                try{
+                try {
                     if (str_contains(ROOT, linux_realpath($server, $path))) {
                         throw new CoreException(tr('linux_ensure_path(): Specified path ":path" is ROOT or parent of ROOT', array(':path' => $path)), 'invalid');
                     }
@@ -752,7 +752,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false) {
  * @return string The path of the specified file
  */
 function linux_rename($server, $path, $source, $target, $sudo = false) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('linux_rename(): Failed', $e);
@@ -775,7 +775,7 @@ function linux_rename($server, $path, $source, $target, $sudo = false) {
  * @return string The path of the specified file
  */
 function linux_copy($server, $source, $target, $sudo = false) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('linux_copy(): Failed', $e);
@@ -801,7 +801,7 @@ function linux_copy($server, $source, $target, $sudo = false) {
  * @return string The path of the specified file
  */
 function linux_delete($server, $patterns, $sudo = false, $clean_path = true) {
-    try{
+    try {
 under_construction('linux_delete() does not yet have support for $clean_path');
         if (!is_array()) {
             $patterns = array($patterns);
@@ -838,7 +838,7 @@ under_construction('linux_delete() does not yet have support for $clean_path');
  * @return string The path of the specified file
  */
 function linux_unzip($server, $file, $remove = true) {
-    try{
+    try {
 under_construction('Move this to compress_unzip()');
         $filename = filename($file);
         $filename = Strings::untilReverse($file, '.');
@@ -893,7 +893,7 @@ under_construction('Move this to compress_unzip()');
  * @return string The downloaded file
  */
 function linux_download($server, $url, $section = false, $callback = null) {
-    try{
+    try {
         $file = Strings::from($url, '://');
         $file = Strings::fromReverse($url, '/');
         $file = Strings::until($file, '?');
@@ -968,7 +968,7 @@ function linux_download($server, $url, $section = false, $callback = null) {
  * @return mixed null if the command exists and nothing had to be done, the output from linux_install_package() if the command didn't exist and the specified package had to be installed
  */
 function linux_ensure_package($server, $command, $packages) {
-    try{
+    try {
         $exists = linux_which($server, $command);
 
         if ($exists) {
@@ -1001,7 +1001,7 @@ function linux_ensure_package($server, $command, $packages) {
  * @return void
  */
 function linux_install_package($server, $package) {
-    try{
+    try {
 //        $os = linux_detect_os($server);
         $os['distribution'] = 'ubuntu-server';
 
@@ -1058,7 +1058,7 @@ function linux_install_package($server, $package) {
  * @return array The operating system parameters
  */
 function linux_detect_os($server) {
-    try{
+    try {
         $results = servers_exec($server, array('commands' => array('cat'  , array('/etc/issue'),
                                                                   'uname', array('-a'))));
 showdie($results);
@@ -1086,7 +1086,7 @@ showdie($results);
  * @return string The real path on the specified server
  */
 function linux_realpath($server, $path) {
-    try{
+    try {
         $results = servers_exec($server, array('commands' => array('realpath', array($path))));
         $results = array_shift($results);
 
@@ -1115,7 +1115,7 @@ function linux_realpath($server, $path) {
  * @return void()
  */
 function linux_service($server, $service, $action) {
-    try{
+    try {
         servers_exec($server, array('commands' => array('service', array('sudo' => true, $service, $action))));
 
     }catch(Exception $e) {
@@ -1140,7 +1140,7 @@ function linux_service($server, $service, $action) {
  * @return string The CWD for the specified PID if it exist
  */
 function linux_get_cwd($server, $pid) {
-    try{
+    try {
         if (!is_natural($pid) or ($pid > 65535)) {
             throw new CoreException(tr('linux_get_cwd(): Specified PID ":pid" is invalid', array(':pid' => $pid)), 'invalid');
         }
@@ -1174,7 +1174,7 @@ function linux_get_cwd($server, $pid) {
  * @return string The CWD for the specified PID if it exist
  */
 function linux_ls($server, $path, $sudo = false, $restrictions = null) {
-    try{
+    try {
         $results = servers_exec($server, array('commands' => array('ls', array('sudo' => true, $path))));
         return $results;
 
@@ -1207,7 +1207,7 @@ function linux_ls($server, $path, $sudo = false, $restrictions = null) {
  * @return string The results from the find command
  */
 function linux_find($server, $params) {
-    try{
+    try {
         Arrays::ensure($params, 'debug,cwd,exec,maxdepth,path,type,sudo');
 
         $commands = array();
@@ -1343,7 +1343,7 @@ function linux_find($server, $params) {
  * @return void
  */
 function linux_restrict($server, $params, $restrictions = null) {
-    try{
+    try {
         /*
          * Disable all restrictions?
          */
@@ -1415,7 +1415,7 @@ function linux_restrict($server, $params, $restrictions = null) {
                 /*
                  * All these must be tested
                  */
-                try{
+                try {
                     linux_restrict($params[$key], $restrictions);
 
                 }catch(Exception $e) {

@@ -1,7 +1,7 @@
 <?php
     include_once(dirname(__FILE__).'/../libs/startup.php');
 
-    try{
+    try {
         //load_libs('googlemaps,json');
         //
         //if (empty($_GET['latitude']) or !is_numeric($_GET['latitude']) or empty($_GET['longitude']) or !is_numeric($_GET['longitude'])) {

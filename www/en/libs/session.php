@@ -14,7 +14,7 @@
  * Returns an array with all currently active sessions
  */
 function session_list() {
-    try{
+    try {
         $path   = ini_get( 'session.save_path');
         $retval = array();
 
@@ -39,7 +39,7 @@ function session_list() {
  * Change the current session to the session with the specified ID
  */
 function session_take($session_id) {
-    try{
+    try {
         $path = ini_get( 'session.save_path');
 
         if (!file_exists(Strings::slash($path).'sess_'.$session_id)) {

@@ -152,7 +152,7 @@ switch(cli_method()) {
                 } else {
                     log_console(tr('Unzipping geoip'), 'white');
 
-                    try{
+                    try {
                         load_libs('pack');
                         $path = pack_unzip(TMP.'GeoLite2-City-CSV.zip');
 
@@ -498,7 +498,7 @@ switch(cli_method()) {
             symlink($geoimport_path, '/var/lib/mysql/'.$uniqid);
         }
 
-        try{
+        try {
             passthru('cd '.$geoimport_path.' ; ./geonames_importer.sh -a create-db -u '.$username.' -p "'.$password.'" -n "'.$database.'"', $exitcode);
 
             if ($exitcode) {
@@ -554,7 +554,7 @@ switch(cli_method()) {
         $p     = $geosql->prepare('UPDATE `geonames` SET `parents_id` = :parents_id WHERE `geonameid` = :childs_id');
         $count = 0;
 
-        while($row = $r->fetch(PDO::FETCH_ASSOC)) {
+        while ($row = $r->fetch(PDO::FETCH_ASSOC)) {
             cli_dot(1000);
             $p->execute(array(':parents_id' => $row['parentId'],
                               ':childs_id'  => $row['childId']));
@@ -626,7 +626,7 @@ switch(cli_method()) {
             log_console(tr('Importing continents...'));
             $r = $geosql->query('SELECT * FROM `continentCodes`');
 
-            while($row = $r->fetch(PDO::FETCH_ASSOC)) {
+            while ($row = $r->fetch(PDO::FETCH_ASSOC)) {
                 $geonamedata = $geosql->query('SELECT * FROM `geonames` WHERE `geonameid` = '.cfi($row['geonameid'], false));
                 $geonamedata = $geonamedata->fetch(PDO::FETCH_ASSOC);
 
@@ -668,7 +668,7 @@ switch(cli_method()) {
                                                      OR     `code`        = :code
                                                      OR     `name`        = :name');
 
-            while($row = $r->fetch(PDO::FETCH_ASSOC)) {
+            while ($row = $r->fetch(PDO::FETCH_ASSOC)) {
                 $geonamedata = $geosql->query('SELECT * FROM `geonames` WHERE `geonameid` = '.cfi($row['geonameId'], false));
                 $geonamedata = $geonamedata->fetch(PDO::FETCH_ASSOC);
 
@@ -796,7 +796,7 @@ switch(cli_method()) {
                     log_console(tr('Importing states for country "'.$country_data['name'].'"...'));
                     $r = $geosql->query('SELECT * FROM `geonames` WHERE `parents_id` = '.cfi($country_data['geonames_id'], false));
 
-                    while($row = $r->fetch(PDO::FETCH_ASSOC)) {
+                    while ($row = $r->fetch(PDO::FETCH_ASSOC)) {
                         $state_exists_statement->execute(array(':geonames_id' => $row['geonameid'], ':countries_id' => $id, 'name' => $row['name']));
 
                         if ($state_exists_statement->rowCount()) {
@@ -895,7 +895,7 @@ switch(cli_method()) {
                             continue;
                         }
 
-                        while($row = $r->fetch(PDO::FETCH_ASSOC)) {
+                        while ($row = $r->fetch(PDO::FETCH_ASSOC)) {
                             $county_exists_statement->execute(array(':geonames_id' => $row['geonameid'], ':states_id' => $states_id, 'name' => $row['name']));
 
                             if ($county_exists_statement->rowCount()) {
@@ -1073,7 +1073,7 @@ switch(cli_method()) {
 
                             log_console(tr('Importing cities for state ":state" for country ":country"...', array(':state' => $state_data['name'], ':country' => $country_data['name'])));
 
-                            while($row = $r->fetch(PDO::FETCH_ASSOC)) {
+                            while ($row = $r->fetch(PDO::FETCH_ASSOC)) {
                                 $city_exists_statement->execute(array(':name'      => $row['name'],
                                                                       ':states_id' => $states_id,
                                                                       ':latitude'  => $row['latitude'],
@@ -1094,7 +1094,7 @@ switch(cli_method()) {
                                     }
 
                                 } else {
-                                    try{
+                                    try {
                                         sql_query('INSERT INTO `geo_cities` (`is_city`, `geonames_id`, `countries_id`, `country_code`, `states_id`, `timezones_id`, `timezone`, `name`, `seoname`, `alternate_names`, `latitude`, `longitude`, `population`, `elevation`, `admin1`, `admin2`, `feature_code`, `moddate`)
                                                    VALUES                   (true     , :geonames_id , :countries_id , :country_code , :states_id , :timezones_id , :timezone , :name , :seoname , :alternate_names , :latitude , :longitude , :population , :elevation , :admin1 , :admin2 , :feature_code , :moddate )',
 
@@ -1147,7 +1147,7 @@ switch(cli_method()) {
                                                      AND    `admin2`      = "'.$county_data['admin2'].'"
                                                      AND    `population`  > '.cfi($threshold, false));
 
-                                while($row = $r->fetch(PDO::FETCH_ASSOC)) {
+                                while ($row = $r->fetch(PDO::FETCH_ASSOC)) {
                                     $city_exists_statement->execute(array(':name'      => $row['name'],
                                                                           ':states_id' => $row['states_id'],
                                                                           ':latitude'  => $row['latitude'],
@@ -1168,7 +1168,7 @@ switch(cli_method()) {
                                         }
 
                                     } else {
-                                        try{
+                                        try {
                                             sql_query('INSERT INTO `geo_cities` (`is_city`, `geonames_id`, `countries_id`, `country_code`, `states_id`, `counties_id`, `timezones_id`, `timezone`, `name`, `seoname`, `alternate_names`, `latitude`, `longitude`, `population`, `elevation`, `admin1`, `admin2`, `feature_code`, `moddate`)
                                                        VALUES                   (true     , :geonames_id , :countries_id , :country_code , :states_id , :counties_id , :timezones_id , :timezone , :name , :seoname , :alternate_names , :latitude , :longitude , :population , :elevation , :admin1 , :admin2 , :feature_code , :moddate )',
 
@@ -1218,7 +1218,7 @@ switch(cli_method()) {
         log_console(tr('Fixing geo_states missing state codes'));
         sql_query('UPDATE `geo_states` SET `code` = ""');
 
-        while($state = sql_fetch($states)) {
+        while ($state = sql_fetch($states)) {
             if (!is_numeric($state['admin1'])) {
                 $update->execute(array(':id'   => $state['id'],
                                        ':code' => $state['admin1']));

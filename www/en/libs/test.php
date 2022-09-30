@@ -27,7 +27,7 @@
  * @return void
  */
 function test_library_init() {
-    try{
+    try {
         $core->register['timers']['tests']['errors'] = array('all'     => array(),
                                                              'test'    => array(),
                                                              'library' => array());
@@ -49,7 +49,7 @@ function test_library_init() {
 function test($name, $description, $function) {
     global $core;
 
-    try{
+    try {
         log_console($name.' [TEST] '.$description, '', false);
 
         if (!is_callable($function)) {

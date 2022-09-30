@@ -16,7 +16,7 @@
 function postman_get_environment($environment) {
     global $_CONFIG;
 
-    try{
+    try {
         if (empty($environment)) {
             $environment = $_CONFIG['metrics']['environment'];
         }
@@ -36,7 +36,7 @@ function postman_get_environment($environment) {
 function postman_get_config($environment) {
     global $_CONFIG;
 
-    try{
+    try {
         if (empty($environment)) {
             $environment = $_CONFIG['metrics']['environment'];
         }
@@ -80,7 +80,7 @@ function postman_get_config($environment) {
  * Parse specified postman configuration
  */
 function postman_parse_config($string) {
-    try{
+    try {
         return json_decode_custom($string);
 
     }catch(Exception $e) {
@@ -94,7 +94,7 @@ function postman_parse_config($string) {
  * Build cURL compatible headers from postman header configuration
  */
 function postman_get_headers($headers) {
-    try{
+    try {
         if (empty($headers)) {
             return null;
 
@@ -117,7 +117,7 @@ function postman_get_headers($headers) {
  *
  */
 function postman_get_urlencoded($data) {
-    try{
+    try {
         load_libs('inet');
         $url = '';
 

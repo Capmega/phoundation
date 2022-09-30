@@ -17,7 +17,7 @@
  * Auto executed by libs_load
  */
 function upload_library_init() {
-    try{
+    try {
         load_config('upload');
 
     }catch(Exception $e) {
@@ -31,7 +31,7 @@ function upload_library_init() {
  *
  */
 function upload_dropzone($selector = null, $url = '/ajax/upload.php', $params = array()) {
-    try{
+    try {
         if (!file_exists(ROOT.'pub/js/dropzone.js')) {
             file_copy_to_target('https://raw.github.com/enyo/dropzone/master/dist/dropzone.js', ROOT.'pub/js/', '.js', true, false);
         }
@@ -60,7 +60,7 @@ function upload_dropzone($selector = null, $url = '/ajax/upload.php', $params = 
  * WARNING: OCUPLOAD CANNOT UPLOAD ACROSS DOMAINS!
  */
 function upload_ocupload($selector = 'input[name=upload]', $url = '/ajax/upload.php', $params = array()) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'executeon', true);
 
@@ -108,7 +108,7 @@ function upload_ocupload($selector = 'input[name=upload]', $url = '/ajax/upload.
 function upload_multi($params) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'id'        , 'fileUpload');
         array_default($params, 'class'     , 'fileUpload hidden');
@@ -206,7 +206,7 @@ function upload_get_html($type, $target = null, $params = null) {
 
     load_libs('array');
 
-    try{
+    try {
         if (is_array($type)) {
             $params = $type;
             $type   = $params['type'];
@@ -411,7 +411,7 @@ Array
 )
  */
 function upload_check_files($max_uploads = null, $min_uploads = null) {
-    try{
+    try {
         if (debug()) {
             $errors = array(UPLOAD_ERR_OK         => tr('ok'),
                             UPLOAD_ERR_INI_SIZE   => tr('The uploaded file exceeds the upload_max_filesize directive in php.ini'),
@@ -562,7 +562,7 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
  * Obsolete wrapper functions for compatibility, which should NOT be used!
  */
 function upload_multi_js($selector, $url, $done_script = '', $fail_script = '', $processall_script = '') {
-    try{
+    try {
 //        notify('obsolete', 'upload_multi_js() usage is obsolete, please use upload_multi()', 'developers');
 
         return upload_multi(array('selector'    => $selector,

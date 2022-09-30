@@ -13,7 +13,7 @@
  * Crfeate HTML popup with the specified content
  */
 function popup_create($content) {
-    try{
+    try {
         return '<div class="popup container">
                     <div class="popup cover">
                     </div>

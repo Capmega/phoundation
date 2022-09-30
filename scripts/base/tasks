@@ -255,7 +255,7 @@ under_construction('add');
                 log_console(str_size('#id', 6).' '.str_size('Meta id', 7).' '.str_size('User', 22).' '.str_size('Parent task id', 14).' '.str_size('Command', 32).' '.str_size('Status', 16).' '.str_size('Description', 48).' '.str_size('Execution method', 20).' '.str_size('Timeout', 4).' '.str_size('Time spent', 10), 'cyan');
             }
 
-            while($task = sql_fetch($tasks)) {
+            while ($task = sql_fetch($tasks)) {
                 switch($task['status']) {
                     case 'processing':
                         $task['status'] = cli_color($task['status'], 'light_blue');
@@ -292,14 +292,14 @@ under_construction('add');
             throw new CoreException(tr('The specified task ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
         }
 
-        try{
+        try {
             $data = json_decode_custom($task['data']);
 
         }catch(Exception $e) {
             $data = $e;
         }
 
-        try{
+        try {
             $results = json_decode_custom($task['results']);
 
         }catch(Exception $e) {
@@ -394,7 +394,7 @@ under_construction('add');
 
         log_console(tr('Started tasks execution...'), 'white');
 
-        while(true) {
+        while (true) {
             if ($count > 50) {
                 if (--$restarts <= 0) {
                     log_console(tr('Passed the maximum amount of restart cycles, quitting'));
@@ -424,7 +424,7 @@ under_construction('add');
             $previous = $task['id'];
             $count++;
 
-            try{
+            try {
                 /*
                  * Task depends on parent?
                  */
@@ -593,7 +593,7 @@ under_construction('add');
 
                 task_test_mysql();
 
-                try{
+                try {
                     log_console(tr('Task ":task" failed with ":e" in ":time"', array(':task' => $task['id'], ':e' => $e, ':time' => time_difference($start, $end, 'auto', 5))), $color);
 
                     if ($data) {

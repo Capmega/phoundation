@@ -26,7 +26,7 @@
  * @return void
  */
 function os_library_init() {
-    try{
+    try {
         load_libs('servers');
 
     }catch(Exception $e) {
@@ -51,7 +51,7 @@ function os_library_init() {
  * @return mixed
  */
 function os_execute_command($hostname, $command = null) {
-    try{
+    try {
         if (is_array($hostname)) {
             /*
              * Server data has been specified by calling function
@@ -122,7 +122,7 @@ showdie($command);
  * return mixed
  */
 function os_enable_ssh_tcp_forwarding($hostname) {
-    try{
+    try {
         return os_execute_command($hostname);
 
     }catch(Exception $e) {

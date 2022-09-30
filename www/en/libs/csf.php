@@ -15,7 +15,7 @@
  * Automatically executed by libs_load()
  */
 function csf_library_init() {
-    try{
+    try {
         /*
          * On the command line we can only run this as root user
          */
@@ -36,7 +36,7 @@ function csf_library_init() {
  * Install Config Server Firewall
  */
 function csf_install($server = null) {
-    try{
+    try {
         if ($csf = csf_get_exec($server)) {
             throw new CoreException(tr('csf_install(): CSF has already been installed and is available at ":csf"', array(':csf' => $csf)), 'executable-not-exists');
         }
@@ -61,7 +61,7 @@ function csf_install($server = null) {
  * @return void
  */
 function csf_start($server = null) {
-    try{
+    try {
         load_libs('forwards');
         csf_exec($server, ':csf -s');
         forwards_apply_server($server);
@@ -82,7 +82,7 @@ function csf_start($server = null) {
  * @return void
  */
 function csf_stop($server = null) {
-    try{
+    try {
         load_libs('forwards');
         csf_exec($server, ':csf -f');
         forwards_apply_server($server);
@@ -103,7 +103,7 @@ function csf_stop($server = null) {
  * @return void
  */
 function csf_restart($server = null) {
-    try{
+    try {
         load_libs('forwards');
         csf_exec($server, ':csf -r');
         forwards_apply_server($server);
@@ -121,7 +121,7 @@ function csf_restart($server = null) {
 function csf_get_exec($server = null) {
     static $install = false;
 
-    try{
+    try {
         $csf = trim(servers_exec($server, 'which csf 2> /dev/null'));
 
         if (!$csf) {
@@ -147,7 +147,7 @@ function csf_get_exec($server = null) {
  *
  */
 function csf_exec($server, $command) {
-    try{
+    try {
         $csf = csf_get_exec();
         return servers_exec($server, str_replace(':csf', $csf, $command));
 
@@ -162,7 +162,7 @@ function csf_exec($server, $command) {
  *
  */
 function csf_set_restrict_syslog($server, $value) {
-    try{
+    try {
         $value   = csf_validate_restrictsyslog($value);
         $command = 'sed -i -E \'s/^RESTRICT_SYSLOG = \"[0-3]\"/RESTRICT_SYSLOG = "'.$value.'"/g\' /etc/csf/csf.conf';
 
@@ -179,7 +179,7 @@ function csf_set_restrict_syslog($server, $value) {
  *
  */
 function csf_set_testing($server, $value) {
-    try{
+    try {
         $value   = csf_validate_testing($value);
         $command = 'sed -i -E \'s/^TESTING = \"(0|1)\"/TESTING = "'.$value.'"/g\' /etc/csf/csf.conf';
 
@@ -197,7 +197,7 @@ function csf_set_testing($server, $value) {
  * @param string|array $ports, if $ports is a string it must be separeted by commas example: 12,80,443
  */
 function csf_set_ports($server, $protocol, $rule_type, $ports) {
-    try{
+    try {
         $ports     = csf_validate_ports($ports);
         $rule_type = csf_validate_rule_type($rule_type, true);
         $protocol  = csf_validate_protocol($protocol);
@@ -216,7 +216,7 @@ function csf_set_ports($server, $protocol, $rule_type, $ports) {
  *
  */
 function csf_allow_ip($server, $ip=false) {
-    try{
+    try {
         $ip = csf_validate_ip($ip);
 
         return csf_exec($server, ':csf -dr '.$ip.'; :csf -a '.$ip);
@@ -232,7 +232,7 @@ function csf_allow_ip($server, $ip=false) {
  *
  */
 function csf_deny_ip($server, $ip=false) {
-    try{
+    try {
         $ip = csf_validate_ip($ip);
         return csf_exec($server, ':csf -ar '.$ip.'; :csf -d '.$ip);
 
@@ -250,7 +250,7 @@ function csf_deny_ip($server, $ip=false) {
  * @param
  */
 function csf_allow_rule($server, $protocol, $rule_type, $port, $ip=false, $comments='') {
-    try{
+    try {
         $port      = csf_validate_ports($port, true);
         $protocol  = csf_validate_protocol($protocol, true);
         $rule_type = csf_validate_rule_type($rule_type);
@@ -273,7 +273,7 @@ function csf_allow_rule($server, $protocol, $rule_type, $port, $ip=false, $comme
  * order to create the new one
  */
 function csf_deny_rule($server, $protocol, $rule_type, $port, $ip=false, $comments='') {
-    try{
+    try {
         $port      = csf_validate_ports($port, true);
         $protocol  = csf_validate_protocol($protocol, true);
         $rule_type = csf_validate_rule_type($rule_type);
@@ -294,7 +294,7 @@ function csf_deny_rule($server, $protocol, $rule_type, $port, $ip=false, $commen
  *
  */
 function csf_remove_allow_rule($server, $protocol, $connection_type, $port, $ip) {
-    try{
+    try {
         $protocol        = csf_validate_protocol($protocol, true);
         $connection_type = csf_validate_rule_type($connection_type);
         $port            = csf_validate_ports($port, true);
@@ -314,7 +314,7 @@ function csf_remove_allow_rule($server, $protocol, $connection_type, $port, $ip)
  *
  */
 function csf_remove_deny_rule($server, $protocol, $connection_type, $port, $ip) {
-    try{
+    try {
         $protocol        = csf_validate_protocol($protocol, true);
         $connection_type = csf_validate_rule_type($connection_type);
         $port            = csf_validate_ports($port);
@@ -333,7 +333,7 @@ function csf_remove_deny_rule($server, $protocol, $connection_type, $port, $ip) 
  *
  */
 function csf_validate_protocol($protocol, $lower_case = false) {
-    try{
+    try {
         if (empty($protocol)) {
             throw new CoreException(tr('csf_validate_protocol(): No protocol specified'), 'not-specified');
         }
@@ -370,7 +370,7 @@ function csf_validate_protocol($protocol, $lower_case = false) {
  *
  */
 function csf_validate_rule_type($rule_type, $upper_case = false) {
-    try{
+    try {
         if (empty($rule_type)) {
             throw new CoreException(tr('csf_validate_rule_type(): No rule type specified'), 'not-specified');
         }
@@ -403,7 +403,7 @@ function csf_validate_rule_type($rule_type, $upper_case = false) {
   *
   */
  function csf_validate_ip($ip) {
-    try{
+    try {
         if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
             throw new CoreException(tr('csf_validate_ip(): Specified ip ":ip" is not valid', array(':ip' => $ip)), 'invalid');
         }
@@ -421,7 +421,7 @@ function csf_validate_rule_type($rule_type, $upper_case = false) {
  *
  */
 function csf_validate_ports($ports, $single = false) {
-    try{
+    try {
         if (empty($ports)) {
             throw new CoreException(tr('csf_validate_ports(): No ports specified'), 'not-specified');
         }
@@ -451,7 +451,7 @@ function csf_validate_ports($ports, $single = false) {
  *
  */
 function csf_validate_testing($value) {
-    try{
+    try {
         if (empty($value)) {
             $value = 0;
         }
@@ -480,7 +480,7 @@ function csf_validate_testing($value) {
  *
  */
 function csf_validate_restrictsyslog($value) {
-    try{
+    try {
         if (empty($value)) {
             $value = 0;
         }

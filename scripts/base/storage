@@ -85,7 +85,7 @@ switch(cli_method()) {
 
                 $sections = storage_sections_list(Arrays::force($status));
 
-                while($section = sql_fetch($sections)) {
+                while ($section = sql_fetch($sections)) {
                     log_console(str_size($section['id'], 6).' '.cli_status_color(str_size($section['status'], 16, ' ', true)).' '.str_size(name($section['createdby']), 16).' '.str_size(date_convert($section['createdon'], 'human_datetime'), 19, ' ', true).' '.str_size($section['name'], 40));
                 }
 
@@ -122,7 +122,7 @@ switch(cli_method()) {
 
                 $documents = storage_documents_list(Arrays::force($status));
 
-                while($document = sql_fetch($documents)) {
+                while ($document = sql_fetch($documents)) {
                     log_console(str_size($document['section'], 16).' '.str_size($document['id'], 12, ' ', true).' '.cli_status_color(str_size($document['page_count'], 10, ' ', true)));
                 }
 
@@ -232,7 +232,7 @@ switch(cli_method()) {
         /*
          * Yay, all verified and okay! Start adding the files!
          */
-        while(true) {
+        while (true) {
             foreach($files as $path) {
                 if (!file_exists($path)) {
                     throw new CoreException(tr('Specified file or path ":path" does not exist', array(':path' => $path)), 'warning/not-exist');

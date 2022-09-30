@@ -27,7 +27,7 @@
  * @return void
  */
 function services_library_init() {
-    try{
+    try {
         load_libs('servers');
         load_config('services');
 
@@ -51,14 +51,14 @@ function services_library_init() {
  * @return natural The amount of scanned servers
  */
 function services_scan($server = null) {
-    try{
+    try {
         if (!$server) {
             /*
              * Scan ALL servers
              */
             $domains = sql_query('SELECT `domain` FROM `servers` WHERE `status` IS NULL');
 
-            while($domain = sql_fetch($domains, true)) {
+            while ($domain = sql_fetch($domains, true)) {
                 $count++;
                 services_scan($domain);
             }
@@ -158,7 +158,7 @@ function services_scan($server = null) {
  * @return params The specified service array
  */
 function services_validate($service) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($service, 'name');
@@ -206,7 +206,7 @@ function services_validate($service) {
  * @return params The specified service array
  */
 function services_insert($service) {
-    try{
+    try {
         $service = services_validate($service);
 
         sql_query('INSERT INTO `services` (`createdby`, `meta_id`, `name`, `seoname`, `description`)
@@ -244,7 +244,7 @@ function services_insert($service) {
  * @return params The specified service array
  */
 function services_update($service) {
-    try{
+    try {
         $service = services_validate($service);
         meta_action($service['meta_id'], 'update');
 
@@ -284,7 +284,7 @@ function services_update($service) {
  * @return natural The amount of services set for the specified server
  */
 function services_update_server($service) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('services_update_server(): Failed', $e);
@@ -308,7 +308,7 @@ function services_update_server($service) {
  * @return params The specified service array
  */
 function services_get($service, $column = null, $status = null) {
-    try{
+    try {
         if (is_numeric($service)) {
             $where[] = ' `services`.`id` = :id ';
             $execute[':id'] = $service;
@@ -369,7 +369,7 @@ function services_get($service, $column = null, $status = null) {
  * @return natural The amount of services that were cleared for the specified server
  */
 function services_clear($server) {
-    try{
+    try {
         if ($server) {
             $server = servers_get($server);
             $r      = sql_query('DELETE FROM `services_servers`
@@ -414,7 +414,7 @@ function services_clear($server) {
  * @return string HTML for a services select box within the specified parameters
  */
 function services_select($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'    , 'seoservice');
         array_default($params, 'class'   , 'form-control');
@@ -465,7 +465,7 @@ function services_select($params = null) {
  * @return array An array with all domain names that matches the requested type (and optionally $domain)
  */
 function services_list_servers($service, $domain = null, $return_array = false) {
-    try{
+    try {
         if ($domain) {
             $where   = ' WHERE `services`.`seoname` = :seoname';
             $execute = array(':seoname' => $service);

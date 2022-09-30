@@ -46,7 +46,7 @@ $path = Strings::slash($path);
 
 log_console(tr('Trying to use location ":path" for global data directory', array(':path' => $path)), 'white');
 
-try{
+try {
     if (file_exists($path)) {
         /*
          * Wut? Requested path already exists, we're done here!

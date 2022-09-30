@@ -26,7 +26,7 @@
 function cli_library_init() {
     global $core;
 
-    try{
+    try {
         $core->register['posix'] = true;
 
         ensure_installed(array('name'      => 'cli',
@@ -56,7 +56,7 @@ function cli_library_init() {
  * @return void
  */
 function cli_install($params) {
-    try{
+    try {
         load_libs('php');
         php_enmod('posix');
 
@@ -71,7 +71,7 @@ function cli_install($params) {
  * Return the specified string without color information
  */
 function cli_strip_color($string) {
-    try{
+    try {
         return preg_replace('/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]/', '',  $string);
 // :DELETE:
 //        return preg_replace('/\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]/', '',  $string);
@@ -88,7 +88,7 @@ function cli_strip_color($string) {
  * Only allow execution on shell scripts
  */
 function cli_only($exclusive = false) {
-    try{
+    try {
         if (!PLATFORM_CLI) {
             throw new CoreException('cli_only(): This can only be done from command line', 'clionly');
         }
@@ -111,7 +111,7 @@ function cli_only($exclusive = false) {
  * ALWAYS USE return cli_die(); in case script_exec() was used!
  */
 function cli_die($exitcode, $message = '', $color = '') {
-    try{
+    try {
         log_console($message, ($exitcode ? 'red' : $color));
 
         /*
@@ -143,7 +143,7 @@ function cli_die($exitcode, $message = '', $color = '') {
  * ?
  */
 function cli_code_back($count) {
-    try{
+    try {
         $retval = '';
 
         for($i = 1; $i <= $count; $i++) {
@@ -163,7 +163,7 @@ function cli_code_back($count) {
  * Returns the shell console to return the cursor to the beginning of the line
  */
 function cli_code_begin($echo = false) {
-    try{
+    try {
         if (!$echo) {
             return "\033[D";
         }
@@ -181,7 +181,7 @@ function cli_code_begin($echo = false) {
  * Hide anything printed to screen
  */
 function cli_hide($echo = false) {
-    try{
+    try {
         if (!$echo) {
             return "\033[30;40m\e[?25l";
         }
@@ -199,7 +199,7 @@ function cli_hide($echo = false) {
  * Restore screen printing
  */
 function cli_restore($echo = false) {
-    try{
+    try {
         if (!$echo) {
             return "\033[0m\e[?25h";
         }
@@ -218,7 +218,7 @@ function cli_restore($echo = false) {
  */
 // :TODO: Implement support for answer coloring
 function cli_readline($prompt = '', $hidden = false, $question_fore_color = null, $question_back_color = null, $answer_fore_color = null, $answer_back_color = null) {
-    try{
+    try {
         if ($prompt) echo cli_color($prompt, $question_fore_color, $question_back_color);
 
         if ($hidden) {
@@ -273,7 +273,7 @@ function cli_run_once_local($close = false) {
     global $core;
     static $executed = false;
 
-    try{
+    try {
         $run_dir = ROOT.'data/run/';
         $script  = $core->register['script'];
 
@@ -367,7 +367,7 @@ function cli_run_once_local($close = false) {
 function cli_run_max_local($processes) {
     static $executed = false;
 under_construction();
-    try{
+    try {
         $run_dir = ROOT.'data/run/';
         $script  = $core->register['script'];
 
@@ -462,7 +462,7 @@ under_construction();
 function cli_run_once($action = 'exception', $force = false) {
     global $core;
 
-    try{
+    try {
         if (!PLATFORM_CLI) {
             throw new CoreException('cli_run_once(): This function does not work for platform "'.PLATFORM.'", it is only for "shell" usage');
         }
@@ -562,7 +562,7 @@ function cli_method($index = null, $default = null) {
     global $argv;
     static $method = array();
 
-    try{
+    try {
         if ($default === false) {
             $method[$index] = null;
         }
@@ -618,7 +618,7 @@ function cli_method($index = null, $default = null) {
 function cli_argument($keys = null, $next = null, $default = null){
     global $argv;
 
-    try{
+    try {
         if (is_integer($keys)){
             $count = count($argv) - 1;
 
@@ -765,7 +765,7 @@ function cli_argument($keys = null, $next = null, $default = null){
             /*
              * Return next argument, if available
              */
-            try{
+            try {
                 $retval = array_next_value($argv, $keys, true);
 
             }catch(Exception $e){
@@ -804,7 +804,7 @@ function cli_argument($keys = null, $next = null, $default = null){
 function cli_arguments($arguments = null){
     global $argv;
 
-    try{
+    try {
         if (!$arguments){
             $retval = $argv;
             $argv   = array();
@@ -857,7 +857,7 @@ function cli_no_arguments_left(){
 function cli_highlight($string, $keywords, $fore_color, $back_color = null){
     static $color;
 
-    try{
+    try {
         if (!$color){
             $color = new Colors();
         }
@@ -899,7 +899,7 @@ function cli_error($e = null){
  *
  */
 function cli_show_usage($usage, $color){
-    try{
+    try {
         if (!$usage){
             log_console(tr('Sorry, this script has no usage description defined yet'), 'yellow');
 
@@ -944,7 +944,7 @@ function cli_show_usage($usage, $color){
 function cli_process_uid_matches($auto_switch = false, $permit_root = true){
     global $core;
 
-    try{
+    try {
         if (cli_get_process_uid() !== getmyuid()){
             if (!cli_get_process_uid() and $permit_root){
                 /*
@@ -1001,7 +1001,7 @@ function cli_process_uid_matches($auto_switch = false, $permit_root = true){
  * @package cli
  */
 function cli_process_user_has_free_sudo(){
-    try{
+    try {
         $results = safe_exec(array('timeout'  => '0.1',
                                    'commands' => array('sudo', array('-v'))));
         $results = array_pop($results);
@@ -1027,7 +1027,7 @@ function cli_process_user_has_free_sudo(){
 function cli_get_process_uid(){
     global $core;
 
-    try{
+    try {
         if ($core->register['posix']){
             return posix_getuid();
         }
@@ -1056,7 +1056,7 @@ function cli_get_process_uid(){
 function cli_get_process_user(){
     global $core;
 
-    try{
+    try {
         if ($core->register['posix']){
             return posix_getpwuid(posix_geteuid())['name'];;
         }
@@ -1083,7 +1083,7 @@ function cli_get_process_user(){
  * @package cli
  */
 function cli_is_root(){
-    try{
+    try {
         return cli_get_process_uid() === 0;
 
     }catch(Exception $e){
@@ -1103,7 +1103,7 @@ function cli_is_root(){
  * @package cli
  */
 function cli_root_only(){
-    try{
+    try {
         if (!cli_is_root()){
             throw new CoreException('cli_root_only(): This script can ONLY be executed by the root user', 'not-allowed');
         }
@@ -1127,7 +1127,7 @@ function cli_root_only(){
  * @package cli
  */
 function cli_not_root(){
-    try{
+    try {
         if (cli_is_root()){
             throw new CoreException('cli_not_root(): This script can NOT be executed by the root user', 'not-allowed');
         }
@@ -1151,7 +1151,7 @@ function cli_not_root(){
  * @package cli
  */
 function cli_sudo($command){
-    try{
+    try {
         if (!cli_process_user_has_free_sudo()){
             throw new CoreException(tr('cli_sudo(): This script requires sudo privileges but the current user ":user" does not have these', array(':user' => cli_get_process_user())), 'no-sudo');
         }
@@ -1180,7 +1180,7 @@ function cli_arguments_none_left(){
 function cli_done(){
     global $core;
 
-    try{
+    try {
         if (!isset($core)){
             echo "\033[1;31mCommand line terminated before \$core created\033[0m\n";
             die(1);
@@ -1244,7 +1244,7 @@ function cli_done(){
  * @return array The list of process ids found that maches the specified name
  */
 function cli_pgrep($name){
-    try{
+    try {
         return safe_exec(array('ok_exitcodes' => '0,1',
                                'commands'     => array('pgrep', array($name))));
 
@@ -1270,7 +1270,7 @@ function cli_pgrep($name){
  * @return string The process name found that maches the specified PID
  */
 function cli_pidgrep($pid){
-    try{
+    try {
         $results = safe_exec(array('ok_exitcodes' => '0,1',
                                    'commands'     => array('ps'  , array($pid, 'connector' => '|'),
                                                            'grep', array('-v', 'PID TTY      STAT   TIME COMMAND'))));
@@ -1302,7 +1302,7 @@ function cli_pidgrep($pid){
  * @return natural The amount of processes killed. 0 if no processes were killed
  */
 function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
-    try{
+    try {
         if (!$pids){
             throw new CoreException(tr('cli_kill(): No process ids specified'), 'not-specified');
         }
@@ -1340,7 +1340,7 @@ function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
                 $sigkill = ($verify < 0);
                 $verify  = abs($verify);
 
-                while(--$verify >= 0){
+                while (--$verify >= 0){
                     usleep(100000);
 
                     /*
@@ -1391,7 +1391,7 @@ function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
  * Send a signal to the specified process. S
  */
 function cli_pkill($process, $signal = null, $sudo = false, $verify = 3, $sigkill = true){
-    try{
+    try {
         if (!$signal){
             $signal = 15;
         }
@@ -1403,7 +1403,7 @@ function cli_pkill($process, $signal = null, $sudo = false, $verify = 3, $sigkil
                                    'commands'     => array('pkill', array('sudo' => $sudo, '-'.$signal, $process))));
 
         if ($verify){
-            while(--$verify >= 0){
+            while (--$verify >= 0){
                 sleep(0.5);
 
                 /*
@@ -1449,7 +1449,7 @@ function cli_pkill($process, $signal = null, $sudo = false, $verify = 3, $sigkil
  *
  */
 function cli_get_term(){
-    try{
+    try {
         $term = exec('echo $TERM');
         return $term;
 
@@ -1464,7 +1464,7 @@ function cli_get_term(){
  *
  */
 function cli_get_columns(){
-    try{
+    try {
         $cols = exec('tput cols');
         return $cols;
 
@@ -1478,7 +1478,7 @@ function cli_get_columns(){
  *
  */
 function cli_get_lines(){
-    try{
+    try {
         $rows = exec('tput lines');
         return $rows;
 
@@ -1493,9 +1493,9 @@ function cli_get_lines(){
  * Run a process and run callbacks over the output
  */
 function cli_run_process($command, $callback){
-    try{
+    try {
 //$p = popen('executable_file_or_script', 'r');
-//while(!feof($p)) {
+//while (!feof($p)) {
 //    echo fgets($p);
 //    ob_flush();
 //    flush();
@@ -1514,7 +1514,7 @@ function cli_run_process($command, $callback){
  * See https://github.com/guiguiboy/PHP-CLI-Progress-Bar/blob/master/ProgressBar/Manager.php for inspiration
  */
 function cli_progress_bar($width, $percentage, $color){
-    try{
+    try {
 
     }catch(Exception $e){
         throw new CoreException('cli_progress_bar(): Failed', $e);
@@ -1527,7 +1527,7 @@ function cli_progress_bar($width, $percentage, $color){
  *
  */
 function cli_status_color($status){
-    try{
+    try {
         $status = status($status);
 
         switch(trim(strtolower($status))){
@@ -1580,7 +1580,7 @@ function cli_status_color($status){
  * @return boolean True if the specified PID is available on the specified server, false otherwise
  */
 function cli_pid($pid){
-    try{
+    try {
         return file_exists('/proc/'.$pid);
 
     }catch(Exception $e){
@@ -1603,7 +1603,7 @@ function cli_pid($pid){
  * @return
  */
 function cli_list_processes($filters){
-    try{
+    try {
         $filters  = Arrays::force($filters);
         $commands = array('ps', array('ax', 'connector' => '|'));
 
@@ -1657,7 +1657,7 @@ function cli_list_processes($filters){
  * @return string The specified $target_path, or if not specified, the temporary path where the file has been extracted
  */
 function cli_unzip($file, $target_path = null, $remove = true){
-    try{
+    try {
         if (!$target_path){
             $target_path = file_temp(false);
         }
@@ -1717,7 +1717,7 @@ function cli_unzip($file, $target_path = null, $remove = true){
 function cli_is_builtin($command){
     static $cache = array();
 
-    try{
+    try {
         if (isset($cache[$command])){
             return $cache[$command];
         }
@@ -1765,7 +1765,7 @@ function cli_is_builtin($command){
 function cli_build_commands_string(&$params){
     global $_CONFIG, $core;
 
-    try{
+    try {
         $retval = '';
 
         array_default($params, 'timeout'     , isset_get($core->register['timeout'], $_CONFIG['cli']['timeout']));
@@ -2073,7 +2073,7 @@ function cli_build_commands_string(&$params){
  * @return string The CWD for the specified PID if it exist
  */
 function cli_get_cwd($pid, $ignore_gone = false){
-    try{
+    try {
         if (!is_natural($pid) or ($pid > 65535)){
             throw new CoreException(tr('cli_get_cwd(): Specified PID ":pid" is invalid', array(':pid' => $pid)), 'invalid');
         }
@@ -2107,7 +2107,7 @@ function cli_get_cwd($pid, $ignore_gone = false){
  */
 function cli_restart($delay = 1){
     global $core;
-    try{
+    try {
         if (!PLATFORM_CLI){
             throw new CoreException(tr('cli_restart(): This function can only be run from a CLI platform'), $e);
         }
@@ -2149,7 +2149,7 @@ function cli_restart($delay = 1){
  * @return array The output from the find command
  */
 function cli_find($params){
-    try{
+    try {
         Arrays::ensure($params, 'sudo,timeout,start');
         array_default($params, 'timeout', 30);
 

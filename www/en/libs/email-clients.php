@@ -26,7 +26,7 @@
  * @return void
  */
 function email_clients_library_init() {
-    try{
+    try {
         if (!extension_loaded('imap')) {
             throw new CoreException(tr('email_clients_library_init(): The PHP "imap" module is not available, please install it first. On ubuntu install the module with "apt -y install php-imap"; a restart of the webserver or php fpm server may be required'), 'missing-module');
         }
@@ -60,7 +60,7 @@ function email_clients_library_init() {
  * @return The specified email server, validated
  */
 function email_servers_validate($email_server) {
-    try{
+    try {
         load_libs('validate,seo,domains,servers');
 
         $v = new ValidateForm($email_server, 'id,server_seodomain,domain,smtp_port,imap,poll_interval,header,footer,description');
@@ -161,7 +161,7 @@ function email_servers_validate($email_server) {
  * @return string HTML for a categories select box within the specified parameters
  */
 function email_servers_validate_domain($domain) {
-    try{
+    try {
         load_libs('validate,seo,customers');
 
         $v = new ValidateForm($domain, 'id,name,seocustomer,description');
@@ -234,7 +234,7 @@ function email_servers_validate_domain($domain) {
  * @return string HTML for a email_servers select box within the specified parameters
  */
 function email_servers_select($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'    , 'seodomain');
         array_default($params, 'class'   , 'form-control');
@@ -287,7 +287,7 @@ function email_servers_select($params = null) {
  * @return mixed The email_server data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified email_server does not exist, NULL will be returned.
  */
 function email_servers_get($email_server, $column = null, $status = null) {
-    try{
+    try {
         if (is_numeric($email_server)) {
             $where[] = ' `email_servers`.`id` = :id ';
             $execute[':id'] = $email_server;
@@ -355,7 +355,7 @@ function email_servers_get($email_server, $column = null, $status = null) {
  * @return void
  */
 function email_servers_update_password($email, $password) {
-    try{
+    try {
         sql_query('UPDATE `accounts`
 
                    SET    `password` = ENCRYPT(:password, CONCAT("$6$", SUBSTRING(SHA(RAND()), -16)))

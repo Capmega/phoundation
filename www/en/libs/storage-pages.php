@@ -18,7 +18,7 @@
  * Auto executed by libs_load
  */
 function storage_pages_library_init() {
-    try{
+    try {
         load_libs('storage');
 
     }catch(Exception $e) {
@@ -32,7 +32,7 @@ function storage_pages_library_init() {
  * Generate a new storage page
  */
 function storage_pages_get($section, $page = null, $auto_create = false) {
-    try{
+    try {
         $section = storage_ensure_section($section);
 
         if (empty($section['id'])) {
@@ -156,7 +156,7 @@ function storage_pages_get($section, $page = null, $auto_create = false) {
  * Generate a new storage page
  */
 function storage_pages_add($page, $section = null) {
-    try{
+    try {
         load_libs('storage-documents');
 
         if (!$section) {
@@ -210,7 +210,7 @@ function storage_pages_add($page, $section = null) {
  * Update the specified storage page
  */
 function storage_pages_update($page, $params) {
-    try{
+    try {
         load_libs('storage-documents');
 
         $page           = storage_pages_validate($page, $params);
@@ -253,7 +253,7 @@ function storage_pages_update($page, $params) {
  * Validate and return the specified storage page
  */
 function storage_pages_validate($page, $params = false) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $empty = !$params;
@@ -379,7 +379,7 @@ function storage_pages_validate($page, $params = false) {
  *
  */
 function storage_page_attach_file($pages_id, $file) {
-    try{
+    try {
         load_libs('files');
 
         if (!is_array($file)) {
@@ -404,7 +404,7 @@ function storage_page_attach_file($pages_id, $file) {
  *
  */
 function storage_page_has_access($pages_id, $users_id = null) {
-    try{
+    try {
         if (empty($users_id)) {
             $users_id = $_SESSION['user']['id'];
         }

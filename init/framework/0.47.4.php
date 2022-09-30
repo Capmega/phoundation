@@ -10,7 +10,7 @@ $update = sql_prepare('UPDATE `blogs_media` SET `hash` = :hash WHERE `id` = :id'
 
 log_console(tr('Updating all blog media hash values. This might take a little while. NOTE: Each following dot represents one file'));
 
-while($media = sql_fetch($medias)) {
+while ($media = sql_fetch($medias)) {
     if (empty($media['file'])) continue;
     cli_dot(1);
 
@@ -44,13 +44,13 @@ sql_query('UPDATE `blogs_posts` SET `level` = `priority`');
 $blogs  = sql_query('SELECT `id`, `name` FROM `blogs`');
 $update = sql_prepare('UPDATE `blogs_posts` SET `priority` = :priority WHERE `id` = :id');
 
-while($blog = sql_fetch($blogs)) {
+while ($blog = sql_fetch($blogs)) {
     log_console(tr('Updating priorities for blog ":blog"', array(':blog' => $blog['name'])));
 
     $priority = 1;
     $posts    = sql_query('SELECT `id`, `name` FROM `blogs_posts` WHERE `blogs_id` = :blogs_id ORDER BY `createdon` ASC', array(':blogs_id' => $blog['id']));
 
-    while($post = sql_fetch($posts)) {
+    while ($post = sql_fetch($posts)) {
         cli_dot(1);
         $update->execute(array(':id'       => $post['id'],
                                ':priority' => $priority++));

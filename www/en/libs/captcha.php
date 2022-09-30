@@ -27,7 +27,7 @@
  * @return void
  */
 function captcha_library_init() {
-    try{
+    try {
         load_config('captcha');
 
     }catch(Exception $e) {
@@ -54,7 +54,7 @@ function captcha_library_init() {
 function captcha_html($class = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if ($_CONFIG['captcha']['enabled']) {
             return '';
         }
@@ -107,7 +107,7 @@ function captcha_html($class = null) {
 function captcha_verify_response($captcha) {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$_CONFIG['captcha']['enabled']) {
             /*
              * Use no captcha

@@ -11,7 +11,7 @@ if (cli_run_once('kill')) {
     echo "This script is already running and it cannot run twice!\n";
 
 } else {
-    while(true) {
+    while (true) {
         echo "WHHEEE!! I got the world to my own!!\n";
         sleep(1);
     }

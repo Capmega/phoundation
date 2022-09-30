@@ -16,7 +16,7 @@
 function roles_get($role = null) {
     global $_CONFIG;
 
-    try{
+    try {
         $query = 'SELECT    `roles`.`id`,
                             `roles`.`meta_id`,
                             `roles`.`name`,
@@ -82,7 +82,7 @@ function roles_get($role = null) {
  *
  */
 function roles_validate($role) {
-    try{
+    try {
         load_libs('validate');
 
         $v = new ValidateForm($role, 'name,description');
@@ -134,7 +134,7 @@ function roles_validate($role) {
  * specified role
  */
 function roles_update_rights($role, $rights) {
-    try{
+    try {
         if (empty($role['id'])) {
             throw new CoreException('roles_update_rights(): Cannot update rights, no role specified', 'not_specified');
         }
@@ -202,7 +202,7 @@ function roles_update_rights($role, $rights) {
         $insert = sql_prepare('INSERT INTO `users_rights` (`users_id`, `rights_id`, `name`)
                                VALUES                     (:users_id , :rights_id , :name )');
 
-        while($user = sql_fetch($users)) {
+        while ($user = sql_fetch($users)) {
             $delete->execute(array(':users_id'  => $user['id']));
 
             foreach($rights_list as $rights_id => $name) {

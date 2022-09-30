@@ -26,7 +26,7 @@
  * @return void()
  */
 function log_rotate() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('log_rotate(): Failed', $e);

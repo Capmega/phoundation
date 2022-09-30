@@ -31,7 +31,7 @@
  * @return void
  */
 function minify_library_init() {
-    try{
+    try {
         ensure_installed(array('name'     => 'minify',
                                'callback' => 'minify_setup',
                                'checks'   => array(ROOT.'libs/vendor/mrclay/minify')));
@@ -59,7 +59,7 @@ function minify_library_init() {
  * @return void
  */
 function minify_setup($params) {
-    try{
+    try {
         File::executeMode(ROOT.'libs/', 0770, function() {
             load_libs('composer');
             composer_require('mrclay/minify');
@@ -77,7 +77,7 @@ function minify_setup($params) {
  * Return the specified HTML minified
  */
 function minify_html($html) {
-    try{
+    try {
         include_once(ROOT.'libs/vendor/mrclay/minify/lib/Minify/HTML.php');
         include_once(ROOT.'libs/vendor/mrclay/minify/lib/Minify/CSS.php');
         include_once(ROOT.'libs/vendor/mrclay/jsmin-php/src/JSMin/JSMin.php');

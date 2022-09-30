@@ -27,7 +27,7 @@
  * @return void
  */
 function blogs_library_init() {
-    try{
+    try {
         load_config('blogs');
 
     }catch(Exception $e) {
@@ -43,7 +43,7 @@ function blogs_library_init() {
 function blogs_get($blog = null, $column = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if ($column) {
             $query = 'SELECT `'.$column.'` FROM `blogs` ';
 
@@ -129,7 +129,7 @@ function blogs_get($blog = null, $column = null) {
 function blogs_post_get($blog = null, $post = null, $language = null, $alternative_language = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$blog) {
             throw new CoreException(tr('blogs_post_get(): No blog specified'), 'not-specified');
         }
@@ -317,7 +317,7 @@ function blogs_post_get($blog = null, $post = null, $language = null, $alternati
  * Return all key_values for the specified blog post
  */
 function blogs_post_get_key_values($blogs_posts_id, $seovalues = false) {
-    try{
+    try {
         return sql_list('SELECT `seokey`,
                                 `'.($seovalues ? 'seo' : '').'value`
 
@@ -341,7 +341,7 @@ function blogs_post_get_key_values($blogs_posts_id, $seovalues = false) {
 function blogs_post_update($post, $params = null) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'sitemap_priority'        , 1);
         array_default($params, 'sitemap_change_frequency', 'weekly');
@@ -551,7 +551,7 @@ function blogs_post_update($post, $params = null) {
  * Update the status for the specified blog posts
  */
 function blogs_update_post_status($blog, $params, $list, $status) {
-    try{
+    try {
         load_libs('sitemap');
 
         Arrays::ensure($params);
@@ -642,7 +642,7 @@ function blogs_update_post_status($blog, $params, $list, $status) {
  * List available blogs
  */
 function blogs_list($user, $from = null, $until = null, $limit = null) {
-    try{
+    try {
         if (is_array($user)) {
             $user = isset_get($user['id']);
         }
@@ -689,7 +689,7 @@ function blogs_list($user, $from = null, $until = null, $limit = null) {
  * Set the status of the specified blog
  */
 function blogs_post($blog) {
-    try{
+    try {
         /*
          * Only users may post blogs
          */
@@ -732,7 +732,7 @@ function blogs_post($blog) {
  * Return HTML select list containing all available blogs
  */
 function blogs_select($params, $selected = 0, $name = 'blog', $none = '', $class = '', $option_class = '', $disabled = false) {
-    try{
+    try {
         array_params ($params, 'seoname');
         array_default($params, 'selected'    , $selected);
         array_default($params, 'class'       , $class);
@@ -763,7 +763,7 @@ function blogs_select($params, $selected = 0, $name = 'blog', $none = '', $class
  * Return HTML select list containing all available blog categories
  */
 function blogs_categories_select($params) {
-    try{
+    try {
         array_params ($params);
         array_default($params, 'selected'    , 0);
         array_default($params, 'class'       , '');
@@ -855,7 +855,7 @@ function blogs_categories_select($params) {
  * Return HTML select list containing all available parent posts
  */
 function blogs_parents_select($params) {
-    try{
+    try {
         array_params ($params);
         array_default($params, 'selected'    , null);
         array_default($params, 'class'       , '');
@@ -918,7 +918,7 @@ function blogs_parents_select($params) {
 // * Return HTML select list containing all available blogs
 // */
 //function blogs_priorities_select($params, $selected = 0) {
-//    try{
+//    try {
 //        array_params ($params, 'seoname');
 //        array_default($params, 'selected'    , $selected);
 //        array_default($params, 'class'       , $class);
@@ -951,7 +951,7 @@ function blogs_parents_select($params) {
  * Update the key-value store for this blog post
  */
 function blogs_update_key_value_store($post, $limit_key_values) {
-    try{
+    try {
         load_libs('seo');
         sql_query('DELETE FROM `blogs_key_values` WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $post['id']));
 
@@ -1052,7 +1052,7 @@ function blogs_update_key_value_store($post, $limit_key_values) {
  * then order by value
  */
 function blogs_update_key_value_sort($a, $b) {
-    try{
+    try {
         if (is_scalar($a)) {
             /*
              * A is scalar
@@ -1098,7 +1098,7 @@ function blogs_update_key_value_sort($a, $b) {
  * seokeywords column in the blogs_posts table
  */
 function blogs_update_keywords($post) {
-    try{
+    try {
         /*
          * Ensure all keywords of this blog post are gone
          */
@@ -1130,7 +1130,7 @@ function blogs_update_keywords($post) {
  * Return keywords string for the specified keyword string where all keywords are trimmed
  */
 function blogs_clean_keywords($keywords, $allow_empty = false) {
-    try{
+    try {
         if (!$keywords and $allow_empty) {
             return '';
         }
@@ -1162,7 +1162,7 @@ function blogs_clean_keywords($keywords, $allow_empty = false) {
  * Return the seokeywords as a csv string
  */
 function blogs_seo_keywords($keywords) {
-    try{
+    try {
         $retval = array();
 
         foreach(Arrays::force($keywords) as $keyword) {
@@ -1182,7 +1182,7 @@ function blogs_seo_keywords($keywords) {
  * Validate all blog data
  */
 function blogs_validate($blog) {
-    try{
+    try {
         load_libs('seo,validate');
 
         /*
@@ -1228,7 +1228,7 @@ function blogs_validate($blog) {
  * Validate the specified category data
  */
 function blogs_validate_category($category, $blog) {
-    try{
+    try {
         load_libs('seo');
         $v = new ValidateForm($category, 'name,seoname,keywords,description,parent,assigned_to');
 
@@ -1308,7 +1308,7 @@ function blogs_validate_category($category, $blog) {
 function blogs_validate_post($post, $params = null) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'force_id'         , false);
         array_default($params, 'use_id'           , false);
@@ -1469,7 +1469,7 @@ function blogs_validate_post($post, $params = null) {
             $post['parents_id'] = null;
 
         } else {
-            try{
+            try {
                 if ($post['parents_id']) {
                     /*
                      * Validate that the specified parent is part of the required parent blog
@@ -1688,7 +1688,7 @@ function blogs_validate_post($post, $params = null) {
 function blogs_media_upload($files, $post, $level = null) {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * Check for upload errors
          */
@@ -1717,7 +1717,7 @@ function blogs_media_upload($files, $post, $level = null) {
 function blogs_media_add($file, $post, $level = null) {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * Check for upload errors
          */
@@ -1740,7 +1740,7 @@ function blogs_media_add($file, $post, $level = null) {
 function blogs_media_process($file, $post, $priority = null, $original = null) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('image,upload,cdn');
 
         if (empty($post['id'])) {
@@ -1900,7 +1900,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null) {
  *
  */
 function blogs_media_delete($blogs_posts_id) {
-    try{
+    try {
         $media = sql_query('SELECT `id`, `file` FROM `blogs_media` WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $blogs_posts_id));
 
         if (!$media->rowCount()) {
@@ -1910,7 +1910,7 @@ function blogs_media_delete($blogs_posts_id) {
             return false;
         }
 
-        while($file = sql_fetch($media)) {
+        while ($file = sql_fetch($media)) {
             file_delete(dirname(ROOT.'data/content/'.$file['file']), ROOT.'data/content');
         }
 
@@ -1929,7 +1929,7 @@ function blogs_media_delete($blogs_posts_id) {
 function blogs_url_upload($files, $post, $priority = null) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('upload');
 
         /*
@@ -1965,7 +1965,7 @@ function blogs_url_upload($files, $post, $priority = null) {
 function blogs_media_get_free_priority($blogs_posts_id, $insert = false) {
     global $_CONFIG;
 
-    try{
+    try {
         if ($insert) {
             /*
              * Insert mode, return the first possible priority, in case there is a gap (ideally should be highest though, if there are no gaps)
@@ -1998,7 +1998,7 @@ function blogs_media_get_free_priority($blogs_posts_id, $insert = false) {
  * Photo description
  */
 function blogs_photo_description($user, $media_id, $description) {
-    try{
+    try {
         if (!is_numeric($media_id)) {
             $media_id = Strings::from($media_id, 'photo');
         }
@@ -2041,7 +2041,7 @@ function blogs_photo_description($user, $media_id, $description) {
  * Photo description
  */
 function blogs_photo_type($user, $media_id, $type) {
-    try{
+    try {
         if (!is_numeric($media_id)) {
             $media_id = Strings::from($media_id, 'photo');
         }
@@ -2086,7 +2086,7 @@ function blogs_photo_type($user, $media_id, $type) {
  * Get a full URL of the photo
  */
 function blogs_photo_url($media, $size, $section = '') {
-    try{
+    try {
         load_libs('cdn');
 
         switch($size) {
@@ -2123,7 +2123,7 @@ function blogs_photo_url($media, $size, $section = '') {
 function blogs_level($level) {
     static $list, $rlist;
 
-    try{
+    try {
         if (empty($list)) {
             $list = array(5 => tr('Low'),
                           4 => tr('Normal'),
@@ -2170,7 +2170,7 @@ function blogs_level($level) {
  * Validate the specified category
  */
 function blogblogs_validate_category($category, $blogs_id) {
-    try{
+    try {
         if (!$category) {
             throw new CoreException(tr('blogblogs_validate_category(): No category specified'), 'not-exists');
         }
@@ -2206,7 +2206,7 @@ function blogblogs_validate_category($category, $blogs_id) {
  *
  */
 function blogs_validate_parent($blog_post_id, $blogs_id) {
-    try{
+    try {
         if (!$blog_post_id) {
             throw new CoreException(tr('blogs_validate_parent(): No blogs_posts_id specified'), 'not-specified');
         }
@@ -2245,7 +2245,7 @@ function blogs_post_url($post) {
     global $_CONFIG;
     static $config;
 
-    try{
+    try {
         if (!$config) {
             /*
              * Read configuration, required for the domain() call
@@ -2342,7 +2342,7 @@ function blogs_post_url($post) {
  * Update the URL's for the specified blog post
  */
 function blogs_update_url($post) {
-    try{
+    try {
         $url = blogs_post_url($post);
 
         if ((PLATFORM_CLI) and VERBOSE) {
@@ -2372,7 +2372,7 @@ function blogs_update_url($post) {
  * Can update all posts, all posts for multiple blogs, or all posts within one category within one blog
  */
 function blogs_update_urls($blogs = null, $category = null) {
-    try{
+    try {
         load_libs('sitemap');
 
         $params = array();
@@ -2412,7 +2412,7 @@ function blogs_update_urls($blogs = null, $category = null) {
 
             log_console(tr('blogs_update_urls(): Updating posts for all blogs'));
 
-            while($blog = sql_fetch($r)) {
+            while ($blog = sql_fetch($r)) {
                 $count += blogs_update_urls($blog['id'], $category);
             }
 
@@ -2420,7 +2420,7 @@ function blogs_update_urls($blogs = null, $category = null) {
         }
 
         foreach(Arrays::force($blogs) as $blogname) {
-            try{
+            try {
                 /*
                  * Get blog data either from ID or seoname
                  */
@@ -2498,8 +2498,8 @@ function blogs_update_urls($blogs = null, $category = null) {
                  */
                 $posts = sql_query($query, $execute);
 
-                while($post = sql_fetch($posts)) {
-                    try{
+                while ($post = sql_fetch($posts)) {
+                    try {
                         $url                  = $post['url'];
                         $post['url_template'] = $blog['url_template'];
                         $post['url']          = blogs_update_url($post);
@@ -2558,7 +2558,7 @@ function blogs_update_urls($blogs = null, $category = null) {
 function blogs_post_erase($post) {
     global $_CONFIG;
 
-    try{
+    try {
         if (is_array($post)) {
             $count = 0;
 
@@ -2581,7 +2581,7 @@ function blogs_post_erase($post) {
          */
         $r = sql_query('SELECT `file` FROM `blogs_media` WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $post));
 
-        while($media = sql_fetch($r)) {
+        while ($media = sql_fetch($r)) {
             foreach($_CONFIG['blogs']['images'] as $type => $image_config) {
                 file_delete(ROOT.'data/content/'.$media['file'].'-'.$type.'.jpg', ROOT.'data/content/');
             }
@@ -2607,7 +2607,7 @@ function blogs_post_erase($post) {
  *
  */
 function blogs_regenerate_sitemap_data($blogs_id, $level, $change_frequency, $group = '', $file = '') {
-    try{
+    try {
         load_libs('sitemap');
 
         $count   = 1;
@@ -2640,7 +2640,7 @@ function blogs_regenerate_sitemap_data($blogs_id, $level, $change_frequency, $gr
         $posts = sql_query($query, $execute);
         $count = 0;
 
-        while($post = sql_fetch($posts)) {
+        while ($post = sql_fetch($posts)) {
             cli_dot();
             $count++;
 
@@ -2667,7 +2667,7 @@ function blogs_regenerate_sitemap_data($blogs_id, $level, $change_frequency, $gr
  *
  */
 function blogs_post_get_new_priority($blogs_id) {
-    try{
+    try {
         $priority = sql_get('SELECT MAX(`priority`) FROM `blogs_posts` WHERE `blogs_id` = :blogs_id', true, array(':blogs_id' => $blogs_id));
         $priority = (integer) isset_get($priority, 0);
 
@@ -2684,7 +2684,7 @@ function blogs_post_get_new_priority($blogs_id) {
  *
  */
 function blogs_post_up($id, $object, $view) {
-    try{
+    try {
         /*
          * Move post up in a list of items that are av ailable, deleted, etc?
          */
@@ -2785,7 +2785,7 @@ function blogs_post_up($id, $object, $view) {
  *
  */
 function blogs_post_down($id, $object, $view) {
-    try{
+    try {
         /*
          * Move post up in a list of items that are av ailable, deleted, etc?
          */
@@ -2877,11 +2877,11 @@ function blogs_post_down($id, $object, $view) {
  * @return string the code html for generate img
  */
 function blogs_post_get_atlant_media_html($photo, $params, &$tabindex) {
-    try{
+    try {
         /*
          * Get photo dimensions
          */
-        try{
+        try {
             $file   = ROOT.'data/content/photos/'.$photo['file'].'-original.jpg';
             $exists = file_exists($file);
 
@@ -2966,7 +2966,7 @@ function blogs_post_get_atlant_media_html($photo, $params, &$tabindex) {
         }
 
         if (!empty($params['file_types'])) {
-            try{
+            try {
                 $html .= '              <td class="form-group blog photo" id="photo'.$photo['id'].'">
                                             <div>
                                                 '.html_select(array('name'     => 'file_status['.$photo['id'].']',
@@ -3024,7 +3024,7 @@ function blogs_post_get_atlant_media_html($photo, $params, &$tabindex) {
  */
 function blogs_sync_location($posts_id, $to_user = false) {
     load_libs('user');
-    try{
+    try {
         if ($to_user) {
             $geo             = blogs_get_location($posts_id);
             $geo['users_id'] = $posts_id;
@@ -3057,7 +3057,7 @@ function blogs_sync_location($posts_id, $to_user = false) {
  * @return array the found location information
  */
 function blogs_get_location($posts_id) {
-    try{
+    try {
         $values = blogs_post_get_key_values($posts_id);
 
         /*
@@ -3120,7 +3120,7 @@ function blogs_get_location($posts_id) {
  * @return integer The amount of updated entries
  */
 function blogs_update_location($posts_id, $geo) {
-    try{
+    try {
         $count  = 0;
         $insert = sql_prepare('INSERT INTO `blogs_key_values` (`blogs_posts_id`, `key`. `seokey`, `value`, `seovalue`)
                                VALUES                         (:blogs_posts_id , :key . :seokey , :value , :seovalue )

@@ -182,7 +182,7 @@ switch($method) {
             $version = cli_argument('-v,--section-version', true);
             cli_no_arguments_left();
 
-            try{
+            try {
                 init_section($section, $version);
 
             }catch(Exception $e) {
@@ -196,7 +196,7 @@ switch($method) {
         } else {
             cli_no_arguments_left();
 
-            try{
+            try {
                 $pfrom = $fromprojectversion;
                 $ffrom = $fromframeworkversion;
 

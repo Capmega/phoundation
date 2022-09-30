@@ -26,7 +26,7 @@
  * @return void
  */
 function sitemap_library_init() {
-    try{
+    try {
         /*
          * sitemap configuration is required for this library
          */
@@ -60,7 +60,7 @@ function sitemap_library_init() {
 function sitemap_generate() {
     global $_CONFIG;
 
-    try{
+    try {
         $files = sitemap_list_files();
 
         foreach($files as &$file) {
@@ -83,7 +83,7 @@ function sitemap_generate() {
          * Remove temporary files
          */
         if (!empty($files)) {
-            try{
+            try {
                 foreach($files as $file) {
                     if (empty($file['tmp'])) {
                         continue;
@@ -123,7 +123,7 @@ function sitemap_generate() {
 function sitemap_install_files($files) {
     global $_CONFIG;
 
-    try{
+    try {
         sitemap_make_backup();
 
         $insert = sql_prepare('INSERT INTO `sitemaps_generated` (`language`)
@@ -199,7 +199,7 @@ function sitemap_install_files($files) {
  * @return boolean true if the index file was generated, false if not
  */
 function sitemap_generate_index_file($files) {
-    try{
+    try {
         $xml  = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".
                 "    <sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
 
@@ -266,7 +266,7 @@ function sitemap_generate_index_file($files) {
 function sitemap_generate_xml_file($language = null, $file = null) {
     global $_CONFIG;
 
-    try{
+    try {
         $execute = array(':language' => $language);
         $query   = 'SELECT `id`,
                            `url`,
@@ -296,7 +296,7 @@ function sitemap_generate_xml_file($language = null, $file = null) {
 
         log_console(tr('Generating sitemap ":file" for language ":language"', array(':file' => str_replace(ROOT, '', $file), ':language' => $language)), 'cyan');
 
-        while($entry = sql_fetch($entries)) {
+        while ($entry = sql_fetch($entries)) {
             $count++;
             $xml .= sitemap_get_entry_xml($entry);
             cli_dot(1, '');
@@ -359,7 +359,7 @@ function sitemap_generate_xml_file($language = null, $file = null) {
  * @return string The XML for the specified sitemap entry
  */
 function sitemap_get_entry_xml($entry) {
-    try{
+    try {
         if (empty($entry['url'])) {
             throw new CoreException(tr('sitemap_get_entry_xml(): No URL specified'), 'not-specified');
         }
@@ -416,7 +416,7 @@ function sitemap_get_entry_xml($entry) {
  * @return string The XML for the specified sitemap file entry
  */
 function sitemap_get_index_xml($file, $lastmod = null) {
-    try{
+    try {
         if (empty($file)) {
             throw new CoreException(tr('sitemap_get_index_xml(): No file specified'), 'not-specified');
         }
@@ -461,7 +461,7 @@ function sitemap_list_files() {
     static $retval = null;
     global $_CONFIG;
 
-    try{
+    try {
         if ($retval) {
             return $retval;
         }
@@ -489,7 +489,7 @@ function sitemap_list_files() {
 
             }
 
-            while($file = sql_fetch($files)) {
+            while ($file = sql_fetch($files)) {
                 if ($file['file']) {
                     file_ensure_path(ROOT.'www/'.$code.'/sitemaps');
                     $file['path'] = ROOT.'www/'.$code.'/sitemaps/'.$file['file'].'.xml';
@@ -527,7 +527,7 @@ function sitemap_list_files() {
  * @return whole The amount of entries that were deleted from the tables
  */
 function sitemap_clear($groups = null) {
-    try{
+    try {
         if ($groups) {
             $in = sql_in($groups);
             $r  = sql_query('DELETE FROM `sitemaps_data` WHERE `group` IN ('.sql_in_columns($in).')', $in);
@@ -561,7 +561,7 @@ function sitemap_clear($groups = null) {
  * @return whole The amount of deleted entries
  */
 function sitemap_delete_entry($list) {
-    try{
+    try {
         if (is_array($list) or is_numeric($list) or (is_string($list) and strstr($list, ','))) {
             /*
              * Delete by one or multiple id's
@@ -604,7 +604,7 @@ function sitemap_delete_entry($list) {
  * @return params The specified and inserted entry, validated
  */
 function sitemap_insert_entry($entry) {
-    try{
+    try {
         Arrays::ensure($entry);
         array_default($entry, 'url'             , '');
         array_default($entry, 'priority'        , '');
@@ -707,7 +707,7 @@ function sitemap_insert_entry($entry) {
 function sitemap_make_backup() {
     global $_CONFIG;
 
-    try{
+    try {
         $count  = 0;
         $target = ROOT.'data/backups/sitemaps/'.date_convert(null, 'Ymd-Hmi').'/';
 
@@ -776,7 +776,7 @@ function sitemap_make_backup() {
 function sitemap_validate_entry($entry) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('validate');
 
         $v = new ValidateForm($entry, 'createdby,status,url,priority,page_modifiedon,change_frequency,language,group,file');

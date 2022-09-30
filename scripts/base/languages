@@ -170,7 +170,7 @@ switch(cli_method()) {
         cli_no_arguments_left();
         log_console(tr('Testing connection to translation server ":server"', array(':server' => $_CONFIG['translate']['url'])), 'cyan');
 
-        try{
+        try {
             $response = curl_get(array('url'            => url_add_query($_CONFIG['translate']['url'], 'test=1'),
                                        'getdata'        => true,
                                        'proxies'        => false,
@@ -372,7 +372,7 @@ switch(cli_method()) {
             log_console(tr('Found ":count" strings in ":files" files', array(':count' => number_format($results['count']), ':files' => number_format(count($results['translations'])))), 'green');
             log_console(tr('Sending translatable strings to server ":server" (This might take a little bit)', array(':server' => $_CONFIG['translate']['url'])), 'cyan');
 
-            try{
+            try {
                 $response = curl_get(array('url'            => $_CONFIG['translate']['url'],
                                            'getdata'        => true,
                                            'proxies'        => false,
@@ -439,7 +439,7 @@ switch(cli_method()) {
             log_console(tr('Translating language ":language"', array(':language' => $language)), 'white');
             log_console(tr('Requesting translations from server url":url" (This might take a little bit)', array(':url' => $_CONFIG['translate']['url'])), 'cyan');
 
-            try{
+            try {
                 $response = curl_get(array('url'            => $_CONFIG['translate']['url'],
                                            'getdata'        => true,
                                            'proxies'        => false,
@@ -502,7 +502,7 @@ switch(cli_method()) {
              * Translations ready, start processing.
              * Delete target dir
              */
-            try{
+            try {
                 log_console(tr('Deleting target path ":path"', array(':path' => $target_dir)), 'VERBOSE');
                 shell_exec('rm -rf '.$target_dir);
 

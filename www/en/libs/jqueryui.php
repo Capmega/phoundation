@@ -28,7 +28,7 @@ html_load_css('jquery/jquery-ui,base/jquery-ui/themes/'.$_CONFIG['jquery-ui']['t
  * Creates HTML for a jquery-ui accordeon function
  */
 function jqueryui_accordeon($selector, $options = 'collapsible: true,heightStyle: "content"') {
-    try{
+    try {
         if ($options) {
             $options = Strings::endsWith(Strings::startsWith(str_force($options), '{'), '}');
 
@@ -53,7 +53,7 @@ function jqueryui_accordeon($selector, $options = 'collapsible: true,heightStyle
 function jqueryui_date($selector, $params = null) {
     global $_CONFIG;
 
-    try{
+    try {
         html_load_css('jquery.ui/jquery.ui.datepicker');
 
         Arrays::ensure($params);
@@ -104,7 +104,7 @@ function jqueryui_date($selector, $params = null) {
 function jqueryui_time($selector, $params = null) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'placeholder'        , '');
         array_default($params, 'default_time'       , '');
@@ -181,7 +181,7 @@ function jqueryui_datepair($selector, $params = null) {
 throw new CoreException('jqueryui_datepair(): This function is not yet implemented', 'not_implemented');
     //global $_CONFIG;
     //
-    //try{
+    //try {
     //    Arrays::ensure($params);
     //    array_default($params, 'placeholder'        , '');
     //    array_default($params, 'default_datepair'       , '');
@@ -254,7 +254,7 @@ throw new CoreException('jqueryui_datepair(): This function is not yet implement
 function jqueryui_date_range($params = null) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'number_of_months', 1);
         array_default($params, 'change_month'    , true);
@@ -400,7 +400,7 @@ function jqueryui_date_range($params = null) {
  * @$params['gallery_template'] Template HTML that will contain all item_template data. If empty, will be ignored. If used, it should contain :item_template where the items will be inserted
  */
 function jqueryui_fancybox($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'gallery_id'      , 'fancybox');
         array_default($params, 'gallery_template', '');
@@ -499,7 +499,7 @@ function jqueryui_fancybox($params) {
  * Install jquery fancybox automatically
  */
 function jqueryui_fancybox_install() {
-    try{
+    try {
 throw new CoreException(tr('jqueryui_fancybox_install(): This function has not yet been implemented'), 'not_implemented');
     }catch(Exception $e) {
         throw new CoreException('jqueryui_fancybox_install(): Failed', $e);

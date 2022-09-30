@@ -21,7 +21,7 @@ atlant_force_my_profile('HERE BE THE HASH OF THE DEFAULT PASSWORD');
  * HTTP headers, and then HTML to client
  */
 function c_page($params, $meta, $html) {
-    try{
+    try {
         return atlant_page($params, $meta, $html);
 
     }catch(Exception $e) {
@@ -35,7 +35,7 @@ function c_page($params, $meta, $html) {
  * Create and return the page header
  */
 function c_html_header($params = null, $meta = null, $links = null) {
-    try{
+    try {
         return atlant_html_header($params, $meta, $links);
 
     }catch(Exception $e) {
@@ -49,7 +49,7 @@ function c_html_header($params = null, $meta = null, $links = null) {
  * Create and return the page header
  */
 function c_page_header($params) {
-    try{
+    try {
         return atlant_page_header($params);
 
     }catch(Exception $e) {
@@ -63,7 +63,7 @@ function c_page_header($params) {
  * Create and return the page footer
  */
 function c_html_footer($params) {
-    try{
+    try {
         return atlant_html_footer($params);
 
     }catch(Exception $e) {
@@ -77,7 +77,7 @@ function c_html_footer($params) {
  *
  */
 function c_menu() {
-    try{
+    try {
         $html = '   <li>
                         <a href="https://google.com" target="_blank"><span class="fa fa-book"></span> <span class="xn-text">'.tr('External link').'</span></a>
                     </li>';

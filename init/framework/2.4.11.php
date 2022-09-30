@@ -4,7 +4,7 @@
  */
 load_libs('servers');
 
-try{
+try {
     $exists = servers_get('');
 
 }catch(Exception $e) {

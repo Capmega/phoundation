@@ -22,7 +22,7 @@
  * @return void
  */
 function emailapi_library_init() {
-    try{
+    try {
         load_libs('api');
 
     }catch(Exception $e) {
@@ -43,7 +43,7 @@ function emailapi_library_init() {
  * @return array
  */
 function emailapi_init() {
-    try{
+    try {
         return api_call_base($server, '/email/init');
 
     }catch(Exception $e) {
@@ -64,7 +64,7 @@ function emailapi_init() {
  * @return array
  */
 function emailapi_clear_all($server) {
-    try{
+    try {
         return api_call_base($server, '/email/clear-all');
 
     }catch(Exception $e) {
@@ -85,7 +85,7 @@ function emailapi_clear_all($server) {
  * @return array
  */
 function emailapi_create_domains($domains) {
-    try{
+    try {
         return api_call_base($server, '/email/create-domains', array('domains' => $domains));
 
     }catch(Exception $e) {
@@ -106,7 +106,7 @@ function emailapi_create_domains($domains) {
  * @return array
  */
 function emailapi_create_accounts($accounts) {
-    try{
+    try {
         return api_call_base($server, '/email/create-accounts', array('accounts' => $accounts));
 
     }catch(Exception $e) {
@@ -127,7 +127,7 @@ function emailapi_create_accounts($accounts) {
  * @return array
  */
 function emailapi_create_aliases($aliases) {
-    try{
+    try {
         return api_call_base($server, '/email/create-aliases', array('aliases' => $aliases));
 
     }catch(Exception $e) {
@@ -148,7 +148,7 @@ function emailapi_create_aliases($aliases) {
  * @return array
  */
 function emailapi_delete_domains($domains) {
-    try{
+    try {
         return api_call_base($server, '/email/delete-domains', array('domains' => $domains));
 
     }catch(Exception $e) {
@@ -169,7 +169,7 @@ function emailapi_delete_domains($domains) {
  * @return array
  */
 function emailapi_delete_accounts($accounts) {
-    try{
+    try {
         return api_call_base($server, '/email/delete-accounts', array('accounts' => $accounts));
 
     }catch(Exception $e) {
@@ -190,7 +190,7 @@ function emailapi_delete_accounts($accounts) {
  * @return array
  */
 function emailapi_delete_aliases($aliases) {
-    try{
+    try {
         return api_call_base($server, '/email/delete-aliases', array('aliases' => $aliases));
 
     }catch(Exception $e) {
@@ -211,7 +211,7 @@ function emailapi_delete_aliases($aliases) {
  * @return array
  */
 function emailapi_list_domains($server) {
-    try{
+    try {
         return api_call_base($server, '/email/list-domains');
 
     }catch(Exception $e) {
@@ -232,7 +232,7 @@ function emailapi_list_domains($server) {
  * @return array
  */
 function emailapi_list_accounts($server, $domain) {
-    try{
+    try {
         return api_call_base($server, '/email/list-accounts', array('domain' => $domain));
 
     }catch(Exception $e) {
@@ -253,7 +253,7 @@ function emailapi_list_accounts($server, $domain) {
  * @return array
  */
 function emailapi_list_aliases($server, $domain) {
-    try{
+    try {
         return api_call_base($server, '/email/list-accounts', array('domain' => $domain));
 
     }catch(Exception $e) {
@@ -276,7 +276,7 @@ function emailapi_list_aliases($server, $domain) {
  * @return array The validated parameter data
  */
 function emailapi_update_password($account, $password) {
-    try{
+    try {
         return api_call_base($server, '/email/update-password', array('accounts' => $accounts));
 
     }catch(Exception $e) {

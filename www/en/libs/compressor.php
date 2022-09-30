@@ -34,7 +34,7 @@ under_construction();
  * @return void()
  */
 function compressor_bzip2($params) {
-    try{
+    try {
         compressor_validate($params);
         safe_exec(array('commands' => array('bzip2', array($source['source'], $source['target']))));
 
@@ -65,7 +65,7 @@ function compressor_bzip2($params) {
  * @return void()
  */
 function compressor_unbzip2($params) {
-    try{
+    try {
         compressor_validate($params);
         safe_exec(array('commands' => array('unbzip2', array($source['source'], $source['target']))));
 
@@ -96,7 +96,7 @@ function compressor_unbzip2($params) {
  * @return void()
  */
 function compressor_rar($params) {
-    try{
+    try {
         compressor_validate($params);
 
         safe_exec(array('domain'     => $domain['domain'],
@@ -130,7 +130,7 @@ function compressor_rar($params) {
  * @return void()
  */
 function compressor_unrar($params) {
-    try{
+    try {
         compressor_validate($params);
         safe_exec(array('commands' => array('unrar', array('x', $source['source'], $source['target']))));
 
@@ -161,7 +161,7 @@ function compressor_unrar($params) {
  * @return void()
  */
 function compressor_zip($params) {
-    try{
+    try {
         compressor_validate($params);
         safe_exec(array('commands' => array('zip', array($source['source'], $source['target']))));
 
@@ -194,7 +194,7 @@ function compressor_zip($params) {
  * @return void()
  */
 function compressor_unzip($params) {
-    try{
+    try {
         compressor_validate($params);
         safe_exec(array('commands' => array('unzip', array($source['source']))));
 
@@ -224,7 +224,7 @@ function compressor_unzip($params) {
  * @return void()
  */
 function compressor_validate(&$params) {
-    try{
+    try {
         Arrays::ensure($params);
 
         if (empty($params['source'])) {

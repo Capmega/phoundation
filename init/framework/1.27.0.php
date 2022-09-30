@@ -23,7 +23,7 @@ foreach($tables as $table => $column) {
     $entries = sql_query('SELECT `id`, `'.$column.'` FROM `'.$table.'`');
     $update  = sql_prepare('UPDATE `'.$table.'` SET  `seo'.$column.'` = :seo WHERE `id` = :id');
 
-    while($entry = sql_fetch($entries)) {
+    while ($entry = sql_fetch($entries)) {
         $seo = seo_unique($entry[$column], $table, $entry['id'], 'seo'.$column);
 
         $update->execute(array(':id'  => $entry['id'],

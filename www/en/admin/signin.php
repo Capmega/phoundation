@@ -4,7 +4,7 @@ include_once(dirname(__FILE__).'/../libs/startup.php');
 load_libs('validate');
 
 if (isset($_POST['dosignin'])) {
-    try{
+    try {
         $_POST = user_process_signin_fields($_POST);
 
         // Validate input

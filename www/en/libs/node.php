@@ -28,7 +28,7 @@
  * @return void
  */
 function node_library_init() {
-    try{
+    try {
         ensure_installed(array('name'     => 'node',
                                'callback' => 'node_setup',
                                'which'    => array('nodejs')));
@@ -59,7 +59,7 @@ function node_library_init() {
  * @return void
  */
 function node_setup() {
-    try{
+    try {
         load_libs('linux');
         linux_install_package(null, 'nodejs');
 
@@ -85,7 +85,7 @@ function node_setup() {
  * @return void
  */
 function node_setup_npm() {
-    try{
+    try {
         load_libs('linux');
         linux_install_package(null, 'npm');
 
@@ -110,7 +110,7 @@ function node_setup_npm() {
  * @return void
  */
 function node_exec($command, $arguments) {
-    try{
+    try {
         return safe_exec(array('commands' => array('cd'         , array(ROOT.'node_modules/.bin'),
                                                    './'.$command, $arguments)));
 
@@ -127,8 +127,8 @@ function node_exec($command, $arguments) {
 function node_find() {
     global $core;
 
-    try{
-        try{
+    try {
+        try {
             $core->register['node'] = file_which('nodejs');
 
         }catch(Exception $e) {
@@ -161,7 +161,7 @@ function node_find() {
 function node_find_modules() {
     global $core;
 
-    try{
+    try {
         log_console('node_find_modules(): Checking node_modules availability', 'white');
 
         /*
@@ -246,7 +246,7 @@ function node_find_modules() {
 function node_find_npm() {
     global $core;
 
-    try{
+    try {
         $core->register['npm'] = file_which('npm');
         log_console(tr('Using npm ":result"', array(':result' => $core->register['npm'])), 'green');
 
@@ -274,7 +274,7 @@ function node_find_npm() {
  * @return natural The amount of installed pacakges
  */
 function node_install_npm($packages) {
-    try{
+    try {
         $packages = Arrays::force($packages);
 
         log_console(tr('node_install_npm(): Installing packages ":packages"', array(':packages' => $packages)), 'VERBOSE/cyan');
@@ -321,7 +321,7 @@ function node_install_npm($packages) {
  * OBSOLETE WRAPPER FUNCTIONS
  */
 function node_check() {
-    try{
+    try {
         node_find();
 
     }catch(Exception $e) {
@@ -330,7 +330,7 @@ function node_check() {
 }
 
 function node_check_npm() {
-    try{
+    try {
         node_find_npm();
 
     }catch(Exception $e) {

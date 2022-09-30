@@ -16,7 +16,7 @@ load_libs('ext/php-pushover/Pushover');
 function pushover_send_msg($user, $params) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'msg'      , 'Empty message');
         array_default($params, 'title'    , 'Empty title');
@@ -68,7 +68,7 @@ function pushover_send_msg($user, $params) {
 function pushover_prepare_msg($user, $params) {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * User preferences
          */

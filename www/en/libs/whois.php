@@ -13,7 +13,7 @@
  * Empty function
  */
 function whois($domain) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('whois(): Failed', $e);

@@ -6,7 +6,7 @@
 require_once(__DIR__.'/../../libs/startup.php');
 
 
-try{
+try {
     foreach($argv as $arg) {
         switch($arg) {
             case 'all':

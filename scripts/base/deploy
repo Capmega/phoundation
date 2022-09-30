@@ -857,7 +857,7 @@ foreach($targets as $target_environment) {
         /*
          * Validate $continuersync value
          */
-        while(!preg_match('/^20\d{6}-\d{6}$/', $continuersync)) {
+        while (!preg_match('/^20\d{6}-\d{6}$/', $continuersync)) {
             if (!preg_match('/^'.Strings::fromReverse($deploy_config['target_dir'], '/').'~20\d{6}-\d{6}\/?$/', $continuersync)) {
                 throw new CoreException(tr('The specified continuersync option "'.str_log($continuersync).'" is invalid, it should be in the Ymd-His format, or targetpath~Ymd-His'), 'warning/invalid');
             }

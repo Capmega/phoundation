@@ -17,7 +17,7 @@
  * Return atlant style HTML for the storage webui header
  */
 function storage_ui_panel_header($params, $section, $page = null) {
-    try{
+    try {
         Arrays::ensure($params);
         Arrays::ensure($params['files']);
         Arrays::ensure($params['urls']);
@@ -168,7 +168,7 @@ $params['tabs']['resources']     = '';
  * Process user actions for document page
  */
 function storage_ui_process_dosubmit($params, $section, $page) {
-    try{
+    try {
         switch(isset_get($_POST['dosubmit'])) {
             case '':
                 /*
@@ -177,7 +177,7 @@ function storage_ui_process_dosubmit($params, $section, $page) {
                 break;
 
             case $params['buttons']['redetect_scanners']:
-                try{
+                try {
                     load_libs('devices');
                     $count           = 0;
                     $servers_devices = devices_scan('document-scanner');
@@ -249,7 +249,7 @@ function storage_ui_process_dosubmit($params, $section, $page) {
  * Get section data from database and $_POST
  */
 function storage_ui_get_section($params) {
-    try{
+    try {
         if (empty($_GET[$params['seosection']])) {
             /*
              * No section available, we cannot do anything!
@@ -279,7 +279,7 @@ function storage_ui_get_section($params) {
  * Get the page for the UI
  */
 function storage_ui_get_page($params, $section, $object) {
-    try{
+    try {
         /*
          * Get page
          */
@@ -317,7 +317,7 @@ function storage_ui_get_page($params, $section, $object) {
  * values, even thought they should not be able to be updated
  */
 function storage_ui_pages_merge($db_page, $post_page, $params) {
-    try{
+    try {
         if (empty($params['show']['body'])) {
              unset($post_page['body']);
         }
@@ -350,7 +350,7 @@ function storage_ui_pages_merge($db_page, $post_page, $params) {
  */
 // :TODO: This function is not finished yet!!
 function storage_ui_icon($file) {
-    try{
+    try {
         load_libs('image');
 
         $icon      = $file;
@@ -392,7 +392,7 @@ function storage_ui_icon($file) {
  *
  */
 function storage_ui_file($file, $tabindex = 0) {
-    try{
+    try {
         load_libs('storage-files');
 
         $icon = storage_ui_icon($file);
@@ -442,7 +442,7 @@ function storage_ui_file($file, $tabindex = 0) {
  * Return HTML select list containing all available storage categories
  */
 function storage_ui_categories_select($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'number'      , 1);
         array_default($params, 'selected'    , 0);

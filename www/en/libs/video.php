@@ -27,7 +27,7 @@
  * @return void
  */
 function video_library_init() {
-    try{
+    try {
         if (!file_which('ffmpeg')) {
             throw new CoreException(tr('video_library_init(): ffmpeg module not installed, run this command on your server: sudo apt update && sudo apt install ffmpeg libav-tools x264 x265;'), 'not_available');
         }
@@ -53,7 +53,7 @@ function video_library_init() {
  * @return string The generated thumbnail file
  */
 function video_get_thumbnail($file, $size = '50x50') {
-    try{
+    try {
         $retval = file_temp(false);
         safe_exec(array('commands' => array('ffmpeg', array('-i', '{'.$file.'}', '-deinterlace', '-an', '-ss', '00:00:01', '-t', '00:00:02', '-s', '{'.$size.'}', '-r', '1', '-y', '-vcodec', 'mjpeg', '-f', 'mjpeg', '{'.$retval.'}'))));
 

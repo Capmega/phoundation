@@ -8,7 +8,7 @@ load_libs('paging');
 /*
  * Process requested actions
  */
-try{
+try {
     if ($_POST) {
         foreach($_POST as $key => $value) {
             if ($key == 'action') {
@@ -445,7 +445,7 @@ if (!$r->rowCount()) {
                             <th>'.tr('Translation').'</th>
                         </thead>';
 
-    while($entry = sql_fetch($r)) {
+    while ($entry = sql_fetch($r)) {
 
         $alt_trans = sql_query('SELECT DISTINCT `translation`
                                 FROM  `dictionary`
@@ -474,7 +474,7 @@ if (!$r->rowCount()) {
             $html .= '          <select style="width:200px;" class="alttrans" name="alttrans-'.$entry['id'].'">
                                     <option value="0">'.tr('Select suggested translation').'</option>';
 
-            while($alt = sql_fetch($alt_trans)) {
+            while ($alt = sql_fetch($alt_trans)) {
                 $html .= '          <option value="'.addslashes($alt['translation']).'">'.addslashes($alt['translation']).'</option>';
             }
 

@@ -29,7 +29,7 @@
  * @return void
  */
 function sodium_library_init() {
-    try{
+    try {
         if (!defined('SODIUM_LIBRARY_MAJOR_VERSION')) {
             throw new CoreException(tr('sodium_library_init(): PHP module "sodium" appears is not available, please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-libsodium" to install and enable the module. After this, a restart of your webserver or php-fpm server may be needed'), 'not-exists');
         }
@@ -58,7 +58,7 @@ function sodium_library_init() {
  * @return
  */
 function sodium_install($params) {
-    try{
+    try {
         return safe_exec(array('commands' => array('apt-get', array('install', 'php-libsodium', 'sudo' => true))));
 
     }catch(Exception $e) {
@@ -80,7 +80,7 @@ function sodium_install($params) {
  * @return a unique and safe nonce for use with sodium
  */
 function sodium_nonce() {
-    try{
+    try {
         return random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
 
     }catch(Exception $e) {
@@ -103,7 +103,7 @@ function sodium_nonce() {
  * @return string the random string
  */
 function sodium_random($type) {
-    try{
+    try {
         switch($type) {
             case 'nonce':
                 return sodium_nonce();
@@ -141,7 +141,7 @@ function sodium_random($type) {
  * @return string The encrypted ciphertext
  */
 function sodium_encrypt($data, $key) {
-    try{
+    try {
         $key         = sodium_pad_key($key);
         $nonce       = sodium_nonce();
         $cipher_data = sodium_crypto_secretbox($data, $nonce, $key);
@@ -177,7 +177,7 @@ function sodium_encrypt($data, $key) {
  * @return
  */
 function sodium_decrypt($cipher_data, $key) {
-    try{
+    try {
         $key   = sodium_pad_key($key);
         $nonce = Strings::until($cipher_data, '$');
         $nonce = base64_decode($nonce);
@@ -221,7 +221,7 @@ function sodium_decrypt($cipher_data, $key) {
  * @return string The encrypted ciphertext
  */
 function sodium_sign_mac($data, $key) {
-    try{
+    try {
         $key  = sodium_pad_key($key);
         $mac  = sodium_crypto_auth($data, $key);
         $data = $mac.'$'.$data;
@@ -253,7 +253,7 @@ function sodium_sign_mac($data, $key) {
  * @return string The specified string without the MAC signature
  */
 function sodium_verify_mac($data, $key) {
-    try{
+    try {
         $key = sodium_pad_key($key);
         $mac = Strings::from($data, '$');
 
@@ -297,7 +297,7 @@ function sodium_verify_mac($data, $key) {
 function sodium_pad_key($key, $character = '*') {
     global $_CONFIG;
 
-    try{
+    try {
         if (strlen($key) < SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
             $key = $key.str_repeat($character, SODIUM_CRYPTO_SECRETBOX_KEYBYTES - strlen($key));
 

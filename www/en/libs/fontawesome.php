@@ -14,7 +14,7 @@
  * Create HTML <select> with all fontawesome classes
  */
 function fontawesome_select($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'sort', true);
         array_default($params, 'none', tr('Select a fontawesome icon'));
@@ -1037,7 +1037,7 @@ function fontawesome_array() {
  * Update the fontawesome installation
  */
 function fontawesome_update() {
-    try{
+    try {
         load_libs('cli');
 
         $file = download('https://github.com/FortAwesome/Font-Awesome/archive/master.zip', 'fontawesome');

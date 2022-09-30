@@ -73,7 +73,7 @@ unregister HOSTNAME [SSH-PORT]  - Remove the registered domain / port
 
 require_once(__DIR__.'/../../libs/startup.php');
 
-try{
+try {
     cli_only();
     load_libs('whois');
 
@@ -81,7 +81,7 @@ try{
         case 'scan':
             $domains = sql_query('SELECT `domain` FROM `domains` WHERE `type` = "scan" AND `status` IS NULL');
 
-            while($domain = sql_fetch($domains, true)) {
+            while ($domain = sql_fetch($domains, true)) {
                 log_console(tr('Scanning domain ":domain"', array()));
 
                 $results = safe_exec(array('ok_exitcodes' => '1',
@@ -148,7 +148,7 @@ try{
 
             cli_no_arguments_left();
 
-            try{
+            try {
                 domains_insert(array('domain'  => $domain,
                                      'servers' => $servers));
 
@@ -339,14 +339,14 @@ try{
                 if ($only_domains) {
                     log_console(tr('Hostname'), 'QUIET/cyan');
 
-                    while($server = sql_fetch($servers)) {
+                    while ($server = sql_fetch($servers)) {
                         log_console($server['domain']);
                     }
 
                 } else {
                     log_console(str_size(tr('#id'), 7).str_size(tr('Customer'), 25).str_size(tr('Provider'), 25).str_size(tr('Hostname'), 33).str_size(tr('Status'), 13).str_size(tr('Created by'), 32), 'QUIET/cyan');
 
-                    while($server = sql_fetch($servers)) {
+                    while ($server = sql_fetch($servers)) {
                         log_console(str_size($server['id'], 6, ' ', true).' '.str_size($server['customer'], 24).' '.str_size($server['provider'], 24).' '.str_size($server['domain'], 32).' '.cli_status_color(str_size($server['status'], 12)).' '.name($server, 'user'));
                     }
                 }

@@ -13,7 +13,7 @@
  *
  */
 function persons_names_get($gender, $name_count, $lastname_count) {
-    try{
+    try {
         $retval = '';
 
         switch(strtolower($gender)) {

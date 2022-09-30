@@ -26,7 +26,7 @@
  * @return void
  */
 function curl_library_init() {
-    try{
+    try {
         if (!extension_loaded('curl')) {
             throw new CoreException(tr('curl_library_init(): The PHP "curl" module is not available, please install it first. On ubuntu install the module with "apt -y install php-curl"; a restart of the webserver or php fpm server may be required'), 'missing-module');
         }
@@ -46,7 +46,7 @@ function curl_library_init() {
 function curl_get_proxy($url, $file = '', $serverurl = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$serverurl) {
             $serverurl = $_CONFIG['curl']['proxies'];
         }
@@ -118,8 +118,8 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
 function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
     global $col;
 
-    try{
-        try{
+    try {
+        try {
             $results = safe_exec(array('commands' => array('/sbin/ifconfig', array('connector' => '|'),
                                                            'egrep'         , array('-i', 'addr|inet'))));
 
@@ -204,7 +204,7 @@ function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
 function curl_get_random_ip($ipv4 = true, $ipv6 = false, $localhost = false) {
     global $col;
 
-    try{
+    try {
         $ips = curl_list_ips($ipv4, $ipv6, $localhost);
         $ip  = $ips[array_rand($ips)];
 
@@ -223,7 +223,7 @@ function curl_get_random_ip($ipv4 = true, $ipv6 = false, $localhost = false) {
 //function curl_get_random_ip() {
 //    global $col;
 //
-//    try{
+//    try {
 //        $ips = explode("\n", safe_exec('/sbin/ifconfig|grep "Mask:255.255.255.0"|sed "s/^.*addr://"|sed "s/ .*//"'));
 //
 //        shuffle($ips);
@@ -248,7 +248,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
     static $retry;
     global $_CONFIG;
 
-    try{
+    try {
         array_params($params, 'url');
         array_default($params, 'referer'        , $referer);
         array_default($params, 'useragent'      , $_CONFIG['curl']['user_agents']);
@@ -482,7 +482,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
                 curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params['post']));
 
             } else {
-                try{
+                try {
                     curl_setopt($ch, CURLOPT_POSTFIELDS , $params['post']);
 
                 }catch(Exception $e) {
@@ -612,7 +612,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
                 break;
 
             case 403:
-                try{
+                try {
                     $data = json_decode_custom($retval['data']);
 
                 }catch(Exception $e) {

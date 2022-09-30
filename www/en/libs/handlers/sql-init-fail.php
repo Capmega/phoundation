@@ -12,7 +12,7 @@
                 static $retry = true;
                 global $_CONFIG;
 
-                try{
+                try {
                     $core->sql['core']->query('DROP DATABASE IF EXISTS `'.$connector['db'].'`;');
                     $core->sql['core']->query('CREATE DATABASE         `'.$connector['db'].'` DEFAULT CHARSET="'.$connector['charset'].'" COLLATE="'.$connector['collate'].'";');
                     $core->sql['core']->query('USE                     `'.$connector['db'].'`');
@@ -44,7 +44,7 @@
         throw new CoreException(tr('sql_init(): Specified database connector ":connector" has not been configured', array(':connector' => $connector_name)), 'not-exists');
     }
 
-    try{
+    try {
         return sql_error($e, $_CONFIG['db'][$connector_name], null, isset_get($core->sql[$connector_name]));
 
     }catch(Exception $e) {

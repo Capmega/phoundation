@@ -136,7 +136,7 @@ switch(cli_method()) {
         }
 
         foreach($users as $user) {
-            try{
+            try {
                 fprint_delete($user);
                 $deleted++;
 

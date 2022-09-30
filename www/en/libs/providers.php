@@ -24,7 +24,7 @@
  * @return void
  */
 function providers_library_init() {
-    try{
+    try {
         load_config('providers');
 
     }catch(Exception $e) {
@@ -49,7 +49,7 @@ function providers_library_init() {
  * @return
  */
 function providers_validate($provider) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($provider, 'seocategory,name,code,url,email,phones,description');
@@ -170,7 +170,7 @@ function providers_validate($provider) {
  * @return params The specified provider, validated and sanitized
  */
 function providers_insert($provider) {
-    try{
+    try {
         $provider = providers_validate($provider);
 
         sql_query('INSERT INTO `providers` (`createdby`, `categories_id`, `name`, `seoname`, `code`, `url`, `email`, `phones`, `description`)
@@ -221,7 +221,7 @@ function providers_insert($provider) {
  * @return params The specified provider, validated and sanitized
  */
 function providers_update($provider) {
-    try{
+    try {
         $provider = providers_validate($provider);
 
         meta_action($provider['meta_id'], 'update');
@@ -283,7 +283,7 @@ function providers_update($provider) {
  * @return string HTML for a providers select box within the specified parameters
  */
 function providers_select($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'         , 'seoprovider');
         array_default($params, 'class'        , 'form-control');
@@ -343,7 +343,7 @@ function providers_select($params = null) {
  * @return mixed The provider data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified provider does not exist, NULL will be returned.
  */
 function providers_get($params) {
-    try{
+    try {
         array_params($params, 'seoname', 'id');
 
         array_default($params, 'filters', array('providers.id'      => $params['id'],
@@ -397,7 +397,7 @@ function providers_get($params) {
  * @return mixed The list of available providers
  */
 function providers_list($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));

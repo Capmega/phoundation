@@ -140,7 +140,7 @@ if (isset_get($_POST['status'])) {
 
     switch($_POST['status']) {
         case tr('published'):
-            try{
+            try {
                 /*
                  * Publish the specified blog posts
                  */
@@ -179,7 +179,7 @@ if (isset_get($_POST['status'])) {
             break;
 
         case tr('deleted'):
-            try{
+            try {
                 /*
                  * Delete the specified blog posts
                  */
@@ -216,7 +216,7 @@ if (isset_get($_POST['status'])) {
             redirect('self');
 
         case tr('unpublished'):
-            try{
+            try {
                 /*
                  * Delete the specified blog posts
                  */
@@ -253,7 +253,7 @@ if (isset_get($_POST['status'])) {
             redirect('self');
 
         case tr('erased'):
-            try{
+            try {
                 /*
                  * Delete the specified blog posts
                  */
@@ -290,7 +290,7 @@ if (isset_get($_POST['status'])) {
             redirect('self');
 
         default:
-            try{
+            try {
                 /*
                  * Set status for the specified blog posts
                  */
@@ -508,7 +508,7 @@ if (!$r->rowCount()) {
 
     $html .= '</thead>';
 
-    while($post = sql_fetch($r)) {
+    while ($post = sql_fetch($r)) {
         $html .= '<tr class="'.$params['class'].' '.$post['post_status'].'">';
 
         foreach($params['columns'] as $column => $display) {

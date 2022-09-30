@@ -27,7 +27,7 @@
  * @return void
  */
 function fancybox_library_init() {
-    try{
+    try {
         ensure_installed(array('name'      => 'fancybox',
                                'project'   => '2019',
                                'callback'  => 'fancybox_install',
@@ -59,7 +59,7 @@ function fancybox_library_init() {
  * @return
  */
 function fancybox_install($params) {
-    try{
+    try {
         /*
          * Download the fancybox library, and install it in the pub directory
          */
@@ -107,7 +107,7 @@ function fancybox_install($params) {
  * @return string with html code for fancybox
  */
 function fancybox_image($img_big, $img_small) {
-    try{
+    try {
         return '<a data-fancybox="gallery" href="'.cdn_domain($img_big).'">'.$img_small.'</a>';
 
     }catch(Exception $e) {

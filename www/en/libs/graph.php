@@ -26,7 +26,7 @@
  * @return  string The HTML for the graph
  */
 function graph_generate(array $params = array()) {
-    try{
+    try {
         switch($params['provider']) {
             case 'morris':
                 load_libs('graph-morris');

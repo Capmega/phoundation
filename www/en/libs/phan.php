@@ -25,7 +25,7 @@
  * @return void
  */
 function phan_library_init() {
-    try{
+    try {
         // Github URL https://github.com/phan/phan.git
         // Composer command composer require phan/phan
 

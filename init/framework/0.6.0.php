@@ -306,7 +306,7 @@ $count = 0;
 
 log_console('Populating geo_features table', '', '', false);
 
-while($line = fgets($h, 8192)) {
+while ($line = fgets($h, 8192)) {
     /*
      * TSV file, CODE NAME DESCRIPTION
      */
@@ -337,7 +337,7 @@ $count = 0;
 
 log_console('Populating geo_timezones table', '', '', false);
 
-while($line = fgets($h, 16384)) {
+while ($line = fgets($h, 16384)) {
     /*
      * Skip first line, it contains the definitions
      * TSV file, CC*	Coordinates*	TZ*	Comments*	UTC offset	UTC DST offset	Notes
@@ -346,7 +346,7 @@ while($line = fgets($h, 16384)) {
 
     $line = explode("\t", $line);
 
-    while(count($line) < 7) {
+    while (count($line) < 7) {
         array_unshift($line, '');
     }
 
@@ -388,7 +388,7 @@ log_console('Done', '');
 //
 //log_console('Populating geo_countries table', '', '', false);
 //
-//while($line = fgets($h, 16384)) {
+//while ($line = fgets($h, 16384)) {
 //    /*
 //     * Skip first line, it contains the definitions
 //     *

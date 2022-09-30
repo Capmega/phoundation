@@ -181,7 +181,7 @@ switch(cli_method()) {
 
         $count = $r->rowCount();
 
-        while($listing = sql_fetch($r)) {
+        while ($listing = sql_fetch($r)) {
             $success = 0;
             $fail    = 0;
 
@@ -195,8 +195,8 @@ switch(cli_method()) {
                 $color  = 'green';
                 $images = sql_query('SELECT `file` FROM `images` WHERE `listings_id` = :listings_id', array(':listings_id' => $listing['id']));
 
-                while($image = sql_fetch($images)) {
-                    try{
+                while ($image = sql_fetch($images)) {
+                    try {
                         $ch = curl_get(array('method' => 'head',
                                              'proxy'  => false,
                                              'sleep'  => 0,

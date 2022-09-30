@@ -36,7 +36,7 @@
 function wordai($params, $email, $password, $quality = 50, $json = true) {
     global $_CONFIG;
 
-    try{
+    try {
         load_config('wordai');
 
         Arrays::ensure($params);

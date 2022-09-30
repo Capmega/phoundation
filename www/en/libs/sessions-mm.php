@@ -24,7 +24,7 @@
  * @return void
  */
 function sessions_mm_library_init() {
-    try{
+    try {
 under_construction();
 
     }catch(Exception $e) {
@@ -48,7 +48,7 @@ under_construction();
  * @return
  */
 function sessions_mm_open($save_path, $session_name) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('sessions_mm_open(): Failed', $e);
@@ -69,7 +69,7 @@ function sessions_mm_open($save_path, $session_name) {
  * @return
  */
 function sessions_mm_close() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('sessions_mm_close(): Failed', $e);
@@ -91,7 +91,7 @@ function sessions_mm_close() {
  * @return
  */
 function sessions_mm_read($sessions_id) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('sessions_mm_read(): Failed', $e);
@@ -114,7 +114,7 @@ function sessions_mm_read($sessions_id) {
  * @return
  */
 function sessions_mm_write($sessions_id, $data) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('sessions_mm_write(): Failed', $e);
@@ -136,7 +136,7 @@ function sessions_mm_write($sessions_id, $data) {
  * @return
  */
 function sessions_mm_destroy($sessions_id) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('sessions_mm_destroy(): Failed', $e);
@@ -158,7 +158,7 @@ function sessions_mm_destroy($sessions_id) {
  * @return
  */
 function sessions_mm_gc($lifetime) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('sessions_mm_gc(): Failed', $e);
@@ -181,7 +181,7 @@ function sessions_mm_gc($lifetime) {
  * @return
  */
 function sessions_mm_create_sid($save_path, $session_name) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('sessions_mm

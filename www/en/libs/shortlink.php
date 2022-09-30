@@ -26,7 +26,7 @@
  * @return void
  */
 function shortlink_library_init() {
-    try{
+    try {
         load_libs('json,curl');
         load_config('shortlink');
 
@@ -142,7 +142,7 @@ function shortlink_get_access_token($provider = null) {
 function shortlink_create($url, $provider = null) {
     static $count = 10;
 
-    try{
+    try {
         $token = shortlink_get_access_token($provider);
 
         switch($provider) {
@@ -150,7 +150,7 @@ function shortlink_create($url, $provider = null) {
 under_construction();
 
             case 'bitly':
-                try{
+                try {
                     $result = curl_get(array('url'     => 'https://api-ssl.bitly.com/v4/bitlinks?access_token='.$token,
 
                                              'post'    => json_encode(array('long_url' => $url)),

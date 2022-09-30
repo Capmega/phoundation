@@ -22,7 +22,7 @@
  * @return void
  */
 function api_library_init() {
-    try{
+    try {
         load_config('api');
 
     }catch(Exception $e) {
@@ -55,7 +55,7 @@ function api_library_init() {
  */
 function api_validate_account($account) {
 
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($account, 'customer,server,environment,name,description,baseurl,apikey,verify_ssl');
@@ -130,7 +130,7 @@ function api_validate_account($account) {
  */
 function api_test_account($account) {
 
-    try{
+    try {
         sql_query('UPDATE `api_accounts` SET `status` = "testing" WHERE `seoname` = :seoname', array(':seoname' => $account));
         $result = api_call_base($account, '/test');
         sql_query('UPDATE `api_accounts` SET `status` = NULL      WHERE `seoname` = :seoname', array(':seoname' => $account));
@@ -150,7 +150,7 @@ function api_test_account($account) {
 function api_whitelist() {
     global $_CONFIG;
 
-    try{
+    try {
         if (empty($_CONFIG['api']['whitelist'])) {
             if (!in_array($_SERVER['REMOTE_ADDR'], $_CONFIG['api']['whitelist'])) {
                 $block = true;
@@ -180,7 +180,7 @@ function api_whitelist() {
  * Encode the given data for use with BASE APIs
  */
 function api_encode($data) {
-    try{
+    try {
         if (is_array($data)) {
             $data = str_replace('@', '\@', $data);
 
@@ -210,7 +210,7 @@ function api_encode($data) {
 function api_authenticate($api_key = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if ($_CONFIG['production']) {
             /*
              * This is a production platform, only allow JSON API key
@@ -280,7 +280,7 @@ function api_authenticate($api_key = null) {
 function api_start_session($session_id) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         load_libs('validate,user');
 
         if (!$session_id) {
@@ -360,7 +360,7 @@ function api_start_session($session_id) {
 function api_stop_session() {
     global $_CONFIG, $core;
 
-    try{
+    try {
         if (!isset($core->register['session'])) {
             throw new CoreException(tr('api_stop_session(): Currently there is no open session'), 'sign-in');
         }
@@ -390,7 +390,7 @@ function api_stop_session() {
 function api_call($call, $result = null) {
     static $time, $id;
 
-    try{
+    try {
         if ($result) {
             sql_query('UPDATE `api_calls`
 
@@ -426,7 +426,7 @@ function api_call($call, $result = null) {
  * Encode the given data from a BASE API back to its original form
  */
 function api_decode($data) {
-    try{
+    try {
         if (is_array($data)) {
             $data = str_replace('\@', '@', $data);
 
@@ -456,7 +456,7 @@ function api_decode($data) {
 function api_call_base($account, $call, $data = array(), $files = null) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('curl');
 
         if (empty($account)) {
@@ -479,7 +479,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
             /*
              * Auto authenticate
              */
-            try{
+            try {
                 $json = curl_get(array('url'            => Strings::startsNotWith($account_data['baseurl'], '/').'/authenticate',
                                        'posturlencoded' => true,
                                        'verify_ssl'     => isset_get($account_data['verify_ssl']),
@@ -545,7 +545,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
         /*
          * Make the API call
          */
-        try{
+        try {
             $json = curl_get(array('url'        => Strings::startsNotWith($account_data['baseurl'], '/').Strings::startsWith($call, '/'),
                                    'verify_ssl' => isset_get($account_data['verify_ssl']),
                                    'getheaders' => false,
@@ -643,7 +643,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
  * @return string The generated API key
  */
 function api_generate_key($bytes = 32) {
-    try{
+    try {
         return bin2hex(random_bytes($bytes));
 
     }catch(Exception $e) {
@@ -667,7 +667,7 @@ function api_generate_key($bytes = 32) {
  * @return params A parameter array containing all the session data
  */
 function api_get_session($sessions_id) {
-    try{
+    try {
         $session = sql_get('SELECT `id`,
                                    `createdon`,
                                    `createdby`,
@@ -710,7 +710,7 @@ function api_get_session($sessions_id) {
  * @return params The specified $session params with the database id added
  */
 function api_insert_session($session) {
-    try{
+    try {
         sql_query('INSERT INTO `api_sessions` (`createdby`, `sessions_id`, `ip`, `apikey`)
                    VALUES                     (:createdby , :sessions_id , :ip , :apikey )',
 
@@ -744,7 +744,7 @@ function api_insert_session($session) {
  * @return void
  */
 function api_close_all($users_id) {
-    try{
+    try {
         sql_query('UPDATE `api_sessions` SET `closedon` = NOW WHERE `createdby` = :createdby AND `closedon` IS NULL', array(':createdby' => $users_id));
 
     }catch(Exception $e) {

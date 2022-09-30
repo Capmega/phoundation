@@ -16,7 +16,7 @@
  * Rewritten for use in Base by Sven Oostenbrink
  */
 function ip_v6_v4($ipv6) {
-    try{
+    try {
         /*
          * Known prefix
          */
@@ -64,7 +64,7 @@ function ip_v6_v4($ipv6) {
  * Returns 6 if the specified (or if not specified, current) IP address is ipv6
  */
 function detect_ip_version($version = null) {
-    try{
+    try {
         if (!$version) {
             $version = $_SERVER['REMOTE_ADDR'];
         }
@@ -82,7 +82,7 @@ function detect_ip_version($version = null) {
  * Returns true if specified (or if not, current) IP address is ipv6
  */
 function is_ipv6($version = null) {
-    try{
+    try {
         return detect_ip_version($version) === 6;
 
     }catch(Exception $e) {
@@ -110,7 +110,7 @@ function is_ipv6($version = null) {
  * @return boolean True if the specified host / port responds, false if not
  */
 function inet_test_host_port($params) {
-    try{
+    try {
         Arrays::ensure($params, 'host,port,server');
         array_default($params, 'timeout'  , 5);
         array_default($params, 'exception', false);
@@ -173,7 +173,7 @@ function inet_test_host_port($params) {
  * @return string The data received from the remote server
  */
 function inet_telnet($params) {
-    try{
+    try {
         Arrays::ensure($params, 'host,port,server');
         array_default($params, 'timeout', 1);
 
@@ -195,7 +195,7 @@ function inet_telnet($params) {
  * Return a stripped domain name, no bullshit around it.
  */
 function inet_get_domain($strip = array('www', 'dev', 'm')) {
-    try{
+    try {
         if (in_array(Strings::until($_SERVER['HTTP_HOST'], '.'), Arrays::force($strip))) {
             return Strings::from($_SERVER['HTTP_HOST']);
         }
@@ -227,7 +227,7 @@ function inet_get_domain($strip = array('www', 'dev', 'm')) {
 function inet_get_subdomain($domain = null, $root = null, $ignore_start = 'cdn,api') {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$domain) {
             $domain = $_SERVER['HTTP_HOST'];
         }
@@ -307,7 +307,7 @@ function ensure_protocol($url, $protocol = 'http', $force = false) {
  * Add specified query to the specified URL and return
  */
 function inet_add_query($url) {
-    try{
+    try {
         $queries = func_get_args();
         unset($queries[0]);
 
@@ -395,7 +395,7 @@ function inet_add_query($url) {
  * Add specified query to the specified URL and return
  */
 function url_remove_keys($url, $keys) {
-    try{
+    try {
         $query = Strings::from($url , '?');
         $url   = Strings::until($url, '?');
         $query = explode('&', $query);
@@ -432,7 +432,7 @@ function url_remove_keys($url, $keys) {
  */
 // :TODO: OBSOLETE, SEE DIG LIBRARY FOR NEW FUNCTIONS
 function inet_dig($domain, $section = false) {
-    try{
+    try {
         $data = safe_exec(array('commands' => array('dig', array(cfm($domain), 'ANY'))));
         $data = implode("\n", $data);
         $data = Strings::from($data, 'ANSWER: ');
@@ -526,7 +526,7 @@ function inet_dig($domain, $section = false) {
  *
  */
 function inet_get_client_data() {
-    try{
+    try {
         /*
          * Fetch user data
          * Get email, IPv4, IPv6, user_agent, reverse host, provider, longitude, latitude, referrer
@@ -631,7 +631,7 @@ function inet_get_client_data() {
  * @return The specified port, if valid
  */
 function inet_validate_port($port, $lowest = 1025) {
-    try{
+    try {
         if (!is_natural($port, $lowest) or ($port > 65535)) {
             throw new OutOfBoundsException(tr('inet_validate_port(): Specified port ":port" is invalid', array(':port' => $port)), 'validation');
         }
@@ -660,7 +660,7 @@ function inet_validate_port($port, $lowest = 1025) {
  * @return The specified ip, if valid
  */
 function inet_validate_host($host, $allow_all = true, $exception = true) {
-    try{
+    try {
         /*
          * Maybe its a valid IP?
          */
@@ -698,7 +698,7 @@ function inet_validate_host($host, $allow_all = true, $exception = true) {
  * @return The specified ip, if valid
  */
 function inet_validate_ip($ip, $allow_all = true, $exception = true) {
-    try{
+    try {
         if (!$ip) {
             throw new OutOfBoundsException(tr('inet_validate_ip(): No ip specified'), 'validation');
         }
@@ -740,7 +740,7 @@ function inet_validate_ip($ip, $allow_all = true, $exception = true) {
 function inet_port_available($port, $ip = '0.0.0.0', $server = null) {
     load_libs('servers');
 
-    try{
+    try {
         $ip      = inet_validate_ip($ip);
         $port    = inet_validate_port($port);
         $results = servers_exec($server, array('ok_exitcodes' => '1',
@@ -789,10 +789,10 @@ function inet_port_available($port, $ip = '0.0.0.0', $server = null) {
  * @return available port on the specified IP that is not being listened on yet
  */
 function inet_get_available_port($ip = '0.0.0.0', $server = null, $lowest = 1025, $retries = 10) {
-    try{
+    try {
         $count = 1;
 
-        while($port = rand($lowest, 65535)) {
+        while ($port = rand($lowest, 65535)) {
             if (++$count > $retries) {
                 throw new OutOfBoundsException(tr('inet_get_available_port(): Failed to find an available port in ":retries" retries', array(':retries' => $retries)), 'failed');
             }
@@ -821,7 +821,7 @@ function inet_get_available_port($ip = '0.0.0.0', $server = null, $lowest = 1025
  * Add specified query to the specified URL and return
  */
 function url_add_query($url) {
-    try{
+    try {
         return call_user_func_array('inet_add_query', func_get_args());
 
     }catch(Exception $e) {

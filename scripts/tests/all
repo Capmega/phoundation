@@ -19,7 +19,7 @@ $skiplist = array('.',
                   'empty'); // Empty is a template script, dont execute it!
 
 foreach(scandir($path) as $file) {
-    try{
+    try {
         if (in_array($file, $skiplist)) continue;
 
         /*

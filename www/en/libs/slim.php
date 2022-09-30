@@ -16,7 +16,7 @@
  * Automatically executed by libs_load()
  */
 function slim_library_init() {
-    try{
+    try {
         ensure_installed(array('name'     => 'slim',
                                'project'  => 'slim',
                                'callback' => 'slim_install',
@@ -33,7 +33,7 @@ function slim_library_init() {
  * Install the slim library
  */
 function slim_install($params) {
-    try{
+    try {
         $params['methods'] = array('composer' => array('commands' => ROOT.'scripts/base/composer require "slim/slim"'));
         return install($params);
 

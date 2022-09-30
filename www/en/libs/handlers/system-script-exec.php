@@ -3,7 +3,7 @@
  * Handler code for script_exec() function
  * @note This script will NOT test the command or its arguments because everything is passed directly to safe_exec() which already validate and sanitize the commands and arguments
  */
-try{
+try {
     global $core;
 
     Arrays::ensure($params, 'script,arguments,function,ok_exitcodes,background,timeout,delay');

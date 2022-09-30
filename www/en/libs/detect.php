@@ -28,7 +28,7 @@
 function detect() {
     global $core;
 
-    try{
+    try {
         /*
          * Detect what client we are dealing with
          * Detect at what location client is
@@ -66,7 +66,7 @@ function detect() {
 function detect_client() {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$_CONFIG['client']['detect']) {
             return null;
         }
@@ -102,7 +102,7 @@ function detect_client() {
              * Now determine browser capabilities
              */
             if (isset($_SERVER['HTTP_USER_AGENT']) and function_exists('get_browser')) {
-                try{
+                try {
                     /*
                      * Ensure browscap file exist
                      */
@@ -207,7 +207,7 @@ function detect_client() {
 function detect_location() {
     global $_CONFIG;
 
-    try{
+    try {
         if (PLATFORM_CLI) {
             /*
              * This is a shell, there is no client
@@ -235,7 +235,7 @@ function detect_location() {
 function detect_language() {
     global $_CONFIG;
 
-    try{
+    try {
         /*
          * Validate that the default configured language is supported by the system
          */
@@ -256,7 +256,7 @@ function detect_language() {
             return $_CONFIG['language']['default'];
         }
 
-        try{
+        try {
             if (empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
                 if (empty($_CONFIG['location'])) {
                     /*
@@ -337,7 +337,7 @@ function detect_language() {
 function detect_mobile() {
     global $_CONFIG;
 
-    try{
+    try {
         if (PLATFORM != 'http') {
             return false;
         }

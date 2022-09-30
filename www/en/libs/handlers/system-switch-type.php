@@ -1,5 +1,5 @@
 <?php
-try{
+try {
     switch($type) {
         case 'normal':
             $_SESSION['mobile']['site'] = false;

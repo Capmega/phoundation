@@ -28,7 +28,7 @@
  * @return void
  */
 function calendars_library_init() {
-    try{
+    try {
         //ensure_installed(array('name'      => 'calendar',
         //                       'callback'  => 'calendars_install',
         //                       'checks'    => ROOT.'libs/external/calendar/calendar,'.ROOT.'libs/external/calendar/foobar',
@@ -56,7 +56,7 @@ function calendars_library_init() {
  * @return
  */
 function calendars_install($params) {
-    try{
+    try {
         //load_libs('apt');
         //apt_install('calendar');
 
@@ -80,7 +80,7 @@ function calendars_install($params) {
  * @return array The validated and cleaned $calendar array
  */
 function calendars_validate($calendar) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($calendar, 'name');
@@ -151,7 +151,7 @@ function calendars_validate($calendar) {
  * @return params The specified calendar, validated and sanitized
  */
 function calendars_insert($calendar) {
-    try{
+    try {
         $calendar = calendars_validate($calendar);
 
         sql_query('INSERT INTO `calendars` (`createdby`, `meta_id`, `status`, )
@@ -199,7 +199,7 @@ function calendars_insert($calendar) {
  * @return boolean True if the user was updated, false if not. If not updated, this might be because no data has changed
  */
 function calendars_update($calendar) {
-    try{
+    try {
         $calendar = calendars_validate($calendar);
 
         meta_action($calendar['meta_id'], 'update');
@@ -243,7 +243,7 @@ function calendars_update($calendar) {
  * @return mixed The calendar data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified calendar does not exist, NULL will be returned.
  */
 function calendars_get($calendar, $column = null, $status = null, $parent = false) {
-    try{
+    try {
         Arrays::ensure($params, 'seocalendar');
 
         $params['table']   = 'calendars';
@@ -296,7 +296,7 @@ function calendars_get($calendar, $column = null, $status = null, $parent = fals
  * @return mixed The list of available calendars
  */
 function calendars_list($params) {
-    try{
+    try {
         Arrays::ensure($params);
 
         $params['table'] = 'calendars';
@@ -336,7 +336,7 @@ function calendars_list($params) {
  * @return string HTML for a calendars select box within the specified parameters
  */
 function calendars_select($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'      , 'seocalendar');
         array_default($params, 'class'     , 'form-control');
@@ -415,7 +415,7 @@ function calendars_select($params = null) {
  * @return array The validated and cleaned $event parameter array
  */
 function calendars_validate_event($event) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($event, 'name');
@@ -486,7 +486,7 @@ function calendars_validate_event($event) {
  * @return params The specified calendar, validated and sanitized
  */
 function calendars_insert_event($event) {
-    try{
+    try {
         $event = calendars_validate_event($event);
 
         sql_query('INSERT INTO `calendars_events` (`createdby`, `meta_id`, `status`, `calendars_id`)
@@ -535,7 +535,7 @@ function calendars_insert_event($event) {
  * @return boolean True if the user was updated, false if not. If not updated, this might be because no data has changed
  */
 function calendars_update_event($event) {
-    try{
+    try {
         $event = calendars_validate($event);
 
         meta_action($event['meta_id'], 'update');
@@ -579,7 +579,7 @@ function calendars_update_event($event) {
  * @return mixed The calendar data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified calendar does not exist, NULL will be returned.
  */
 function calendars_get_event($event, $column = null, $status = null, $parent = false) {
-    try{
+    try {
         Arrays::ensure($params, 'seocalendar');
 
         $params['table']   = 'calendars';
@@ -632,7 +632,7 @@ function calendars_get_event($event, $column = null, $status = null, $parent = f
  * @return mixed The list of available calendars
  */
 function calendars_list_events($params) {
-    try{
+    try {
         Arrays::ensure($params);
 
         $params['table'] = 'calendars';
@@ -672,7 +672,7 @@ function calendars_list_events($params) {
  * @return string HTML for a calendars select box within the specified parameters
  */
 function calendars_select_event($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'      , 'seocalendar');
         array_default($params, 'class'     , 'form-control');

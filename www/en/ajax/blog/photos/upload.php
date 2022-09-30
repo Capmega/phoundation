@@ -1,7 +1,7 @@
 <?php
 include_once(dirname(__FILE__).'/../../../libs/startup.php');
 
-try{
+try {
     load_libs('admin,json,file,image,upload,blogs');
 
     $user  = rights_or_access_denied('admin', '/admin/signin.php', 'json');
@@ -10,7 +10,7 @@ try{
     /*
      * Get image dimensions
      */
-    try{
+    try {
         $image = getimagesize(ROOT.'www/en/photos/'.$photo['photo'].'_big.jpg');
 
     }catch(Exception $e) {

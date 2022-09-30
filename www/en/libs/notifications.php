@@ -28,7 +28,7 @@
  * @return void
  */
 function notifications_library_init() {
-    try{
+    try {
         load_config('notifications');
 
     }catch(Exception $e) {
@@ -76,7 +76,7 @@ function notifications_library_init() {
 function notifications($notification, $log, $throw) {
     global $_CONFIG, $core;
 return 0;
-    try{
+    try {
         log_file($notification, 'notifications', 'VERYVERBOSE');
 
         /*
@@ -173,7 +173,7 @@ return 0;
 function notifications_validate($notification, $log, $throw = null) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('validate');
 
         /*
@@ -392,7 +392,7 @@ $notification['groups'] = array();
  * @return return void()
  */
 function notifications_validate_group($group) {
-    try{
+    try {
         load_libs('validate');
         $v = new ValidateForm($group, '');
 
@@ -421,7 +421,7 @@ function notifications_validate_group($group) {
  * @return return void()
  */
 function notifications_validate_member($member) {
-    try{
+    try {
         load_libs('validate');
         $v = new ValidateForm($member, '');
 
@@ -450,7 +450,7 @@ function notifications_validate_member($member) {
  * @return return void()
  */
 function notifications_validate_method($method) {
-    try{
+    try {
         load_libs('validate');
         $v = new ValidateForm($method, '');
 
@@ -480,7 +480,7 @@ function notifications_validate_method($method) {
  * @return return array The notification, validated and sanitized with the database id added
  */
 function notifications_insert($notification, $log) {
-    try{
+    try {
         $notification = notifications_validate($notification, $log);
 
         sql_query('INSERT INTO `notifications` (`createdby`, `meta_id`, `users_id`, `code`, `url`, `priority`, `data`, `title`, `message`)
@@ -530,7 +530,7 @@ function notifications_insert($notification, $log) {
  * @return return array The notification, validated and sanitized with the database id added
  */
 function notifications_insert_group($group) {
-    try{
+    try {
         $group = notifications_validate_group($group);
 
         sql_query('INSERT INTO `notifications_groups` (`createdby`, `meta_id`, )
@@ -568,7 +568,7 @@ function notifications_insert_group($group) {
  * @return return array The notification, validated and sanitized with the database id added
  */
 function notifications_insert_member($member) {
-    try{
+    try {
         $member = notifications_validate_member($member);
 
         sql_query('INSERT INTO `notifications_members` (`createdby`, `meta_id`, )
@@ -606,7 +606,7 @@ function notifications_insert_member($member) {
  * @return return array The notification, validated and sanitized with the database id added
  */
 function notifications_insert_method($method) {
-    try{
+    try {
         $method = notifications_validate_method($method);
 
         sql_query('INSERT INTO `notifications_methods` (`createdby`, `meta_id`, )
@@ -643,7 +643,7 @@ function notifications_insert_method($method) {
  * @return return void()
  */
 function notifications_insert_groups($notification) {
-    try{
+    try {
         $insert = sql_prepare('INSERT INTO `notifications_groups` (`notifications_id`, `groups_id`)
                                VALUES                             (:notifications_id , :groups_id )', 'core');
 
@@ -676,7 +676,7 @@ function notifications_insert_groups($notification) {
  * @return return array the specified notification
  */
 function notifications_get($notifications_id) {
-    try{
+    try {
         if (!is_natural($notifications_id)) {
             throw new CoreException(tr('notifications_get(): Invalid notifications id ":id" specified', array(':id' => $notifications_id)), 'invalid');
         }
@@ -726,7 +726,7 @@ function notifications_get($notifications_id) {
  * @return return array the specified notification
  */
 function notifications_get_group($group, $column = null) {
-    try{
+    try {
         /*
          * Validate
          */
@@ -791,7 +791,7 @@ function notifications_get_group($group, $column = null) {
  * @return return array the specified notification
  */
 function notifications_get_method($method, $column = null) {
-    try{
+    try {
         /*
          * Validate
          */
@@ -856,7 +856,7 @@ function notifications_get_method($method, $column = null) {
  * @return return array the specified notification
  */
 function notifications_get_member($member, $column = null) {
-    try{
+    try {
         /*
          * Validate
          */
@@ -921,7 +921,7 @@ function notifications_get_member($member, $column = null) {
  * @return return array the specified notification
  */
 function notifications_list_groups($members_id) {
-    try{
+    try {
         /*
          * Validate
          */
@@ -963,7 +963,7 @@ function notifications_list_groups($members_id) {
  * @return return array the specified notification
  */
 function notifications_list_methods($members_id) {
-    try{
+    try {
         /*
          * Validate
          */
@@ -1005,7 +1005,7 @@ function notifications_list_methods($members_id) {
  * @return return array the specified notification
  */
 function notifications_list_members($members_id) {
-    try{
+    try {
         /*
          * Validate
          */
@@ -1049,7 +1049,7 @@ function notifications_list_members($members_id) {
 function notifications_get_url($notification) {
     global $_CONFIG;
 
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('notifications_get_url(): Failed', $e);
@@ -1077,7 +1077,7 @@ function notifications_get_url($notification) {
 function notifications_send($notification = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$notification) {
             /*
              * Attempt to send all notifications that have not yet been sent out
@@ -1102,10 +1102,10 @@ function notifications_send($notification = null) {
          */
         $groups = notifications_list_methods($notification);
 
-        while($group = sql_fetch($groups)) {
+        while ($group = sql_fetch($groups)) {
             $members = notifications_list_members($group);
 
-            while($member = sql_fetch($members)) {
+            while ($member = sql_fetch($members)) {
                 $methods = notifications_get_methods($member);
 
                 foreach($methods as $method) {
@@ -1198,7 +1198,7 @@ function notifications_send($notification = null) {
 function notifications_email($notification) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('email');
         email_send(array());
 
@@ -1227,7 +1227,7 @@ function notifications_email($notification) {
 function notifications_sms($event, $message, $users) {
     global $_CONFIG;
 
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('notifications_sms(): Failed', $e);
@@ -1254,7 +1254,7 @@ function notifications_sms($event, $message, $users) {
 function notifications_prowl($event, $message, $users) {
     global $_CONFIG;
 
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('notifications_prowl(): Failed', $e);
@@ -1281,7 +1281,7 @@ function notifications_prowl($event, $message, $users) {
 function notifications_pushcap($event, $message, $users) {
     global $_CONFIG;
 
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('notifications_pushcap(): Failed', $e);
@@ -1309,7 +1309,7 @@ function notifications_pushcap($event, $message, $users) {
  * @return return void()
  */
 function notifications_desktop($notification) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('notifications_desktop(): Failed', $e);
@@ -1334,7 +1334,7 @@ function notifications_desktop($notification) {
  * @return return void()
  */
 function notifications_web($notification) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('notifications_web(): Failed', $e);
@@ -1359,7 +1359,7 @@ function notifications_web($notification) {
  * @return return void()
  */
 function notifications_push($notification) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('notifications_push(): Failed', $e);
@@ -1384,7 +1384,7 @@ function notifications_push($notification) {
  * @return return void()
  */
 function notifications_api($notification) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('notifications_api(): Failed', $e);
@@ -1409,7 +1409,7 @@ function notifications_api($notification) {
  * @return return void()
  */
 function notifications_messenger($notification, $method) {
-    try{
+    try {
         load_libs('messenger');
         messenger_send($method, $notification['priority'].' '.$notification['title'].' '.$notification['url']);
 
@@ -1439,7 +1439,7 @@ function notifications_messenger($notification, $method) {
 function notifications_webpush($server, $check_every, $icon, $js_client = '', $time = 4000) {
     global $_CONFIG;
 
-    try{
+    try {
         if ($js_client != '') {
             html_script('
             this.onpush = function(event) {

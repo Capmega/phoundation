@@ -29,7 +29,7 @@
  * @return void
  */
 function drivers_setup($type, $brand, $model, $server = null) {
-    try{
+    try {
         cli_only();
         load_libs('linux');
 

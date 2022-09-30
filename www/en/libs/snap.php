@@ -27,7 +27,7 @@
  * @return void
  */
 function snap_library_init() {
-    try{
+    try {
         load_libs('servers');
 
     }catch(Exception $e) {
@@ -58,7 +58,7 @@ function snap_library_init() {
  * @return string The output from the snap-get install command
  */
 function snap_install($packages, $server = null) {
-    try{
+    try {
         $packages  = Arrays::force($packages);
         $arguments = array_merge(array('sudo' => true, 'install', '--classic'), Arrays::force($packages, ' '));
 

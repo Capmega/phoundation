@@ -28,7 +28,7 @@
  * @return void
  */
 function freeradius_library_init() {
-    try{
+    try {
         ensure_installed(array('name'      => 'freeradius',
                                'callback'  => 'freeradius_install',
                                'which'     => 'freeradius'));
@@ -54,7 +54,7 @@ function freeradius_library_init() {
  * @return
  */
 function freeradius_install($params) {
-    try{
+    try {
         if (!file_which('freeradius')) {
             /*
              * Install freeradius
@@ -89,7 +89,7 @@ function freeradius_install($params) {
  * @return void
  */
 function freeradius_sync_server($devices_local) {
-    try{
+    try {
 
         $devices_remote = sql_list('SELECT `username` FROM `radcheck`', null, false, 'radius');
 
@@ -145,7 +145,7 @@ function freeradius_sync_server($devices_local) {
  * @return void
  */
 function freeradius_update_device_server($old_device, $device) {
-    try{
+    try {
         sql_query('UPDATE `radcheck`
 
                    SET    `username` = :username,

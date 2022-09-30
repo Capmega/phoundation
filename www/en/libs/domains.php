@@ -25,7 +25,7 @@
  * @return void
  */
 function domains_library_init() {
-    try{
+    try {
         load_config('domains');
 
     }catch(Exception $e) {
@@ -41,7 +41,7 @@ function domains_library_init() {
 function domains_validate($domain) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($domain, 'provider,customer,servers,mx_domain,description,domain');
@@ -130,7 +130,7 @@ function domains_validate($domain) {
 function domains_validate_keyword($keyword) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($keyword, 'keyword');
@@ -168,7 +168,7 @@ function domains_validate_keyword($keyword) {
 function domains_get($domain = null) {
     global $_CONFIG;
 
-    try{
+    try {
         $query = 'SELECT    `domains`.`id`,
                             `domains`.`createdon`,
                             `domains`.`createdby`,
@@ -261,7 +261,7 @@ function domains_get($domain = null) {
 function domains_list_servers($domain) {
     global $_CONFIG;
 
-    try{
+    try {
         $domain  = domains_get_id($domain);
         $servers = sql_list('SELECT   `servers`.`domain`,
                                       `servers`.`seodomain`
@@ -302,7 +302,7 @@ function domains_list_servers($domain) {
 function domains_update_servers($domain, $servers = null) {
     global $_CONFIG;
 
-    try{
+    try {
         $domain = domains_get_id($domain);
 
         sql_query('DELETE FROM `domains_servers` WHERE `domains_id` = :domains_id', array(':domains_id' => $domain), 'core');
@@ -344,7 +344,7 @@ function domains_update_servers($domain, $servers = null) {
 function domains_add_keyword($keyword) {
     global $_CONFIG;
 
-    try{
+    try {
         $keyword = domains_validate_keyword($keyword);
 
         sql_query('INSERT INTO `domains_keywords` (`createdby`, `meta_id`, `keyword`, `seokeyword`)
@@ -371,7 +371,7 @@ function domains_add_keyword($keyword) {
         $insert           = sql_prepare('INSERT INTO `domains` (`createdby`, `meta_id`, `domain`, `type`)
                                          VALUES                (:createdby , :meta_id , :domain , "scan")', 'core');
 
-        while($combination = sql_fetch($combination_list, true)) {
+        while ($combination = sql_fetch($combination_list, true)) {
             if ($combination === '1') {
                 $combination = '';
             }
@@ -432,10 +432,10 @@ function domains_add_keyword($keyword) {
  * @return
  */
 function domains_scan_keywords() {
-    try{
+    try {
         $domains = sql_query('SELECT `domain` FROM `domains` WHERE `type` = "scan" AND `status` IS NULL', null, 'core');
 
-        while($domain = sql_fetch($domains)) {
+        while ($domain = sql_fetch($domains)) {
 
         }
 
@@ -459,7 +459,7 @@ function domains_scan_keywords() {
  * @return array The list of domains that was found
  */
 function domains_like($domain) {
-    try{
+    try {
         $domain = sql_get('SELECT `domain`
 
                            FROM   `domains`
@@ -505,7 +505,7 @@ function domains_like($domain) {
  * @return array The inserted domain with the id column set
  */
 function domains_insert($domain) {
-    try{
+    try {
             $domain = domains_validate($domain);
 
             sql_query('INSERT INTO `domains` (`createdby`, `meta_id`, `status`, `mx_domains_id`, `customers_id`, `providers_id`, `domain`, `seodomain`, `description`)
@@ -552,7 +552,7 @@ function domains_insert($domain) {
  * @return array The updated domain
  */
 function domains_update($domain, $new = false) {
-    try{
+    try {
         $domain = domains_validate($domain);
         meta_action($domain['meta_id'], 'update');
 
@@ -602,7 +602,7 @@ function domains_update($domain, $new = false) {
  * @return integer The database table id for the specified domain
  */
 function domains_ensure($domain, $column = 'id') {
-    try{
+    try {
         $exists = domains_get($domain);
 
         if ($exists) {
@@ -633,7 +633,7 @@ function domains_ensure($domain, $column = 'id') {
  * @param integer The domains_id
  */
 function domains_get_id($domain) {
-    try{
+    try {
         if (!$domain) {
             return null;
         }

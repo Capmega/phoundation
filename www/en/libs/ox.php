@@ -15,7 +15,7 @@
  * Automatically executed by libs_load()
  */
 function ox_library_init() {
-    try{
+    try {
 
     }catch(Exception $e){
         throw new CoreException('ox_library_init(): Failed', $e);

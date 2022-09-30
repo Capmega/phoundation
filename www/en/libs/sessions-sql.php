@@ -24,7 +24,7 @@
  * @return void
  */
 function sessions_sql_library_init() {
-    try{
+    try {
 under_construction();
 
     }catch(Exception $e) {
@@ -48,7 +48,7 @@ under_construction();
  * @return
  */
 function sessions_sql_open($save_path, $session_name) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('sessions_sql_open(): Failed', $e);
@@ -69,7 +69,7 @@ function sessions_sql_open($save_path, $session_name) {
  * @return
  */
 function sessions_sql_close() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('sessions_sql_close(): Failed', $e);
@@ -91,7 +91,7 @@ function sessions_sql_close() {
  * @return
  */
 function sessions_sql_read($sessions_id) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('sessions_sql_read(): Failed', $e);
@@ -114,7 +114,7 @@ function sessions_sql_read($sessions_id) {
  * @return
  */
 function sessions_sql_write($sessions_id, $data) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('sessions_sql_write(): Failed', $e);
@@ -136,7 +136,7 @@ function sessions_sql_write($sessions_id, $data) {
  * @return
  */
 function sessions_sql_destroy($sessions_id) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('sessions_sql_destroy(): Failed', $e);
@@ -158,7 +158,7 @@ function sessions_sql_destroy($sessions_id) {
  * @return
  */
 function sessions_sql_gc($lifetime) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('sessions_sql_gc(): Failed', $e);
@@ -181,7 +181,7 @@ function sessions_sql_gc($lifetime) {
  * @return
  */
 function sessions_sql_create_sid($save_path, $session_name) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('sessions_sql_create_sid(): Failed', $e);

@@ -25,7 +25,7 @@
  * @return void
  */
 function servers_library_init() {
-    try{
+    try {
         load_libs('ssh,domains');
         load_config('servers');
 
@@ -53,7 +53,7 @@ function servers_library_init() {
 function servers_validate($server, $structure_only = false, $password_strength = false) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('validate,seo,customers,providers');
 
         $v = new ValidateForm($server, 'id,ipv4,ipv6,port,domain,domains,seoprovider,seocustomer,ssh_account,description,ssh_proxy,database_accounts_id,bill_duedate,cost,interval,allow_sshd_modification,register');
@@ -249,7 +249,7 @@ function servers_validate($server, $structure_only = false, $password_strength =
  * @return params The validated server data, including server[id]
  */
 function servers_insert($server) {
-    try{
+    try {
         $server = servers_validate($server);
 
         sql_query('INSERT INTO `servers` (`createdby`, `meta_id`, `status`, `domain`, `seodomain`, `port`, `database_accounts_id`, `bill_duedate`, `cost`, `interval`, `providers_id`, `customers_id`, `ssh_accounts_id`, `allow_sshd_modification`, `description`, `ipv4`)
@@ -303,7 +303,7 @@ function servers_insert($server) {
  * @return
  */
 function servers_erase($server) {
-    try{
+    try {
         $server = servers_get($server);
 
         ssh_remove_known_host($server['domain']);
@@ -335,7 +335,7 @@ function servers_erase($server) {
  * @return params The validated server data
  */
 function servers_update($server) {
-    try{
+    try {
         $server = servers_validate($server);
         meta_action($server['meta_id'], 'update');
 
@@ -398,7 +398,7 @@ function servers_update($server) {
  * @return string The domain of the found server
  */
 function servers_like($domain) {
-    try{
+    try {
         if (!$domain) {
             if (($domain === '') or ($domain === null)) {
                 /*
@@ -493,7 +493,7 @@ function servers_like($domain) {
  * @return string HTML for a servers select box within the specified parameters
  */
 function servers_select($params = null) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'name'    , 'seoserver');
         array_default($params, 'class'   , 'form-control');
@@ -542,7 +542,7 @@ function servers_select($params = null) {
  * @return The amount of domains added for the server
  */
 function servers_update_domains($server, $domains = null) {
-    try{
+    try {
         $servers_id = servers_get_id($server);
 
         sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id', array(':servers_id' => $servers_id), 'core');
@@ -599,7 +599,7 @@ function servers_update_domains($server, $domains = null) {
  * @return boolean True if domain was added, false if it already existed
  */
 function servers_add_domain($server, $domain) {
-    try{
+    try {
         $server = servers_get_id($server);
         $domain = domains_get_id($domain);
         $exists = sql_get('SELECT `id` FROM `domains_servers` WHERE `servers_id` = :servers_id AND `domains_id` = :domains_id', true, array(':servers_id' => $server, ':domains_id' => $domain), 'core');
@@ -640,7 +640,7 @@ function servers_add_domain($server, $domain) {
  * @return integer Amount of deleted domains
  */
 function servers_remove_domain($server, $domain = null) {
-    try{
+    try {
         if (!$domain) {
             /*
              * Remove all domains
@@ -696,7 +696,7 @@ function servers_remove_domain($server, $domain = null) {
  * @return array The domains for the specified server
  */
 function servers_list_domains($server) {
-    try{
+    try {
         $server  = servers_get_id($server);
         $results = sql_list('SELECT   `domains`.`seodomain`,
                                       `domains`.`domain`
@@ -743,7 +743,7 @@ function servers_list_domains($server) {
  * @see ssh_exec()
  */
 function servers_exec($server, $params) {
-    try{
+    try {
         $server = servers_like($server);
         $server = servers_get($server);
 
@@ -774,7 +774,7 @@ function servers_exec($server, $params) {
          * We failed to execute the server command but try deleting the keyfile
          * anyway!
          */
-        try{
+        try {
             servers_remove_identity_file(isset_get($identity_file));
 
         }catch(Exception $f) {
@@ -803,7 +803,7 @@ function servers_exec($server, $params) {
  * @return array The database entry data for the requested domain
  */
 function servers_exec_on_all($params) {
-    try{
+    try {
         if (is_executable($params)) {
             /*
              * Just the callback function was given
@@ -861,7 +861,7 @@ function servers_exec_on_all($params) {
 
                           array(':status' => $params['status']), 'core');
 
-        while($server = sql_fetch($servers)) {
+        while ($server = sql_fetch($servers)) {
             $params['callback']($server);
         }
 
@@ -887,7 +887,7 @@ function servers_exec_on_all($params) {
  * @return array The database entry data for the requested domain
  */
 function servers_register_host($server) {
-    try{
+    try {
         $server  = servers_get($server);
         $domains = servers_list_domains($server);
 
@@ -922,7 +922,7 @@ function servers_register_host($server) {
  * @return void
  */
 function servers_unregister_host($server) {
-    try{
+    try {
         $retval  = array();
         $server  = servers_get($server);
         $domains = servers_list_domains($server);
@@ -959,7 +959,7 @@ function servers_unregister_host($server) {
  * @return array The currently registered servers that are available
  */
 function servers_list($as_resource = false) {
-    try{
+    try {
         $query = 'SELECT   `id`,
                            `domain`,
                            `seodomain`
@@ -1003,7 +1003,7 @@ function servers_list($as_resource = false) {
  * @return array The database entry data for the requested domain
  */
 function servers_get($server, $database = false, $return_proxies = true, $limited_columns = false) {
-    try{
+    try {
         if ($server === null) {
             /*
              * This means local server, no network connection needed
@@ -1163,7 +1163,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
                 $dbserver['proxies'][] = $dbserver_proxy;
                 $proxy                 = $dbserver_proxy['proxies_id'];
 
-                while($proxy) {
+                while ($proxy) {
                     $dbserver_proxy = servers_get_proxy($proxy);
                     $proxy          = false;
 
@@ -1212,7 +1212,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
  * @return void If the server test was executed succesfully, nothing happens
  */
 function servers_test($domain) {
-    try{
+    try {
         sql_query('UPDATE `servers` SET `status` = "testing" WHERE `domain` = :domain', array(':domain' => $domain), 'core');
 
         $result = servers_exec($domain, array('commands' => array('echo', array('1'))));
@@ -1244,7 +1244,7 @@ function servers_test($domain) {
  * @return string The SSH key for the specified username
  */
 function servers_get_key($username) {
-    try{
+    try {
         return sql_get('SELECT `ssh_key` FROM `ssh_accounts` WHERE `username` = :username', 'ssh_key', null, array(':username' => $username), 'core');
 
     }catch(Exception $e) {
@@ -1267,7 +1267,7 @@ function servers_get_key($username) {
  * return boolean true if key was cleared, false if the specified $server array did not contain "ss_key"
  */
 function servers_clear_key(&$server) {
-    try{
+    try {
         if (empty($server['ssh_key'])) {
             return false;
         }
@@ -1305,7 +1305,7 @@ function servers_clear_key(&$server) {
 function servers_create_identity_file($server) {
     global $core;
 
-    try{
+    try {
         if (empty($server['ssh_key'])) {
             throw new CoreException(tr('servers_create_identity_file(): Specified server does not contain an ssh_key'), 'not-specified');
         }
@@ -1351,7 +1351,7 @@ function servers_create_identity_file($server) {
  * return boolean True if the specified keyfile was deleted, false if no keyfile was specified
  */
 function servers_remove_identity_file($identity_file, $background = false) {
-    try{
+    try {
         if (!$identity_file) {
             return false;
         }
@@ -1394,7 +1394,7 @@ function servers_remove_identity_file($identity_file, $background = false) {
  * @see servers_get_os()
  */
 function servers_detect_os($domain) {
-    try{
+    try {
         /*
          * Getting complete operating system distribution
          */
@@ -1484,7 +1484,7 @@ function servers_detect_os($domain) {
  * @return string $ip The IP for the specified domain
  */
 function servers_get_public_ip($domain) {
-    try{
+    try {
         $ip = servers_exec($domain, array('commands' => array('dig', array('+short', 'myip.opendns.com', '@resolver1.opendns.com'))));
 
         if (is_array($ip)) {
@@ -1513,7 +1513,7 @@ function servers_get_public_ip($domain) {
  * @return array
  */
 function servers_get_proxy($servers_id) {
-    try{
+    try {
         $server = sql_get('SELECT    `servers`.`id`,
                                      `servers`.`domain`,
                                      `servers`.`port`,
@@ -1555,7 +1555,7 @@ function servers_get_proxy($servers_id) {
  * @return array
  */
 function servers_list_proxies($servers_id) {
-    try{
+    try {
         $servers = sql_list('SELECT    `servers`.`id`,
                                        `servers`.`domain`,
                                        `servers`.`port`,
@@ -1594,7 +1594,7 @@ function servers_list_proxies($servers_id) {
  * @return integer servers_ssh_proxies insert_id
  */
 function servers_add_ssh_proxy($servers_id, $proxies_id) {
-    try{
+    try {
         if (empty($servers_id)) {
             throw new CoreException(tr('proxies_create_relation(): No servers id specified'), 'not-specified');
         }
@@ -1633,7 +1633,7 @@ function servers_add_ssh_proxy($servers_id, $proxies_id) {
  * @return void
  */
 function servers_update_ssh_proxy($servers_id, $old_proxies_id, $new_proxies_id) {
-    try{
+    try {
         if (empty($servers_id)) {
             throw new CoreException(tr('servers_update_ssh_proxy(): No servers id specified'), 'not-specified');
         }
@@ -1694,7 +1694,7 @@ function servers_update_ssh_proxy($servers_id, $old_proxies_id, $new_proxies_id)
  * @param integer $proxies_id
  */
 function servers_delete_ssh_proxy($servers_id, $proxies_id) {
-    try{
+    try {
         sql_query('DELETE FROM `servers_ssh_proxies`
 
                    WHERE       `servers_id` = :servers_id
@@ -1723,7 +1723,7 @@ function servers_delete_ssh_proxy($servers_id, $proxies_id) {
  * @param integer The servers_id
  */
 function servers_get_id($server) {
-    try{
+    try {
         if (!$server) {
             return null;
         }
@@ -1758,14 +1758,14 @@ function servers_get_id($server) {
  * @return integer The amount of scanned servers
  */
 function servers_scan_domains($server = null) {
-    try{
+    try {
         if (!$server) {
             /*
              * Scan ALL servers
              */
             $domains = sql_query('SELECT `domain` FROM `servers` WHERE `status` IS NULL', null, 'core');
 
-            while($domain = sql_fetch($domains, true)) {
+            while ($domain = sql_fetch($domains, true)) {
                 $count++;
                 servers_scan_domains($domain);
             }
@@ -1802,7 +1802,7 @@ function servers_scan_domains($server = null) {
  * @return boolean True if the specified account has access on the specified server
  */
 function servers_check_ssh_access($server, $account, $password = null) {
-    try{
+    try {
         $server['username'] = $account;
 
         if ($password) {

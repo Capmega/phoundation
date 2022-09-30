@@ -27,8 +27,8 @@ if (sql_column_exists('users', 'reference_numbers')) {
 
     $users = sql_query('SELECT `id`, `reference_numbers` AS `reference_codes` FROM `users` WHERE `reference_numbers` IS NOT NULL AND `reference_numbers` != ""');
 
-    while($user = sql_fetch($users)) {
-        try{
+    while ($user = sql_fetch($users)) {
+        try {
             user_update_reference_codes($user, true);
             cli_dot();
 

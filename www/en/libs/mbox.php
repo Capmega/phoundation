@@ -22,7 +22,7 @@
  * @return void
  */
 function mbox_library_init() {
-    try{
+    try {
         load_config('mbox');
 
     }catch(Exception $e) {
@@ -45,7 +45,7 @@ function mbox_library_init() {
  * @return
  */
 function mbox_import_file($domain, $user, $file, $box = 'Archives', $mail_path = '') {
-    try{
+    try {
         $path  = mbox_test_access($mail_path);
         $path .= $path.'vhosts/'.$domain.'/'.$user.'/mail/';
 
@@ -86,7 +86,7 @@ function mbox_import_file($domain, $user, $file, $box = 'Archives', $mail_path =
  * @return string The converted mbox file
  */
 function mbox_convert_maildir($maildir_path, $box, $mail_path) {
-    try{
+    try {
         $path  = mbox_test_access($mail_path);
         $path .= $path.'vhosts/'.$domain.'/'.$user.'/mail/';
         safe_exec(array('commands' => array(ROOT.'scripts/md2mb.py', array($path))));
@@ -113,7 +113,7 @@ function mbox_convert_maildir($maildir_path, $box, $mail_path) {
 function mbox_test_access($path) {
     global $_CONFIG;
 
-    try{
+    try {
         if (!$path) {
             $path = $_CONFIG['mbox']['path'];
         }

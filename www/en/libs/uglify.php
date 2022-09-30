@@ -25,7 +25,7 @@
  * @return void
  */
 function uglify_library_init() {
-    try{
+    try {
         load_libs('node');
         load_config('deploy');
 
@@ -48,7 +48,7 @@ function uglify_library_init() {
 function uglify_css_setup() {
     global $core;
 
-    try{
+    try {
         log_console(tr('uglify_css_setup(): Installing uglifycss'), 'VERBOSE/cyan');
         node_install_npm('uglifycss');
         log_console(tr('uglify_css_setup(): Finished installing uglifycss'), 'VERBOSE/green');
@@ -66,7 +66,7 @@ function uglify_css_setup() {
 function uglify_css_find() {
     global $core;
 
-    try{
+    try {
         log_console(tr('uglify_css_find(): Checking uglifycss availability'), 'VERBOSE/cyan');
 
         $result = safe_exec(array('ok_exitcodes' => 1,
@@ -103,7 +103,7 @@ function uglify_css($paths = null, $force = false) {
     global $core, $_CONFIG;
     static $check;
 
-    try{
+    try {
         if (empty($check)) {
             $check = true;
 
@@ -332,7 +332,7 @@ function uglify_css($paths = null, $force = false) {
                     continue;
                 }
 
-                try{
+                try {
                     /*
                      * If file exists and FORCE option wasn't given then proceed
                      */
@@ -361,7 +361,7 @@ function uglify_css($paths = null, $force = false) {
                         log_console(tr('uglify_css(): Minifying CSS file ":file"', array(':file' => $file)), 'VERBOSEDOT');
                         file_delete(substr($file, 0, -4).'.min.css', dirname($file));
 
-                        try{
+                        try {
                             if (filesize($file)) {
                                 safe_exec(array('commands' => array($core->register['node'], array($core->register['node_modules'].'uglifycss/uglifycss', $file, 'redirect' => '> '.substr($file, 0, -4).'.min.css'))));
 
@@ -416,7 +416,7 @@ function uglify_css($paths = null, $force = false) {
 function uglify_js_setup() {
     global $core;
 
-    try{
+    try {
         log_console(tr('uglify_js_setup(): Installing uglify-js'), 'VERBOSE/cyan');
         node_install_npm('uglify-js');
         log_console(tr('uglify_js_setup(): Finished installing uglify-js'), 'VERBOSE/green');
@@ -434,7 +434,7 @@ function uglify_js_setup() {
 function uglify_js_find() {
     global $core;
 
-    try{
+    try {
         log_console(tr('uglify_js_find(): Checking uglify-js availability'), 'VERBOSE/cyan');
 
         $result = safe_exec(array('ok_exitcodes' => 1,
@@ -471,7 +471,7 @@ function uglify_js($paths = null, $force = false) {
     global $core;
     static $check;
 
-    try{
+    try {
         if (empty($check)) {
             $check = true;
 
@@ -681,7 +681,7 @@ function uglify_js($paths = null, $force = false) {
                     continue;
                 }
 
-                try{
+                try {
                      /*
                      * If file exists and FORCE option wasn't given then proceed
                      */
@@ -710,7 +710,7 @@ function uglify_js($paths = null, $force = false) {
                         log_console(tr('uglify_js(): Minifying javascript file ":file"', array(':file' => $file)), 'VERBOSEDOT');
                         file_delete(substr($file, 0, -3).'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js,'.ROOT.'www/'.LANGUAGE.'/pub/css,'.ROOT.'www/'.LANGUAGE.'/admin/pub/js,'.ROOT.'www/'.LANGUAGE.'/admin/pub/css');
 
-                        try{
+                        try {
                             if (filesize($file)) {
                                 safe_exec(array('commands' => array($core->register['node'], array($core->register['node_modules'].'uglify-js/bin/uglifyjs', '--output', substr($file, 0, -3).'.min.js', $file))));
 

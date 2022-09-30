@@ -13,7 +13,7 @@
  * Send a message
  */
 function messages_send($params) {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('messages_send(): Failed', $e);

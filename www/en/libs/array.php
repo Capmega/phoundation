@@ -35,7 +35,7 @@ function array_params(&$params, $string_key = null, $numeric_key = null, $defaul
     /*
      * IMPORTANT!! DO NOT CHANGE $default DEFAULT VALUE AWAY FROM FALSE! THIS IS A REQUIREMENT FOR THE sql_simple_list() / sql_simple_get() FUNCTIONS!!
      */
-    try{
+    try {
         if (!$params) {
             /*
              * The specified value is empty (probably null, "", etc). Convert it into an array containing the numeric and string keys with null values
@@ -79,7 +79,7 @@ function array_params(&$params, $string_key = null, $numeric_key = null, $defaul
  * Return the next key right after specified $key
  */
 function array_next_key(&$array, $currentkey, $delete = false) {
-    try{
+    try {
         foreach($array as $key => $value) {
             if (isset($next)) {
                 if ($delete) {
@@ -119,7 +119,7 @@ function array_next_key(&$array, $currentkey, $delete = false) {
  * If the specified key is not found, $currentvalue will be returned.
  */
 function array_next_value(&$array, $currentvalue, $delete = false, $restart = false) {
-    try{
+    try {
         foreach($array as $key => $value) {
             if (isset($next)) {
                 if ($delete) {
@@ -185,7 +185,7 @@ function array_next_value(&$array, $currentvalue, $delete = false, $restart = fa
  * @return mixed The new value of $source[$key]. This will be either the original value of $source[$key], or the $default value if $source[$key] did not exist
  */
 function array_default(&$source, $key, $default) {
-    try{
+    try {
         if (!isset($source[$key])) {
             $source[$key] = $default;
         }
@@ -211,7 +211,7 @@ function array_default(&$source, $key, $default) {
  * Ensure that the specified keys are available. If not, exception
  */
 function array_key_check($source, $keys) {
-    try{
+    try {
         if (!is_array($source)) {
             throw new CoreException(tr('array_key_check(): Specified source should be an array, but is a ":type"', array(':type' => gettype($source))), 'invalid');
         }
@@ -237,7 +237,7 @@ function array_key_check($source, $keys) {
  * Make sure the array is cleared, but with specified keys available
  */
 function array_clear(&$array, $keys, $value = null) {
-    try{
+    try {
         $array = array();
         return Arrays::ensure($array, $keys, $value);
 
@@ -252,7 +252,7 @@ function array_clear(&$array, $keys, $value = null) {
  * Return an array from the given object, recursively
  */
 function array_from_object($object, $recurse = true) {
-    try{
+    try {
         if (!is_object($object)) {
             throw new CoreException(tr('array_from_object(): Specified variable is not an object'));
         }
@@ -289,7 +289,7 @@ function array_from_object($object, $recurse = true) {
  * @return object The array that was created from the specified array
  */
 function array_to_object($array) {
-    try{
+    try {
         return (object) $array;
 
     }catch(Exception $e) {
@@ -303,7 +303,7 @@ function array_to_object($array) {
  * Return a random value from the specified array
  */
 function array_random_value($array) {
-    try{
+    try {
         return $array[array_rand($array)];
 
     }catch(Exception $e) {
@@ -313,7 +313,7 @@ function array_random_value($array) {
 
 // :DEPRECATED: Use the above function
 function array_get_random($array) {
-    try{
+    try {
         if (empty($array)) {
             throw new CoreException(tr('array_get_random(): The specified array is empty'), 'empty');
         }
@@ -331,7 +331,7 @@ function array_get_random($array) {
  * Implode the array with keys
  */
 function array_implode_with_keys($source, $row_separator, $key_separator, $auto_quote = false, $recurse = true) {
-    try{
+    try {
         if (!is_array($source)) {
             throw new CoreException(tr('array_implode_with_keys(): Specified source is not an array but an ":type"', array(':type' => gettype($source))));
         }
@@ -372,7 +372,7 @@ function array_implode_with_keys($source, $row_separator, $key_separator, $auto_
  *
  */
 function array_merge_complete() {
-    try{
+    try {
         $arguments = func_get_args();
 
         if (count($arguments) < 2) {
@@ -412,7 +412,7 @@ function array_merge_complete() {
  * Limit the specified array to the specified amount of entries
  */
 function array_limit($source, $count, $return_source = true) {
-    try{
+    try {
         if (!is_array($source)) {
             throw new CoreException(tr('array_limit(): Specified source is not an array'));
         }
@@ -423,7 +423,7 @@ function array_limit($source, $count, $return_source = true) {
 
         $retval = array();
 
-        while(count($source) > $count) {
+        while (count($source) > $count) {
             $retval[] = array_pop($source);
         }
 
@@ -444,7 +444,7 @@ function array_limit($source, $count, $return_source = true) {
  *
  */
 function array_filter_values($source, $values) {
-    try{
+    try {
         if (!is_array($source)) {
             throw new CoreException(tr('array_filter_values(): Specified source is not an array'), 'invalid');
         }
@@ -468,7 +468,7 @@ function array_filter_values($source, $values) {
  * Return an array with the amount of values where each value name is $base_valuename# and # is a sequential number
  */
 function array_sequential_values($count, $base_valuename) {
-    try{
+    try {
         if (!is_numeric($count) or ($count < 1)) {
             throw new CoreException(tr('array_sequential_values(): Invalid count specified. Make sure count is numeric, and greater than 0'), 'invalid');
         }
@@ -490,7 +490,7 @@ function array_sequential_values($count, $base_valuename) {
  * Return the source array with the keys all replaced by sequential values based on base_keyname
  */
 function array_sequential_keys($source, $base_keyname, $filter_null = false, $null_string = false) {
-    try{
+    try {
         if (!is_array($source)) {
             throw new CoreException(tr('array_sequential_keys(): Specified source is an ":type", but it should be an array', array(':type' => gettype($source))), 'invalid');
         }
@@ -533,7 +533,7 @@ function array_sequential_keys($source, $base_keyname, $filter_null = false, $nu
  * Return the source array with the specified keys kept, all else removed.
  */
 function array_keep($source, $keys) {
-    try{
+    try {
         $retval = array();
 
         foreach(Arrays::force($keys) as $key) {
@@ -555,7 +555,7 @@ function array_keep($source, $keys) {
  * Return the source array with the specified keys removed.
  */
 function array_remove($source, $keys) {
-    try{
+    try {
         foreach(Arrays::force($keys) as $key) {
             unset($source[$key]);
         }
@@ -573,7 +573,7 @@ function array_remove($source, $keys) {
  * Return all array parts from (but without) the specified key
  */
 function array_from(&$source, $from_key, $delete = false, $skip = true) {
-    try{
+    try {
         if (!is_array($source)) {
             throw new CoreException(tr('array_from(): Specified source is an ":type", but it should be an array', array(':type' => gettype($source))), 'invalid');
         }
@@ -622,7 +622,7 @@ function array_from(&$source, $from_key, $delete = false, $skip = true) {
  * Return all array parts until (but without) the specified key
  */
 function array_until($source, $until_key, $delete = false) {
-    try{
+    try {
         if (!is_array($source)) {
             throw new CoreException(tr('array_until(): Specified source is an ":type", but it should be an array', array(':type' => gettype($source))), 'invalid');
         }
@@ -654,7 +654,7 @@ function array_until($source, $until_key, $delete = false) {
  * Merge two arrays together, using the values of array1 as keys, and the values of array2 as values
  */
 function array_merge_keys_values($keys, $values) {
-    try{
+    try {
         if (!is_array($keys)) {
             throw new CoreException(tr('array_merge_keys_values(): Specified keys variable is an ":type", but it should be an array', array(':type' => gettype($keys))), 'invalid');
         }
@@ -688,7 +688,7 @@ function array_merge_keys_values($keys, $values) {
  * Prefix all keys in this array with the specified prefix
  */
 function array_prefix($source, $prefix, $auto = false) {
-    try{
+    try {
         if (!is_array($source)) {
             throw new CoreException(tr('array_prefix_keys(): Specified source is an ":type", but it should be an array', array(':type' => gettype($source))), 'invalid');
         }
@@ -720,7 +720,7 @@ function array_prefix($source, $prefix, $auto = false) {
  * NOTE: Non string values will be quietly ignored!
  */
 function array_find($array, $keyword) {
-    try{
+    try {
         $retval = array();
 
         foreach($array as $key => $value) {
@@ -744,7 +744,7 @@ function array_find($array, $keyword) {
  * Copy all elements from source to target, and clean them up. Any columns specified in "skip" will be skipped
  */
 function array_copy_clean($target, $source, $skip = 'id') {
-    try{
+    try {
         $skip = Arrays::force($skip);
 
         foreach($source as $key => $value) {
@@ -771,7 +771,7 @@ function array_copy_clean($target, $source, $skip = 'id') {
  * Return an array with all the values in the specified column
  */
 function array_get_column($source, $column) {
-    try{
+    try {
         $retval = array();
 
         foreach($source as $id => $value) {
@@ -793,7 +793,7 @@ function array_get_column($source, $column) {
  * Return the value of one of the first found key of the specified keys
  */
 function array_extract_first($source, $keys) {
-    try{
+    try {
         if (!is_array($source)) {
             throw new CoreException(tr('array_extract(): Specified source is not an array'));
         }
@@ -828,7 +828,7 @@ function array_max($source, $max = 20) {
  *
  */
 function array_value_to_keys($source) {
-    try{
+    try {
         if (!is_array($source)) {
             throw new CoreException(tr('array_value_to_keys(): Specified source is not an array'));
         }
@@ -856,7 +856,7 @@ function array_value_to_keys($source) {
  *
  */
 function array_filtered_merge() {
-    try{
+    try {
         $args = func_get_args();
 
         if (count($args) < 3) {
@@ -881,7 +881,7 @@ function array_filtered_merge() {
  * Return all elements from source1. If the value of one element is null, then try to return it from source2
  */
 function array_not_null(&$source1, $source2) {
-    try{
+    try {
         $modified = false;
 
         foreach($source1 as $key => $value) {
@@ -904,7 +904,7 @@ function array_not_null(&$source1, $source2) {
  *
  */
 function array_average($source) {
-    try{
+    try {
         $total = 0;
 
         foreach($source as $key => $value) {
@@ -924,7 +924,7 @@ function array_average($source) {
  * Return an array with values ranging from $min to $max
  */
 function array_range($min, $max) {
-    try{
+    try {
         if (!is_numeric($min)) {
             throw new CoreException(tr('array_range(): Specified $min not numeric'), 'invalid');
         }
@@ -956,7 +956,7 @@ function array_range($min, $max) {
  * Ensure that all array values
  */
 function array_clean($source, $recursive = true) {
-    try{
+    try {
         foreach($source as &$value) {
             switch(gettype($value)) {
                 case 'integer':
@@ -1006,7 +1006,7 @@ function array_clean($source, $recursive = true) {
  * @return boolean Returns true if the specified callback function returned true for all elements in the array, false otherwise
  */
 function array_all($source, $function) {
-    try{
+    try {
         foreach($source as $key => $value) {
             if (!$function($value)) {
                 return false;
@@ -1039,7 +1039,7 @@ function array_all($source, $function) {
  * @return boolean Returns true if the specified callback function returned true for any of the elements in the array, false otherwise
  */
 function array_any($source, $function) {
-    try{
+    try {
         foreach($source as $key => $value) {
             if ($function($value)) {
                 return true;
@@ -1071,7 +1071,7 @@ function array_any($source, $function) {
  * @return boolean Returns true if the specified array contains duplicate values, false otherwise
  */
 function array_has_duplicates($source) {
-    try{
+    try {
         return count($items) > count(array_unique($items));
 
     }catch(Exception $e) {
@@ -1099,7 +1099,7 @@ function array_has_duplicates($source) {
  * @return boolean Returns true if the specified array contains duplicate values, false otherwise
  */
 function array_pluck($source, $regex) {
-    try{
+    try {
         $retval = array();
 
         foreach($source as $key => $value) {
@@ -1138,7 +1138,7 @@ function array_pluck($source, $regex) {
  * @return array
  */
 function array_merge_null() {
-    try{
+    try {
         $args   = func_get_args();
         $retval = array();
 
@@ -1176,7 +1176,7 @@ function array_merge_null() {
  * @return array
  */
 function array_hide($source, $keys = 'GLOBALS,%pass,ssh_key', $hide = '*** HIDDEN ***', $empty = '-', $recurse = true) {
-    try{
+    try {
         if (!is_array($source)) {
             if ($source === null) {
                 return null;
@@ -1237,7 +1237,7 @@ function array_hide($source, $keys = 'GLOBALS,%pass,ssh_key', $hide = '*** HIDDE
  * @return string The array with the specified key renamed
  */
 function array_rename_key($source, $old_key, $new_key) {
-    try{
+    try {
         if (!is_array($source)) {
             throw new CoreException(tr('array_rename_key(): Specified source is not an array'), 'invalid');
         }

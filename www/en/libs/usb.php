@@ -27,7 +27,7 @@
  * @return void
  */
 function usb_library_init() {
-    try{
+    try {
         load_libs('servers');
 
     }catch(Exception $e) {
@@ -53,7 +53,7 @@ function usb_library_init() {
  * @return array
  */
 function usb_list($libusb = null, $server = null) {
-    try{
+    try {
         $results = servers_exec(array('commands' => array('lsusb')));
         $devices = array();
 
@@ -114,7 +114,7 @@ function usb_list($libusb = null, $server = null) {
  * @return array
  */
 function usb_scan($regex_filter, $server = null) {
-    try{
+    try {
         $results = safe_exec(array('commands' => array('lsusb', array('-v'))));
         $devices = array();
         $retval  = array();

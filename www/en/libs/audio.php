@@ -24,7 +24,7 @@
  * @return void
  */
 function audio_library_init() {
-    try{
+    try {
         load_config('audio');
 
     }catch(Exception $e) {
@@ -50,7 +50,7 @@ function audio_library_init() {
 function audio_play($class = null) {
     global $_CONFIG;
 
-    try{
+    try {
         if ($_CONFIG['audio']['quiet']) {
             /*
              * We're running quiet mode, do not play any audio!
@@ -88,7 +88,7 @@ function audio_play($class = null) {
             /*
              * Play the audio local
              */
-            try{
+            try {
                 log_console(tr('Playing audio file ":file"', array(':file' => $file)), 'cyan');
                 safe_exec(array('background' => true,
                                 'commands'   => array($_CONFIG['audio']['command'], array($file))));

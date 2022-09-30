@@ -11,7 +11,7 @@ load_libs('seo');
 $databases = sql_query('SELECT `id`, `name` FROM `databases`');
 $update    = sql_prepare('UPDATE `databases` SET `seoname` = :seoname WHERE `id` = :id');
 
-while($database = sql_fetch($databases)) {
+while ($database = sql_fetch($databases)) {
     $database['seoname'] = seo_unique($database['name'], 'databases', $database['id']);
     cli_dot();
 

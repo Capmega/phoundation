@@ -16,12 +16,12 @@
  * Rewritten by Sven Oostenbrink for use in Base
  */
 function exif_clear($file, $target = null) {
-    try{
+    try {
         $buffer = 4096;
         $hi     = fopen($file, 'rb');
         $ho     = fopen($file, 'wb');
 
-        while(($buffer = fread($hi, $buffer)) !== false) {
+        while (($buffer = fread($hi, $buffer)) !== false) {
             //  \xFF\xE1\xHH\xLLExif\x00\x00 - Exif
             //  \xFF\xE1\xHH\xLLhttp://      - XMP
             //  \xFF\xE2\xHH\xLLICC_PROFILE  - ICC

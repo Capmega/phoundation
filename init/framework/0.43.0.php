@@ -147,7 +147,7 @@ $domains = sql_query('SELECT `id`,
 $insert = sql_prepare('INSERT INTO `email_client_domains` (`id`, `createdon`, `createdby`, `modifiedon`, `modifiedby`, `status`, `name`, `seoname`, `smtp_host`, `smtp_port`, `imap`, `poll_interval`, `header`, `footer`, `description`)
                        VALUES                             (:id , :createdon , :createdby , :modifiedon , :modifiedby , :status , :name , :seoname , :smtp_host , :smtp_port , :imap , :poll_interval , :header , :footer , :description )');
 
-while($domain = sql_fetch($domains)) {
+while ($domain = sql_fetch($domains)) {
     $domain['name']    = $domain['domain'];
     $domain['seoname'] = seo_unique($domain['name'], 'email_client_domains');
 
@@ -190,7 +190,7 @@ $accounts = sql_query('SELECT `id`,
 $insert = sql_prepare('INSERT INTO `email_client_accounts` (`id`, `createdon`, `createdby`, `modifiedon`, `modifiedby`, `status`, `domains_id`, `users_id`, `poll_interval`, `last_poll`, `email`, `seoemail`, `name`, `password`, `header`, `footer`, `description`)
                        VALUES                              (:id , :createdon , :createdby , :modifiedon , :modifiedby , :status , :domains_id , :users_id , :poll_interval , :last_poll , :email , :seoemail , :name , :password , :header , :footer , :description )');
 
-while($account = sql_fetch($accounts)) {
+while ($account = sql_fetch($accounts)) {
     $account['seoemail'] = seo_unique($account['email'], 'email_client_accounts', null, 'seoemail');
 
     $insert->execute(array(':id'            => $account['id'],

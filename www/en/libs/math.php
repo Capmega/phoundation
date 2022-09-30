@@ -28,7 +28,7 @@
  * @return boolean Returns true if the specified array contains duplicate values, false otherwise
  */
 function math_average(...$items) {
-    try{
+    try {
         if (count($items)) {
             return array_sum($items) / count($items);
         }

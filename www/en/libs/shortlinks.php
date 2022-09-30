@@ -28,7 +28,7 @@
  * @return void
  */
 function shortlink_library_init() {
-    try{
+    try {
         load_libs('curl');
         load_config('shortlink');
 
@@ -57,7 +57,7 @@ function shortlink_library_init() {
  * @return parans the shortlink array, validated and sanitized
  */
 function shortlink_validate($link) {
-    try{
+    try {
         load_libs('validate,seo');
 
         $v = new ValidateForm($link, 'id,name,url,description');
@@ -117,7 +117,7 @@ function shortlink_validate($link) {
  * @return params The inserted link array with id added
  */
 function shortlink_create($link) {
-    try{
+    try {
         $link = shortlink_validate($link);
 
         /*
@@ -166,7 +166,7 @@ function shortlink_create($link) {
  * @return params The updated link array
  */
 function shortlink_update($link) {
-    try{
+    try {
         $link = shortlink_validate($link);
 
         sql_query('UPDATE `shortlinks`
@@ -209,8 +209,8 @@ function shortlink_update($link) {
  * @return string a unique code
  */
 function shortlink_get_code() {
-    try{
-        while(++$attempts < 32) {
+    try {
+        while (++$attempts < 32) {
             $code   = str_random(8);
             $exists = sql_get('SELECT `id` FROM `shortlinks` WHERE `code` = :code', true, array(':code' => $code));
 
@@ -256,7 +256,7 @@ function shortlink_get_code() {
  * @return void
  */
 function shortlink_redirect($code) {
-    try{
+    try {
         $url = sql_get('SELECT `url` FROM `shortlinks` WHERE `code` = :code', true, array('code' => $code));
 
         if (!$url) {
@@ -381,7 +381,7 @@ function shortlink_get_access_token($provider = null) {
  * @return string a shortlink URL from the specified provider for the specified URL
  */
 function shortlink_create($url, $provider = null) {
-    try{
+    try {
         $token = shortlink_get_access_token($provider);
 
         switch($provider) {

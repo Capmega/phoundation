@@ -5,7 +5,7 @@
  */
 require_once(dirname(__FILE__).'/../../libs/startup.php');
 
-try{
+try {
 
 }catch(Exception $e) {
     throw new CoreException('scripts/hooks/example: Failed', $e);

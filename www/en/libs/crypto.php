@@ -56,7 +56,7 @@ function crypto_currencies_supported($currencies) {
 function crypto_validate_transaction($transaction, $provider) {
     global $_CONFIG;
 
-    try{
+    try {
         load_libs('validate');
 //        $v = new ValidateForm($transaction, 'users_id,status,status_text,type,mode,currency,confirms,api_transactions_id,tx_id,address,amount,amounti,amount_usd,fee,feei,exchange_rate,merchant,description');
         $v = new ValidateForm($transaction, 'createdon,modifiedon,users_id,status,status_text,type,mode,currency,confirms,api_transactions_id,tx_id,merchant,address,amount,amounti,amount_btc,amount_usd,amount_usd_rounded,fee,feei,exchange_rate,description,data');
@@ -98,7 +98,7 @@ function crypto_validate_transaction($transaction, $provider) {
  *
  */
 function crypto_get_transaction($transactions_id) {
-    try{
+    try {
         $transaction = sql_get('SELECT `id`,
                                        `createdon`,
                                        `modifiedon`,
@@ -151,7 +151,7 @@ function crypto_get_transaction($transactions_id) {
 function crypto_write_transaction($transaction, $provider) {
     global $_CONFIG;
 
-    try{
+    try {
         if (empty($transaction['id'])) {
             /*
              *
@@ -288,7 +288,7 @@ function crypto_write_transaction($transaction, $provider) {
 function crypto_update_exchange_rates() {
     global $_CONFIG;
 
-    try{
+    try {
         $currencies = crypto_get_rates();
         $createdon  = sql_get('SELECT NOW()', true);
         $insert     = sql_prepare('INSERT INTO `crypto_rates` (`createdon`, `status`, `currency`, `provider`, `rate_btc`, `fee`)
@@ -319,7 +319,7 @@ function crypto_get_exchange_rate($currency) {
     global $_CONFIG;
     static $update;
 
-    try{
+    try {
         if (!$currency) {
             throw new CoreException('crypto_get_exchange_rate(): No currency specified', 'not-specified');
         }
@@ -362,7 +362,7 @@ function crypto_get_exchange_rate($currency) {
 function crypto_get_btc($amount, $currency) {
     global $_CONFIG;
 
-    try{
+    try {
         if (strtoupper($currency) == 'BTC') {
             return $amount;
         }
@@ -382,7 +382,7 @@ function crypto_get_btc($amount, $currency) {
 function crypto_get_usd($amount, $currency) {
     global $_CONFIG;
 
-    try{
+    try {
         return $amount * crypto_get_exchange_rate($currency) * (1 / crypto_get_exchange_rate('usd'));
 
     }catch(Exception $e) {
@@ -398,7 +398,7 @@ function crypto_get_usd($amount, $currency) {
 function crypto_get_account_info() {
     global $_CONFIG;
 
-    try{
+    try {
         switch($_CONFIG['crypto']['backend']) {
             case 'coinpayments':
                 return coinpayments_get_account_info();
@@ -417,7 +417,7 @@ function crypto_get_account_info() {
 function crypto_get_rates($currencies = null) {
     global $_CONFIG;
 
-    try{
+    try {
         crypto_currencies_supported($currencies);
 
         switch($_CONFIG['crypto']['backend']) {
@@ -438,7 +438,7 @@ function crypto_get_rates($currencies = null) {
 function crypto_get_balances($currencies = null) {
     global $_CONFIG;
 
-    try{
+    try {
         crypto_currencies_supported($currencies);
 
         switch($_CONFIG['crypto']['backend']) {
@@ -459,7 +459,7 @@ function crypto_get_balances($currencies = null) {
 function crypto_get_address($currency) {
     global $_CONFIG;
 
-    try{
+    try {
         crypto_currencies_supported($currency);
 
         switch($_CONFIG['crypto']['backend']) {
@@ -480,7 +480,7 @@ function crypto_get_address($currency) {
 function crypto_get_deposit_address($currency, $callback_url = null, $force = false) {
     global $_CONFIG;
 
-    try{
+    try {
         crypto_currencies_supported($currency);
 
         $exist = sql_get('SELECT `id`,
@@ -529,7 +529,7 @@ function crypto_get_deposit_address($currency, $callback_url = null, $force = fa
  * Return a human readable string that neatly displays the amount of money
  */
 function crypto_display($amount, $currency) {
-    try{
+    try {
         if ($currency == 'internal') {
             return $amount.tr(' Credits');
         }

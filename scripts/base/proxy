@@ -73,7 +73,7 @@ switch(cli_method()) {
         }
 
         foreach($proxies as $proxy) {
-            try{
+            try {
                 $data  = curl_get_proxy($url, null, $proxy);
                 log_console(tr('Proxy ":proxy" works correctly', array(':proxy' => $proxy)), 'green');
 

@@ -114,7 +114,7 @@ load_config('sync');
 /*
  * Get configuration for specified environment
  */
-try{
+try {
     $source_config = array_merge_complete(config_get_for_environment('production'), config_get_for_environment($environment));
 
     if (!isset($source_config['deploy'][$environment])) {
@@ -312,7 +312,7 @@ if ($nofiles) {
     safe_exec(array('commands' => array('chmod', array('sudo' => $sudo, 'timeout' => 120, 'ug+w', ROOT, '-R'))));
 
     foreach($_CONFIG['sync'] as $path) {
-        try{
+        try {
             if (!$path) continue;
 
             log_console(tr('Syncing path ":path"', array(':path' => $path)), 'white');
@@ -322,7 +322,7 @@ if ($nofiles) {
                 file_delete(ROOT.$path, ROOT.$path);
             }
 
-            try{
+            try {
 // :TODO: Change this for rsync();
                 passthru($command = 'rsync -aczvAXHS '.$no_times.' --no-perms --progress -p '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].':'.Strings::slash($deploy_config['target_dir']).Strings::slash($path).' '.ROOT.Strings::slash($path).' --exclude="*.php" --exclude="*.css" --exclude="*.js" --exclude="/scripts/*" --exclude="/data/doc" --exclude="/data/system" --exclude="/data/mock*" --exclude="/data/sources" --exclude=".htaccess" --exclude=".git*" --exclude="/pub/*"', $exitcode);
 

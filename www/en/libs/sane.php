@@ -28,7 +28,7 @@
  * @return void
  */
 function sane_library_init() {
-    try{
+    try {
         load_config('sane');
 
     }catch(Exception $e) {
@@ -53,7 +53,7 @@ function sane_library_init() {
 function sane_find_scanners($libusb = false) {
     global $_CONFIG;
 
-    try{
+    try {
         $results = safe_exec(array('ok_exitcodes' => '1',
                                    'commands'     => array('sane-find-scanner', array('sudo' => true, '-q', 'connector' => '|'),
                                                            'grep'             , array('-v', '"Could not find"', 'connector' => '|'),

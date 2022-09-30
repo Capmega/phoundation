@@ -1,7 +1,7 @@
 <?php
 include_once(dirname(__FILE__).'/../../../libs/startup.php');
 
-try{
+try {
     load_libs('admin,json,blogs');
 
     if (empty($_POST['id'])) {

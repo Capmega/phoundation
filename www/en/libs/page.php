@@ -14,7 +14,7 @@
  * Get a page from the database
  */
 function page_get($seoname) {
-    try{
+    try {
         $page = sql_get('SELECT `data`, `status` FROM `pages` WHERE `seoname` = :seoname', array(':seoname' => $seoname));
 
         if (!$page) {
@@ -38,7 +38,7 @@ function page_get($seoname) {
  * Store the specified page data the database
  */
 function page_put($name, $data, $status = null) {
-    try{
+    try {
         sql_query('INSERT INTO `pages` (`status`, `name`, `seoname`, `data`)
                    VALUES              (:status , :name , :seoname , :data )
 

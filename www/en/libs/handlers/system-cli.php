@@ -11,7 +11,7 @@
 /*
  * Define basic platform constants
  */
-try{
+try {
     /*
      * Make sure we have the original arguments available
      */
@@ -329,7 +329,7 @@ try{
     /*
      * Get required language.
      */
-    try{
+    try {
         $language = not_empty(cli_argument('--language'), cli_argument('L'), $_CONFIG['language']['default']);
 
         if ($_CONFIG['language']['supported'] and !isset($_CONFIG['language']['supported'][$language])) {
@@ -381,7 +381,7 @@ try{
      * Set timezone information
      * See http://www.php.net/manual/en/timezones.php for more info
      */
-    try{
+    try {
         date_default_timezone_set($_CONFIG['timezone']['system']);
 
     }catch(Exception $e) {

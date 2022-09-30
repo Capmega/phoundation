@@ -27,7 +27,7 @@
  * @return void
  */
 function phones_library_init() {
-    try{
+    try {
 
     }catch(Exception $e) {
         throw new CoreException('phones_library_init(): Failed', $e);
@@ -63,7 +63,7 @@ function phones_library_init() {
  * @return string The phone number clean without formatting
  */
 function phones_clean_number($number) {
-    try{
+    try {
         $number = str_replace(array(' ', '-', '(', ')'), '', $number);
         return $number;
 
@@ -101,7 +101,7 @@ function phones_clean_number($number) {
  * @return string The formatted phone number
  */
 function phones_format_number($number) {
-    try{
+    try {
         /*
          * First ensure that this phone number does not have any formatting at all
          */

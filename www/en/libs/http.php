@@ -27,7 +27,7 @@
 function get_submit() {
     static $submit;
 
-    try{
+    try {
         if ($submit !== null) {
             /*
              * We have a cached value
@@ -101,7 +101,7 @@ function redirect($target = '', $http_code = null, $clear_session_redirect = tru
  * @return string The specified URL (if not specified, the current URL) with $core->register['redirect'] added to it (if set)
  */
 function redirect_url($url = null) {
-    try{
+    try {
         load_libs('inet');
 
         if (!$url) {
@@ -128,7 +128,7 @@ function redirect_url($url = null) {
  * Redirect if the session redirector is set
  */
 function session_redirect($method = 'http', $force = false) {
-    try{
+    try {
         if (!empty($force)) {
             /*
              * Redirect by force value
@@ -193,7 +193,7 @@ function store_post($redirect) {
  * Ensure that the $_GET values with the specied keys are also available in $_POST
  */
 function http_get_to_post($keys, $overwrite = true) {
-    try{
+    try {
         foreach(Arrays::force($keys) as $key) {
             if (isset($_GET[$key]) and ($overwrite or empty($_POST[$key]))) {
                 $_POST[$key] = $_GET[$key];
@@ -276,7 +276,7 @@ function http_headers($params, $content_length) {
         define('LANGUAGE', isset_get($_CONFIG['language']['default'], 'en'));
     }
 
-    try{
+    try {
         /*
          * Create ETAG, possibly send out HTTP304 if client sent matching ETAG
          */
@@ -453,7 +453,7 @@ function http_headers($params, $content_length) {
  * Add a variable to the specified URL
  */
 function http_add_variable($url, $key, $value) {
-    try{
+    try {
         if (!$key or !$value) {
             return $url;
         }
@@ -475,7 +475,7 @@ function http_add_variable($url, $key, $value) {
  * Remove a variable from the specified URL
  */
 function http_remove_variable($url, $key) {
-    try{
+    try {
 throw new CoreException('http_remove_variable() is under construction!');
         //if (!$key) {
         //    return $url;
@@ -509,7 +509,7 @@ throw new CoreException('http_remove_variable() is under construction!');
 function http_cache_etag() {
     global $_CONFIG, $core;
 
-    try{
+    try {
         /*
          * ETAG requires HTTP caching enabled
          * Ajax and API calls do not use ETAG
@@ -555,7 +555,7 @@ function http_cache_etag() {
 function http_cache_test($etag = null) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).$etag);
 
         if (!$_CONFIG['cache']['http']['enabled']) {
@@ -607,7 +607,7 @@ function http_cache_test($etag = null) {
 function http_cache($params, $http_code, $headers = array()) {
     global $_CONFIG, $core;
 
-    try{
+    try {
         Arrays::ensure($params);
 
         if ($_CONFIG['cache']['http']['enabled'] === 'auto') {
@@ -681,7 +681,7 @@ function http_cache($params, $http_code, $headers = array()) {
  * @return void
  */
 function http_no_cache() {
-    try{
+    try {
         header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true);
         header('Cache-Control: post-check=0, pre-check=0'                     , true);
         header('Pragma: no-cache'                                             , true);
@@ -698,7 +698,7 @@ function http_no_cache() {
  * Return the URL the client requested
  */
 function requested_url() {
-    try{
+    try {
         return $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 
     }catch(Exception $e) {
@@ -722,7 +722,7 @@ function requested_url() {
 function http_done() {
     global $core, $_CONFIG;
 
-    try{
+    try {
         if (!isset($core)) {
             /*
              * We died very early in startup. For more information see either
@@ -771,7 +771,7 @@ function http_done() {
 function http_validate_get() {
     global $_CONFIG;
 
-    try{
+    try {
         foreach($_GET as $key => &$value) {
             if (!is_scalar($value)) {
                 if ($value) {
@@ -800,7 +800,7 @@ function http_validate_get() {
  * Here be dragons and depreciated wrappers
  */
 function http_build_url($url, $query) {
-    try{
+    try {
         return http_add_variable($url, Strings::until($query, '='), Strings::from($query, '='));
 
     }catch(Exception $e) {
@@ -829,7 +829,7 @@ function http_build_url($url, $query) {
 function http_set_ssl_default_context($params = null) {
     global $_CONFIG;
 
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'verify_peer'      , isset_get($_CONFIG['security']['ssl']['verify_peer']));
         array_default($params, 'verify_peer_name' , isset_get($_CONFIG['security']['ssl']['verify_peer_name']));

@@ -86,7 +86,7 @@ if (!empty($_POST['dosubmit'])) {
 /*
  * Process user actions
  */
-try{
+try {
     if (isset_get($_POST['docreate'])) {
         if (!empty($profile)) {
             throw new CoreException('Unknown option "docreate" specified', 'unknown');
@@ -427,7 +427,7 @@ if (!empty($user['roles_id'])) {
 
                     array(':users_id' => $user['id']));
 
-    while($user_right = sql_fetch($r)) {
+    while ($user_right = sql_fetch($r)) {
         if (empty($profile)) {
             $a     = '<a href="'.domain('/admin/right.php?right='.$user_right['id']).'">';
             $html .= '<tr><td>'.$a.$user_right['name'].'</a></td><td>'.$a.$user_right['description'].'</a></td></tr>';
@@ -505,7 +505,7 @@ echo ca_page($html, $params);
 function s_validate_user(&$user, $id = null) {
     global $profile;
 
-    try{
+    try {
         // Validate input
         $v = new validate_form($user, 'name,username,email,password,password2,role,commentary,gender,latitude,longitude,language,country,fb_id,fb_token,gp_id,gp_token,ms_id,ms_token_authentication,ms_token_access,tw_id,tw_token,yh_id,yh_token,status,validated,avatar,phones');
 

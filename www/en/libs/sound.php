@@ -13,7 +13,7 @@
  * Play the specified audio file
  */
 function sound_play($file) {
-    try{
+    try {
         shell_exec('sudo nohup /usr/bin/aplay '.$file.' 2>/dev/null >/dev/null &');
 
     }catch(Exception $e) {

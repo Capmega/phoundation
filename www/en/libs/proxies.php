@@ -13,7 +13,7 @@
  * Automatically executed by libs_load()
  */
 function proxies_library_init() {
-    try{
+    try {
         load_libs('servers,forwardings');
 
     }catch(Exception $e) {
@@ -32,7 +32,7 @@ function proxies_library_init() {
  * @param boolean
  */
 function proxies_insert_create($prev, $insert, $protocols, $apply) {
-    try{
+    try {
         if (empty($protocols)) {
             throw new CoreException(tr('proxies_insert_create(): No protocols specified', array(':insert_hostname' => $insert['hostname'])), 'not-specified');
         }
@@ -118,7 +118,7 @@ function proxies_insert_create($prev, $insert, $protocols, $apply) {
  * return void
  */
 function proxies_insert_front($prev, $insert, $protocols, $apply) {
-    try{
+    try {
         /*
          * If there are not proxies, protocols must be specified otherwise throw exception
          */
@@ -269,7 +269,7 @@ function proxies_insert_front($prev, $insert, $protocols, $apply) {
  * @return void
  */
 function proxies_insert_middle($prev, $next, $insert, $apply) {
-    try{
+    try {
         log_console(tr('Getting forwarding rules for next server'));
         $next_forwardings = forwardings_list($next['id']);
 
@@ -393,7 +393,7 @@ function proxies_insert_middle($prev, $next, $insert, $apply) {
  * @param $insert_hostname
  */
 function proxies_insert($root_hostname, $insert_hostname, $target_hostname, $location, $protocols, $apply = true) {
-    try{
+    try {
         $location  = proxies_validate_location($location);
         $root      = proxies_get_server($root_hostname, true);
         $insert    = proxies_get_server($insert_hostname, false);
@@ -459,7 +459,7 @@ function proxies_insert($root_hostname, $insert_hostname, $target_hostname, $loc
  * @return void
  */
 function proxies_remove_front($prev, $remove, $apply) {
-    try{
+    try {
         $prev_forwardings = forwardings_list($prev['id']);
 
         if ($prev_forwardings) {
@@ -524,7 +524,7 @@ function proxies_remove_front($prev, $remove, $apply) {
  * return void
  */
 function proxies_remove_middle($prev, $next, $remove, $apply) {
-    try{
+    try {
         $next_forwardings   = forwardings_list($next['id']);
         $remove_forwardings = forwardings_list($remove['id']);
 
@@ -593,7 +593,7 @@ function proxies_remove_middle($prev, $next, $remove, $apply) {
  * @return void
  */
 function proxies_remove($root_host, $remove_host, $apply = true) {
-    try{
+    try {
         if (strcasecmp($root_host, $remove_host) == 0) {
             throw new CoreException(tr('proxies_remove(): You can not remove host ":remove_host", it is the main host on the proxies chain', array(':remove_host' => $remove_host)), 'invalid');
         }
@@ -648,7 +648,7 @@ function proxies_remove($root_host, $remove_host, $apply = true) {
  * @return array
  */
 function proxies_get_prev_next_remove($root_server, $remove_server, $proxies) {
-    try{
+    try {
         $prev = array();
         $next = array();
 
@@ -693,7 +693,7 @@ function proxies_get_prev_next_remove($root_server, $remove_server, $proxies) {
  * @return array
  */
 function proxies_get_prev_next_insert($root_hostname, $target_hostname, $proxies, $location) {
-    try{
+    try {
         $prev = array();
         $next = array();
 
@@ -762,7 +762,7 @@ function proxies_get_prev_next_insert($root_hostname, $target_hostname, $proxies
  * @return array
  */
 function proxies_get_server($host, $return_proxies = false) {
-    try{
+    try {
         $server = servers_get($host, false, $return_proxies);
 
         if (empty($server)) {
@@ -786,7 +786,7 @@ function proxies_get_server($host, $return_proxies = false) {
  * @return void
  */
 function proxies_validate_on_chain($proxies, $search_hostname) {
-    try{
+    try {
         foreach($proxies as $proxy) {
             if ($proxy['hostname'] == $search_hostname) {
                 return true;
@@ -810,7 +810,7 @@ function proxies_validate_on_chain($proxies, $search_hostname) {
  * @return string
  */
 function proxies_validate_location($location) {
-    try{
+    try {
         if (empty($location)) {
             throw new CoreException(tr('proxies_validate_location(): Location not specified'), 'not-specified');
         }
@@ -842,7 +842,7 @@ function proxies_validate_location($location) {
  * @return integer
  */
 function proxies_get_default_port($protocol) {
-    try{
+    try {
         if (empty($protocol)) {
             throw new CoreException(tr('proxies_get_default_port(): Protocol not specified'), 'not-specified');
         }
@@ -876,7 +876,7 @@ function proxies_get_default_port($protocol) {
  * @return string
  */
 function proxies_validate_protocol($protocol) {
-    try{
+    try {
         if (empty($protocol)) {
             throw new CoreException(tr('proxies_validate_protocol(): No protocol specified'), 'not-specified');
         }

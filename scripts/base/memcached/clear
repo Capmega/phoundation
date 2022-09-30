@@ -5,7 +5,7 @@
  */
 require_once(__DIR__.'/../../../libs/startup.php');
 
-try{
+try {
     if (!memcached_connect()) {
         if ($_CONFIG['memcached']) {
             throw new CoreException('Could not connect to any of the configured memcached servers', 'failed');

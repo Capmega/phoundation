@@ -17,7 +17,7 @@
  *
  */
 function storage_files_insert($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'sections_id' , null);
         array_default($params, 'documents_id', null);
@@ -93,7 +93,7 @@ function storage_files_insert($params) {
  *
  */
 function storage_files_validate($params) {
-    try{
+    try {
         load_libs('validate');
         $v = new ValidateForm($params, '');
 // :TODO: Implement!
@@ -110,7 +110,7 @@ function storage_files_validate($params) {
  *
  */
 function storage_files_delete($params) {
-    try{
+    try {
         Arrays::ensure($params);
         array_default($params, 'sections_id' , null);
         array_default($params, 'documents_id', null);
@@ -144,7 +144,7 @@ function storage_files_delete($params) {
  *
  */
 function storage_files_query($documents_id, $pages_id = null) {
-    try{
+    try {
         if ($pages_id) {
             /*
              * Get files linked to this page only
@@ -196,7 +196,7 @@ function storage_files_query($documents_id, $pages_id = null) {
  *
  */
 function storage_files_get($file, $documents_id, $pages_id = null) {
-    try{
+    try {
         if ($pages_id) {
             /*
              * Get files linked to this page only
@@ -253,7 +253,7 @@ function storage_files_get($file, $documents_id, $pages_id = null) {
  *
  */
 function storage_file_url($file, $type = null) {
-    try{
+    try {
         if ($type) {
             return cdn_domain(Strings::untilReverse($file, '.').'-'.$type.'.'.Strings::fromReverse($file, '.'), 'files');
         }

@@ -18,10 +18,10 @@ $duplicates = sql_query('SELECT   `ssh_accounts_duplicates`.`name`,
 
                          GROUP BY `ssh_accounts_duplicates`.`username`');
 
-while($duplicate = sql_fetch($duplicates)) {
+while ($duplicate = sql_fetch($duplicates)) {
     $count = 2;
 
-    while($count > 1) {
+    while ($count > 1) {
         $id = sql_get('SELECT `id`
 
                        FROM   `ssh_accounts`

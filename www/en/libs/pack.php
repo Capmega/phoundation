@@ -32,7 +32,7 @@
  * @return void()
  */
 function pack_bzip2($params) {
-    try{
+    try {
         $params = pack_validate($params);
         $target = $params['source'].'.bz2';
 
@@ -69,7 +69,7 @@ function pack_bzip2($params) {
  * @return void()
  */
 function pack_unbzip2($params) {
-    try{
+    try {
         $params = pack_validate($params);
         $target = Strings::until($params['source'], '.bz2');
 
@@ -106,7 +106,7 @@ function pack_unbzip2($params) {
  * @return void()
  */
 function pack_rar($params) {
-    try{
+    try {
         $params = pack_validate($params);
         $target = $params['source'].'.rar';
 
@@ -142,7 +142,7 @@ function pack_rar($params) {
  * @return void()
  */
 function pack_unrar($params) {
-    try{
+    try {
         $params = pack_validate($params);
         $target = Strings::until($params['source'], '.rar');
 
@@ -178,7 +178,7 @@ function pack_unrar($params) {
  * @return void()
  */
 function pack_zip($params) {
-    try{
+    try {
         $params = pack_validate($params);
         $target = $params['source'].'zip';
 
@@ -215,7 +215,7 @@ function pack_zip($params) {
  * @return void()
  */
 function pack_unzip($params) {
-    try{
+    try {
         $params = pack_validate($params);
         $target = Strings::until($params['source'], '.zip');
 
@@ -252,7 +252,7 @@ function pack_unzip($params) {
  * @return void()
  */
 function pack_gzip($params) {
-    try{
+    try {
         $params = pack_validate($params);
         $target = $params['source'].'.gz';
 
@@ -288,7 +288,7 @@ function pack_gzip($params) {
  * @return void()
  */
 function pack_ungzip($params) {
-    try{
+    try {
         $params = pack_validate($params);
         $target = Strings::until($params['source'], '.gz');
 
@@ -324,7 +324,7 @@ function pack_ungzip($params) {
  * @return void()
  */
 function pack_tar($params) {
-    try{
+    try {
         $params = pack_validate($params);
         $target = $params['source'].'.tgz';
 
@@ -361,7 +361,7 @@ function pack_tar($params) {
  * @return void()
  */
 function pack_untar($params) {
-    try{
+    try {
         $params = pack_validate($params);
         $target = Strings::until(Strings::until($params['source'], '.tar.gz'), '.tgz');
 
@@ -396,7 +396,7 @@ function pack_untar($params) {
  * @return void()
  */
 function pack_validate($params) {
-    try{
+    try {
         array_params($params, 'source');
         Arrays::ensure($params, 'domain,background');
 
