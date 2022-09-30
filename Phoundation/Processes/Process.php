@@ -50,18 +50,18 @@ Class Process
     protected ?string $run_path = null;
 
     /**
-     * The process return values that is accepted for this process
+     * The process exit codes that is accepted for this process
      *
      * @var array
      */
-    protected array $accepted_return_values = [0];
+    protected array $accepted_exit_codes = [0];
 
     /**
      * The process exit code once it has executed
      *
      * @var int|null
      */
-    protected ?int $return_value = null;
+    protected ?int $exit_code = null;
 
     /**
      * The maximum amount of time in seconds that a command is allowed to run before it will timeout. Zero to disable,
@@ -70,6 +70,13 @@ Class Process
      * @var int $timeout
      */
     protected int $timeout = 30;
+
+    /**
+     * The process id of the process running in the background. Will only be set when running processes in background
+     *
+     * @var ?int $pid
+     */
+    protected ?int $pid = null;
 
 
 
@@ -157,9 +164,9 @@ Class Process
      *
      * @return array
      */
-    public function getAcceptedReturnValues(): array
+    public function getAcceptedExitcodes(): array
     {
-        return $this->accepted_return_values;
+        return $this->accepted_exit_codes;
     }
 
 
@@ -169,7 +176,7 @@ Class Process
      * @param array $return_values
      * @return Process This process so that multiple methods can be chained
      */
-    public function setAcceptedReturnValues(array $return_values): Process
+    public function setAcceptedExitcodes(array $return_values): Process
     {
         foreach ($return_values as $return_value) {
             if (!is_integer($return_value) or ($return_value < 0) or ($return_value > 255)) {
@@ -177,7 +184,7 @@ Class Process
             }
         }
 
-        $this->accepted_return_values = $return_values;
+        $this->accepted_exit_codes = $return_values;
 
         return $this;
     }
@@ -316,19 +323,70 @@ Class Process
 
 
     /**
-     * Execute the command
+     * Returns the pid value for this process when it is running in the background.
+     *
+     * @note Will return NULL if the process is not running in the background.
+     *
+     * @return ?int
+     */
+    public function getPid(): ?int
+    {
+        return $this->pid;
+    }
+
+
+
+    /**
+     * Execute the command using the PHP exec() cakk abd return an array
      *
      * @return array The output from the executed command
      */
-    public function execute(): array
+    public function executeReturnArray(): array
     {
         if (Debug::enabled()) {
-            Log::notice('Executing command ":command"');
+            Log::notice('Executing command ":command" using exec to return an array');
         }
 
-        exec($this->getCommandLine(), $output, $return_value);
-        $this->return_value = $return_value;
+        exec($this->getCommandLine(), $output, $exit_code);
+        $this->exit_code = $exit_code;
         return $output;
+    }
+
+
+
+    /**
+     * Execute the command using passthru and send the output directly to the client
+     *
+     * @return bool
+     */
+    public function executePassthru(): bool
+    {
+        if (Debug::enabled()) {
+            Log::notice('Executing command ":command" using exec to return an array');
+        }
+
+        $output = passthru($this->getCommandLine(), $exit_code);
+        $this->exit_code = $exit_code;
+
+        // So according to the documentation, for some reason passthru would return null on success and false on failure
+        // Makes sense, right? Just return true or false, please,
+        if ($output === false) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+
+    /**
+     * Executes the command for this object as a background process
+     *
+     * @return int The PID (Process ID) of the process running in the background
+     */
+    public function executeBackground(): int
+    {
+// TODO IMPLEMENT
     }
 
 
@@ -340,7 +398,7 @@ Class Process
      */
     public function hasExecuted(): bool
     {
-        return !($this->return_value === null);
+        return !($this->exit_code === null);
     }
 
 
