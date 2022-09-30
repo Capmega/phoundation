@@ -4,6 +4,7 @@ namespace Phoundation\Processes;
 
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Processes\Exception\ProcessesException;
@@ -54,6 +55,21 @@ Class Process
      * @var array
      */
     protected array $accepted_return_values = [0];
+
+    /**
+     * The process exit code once it has executed
+     *
+     * @var int|null
+     */
+    protected ?int $return_value = null;
+
+    /**
+     * The maximum amount of time in seconds that a command is allowed to run before it will timeout. Zero to disable,
+     * defaults to 30
+     *
+     * @var int $timeout
+     */
+    protected int $timeout = 30;
 
 
 
@@ -263,12 +279,79 @@ Class Process
 
 
     /**
+     * Returns the timeout value for this process.
+     *
+     * If the process requires more time than the specified timeout value, it will be terminated automatically. Set to
+     * 0 seconds  to disable, defaults to 30 seconds
+     *
+     * @return int
+     */
+    public function getTimeout(): int
+    {
+        return $this->timeout;
+    }
+
+
+
+    /**
+     * Sets the timeout value for this process.
+     *
+     * If the process requires more time than the specified timeout value, it will be terminated automatically. Set to
+     * 0 seconds  to disable, defaults to 30 seconds
+     *
+     * @param int $timeout
+     * @return Process
+     */
+    public function setTimeout(int $timeout): PRocess
+    {
+        if (!is_natural($timeout,  0)) {
+            throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be a natural number 0 or higher', [':timeout' => $timeout]));
+        }
+
+        $this->timeout = $timeout;
+
+        return $this;
+    }
+
+
+
+    /**
      * Execute the command
      *
-     * @return void
+     * @return array The output from the executed command
      */
-    public function execute(): void
+    public function execute(): array
     {
-// TODO IMPLEMENT
+        if (Debug::enabled()) {
+            Log::notice('Executing command ":command"');
+        }
+
+        exec($this->getCommandLine(), $output, $return_value);
+        $this->return_value = $return_value;
+        return $output;
+    }
+
+
+
+    /**
+     * Returns if the process has executed or not
+     *
+     * @return bool
+     */
+    public function hasExecuted(): bool
+    {
+        return !($this->return_value === null);
+    }
+
+
+
+    /**
+     * Builds and returns the command line that will be executed
+     *
+     * @return string
+     */
+    protected function getCommandLine(): string
+    {
+        return  $this->command . ' ' . implode(' ', $this->arguments);
     }
 }
