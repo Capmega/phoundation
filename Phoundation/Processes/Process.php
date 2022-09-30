@@ -3,7 +3,9 @@
 namespace Phoundation\Processes;
 
 use Phoundation\Core\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\File;
 use Phoundation\Processes\Exception\ProcessesException;
 
 /**
@@ -30,7 +32,7 @@ Class Process
      *
      * @var string|null
      */
-    protected ?string $log_file = null;
+    protected ?string $log_path = null;
 
     /**
      * The run path where command output will be written to
@@ -38,6 +40,13 @@ Class Process
      * @var string|null $run_path
      */
     protected ?string $run_path = null;
+
+    /**
+     * The process return value that is accepted for this process
+     *
+     * @var int|null
+     */
+    protected ?int $accepted_return_value = null;
 
 
 
@@ -96,13 +105,13 @@ Class Process
 
 
     /**
-     * Sets the log file where the process output will be redirected to
+     * Sets the log path where the process output will be redirected to
      *
      * @return string
      */
-    public function getLogFile(): string
+    public function getLogPath(): string
     {
-        return $this->log_file;
+        return $this->log_path;
     }
 
 
@@ -110,24 +119,20 @@ Class Process
     /**
      * Returns the log file where the process output will be redirected to
      *
-     * @param string $file
+     * @param string $path
      * @return void
      */
-    public function setLogFile(string $file): void
+    public function setLogPath(string $path): void
     {
-        $this->log_file = $file;
-    }
+        if (!$path) {
+            // Set the default log path
+            $path = ROOT . 'data/log/';
+        }
 
-
-
-    /**
-     * Set the run path where the process run file will be written
-     *
-     * @return string
-     */
-    public function geRunPath(): string
-    {
-        return $this->run_path;
+        // Ensure the path ends with a slash and that it is writable
+        $path = Strings::slash($path);
+        $path = File::ensureWritable($path);
+        $this->log_path = $path;
     }
 
 
@@ -135,12 +140,60 @@ Class Process
     /**
      * Returns the run path where the process run file will be written
      *
+     * @return string
+     */
+    public function getRunPath(): string
+    {
+        return $this->run_path;
+    }
+
+
+
+    /**
+     * Sets the run path where the process run file will be written
+     *
      * @param string $path
      * @return void
      */
     public function setRunPath(string $path): void
     {
+        if (!$path) {
+            // Set the default log path
+            $path = ROOT . 'data/run/';
+        }
+
+        // Ensure the path ends with a slash and that it is writable
+        $path = Strings::slash($path);
+        $path = File::ensureWritable($path);
         $this->run_path = $path;
+    }
+
+
+
+    /**
+     * Returns the run path where the process run file will be written
+     *
+     * @return int
+     */
+    public function getAcceptedReturnValue(): int
+    {
+        return $this->accepted_return_value;
+    }
+
+
+    /**
+     * Sets the run path where the process run file will be written
+     *
+     * @param int $return_value
+     * @return void
+     */
+    public function setAcceptedReturnValue(int $return_value): void
+    {
+        if (($return_value < 0) or ($return_value > 255)) {
+            throw new OutOfBoundsException(tr('The specified return value ":value" is invalid. Please specify a values between 0 and 255', [':value' => $return_value]));
+        }
+
+        $this->accepted_return_value = $return_value;
     }
 
 
