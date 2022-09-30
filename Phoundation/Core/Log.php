@@ -23,6 +23,23 @@ use Throwable;
  */
 Class Log {
     /**
+     * Used to display only classes and functions in backtraces
+     */
+    public const BACKTRACE_DISPLAY_FUNCTION = 1;
+
+    /**
+     * Used to display only files and line numbers in backtraces
+     */
+    public const BACKTRACE_DISPLAY_FILE = 2;
+
+    /**
+     * Used to display both classes and function and files and line numbers in backtraces
+     */
+    public const BACKTRACE_DISPLAY_BOTH = 3;
+
+
+
+    /**
      * Singleton variable
      *
      * @var Log|null $instance
@@ -532,7 +549,7 @@ Class Log {
     {
         $backtrace = Debug::backtrace();
         self::logDebugHeader('BACKTRACE', $level);
-        self::dumpTrace('debug', $backtrace, $level, $display);
+        self::dumpTrace($backtrace, $level, $display);
         return self::debug(basename($_SERVER['SCRIPT_FILENAME']), $level);
     }
 
@@ -603,15 +620,21 @@ Class Log {
             // Add coloring for easier reading
             switch ($class) {
                 case 'success':
+                    // no-break
+                case 'greeen':
                     $messages = Colors::apply($messages, 'green');
                     break;
 
+                case 'red':
+                    // no-break
                 case 'error':
                     // no-break
                 case 'exception':
                     $messages = Colors::apply($messages, 'red');
                     break;
 
+                case 'yellow':
+                    // no-break
                 case 'warning':
                     $messages = Colors::apply($messages, 'yellow');
                     break;
@@ -621,10 +644,14 @@ Class Log {
                     break;
 
                 case 'information':
+                    // no-break
+                case 'white':
                     $messages = Colors::apply($messages, 'white');
                     break;
 
                 case 'debug':
+                    // no-break
+                case 'blue':
                     $messages = Colors::apply($messages, 'light_blue');
                     break;
 
@@ -704,15 +731,66 @@ Class Log {
     /**
      * Dump the specified backtrace data
      *
-     * @param string $type Specifies what data of the backtrace will be dumped
      * @param array $backtrace
      * @param int $level
      * @param int|null $display
      * @return void
      */
-    protected static function dumpTrace(string $type, array $backtrace, int $level = 9, ?int $display = null): void
+    protected static function dumpTrace(array $backtrace, int $level = 9, ?int $display = null): void
     {
-        // TODO IMPLEMENT
+        // Parse backtrace data and log the information
+        foreach ($backtrace as $step) {
+            // We usually don't want to see arguments as that clogs up BADLY
+            unset($step['args']);
+
+            // Remove unneeded information depending on the specified display
+            switch ($display) {
+                case self::BACKTRACE_DISPLAY_FILE:
+                    // Display only file@line information
+                    break;
+
+                case self::BACKTRACE_DISPLAY_FUNCTION:
+                    // Display only function / class information
+                    unset($step['class']);
+                    unset($step['function']);
+                    break;
+
+                case self::BACKTRACE_DISPLAY_BOTH:
+                    // Display both function / class and file@line information
+                    unset($step['file']);
+                    unset($step['line']);
+                    break;
+
+                default:
+                    // Wut? Just display both
+                    self::warning(tr('Unknown $display ":display" specified. Please use one of Log::BACKTRACE_DISPLAY_FILE, Log::BACKTRACE_DISPLAY_FUNCTION, or BACKTRACE_DISPLAY_BOTH', [':display' => $display]));
+                    $display = self::BACKTRACE_DISPLAY_BOTH;
+            }
+
+            // Build up log line from here. Start by getting the file information
+            $file = '';
+
+            if (isset($step['file'])) {
+                // Remove ROOT from the filenames for clarity
+                $file = ' in ' . Strings::from($step['file'], ROOT) . '@' . $step['line'];
+            }
+
+            if (isset($step['class'])) {
+                if (isset($step['function'])) {
+                    self::write('debug', $step['function'] . '()' . $file, $level);
+                } else {
+                    self::write('debug', $file, $level);
+                }
+            } else {
+                if ($step['class'] === 'Closure') {
+                    // Log the closure calls
+                    self::write('debug', '{closure}' . $file, $level);
+                } else {
+                    // Log the class method calls
+                    self::write('debug', $step['class'] . '::' . $step['function'] . '()' . $file, $level);
+                }
+            }
+        }
     }
 
 
