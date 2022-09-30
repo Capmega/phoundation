@@ -28,6 +28,13 @@ Class Process
     protected ?string $command = null;
 
     /**
+     * The arguments for the command that will be executed for this process
+     *
+     * @var array $arguments
+     */
+    protected array $arguments = [];
+
+    /**
      * The log file where command output will be written to
      *
      * @var string|null
@@ -42,11 +49,11 @@ Class Process
     protected ?string $run_path = null;
 
     /**
-     * The process return value that is accepted for this process
+     * The process return values that is accepted for this process
      *
-     * @var int|null
+     * @var array
      */
-    protected ?int $accepted_return_value = null;
+    protected array $accepted_return_values = [0];
 
 
 
@@ -60,10 +67,112 @@ Class Process
 
 
     /**
+     * Sets the log path where the process output will be redirected to
+     *
+     * @return string
+     */
+    public function getLogPath(): string
+    {
+        return $this->log_path;
+    }
+
+
+
+    /**
+     * Returns the log file where the process output will be redirected to
+     *
+     * @param string $path
+     * @return Process This process so that multiple methods can be chained
+     */
+    public function setLogPath(string $path): Process
+    {
+        if (!$path) {
+            // Set the default log path
+            $path = ROOT . 'data/log/';
+        }
+
+        // Ensure the path ends with a slash and that it is writable
+        $path = Strings::slash($path);
+        $path = File::ensureWritable($path);
+        $this->log_path = $path;
+
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the run path where the process run file will be written
+     *
+     * @return string
+     */
+    public function getRunPath(): string
+    {
+        return $this->run_path;
+    }
+
+
+
+    /**
+     * Sets the run path where the process run file will be written
+     *
+     * @param string $path
+     * @return Process This process so that multiple methods can be chained
+     */
+    public function setRunPath(string $path): Process
+    {
+        if (!$path) {
+            // Set the default log path
+            $path = ROOT . 'data/run/';
+        }
+
+        // Ensure the path ends with a slash and that it is writable
+        $path = Strings::slash($path);
+        $path = File::ensureWritable($path);
+        $this->run_path = $path;
+
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the CLI return values that are accepted as "success" and won't cause an exception
+     *
+     * @return array
+     */
+    public function getAcceptedReturnValues(): array
+    {
+        return $this->accepted_return_values;
+    }
+
+
+    /**
+     * Sets the CLI return values that are accepted as "success" and won't cause an exception
+     *
+     * @param array $return_values
+     * @return Process This process so that multiple methods can be chained
+     */
+    public function setAcceptedReturnValues(array $return_values): Process
+    {
+        foreach ($return_values as $return_value) {
+            if (!is_integer($return_value) or ($return_value < 0) or ($return_value > 255)) {
+                throw new OutOfBoundsException(tr('The specified return value ":value" is invalid. Please specify a values between 0 and 255', [':value' => $return_values]));
+            }
+        }
+
+        $this->accepted_return_values = $return_values;
+
+        return $this;
+    }
+
+
+
+    /**
      * Set the command to be executed for this process
      *
      * @param string $command
-     * @return Process
+     * @return Process This process so that multiple methods can be chained
      */
     public function setCommand(string $command): Process
     {
@@ -88,6 +197,8 @@ Class Process
 
         // Apply proper escaping and register the command
         $this->command = escapeshellcmd($command);
+
+        return $this;
     }
 
 
@@ -105,101 +216,59 @@ Class Process
 
 
     /**
-     * Sets the log path where the process output will be redirected to
+     * Set the arguments for the command that will be executed
      *
-     * @return string
+     * @note This will reset the currently existing list of arguments.
+     * @param array $arguments
+     * @return Process This process so that multiple methods can be chained
      */
-    public function getLogPath(): string
+    public function setArguments(array $arguments): Process
     {
-        return $this->log_path;
+        $this->arguments = [];
+        return $this->addArguments($arguments);
     }
 
 
 
     /**
-     * Returns the log file where the process output will be redirected to
+     * Adds an argument to the existing list of arguments for the command that will be executed
      *
-     * @param string $path
-     * @return void
+     * @param string $argument
+     * @return Process This process so that multiple methods can be chained
      */
-    public function setLogPath(string $path): void
+    public function addArgument(string $argument): Process
     {
-        if (!$path) {
-            // Set the default log path
-            $path = ROOT . 'data/log/';
+        $this->arguments[] = escapeshellarg($argument);
+
+        return $this;
+    }
+
+
+
+    /**
+     * Adds multiple arguments to the existing list of arguments for the command that will be executed
+     *
+     * @param array $arguments
+     * @return Process This process so that multiple methods can be chained
+     */
+    public function addArguments(array $arguments): Process
+    {
+        foreach ($arguments as $argument) {
+            $this->addArgument($argument);
         }
 
-        // Ensure the path ends with a slash and that it is writable
-        $path = Strings::slash($path);
-        $path = File::ensureWritable($path);
-        $this->log_path = $path;
+        return $this;
     }
 
 
 
     /**
-     * Returns the run path where the process run file will be written
+     * Execute the command
      *
-     * @return string
-     */
-    public function getRunPath(): string
-    {
-        return $this->run_path;
-    }
-
-
-
-    /**
-     * Sets the run path where the process run file will be written
-     *
-     * @param string $path
      * @return void
      */
-    public function setRunPath(string $path): void
+    public function execute(): void
     {
-        if (!$path) {
-            // Set the default log path
-            $path = ROOT . 'data/run/';
-        }
-
-        // Ensure the path ends with a slash and that it is writable
-        $path = Strings::slash($path);
-        $path = File::ensureWritable($path);
-        $this->run_path = $path;
+// TODO IMPLEMENT
     }
-
-
-
-    /**
-     * Returns the run path where the process run file will be written
-     *
-     * @return int
-     */
-    public function getAcceptedReturnValue(): int
-    {
-        return $this->accepted_return_value;
-    }
-
-
-    /**
-     * Sets the run path where the process run file will be written
-     *
-     * @param int $return_value
-     * @return void
-     */
-    public function setAcceptedReturnValue(int $return_value): void
-    {
-        if (($return_value < 0) or ($return_value > 255)) {
-            throw new OutOfBoundsException(tr('The specified return value ":value" is invalid. Please specify a values between 0 and 255', [':value' => $return_value]));
-        }
-
-        $this->accepted_return_value = $return_value;
-    }
-
-
-
-
-
-
-
 }
