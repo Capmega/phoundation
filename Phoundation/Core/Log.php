@@ -555,82 +555,116 @@ Class Log {
      * Write the specified log message to the current log file for this instance
      *
      * @param string $class
-     * @param mixed $message
+     * @param mixed $messages
      * @param int $level
      * @param bool $clean
      * @return bool
      */
-    protected static function write(string $class, mixed $message, int $level, bool $clean = true): bool
+    protected static function write(string $class, mixed $messages, int $level, bool $clean = true): bool
     {
-        // Do we have a log file setup?
-        if (empty(self::$file)) {
-            throw new LogException(tr('Cannot log, no log file specified'));
-        }
+        try {
+            // Do we have a log file setup?
+            if (empty(self::$file)) {
+                throw new LogException(tr('Cannot log, no log file specified'));
+            }
 
-        // Get the real level and check if we passed the threshold. If $level was negative, the same message may be
-        // logged multiple times
-        $real_level = abs($level);
+            // If we received an array then log each line separately
+            if (is_array($messages)) {
+                $success = true;
 
-        // If the message to be logged is an exception then extract the log information from there
-        if (is_object($message) and $message instanceof Throwable) {
-            // TODO IMPLEMENT
-        }
+                foreach ($messages as $message) {
+                    $success = ($success and self::write($class, $message, $level, $clean));
+                }
 
-        // Make sure the log message is clean and readable. Don't truncate as we might have very large log mesages!
-        if ($clean) {
-            $message = Strings::log($message, 0);
-        }
+                return $success;
+            }
 
-        // Don't log the same message twice in a row
-        if (($level > 0) and (self::$last_message === $message)) {
+            // Get the real level and check if we passed the threshold. If $level was negative, the same message may be
+            // logged multiple times
+            $real_level = abs($level);
+
+            // If the message to be logged is an exception then extract the log information from there
+            if (is_object($messages) and $messages instanceof Throwable) {
+                // TODO IMPLEMENT
+            }
+
+            // Make sure the log message is clean and readable. Don't truncate as we might have very large log mesages!
+            if ($clean) {
+                $messages = Strings::log($messages, 0);
+            }
+
+            // Don't log the same message twice in a row
+            if (($level > 0) and (self::$last_message === $messages)) {
+                return false;
+            }
+
+            self::$last_message = $messages;
+
+            // Add coloring for easier reading
+            switch ($class) {
+                case 'success':
+                    $messages = Colors::apply($messages, 'green');
+                    break;
+
+                case 'error':
+                    // no-break
+                case 'exception':
+                    $messages = Colors::apply($messages, 'red');
+                    break;
+
+                case 'warning':
+                    $messages = Colors::apply($messages, 'yellow');
+                    break;
+
+                case 'notice':
+                    // These messages don't get color
+                    break;
+
+                case 'information':
+                    $messages = Colors::apply($messages, 'white');
+                    break;
+
+                case 'debug':
+                    $messages = Colors::apply($messages, 'light_blue');
+                    break;
+
+                default:
+                    throw new LogException('Unknown log message class ":class" specified', [':class' => $class]);
+            }
+
+            // Build the message to be logged and log
+            // The log line format is DATE LEVEL PID GLOBALID/LOCALID MESSAGE EOL
+            $messages = date('Y-m-d H:i:s') . ' ' . $level . ' ' . getmypid() . ' ' . self::$global_id . '/' . self::$local_id . $messages . PHP_EOL;
+            fwrite(self::$handles[self::$file], $messages);
+
+            // In Command Line mode always log to the screen too
+            if (PHP_SAPI === 'cli') {
+                echo $messages;
+            }
+
+            return true;
+        } catch (Throwable $e) {
+            // Don't ever let the system crash because of a log issue so we catch all possible exceptions
+            self::$fail = true;
+
+            try {
+                error_log(date('Y-m-d H:i:s') . ' ' . getmypid() . ' [' . self::$global_id . '/' . self::$local_id . '] Failed to log message to internal log files because "' . $e->getMessage() . '"');
+
+                try {
+                    error_log(date('Y-m-d H:i:s') . ' ' . $level . ' ' . getmypid() . ' ' . self::$global_id . '/' . self::$local_id . $messages);
+                } catch (Throwable $g) {
+                    // Okay this is messed up, we can't even log to system logs.
+                    error_log('Failed to log message');
+                }
+            } catch (Throwable $f) {
+                // Okay WT actual F is going on here? We can't log to our own files, we can't log to system files. THIS
+                // we won't stand for!
+                throw new LogException('Failed to write to ANY log (Failed to write to both local log files and system log files', data: ['original exception' => $e]);
+            }
+
+            // We did NOT log
             return false;
         }
-
-        self::$last_message = $message;
-
-        // Add coloring for easier reading
-        switch ($class) {
-            case 'success':
-                $message = Colors::apply($message, 'green');
-                break;
-
-            case 'error':
-                // no-break
-            case 'exception':
-                $message = Colors::apply($message, 'red');
-                break;
-
-            case 'warning':
-                $message = Colors::apply($message, 'yellow');
-                break;
-
-            case 'notice':
-                // These messages don't get color
-                break;
-
-            case 'information':
-                $message = Colors::apply($message, 'white');
-                break;
-
-            case 'debug':
-                $message = Colors::apply($message, 'light_blue');
-                break;
-
-            default:
-                throw new LogException('Unknown log message class ":class" specified', [':class' => $class]);
-        }
-
-        // Build the message to be logged and log
-        // The log line format is DATE LEVEL PID GLOBALID/LOCALID MESSAGE EOL
-        $message = date('Y-m-d H:i:s') . ' ' . $level . ' ' . getmypid() . ' ' . self::$global_id . '/' . self::$local_id . $message . PHP_EOL;
-        fwrite(self::$handles[self::$file], $message);
-
-        // In Command Line mode always log to the screen too
-        if (PHP_SAPI === 'cli') {
-            echo $message;
-        }
-
-        return true;
     }
 
 
