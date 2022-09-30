@@ -8,6 +8,8 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Processes\Exception\ProcessesException;
+use Phoundation\Processes\Exception\ProcessException;
+use Phoundation\Processes\Exception\ProcessFailedException;
 
 /**
  * Class Process
@@ -164,29 +166,81 @@ Class Process
      *
      * @return array
      */
-    public function getAcceptedExitcodes(): array
+    public function getAcceptedExitCodes(): array
     {
         return $this->accepted_exit_codes;
     }
 
 
+
     /**
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
-     * @param array $return_values
+     * @param array $exit_codes
      * @return Process This process so that multiple methods can be chained
      */
-    public function setAcceptedExitcodes(array $return_values): Process
+    public function setAcceptedExitCodes(array $exit_codes): Process
     {
-        foreach ($return_values as $return_value) {
-            if (!is_integer($return_value) or ($return_value < 0) or ($return_value > 255)) {
-                throw new OutOfBoundsException(tr('The specified return value ":value" is invalid. Please specify a values between 0 and 255', [':value' => $return_values]));
-            }
+        $this->accepted_exit_codes = [];
+        return $this->addAcceptedExitCodes($exit_codes);
+    }
+
+
+
+    /**
+     * Sets the CLI return values that are accepted as "success" and won't cause an exception
+     *
+     * @param array $exit_codes
+     * @return Process This process so that multiple methods can be chained
+     */
+    public function addAcceptedExitCodes(array $exit_codes): Process
+    {
+        foreach ($exit_codes as $exit_code) {
+            $this->addAcceptedExitCode($exit_code);
         }
 
-        $this->accepted_exit_codes = $return_values;
+        return $this;
+    }
+
+
+
+    /**
+     * Sets the CLI return values that are accepted as "success" and won't cause an exception
+     *
+     * @param int $exit_code
+     * @return Process This process so that multiple methods can be chained
+     */
+    public function addAcceptedExitCode(int $exit_code): Process
+    {
+        if (($exit_code < 0) or ($exit_code > 255)) {
+            throw new OutOfBoundsException(tr('The specified $exit_code ":code" is invalid. Please specify a values between 0 and 255', [':code' => $exit_code]));
+        }
+
+        $this->accepted_exit_codes[] = $exit_code;
 
         return $this;
+    }
+
+
+
+    /**
+     * Sets the actual CLI exit code after the process finished its execution
+     *
+     * This method will check if the specified exit code is accepted and if not, throw a Process exception
+     *
+     * @param int $exit_code
+     * @return void
+     */
+    protected function setExitCode(int $exit_code): void
+    {
+        $this->exit_code = $exit_code;
+
+        if (in_array($exit_code, $this->accepted_exit_codes)) {
+            // The command executed correctly, yay!
+            return;
+        }
+
+        throw new ProcessFailedException('The command ":command" failed with exit code ":code"');
     }
 
 
@@ -407,9 +461,21 @@ Class Process
      * Builds and returns the command line that will be executed
      *
      * @return string
+     * @throws ProcessException
      */
     protected function getCommandLine(): string
     {
-        return  $this->command . ' ' . implode(' ', $this->arguments);
+        if (!$this->command) {
+            throw new ProcessException(tr('Cannot execute process, no command specified'));
+        }
+
+        $command_line = $this->command . ' ' . implode(' ', $this->arguments);
+
+        // Add timeout
+        if ($this->timeout) {
+            $command_line = 'timeout ' . $this->timeout . ' ' . $command_line;
+        }
+
+        return $command_line;
     }
 }
