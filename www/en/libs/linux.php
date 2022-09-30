@@ -325,7 +325,7 @@ function linux_file_clear_path($server, $path, $sudo = false, $restrictions = nu
              * Remove this entry and continue;
              */
             try{
-                linux_file_execute_mode($server, dirname($path), (linux_is_writable(dirname($path)) ? false : 0770), function($path) use ($restrictions) {
+                linux_File::executeMode($server, dirname($path), (linux_is_writable(dirname($path)) ? false : 0770), function($path) use ($restrictions) {
                     linux_file_delete($server, $path, false, false, $restrictions);
                 });
 

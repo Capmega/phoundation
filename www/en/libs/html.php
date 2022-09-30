@@ -162,7 +162,7 @@ function html_bundler($list) {
             if (!filesize($bundle_file)) {
                 log_file(tr('Deleting empty bundle file ":file"', array(':file' => $bundle_file)), 'html-bundler', 'yellow');
 
-                file_execute_mode(dirname($bundle_file), 0770, function() use ($bundle_file, $list) {
+                File::executeMode(dirname($bundle_file), 0770, function() use ($bundle_file, $list) {
                     file_delete($bundle_file, ROOT.'www/'.LANGUAGE.'/pub/');
                 });
 
@@ -176,7 +176,7 @@ function html_bundler($list) {
             if (($_CONFIG['cdn']['cache_max_age'] > 60) and (filemtime($bundle_file) + $_CONFIG['cdn']['cache_max_age']) < time()) {
                 log_file(tr('Deleting expired cached bundle file ":file"', array(':file' => $bundle_file)), 'html-bundler', 'VERBOSE/yellow');
 
-                file_execute_mode(dirname($bundle_file), 0770, function() use ($bundle_file, $list) {
+                File::executeMode(dirname($bundle_file), 0770, function() use ($bundle_file, $list) {
                     file_delete($bundle_file, ROOT.'www/'.LANGUAGE.'/pub/');
                 });
 
@@ -190,7 +190,7 @@ function html_bundler($list) {
              * Generate new bundle file. This requires the pub/$list path to be
              * writable
              */
-            file_execute_mode(dirname($bundle_file), 0770, function() use ($list, &$file_count, $path, $ext, $extension, $bundle_file) {
+            File::executeMode(dirname($bundle_file), 0770, function() use ($list, &$file_count, $path, $ext, $extension, $bundle_file) {
                 global $core, $_CONFIG;
 
                 if (!empty($core->register[$list])) {
@@ -2139,7 +2139,7 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                          */
                         log_file(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', array(':file' => $file.'.js')), 'html-script', 'yellow');
 
-                        file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
+                        File::executeMode(ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
                             file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', ROOT.'www/'.LANGUAGE.'/pub/js');
                             file_delete(array('patterns'       => $file.'.js,'.$file.'.min.js',
                                               'force_writable' => true,
@@ -2152,7 +2152,7 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                          */
                         log_file(tr('Deleting externally cached javascript file ":file" because the file cache time expired', array(':file' => $file.'.js')), 'html-script', 'yellow');
 
-                        file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
+                        File::executeMode(ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
                             file_delete(array('patterns'       => $file.'.js,'.$file.'.min.js',
                                               'force_writable' => true,
                                               'restrictions'   => ROOT.'www/'.LANGUAGE.'/pub/js'));
@@ -2166,7 +2166,7 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                  * deleted it
                  */
                 if (!file_exists($file.'.js')) {
-                    file_execute_mode(dirname($file), 0770, function() use ($file, $retval) {
+                    File::executeMode(dirname($file), 0770, function() use ($file, $retval) {
                         log_file(tr('Writing internal javascript to externally cached file ":file"', array(':file' => $file.'.js')), 'html-script', 'cyan');
                         file_put_contents($file.'.js', $retval);
                     });
@@ -2550,8 +2550,8 @@ under_construction();
                 log_file(tr('Modified format target ":target" does not exist, converting original source', array(':target' => $target)), 'html', 'VERYVERBOSE/warning');
                 load_libs('image');
 
-                file_execute_mode(dirname($file_src), 0770, function() use ($file_src, $target, $format) {
-                    file_execute_mode($file_src, 0660, function() use ($file_src, $target, $format) {
+                File::executeMode(dirname($file_src), 0770, function() use ($file_src, $target, $format) {
+                    File::executeMode($file_src, 0660, function() use ($file_src, $target, $format) {
                         global $_CONFIG;
 
                         image_convert(array('method' => 'custom',
@@ -2919,7 +2919,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                             log_file(tr('Resized version of ":src" does not yet exist, converting', array(':src' => $params['src'])), 'html', 'VERBOSE/cyan');
                             load_libs('image');
 
-                            file_execute_mode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params) {
+                            File::executeMode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params) {
                                 global $_CONFIG;
 
                                 image_convert(array('method' => 'resize',
@@ -3006,7 +3006,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                         $file = download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
                         $path = cli_unzip($file);
 
-                        file_execute_mode(ROOT.'www/en/pub/js', 0770, function() use ($path) {
+                        File::executeMode(ROOT.'www/en/pub/js', 0770, function() use ($path) {
                             file_delete(ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', ROOT.'www/'.LANGUAGE.'/pub/js/');
                             rename($path.'jquery.lazy-master/', ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
                         });

@@ -194,7 +194,7 @@ function node_find_modules() {
             /*
              * Initialize the node_modules path
              */
-            file_execute_mode(ROOT, 0770, function() use (&$found) {
+            File::executeMode(ROOT, 0770, function() use (&$found) {
                 log_console(tr('node_find_modules(): node_modules path not found, initializing now with ROOT/node_modules'), 'yellow');
 
                 $found = ROOT.'node_modules/';
@@ -210,7 +210,7 @@ function node_find_modules() {
          */
 // :TODO: Improve this part. If the package-lock file exists, that means that a node install at least WAS busy, or still is busy in perhaps a parrallel process? Check if node is active, if not THEN delete and continue
         if (file_exists(Strings::slash(dirname($found)).'package-lock.json')) {
-            file_execute_mode(Strings::slash(dirname($found)), 0770, function() use ($found) {
+            File::executeMode(Strings::slash(dirname($found)), 0770, function() use ($found) {
                 /*
                  * Delete the package-lock.json file. It's okay to use the
                  * variable dirname($found) here for restrictions as $found can
@@ -279,7 +279,7 @@ function node_install_npm($packages) {
 
         log_console(tr('node_install_npm(): Installing packages ":packages"', array(':packages' => $packages)), 'VERBOSE/cyan');
 
-        file_execute_mode(ROOT, 0770, function() use ($packages) {
+        File::executeMode(ROOT, 0770, function() use ($packages) {
             file_ensure_path(ROOT.'node_modules');
 
             /*

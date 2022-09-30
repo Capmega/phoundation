@@ -369,7 +369,7 @@ function file_ensure_file($file, $mode = null, $path_mode = null) {
             /*
              * Create the file
              */
-            file_execute_mode(dirname($file), 0770, function() use ($file, $mode) {
+            File::executeMode(dirname($file), 0770, function() use ($file, $mode) {
                 log_console(tr('file_ensure_file(): Warning: file ":file" did not exist and was created empty to ensure system stability, but information may be missing', array(':file' => $file)), 'VERBOSE/yellow');
                 touch($file);
 
@@ -445,7 +445,7 @@ function file_ensure_path($path, $mode = null, $clear = false, $restrictions = R
                          * Some normal file is in the way. Delete the file, and
                          * retry
                          */
-                        file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions) {
+                        File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions) {
                             file_delete($path, $restrictions);
                         });
 
@@ -458,7 +458,7 @@ function file_ensure_path($path, $mode = null, $clear = false, $restrictions = R
                     /*
                      * This is a dead symlink, delete it
                      */
-                    file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions) {
+                    File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions) {
                         file_delete($path, $restrictions);
                     });
                 }
@@ -468,7 +468,7 @@ function file_ensure_path($path, $mode = null, $clear = false, $restrictions = R
                      * Make sure that the parent path is writable when creating
                      * the directory
                      */
-                    file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode) {
+                    File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode) {
                         mkdir($path, $mode);
                     });
 
@@ -594,7 +594,7 @@ function file_clear_path($paths, $restrictions = null) {
              * Remove this entry and continue;
              */
             try{
-                file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($restrictions, $path) {
+                File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($restrictions, $path) {
                     file_delete(array('patterns'       => $path,
                                       'clean_path'     => false,
                                       'force_writable' => true,
@@ -2790,7 +2790,7 @@ function file_root($path) {
  * @param function $callback The function to be executed after the file mode of the specified path has been updated
  * @return string The result from the callback function
  */
-function file_execute_mode($path, $mode, $callback, $params = null) {
+function File::executeMode($path, $mode, $callback, $params = null) {
     try{
         /*
          * Apply to all directories below?
@@ -2804,11 +2804,11 @@ function file_execute_mode($path, $mode, $callback, $params = null) {
         }
 
         if (!file_exists($path)) {
-            throw new CoreException(tr('file_execute_mode(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
+            throw new CoreException(tr('File::executeMode(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
         if (!is_string($callback) and !is_callable($callback)) {
-            throw new CoreException(tr('file_execute_mode(): Specified callback ":callback" is invalid, it should be a string or a callable function', array(':callback' => $callback)), 'invalid');
+            throw new CoreException(tr('File::executeMode(): Specified callback ":callback" is invalid, it should be a string or a callable function', array(':callback' => $callback)), 'invalid');
         }
 
         /*
@@ -2834,12 +2834,12 @@ function file_execute_mode($path, $mode, $callback, $params = null) {
         }catch(Exception $e) {
             if (empty($subpath)) {
                 if (!is_writable($path)) {
-                    throw new CoreException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified path ":path", access denied', array(':mode' => decoct($mode), ':path' => $path)), $e);
+                    throw new CoreException(tr('File::executeMode(): Failed to set mode "0:mode" to specified path ":path", access denied', array(':mode' => decoct($mode), ':path' => $path)), $e);
                 }
 
             } else {
                 if (!is_writable($subpath)) {
-                    throw new CoreException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified subpath ":path", access denied', array(':mode' => decoct($mode), ':path' => $subpath)), $e);
+                    throw new CoreException(tr('File::executeMode(): Failed to set mode "0:mode" to specified subpath ":path", access denied', array(':mode' => decoct($mode), ':path' => $subpath)), $e);
                 }
             }
 
@@ -2848,7 +2848,7 @@ function file_execute_mode($path, $mode, $callback, $params = null) {
             $message = strtolower($message);
 
             if (str_contains($message, 'operation not permitted')) {
-                throw new CoreException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified path ":path", operation not permitted', array(':mode' => decoct($mode), ':path' => $path)), $e);
+                throw new CoreException(tr('File::executeMode(): Failed to set mode "0:mode" to specified path ":path", operation not permitted', array(':mode' => decoct($mode), ':path' => $path)), $e);
             }
 
             throw $e;
@@ -2887,7 +2887,7 @@ function file_execute_mode($path, $mode, $callback, $params = null) {
         return $retval;
 
     }catch(Exception $e) {
-        throw new CoreException(tr('file_execute_mode(): Failed for path(s) ":path"', array(':path' => $path)), $e);
+        throw new CoreException(tr('File::executeMode(): Failed for path(s) ":path"', array(':path' => $path)), $e);
     }
 }
 

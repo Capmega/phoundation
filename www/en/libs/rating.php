@@ -64,10 +64,10 @@ function rating_install($params) {
         $css = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.css', 'ratings');
         $js  = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.js' , 'ratings');
 
-        file_execute_mode(ROOT.'pub/js/', 0770, function() {
+        File::executeMode(ROOT.'pub/js/', 0770, function() {
             file_ensure_path(ROOT.'pub/js/rating/', 0550);
 
-            file_execute_mode(ROOT.'pub/js/rating/', 0770, function() {
+            File::executeMode(ROOT.'pub/js/rating/', 0770, function() {
                 rename($js , ROOT.'pub/js/rating/rating.js');
                 rename($css, ROOT.'pub/css/rating/rating.css');
             });

@@ -60,7 +60,7 @@ function minify_library_init() {
  */
 function minify_setup($params) {
     try{
-        file_execute_mode(ROOT.'libs/', 0770, function() {
+        File::executeMode(ROOT.'libs/', 0770, function() {
             load_libs('composer');
             composer_require('mrclay/minify');
             safe_exec(array('commands' => array('chmod', array('ug-w,o-rwx', ROOT.'libs/vendor/mrclay/'))));

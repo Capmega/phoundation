@@ -69,7 +69,7 @@ function base58_install($params) {
          */
         load_libs('git,linux');
 
-        file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs/external/', 0770, function() {
+        File::executeMode(ROOT.'www/'.LANGUAGE.'/libs/external/', 0770, function() {
             $path = git_clone('https://github.com/stephen-hill/base58php.git', TMP, true);
             rename($path, ROOT.'www/'.LANGUAGE.'/libs/external/base58php');
         });

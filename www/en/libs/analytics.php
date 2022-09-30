@@ -130,10 +130,10 @@ function analytics_matomo($sites_id) {
              */
             $file = file_get_local($_CONFIG['analytics']['matomo_domain'].'/piwik.js');
 
-            file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
+            File::executeMode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
                 file_ensure_path($path.'matomo', 0550);
 
-                file_execute_mode($path.'matomo/', 0770, function($path) use ($file) {
+                File::executeMode($path.'matomo/', 0770, function($path) use ($file) {
                     rename($file, $path.'piwik.js');
                     chmod($path.'piwik.js', 0440);
                 });
@@ -198,10 +198,10 @@ function analytics_google($sites_id) {
              */
             $file = file_get_local('https://www.google-analytics.com/analytics.js');
 
-            file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
+            File::executeMode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
                 file_ensure_path($path.'google', 0550);
 
-                file_execute_mode($path.'google/', 0770, function($path) use ($file) {
+                File::executeMode($path.'google/', 0770, function($path) use ($file) {
                     rename($file, $path.'analytics.js');
                     chmod($path.'analytics.js', 0440);
                 });

@@ -201,8 +201,8 @@ function config_write($data, $environment, $section = false) {
 
         $lines = "<?php\n/* THIS CONFIGURATION FILE HAS BEEN GENERATED AUTOMATICALLY BY BASE */\n\n".implode("\n", $lines)."?>";
 
-        file_execute_mode(dirname($file), 0770, function($path, $params) use($lines, $file) {
-            file_execute_mode($file, 0660, function($path, $params) use($lines, $file) {
+        File::executeMode(dirname($file), 0770, function($path, $params) use($lines, $file) {
+            File::executeMode($file, 0660, function($path, $params) use($lines, $file) {
                 file_put_contents($file, $lines);
             });
         });

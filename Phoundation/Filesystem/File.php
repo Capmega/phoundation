@@ -2,6 +2,7 @@
 
 namespace Phoundation\Filesystem;
 
+use Exception;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\CoreException;
@@ -11,6 +12,7 @@ use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Processes\Exception\ProcessesException;
 use Throwable;
+
 
 
 /**
@@ -92,17 +94,17 @@ class File
     /**
      * Move uploaded image to correct target
      *
-     * @param string $source
-     * @return string
+     * @param array|string $source The source file to process
+     * @return string The new file path
      * @throws CoreException
      */
-    public static function getUploaded(string $source)
+    public static function getUploaded(array|string $source): string
     {
         $destination = ROOT.'data/uploads/';
 
         if (is_array($source)) {
             /*
-             * Asume this is a PHP file upload array entry
+             * Assume this is a PHP file upload array entry
              */
             if (empty($source['tmp_name'])) {
                 throw new FilesystemException(tr('file_move_uploaded(): Invalid source specified, must either be a string containing an absolute file path or a PHP $_FILES entry'), 'invalid');
@@ -115,60 +117,73 @@ class File
             $real   = basename($source);
         }
 
-
         is_file($source);
         Path::ensure($destination);
 
         // Ensure we're not overwriting anything!
-        if (file_exists($destination.$real)) {
+        if (file_exists($destination . $real)) {
             $real = Strings::untilReverse($real, '.').'_'.substr(uniqid(), -8, 8).'.'.Strings::fromReverse($real, '.');
         }
 
-        if (!move_uploaded_file($source, $destination.$real)) {
+        if (!move_uploaded_file($source, $destination . $real)) {
             throw new FilesystemException(tr('Failed to move file ":source" to destination ":destination"', [':source' => $source, ':destination' => $destination]), 'move');
         }
 
         // Return destination file
-        return $destination.$real;
+        return $destination . $real;
     }
 
 
-
-    /*
+    /**
      * Create a target, but don't put anything in it
+     *
+     * @param string $path
+     * @param bool $extension
+     * @param bool $singledir
+     * @param int $length
+     * @return string
+     * @throws Exception
      */
-    public static function assignTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4)
+    public static function assignTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string
     {
         return self::moveToTarget('', $path, $extension, $singledir, $length);
     }
 
 
-
-    /*
+    /**
      * Create a target, but don't put anything in it, and return path+filename without extension
+     *
+     * @param string $path
+     * @param bool $extension
+     * @param bool $singledir
+     * @param int $length
+     * @return string
+     * @throws Exception
      */
-    public static function assignTargetClean(string $path, bool $extension = false, bool $singledir = false, int $length = 4)
+    public static function assignTargetClean(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string
     {
         return str_replace($extension, '', self::moveToTarget('', $path, $extension, $singledir, $length));
     }
 
 
-
-    /*
+    /**
      * Copy specified file, see file_move_to_target for implementation
+     *
+     * @param string $file
+     * @param string $path
+     * @param bool $extension
+     * @param bool $singledir
+     * @param int $length
+     * @return string
+     * @throws Exception
      */
-    public static function copyToTarget($file, $path, $extension = false, $singledir = false, $length = 4)
+    public static function copyToTarget(string $file, string $path, bool $extension = false, bool $singledir = false, int $length = 4): string
     {
-        if (is_array($file)) {
-            throw new FilesystemException(tr('file_copy_to_target(): Specified file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', array(':file' => str_log($file))));
-        }
-
         return self::moveToTarget($file, $path, $extension, $singledir, $length, true);
     }
 
 
-
-    /*
+    /**
      * Move specified file (must be either file string or PHP uploaded file array) to a target and returns the target name
      *
      * IMPORTANT! Extension here is just "the rest of the filename", which may be _small.jpg, or just the extension, .jpg
@@ -179,30 +194,26 @@ class File
      * If $singledir is set to false, the resulting file will be in a/b/c/d/e/, if its set to true, it will be in abcde
      * $length specifies howmany characters the subdir should have (4 will make a/b/c/d/ or abcd/)
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package file
-     *
-     * @param string $file
+     * @param array|string $file
      * @param string $path
-     * @param string $extension
-     * @param string $singledir
-     * @param string $length
-     * @param string $copy
+     * @param bool $extension
+     * @param bool $singledir
+     * @param int $length
+     * @param bool $copy
      * @param string $context
      * @return string The target file
+     * @throws Exception
      */
-    public static function moveToTarget(string $file, string $path, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null)
+    public static function moveToTarget(array|string $file, string $path, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null): string
     {
         if (is_array($file)) {
+            // Assume this is a PHP $_FILES array entry
             $upload = $file;
             $file   = $file['name'];
         }
 
         if (isset($upload) and $copy) {
-            throw new FilesystemException(tr('file_move_to_target(): Copy option has been set, but specified file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', array(':file' => $file)));
+            throw new FilesystemException(tr('Copy option has been set, but specified file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', [':file' => $file]));
         }
 
         $path     = Path::ensure($path);
@@ -240,7 +251,7 @@ class File
          * not obligatory at the start of the string
          */
         if ($extension) {
-            if (strpos($extension, '.') === false) {
+            if (!str_contains($extension, '.')) {
                 $target .= '.'.$extension;
 
             } else {
@@ -256,10 +267,10 @@ class File
                 /*
                  * File was specified as an upload array
                  */
-                return file_move_to_target($upload, $path, $extension, $singledir, $length, $copy);
+                return File::moveToTarget($upload, $path, $extension, $singledir, $length, $copy);
             }
 
-            return file_move_to_target($file, $path, $extension, $singledir, $length, $copy);
+            return File::moveToTarget($file, $path, $extension, $singledir, $length, $copy);
         }
 
         /*
@@ -291,44 +302,43 @@ class File
 
 
 
-    /*
+    /**
      * Creates a random path in specified base path (If it does not exist yet), and returns that path
+     *
+     * @param string $path
+     * @param bool $singledir
+     * @param int $length
+     * @return string
      */
-    public static function createTargetPath(string $path, bool $singledir = false, $length = false) {
-        global $_CONFIG;
-
-        try{
-            if ($length === false) {
-                $length = $_CONFIG['file']['target_path_size'];
-            }
-
-            $path = Strings::unslash(Path::ensure($path));
-
-            if ($singledir) {
-                /*
-                 * Assign path in one dir, like abcde/
-                 */
-                $path = Strings::slash($path).substr(uniqid(), -$length, $length);
-
-            } else {
-                /*
-                 * Assign path in multiple dirs, like a/b/c/d/e/
-                 */
-                foreach(str_split(substr(uniqid(), -$length, $length)) as $char) {
-                    $path .= DIRECTORY_SEPARATOR.$char;
-                }
-            }
-
-            return Strings::slash(Path::ensure($path));
-
-        }catch(Exception $e) {
-            throw new FilesystemException(tr('file_create_target_path(): Failed'), $e);
+    public static function createTargetPath(string $path, bool $singledir = false, int $length = 0): string
+    {
+        if (!$length) {
+            $length = Config::get('filesystem.target_path_size', 8);
         }
+
+        $path = Strings::unslash(Path::ensure($path));
+
+        if ($singledir) {
+            /*
+             * Assign path in one dir, like abcde/
+             */
+            $path = Strings::slash($path).substr(uniqid(), -$length, $length);
+
+        } else {
+            /*
+             * Assign path in multiple dirs, like a/b/c/d/e/
+             */
+            foreach(str_split(substr(uniqid(), -$length, $length)) as $char) {
+                $path .= DIRECTORY_SEPARATOR.$char;
+            }
+        }
+
+        return Strings::slash(Path::ensure($path));
     }
 
 
 
-    /*
+    /**
      * Ensure that the specified file exists in the specified path
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -340,45 +350,34 @@ class File
      * @version 2.4.16: Added documentation, improved log output
      *
      * @param string $file The file that must exist
-     * @param null octal $mode If the specified $file does not exist, it will be created with this file mode. Defaults to $_CONFIG[fs][file_mode]
-     * @param null octal $path_mode If parts of the path for the file do not exist, these will be created as well with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
+     * @param null $mode If the specified $file does not exist, it will be created with this file mode. Defaults to $_CONFIG[fs][file_mode]
+     * @param null $path_mode If parts of the path for the file do not exist, these will be created as well with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
      * @return string The specified file
      */
-    public static function ensure_file($file, $mode = null, $path_mode = null) {
-        global $_CONFIG;
+    public static function ensureFile($file, $mode = null, $path_mode = null): string
+    {
+        $mode = Config::get('filesystem.modes.defaults.file', 0640, $mode);
+        Path::ensure(dirname($file), $path_mode);
 
-        try{
-            if (!$mode) {
-                $mode = $_CONFIG['file']['file_mode'];
-            }
+        if (!file_exists($file)) {
+            // Create the file
+            self::executeMode(dirname($file), 0770, function() use ($file, $mode) {
+                Log::warning(tr('File ":file" did not exist and was created empty to ensure system stability, but information may be missing', [':file' => $file]));
+                touch($file);
 
-            Path::ensure(dirname($file), $path_mode);
-
-            if (!file_exists($file)) {
-                /*
-                 * Create the file
-                 */
-                file_execute_mode(dirname($file), 0770, function() use ($file, $mode) {
-                    log_console(tr('file_ensure_file(): Warning: file ":file" did not exist and was created empty to ensure system stability, but information may be missing', array(':file' => $file)), 'VERBOSE/yellow');
-                    touch($file);
-
-                    if ($mode) {
-                        chmod($file, $mode);
-                    }
-                });
-            }
-
-            return $file;
-
-        }catch(Exception $e) {
-            throw new FilesystemException(tr('file_ensure_file(): Failed'), $e);
+                if ($mode) {
+                    chmod($file, $mode);
+                }
+            });
         }
+
+        return $file;
     }
 
 
 
-    /*
-     * Delete the path, and each parent directory until a non empty directory is encountered
+    /**
+     * Delete the path, and each parent directory until a non-empty directory is encountered
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -387,11 +386,12 @@ class File
      * @package files
      * @see Restrict::restrict() This function uses file location restrictions, see Restrict::restrict() for more information
      *
-     * @param list $paths A list of path patterns to be cleared
-     * @param null list $params[restrictions] A list of paths to which file_delete() operations will be restricted
+     * @param array|string $paths A list of path patterns to be cleared
+     * @param ?Restrictions $restrictions A list of paths to which file_delete() operations will be restricted
      * @return void
      */
-    public static function clear_path($paths, $restrictions = null) {
+    public static function clearPath(array|string $paths, ?Restrictions $restrictions = null): void
+    {
         try{
             /*
              * Multiple paths specified, clear all
@@ -409,7 +409,7 @@ class File
             /*
              * Restrict location access
              */
-            Restrict::restrict($path, $restrictions);
+            Restrictions::restrict($path, $restrictions);
 
             if (!file_exists($path)) {
                 /*
@@ -418,15 +418,15 @@ class File
                 $path = dirname($path);
 
                 try{
-                    Restrict::restrict($path, $restrictions);
-                    return file_clear_path($path, $restrictions);
+                    Restrictions::restrict($path, $restrictions);
+                    File::clearPath($path, $restrictions);
 
                 }catch(Exception $e) {
                     if ($e->getRealCode() === 'access-denied') {
                         /*
                          * We no longer have access to move up more, stop here.
                          */
-                        log_console(tr('file_clear_path(): Stopped recursing upward on path ":path" because filesystem restrictions do not permit to move further up', array(':path' => $path)), 'VERYVERBOSE/warning');
+                        Log::warning(tr('Stopped recursing upward on path ":path" because filesystem restrictions do not permit to move further up', [':path' => $path]));
                         return;
                     }
                 }
@@ -468,7 +468,7 @@ class File
                  * Remove this entry and continue;
                  */
                 try{
-                    file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($restrictions, $path) {
+                    File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($restrictions, $path) {
                         file_delete(array('patterns'       => $path,
                             'clean_path'     => false,
                             'force_writable' => true,
@@ -2785,11 +2785,11 @@ class File
             }
 
             if (!file_exists($path)) {
-                throw new FilesystemException(tr('file_execute_mode(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
+                throw new FilesystemException(tr('File::executeMode(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
             }
 
             if (!is_string($callback) and !is_callable($callback)) {
-                throw new FilesystemException(tr('file_execute_mode(): Specified callback ":callback" is invalid, it should be a string or a callable function', array(':callback' => $callback)), 'invalid');
+                throw new FilesystemException(tr('File::executeMode(): Specified callback ":callback" is invalid, it should be a string or a callable function', array(':callback' => $callback)), 'invalid');
             }
 
             /*
@@ -2815,12 +2815,12 @@ class File
             }catch(Exception $e) {
                 if (empty($subpath)) {
                     if (!is_writable($path)) {
-                        throw new FilesystemException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified path ":path", access denied', array(':mode' => decoct($mode), ':path' => $path)), $e);
+                        throw new FilesystemException(tr('File::executeMode(): Failed to set mode "0:mode" to specified path ":path", access denied', array(':mode' => decoct($mode), ':path' => $path)), $e);
                     }
 
                 } else {
                     if (!is_writable($subpath)) {
-                        throw new FilesystemException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified subpath ":path", access denied', array(':mode' => decoct($mode), ':path' => $subpath)), $e);
+                        throw new FilesystemException(tr('File::executeMode(): Failed to set mode "0:mode" to specified subpath ":path", access denied', array(':mode' => decoct($mode), ':path' => $subpath)), $e);
                     }
                 }
 
@@ -2829,7 +2829,7 @@ class File
                 $message = strtolower($message);
 
                 if (str_contains($message, 'operation not permitted')) {
-                    throw new FilesystemException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified path ":path", operation not permitted', array(':mode' => decoct($mode), ':path' => $path)), $e);
+                    throw new FilesystemException(tr('File::executeMode(): Failed to set mode "0:mode" to specified path ":path", operation not permitted', array(':mode' => decoct($mode), ':path' => $path)), $e);
                 }
 
                 throw $e;
@@ -2868,7 +2868,7 @@ class File
             return $retval;
 
         }catch(Exception $e) {
-            throw new FilesystemException(tr('file_execute_mode(): Failed for path(s) ":path"', array(':path' => $path)), $e);
+            throw new FilesystemException(tr('File::executeMode(): Failed for path(s) ":path"', array(':path' => $path)), $e);
         }
     }
 

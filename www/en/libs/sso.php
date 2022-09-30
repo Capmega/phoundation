@@ -90,7 +90,7 @@ function sso_install($params) {
         /*
          * Install library and clean up
          */
-        file_execute_mode(ROOT.'www/en/libs/vendor', 0770, function() {
+        File::executeMode(ROOT.'www/en/libs/vendor', 0770, function() {
             file_delete(ROOT.'www/en/libs/vendor/hybridauth', ROOT.'www/en/libs/vendor');
             rename($path, ROOT.'www/en/libs/vendor/hybridauth');
         });

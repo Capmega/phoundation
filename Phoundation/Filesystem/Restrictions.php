@@ -18,5 +18,7 @@ namespace Phoundation\Filesystem;
  */
 class Restrictions
 {
-
+    public static function restrict(string $path, ?Restrictions $restrictions)
+    {
+    }
 }

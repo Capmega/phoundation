@@ -159,7 +159,7 @@ function uglify_css($paths = null, $force = false) {
                 }
 
                 if (is_link($file)) {
-                    file_execute_mode(dirname($file), 0770, function() use ($file) {
+                    File::executeMode(dirname($file), 0770, function() use ($file) {
                         if (substr($file, -7, 7) == '.min.js') {
                             /*
                              * If is minified then we have to copy
@@ -355,7 +355,7 @@ function uglify_css($paths = null, $force = false) {
                     /*
                      * Compress file
                      */
-                    file_execute_mode(dirname($file), 0770, function() use ($file) {
+                    File::executeMode(dirname($file), 0770, function() use ($file) {
                         global $core;
 
                         log_console(tr('uglify_css(): Minifying CSS file ":file"', array(':file' => $file)), 'VERBOSEDOT');
@@ -511,7 +511,7 @@ function uglify_js($paths = null, $force = false) {
              */
             foreach(file_list_tree($path) as $file) {
                 if (is_link($file)) {
-                    file_execute_mode(dirname($file), 0770, function() use ($file) {
+                    File::executeMode(dirname($file), 0770, function() use ($file) {
                         if (substr($file, -7, 7) == '.min.js') {
                             /*
                              * If is minified then we have to copy
@@ -704,7 +704,7 @@ function uglify_js($paths = null, $force = false) {
                     /*
                      * Compress file
                      */
-                    file_execute_mode(dirname($file), 0770, function() use ($file) {
+                    File::executeMode(dirname($file), 0770, function() use ($file) {
                         global $core;
 
                         log_console(tr('uglify_js(): Minifying javascript file ":file"', array(':file' => $file)), 'VERBOSEDOT');

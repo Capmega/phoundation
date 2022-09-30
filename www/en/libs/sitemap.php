@@ -138,8 +138,8 @@ function sitemap_install_files($files) {
                     continue;
                 }
 
-                file_execute_mode(ROOT.'www/', 0770, function($path) use ($insert, $file) {
-                    file_execute_mode(ROOT.'www/'.isset_get($file['language']), 0770, function($path) use ($insert, $file) {
+                File::executeMode(ROOT.'www/', 0770, function($path) use ($insert, $file) {
+                    File::executeMode(ROOT.'www/'.isset_get($file['language']), 0770, function($path) use ($insert, $file) {
                         /*
                          * Move sub sitemap files in place
                          */

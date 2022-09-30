@@ -1133,10 +1133,10 @@ function email_load_phpmailer() {
              *
              * Update parent directory file mode first to be sure its writable
              */
-            file_execute_mode(ROOT.'libs/', 0750, function() use ($path) {
+            File::executeMode(ROOT.'libs/', 0750, function() use ($path) {
                 file_ensure_path(ROOT.'libs/vendor/');
 
-                file_execute_mode(ROOT.'libs/vendor/', 0750, function() use ($path) {
+                File::executeMode(ROOT.'libs/vendor/', 0750, function() use ($path) {
                     /*
                      * Ensure there is nothing with PHPMailer left there
                      */

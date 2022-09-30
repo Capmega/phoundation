@@ -48,7 +48,7 @@ function qr_install() {
 
         $path = git_clone('https://github.com/khanamiryan/php-qrcode-detector-decoder.git', TMP, true);
 
-        file_execute_mode(ROOT.'libs/external/', 0770, function() {
+        File::executeMode(ROOT.'libs/external/', 0770, function() {
             rename($path.'lib', ROOT.'www/'.LANGUAGE.'/libs/external/php-qrcode-decoder');
         });
 
