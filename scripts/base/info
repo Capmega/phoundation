@@ -32,11 +32,11 @@ log_console(cli_color(str_size(tr('Framework code version:')    , 27), ($framewo
 log_console(cli_color(str_size(tr('Framework database version:'), 27), ($framework_status ? (($framework_status < 0) ? 'error' : 'warning') : 'white')).' '.FRAMEWORKDBVERSION);
 log_console(cli_color(str_size(tr('Project code version:')      , 27), ($project_status   ? (($project_status < 0)   ? 'error' : 'warning') : 'white')).' '.PROJECTCODEVERSION);
 log_console(cli_color(str_size(tr('Project database version:')  , 27), ($project_status   ? (($project_status < 0)   ? 'error' : 'warning') : 'white')).' '.PROJECTDBVERSION);
-log_console(cli_color(str_size(tr('Init required:')             , 27), 'white').' '.str_boolean((FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)));
+log_console(cli_color(str_size(tr('Init required:')             , 27), 'white').' '.Strings::boolean((FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)));
 log_console(cli_color(str_size(tr('Platform:')                  , 27), 'white').' '.PLATFORM);
 log_console(cli_color(str_size(tr('Environment:')               , 27), 'white').' '.ENVIRONMENT);
-log_console(cli_color(str_size(tr('Production:')                , 27), 'white').' '.str_boolean($_CONFIG['production']));
-log_console(cli_color(str_size(tr('Debug:')                     , 27), 'white').' '.str_boolean(debug()));
+log_console(cli_color(str_size(tr('Production:')                , 27), 'white').' '.Strings::boolean($_CONFIG['production']));
+log_console(cli_color(str_size(tr('Debug:')                     , 27), 'white').' '.Strings::boolean(debug()));
 log_console(cli_color(str_size(tr('Core database:')             , 27), 'white').' '.$_CONFIG['db']['core']['db']);
 
 /*

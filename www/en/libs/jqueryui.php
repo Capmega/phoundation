@@ -466,17 +466,17 @@ function jqueryui_fancybox($params) {
             $("'.$params['selector'].'").fancybox({
                 openEffect  : "'.$params['open_effect'].'",
                 closeEffect : "'.$params['close_effect'].'",
-                autoSize    : '.str_boolean($params['auto_size']).',
-                autoResize  : '.str_boolean($params['auto_resize']).',
-                autoCenter  : '.str_boolean($params['auto_center']).',
-                fitToView   : '.str_boolean($params['fit_to_view']).',
-                aspectRatio : '.str_boolean($params['aspect_ratio']).',
-                scrolling   : '.str_boolean($params['scrolling']).',
-                closeClick  : '.str_boolean($params['close_click']).',
-                nextClick   : '.str_boolean($params['next_click']).',
-                arrows      : '.str_boolean($params['arrows']).',
-                closeButton : '.str_boolean($params['close_button']).',
-                preLoad     : '.str_boolean($params['pre_load']).',
+                autoSize    : '.Strings::boolean($params['auto_size']).',
+                autoResize  : '.Strings::boolean($params['auto_resize']).',
+                autoCenter  : '.Strings::boolean($params['auto_center']).',
+                fitToView   : '.Strings::boolean($params['fit_to_view']).',
+                aspectRatio : '.Strings::boolean($params['aspect_ratio']).',
+                scrolling   : '.Strings::boolean($params['scrolling']).',
+                closeClick  : '.Strings::boolean($params['close_click']).',
+                nextClick   : '.Strings::boolean($params['next_click']).',
+                arrows      : '.Strings::boolean($params['arrows']).',
+                closeButton : '.Strings::boolean($params['close_button']).',
+                preLoad     : '.Strings::boolean($params['pre_load']).',
             });
         ');
 

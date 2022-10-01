@@ -994,7 +994,7 @@ function str_diff($old, $new) {
 /*
  *
  */
-function str_boolean($value) {
+function Strings::boolean($value) {
     try {
         if ($value) {
             return 'true';
@@ -1003,7 +1003,7 @@ function str_boolean($value) {
         return 'false';
 
     }catch(Exception $e) {
-        throw new OutOfBoundsException(tr('str_boolean(): Failed'), $e);
+        throw new OutOfBoundsException(tr('Strings::boolean(): Failed'), $e);
     }
 }
 

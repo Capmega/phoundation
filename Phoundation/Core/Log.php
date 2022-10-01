@@ -678,11 +678,11 @@ Class Log {
                     $query = str_replace($key, ' '.tr('NULL').' ', $query);
 
                 } elseif (is_bool($value)) {
-                    $query = str_replace($key, str_boolean($value), $query);
+                    $query = str_replace($key, Strings::boolean($value), $query);
 
                 } else {
                     if (!is_scalar($value)) {
-                        throw new CoreException(tr('debug_sql(): Specified key ":key" has non-scalar value ":value"', array(':key' => $key, ':value' => $value)), 'invalid');
+                        throw new LogException(tr('Specified $execute key ":key" has non-scalar value ":value"', [':key' => $key, ':value' => $value]));
                     }
 
                     $query = str_replace($key, $value, $query);

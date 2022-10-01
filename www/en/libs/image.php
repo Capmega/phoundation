@@ -285,7 +285,7 @@ function image_convert($params) {
                 }
 
                 if (is_bool($value)) {
-                    $value = str_boolean($value);
+                    $value = Strings::boolean($value);
                 }
 
                 $params['defines'][] = 'webp:'.$key.'='.$value;
@@ -1250,7 +1250,7 @@ function image_picker($params) {
 
         $retval = html_select($params).
             html_script('$("#'.$params['id'].'").imagepicker(
-                    { show_label : '.str_boolean($params['show_label']).'}
+                    { show_label : '.Strings::boolean($params['show_label']).'}
                   );');
 
         if ($params['masonry']) {
