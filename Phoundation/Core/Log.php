@@ -6,6 +6,7 @@ use JsonException;
 use PDOStatement;
 use Phoundation\Cli\Colors;
 use Phoundation\Core\Exception\LogException;
+use Phoundation\Databases\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -636,81 +637,20 @@ Class Log {
     }
 
 
+
     /**
      * Write the specified SQL query as a message in the log file
      *
      * @param string|PDOStatement $query
-     * @param array $execute
+     * @param ?array $execute
      * @param int $level
      * @return bool
      */
     public static function sql(string|PDOStatement $query, ?array $execute = null, int $level = 3): bool
     {
-        if (is_object($query)) {
-            if (!($query instanceof PDOStatement)) {
-                throw new LogException(tr('Object of unknown class ":class" specified where PDOStatement was expected', [':class' => get_class($query)]));
-            }
-
-            // Query to be logged is a PDO statement, extract the query
-            $query = $query->queryString;
-        }
-
-        // Apply execution variables
-        if (is_array($execute)) {
-            /*
-             * Reverse key sort to ensure that there are keys that contain at least parts of other keys will not be used incorrectly
-             *
-             * example:
-             *
-             * array(category    => test,
-             *       category_id => 5)
-             *
-             * Would cause the query to look like `category` = "test", `category_id` = "test"_id
-             */
-            krsort($execute);
-
-            foreach ($execute as $key => $value) {
-                if (is_string($value)) {
-                    $value = addslashes($value);
-                    $query = str_replace($key, '"'.(!is_scalar($value) ? ' ['.tr('NOT SCALAR').'] ' : '').Strings::Log($value).'"', $query);
-
-                } elseif (is_null($value)) {
-                    $query = str_replace($key, ' '.tr('NULL').' ', $query);
-
-                } elseif (is_bool($value)) {
-                    $query = str_replace($key, Strings::boolean($value), $query);
-
-                } else {
-                    if (!is_scalar($value)) {
-                        throw new LogException(tr('Specified $execute key ":key" has non-scalar value ":value"', [':key' => $key, ':value' => $value]));
-                    }
-
-                    $query = str_replace($key, $value, $query);
-                }
-            }
-        }
-
-        if ($return_only) {
-            return $query;
-        }
-
-        if (empty($core->register['clean_debug'])) {
-            $query = str_replace("\n", ' ', $query);
-            $query = Strings::noDouble($query, ' ', '\s');
-        }
-
-        /*
-         * VERYVERBOSE already logs the query, don't log it again
-         */
-        if (!VERYVERBOSE) {
-            log_file(Strings::endsWith($query, ';'), 'debug-sql');
-        }
-
-        return show(Strings::endsWith($query, ';'), 6);
-
-
-
-        return Log::printr(, $level);
+        $query = Sql::buildQueryString($query, $execute, false);
+        $query = Strings::endsWith($query, ';');
+        return Log::printr($query, $level);
     }
 
 
@@ -868,8 +808,12 @@ Class Log {
                     throw new LogException('Unknown log message class ":class" specified', [':class' => $class]);
             }
 
-            // Build the message to be logged and log
+            // Build the message to be logged, clean it and log
             // The log line format is DATE LEVEL PID GLOBALID/LOCALID MESSAGE EOL
+            if (Debug::cleanData()) {
+                return Strings::cleanWhiteSpace($messages);
+            }
+
             $messages = date('Y-m-d H:i:s') . ' ' . $level . ' ' . getmypid() . ' ' . self::$global_id . '/' . self::$local_id . $messages . PHP_EOL;
             fwrite(self::$handles[self::$file], $messages);
 
@@ -1014,6 +958,24 @@ Class Log {
             return -1;
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

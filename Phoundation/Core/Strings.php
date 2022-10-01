@@ -1517,4 +1517,20 @@ class Strings
                 throw new OutOfBoundsException(tr('Unknown value ":value"', array(':value' => $value)), 'unknown');
         }
     }
+
+
+
+    /**
+     * Remove all double tabs, spaces, line ends, etc and replace them by a single space.
+     *
+     * @param string $source
+     * @return string
+     */
+    public static function cleanWhiteSpace(string $source): string
+    {
+        $source = str_replace("\n", ' ', $source);
+        $source = Strings::noDouble($source, ' ', '\s');
+
+        return $source;
+    }
 }

@@ -2,16 +2,19 @@
 
 namespace Phoundation\Databases;
 
-use Debug;
 use Exception;
 use PDO;
+use PDOException;
 use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Databases\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Exception\SqlException;
 use Phoundation\Developer\Debug;
+use Throwable;
 
 
 /**
@@ -54,6 +57,13 @@ class Sql
      */
     protected static ?string $connector_name = null;
 
+    /**
+     * The actual database interface
+     *
+     * @var ?PDO $interface
+     */
+    protected static ?PDO $interface = null;
+
 
 
     /**
@@ -82,7 +92,8 @@ class Sql
             $connector_name = 'core';
         }
 
-        // Get connector configuration and ensure all data is there
+        // Clean connector name, get connector configuration and ensure all required config data is there
+        $connector_name = self::connectorName($connector_name);
         self::$connector_name = $connector_name;
         self::$connector = Config::get('databases.connectors.' . self::$connector_name);
         Arrays::ensure(self::$connectors[$connector_name], ['driver', 'host', 'user', 'pass', 'charset']);
@@ -125,26 +136,27 @@ class Sql
     }
 
 
+
     /**
      * Execute specified query
+     *
+     * @param
+     * @param null $execute
+     * @return PDOStatement
+     * @package sql
      *
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
      */
-    public static function query($query, $execute = null, $connector_name = null): PDOStatement
+    public static function query($query, $execute = null): PDOStatement
     {
         global $core;
 
         try {
             Log::notice(tr('Executing query ":query"', [':query' => $query]));
 
-            $connector_name = $this->connectorName($connector_name);
-            $connector_name = $this->init($connector_name);
+            $connector_name = self::init();
             $query_start = microtime(true);
 
             if (!is_string($query)) {
@@ -154,19 +166,15 @@ class Sql
                     }
 
                     // PDO statement was specified instead of a query
-                    if ($query->queryString[0] == ' ') {
+                    if ($query[0] == ' ') {
                         Log::sql($query, $execute);
-                    }
-
-                    if (VERYVERBOSE) {
-                        log_console(Strings::ends(str_replace("\n", '', Log::sql($query->queryString, $execute, true)), ';'));
                     }
 
                     $query->execute($execute);
                     return $query;
                 }
 
-                throw new SqlException(tr('Sql::query(): Specified query ":query" is not a string', array(':query' => $query)), 'invalid');
+                throw new SqlException(tr('Specified query ":query" is not a string or PDOStatement class', [':query' => $query]));
             }
 
             if (!empty($core->register['Sql::debug_queries'])) {
@@ -178,40 +186,28 @@ class Sql
                 Log::sql($query, $execute);
             }
 
-            if (VERYVERBOSE) {
-                log_console(Strings::ends(str_replace("\n", '', Log::sql($query, $execute, true)), ';'));
-            }
-
             if (!$execute) {
-                /*
-                 * Just execute plain SQL query string.
-                 */
-                $pdo_statement = $core->sql[$connector_name]->query($query);
+                // Just execute plain SQL query string.
+                $pdo_statement = self::$interface->query($query);
 
             } else {
-                /*
-                 * Execute the query with the specified $execute variables
-                 */
-                $pdo_statement = $core->sql[$connector_name]->prepare($query);
+                // Execute the query with the specified $execute variables
+                $pdo_statement = self::$interface->prepare($query);
 
                 try {
                     $pdo_statement->execute($execute);
 
                 } catch (Exception $e) {
-                    /*
-                     * Failure is probably that one of the the $execute array values is not scalar
-                     */
-                    // :TODO: Move all of this to Sql::error()
-                    if (!is_array($execute)) {
-                        throw new SqlException('Sql::query(): Specified $execute is not an array!', 'invalid');
-                    }
+                    // Failure is probably that one of the $execute array values is not scalar
 
-                    /*
-                     * Check execute array for possible problems
-                     */
+                    // Check execute array for possible problems
                     foreach ($execute as $key => &$value) {
                         if (!is_scalar($value) and !is_null($value)) {
-                            throw new SqlException(tr('Sql::query(): Specified key ":value" in the execute array for query ":query" is NOT scalar! Value is ":value"', array(':key' => str_replace(':', '.', $key), ':query' => str_replace(':', '.', $query), ':value' => str_replace(':', '.', $value))), 'invalid');
+                            throw new SqlException(tr('Specified key ":value" in the execute array for query ":query" is NOT scalar or NULL! Value is ":value"', [
+                                ':key' => str_replace(':', '.', $key),
+                                ':query' => str_replace(':', '.', $query),
+                                ':value' => str_replace(':', '.', $value)
+                            ]));
                         }
                     }
 
@@ -244,33 +240,97 @@ class Sql
                 $file = Debug::currentFile($current);
                 $line = Debug::currentLine($current);
 
-                $core->executedQuery(array('time' => microtime(true) - $query_start,
+                $core->executedQuery([
+                    'time' => microtime(true) - $query_start,
                     'query' => self::show($query, $execute, true),
                     'function' => $function,
                     'file' => $file,
-                    'line' => $line));
+                    'line' => $line
+                ]);
             }
 
             return $pdo_statement;
 
         } catch (Exception $e) {
             try {
-                /*
-                 * Let Sql::error() try and generate more understandable errors
-                 */
-                Sql::error($e, $query, $execute, isset_get($core->sql[$connector_name]));
+                // Let Sql::error() try and generate more understandable errors
+                Sql::error($e, $query, $execute, isset_get(self::$interface));
 
                 if (!is_string($connector_name)) {
                     throw new SqlException(tr('Sql::query(): Specified connector name ":connector" for query ":query" is invalid, it should be a string', array(':connector' => $connector_name, ':query' => $query)), $e);
                 }
 
-                Sql::error($e, $query, $execute, isset_get($core->sql[$connector_name]));
+                Sql::error($e, $query, $execute, isset_get(self::$interface));
 
             } catch (Exception $e) {
                 throw new SqlException(tr('Sql::query(:connector): Query ":query" failed', array(':connector' => $connector_name, ':query' => $query)), $e);
             }
         }
     }
+
+
+
+    /**
+     * Builds and returns a query string from the specified query and execute parameters
+     *
+     * @param string|PDOStatement $query
+     * @param array|null $execute
+     * @param bool $clean
+     * @return string
+     */
+    public static function buildQueryString(string|PDOStatement $query, ?array $execute = null, bool $clean = true): string
+    {
+        if (is_object($query)) {
+            if (!($query instanceof PDOStatement)) {
+                throw new LogException(tr('Object of unknown class ":class" specified where PDOStatement was expected', [':class' => get_class($query)]));
+            }
+
+            // Query to be logged is a PDO statement, extract the query
+            $query = $query->queryString;
+        }
+
+        if ($clean) {
+            $query = Strings::cleanWhiteSpace($query);
+        }
+
+        // Apply execution variables
+        if (is_array($execute)) {
+            /*
+             * Reverse key sort to ensure that there are keys that contain at least parts of other keys will not be used incorrectly
+             *
+             * example:
+             *
+             * array(category    => test,
+             *       category_id => 5)
+             *
+             * Would cause the query to look like `category` = "test", `category_id` = "test"_id
+             */
+            krsort($execute);
+
+            foreach ($execute as $key => $value) {
+                if (is_string($value)) {
+                    $value = addslashes($value);
+                    $query = str_replace($key, '"' . Strings::Log($value) . '"', $query);
+
+                } elseif (is_null($value)) {
+                    $query = str_replace($key, ' ' . tr('NULL') . ' ', $query);
+
+                } elseif (is_bool($value)) {
+                    $query = str_replace($key, Strings::boolean($value), $query);
+
+                } else {
+                    if (!is_scalar($value)) {
+                        throw new LogException(tr('Specified $execute key ":key" has non-scalar value ":value"', [':key' => $key, ':value' => $value]));
+                    }
+
+                    $query = str_replace($key, $value, $query);
+                }
+            }
+        }
+
+        return $query;
+    }
+
 
 
     /**
@@ -292,7 +352,7 @@ class Sql
             $connector_name = Sql::connectorName($connector_name);
             $connector_name = Sql::init($connector_name);
 
-            return $core->sql[$connector_name]->prepare($query);
+            return self::$interface->prepare($query);
 
         } catch (Exception $e) {
             throw new SqlException('Sql::prepare(): Failed', $e);
@@ -677,7 +737,7 @@ class Sql
         try {
             $connector_name = Sql::connectorName($connector_name);
 
-            if (!empty($core->sql[$connector_name])) {
+            if (!empty(self::$interface)) {
                 /*
                  * Already connected to requested DB
                  */
@@ -699,7 +759,7 @@ class Sql
              * Connect to database
              */
             log_console(tr('Connecting with SQL connector ":name"', array(':name' => $connector_name)), 'VERYVERBOSE/cyan');
-            $core->sql[$connector_name] = Sql::connect($connector);
+            self::$interface = Sql::connect($connector);
 
             /*
              * This is only required for the system connection
@@ -720,12 +780,12 @@ class Sql
                      */
                     if (!empty($_CONFIG['db'][$connector_name]['init'])) {
                         try {
-                            $r = $core->sql[$connector_name]->query('SELECT `project`, `framework`, `offline_until` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
+                            $r = self::$interface->query('SELECT `project`, `framework`, `offline_until` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
 
                         } catch (Exception $e) {
                             if ($e->getCode() !== '42S02') {
                                 if ($e->getMessage() === 'SQLSTATE[42S22]: Column not found: 1054 Unknown column \'offline_until\' in \'field list\'') {
-                                    $r = $core->sql[$connector_name]->query('SELECT `project`, `framework` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
+                                    $r = self::$interface->query('SELECT `project`, `framework` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
 
                                 } else {
                                     /*
@@ -2058,26 +2118,239 @@ class Sql
         }
     }
 
-
+    
 
     /**
      * Process SQL query errors
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     * @exception SqlException when the test failse
-     *
      * @param SqlException $e The query exception
-     * @param string $query The executed query
-     * @param array $execute The bound query variables
-     * @param SqlException $sql The PDO SQL object
+     * @param string|PDOStatement $query The executed query
+     * @param array|null $execute The bound query variables
      * @return void
      */
-    public static function error($e, $query, $execute, $sql)
+    public static function error(Throwable $e, string|PDOStatement $query, ?array $execute = null)
     {
-        include(__DIR__ . '/handlers/sql-error.php');
+        global $_CONFIG, $core;
+
+        if (!$e instanceof PDOException) {
+            switch ($e->getCode()) {
+                case 'forcedenied':
+                    uncaught_exception($e, true);
+
+                default:
+                    /*
+                     * This is likely not a PDO error, so it cannot be handled here
+                     */
+                    throw new SqlException('Not a PDO exception', $e);
+            }
+        }
+
+        if (!is_object($sql)) {
+            if (empty($core->sql['core'])) {
+                throw new SqlException('The $sql is not an object, cannot get more info from there', $e);
+            }
+
+            $sql = $core->sql['core'];
+        }
+
+        if ($query) {
+            if ($execute) {
+                if (!is_array($execute)) {
+                    throw new SqlException(tr('The specified $execute parameter is NOT an array, it is an ":type"', array(':type' => gettype($execute))), $e);
+                }
+
+                foreach ($execute as $key => $value) {
+                    if (!is_scalar($value) and !is_null($value)) {
+                        /*
+                         * This is automatically a problem!
+                         */
+                        throw new SqlException(tr('POSSIBLE ERROR: The specified $execute array contains key ":key" with non scalar value ":value"', array(':key' => $key, ':value' => $value)), $e);
+                    }
+                }
+            }
+        }
+
+        /*
+         * Get error data
+         */
+        $error = $sql->errorInfo();
+
+        if (($error[0] == '00000') and !$error[1]) {
+            $error = $e->errorInfo;
+        }
+
+        switch ($e->getCode()) {
+            case 'denied':
+                // FALLTHROUGH
+            case 'invalidforce':
+
+                /*
+                 * Some database operation has failed
+                 */
+                foreach ($e->getMessages() as $message) {
+                    Log::error($message);
+                }
+
+                die(1);
+
+            case 'HY093':
+                /*
+                 * Invalid parameter number: number of bound variables does not match number of tokens
+                 *
+                 * Get tokens from query
+                 */
+                preg_match_all('/:\w+/imus', $query, $matches);
+
+                if (count($matches[0]) != count($execute)) {
+                    throw new SqlException(tr('Query ":query" failed with error HY093, the number of query tokens does not match the number of bound variables. The query contains tokens ":tokens", where the bound variables are ":variables"', array(':query' => $query, ':tokens' => implode(',', $matches['0']), ':variables' => implode(',', array_keys($execute)))), $e);
+                }
+
+                throw new SqlException(tr('Query ":query" failed with error HY093, One or more query tokens does not match the bound variables keys. The query contains tokens ":tokens", where the bound variables are ":variables"', array(':query' => $query, ':tokens' => implode(',', $matches['0']), ':variables' => implode(',', array_keys($execute)))), $e);
+
+            case '23000':
+                /*
+                 * 23000 is used for many types of errors!
+                 */
+
+// :TODO: Remove next 5 lines, 23000 cannot be treated as a generic error because too many different errors cause this one
+//showdie($error)
+//                /*
+//                 * Integrity constraint violation: Duplicate entry
+//                 */
+//                throw new SqlException('sql_error(): Query "'.Strings::Log($query, 4096).'" tries to insert or update a column row with a unique index to a value that already exists', $e);
+
+            default:
+                switch (isset_get($error[1])) {
+                    case 1044:
+                        /*
+                         * Access to database denied
+                         */
+                        if (!is_array($query)) {
+                            if (empty($query['db'])) {
+                                throw new SqlException(tr('Query ":query" failed, access to database denied', array(':query' => $query)), $e);
+                            }
+
+                            throw new SqlException(tr('Cannot use database ":db", this user has no access to it', array(':db' => $query['db'])), $e);
+                        }
+
+                        throw new SqlException(tr('Cannot use database with query ":query", this user has no access to it', array(':query' => debug_sql($query, $execute, true))), $e);
+
+                    case 1049:
+                        /*
+                         * Specified database does not exist
+                         */
+                        static $retry;
+
+                        if (($core->register['script'] == 'init')) {
+                            if ($retry) {
+                                $e = new SqlException(tr('Cannot use database ":db", it does not exist and cannot be created automatically with the current user ":user"', array(':db' => isset_get($query['db']), ':user' => isset_get($query['user']))), $e);
+                                $e->addMessages(tr('Possible reason can be that the configured user does not have the required GRANT to create database'));
+                                $e->addMessages(tr('Possible reason can be that MySQL cannot create the database because the filesystem permissions of the mysql data files has been borked up (on linux, usually this is /var/lib/mysql, and this should have the user:group mysql:mysql)'));
+
+                                throw $e;
+                            }
+
+                            /*
+                             * We're doing an init, try to automatically create the database
+                             */
+                            $retry = true;
+                            Log::warning('Database "'.$query['db'].'" does not exist, attempting to create it automatically');
+
+                            $sql->query('CREATE DATABASE `'.$query['db'].'` DEFAULT CHARSET="'.$connector['charset'].'" COLLATE="'.$connector['collate'].'";');
+                            return sql_connect($query);
+                        }
+
+                        throw new SqlException(tr('Cannot use database ":db", it does not exist', array(':db' => $query['db'])), $e);
+
+                    case 1052:
+                        /*
+                         * Integrity constraint violation
+                         */
+                        throw new SqlException(tr('Query ":query" contains an abiguous column', array(':query' => debug_sql($query, $execute, true))), $e);
+
+                    case 1054:
+                        /*
+                         * Column not found
+                         */
+                        throw new SqlException(tr('Query ":query" refers to a column that does not exist', array(':query' => debug_sql($query, $execute, true))), $e);
+
+                    case 1064:
+                        /*
+                         * Syntax error or access violation
+                         */
+                        if (str_contains(strtoupper($query), 'DELIMITER')) {
+                            throw new SqlException(tr('Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', array(':query' => debug_sql($query, $execute, true))), $e);
+                        }
+
+                        throw new SqlException(tr('Query ":query" has a syntax error', array(':query' => debug_sql($query, $execute, true))), $e);
+
+                    case 1072:
+                        /*
+                         * Adding index error, index probably does not exist
+                         */
+                        throw new SqlException(tr('Query ":query" failed with error 1072 with the message ":message"', array(':query' => debug_sql($query, $execute, true), ':message' => isset_get($error[2]))), $e);
+
+                    case 1005:
+                        //FALLTHROUGH
+                    case 1217:
+                        //FALLTHROUGH
+                    case 1452:
+                        /*
+                         * Foreign key error, get the FK error data from mysql
+                         */
+                        try {
+                            $fk = Sql::getColumn('SHOW ENGINE INNODB STATUS', 'Status', null));
+                            $fk = Strings::from($fk, 'LATEST FOREIGN KEY ERROR');
+                            $fk = Strings::from($fk, '------------------------');
+                            $fk = Strings::until($fk, '------------');
+                            $fk = str_replace("\n", ' ', $fk);
+
+                        }catch(Exception $e) {
+                            throw new SqlException(tr('Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', array(':query' => debug_sql($query, $execute, true))), $e);
+                        }
+
+                        throw new SqlException(tr('Query ":query" failed with error 1005 with the message ":message"', array(':query' => debug_sql($query, $execute, true), ':message' => $fk)), $e);
+
+                    case 1146:
+                        /*
+                         * Base table or view not found
+                         */
+                        throw new SqlException(tr('Query ":query" refers to a base table or view that does not exist', array(':query' => debug_sql($query, $execute, true))), $e);
+
+                    default:
+                        if (!is_string($query)) {
+                            if (!is_object($query) or !($query instanceof PDOStatement)) {
+                                throw new SqlException('Specified query is neither a SQL string or a PDOStatement it seems to be a ":type"', array(':type' => gettype($query)), 'invalid');
+                            }
+
+                            $query = $query->queryString;
+                        }
+
+                        throw new SqlException(tr('Query ":query" failed', array(':query' => debug_sql(preg_replace('!\s+!', ' ', $query), $execute, true))), $e);
+
+                        $body = "SQL STATE ERROR : \"".$error[0]."\"\n".
+                            "DRIVER ERROR    : \"".$error[1]."\"\n".
+                            "ERROR MESSAGE   : \"".$error[2]."\"\n".
+                            "query           : \"".(PLATFORM_HTTP ? "<b>".Strings::Log(debug_sql($query, $execute, true), 4096)."</b>" : Strings::Log(debug_sql($query, $execute, true), 4096))."\"\n".
+                            "date            : \"".date('d m y h:i:s')."\"\n";
+
+                        if (isset($_SESSION)) {
+                            $body .= "Session : ".print_r(isset_get($_SESSION), true)."\n";
+                        }
+
+                        $body .= "POST   : ".print_r($_POST  , true)."
+                          GET    : ".print_r($_GET   , true)."
+                          SERVER : ".print_r($_SERVER, true)."\n";
+
+                        error_log('PHP SQL_ERROR: '.Strings::Log($error[2]).' on '.Strings::Log(debug_sql($query, $execute, true), 4096));
+
+                        if (!$_CONFIG['production']) {
+                            throw new SqlException(nl2br($body), $e);
+                        }
+
+                        throw new SqlException(tr('An error has been detected, our staff has been notified about this problem.'), $e);
+                }
+        }
     }
 
 
@@ -2181,7 +2454,7 @@ class Sql
                  * Query to be debugged is a PDO statement, extract the query
                  */
                 if (!($query instanceof PDOStatement)) {
-                    throw new CoreException(tr('Log::sql(): Object of unknown class ":class" specified where PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
+                    throw new SqlException(tr('Log::sql(): Object of unknown class ":class" specified where PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
                 }
 
                 $query = $query->queryString;
@@ -2200,7 +2473,7 @@ class Sql
 
                 } else {
                     if (!is_scalar($value)) {
-                        throw new CoreException(tr('Log::sql(): Specified key ":key" has non-scalar value ":value"', array(':key' => $key, ':value' => $value)), 'invalid');
+                        throw new SqlException(tr('Log::sql(): Specified key ":key" has non-scalar value ":value"', array(':key' => $key, ':value' => $value)), 'invalid');
                     }
 
                     $query = str_replace($key, $value, $query);

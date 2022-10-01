@@ -17,6 +17,15 @@ use Phoundation\Core\CoreException;
  */
 class Debug {
     /**
+     * If true, will clean up debug data string before returning them.
+     *
+     * @var bool $clean_data
+     */
+    protected static bool $clean_data = true;
+
+
+
+    /**
      * Sets or returns if the system is running in debug mode or not
      *
      * @param bool|null $enabled
@@ -32,6 +41,24 @@ class Debug {
         // Make the setting
         Config::set('debug.enabled', $enabled);
         return $enabled;
+    }
+
+
+
+    /**
+     * If true, methods supporting it will clean up debug data string before returning them.
+     *
+     * @param bool|null $enable
+     * @return bool
+     */
+    public static function cleanData(?bool $enable = null): bool
+    {
+        // Set only if specified
+        if (is_bool($enable)) {
+            self::$clean_data = $enable;
+        }
+
+        return self::$clean_data;
     }
 
 
