@@ -6,12 +6,13 @@ use Debug;
 use Exception;
 use PDO;
 use PDOStatement;
-use Phoundation\Core\CoreException;
-use Phoundation\Core\Json\Arrays;
-use Phoundation\Core\Json\Strings;
-use Phoundation\Core\Log\Log;
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Config;
+use Phoundation\Core\Log;
 use Phoundation\Databases\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Exception\SqlException;
+use Phoundation\Developer\Debug;
+
 
 /**
  * Sql class
@@ -26,38 +27,101 @@ use Phoundation\Databases\Exception\SqlException;
 class Sql
 {
     /**
-     * Initialize the library, automatically executed by libs_load()
+     * Singleton variable
      *
-     * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+     * @var Sql|null $instance
+     */
+    protected static ?Sql $instance = null;
+
+    /**
+     * Other databases variable
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package
+     * @var array $connectors
+     */
+    protected static array $connectors = [];
+
+    /**
+     * Connector configuration
      *
+     * @var array $connector
+     */
+    protected static array $connector = [];
+
+    /**
+     * The identifier name for this connector
+     *
+     * @var ?string $connector_name
+     */
+    protected static ?string $connector_name = null;
+
+
+
+    /**
+     * Sql constructor
+     *
+     * @param string|null $connector_name
      * @return void
      */
-    public static function __constructor()
+    protected function __constructor(?string $connector_name = null)
     {
-        try {
-            if (!class_exists('PDO')) {
-                /*
-                 * Wulp, PDO class not available, PDO driver is not loaded somehow
-                 */
-                throw new SqlException('Sql::library_init(): Could not find the "PDO" class, does this PHP have PDO available?', 'not-available');
-            }
-
-            if (!defined('PDO::MYSql::ATTR_USE_BUFFERED_QUERY')) {
-                /*
-                 * Wulp, MySQL library is not available
-                 */
-                throw new SqlException('Sql::library_init(): Could not find the "MySQL" library. To install this on Ubuntu derrivates, please type "sudo apt install php-mysql', 'not-available');
-            }
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::library_init(): Failed', $e);
+        if (!class_exists('PDO')) {
+            /*
+             * Wulp, PDO class not available, PDO driver is not loaded somehow
+             */
+            throw new SqlException('Could not find the "PDO" class, does this PHP have PDO available?');
         }
+
+        if (!defined('PDO::MYSql::ATTR_USE_BUFFERED_QUERY')) {
+            /*
+             * Wulp, MySQL library is not available
+             */
+            throw new SqlException('Could not find the "MySQL" library for PDO. To install this on Ubuntu derivatives, please type "sudo apt install php-mysql');
+        }
+
+        if ($connector_name === null) {
+            $connector_name = 'core';
+        }
+
+        // Get connector configuration and ensure all data is there
+        self::$connector_name = $connector_name;
+        self::$connector = Config::get('databases.connectors.' . self::$connector_name);
+        Arrays::ensure(self::$connectors[$connector_name], ['driver', 'host', 'user', 'pass', 'charset']);
+        self::$connectors[$connector_name] = &self::$connector;
+    }
+
+
+
+    /**
+     * Singleton, ensure to always return the same Log object.
+     *
+     * @return Sql
+     */
+    public static function getInstance(): Sql
+    {
+        if (!isset(self::$instance)) {
+            self::$instance = new Sql('core');
+            self::$connectors['core'] = self::$instance;
+        }
+
+        return self::$instance;
+    }
+
+
+
+    /**
+     * Access a different SQL object for the specified (different) database
+     *
+     * @param string $connector_name
+     * @return Sql
+     */
+    public static function database(string $connector_name): Sql
+    {
+        if (!array_key_exists($connector_name, self::$connectors)) {
+            self::$instance = new Sql($connector_name);
+            self::$connectors[$connector_name] = self::$instance;
+        }
+
+        return self::$instance;
     }
 
 
@@ -77,7 +141,7 @@ class Sql
         global $core;
 
         try {
-            log_console(tr('Executing query ":query"', array(':query' => $query)), 'VERYVERBOSE/cyan');
+            Log::notice(tr('Executing query ":query"', [':query' => $query]));
 
             $connector_name = $this->connectorName($connector_name);
             $connector_name = $this->init($connector_name);
@@ -86,18 +150,16 @@ class Sql
             if (!is_string($query)) {
                 if (is_object($query)) {
                     if (!($query instanceof PDOStatement)) {
-                        throw new SqlException(tr('Sql::query(): Object of unknown class ":class" specified where either a string or a PDOStatement was expected', [':class' => get_class($query)]));
+                        throw new SqlException(tr('Object of unknown class ":class" specified where either a string or a PDOStatement was expected', [':class' => get_class($query)]));
                     }
 
-                    /*
-                     * PDO statement was specified instead of a query
-                     */
+                    // PDO statement was specified instead of a query
                     if ($query->queryString[0] == ' ') {
-                        debug_sql($query, $execute);
+                        Log::sql($query, $execute);
                     }
 
                     if (VERYVERBOSE) {
-                        log_console(Strings::ends(str_replace("\n", '', debug_sql($query->queryString, $execute, true)), ';'));
+                        log_console(Strings::ends(str_replace("\n", '', Log::sql($query->queryString, $execute, true)), ';'));
                     }
 
                     $query->execute($execute);
@@ -113,11 +175,11 @@ class Sql
             }
 
             if ($query[0] == ' ') {
-                debug_sql($query, $execute);
+                Log::sql($query, $execute);
             }
 
             if (VERYVERBOSE) {
-                log_console(Strings::ends(str_replace("\n", '', debug_sql($query, $execute, true)), ';'));
+                log_console(Strings::ends(str_replace("\n", '', Log::sql($query, $execute, true)), ';'));
             }
 
             if (!$execute) {
@@ -314,7 +376,7 @@ class Sql
             $result = Sql::query($query, $execute, $connector_name);
 
             if ($result->rowCount() > 1) {
-                throw new SqlException(tr('Sql::get(): Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', array(':count' => $result->rowCount(), ':query' => debug_sql($result->queryString, $execute, true))), 'multiple');
+                throw new SqlException(tr('Sql::get(): Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', array(':count' => $result->rowCount(), ':query' => Log::sql($result->queryString, $execute, true))), 'multiple');
             }
 
             return Sql::fetch($result);
@@ -325,7 +387,7 @@ class Sql
             }
 
             if ((strtolower(substr(trim($query), 0, 6)) !== 'select') and (strtolower(substr(trim($query), 0, 4)) !== 'show')) {
-                throw new SqlException('Sql::get(): Query "' . Strings::log(debug_sql($query, $execute, true), 4096) . '" is not a select or show query and as such cannot return results', $e);
+                throw new SqlException('Sql::get(): Query "' . Strings::log(Log::sql($query, $execute, true), 4096) . '" is not a select or show query and as such cannot return results', $e);
             }
 
             throw new SqlException('Sql::get(): Failed', $e);
@@ -419,6 +481,181 @@ class Sql
             throw new SqlException('Sql::list(): Failed', $e);
         }
     }
+
+
+
+    /**
+     * Connect to database and do a DB version check.
+     * If the database was already connected, then just ignore and continue.
+     * If the database version check fails, then exception
+     *
+     * @param
+     * @param bool $use_database
+     * @return mixed|PDO
+     * @package sql
+     *
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     */
+    protected static function connect(bool $use_database = true)
+    {
+        try {
+            /*
+             * Does this connector require an SSH tunnel?
+             */
+            if (isset_get(self::$connector['ssh_tunnel']['required'])) {
+                self::sshTunnel();
+            }
+
+            // Connect!
+            self::$connector['pdo_attributes'][PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
+            self::$connector['pdo_attributes'][PDO::ATTR_USE_BUFFERED_QUERY] = !(boolean)self::$connector['buffered'];
+            self::$connector['pdo_attributes'][PDO::ATTR_INIT_COMMAND] = 'SET NAMES ' . strtoupper(self::$connector['charset']);
+            $retries = 7;
+
+            while (--$retries >= 0) {
+                try {
+                    $connect_string = self::$connector['driver'] . ':host=' . self::$connector['host'] . (empty(self::$connector['port']) ? '' : ';port=' . self::$connector['port']) . ((empty(self::$connector['db']) or !$use_database) ? '' : ';dbname=' . self::$connector['db']);
+                    $pdo = new PDO($connect_string, self::$connector['user'], self::$connector['pass'], self::$connector['pdo_attributes']);
+
+                    log_console(tr('Connected with PDO connect string ":string"', array(':string' => $connect_string)), 'VERYVERBOSE/green');
+                    break;
+
+                } catch (Exception $e) {
+                    /*
+                     * This is a work around for the weird PHP MySQL error
+                     * "PDO::__construct(): send of 5 bytes failed with errno=32
+                     * Broken pipe". So far we have not been able to find a fix
+                     * for this but we have noted that you always have to
+                     * connect 3 times, and the 3rd time the bug magically
+                     * disappears. The work around will detect the error and
+                     * retry up to 3 times to work around this issue for now.
+                     *
+                     * Over time, it has appeared that the cause of this issue
+                     * may be that MySQL is chewing on a huge and slow query
+                     * which prevents it from accepting new connections. This is
+                     * not confirmed yet, but very likely. Either way, this
+                     * "fix" still fixes the issue..
+                     */
+                    log_console(tr('Failed to connect with PDO connect string ":string"', array(':string' => $connect_string)), 'exception');
+                    log_console($e->getMessage(), 'exception');
+
+                    $message = $e->getMessage();
+
+                    if (!strstr($message, 'errno=32')) {
+                        if ($e->getMessage() == 'ERROR 2013 (HY000): Lost connection to MySQL server at \'reading initial communication packet\', system error: 0') {
+                            if (isset_get(self::$connector['ssh_tunnel']['required'])) {
+                                /*
+                                 * The tunneling server has "AllowTcpForwarding"
+                                 * set to "no" in the sshd_config, attempt auto
+                                 * fix
+                                 */
+                                os_enable_ssh_tcp_forwarding(self::$connector['ssh_tunnel']['server']);
+                                continue;
+                            }
+                        }
+
+                        /*
+                         * This is a different error. Continue throwing the
+                         * exception as normal
+                         */
+                        throw $e;
+                    }
+
+                    /*
+                     * This error seems to happen when MySQL is VERY busy
+                     * processing queries. Wait a little before trying again
+                     */
+                    usleep(100000);
+                }
+            }
+
+            try {
+                $pdo->query('SET time_zone = "' . self::$connector['timezone'] . '";');
+
+            } catch (Exception $e) {
+                include(__DIR__ . '/handlers/sql-error-timezone.php');
+            }
+
+            if (!empty(self::$connector['mode'])) {
+                $pdo->query('SET Sql::mode="' . self::$connector['mode'] . '";');
+            }
+
+            return $pdo;
+
+        } catch (Exception $e) {
+            return include(__DIR__ . '/handlers/sql-error-connect.php');
+        }
+    }
+
+
+
+    /**
+     * @return void
+     */
+    protected static function sshTunnel(): void
+    {
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -594,123 +831,6 @@ class Sql
 
         } catch (Exception $e) {
             throw new SqlException(tr('Sql::close(): Failed for connector ":connector"', array(':connector' => $connector)), $e);
-        }
-    }
-
-
-
-    /**
-     * Connect to database and do a DB version check.
-     * If the database was already connected, then just ignore and continue.
-     * If the database version check fails, then exception
-     *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
-     */
-    public static function connect(&$connector, $use_database = true)
-    {
-        global $_CONFIG;
-
-        try {
-            Arrays::ensure($connector);
-            array_default($connector, 'driver', null);
-            array_default($connector, 'host', null);
-            array_default($connector, 'user', null);
-            array_default($connector, 'pass', null);
-            array_default($connector, 'charset', null);
-
-            /*
-             * Does this connector require an SSH tunnel?
-             */
-            if (isset_get($connector['ssh_tunnel']['required'])) {
-                include(__DIR__ . '/handlers/sql-ssh-tunnel.php');
-            }
-
-            /*
-             * Connect!
-             */
-            $connector['pdo_attributes'][PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
-            $connector['pdo_attributes'][PDO::MYSql::ATTR_USE_BUFFERED_QUERY] = !(boolean)$connector['buffered'];
-            $connector['pdo_attributes'][PDO::MYSql::ATTR_INIT_COMMAND] = 'SET NAMES ' . strtoupper($connector['charset']);
-            $retries = 7;
-
-            while (--$retries >= 0) {
-                try {
-                    $connect_string = $connector['driver'] . ':host=' . $connector['host'] . (empty($connector['port']) ? '' : ';port=' . $connector['port']) . ((empty($connector['db']) or !$use_database) ? '' : ';dbname=' . $connector['db']);
-                    $pdo = new PDO($connect_string, $connector['user'], $connector['pass'], $connector['pdo_attributes']);
-
-                    log_console(tr('Connected with PDO connect string ":string"', array(':string' => $connect_string)), 'VERYVERBOSE/green');
-                    break;
-
-                } catch (Exception $e) {
-                    /*
-                     * This is a work around for the weird PHP MySQL error
-                     * "PDO::__construct(): send of 5 bytes failed with errno=32
-                     * Broken pipe". So far we have not been able to find a fix
-                     * for this but we have noted that you always have to
-                     * connect 3 times, and the 3rd time the bug magically
-                     * disappears. The work around will detect the error and
-                     * retry up to 3 times to work around this issue for now.
-                     *
-                     * Over time, it has appeared that the cause of this issue
-                     * may be that MySQL is chewing on a huge and slow query
-                     * which prevents it from accepting new connections. This is
-                     * not confirmed yet, but very likely. Either way, this
-                     * "fix" still fixes the issue..
-                     */
-                    log_console(tr('Failed to connect with PDO connect string ":string"', array(':string' => $connect_string)), 'exception');
-                    log_console($e->getMessage(), 'exception');
-
-                    $message = $e->getMessage();
-
-                    if (!strstr($message, 'errno=32')) {
-                        if ($e->getMessage() == 'ERROR 2013 (HY000): Lost connection to MySQL server at \'reading initial communication packet\', system error: 0') {
-                            if (isset_get($connector['ssh_tunnel']['required'])) {
-                                /*
-                                 * The tunneling server has "AllowTcpForwarding"
-                                 * set to "no" in the sshd_config, attempt auto
-                                 * fix
-                                 */
-                                os_enable_ssh_tcp_forwarding($connector['ssh_tunnel']['server']);
-                                continue;
-                            }
-                        }
-
-                        /*
-                         * This is a different error. Continue throwing the
-                         * exception as normal
-                         */
-                        throw $e;
-                    }
-
-                    /*
-                     * This error seems to happen when MySQL is VERY busy
-                     * processing queries. Wait a little before trying again
-                     */
-                    usleep(100000);
-                }
-            }
-
-            try {
-                $pdo->query('SET time_zone = "' . $connector['timezone'] . '";');
-
-            } catch (Exception $e) {
-                include(__DIR__ . '/handlers/sql-error-timezone.php');
-            }
-
-            if (!empty($connector['mode'])) {
-                $pdo->query('SET Sql::mode="' . $connector['mode'] . '";');
-            }
-
-            return $pdo;
-
-        } catch (Exception $e) {
-            return include(__DIR__ . '/handlers/sql-error-connect.php');
         }
     }
 
@@ -2061,7 +2181,7 @@ class Sql
                  * Query to be debugged is a PDO statement, extract the query
                  */
                 if (!($query instanceof PDOStatement)) {
-                    throw new CoreException(tr('debug_sql(): Object of unknown class ":class" specified where PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
+                    throw new CoreException(tr('Log::sql(): Object of unknown class ":class" specified where PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
                 }
 
                 $query = $query->queryString;
@@ -2080,7 +2200,7 @@ class Sql
 
                 } else {
                     if (!is_scalar($value)) {
-                        throw new CoreException(tr('debug_sql(): Specified key ":key" has non-scalar value ":value"', array(':key' => $key, ':value' => $value)), 'invalid');
+                        throw new CoreException(tr('Log::sql(): Specified key ":key" has non-scalar value ":value"', array(':key' => $key, ':value' => $value)), 'invalid');
                     }
 
                     $query = str_replace($key, $value, $query);

@@ -3,6 +3,7 @@
 namespace Phoundation\Core;
 
 use JsonException;
+use PDOStatement;
 use Phoundation\Cli\Colors;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Developer\Debug;
@@ -632,6 +633,84 @@ Class Log {
     public static function statistics(int $level = 10): bool
     {
         return Log::printr(Debug::getJson(), $level);
+    }
+
+
+    /**
+     * Write the specified SQL query as a message in the log file
+     *
+     * @param string|PDOStatement $query
+     * @param array $execute
+     * @param int $level
+     * @return bool
+     */
+    public static function sql(string|PDOStatement $query, ?array $execute = null, int $level = 3): bool
+    {
+        if (is_object($query)) {
+            if (!($query instanceof PDOStatement)) {
+                throw new LogException(tr('Object of unknown class ":class" specified where PDOStatement was expected', [':class' => get_class($query)]));
+            }
+
+            // Query to be logged is a PDO statement, extract the query
+            $query = $query->queryString;
+        }
+
+        // Apply execution variables
+        if (is_array($execute)) {
+            /*
+             * Reverse key sort to ensure that there are keys that contain at least parts of other keys will not be used incorrectly
+             *
+             * example:
+             *
+             * array(category    => test,
+             *       category_id => 5)
+             *
+             * Would cause the query to look like `category` = "test", `category_id` = "test"_id
+             */
+            krsort($execute);
+
+            foreach($execute as $key => $value) {
+                if (is_string($value)) {
+                    $value = addslashes($value);
+                    $query = str_replace($key, '"'.(!is_scalar($value) ? ' ['.tr('NOT SCALAR').'] ' : '').str_log($value).'"', $query);
+
+                } elseif (is_null($value)) {
+                    $query = str_replace($key, ' '.tr('NULL').' ', $query);
+
+                } elseif (is_bool($value)) {
+                    $query = str_replace($key, str_boolean($value), $query);
+
+                } else {
+                    if (!is_scalar($value)) {
+                        throw new CoreException(tr('debug_sql(): Specified key ":key" has non-scalar value ":value"', array(':key' => $key, ':value' => $value)), 'invalid');
+                    }
+
+                    $query = str_replace($key, $value, $query);
+                }
+            }
+        }
+
+        if ($return_only) {
+            return $query;
+        }
+
+        if (empty($core->register['clean_debug'])) {
+            $query = str_replace("\n", ' ', $query);
+            $query = str_nodouble($query, ' ', '\s');
+        }
+
+        /*
+         * VERYVERBOSE already logs the query, don't log it again
+         */
+        if (!VERYVERBOSE) {
+            log_file(Strings::endsWith($query, ';'), 'debug-sql');
+        }
+
+        return show(Strings::endsWith($query, ';'), 6);
+
+
+
+        return Log::printr(, $level);
     }
 
 

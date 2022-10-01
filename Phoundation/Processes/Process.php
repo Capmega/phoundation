@@ -80,6 +80,21 @@ Class Process
      */
     protected ?int $pid = null;
 
+    /**
+     * Sets whether the command should be executed with sudo or not. If not NULL, it should contain the user as which
+     * the command should be exeuted
+     *
+     * @var ?string $sudo
+     */
+    protected ?string $sudo = null;
+
+    /**
+     * A cached version of the command line
+     *
+     * @var string|null
+     */
+    protected ?string $cached_command_line = null;
+
 
 
     /**
@@ -162,6 +177,49 @@ Class Process
 
 
     /**
+     * Returns if the command should be executed as a different user using sudo.
+     *
+     * If this returns NULL, the command will not execute with sudo. If a string is returned, the command will execute
+     * as that user.
+     *
+     * @return ?string
+     */
+    public function getSudo(): ?string
+    {
+        return $this->sudo;
+    }
+
+
+
+    /**
+     * Sets if the command should be executed as a different user using sudo.
+     *
+     * If $sudo is NULL or FALSE, the command will not execute with sudo. If a string is specified, the command will
+     * execute as that user. If TRUE is specified, the command will execute as root (This is basically just a shortcut)
+     *
+     * @return Process This process so that multiple methods can be chained
+     */
+    public function setSudo(bool|string $sudo): Process
+    {
+        if (!$sudo) {
+            $this->sudo = null;
+
+        } else {
+            if ($sudo === true) {
+                $sudo = 'root';
+            }
+
+// TODO Validate that $sudo contains ONLY alphanumeric characters!
+
+            $this->sudo = $sudo;
+        }
+
+        return $this;
+    }
+
+
+
+    /**
      * Returns the CLI return values that are accepted as "success" and won't cause an exception
      *
      * @return array
@@ -222,16 +280,16 @@ Class Process
     }
 
 
-
     /**
      * Sets the actual CLI exit code after the process finished its execution
      *
      * This method will check if the specified exit code is accepted and if not, throw a Process exception
      *
      * @param int $exit_code
+     * @param string|array $output
      * @return void
      */
-    protected function setExitCode(int $exit_code): void
+    protected function setExitCode(int $exit_code, string|array $output): void
     {
         $this->exit_code = $exit_code;
 
@@ -240,7 +298,15 @@ Class Process
             return;
         }
 
-        throw new ProcessFailedException('The command ":command" failed with exit code ":code"');
+        throw new ProcessFailedException('The command ":command" failed with exit code ":code"', [
+            'command'   => $this->command,
+            'arguments' => $this->arguments,
+            'timeout'   => $this->timeout,
+            'log_path'  => $this->log_path,
+            'run_path'  => $this->run_path,
+            'exit_code' => $exit_code,
+            'output'    => $output,
+        ]);
     }
 
 
@@ -402,7 +468,7 @@ Class Process
         }
 
         exec($this->getCommandLine(), $output, $exit_code);
-        $this->exit_code = $exit_code;
+        $this->setExitCode($exit_code, $output);
         return $output;
     }
 
@@ -420,10 +486,10 @@ Class Process
         }
 
         $output = passthru($this->getCommandLine(), $exit_code);
-        $this->exit_code = $exit_code;
+        $this->setExitCode($exit_code, $output);
 
-        // So according to the documentation, for some reason passthru would return null on success and false on failure
-        // Makes sense, right? Just return true or false, please,
+        // So according to the documentation, for some reason passthru() would return null on success and false on
+        // failure. Makes sense, right? Just return true or false, please,
         if ($output === false) {
             return false;
         }
@@ -465,17 +531,26 @@ Class Process
      */
     protected function getCommandLine(): string
     {
+        if ($this->cached_command_line) {
+            return $this->cached_command_line;
+        }
+
         if (!$this->command) {
             throw new ProcessException(tr('Cannot execute process, no command specified'));
         }
 
-        $command_line = $this->command . ' ' . implode(' ', $this->arguments);
+        $this->cached_command_line = $this->command . ' ' . implode(' ', $this->arguments);
 
         // Add timeout
         if ($this->timeout) {
-            $command_line = 'timeout ' . $this->timeout . ' ' . $command_line;
+            $this->cached_command_line = 'timeout ' . escapeshellarg($this->timeout) . ' ' . $this->cached_command_line;
         }
 
-        return $command_line;
+        // Add sudo
+        if ($this->timeout) {
+            $this->cached_command_line = 'sudo -u ' . escapeshellarg($this->sudo) . ' ' . $this->cached_command_line;
+        }
+
+        return $this->cached_command_line;
     }
 }

@@ -3,7 +3,7 @@
 namespace Phoundation\Processes\Exception;
 
 /**
- * Class ProcessFailedException
+ * Class CommandsException
  *
  * This exception is thrown in case a single process encounters a problem
  *
@@ -12,6 +12,6 @@ namespace Phoundation\Processes\Exception;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Processes
  */
-class ProcessFailedException extends ProcessesException
+class CommandsException extends ProcessesException
 {
 }
