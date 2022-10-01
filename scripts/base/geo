@@ -118,9 +118,9 @@ $skipcounties = cli_argument('--no-counties');
  */
 $threshold = cli_argument('threshold', true, 100);
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'ip':
-        switch(cli_method(1)) {
+        switch (cli_method(1)) {
             case 'update':
                 log_console(tr('Updating GEOIP data'), 'white');
 
@@ -307,7 +307,7 @@ switch(cli_method()) {
         break;
 
     case 'clear':
-        switch(cli_method(1)) {
+        switch (cli_method(1)) {
             case 'geonames':
                 log_console(tr('Clearing all data from "geonames" database'), 'white');
 
@@ -376,7 +376,7 @@ switch(cli_method()) {
                                 'iso-languagecodes',
                                 'timeZones');
 
-        foreach($files as $file) {
+        foreach ($files as $file) {
             file_delete($geoimport_path.$file.'*', $geoimport_path);
         }
 
@@ -563,7 +563,7 @@ switch(cli_method()) {
         cli_dot(false);
         log_console(tr('Applying indices'), 'white');
 
-        foreach(array('geonameid', 'parents_id', 'name', 'country', 'admin1', 'admin2', 'moddate', 'latitude', 'longitude') as $column) {
+        foreach (array('geonameid', 'parents_id', 'name', 'country', 'admin1', 'admin2', 'moddate', 'latitude', 'longitude') as $column) {
             $geosql->query('ALTER TABLE `geonames` ADD INDEX (`'.$column.'`);');
             log_console(tr('Applied index for ":column"', array(':column' => $column)), 'green');
         }
@@ -586,7 +586,7 @@ switch(cli_method()) {
 
         $country_list = explode(',', $country_list);
 
-        foreach($country_list as &$country) {
+        foreach ($country_list as &$country) {
             $country = strtolower(mb_trim($country));
         }
 
@@ -726,12 +726,12 @@ switch(cli_method()) {
              */
             log_console(tr('ONLY ADDING FOR THESE COUNTRIES:'), 'yellow');
 
-            foreach(Arrays::force($country_list) as $country) {
+            foreach (Arrays::force($country_list) as $country) {
                 if (strtolower($country) == 'all') {
 
                 } else {
                     if (!$result = sql_get('SELECT `id`, `name` FROM `geo_countries` WHERE `name` = :name OR `seoname` = :seoname or `code` = :code', array('name' => $country, 'seoname' => $country, 'code' => $country))) {
-                        throw new CoreException('Specified country "'.str_log($country).'" not found');
+                        throw new CoreException('Specified country "'.Strings::Log($country).'" not found');
                     }
 
                     log_console($result['name'], 'yellow');
@@ -743,7 +743,7 @@ switch(cli_method()) {
         /*
          * Now import for all countries
          */
-        foreach($countries as $country) {
+        foreach ($countries as $country) {
             /*
              * Import states?
              */
@@ -765,7 +765,7 @@ switch(cli_method()) {
                                             WHERE  `id` = '.$country : ''));
                 $country_idlist = array();
 
-                foreach($countries as $id => $country) {
+                foreach ($countries as $id => $country) {
                     $country_idlist[] = $id;
                 }
 
@@ -781,7 +781,7 @@ switch(cli_method()) {
                                                        AND    `name`         = :name)');
 
 
-                foreach($countries as $id => $country_data) {
+                foreach ($countries as $id => $country_data) {
                     /*
                      * If United States of America, then fix "New England Region" crap
                      */
@@ -862,7 +862,7 @@ switch(cli_method()) {
                                            WHERE  `id` = '.$country : ''));
                 }
 
-                foreach($countries as $countries_id => $country_data) {
+                foreach ($countries as $countries_id => $country_data) {
                     if (empty($states[$country_data['seoname']])) {
                         $states[$country_data['seoname']] = sql_list('SELECT `id`,
                                                                              `geonames_id`,
@@ -877,7 +877,7 @@ switch(cli_method()) {
                                                                       WHERE `countries_id` = '.$countries_id);
                     }
 
-                    foreach($states[$country_data['seoname']] as $states_id => $state_data) {
+                    foreach ($states[$country_data['seoname']] as $states_id => $state_data) {
                         log_console(tr('Importing counties for state ":state" for country ":country"...', array(':state' => $state_data['name'], ':country' => $country_data['name'])));
 
                         $r = $geosql->query('SELECT *
@@ -969,7 +969,7 @@ switch(cli_method()) {
                 /*
                  * Add cities for all countries
                  */
-                foreach($countries as $countries_id => $country_data) {
+                foreach ($countries as $countries_id => $country_data) {
                     log_console(tr('Buffering states for country ":country"...', array(':country' => $country_data['name'])));
                     $states[$country_data['seoname']] = sql_list('SELECT `id`,
                                                                          `geonames_id`,
@@ -988,7 +988,7 @@ switch(cli_method()) {
                     /*
                      * Add cities for all states
                      */
-                    foreach($states[$country_data['seoname']] as $states_id => $state_data) {
+                    foreach ($states[$country_data['seoname']] as $states_id => $state_data) {
                         log_console(tr('Buffering counties for state ":state" of country ":country"...', array(':state' => $state_data['name'], ':country' => $country_data['name'])));
                         $counties[$country_data['seoname']][$state_data['seoname']] = sql_list('SELECT `id`, `geonames_id`, `name`, `seoname`, `code`, `admin1`, `admin2` FROM `geo_counties` WHERE `states_id` = '.$states_id);
 
@@ -1032,7 +1032,7 @@ switch(cli_method()) {
                                 /*
                                  * Count the cities for all counties together, they should match the cities for the state
                                  */
-                                foreach($counties[$country_data['seoname']][$state_data['seoname']] as $counties_id => $county_data) {
+                                foreach ($counties[$country_data['seoname']][$state_data['seoname']] as $counties_id => $county_data) {
                                     $r_search->execute(array(':country' => $country_data['code'],
                                                              ':admin1'  => $county_data['admin1'],
                                                              ':admin2'  => $county_data['admin2']));
@@ -1131,7 +1131,7 @@ switch(cli_method()) {
                             /*
                              * Add all cities for this county
                              */
-                            foreach($counties[$country_data['seoname']][$state_data['seoname']] as $counties_id => $county_data) {
+                            foreach ($counties[$country_data['seoname']][$state_data['seoname']] as $counties_id => $county_data) {
                                 log_console(tr('Importing cities for county ":county" for state ":state" for country ":country"...', array(':county' => $county_data['name'], ':state' => $state_data['name'], ':country' => $country_data['name'])));
 
                                 /*

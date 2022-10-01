@@ -95,7 +95,7 @@ $phoundation_only = (PROJECT == 'CAPMEGA_TOOLKIT');
 /*
  * Determine what method to execute
  */
-switch(cli_method()) {
+switch (cli_method()) {
     case 'tabs-to-spaces':
         $spaces = cli_argument('--spaces', true, 4);
         cli_no_arguments_left();
@@ -161,7 +161,7 @@ switch(cli_method()) {
         code_phoundation_checkout($current_version_line);
         $phoundation_version = code_get_phoundation_framework_version();
 
-        switch(version_compare(FRAMEWORKCODEVERSION, $phoundation_version)) {
+        switch (version_compare(FRAMEWORKCODEVERSION, $phoundation_version)) {
             case 1:
                 /*
                  * The phoundation version is behind the current code version
@@ -265,7 +265,7 @@ switch(cli_method()) {
         $sections = array('phoundation' => array(),
                           'toolkit'     => array());
 
-        switch(cli_method()) {
+        switch (cli_method()) {
             case 'status':
                 break;
 
@@ -282,11 +282,11 @@ switch(cli_method()) {
                 break;
         }
 
-        foreach($files as $file => &$status) {
+        foreach ($files as $file => &$status) {
             try {
                 $marked = false;
 
-                //switch($status) {
+                //switch ($status) {
                 //    case 'modified':
                 //        // FALLTHROUGH
                 //    case 'not tracked':
@@ -532,8 +532,8 @@ switch(cli_method()) {
             $code_bump = false;
         }
 
-        foreach($sections as $section => &$list) {
-            switch(cli_method()) {
+        foreach ($sections as $section => &$list) {
+            switch (cli_method()) {
                 case 'status':
                     log_console(tr('Showing modified files for section ":section"', array(':section' => $section)), 'QUIET/white');
                     break;
@@ -546,13 +546,13 @@ switch(cli_method()) {
                     log_console(tr('Applying ":count" patches for ":section"', array(':section' => $section, ':count' => count($list))), 'QUIET/white', false);
             }
 
-            foreach($list as $file => &$status) {
+            foreach ($list as $file => &$status) {
                 try {
                     $changed   = false;
                     $skip_file = false;
 
                     if ($skip[$section]) {
-                        foreach($skip[$section] as $regex) {
+                        foreach ($skip[$section] as $regex) {
                             if (preg_match($regex, $file)) {
                                 $skip_file = true;
                             }
@@ -563,7 +563,7 @@ switch(cli_method()) {
                         continue;
                     }
 
-                    switch(cli_method()) {
+                    switch (cli_method()) {
                         case 'status':
                             log_console(tr('  :file', array(':file' => $file)));
                             $skip_file = true;
@@ -621,7 +621,7 @@ switch(cli_method()) {
                         }
                     }
 
-                    switch($e->getCode()) {
+                    switch ($e->getCode()) {
                         case 'failed':
                             /*
                              * Patching mostly fails when for some reason the
@@ -707,11 +707,11 @@ switch(cli_method()) {
                     log_console('');
                 }
 
-                foreach($sections as $section => $list) {
-                    foreach($list as $file => $status) {
+                foreach ($sections as $section => $list) {
+                    foreach ($list as $file => $status) {
                         log_console(tr('Cleaning up file ":file"', array(':file' => $file)), 'VERBOSEDOT/green');
 
-                        switch($status) {
+                        switch ($status) {
                             case 'patched':
                                 git_checkout(null, ROOT.$file);
                                 break;

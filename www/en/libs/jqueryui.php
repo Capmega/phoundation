@@ -146,7 +146,7 @@ function jqueryui_time($selector, $params = null) {
 
             $script  = '"disableTimeRanges": [';
 
-            foreach($params['disable_time_ranges'] as $range) {
+            foreach ($params['disable_time_ranges'] as $range) {
                 if (!is_array($range)) {
                     throw new CoreException(tr('jqueryui_time(): All $params[disable_time_ranges] entries should be arrays, ":range" is not', array(':range' => $range)), 'invalid');
                 }
@@ -225,9 +225,9 @@ throw new CoreException('jqueryui_datepair(): This function is not yet implement
     //
     //        $script  = '"disabledatepairRanges": [';
     //
-    //        foreach($params['disable_datepair_ranges'] as $range) {
+    //        foreach ($params['disable_datepair_ranges'] as $range) {
     //            if (!is_array($range)) {
-    //                throw new CoreException('jqueryui_datepair(): All $params[disable_datepair_ranges] entries should be arrays, "'.str_log($range).'" is not', 'invalid');
+    //                throw new CoreException('jqueryui_datepair(): All $params[disable_datepair_ranges] entries should be arrays, "'.Strings::Log($range).'" is not', 'invalid');
     //            }
     //
     //            $script  = '["'.isset_get($range[0]).'", "'.isset_get($range[1]).'"]';
@@ -438,7 +438,7 @@ function jqueryui_fancybox($params) {
 
         $items = '';
 
-        foreach($params['resource']as $data) {
+        foreach ($params['resource']as $data) {
             $html   = $params['item_template'];
             $image  = html_img($data['src'], $data['alt'], isset_get($data['width']), isset_get($data['height']));
 

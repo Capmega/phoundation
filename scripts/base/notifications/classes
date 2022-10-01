@@ -55,7 +55,7 @@ if (!function_exists('s_set_status')) {
 try {
     cli_only();
 
-    switch($method = cli_argument(0)) {
+    switch ($method = cli_argument(0)) {
         case 'add':
             // FALLTHROUGH
         case 'create':

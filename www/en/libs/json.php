@@ -59,7 +59,7 @@ function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'd
 
         echo $data;
 
-        switch($after) {
+        switch ($after) {
             case 'die':
                 /*
                  * We're done, kill the connection % process (default)
@@ -190,7 +190,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500) {
             } else {
                 $result = $message->getCode();
 
-                switch($result) {
+                switch ($result) {
                     case 'access-denied':
                         $http_code = '403';
                         break;
@@ -213,7 +213,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500) {
                          */
                         $messages = $message->getMessages();
 
-                        foreach($messages as $id => &$message) {
+                        foreach ($messages as $id => &$message) {
                             $message = trim(Strings::from($message, '():'));
 
                             if ($message == tr('Failed')) {
@@ -264,7 +264,7 @@ function json_message($code, $data = null) {
             notify(new OutOfBoundsException(tr('json_message(): Specified code ":code" contains an _ which should never be used, always use a -', array(':code' => $code)), 'warning/invalid'));
         }
 
-        switch($code) {
+        switch ($code) {
             case 301:
                 // FALLTHROUGH
             case 'redirect':
@@ -385,7 +385,7 @@ function json_encode_custom($source, $internal = true) {
         if ($internal) {
             $source = json_encode($source);
 
-            switch(json_last_error()) {
+            switch (json_last_error()) {
                 case JSON_ERROR_NONE:
                     break;
 
@@ -513,7 +513,7 @@ function json_decode_custom($json, $as_array = true) {
         /*
          * Switch and check possible JSON errors
          */
-        switch(json_last_error()) {
+        switch (json_last_error()) {
             case JSON_ERROR_NONE:
                 break;
 

@@ -30,9 +30,9 @@ if (isset($_POST['dosignin'])) {
         user_signin($user, false, '/admin/index.php');
 
     }catch(Exception $e) {
-        log_database('Sign in failed for user "'.str_log($_POST['username']).'" with code "'.$e->getCode().'" and message "'.$e->getMessage().'"', 'ADMIN');
+        log_database('Sign in failed for user "'.Strings::Log($_POST['username']).'" with code "'.$e->getCode().'" and message "'.$e->getMessage().'"', 'ADMIN');
 
-        switch($e->getCode()) {
+        switch ($e->getCode()) {
             case 'notfound':
                 // FALLTHROUGH
             case 'accessdenied':

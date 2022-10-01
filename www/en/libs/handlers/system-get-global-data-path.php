@@ -22,7 +22,7 @@ try {
 
     $found = false;
 
-    foreach($paths as $path) {
+    foreach ($paths as $path) {
         if (file_exists($path)) {
             $found = $path;
             break;
@@ -53,7 +53,7 @@ try {
                 /*
                  * Something went wrong and it was not created anyway
                  */
-                throw new CoreException('get_global_data_path(): ./script/base/init_global_data_path reported path "'.str_log($path).'" was created but it could not be found', 'failed');
+                throw new CoreException('get_global_data_path(): ./script/base/init_global_data_path reported path "'.Strings::Log($path).'" was created but it could not be found', 'failed');
             }
 
             /*
@@ -83,7 +83,7 @@ try {
          * Curious, the path exists, but realpath failed and returned false..
          * This should never happen since we ensured the path above! This is just an extra check in case of.. weird problems :)
          */
-        throw new CoreException('The found global data path "'.str_log($path).'" is invalid (realpath returned false)', 'invalid');
+        throw new CoreException('The found global data path "'.Strings::Log($path).'" is invalid (realpath returned false)', 'invalid');
     }
 
     return Strings::slash($global_path);

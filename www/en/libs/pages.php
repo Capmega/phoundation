@@ -35,14 +35,14 @@ function pages_list($params) {
 
         $params['filters'] = Arrays::force($params['filters']);
 
-        foreach($pages as $id => $page) {
+        foreach ($pages as $id => $page) {
             $page = strtolower($page);
 
             if (substr($page, -4, 4) != '.php') {
                 continue;
             }
 
-            foreach($params['filters'] as $key => $value) {
+            foreach ($params['filters'] as $key => $value) {
                 if (empty($value)) {
                     continue;
                 }

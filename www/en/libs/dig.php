@@ -109,7 +109,7 @@ function dig($hostname, $command, $dns_server = null) {
         $stop    = false;
         $retval  = array();
 
-        foreach($results as $result) {
+        foreach ($results as $result) {
             if (strstr($result, 'ANSWER SECTION:')) {
                 $start = true;
                 continue;

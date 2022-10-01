@@ -16,7 +16,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 
 load_libs('user,roles,paging');
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'list':
         $rights = cli_argument('--rights') or cli_argument('-r');
         cli_no_arguments_left();
@@ -87,7 +87,7 @@ switch(cli_method()) {
                              ':name'        => $role['name'],
                              ':description' => $role['description']));
 
-            log_console(tr('Created new role ":role"', array(':role' => str_log($role['name']))), 'green');
+            log_console(tr('Created new role ":role"', array(':role' => Strings::Log($role['name']))), 'green');
             break;
 
         }catch(Exception $e) {
@@ -179,7 +179,7 @@ switch(cli_method()) {
 
                          array_merge($in_name, $in_id));
 
-        switch(!$r->rowCount()) {
+        switch (!$r->rowCount()) {
             case 0:
                 log_console(tr('Not deleted any roles'), 'error');
                 break;
@@ -224,7 +224,7 @@ switch(cli_method()) {
                          array_merge($in_name, $in_id));
 
 
-        switch(!$r->rowCount()) {
+        switch (!$r->rowCount()) {
             case 0:
                 log_console(tr('Not undeleted any roles'), 'error');
                 break;
@@ -266,7 +266,7 @@ switch(cli_method()) {
 
                          array_merge($in_name, $in_id));
 
-        switch(!$r->rowCount()) {
+        switch (!$r->rowCount()) {
             case 0:
                 log_console(tr('Not erased any roles'), 'error');
                 break;
@@ -291,7 +291,7 @@ switch(cli_method()) {
         /*
          * Ensure that specified rights exist, and get more detailed rights data
          */
-        foreach($arguments as $key => $value) {
+        foreach ($arguments as $key => $value) {
             $right                  = rights_get($value, 'id,name');
             $rights[$right['name']] = $right;
         }
@@ -299,7 +299,7 @@ switch(cli_method()) {
         /*
          * Add the specified rights
          */
-        foreach($rights as $right) {
+        foreach ($rights as $right) {
             $exist = sql_get('SELECT `id`
 
                               FROM `roles_rights`
@@ -332,7 +332,7 @@ switch(cli_method()) {
         /*
          * Ensure that specified rights exist, and get more detailed rights data
          */
-        foreach($arguments as $key => $value) {
+        foreach ($arguments as $key => $value) {
             $right                  = rights_get($value, 'id,name');
             $rights[$right['name']] = $right;
         }
@@ -340,7 +340,7 @@ switch(cli_method()) {
         /*
          * Add the specified rights
          */
-        foreach($rights as $right) {
+        foreach ($rights as $right) {
             sql_query('DELETE FROM `roles_rights`
 
                        WHERE       `roles_id`  = :roles_id

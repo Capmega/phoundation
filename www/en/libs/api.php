@@ -185,7 +185,7 @@ function api_encode($data) {
             $data = str_replace('@', '\@', $data);
 
         } elseif (is_string($data)) {
-            foreach($listing as &$value) {
+            foreach ($listing as &$value) {
                 $value = str_replace('@', '\@', $value);
             }
 
@@ -284,7 +284,7 @@ function api_start_session($session_id) {
         load_libs('validate,user');
 
         if (!$session_id) {
-            switch($_SERVER['REQUEST_METHOD']) {
+            switch ($_SERVER['REQUEST_METHOD']) {
                 case 'GET':
                     $session_id = isset_get($_GET['sessions_id']);
                     break;
@@ -431,7 +431,7 @@ function api_decode($data) {
             $data = str_replace('\@', '@', $data);
 
         } elseif (is_string($data)) {
-            foreach($listing as &$value) {
+            foreach ($listing as &$value) {
                 $value = str_replace('\@', '@', $value);
             }
 
@@ -510,7 +510,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
             }catch(Exception $e) {
                 $url = Strings::startsNotWith($account_data['baseurl'], '/').'/authenticate';
 
-                switch($e->getCode()) {
+                switch ($e->getCode()) {
                     case 'HTTP403':
                         throw new CoreException(tr('api_call_base(): [403] API authentication URL ":url" gave access denied', array(':url' => $url)), $e);
 
@@ -537,7 +537,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
              */
             $count = 0;
 
-            foreach(Arrays::force($files) as $url => $file) {
+            foreach (Arrays::force($files) as $url => $file) {
                 $data['file'.$count++] =  curl_file_create($file, file_mimetype($file), str_replace('/', '_', str_replace('_', '', $url)));
             }
         }
@@ -561,7 +561,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
 
             $result = json_decode_custom($json['data']);
 
-            switch(isset_get($result['result'])) {
+            switch (isset_get($result['result'])) {
                 case 'OK':
                     /*
                      * All ok!
@@ -594,7 +594,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
         }catch(Exception $e) {
             $url = Strings::startsNotWith($account_data['baseurl'], '/').Strings::startsWith($call, '/');
 
-            switch($e->getCode()) {
+            switch ($e->getCode()) {
                 case 'HTTP403':
                     throw new CoreException(tr('api_call_base(): [403] API URL ":url" gave access denied', array(':url' => $url)), $e);
 

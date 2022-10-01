@@ -148,7 +148,7 @@ function roles_update_rights($role, $rights) {
          */
         $rights_list = array();
 
-        foreach($rights as $key => $right) {
+        foreach ($rights as $key => $right) {
             if (!$right) {
                 continue;
             }
@@ -187,7 +187,7 @@ function roles_update_rights($role, $rights) {
 
         $role_right = array(':roles_id' => $role['id']);
 
-        foreach($rights_list as $rights_id => $name) {
+        foreach ($rights_list as $rights_id => $name) {
             $p->execute(array(':roles_id'  => $role['id'],
                               ':rights_id' => $rights_id));
         }
@@ -205,7 +205,7 @@ function roles_update_rights($role, $rights) {
         while ($user = sql_fetch($users)) {
             $delete->execute(array(':users_id'  => $user['id']));
 
-            foreach($rights_list as $rights_id => $name) {
+            foreach ($rights_list as $rights_id => $name) {
                 $insert->execute(array(':users_id'  => $user['id'],
                                        ':rights_id' => $rights_id,
                                        ':name'      => $name));

@@ -63,7 +63,7 @@ function sitemap_generate() {
     try {
         $files = sitemap_list_files();
 
-        foreach($files as &$file) {
+        foreach ($files as &$file) {
             if (!file_exists(ROOT.'www/'.$file['language'])) {
                 log_console(tr('Skipped sitemap generation for language ":language1", the "www/:language2" directory does not exist. Check the $_CONFIG[language][supported] configuration', array(':language1' => $file['language'], ':language2' => $file['language'])), 'yellow');
                 continue;
@@ -84,7 +84,7 @@ function sitemap_generate() {
          */
         if (!empty($files)) {
             try {
-                foreach($files as $file) {
+                foreach ($files as $file) {
                     if (empty($file['tmp'])) {
                         continue;
                     }
@@ -133,7 +133,7 @@ function sitemap_install_files($files) {
             /*
              * Install the sub sitemap files
              */
-            foreach($files as $file) {
+            foreach ($files as $file) {
                 if (empty($file['tmp'])) {
                     continue;
                 }
@@ -223,7 +223,7 @@ function sitemap_generate_index_file($files) {
             file_delete(TMP.'sitemaps/'.$file['language']);
 
         } else {
-            foreach($files as $file) {
+            foreach ($files as $file) {
                 cli_dot(1);
                 $xml .= sitemap_get_index_xml($file);
             }
@@ -369,9 +369,9 @@ function sitemap_get_entry_xml($entry) {
                       'change_frequency',
                       'priority');
 
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             if (!empty($entry[$key])) {
-                switch($key) {
+                switch ($key) {
                     case 'url':
                         $retval[] = "    <loc>".$entry[$key]."</loc>\n";
                         break;
@@ -475,7 +475,7 @@ function sitemap_list_files() {
             $_CONFIG['language']['supported'] = array($_CONFIG['language']['default'] => $_CONFIG['language']['default']);
         }
 
-        foreach($_CONFIG['language']['supported'] as $code => $language) {
+        foreach ($_CONFIG['language']['supported'] as $code => $language) {
             $files  = sql_query('SELECT   `file`
 
                                  FROM     `sitemaps_data`
@@ -719,11 +719,11 @@ function sitemap_make_backup() {
             $count++;
         }
 
-        foreach($_CONFIG['language']['supported'] as $code => $language) {
+        foreach ($_CONFIG['language']['supported'] as $code => $language) {
             $source = ROOT.'www/'.$code.'/';
             file_ensure_path($target.$code.'/');
 
-            foreach(scandir($source) as $file) {
+            foreach (scandir($source) as $file) {
                 $filename = basename($file);
 
                 if (preg_match('/sitemap(?:-.*?)?\.xml/', $filename)) {

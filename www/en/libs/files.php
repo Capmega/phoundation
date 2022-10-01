@@ -280,7 +280,7 @@ function files_search_orphans() {
         log_file('Searching `files` table for orphaned entries', 'cyan');
         file_ensure_path($quarantine);
 
-        foreach($files as $file) {
+        foreach ($files as $file) {
             if (!file_exists($root.$file['file'])) {
                 $update->execute(array(':hash' => $file['file']));
                 log_file('Files entry `:file` has the file missing, set the entry to status "orphaned"', array(':file' => $file['hash']), 'yellow');

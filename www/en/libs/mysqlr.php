@@ -71,7 +71,7 @@ function mysqlr_update_server_replication_status($params, $status) {
         /*
          * Update server replication_lock
          */
-        switch($status) {
+        switch ($status) {
             case 'preparing':
                 sql_query('UPDATE `servers` SET `replication_lock` = :replication_lock WHERE `id` = :id', array(':replication_lock' => 1, ':id' => $params['servers_id']));
                 break;
@@ -141,7 +141,7 @@ function mysqlr_update_replication_status($params, $status) {
         /*
          * Update server replication_lock
          */
-        switch($status) {
+        switch ($status) {
             case 'disabling':
                 // FALLTHROUGH
             case 'resuming':
@@ -803,7 +803,7 @@ function mysqlr_full_backup() {
             /*
              * Disable replication of each database
              */
-            foreach($databases as $id => $name) {
+            foreach ($databases as $id => $name) {
                 log_console(tr('Disabling replication of database :database', array(':database' => $name)), 'VERBOSEDOT');
                 mysqlr_pause_replication($id, false);
             }
@@ -819,7 +819,7 @@ function mysqlr_full_backup() {
             $server_backup_path = $backup_path.'/'.$server['domain'];
             servers_exec($slave, 'sudo mkdir '.$server_backup_path);
 
-            foreach($databases as $id => $name) {
+            foreach ($databases as $id => $name) {
                 $db                 = mysql_get_database($id);
                 $db['root_db_user'] = 'root';
 
@@ -1009,7 +1009,7 @@ function mysqlr_add_log($params) {
         /*
          * Validate log type
          */
-        switch($params['type']) {
+        switch ($params['type']) {
             case 'mysql_issue':
                 // FALLTHROUGH
             case 'ssh_tunnel':
@@ -1225,7 +1225,7 @@ function mysqlr_monitor_database($database) {
             /*
              * Fix possible MYSQL Slave issues
              */
-            switch($result['Last_IO_Errno']) {
+            switch ($result['Last_IO_Errno']) {
                 case 1236:
                     /*
                      * Got fatal error 1236 from master when reading data from binary log:
@@ -1266,7 +1266,7 @@ function mysqlr_monitor_database($database) {
             /*
              * Fix possible MYSQL Slave issues
              */
-            switch($result['Last_Errno']) {
+            switch ($result['Last_Errno']) {
                 case 1146:
                     /*
                      *
@@ -1354,7 +1354,7 @@ function mysqlr_monitor_database($database) {
 function mysqlr_log_type_human($type) {
     try {
         $retval = '';
-        switch($type) {
+        switch ($type) {
             case 'mysql_issue':
                 $retval = 'MySQL Issue';
                 break;

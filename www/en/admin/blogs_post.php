@@ -145,7 +145,7 @@ if (empty($_GET['post'])) {
                 blogs_update_key_value_store($post['id'], $post, isset_get($params['key_value']));
             }
 
-            html_flash_set(str_replace('%post%', str_log($post['name']), $params['flash_created']), 'success');
+            html_flash_set(str_replace('%post%', Strings::Log($post['name']), $params['flash_created']), 'success');
             redirect($params['redirect'].'post='.$post['seoname']);
 
         }catch(Exception $e) {
@@ -242,11 +242,11 @@ if (empty($_GET['post'])) {
                 blogs_update_key_value_store($post['id'], $post, isset_get($params['key_value']));
             }
 
-            html_flash_set(str_replace('%post%', str_log($post['name']), $params['flash_updated']), 'success');
+            html_flash_set(str_replace('%post%', Strings::Log($post['name']), $params['flash_updated']), 'success');
             redirect($params['redirect'].'post='.$post['seoname']);
 
         }catch(Exception $e) {
-            switch($e->getCode()) {
+            switch ($e->getCode()) {
                 case 'validation':
                     html_flash_set(tr('Failed to update blog post because: %message%', array('%message%' => $e->getMessage())), 'error', tr('Failed to update blog post because "%message%"', '%message%', $e->getMessages(', ')));
                     break;
@@ -394,7 +394,7 @@ if ($params['use_status']) {
 if ($params['use_key_value']) {
     $side = blog_side();
 
-    foreach($params['key_value'] as $keyvalue) {
+    foreach ($params['key_value'] as $keyvalue) {
         $keyvalue['class'] = 'form-control';
 
         $keyvalue_html = '  <div class="form-group">
@@ -417,7 +417,7 @@ if ($params['use_key_value']) {
     }
 }
 
-foreach($controls['left'] as $id => $control) {
+foreach ($controls['left'] as $id => $control) {
     $html .= '  <div class="row">
                     <div class="col-md-6">
                         '.$control.'
@@ -493,7 +493,7 @@ if (empty($post['id'])) {
         $html .= '<div class="blogpost nophotos">'.tr('This post has no separate photos yet').'</div>';
 
     } else {
-        foreach($photos as $id => $photo) {
+        foreach ($photos as $id => $photo) {
             /*
              * Get photo dimensions
              */

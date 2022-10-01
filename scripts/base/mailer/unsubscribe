@@ -15,7 +15,7 @@ try {
     $count = 0;
     $users = not_empty(cli_argument('users', true), cli_argument('user', true), $argv);
 
-    foreach(Arrays::force($users) as $user) {
+    foreach (Arrays::force($users) as $user) {
         mailer_unsubscribe($user);
         $count++;
     }

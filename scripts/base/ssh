@@ -69,7 +69,7 @@ cli_only();
 load_libs('servers');
 
 try {
-    switch(cli_method()) {
+    switch (cli_method()) {
         case 'list':
             cli_no_arguments_left();
 
@@ -140,7 +140,7 @@ try {
 
             ksort($account_data);
 
-            foreach($account_data as $key => $value) {
+            foreach ($account_data as $key => $value) {
                 if ($key == 'password') continue;
                 log_console(cli_color($key.':', 'white').' '.json_encode_custom($value));
             }
@@ -198,7 +198,7 @@ try {
     }
 
 }catch(Exception $e) {
-    switch($e->getCode()) {
+    switch ($e->getCode()) {
         case 'not-found':
             throw new CoreException(tr('ssh-keyscan found no public keys for domain ":domain" on port ":port", are domain and port correct?', array(':domain' => $domain, ':port' => ssh_get_port($port))), 'warning/not-found');
     }
@@ -245,7 +245,7 @@ try {
     $result = servers_exec($server, $commands);
 
 }catch(Exception $e) {
-    switch($e->getCode()) {
+    switch ($e->getCode()) {
         case 'multiple':
             throw new CoreException(tr('Specified domain ":domain" matched multiple registered servers, please be more specific', array(':domain' => $domain)), 'warning/multiple');
 

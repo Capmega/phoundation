@@ -106,7 +106,7 @@ function providers_validate($provider) {
         if ($provider['phones']) {
             $v->hasMaxChars($provider['phones'], 36, tr('Please ensure the phones field has less than 36 characters'));
 
-            foreach(Arrays::force($provider['phones']) as &$phone) {
+            foreach (Arrays::force($provider['phones']) as &$phone) {
                 $v->isPhonenumber($phone, tr('Please ensure the phone number ":phone" is valid', array(':phone' => $phone)));
             }
 

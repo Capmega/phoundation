@@ -117,7 +117,7 @@ function cli_die($exitcode, $message = '', $color = '') {
         /*
          * Make sure we're not in a script_exec(), where die should NOT happen!
          */
-        foreach(debug_backtrace() as $trace) {
+        foreach (debug_backtrace() as $trace) {
             if ($trace['function'] == 'script_exec') {
                 /*
                  * Do NOT die!!
@@ -475,7 +475,7 @@ function cli_run_once($action = 'exception', $force = false) {
         */
         $count = 0;
 
-        foreach($output as $line) {
+        foreach ($output as $line) {
             $line = preg_match('/\d+:\d+:\d+ .*? (.*?)$/', $line, $matches);
 
             if (empty($matches[1])) {
@@ -486,14 +486,14 @@ function cli_run_once($action = 'exception', $force = false) {
 
             if ($process == $core->register['real_script']) {
                 if (++$count >= 2) {
-                    switch($action) {
+                    switch ($action) {
                         case 'exception':
                             throw new CoreException('cli_run_once(): This script is already running', 'already-running');
 
                         case 'kill':
                             $thispid = getmypid();
 
-                            foreach($output as $line) {
+                            foreach ($output as $line) {
                                 if (!preg_match('/^\s*?\w+?\s+?(\d+)/', trim($line), $matches) or empty($matches[1])) {
                                     /*
                                      * This entry does not contain valid process id information
@@ -516,7 +516,7 @@ function cli_run_once($action = 'exception', $force = false) {
                             return false;
 
                         default:
-                            throw new CoreException('cli_run_once(): Unknown action "'.str_log($action).'" specified', 'unknown');
+                            throw new CoreException('cli_run_once(): Unknown action "'.Strings::Log($action).'" specified', 'unknown');
                     }
 
                     return true;
@@ -582,7 +582,7 @@ function cli_method($index = null, $default = null) {
             return $method[$index];
         }
 
-        foreach($argv as $key => $value){
+        foreach ($argv as $key => $value){
             if (substr($value, 0, 1) !== '-'){
                 unset($argv[$key]);
                 $method[$index] = $value;
@@ -623,8 +623,8 @@ function cli_argument($keys = null, $next = null, $default = null){
             $count = count($argv) - 1;
 
             if ($next === 'all'){
-// :TODO: This could be optimized using a for() starting at $keys instead of a foreach() over all entries
-                foreach($argv as $argv_key => $argv_value){
+// :TODO: This could be optimized using a for() starting at $keys instead of a foreach () over all entries
+                foreach ($argv as $argv_key => $argv_value){
                     if ($argv_key < $keys){
                         continue;
                     }
@@ -678,7 +678,7 @@ function cli_argument($keys = null, $next = null, $default = null){
             $keys    = Arrays::force($keys);
             $results = array();
 
-            foreach($keys as $key){
+            foreach ($keys as $key){
                 if ($next === 'all'){
                     /*
                      * We're requesting all values for all specified keys
@@ -705,7 +705,7 @@ function cli_argument($keys = null, $next = null, $default = null){
                 return $results;
             }
 
-            switch(count($results)){
+            switch (count($results)){
                 case 0:
                     return $default;
 
@@ -735,7 +735,7 @@ function cli_argument($keys = null, $next = null, $default = null){
                  */
                 $retval = array();
 
-                foreach($argv as $argv_key => $argv_value){
+                foreach ($argv as $argv_key => $argv_value){
                     if (empty($start)){
                         if ($argv_value == $keys){
                             $start = true;
@@ -813,7 +813,7 @@ function cli_arguments($arguments = null){
 
         $retval = array();
 
-        foreach(Arrays::force($arguments) as $argument){
+        foreach (Arrays::force($arguments) as $argument){
             if (is_numeric($argument)){
                 /*
                  * If the key would be numeric, argument() would get into an endless loop
@@ -862,7 +862,7 @@ function cli_highlight($string, $keywords, $fore_color, $back_color = null){
             $color = new Colors();
         }
 
-        foreach(Arrays::force($keywords) as $keyword){
+        foreach (Arrays::force($keywords) as $keyword){
             $string = str_replace($keyword, $color->getColoredString($string, $fore_color, $back_color), $string);
         }
 
@@ -881,7 +881,7 @@ function cli_highlight($string, $keywords, $fore_color, $back_color = null){
 function cli_error($e = null){
     global $usage;
 
-    switch($e->getCode()){
+    switch ($e->getCode()){
         case 'already-running':
             break;
 
@@ -913,7 +913,7 @@ function cli_show_usage($usage, $color){
             } else {
                 log_console(tr('Usage:'), $color);
 
-                foreach(Arrays::force($usage, "\n") as $line){
+                foreach (Arrays::force($usage, "\n") as $line){
                     log_console($line, $color);
                 }
 
@@ -1314,7 +1314,7 @@ function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
         $pids  = Arrays::force($pids);
         $count = 0;
 
-        foreach($pids as $pid){
+        foreach ($pids as $pid){
             /*
              * pkill returns 1 if process wasn't found, we can ignore that
              */
@@ -1530,7 +1530,7 @@ function cli_status_color($status){
     try {
         $status = status($status);
 
-        switch(trim(strtolower($status))){
+        switch (trim(strtolower($status))){
             case 'ok':
                 // FALLTHROUGH
             case 'completed':
@@ -1607,7 +1607,7 @@ function cli_list_processes($filters){
         $filters  = Arrays::force($filters);
         $commands = array('ps', array('ax', 'connector' => '|'));
 
-        foreach($filters as $filter){
+        foreach ($filters as $filter){
             if ($filter[0] === '-'){
                 /*
                  * Escape anything that looks like a command line parameter
@@ -1626,7 +1626,7 @@ function cli_list_processes($filters){
         $results = safe_exec(array('ok_exitcodes' => '0,1',
                                    'commands'     => $commands));
 
-        foreach($results as $key => $result){
+        foreach ($results as $key => $result){
             $result       = trim($result);
             $pid          = Strings::until($result, ' ');
             $retval[$pid] = substr($result, 27);
@@ -1807,7 +1807,7 @@ function cli_build_commands_string(&$params){
          * Build the commands together
          * Escape all commands and arguments first
          */
-        foreach($params['commands'] as $key => $value){
+        foreach ($params['commands'] as $key => $value){
             if (!is_numeric($key)){
                 throw new CoreException(tr('cli_build_commands_string(): Specified command structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $params['commands'])), 'invalid');
             }
@@ -1839,7 +1839,7 @@ function cli_build_commands_string(&$params){
                 /*
                  * Check if command is built in
                  */
-                switch($value){
+                switch ($value){
                     case 'type':
                         $builtin       = true;
                         $params['log'] = false;
@@ -1890,7 +1890,7 @@ function cli_build_commands_string(&$params){
                     throw new CoreException(tr('cli_build_commands_string(): Specified arguments for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $command, ':type' => gettype($params['commands']))), 'invalid');
                 }
 
-                foreach($value as $special => &$argument){
+                foreach ($value as $special => &$argument){
                     $special = (string) $special;
 
                     if (!$argument){
@@ -1953,7 +1953,7 @@ function cli_build_commands_string(&$params){
                          * This argument appears to be special, check what to do
                          * with it
                          */
-                        switch($special){
+                        switch ($special){
                             case 'nothing':
                                 break;
 
@@ -2012,7 +2012,7 @@ function cli_build_commands_string(&$params){
                                 break;
 
                             default:
-                                switch($special){
+                                switch ($special){
                                     case 'connect':
                                         throw new CoreException(tr('cli_build_commands_string(): Unknown argument modifier ":argument" specified, maybe should be "connector" ?', array(':argument' => $special)), 'invalid');
                                 }
@@ -2162,7 +2162,7 @@ function cli_find($params){
          */
         $params['start'] = Arrays::force($params['start'], ',');
 
-        foreach($params['start'] as &$item){
+        foreach ($params['start'] as &$item){
             $item = escapeshellarg($item);
         }
 
@@ -2171,12 +2171,12 @@ function cli_find($params){
         unset($params['start']);
         unset($item);
 
-        foreach($params as $key => $value){
+        foreach ($params as $key => $value){
             if (!$value){
                 continue;
             }
 
-            switch($key){
+            switch ($key){
                 case 'timeout':
                     break;
 
@@ -2185,7 +2185,7 @@ function cli_find($params){
                     break;
 
                 case 'exec':
-                    switch(isset_get($params['exec'])){
+                    switch (isset_get($params['exec'])){
                         case '':
                             break;
 
@@ -2225,7 +2225,7 @@ function cli_find($params){
             }
         }
 
-        switch(isset_get($params['exec'])){
+        switch (isset_get($params['exec'])){
             case '':
                 break;
 

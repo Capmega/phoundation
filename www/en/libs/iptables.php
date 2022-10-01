@@ -36,7 +36,7 @@ function iptables_exec($server, $parameters = null) {
     static $commands = array();
 
     try {
-        switch($server) {
+        switch ($server) {
             case IPTABLES_CLEAR:
                 $commands = array();
                 return false;
@@ -307,7 +307,7 @@ function iptables_validate_protocol($protocol) {
 
         $protocol = strtolower($protocol);
 
-        switch($protocol) {
+        switch ($protocol) {
             case 'tcp':
                 // FALLTHROUGH
             case 'udp':
@@ -372,7 +372,7 @@ function iptables_validate_chain_type($chain_type) {
 
         $chain_type = strtolower($chain_type);
 
-        switch($chain_type) {
+        switch ($chain_type) {
             case 'prerouting':
                 // FALLTHROUGH
             case 'postrouting':

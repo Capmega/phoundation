@@ -21,7 +21,7 @@ function rights_give($users, $rights) {
         /*
          * Ensure we have all users id's
          */
-        foreach($users as $key => $value) {
+        foreach ($users as $key => $value) {
             /*
              * Ensure that the specified user exists (either id or name)
              */
@@ -56,7 +56,7 @@ function rights_give($users, $rights) {
         /*
          * Ensure we have all rights id's
          */
-        foreach($rights as $key => $value) {
+        foreach ($rights as $key => $value) {
             if (!is_numeric($value)) {
                 if (!$rights[$key] = sql_get('SELECT `id`, `name` FROM `rights` WHERE `name` = :name', array(':name' => $value))) {
                     /*
@@ -80,8 +80,8 @@ function rights_give($users, $rights) {
 
         $r = sql_prepare('SELECT `id` FROM `users_rights` WHERE `users_id` = :users_id AND `rights_id` = :rights_id');
 
-        foreach($users as $user) {
-            foreach($rights as $right) {
+        foreach ($users as $user) {
+            foreach ($rights as $right) {
                 try {
                     /*
                      * Only add the right if the user does not yet have it
@@ -128,7 +128,7 @@ function rights_take($users, $rights) {
         /*
          * Ensure we have all users id's
          */
-        foreach($users as $key => $value) {
+        foreach ($users as $key => $value) {
             /*
              * Ensure that the specified user exists (either id or name)
              */
@@ -153,7 +153,7 @@ function rights_take($users, $rights) {
         /*
          * Ensure we have all rights id's
          */
-        foreach($rights as $key => $value) {
+        foreach ($rights as $key => $value) {
             if (!is_numeric($value)) {
                 if (!$rights[$key] = sql_get('SELECT `id` FROM `rights` WHERE `name` = :name', array(':name' => $value), 'id')) {
                     /*
@@ -174,8 +174,8 @@ function rights_take($users, $rights) {
 
         $p = sql_prepare('DELETE FROM `users_rights` WHERE `users_id` = :users_id AND `rights_id` = :rights_id');
 
-        foreach($users as $user) {
-            foreach($rights as $right) {
+        foreach ($users as $user) {
+            foreach ($rights as $right) {
                 try {
                     $execute = array(':users_id'  => $user,
                                      ':rights_id' => $right);
@@ -254,7 +254,7 @@ function rights_select($select = '', $name = 'rights_id', $god = true) {
             $retval .= '<option value="0"'.(!$select ? ' selected' : '').'>All categories</option>';
         }
 
-        foreach(rights_list() as $right) {
+        foreach (rights_list() as $right) {
             $retval .= '<option value="'.$right['id'].'"'.(($right['id'] == $select) ? ' selected' : '').'>'.str_replace('_', ' ', str_camelcase($right['name'])).'</option>';
         }
 

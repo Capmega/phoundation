@@ -16,7 +16,7 @@ function persons_names_get($gender, $name_count, $lastname_count) {
     try {
         $retval = '';
 
-        switch(strtolower($gender)) {
+        switch (strtolower($gender)) {
             case 'man':
                 // FALLTHROUGH
             case 'boy':
@@ -34,7 +34,7 @@ function persons_names_get($gender, $name_count, $lastname_count) {
                 break;
 
             default:
-                throw new CoreException('persons_names_get(): Unknown gender "'.str_log($gender).'" specified', 'unknown');
+                throw new CoreException('persons_names_get(): Unknown gender "'.Strings::Log($gender).'" specified', 'unknown');
         }
 
         $names     = sql_list('SELECT `'.$column.'` FROM `persons_names` LIMIT '.$lastname_count, $column);

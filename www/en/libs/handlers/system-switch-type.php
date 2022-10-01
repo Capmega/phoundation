@@ -1,6 +1,6 @@
 <?php
 try {
-    switch($type) {
+    switch ($type) {
         case 'normal':
             $_SESSION['mobile']['site'] = false;
             break;

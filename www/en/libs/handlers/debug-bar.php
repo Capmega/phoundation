@@ -65,7 +65,7 @@ try {
     /*
      * Add query statistical data ordered by slowest queries first
      */
-    foreach($core->register['debug_queries'] as $query) {
+    foreach ($core->register['debug_queries'] as $query) {
         $html .= '      <tr>
                             <td>'.number_format($query['time'], 6).'</td>
                             <td>'.$query['function'].'</td>
@@ -122,7 +122,7 @@ try {
                         </thead>
                         <tbody>';
 
-    foreach($files as $id => $file) {
+    foreach ($files as $id => $file) {
         $html .= '      <tr>
                             <td>'.($id + 1).'</td>
                             <td>'.$file.'</td>

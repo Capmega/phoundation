@@ -71,7 +71,7 @@ function qr_install() {
  */
 function qr_encode($data, $height = 300, $width = 300, $provider = 'google') {
     try {
-        switch($provider) {
+        switch ($provider) {
             case 'google':
                 load_libs('html');
                 return 'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl='.urlencode($data).'&choe=UTF-8';

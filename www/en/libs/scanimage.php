@@ -150,7 +150,7 @@ function scanimage($params) {
                  */
                 file_delete($params['file'], ROOT);
 
-                switch($params['format']) {
+                switch ($params['format']) {
                     case 'tiff':
                         /*
                          * File should already be in TIFF, so we only have to rename
@@ -201,7 +201,7 @@ function scanimage($params) {
                     $line = strtolower($line);
                     $line = trim($line);
 
-                    switch($line) {
+                    switch ($line) {
                         case 'terminate called after throwing an instance of \'std::bad_alloc\'':
                             // FALLTROUGH
                         case 'scanimage: sane_start: Error during device I/O':
@@ -232,7 +232,7 @@ function scanimage($params) {
                 $line = '';
             }
 
-            switch(substr($line, 0, 25)) {
+            switch (substr($line, 0, 25)) {
                 case 'scanimage: no SANE device':
                     /*
                      * No scanner found
@@ -424,7 +424,7 @@ function scanimage_validate($params) {
         /*
          * Ensure requested format is known and file ends with correct extension
          */
-        switch($params['format']) {
+        switch ($params['format']) {
             case 'jpg':
                 // FALLTHROUGH
             case 'jpeg':
@@ -487,12 +487,12 @@ function scanimage_validate($params) {
             $v->setError(tr('Please ensure options are specified as an array'));
 
         } else {
-            foreach($params['options'] as $key => $value) {
+            foreach ($params['options'] as $key => $value) {
                 if (!isset($device['options'][$key])) {
                     /*
                      * This may be a system driver option
                      */
-                    switch($key) {
+                    switch ($key) {
                         case 'batch':
 // :TODO: Implement validations!
                             break;
@@ -609,7 +609,7 @@ function scanimage_detect_devices($server = null, $sudo = false) {
                                                 'commands' => array('scanimage', array('sudo' => $sudo, '-L', '-q'))));
         $devices  = array();
 
-        foreach($scanners as $scanner) {
+        foreach ($scanners as $scanner) {
             if (substr($scanner, 0, 6) != 'device') continue;
 
             $device = null;
@@ -730,7 +730,7 @@ function scanimage_detect_devices($server = null, $sudo = false) {
 //        $scanners = scanimage_detect_devices();
 //        $failed   = 0;
 //
-//        foreach($scanners as $scanner) {
+//        foreach ($scanners as $scanner) {
 //            unset($options);
 //
 //            try {
@@ -827,7 +827,7 @@ function scanimage_get_options($device, $server = null, $sudo = false) {
         $results = servers_exec($server, array('commands' => array('scanimage', array('sudo' => $sudo, '-A', '-d', $device))));
         $retval  = array();
 
-        foreach($results as $result) {
+        foreach ($results as $result) {
             if (strstr($result, 'failed:')) {
                 if (strtolower(trim(Strings::from($result, 'failed:'))) == 'invalid argument') {
                     throw new CoreException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e". This could possibly be a permission issue; does the current process user has the required access to scanner devices? Please check this user\'s groups!', array(':device' => $device, ':e' => trim(Strings::from($result, 'failed:')))), 'failed', $result);
@@ -881,7 +881,7 @@ function scanimage_get_options($device, $server = null, $sudo = false) {
                     $data = array('yes', 'no');
 
                 } else {
-                    switch($key) {
+                    switch ($key) {
                         case 'mode':
                             // FALLTHROUGH
                         case 'scan-area':
@@ -967,7 +967,7 @@ function scanimage_get_options($device, $server = null, $sudo = false) {
 //show($key);
 //show($data);
 //show($default);
-                switch($key) {
+                switch ($key) {
                     case 'l':
                         $data = Strings::until($data, '(');
                         $data = str_replace('%', '', $data);
@@ -1105,7 +1105,7 @@ function scanimage_select($params) {
 
         $scanners = scanimage_list();
 
-        foreach($scanners as $scanner) {
+        foreach ($scanners as $scanner) {
             if (empty($scanner['name'])) {
                 $params['resource'][$scanner['seodomain'].'/'.$scanner['seostring']] = $scanner['description'];
 
@@ -1203,11 +1203,11 @@ function scanimage_runs($device, $server = null) {
         $server  = servers_get($dbdevice['servers_id']);
         $results = linux_pgrep($server, 'scanimage');
 
-        foreach($results as $result) {
+        foreach ($results as $result) {
             $processes = linux_list_processes($server, array($result, 'scanimage'));
 
             if ($processes) {
-                foreach($processes as $id => $process) {
+                foreach ($processes as $id => $process) {
                     if (!str_contains($process, $dbdevice['string'])) {
                         unset($processes[$id]);
                     }

@@ -93,7 +93,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('scanimage,sane');
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'list':
         cli_no_arguments_left();
         log_console(tr('Showing found SANE scanners'), 'white');
@@ -171,7 +171,7 @@ switch(cli_method()) {
         /*
          * Parse parameters for this specific device
          */
-        foreach($device['options'] as $key => $valid_values) {
+        foreach ($device['options'] as $key => $valid_values) {
             $value = cli_argument('--'.$key, true);
 
             if ($value) {
@@ -204,7 +204,7 @@ switch(cli_method()) {
                                 'batch-increment',
                                 'batch-double');
 
-        foreach($system_options as $option) {
+        foreach ($system_options as $option) {
             if ($value = cli_argument('--'.$option, true)) {
                 $scanimage['batch'] = true;
                 $scanimage['options'][$option] = $value;
@@ -254,7 +254,7 @@ switch(cli_method()) {
             log_console(tr('Scanned image to file ":file"', array(':file' => $scanimage['file'])));
 
         }catch(Exception $e) {
-            switch($e->getRealCode()) {
+            switch ($e->getRealCode()) {
                 case 'busy':
                     // FALLTHGOUH
                 case 'stuck':
@@ -284,7 +284,7 @@ switch(cli_method()) {
                     throw new CoreException(tr('No scanned target files found in ":path"', array(':path' => $scanimage['result'])), 'not-exist');
                 }
 
-                foreach($files as $file) {
+                foreach ($files as $file) {
                     view($file);
                 }
 

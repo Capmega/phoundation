@@ -1041,7 +1041,7 @@ function page_show($pagename, $params = null, $get = null)
 //            $messages = $messages->getMessages();
 //        }
 //
-//        foreach(Arrays::force($messages) as $message) {
+//        foreach (Arrays::force($messages) as $message) {
 //            $this->messages[] = $message;
 //        }
 //

@@ -26,7 +26,7 @@ function date_relative($timestamp, $now = null, $periods = null) {
 
         usort($periods);
 
-        foreach($periods as $time => $label) {
+        foreach ($periods as $time => $label) {
             if ($timestamp < $time){
                 return $label;
             }
@@ -121,8 +121,8 @@ function date_timezones_list(){
     try {
         $list = array();
 
-        foreach(timezone_abbreviations_list() as $abbriviation => $zones){
-            foreach($zones as $timezone){
+        foreach (timezone_abbreviations_list() as $abbriviation => $zones){
+            foreach ($zones as $timezone){
                 if (empty($timezone['timezone_id'])) continue;
 
                 $list[strtolower($timezone['timezone_id'])] = $timezone['timezone_id'];
@@ -253,7 +253,7 @@ function date_translate($date){
                        'Fri'       => tr('Fri'),
                        'Sat'       => tr('Sat'));
 
-        foreach($words as $english => $translation){
+        foreach ($words as $english => $translation){
             $date = str_replace($english, $translation, $date);
         }
 

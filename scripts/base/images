@@ -288,7 +288,7 @@ $params['timeout']           = not_empty(cli_argument('--timeout'          , 60)
 
 $now = date_convert(null, 'Ymd-His');
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'glitch':
         $file   = cli_argument(1);
         $output = cli_argument(2);
@@ -309,10 +309,10 @@ switch(cli_method()) {
         cli_no_arguments_left();
 
         if ($all) {
-            foreach(array('jpg', 'png') as $extension) {
+            foreach (array('jpg', 'png') as $extension) {
                 $files = safe_exec(array('commands' => array('find', array(ROOT, '-iname', '"*.'.$extension.'"'))));
 
-                foreach($files as $file) {
+                foreach ($files as $file) {
                     if (strtolower(substr($file, -7, 7)) == '@2x.'.$extension) {
                         /*
                          * This is a retina file, skip
@@ -385,9 +385,9 @@ switch(cli_method()) {
         cli_no_arguments_left();
         ksort($params);
 
-        foreach($params as $key => $value) {
+        foreach ($params as $key => $value) {
             if (is_array($value)) {
-                foreach($value as $subkey => $subvalue) {
+                foreach ($value as $subkey => $subvalue) {
                     log_console(str_size($key   , 20), 'cyan', false);
 
                     if (!is_numeric($subkey)) {
@@ -756,9 +756,9 @@ function s_display_info($info) {
         if (!empty($info['exif'])) {
             log_console(str_size(tr('EXIF INFORMATION:'), 20), 'cyan');
 
-            foreach($info['exif'] as $key => $value) {
+            foreach ($info['exif'] as $key => $value) {
                 if (is_array($value)) {
-                    foreach($value as $subkey => $subvalue) {
+                    foreach ($value as $subkey => $subvalue) {
                         log_console(str_size($key   , 30), 'cyan', false);
 
                         if (!is_numeric($subkey)) {

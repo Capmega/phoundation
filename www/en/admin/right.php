@@ -34,11 +34,11 @@ if (!empty($_GET['right'])) {
                    array(':right' => $_GET['right']));
 
     if (!$db) {
-        html_flash_set(log_database(tr('Specified right "'.str_log($_GET['right']).'" does not exist'), 'right_not_exist'), 'error');
+        html_flash_set(log_database(tr('Specified right "'.Strings::Log($_GET['right']).'" does not exist'), 'right_not_exist'), 'error');
         redirect(domain('/admin/rights.php'));
     }
 
-    log_database(tr('View right "'.str_log($_GET['right']).'"'), 'right_view');
+    log_database(tr('View right "'.Strings::Log($_GET['right']).'"'), 'right_view');
 
     $right = array_merge($db, $right);
     unset($db);
@@ -81,7 +81,7 @@ try {
          * This right does not exist yet?
          */
         if (sql_get('SELECT `id` FROM `rights` WHERE `name` = :name', 'id', array(':name' => $right['name']))) {
-            throw new CoreException(tr('The right "%name%" already exists', '%name%', str_log($right['name'])), 'exists');
+            throw new CoreException(tr('The right "%name%" already exists', '%name%', Strings::Log($right['name'])), 'exists');
         }
 
         sql_query('INSERT INTO `rights` (`createdby`, `name`, `description`)
@@ -91,7 +91,7 @@ try {
                          ':name'        => $right['name'],
                          ':description' => $right['description']));
 
-        html_flash_set(log_database('Created right "'.str_log($right['name']).'"', 'right_create'), 'success');
+        html_flash_set(log_database('Created right "'.Strings::Log($right['name']).'"', 'right_create'), 'success');
 
         $right = array();
 
@@ -109,7 +109,7 @@ try {
          * This right does not exist yet?
          */
         if (sql_get('SELECT `name` FROM `rights` WHERE `name` = :name AND `id` != :id', 'id', array(':name' => $right['name'], ':id' => $right['id']))) {
-            throw new CoreException(tr('The right "%name%" already exists', '%name%', str_log($right['name'])), 'exists');
+            throw new CoreException(tr('The right "%name%" already exists', '%name%', Strings::Log($right['name'])), 'exists');
         }
 
         sql_query('UPDATE `rights`
@@ -126,7 +126,7 @@ try {
                          ':name'        => $right['name'],
                          ':description' => $right['description']));
 
-        html_flash_set(log_database('Updated right "'.str_log($right['name']).'"', 'right_update'), 'success');
+        html_flash_set(log_database('Updated right "'.Strings::Log($right['name']).'"', 'right_update'), 'success');
         redirect(domain('/admin/right.php?right='.$right['name']));
     }
 

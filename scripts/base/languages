@@ -140,7 +140,7 @@ if ($languages === null) {
 /*
  * Validate requested languages
  */
-foreach($languages as $language) {
+foreach ($languages as $language) {
     if (!preg_match('/^[a-z]{2}$/', $language)) {
         throw new CoreException(tr('Specified language ":language" is invalid, please use a ISO 639-2 compatible language code', array(':language' => $language)), 'validation');
     }
@@ -151,11 +151,11 @@ foreach($languages as $language) {
 /*
  * Process requested actions
  */
-switch(cli_method()) {
+switch (cli_method()) {
     case 'clear':
         cli_no_arguments_left();
 
-        foreach($languages as $language) {
+        foreach ($languages as $language) {
             if ($language == 'en') {
                 continue;
             }
@@ -229,7 +229,7 @@ switch(cli_method()) {
             log_console(tr('Skipping UTF8 check due to "noutf8check" command line parameter'), 'yellow');
         }
 
-        foreach($languages as $id => $language) {
+        foreach ($languages as $id => $language) {
             if (!preg_match('/\w{2}/', $language)) {
                 throw new CoreException(tr('Invalid language ":language" specified', array(':language' => $language)), 'warning/invalid');
             }
@@ -286,7 +286,7 @@ switch(cli_method()) {
             preg_match_all('/tr\([\'"](.*?)[\'"](:?\s*,\s*array\((.*)\))?\)/iu', $content , $matches, PREG_PATTERN_ORDER);
 
             if (!empty($matches[1])) {
-                foreach($matches[1] as $key => $value) {
+                foreach ($matches[1] as $key => $value) {
                     if (strip_tags($value, isset_get($_CONFIG['translate']['allowed_tags'])) != $value) {
                         /*
                          * Translation string contains HTML!
@@ -321,7 +321,7 @@ switch(cli_method()) {
         if (count($results['failed_html']) > 0) {
             $crash = false;
 
-            foreach($results['failed_html'] as $string => $file) {
+            foreach ($results['failed_html'] as $string => $file) {
                 if ($ignore_html) {
                     log_console(tr('Ignoring file ":file" because of HTML', array(':file' => Strings::from($file, ROOT))), 'VERBOSE/yellow');
 
@@ -346,7 +346,7 @@ switch(cli_method()) {
         if (count($results['failed_php']) > 0) {
             $crash = false;
 
-            foreach($results['failed_php'] as $string => $file) {
+            foreach ($results['failed_php'] as $string => $file) {
                 if ($ignore_php) {
                     log_console(tr('Ignoring file ":file" because of PHP', array(':file' => Strings::from($file, ROOT))), 'VERBOSE/yellow');
 
@@ -391,7 +391,7 @@ switch(cli_method()) {
                     $server_message = $e->getData()['data'];
                     $code           = $e->getCode();
 
-                    switch(substr($e->getCode(), 4)) {
+                    switch (substr($e->getCode(), 4)) {
                         case 403:
                             throw new CoreException(tr('Translation server said that access to project ":project" was denied', array(':project' => PROJECT)), 'warning');
 
@@ -432,7 +432,7 @@ switch(cli_method()) {
         /*
          * Translate to specified languages
          */
-        foreach($languages as $language) {
+        foreach ($languages as $language) {
             $source_dir = ROOT.'www/en';
             $target_dir = ROOT.'www/'.$language;
 
@@ -459,7 +459,7 @@ switch(cli_method()) {
                     $server_message = $e->getData()['data'];
                     $code           = $e->getCode();
 
-                    switch(substr($e->getCode(), 4)) {
+                    switch (substr($e->getCode(), 4)) {
                         case 403:
                             throw new CoreException(tr('Translation server said that access to project ":project" was denied', array(':project' => PROJECT)), 'warning');
 
@@ -490,7 +490,7 @@ switch(cli_method()) {
 
             $count = 0;
 
-            foreach($retval['translations'] as $translations) {
+            foreach ($retval['translations'] as $translations) {
                 $count += count($translations);
             }
 
@@ -518,7 +518,7 @@ switch(cli_method()) {
 
                 log_console(tr('Applying translations'), '', true);
 
-                foreach($retval['translations'] as $short_file => $data) {
+                foreach ($retval['translations'] as $short_file => $data) {
                     log_console(tr('Translating ":file"', array(':file' => $short_file)), 'VERBOSEDOT/cyan');
 
                     if (!empty($forcedutf8[$short_file])) {
@@ -540,7 +540,7 @@ switch(cli_method()) {
                     $target_file = str_replace($source_dir, $target_dir, ROOT.$short_file);
 
                     //replace strings
-                    foreach($data as $source => $translation) {
+                    foreach ($data as $source => $translation) {
                         cli_dot();
 
                         $from     = array('tr("'.$source.'"'     , "tr('".$source."'");

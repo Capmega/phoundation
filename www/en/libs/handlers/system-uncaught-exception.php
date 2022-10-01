@@ -75,7 +75,7 @@ try {
             die('exception before platform detection');
         }
 
-        switch(PLATFORM) {
+        switch (PLATFORM) {
             case 'cli':
                 /*
                  * Ensure that required defines are available
@@ -100,7 +100,7 @@ try {
                                  'STATUS'   => cli_argument('-S,--status' , true),
                                  'STARTDIR' => Strings::slash(getcwd()));
 
-                foreach($defines as $key => $value) {
+                foreach ($defines as $key => $value) {
                     if (!defined($key)) {
                         define($key, $value);
                     }
@@ -122,7 +122,7 @@ try {
                      * Log to the webserver error log files at the very least
                      */
                     if (method_exists($e, 'getMessages')) {
-                        foreach($e->getMessages() as $message) {
+                        foreach ($e->getMessages() as $message) {
                             error_log($message);
                         }
 
@@ -152,7 +152,7 @@ try {
                         die($core->register['exit_code']);
                     }
 
-                    switch((string) $e->getCode()) {
+                    switch ((string) $e->getCode()) {
                         case 'already-running':
                             log_console(tr('Failed: :message', array(':message' => trim(Strings::from($e->getMessage(), '():')))), 'yellow');
                             $core->register['exit_code'] = 254;
@@ -237,7 +237,7 @@ try {
                         log_console(tr('Exception location: ":file@:line"', array(':file' => $file, ':line' => $line)), 'exception');
                         log_console(tr('Exception messages trace:'), 'exception');
 
-                        foreach($messages as $message) {
+                        foreach ($messages as $message) {
                             log_console('    '.$message, 'exception');
                         }
 
@@ -245,7 +245,7 @@ try {
                         log_console(tr('Exception function trace:'), 'exception');
 
                         if ($trace) {
-                            log_console(str_log($trace), 'exception');
+                            log_console(Strings::Log($trace), 'exception');
 
                         } else {
                             log_console(tr('N/A'), 'exception');
@@ -253,7 +253,7 @@ try {
 
                         if ($data) {
                             log_console(tr('Exception data:'), 'exception');
-                            log_console(str_log($data), 'exception');
+                            log_console(Strings::Log($data), 'exception');
                         }
                     }
 
@@ -314,7 +314,7 @@ try {
                                  'DELETED'  => (getenv('DELETED')                  ? 'DELETED' : null),
                                  'STATUS'   => (getenv('STATUS')                   ? 'STATUS'  : null));
 
-                foreach($defines as $key => $value) {
+                foreach ($defines as $key => $value) {
                     if (!defined($key)) {
                         define($key, $value);
                     }
@@ -337,7 +337,7 @@ try {
 
 
                     if (method_exists($e, 'getMessages')) {
-                        foreach($e->getMessages() as $message) {
+                        foreach ($e->getMessages() as $message) {
                             error_log($message);
                         }
 
@@ -370,7 +370,7 @@ try {
                         header('Content-Type: text/html', true);
                     }
 
-                    switch($core->callType()) {
+                    switch ($core->callType()) {
                         case 'api':
                             // FALLTHROUGH
                         case 'ajax':
@@ -461,7 +461,7 @@ try {
                  */
                 notify($e, false, false);
 
-                switch($core->callType()) {
+                switch ($core->callType()) {
                     case 'api':
                         // FALLTHROUGH
                     case 'ajax':
@@ -497,7 +497,7 @@ try {
         log_file('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!', 'exception-handler', 'exception');
         log_file($f, 'exception-handler');
 
-        switch(PLATFORM) {
+        switch (PLATFORM) {
             case 'cli':
                 log_console(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])), 'exception');
                 log_console(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'), 'exception');

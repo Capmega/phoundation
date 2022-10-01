@@ -91,7 +91,7 @@ try {
              $_SERVER['PHP_SELF'] =  $_SERVER['_'];
         }
 
-        foreach($GLOBALS['argv'] as $argid => $arg) {
+        foreach ($GLOBALS['argv'] as $argid => $arg) {
             /*
              * (Usually first) argument may contain the startup of this script, which we may ignore
              */
@@ -99,7 +99,7 @@ try {
                 continue;
             }
 
-            switch($arg) {
+            switch ($arg) {
                 case '--version':
                     /*
                      * Show version information
@@ -137,7 +137,7 @@ try {
                             log_console(array_shift($GLOBALS['help']), 'white');
 
                         } else {
-                            foreach(Arrays::force($GLOBALS['help'], "\n") as $line) {
+                            foreach (Arrays::force($GLOBALS['help'], "\n") as $line) {
                                 log_console($line, 'white');
                             }
 

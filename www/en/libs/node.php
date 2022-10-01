@@ -177,12 +177,12 @@ function node_find_modules() {
         /*
          * Search for node_modules path
          */
-        foreach(array(ROOT, getcwd(), $home) as $path) {
+        foreach (array(ROOT, getcwd(), $home) as $path) {
             if ($found) {
                 break;
             }
 
-            foreach(array('node_modules', '.node_modules') as $subpath) {
+            foreach (array('node_modules', '.node_modules') as $subpath) {
                 if (file_exists(Strings::slash($path).$subpath)) {
                     $found = Strings::slash($path).$subpath;
                     break;
@@ -291,7 +291,7 @@ function node_install_npm($packages) {
                              'recursive'    => true,
                              'restrictions' => false));
 
-            foreach($packages as $package) {
+            foreach ($packages as $package) {
                 log_console(tr('node_install_npm(): Installing packages ":packages"', array(':packages' => $packages)), 'VERYVERBOSE/cyan');
 
                 safe_exec(array('timeout'  => 45,

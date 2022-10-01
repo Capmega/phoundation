@@ -26,10 +26,10 @@ try {
             $query = $query->queryString;
         }
 
-        foreach($execute as $key => $value) {
+        foreach ($execute as $key => $value) {
             if (is_string($value)) {
                 $value = addslashes($value);
-                $query = str_replace($key, '"'.(!is_scalar($value) ? ' ['.tr('NOT SCALAR').'] ' : '').str_log($value).'"', $query);
+                $query = str_replace($key, '"'.(!is_scalar($value) ? ' ['.tr('NOT SCALAR').'] ' : '').Strings::Log($value).'"', $query);
 
             } elseif (is_null($value)) {
                 $query = str_replace($key, ' '.tr('NULL').' ', $query);
@@ -53,7 +53,7 @@ try {
 
     if (empty($core->register['clean_debug'])) {
         $query = str_replace("\n", ' ', $query);
-        $query = str_nodouble($query, ' ', '\s');
+        $query = Strings::noDouble($query, ' ', '\s');
     }
 
     /*

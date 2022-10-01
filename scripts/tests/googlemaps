@@ -21,7 +21,7 @@ load_libs('test,googlemaps,inet');
 ////            log_console("Image recieved was too small, that is ok");
 //
 //    } else {
-////            log_console('Image recieved "'.str_log(number_format(strlen($img))).'" Bytes, this should not happen', 'yellow');
+////            log_console('Image recieved "'.Strings::Log(number_format(strlen($img))).'" Bytes, this should not happen', 'yellow');
 //    }
 //});
 ?>

@@ -76,7 +76,7 @@ class socialmedia_oauth_connect
 
   	public function Initialize() {
   		$this->nonce = time() . rand();
-  		switch($this->provider)
+  		switch ($this->provider)
 		{
 			case '';
 				break;

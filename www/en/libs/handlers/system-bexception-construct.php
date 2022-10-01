@@ -87,7 +87,7 @@ $this->code = (string) $code;
  * If there are any more messages left, then add them as well
  */
 if ($messages) {
-    foreach($messages as $id => $message) {
+    foreach ($messages as $id => $message) {
         $this->messages[] = $message;
     }
 }

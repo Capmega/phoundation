@@ -34,7 +34,7 @@ $target_dir    = cli_argument('target_dir', true, $deploy_config['target_dir']);
 $paths         = array('log'       => ROOT.'data/log',
                        'temporary' => ROOT.'data/tmp');
 
-foreach($paths as $name => $path) {
+foreach ($paths as $name => $path) {
     /*
      * Create the reqired paths
      */

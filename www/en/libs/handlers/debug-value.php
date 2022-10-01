@@ -8,7 +8,7 @@ if (!debug()) {
     return '';
 }
 
-switch($format) {
+switch ($format) {
     case 'username':
         // FALLTHROUGH
     case 'word':

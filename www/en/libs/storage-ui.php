@@ -79,7 +79,7 @@ $params['tabs']['comments']      = '';
 $params['tabs']['ratings']       = '';
 $params['tabs']['resources']     = '';
 
-        switch($params['header_type']) {
+        switch ($params['header_type']) {
             case 'tabs':
                 $tab_div_open   = '<div class="tab-pane active" id="tab-'.$params['icon'].'">';
                 $tab_div_close  = '</div>';
@@ -169,7 +169,7 @@ $params['tabs']['resources']     = '';
  */
 function storage_ui_process_dosubmit($params, $section, $page) {
     try {
-        switch(isset_get($_POST['dosubmit'])) {
+        switch (isset_get($_POST['dosubmit'])) {
             case '':
                 /*
                  * Do nothing
@@ -182,8 +182,8 @@ function storage_ui_process_dosubmit($params, $section, $page) {
                     $count           = 0;
                     $servers_devices = devices_scan('document-scanner');
 
-                    foreach($servers_devices as $servers_id => $devices) {
-                        foreach($devices as $device) {
+                    foreach ($servers_devices as $servers_id => $devices) {
+                        foreach ($devices as $device) {
                             $count++;
                             devices_insert($device, $servers_id);
                         }
@@ -330,7 +330,7 @@ function storage_ui_pages_merge($db_page, $post_page, $params) {
                       'assigned_to_id',
                       'status');
 
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             if (empty($params['labels'][$key])) {
                 unset($post_page[$key]);
             }
@@ -362,7 +362,7 @@ function storage_ui_icon($file) {
         return $icon;
 
     }catch(Exception $e) {
-        switch($e->getCode()) {
+        switch ($e->getCode()) {
             case 'not-exists':
                 /*
                  * Show a "not exist" icon
@@ -517,7 +517,7 @@ function storage_ui_categories_select($params) {
             /*
              * Filter specified values.
              */
-            foreach($params['filter'] as $key => $value) {
+            foreach ($params['filter'] as $key => $value) {
                 if (!$value) continue;
 
                 $where            .= ' AND `'.$key.'` != :'.$key.' ';

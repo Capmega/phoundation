@@ -11,7 +11,7 @@ try {
     if (empty($_GET['blog'])) {
         $mode  = 'create';
 
-        switch(isset_get($_POST['formaction'])) {
+        switch (isset_get($_POST['formaction'])) {
             case 'Create':
                 load_libs('seo,blogs');
 
@@ -49,7 +49,7 @@ try {
                                      ':seokeywords' => $blog['seokeywords'],
                                      ':description' => $blog['description']));
 
-                    html_flash_set('The blog "'.str_log($blog['name']).'" has been created', 'success');
+                    html_flash_set('The blog "'.Strings::Log($blog['name']).'" has been created', 'success');
                     $blog      = array();
                 }
         }
@@ -65,7 +65,7 @@ try {
             redirect('/admin/blogs.php');
         }
 
-        switch(isset_get($_POST['formaction'])) {
+        switch (isset_get($_POST['formaction'])) {
             case 'Update':
                 load_libs('seo,blogs');
 
@@ -82,7 +82,7 @@ try {
                     /*
                      * Cannot update this blog, it does not exist!
                      */
-                    throw new CoreException(tr('The specified blogs id "'.str_log($blog['id']).'" does not exist'), 'notexists');
+                    throw new CoreException(tr('The specified blogs id "'.Strings::Log($blog['id']).'" does not exist'), 'notexists');
                 }
 
                 if (($dbblog['createdby'] != $_SESSION['user']['id']) and !has_rights('admin')) {
@@ -155,7 +155,7 @@ try {
                      * Due to the update, the name might have changed.
                      * Redirect to ensure that the name in the URL is correct
                      */
-                    html_flash_set(tr('The blog "%blog%" has been updated', '%blog%', str_log($blog['name'])), 'success');
+                    html_flash_set(tr('The blog "%blog%" has been updated', '%blog%', Strings::Log($blog['name'])), 'success');
                     redirect('/admin/blogs.php?blog='.$blog['seoname']);
                 }
         }

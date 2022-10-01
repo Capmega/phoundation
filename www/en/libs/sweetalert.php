@@ -131,7 +131,7 @@ function sweetalert($params, $html = '', $type = '', $options = array()) {
             unset($params['options']['cancelAction']);
         }
 
-        foreach($params['options'] as $key => $value) {
+        foreach ($params['options'] as $key => $value) {
             if ($value === null) continue;
             $options[$key] = $value;
         }
@@ -174,8 +174,8 @@ function sweetalert_queue($params) {
         /*
          * Translate options
          */
-        foreach($params as $key => $value) {
-            switch($key) {
+        foreach ($params as $key => $value) {
+            switch ($key) {
                 case 'modals':
                     break;
 

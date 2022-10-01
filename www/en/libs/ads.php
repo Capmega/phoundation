@@ -136,7 +136,7 @@ function ads_validate_image($image, $old_image = null) {
         $v->hasMinChars($image['description'],    2, tr('Please ensure the image\'s description has at least 2 characters'));
         $v->hasMaxChars($image['description'], 2047, tr('Please ensure the image\'s description has less than 2047 characters'));
 
-        switch($image['platform']) {
+        switch ($image['platform']) {
             case 'unknown':
                 // FALLTHROUGH
             case 'android':
@@ -489,7 +489,7 @@ function ads_update_image_cluster($user, $cluster, $image) {
 // */
 //function ads_photo_url($media, $size) {
 //    try {
-//        switch($size) {
+//        switch ($size) {
 //            case 'large':
 //                // FALLTHROUGH
 //            case 'medium':
@@ -551,7 +551,7 @@ function ads_get() {
 
         $campaigns['image_ttl'] = $campaigns['image_ttl'] * 1000;
 
-        switch($userdata['os']) {
+        switch ($userdata['os']) {
             case 'android':
                 // FALLTHROUGH
             case 'ios':
@@ -686,7 +686,7 @@ function amp_ads_get() {
 
         $campaigns['image_ttl'] = $campaigns['image_ttl'] * 1000;
 
-        switch($userdata['os']) {
+        switch ($userdata['os']) {
             case 'android':
                 // FALLTHROUGH
             case 'ios':
@@ -799,7 +799,7 @@ function ads_insert_view($campaigns_id, $images_list, $userdata) {
         $insert = sql_prepare('INSERT INTO `ads_views` (`createdby`, `campaigns_id`, `images_id`, `ip`, `platform`, `reverse_host`, `latitude`, `longitude`, `referrer`, `user_agent`, `browser`)
                                VALUES                  (:createdby , :campaigns_id , :images_id , :ip , :platform , :reverse_host , :latitude , :longitude , :referrer , :user_agent , :browser )');
 
-        foreach($images_list as $images_id) {
+        foreach ($images_list as $images_id) {
             if (!is_numeric($images_id)) {
                 throw new CoreException(tr('ads_insert_view(): Specified image ":image" is not numeric', array(':image' => $images_id)), 'invalid');
             }

@@ -51,11 +51,11 @@ if (!empty($_GET['group'])) {
     }
 
     if (!$db) {
-        html_flash_set(log_database(tr('Specified group "'.str_log($_GET['group']).'" does not exist'), 'group_not_exist'), 'error');
+        html_flash_set(log_database(tr('Specified group "'.Strings::Log($_GET['group']).'" does not exist'), 'group_not_exist'), 'error');
         redirect(domain('/admin/groups.php'));
     }
 
-    log_database(tr('View group "'.str_log($_GET['group']).'"'), 'group_view');
+    log_database(tr('View group "'.Strings::Log($_GET['group']).'"'), 'group_view');
 
     $group = array_merge($db, $group);
     unset($db);
@@ -103,7 +103,7 @@ try {
                          ':seoname'     => seo_string($group['name']),
                          ':description' => $group['description']));
 
-        html_flash_set(log_database('Created group "'.str_log(isset_get($group['name'])).'"', 'group_create'), 'success');
+        html_flash_set(log_database('Created group "'.Strings::Log(isset_get($group['name'])).'"', 'group_create'), 'success');
         redirect(domain('/admin/groups.php'));
     }
 
@@ -134,7 +134,7 @@ try {
          * This update might have been done because of a create group action
          */
         if (!isset_get($_POST['docreate'])) {
-            html_flash_set(log_database('Updated group "'.str_log(isset_get($_POST['name'])).'"', 'group_update'), 'success');
+            html_flash_set(log_database('Updated group "'.Strings::Log(isset_get($_POST['name'])).'"', 'group_update'), 'success');
             redirect(domain('/admin/group.php?group='.$group['name']));
         }
 
@@ -148,7 +148,7 @@ try {
 
         $members = explode(',' , $_POST['members']);
 
-        foreach($members as $member) {
+        foreach ($members as $member) {
             /*
              * Get the user id for each reference number
              * and insert the user into users_groups table
@@ -189,7 +189,7 @@ try {
      * Remove contacts from group
      */
     if (!empty($_POST['action']) and !empty($_POST['contact_remove'])) {
-        foreach($_POST['contact_remove'] as $contact) {
+        foreach ($_POST['contact_remove'] as $contact) {
             if ($contact != 'on') {
                 s_delete_user_group($contact, $group);
             }

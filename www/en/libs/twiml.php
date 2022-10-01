@@ -84,7 +84,7 @@ function twiml_create($params) {
     try {
         Arrays::ensure($params, 'root,name,type');
 
-        switch($params['type']) {
+        switch ($params['type']) {
             case 'forward':
                 $data = twilm_create_forward($params);
                 break;

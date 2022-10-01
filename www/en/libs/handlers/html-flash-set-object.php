@@ -35,7 +35,7 @@ if ($object instanceof CoreException) {
         $params['html'] = trim(Strings::from($object->getMessage(), '():'));
 
     } elseif ($object->getCode() == 'validation') {
-        foreach($object->getMessages() as $message) {
+        foreach ($object->getMessages() as $message) {
             if (strstr($message, 'ValidateForm::isValid()')) {
                 break;
             }
@@ -81,7 +81,7 @@ if ($object instanceof CoreException) {
                  * Show all messages until a function(): message is found, those are considered to be
                  * confidential and should not be shown on production websites
                  */
-                foreach($messages as $id => $message) {
+                foreach ($messages as $id => $message) {
                     if (!empty($delete) or preg_match('/^[a-z_]+\(\): /', $message) or preg_match('/PHP ERROR [\d+] /', $message)) {
                         unset($messages[$id]);
                         $delete = true;

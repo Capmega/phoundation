@@ -56,7 +56,7 @@ function shortlink_get_provider($provider = null) {
     global $_CONFIG;
 
     try {
-        switch($provider) {
+        switch ($provider) {
             case 'default':
                 throw new CoreException(tr('shortlink_get_provider(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
 
@@ -103,7 +103,7 @@ function shortlink_get_access_token($provider = null) {
     try {
         $provider = shortlink_get_provider($provider);
 
-        switch($provider) {
+        switch ($provider) {
             case 'capmega':
                 $results = curl_get(array('url'      => 'https://api.capmega.com/oauth/access_token',
                                           'user_pwd' => $_CONFIG['shortlink']['capmega']['account']));
@@ -145,7 +145,7 @@ function shortlink_create($url, $provider = null) {
     try {
         $token = shortlink_get_access_token($provider);
 
-        switch($provider) {
+        switch ($provider) {
             case 'capmega':
 under_construction();
 

@@ -37,7 +37,7 @@ test                            - Test all configured proxy machines
 require_once(__DIR__.'/../../libs/startup.php');
 load_libs('curl');
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'list':
         cli_no_arguments_left();
 
@@ -45,7 +45,7 @@ switch(cli_method()) {
             throw new CoreException(tr('No proxies have been configured, please check $_CONFIG[curl][proxies]'), 'not-configured');
         }
 
-        foreach($_CONFIG['curl']['proxies'] as $proxy) {
+        foreach ($_CONFIG['curl']['proxies'] as $proxy) {
             log_console($proxy);
         }
 
@@ -72,7 +72,7 @@ switch(cli_method()) {
             $proxies = Arrays::force($proxies);
         }
 
-        foreach($proxies as $proxy) {
+        foreach ($proxies as $proxy) {
             try {
                 $data  = curl_get_proxy($url, null, $proxy);
                 log_console(tr('Proxy ":proxy" works correctly', array(':proxy' => $proxy)), 'green');

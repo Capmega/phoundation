@@ -311,7 +311,7 @@ if ($nofiles) {
 // :TODO: Change this for file_chmod()
     safe_exec(array('commands' => array('chmod', array('sudo' => $sudo, 'timeout' => 120, 'ug+w', ROOT, '-R'))));
 
-    foreach($_CONFIG['sync'] as $path) {
+    foreach ($_CONFIG['sync'] as $path) {
         try {
             if (!$path) continue;
 

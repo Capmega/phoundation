@@ -778,7 +778,7 @@ function email_servers_validate_account($account) {
             /*
              * For now, servers_get also gives exception if server does not exist!
              */
-            switch($e->getRealCode()) {
+            switch ($e->getRealCode()) {
                 case 'not-exists';
                     $v->setError(tr('The specified mail server ":server" does not exist', array(':server' => $account['server'])));
                     break;
@@ -1027,7 +1027,7 @@ function email_servers_list_mailbox_sizes($server, $domain) {
                                              'type'     => 'd',
                                              'exec'     => array('du', array('-s', '{}'))));
 
-        foreach($results as $result) {
+        foreach ($results as $result) {
             $result = trim($result);
             $size   = (Strings::until($result, "\t") * 1024);
             $total += $size;
@@ -1219,11 +1219,11 @@ function email_servers_check_orphans($server, $add = true) {
         $retval  = array();
         $domains = linux_ls($server, '/var/mail/vhosts', true);
 
-        foreach($domains as $domain) {
+        foreach ($domains as $domain) {
             log_console(tr('Searching for orphaned accounts in domain ":domain"', array(':domain' => $domain)), 'VERBOSE/cyan');
             $accounts = linux_ls($server, '/var/mail/vhosts/'.$domain, true);
 
-            foreach($accounts as $account) {
+            foreach ($accounts as $account) {
                 try {
                     $exists = sql_get('SELECT `id`, `status` FROM `accounts` WHERE `email` = :email', array(':email' => $account.'@'.$domain));
 

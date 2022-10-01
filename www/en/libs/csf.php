@@ -340,7 +340,7 @@ function csf_validate_protocol($protocol, $lower_case = false) {
 
         $protocol = strtoupper($protocol);
 
-        switch($protocol) {
+        switch ($protocol) {
             case 'TCP':
                 // FALLTHROUGH
             case 'UDP':
@@ -377,7 +377,7 @@ function csf_validate_rule_type($rule_type, $upper_case = false) {
 
         $rule_type = strtolower($rule_type);
 
-        switch($rule_type) {
+        switch ($rule_type) {
             case 'in':
                 // FALLTHROUGH
             case 'out':
@@ -432,7 +432,7 @@ function csf_validate_ports($ports, $single = false) {
             throw new CoreException(tr('csf_validate_ports(): Multiple ports specified with single port flag'), 'multiple');
         }
 
-        foreach($ports as $port) {
+        foreach ($ports as $port) {
             if (!is_natural($port) or ($port > 65535)) {
                 throw new CoreException(tr('csf_validate_ports(): Invalid port ":port" specified', array(':port' => $port)), 'invalid');
             }
@@ -456,7 +456,7 @@ function csf_validate_testing($value) {
             $value = 0;
         }
 
-        switch($value) {
+        switch ($value) {
             case '0':
                 // FALLTHROUGH
             case '1':
@@ -485,7 +485,7 @@ function csf_validate_restrictsyslog($value) {
             $value = 0;
         }
 
-        switch($value) {
+        switch ($value) {
             case '0':
                 // FALLTHROUGH
             case '1':

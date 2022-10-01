@@ -76,7 +76,7 @@ $html   = ' <div class="row">
                                                 <div class="visible-xs mb-md"></div>
                                                 <div class="col-sm-3">
                                                     <div class="input-group input-group-icon">
-                                                        <input type="text" class="form-control col-md-3" name="filter" id="filter" value="'.str_log(isset_get($_GET['filter'], '')).'" placeholder="General filter">
+                                                        <input type="text" class="form-control col-md-3" name="filter" id="filter" value="'.Strings::Log(isset_get($_GET['filter'], '')).'" placeholder="General filter">
                                                         <span class="input-group-addon">
                                                             <span class="icon"><i class="fa fa-search"></i></span>
                                                         </span>
@@ -84,7 +84,7 @@ $html   = ' <div class="row">
                                                 </div>
                                                 <div class="visible-xs mb-md"></div>
                                                 <div class="col-sm-3">
-                                                    <input type="text" class="form-control col-md-3" name="limit" id="limit" value="'.str_log(isset_get($_GET['limit'], '')).'" placeholder="'.tr('Row limit (default %entries% entries)', array('%entries%' => str_log($std_limit))).'">
+                                                    <input type="text" class="form-control col-md-3" name="limit" id="limit" value="'.Strings::Log(isset_get($_GET['limit'], '')).'" placeholder="'.tr('Row limit (default %entries% entries)', array('%entries%' => Strings::Log($std_limit))).'">
                                                 </div>
                                                 <div class="visible-xs mb-md"></div>
                                                 <div class="col-sm-3">
@@ -134,7 +134,7 @@ $html .= '              </div>
             </div>
         </div>';
 
-log_database('Viewed activity log with filters "<a href="'.str_log(domain(true)).'">'.str_log(isset_get($_GET)).'</a>"', 'activity_log_viewed');
+log_database('Viewed activity log with filters "<a href="'.Strings::Log(domain(true)).'">'.Strings::Log(isset_get($_GET)).'</a>"', 'activity_log_viewed');
 
 $params = array('icon'        => 'fa-file-text-o',
                 'title'       => tr('Activity log'),

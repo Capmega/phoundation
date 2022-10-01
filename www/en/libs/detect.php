@@ -151,7 +151,7 @@ function detect_client() {
                     $client['version'] = isset_get($ua['version']   , 0);
                     $client['old']     = false;
 
-                    switch($client['brand']) {
+                    switch ($client['brand']) {
                         case 'firefox':
                             $client['old'] = ($ua['majorver'] and ($ua['majorver'] < 3));
                             break;

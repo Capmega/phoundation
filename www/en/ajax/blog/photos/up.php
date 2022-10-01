@@ -23,7 +23,7 @@ try {
                         WHERE  `blogs_photos`.`id` = '.cfi($_POST['id']));
 
     if (empty($photo['id'])) {
-        throw new CoreException('ajax/blog/photos/delete: Unknown photo_id "'.str_log($_POST['id']).'" specified', 'unknown');
+        throw new CoreException('ajax/blog/photos/delete: Unknown photo_id "'.Strings::Log($_POST['id']).'" specified', 'unknown');
     }
 
     if (($photo['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
@@ -51,7 +51,7 @@ try {
     }
 
 }catch(Exception $e) {
-    switch($e->getCode()) {
+    switch ($e->getCode()) {
         case 'unknown':
             json_error(tr('Unknown photo id specified'));
             break;

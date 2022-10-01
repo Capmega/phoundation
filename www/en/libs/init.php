@@ -113,7 +113,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
 
         if (version_compare(FRAMEWORKCODEVERSION, $codeversions['FRAMEWORK']) < 0) {
             if (!str_is_version(FRAMEWORKCODEVERSION)) {
-                throw new CoreException('init(): Cannot continue, the FRAMEWORK code version "'.str_log(FRAMEWORKCODEVERSION).'" (Defined at the top of '.ROOT.'/libs/system.php) is invalid', 'invalid-framework-code');
+                throw new CoreException('init(): Cannot continue, the FRAMEWORK code version "'.Strings::Log(FRAMEWORKCODEVERSION).'" (Defined at the top of '.ROOT.'/libs/system.php) is invalid', 'invalid-framework-code');
             }
 
             throw new CoreException(tr('init(): Cannot continue, the FRAMEWORK code version ":code" is OLDER (LOWER) than the database version ":db", the project is running with either old code or a too new database!', array(':code' => FRAMEWORKCODEVERSION, ':db' => FRAMEWORKDBVERSION)), 'old-framework-code');
@@ -139,7 +139,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
          */
         if (FORCE) {
             if (!is_bool(FORCE) and !str_is_version(FORCE)) {
-                throw new CoreException('init(): Invalid "force" sub parameter "'.str_log(FORCE).'" specified. "force" can only be followed by a valid init version number', 'invalidforce');
+                throw new CoreException('init(): Invalid "force" sub parameter "'.Strings::Log(FORCE).'" specified. "force" can only be followed by a valid init version number', 'invalidforce');
             }
 
             $init = 'forced init';
@@ -176,7 +176,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
             /*
              * ALWAYS First init framework, then project
              */
-            foreach(array('framework', 'project') as $type) {
+            foreach (array('framework', 'project') as $type) {
                 log_console(tr('Starting ":type" init', array(':type' => $type)));
 
                 /*
@@ -192,7 +192,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
                 /*
                  * Cleanup and order list
                  */
-                foreach($files as $key => $file) {
+                foreach ($files as $key => $file) {
                     /*
                      * Skip garbage
                      */
@@ -215,7 +215,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
                 /*
                  * Go over each init file, see if it needs execution or not
                  */
-                foreach($files as $file) {
+                foreach ($files as $file) {
                     $version = $file;
                     $file    = $file.'.php';
 
@@ -309,7 +309,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
             log_console('Removing data symlink or files in all languages', 'cyan');
 
             if ($_CONFIG['language']['supported']) {
-                foreach($_CONFIG['language']['supported'] as $language => $name) {
+                foreach ($_CONFIG['language']['supported'] as $language => $name) {
                     file_delete(ROOT.'www/'.substr($language, 0, 2).'/data', ROOT.'www/'.substr($language, 0, 2));
                 }
             }
@@ -320,9 +320,9 @@ function init($projectfrom = null, $frameworkfrom = null) {
         log_console('Finished all', 'green');
 
     }catch(Exception $e) {
-        switch($e->getRealCode()) {
+        switch ($e->getRealCode()) {
             case 'invalidforce':
-                foreach($e->getMessages() as $message) {
+                foreach ($e->getMessages() as $message) {
                     log_console($message);
                 }
 
@@ -358,7 +358,7 @@ function init_process_version_diff() {
     global $_CONFIG, $core;
 
     try {
-        switch($core->register['real_script']) {
+        switch ($core->register['real_script']) {
             case 'base/info':
                 // FALLTHROUGH
             case 'base/init':
@@ -380,17 +380,17 @@ function init_process_version_diff() {
 
         } else {
             if ($compare_framework > 0) {
-                $versionerror = (empty($versionerror) ? "" : "\n").tr('Framework core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => str_log($_CONFIG['db']['core']['db']), ':dbversion' => FRAMEWORKDBVERSION, ':codeversion' => FRAMEWORKCODEVERSION));
+                $versionerror = (empty($versionerror) ? "" : "\n").tr('Framework core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => Strings::Log($_CONFIG['db']['core']['db']), ':dbversion' => FRAMEWORKDBVERSION, ':codeversion' => FRAMEWORKCODEVERSION));
 
             } elseif ($compare_framework < 0) {
-                $versionerror = (empty($versionerror) ? "" : "\n").tr('Framework core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => str_log($_CONFIG['db']['core']['db']), ':dbversion' => FRAMEWORKDBVERSION, ':codeversion' => FRAMEWORKCODEVERSION));
+                $versionerror = (empty($versionerror) ? "" : "\n").tr('Framework core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => Strings::Log($_CONFIG['db']['core']['db']), ':dbversion' => FRAMEWORKDBVERSION, ':codeversion' => FRAMEWORKCODEVERSION));
             }
 
             if ($compare_project > 0) {
-                $versionerror = (empty($versionerror) ? "" : "\n").tr('Project core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => str_log($_CONFIG['db']['core']['db']), ':dbversion' => PROJECTDBVERSION, ':codeversion' => PROJECTCODEVERSION));
+                $versionerror = (empty($versionerror) ? "" : "\n").tr('Project core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => Strings::Log($_CONFIG['db']['core']['db']), ':dbversion' => PROJECTDBVERSION, ':codeversion' => PROJECTCODEVERSION));
 
             } elseif ($compare_project < 0) {
-                $versionerror = (empty($versionerror) ? "" : "\n").tr('Project core database ":db" version ":dbversion" is newer than code version ":codeversion"!', array(':db' => str_log($_CONFIG['db']['core']['db']), ':dbversion' => PROJECTDBVERSION, ':codeversion' => PROJECTCODEVERSION));
+                $versionerror = (empty($versionerror) ? "" : "\n").tr('Project core database ":db" version ":dbversion" is newer than code version ":codeversion"!', array(':db' => Strings::Log($_CONFIG['db']['core']['db']), ':dbversion' => PROJECTDBVERSION, ':codeversion' => PROJECTCODEVERSION));
             }
         }
 
@@ -479,7 +479,7 @@ function init_version_upgrade($version, $part) {
 
         $version = explode('.', $version);
 
-        switch($part) {
+        switch ($part) {
             case 'major':
                 $version[0]++;
                 break;
@@ -592,7 +592,7 @@ function init_section($section, $version) {
         /*
          * Cleanup and order file list
          */
-        foreach($files as $key => $file) {
+        foreach ($files as $key => $file) {
             /*
              * Skip garbage
              */
@@ -615,7 +615,7 @@ function init_section($section, $version) {
         /*
          * Go over each init file, see if it needs execution or not
          */
-        foreach($files as $file) {
+        foreach ($files as $file) {
             $version = $file;
             $file    = $file.'.php';
 
@@ -770,7 +770,7 @@ function init_reset() {
  */
 function init_get_highest_file_version($section) {
     try {
-        switch($section) {
+        switch ($section) {
             case 'framework':
                 // FALLTHROUGH
             case 'project':
@@ -791,7 +791,7 @@ function init_get_highest_file_version($section) {
         $version = '0.0.0';
         $files   = scandir(ROOT.'init/'.$section);
 
-        foreach($files as $file) {
+        foreach ($files as $file) {
             if (($file === '.') or ($file === '..')) {
                 continue;
             }

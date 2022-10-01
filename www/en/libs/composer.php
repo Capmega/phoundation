@@ -200,7 +200,7 @@ function composer_require($packages) {
             throw new CoreException(tr('composer_require(): No package specified'), 'not-specified');
         }
 
-        foreach(Arrays::force($packages) as $package) {
+        foreach (Arrays::force($packages) as $package) {
             composer_exec(array('require', $package));
         }
 

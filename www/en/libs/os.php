@@ -81,7 +81,7 @@ showdie($command);
          * Depending on the OS type, load the required library and continue
          * there
          */
-        switch($server['os_type']) {
+        switch ($server['os_type']) {
             case 'linux':
                 load_libs('linux');
                 return 'linux_'.$command($server, $command);

@@ -25,7 +25,7 @@ function sms_send_message($message, $to, $from = null) {
             $provider = 'twilio';
         }
 
-        switch($provider) {
+        switch ($provider) {
             case 'crmtext':
                 load_libs('crmtext');
                 return crmtext_send_message($message, $to);
@@ -194,7 +194,7 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
         $images = sql_list('SELECT `id`, `file`, `url` FROM `sms_images` WHERE `sms_messages_id` = :sms_messages_id', array(':sms_messages_id' => $messages_id));
 
         if ($images) {
-            foreach($images as $image) {
+            foreach ($images as $image) {
 
                 $message = html_img(($image['file'] ? $image['file'] : $image['url']), tr('MMS image'), 28, 28, 'class="mms"').$message;
             }
@@ -262,7 +262,7 @@ function sms_full_phones($phones) {
     try {
         $phones = Arrays::force($phones);
 
-        foreach($phones as &$phone) {
+        foreach ($phones as &$phone) {
             $phone = trim($phone);
 
             if (substr($phone, 0, 1) == '+') {
@@ -299,7 +299,7 @@ function sms_no_country_phones($phones) {
     try {
         $phones = Arrays::force($phones);
 
-        foreach($phones as &$phone) {
+        foreach ($phones as &$phone) {
             $phone = trim($phone);
 
             if (substr($phone, 0, 1) != '+') {
@@ -337,7 +337,7 @@ function sms_select_source($name, $selected, $provider, $class) {
 
         $resource = array();
 
-        foreach($_CONFIG['twilio']['accounts'] as $account => $data) {
+        foreach ($_CONFIG['twilio']['accounts'] as $account => $data) {
             $resource = array_merge($resource, $data['sources']);
         }
 
@@ -379,7 +379,7 @@ function sms_block($phone_numbers, $status = null) {
 
                                       ON DUPLICATE KEY UPDATE `id` = `id`');
 
-        foreach(Arrays::force($phone_numbers) as $phone_number) {
+        foreach (Arrays::force($phone_numbers) as $phone_number) {
             $insert->execute(array(':createdby' => isset_get($_SESSION['user']['id']),
                                    ':meta_id'   => meta_action(),
                                    ':status'    => $status,

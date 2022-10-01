@@ -259,7 +259,7 @@ function inventories_validate($item, $reload_only = false) {
          * Validate set_with
          */
         if ($item['set_with']) {
-            foreach(Arrays::force($item['set_with']) as $code) {
+            foreach (Arrays::force($item['set_with']) as $code) {
                 $exist = sql_get('SELECT `id` FROM `inventories` WHERE `code` = :code', true, array(':code' => $code));
 
                 if (!$exist) {

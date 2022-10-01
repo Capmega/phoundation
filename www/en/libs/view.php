@@ -85,7 +85,7 @@ function view($file) {
         $mimetype = file_mimetype($file);
         $mimetype = Strings::until($mimetype, '/');
 
-        switch($mimetype) {
+        switch ($mimetype) {
             case 'image':
                 return view_image($file);
 
@@ -124,7 +124,7 @@ function view_image($file) {
     global $_CONFIG;
 
     try {
-        switch($_CONFIG['view']['images']['default']) {
+        switch ($_CONFIG['view']['images']['default']) {
             case 'feh':
                 return view_image_feh($file);
 

@@ -51,7 +51,7 @@ try {
     cli_only();
     load_libs('radius');
 
-    switch(cli_method()) {
+    switch (cli_method()) {
         case 'list':
             $filter  = cli_argument('--filter', true);
             $execute = array();
@@ -196,7 +196,7 @@ try {
     }
 
 }catch(Exception $e) {
-    switch($e->getRealCode()) {
+    switch ($e->getRealCode()) {
         case 'not-exist':
             // FALLTHROUGH
         case 'multiple':

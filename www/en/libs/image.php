@@ -192,7 +192,7 @@ function image_convert($params) {
         $dest_path   = dirname($target);
         $dest_file   = basename($target);
 
-        switch($params['format']) {
+        switch ($params['format']) {
             case 'gif':
                 //FALLTHROUGH
             case 'png':
@@ -279,7 +279,7 @@ function image_convert($params) {
         if ($params['format'] === 'webp') {
             $webp = $_CONFIG['images']['webp'];
 
-            foreach($webp as $key => $value) {
+            foreach ($webp as $key => $value) {
                 if ($value === null) {
                     continue;
                 }
@@ -292,8 +292,8 @@ function image_convert($params) {
             }
         }
 
-        foreach($params as $key => $value) {
-            switch($key) {
+        foreach ($params as $key => $value) {
+            switch ($key) {
                 case 'limit_memory':
                     if ($value) {
                         $arguments[] = '-limit memory';
@@ -339,7 +339,7 @@ function image_convert($params) {
 
                 case 'defines':
                     if ($value) {
-                        foreach($value as $define) {
+                        foreach ($value as $define) {
                             $arguments[] = '-define';
                             $arguments[] = $define;
                         }
@@ -432,7 +432,7 @@ function image_convert($params) {
         /*
          * Execute command to convert image
          */
-        switch($params['method']) {
+        switch ($params['method']) {
             case 'rotate':
                 $arguments[] = '-rotate';
                 $arguments[] = $params['degrees'];
@@ -561,7 +561,7 @@ function image_convert($params) {
         return $target;
 
     }catch(Exception $e) {
-        switch($e->getCode()) {
+        switch ($e->getCode()) {
             case 'not-installed':
                 /*
                  * Imagemagick command "convert" missing
@@ -623,7 +623,7 @@ function image_convert($params) {
             throw new CoreException(tr('image_convert(): Failed'), $e);
 
         } else {
-            foreach(Arrays::force($contents) as $line) {
+            foreach (Arrays::force($contents) as $line) {
                 if (strstr($line, '/usr/bin/convert: not found')) {
                     /*
                      * Dumbo! You don't have imagemagick installed!
@@ -651,7 +651,7 @@ function image_interlace_valid($value, $source = false) {
         $check = Strings::from($value, '-');
     }
 
-    switch($check) {
+    switch ($check) {
         case 'jpeg':
             // FALLTHROUGH
         case 'gif':
@@ -736,9 +736,9 @@ function image_create_avatars($file) {
     try {
         $destination = file_assign_target(ROOT.'www/avatars/');
 
-        foreach($_CONFIG['avatars']['types'] as $name => $type) {
+        foreach ($_CONFIG['avatars']['types'] as $name => $type) {
             if (count($type  = explode('x', $type)) != 3) {
-                throw new CoreException('image_create_avatar(): Invalid avatar type configuration for type "'.str_log($name).'"', 'invalid/config');
+                throw new CoreException('image_create_avatar(): Invalid avatar type configuration for type "'.Strings::Log($name).'"', 'invalid/config');
             }
 
             image_convert(array('source' => $file['tmp_name'][0],
@@ -751,7 +751,7 @@ function image_create_avatars($file) {
         return $destination;
 
     }catch(Exception $e) {
-        throw new CoreException('image_create_avatar(): Failed to create avatars for image file "'.str_log($file).'"', $e);
+        throw new CoreException('image_create_avatar(): Failed to create avatars for image file "'.Strings::Log($file).'"', $e);
     }
 }
 
@@ -804,7 +804,7 @@ function image_info($file, $no_exif = false) {
         /*
          * Get EXIF information from JPG or TIFF image files
          */
-        switch(Strings::from($mime, '/')) {
+        switch (Strings::from($mime, '/')) {
             case 'jpeg':
                 try {
                     $retval['compression'] = safe_exec(array('commands' => array($_CONFIG['images']['imagemagick']['identify'], array('-format', '%Q', $file))));
@@ -938,7 +938,7 @@ function image_fix_extension($file) {
          * If the file is not an image then we're done
          */
         if (Strings::until($mimetype, '/') != 'image') {
-            throw new CoreException('image_fix_extension(): Specified file "'.str_log($file).'" is not an image', 'invalid');
+            throw new CoreException('image_fix_extension(): Specified file "'.Strings::Log($file).'" is not an image', 'invalid');
         }
 
         /*
@@ -1032,13 +1032,13 @@ function image_watermark($params) {
         /*
          * Verify image and water mark image
          */
-        foreach(array('image' => $params['image'], 'watermark' => $params['watermark']) as $type => $filename) {
+        foreach (array('image' => $params['image'], 'watermark' => $params['watermark']) as $type => $filename) {
             if (!file_exists($params['target'])) {
-                throw new CoreException(tr('image_watermark(): The specified %type% file ":file" does not exists', array('%type%' => $type, ':file' => str_log($filename))), 'imagenotexists');
+                throw new CoreException(tr('image_watermark(): The specified %type% file ":file" does not exists', array('%type%' => $type, ':file' => Strings::Log($filename))), 'imagenotexists');
             }
 
             if (!$size = getimagesize($filename)) {
-                throw new CoreException(tr('image_watermark(): The specified %type% file ":file" is not a valid image', array('%type%' => $type, ':file' => str_log($filename))), 'imagenotvalid');
+                throw new CoreException(tr('image_watermark(): The specified %type% file ":file" is not a valid image', array('%type%' => $type, ':file' => Strings::Log($filename))), 'imagenotvalid');
             }
         }
 
@@ -1048,7 +1048,7 @@ function image_watermark($params) {
          * Make sure the target does not yet exist, UNLESS we're writing to the same image
          */
         if ((realpath($params['target']) != realpath($params['image'])) and file_exists($params['target'])) {
-            throw new CoreException('image_watermark(): The specified target "'.str_log($params['target']).'" already exists', 'targetexists');
+            throw new CoreException('image_watermark(): The specified target "'.Strings::Log($params['target']).'" already exists', 'targetexists');
         }
 
         /*
@@ -1091,7 +1091,7 @@ function image_watermark($params) {
  */
 function imagecreatefromany($filename) {
     try {
-        switch(exif_imagetype($filename)) {
+        switch (exif_imagetype($filename)) {
             case IMAGETYPE_GIF:
                 $resource = @imagecreatefromgif ($filename);
                 break;
@@ -1133,7 +1133,7 @@ function imagecreatefromany($filename) {
             case IMAGETYPE_XBM:
                 // FALLTHROUGH
             case IMAGETYPE_ICO:
-                throw new CoreException('imagecreatefromany(): Image types "'.exif_imagetype($filename).'" of file "'.str_log($filename).'" is not supported', 'notsupported');
+                throw new CoreException('imagecreatefromany(): Image types "'.exif_imagetype($filename).'" of file "'.Strings::Log($filename).'" is not supported', 'notsupported');
 
             default:
                 throw new CoreException('imagecreatefromany(): The file "'.exif_imagetype($filename).'" is not an image', 'notsupported');
@@ -1147,7 +1147,7 @@ function imagecreatefromany($filename) {
 
     }catch(Exception $e) {
         if (!file_exists($filename)) {
-            throw new CoreException('imagecreatefromany(): Specified file "'.str_log($filename).'" does not exist', $e);
+            throw new CoreException('imagecreatefromany(): Specified file "'.Strings::Log($filename).'" does not exist', $e);
         }
 
         throw new CoreException('imagecreatefromany(): Failed', $e);
@@ -1183,7 +1183,7 @@ function imagecopymerge_alpha($dst_im, $src_im, $dst_x, $dst_y, $src_x, $src_y, 
         imagecopymerge($dst_im, $cut, $dst_x, $dst_y, 0, 0, $src_w, $src_h, $pct);
 
     }catch(Exception $e) {
-        throw new CoreException('imagecopymerge_alpha(): Failed for source image "'.str_log($src_im).'"', $e);
+        throw new CoreException('imagecopymerge_alpha(): Failed for source image "'.Strings::Log($src_im).'"', $e);
     }
 }
 
@@ -1226,7 +1226,7 @@ function image_picker($params) {
          * Remove ., .., and hidden files
          */
         if (!empty($params['url'])) {
-            foreach($params['resource'] as $key => &$image) {
+            foreach ($params['resource'] as $key => &$image) {
                 if (!$image) continue;
 
                 if ($image[0] == '.') {
@@ -1305,7 +1305,7 @@ function image_slider($params = null) {
         array_default($params, 'selector', '#slider');
         array_default($params, 'options'  , array());
 
-        switch($params['library']) {
+        switch ($params['library']) {
             case 'aslider':
                 ensure_installed(array('checks'    => 'aslider',
                     'checks'    => '',

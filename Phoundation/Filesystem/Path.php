@@ -50,7 +50,7 @@ class Path
             $dirs = explode('/', Strings::startsNotWith($path, '/'));
             $path = '';
 
-            foreach($dirs as $dir) {
+            foreach ($dirs as $dir) {
                 $path .= '/'.$dir;
 
                 if (file_exists($path)) {

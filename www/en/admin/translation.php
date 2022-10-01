@@ -10,14 +10,14 @@ load_libs('paging');
  */
 try {
     if ($_POST) {
-        foreach($_POST as $key => $value) {
+        foreach ($_POST as $key => $value) {
             if ($key == 'action') {
-                switch($value) {
+                switch ($value) {
                     case '':
                        break;
 
                     case 'submit':
-                            foreach($_POST as $key => $value) {
+                            foreach ($_POST as $key => $value) {
                                 if ((substr($key,0,3) == 'tr-')) {
                                     $id = str_replace('tr-', '', $key);
 
@@ -156,10 +156,10 @@ try {
                         /*
                          * Unknown action specified
                          */
-                        html_flash_set(tr('Unknown action "%action%" specified', '%action%', str_log($_POST['action'])), 'error');
+                        html_flash_set(tr('Unknown action "%action%" specified', '%action%', Strings::Log($_POST['action'])), 'error');
                 }
             } else if ($key == 'submit_translations') {
-                foreach($_POST as $key => $value) {
+                foreach ($_POST as $key => $value) {
                     if ((substr($key,0,3) == 'tr-')) {
                         $id = str_replace('tr-', '', $key);
 
@@ -280,7 +280,7 @@ $default_actions = array('submit'               => tr('Submit translations'),
                          'undelete'             => tr('Undelete selected translations'),
                          'erase'                => tr('Permantly delete translations'));
 
-switch(isset_get($_GET['status'])) {
+switch (isset_get($_GET['status'])) {
     case '':
         // FALLTHROUGH
 
@@ -339,7 +339,7 @@ switch(isset_get($_GET['status'])) {
         break;
 
     default:
-        html_flash_set('Unknown status filter "'.str_log($_GET['status']).'" specified', 'error');
+        html_flash_set('Unknown status filter "'.Strings::Log($_GET['status']).'" specified', 'error');
         redirect(true);
 }
 
@@ -404,7 +404,7 @@ $html = '   <div class="row">
                                         <div class="visible-xs mb-md"></div>
                                         <div class="col-sm-4">
                                             <div class="input-group input-group-icon">
-                                                <input type="text" class="form-control col-md-3" name="filter" id="filter" value="'.str_log(isset_get($_GET['filter'], '')).'" placeholder="General filter">
+                                                <input type="text" class="form-control col-md-3" name="filter" id="filter" value="'.Strings::Log(isset_get($_GET['filter'], '')).'" placeholder="General filter">
                                                 <span class="input-group-addon">
                                                     <span class="icon"><i class="fa fa-search"></i></span>
                                                 </span>
@@ -412,7 +412,7 @@ $html = '   <div class="row">
                                         </div>
                                         <div class="visible-xs mb-md"></div>
                                         <div class="col-sm-3">
-                                            <input type="text" class="form-control col-md-3" name="limit" id="limit" value="'.str_log(isset_get($paging['display_limit'], '')).'" placeholder="'.tr('Row limit (default %entries% entries)', array('%entries%' => str_log($paging['default_limit']))).'">
+                                            <input type="text" class="form-control col-md-3" name="limit" id="limit" value="'.Strings::Log(isset_get($paging['display_limit'], '')).'" placeholder="'.tr('Row limit (default %entries% entries)', array('%entries%' => Strings::Log($paging['default_limit']))).'">
                                         </div>
                                         <div class="visible-xs mb-md"></div>
                                         <div class="col-sm-5">

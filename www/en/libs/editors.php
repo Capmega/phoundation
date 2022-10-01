@@ -207,14 +207,14 @@ function editors_summernote($params = null) {
                                'redo',
                                'help');
 
-            foreach($params['toolbar'] as $group => $buttons) {
+            foreach ($params['toolbar'] as $group => $buttons) {
                 $entry = array($group);
 
                 if (!is_array($buttons)) {
                     throw new CoreException(tr('editors_summernote(): Specified toolbar group ":group" is invalid, must be an array', array(':group' => $group)), 'invalid');
                 }
 
-                foreach($buttons as $button) {
+                foreach ($buttons as $button) {
                     if (!is_scalar($button)) {
                         throw new CoreException(tr('editors_summernote(): Specified toolbar group ":group" contains an invalid button. Button name should be scalar', array(':group' => $group)), 'invalid');
                     }
@@ -235,7 +235,7 @@ function editors_summernote($params = null) {
         /*
          * Move all functions out of the way so we won't break them with json
          */
-        foreach($options as $key => &$value) {
+        foreach ($options as $key => &$value) {
             if (is_scalar($value)) {
                 /*
                  * Look for values starting with 'function('

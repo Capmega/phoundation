@@ -7,12 +7,12 @@ try {
     $filters = Arrays::force($filters);
     $trace   = array();
 
-    foreach(debug_backtrace() as $key => $value) {
+    foreach (debug_backtrace() as $key => $value) {
         if ($skip_own and ($key <= 1)) {
             continue;
         }
 
-        foreach($filters as $filter) {
+        foreach ($filters as $filter) {
             unset($value[$filter]);
         }
 

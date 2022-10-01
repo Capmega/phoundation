@@ -248,7 +248,7 @@ function upload_get_html($type, $target = null, $params = null) {
         /*
          * Optional libraries
          */
-        foreach($params['options'] as $key => $value) {
+        foreach ($params['options'] as $key => $value) {
             if (($key == 'iframe') and $value) {
                 $js[] = 'jfu/jquery.iframe-transport';
                 continue;
@@ -273,7 +273,7 @@ function upload_get_html($type, $target = null, $params = null) {
             throw new CoreException('upload_get_html(): No upload widget type specified');
         }
 
-        switch($type) {
+        switch ($type) {
             case 'basic':
                 break;
 
@@ -329,7 +329,7 @@ function upload_get_html($type, $target = null, $params = null) {
                 break;
 
             default:
-                throw new CoreException('upload_get_html(): Unknown widget type "'.str_log($type).'" specified');
+                throw new CoreException('upload_get_html(): Unknown widget type "'.Strings::Log($type).'" specified');
         }
 
         if ($params['lister']) {
@@ -450,14 +450,14 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
         /*
          * Reorder the $_FILES array to make sense
          */
-        foreach($_FILES as $formname => $filedata) {
+        foreach ($_FILES as $formname => $filedata) {
             if (is_array($filedata['name'])) {
-                foreach($filedata as $section => $data) {
+                foreach ($filedata as $section => $data) {
                     if ($section === 'name') {
                         $count++;
                     }
 
-                    foreach($data as $key => $value) {
+                    foreach ($data as $key => $value) {
 
                         if (empty($files[$formname][$key])) {
                             $files[$formname][$key] = array();
@@ -484,7 +484,7 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
                 throw new CoreException(tr('upload_check_files(): Multiple file uploads are not allowed'), 'multiple');
             }
 
-            throw new CoreException(tr('upload_check_files(): $_FILES contains ":count" which is more than the maximum of ":max"', array(':count' => $count, ':max' => str_log($max_uploads))), 'toomany');
+            throw new CoreException(tr('upload_check_files(): $_FILES contains ":count" which is more than the maximum of ":max"', array(':count' => $count, ':max' => Strings::Log($max_uploads))), 'toomany');
         }
 
         if ($min_uploads and ($count < $min_uploads)) {
@@ -492,15 +492,15 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
                 throw new CoreException(tr('upload_check_files(): No files were uploaded'), 'none');
             }
 
-            throw new CoreException(tr('upload_check_files(): $_FILES contains ":count" which less more than the minimum of ":min"', array(':count' => $count, ':min' => str_log($min_uploads))), 'toofew');
+            throw new CoreException(tr('upload_check_files(): $_FILES contains ":count" which less more than the minimum of ":min"', array(':count' => $count, ':min' => Strings::Log($min_uploads))), 'toofew');
         }
 
         /*
          * Check for errors and add error messages where needed
          */
-        foreach($_FILES as &$file) {
-            foreach($file as $key => &$value) {
-                switch(isset_get($value['error'])) {
+        foreach ($_FILES as &$file) {
+            foreach ($file as $key => &$value) {
+                switch (isset_get($value['error'])) {
                     case 0:
                         continue 2;
 

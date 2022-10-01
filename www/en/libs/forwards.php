@@ -36,7 +36,7 @@ function forwards_apply_server($server) {
         $forwards = forwards_list($server);
 
         if ($forwards) {
-            foreach($forwards as $forward) {
+            foreach ($forwards as $forward) {
                 forwards_apply_rule($forward);
             }
         }
@@ -59,7 +59,7 @@ function forwards_remove_server($server) {
         $forwards = forwards_list($server);
 
         if ($forwards) {
-            foreach($forwards as $forward) {
+            foreach ($forwards as $forward) {
                 forwards_delete($forward);
             }
         }
@@ -414,7 +414,7 @@ function forwards_validate($forward) {
         $v->isFilter($forward['target_ip'], FILTER_VALIDATE_IP, tr('Please specify a valid IP address for target IP field'));
 
         if ($forward['protocol']) {
-            switch($forward['protocol']) {
+            switch ($forward['protocol']) {
                 case 'ssh':
                     // FALLTHROUGH
                 case 'http':
@@ -579,7 +579,7 @@ function forwards_delete_list($forwards, $apply = true) {
             throw new CoreException(tr('forwards_delete_list(): No forwards specified'), 'not-specified');
         }
 
-        foreach($forwards as $forward) {
+        foreach ($forwards as $forward) {
             $forward['apply'] = $apply;
             forwards_delete($forward);
         }

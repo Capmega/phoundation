@@ -14,9 +14,9 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('fonts');
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'providers':
-        foreach(fonts_providers() as $provider => $supported) {
+        foreach (fonts_providers() as $provider => $supported) {
             console_log();
         }
 

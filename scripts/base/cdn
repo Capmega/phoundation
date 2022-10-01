@@ -36,7 +36,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 load_libs('cdn');
 cli_only(true);
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'command':
         $command = cli_argument(1);
         $data    = cli_argument(2);
@@ -67,7 +67,7 @@ switch(cli_method()) {
          */
         log_console(tr('AVAILABE CDN SERVERS:'), '', 'white');
 
-        foreach($_CONFIG['cdn']['servers'] as $server) {
+        foreach ($_CONFIG['cdn']['servers'] as $server) {
             log_console(cdn_prefix($server));
         }
 
@@ -104,7 +104,7 @@ switch(cli_method()) {
          * Ensure that all CDN servers are displayed, also the ones that do not yet
          * have any listings
          */
-        foreach($_CONFIG['cdn']['servers'] as $server) {
+        foreach ($_CONFIG['cdn']['servers'] as $server) {
             if (!isset($list[$server])) {
                 $list[$server] = 0;
             }
@@ -114,7 +114,7 @@ switch(cli_method()) {
 
         log_console(tr('CDN#      LISTING COUNT      IMAGE COUNT     VIDEOS COUNT'), '', 'cyan');
 
-        foreach($list as $cdn => $count) {
+        foreach ($list as $cdn => $count) {
            if (!in_array($cdn, $_CONFIG['cdn']['servers'])) {
                log_console(str_size($cdn, 4).'   '.str_size($count, 16, ' ', true).' '.str_size(isset_get($images[$cdn], 0), 16, ' ', true).' '.str_size(isset_get($videos[$cdn], 0), 16, ' ', true).'     NOT CONFIGURED!', '', 'yellow');
 
@@ -208,7 +208,7 @@ switch(cli_method()) {
                         $color = 'red';
                         $fail++;
 
-                        switch($e->getCode()) {
+                        switch ($e->getCode()) {
                             case 'http404':
                                 $result[] = 'NOT FOUND';
                                 break;

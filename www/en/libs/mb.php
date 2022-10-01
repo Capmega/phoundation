@@ -117,7 +117,7 @@ if (! function_exists ('mb_strtr'))
    {
       if (is_array($from))
       {
-         foreach($from as $k => $v)
+         foreach ($from as $k => $v)
          {
             $utf8_from[utf8_decode($k)]=utf8_decode($v);
          }
@@ -132,19 +132,19 @@ if (! function_exists('mb_preg_replace'))
    function mb_preg_replace($pattern, $replacement, $subject, $limit = -1, &$count = null)
    {
       if (is_array($pattern))
-         foreach($pattern as $k => $v)
+         foreach ($pattern as $k => $v)
             $utf8_pattern[utf8_decode($k)]=utf8_decode($v);
       else
          $utf8_pattern=utf8_decode($pattern);
 
       if (is_array($replacement))
-         foreach($replacement as $k => $v)
+         foreach ($replacement as $k => $v)
             $utf8_replacement[utf8_decode($k)]=utf8_decode($v);
       else
          $utf8_replacement=utf8_decode($replacement);
 
       if (is_array($subject))
-         foreach($subject as $k => $v)
+         foreach ($subject as $k => $v)
             $utf8_subject[utf8_decode($k)]=utf8_decode($v);
       else
          $utf8_subject=utf8_decode($subject);
@@ -152,7 +152,7 @@ if (! function_exists('mb_preg_replace'))
       $r = preg_replace ($utf8_pattern,$utf8_replacement,$utf8_subject,$limit,$count);
 
       if (is_array($r))
-         foreach($r as $k => $v)
+         foreach ($r as $k => $v)
             $return[utf8_encode($k)]=utf8_encode($v);
       else
          $return = utf8_encode($r);
@@ -174,7 +174,7 @@ if (! function_exists ('mb_str_word_count'))
       $r = str_word_count(utf8_decode($string),$format,$charlist);
       if ($format == 1 || $format == 2)
       {
-         foreach($r as $k => $v)
+         foreach ($r as $k => $v)
          {
             $u[$k] = utf8_encode($v);
          }

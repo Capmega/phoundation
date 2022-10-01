@@ -73,7 +73,7 @@
 //    /*
 //     * Check what platform we're in
 //     */
-//    switch(php_sapi_name()) {
+//    switch (php_sapi_name()) {
 //        case 'cli':
 //            define('PLATFORM'     , 'cli');
 //            define('PLATFORM_HTTP', false);
@@ -259,7 +259,7 @@
 //            /*
 //             * Detect platform and execute specific platform startup sequence
 //             */
-//            switch(PLATFORM) {
+//            switch (PLATFORM) {
 //                case 'http':
 //                    /*
 //                     * Determine what our target file is. With direct execution,
@@ -417,7 +417,7 @@
 //     */
 //    public function callType($type = null) {
 //        if ($type) {
-//            switch($type) {
+//            switch ($type) {
 //                case 'http':
 //                    // FALLTHROUGH
 //                case 'admin':
@@ -501,7 +501,7 @@
 //            $messages = $messages->getMessages();
 //        }
 //
-//        foreach(Arrays::force($messages) as $message) {
+//        foreach (Arrays::force($messages) as $message) {
 //            $this->messages[] = $message;
 //        }
 //
@@ -755,8 +755,8 @@
 // * all variable data should be identified in the text by a :marker, and the
 // * :marker should be a key (with its value) in the $replace array.
 // *
-// * $replace values are always processed first by str_log() to ensure they are
-// * readable texts, so the texts sent to tr() do NOT require str_log().
+// * $replace values are always processed first by Strings::Log() to ensure they are
+// * readable texts, so the texts sent to tr() do NOT require Strings::Log().
 // *
 // * On non production systems, tr() will perform a check on both the $text and
 // * $replace data to ensure that all markers have been replaced, and non were
@@ -779,8 +779,8 @@
 //
 //    try {
 //        if ($replace) {
-//            foreach($replace as &$value) {
-//                $value = str_log($value);
+//            foreach ($replace as &$value) {
+//                $value = Strings::Log($value);
 //            }
 //
 //            unset($value);
@@ -792,7 +792,7 @@
 //             */
 //            if (empty($_CONFIG['production']) and $verify) {
 //                if ($count != count($replace)) {
-//                    foreach($replace as $value) {
+//                    foreach ($replace as $value) {
 //                        if (strstr($value, ':')) {
 //                            /*
 //                             * The one of the $replace values contains :blah
@@ -820,7 +820,7 @@
 //        /*
 //         * Do NOT use tr() here for obvious endless loop reasons!
 //         */
-//        throw new CoreException('tr(): Failed with text "'.str_log($text).'". Very likely issue with $replace not containing all keywords, or one of the $replace values is non-scalar', $e);
+//        throw new CoreException('tr(): Failed with text "'.Strings::Log($text).'". Very likely issue with $replace not containing all keywords, or one of the $replace values is non-scalar', $e);
 //    }
 //}
 //
@@ -944,7 +944,7 @@
 // */
 //function load_external($files) {
 //    try {
-//        foreach(Arrays::force($files) as $file) {
+//        foreach (Arrays::force($files) as $file) {
 //            include_once(ROOT.'www/en/libs/external/'.$files);
 //        }
 //
@@ -992,7 +992,7 @@
 //            $libs = Strings::slash(__DIR__);
 //        }
 //
-//        foreach(Arrays::force($libraries) as $library) {
+//        foreach (Arrays::force($libraries) as $library) {
 //            if (!$library) {
 //                notify(new CoreException('load_libs(): Empty library specified', 'warning/not-specified'));
 //                continue;
@@ -1083,7 +1083,7 @@
 //
 //        $files = Arrays::force($files);
 //
-//        foreach($files as $file) {
+//        foreach ($files as $file) {
 //            $loaded = false;
 //            $file   = trim($file);
 //
@@ -1092,7 +1092,7 @@
 //             * production configuration file, if available, and then, if
 //             * available, the environment file
 //             */
-//            foreach($paths as $id => $path) {
+//            foreach ($paths as $id => $path) {
 //                if (!$file) {
 //                    /*
 //                     * Trying to load default configuration files again
@@ -1370,7 +1370,7 @@
 //    }catch(Exception $e) {
 //        notify($e);
 //
-//        switch($e->getCode()) {
+//        switch ($e->getCode()) {
 //            case 'not-exist':
 //                log_file(tr('load_content(): File ":language/:file" does not exist', array(':language' => $language, ':file' => $file)), 'warning');
 //                break;
@@ -1504,7 +1504,7 @@
 //                $retval['1.0']['locale'] = Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
 //            }
 //
-//            foreach($headers as $header) {
+//            foreach ($headers as $header) {
 //                $requested =  Strings::until($header, ';');
 //                $requested =  array('language' => Strings::until($requested, '-'),
 //                                    'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null));
@@ -1532,7 +1532,7 @@
 // */
 //function log_flags($color) {
 //    try {
-//        switch(Strings::until($color, '/')) {
+//        switch (Strings::until($color, '/')) {
 //            case 'VERBOSE':
 //                if (!VERBOSE) {
 //                    /*
@@ -1686,7 +1686,7 @@
 //                     */
 //                    $messages[] = cli_color('Exception data:', 'error', null, true);
 //
-//                    foreach(Arrays::force($data) as $line) {
+//                    foreach (Arrays::force($data) as $line) {
 //                        if ($line) {
 //                            if (is_scalar($line)) {
 //                                $messages[] = cli_color($line, 'error', null, true);
@@ -1805,7 +1805,7 @@
 //                }
 //            }
 //
-//            switch($color) {
+//            switch ($color) {
 //                case 'yellow':
 //                    // FALLTHROUGH
 //                case 'warning':
@@ -1817,7 +1817,7 @@
 //            }
 //        }
 //
-//        foreach($messages as $message) {
+//        foreach ($messages as $message) {
 //            if ($color and defined('NOCOLOR') and !NOCOLOR) {
 //                $message = $c->getColoredString($message, $color);
 //            }
@@ -1952,7 +1952,7 @@
 //        $date = new DateTime();
 //        $date = $date->format('Y/m/d H:i:s');
 //
-//        foreach($messages as $key => $message) {
+//        foreach ($messages as $key => $message) {
 //            if (!is_scalar($message)) {
 //                if (is_array($message) or is_object($message)) {
 //                    $message = json_encode_custom($message);
@@ -1968,7 +1968,7 @@
 //                 * them all using their keys
 //                 */
 //                if (!is_scalar($message)) {
-//                    $message = str_log($message);
+//                    $message = Strings::Log($message);
 //                }
 //
 //                if (!empty($color)) {
@@ -2016,7 +2016,7 @@
 //         */
 //        error_log(tr('log_file() failed to log the following exception:'));
 //
-//        foreach($e->getMessages() as $message) {
+//        foreach ($e->getMessages() as $message) {
 //            error_log($message);
 //        }
 //
@@ -2261,7 +2261,7 @@
 //                $retval = substr($retval, 1);
 //
 //                if (!empty($core->register['route_map'])) {
-//                    foreach($core->register['route_map'][$url_params['from_language']] as $foreign => $english) {
+//                    foreach ($core->register['route_map'][$url_params['from_language']] as $foreign => $english) {
 //                        $retval = str_replace($foreign, $english, $retval);
 //                    }
 //                }
@@ -2290,7 +2290,7 @@
 //                    } else {
 //                        $retval = str_replace('en/', $url_params['language'].'/', $retval);
 //
-//                        foreach($core->register['route_map'][$url_params['language']] as $foreign => $english) {
+//                        foreach ($core->register['route_map'][$url_params['language']] as $foreign => $english) {
 //                            $retval = str_replace($english, $foreign, $retval);
 //                        }
 //                    }
@@ -2515,7 +2515,7 @@
 //            return true;
 //        }
 //
-//        foreach(Arrays::force($rights) as $right) {
+//        foreach (Arrays::force($rights) as $right) {
 //            if (empty($user['rights'][$right]) or !empty($user['rights']['devil']) or !empty($fail)) {
 //                if ((PLATFORM_CLI) and VERBOSE) {
 //                    load_libs('user');
@@ -2585,7 +2585,7 @@
 //            return true;
 //        }
 //
-//        foreach(Arrays::force($groups) as $group) {
+//        foreach (Arrays::force($groups) as $group) {
 //            if (empty($user['groups'][$group]) or !empty($user['rights']['devil']) or !empty($fail)) {
 //                if ((PLATFORM_CLI) and VERBOSE) {
 //                    load_libs('user');
@@ -2834,7 +2834,7 @@
 // * Return the first non empty argument
 // */
 //function not_empty() {
-//    foreach(func_get_args() as $argument) {
+//    foreach (func_get_args() as $argument) {
 //        if ($argument) {
 //            return $argument;
 //        }
@@ -2849,7 +2849,7 @@
 // * Return the first non null argument
 // */
 //function not_null() {
-//    foreach(func_get_args() as $argument) {
+//    foreach (func_get_args() as $argument) {
 //        if ($argument === null) continue;
 //        return $argument;
 //    }
@@ -3083,7 +3083,7 @@
 //        /*
 //         * CSRF check failed, drop $_POST
 //         */
-//        foreach($_POST as $key => $value) {
+//        foreach ($_POST as $key => $value) {
 //            if (substr($key, -6, 6) === 'submit') {
 //                unset($_POST[$key]);
 //            }
@@ -3292,7 +3292,7 @@
 //                 * Fetch user data from DB, then treat it as an array
 //                 */
 //                if (!$user = sql_get('SELECT `nickname`, `name`, `username`, `email` FROM `users` WHERE `id` = :id', array(':id' => $user))) {
-//                    throw new CoreException('name(): Specified user id ":id" does not exist', array(':id' => str_log($user)), 'not-exists');
+//                    throw new CoreException('name(): Specified user id ":id" does not exist', array(':id' => Strings::Log($user)), 'not-exists');
 //                }
 //            }
 //
@@ -3365,7 +3365,7 @@
 //
 //        $core->register['real_script'] = $pagename;
 //
-//        switch($core->callType()) {
+//        switch ($core->callType()) {
 //            case 'ajax':
 //                $include = ROOT.'www/'.$language.'/ajax/'.$pagename.'.php';
 //
@@ -3602,7 +3602,7 @@
 //         * Test available files
 //         */
 //        if (isset($params['checks'])) {
-//            foreach(Arrays::force($params['checks']) as $path) {
+//            foreach (Arrays::force($params['checks']) as $path) {
 //                if (!file_exists($path)) {
 //                    $fail = 'path '.$path;
 //                    break;
@@ -3614,7 +3614,7 @@
 //         * Test available functions
 //         */
 //        if (isset($params['functions']) and !isset($fail)) {
-//            foreach(Arrays::force($params['functions']) as $function) {
+//            foreach (Arrays::force($params['functions']) as $function) {
 //                if (!function_exists($function)) {
 //                    $fail = 'function '.$function;
 //                    break;
@@ -3626,7 +3626,7 @@
 //         * Test available functions
 //         */
 //        if (isset($params['which']) and !isset($fail)) {
-//            foreach(Arrays::force($params['which']) as $program) {
+//            foreach (Arrays::force($params['which']) as $program) {
 //                if (!file_which($program)) {
 //                    $fail = 'which '.$program;
 //                    break;
@@ -3672,7 +3672,7 @@
 // */
 //function disconnect() {
 //    try {
-//        switch(php_sapi_name()) {
+//        switch (php_sapi_name()) {
 //            case 'fpm-fcgi':
 //                fastcgi_finish_request();
 //                break;
@@ -3725,7 +3725,7 @@
 // */
 //function get_boolean($value) {
 //    try {
-//        switch(strtolower($value)) {
+//        switch (strtolower($value)) {
 //            case 'off':
 //                return false;
 //
@@ -3875,8 +3875,8 @@
 //         * Register at what CDN servers the files will be uploaded, and send the
 //         * files there
 //         */
-//        foreach($servers as $servers_id => $server) {
-//            foreach($files as $url => $file) {
+//        foreach ($servers as $servers_id => $server) {
+//            foreach ($files as $url => $file) {
 //                log_file(tr('cdn_add_files(): Added file ":file" with url ":url" to CDN server ":server"', array(':file' => $file, ':url' => $url, ':server' => $server)), 'DEBUG/cdn');
 //
 //                $file_insert->execute(array(':servers_id' => $servers_id,
@@ -3896,7 +3896,7 @@
 //         * locally
 //         */
 //        if ($delete) {
-//            foreach($files as $url => $file) {
+//            foreach ($files as $url => $file) {
 //                file_delete($file, ROOT);
 //            }
 //        }
@@ -4329,7 +4329,7 @@
 //            while ($redo) {
 //                $redo = false;
 //
-//                foreach($strings as $string) {
+//                foreach ($strings as $string) {
 //                    $new = Strings::endsNotWith($source, $string, true);
 //
 //                    if ($new != $source) {
@@ -4393,7 +4393,7 @@
 ///*
 // * Remove double "replace" chars
 // */
-//function str_nodouble($source, $replace = '\1', $character = null, $case_insensitive = true) {
+//function Strings::noDouble($source, $replace = '\1', $character = null, $case_insensitive = true) {
 //    try {
 //        if ($character) {
 //            /*
@@ -4408,7 +4408,7 @@
 //        return preg_replace('/(.)\\1+/u'.($case_insensitive ? 'i' : ''), $replace, $source);
 //
 //    }catch(Exception $e) {
-//        throw new CoreException('str_nodouble(): Failed', $e);
+//        throw new CoreException('Strings::noDouble(): Failed', $e);
 //    }
 //}
 //
@@ -4423,7 +4423,7 @@
 // * @category Function reference
 // * @package system
 // * @note While log_console() will log towards the ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
-// * @see str_log()
+// * @see Strings::Log()
 // * @example
 // * code
 // * echo str_truncate('This is a long long long long test text!', 10);
@@ -4461,7 +4461,7 @@
 //         */
 //        $length -= mb_strlen($fill);
 //
-//        switch($method) {
+//        switch ($method) {
 //            case 'right':
 //                $retval = mb_substr($source, 0, $length);
 //                if ($on_word and (strpos(substr($source, $length, 2), ' ') === false)) {
@@ -4506,7 +4506,7 @@
 // * @category Function reference
 // * @package system
 // * @note While log_console() will log towards the ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
-// * @see str_log()
+// * @see Strings::Log()
 // * @example
 // * code
 // * echo str_truncate('This is a long long long long test text!', 10);
@@ -4526,7 +4526,7 @@
 // * @param booelan $on_word
 // * @return string The string, truncated if required, according to the specified truncating rules
 // */
-//function str_log($source, $truncate = 8187, $separator = ', ') {
+//function Strings::Log($source, $truncate = 8187, $separator = ', ') {
 //    try {
 //        try {
 //            $json_encode = 'json_encode_custom';
@@ -4548,7 +4548,7 @@
 //
 //        if (!is_scalar($source)) {
 //            if (is_array($source)) {
-//                foreach($source as $key => &$value) {
+//                foreach ($source as $key => &$value) {
 //                    if (strstr($key, 'password')) {
 //                        $value = '*** HIDDEN ***';
 //                        continue;
@@ -4572,7 +4572,7 @@
 //            }
 //        }
 //
-//        return str_nodouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', str_truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
+//        return Strings::noDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', str_truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
 //
 //    }catch(Exception $e) {
 //        if ($e->getRealCode() === 'invalid') {
@@ -4580,7 +4580,7 @@
 //            return "Data converted using print_r() instead of json_encode() because json_encode_custom() failed on this data: ".print_r($source, true);
 //        }
 //
-//        throw new CoreException('str_log(): Failed', $e);
+//        throw new CoreException('Strings::Log(): Failed', $e);
 //    }
 //}
 //
@@ -4667,7 +4667,7 @@
 //        }
 //
 //        if ($keys) {
-//            foreach(Arrays::force($keys) as $key) {
+//            foreach (Arrays::force($keys) as $key) {
 //                if (!$key) {
 //                    continue;
 //                }
@@ -4896,7 +4896,7 @@
 //
 //            if (!is_scalar($string)) {
 //                log_console(tr('[ WARNING ] colors::getColoredString(): Specified text ":text" is not a string or scalar. Forcing text to string', array(':text' => $string)), 'warning');
-//                $string = str_log($string);
+//                $string = Strings::Log($string);
 //            }
 //
 //            if (NOCOLOR and !$force) {
@@ -5081,7 +5081,7 @@
 //            $format = $requested_format;
 //
 //        } else {
-//            switch($_CONFIG['formats']['force1224']) {
+//            switch ($_CONFIG['formats']['force1224']) {
 //                case false:
 //                    break;
 //
@@ -5715,7 +5715,7 @@
 // */
 //function get_true_false($value, $default) {
 //    try {
-//        switch($value) {
+//        switch ($value) {
 //            case '':
 //                return $default;
 //
@@ -5800,7 +5800,7 @@
 //
 //        log_console(tr('Starting shutdown procedure for script ":script"', array(':script' => $core->register['script'])), 'VERYVERBOSE/cyan');
 //
-//        foreach($core->register as $key => $value) {
+//        foreach ($core->register as $key => $value) {
 //            try {
 //                if (substr($key, 0, 9) !== 'shutdown_') {
 //                    continue;
@@ -5815,7 +5815,7 @@
 //                    /*
 //                     * Shutdown function value is an array. Execute it for each entry
 //                     */
-//                    foreach($value as $entry) {
+//                    foreach ($value as $entry) {
 //                        log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key.'()', ':value' => $entry)), 'VERBOSE/cyan');
 //                        $key($entry);
 //                    }
@@ -5840,7 +5840,7 @@
 //                throw new CoreException(tr('shutdown(): Invalid $_CONFIG[shutdown], it should be an array'), 'invalid');
 //            }
 //
-//            foreach($_CONFIG['shutdown'] as $name => $parameters) {
+//            foreach ($_CONFIG['shutdown'] as $name => $parameters) {
 //                if ($parameters['interval'] and ($level < $parameters['interval'])) {
 //                    log_file(tr('Executing periodical shutdown function ":function()"', array(':function' => $name)), 'shutdown', 'cyan');
 //                    load_libs($parameters['library']);
@@ -6052,7 +6052,7 @@
 //        /*
 //         * Apply all parameters
 //         */
-//        foreach($data as $key => $value) {
+//        foreach ($data as $key => $value) {
 //            if ($key === 'country') {
 //                /*
 //                 * Ignore this key

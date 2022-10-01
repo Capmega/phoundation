@@ -156,7 +156,7 @@ function utf8_ord( $chr )
 
     $chr    = $chr[0];
 
-    switch( strlen( $chr ) )
+    switch ( strlen( $chr ) )
     {
         case 1:        return
                         ord( $chr );
@@ -1283,7 +1283,7 @@ function utf8_str_pad( $input , $pad_length , $pad_string = ' ' , $pad_type = ST
 
         $diff    = $pad_length - $input_length;
 
-        switch( $pad_type )
+        switch ( $pad_type )
         {
             case STR_PAD_LEFT:
                     $pre    = utf8_str_repeat( $pad_string , ( int ) ceil( $diff / $ps_length ) );
@@ -1394,7 +1394,7 @@ function utf8_remove_duplicates( $str , $what = ' ' )
 
     if ( is_array( $what ) )
     {
-        foreach( $what as $item )
+        foreach ( $what as $item )
         {
             $str    = preg_replace( '/('. preg_quote( $item , '/' ) .')+/' , $item , $str );
         }
@@ -1981,7 +1981,7 @@ function utf8_lcfirst( $str )
 
 function utf8_ucwords( $str )
 {
-    foreach( utf8_ws( ) as $ws )
+    foreach ( utf8_ws( ) as $ws )
     {
         $pos    = -1;
 

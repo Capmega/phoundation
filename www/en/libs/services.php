@@ -72,7 +72,7 @@ function services_scan($server = null) {
         $server   = servers_get($server);
         $services = services_list();
 
-        foreach($services as $service) {
+        foreach ($services as $service) {
             /*
              * Scan for csf
              */

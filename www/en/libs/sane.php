@@ -64,7 +64,7 @@ function sane_find_scanners($libusb = false) {
                          'parrallel' => array(),
                          'unknown'   => array());
 
-        foreach($results as $result) {
+        foreach ($results as $result) {
             if (substr($result, 0, 17) == 'found USB scanner') {
                 /*
                  * Found a USB scanner

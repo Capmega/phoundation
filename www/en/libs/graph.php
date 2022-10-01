@@ -27,7 +27,7 @@
  */
 function graph_generate(array $params = array()) {
     try {
-        switch($params['provider']) {
+        switch ($params['provider']) {
             case 'morris':
                 load_libs('graph-morris');
                 return graph_morris_generate($params);

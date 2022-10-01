@@ -45,9 +45,9 @@ reprocess-images               - Will take all blog post images, and recompress
 require_once(__DIR__.'/../../libs/startup.php');
 load_config('blogs');
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'list':
-        switch(cli_method(1)) {
+        switch (cli_method(1)) {
             case 'blogs':
                 cli_no_arguments_left();
 
@@ -229,7 +229,7 @@ switch(cli_method()) {
                  */
                 $base_file = $path.$photo['file'];
 
-                foreach($source_types as $type) {
+                foreach ($source_types as $type) {
                     $source_file = $base_file.'-'.$type.'.jpg';
 
                     if (file_exists($source_file)) {
@@ -261,7 +261,7 @@ switch(cli_method()) {
                 /*
                  * Regenerate all formats according to the configured sizes for the current blog
                  */
-                foreach($formats as $format => $format_data) {
+                foreach ($formats as $format => $format_data) {
                     $file   = $base_file.'-'.$format.'.jpg';
                     $filex2 = $base_file.'-'.$format.'@2x.jpg';
 

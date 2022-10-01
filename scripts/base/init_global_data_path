@@ -58,7 +58,7 @@ try {
     }
 
 }catch(Exception $e) {
-    throw new CoreException('The specified path "'.str_log($path).'" could not be created', $e);
+    throw new CoreException('The specified path "'.Strings::Log($path).'" could not be created', $e);
 }
 
 // :GARBAGE: The global data directory should be supplied by automatically downloading required files from their respectitive URL's

@@ -36,7 +36,7 @@ array_default($params, 'validation_description'  , tr('Specified data is missing
  * Update the key-value descriptions
  */
 try {
-    switch(isset_get($_POST['formaction'])) {
+    switch (isset_get($_POST['formaction'])) {
         case 'Update':
             load_libs('seo,blogs');
 
@@ -50,7 +50,7 @@ try {
 
             sql_query('DELETE FROM `blogs_key_value_descriptions` WHERE `blogs_id` = :blogs_id', array(':blogs_id' => $blog['id']));
 
-            foreach($_POST['data'] as $key => $value) {
+            foreach ($_POST['data'] as $key => $value) {
                 $p->execute(array(':blogs_id'     => $blog['id'],
                                   ':key'          => $value['key'],
                                   ':seovalue'     => seo_create_string($value['value']),
@@ -62,7 +62,7 @@ try {
              * Due to the update, the name might have changed.
              * Redirect to ensure that the name in the URL is correct
              */
-            html_flash_set(tr('The key-value descriptions for blog "%blog%" have been updated', '%blog%', str_log($blog['name'])), 'success');
+            html_flash_set(tr('The key-value descriptions for blog "%blog%" have been updated', '%blog%', Strings::Log($blog['name'])), 'success');
             redirect(true);
     }
 
@@ -216,7 +216,7 @@ function s_validate_data(&$data) {
             throw new CoreException('Specified data is invalid', 'invalid');
         }
 
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             if ($key === 'id') {
                 unset($data[$key]);
                 continue;

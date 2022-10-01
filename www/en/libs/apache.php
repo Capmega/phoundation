@@ -53,7 +53,7 @@ function apache_write_vhost($hostname, $vhost_name, $params, $port) {
 
         $os = servers_detect_os($hostname);
 
-        switch($os['name']) {
+        switch ($os['name']) {
             case 'debian':
                 // FALLTHROUGH
             case 'ubuntu':
@@ -67,7 +67,7 @@ function apache_write_vhost($hostname, $vhost_name, $params, $port) {
                 $command  = '> '.$full_path.';';
                 $command .= 'echo "<VirtualHost *:'.$port.'>" >> '.$full_path.';';
 
-                foreach($params as $key => $value) {
+                foreach ($params as $key => $value) {
                     $command .= 'echo  "  '.$key.' '.$value.'" >> '.$full_path.';';
                 }
 
@@ -112,7 +112,7 @@ function apache_set_identification($hostname, $params) {
         $command     = '';
         $config_path = apache_get_config_path($hostname);;
 
-        foreach($params as $key => $value) {
+        foreach ($params as $key => $value) {
             $command .= 'if grep "'.$key.'" "'.$config_path.'"; then sed -i "s/'.$key.'[[:space:]]*.*/'.$key.' '.$value.'/g" "'.$config_path.'"; else echo "'.$key.' '.$value.'" >> '.$config_path.'; fi;';
         }
 
@@ -136,7 +136,7 @@ function apache_get_vhosts_path($server_os) {
         if (empty($server_os)) {
             throw new CoreException(tr('apache_get_vhosts_path(): No operating system specified'), 'not-specified');
         }
-        switch($server_os) {
+        switch ($server_os) {
             case 'mint':
                 //FALL THROUGH
             case 'ubuntu':
@@ -170,7 +170,7 @@ function apache_get_config_path($hostname) {
     try {
         $server_os = servers_detect_os($hostname);
 
-        switch($server_os['name']) {
+        switch ($server_os['name']) {
             case 'mint':
                 //FALL THROUGH
             case 'ubuntu':

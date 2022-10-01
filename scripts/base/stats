@@ -7,8 +7,8 @@ require_once(__DIR__.'/../../libs/startup.php');
 
 
 try {
-    foreach($argv as $arg) {
-        switch($arg) {
+    foreach ($argv as $arg) {
+        switch ($arg) {
             case 'all':
 // :TODO: Implement
                 break;

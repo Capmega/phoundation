@@ -55,9 +55,9 @@ function mailer_insert($params) {
 
         load_libs('seo');
 
-        foreach(array('name', 'subject', 'users') as $key) {
+        foreach (array('name', 'subject', 'users') as $key) {
             if (empty($params[$key])) {
-                throw new CoreException('mailer_insert(): No "'.str_log($key).'" specified');
+                throw new CoreException('mailer_insert(): No "'.Strings::Log($key).'" specified');
             }
         }
 
@@ -176,7 +176,7 @@ function mailer_add_users($users, $mailing, $validate_mailing = true) {
         }
 
         if ($mailings_id < 1) {
-            throw new CoreException('mailer_add_users(): Specified mailing "'.str_log($mailing).'" does not exist', 'not-exists');
+            throw new CoreException('mailer_add_users(): Specified mailing "'.Strings::Log($mailing).'" does not exist', 'not-exists');
         }
 
         $count = 0;
@@ -197,7 +197,7 @@ function mailer_add_users($users, $mailing, $validate_mailing = true) {
         /*
          * Only add specified users
          */
-        foreach(Arrays::force($users) as $users_id) {
+        foreach (Arrays::force($users) as $users_id) {
             $name     = $users_id;
             $users_id = sql_get('SELECT `id`, `mailings`
 
@@ -214,12 +214,12 @@ function mailer_add_users($users, $mailing, $validate_mailing = true) {
                                       ':username' => $users_id));
 
             if (!$users_id) {
-                log_console('mailer_add_users(): User "'.str_log($name).'" not found', 'yellow');
+                log_console('mailer_add_users(): User "'.Strings::Log($name).'" not found', 'yellow');
                 continue;
             }
 
             if (!$users_id['mailings']) {
-                log_console('mailer_add_users(): User "'.str_log($name).'" does not allow mailings', 'yellow');
+                log_console('mailer_add_users(): User "'.Strings::Log($name).'" does not allow mailings', 'yellow');
                 continue;
             }
 
@@ -284,7 +284,7 @@ function mailer_get($params, $columns = false) {
     try {
         Arrays::ensure($params, 'name', 'id');
 
-        foreach(array('id', 'name') as $key) {
+        foreach (array('id', 'name') as $key) {
             if (isset_get($params[$key])) {
                 $where[]           = '`'.$key.'` = :'.$key;
                 $execute[':'.$key] = $params[$key];
@@ -315,7 +315,7 @@ function mailer_list($status = null, $columns = '`id`, `name`') {
     try {
         user_or_signin();
 
-        switch($status) {
+        switch ($status) {
             case '':
                 // Fallthrough
             case 'started':
@@ -324,7 +324,7 @@ function mailer_list($status = null, $columns = '`id`, `name`') {
                 break;
 
             default:
-                throw new CoreException('mailer_list(): Unknown status "'.str_log($status).'" specified', 'unknown');
+                throw new CoreException('mailer_list(): Unknown status "'.Strings::Log($status).'" specified', 'unknown');
         }
 
         if (empty($_SESSION['user']['admin'])) {
@@ -443,7 +443,7 @@ $mailing['language'] = 'en';
 
                                         array(':mailings_id' => $mailing['id']));
 
-                foreach($recipients as $recipients_id => $recipient) {
+                foreach ($recipients as $recipients_id => $recipient) {
                     try {
                         $mailing['to'][] = $recipient['code'];
                         $mailing['to'][] = name($recipient);
@@ -596,7 +596,7 @@ function mailer_viewed($code) {
         $recipient = mailer_get_recipient($code, 'sent');
 
         if (!$recipient) {
-            throw new CoreException('mailer_viewed(): Specified code "'.str_log($code).'" does not exist', 'not-exists');
+            throw new CoreException('mailer_viewed(): Specified code "'.Strings::Log($code).'" does not exist', 'not-exists');
         }
 
         sql_query('INSERT INTO `mailer_views` (`recipients_id`, `ip`, `host`, `referrer`)
@@ -610,7 +610,7 @@ function mailer_viewed($code) {
         return $recipient['image'];
 
     }catch(Exception $e) {
-        throw new CoreException('mailer_viewed(): Failed for code "'.str_log($code).'"', $e);
+        throw new CoreException('mailer_viewed(): Failed for code "'.Strings::Log($code).'"', $e);
     }
 }
 
@@ -677,7 +677,7 @@ function mailer_cancel($mailers) {
  */
 function mailer_status($mailers, $status) {
     try {
-        switch($status) {
+        switch ($status) {
             case 'started':
                 // FALLTHROUGH
             case 'stopped':
@@ -688,18 +688,18 @@ function mailer_status($mailers, $status) {
                 break;
 
             case 'finished':
-                throw new CoreException('mailer_status(): Invalid status "'.str_log($status).'" specified, this status cannot be set', 'invalid');
+                throw new CoreException('mailer_status(): Invalid status "'.Strings::Log($status).'" specified, this status cannot be set', 'invalid');
 
             default:
-                throw new CoreException('mailer_status(): Unknown status "'.str_log($status).'" specified', 'unknown');
+                throw new CoreException('mailer_status(): Unknown status "'.Strings::Log($status).'" specified', 'unknown');
         }
 
-        switch(str_force($mailers)) {
+        switch (str_force($mailers)) {
             case 'all':
                 /*
                  * Update all status "started" to "stopped
                  */
-                switch($status) {
+                switch ($status) {
                     case 'started':
                         /*
                          * Dont start mailers that are already started
@@ -744,7 +744,7 @@ function mailer_status($mailers, $status) {
                     throw new CoreException('mailer_status(): No mailer names specified');
                 }
 
-                foreach($mailers as $mailer) {
+                foreach ($mailers as $mailer) {
                     if (empty($column)) {
                         if (is_numeric($mailer)) {
                             $column = 'id';
@@ -802,7 +802,7 @@ function mailer_get_recipientcount($mailings_id, $status = 'all') {
         /*
          * Validate status
          */
-        switch($status) {
+        switch ($status) {
             case 'all':
                 break;
 
@@ -817,7 +817,7 @@ function mailer_get_recipientcount($mailings_id, $status = 'all') {
                 break;
 
             default:
-                throw new CoreException('mailer_get_recipientcount(): Unknown status "'.str_log($status).'" specified', 'unknown');
+                throw new CoreException('mailer_get_recipientcount(): Unknown status "'.Strings::Log($status).'" specified', 'unknown');
         }
 
         return sql_get('SELECT COUNT(`id`) AS count

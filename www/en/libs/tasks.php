@@ -252,8 +252,8 @@ function tasks_validate($task) {
  */
 function tasks_validate_status($status) {
     try {
-        foreach(Arrays::force($status) as $entry) {
-            switch($entry) {
+        foreach (Arrays::force($status) as $entry) {
+            switch ($entry) {
                 case 'new':
                     // FALLTHROUGH
                 case 'processing':

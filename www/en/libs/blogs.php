@@ -569,7 +569,7 @@ function blogs_update_post_status($blog, $params, $list, $status) {
                                 WHERE   `id`       = :id
                                 AND     `blogs_id` = :blogs_id');
 
-        foreach($list as $id) {
+        foreach ($list as $id) {
             $post = sql_get('SELECT `id`, `url`, `seoname`, `language`, `status` FROM `blogs_posts` WHERE `id` = :id', array(':id' => $id));
 
             if (!$post) {
@@ -589,7 +589,7 @@ function blogs_update_post_status($blog, $params, $list, $status) {
             /*
              * Update sitemap for the posts
              */
-            switch($status) {
+            switch ($status) {
                 case 'erased':
                     // FALLTHROUGH
                 case 'deleted':
@@ -832,7 +832,7 @@ function blogs_categories_select($params) {
             /*
              * Filter specified values.
              */
-            foreach($params['filter'] as $key => $value) {
+            foreach ($params['filter'] as $key => $value) {
                 if (!$value) continue;
 
                 $where            .= ' AND `'.$key.'` != :'.$key.' ';
@@ -889,7 +889,7 @@ function blogs_parents_select($params) {
          * Filter specified values.
          */
         if (!empty($params['filter'])) {
-            foreach($params['filter'] as $key => $value) {
+            foreach ($params['filter'] as $key => $value) {
                 if (!$value) continue;
 
                 $query            .= ' AND `'.$key.'` != :'.$key.' ';
@@ -964,8 +964,8 @@ function blogs_update_key_value_store($post, $limit_key_values) {
 
         if ($limit_key_values) {
 // :TODO: Implement
-            //foreach($limit_key_values as $data) {
-            //    foreach($post['key_values'] as $seokey => $seovalue) {
+            //foreach ($limit_key_values as $data) {
+            //    foreach ($post['key_values'] as $seokey => $seovalue) {
             //        if ($data['name'] == $seokey) {
             //            if (!empty($data['resource'])) {
             //                /*
@@ -998,7 +998,7 @@ function blogs_update_key_value_store($post, $limit_key_values) {
         $p = sql_prepare('INSERT INTO `blogs_key_values` (`blogs_id`, `blogs_posts_id`, `parent`, `key`, `seokey`, `value`, `seovalue`)
                           VALUES                         (:blogs_id , :blogs_posts_id , :parent , :key , :seokey , :value , :seovalue )');
 
-        foreach($post['key_values'] as $key => $values) {
+        foreach ($post['key_values'] as $key => $values) {
             if (!is_array($values)) {
                 $values = array($values);
             }
@@ -1006,7 +1006,7 @@ function blogs_update_key_value_store($post, $limit_key_values) {
             $parent = isset_get($values['parent']);
             unset($values['parent']);
 
-            foreach($values as $value) {
+            foreach ($values as $value) {
                 $p->execute(array(':blogs_id'       => $post['blogs_id'],
                                   ':blogs_posts_id' => $post['id'],
                                   ':parent'         => $parent,
@@ -1016,7 +1016,7 @@ function blogs_update_key_value_store($post, $limit_key_values) {
                                   ':seovalue'       => seo_create_string($value)));
             }
 
-            switch($key) {
+            switch ($key) {
                 case 'longitude':
                     // FALLTROUGH
                 case 'latitude':
@@ -1110,7 +1110,7 @@ function blogs_update_keywords($post) {
         $p = sql_prepare('INSERT INTO `blogs_keywords` (`blogs_id`, `blogs_posts_id`, `name`, `seoname`)
                           VALUES                       (:blogs_id , :blogs_posts_id , :name , :seoname )');
 
-        foreach(Arrays::force($post['keywords'], ',') as $keyword) {
+        foreach (Arrays::force($post['keywords'], ',') as $keyword) {
             if (strlen($keyword) < 2) continue;
 
             $p->execute(array(':blogs_id'       => $post['blogs_id'],
@@ -1137,7 +1137,7 @@ function blogs_clean_keywords($keywords, $allow_empty = false) {
 
         $retval = array();
 
-        foreach(Arrays::force($keywords) as $keyword) {
+        foreach (Arrays::force($keywords) as $keyword) {
             $retval[] = mb_trim($keyword);
         }
 
@@ -1165,7 +1165,7 @@ function blogs_seo_keywords($keywords) {
     try {
         $retval = array();
 
-        foreach(Arrays::force($keywords) as $keyword) {
+        foreach (Arrays::force($keywords) as $keyword) {
             $retval[] = seo_create_string($keyword);
         }
 
@@ -1489,7 +1489,7 @@ function blogs_validate_post($post, $params = null) {
                 }
 
             }catch(Exception $e) {
-                switch($e->getCode()) {
+                switch ($e->getCode()) {
                     case 'not-member':
                         // FALLTHROUGH
                     case 'not-specified':
@@ -1814,7 +1814,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null) {
         /*
          * Process all image types
          */
-        foreach($types as $type => $params) {
+        foreach ($types as $type => $params) {
             if ($params['method'] and (!empty($post[$type.'_x']) or !empty([$type.'_y']))) {
                 $params['x']      = $post[$type.'_x'];
                 $params['y']      = $post[$type.'_y'];
@@ -2089,7 +2089,7 @@ function blogs_photo_url($media, $size, $section = '') {
     try {
         load_libs('cdn');
 
-        switch($size) {
+        switch ($size) {
             case 'original':
                 // FALLTHROUGH
             case 'large':
@@ -2292,8 +2292,8 @@ function blogs_post_url($post) {
             $post['blog'] = sql_get('SELECT `seoname` FROM `blogs` WHERE `id` = :id', array(':id' => $post['blogs_id']), 'seoname');
         }
 
-        foreach($sections as $section) {
-            switch($section) {
+        foreach ($sections as $section) {
+            switch ($section) {
                 case 'seoparent':
                     $post[$section] = sql_get('SELECT `seoname` FROM `blogs_posts` WHERE `id` = :id', 'seoname', array(':id' => isset_get($post['parents_id'])));
                     break;
@@ -2419,7 +2419,7 @@ function blogs_update_urls($blogs = null, $category = null) {
             return $count;
         }
 
-        foreach(Arrays::force($blogs) as $blogname) {
+        foreach (Arrays::force($blogs) as $blogname) {
             try {
                 /*
                  * Get blog data either from ID or seoname
@@ -2562,7 +2562,7 @@ function blogs_post_erase($post) {
         if (is_array($post)) {
             $count = 0;
 
-            foreach($post as $id) {
+            foreach ($post as $id) {
                 $count += blogs_post_erase($id);
             }
 
@@ -2582,7 +2582,7 @@ function blogs_post_erase($post) {
         $r = sql_query('SELECT `file` FROM `blogs_media` WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $post));
 
         while ($media = sql_fetch($r)) {
-            foreach($_CONFIG['blogs']['images'] as $type => $image_config) {
+            foreach ($_CONFIG['blogs']['images'] as $type => $image_config) {
                 file_delete(ROOT.'data/content/'.$media['file'].'-'.$type.'.jpg', ROOT.'data/content/');
             }
         }
@@ -2688,7 +2688,7 @@ function blogs_post_up($id, $object, $view) {
         /*
          * Move post up in a list of items that are av ailable, deleted, etc?
          */
-        switch($view) {
+        switch ($view) {
             case 'available':
                 $where = ' AND `blogs_posts`.`status` IN ("published", "unpublished") ';
                 $join  = ' AND `higher`.`status`      IN ("published", "unpublished") ';
@@ -2789,7 +2789,7 @@ function blogs_post_down($id, $object, $view) {
         /*
          * Move post up in a list of items that are av ailable, deleted, etc?
          */
-        switch($view) {
+        switch ($view) {
             case 'available':
                 $where = ' AND `blogs_posts`.`status` IN ("published", "unpublished") ';
                 $join  = ' AND `lower`.`status`       IN ("published", "unpublished") ';
@@ -3063,8 +3063,8 @@ function blogs_get_location($posts_id) {
         /*
          * Return only location keys
          */
-        foreach($values as $key => $value) {
-            switch($key) {
+        foreach ($values as $key => $value) {
+            switch ($key) {
                 case 'accuracy':
                     // FALLTHROUGH
                 case 'latitude':
@@ -3130,8 +3130,8 @@ function blogs_update_location($posts_id, $geo) {
                                              `value`    = :update_value,
                                              `seovalue` = :update_seovalue');
 
-        foreach($geo as $key => $value) {
-            switch($key) {
+        foreach ($geo as $key => $value) {
+            switch ($key) {
                 case 'accuracy':
                     // FALLTHROUGH
                 case 'latitude':

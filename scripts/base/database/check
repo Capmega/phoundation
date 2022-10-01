@@ -23,7 +23,7 @@ try {
 
     log_console('MySQL check finished, parsing results');
 
-    foreach($results as $line => $value) {
+    foreach ($results as $line => $value) {
         if (strpos($value, 'dump/reload') !== false) {
             $fails[] = $results[$line - 1];
         }
@@ -40,7 +40,7 @@ try {
         if ($show) {
             log_console('Failed tables (database.table):', '', 'yellow');
 
-            foreach($fails as $name) {
+            foreach ($fails as $name) {
                 log_console($name, '', 'yellow');
             }
         }
@@ -51,7 +51,7 @@ try {
     /*
      * Start table repair
      */
-    foreach($fails as $name) {
+    foreach ($fails as $name) {
         try {
             $database = Strings::until($name, '.');
             $table    = str_from ($name, '.');

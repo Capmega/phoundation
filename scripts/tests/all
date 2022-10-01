@@ -18,7 +18,7 @@ $skiplist = array('.',
                   'all',
                   'empty'); // Empty is a template script, dont execute it!
 
-foreach(scandir($path) as $file) {
+foreach (scandir($path) as $file) {
     try {
         if (in_array($file, $skiplist)) continue;
 

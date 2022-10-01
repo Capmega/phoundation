@@ -15,7 +15,7 @@ function time_difference($start, $stop, $precision = 'auto', $decimals = 2) {
     try {
         $time  = cf($stop) - cf($start);
 
-        switch($precision) {
+        switch ($precision) {
             case 'second':
                 // FALLTHROUGH
             case 'seconds':
@@ -237,7 +237,7 @@ function time_validate($time, $format = false, $separator = ':') {
 function time_format($time, $format = 24, $separator = ':') {
     $time = time_validate($time);
 
-    switch($format) {
+    switch ($format) {
         case 12:
             /*
              * Go for 12H format

@@ -35,11 +35,11 @@ if (!empty($_GET['role'])) {
 
 
     if (!$db) {
-        html_flash_set(log_database(tr('Specified role "'.str_log($_GET['role']).'" does not exist'), 'role_not_exist'), 'error');
+        html_flash_set(log_database(tr('Specified role "'.Strings::Log($_GET['role']).'" does not exist'), 'role_not_exist'), 'error');
         redirect(domain('/admin/roles.php'));
     }
 
-    log_database(tr('View role "'.str_log($_GET['role']).'"'), 'role_view');
+    log_database(tr('View role "'.Strings::Log($_GET['role']).'"'), 'role_view');
 
     $role = array_merge($db, $role);
     unset($db);
@@ -95,7 +95,7 @@ try {
          * This role does not exist yet?
          */
         if (sql_get('SELECT `id` FROM `roles` WHERE `name` = :name', 'id', array(':name' => $role['name']))) {
-            throw new CoreException(tr('The role "%name%" already exists', '%name%', str_log($role['name'])), 'exists');
+            throw new CoreException(tr('The role "%name%" already exists', '%name%', Strings::Log($role['name'])), 'exists');
         }
 
         sql_query('INSERT INTO `roles` (`createdby`, `name`, `description`)
@@ -108,7 +108,7 @@ try {
         $role['id']     = sql_insert_id();
         $role['rights'] = s_update_rights($role);
 
-        html_flash_set(log_database(tr('Created role "%role%" with rights "%rights%"', array('%role%' => str_log($role['name']), '%rights%' => str_log(str_force($role['rights'])))), 'role_create'), 'success');
+        html_flash_set(log_database(tr('Created role "%role%" with rights "%rights%"', array('%role%' => Strings::Log($role['name']), '%rights%' => Strings::Log(str_force($role['rights'])))), 'role_create'), 'success');
 
         $role = array();
 
@@ -127,7 +127,7 @@ try {
          * This role does not exist yet?
          */
         if (sql_get('SELECT `name` FROM `roles` WHERE `name` = :name AND `id` != :id', 'name', array(':name' => $role['name'], ':id' => $role['id']))) {
-            throw new CoreException(tr('The role "%name%" already exists', '%name%', str_log($role['name'])), 'exists');
+            throw new CoreException(tr('The role "%name%" already exists', '%name%', Strings::Log($role['name'])), 'exists');
         }
 
 
@@ -182,10 +182,10 @@ try {
         /*
          * Done!
          */
-        html_flash_set(log_database('Updated role "'.str_log($role['name']).'" with rights "'.str_log(str_force($role['rights'])).'"', 'role_update'), 'success');
+        html_flash_set(log_database('Updated role "'.Strings::Log($role['name']).'" with rights "'.Strings::Log(str_force($role['rights'])).'"', 'role_update'), 'success');
 
         if ($r->rowCount()) {
-            html_flash_set(tr('Updated rights for "%count%" users with the role "%role%"', array('%count%' => $r->rowCount(), '%role%' => str_log($role['name']))), 'success');
+            html_flash_set(tr('Updated rights for "%count%" users with the role "%role%"', array('%count%' => $r->rowCount(), '%role%' => Strings::Log($role['name']))), 'success');
         }
 
         redirect(domain('/admin/role.php?role='.$role['name']));
@@ -216,7 +216,7 @@ $role['rights'] = Arrays::force(isset_get($role['rights']));
 $role['rights'] = array_unique($role['rights']);
 sort($role['rights']);
 
-foreach($role['rights'] as $right) {
+foreach ($role['rights'] as $right) {
     if (!$right) continue;
 
     $rights['selected'] = $right;
@@ -394,7 +394,7 @@ function s_update_rights($role) {
 
         $role_right = array(':roles_id' => $role['id']);
 
-        foreach(isset_get($role['rights']) as $key => $right) {
+        foreach (isset_get($role['rights']) as $key => $right) {
             if (!$right) {
                 unset($role['rights'][$key]);
                 continue;
@@ -406,7 +406,7 @@ function s_update_rights($role) {
                 /*
                  * This right does not exist! Skip it!
                  */
-                log_database('Tried adding non existing right "'.str_log($right).'" to role "'.str_log($role['name']).'", ignoring', 'role_invalid');
+                log_database('Tried adding non existing right "'.Strings::Log($right).'" to role "'.Strings::Log($role['name']).'", ignoring', 'role_invalid');
                 continue;
             }
 

@@ -110,7 +110,7 @@ function progress_validate_process($process) {
          * Validate process steps
          */
         if (!empty($process['steps'])) {
-            foreach($process['steps'] as $id => &$step) {
+            foreach ($process['steps'] as $id => &$step) {
                 if (!is_natural($id, 0)) {
                     $v->setError(tr('Step ":id" is invalid', array(':id' => $id)));
 
@@ -404,7 +404,7 @@ function progress_update_steps($processes_id, $steps) {
 
         sql_query('DELETE FROM `progress_steps`WHERE `processes_id` = :processes_id', array(':processes_id' => $processes_id));
 
-        foreach($steps as $id => $step) {
+        foreach ($steps as $id => $step) {
             $insert ->execute(array(':createdby'    => isset_get($_SESSION['user']['id']),
                                     ':meta_id'      => meta_action(),
                                     ':processes_id' => $processes_id,

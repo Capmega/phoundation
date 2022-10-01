@@ -25,7 +25,7 @@
         ///*
         // * Get all address components
         // */
-        //foreach($locations[0]['address_components'] as $component) {
+        //foreach ($locations[0]['address_components'] as $component) {
         //    $_SESSION['location']['components'][$component['types'][0]] = array('long_name'  => $component['long_name'],
         //                                                                        'short_name' => $component['short_name']);
         //}
@@ -44,8 +44,8 @@
         ///*
         // * Build city formatted address
         // */
-        //foreach($_SESSION['location']['components'] as $key => $value) {
-        //    switch($key) {
+        //foreach ($_SESSION['location']['components'] as $key => $value) {
+        //    switch ($key) {
         //        case 'country':
         //            $city['a']       = $value['short_name'];
         //            $address['a']    = $value['short_name'];
@@ -101,7 +101,7 @@
         //            /*
         //             * Ignore
         //             */
-        //            log_error('Unknown location component type "'.str_log($key).'" encountered');
+        //            log_error('Unknown location component type "'.Strings::Log($key).'" encountered');
         //    }
         //}
         //
@@ -133,7 +133,7 @@
 //$_GET['latitude']=36.0671636;
 //$_GET['longitude']=-115.0288261;
 
-        switch($_CONFIG['geo']['lookup']) {
+        switch ($_CONFIG['geo']['lookup']) {
             case 'geonames':
                 $_SESSION['location']['detected'] = array('latitude'  => $_GET['latitude'],
                                                           'longitude' => $_GET['longitude']);

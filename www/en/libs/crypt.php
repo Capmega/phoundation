@@ -63,7 +63,7 @@ function encrypt($data, $key, $method = null) {
     global $core;
 
     try {
-        switch($_CONFIG['crypt']['backend']) {
+        switch ($_CONFIG['crypt']['backend']) {
             case 'sodium':
                 $key  = crypt_pad_key($key);
                 $data = json_encode_custom($data);
@@ -114,7 +114,7 @@ function decrypt($data, $key, $method = null) {
         $backend = Strings::until($data, '^');
         $data    = str_from ($data, '^');
 
-        switch($core->register('crypt_backend')) {
+        switch ($core->register('crypt_backend')) {
             case 'sodium':
                 $data = sodium_decrypt($data, $key);
                 break;

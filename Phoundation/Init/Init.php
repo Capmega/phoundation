@@ -178,7 +178,7 @@ Class Init
                 /*
                  * ALWAYS First init framework, then project
                  */
-                foreach(array('framework', 'project') as $type) {
+                foreach (array('framework', 'project') as $type) {
                     log_console(tr('Starting ":type" init', array(':type' => $type)));
 
                     /*
@@ -194,7 +194,7 @@ Class Init
                     /*
                      * Cleanup and order list
                      */
-                    foreach($files as $key => $file) {
+                    foreach ($files as $key => $file) {
                         /*
                          * Skip garbage
                          */
@@ -217,7 +217,7 @@ Class Init
                     /*
                      * Go over each init file, see if it needs execution or not
                      */
-                    foreach($files as $file) {
+                    foreach ($files as $file) {
                         $version = $file;
                         $file    = $file.'.php';
 
@@ -311,7 +311,7 @@ Class Init
                 log_console('Removing data symlink or files in all languages', 'cyan');
 
                 if ($_CONFIG['language']['supported']) {
-                    foreach($_CONFIG['language']['supported'] as $language => $name) {
+                    foreach ($_CONFIG['language']['supported'] as $language => $name) {
                         file_delete(ROOT.'www/'.substr($language, 0, 2).'/data', ROOT.'www/'.substr($language, 0, 2));
                     }
                 }
@@ -322,9 +322,9 @@ Class Init
             log_console('Finished all', 'green');
 
         }catch(Exception $e) {
-            switch($e->getRealCode()) {
+            switch ($e->getRealCode()) {
                 case 'invalidforce':
-                    foreach($e->getMessages() as $message) {
+                    foreach ($e->getMessages() as $message) {
                         log_console($message);
                     }
 
@@ -361,7 +361,7 @@ Class Init
         global $_CONFIG, $core;
 
         try {
-            switch($core->register['real_script']) {
+            switch ($core->register['real_script']) {
                 case 'base/info':
                     // FALLTHROUGH
                 case 'base/init':
@@ -495,7 +495,7 @@ Class Init
 
             $version = explode('.', $version);
 
-            switch($part) {
+            switch ($part) {
                 case 'major':
                     $version[0]++;
                     break;
@@ -610,7 +610,7 @@ Class Init
             /*
              * Cleanup and order file list
              */
-            foreach($files as $key => $file) {
+            foreach ($files as $key => $file) {
                 /*
                  * Skip garbage
                  */
@@ -633,7 +633,7 @@ Class Init
             /*
              * Go over each init file, see if it needs execution or not
              */
-            foreach($files as $file) {
+            foreach ($files as $file) {
                 $version = $file;
                 $file    = $file.'.php';
 
@@ -789,7 +789,7 @@ Class Init
      */
     public static function get_highest_file_version($section) {
         try {
-            switch($section) {
+            switch ($section) {
                 case 'framework':
                     // FALLTHROUGH
                 case 'project':
@@ -810,7 +810,7 @@ Class Init
             $version = '0.0.0';
             $files   = scandir(ROOT.'init/'.$section);
 
-            foreach($files as $file) {
+            foreach ($files as $file) {
                 if (($file === '.') or ($file === '..')) {
                     continue;
                 }

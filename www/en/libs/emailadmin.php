@@ -79,7 +79,7 @@ function emailadmin_get($query, $column = null, $execute = null, $sql = 'sql') {
 
     }catch(Exception $e) {
         if (strtolower(substr(trim($query), 0, 6)) != 'select') {
-            throw new CoreException('emailadmin_get(): Query "'.str_log($query, 4096).'" is not a select query and as such cannot return results', $e);
+            throw new CoreException('emailadmin_get(): Query "'.Strings::Log($query, 4096).'" is not a select query and as such cannot return results', $e);
         }
 
         throw new CoreException('emailadmin_get(): Failed', $e);
@@ -111,7 +111,7 @@ function emailadmin_list($query, $column = null, $execute = null, $sql = 'sql') 
                 $retval[] = $row;
 
             } else {
-                switch(count($row)) {
+                switch (count($row)) {
                     case 1:
                         $retval[] = array_shift($row);
                         break;
@@ -130,7 +130,7 @@ function emailadmin_list($query, $column = null, $execute = null, $sql = 'sql') 
 
     }catch(Exception $e) {
         if (strtolower(substr(trim($query), 0, 6)) != 'select') {
-            throw new CoreException('emailadmin_list(): Query "'.str_log($query, 4096).'" is not a select query and as such cannot return results', $e);
+            throw new CoreException('emailadmin_list(): Query "'.Strings::Log($query, 4096).'" is not a select query and as such cannot return results', $e);
         }
 
         throw new CoreException('emailadmin_list(): Failed', $e);

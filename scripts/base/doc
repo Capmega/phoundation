@@ -60,7 +60,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('doc');
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'intro':
         /*
          * Show introduction on BASE
@@ -74,7 +74,7 @@ switch(cli_method()) {
         break;
 
     case 'list':
-        switch(cli_method(1)) {
+        switch (cli_method(1)) {
             case 'functions':
                 /*
                  * List available functions
@@ -107,7 +107,7 @@ switch(cli_method()) {
         break;
 
     case 'show':
-        switch(cli_method(1)) {
+        switch (cli_method(1)) {
             case 'library':
                 /*
                  * Show documentation on the specified library

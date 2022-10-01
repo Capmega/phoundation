@@ -122,7 +122,7 @@ function uglify_css($paths = null, $force = false) {
                 $languages = array($_CONFIG['language']['default'] => tr('Default'));
             }
 
-            foreach($languages as $code => $language) {
+            foreach ($languages as $code => $language) {
                 $paths[] = ROOT.'www/'.$code.'/pub/css/';
                 $paths[] = ROOT.'www/'.$code.'/admin/pub/css/';
             }
@@ -130,7 +130,7 @@ function uglify_css($paths = null, $force = false) {
             $paths = implode(',', $paths);
         }
 
-        foreach(Arrays::force($paths) as $path) {
+        foreach (Arrays::force($paths) as $path) {
             if (!file_exists($path)) continue;
 
             log_console(tr('uglify_css(): Minifying all CSS files in ":path"', array(':path' => $path)), 'VERBOSEDOT');
@@ -153,7 +153,7 @@ function uglify_css($paths = null, $force = false) {
              * on we dont have to worry about if source or target is min file or
              * not, etc.
              */
-            foreach(file_list_tree($path) as $file) {
+            foreach (file_list_tree($path) as $file) {
                 if (substr(Strings::fromReverse($file, '/'), 0, 7) === 'bundle-') {
                     continue;
                 }
@@ -178,7 +178,7 @@ function uglify_css($paths = null, $force = false) {
                 }
             }
 
-            foreach(file_list_tree($path) as $file) {
+            foreach (file_list_tree($path) as $file) {
                 if (substr(Strings::fromReverse($file, '/'), 0, 7) === 'bundle-') {
                     continue;
                 }
@@ -219,7 +219,7 @@ function uglify_css($paths = null, $force = false) {
                 //         */
                 //        if (!file_exists($path.$target)) {
                 //            if (VERBOSE) {
-                //                log_console('uglify_css(): Ignorning symlink "'.str_log($file).'" with non existing target "'.str_log($path.$target).'"', 'yellow');
+                //                log_console('uglify_css(): Ignorning symlink "'.Strings::Log($file).'" with non existing target "'.Strings::Log($path.$target).'"', 'yellow');
                 //            }
                 //
                 //            $processed[Strings::fromReverse($file, '/')] = true;
@@ -231,7 +231,7 @@ function uglify_css($paths = null, $force = false) {
                 //         */
                 //        if (!strstr($path.$target, Strings::untilReverse($file, '/'))) {
                 //            if (VERBOSE) {
-                //                log_console('uglify_css(): Found symlink "'.str_log($file).'" with target "'.str_log($target).'" that points to location outside symlink path, ensuring minimized version pointing to the same file', 'yellow');
+                //                log_console('uglify_css(): Found symlink "'.Strings::Log($file).'" with target "'.Strings::Log($target).'" that points to location outside symlink path, ensuring minimized version pointing to the same file', 'yellow');
                 //            }
                 //
                 //            if (file_exists(substr($file, 0, -4).'.min.css')) {
@@ -250,7 +250,7 @@ function uglify_css($paths = null, $force = false) {
                 //             * and make a minimized version
                 //             */
                 //            if (VERBOSE) {
-                //                log_console('uglify_css(): Found symlink "'.str_log($file).'" pointing to its minimized version. Switching files', 'yellow');
+                //                log_console('uglify_css(): Found symlink "'.Strings::Log($file).'" pointing to its minimized version. Switching files', 'yellow');
                 //            }
                 //
                 //            file_delete($file);
@@ -272,7 +272,7 @@ function uglify_css($paths = null, $force = false) {
                 //        }
                 //
                 //        if (VERBOSE) {
-                //            log_console('uglify_css(): Created minimized symlink for file "'.str_log($file).'"');
+                //            log_console('uglify_css(): Created minimized symlink for file "'.Strings::Log($file).'"');
                 //        }
                 //        file_delete(substr($file, 0, -4).'.min.css');
                 //        symlink($target, substr($file, 0, -4).'.min.css');
@@ -282,7 +282,7 @@ function uglify_css($paths = null, $force = false) {
                 //
                 //    } else {
                 //        if (VERBOSE) {
-                //            log_console('uglify_css(): Ignorning non css symlink "'.str_log($file).'"', 'yellow');
+                //            log_console('uglify_css(): Ignorning non css symlink "'.Strings::Log($file).'"', 'yellow');
                 //        }
                 //
                 //        $processed[Strings::fromReverse($file, '/')] = true;
@@ -486,7 +486,7 @@ function uglify_js($paths = null, $force = false) {
             $paths = ROOT.'www/'.LANGUAGE.'/pub/js/,'.ROOT.'www/'.LANGUAGE.'/admin/pub/js/';
         }
 
-        foreach(Arrays::force($paths) as $path) {
+        foreach (Arrays::force($paths) as $path) {
             if (!file_exists($path)) continue;
 
             log_console(tr('uglify_js(): Minifying all javascript files in ":path"', array(':path' => $path)), 'VERBOSEDOT');
@@ -509,7 +509,7 @@ function uglify_js($paths = null, $force = false) {
              * on we dont have to worry about if source or target is min file or
              * not, etc.
              */
-            foreach(file_list_tree($path) as $file) {
+            foreach (file_list_tree($path) as $file) {
                 if (is_link($file)) {
                     File::executeMode(dirname($file), 0770, function() use ($file) {
                         if (substr($file, -7, 7) == '.min.js') {
@@ -531,7 +531,7 @@ function uglify_js($paths = null, $force = false) {
             }
 
 
-            foreach(file_list_tree($path) as $file) {
+            foreach (file_list_tree($path) as $file) {
                 /*
                  * Update path for each file since the file may be in a sub directory
                  */
@@ -568,7 +568,7 @@ function uglify_js($paths = null, $force = false) {
     //                     */
     //                    if (!file_exists($path.$target)) {
     //                        if (VERBOSE) {
-    //                            log_console('uglify_js(): Ignorning symlink "'.str_log($file).'" with non existing target "'.str_log($path.$target).'"', 'yellow');
+    //                            log_console('uglify_js(): Ignorning symlink "'.Strings::Log($file).'" with non existing target "'.Strings::Log($path.$target).'"', 'yellow');
     //                        }
     //
     //                        $processed[Strings::fromReverse($file, '/')] = true;
@@ -580,7 +580,7 @@ function uglify_js($paths = null, $force = false) {
     //                     */
     //                    if (!strstr($path.$target, Strings::untilReverse($file, '/'))) {
     //                        if (VERBOSE) {
-    //                            log_console('uglify_js(): Found symlink "'.str_log($file).'" with target "'.str_log($target).'" that points to location outside symlink path, ensuring minimized version pointing to the same file', 'yellow');
+    //                            log_console('uglify_js(): Found symlink "'.Strings::Log($file).'" with target "'.Strings::Log($target).'" that points to location outside symlink path, ensuring minimized version pointing to the same file', 'yellow');
     //                        }
     //
     //                        if (file_exists(substr($file, 0, -3).'.min.js')) {
@@ -599,7 +599,7 @@ function uglify_js($paths = null, $force = false) {
     //                         * and make a minimized version
     //                         */
     //                        if (VERBOSE) {
-    //                            log_console('uglify_js(): Found symlink "'.str_log($file).'" pointing to its minimized version. Switching files', 'yellow');
+    //                            log_console('uglify_js(): Found symlink "'.Strings::Log($file).'" pointing to its minimized version. Switching files', 'yellow');
     //                        }
     //
     //                        file_delete($file);
@@ -621,7 +621,7 @@ function uglify_js($paths = null, $force = false) {
     //                    }
     //
     //                    if (VERBOSE) {
-    //                        log_console('uglify_js(): Created minimized symlink for file "'.str_log($file).'"');
+    //                        log_console('uglify_js(): Created minimized symlink for file "'.Strings::Log($file).'"');
     //                    }
     //                    file_delete(substr($file, 0, -3).'.min.js');
     //                    symlink($target, substr($file, 0, -3).'.min.js');
@@ -631,7 +631,7 @@ function uglify_js($paths = null, $force = false) {
     //
     //                } else {
     //                    if (VERBOSE) {
-    //                        log_console('uglify_js(): Ignorning non js symlink "'.str_log($file).'"', 'yellow');
+    //                        log_console('uglify_js(): Ignorning non js symlink "'.Strings::Log($file).'"', 'yellow');
     //                    }
     //
     //                    $processed[Strings::fromReverse($file, '/')] = true;

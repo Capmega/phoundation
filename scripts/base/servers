@@ -92,7 +92,7 @@ try {
     cli_only();
     load_libs('servers,ssh');
 
-    switch(cli_method()) {
+    switch (cli_method()) {
         case 'add':
             $port      = not_empty(cli_argument('--port,-p', true), ssh_get_port());
             $register  = cli_argument('--register,-r');
@@ -114,7 +114,7 @@ try {
                 throw new CoreException(tr('No server(s) specified to add'), 'warning/not-specified');
             }
 
-            foreach($domains as $domain) {
+            foreach ($domains as $domain) {
                 try {
                     servers_insert(array('domain'      => $domain,
                                          'port'        => $port,
@@ -241,7 +241,7 @@ try {
             /*
              * Get a list of all servers so we can delete them in an atomic action
              */
-            foreach($list as $requested) {
+            foreach ($list as $requested) {
                 $server = servers_like($requested);
                 $server = servers_get($server, false, false, 'id');
 
@@ -275,7 +275,7 @@ try {
             $list    = cli_arguments();
             cli_no_arguments_left();
 
-            foreach($list as $requested) {
+            foreach ($list as $requested) {
                 $server = servers_get($requested);
 
                 if (!$server) {
@@ -285,7 +285,7 @@ try {
                 $servers[] = $server;
             }
 
-            foreach($servers as $server) {
+            foreach ($servers as $server) {
                 $count++;
                 servers_erase($server);
             }
@@ -453,7 +453,7 @@ try {
             break;
 
         case 'proxies':
-            switch(cli_method(1)) {
+            switch (cli_method(1)) {
                 case 'insert':
                     load_libs('proxies');
                     $root_domain   = cli_argument(2);
@@ -483,7 +483,7 @@ try {
                     try {
                         proxies_insert($root_domain, $new_domain, $target_domain, $location, $protocols);
                     }catch(Exception $e) {
-                        switch(Strings::from($e->getCode(), '/')) {
+                        switch (Strings::from($e->getCode(), '/')) {
                             case 'invalid':
                                 $e->makeWarning(true);
                         }
@@ -543,13 +543,13 @@ try {
 
             ksort($server);
 
-            foreach($server as $key => $value) {
+            foreach ($server as $key => $value) {
                 if ($key == 'password') continue;
                 log_console(cli_color($key.':', 'white').' '.json_encode_custom($value));
             }
 
             if ($domains) {
-                foreach($domains as $key => $domain) {
+                foreach ($domains as $key => $domain) {
                     if ($key) {
                         log_console(cli_color('domain aliases: ', 'white').$domain);
 
@@ -580,7 +580,7 @@ try {
                 $requested = servers_like($requested);
                 $server    = servers_get($requested, true);
 
-                switch($test) {
+                switch ($test) {
                     case 'ssh':
                         if (!$server['ssh_accounts_id']) {
                             throw new CoreException(tr('Skipped SSH access test for server ":server", the server does not have an SSH account assigned', array(':server' => $anchor)), 'warning');
@@ -620,7 +620,7 @@ try {
                 }
 
             }catch(Exception $e) {
-                switch($e->getCode()) {
+                switch ($e->getCode()) {
                     case 'host-verification-missing':
                         throw new CoreException(tr('SSH acces test failed for server ":server" because the host key verification showed this hosts key missing. Add the server to the known_hosts file first (currently only possible with executing "./scripts/base/ssh register :domain")', array(':server' => $anchor, ':domain' => $domain)), 'warning/failed');
 
@@ -650,7 +650,7 @@ try {
     }
 
 }catch(Exception $e) {
-    switch($e->getRealCode()) {
+    switch ($e->getRealCode()) {
         case 'not-exists':
             // FALLTHROUGH
         case 'multiple':

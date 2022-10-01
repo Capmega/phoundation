@@ -57,7 +57,7 @@ if (empty($_GET['provider'])) {
 	}catch(Exception $e) {
 		echo '<h1>Login with provider "'.$_GET['provider'].'" failed</h1><ul>';
 
-		foreach($e->getMessages() as $message) {
+		foreach ($e->getMessages() as $message) {
 			echo '<li>'.$message.'<li>';
 		}
 

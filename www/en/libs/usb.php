@@ -57,7 +57,7 @@ function usb_list($libusb = null, $server = null) {
         $results = servers_exec(array('commands' => array('lsusb')));
         $devices = array();
 
-        foreach($results as $result) {
+        foreach ($results as $result) {
             //Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
             preg_match('/Bus (\d{3}) Device (\d{3}): ID ([0-9a-f]{4}):([0-9a-f]{4}) (.+)/', $result, $matches);
 
@@ -123,7 +123,7 @@ function usb_scan($regex_filter, $server = null) {
         /*
          * Divide the result lines into USB devices
          */
-        foreach($results as $result) {
+        foreach ($results as $result) {
             $result = trim($result);
 
             if ($result) {
@@ -144,7 +144,7 @@ function usb_scan($regex_filter, $server = null) {
             }
         }
 
-        foreach($devices as $devices) {
+        foreach ($devices as $devices) {
             //Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
             $found = preg_match($regex_filter, $devices, $matches);
 

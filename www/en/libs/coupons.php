@@ -448,7 +448,7 @@ function coupons_add_coupon($code, $new_amount = 0) {
                 }
 
             } else {
-                switch($coupon['status']) {
+                switch ($coupon['status']) {
                     case 'used':
                         html_flash_set(tr('You already used this coupon ":coupon"', array(':coupon' => $code)), 'warning/used');
                         break;

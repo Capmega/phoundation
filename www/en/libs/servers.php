@@ -151,7 +151,7 @@ function servers_validate($server, $structure_only = false, $password_strength =
         if ($server['domains']) {
             $server['domains'] = Arrays::force($server['domains'], "\n");
 
-            foreach($server['domains'] as &$domain) {
+            foreach ($server['domains'] as &$domain) {
                 $domain = trim($domain);
                 $v->isDomain($domain, tr('The domain ":domain" is invalid', array(':domain' => $domain)));
 
@@ -554,7 +554,7 @@ function servers_update_domains($server, $domains = null) {
         $insert = sql_prepare('INSERT INTO `domains_servers` (`createdby`, `meta_id`, `domains_id`, `servers_id`)
                                VALUES                        (:createdby , :meta_id , :domains_id , :servers_id )', 'core');
 
-        foreach($domains as $domain) {
+        foreach ($domains as $domain) {
             /*
              * Get the $domains_id. If the domain doesn't exist, auto add it.
              */
@@ -647,7 +647,7 @@ function servers_remove_domain($server, $domain = null) {
              */
             $domains = servers_list_domains($server);
 
-            foreach($domains as $domain) {
+            foreach ($domains as $domain) {
                 servers_remove_domain($server, $domain);
             }
 
@@ -891,7 +891,7 @@ function servers_register_host($server) {
         $server  = servers_get($server);
         $domains = servers_list_domains($server);
 
-        foreach($domains as $domain) {
+        foreach ($domains as $domain) {
             $server  = servers_get($domain);
             $entries = ssh_add_known_host($server['domain'], $server['port']);
 
@@ -927,7 +927,7 @@ function servers_unregister_host($server) {
         $server  = servers_get($server);
         $domains = servers_list_domains($server);
 
-        foreach($domains as $domain) {
+        foreach ($domains as $domain) {
             $server  = servers_get($domain);
             $entries = ssh_add_known_host($server['domain'], $server['port']);
 
@@ -1415,7 +1415,7 @@ function servers_detect_os($domain) {
 
         $group = trim(strtolower($matches[0]));
 
-        switch($group) {
+        switch ($group) {
             case 'debian':
                 $release = servers_exec($domain, array('commands' => array('cat', array('/etc/issue'))));
                 break;

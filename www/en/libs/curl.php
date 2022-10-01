@@ -63,7 +63,7 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
             throw new CoreException(tr('curl_get_proxy(): No proxy server URL(s) specified'), 'not-specified');
         }
 
-        log_console(tr('Using proxy ":proxy"', array(':proxy' => Strings::cut((str_log($serverurl), '://', '/'))), 'VERBOSE');
+        log_console(tr('Using proxy ":proxy"', array(':proxy' => Strings::cut((Strings::Log($serverurl), '://', '/'))), 'VERBOSE');
 
         $data = curl_get(array('url'        => Strings::endsWith($serverurl, '?apikey='.$_CONFIG['curl']['apikey'].'&url=').urlencode($url),
                                'getheaders' => false,
@@ -74,7 +74,7 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
         }
 
         if (substr($data['data'], 0, 12) !== 'PROXY_RESULT') {
-            throw new CoreException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', array(':data' => str_log($data), ':proxy' => Strings::cut((str_log($serverurl), '://', '/'))), 'not-specified');
+            throw new CoreException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', array(':data' => Strings::Log($data), ':proxy' => Strings::cut((Strings::Log($serverurl), '://', '/'))), 'not-specified');
         }
 
         $data         = substr($data['data'], 12);
@@ -152,7 +152,7 @@ function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
             $options = $options | FILTER_FLAG_IPV4;
         }
 
-        foreach($matches[1] as $ip) {
+        foreach ($matches[1] as $ip) {
             if (!$ip) {
                 continue;
             }
@@ -298,7 +298,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
              * Check if we're sending files. If so, use multipart
              */
             if (is_array($params['post'])) {
-                foreach($params['post'] as $post) {
+                foreach ($params['post'] as $post) {
                     if (is_object($post) and ($post instanceof CURLFile)) {
                         $multipart = true;
                         break;
@@ -400,7 +400,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
             if ($params['method']) {
                 $params['method'] = strtoupper($params['method']);
 
-                switch($params['method']) {
+                switch ($params['method']) {
                     case 'POST':
                         // FALLTHROUGH
                     case 'HEAD':
@@ -515,7 +515,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
          * Apply more cURL options
          */
         if ($params['options']) {
-            foreach($params['options'] as $key => $value) {
+            foreach ($params['options'] as $key => $value) {
                 curl_setopt($ch, $key, $value);
             }
         }
@@ -548,7 +548,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
 
             $retval['status'] = curl_getinfo($ch);
 
-            foreach($retval['status'] as $key => $value) {
+            foreach ($retval['status'] as $key => $value) {
                 log_console(cli_color($key.' : ', 'white').str_force($value));
             }
         }
@@ -607,7 +607,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
                             ':data_update' => json_encode_custom($retval)));
         }
 
-        switch($retval['status']['http_code']) {
+        switch ($retval['status']['http_code']) {
             case 200:
                 break;
 

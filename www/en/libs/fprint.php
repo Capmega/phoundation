@@ -287,7 +287,7 @@ function fprint_process() {
  */
 function fprint_verify_finger($finger) {
     try {
-        switch($finger) {
+        switch ($finger) {
             case 'auto':
                 return '';
 
@@ -529,7 +529,7 @@ function fprint_process_result() {
 
     Arrays::ensure($fprint, 'result');
 
-    switch($fprint['result']) {
+    switch ($fprint['result']) {
         case '':
             /*
              * Nothing happened yet

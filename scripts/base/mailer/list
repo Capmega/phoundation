@@ -19,7 +19,7 @@ try {
 
     if (!$list = mailer_list($status, '`id`, `name`, `addedon`, `starton`, `startedon`, `finishedon`, `status`')) {
         if ($status) {
-            log_console('There currently are no mailers for this project with the status "'.str_log($status).'"', '', 'yellow');
+            log_console('There currently are no mailers for this project with the status "'.Strings::Log($status).'"', '', 'yellow');
 
         } else {
             log_console('There currently are no mailers for this project', '', 'yellow');
@@ -28,11 +28,11 @@ try {
     } else {
         log_console('#id   Name                   Status           Added on             Start on              Started on              Finished on             Sent / Total   ', '', 'white');
 
-        foreach($list as $id => $data) {
+        foreach ($list as $id => $data) {
             $all   = mailer_get_recipientcount($id);
             $sent  = mailer_get_recipientcount($id, 'sent');
 
-            switch($data['status']) {
+            switch ($data['status']) {
                 case 'finished':
                     $color = 'green';
                     break;

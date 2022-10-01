@@ -59,7 +59,7 @@ if ($table) {
     /*
      * Reload the table
      */
-//log_console('Dropping table "'.str_log($table).'" database "'.str_log($database).'"', 'dropload');
+//log_console('Dropping table "'.Strings::Log($table).'" database "'.Strings::Log($database).'"', 'dropload');
 //safe_exec('mysql -u '.$user.' -p'.$password.' -e \'DROP TABLE '.$database.'.'.$table.'\'');
 
     log_console('Reloading table ":table" from database ":database"', array(':table' => $table, ':database' => $database), 'cyan');
@@ -69,7 +69,7 @@ if ($table) {
     /*
      * Reload the database
      */
-//log_console('Dropping database "'.str_log($database).'"', 'dropload');
+//log_console('Dropping database "'.Strings::Log($database).'"', 'dropload');
 //safe_exec('mysql -u '.$user.' -p'.$password.' -e \'DROP DATABASE '.$database.'\'');
 
     log_console(tr('Reloading database ":database"', array(':database' => $database)), 'cyan');

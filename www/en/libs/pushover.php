@@ -30,7 +30,7 @@ function pushover_send_msg($user, $params) {
         }
 
         if ($user = 'all') {
-            foreach($_CONFIG['pushover']['users'] as $user => $preferences) {
+            foreach ($_CONFIG['pushover']['users'] as $user => $preferences) {
                 /*
                  * Prepare the message
                  */

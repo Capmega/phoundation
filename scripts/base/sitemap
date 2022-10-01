@@ -56,7 +56,7 @@ if (empty($_CONFIG['sitemap']['enabled'])) {
     die(1);
 }
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'clear':
         /*
          * Clear sitemap database.
@@ -110,7 +110,7 @@ switch(cli_method()) {
         break;
 
     case 'list':
-        switch(cli_method(1)) {
+        switch (cli_method(1)) {
             case 'files':
                 $id    = 0;
                 $files = sitemap_list_files();
@@ -124,7 +124,7 @@ switch(cli_method()) {
                 } else {
                     log_console(str_size(tr('#id'), 6).' '.str_size(tr('Language'), 8).' '.str_size(tr('File'), 24).' '.str_size(tr('Path'), 80), 'QUIET/cyan');
 
-                    foreach($files as $file) {
+                    foreach ($files as $file) {
                         log_console(str_size($id++, 6).' '.str_size($file['language'], 8).' '.str_size($file['file'], 24).' '.str_size($file['path'], 80));
                     }
                 }
@@ -186,7 +186,7 @@ switch(cli_method()) {
                 $languages = array(LANGUAGE => LANGUAGE);
             }
 
-            foreach($languages as $language_code => $language_name) {
+            foreach ($languages as $language_code => $language_name) {
                 /*
                  * Check if there are updates for each language
                  */
@@ -233,7 +233,7 @@ switch(cli_method()) {
             log_console(tr('Generated sitemap file with ":count" entries', array(':count' => $count)), 'green');
 
         }catch(Exception $e) {
-            switch($e->getRealCode()) {
+            switch ($e->getRealCode()) {
                 case 'not-available':
                     // FALLTHROUGH
                 case 'not-specified':

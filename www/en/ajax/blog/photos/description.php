@@ -14,7 +14,7 @@ try {
     json_reply();
 
 }catch(Exception $e) {
-    switch($e->getCode()) {
+    switch ($e->getCode()) {
         case 'unknown':
             json_error(tr('Unknown photo id specified'));
             break;

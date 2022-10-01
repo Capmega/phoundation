@@ -71,7 +71,7 @@ try {
     /*
      * Execute the command
      */
-    switch($params['function']) {
+    switch ($params['function']) {
         case 'exec':
             log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), $color);
             $lastline = exec($params['commands'], $output, $exitcode);

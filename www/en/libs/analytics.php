@@ -67,7 +67,7 @@ function analytics($sites_id, $provider = null) {
             $provider = $_CONFIG['analytics']['provider'];
         }
 
-        switch($provider) {
+        switch ($provider) {
             case 'google':
                 return analytics_google($sites_id);
 

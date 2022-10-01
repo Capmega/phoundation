@@ -37,7 +37,7 @@ cclass Users
                      * Fetch user data from DB, then treat it as an array
                      */
                     if (!$user = sql_get('SELECT `nickname`, `name`, `username`, `email` FROM `users` WHERE `id` = :id', array(':id' => $user))) {
-                        throw new OutOfBoundsException('name(): Specified user id ":id" does not exist', array(':id' => str_log($user)), 'not-exists');
+                        throw new OutOfBoundsException('name(): Specified user id ":id" does not exist', array(':id' => Strings::Log($user)), 'not-exists');
                     }
                 }
 

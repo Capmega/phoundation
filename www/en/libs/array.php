@@ -80,7 +80,7 @@ function array_params(&$params, $string_key = null, $numeric_key = null, $defaul
  */
 function array_next_key(&$array, $currentkey, $delete = false) {
     try {
-        foreach($array as $key => $value) {
+        foreach ($array as $key => $value) {
             if (isset($next)) {
                 if ($delete) {
                     unset($array[$key]);
@@ -103,7 +103,7 @@ function array_next_key(&$array, $currentkey, $delete = false) {
             /*
              * The currentvalue was found, but it was at the end of the array
              */
-            throw new CoreException(tr('array_next_key(): Found currentkey ":value" but it was the last item in the array, there is no next', array(':value' => str_log($currentvalue))), '');
+            throw new CoreException(tr('array_next_key(): Found currentkey ":value" but it was the last item in the array, there is no next', array(':value' => Strings::Log($currentvalue))), '');
         }
 
     }catch(Exception $e) {
@@ -120,7 +120,7 @@ function array_next_key(&$array, $currentkey, $delete = false) {
  */
 function array_next_value(&$array, $currentvalue, $delete = false, $restart = false) {
     try {
-        foreach($array as $key => $value) {
+        foreach ($array as $key => $value) {
             if (isset($next)) {
                 if ($delete) {
                     unset($array[$key]);
@@ -216,9 +216,9 @@ function array_key_check($source, $keys) {
             throw new CoreException(tr('array_key_check(): Specified source should be an array, but is a ":type"', array(':type' => gettype($source))), 'invalid');
         }
 
-        foreach(Arrays::force($keys) as $key) {
+        foreach (Arrays::force($keys) as $key) {
             if (!array_key_exists($key, $source)) {
-                throw new CoreException(tr('array_key_check(): Key ":key" was not specified in array', array(':key' => str_log($key))), 'not_specified');
+                throw new CoreException(tr('array_key_check(): Key ":key" was not specified in array', array(':key' => Strings::Log($key))), 'not_specified');
             }
         }
 
@@ -259,7 +259,7 @@ function array_from_object($object, $recurse = true) {
 
         $retval = array();
 
-        foreach($object as $key => $value) {
+        foreach ($object as $key => $value) {
             if (is_object($value) and $recurse) {
                 $value = array_from_object($value, true);
             }
@@ -338,7 +338,7 @@ function array_implode_with_keys($source, $row_separator, $key_separator, $auto_
 
         $retval = array();
 
-        foreach($source as $key => $value) {
+        foreach ($source as $key => $value) {
             if (is_array($value)) {
                 /*
                  * Recurse?
@@ -382,14 +382,14 @@ function array_merge_complete() {
         $retval = array();
         $count  = 0;
 
-        foreach($arguments as $argk => $argv) {
+        foreach ($arguments as $argk => $argv) {
             $count++;
 
             if (!is_array($argv)) {
-                throw new CoreException(tr('array_merge_complete(): Specified argument ":count" is not an array', array(':count' => str_log($count))));
+                throw new CoreException(tr('array_merge_complete(): Specified argument ":count" is not an array', array(':count' => Strings::Log($count))));
             }
 
-            foreach($argv as $key => $value) {
+            foreach ($argv as $key => $value) {
                 if (is_array($value) and array_key_exists($key, $retval) and is_array($retval[$key])) {
                     $retval[$key] = array_merge_complete($retval[$key], $value);
 
@@ -449,7 +449,7 @@ function array_filter_values($source, $values) {
             throw new CoreException(tr('array_filter_values(): Specified source is not an array'), 'invalid');
         }
 
-        foreach(Arrays::force($values) as $value) {
+        foreach (Arrays::force($values) as $value) {
             if (($key = array_search($value, $source)) !== false) {
                 unset($source[$key]);
             }
@@ -498,7 +498,7 @@ function array_sequential_keys($source, $base_keyname, $filter_null = false, $nu
         $i      = 0;
         $retval = array();
 
-        foreach($source as $value) {
+        foreach ($source as $value) {
             /*
              * Regard all "null" and "NULL" strings as NULL
              */
@@ -536,7 +536,7 @@ function array_keep($source, $keys) {
     try {
         $retval = array();
 
-        foreach(Arrays::force($keys) as $key) {
+        foreach (Arrays::force($keys) as $key) {
             if (array_key_exists($key, $source)) {
                 $retval[$key] = $source[$key];
             }
@@ -556,7 +556,7 @@ function array_keep($source, $keys) {
  */
 function array_remove($source, $keys) {
     try {
-        foreach(Arrays::force($keys) as $key) {
+        foreach (Arrays::force($keys) as $key) {
             unset($source[$key]);
         }
 
@@ -581,7 +581,7 @@ function array_from(&$source, $from_key, $delete = false, $skip = true) {
         $retval = array();
         $add    = false;
 
-        foreach($source as $key => $value) {
+        foreach ($source as $key => $value) {
             if (!$add) {
                 if ($key == $from_key) {
                     if ($delete) {
@@ -629,7 +629,7 @@ function array_until($source, $until_key, $delete = false) {
 
         $retval = array();
 
-        foreach($source as $key => $value) {
+        foreach ($source as $key => $value) {
             if ($key == $until_key) {
                 break;
             }
@@ -665,7 +665,7 @@ function array_merge_keys_values($keys, $values) {
 
         $retval = array();
 
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             if (!isset($next)) {
                 $next = true;
                 $retval[$key] = reset($values);
@@ -696,7 +696,7 @@ function array_prefix($source, $prefix, $auto = false) {
         $count  = 0;
         $retval = array();
 
-        foreach($source as $key => $value) {
+        foreach ($source as $key => $value) {
             if ($auto) {
                 $retval[$prefix.$count++] = $value;
 
@@ -723,7 +723,7 @@ function array_find($array, $keyword) {
     try {
         $retval = array();
 
-        foreach($array as $key => $value) {
+        foreach ($array as $key => $value) {
             if (is_string($value)) {
                 if (strpos($value, $keyword) !== false) {
                     $retval[$key] = $value;
@@ -747,7 +747,7 @@ function array_copy_clean($target, $source, $skip = 'id') {
     try {
         $skip = Arrays::force($skip);
 
-        foreach($source as $key => $value) {
+        foreach ($source as $key => $value) {
             if (in_array($key, $skip)) continue;
 
             if (is_string($value)) {
@@ -774,7 +774,7 @@ function array_get_column($source, $column) {
     try {
         $retval = array();
 
-        foreach($source as $id => $value) {
+        foreach ($source as $id => $value) {
             if (array_key_exists($column, $value)) {
                 $retval[] = $value[$column];
             }
@@ -798,7 +798,7 @@ function array_extract_first($source, $keys) {
             throw new CoreException(tr('array_extract(): Specified source is not an array'));
         }
 
-        foreach(Arrays::force($keys) as $key) {
+        foreach (Arrays::force($keys) as $key) {
             if (!empty($source[$key])) {
                 return $source[$key];
             }
@@ -835,7 +835,7 @@ function array_value_to_keys($source) {
 
         $retval = array();
 
-        foreach($source as $value) {
+        foreach ($source as $value) {
             if (!is_scalar($value)) {
                 throw new CoreException(tr('array_value_to_keys(): Specified source array contains non scalar values, cannot use non scalar values for the keys'));
             }
@@ -884,7 +884,7 @@ function array_not_null(&$source1, $source2) {
     try {
         $modified = false;
 
-        foreach($source1 as $key => $value) {
+        foreach ($source1 as $key => $value) {
             if ($value === null) {
                 $source1[$key] = isset_get($source2[$key]);
                 $modified      = true;
@@ -907,7 +907,7 @@ function array_average($source) {
     try {
         $total = 0;
 
-        foreach($source as $key => $value) {
+        foreach ($source as $key => $value) {
             $total += $value;
         }
 
@@ -957,8 +957,8 @@ function array_range($min, $max) {
  */
 function array_clean($source, $recursive = true) {
     try {
-        foreach($source as &$value) {
-            switch(gettype($value)) {
+        foreach ($source as &$value) {
+            switch (gettype($value)) {
                 case 'integer':
                     // FALLTHROUGH
                 case 'double':
@@ -1007,7 +1007,7 @@ function array_clean($source, $recursive = true) {
  */
 function array_all($source, $function) {
     try {
-        foreach($source as $key => $value) {
+        foreach ($source as $key => $value) {
             if (!$function($value)) {
                 return false;
             }
@@ -1040,7 +1040,7 @@ function array_all($source, $function) {
  */
 function array_any($source, $function) {
     try {
-        foreach($source as $key => $value) {
+        foreach ($source as $key => $value) {
             if ($function($value)) {
                 return true;
             }
@@ -1102,7 +1102,7 @@ function array_pluck($source, $regex) {
     try {
         $retval = array();
 
-        foreach($source as $key => $value) {
+        foreach ($source as $key => $value) {
             if (is_string($value)) {
                 if (preg_match($regex, $value)) {
                     $retval[$key] = $value;
@@ -1142,8 +1142,8 @@ function array_merge_null() {
         $args   = func_get_args();
         $retval = array();
 
-        foreach($args as $array) {
-            foreach($array as $key => $value) {
+        foreach ($args as $array) {
+            foreach ($array as $key => $value) {
                 if (!isset($retval[$key]) or ($value !== null)) {
                     $retval[$key] = $value;
                 }
@@ -1187,8 +1187,8 @@ function array_hide($source, $keys = 'GLOBALS,%pass,ssh_key', $hide = '*** HIDDE
 
         $keys = Arrays::force($keys);
 
-        foreach($source as $source_key => &$source_value) {
-            foreach($keys as $key) {
+        foreach ($source as $source_key => &$source_value) {
+            foreach ($keys as $key) {
                 /*
                  *
                  */

@@ -94,7 +94,7 @@ function base58_install($params) {
  */
 function base58_encode($source, $reduced = false) {
     try {
-        switch($reduced) {
+        switch ($reduced) {
             case false:
                 $alphabet = '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
                 break;
@@ -131,7 +131,7 @@ function base58_encode($source, $reduced = false) {
  */
 function base58_decode($base58, $reduced = false) {
     try {
-        switch($reduced) {
+        switch ($reduced) {
             case false:
                 $alphabet = '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
                 break;

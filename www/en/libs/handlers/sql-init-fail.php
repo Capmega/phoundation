@@ -2,7 +2,7 @@
     /*
      *
      */
-    switch($e->getCode()) {
+    switch ($e->getCode()) {
         case 1049:
             if (empty($connector)) {
                 throw new CoreException(tr('sql_init(): Database reported that database does not exist, but no connector data is available'), 'not-exist');

@@ -204,7 +204,7 @@ try {
      * This is a 400, 403, 404, 500, 503, etc page.
      * Ensure at least that we're not returning HTML if a different type of file was requested.
      */
-    switch($this->register['accepts']) {
+    switch ($this->register['accepts']) {
         case 'text/html':
             /*
              * Show the standard HTML system page

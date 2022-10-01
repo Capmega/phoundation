@@ -91,7 +91,7 @@ function cdn_delete_files($list, $column = 'file') {
         /*
          * Delete files from each CDN server
          */
-        foreach($servers as $server => $files) {
+        foreach ($servers as $server => $files) {
             $files['project'] = PROJECT;
             $api_account      = cdn_get_api_account($server);
 
@@ -103,7 +103,7 @@ function cdn_delete_files($list, $column = 'file') {
          */
         $delete = sql_prepare('DELETE FROM `cdn_files` WHERE `file` = :file');
 
-        foreach($files as $file) {
+        foreach ($files as $file) {
             /*
              * Delete this file from the cdn_files table
              */

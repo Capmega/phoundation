@@ -14,7 +14,7 @@
  */
 function help($section) {
     try {
-        switch($section) {
+        switch ($section) {
             case 'system':
                 log_console('System options:', 'white');
                 echo load_content('help/system')."\n";

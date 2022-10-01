@@ -130,7 +130,7 @@ function sql_query($query, $execute = null, $connector_name = null) {
                 /*
                  * Check execute array for possible problems
                  */
-                foreach($execute as $key => &$value) {
+                foreach ($execute as $key => &$value) {
                     if (!is_scalar($value) and !is_null($value)) {
                         throw new CoreException(tr('sql_query(): Specified key ":value" in the execute array for query ":query" is NOT scalar! Value is ":value"', array(':key' => str_replace(':', '.', $key), ':query' => str_replace(':', '.', $query), ':value' => str_replace(':', '.', $value))), 'invalid');
                     }
@@ -318,7 +318,7 @@ function sql_get($query, $single_column = null, $execute = null, $connector_name
         }
 
         if ((strtolower(substr(trim($query), 0, 6)) !== 'select') and (strtolower(substr(trim($query), 0, 4)) !== 'show')) {
-            throw new CoreException('sql_get(): Query "'.str_log(debug_sql($query, $execute, true), 4096).'" is not a select or show query and as such cannot return results', $e);
+            throw new CoreException('sql_get(): Query "'.Strings::Log(debug_sql($query, $execute, true), 4096).'" is not a select or show query and as such cannot return results', $e);
         }
 
         throw new CoreException('sql_get(): Failed', $e);
@@ -357,7 +357,7 @@ function sql_list($query, $execute = null, $numerical_array = false, $connector_
                 $retval[] = $row;
 
             } else {
-                switch($numerical_array ? 0 : count($row)) {
+                switch ($numerical_array ? 0 : count($row)) {
                     case 0:
                         /*
                          * Force numerical array
@@ -758,14 +758,14 @@ function sql_columns($source, $columns){
         $columns = Arrays::force($columns);
         $retval  = array();
 
-        foreach($source as $key => $value){
+        foreach ($source as $key => $value){
             if (in_array($key, $columns)){
                 $retval[] = '`'.$key.'`';
             }
         }
 
         if (!count($retval)){
-            throw new CoreException('sql_columns(): Specified source contains non of the specified columns "'.str_log(implode(',', $columns)).'"');
+            throw new CoreException('sql_columns(): Specified source contains non of the specified columns "'.Strings::Log(implode(',', $columns)).'"');
         }
 
         return implode(', ', $retval);
@@ -791,7 +791,7 @@ function sql_columns($source, $columns){
 //        $filter  = Arrays::force($filter);
 //        $retval  = array();
 //
-//        foreach($source as $key => $value){
+//        foreach ($source as $key => $value){
 //            /*
 //             * Add all in columns, but not in filter (usually to skip the id column)
 //             */
@@ -800,14 +800,14 @@ function sql_columns($source, $columns){
 //            }
 //        }
 //
-//        foreach($filter as $item){
+//        foreach ($filter as $item){
 //            if (!isset($source[$item])){
-//                throw new CoreException('sql_set(): Specified filter item "'.str_log($item).'" was not found in source', 'not-exists');
+//                throw new CoreException('sql_set(): Specified filter item "'.Strings::Log($item).'" was not found in source', 'not-exists');
 //            }
 //        }
 //
 //        if (!count($retval)){
-//            throw new CoreException('sql_set(): Specified source contains non of the specified columns "'.str_log(implode(',', $columns)).'"', 'empty');
+//            throw new CoreException('sql_set(): Specified source contains non of the specified columns "'.Strings::Log(implode(',', $columns)).'"', 'empty');
 //        }
 //
 //        return implode(', ', $retval);
@@ -839,7 +839,7 @@ function sql_values($source, $columns, $prefix = ':'){
         $columns = Arrays::force($columns);
         $retval  = array();
 
-        foreach($source as $key => $value){
+        foreach ($source as $key => $value){
             if (in_array($key, $columns) or ($key == 'id')){
                 $retval[$prefix.$key] = $value;
             }
@@ -1006,7 +1006,7 @@ function sql_filters($params, $columns, $table = ''){
 
         $filters = array_keep($params, $columns);
 
-        foreach($filters as $key => $value){
+        foreach ($filters as $key => $value){
             $safe_key = str_replace('`.`', '_', $key);
 
             if ($value === null){
@@ -1074,7 +1074,7 @@ function sql_in_columns($in, $column_starts_with = null){
             /*
              * Only return those columns that start with this string
              */
-            foreach($in as $key => $column){
+            foreach ($in as $key => $column){
                 if (substr($key, 0, strlen($column_starts_with)) !== $column_starts_with){
                     unset($in[$key]);
                 }
@@ -1195,7 +1195,7 @@ function sql_fetch_column($r, $column){
         $row = sql_fetch($r);
 
         if (!isset($row[$column])){
-            throw new CoreException('sql_fetch_column(): Specified column "'.str_log($column).'" does not exist', $e);
+            throw new CoreException('sql_fetch_column(): Specified column "'.Strings::Log($column).'" does not exist', $e);
         }
 
         return $row[$column];
@@ -1262,7 +1262,7 @@ function sql_merge($database_entry, $post, $skip = null){
          * Copy all POST variables over DB
          * Skip POST variables that have NULL value
          */
-        foreach($post as $key => $value){
+        foreach ($post as $key => $value){
             if (in_array($key, $skip)){
                 continue;
             }
@@ -2042,7 +2042,7 @@ function sql_simple_where($column, $values, $not = false, $extra = null){
         if (is_array($values)){
             $values = sql_in($values);
 
-            foreach($values as $key => $value){
+            foreach ($values as $key => $value){
                 if (($value === null) or ($value === 'null') or ($value === 'NULL')){
                     unset($values[$key]);
                     $extra = ' OR '.($table ? '`'.$table.'`.' : '').'`'.$column.'` IS '.$not.' NULL ';
@@ -2149,7 +2149,7 @@ function sql_get_where_string($filters, &$execute, $table, $combine = null){
         /*
          * Build the where section from the specified filters
          */
-        foreach($filters as $key => $value){
+        foreach ($filters as $key => $value){
             /*
              * Any entry with value BOOLEAN FALSE will not be considered. this
              * way we have a simple way to skip keys if needed
@@ -2176,7 +2176,7 @@ function sql_get_where_string($filters, &$execute, $table, $combine = null){
              * # will allow arrays
              */
             while (true){
-                switch($key[0]){
+                switch ($key[0]){
                     case '*':
                         /*
                          * Do not use value, key only
@@ -2238,7 +2238,7 @@ function sql_get_where_string($filters, &$execute, $table, $combine = null){
                          */
                         $key = substr($key, 1);
 
-                        switch($comparison){
+                        switch ($comparison){
                             case '<':
                                 $comparison = '>=';
                                 $not        = '';
@@ -2410,7 +2410,7 @@ function sql_get_columns_string($columns, $table){
 
         $columns = Arrays::force($columns);
 
-        foreach($columns as $id => &$column){
+        foreach ($columns as $id => &$column){
             if (!$column){
                 unset($columns[$id]);
                 continue;
@@ -2471,14 +2471,14 @@ function sql_get_orderby_string($orderby){
             throw new CoreException(tr('sql_get_orderby_string(): Specified orderby ":orderby" should be an array but is a ":datatype"', array(':orderby' => $orderby, ':datatype' => gettype($orderby))), 'invalid');
         }
 
-        foreach($orderby as $column => $direction){
+        foreach ($orderby as $column => $direction){
             if (!is_string($direction)){
                 throw new CoreException(tr('sql_get_orderby_string(): Specified orderby direction ":direction" for column ":column" is invalid, it should be a string', array(':direction' => $direction, ':column' => $column)), 'invalid');
             }
 
             $direction = strtoupper($direction);
 
-            switch($direction){
+            switch ($direction){
                 case 'ASC':
                     // FALLTHOGUH
                 case 'DESC':
@@ -2566,7 +2566,7 @@ function sql_simple_list($params){
         /*
          * Execute query and return results
          */
-        switch($params['method']){
+        switch ($params['method']){
             case 'resource':
                 /*
                  * Return a query instead of a list array
@@ -2671,7 +2671,7 @@ function sql_simple_get($params){
              */
             $retval = array();
 
-            foreach($params['columns'] as $column){
+            foreach ($params['columns'] as $column){
                 $retval[$column] = null;
             }
         }

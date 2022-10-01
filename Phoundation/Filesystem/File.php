@@ -73,7 +73,7 @@ class File
             self::checkReadable($source, 'target', $e);
         }
 
-        foreach($sources as $source) {
+        foreach ($sources as $source) {
             try {
                 $source_h = fopen($source, 'r');
             } catch (Throwable $e) {
@@ -332,7 +332,7 @@ class File
             /*
              * Assign path in multiple dirs, like a/b/c/d/e/
              */
-            foreach(str_split(substr(uniqid(), -$length, $length)) as $char) {
+            foreach (str_split(substr(uniqid(), -$length, $length)) as $char) {
                 $path .= DIRECTORY_SEPARATOR.$char;
             }
         }
@@ -387,7 +387,7 @@ class File
     {
         // Multiple paths specified, clear all
         if (is_array($paths)) {
-            foreach($paths as $path) {
+            foreach ($paths as $path) {
                 file_clear_path($path, $restrictions);
             }
 
@@ -709,7 +709,7 @@ class File
         /*
          * Delete all specified patterns
          */
-        foreach($patterns as $pattern) {
+        foreach ($patterns as $pattern) {
             /*
              * Restrict pattern access
              */
@@ -776,7 +776,7 @@ class File
          */
         $pattern = Arrays::force($pattern, '*');
 
-        foreach($pattern as &$item) {
+        foreach ($pattern as &$item) {
             $item = escapeshellarg($item);
         }
 
@@ -913,7 +913,7 @@ class File
                 $source      = Strings::slash($source);
                 $destination = Strings::slash($destination);
 
-                foreach(scandir($source) as $file) {
+                foreach (scandir($source) as $file) {
                     if (($file == '.') or ($file == '..')) {
                         /*
                          * Only replacing down
@@ -1018,7 +1018,7 @@ class File
                      */
                     $doreplace = false;
 
-                    foreach($extensions as $extension) {
+                    foreach ($extensions as $extension) {
                         $len = strlen($extension);
 
                         if (!substr($source, -$len, $len) != $extension) {
@@ -1037,7 +1037,7 @@ class File
                 } else {
                     $data = file_get_contents($source);
 
-                    foreach($search as $id => $svalue) {
+                    foreach ($search as $id => $svalue) {
                         if ((substr($svalue, 0, 1 == '/')) and (substr($svalue, -1, 1 == '/'))) {
                             /*
                              * Do a regex search / replace
@@ -1151,7 +1151,7 @@ class File
             throw new OutOfBoundsException(tr('No path specified'));
         }
 
-        foreach(Arrays::force($path) as $path) {
+        foreach (Arrays::force($path) as $path) {
             $restrictions->apply($path, $restrictions);
 
             $arguments      = array();
@@ -1183,7 +1183,7 @@ class File
      */
     public static function systemPath(string $type, string $path = ''): string
     {
-        switch($type) {
+        switch ($type) {
             case 'img':
                 // FALLTHROUGH
             case 'image':
@@ -1547,7 +1547,7 @@ class File
             /*
              * Check the mimetype data
              */
-            switch($primary) {
+            switch ($primary) {
                 case 'text':
                     /*
                      * Readonly
@@ -1555,7 +1555,7 @@ class File
                     return false;
 
                 default:
-                    switch($secondary) {
+                    switch ($secondary) {
                         case 'json':
                             // FALLTHROUGH
                         case 'ld+json':
@@ -1633,7 +1633,7 @@ class File
                 return true;
 
             } else {
-                switch($secondary) {
+                switch ($secondary) {
                     case 'jpeg':
                         // FALLTHROUGH
                     case 'mpeg':
@@ -1645,9 +1645,9 @@ class File
                         return true;
 
                     default:
-                        switch($primary) {
+                        switch ($primary) {
                             case 'audio':
-                                switch($secondary) {
+                                switch ($secondary) {
                                     case 'mpeg':
                                         // FALLTHROUGH
                                     case 'ogg':
@@ -1868,7 +1868,7 @@ class File
                 throw new FilesystemException(tr('file_tree(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
             }
 
-            switch($method) {
+            switch ($method) {
                 case 'size':
                     // FALLTHROUGH
                 case 'count':
@@ -1881,14 +1881,14 @@ class File
             $retval = 0;
             $path   = Strings::slash($path);
 
-            foreach(scandir($path) as $file) {
+            foreach (scandir($path) as $file) {
                 if (($file == '.') or ($file == '..')) continue;
 
                 if (is_dir($path.$file)) {
                     $retval += file_tree($path.$file, $method);
 
                 } else {
-                    switch($method) {
+                    switch ($method) {
                         case 'size':
                             $retval += filesize($path.$file);
                             break;
@@ -2311,7 +2311,7 @@ class File
             /*
              * Filter this path?
              */
-            foreach(Arrays::force($params['filters']) as $filter) {
+            foreach (Arrays::force($params['filters']) as $filter) {
                 if (preg_match($filter, $path)) {
                     if (VERBOSE and PLATFORM_CLI) {
                         log_console(tr('file_tree_execute(): Skipping file ":file" because of filter ":filter"', array(':file' => $path, ':filter' => $filter)), 'yellow');
@@ -2324,7 +2324,7 @@ class File
             $count = 0;
             $type  = file_type($path);
 
-            switch($type) {
+            switch ($type) {
                 case 'regular file':
                     $params['callback']($path);
                     $count++;
@@ -2364,7 +2364,7 @@ class File
 
                             $type = file_type($file);
 
-                            switch($type) {
+                            switch ($type) {
                                 case 'link':
                                     if (!$params['follow_symlinks']) {
                                         continue 2;
@@ -2388,7 +2388,7 @@ class File
                                          */
                                         $skip = false;
 
-                                        foreach(Arrays::force($params['filters']) as $filter) {
+                                        foreach (Arrays::force($params['filters']) as $filter) {
                                             if (preg_match($filter, $file)) {
                                                 if (VERBOSE and PLATFORM_CLI) {
                                                     log_console(tr('file_tree_execute(): Skipping file ":file" because of filter ":filter"', array(':file' => $path, ':filter' => $filter)), 'yellow');
@@ -2551,7 +2551,7 @@ class File
                     $paths = cli_find(array('type'  => 'd',
                         'start' => $path));
 
-                    foreach($paths as $subpath) {
+                    foreach ($paths as $subpath) {
                         $modes[$subpath] = fileperms($subpath);
                         chmod($subpath, $mode);
                     }
@@ -2593,7 +2593,7 @@ class File
              */
             if ($mode) {
                 if ($multi) {
-                    foreach($modes as $subpath => $mode) {
+                    foreach ($modes as $subpath => $mode) {
                         /*
                          * Path may have been deleted by the callback (for example,
                          * a file_delete() call may have cleaned up the path) so
@@ -2675,7 +2675,7 @@ class File
                 /*
                  * Execute search / replaces
                  */
-                foreach($replaces as $search => $replace) {
+                foreach ($replaces as $search => $replace) {
                     $data = preg_replace($search, $replace, $data);
                 }
 
@@ -2862,7 +2862,7 @@ class File
 
             $path = Strings::endsNotWith(Strings::startsNotWith($path, '/'), '/');
 
-            foreach(explode('/', $path) as $section) {
+            foreach (explode('/', $path) as $section) {
                 $location .= $section;
 
                 if (!file_exists($location)) {
@@ -3088,7 +3088,7 @@ class File
                  * against a restriction "/test" and having it fail because of the
                  * missing slash at the end
                  */
-                foreach($restrictions as &$restriction) {
+                foreach ($restrictions as &$restriction) {
                     if ($restriction === false) {
                         return false;
                     }
@@ -3112,7 +3112,7 @@ class File
              */
             $keys = array('source', 'target', 'source_path', 'source_path', 'path');
 
-            foreach($keys as $key) {
+            foreach ($keys as $key) {
                 if (isset($params[$key])) {
                     /*
                      * All these must be tested

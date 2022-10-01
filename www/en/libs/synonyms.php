@@ -40,10 +40,10 @@ function synonym($source, $params = array()) {
         if (!empty($params['synonyms'])) {
             $params['synonyms'] = Arrays::force($params['synonyms']);
 
-            foreach($params['synonyms'] as $list) {
+            foreach ($params['synonyms'] as $list) {
                 $list = Arrays::force($list);
 
-                foreach($list as $synonym) {
+                foreach ($list as $synonym) {
                     if (mt_rand(0, 100) < $params['chance']) {
                         $source = preg_replace('/\b'.$synonym.'\b/imus', array_get_random($list), $source);
                     }
@@ -60,7 +60,7 @@ function synonym($source, $params = array()) {
             $retval    = '';
 
             if (preg_match_all('/(\W*)(\w+)(\W*)/imus', $source, $matches)) {
-                foreach($matches[2] as $id => $match) {
+                foreach ($matches[2] as $id => $match) {
                     if (strlen($match) >= $minlength) {
                         if (mt_rand(0, 100) < $params['chance']) {
                             if (!in_array(strtolower($match), $params['skip'])) {
@@ -136,7 +136,7 @@ function synonym_random($count = 1, $nospaces = false) {
         }
 
         if ($nospaces) {
-            foreach($data as $key => &$value) {
+            foreach ($data as $key => &$value) {
                 $value = str_replace(' ', $nospaces, $value);
             }
 

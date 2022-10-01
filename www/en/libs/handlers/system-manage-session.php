@@ -126,7 +126,7 @@ try {
      * NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain]
      * must be one of "auto" or ".auto"
      */
-    switch($_CONFIG['sessions']['domain']) {
+    switch ($_CONFIG['sessions']['domain']) {
         case false:
             /*
              * This domain has no cookies
@@ -216,7 +216,7 @@ try {
                 /*
                  * Setup session handlers
                  */
-                switch($_CONFIG['sessions']['handler']) {
+                switch ($_CONFIG['sessions']['handler']) {
                     case false:
                         file_ensure_path(ROOT.'data/cookies/');
                         ini_set('session.save_path', ROOT.'data/cookies/');

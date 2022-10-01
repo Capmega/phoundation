@@ -66,7 +66,7 @@ $p  = sql_prepare('INSERT INTO `rights` (`name`, `description`)
 
 $rights = array('ip_lock' => 'This right will lock the only allowed signin IP to the IP of this user (only if configured so)');
 
-foreach($rights as $name => $description) {
+foreach ($rights as $name => $description) {
     $p->execute(array(':name'        => $name,
                       ':description' => $description));
 }

@@ -196,7 +196,7 @@ if (cli_argument('list')) {
         /*
          * List deployment targets
          */
-        foreach($_CONFIG['deploy'] as $target => $config) {
+        foreach ($_CONFIG['deploy'] as $target => $config) {
             log_console($target);
         }
 
@@ -204,18 +204,18 @@ if (cli_argument('list')) {
         /*
          * List deployment categories
          */
-        foreach($_CONFIG['deploy'] as $target => $config) {
+        foreach ($_CONFIG['deploy'] as $target => $config) {
             if (empty($config['categories'])) continue;
             $categories = array();
 
-            foreach(Arrays::force($config['categories']) as $category) {
+            foreach (Arrays::force($config['categories']) as $category) {
                 $categories[] = $category;
             }
         }
 
         array_unique($categories);
 
-        foreach($categories as $category) {
+        foreach ($categories as $category) {
             log_console($category);
         }
     }
@@ -315,8 +315,8 @@ if (!$targets) {
     /*
      * Get the targets from the specified categories
      */
-    foreach(Arrays::force($categories) as $category) {
-        foreach($_CONFIG['deploy'] as $target => $deploy) {
+    foreach (Arrays::force($categories) as $category) {
+        foreach ($_CONFIG['deploy'] as $target => $deploy) {
             if (empty($deploy['categories'])) continue;
 
             $deploy['categories'] = Arrays::force($deploy['categories']);
@@ -337,7 +337,7 @@ if (!$targets) {
 /*
  *
  */
-foreach($categories as $category) {
+foreach ($categories as $category) {
     if (substr($category, 0, 1) == '-') {
         throw new CoreException(tr('Invalid category ":category" specified', array(':category' => $category)), 'warning/invalid');
     }
@@ -469,7 +469,7 @@ if ($nosyntax) {
         throw new CoreException('No php files found.', 'warning/validation');
     }
 
-    foreach($output as $file) {
+    foreach ($output as $file) {
         if (substr($file, 0, 7) == './data/') {
             /*
              * Do not check PHP files in ROOT/data
@@ -538,7 +538,7 @@ if ($noversion or $notag) {
     passthru('cd '.ROOT.'; git tag -am "['.PROJECT.' / '.$newversion.'] '.$message.'" '.$newversion.';', $exitcode);
 
     if ($exitcode) {
-        throw new CoreException('Git tagging failed with exit code "'.str_log($exitcode).'"', 'warning/git');
+        throw new CoreException('Git tagging failed with exit code "'.Strings::Log($exitcode).'"', 'warning/git');
     }
 
     init_hook('deploy_post_tag', $nohooks, array('exitcode' => $exitcode));
@@ -563,7 +563,7 @@ if ($nopush or $ignore_changes) {
     passthru('cd '.ROOT.'; git push origin '.$branch.' && git push origin '.$branch.' --tags', $exitcode);
 
     if ($exitcode) {
-        throw new CoreException('Git push failed with exit code "'.str_log($exitcode).'"', 'warning/git');
+        throw new CoreException('Git push failed with exit code "'.Strings::Log($exitcode).'"', 'warning/git');
     }
 
     init_hook('deploy_post_push', $nohooks, array('exitcode' => $exitcode));
@@ -690,20 +690,20 @@ if ($notouch) {
 
 
 
-foreach($targets as $target_environment) {
+foreach ($targets as $target_environment) {
     if (!preg_match('/^[a-z0-9]+$/', $target_environment)) {
-        throw new CoreException('Invalid target environment name "'.str_log($target_environment).'" specified, can only contain alphanumeric characters', 'warning/invalid');
+        throw new CoreException('Invalid target environment name "'.Strings::Log($target_environment).'" specified, can only contain alphanumeric characters', 'warning/invalid');
     }
 
     if (empty($_CONFIG['deploy'][$target_environment])) {
-        throw new CoreException('Unknown target environment "'.str_log($target_environment).'" specified', 'warning/unknown');
+        throw new CoreException('Unknown target environment "'.Strings::Log($target_environment).'" specified', 'warning/unknown');
     }
 
     /*
      * Ensure that target environment configuration file is available.
      */
     if (!file_exists(ROOT.'config/'.$target_environment.'.php')) {
-        throw new CoreException('Target environment "'.str_log($target_environment).'" has no configuration file', 'warning/validation');
+        throw new CoreException('Target environment "'.Strings::Log($target_environment).'" has no configuration file', 'warning/validation');
     }
 
     $deploy_config                         = $_CONFIG['deploy'][$target_environment];
@@ -783,7 +783,7 @@ foreach($targets as $target_environment) {
          */
         $files = array();
 
-        foreach($output as $line) {
+        foreach ($output as $line) {
             if (preg_match('/(.*?):.*?load_content\s*\(\s*\'(.*?)\'\s*,/i', $line, $matches)) {
                 /*
                  * Skip function definitions, comments, etc.
@@ -802,19 +802,19 @@ foreach($targets as $target_environment) {
         /*
          * Ensure content file availability
          */
-        foreach($files as $file => $definedin) {
+        foreach ($files as $file => $definedin) {
             if (substr($definedin, 0, 14) == 'scripts/tests/') {
                 continue;
             }
 
             if ($_CONFIG['language']['supported']) {
-                foreach($_CONFIG['language']['supported'] as $code => $language) {
+                foreach ($_CONFIG['language']['supported'] as $code => $language) {
                     log_console(tr('Searching for file ":file" on ":target"', array(':file' => $file, ':target' => $deploy_config['target_server'])));
 
                     exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'ls '.($file = $deploy_config['target_dir'].'data/content/'.$code.'/'.$file.'.html').' 2>&1 /dev/null\'', $contentoutput, $return);
 
                     if ($return) {
-                        throw new CoreException('Missing content file "'.str_log($file).'" for language "'.str_log($language).'", defined in "'.$definedin.'"', 'warning/validation');
+                        throw new CoreException('Missing content file "'.Strings::Log($file).'" for language "'.Strings::Log($language).'", defined in "'.$definedin.'"', 'warning/validation');
                     }
                 }
             }
@@ -859,7 +859,7 @@ foreach($targets as $target_environment) {
          */
         while (!preg_match('/^20\d{6}-\d{6}$/', $continuersync)) {
             if (!preg_match('/^'.Strings::fromReverse($deploy_config['target_dir'], '/').'~20\d{6}-\d{6}\/?$/', $continuersync)) {
-                throw new CoreException(tr('The specified continuersync option "'.str_log($continuersync).'" is invalid, it should be in the Ymd-His format, or targetpath~Ymd-His'), 'warning/invalid');
+                throw new CoreException(tr('The specified continuersync option "'.Strings::Log($continuersync).'" is invalid, it should be in the Ymd-His format, or targetpath~Ymd-His'), 'warning/invalid');
             }
 
             $continuersync = Strings::until(Strings::from($continuersync, '~'), '/');
@@ -980,21 +980,21 @@ foreach($targets as $target_environment) {
         }
 
         if ($deploy_config['include_dirs']) {
-            foreach($deploy_config['include_dirs'] as $key => $dir) {
+            foreach ($deploy_config['include_dirs'] as $key => $dir) {
                 $include .= ' --include="'.$dir.'" ';
             }
         }
 
         if (!$send_content_texts) {
             if ($_CONFIG['language']['supported']) {
-                foreach($_CONFIG['language']['supported'] as $code => $language) {
+                foreach ($_CONFIG['language']['supported'] as $code => $language) {
                     $exclude .= ' --exclude="data/content/'.$code.'" ';
                 }
             }
         }
 
         if ($_CONFIG['language']['supported']) {
-            foreach($_CONFIG['language']['supported'] as $code => $language) {
+            foreach ($_CONFIG['language']['supported'] as $code => $language) {
                 if (!$send_sitemap) {
                     $exclude .= ' --exclude="www/'.$code.'/sitemap*" ';
                 }
@@ -1004,7 +1004,7 @@ foreach($targets as $target_environment) {
         }
 
         if ($deploy_config['exclude_dirs']) {
-            foreach($deploy_config['exclude_dirs'] as $key => $dir) {
+            foreach ($deploy_config['exclude_dirs'] as $key => $dir) {
                 $exclude .= ' --exclude="'.$dir.'" ';
             }
         }
@@ -1019,7 +1019,7 @@ foreach($targets as $target_environment) {
         exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'mkdir -p '.$deploy_config['target_dir'].'/data/system 2> /dev/null; '.$sudo.'touch '.$deploy_config['target_dir'].'/data/system/last-deploy\'', $contentoutput, $return);
 
         if ($exitcode and !$ignore_rsync_errors) {
-            throw new CoreException('Rsync failed with exit code "'.str_log($exitcode).'"', 'warning/rsync');
+            throw new CoreException('Rsync failed with exit code "'.Strings::Log($exitcode).'"', 'warning/rsync');
         }
 
         init_hook('deploy_post_deploy', $nohooks, array('target_user'    => $deploy_config['target_user'],
@@ -1047,7 +1047,7 @@ foreach($targets as $target_environment) {
         }
 
         if ($exitcode) {
-            throw new CoreException('fix-structure failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
+            throw new CoreException('fix-structure failed with exit code "'.Strings::Log($exitcode).'"', 'warning/failed');
         }
 
         init_hook('deploy_post_structure', $nohooks, array('target_user'   => $deploy_config['target_user'],
@@ -1106,14 +1106,14 @@ foreach($targets as $target_environment) {
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'mv '.$deploy_config['target_dir'].' '.$deploy_config['target_dir'].$tilde.'_old; '.$sudo.'mv '.$deploy_config['target_dir'].$tilde.' '.$deploy_config['target_dir'].'\'', $exitcode);
 
         if ($exitcode) {
-            throw new CoreException('Moving new version in place failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
+            throw new CoreException('Moving new version in place failed with exit code "'.Strings::Log($exitcode).'"', 'warning/failed');
         }
 
         log_console(tr('Deleting old version'), 'white');
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'rm '.$deploy_config['target_dir'].$tilde.'_old -rf\'', $exitcode);
 
         if ($exitcode) {
-            throw new CoreException('Deleting old version in place failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
+            throw new CoreException('Deleting old version in place failed with exit code "'.Strings::Log($exitcode).'"', 'warning/failed');
         }
     }
 
@@ -1130,7 +1130,7 @@ foreach($targets as $target_environment) {
         passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/init --env '.$target_environment.' \'', $exitcode);
 
         if ($exitcode) {
-            throw new CoreException('Target version init failed with exit code "'.str_log($exitcode).'"', 'warning/init');
+            throw new CoreException('Target version init failed with exit code "'.Strings::Log($exitcode).'"', 'warning/init');
         }
 
         init_hook('deploy_post_init', $nohooks, array('target_user'     => $deploy_config['target_user'],
@@ -1153,27 +1153,27 @@ foreach($targets as $target_environment) {
     //    passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap scan --env '.$target_environment.' \'', $exitcode);
     //
     //    if ($exitcode) {
-    //        throw new CoreException('Target sitemap scan failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_scan');
+    //        throw new CoreException('Target sitemap scan failed with exit code "'.Strings::Log($exitcode).'"', 'target_sitemap_scan');
     //    }
     //
     //    if ($_CONFIG['language']['supported']) {
-    //        foreach($_CONFIG['language']['supported'] as $language) {
+    //        foreach ($_CONFIG['language']['supported'] as $language) {
     //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap deploy   html '.$language.' --env '.$target_environment.' \'', $exitcode);
     //
     //            if ($exitcode) {
-    //                throw new CoreException('Target sitemap HTML build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_html');
+    //                throw new CoreException('Target sitemap HTML build failed with exit code "'.Strings::Log($exitcode).'"', 'target_sitemap_html');
     //            }
     //
     //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap deploy    xml '.$language.' --env '.$target_environment.' \'', $exitcode);
     //
     //            if ($exitcode) {
-    //                throw new CoreException('Target sitemap XML build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_xml');
+    //                throw new CoreException('Target sitemap XML build failed with exit code "'.Strings::Log($exitcode).'"', 'target_sitemap_xml');
     //            }
     //
     //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap deploy robots '.$language.' --env '.$target_environment.' \'', $exitcode);
     //
     //            if ($exitcode) {
-    //                throw new CoreException('Target sitemap robots build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_robots');
+    //                throw new CoreException('Target sitemap robots build failed with exit code "'.Strings::Log($exitcode).'"', 'target_sitemap_robots');
     //            }
     //        }
     //    }
@@ -1213,7 +1213,7 @@ foreach($targets as $target_environment) {
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/cache clear --env '.$target_environment.'\'', $exitcode);
 
         if ($exitcode) {
-            throw new CoreException('Cache clear failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
+            throw new CoreException('Cache clear failed with exit code "'.Strings::Log($exitcode).'"', 'warning/failed');
         }
     }
 

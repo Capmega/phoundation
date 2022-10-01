@@ -37,7 +37,7 @@ if (empty($_CONFIG['security']['signin']['ip_lock'])) {
                                 <h2 class="panel-title">'.tr('IP Locks').'</h2>
                             </header>
                             <div class="panel-body">
-                                <p>'.tr('IP locking has been configured to use the static IP "'.str_log($_CONFIG['security']['signin']['ip_lock']).'", see $_CONFIG[security][signin][ip_lock]').'</p>
+                                <p>'.tr('IP locking has been configured to use the static IP "'.Strings::Log($_CONFIG['security']['signin']['ip_lock']).'", see $_CONFIG[security][signin][ip_lock]').'</p>
                             </div>
                         </section>
                     </div>
@@ -48,7 +48,7 @@ if (empty($_CONFIG['security']['signin']['ip_lock'])) {
      * Use a dynamic IP, updated by users with ip_lcok right
      */
     try {
-        switch(isset_get($_POST['action'])) {
+        switch (isset_get($_POST['action'])) {
             case '':
                 break;
 
@@ -63,7 +63,7 @@ if (empty($_CONFIG['security']['signin']['ip_lock'])) {
                 load_libs('validate');
 
                 if (!filter_var($_POST['ip'], FILTER_VALIDATE_IP)) {
-                    throw new CoreException(tr('The specified IP "'.str_log($_POST['ip']).'" is not valid'), 'invalid');
+                    throw new CoreException(tr('The specified IP "'.Strings::Log($_POST['ip']).'" is not valid'), 'invalid');
                 }
 
                 /*
@@ -75,7 +75,7 @@ if (empty($_CONFIG['security']['signin']['ip_lock'])) {
                            array(':createdby' => $_SESSION['user']['id'],
                                  ':ip'        => $_POST['ip']));
 
-                html_flash_set(log_database('Updated IP lock to specified IP "'.str_log($_POST['ip']).'"', 'ip_locks_updated'), 'success');
+                html_flash_set(log_database('Updated IP lock to specified IP "'.Strings::Log($_POST['ip']).'"', 'ip_locks_updated'), 'success');
                 redirect(true);
 
             case 'current':
@@ -88,7 +88,7 @@ if (empty($_CONFIG['security']['signin']['ip_lock'])) {
                            array(':createdby' => $_SESSION['user']['id'],
                                  ':ip'        => $_SERVER['REMOTE_ADDR']));
 
-                html_flash_set(log_database('Updated IP lock to current IP "'.str_log($_SERVER['REMOTE_ADDR']).'"', 'ip_locks_updated'), 'success');
+                html_flash_set(log_database('Updated IP lock to current IP "'.Strings::Log($_SERVER['REMOTE_ADDR']).'"', 'ip_locks_updated'), 'success');
                 redirect(true);
 
             case 'erase':
@@ -119,7 +119,7 @@ if (empty($_CONFIG['security']['signin']['ip_lock'])) {
                 /*
                  * Unknown action specified
                  */
-                html_flash_set(tr('Unknown action "%action%" specified', '%action%', str_log($_POST['action'])), 'error');
+                html_flash_set(tr('Unknown action "%action%" specified', '%action%', Strings::Log($_POST['action'])), 'error');
         }
 
     }catch(Exception $e) {

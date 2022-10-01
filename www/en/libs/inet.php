@@ -248,7 +248,7 @@ function inet_get_subdomain($domain = null, $root = null, $ignore_start = 'cdn,a
             if ($ignore_start) {
                 $ignore_start = Arrays::force($ignore_start);
 
-                foreach($ignore_start as $value) {
+                foreach ($ignore_start as $value) {
                     if (substr($subdomain, 0, strlen($value)) == $value) {
                         return false;
                     }
@@ -315,7 +315,7 @@ function inet_add_query($url) {
             throw new OutOfBoundsException(tr('inet_add_query(): No queries specified'), 'not-specified');
         }
 
-        foreach($queries as $query) {
+        foreach ($queries as $query) {
             if (!$query) continue;
 
             if (is_string($query) and strstr($query, '&')) {
@@ -323,7 +323,7 @@ function inet_add_query($url) {
             }
 
             if (is_array($query)) {
-                foreach($query as $key => $value) {
+                foreach ($query as $key => $value) {
                     if (is_numeric($key)) {
                         /*
                          * $value should contain key=value
@@ -400,8 +400,8 @@ function url_remove_keys($url, $keys) {
         $url   = Strings::until($url, '?');
         $query = explode('&', $query);
 
-        foreach($query as $id => $kv) {
-            foreach(Arrays::force($keys) as $key) {
+        foreach ($query as $id => $kv) {
+            foreach (Arrays::force($keys) as $key) {
                 if (Strings::until($kv, '=') == $key) {
                     unset($query[$id]);
 
@@ -570,7 +570,7 @@ function inet_get_client_data() {
                                 'msie 7',
                                 'opera');
 
-            foreach($browsers as $browser) {
+            foreach ($browsers as $browser) {
                 if (strstr($user_agent, $browser)) {
                     $client['browser'] = $browser;
                     break;
@@ -586,7 +586,7 @@ function inet_get_client_data() {
              */
             $user_agent = strtolower($client['user_agent']);
 
-            foreach($oses as $os => $platform) {
+            foreach ($oses as $os => $platform) {
                 if (strstr($user_agent, $os)) {
                     $client['os']       = $os;
                     $client['platform'] = $platform;
@@ -747,7 +747,7 @@ function inet_port_available($port, $ip = '0.0.0.0', $server = null) {
                                                'commands'     => array('netstat', array('sudo' => true, '-peanut', 'connector' => '|'),
                                                                        'grep'   , array(':'.$port))));
 
-        foreach($results as $result) {
+        foreach ($results as $result) {
             preg_match_all('/ (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5}) /', $result, $matches);
 
             $found_ip   = $matches[1][0];

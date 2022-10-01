@@ -41,11 +41,11 @@ if (!empty($_GET['user'])) {
                    array(':user' => $_GET['user']));
 
     if (!$db) {
-        html_flash_set(log_database(tr('Specified user "'.str_log($_GET['user']).'" does not exist'), 'user_not_exist'), 'error');
+        html_flash_set(log_database(tr('Specified user "'.Strings::Log($_GET['user']).'" does not exist'), 'user_not_exist'), 'error');
         redirect(domain('/admin/users.php'));
     }
 
-    log_database(tr('View user "'.str_log($_GET['user']).'"'), 'user_view');
+    log_database(tr('View user "'.Strings::Log($_GET['user']).'"'), 'user_view');
 
     $user = array_merge($db, $user);
     unset($db);
@@ -99,7 +99,7 @@ try {
 
         $user['id'] = user_signup($user);
 
-        html_flash_set(log_database(tr('Created user "%user%"', array('%user%' => '<a target="_blank" href="'.domain('/admin/user.php?user='.isset_get($user['username'])).'">'.str_log(user_name($user)).'</a>')), 'user_create'), 'success');
+        html_flash_set(log_database(tr('Created user "%user%"', array('%user%' => '<a target="_blank" href="'.domain('/admin/user.php?user='.isset_get($user['username'])).'">'.Strings::Log(user_name($user)).'</a>')), 'user_create'), 'success');
 
         /*
          * Now that the user has had a simple registration, contiue with updating the user
@@ -194,7 +194,7 @@ try {
              * This update might have been done because of a create user action
              */
             if (!isset_get($_POST['docreate'])) {
-                html_flash_set(log_database('Updated user "'.str_log(isset_get($_POST['username'])).'"', 'user_update'), 'success');
+                html_flash_set(log_database('Updated user "'.Strings::Log(isset_get($_POST['username'])).'"', 'user_update'), 'success');
                 redirect(domain('/admin/user.php?user='.$user['username']));
             }
 
@@ -274,7 +274,7 @@ try {
             /*
              * This update might have been done because of a create user action
              */
-            html_flash_set(log_database('Updated profile "'.str_log(isset_get($_POST['username'])).'"', 'user_update'), 'success');
+            html_flash_set(log_database('Updated profile "'.Strings::Log(isset_get($_POST['username'])).'"', 'user_update'), 'success');
             redirect(true);
         }
 
@@ -287,7 +287,7 @@ try {
             throw new CoreException('Cannot become user, no user available', 'nouseravailable');
         }
 
-        user_switch($user['name']);
+        user_switch ($user['name']);
 
         html_flash_set('You are now the user "'.$user['name'].'"', 'success');
         html_flash_set('NOTICE: You will now be limited to the access level of user "'.$user['name'].'"', 'warning');
@@ -569,10 +569,10 @@ function s_validate_user(&$user, $id = null) {
 
         if ($exists) {
             if ($exists['username'] == $user['username']) {
-                $v->setError(tr('The username "%username%" is already in use by another user', array('%username%' => str_log($user['username']))));
+                $v->setError(tr('The username "%username%" is already in use by another user', array('%username%' => Strings::Log($user['username']))));
 
             } else {
-                $v->setError(tr('The email "%email%" is already in use by another user', array('%email%' => str_log($user['email']))));
+                $v->setError(tr('The email "%email%" is already in use by another user', array('%email%' => Strings::Log($user['email']))));
             }
         }
 
@@ -582,7 +582,7 @@ function s_validate_user(&$user, $id = null) {
         if (!empty($user['phones'])) {
             $user['phones'] = explode(',', $user['phones']);
 
-            foreach($user['phones'] as &$phone) {
+            foreach ($user['phones'] as &$phone) {
                 $phone = trim($phone);
             }
 
@@ -591,7 +591,7 @@ function s_validate_user(&$user, $id = null) {
             $user['phones'] = implode(',', $user['phones']);
             $execute        = sql_in($user['phones'], ':phone');
 
-            foreach($execute as &$phone) {
+            foreach ($execute as &$phone) {
                 if ($v->isValidPhonenumber($phone, tr('The phone number "%phone%" is not valid', array('%phone%' => $phone)))) {
                     $phone = '%'.$phone.'%';
                 }
@@ -607,7 +607,7 @@ function s_validate_user(&$user, $id = null) {
 
                         FROM   `users` WHERE';
 
-            foreach($execute as $key => $value) {
+            foreach ($execute as $key => $value) {
                 $where[] = '`phones` LIKE '.$key;
             }
 
@@ -625,15 +625,15 @@ function s_validate_user(&$user, $id = null) {
                  * One or more phone numbers already exist with one or multiple users. Cross check and
                  * create a list of where the number was found
                  */
-                foreach(Arrays::force($user['phones']) as $value) {
-                    foreach($exists as $exist) {
+                foreach (Arrays::force($user['phones']) as $value) {
+                    foreach ($exists as $exist) {
                         $key = array_search($value, Arrays::force($exist['phones']));
 
                         if ($key !== false) {
                             /*
                              * The current phone number is already in use by another user
                              */
-                            $v->setError(tr('The phone "%phone%" is already in use by user "%user%"', array('%phone%' => str_log($value), '%user%' => '<a target="_blank" href="'.domain('/admin/user.php?user='.$exist['username']).'">'.$exist['username'].'</a>')));
+                            $v->setError(tr('The phone "%phone%" is already in use by user "%user%"', array('%phone%' => Strings::Log($value), '%user%' => '<a target="_blank" href="'.domain('/admin/user.php?user='.$exist['username']).'">'.$exist['username'].'</a>')));
                         }
                     }
                 }

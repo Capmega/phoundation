@@ -12,7 +12,7 @@ $limit     = sql_valid_limit(isset_get($_GET['limit']), $std_limit);
  * Process requested actions
  */
 try {
-    switch(isset_get($_POST['action'])) {
+    switch (isset_get($_POST['action'])) {
         case '':
             break;
 
@@ -107,7 +107,7 @@ try {
             /*
              * Unknown action specified
              */
-            html_flash_set(tr('Unknown action "%action%" specified', '%action%', str_log($_POST['action'])), 'error');
+            html_flash_set(tr('Unknown action "%action%" specified', '%action%', Strings::Log($_POST['action'])), 'error');
     }
 
 }catch(Exception $e) {
@@ -184,7 +184,7 @@ if ($_CONFIG['users']['type_filter'] !== false) {
 /*
  * Select sections dependant on the view
  */
-switch(isset_get($_GET['view'])) {
+switch (isset_get($_GET['view'])) {
     case '':
     case 'normal':
         $where[] = ' `users`.`status` IS NULL';
@@ -232,7 +232,7 @@ switch(isset_get($_GET['view'])) {
         break;
 
     default:
-        html_flash_set('Unknown view filter "'.str_log($_GET['view']).'" specified', 'error');
+        html_flash_set('Unknown view filter "'.Strings::Log($_GET['view']).'" specified', 'error');
         redirect(true);
 }
 
@@ -300,7 +300,7 @@ $html = '   <div class="row">
                                         <div class="visible-xs mb-md"></div>
                                         <div class="col-sm-2">
                                             <div class="input-group input-group-icon">
-                                                <input type="text" class="form-control col-md-3" name="filter" id="filter" value="'.str_log(isset_get($_GET['filter'], '')).'" placeholder="General filter">
+                                                <input type="text" class="form-control col-md-3" name="filter" id="filter" value="'.Strings::Log(isset_get($_GET['filter'], '')).'" placeholder="General filter">
                                                 <span class="input-group-addon">
                                                     <span class="icon"><i class="fa fa-search"></i></span>
                                                 </span>
@@ -308,7 +308,7 @@ $html = '   <div class="row">
                                         </div>
                                         <div class="visible-xs mb-md"></div>
                                         <div class="col-sm-2">
-                                            <input type="text" class="form-control col-md-3" name="limit" id="limit" value="'.str_log(isset_get($_GET['limit'], '')).'" placeholder="'.tr('Row limit (default %entries% entries)', array('%entries%' => str_log($std_limit))).'">
+                                            <input type="text" class="form-control col-md-3" name="limit" id="limit" value="'.Strings::Log(isset_get($_GET['limit'], '')).'" placeholder="'.tr('Row limit (default %entries% entries)', array('%entries%' => Strings::Log($std_limit))).'">
                                         </div>
                                         <div class="visible-xs mb-md"></div>
                                         <div class="col-sm-2">

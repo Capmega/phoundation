@@ -17,7 +17,7 @@
         /*
          * Is the current IP allowed?
          */
-        foreach($ips as $ip) {
+        foreach ($ips as $ip) {
             if ($ip != $_SERVER['REMOTE_ADDR']) {
                 $match = true;
                 break;
@@ -29,7 +29,7 @@
              * Current IP was not allowed. If this user has ip_lock rights (or god right, obviously), then we can continue
              */
             if (!has_rights('ip_lock', $user)) {
-                throw new CoreException('handlers/user_ip_lock: Your current IP "'.str_log($_SERVER['REMOTE_ADDR']).'" is not allowed to login', 'iplock');
+                throw new CoreException('handlers/user_ip_lock: Your current IP "'.Strings::Log($_SERVER['REMOTE_ADDR']).'" is not allowed to login', 'iplock');
             }
 
             /*
@@ -45,7 +45,7 @@
                            array(':createdby' => $user['id'],
                                  ':ip'        => $_SERVER['REMOTE_ADDR']));
 
-                html_flash_set(log_database('Updated IP lock to "'.str_log($_SERVER['REMOTE_ADDR']).'"', 'ip_locks_updated'), 'info');
+                html_flash_set(log_database('Updated IP lock to "'.Strings::Log($_SERVER['REMOTE_ADDR']).'"', 'ip_locks_updated'), 'info');
             }
         }
 

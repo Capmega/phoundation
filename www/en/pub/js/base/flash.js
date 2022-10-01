@@ -13,7 +13,7 @@ console.log("message " + message);
 console.log("autoClose " + autoClose);
 console.log("selector " + selector);
 
-        switch(type) {
+        switch (type) {
             case "info":
                 type = "information";
                 // FALLTHROUGH

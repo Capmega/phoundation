@@ -290,7 +290,7 @@ $subregions = array('1A' => array('region' => 1, 'name' => 'Central Africa'),
                     '6B' => array('region' => 6, 'name' => 'Pacific'),
                     '6C' => array('region' => 6, 'name' => 'South Pacific Ocean'));
 
-foreach($subregions as $code => $data) {
+foreach ($subregions as $code => $data) {
 //    sql_query('INSERT INTO geo_subregions (`regions_id`, `code`, `name`, `seoname`) VALUES ('.$data['region'].', "'.$code.'", "'.$data['name'].'", "'.seo_create_string($data['name']).'")');
 }
 
@@ -350,12 +350,12 @@ while ($line = fgets($h, 16384)) {
         array_unshift($line, '');
     }
 
-    foreach($line as $key => &$item) {
+    foreach ($line as $key => &$item) {
         if (!$item) {
             $item = 'NULL';
 
         } else {
-            switch($key) {
+            switch ($key) {
                 case 2:
                     $seoname = '"'.seo_generate_unique_name(str_replace('/', '--', cfm($item)), 'geo_timezones').'"';
                     break;
@@ -404,7 +404,7 @@ log_console('Done', '');
 //
 //    $line[2] = substr($line[2], 1, 2);
 //
-//    foreach($line as $key => &$item) {
+//    foreach ($line as $key => &$item) {
 //        if (!$item) {
 //            $item = 'NULL';
 //

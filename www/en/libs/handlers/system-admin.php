@@ -47,7 +47,7 @@ try {
      * If HEAD was requested, just return basic HTTP headers
      */
 // :TODO: Should pages themselves not check for this and perhaps send other headers?
-    switch($_SERVER['REQUEST_METHOD'] ) {
+    switch ($_SERVER['REQUEST_METHOD'] ) {
         case 'OPTIONS':
 under_construction();
     }

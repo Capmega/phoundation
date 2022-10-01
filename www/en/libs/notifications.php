@@ -323,7 +323,7 @@ function notifications_validate($notification, $log, $throw = null) {
         /*
          * Default groups
          */
-        switch($notification['code']) {
+        switch ($notification['code']) {
             case 'error':
                 // FALLTHROUGH
             case 'exception':
@@ -345,7 +345,7 @@ function notifications_validate($notification, $log, $throw = null) {
          */
 // :TODO: For now, notifications are still mostly disabled until the system is finished
 $notification['groups'] = array();
-        foreach($notification['groups'] as &$group) {
+        foreach ($notification['groups'] as &$group) {
             $groups_id = notifications_get_group($group, 'id');
 
             if ($groups_id) {
@@ -647,7 +647,7 @@ function notifications_insert_groups($notification) {
         $insert = sql_prepare('INSERT INTO `notifications_groups` (`notifications_id`, `groups_id`)
                                VALUES                             (:notifications_id , :groups_id )', 'core');
 
-        foreach($notification['groups'] as $groups_id) {
+        foreach ($notification['groups'] as $groups_id) {
             $insert->execute(array(':groups_id'        => $groups_id,
                                    ':notifications_id' => $notification['id']));
         }
@@ -1085,7 +1085,7 @@ function notifications_send($notification = null) {
             $count         = 0;
             $notifications = notifications_list();
 
-            foreach($notifications as $notification) {
+            foreach ($notifications as $notification) {
                 notifications_send($notification);
                 $count++;
             }
@@ -1108,8 +1108,8 @@ function notifications_send($notification = null) {
             while ($member = sql_fetch($members)) {
                 $methods = notifications_get_methods($member);
 
-                foreach($methods as $method) {
-                    switch($method) {
+                foreach ($methods as $method) {
+                    switch ($method) {
                         case 'sms':
                             notifications_sms($notification);
                             break;
@@ -1490,7 +1490,7 @@ function notifications_webpush($server, $check_every, $icon, $js_client = '', $t
                  }
              }
 
-            // switch() {
+            // switch () {
             //
             // }
 

@@ -27,7 +27,7 @@ if (!empty($_POST['docreate'])) {
             throw new CoreException('The database insert returned no id', 'noinsertid');
         }
 
-        html_flash_set(tr('The tag "'.str_log($_POST['name']).'" has been added'), 'success');
+        html_flash_set(tr('The tag "'.Strings::Log($_POST['name']).'" has been added'), 'success');
         redirect(domain('/admin/tags.php'));
 
     }catch(Exception $e) {
@@ -75,7 +75,7 @@ if (!empty($_POST['docreate'])) {
             throw new CoreException('The database query returned no updated entries', 'noaffectedrows');
         }
 
-        html_flash_set(tr('The tag "'.str_log($_POST['name']).'" has been updated'), 'success');
+        html_flash_set(tr('The tag "'.Strings::Log($_POST['name']).'" has been updated'), 'success');
         redirect(domain('/admin/tags.php'));
 
     }catch(Exception $e) {
@@ -89,7 +89,7 @@ if (!empty($_POST['docreate'])) {
     try {
         $in = sql_in(isset_get($_POST['id']));
 
-        switch($_POST['setstatus']) {
+        switch ($_POST['setstatus']) {
             case 'erased':
                 $r = sql_query('DELETE FROM `tags` WHERE `id` IN ('.str_force(array_keys($in), ',').')', $in);
                 html_flash_set('Erased "'.$r->rowCount().'" tags', 'success');
@@ -106,7 +106,7 @@ if (!empty($_POST['docreate'])) {
                 break;
 
             default:
-                throw new CoreException('Unknown status action "'.str_log($_POST['setstatus']).'"', 'unknown');
+                throw new CoreException('Unknown status action "'.Strings::Log($_POST['setstatus']).'"', 'unknown');
         }
 
     }catch(Exception $e) {
@@ -149,7 +149,7 @@ if (isset_get($_GET['action']) == 'create') {
      * Edit specified tag
      */
     if (!$tag = sql_get('SELECT * FROM `tags` WHERE `seoname` = :seoname', array(':seoname' => $_GET['tag']))) {
-        html_flash_set(tr('Specified tag "'.str_log($_GET['tag']).'" does not exist'), 'error');
+        html_flash_set(tr('Specified tag "'.Strings::Log($_GET['tag']).'" does not exist'), 'error');
         redirect(domain('/admin/tags.php'));
     }
 
@@ -171,7 +171,7 @@ if (isset_get($_GET['action']) == 'create') {
 
     $query = 'SELECT `id`, `name`, `seoname`, `status`, `description` FROM `tags`';
 
-    switch($status_filter) {
+    switch ($status_filter) {
         case 'deleted':
             $status_options = array('undeleted' => tr('Undelete'),
                                     'erased'    => tr('Erase'));
@@ -207,7 +207,7 @@ if (isset_get($_GET['action']) == 'create') {
                             <tr><td class="select"><input type="checkbox" name="id[]" class="all"></td><td>'.tr('Name').'</td><td>'.tr('Status').'</td><td>'.tr('Description').'</td></tr>
                         </thead>';
 
-        foreach($tags as $id => $tag) {
+        foreach ($tags as $id => $tag) {
             $a = '<a href="'.domain('/admin/tags.php?tag='.$tag['seoname']).'">';
 
             $html .= '  <tr>

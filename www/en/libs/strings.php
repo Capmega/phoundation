@@ -151,7 +151,7 @@ function str_random($length = 8, $unique = false, $characters = '0123456789abcde
         $charlen    = mb_strlen($characters);
 
         if ($unique and ($length > $charlen)) {
-            throw new OutOfBoundsException('str_random(): Can not create unique character random string with size "'.str_log($length).'". When $unique is requested, the string length can not be larger than "'.str_log($charlen).'" because there are no more then that amount of unique characters', 'invalid');
+            throw new OutOfBoundsException('str_random(): Can not create unique character random string with size "'.Strings::Log($length).'". When $unique is requested, the string length can not be larger than "'.Strings::Log($charlen).'" because there are no more then that amount of unique characters', 'invalid');
         }
 
         for ($i = 0; $i < $length; $i++) {
@@ -244,7 +244,7 @@ function str_safe_base64_decode($source) {
 /*
  * Return a safe size string for displaying
  */
-// :DELETE: Isn't this str_log()?
+// :DELETE: Isn't this Strings::Log()?
 function str_safe($source, $maxsize = 50) {
     try {
         return str_truncate(json_encode_custom($source), $maxsize);
@@ -277,7 +277,7 @@ function str_camelcase($source, $separator = ' ') {
     try {
         $source = explode($separator, mb_strtolower($source));
 
-        foreach($source as $key => &$value) {
+        foreach ($source as $key => &$value) {
             $value = mb_ucfirst($value);
         }
 
@@ -338,7 +338,7 @@ function str_interleave($source, $interleave, $end = 0, $chunksize = 1) {
         $begin  = mb_str_split($begin, $chunksize);
         $retval = '';
 
-        foreach($begin as $chunk) {
+        foreach ($begin as $chunk) {
             $retval .= $chunk.$interleave;
         }
 
@@ -535,7 +535,7 @@ function str_has_keywords($text, $keywords, $has_all = false, $regex = false, $u
 
         $count = 0;
 
-        foreach($keywords as $keyword) {
+        foreach ($keywords as $keyword) {
             /*
              * Ensure keywords are trimmed, and don't search for empty keywords
              */
@@ -621,12 +621,12 @@ function str_caps($string, $type) {
         /*
          * Now apply the specified type to all words
          */
-        foreach($results as $words) {
-            foreach($words as $word) {
+        foreach ($results as $words) {
+            foreach ($words as $word) {
                 /*
                  * Create the $replace string
                  */
-                switch($type) {
+                switch ($type) {
                     case 'lowercase':
                         $replace = strtolower($word);
                         break;
@@ -676,7 +676,7 @@ function str_caps($string, $type) {
                         break;
 
                     default:
-                        throw new OutOfBoundsException('str_caps(): Unknown type "'.str_log($type).'" specified', 'unknowntype');
+                        throw new OutOfBoundsException('str_caps(): Unknown type "'.Strings::Log($type).'" specified', 'unknowntype');
                 }
 
                 str_replace($word, $replace, $string);
@@ -732,7 +732,7 @@ function str_caps_guess($string) {
         /*
          * Now apply the specified type to all words
          */
-        foreach($words as $word) {
+        foreach ($words as $word) {
         }
 
     }catch(Exception $e) {
@@ -867,7 +867,7 @@ function str_similar($a, $b, $percent) {
  */
 function str_trim_array($source, $recurse = true) {
     try {
-        foreach($source as $key => &$value) {
+        foreach ($source as $key => &$value) {
             if (is_string($value)) {
                 $value = mb_trim($value);
 
@@ -935,10 +935,10 @@ function str_hide($string, $hide = '*** HIDDEN ***', $empty = '-') {
 // */
 //function str_diff() {
 //    try {
-//        foreach($old as $oindex => $ovalue) {
+//        foreach ($old as $oindex => $ovalue) {
 //            $nkeys = array_keys($new, $ovalue);
 //
-//            foreach($nkeys as $nindex) {
+//            foreach ($nkeys as $nindex) {
 //                $matrix[$oindex][$nindex] = isset($matrix[$oindex - 1][$nindex - 1]) ? $matrix[$oindex - 1][$nindex - 1] + 1 : 1;
 //
 //                if ($matrix[$oindex][$nindex] > $maxlen) {
@@ -1107,10 +1107,10 @@ function str_trim_html($html) {
         $html          = str_get_html($html);
         $element_types = array('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'p', 'span');
 
-        foreach($element_types as $element_type) {
+        foreach ($element_types as $element_type) {
             $elements = $html->find($element_type);
 
-            foreach($elements as $element) {
+            foreach ($elements as $element) {
                 $plaintext = trim($element->plaintext);
                 $plaintext = trim($plaintext, '<br>');
                 $plaintext = trim($plaintext, '<br/>');

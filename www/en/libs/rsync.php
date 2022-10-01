@@ -100,7 +100,7 @@ function rsync($params) {
          * See if we can auto build a source SSH command from the specified
          * source file
          */
-        foreach(array('source', 'target') as &$item) {
+        foreach (array('source', 'target') as &$item) {
             try {
                 $server = Strings::until($params[$item], ':', 0, 0, true);
 
@@ -131,11 +131,11 @@ function rsync($params) {
                     /*
                      * Ensure this is not executed on ROOT or part of ROOT
                      */
-                    switch($server['domain']) {
+                    switch ($server['domain']) {
                         case '':
                             // FALLTHROUGH
                         case 'localhost':
-                            foreach(array('source', 'target') as $subitem) {
+                            foreach (array('source', 'target') as $subitem) {
                                 if (str_contains($params[$subitem], ':')) {
                                     /*
                                      * We're syncing to THIS server, are we not
@@ -166,7 +166,7 @@ function rsync($params) {
                 }
 
             }catch(Exception $e) {
-                switch($e->getRealCode()) {
+                switch ($e->getRealCode()) {
                     case 'not-exists':
                         throw new CoreException(tr('rsync(): Specified ":item" server ":server" does not exist', array(':item' => $item, ':server' => Strings::until($params['source'], ':', 0, 0, true))), $e);
 
@@ -221,7 +221,7 @@ function rsync($params) {
                 $params['exclude'] = array($params['exclude']);
             }
 
-            foreach($params['exclude'] as $exclude) {
+            foreach ($params['exclude'] as $exclude) {
                 $arguments[] = '--exclude';
                 $arguments[] = $exclude;
             }
@@ -348,7 +348,7 @@ function rsync($params) {
         /*
          * Give nice rsync errors
          */
-        switch($e->getRealCode()) {
+        switch ($e->getRealCode()) {
             case 0:
                 $e->makeWarning(true);
                 throw new CoreException(tr('rsync(): Rsync failed with "Success"'), $e);

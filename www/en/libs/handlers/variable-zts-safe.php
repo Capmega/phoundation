@@ -15,7 +15,7 @@ if (is_resource($variable)) {
 }
 
 if (is_array($variable) or (is_object($variable) and (($variable instanceof Exception) or ($variable instanceof Error)))) {
-    foreach($variable as $key => &$value) {
+    foreach ($variable as $key => &$value) {
         if ($key === 'object') {
             $value = print_r($value, true);
 

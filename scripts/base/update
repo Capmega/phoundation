@@ -238,8 +238,8 @@ try {
         $available_versions = code_get_phoundation_versions($current_version_line);
         $highest            = '0.0.0';
 
-        foreach($available_versions as $id => $version) {
-            switch(version_compare($version, $frameworkcodeversion)) {
+        foreach ($available_versions as $id => $version) {
+            switch (version_compare($version, $frameworkcodeversion)) {
                 case 0:
                     $phoundation_frameworkcodeversion = $frameworkcodeversion;
                     break;
@@ -253,7 +253,7 @@ try {
             }
         }
 
-        switch($highest) {
+        switch ($highest) {
             case '0.0.0':
                 if (!$reupdate) {
                     throw new CoreException(tr('There are currently no newer versions available on the ":line" version line in phoundation than the current framework version ":version"', array(':line' => $current_version_line, ':version' => $frameworkcodeversion)), 'warning/not-exists');
@@ -387,7 +387,7 @@ try {
             passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/audio/* '.ROOT.'data/audio/', $exitcodes['data/audio']);
         }
 
-        foreach($exitcodes as $path => $exitcode) {
+        foreach ($exitcodes as $path => $exitcode) {
             if ($exitcode) {
                 log_console(tr('Rsync of ":path" failed with exit code ":code"', array(':path' => $path, ':code' => $exitcode)));
                 $e = true;
@@ -463,7 +463,7 @@ try {
         git_reset();
     }
 
-    switch($e->getRealCode()) {
+    switch ($e->getRealCode()) {
         case 'busy':
             $e->makeWarning(true);
             // FALLTHROUGH

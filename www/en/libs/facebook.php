@@ -388,7 +388,7 @@ function facebook_get_avatar($user) {
 //            sql_query("DELETE FROM fb_friends WHERE uid=".cfi($uid)." AND notified IS NULL;");
 //
 //            //add new friends
-//            foreach($friends['data'] as $key => $friend) {
+//            foreach ($friends['data'] as $key => $friend) {
 //                sql_query("INSERT IGNORE INTO fb_friends (uid,fb_id,name) VALUES (".cfi($uid).",".cfi($friend['id']).",'".cfm($friend['name'])."');");
 //            }
 //
@@ -505,8 +505,8 @@ function facebook_button($params) {
 
         $html = '';
 
-        foreach(Arrays::force($params['type']) as $type) {
-            switch($type) {
+        foreach (Arrays::force($params['type']) as $type) {
+            switch ($type) {
                 case 'share':
                     $html .= '<div class="fb-share-button" data-href="'.$params['url'].'"data-layout="'.$params['layout'].'">
                                </div>';

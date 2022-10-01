@@ -10,7 +10,7 @@ $selected = isset_get($_GET['id']);
 /*
  * We have to do something?
  */
-switch(isset_get($_POST['doaction'])) {
+switch (isset_get($_POST['doaction'])) {
     case tr('Delete'):
         try {
             /*

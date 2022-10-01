@@ -30,7 +30,7 @@ function amp_component_carousel($params) {
 
         $carousel = '<amp-carousel height="'.$params['height'].'" layout="'.$params['layout'].'" type="'.$params['type'].'">';
 
-        foreach($params['images'] as $image => $alt) {
+        foreach ($params['images'] as $image => $alt) {
             $carousel .= '<amp-img src="'.$image.'" width="'.$params['width'].'" height="'.$params['height'].'" alt="'.$alt.'"></amp-img>';
         }
 
@@ -110,7 +110,7 @@ function amp_page($params) {
          * Lets replace resouces on our template
          */
         if ($params['resource']) {
-            foreach($params['resource'] as $key => $value) {
+            foreach ($params['resource'] as $key => $value) {
                 $data = str_replace(':'.$key, $value, $data);
             }
         }
@@ -119,7 +119,7 @@ function amp_page($params) {
          * Lets add out components into the mix
          */
         if ($params['components']) {
-            foreach($params['components'] as $key => $component_data) {
+            foreach ($params['components'] as $key => $component_data) {
                 try {
                     $component      = str_replace(':', '', $key);
                     $component      = 'amp_component_'.$component;
@@ -298,10 +298,10 @@ function amp_content($html) {
             $videos     = $video_match[0];
 
             if (count($videos)) {
-                foreach($videos as $video ) {
+                foreach ($videos as $video ) {
                     $search[] = $video;
 
-                    foreach($attributes as $attribute) {
+                    foreach ($attributes as $attribute) {
                         $value_matches = array();
                         preg_match('/'.$attribute.'=(["\'][:\/\/a-zA-Z0-9 -\/.]+["\'])/', $video, $value_matches);
 
@@ -324,12 +324,12 @@ function amp_content($html) {
             $iframes    = $iframe_match[0];
 
             if (count($iframes)) {
-                foreach($iframes as $iframe ) {
+                foreach ($iframes as $iframe ) {
                     if (!strstr($iframe, 'youtube')) continue;
 
                     $search[] = $iframe;
 
-                    foreach($attributes as $attribute) {
+                    foreach ($attributes as $attribute) {
                         $value_matches = array();
                         preg_match('/'.$attribute.'=(["\'][:\/\/a-zA-Z0-9 -\/.]+["\'])/', $iframe, $value_matches);
 
@@ -355,10 +355,10 @@ function amp_content($html) {
             $images     = $img_match[0];
 
             if (count($images)) {
-                foreach($images as $image) {
+                foreach ($images as $image) {
                     $search[] = $image;
 
-                    foreach($attributes as $attribute) {
+                    foreach ($attributes as $attribute) {
                         $value_match = array();
                         preg_match('/'.$attribute.'=(["\'][:\/\/a-zA-Z0-9 -\/.]+["\'])/', $image, $value_match);
 
@@ -421,14 +421,14 @@ function amp_html_cleanup($html) {
         /*
          * Remove tags that are
          */
-        foreach($keep_content_tags as $tag) {
+        foreach ($keep_content_tags as $tag) {
             $search [] = '/<'.$tag.'.*>(.*)<\/'.$tag.'>/s';
             $replace[] = '$1';
         }
         /*
          * Populate empty attributes with defaults
          */
-        foreach($empty_attributes as $attribute => $value) {
+        foreach ($empty_attributes as $attribute => $value) {
             $search [] = '/'.$attribute.'=(["\']["\'])/';
             $replace[] = $attribute.'="'.$value.'"';
         }
@@ -436,7 +436,7 @@ function amp_html_cleanup($html) {
         /*
          * Remove forbidden attributes
          */
-        foreach($remove_attributes as $attribute) {
+        foreach ($remove_attributes as $attribute) {
             $search [] = '/'.$attribute.'=(["\']([:; \-\(\)\!a-zA-Z0-9\/.]+|)["\'])/';
             $replace[] = '';
         }
@@ -444,7 +444,7 @@ function amp_html_cleanup($html) {
         /*
          * Just remove
          */
-        foreach($forbidden_tags as $tag) {
+        foreach ($forbidden_tags as $tag) {
             $search [] = '/<'.$tag.'.*>.*<\/'.$tag.'>/s';
             $replace[] = '';
         }

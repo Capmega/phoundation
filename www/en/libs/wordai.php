@@ -110,7 +110,7 @@ function wordai($params, $email, $password, $quality = 50, $json = true) {
 // :TEST: Not 100% sure if this will produce the correct syntax, test first!
 throw new CoreException('wordai(): Test the "synonymns" option befure using it, since the formatter for this option has not been tested yet!');
 
-            foreach($params['synonyms'] as $word => $synonyms) {
+            foreach ($params['synonyms'] as $word => $synonyms) {
                 $post['synonyms'][] = $word.'|'.str_force($post['synonyms'], ',');
             }
 
@@ -126,7 +126,7 @@ throw new CoreException('wordai(): Test the "synonymns" option befure using it, 
         $curl['data'] = json_decode_custom($curl['data']);
 
         if (strtolower(trim($curl['data']['status'])) != 'success') {
-            throw new CoreException('wordai(): wordai API returned status "'.str_log($curl['data']['status']).'" with error "'.str_log(isset_get($curl['data']['error'])).'"', 'failed', $curl['data']);
+            throw new CoreException('wordai(): wordai API returned status "'.Strings::Log($curl['data']['status']).'" with error "'.Strings::Log(isset_get($curl['data']['error'])).'"', 'failed', $curl['data']);
         }
 
         return $curl['data'];

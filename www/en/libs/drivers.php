@@ -36,11 +36,11 @@ function drivers_setup($type, $brand, $model, $server = null) {
         $brand = strtolower($brand);
         $model = strtolower($model);
 
-        switch($type) {
+        switch ($type) {
             case 'printer':
                 // FALLTHROUGH
             case 'scanner':
-                switch($brand) {
+                switch ($brand) {
                     case 'brother':
                         /*
                          * Brother MFC L-8900 CDW scanner / printer combo

@@ -87,7 +87,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('tasks');
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'add':
 under_construction('add');
 
@@ -174,8 +174,8 @@ under_construction('add');
                 /*
                  * Validate the specified statusses that should be cleared
                  */
-                foreach($status as $entry) {
-                    switch($entry) {
+                foreach ($status as $entry) {
+                    switch ($entry) {
                         case 'completed':
                             // FALLTHROUGH
                         case 'failed':
@@ -256,7 +256,7 @@ under_construction('add');
             }
 
             while ($task = sql_fetch($tasks)) {
-                switch($task['status']) {
+                switch ($task['status']) {
                     case 'processing':
                         $task['status'] = cli_color($task['status'], 'light_blue');
                         break;
@@ -312,8 +312,8 @@ under_construction('add');
         unset($task['results']);
         unset($task['description']);
 
-        foreach($task as $key => $value) {
-            switch($key) {
+        foreach ($task as $key => $value) {
+            switch ($key) {
                 case 'status':
                     log_console(cli_color(str_capitalize($key).':', 'white').' '.cli_status_color($value));
                     break;
@@ -333,7 +333,7 @@ under_construction('add');
             print_r($data)."\n";
         }
 
-        switch($task['status']) {
+        switch ($task['status']) {
             case 'completed':
                 // FALLTHROUGH
             case 'failed':
@@ -349,7 +349,7 @@ under_construction('add');
                     log_console(tr('This task has no results'), 'yellow');
 
                 } else {
-                    foreach($results as $result) {
+                    foreach ($results as $result) {
                         log_console(stripslashes($result));
                     }
                 }
@@ -504,7 +504,7 @@ under_construction('add');
                 //    }
                 //}
 
-                foreach($task['data'] as $key => $value) {
+                foreach ($task['data'] as $key => $value) {
                     if (empty($value)) continue;
 
                     if (is_integer($key)) {
@@ -520,7 +520,7 @@ under_construction('add');
 
                 $task['executed'] = $command.' '.$options;
 
-                switch($task['method']) {
+                switch ($task['method']) {
                     case 'background':
                         /*
                          * Execute this task in the background

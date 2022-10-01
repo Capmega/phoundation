@@ -109,7 +109,7 @@ $html = '   <div class="row">
 
 $list = array();
 
-foreach($messages_rec as $date => $count) {
+foreach ($messages_rec as $date => $count) {
     $date = new DateTime($date);
     $date = $date->format('U') * 1000;
     $list[] = '['.$date.', '.$count.']';
@@ -126,7 +126,7 @@ $html .= '                          ],
 
 $list = array();
 
-foreach($messages_snt as $date => $count) {
+foreach ($messages_snt as $date => $count) {
     $date = new DateTime($date);
     $date = $date->format('U') * 1000;
     $list[] = '['.$date.', '.$count.']';
@@ -143,7 +143,7 @@ $html .= '                          ],
 
 $list = array();
 
-foreach($messages_ref as $date => $count) {
+foreach ($messages_ref as $date => $count) {
     $date = new DateTime($date);
     $date = $date->format('U') * 1000;
     $list[] = '['.$date.', '.$count.']';
@@ -184,7 +184,7 @@ $html .= '      <div class="col-md-6">
 
 $list = array();
 
-foreach($referrals_all as $date => $count) {
+foreach ($referrals_all as $date => $count) {
     $date = new DateTime($date);
     $date = $date->format('U') * 1000;
     $list[] = '['.$date.', '.$count.']';
@@ -201,7 +201,7 @@ $html .= '                          ],
 
 $list = array();
 
-foreach($referrals_con as $date => $count) {
+foreach ($referrals_con as $date => $count) {
     $date = new DateTime($date);
     $date = $date->format('U') * 1000;
     $list[] = '['.$date.', '.$count.']';
@@ -218,7 +218,7 @@ $html .= '                          ],
 
 $list = array();
 
-foreach($referrals_voi as $date => $count) {
+foreach ($referrals_voi as $date => $count) {
     $date = new DateTime($date);
     $date = $date->format('U') * 1000;
     $list[] = '['.$date.', '.$count.']';
@@ -235,7 +235,7 @@ $html .= '                          ],
 
 $list = array();
 
-foreach($referrals_dis as $date => $count) {
+foreach ($referrals_dis as $date => $count) {
     $date = new DateTime($date);
     $date = $date->format('U') * 1000;
     $list[] = '['.$date.', '.$count.']';

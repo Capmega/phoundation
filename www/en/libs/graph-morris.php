@@ -66,7 +66,7 @@ function graph_morris_generate(array $params) {
                               element: \''.$params['element'].'\',
                               data: [';
 
-        foreach($params['items'] as $key => $item) {
+        foreach ($params['items'] as $key => $item) {
             if ($params['type'] == 'Donut') {
                 $script .= '{label: "'.$key.'", value: '.$item.'},';
 
@@ -85,7 +85,7 @@ function graph_morris_generate(array $params) {
          */
         $optional_params = '';
 
-        foreach($params['options'] as $key => $value) {
+        foreach ($params['options'] as $key => $value) {
             if (is_numeric($value)) {
                 $optional_params .= $key.': '.$value.','.PHP_EOL;
 

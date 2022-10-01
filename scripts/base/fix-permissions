@@ -140,7 +140,7 @@ if (empty($deploy_config['modes'])) {
                                     'files' => array());
 }
 
-foreach($default_modes as $type => $modes) {
+foreach ($default_modes as $type => $modes) {
     $deploy_config['modes'][$type] = array_merge($deploy_config['modes'][$type], $default_modes[$type]);
 }
 
@@ -149,10 +149,10 @@ foreach($default_modes as $type => $modes) {
 /*
  * Apply all required file and directory modes
  */
-foreach($deploy_config['modes'] as $type => $modes) {
-    switch($type) {
+foreach ($deploy_config['modes'] as $type => $modes) {
+    switch ($type) {
         case 'dirs':
-            foreach($modes as $path => $mode) {
+            foreach ($modes as $path => $mode) {
                 /*
                  * Update modes for all directories in the specified path tree
                  *
@@ -177,7 +177,7 @@ foreach($deploy_config['modes'] as $type => $modes) {
             break;
 
         case 'files':
-            foreach($modes as $path => $mode) {
+            foreach ($modes as $path => $mode) {
                 /*
                  * Update modes for all files in the specified path tree
                  *

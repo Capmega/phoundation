@@ -64,7 +64,7 @@ function memcached_connect() {
                     $stats = $core->register['memcached']->getStats();
 
                     if ($stats) {
-                        foreach($stats as $server => $server_data) {
+                        foreach ($stats as $server => $server_data) {
                             if ($server_data['pid'] < 0) {
                                 /*
                                  * Could not connect to this memcached server. Notify, and remove from the connections list
@@ -355,7 +355,7 @@ function memcached_namespace($namespace, $delete = false) {
                  * Increment failed, so in all probability the key did not exist. It could have been
                  * deleted by a parrallel process, for example
                  */
-                switch($e->getCode()) {
+                switch ($e->getCode()) {
                     case '':
 // :TODO: Implement correctly. For now, just notify
                     default:

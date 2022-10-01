@@ -48,7 +48,7 @@ if (!function_exists('s_get_user_class')) {
 try {
     cli_only();
 
-    switch($method = cli_argument(0)) {
+    switch ($method = cli_argument(0)) {
         case 'add':
             try {
                 $data = s_get_user_class(cli_argument(1), cli_argument(2));

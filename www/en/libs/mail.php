@@ -56,7 +56,7 @@ function mail_send_templated_email($params, $subject, $body, $language = false, 
             //}
 
 // :DELETE: The following lines were for when notifications were still configured by means of config files.
-            //foreach($_CONFIG['notifications']['users'] as $user) {
+            //foreach ($_CONFIG['notifications']['users'] as $user) {
             //    if ($params['to_email'] == $user['email']) {
             //        $dev = true;
             //        break;
@@ -171,7 +171,7 @@ function mail_feedback($subject, $message) {
     global $_CONFIG;
 
     try {
-        foreach($_CONFIG['feedback']['emails'] as $name => $email) {
+        foreach ($_CONFIG['feedback']['emails'] as $name => $email) {
             if (!mail($email, $subject, $message)) {
                 throw new CoreException('mail_feedback(): The PHP mail() command failed (is package "sendmail" installed?)', 'mailfail');
             }

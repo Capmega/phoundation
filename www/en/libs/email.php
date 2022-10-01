@@ -183,7 +183,7 @@ function email_poll($params) {
             /*
              * Process every email
              */
-            foreach($mails as $mails_id) {
+            foreach ($mails as $mails_id) {
                 /*
                  * Get information specific to this email
                  */
@@ -224,7 +224,7 @@ function email_poll($params) {
 
                 } else {
                     if ($userdata['email'] !== $data['to']) {
-                        switch($_CONFIG['email']['forward_option']) {
+                        switch ($_CONFIG['email']['forward_option']) {
                             case 'source':
                                 $data['to'] = $userdata['email'];
                                 break;
@@ -236,7 +236,7 @@ function email_poll($params) {
                                 /*
                                  * Per account settings
                                  */
-                                switch($userdata['forward_option']) {
+                                switch ($userdata['forward_option']) {
                                     case 'source':
                                         $data['to'] = $userdata['email'];
                                         break;
@@ -390,7 +390,7 @@ function email_get_attachments($imap, $email, $data, $flags) {
                 $mime_type = finfo_buffer($f, $img, FILEINFO_MIME_TYPE);
                 $extension = '.'.Strings::from($mime_type, '/');
 
-                switch($extension) {
+                switch ($extension) {
                     case '.jpeg':
                         $extension = '.jpg';
                         break;
@@ -581,7 +581,7 @@ function email_update_conversation($email, $direction) {
             /*
              * The JSON string is too large to be stored, reduce the size of the largest messages and try again
              */
-            foreach($conversation['last_messages'] as $id => $message) {
+            foreach ($conversation['last_messages'] as $id => $message) {
                 $sizes[$id] = strlen($message['message']);
             }
 
@@ -652,7 +652,7 @@ function email_update_message($email, $direction) {
         }
 
         if (empty($email['id'])) {
-           switch($direction) {
+           switch ($direction) {
                 case 'sent':
                     sql_query('INSERT INTO `email_messages` (`direction`, `conversations_id`, `reply_to_id`, `from`, `to`, `users_id`, `email_accounts_id`, `date`, `subject`, `text`, `html`, `sent`                             )
                                VALUES                       (:direction , :conversations_id , :reply_to_id , :from , :to , :users_id , :email_accounts_id , :date , :subject , :text , :html , '.($email['sent'] ? 'NOW()' : '').')',
@@ -752,7 +752,7 @@ function email_update_message($email, $direction) {
  */
 function email_cleanup($email) {
     try {
-        foreach($email as $key => &$value) {
+        foreach ($email as $key => &$value) {
             if (is_scalar($value)) {
                 if (strstr($value, '?utf-8?B?')) {
                     $value = base64_decode(Strings::from($value, '?utf-8?B?'));
@@ -852,7 +852,7 @@ function email_get_users_id($email) {
 
         $r = sql_query('SELECT `id` FROM `users` WHERE `email` = :from OR `email` = :to', array(':from' => $email['from'], ':to' => $email['to']));
 
-        switch($r->rowCount()) {
+        switch ($r->rowCount()) {
             case 0:
                 return null;
 
@@ -883,7 +883,7 @@ function email_get_accounts_id($email) {
 
         $r = sql_query('SELECT `id` FROM `email_client_accounts` WHERE `email` = :from OR `email` = :to', array(':from' => $email['from'], ':to' => $email['to']));
 
-        switch($r->rowCount()) {
+        switch ($r->rowCount()) {
             case 0:
                 return null;
 
@@ -955,7 +955,7 @@ function email_send($email, $smtp = null, $account = null) {
             $mail->SMTPAuth = true;
 //            $mail->SMTPDebug = 2;
 
-            switch(isset_get($_CONFIG['email']['smtp']['secure'])) {
+            switch (isset_get($_CONFIG['email']['smtp']['secure'])) {
                 case '':
                     /*
                      * Don't use secure connection
@@ -981,7 +981,7 @@ function email_send($email, $smtp = null, $account = null) {
             $mail->Port     = isset_get($smtp['port'], 25);
             $mail->SMTPAuth = $smtp['auth'];
 
-            switch(isset_get($smtp['secure'])) {
+            switch (isset_get($smtp['secure'])) {
                 case '':
                     /*
                      * Don't use secure connection
@@ -1022,7 +1022,7 @@ function email_send($email, $smtp = null, $account = null) {
         $mail->AltBody = $email['text'];
 
         if (!empty($email['attachments'])) {
-            foreach(Arrays::force($email['attachments']) as $attachment) {
+            foreach (Arrays::force($email['attachments']) as $attachment) {
 // :IMPLEMENT:
             //$mail->AddAttachment("/var/tmp/file.tar.gz"); // attachment
             //$mail->AddAttachment("/tmp/image.jpg", "new.jpg"); // attachment
@@ -1194,7 +1194,7 @@ function email_validate($email) {
             }
         }
 
-        switch(isset_get($email['format'])) {
+        switch (isset_get($email['format'])) {
             case '':
                 $email['format'] = 'text';
                 // FALLTHROUGH
@@ -1326,7 +1326,7 @@ function email_prepare($email) {
         if ($email['replace']) {
             load_libs('user');
 
-            switch(gettype($email['replace'])) {
+            switch (gettype($email['replace'])) {
                 case 'boolean':
                     $email['replace'] = array(//':toname' => (empty($email['user_name']) ? $email['user_username'] : $email['user_name']),
                                               '###USER###'   => name($_SESSION['user']),
@@ -1877,7 +1877,7 @@ function email_delete($params) {
             /*
              * Process every email
              */
-            foreach($mails as $mail) {
+            foreach ($mails as $mail) {
                 $delete = false;
 
                 /*
@@ -1887,8 +1887,8 @@ function email_delete($params) {
                 $data = array_shift($data);
                 $data = array_from_object($data);
 
-                foreach($params['filters'] as $filter => $value) {
-                    switch($filter) {
+                foreach ($params['filters'] as $filter => $value) {
+                    switch ($filter) {
                         case 'seen':
                             if ($mail['seen']) $delete = true;
                             break;

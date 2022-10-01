@@ -261,7 +261,7 @@ function nextcloud_exec($server, $params) {
     try {
         $nextcloud = nextcloud_select_server($server);
 
-        foreach($params['commands'] as $key => &$value) {
+        foreach ($params['commands'] as $key => &$value) {
             if (!($key % 2)) {
                 /*
                  * This is a command

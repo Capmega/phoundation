@@ -23,7 +23,7 @@ try {
                                    'password2' => isset_get($_POST['password']),
                                    'cpassword' => isset_get($_POST['cpassword'])));
 
-        html_flash_set(log_database('Updated password for user "'.str_log(user_name($_SESSION['user'])).'"', 'update-password'), 'success');
+        html_flash_set(log_database('Updated password for user "'.Strings::Log(user_name($_SESSION['user'])).'"', 'update-password'), 'success');
         redirect(domain('/admin/profile.php'));
 
     } elseif (isset_get($_POST['doupdate2'])) {
@@ -39,7 +39,7 @@ try {
         //                      'pin2'      => isset_get($_POST['pin']),
         //                      'cpassword' => isset_get($_POST['cpassword'])));
 
-        html_flash_set(log_database(tr('Updated pin for user "%user"', array('%user%' => str_log(user_name($_SESSION['user'])))), 'update-pin'), 'success');
+        html_flash_set(log_database(tr('Updated pin for user "%user"', array('%user%' => Strings::Log(user_name($_SESSION['user'])))), 'update-pin'), 'success');
         redirect(domain('/admin/profile.php'));
     }
 

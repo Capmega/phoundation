@@ -85,18 +85,18 @@ function config_read($environment, $section = null) {
 
         preg_match_all('/\$_CONFIG\[(.+?)\]\s*=\s*(.+?;)(?:\s*\/\/\s*(.+?)\n)?/imus', $data, $matches);
 
-        foreach($matches as $level => $submatches) {
+        foreach ($matches as $level => $submatches) {
             if ($level !== 1) {
                 continue;
             }
 
-            foreach($submatches as $id => $match) {
+            foreach ($submatches as $id => $match) {
                 $keys    = str_replace('\'', '', $match);
                 $keys    = preg_replace('/\]\s*\[/', '][', $match);
                 $keys    = explode('][', $keys);
                 $section = &$config;
 
-                foreach($keys as $key) {
+                foreach ($keys as $key) {
                     if ((substr($key, 0, 1) == '"') or (substr($key, 0, 1) == "'")) {
                         $key = substr($key, 1, -1);
                     }
@@ -117,7 +117,7 @@ function config_read($environment, $section = null) {
                     $section['__value__'] = str_replace('::', '____', $section['__value__']);
                     $section['__value__'] = array_tokenizer($section['__value__']);
 
-                    foreach($section['__value__'] as $key => $value) {
+                    foreach ($section['__value__'] as $key => $value) {
                         if (strstr($key, '____')) {
                             $section['__value__'][str_replace('____', '::', $key)] = $value;
                             unset($section['__value__'][$key]);
@@ -179,7 +179,7 @@ function config_write($data, $environment, $section = false) {
             $config_string = '$_CONFIG';
         }
 
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             $line = config_lines($key, $value);
 
             if ($line) {
@@ -268,7 +268,7 @@ function config_update($environment, $keys, $value) {
 
         $config = &$CONFIG;
 
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             if (!array_key_exists($key, $config)) {
                 throw new CoreException(tr('config_update(): The specified configuration section ":section" does not exist', array(':section' => $keys)), 'not-exists');
             }
@@ -337,7 +337,7 @@ function config_lines($key, $value, $config_string = '$_CONFIG') {
             /*
              * Branch node, keep building more
              */
-            foreach($value as $subkey => $subvalue) {
+            foreach ($value as $subkey => $subvalue) {
                 $lines = array_merge($lines, config_lines($subkey, $subvalue, $config_string.'[\''.$key.'\']'));
             }
         }
@@ -425,7 +425,7 @@ function config_exists($file) {
          * production configuration file, if available, and then, if
          * available, the environment file
          */
-        foreach($paths as $id => $path) {
+        foreach ($paths as $id => $path) {
             if (!$file) {
                 /*
                  * Trying to load default configuration files again

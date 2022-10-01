@@ -23,9 +23,9 @@ try {
                                 </div>'));
 
 }catch(Exception $e) {
-    switch($e->getCode()) {
+    switch ($e->getCode()) {
         case 'unknown':
-            json_error(tr('Unknown blog post "'.str_log(isset_get($_POST['id'])).'" specified'));
+            json_error(tr('Unknown blog post "'.Strings::Log(isset_get($_POST['id'])).'" specified'));
             break;
 
         case 'notspecified':

@@ -116,7 +116,7 @@ function verify_js($params) {
         }
 
         if ($params['rules']) {
-            foreach($params['rules'] as $name => $rule) {
+            foreach ($params['rules'] as $name => $rule) {
                 $script .= '$.verify.addRules({
                                 '.$name.' : '.$rule.'
                             });';
@@ -124,7 +124,7 @@ function verify_js($params) {
         }
 
         if ($params['group_rules']) {
-            foreach($params['group_rules'] as $rule) {
+            foreach ($params['group_rules'] as $rule) {
                 $script .= '$.verify.addGroupRules({
                                '.$rule.'
                             });';
@@ -176,7 +176,7 @@ class ValidateJquery {
     var $validations = array();
 
     function validate($element, $rule, $value, $message) {
-        switch($rule) {
+        switch ($rule) {
             case 'required':
                 // FALLTHROUGH
             case 'email':
@@ -230,11 +230,11 @@ class ValidateJquery {
                 rules: {';
                 $kom = '';
 
-                foreach($this->validations as $element => $validations) {
+                foreach ($this->validations as $element => $validations) {
                     $html .= $kom.$element.': {';
                     $kom2  = '';
 
-                    foreach($validations as $val) {
+                    foreach ($validations as $val) {
                         if (($val['value'] != 'true') and ($val['value'] != 'false')) {
                             $val['value'] = '"'.$val['value'].'"';
 
@@ -259,11 +259,11 @@ class ValidateJquery {
 
                 $kom = '';
 
-                foreach($this->validations as $element => $validations) {
+                foreach ($this->validations as $element => $validations) {
                     $html .= $kom.$element.': {';
                     $kom2  = '';
 
-                    foreach($validations as $val) {
+                    foreach ($validations as $val) {
                         $html .= $kom2.$val['rule'].':"'.$val['msg']."\"\n";
                         $kom2  = ',';
                     }
@@ -289,7 +289,7 @@ class ValidateJquery {
                     $handler = $params['quickhandler'];
 
 // :DELETE: These checks are no longer necesary since now we have default values
-                    //foreach(array('target', 'fail') as $key) {
+                    //foreach (array('target', 'fail') as $key) {
                     //    if (empty($handler[$key])) {
                     //        throw new CoreException('ValidateJquery::outputValidation(): No quickhandler key "'.$key.'" specified');
                     //    }
@@ -408,7 +408,7 @@ class ValidateForm {
                 $columns          = array_flip($columns);
                 $columns['limit'] = true;
 
-                foreach($source as $key => $value) {
+                foreach ($source as $key => $value) {
                     if (!array_key_exists($key, $columns)) {
                         $unknown[] = $key;
                    }
@@ -1231,7 +1231,7 @@ class ValidateForm {
                 return $this->setError($message);
             }
 
-            foreach(Arrays::force($chars) as $char) {
+            foreach (Arrays::force($chars) as $char) {
                 if ($this->not xor !strpos($this->testValue, $char)) {
                     return $this->setError($message);
                 }
@@ -1262,7 +1262,7 @@ class ValidateForm {
                 return $this->setError($message);
             }
 
-            foreach(Arrays::force($chars) as $char) {
+            foreach (Arrays::force($chars) as $char) {
                 if ($this->not xor strpos($this->testValue, $char)) {
                     return $this->setError($message);
                 }
@@ -1892,7 +1892,7 @@ class ValidateForm {
 
                 $retval = '';
 
-                foreach($this->errors as $key => $value) {
+                foreach ($this->errors as $key => $value) {
                     $retval .= $value.$separator;
                 }
 

@@ -8,7 +8,7 @@ try {
         $key = tr('Unknown');
     }
 
-    switch($type) {
+    switch ($type) {
         case 'string':
             if (is_numeric($value)) {
                 $type = tr('numeric');
@@ -81,7 +81,7 @@ try {
 
             ksort($value);
 
-            foreach($value as $subkey => $subvalue) {
+            foreach ($value as $subkey => $subvalue) {
                 $retval .= debug_html_row($subvalue, $subkey);
             }
 

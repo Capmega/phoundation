@@ -72,7 +72,7 @@ function wget($params) {
     	return $params['file'];
 
     }catch(Exception $e) {
-        switch($e->getRealCode()) {
+        switch ($e->getRealCode()) {
             case '1':
                 throw new CoreException('wget(): Failed to download file, wget reported error "1: Generic error code"', $e);
 

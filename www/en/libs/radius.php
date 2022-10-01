@@ -32,7 +32,7 @@ function radius_library_init() {
     try {
         load_config('radius');
 
-        switch($_CONFIG['radius']['provider']) {
+        switch ($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 load_libs('freeradius');
                 break;
@@ -261,7 +261,7 @@ function radius_validate_device($device) {
             $v->setError(tr('The specified mac_address is already in devices'));
         }
 
-        switch($_CONFIG['radius']['mac']) {
+        switch ($_CONFIG['radius']['mac']) {
             case 'uppercase':
                 $device['mac_address'] = strtoupper($device['mac_address']);
                 break;
@@ -475,7 +475,7 @@ function radius_sync_server() {
     try {
         $devices_local  = sql_list('SELECT `id`, `mac_address`, `status` FROM `radius_devices`');
 
-        switch($_CONFIG['radius']['provider']) {
+        switch ($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 return freeradius_sync_server($devices_local);
 
@@ -517,7 +517,7 @@ function radius_update_device_server($old_device, $device) {
     global $_CONFIG;
 
     try {
-        switch($_CONFIG['radius']['provider']) {
+        switch ($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 return freeradius_update_device_server($old_device, $device);
 
@@ -556,7 +556,7 @@ function radius_insert_device_server($device) {
     global $_CONFIG;
 
     try {
-        switch($_CONFIG['radius']['provider']) {
+        switch ($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 return freeradius_insert_device_server($device);
 
@@ -595,7 +595,7 @@ function radius_delete_device_server($device) {
     global $_CONFIG;
 
     try {
-        switch($_CONFIG['radius']['provider']) {
+        switch ($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 return freeradius_delete_device_server($device);
 
@@ -636,7 +636,7 @@ function radius_test_device($device) {
     global $_CONFIG;
 
     try {
-        switch($_CONFIG['radius']['provider']) {
+        switch ($_CONFIG['radius']['provider']) {
             case 'freeradius':
                 return freeradius_test_device($device);
 

@@ -125,7 +125,7 @@ function go_exec($params) {
          */
         $count = 0;
 
-        foreach($params['commands'] as $id => &$item) {
+        foreach ($params['commands'] as $id => &$item) {
             if (fmod(++$count, 2)) {
                 /*
                  * This must be a go command

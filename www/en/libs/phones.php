@@ -114,7 +114,7 @@ function phones_format_number($number) {
 
         $digits = strlen($number);
 
-        switch($digits) {
+        switch ($digits) {
             case 0:
                 // FALLTHROUGH
             case 1:

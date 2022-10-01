@@ -171,7 +171,7 @@ function twilio_name_phones($numbers, $non_numeric = null) {
         $numbers = sms_full_phones($numbers);
         $numbers = Arrays::force($numbers);
 
-        foreach($numbers as &$number) {
+        foreach ($numbers as &$number) {
             if (!is_numeric($number)) {
                 if ($non_numeric) {
                     $number = $non_numeric;
@@ -872,7 +872,7 @@ function twilio_api_get_number($number, $array = true) {
         $client  = twilio_load($account);
         $numbers = $client->IncomingPhoneNumbers->read();
 
-        foreach($numbers as $number) {
+        foreach ($numbers as $number) {
             if ($number->phoneNumber === $phone_number) {
                 if ($array) {
                     return twilio_number_to_array($number);
@@ -911,7 +911,7 @@ function twilio_api_list_numbers($account, $array = true) {
         $client  = twilio_load($account);
         $numbers = $client->IncomingPhoneNumbers->read();
 
-        foreach($numbers as $number) {
+        foreach ($numbers as $number) {
             if ($array) {
                 $retval[$number->phoneNumber] = twilio_number_to_array($number);
 

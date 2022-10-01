@@ -142,7 +142,7 @@ under_construction();
          * If multiple fonts have been specified, handle them one by one
          */
         if (is_array($params['font'])) {
-            foreach($params['font'] as $font) {
+            foreach ($params['font'] as $font) {
                 $params['font'] = $font;
                 fonts_convert_ufpdf($params);
             }

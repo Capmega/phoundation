@@ -2,7 +2,7 @@
 global $_CONFIG, $core;
 
 if (!$e instanceof PDOException) {
-    switch($e->getCode()) {
+    switch ($e->getCode()) {
         case 'forcedenied':
             uncaught_exception($e, true);
 
@@ -29,7 +29,7 @@ try {
                 throw new CoreException(tr('sql_error(): The specified $execute parameter is NOT an array, it is an ":type"', array(':type' => gettype($execute))), $e);
             }
 
-            foreach($execute as $key => $value) {
+            foreach ($execute as $key => $value) {
                 if (!is_scalar($value) and !is_null($value)) {
                     /*
                      * This is automatically a problem!
@@ -49,7 +49,7 @@ try {
         $error = $e->errorInfo;
     }
 
-    switch($e->getCode()) {
+    switch ($e->getCode()) {
         case 'denied':
             // FALLTHROUGH
         case 'invalidforce':
@@ -57,7 +57,7 @@ try {
             /*
              * Some database operation has failed
              */
-            foreach($e->getMessages() as $message) {
+            foreach ($e->getMessages() as $message) {
                 log_console($message, 'red');
             }
 
@@ -87,10 +87,10 @@ try {
 //                /*
 //                 * Integrity constraint violation: Duplicate entry
 //                 */
-//                throw new CoreException('sql_error(): Query "'.str_log($query, 4096).'" tries to insert or update a column row with a unique index to a value that already exists', $e);
+//                throw new CoreException('sql_error(): Query "'.Strings::Log($query, 4096).'" tries to insert or update a column row with a unique index to a value that already exists', $e);
 
         default:
-            switch(isset_get($error[1])) {
+            switch (isset_get($error[1])) {
                 case 1044:
                     /*
                      * Access to database denied
@@ -201,7 +201,7 @@ try {
                     $body = "SQL STATE ERROR : \"".$error[0]."\"\n".
                             "DRIVER ERROR    : \"".$error[1]."\"\n".
                             "ERROR MESSAGE   : \"".$error[2]."\"\n".
-                            "query           : \"".(PLATFORM_HTTP ? "<b>".str_log(debug_sql($query, $execute, true), 4096)."</b>" : str_log(debug_sql($query, $execute, true), 4096))."\"\n".
+                            "query           : \"".(PLATFORM_HTTP ? "<b>".Strings::Log(debug_sql($query, $execute, true), 4096)."</b>" : Strings::Log(debug_sql($query, $execute, true), 4096))."\"\n".
                             "date            : \"".date('d m y h:i:s')."\"\n";
 
                     if (isset($_SESSION)) {
@@ -212,7 +212,7 @@ try {
                               GET    : ".print_r($_GET   , true)."
                               SERVER : ".print_r($_SERVER, true)."\n";
 
-                    error_log('PHP SQL_ERROR: '.str_log($error[2]).' on '.str_log(debug_sql($query, $execute, true), 4096));
+                    error_log('PHP SQL_ERROR: '.Strings::Log($error[2]).' on '.Strings::Log(debug_sql($query, $execute, true), 4096));
 
                     if (!$_CONFIG['production']) {
                         throw new CoreException(nl2br($body), $e);

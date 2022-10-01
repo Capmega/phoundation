@@ -104,7 +104,7 @@ function sodium_nonce() {
  */
 function sodium_random($type) {
     try {
-        switch($type) {
+        switch ($type) {
             case 'nonce':
                 return sodium_nonce();
 

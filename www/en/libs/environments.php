@@ -38,7 +38,7 @@ function environments_select($params = null) {
 
         $params['resource'] = array();
 
-        foreach(get_config('deploy')['deploy'] as $key => $config) {
+        foreach (get_config('deploy')['deploy'] as $key => $config) {
             $params['resource'][$key] = $key;
         }
 

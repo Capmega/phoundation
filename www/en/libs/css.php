@@ -156,7 +156,7 @@ function css_purge($html, $css) {
         if ($whitelist) {
             $arguments[] = '--whitelist';
 
-            foreach(Arrays::force($whitelist) as $selector) {
+            foreach (Arrays::force($whitelist) as $selector) {
                 if ($selector) {
                     $arguments[] = $selector;
                 }

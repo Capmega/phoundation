@@ -12,9 +12,9 @@ load_libs('test,facebook,google,microsoft');
 //
 //    $avatar = facebook_get_avatar(array('fb_id' => 1368195482));
 //
-//    foreach($_CONFIG['avatars']['types'] as $type => $data) {
+//    foreach ($_CONFIG['avatars']['types'] as $type => $data) {
 //        if (!file_exists($file = ROOT.'www/avatars/'.$avatar.'_'.$type.'.jpg')) {
-//            throw new CoreException('Did not create avatar type "'.str_log($type).'"');
+//            throw new CoreException('Did not create avatar type "'.Strings::Log($type).'"');
 //
 //        } else {
 //            /*

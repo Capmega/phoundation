@@ -14,7 +14,7 @@ require_once(__DIR__.'/../../../libs/startup.php');
 try {
     load_libs('session');
 
-    switch(cli_argument(0)) {
+    switch (cli_argument(0)) {
         case 'take':
             if (!cli_argument(1)) {
                 throw new CoreException('No session ID to take specified', 'nosessionid');
@@ -24,7 +24,7 @@ try {
             break;
 
         case 'list':
-            foreach(session_list() as $session) {
+            foreach (session_list() as $session) {
                 echo $session."\n";
             }
 

@@ -14,7 +14,7 @@ load_config('crypto');
 
 
 
-switch($_CONFIG['crypto']['backend']) {
+switch ($_CONFIG['crypto']['backend']) {
     case 'coinpayments':
         load_libs('coinpayments');
         break;
@@ -41,7 +41,7 @@ function crypto_currencies_supported($currencies) {
         return false;
     }
 
-    foreach(Arrays::force($currencies) as $currency) {
+    foreach (Arrays::force($currencies) as $currency) {
         if (!in_array($currency, $_CONFIG['crypto']['currencies'])) {
             throw new CoreException(tr('crypto_currencies_supported(): Specified currency ":currency" is not supported', array(':currency' => $currency)), 'not-supported');
         }
@@ -65,7 +65,7 @@ function crypto_validate_transaction($transaction, $provider) {
             crypto_currencies_supported($transaction['currency']);
         }
 
-        switch($provider) {
+        switch ($provider) {
             case 'coinpayments':
                 $transaction['amounti']             = isset_get($transaction['amounti']);
                 $transaction['feei']                = isset_get($transaction['feei']);
@@ -294,7 +294,7 @@ function crypto_update_exchange_rates() {
         $insert     = sql_prepare('INSERT INTO `crypto_rates` (`createdon`, `status`, `currency`, `provider`, `rate_btc`, `fee`)
                                    VALUES                     (:createdon , :status , :currency , :provider , :rate_btc , :fee )');
 
-        foreach($currencies as $code => $currency) {
+        foreach ($currencies as $code => $currency) {
             $insert->execute(array(':createdon' => $createdon,
                                    ':status'    => $currency['status'],
                                    ':provider'  => $_CONFIG['crypto']['backend'],
@@ -399,7 +399,7 @@ function crypto_get_account_info() {
     global $_CONFIG;
 
     try {
-        switch($_CONFIG['crypto']['backend']) {
+        switch ($_CONFIG['crypto']['backend']) {
             case 'coinpayments':
                 return coinpayments_get_account_info();
         }
@@ -420,7 +420,7 @@ function crypto_get_rates($currencies = null) {
     try {
         crypto_currencies_supported($currencies);
 
-        switch($_CONFIG['crypto']['backend']) {
+        switch ($_CONFIG['crypto']['backend']) {
             case 'coinpayments':
                 return coinpayments_get_rates($currencies);
         }
@@ -441,7 +441,7 @@ function crypto_get_balances($currencies = null) {
     try {
         crypto_currencies_supported($currencies);
 
-        switch($_CONFIG['crypto']['backend']) {
+        switch ($_CONFIG['crypto']['backend']) {
             case 'coinpayments':
                 return coinpayments_get_balances($currencies);
         }
@@ -462,7 +462,7 @@ function crypto_get_address($currency) {
     try {
         crypto_currencies_supported($currency);
 
-        switch($_CONFIG['crypto']['backend']) {
+        switch ($_CONFIG['crypto']['backend']) {
             case 'coinpayments':
                 return coinpayments_get_address($currency);
         }
@@ -501,7 +501,7 @@ function crypto_get_deposit_address($currency, $callback_url = null, $force = fa
             return $exist['address'];
         }
 
-        switch($_CONFIG['crypto']['backend']) {
+        switch ($_CONFIG['crypto']['backend']) {
             case 'coinpayments':
                 $address = coinpayments_get_deposit_address($currency, $callback_url);
                 break;

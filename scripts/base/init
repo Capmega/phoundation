@@ -115,7 +115,7 @@ if (is_version($method)) {
 /*
  * Process methods
  */
-switch($method) {
+switch ($method) {
     case 'drop':
         /*
          * Drop the core database
@@ -216,7 +216,7 @@ switch($method) {
                  * During init, force EMULATE_PREPARES because loads of init stuff will NOT work without
                  * Thanks PHP, for giving us the option between a shitty driver, or half a driver!
                  */
-                foreach($_CONFIG['db'] as $name => &$connector) {
+                foreach ($_CONFIG['db'] as $name => &$connector) {
                     if ($name == 'default') continue;
 
                     if (!empty($connector['init'])) {
@@ -228,7 +228,7 @@ switch($method) {
                 init($pfrom, $ffrom);
 
             }catch(Exception $e) {
-                switch($e->getCode()) {
+                switch ($e->getCode()) {
                     case 'noinit':
                         log_console(tr('Core database init system has been disabled in db configuration'), 'yellow');
                         throw $e;

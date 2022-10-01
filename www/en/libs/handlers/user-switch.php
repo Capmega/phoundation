@@ -1,6 +1,6 @@
 <?php
 /*
- * user_switch() handler
+ * user_switch () handler
  *
  * This snippet will switch the current session user to the specified new user
  *
@@ -12,7 +12,7 @@ try {
      * Does the specified user exist?
      */
     if (!$user = sql_get('SELECT *, `email` FROM `users` WHERE `id` = :id', array(':id' => $users_id))) {
-        throw new CoreException(tr('user_switch(): The specified user ":id" does not exist', array(':id' => $users_id)), 'not-exists');
+        throw new CoreException(tr('user_switch (): The specified user ":id" does not exist', array(':id' => $users_id)), 'not-exists');
     }
 
     /*
@@ -97,9 +97,9 @@ try {
      * Not all ok? then fail
      */
     log_database(tr('Denied user switch from ":from" to ":to"', array(':from' => name($from), ':to' => name($_SESSION['user']))), 'user/switch');
-    throw new CoreException(tr('user_switch(): The user ":user" does not have the required rights to perform user switching', array(':user' => name($_SESSION['user']))), 'access-denied');
+    throw new CoreException(tr('user_switch (): The user ":user" does not have the required rights to perform user switching', array(':user' => name($_SESSION['user']))), 'access-denied');
 
 }catch(Exception $e) {
-    throw new CoreException('user_switch(): Failed', $e);
+    throw new CoreException('user_switch (): Failed', $e);
 }
 ?>

@@ -76,7 +76,7 @@ class socialmedia_oauth_connect
 
       public function Initialize() {
           $this->nonce = time() . rand();
-          switch(strtolower($this->provider))
+          switch (strtolower($this->provider))
         {
             case 'bitly':
                 $this->oauth_version="2.0";

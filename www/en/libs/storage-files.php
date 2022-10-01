@@ -45,7 +45,7 @@ function storage_files_insert($params) {
         if ($params['convert']) {
             load_libs('image');
 
-            switch($params['convert']) {
+            switch ($params['convert']) {
                 case 'jpg':
                     // FALLTHROUGH
                 case 'jpeg':

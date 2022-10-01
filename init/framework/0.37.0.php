@@ -88,7 +88,7 @@ if (!empty($_CONFIG['twilio']['accounts'])) {
     $r_number = sql_prepare('INSERT INTO `twilio_numbers` (`accounts_id`, `number`, `name`)
                              VALUES                       (:accounts_id , :number , :name )');
 
-    foreach($_CONFIG['twilio']['accounts'] as $email => $data) {
+    foreach ($_CONFIG['twilio']['accounts'] as $email => $data) {
         cli_dot(1);
         $r_account->execute(array(':email'          => $email,
                                   ':accounts_id'    => $data['accounts_id'],
@@ -96,7 +96,7 @@ if (!empty($_CONFIG['twilio']['accounts'])) {
 
         $accounts_id = sql_insert_id();
 
-        foreach($data['sources'] as $number => $name) {
+        foreach ($data['sources'] as $number => $name) {
             cli_dot(1);
             $r_number->execute(array(':accounts_id' => $accounts_id,
                                      ':number'      => $number,

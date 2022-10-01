@@ -680,8 +680,8 @@ function geo_get_city_from_location($latitude, $longitude, $filters = null, $sin
         }
 
         if ($filters) {
-            foreach($filters as $key => $value) {
-                switch($key) {
+            foreach ($filters as $key => $value) {
+                switch ($key) {
                     case 'status':
                         $where[]         = ' `status` IS NULL ';
                         break;

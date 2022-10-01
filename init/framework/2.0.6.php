@@ -12,7 +12,7 @@ if (git_is_available() and git_is_repository()) {
 
 log_console(tr('Cleaning up garbage (Old library handler files)'), 'cyan', false);
 
-foreach(scandir(ROOT.'libs/handlers') as $file) {
+foreach (scandir(ROOT.'libs/handlers') as $file) {
     if (($file == '.') or ($file == '..')) {
         continue;
     }

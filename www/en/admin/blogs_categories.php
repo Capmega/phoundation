@@ -36,7 +36,7 @@ if ($action == 'add') {
 
 } elseif ($selected) {
     if (!$category = sql_get('SELECT * FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $selected))) {
-        html_flash_set(tr('The specified category "'.str_log($selected).'" does not exist in this blog'), 'error');
+        html_flash_set(tr('The specified category "'.Strings::Log($selected).'" does not exist in this blog'), 'error');
         $selected = null;
     }
 }
@@ -45,7 +45,7 @@ if ($action == 'add') {
 /*
  * We have to do something?
  */
-switch(strtolower(isset_get($_POST['doaction']))) {
+switch (strtolower(isset_get($_POST['doaction']))) {
     case tr('add'):
         redirect(domain(http_build_url($_SERVER['REQUEST_URI'], 'doaction=add')));
 
@@ -109,7 +109,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
             }
 
             if (sql_get('SELECT `id` FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `name` = :name', 'id', array(':blogs_id' => $blog['id'], ':name' => $category['name']))) {
-                throw new CoreException('A category with the name "'.str_log($category['name']).'" already exists', 'exists');
+                throw new CoreException('A category with the name "'.Strings::Log($category['name']).'" already exists', 'exists');
             }
 
             $category['seoname']     = seo_generate_unique_name($category['name'], 'blogs_categories', $category['id']);
@@ -128,7 +128,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
                              ':seokeywords' => $category['seokeywords'],
                              ':description' => $category['description']));
 
-            html_flash_set('The category "'.str_log($category['name']).'" has been created', 'success');
+            html_flash_set('The category "'.Strings::Log($category['name']).'" has been created', 'success');
             $category  = array();
 
         }catch(Exception $e) {
@@ -263,7 +263,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
              * Due to the update, the name might have changed.
              * Redirect to ensure that the name in the URL is correct
              */
-            html_flash_set(tr('The category "%category%" has been updated', '%category%', str_log($category['name'])), 'success');
+            html_flash_set(tr('The category "%category%" has been updated', '%category%', Strings::Log($category['name'])), 'success');
             redirect('/admin/blogs_categories.php?blog='.$blog['seoname']);
 
         }catch(Exception $e) {
@@ -500,7 +500,7 @@ if (!$categories) {
                             <th>'.tr('Status').'</th>
                         </thead>';
 
-    foreach($categories as $id => $cat) {
+    foreach ($categories as $id => $cat) {
         $a = '<a href="'.domain('/admin/blogs_categories.php?blog='.$blog['seoname'].'&category='.$cat['seoname']).'">';
 
         $html .= '<tr'.(($selected == $cat['seoname']) ? ' class="selected"' : '').'><td class="select"><input type="checkbox" name="id[]" value="'.$id.'"></td>

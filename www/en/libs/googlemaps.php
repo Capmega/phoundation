@@ -235,7 +235,7 @@ function googlemaps_map_with_markers($markers = array(), $divid = 'map-canvas') 
             if (empty($markers)) {
                 throw new CoreException('googlemaps_map_with_markers(): Failed to place any markers', isset_get($e, 'markerfailed'));
             }
-            foreach($markers as $key => $data) {
+            foreach ($markers as $key => $data) {
                 try {
                     if (empty($data['lat'])) {
                         throw new CoreException('googlemaps_map_with_markers(): No latitute specified for marker "'.$key.'"', isset_get($e, 'markerfailed'));
@@ -442,7 +442,7 @@ function googlemaps_markers($locations, $longitude = null) {
 
         $retval = array();
 
-         foreach($locations as $location) {
+         foreach ($locations as $location) {
             $retval[] = array('lat'  => $location['latitude'],
                               'lng'  => $location['longitude'],
                               'html' => '',

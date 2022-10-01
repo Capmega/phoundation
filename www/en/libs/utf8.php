@@ -38,7 +38,7 @@ function utf8_escape($string) {
         return Zend_Utf8::escape((string) $string);
 
     }catch(Exception $e) {
-        throw new CoreException('utf8_escape(): Failed for string "'.str_log($string).'"', $e);
+        throw new CoreException('utf8_escape(): Failed for string "'.Strings::Log($string).'"', $e);
     }
 }
 
@@ -59,7 +59,7 @@ function utf8_unescape($string) {
         return Zend_Utf8::unescape($string);
 
     }catch(Exception $e) {
-        throw new CoreException('utf8_unescape(): Failed for string "'.str_log($string).'"', $e);
+        throw new CoreException('utf8_unescape(): Failed for string "'.Strings::Log($string).'"', $e);
     }
 }
 
@@ -522,7 +522,7 @@ class Zend_Utf8
             {
                 if (! self::isCallable($value))
                 {
-                    throw new CoreException('Zend_Utf8::validateFilters(): Expected a valid "'.str_log($key).'" filter', 'invalid');
+                    throw new CoreException('Zend_Utf8::validateFilters(): Expected a valid "'.Strings::Log($key).'" filter', 'invalid');
                 }
             }
             return true;
@@ -710,7 +710,7 @@ class Zend_Utf8
 
         $chr    = $chr[0];
 
-        switch( strlen( $chr ) )
+        switch ( strlen( $chr ) )
         {
             case 1:        return
                             ord( $chr );
@@ -1837,7 +1837,7 @@ class Zend_Utf8
 
             $diff    = $pad_length - $input_length;
 
-            switch( $pad_type )
+            switch ( $pad_type )
             {
                 case STR_PAD_LEFT:
                         $pre    = utf8_str_repeat( $pad_string , ( int ) ceil( $diff / $ps_length ) );
@@ -1948,7 +1948,7 @@ class Zend_Utf8
 
         if ( is_array( $what ) )
         {
-            foreach( $what as $item )
+            foreach ( $what as $item )
             {
                 $str    = preg_replace( '/('. preg_quote( $item , '/' ) .')+/' , $item , $str );
             }
@@ -2535,7 +2535,7 @@ class Zend_Utf8
 
     function utf8_ucwords( $str )
     {
-        foreach( utf8_ws( ) as $ws )
+        foreach ( utf8_ws( ) as $ws )
         {
             $pos    = -1;
 

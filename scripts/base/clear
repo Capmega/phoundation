@@ -24,7 +24,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 $tmp   = false;
 $cache = false;
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'cache':
         cli_no_arguments_left();
         log_console('Clearing cache', 'white');

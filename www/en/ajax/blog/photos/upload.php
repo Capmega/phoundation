@@ -37,7 +37,7 @@ try {
                                 </div>'));
 
 }catch(Exception $e) {
-    switch($e->getCode()) {
+    switch ($e->getCode()) {
         case UPLOAD_ERR_INI_SIZE:
             // FALLTHROUGH
         case UPLOAD_ERR_FORM_SIZE:
@@ -53,10 +53,10 @@ try {
         case UPLOAD_ERR_CANT_WRITE:
             // FALLTHROUGH
         case UPLOAD_ERR_EXTENSION:
-            json_error(tr('Error, please try again later "'.str_log(isset_get($_POST['id'])).'" specified'));
+            json_error(tr('Error, please try again later "'.Strings::Log(isset_get($_POST['id'])).'" specified'));
 
         case 'unknown':
-            json_error(tr('Unknown blog post "'.str_log(isset_get($_POST['id'])).'" specified'));
+            json_error(tr('Unknown blog post "'.Strings::Log(isset_get($_POST['id'])).'" specified'));
 
         case 'notspecified':
             json_error(tr('No blog post specified'));

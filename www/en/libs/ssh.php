@@ -164,7 +164,7 @@ function ssh_exec($server, $params) {
         return $results;
 
     }catch(Exception $e) {
-        switch($e->getRealCode()) {
+        switch ($e->getRealCode()) {
             case 'not-exists':
                 // FALLTHROUGH
             case 'invalid':
@@ -334,8 +334,8 @@ showdie($command);
         /*
          * Process command parameters
          */
-        foreach($params as $parameter => &$value) {
-            switch($parameter) {
+        foreach ($params as $parameter => &$value) {
+            switch ($parameter) {
                 case 'options':
                     /*
                      * Options are processed in ssh_get_otions();
@@ -492,7 +492,7 @@ showdie($command);
                 }
             }
 
-            switch($params['ssh_command']) {
+            switch ($params['ssh_command']) {
                 case 'ssh':
                     // FALLTHROUGH
                 case 'autossh':
@@ -564,7 +564,7 @@ showdie($command);
                 $target_server  = $server['domain'];
                 $target_port    = $server['port'];
 
-                foreach($proxies as $id => $proxy) {
+                foreach ($proxies as $id => $proxy) {
                     $proxy_string = $proxy_template;
 
                     for($escape = 0; $escape < $escapes; $escape++) {
@@ -693,8 +693,8 @@ function ssh_build_options($options = null) {
         /*
          * Validate and apply each option
          */
-        foreach($options as $option => $value) {
-            switch($option) {
+        foreach ($options as $option => $value) {
+            switch ($option) {
                 case 'connect_timeout':
                     if ($value) {
                         if (!is_numeric($value)) {
@@ -1093,7 +1093,7 @@ function ssh_add_known_host($domain, $port) {
              * This host is already registered in the ssh_fingerprints table. We
              * should be able to find all its fingerprints
              */
-            foreach($fingerprints as $fingerprint) {
+            foreach ($fingerprints as $fingerprint) {
                 $exists = array_key_exists($fingerprint['fingerprint'], $dbfingerprints);
 
                 if (!$exists) {
@@ -1114,7 +1114,7 @@ function ssh_add_known_host($domain, $port) {
                                    VALUES                         (:createdby , :meta_id , :servers_id , :domain , :seodomain , :port , :fingerprint , :algorithm )');
 
 
-            foreach($fingerprints as $fingerprint) {
+            foreach ($fingerprints as $fingerprint) {
                 $insert->execute(array(':createdby'   => isset_get($_SESSION['user']['id']),
                                        ':meta_id'     => meta_action(),
                                        'servers_id'   => $server['id'],
@@ -1136,7 +1136,7 @@ function ssh_add_known_host($domain, $port) {
         /*
          * Now add them to the known_hosts file
          */
-        foreach($fingerprints as $fingerprint) {
+        foreach ($fingerprints as $fingerprint) {
             if (ssh_append_fingerprint($fingerprint)) {
                 $count++;
             }
@@ -1314,7 +1314,7 @@ function ssh_get_fingerprints($domain, $port) {
         $retval  = array();
         $results = safe_exec(array('commands' => array('ssh-keyscan', array('-p', $port, $domain))));
 
-        foreach($results as $result) {
+        foreach ($results as $result) {
             if (substr($result, 0, 1) === '#') continue;
 
             preg_match_all('/\[(.+?)\](?:\:(\d{1,5}))\s+([a-z0-9-]+)\s+([a-z0-9+\/]+)/i', $result, $matches);
@@ -1594,7 +1594,7 @@ function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server
         $results   = array();
         $processes = cli_list_processes('ssh,-L');
 
-        foreach($processes as $pid => $process) {
+        foreach ($processes as $pid => $process) {
             if (!preg_match_all('/(\d+)(\:.+?\:\d+)/', $process, $matches)) {
                 /*
                  * Failed to identify the tunnel configuration
@@ -1613,7 +1613,7 @@ function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server
                  * In case of 127.0.0.1 or localhost, check for both alternatives
                  */
 // :TODO: Check if maybe in the future we should check all possible domain names and IP's
-                switch($target_domain) {
+                switch ($target_domain) {
                     case 'localhost':
                         $alt_domain = '127.0.0.1';
                         break;
@@ -1629,7 +1629,7 @@ function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server
             }
         }
 
-        switch(count($results)) {
+        switch (count($results)) {
             case 0:
                 /*
                  * No tunnel with the requeste configuration found
@@ -1705,7 +1705,7 @@ function ssh_close_tunnel($pid) {
          */
         if (isset($core->register['shutdown_ssh_close_tunnel'])) {
             if (is_array($core->register['shutdown_ssh_close_tunnel'])) {
-                foreach($core->register['shutdown_ssh_close_tunnel'] as $key => $registered_pid) {
+                foreach ($core->register['shutdown_ssh_close_tunnel'] as $key => $registered_pid) {
                     if ($pid == $registered_pid) {
                         unset($core->register['shutdown_ssh_close_tunnel'][$key]);
                     }
@@ -1805,7 +1805,7 @@ function ssh_list_persistent($close = false) {
     try {
         $retval = array();
 
-        foreach(scandir(ROOT.'data/ssh/control') as $socket) {
+        foreach (scandir(ROOT.'data/ssh/control') as $socket) {
             $pid          = ssh_persistent_pid($socket);
             $retval[$pid] = $socket;
 

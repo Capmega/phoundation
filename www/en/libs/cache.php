@@ -33,7 +33,7 @@ function cache_library_init() {
         /*
          * Auto load the memcached or file library
          */
-        switch($_CONFIG['cache']['method']) {
+        switch ($_CONFIG['cache']['method']) {
             case 'memcached':
                 load_libs('memcached');
                 break;
@@ -83,7 +83,7 @@ function cache_read($key, $namespace = null) {
             throw new CoreException(tr('cache_read(): No cache key specified'), 'not-specified');
         }
 
-        switch($_CONFIG['cache']['method']) {
+        switch ($_CONFIG['cache']['method']) {
             case 'file':
                 $key  = cache_key_hash($key);
                 $data = cache_read_file($key, $namespace);
@@ -192,7 +192,7 @@ function cache_write($value, $key, $namespace = null, $max_age = null) {
             throw new CoreException(tr('cache_write(): No cache key specified'), 'warning/not-specified');
         }
 
-        switch($_CONFIG['cache']['method']) {
+        switch ($_CONFIG['cache']['method']) {
             case 'file':
                 $key = cache_key_hash($key);
                 cache_write_file($value, $key, $namespace);

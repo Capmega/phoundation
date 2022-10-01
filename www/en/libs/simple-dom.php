@@ -1676,7 +1676,7 @@ class simple_html_dom
         global $debug_object;
         if (is_object($debug_object)) { $debug_object->debugLogEntry(1); }
 
-        foreach($this->noise as $noiseElement)
+        foreach ($this->noise as $noiseElement)
         {
             if (strpos($noiseElement, $text)!==false)
             {

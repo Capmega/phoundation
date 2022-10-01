@@ -147,7 +147,7 @@ if (!in_array($criteria, array('ALL', 'ANSWERED', 'DELETED', 'FLAGGED', 'NEW', '
     }
 }
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'clear':
         /*
          * Requires FORCE because its effin dangerous!
@@ -213,7 +213,7 @@ switch(cli_method()) {
     case 'imap':
         $sub = cli_argument(1);
 
-        switch($sub) {
+        switch ($sub) {
             case 'info':
                 /*
                  * list the available mail boxes for the specified users
@@ -266,7 +266,7 @@ switch(cli_method()) {
 
                     log_console(tr('Found ":count" boxes', array(':count' => count($boxes))), 'cyan');
 
-                    foreach($boxes as $box) {
+                    foreach ($boxes as $box) {
                         log_console($box);
                     }
 
@@ -293,7 +293,7 @@ switch(cli_method()) {
                 while ($account = sql_fetch($r, 'email')) {
                     log_console(tr('Deleting emails for account ":account"', array(':account' => $account)), 'white');
 
-                    foreach($mail_boxes as $mail_box) {
+                    foreach ($mail_boxes as $mail_box) {
                         $count = email_delete(array('account'  => $account,
                                                     'mail_box' => $mail_box,
                                                     'criteria' => $criteria,
@@ -362,7 +362,7 @@ switch(cli_method()) {
                     log_console(tr('Processing account ":account"', array(':account' => $account)));
                 }
 
-                foreach($mail_boxes as $mail_box) {
+                foreach ($mail_boxes as $mail_box) {
                     if (VERBOSE) {
                         log_console(tr('Processing mail box ":mailbox"', array(':mailbox' => $mail_box)));
                     }
@@ -394,7 +394,7 @@ switch(cli_method()) {
             }
         }
 
-        switch($count) {
+        switch ($count) {
             case 0:
                 log_console(tr('Added no new emails'), 'yellow');
                 break;
@@ -532,7 +532,7 @@ switch(cli_method()) {
 
             $conversation['last_messages'] = array();
 
-            foreach($list as $id => $message) {
+            foreach ($list as $id => $message) {
                 if (empty($modifiedon)) {
                     $direction  = $message['direction'];
                     $modifiedon = $message['createdon'];

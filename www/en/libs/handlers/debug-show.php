@@ -41,7 +41,7 @@ try {
 
     if (PLATFORM_HTTP) {
         if (empty($core->register['debug_plain'])) {
-            switch($core->callType()) {
+            switch ($core->callType()) {
                 case 'api':
                     // FALLTHROUGH
                 case 'ajax':

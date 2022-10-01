@@ -15,7 +15,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 
 load_libs('user,rights');
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'list':
         $rights = sql_query('SELECT `name`,
                                     `status`,
@@ -208,7 +208,7 @@ switch(cli_method()) {
 
                          array_merge($in_name, $in_id));
 
-        switch(!$r->rowCount()) {
+        switch (!$r->rowCount()) {
             case 0:
                 log_console(tr('Not deleted any rights'), 'error');
                 break;
@@ -249,7 +249,7 @@ switch(cli_method()) {
 
                          array_merge($in_name, $in_id));
 
-        switch(!$r->rowCount()) {
+        switch (!$r->rowCount()) {
             case 0:
                 log_console(tr('Not undeleted any rights'), 'error');
                 break;
@@ -309,7 +309,7 @@ switch(cli_method()) {
             log_console(tr('Not erased any rights'), 'error');
 
         } else {
-            switch($r->rowCount()) {
+            switch ($r->rowCount()) {
                 case 0:
                     break;
 

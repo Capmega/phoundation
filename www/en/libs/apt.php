@@ -76,7 +76,7 @@ function apt_install($packages, $auto_update = true, $server = null) {
         return $results;
 
     }catch(Exception $e) {
-        switch($e->getRealCode()) {
+        switch ($e->getRealCode()) {
             case '100':
                 /*
                  * Package doesn't exist, proabably
@@ -112,7 +112,7 @@ function apt_install($packages, $auto_update = true, $server = null) {
                         }
                     }
 
-                    foreach($data as $line) {
+                    foreach ($data as $line) {
                         $match = preg_match('/^Try "snap install ([a-z-_]+)"$/ius', $line, $matches);
 
                         if ($match) {
@@ -185,11 +185,11 @@ function apt_update($server = null) {
         $hits = 0;
         $data = $e->getData();
 
-        foreach($data as $line) {
+        foreach ($data as $line) {
             $code = substr($line, 0, 3);
             $code = strtolower($code);
 
-            switch($code) {
+            switch ($code) {
                 case 'get':
                     /*
                      * This was a hit, so we have internet and

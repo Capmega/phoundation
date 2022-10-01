@@ -51,9 +51,9 @@ cli_only();
 /*
  * Process methods
  */
-switch(cli_method()) {
+switch (cli_method()) {
     case 'list':
-        switch(cli_method(1)) {
+        switch (cli_method(1)) {
             case 'sections':
                 load_libs('storage-sections');
                 $status = STATUS;
@@ -223,7 +223,7 @@ switch(cli_method()) {
         /*
          * Ensure all files are available
          */
-        foreach($files as $file) {
+        foreach ($files as $file) {
             if (!file_exists($file)) {
                 throw new CoreException(tr('Specified file ":file" does not exist', array(':file' => $file)), 'warning/not-exist');
             }
@@ -233,7 +233,7 @@ switch(cli_method()) {
          * Yay, all verified and okay! Start adding the files!
          */
         while (true) {
-            foreach($files as $path) {
+            foreach ($files as $path) {
                 if (!file_exists($path)) {
                     throw new CoreException(tr('Specified file or path ":path" does not exist', array(':path' => $path)), 'warning/not-exist');
                 }
@@ -241,7 +241,7 @@ switch(cli_method()) {
                 if (is_dir($path)) {
                     $path = Strings::slash($path);
 
-                    foreach(scandir($path) as $file) {
+                    foreach (scandir($path) as $file) {
                         /*
                          * Skip navication directories, skip PART files which
                          * are still being scanned / downloaded / etc

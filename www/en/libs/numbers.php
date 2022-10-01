@@ -70,7 +70,7 @@ function bytes_convert($amount, $unit = 'auto', $precision = 2, $add_suffix = fa
                 throw new CoreException('bytes_convert(): Specified amount "'.$amount.'" is not a valid byte amount. Format should be either n, or nKB, nKiB, etc');
             }
 
-            switch(strtolower($matches[2])) {
+            switch (strtolower($matches[2])) {
                 case 'b':
                     /*
                      * Just bytes
@@ -169,7 +169,7 @@ function bytes_convert($amount, $unit = 'auto', $precision = 2, $add_suffix = fa
         /*
          * Convert to requested unit
          */
-        switch(strtolower($unit)) {
+        switch (strtolower($unit)) {
             case 'b':
                 /*
                  * Just bytes
@@ -245,7 +245,7 @@ function bytes_convert($amount, $unit = 'auto', $precision = 2, $add_suffix = fa
         /*
          * Return amount with correct suffix.
          */
-        switch(strlen($unit)) {
+        switch (strlen($unit)) {
             case 1:
                 return $amount.'b';
 
@@ -329,7 +329,7 @@ function numbers_get_step() {
         $args   = func_get_args();
         $retval = 0;
 
-        foreach($args as $key => $value) {
+        foreach ($args as $key => $value) {
             /*
              * Validate we have numeric values
              */

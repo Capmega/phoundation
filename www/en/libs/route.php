@@ -194,8 +194,8 @@ function route($regex, $target, $flags = null) {
         $block  = false;    // By default, do not block this request
         $static = true;     // By default, do check for static rules, if configured so
 
-        foreach($flags as $flags_id => $flag) {
-            switch($flag[0]) {
+        foreach ($flags as $flags_id => $flag) {
+            switch ($flag[0]) {
                 case 'D':
                     /*
                      * Include domain in match
@@ -277,8 +277,8 @@ function route($regex, $target, $flags = null) {
         if (preg_match_all('/:([A-Z_]+)/', $target, $variables)) {
             array_shift($variables);
 
-            foreach(array_shift($variables) as $variable) {
-                switch($variable) {
+            foreach (array_shift($variables) as $variable) {
+                switch ($variable) {
                     case 'PROTOCOL':
                         /*
                          * The protocol used in the current request
@@ -338,7 +338,7 @@ function route($regex, $target, $flags = null) {
                 $dynamic_pagematch = true;
             }
 
-            foreach($replacements[1] as $replacement) {
+            foreach ($replacements[1] as $replacement) {
                 try {
                     if (!$replacement[0] or empty($matches[$replacement[0]])) {
                         throw new CoreException(tr('route(): Non existing regex replacement ":replacement" specified in route ":route"', array(':replacement' => '$'.$replacement[0], ':route' => $route)), 'invalid');
@@ -364,7 +364,7 @@ function route($regex, $target, $flags = null) {
          * Apply specified post matching flags. Depending on individual flags we
          * may do different things
          */
-        foreach($flags as $flags_id => $flag) {
+        foreach ($flags as $flags_id => $flag) {
             if (!$flag) {
                 /*
                  * Completely ignore empty flags
@@ -372,7 +372,7 @@ function route($regex, $target, $flags = null) {
                 continue;
             }
 
-            switch($flag[0]) {
+            switch ($flag[0]) {
                 case 'A':
                     /*
                      * Send the file as a downloadable attachment
@@ -478,7 +478,7 @@ function route($regex, $target, $flags = null) {
                      */
                     $http_code = substr($flag, 1);
 
-                    switch($http_code) {
+                    switch ($http_code) {
                         case '':
                             $http_code = 301;
                             break;
@@ -546,7 +546,7 @@ function route($regex, $target, $flags = null) {
              * Only allow specific query keys. First check all allowed query
              * keys if they have actions specified
              */
-            foreach($get as $key => $value) {
+            foreach ($get as $key => $value) {
                 if (str_contains($key, '=')) {
                     /*
                      * Regenerate the key as a $key => $value instead of $key=$value => null
@@ -559,7 +559,7 @@ function route($regex, $target, $flags = null) {
             /*
              * Go over all $_GET variables and ensure they're allowed
              */
-            foreach($_GET as $key => $value) {
+            foreach ($_GET as $key => $value) {
                 /*
                  * This key must be allowed, or we're done
                  */
@@ -574,7 +574,7 @@ function route($regex, $target, $flags = null) {
                  * Okay, the key is allowed, yay! What action are we going to
                  * take?
                  */
-                switch($get[$key]) {
+                switch ($get[$key]) {
                     case null:
                         break;
 
@@ -636,7 +636,7 @@ function route($regex, $target, $flags = null) {
                      */
                     log_file(tr('Attempting to remap for language ":language"', array(':language' => $language)), 'route', 'VERBOSE/cyan');
 
-                    foreach($core->register['route_map'][$language] as $unknown => $remap) {
+                    foreach ($core->register['route_map'][$language] as $unknown => $remap) {
                         if (strpos($page, $unknown) !== false) {
                             $translated = true;
                             $page       = str_replace($unknown, $remap, $page);
@@ -689,7 +689,7 @@ function route($regex, $target, $flags = null) {
         if ($get) {
             $get = explode('&', $get);
 
-            foreach($get as $entry) {
+            foreach ($get as $entry) {
                 $_GET[Strings::until($entry, '=')] = Strings::from($entry, '=', 0, true);
             }
         }
@@ -727,8 +727,8 @@ function route($regex, $target, $flags = null) {
              */
             $flags = Arrays::force($flags);
 
-            foreach($flags as $id => $flag) {
-                switch($flag[0]) {
+            foreach ($flags as $id => $flag) {
+                switch ($flag[0]) {
                     case 'H':
                         // FALLTHROUGH
                     case 'S':
@@ -877,7 +877,7 @@ function route_shutdown() {
         if (!empty($_CONFIG['route']['known_hacks'])) {
             log_console(tr('Applying known hacking rules'), 'VERBOSE/yellow');
 
-            foreach($_CONFIG['route']['known_hacks'] as $hacks) {
+            foreach ($_CONFIG['route']['known_hacks'] as $hacks) {
                 route($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
             }
         }

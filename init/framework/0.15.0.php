@@ -118,7 +118,7 @@ $rights = array('rights'        => 'This right allows the user to modify user ri
                 'statistics'    => 'This right allows access to statistics',
                 'configuration' => 'This right allows access to configuration');
 
-foreach($rights as $name => $description) {
+foreach ($rights as $name => $description) {
     $p->execute(array(':name'        => $name,
                       ':description' => $description));
 }
@@ -156,7 +156,7 @@ $roles = array('god'       => array('description' => 'This role is for the most 
                'moderator' => array('description' => 'This role is for a standard moderator with no extra rights',
                                     'rights'      => 'admin'));
 
-foreach($roles as $name => $data) {
+foreach ($roles as $name => $data) {
     $p->execute(array(':name'        => $name,
                       ':description' => $data['description']));
 
@@ -164,7 +164,7 @@ foreach($roles as $name => $data) {
 
     $q->execute(array(':roles_id' => $roles_id));
 
-    foreach(Arrays::force($data['rights']) as $right) {
+    foreach (Arrays::force($data['rights']) as $right) {
         $rights_id = sql_get('SELECT `id` FROM `rights` WHERE `name` = :name', 'id', array(':name' => $right));
 
         $r->execute(array(':roles_id'  => $roles_id,

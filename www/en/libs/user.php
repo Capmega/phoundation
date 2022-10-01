@@ -269,7 +269,7 @@ function user_is_group_member($group_list, $user = null) {
             $groups = &$user['groups'];
         }
 
-        foreach(Arrays::force($group_list) as $group) {
+        foreach (Arrays::force($group_list) as $group) {
             if (!in_array($group, $groups)) {
                 return false;
             }
@@ -336,7 +336,7 @@ function user_add_to_group($user, $groups, $validate = true) {
             if (is_array($groups)) {
                 $count = 0;
 
-                foreach($groups as $group) {
+                foreach ($groups as $group) {
                     if (!$group) continue;
 
                     if (user_add_to_group($user, $group, false)) {
@@ -433,7 +433,7 @@ function user_remove_from_group($user, $groups, $validate = true) {
             if (is_array($groups)) {
                 $count = 0;
 
-                foreach($groups as $group) {
+                foreach ($groups as $group) {
                     if (user_remove_from_group($user, $group, false)) {
                         $count++;
                     }
@@ -500,7 +500,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
             $null = false;
 
 
-            foreach($in as $key => $status_value) {
+            foreach ($in as $key => $status_value) {
                 if (($status_value === 'null') or ($status_value === null)) {
                     $null = true;
                     unset($in[$key]);
@@ -605,7 +605,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
             /*
              * This check will only do anything if the users table contains the "type" column. If it doesn't, nothing will ever happen here, really
              */
-            log_database(tr('user_authenticate(): Specified user account ":username" has status ":type" and cannot be authenticated', array(':username' => str_log($username), ':type' => str_log($user['type']))), 'authentication/not-exists');
+            log_database(tr('user_authenticate(): Specified user account ":username" has status ":type" and cannot be authenticated', array(':username' => Strings::Log($username), ':type' => Strings::Log($user['type']))), 'authentication/not-exists');
             throw new CoreException(tr('user_authenticate(): Specified user account has status ":type" and cannot be authenticated', array(':type' => $user['type'])), 'type');
         }
 
@@ -658,7 +658,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
             $password = get_hash($password, $algorithm, false);
 
         }catch(Exception $e) {
-            switch($e->getCode()) {
+            switch ($e->getCode()) {
                 case 'unknown-algorithm':
                     throw new CoreException(tr('user_authenticate(): User account ":name" has an unknown algorithm ":algorithm" specified', array(':user' => name($user), ':algorithm' => $algorithm)), $e);
 
@@ -783,7 +783,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
              */
             if ($date = sql_get('SELECT `createdon` FROM `passwords` WHERE `users_id` = :users_id AND `password` = :password', 'id', array(':users_id' => isset_get($user['id']), ':password' => isset_get($password)))) {
                 $date = new DateTime($date);
-                throw new CoreException('user_authenticate(): Your password was updated on "'.str_log($date->format($_CONFIG['formats']['human_date'])).'"', 'oldpassword');
+                throw new CoreException('user_authenticate(): Your password was updated on "'.Strings::Log($date->format($_CONFIG['formats']['human_date'])).'"', 'oldpassword');
             }
         }
 
@@ -1154,7 +1154,7 @@ function user_set_verify_code($user, $email_type = false, $email = null) {
                 throw new CoreException(tr('user_set_verify_code(): Specified user ":user" does not exist', array(':user' => $user['id'])), 'not-exists');
             }
         }
-        switch($email_type) {
+        switch ($email_type) {
             case '':
                 break;
 
@@ -1535,7 +1535,7 @@ function user_update_password($params, $current = true) {
              * because the user does not exist. check for this!
              */
             if (!sql_get('SELECT `id` FROM `users` WHERE `id` = :id', 'id', array(':id' => $params['id']))) {
-                throw new CoreException(tr('user_update_password(): The specified users_id "'.str_log($params['id']).'" does not exist'), 'not-exists');
+                throw new CoreException(tr('user_update_password(): The specified users_id "'.Strings::Log($params['id']).'" does not exist'), 'not-exists');
             }
 
             /*
@@ -1707,7 +1707,7 @@ function user_load_rights($user) {
  * Make the current session the specified user
  * NOTE: Since this function is rarely used, it it implemented by a handler
  */
-function user_switch($users_id, $redirect = '/') {
+function user_switch ($users_id, $redirect = '/') {
     include(__DIR__.'/handlers/user-switch.php');
 }
 
@@ -1730,7 +1730,7 @@ function user_switch($users_id, $redirect = '/') {
 //            /*
 //             * Password field is password********
 //             */
-//            foreach(array_max($post) as $key => $value) {
+//            foreach (array_max($post) as $key => $value) {
 //                if ((substr($key, 0, 8) == 'password') and (strlen($key) == 16)) {
 //                    /*
 //                     * This is the password field, set it.
@@ -1798,7 +1798,7 @@ function user_update_rights($user) {
 
         $execute = array(':users_id' => $user['id']);
 
-        foreach($rights as $id => $name) {
+        foreach ($rights as $id => $name) {
             $execute[':rights_id'] = $id;
             $execute[':name']      = $name;
 
@@ -2179,7 +2179,7 @@ function user_validate($user, $options = array()) {
         if (!empty($user['phones'])) {
             $user['phones'] = explode(',', $user['phones']);
 
-            foreach($user['phones'] as &$phone) {
+            foreach ($user['phones'] as &$phone) {
                 $phone = trim($phone);
             }
 
@@ -2188,7 +2188,7 @@ function user_validate($user, $options = array()) {
             $user['phones'] = implode(',', $user['phones']);
             $execute        = sql_in($user['phones'], ':phone');
 
-            foreach($execute as &$phone) {
+            foreach ($execute as &$phone) {
                 if ($v->isPhonenumber($phone, tr('The phone number ":phone" is not valid', array(':phone' => $phone)))) {
                     $phone = '%'.$phone.'%';
                 }
@@ -2206,7 +2206,7 @@ function user_validate($user, $options = array()) {
 
                         WHERE';
 
-            foreach($execute as $key => $value) {
+            foreach ($execute as $key => $value) {
                 $where[] = '`phones` LIKE '.$key;
             }
 
@@ -2224,8 +2224,8 @@ function user_validate($user, $options = array()) {
                  * One or more phone numbers already exist with one or multiple users. Cross check and
                  * create a list of where the number was found
                  */
-                foreach(Arrays::force($user['phones']) as $value) {
-                    foreach($exists as $exist) {
+                foreach (Arrays::force($user['phones']) as $value) {
+                    foreach ($exists as $exist) {
                         $key = array_search($value, Arrays::force($exist['phones']));
 
                         if ($key !== false) {
@@ -2391,7 +2391,7 @@ function user_get_key($user = null, $force = false) {
         }
 
         if (!$dbuser) {
-            throw new CoreException(tr('user_get_key(): Specified user ":user" does not exist', array(':user' => str_log($user))), 'not-exists');
+            throw new CoreException(tr('user_get_key(): Specified user ":user" does not exist', array(':user' => Strings::Log($user))), 'not-exists');
         }
 
         if (!$dbuser['key'] or $force) {
@@ -2733,7 +2733,7 @@ function user_update_reference_codes($user, $allow_duplicate_reference_codes = n
         $insert = sql_prepare('INSERT INTO `users_reference_codes` (`users_id`, `code`)
                                VALUES                              (:users_id , :code )');
 
-        foreach($codes as $code) {
+        foreach ($codes as $code) {
             if (empty($code)) continue;
 
             if ($allow_duplicate_reference_codes) {

@@ -143,7 +143,7 @@ class IPTC
     {
         $data = "";
 
-        foreach(array_keys($this->meta) as $key)
+        foreach (array_keys($this->meta) as $key)
         {
             $tag = str_replace("2#", "", $key);
             $data .= $this->iptc_maketag(2, $tag, $this->meta[$key][0]);

@@ -96,7 +96,7 @@ function stream($params) {
          */
         $params['mimetype'] = $mimetype;
 
-        switch(Strings::until($mimetype, '/')) {
+        switch (Strings::until($mimetype, '/')) {
             case 'audio':
                 return stream_audio($params);
 

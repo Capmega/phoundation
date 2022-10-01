@@ -66,7 +66,7 @@ function twitter_get_bearer_token() {
         $output       = explode("\n", $retrievedhtml);
         $bearer_token = '';
 
-        foreach($output as $line) {
+        foreach ($output as $line) {
             if (!$line) {
                 // there was no bearer token
 
@@ -193,7 +193,7 @@ function twitter_user_info($token, $secret) {
         $response   = $finalTw->get('account/verify_credentials');
 
         if ($finalTw->http_code != 200) {
-            throw new CoreException('twitter_user_info(): Twitter returned HTTP code "'.str_log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
+            throw new CoreException('twitter_user_info(): Twitter returned HTTP code "'.Strings::Log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
         }
 
         return $response;
@@ -254,7 +254,7 @@ function twitter_redirect_to_authorize() {
         $authz_link = $tw_tmp->getAuthorizeURL($token_tmp);
 
         if ($tw_tmp->http_code != 200) {
-            throw new CoreException('twitter_redirect_to_authorize(): Twitter returned HTTP code "'.str_log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
+            throw new CoreException('twitter_redirect_to_authorize(): Twitter returned HTTP code "'.Strings::Log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
         }
 
         return $authz_link;
@@ -287,7 +287,7 @@ function twitter_get_user_token() {
         $access_token = $tw_tmp->getAccessToken($_GET['oauth_verifier']);
 
         if ($tw_tmp->http_code != 200) {
-            throw new CoreException('twitter_get_user_token(): Twitter returned HTTP code "'.str_log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
+            throw new CoreException('twitter_get_user_token(): Twitter returned HTTP code "'.Strings::Log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
         }
 
         return $access_token;

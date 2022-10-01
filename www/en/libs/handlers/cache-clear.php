@@ -11,7 +11,7 @@ try {
     load_libs('sql-exists');
     log_console(tr('Clearing all cache'), 'VERBOSE/cyan');
 
-    switch($_CONFIG['cache']['method']) {
+    switch ($_CONFIG['cache']['method']) {
         case 'file':
             if ($key) {
                 $key = cache_key_hash($key);
@@ -104,7 +104,7 @@ try {
     /*
      * Clear cache for all languages
      */
-    foreach($languages as $code => $name) {
+    foreach ($languages as $code => $name) {
         /*
          * Delete all cache files
          * Delete all bundle files
@@ -174,7 +174,7 @@ try {
     /*
      * Delete all auto converted webp images
      */
-    foreach(array(ROOT.'data/content/', ROOT.'www/') as $path) {
+    foreach (array(ROOT.'data/content/', ROOT.'www/') as $path) {
         if (!file_exists(ROOT.'data/content/')) {
             continue;
         }
@@ -182,7 +182,7 @@ try {
         $files = cli_find(array('start' => $path,
                                 'name'  => '*.webp'));
 
-        foreach($files as $file) {
+        foreach ($files as $file) {
             File::executeMode('*'.dirname($file), 0770, function() use ($file, $path) {
                 file_delete($file, $path);
             });
@@ -196,7 +196,7 @@ try {
         $files = cli_find(array('start' => $path,
                                 'regex' => '.+@[0-9]+x[0-9]+\..*'));
 
-        foreach($files as $file) {
+        foreach ($files as $file) {
             File::executeMode('*'.dirname($file), 0770, function() use ($file, $path) {
                 file_delete($file, $path);
             });

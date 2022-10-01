@@ -58,7 +58,7 @@ function file_concat($target, $sources) {
 
         $target_h = fopen($target, 'a');
 
-        foreach($sources as $source) {
+        foreach ($sources as $source) {
             $source_h = fopen($source, 'r');
 
             while (!feof($source_h)) {
@@ -163,7 +163,7 @@ function file_assign_target_clean($path, $extension = false, $singledir = false,
 function file_copy_to_target($file, $path, $extension = false, $singledir = false, $length = 4) {
     try {
         if (is_array($file)) {
-            throw new CoreException(tr('file_copy_to_target(): Specified file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', array(':file' => str_log($file))));
+            throw new CoreException(tr('file_copy_to_target(): Specified file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', array(':file' => Strings::Log($file))));
         }
 
         return file_move_to_target($file, $path, $extension, $singledir, $length, true);
@@ -325,7 +325,7 @@ function file_create_target_path($path, $singledir = false, $length = false) {
             /*
              * Assign path in multiple dirs, like a/b/c/d/e/
              */
-            foreach(str_split(substr(uniqid(), -$length, $length)) as $char) {
+            foreach (str_split(substr(uniqid(), -$length, $length)) as $char) {
                 $path .= DIRECTORY_SEPARATOR.$char;
             }
         }
@@ -436,7 +436,7 @@ function file_ensure_path($path, $mode = null, $clear = false, $restrictions = R
             $dirs = explode('/', Strings::startsNotWith($path, '/'));
             $path = '';
 
-            foreach($dirs as $dir) {
+            foreach ($dirs as $dir) {
                 $path .= '/'.$dir;
 
                 if (file_exists($path)) {
@@ -523,7 +523,7 @@ function file_clear_path($paths, $restrictions = null) {
          * Multiple paths specified, clear all
          */
         if (is_array($paths)) {
-            foreach($paths as $path) {
+            foreach ($paths as $path) {
                 file_clear_path($path, $restrictions);
             }
 
@@ -998,7 +998,7 @@ function file_delete($params, $restrictions = null) {
         /*
          * Delete all specified patterns
          */
-        foreach($params['patterns'] as $pattern) {
+        foreach ($params['patterns'] as $pattern) {
             /*
              * Restrict pattern access
              */
@@ -1073,7 +1073,7 @@ function file_safe_pattern($pattern) {
          */
         $pattern = Arrays::force($pattern, '*');
 
-        foreach($pattern as &$item) {
+        foreach ($pattern as &$item) {
             $item = escapeshellarg($item);
         }
 
@@ -1212,7 +1212,7 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
             $source      = Strings::slash($source);
             $destination = Strings::slash($destination);
 
-            foreach(scandir($source) as $file) {
+            foreach (scandir($source) as $file) {
                 if (($file == '.') or ($file == '..')) {
                     /*
                      * Only replacing down
@@ -1317,7 +1317,7 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
                  */
                 $doreplace = false;
 
-                foreach($extensions as $extension) {
+                foreach ($extensions as $extension) {
                     $len = strlen($extension);
 
                     if (!substr($source, -$len, $len) != $extension) {
@@ -1336,7 +1336,7 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
             } else {
                 $data = file_get_contents($source);
 
-                foreach($search as $id => $svalue) {
+                foreach ($search as $id => $svalue) {
                     if ((substr($svalue, 0, 1 == '/')) and (substr($svalue, -1, 1 == '/'))) {
                         /*
                          * Do a regex search / replace
@@ -1497,7 +1497,7 @@ function file_chmod($params, $mode = null, $restrictions = null) {
             throw new CoreException(tr('No path specified'), 'not-specified');
         }
 
-        foreach(Arrays::force($params['path']) as $path) {
+        foreach (Arrays::force($params['path']) as $path) {
             Restrict::restrict($path, $params['restrictions']);
 
             $arguments      = array();
@@ -1590,7 +1590,7 @@ function file_get_local($url, &$is_downloaded = false, $context = null) {
  * Return a system path for the specified type
  */
 function file_system_path($type, $path = '') {
-    switch($type) {
+    switch ($type) {
         case 'img':
             // FALLTHROUGH
         case 'image':
@@ -1911,7 +1911,7 @@ function file_is_binary($primary, $secondary = null) {
         /*
          * Check the mimetype data
          */
-        switch($primary) {
+        switch ($primary) {
             case 'text':
                 /*
                  * Readonly
@@ -1919,7 +1919,7 @@ function file_is_binary($primary, $secondary = null) {
                 return false;
 
             default:
-                switch($secondary) {
+                switch ($secondary) {
                     case 'json':
                         // FALLTHROUGH
                     case 'ld+json':
@@ -2003,7 +2003,7 @@ function file_is_compressed($primary, $secondary = null) {
             return true;
 
         } else {
-            switch($secondary) {
+            switch ($secondary) {
                 case 'jpeg':
                     // FALLTHROUGH
                 case 'mpeg':
@@ -2015,9 +2015,9 @@ function file_is_compressed($primary, $secondary = null) {
                     return true;
 
                 default:
-                    switch($primary) {
+                    switch ($primary) {
                         case 'audio':
-                            switch($secondary) {
+                            switch ($secondary) {
                                 case 'mpeg':
                                     // FALLTHROUGH
                                 case 'ogg':
@@ -2244,7 +2244,7 @@ function file_tree($path, $method) {
             throw new CoreException(tr('file_tree(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
-        switch($method) {
+        switch ($method) {
             case 'size':
                 // FALLTHROUGH
             case 'count':
@@ -2257,14 +2257,14 @@ function file_tree($path, $method) {
         $retval = 0;
         $path   = Strings::slash($path);
 
-        foreach(scandir($path) as $file) {
+        foreach (scandir($path) as $file) {
             if (($file == '.') or ($file == '..')) continue;
 
             if (is_dir($path.$file)) {
                 $retval += file_tree($path.$file, $method);
 
             } else {
-                switch($method) {
+                switch ($method) {
                     case 'size':
                         $retval += filesize($path.$file);
                         break;
@@ -2573,7 +2573,7 @@ function file_tree_execute($params) {
         /*
          * Filter this path?
          */
-        foreach(Arrays::force($params['filters']) as $filter) {
+        foreach (Arrays::force($params['filters']) as $filter) {
             if (preg_match($filter, $params['path'])) {
                 if (VERBOSE and PLATFORM_CLI) {
                     log_console(tr('file_tree_execute(): Skipping file ":file" because of filter ":filter"', array(':file' => $params['path'], ':filter' => $filter)), 'yellow');
@@ -2586,7 +2586,7 @@ function file_tree_execute($params) {
         $count = 0;
         $type  = file_type($params['path']);
 
-        switch($type) {
+        switch ($type) {
             case 'regular file':
                 $params['callback']($params['path']);
                 $count++;
@@ -2626,7 +2626,7 @@ function file_tree_execute($params) {
 
                         $type = file_type($file);
 
-                        switch($type) {
+                        switch ($type) {
                             case 'link':
                                 if (!$params['follow_symlinks']) {
                                     continue 2;
@@ -2650,7 +2650,7 @@ function file_tree_execute($params) {
                                      */
                                     $skip = false;
 
-                                    foreach(Arrays::force($params['filters']) as $filter) {
+                                    foreach (Arrays::force($params['filters']) as $filter) {
                                         if (preg_match($filter, $file)) {
                                             if (VERBOSE and PLATFORM_CLI) {
                                                 log_console(tr('file_tree_execute(): Skipping file ":file" because of filter ":filter"', array(':file' => $params['path'], ':filter' => $filter)), 'yellow');
@@ -2819,7 +2819,7 @@ function File::executeMode($path, $mode, $callback, $params = null) {
                 $paths = cli_find(array('type'  => 'd',
                                         'start' => $path));
 
-                foreach($paths as $subpath) {
+                foreach ($paths as $subpath) {
                     $modes[$subpath] = fileperms($subpath);
                     chmod($subpath, $mode);
                 }
@@ -2861,7 +2861,7 @@ function File::executeMode($path, $mode, $callback, $params = null) {
          */
         if ($mode) {
             if ($multi) {
-                foreach($modes as $subpath => $mode) {
+                foreach ($modes as $subpath => $mode) {
                     /*
                      * Path may have been deleted by the callback (for example,
                      * a file_delete() call may have cleaned up the path) so
@@ -2943,7 +2943,7 @@ function file_search_replace($source, $target, $replaces) {
              /*
               * Execute search / replaces
               */
-             foreach($replaces as $search => $replace) {
+             foreach ($replaces as $search => $replace) {
                 $data = preg_replace($search, $replace, $data);
              }
 
@@ -3136,7 +3136,7 @@ function file_path_contains_symlink($path, $prefix = null) {
 
         $path = Strings::endsNotWith(Strings::startsNotWith($path, '/'), '/');
 
-        foreach(explode('/', $path) as $section) {
+        foreach (explode('/', $path) as $section) {
             $location .= $section;
 
             if (!file_exists($location)) {
@@ -3385,7 +3385,7 @@ function Restrict::restrict($params, &$restrictions = null) {
              * against a restriction "/test" and having it fail because of the
              * missing slash at the end
              */
-            foreach($restrictions as &$restriction) {
+            foreach ($restrictions as &$restriction) {
                 if ($restriction === false) {
                     return false;
                 }
@@ -3409,7 +3409,7 @@ function Restrict::restrict($params, &$restrictions = null) {
          */
         $keys = array('source', 'target', 'source_path', 'source_path', 'path');
 
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             if (isset($params[$key])) {
                 /*
                  * All these must be tested

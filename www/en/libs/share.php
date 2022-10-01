@@ -44,7 +44,7 @@ function share_buttons($buttons) {
     global $_CONFIG;
 
     try {
-        switch($_CONFIG['share']['provider']) {
+        switch ($_CONFIG['share']['provider']) {
             case 'addthis':
                 return share_addthis_buttons($buttons);
 
@@ -99,7 +99,7 @@ function share_sharethis_buttons($buttons) {
         }
 
         foreach (Arrays::force($buttons) as $button) {
-            switch($button) {
+            switch ($button) {
                 case 'facebook':
                     $html .= '<span class="st_facebook_large" displayText="Facebook"></span>';
                     break;
@@ -208,8 +208,8 @@ function share_addtoany_buttons($buttons) {
             throw new CoreException('share_addtoany_buttons(): No buttons specified');
         }
 
-        foreach(Arrays::force($buttons) as $button) {
-            switch($button) {
+        foreach (Arrays::force($buttons) as $button) {
+            switch ($button) {
                 case 'facebook':
                     $html.=  '<a class="a2a_button_facebook"></a>';
                     break;

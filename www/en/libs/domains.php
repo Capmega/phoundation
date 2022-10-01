@@ -99,7 +99,7 @@ function domains_validate($domain) {
             } else {
                 $servers = array();
 
-                foreach($domain['servers'] as $server) {
+                foreach ($domain['servers'] as $server) {
                     if (!$server) continue;
 
                     $servers_id = sql_get('SELECT `id` FROM `servers` WHERE `seodomain` = :seodomain AND `status` IS NULL', true, array(':seodomain' => $server), 'core');
@@ -314,7 +314,7 @@ function domains_update_servers($domain, $servers = null) {
         $insert = sql_prepare('INSERT INTO `domains_servers` (`domains_id`, `servers_id`)
                                VALUES                        (:domains_id , :servers_id )', 'core');
 
-        foreach($servers as $servers_id) {
+        foreach ($servers as $servers_id) {
             $insert->execute(array(':domains_id' => $domain,
                                    ':servers_id' => $servers_id));
         }
@@ -376,9 +376,9 @@ function domains_add_keyword($keyword) {
                 $combination = '';
             }
 
-            foreach(Arrays::force($_CONFIG['domains']['scanner']['default_tlds']) as $tld) {
-                foreach($options as $option) {
-                    foreach($reverses as $reverse) {
+            foreach (Arrays::force($_CONFIG['domains']['scanner']['default_tlds']) as $tld) {
+                foreach ($options as $option) {
+                    foreach ($reverses as $reverse) {
                         if (!$combination) {
                             /*
                              * Never combine "" with an option

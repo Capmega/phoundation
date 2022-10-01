@@ -14,7 +14,7 @@ test('curl_list_ips()', 'Function should return an arary of all available IPS on
         throw new CoreException(tr('Returned no data'), 'empty');
     }
 
-    foreach($ips as $ip) {
+    foreach ($ips as $ip) {
         if (!filter_var($ip, FILTER_VALIDATE_IP)) {
             throw new CoreException(tr('Returned invalid data ":data"', array(':data' => $ip)), 'invalid');
         }

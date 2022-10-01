@@ -9,7 +9,7 @@ load_libs('json');
  * Process requests
  */
 try {
-    switch(isset_get($_GET['method'])) {
+    switch (isset_get($_GET['method'])) {
         case 'auth':
             json_reply(array('token' => json_authenticate(isset_get($_GET['PHPSESSID']))));
             break;

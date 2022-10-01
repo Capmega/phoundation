@@ -145,7 +145,7 @@ setup DEVICE                    - Setup the specified device by automatically
 require_once(__DIR__.'/../../libs/startup.php');
 load_libs('devices');
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'list':
         $type = cli_argument('-t,--type', true);
         cli_no_arguments_left();
@@ -221,7 +221,7 @@ switch(cli_method()) {
             $device = devices_get($id, $server);
 
         }catch(Exception $e) {
-            switch($e->getRealCode()) {
+            switch ($e->getRealCode()) {
                 case 'invalid':
                     // FALLTHROUGH
                 case 'not-specified':
@@ -235,7 +235,7 @@ switch(cli_method()) {
 
         ksort($device);
 
-        foreach($device as $key => $value) {
+        foreach ($device as $key => $value) {
             log_console(cli_color($key.':', 'white').' '.$value);
         }
 
@@ -249,7 +249,7 @@ switch(cli_method()) {
             log_console();
             log_console(tr('Configurable options:'), 'white');
 
-            foreach($options as $key => $values) {
+            foreach ($options as $key => $values) {
                 if (isset($values['default'])) {
                     $default = $values['default'];
                     unset($values['default']);
@@ -260,7 +260,7 @@ switch(cli_method()) {
 
                 log_console($key.':'.($default ? cli_color(' [ '.$default.' ]', 'cyan') : ''), 'white');
 
-                foreach($values as $value) {
+                foreach ($values as $value) {
                     log_console('        '.$value);
                 }
             }
@@ -376,7 +376,7 @@ switch(cli_method()) {
             devices_update($device);
 
         }catch(Exception $e) {
-            switch($e->getRealCode()) {
+            switch ($e->getRealCode()) {
                 case 'not-exists':
                     throw $e->makeWarning(true);
             }
@@ -390,7 +390,7 @@ switch(cli_method()) {
         $devices = devices_validate_types();
         log_console(tr('Supported device types:'), 'QUIET/white');
 
-        foreach($devices as $device => $type) {
+        foreach ($devices as $device => $type) {
             log_console($device);
         }
 
@@ -502,8 +502,8 @@ switch(cli_method()) {
 
             $servers_devices = devices_scan($types, $servers, $sudo);
 
-            foreach($servers_devices as $servers_id => $devices) {
-                foreach($devices as $device) {
+            foreach ($servers_devices as $servers_id => $devices) {
+                foreach ($devices as $device) {
                     /*
                      * Assign device to category / company / branch / department
                      */
@@ -539,7 +539,7 @@ switch(cli_method()) {
             }
 
         }catch(Exception $e) {
-            switch($e->getRealCode()) {
+            switch ($e->getRealCode()) {
                 case 'not-exists':
                     throw $e->makeWarning(true);
             }
@@ -555,7 +555,7 @@ switch(cli_method()) {
 
         $count = devices_clear($type);
 
-        switch($count) {
+        switch ($count) {
             case 0:
                 log_console(tr('Not deleted any devices'), 'error');
                 break;
@@ -591,7 +591,7 @@ switch(cli_method()) {
 
                         $in);
 
-        switch(!$r->rowCount()) {
+        switch (!$r->rowCount()) {
             case 0:
                 log_console(tr('Not deleted any devices'), 'error');
                 break;
@@ -631,7 +631,7 @@ switch(cli_method()) {
 
                         $in);
 
-        switch(!$r->rowCount()) {
+        switch (!$r->rowCount()) {
             case 0:
                 log_console(tr('Not undeleted any devices'), 'error');
                 break;
@@ -659,7 +659,7 @@ switch(cli_method()) {
             $status = ' AND `status` IS NULL ';
         }
 
-        switch(count($devices)) {
+        switch (count($devices)) {
             case 0:
                 throw new CoreException(tr('No devices specified'), 'warning/not-specified');
 
@@ -685,7 +685,7 @@ switch(cli_method()) {
                 log_console(tr('Erased ":count" devices', array(':count' => $r->rowCount())), 'green');
 
             } else {
-                switch($r->rowCount()) {
+                switch ($r->rowCount()) {
                     case 0:
                         break;
 

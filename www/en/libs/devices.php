@@ -98,7 +98,7 @@ function devices_insert($device, $server = null) {
              */
             $device['_exists'] = true;
 
-            switch($exists['status']) {
+            switch ($exists['status']) {
                 case 'not-exists':
                     log_console(tr('Not inserting ":device" on server ":server", it is already registered with id ":id". Enabling existing device instead.', array(':device' => $exists['description'], ':server' => $exists['domain'], ':id' => $exists['id'])), 'VERBOSE/yellow');
                     devices_set_status(null, $exists['id']);
@@ -665,11 +665,11 @@ function devices_insert_options($devices_id, $options) {
         $insert = sql_prepare('INSERT INTO `drivers_options` (`devices_id`, `status`, `key`, `value`, `default`)
                                VALUES                        (:devices_id , :status , :key , :value , :default )');
 
-        foreach($options as $key => $values) {
+        foreach ($options as $key => $values) {
             /*
              * Extract default values, if available
              */
-            foreach($values['data'] as $value) {
+            foreach ($values['data'] as $value) {
                 $count++;
 
                 if (strstr($value, '..')) {
@@ -757,7 +757,7 @@ function devices_list_options($devices_id, $inactive = false) {
             throw new CoreException(tr('devices_list_options(): Speficied drivers id ":id" does not exist', array(':id' => $devices_id)), 'not-exists');
         }
 
-        foreach($options as $option) {
+        foreach ($options as $option) {
             if (empty($retval[$option['key']])) {
                 $retval[$option['key']] = array();
             }
@@ -818,7 +818,7 @@ function devices_list_option_keys($devices_id, $inactive = false) {
             throw new CoreException(tr('devices_list_options(): Speficied devices id ":id" does not exist', array(':id' => $devices_id)), 'not-exists');
         }
 
-        foreach($options as $option) {
+        foreach ($options as $option) {
             if (empty($retval[$option['key']])) {
                 $retval[$option['key']] = array();
             }
@@ -902,7 +902,7 @@ function devices_get_option_html_element($params) {
 
         $params['resource'] = devices_list_option_values($params['devices_id'], $params['key']);
 
-        switch($params['resource']->rowCount()) {
+        switch ($params['resource']->rowCount()) {
             case 0:
                 throw new CoreException(tr('devices_get_option_html_element(): Speficied devices id ":id" does not have the key ":key"', array(':id' => $params['devices_id'], ':key' => $params['key'])), 'not-exists');
 
@@ -914,7 +914,7 @@ function devices_get_option_html_element($params) {
                 $data['min'] = Strings::until($data['value'], '..');
                 $data['max'] = Strings::from($data['value'] , '..');
 
-                switch($params['key']) {
+                switch ($params['key']) {
                     case 'x':
                         // FALLTHROUGH
                     case 'y':
@@ -1296,7 +1296,7 @@ function devices_scan($types, $server = null, $sudo = false) {
             $servers = Arrays::force($server);
             $retval  = array();
 
-            foreach($servers as $server) {
+            foreach ($servers as $server) {
                 log_console(tr('Scanning server ":server" for devices', array(':server' => $server['domain'])), 'VERBOSE/cyan');
                 $devices = devices_scan($types, $server['id'], $sudo);
 
@@ -1319,10 +1319,10 @@ function devices_scan($types, $server = null, $sudo = false) {
         $types             = Arrays::force($types);
         $types             = devices_validate_types($types, true);
 
-        foreach(Arrays::force($types) as $type => $filter) {
+        foreach (Arrays::force($types) as $type => $filter) {
             log_console(tr('Scanning server ":server" for ":type" type devices', array(':server' => $server['domain'], ':type' => $type)), 'VERBOSE/cyan');
 
-            switch($type) {
+            switch ($type) {
                 case 'usb':
                     // FALLTHROUGH
                 case 'fingerprint-reader':
@@ -1335,7 +1335,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                                                                                    'grep' , array('-i', $filter))));
                     $entries = array();
 
-                    foreach($devices as $device) {
+                    foreach ($devices as $device) {
                         $found = preg_match_all('/Bus (\d+) Device (.+?): ID ([0-9a-f]{4}:[0-9a-f]{4}) (.+)/i', $device, $matches);
 
                         if (!$found) {
@@ -1358,7 +1358,7 @@ function devices_scan($types, $server = null, $sudo = false) {
 
                         $data = servers_exec($server, array('commands' => array('lsusb', array('sudo' => $sudo, '-vs', $entry['bus'].':'.$entry['device']))));
 
-                        foreach($data as $line) {
+                        foreach ($data as $line) {
                             if (stristr($line, 'idProduct')) {
                                 $entry['product']        = Strings::from($line             , '0x');
                                 $entry['product_string'] = Strings::from($entry['product'] , ' ');
@@ -1396,7 +1396,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                         $devices = scanimage_detect_devices($server, $sudo);
                         $entries = array();
 
-                        foreach($devices as $device) {
+                        foreach ($devices as $device) {
                             log_console(tr('Found document-scanner device ":device" on server ":server"', array(':device' => $device['raw'], ':server' => $server['domain'])), 'green');
                         }
 
@@ -1463,7 +1463,7 @@ function devices_validate_types($types = null, $return_filters = false) {
              * Device types list specified. Compare them all to the supported types
              */
             if (is_array($types)) {
-                foreach($types as $key => &$type) {
+                foreach ($types as $key => &$type) {
                     if (!is_string($type)) {
                         throw new CoreException(tr('devices_validate_types(): Specified device type list is invalid. Key ":key" should be a string but is an ":type" instead', array(':key' => $key, ':type' => gettype($type))), 'invalid');
                     }
@@ -1479,7 +1479,7 @@ function devices_validate_types($types = null, $return_filters = false) {
              * Single type specified. Compare to the supported types.
              */
             if (is_string($types)) {
-                foreach($supported as $support => $filter) {
+                foreach ($supported as $support => $filter) {
                     if (str_contains($support, $types)) {
                         if (isset($match)) {
                             throw new CoreException(tr('devices_validate_types(): Specified device type ":type" matches multiple supported devices', array(':type' => $types)), 'multiple');

@@ -77,7 +77,7 @@ try {
     cli_only();
     load_libs('whois');
 
-    switch(cli_method()) {
+    switch (cli_method()) {
         case 'scan':
             $domains = sql_query('SELECT `domain` FROM `domains` WHERE `type` = "scan" AND `status` IS NULL');
 
@@ -90,7 +90,7 @@ try {
                 $ns      = array();
                 $errors  = array();
 
-                foreach($results as $result) {
+                foreach ($results as $result) {
                     if (strstr($result, 'Name Server')) {
                         $nameserver = Strings::from($result, 'Name Server');
                         $nameserver = str_replace(':', '', $nameserver);
@@ -107,13 +107,13 @@ try {
                 }
 
                 if ($errors) {
-                    foreach($errors as $error) {
+                    foreach ($errors as $error) {
                         log_console(tr('Found possible error ":error"', array(':error' => $error)));
                     }
                 }
 
                 if ($ns) {
-                    foreach($ns as $nameserver) {
+                    foreach ($ns as $nameserver) {
                         log_console(tr('Found name server record ":nameserver"', array(':nameserver' => $nameserver)));
                     }
 
@@ -362,7 +362,7 @@ try {
     }
 
 }catch(Exception $e) {
-    switch($e->getRealCode()) {
+    switch ($e->getRealCode()) {
         case 'not-exists':
             // FALLTHROUGH
         case 'multiple':

@@ -31,7 +31,7 @@ try {
      */
     $count = 0;
 
-    foreach($params['commands'] as $id => &$item) {
+    foreach ($params['commands'] as $id => &$item) {
         if (fmod(++$count, 2)) {
             /*
              * This must be a command
@@ -56,8 +56,8 @@ try {
              */
             $environment = false;
 
-            foreach($item as $key => $value) {
-                switch($value) {
+            foreach ($item as $key => $value) {
+                switch ($value) {
                     case '-E';
                         // FALLTHROUGH
                     case '--env';

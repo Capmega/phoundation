@@ -298,8 +298,8 @@ function mysql_register_databases($server) {
         $results = mysql_exec($server, 'SHOW DATABASES');
         $count   = 0;
 
-        foreach($databases as $database) {
-            switch($database) {
+        foreach ($databases as $database) {
+            switch ($database) {
                 case '':
                     // FALLTHROUGH
                 case 'Database':

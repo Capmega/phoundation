@@ -83,10 +83,10 @@ function wp_admin_signin($params) {
             $failed = Strings::until($failed, '</div>');
 
             if (strpos($failed, 'The password you entered for the username') !== false) {
-                throw new CoreException('wp_admin_signin(): Signin on site "'.str_log($params['url']).'" failed because the specified password for user "'.$params['username'].'" is incorrect', 'passwordincorrect');
+                throw new CoreException('wp_admin_signin(): Signin on site "'.Strings::Log($params['url']).'" failed because the specified password for user "'.$params['username'].'" is incorrect', 'passwordincorrect');
             }
 
-            throw new CoreException('wp_admin_signin(): Signin on site "'.str_log($params['url']).'" failed with "'.str_log($failed).'"', 'signinfailed');
+            throw new CoreException('wp_admin_signin(): Signin on site "'.Strings::Log($params['url']).'" failed with "'.Strings::Log($failed).'"', 'signinfailed');
         }
 
         if (!$curl['user_id'] = Strings::cut(($curl['data'], '"uid":"', '"')) {
@@ -171,7 +171,7 @@ function wp_admin_post($params, $force_new = false) {
                               'samplepermalinknonce',
                               '_ajax_nonce-add-meta');
 
-            foreach($keywords as $keyword) {
+            foreach ($keywords as $keyword) {
                 $lower = strtolower($keyword);
 
                 if (!$params[$lower] = Strings::until(Strings::from($params['curl']['data'], "input type='hidden' id='".$keyword."' name='".$keyword."' value='"), "' />")) {
@@ -286,7 +286,7 @@ show($retval['curl']['data']);
              *
              */
             sleep($params['sleep']);
-            log_console('wp_admin_post(): Got postid error for post "'.str_log($params['title']).'", retry "'.str_log($retry).'"', 'yellow');
+            log_console('wp_admin_post(): Got postid error for post "'.Strings::Log($params['title']).'", retry "'.Strings::Log($retry).'"', 'yellow');
             return wp_admin_post($params, $force_new);
         }
 
@@ -331,7 +331,7 @@ function wp_admin_trash($params) {
         $url   = Strings::slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=all&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php&action=trash&m=0&paged=1';
 //        $url   = Strings::slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=all&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_type%3Dpage&action=trash&m=0&paged=1';
 
-        foreach(Arrays::force($params['post_id']) as $post_id) {
+        foreach (Arrays::force($params['post_id']) as $post_id) {
             $url .= '&post%5B%5D='.cfi($post_id);
         }
 
@@ -384,7 +384,7 @@ function wp_admin_restore($params) {
         $nonce = Strings::until(Strings::from($params['curl']['data'], '_wpnonce" value="'), '"');
         $url   = Strings::slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=trash&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_status%3Dtrash%26post_type%3Dpage&action=delete&m=0&paged=1';
 
-        foreach(Arrays::force($params['post_id']) as $post_id) {
+        foreach (Arrays::force($params['post_id']) as $post_id) {
             $url .= '&post%5B%5D='.cfi($post_id);
         }
 
@@ -437,7 +437,7 @@ function wp_admin_remove_permanently($params) {
         $nonce = Strings::until(Strings::from($params['curl']['data'], '_wpnonce" value="'), '"');
         $url   = Strings::slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=trash&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_status%3Dtrash%26post_type%3Dpage&action=untrash&m=0&paged=1';
 
-        foreach(Arrays::force($params['post_id']) as $post_id) {
+        foreach (Arrays::force($params['post_id']) as $post_id) {
             $url .= '&post%5B%5D='.cfi($post_id);
         }
 
@@ -499,7 +499,7 @@ function wp_admin_get($post_id, $curl) {
                           'samplepermalinknonce',
                           '_ajax_nonce-add-meta');
 
-        foreach($keywords as $keyword) {
+        foreach ($keywords as $keyword) {
             $lower = strtolower($keyword);
 
             if (!$retval['data'][$lower] = Strings::until(Strings::from($retval['data']['raw'], "input type='hidden' id='".$keyword."' name='".$keyword."' value='"), "' />")) {

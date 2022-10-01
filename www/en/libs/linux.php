@@ -62,7 +62,7 @@ function linux_get_ssh_tcp_forwarding($server) {
         $result   = strtolower(trim($result));
         $result   = Strings::cut(($result, ' ', ' ');
 
-        switch($result) {
+        switch ($result) {
             case 'yes';
                 return true;
 
@@ -252,7 +252,7 @@ function linux_file_delete($server, $params, $restrictions = null) {
 
         $server = servers_get($server);
 
-        foreach($params['patterns'] as $pattern) {
+        foreach ($params['patterns'] as $pattern) {
             linux_restrict($server, $pattern, $params['restrictions']);
             servers_exec($server, array('commands' => array('rm', array('sudo' => $params['sudo'], $pattern, '-rf'))));
 
@@ -304,7 +304,7 @@ function linux_file_clear_path($server, $path, $sudo = false, $restrictions = nu
         } else {
             $files = linux_scandir($server, $path);
 
-            foreach($files as $file) {
+            foreach ($files as $file) {
                 /*
                  * Skip . and ..
                  */
@@ -440,7 +440,7 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_t
     try {
         $server = servers_get($server);
 
-        switch($signal) {
+        switch ($signal) {
             case 9:
                 // FALLTHROUGH
             case 15:
@@ -537,7 +537,7 @@ function linux_list_processes($server, $filters) {
                                                            'grep', array('--color=never', '-v', 'grep --color=never'))));
         $retval  = array();
 
-        foreach($results as $key => $result) {
+        foreach ($results as $key => $result) {
             if (strstr($result, $command)) {
                 unset($results[$key]);
                 continue;
@@ -689,7 +689,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false) {
          */
         $server = servers_get($server);
 
-        switch($server['domain']) {
+        switch ($server['domain']) {
             case '':
                 // FALLTHROUGH
             case 'localhost':
@@ -1005,7 +1005,7 @@ function linux_install_package($server, $package) {
 //        $os = linux_detect_os($server);
         $os['distribution'] = 'ubuntu-server';
 
-        switch($os['distribution']) {
+        switch ($os['distribution']) {
             case 'debian':
                 // FALLTHROUGH
             case 'ubuntu':
@@ -1240,7 +1240,7 @@ function linux_find($server, $params) {
         if ($params['exec']) {
             $arguments[] = '-exec';
 
-            foreach($params['exec'] as $key => $value) {
+            foreach ($params['exec'] as $key => $value) {
                 if (!is_numeric($key)) {
                     throw new CoreException(tr('linux_find(): Specified exec structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $params['exec'])), 'invalid');
                 }
@@ -1273,7 +1273,7 @@ function linux_find($server, $params) {
                             throw new CoreException(tr('linux_find(): Specified arguments for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $command, ':type' => gettype($params['exec']))), 'invalid');
                         }
 
-                        foreach($value as $sub_key => $sub_value) {
+                        foreach ($value as $sub_key => $sub_value) {
                             if (!is_numeric($sub_key)) {
                                 throw new CoreException(tr('linux_find(): Specified exec sub structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $value)), 'invalid');
                             }
@@ -1392,7 +1392,7 @@ function linux_restrict($server, $params, $restrictions = null) {
              * against a restriction "/test" and having it fail because of the
              * missing slash at the end
              */
-            foreach($restrictions as $restriction) {
+            foreach ($restrictions as $restriction) {
                 Strings::unslash($restriction);
                 if (substr($params, 0, strlen($restriction)) === $restriction) {
                     /*
@@ -1410,7 +1410,7 @@ function linux_restrict($server, $params, $restrictions = null) {
          */
         $keys = array('source', 'target', 'source_path', 'source_path', 'path');
 
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             if (isset($params[$key])) {
                 /*
                  * All these must be tested

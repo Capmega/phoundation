@@ -69,7 +69,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
              *
              * NOTE: The first column will have the identifier added
              */
-            foreach($source as $column => &$value) {
+            foreach ($source as $column => &$value) {
                 if (empty($first)) {
                     $first = array($column => $value);
                 }

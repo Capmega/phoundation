@@ -117,7 +117,7 @@ if ($all) {
     /*
      * Confirm that the required databases exist on the server specified by the connector
      */
-    foreach($databases as $database) {
+    foreach ($databases as $database) {
         $exist = sql_get('SELECT `TABLE_SCHEMA` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = :TABLE_SCHEMA GROUP BY `TABLE_SCHEMA` LIMIT 1', 'TABLE_SCHEMA', array(':TABLE_SCHEMA' => $database), $connector);
 
         if (!$exist) {
@@ -129,9 +129,9 @@ if ($all) {
 /*
  * Process required methods
  */
-switch(cli_method()) {
+switch (cli_method()) {
     case 'import':
-        switch(cli_method(1)) {
+        switch (cli_method(1)) {
             case 'timezones':
                 try {
                     log_console(tr('Importing timezone data files in MySQL'), 'white');
@@ -172,7 +172,7 @@ switch(cli_method()) {
         /*
          * Perform MySQL checks
          */
-        switch(cli_method(1)) {
+        switch (cli_method(1)) {
             case 'timezone':
                 // FALLTHROUGH
             case 'timezones':
@@ -195,7 +195,7 @@ switch(cli_method()) {
     case 'change':
         // FALLTHROUGH
     case 'alter':
-        switch(cli_argument(1)) {
+        switch (cli_argument(1)) {
             case 'charset':
                 // FALLTHROUGH
             case 'default-charset':
@@ -229,7 +229,7 @@ switch(cli_method()) {
         break;
 
     case 'list':
-        switch(cli_method(1)) {
+        switch (cli_method(1)) {
             case 'timzeone':
                 // FALLTHROUGH
 
@@ -247,7 +247,7 @@ switch(cli_method()) {
 
                 log_console(tr('Database'), 'cyan');
 
-                foreach($databases as $database) {
+                foreach ($databases as $database) {
                     log_console($database);
                 }
 
@@ -353,7 +353,7 @@ switch(cli_method()) {
         break;
 
     case 'replication':
-        switch(cli_method(1)) {
+        switch (cli_method(1)) {
             case 'check':
                 /*
                  * The replicator checker runs over Cron each 1 minute
@@ -409,7 +409,7 @@ switch(cli_method()) {
                 break;
 
             case 'list':
-                switch(cli_method(2)) {
+                switch (cli_method(2)) {
                     case 'servers':
                         break;
 

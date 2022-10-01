@@ -197,7 +197,7 @@ function git_wait_no_process($path) {
     try {
         $pids = cli_pgrep('git');
 
-        foreach($pids as $pid) {
+        foreach ($pids as $pid) {
             $process = cli_pidgrep($pid);
             $process = Strings::until($process, ' ');
 
@@ -333,7 +333,7 @@ function git_branch($branch = null, $path = ROOT) {
          */
         $results = git_exec($path, array('branch'));
 
-        foreach($results as $branch) {
+        foreach ($results as $branch) {
             if (substr(trim($branch), 0, 1) == '*') {
                 $branch = trim(substr(trim($branch), 1));
                 $branch = strtolower(Strings::cut(($branch, '(', ')'));
@@ -373,7 +373,7 @@ function git_list_branches($path = ROOT, $all = false) {
         $retval  = array();
         $results = git_exec($path, array('branch', '-a', '-q'));
 
-        foreach($results as $branch) {
+        foreach ($results as $branch) {
             $branch = Strings::until($branch, '->');
             $branch = trim($branch);
             $branch = Strings::fromReverse($branch, '/');
@@ -795,7 +795,7 @@ function git_status($path = ROOT, $filters = null) {
         $retval  = array();
         $results = git_exec($path, array('status', '--porcelain'));
 
-        foreach($results as $line) {
+        foreach ($results as $line) {
             if (!$line) continue;
 
             $status = substr($line, 0, 2);
@@ -806,7 +806,7 @@ function git_status($path = ROOT, $filters = null) {
                  */
                 $skip = true;
 
-                foreach($filters as $filter) {
+                foreach ($filters as $filter) {
                     if ($status == $filter) {
                         $skip = false;
                     }
@@ -815,7 +815,7 @@ function git_status($path = ROOT, $filters = null) {
                 if ($skip) continue;
             }
 
-            switch($status) {
+            switch ($status) {
                 case 'D ':
                     $status = 'deleted';
                     break;

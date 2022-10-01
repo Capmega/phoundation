@@ -111,7 +111,7 @@ function sso($provider, $method, $redirect, $role = 'user') {
     global $_CONFIG;
 
     try {
-        switch($provider) {
+        switch ($provider) {
             case 'facebook':
                 // FALLTHROUGH
             case 'twitter':
@@ -126,7 +126,7 @@ function sso($provider, $method, $redirect, $role = 'user') {
                 throw new CoreException(tr('sso(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
         }
 
-        switch($method) {
+        switch ($method) {
             case 'authorized':
                 include_once(ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php');
                 include_once(ROOT.'libs/vendor/hybridauth/Hybrid/Endpoint.php');
@@ -290,7 +290,7 @@ function sso($provider, $method, $redirect, $role = 'user') {
         }
 
     }catch(Exception $e) {
-        switch($e->getCode()) {
+        switch ($e->getCode()) {
             case 0:
                 throw new CoreException(tr('sso(): Unspecified error'), $e);
 
@@ -357,7 +357,7 @@ function sso_config($provider) {
         if (!file_exists($file)) {
 
 // :DELETE: Delete this crap
-            //switch($provider) {
+            //switch ($provider) {
             //    case 'facebook':
             //        $key    = 'id';
             //        $secret = 'secret';
@@ -393,7 +393,7 @@ function sso_config($provider) {
             /*
              * Add provider specific data
              */
-            switch($provider) {
+            switch ($provider) {
                 case 'facebook':
                     $config['providers'][str_capitalize($provider)]['scope']                  = $_CONFIG['sso'][$provider]['scope'];
                     $config['providers'][str_capitalize($provider)]['keys']['id']             = $_CONFIG['sso'][$provider]['appid'];

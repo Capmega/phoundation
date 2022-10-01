@@ -36,7 +36,7 @@ function forwardings_apply_server($server) {
         $forwardings = forwardings_list($server);
 
         if ($forwardings) {
-            foreach($forwardings as $forward) {
+            foreach ($forwardings as $forward) {
                 forwardings_apply_rule($forward);
             }
         }
@@ -59,7 +59,7 @@ function forwardings_remove_server($server) {
         $forwardings = forwardings_list($server);
 
         if ($forwardings) {
-            foreach($forwardings as $forward) {
+            foreach ($forwardings as $forward) {
                 forwardings_delete($forward);
             }
         }
@@ -414,7 +414,7 @@ function forwardings_validate($forward) {
         $v->isFilter($forward['target_ip'], FILTER_VALIDATE_IP, tr('Please specify a valid IP address for target IP field'));
 
         if ($forward['protocol']) {
-            switch($forward['protocol']) {
+            switch ($forward['protocol']) {
                 case 'ssh':
                     // FALLTHROUGH
                 case 'http':
@@ -579,7 +579,7 @@ function forwardings_delete_list($forwardings, $apply = true) {
             throw new CoreException(tr('forwardings_delete_list(): No forwardings specified'), 'not-specified');
         }
 
-        foreach($forwardings as $forward) {
+        foreach ($forwardings as $forward) {
             $forward['apply'] = $apply;
             forwardings_delete($forward);
         }

@@ -70,7 +70,7 @@ function code_locate_phoundation() {
                 $paths[] = Strings::slash($home).'projects/phoundation/';
             }
 
-            foreach($paths as $path) {
+            foreach ($paths as $path) {
                 if (file_exists($path)) {
                     /*
                      * Found something with the correct name!
@@ -146,7 +146,7 @@ function code_locate_toolkit() {
                 $paths[] = Strings::slash($home).'projects/toolkit.capmega.com/';
             }
 
-            foreach($paths as $path) {
+            foreach ($paths as $path) {
                 if (file_exists($path)) {
                     /*
                      * Found something with the correct name!
@@ -601,7 +601,7 @@ function code_get_branch_lines($path = ROOT) {
     try {
         $branches = git_list_branches($path, true);
 
-        foreach($branches as $id => $branch) {
+        foreach ($branches as $id => $branch) {
             if (!str_is_version($branch.'.0')) {
                 unset($branches[$id]);
             }
@@ -637,7 +637,7 @@ function code_get_available_lines($path = ROOT) {
         $tags   = git_list_tags($path);
         $retval = array();
 
-        foreach($tags as $tag) {
+        foreach ($tags as $tag) {
             $version = Strings::from($tag, 'v');
 
             if (str_is_version($version)) {
@@ -680,7 +680,7 @@ function code_get_available_versions($path = ROOT, $version_lines = null) {
             $version_lines = Arrays::force($version_lines);
         }
 
-        foreach($tags as $tag) {
+        foreach ($tags as $tag) {
             $tag     = strtolower($tag);
             $version = Strings::from($tag, 'v');
 
@@ -993,7 +993,7 @@ function code_patch($params) {
         $params['source_path'] = Strings::slash($params['source_path']);
         $params['target_path'] = Strings::slash($params['target_path']);
 
-        switch($params['method']) {
+        switch ($params['method']) {
             case 'diff':
                 log_console(tr('Showing diff patch for file ":file"', array(':file' => $params['file'])), 'white');
                 echo git_diff($params['file'], !NOCOLOR);
@@ -1021,7 +1021,7 @@ function code_patch($params) {
                         /*
                          * Perform a search / replace on the patch data
                          */
-                        foreach($params['replaces'] as $search => $replace) {
+                        foreach ($params['replaces'] as $search => $replace) {
                             $patch = str_replace($search, $replace, $patch);
                         }
                     }

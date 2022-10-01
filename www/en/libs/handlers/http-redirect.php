@@ -64,7 +64,7 @@ try {
      * 303 See Other
      * 307 Temporary Redirect
      */
-    switch($http_code) {
+    switch ($http_code) {
         case 301:
             // FALLTHROUGH
         case 302:

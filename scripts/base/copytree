@@ -12,8 +12,8 @@ $help  = "The copytree command can recursively copy an entire tree while perform
 
 require_once(__DIR__.'/../../libs/startup.php');
 
-foreach($argv as $id => $arg) {
-    switch($id) {
+foreach ($argv as $id => $arg) {
+    switch ($id) {
         case 0:
             $source = $arg;
             break;

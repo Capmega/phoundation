@@ -265,10 +265,10 @@ unset($config['project']);
  */
 log_console(tr('Writing configuration files...'), 'white');
 
-foreach($config as $environment => $files) {
+foreach ($config as $environment => $files) {
     log_console(tr('Writing configuration environment ":environment"...', array(':environment' => $environment)));
 
-    foreach($files as $file => $data) {
+    foreach ($files as $file => $data) {
         log_console(tr('Writing configuration file ":file"...', array(':file' => $environment.($file ? '_'.$file : ''))));
         config_write($data, $environment, $file);
     }

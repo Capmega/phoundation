@@ -100,10 +100,10 @@ function backup_library_init() {
 //             * Backup the core database of this project
 //             */
 //            $params['database'] = '-B '.$_CONFIG['db']['core']['db'];
-//            log_console('Starting backup of core database "'.str_log($database).'"', 'white');
+//            log_console('Starting backup of core database "'.Strings::Log($database).'"', 'white');
 //
 //            backup_mysql($params);
-//            log_console('Completed backup of core database "'.str_log($database).'"', 'green');
+//            log_console('Completed backup of core database "'.Strings::Log($database).'"', 'green');
 //
 //            return $params['target'];
 //
@@ -114,7 +114,7 @@ function backup_library_init() {
 //             */
 //            log_console('Starting backup of all databases', 'white');
 //
-//            foreach(sql_list('SHOW DATABASES', null, null, 'backup') as $database) {
+//            foreach (sql_list('SHOW DATABASES', null, null, 'backup') as $database) {
 //                try {
 //                    //if ($database == 'information_schema') {
 //                    //    continue;
@@ -142,7 +142,7 @@ function backup_library_init() {
 //            log_console('Starting backup of multiple databases', 'white');
 //            $databases = explode(',', $params['database']);
 //
-//            foreach($databases as $params['database']) {
+//            foreach ($databases as $params['database']) {
 //                backup_mysql($params);
 //            }
 //
@@ -153,17 +153,17 @@ function backup_library_init() {
 //         * Set table
 //         */
 //        if (!$params['table']) {
-//            log_console('Starting backup of database "'.str_log($params['database']).'"', 'white');
+//            log_console('Starting backup of database "'.Strings::Log($params['database']).'"', 'white');
 //
 //            /*
 //             * Backup all tabless separately
 //             * First get a list of all available tables, then back them up one by one
 //             */
-//            foreach(sql_list('SHOW TABLES FROM '.cfm($params['database']), null, null, 'backup') as $table) {
+//            foreach (sql_list('SHOW TABLES FROM '.cfm($params['database']), null, null, 'backup') as $table) {
 //                try {
 //                    $params['table'] = $table;
 //                    backup_mysql($params);
-//                    log_console('Backed up table "'.str_log($table).'"', 'backup');
+//                    log_console('Backed up table "'.Strings::Log($table).'"', 'backup');
 //
 //                }catch(Exception $e) {
 //                    /*
@@ -175,7 +175,7 @@ function backup_library_init() {
 //                }
 //            }
 //
-//            log_console('Completed backup of database "'.str_log($params['database']).'"', 'green');
+//            log_console('Completed backup of database "'.Strings::Log($params['database']).'"', 'green');
 //            return $params['target'];
 //        }
 //
@@ -241,7 +241,7 @@ function backup_library_init() {
 //         */
 //        $command .= ' '.$params['table'];
 //
-//        switch($params['compression']) {
+//        switch ($params['compression']) {
 //            case '';
 //                /*
 //                 * No compression
@@ -254,7 +254,7 @@ function backup_library_init() {
 //                break;
 //
 //            default:
-//                throw new CoreException('backup_mysql(): Unknown compression type "'.str_log($params['compression']).'" specified', 'unknown');
+//                throw new CoreException('backup_mysql(): Unknown compression type "'.Strings::Log($params['compression']).'" specified', 'unknown');
 //        }
 //
 //        $command .= ' > "'.$target.'"';

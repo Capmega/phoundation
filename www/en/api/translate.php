@@ -25,7 +25,7 @@ try {
     /*
      * Data validation
      */
-    switch($data['method']) {
+    switch ($data['method']) {
         case 'get':
             if (empty($data['target_language']) or !preg_match('/^[a-zA-Z]{2}$/', $data['target_language'])) {
                 $v->setError(tr('No or invalid language ":language" specified', array(':language' => $data['target_language'])));
@@ -103,12 +103,12 @@ try {
         throw new CoreException(tr('Specified translation list is invalid'), 'invalid');
     }
 
-    foreach($data['translations'] as $file => $list) {
+    foreach ($data['translations'] as $file => $list) {
         if (!is_array($list)) {
             throw new CoreException(tr('Specified translation list for file ":file" is invalid', array(':file' => $file)), 'invalid');
         }
 
-        foreach($list as $string => $void) {
+        foreach ($list as $string => $void) {
             $code        = sha1($data['target_language'].'|'.$string);
             $translation = sql_get('SELECT `id`,
                                            `translation`,
@@ -212,12 +212,12 @@ try {
                                       array(':project_id'  => cfi($project['id']),
                                             ':last_login'  => $project['last_login']));
 
-        foreach($new_translations as $new_translation) {
+        foreach ($new_translations as $new_translation) {
             $translations[$new_translation['file']][$new_translation['string']] = $new_translation['translation'];
         }
     }
 
-    switch(isset_get($error)) {
+    switch (isset_get($error)) {
         case '':
             // No error
             break;

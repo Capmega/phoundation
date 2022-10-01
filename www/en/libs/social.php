@@ -51,8 +51,8 @@ function social_links($params = false, $returnas = 'string', $separator = ' | ')
             $params = $_CONFIG['social']['links'];
         }
 
-        foreach($params as $key => $value) {
-            switch($key) {
+        foreach ($params as $key => $value) {
+            switch ($key) {
                 case 'youtube';
                     if ($value) {
                         $retval[] = '<a href="http://www.youtube.com/user/'.$value.'" class="social youtube"'.(empty($params['target']) ? '' : ' target="'.$params['target'].'"').'>Youtube</a>';
@@ -80,7 +80,7 @@ function social_links($params = false, $returnas = 'string', $separator = ' | ')
             html_load_css('social');
         }
 
-        switch($returnas) {
+        switch ($returnas) {
             case 'array':
                 return $retval;
 
@@ -88,7 +88,7 @@ function social_links($params = false, $returnas = 'string', $separator = ' | ')
                 return implode($separator, $retval);
 
             default:
-                throw new CoreException('social_links(): Unknown returnas "'.str_log($returnas).'" specified', 'unknown');
+                throw new CoreException('social_links(): Unknown returnas "'.Strings::Log($returnas).'" specified', 'unknown');
         }
 
     }catch(Exception $e) {

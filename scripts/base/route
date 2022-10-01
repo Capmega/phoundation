@@ -20,9 +20,9 @@ static                      - Manage static routes
 require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 
-switch(cli_method()) {
+switch (cli_method()) {
     case 'static':
-        switch(cli_method(1)) {
+        switch (cli_method(1)) {
             case 'list':
                 /*
                  * List all static routing IP's
@@ -49,13 +49,13 @@ switch(cli_method()) {
                 load_libs('validate');
                 $v = new ValidateForm($argv);
 
-                foreach($argv as $ip) {
+                foreach ($argv as $ip) {
                     $v->isFilter($ip, FILTER_VALIDATE_IP, tr('Specified value ":value" is not a valid IP address', array(':value' => $ip)));
                 }
 
                 $v->isValid();
 
-                foreach($argv as $ip) {
+                foreach ($argv as $ip) {
                     $v->isFilter($ip, FILTER_VALIDATE_IP, tr('Specified value ":value" is not a valid IP address', array(':value' => $ip)));
                 }
 

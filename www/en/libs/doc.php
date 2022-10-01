@@ -58,7 +58,7 @@ function doc_parse_this() {
         if ($errors) {
             log_console(tr('Finished documentation parsing with the following issues:'));
 
-            foreach($errors as $error) {
+            foreach ($errors as $error) {
                 log_console($error, 'yellow');
             }
 
@@ -104,7 +104,7 @@ function doc_parse_project($project) {
         if ($errors) {
             log_console(tr('Finished documentation parsing with the following issues:'));
 
-            foreach($errors as $error) {
+            foreach ($errors as $error) {
                 log_console($error, 'yellow');
             }
 
@@ -143,7 +143,7 @@ function doc_parse_path($project, $path, $root, $recursive = true) {
         $count = 0;
         $files = scandir($path);
 
-        foreach($files as $file) {
+        foreach ($files as $file) {
             if (substr($file, 0, 1) == '.') {
                 continue;
             }
@@ -212,7 +212,7 @@ function doc_parse_file($project, $file, $root) {
         /*
          * Parse all supported extensions
          */
-        switch($extension) {
+        switch ($extension) {
             case 'php':
                 /*
                  * Detect file type
@@ -255,7 +255,7 @@ function doc_parse_file($project, $file, $root) {
                 /*
                  * Get file contents
                  */
-                switch($type) {
+                switch ($type) {
                     case 'ignore':
                         // FALLTHROUGH
                     case 'unknown':
@@ -276,7 +276,7 @@ function doc_parse_file($project, $file, $root) {
                 /*
                  * Parse all supported file types
                  */
-                switch($type) {
+                switch ($type) {
                     case 'library':
                         return doc_parse_library($project, $file, $contents);
 
@@ -399,7 +399,7 @@ function doc_parse_file_header($page, $file, $contents) {
         $headers = explode("\n", $headers);
         $current = 'title';
 
-        foreach($headers as $header) {
+        foreach ($headers as $header) {
             try {
                 $header = Strings::from($header, '*');
                 $header = trim($header);
@@ -414,7 +414,7 @@ function doc_parse_file_header($page, $file, $contents) {
                     doc_insert_value($value);
 
                 } else {
-                    switch($current) {
+                    switch ($current) {
                         case 'title':
                             doc_insert_value(array('pages_id' => $page['id'],
                                                    'key'      => 'title',
@@ -596,7 +596,7 @@ function doc_parse_library($project, $file, $content) {
             $function = array_shift($functions);
             $header   = Strings::fromReverse($function, '/*');
 
-            foreach($functions as $function) {
+            foreach ($functions as $function) {
                 /*
                  * Split function into function / header sections
                  */
@@ -616,7 +616,7 @@ function doc_parse_library($project, $file, $content) {
         /*
          * Add all functions to library index
          */
-        foreach($functions as $function) {
+        foreach ($functions as $function) {
             doc_insert_value(array('pages_id' => $libpage['id'],
                                    'key'      => 'function',
                                    'value'    => 'seoname'));
@@ -697,7 +697,7 @@ function doc_parse_function_header($page, $parent, $file, $content) {
         $content = explode("\n", $content);
         $current = 'title';
 
-        foreach($content as $header) {
+        foreach ($content as $header) {
             try {
                 $header = Strings::from($header, '*');
                 $header = trim($header);
@@ -707,7 +707,7 @@ function doc_parse_function_header($page, $parent, $file, $content) {
                 }
 
                 if (substr($header, 0, 1) === '@') {
-                    switch($current) {
+                    switch ($current) {
                         case 'example':
                             /*
                              * End multi line tag
@@ -723,7 +723,7 @@ function doc_parse_function_header($page, $parent, $file, $content) {
                     doc_insert_value($value);
 
                 } else {
-                    switch($current) {
+                    switch ($current) {
                         case 'example':
                             /*
                              * This tag can span multiple lines
@@ -1091,10 +1091,10 @@ function doc_generate($project = null) {
 
         log_console(tr('Generating documentation in ":format" format', array(':format' => $format)), 'cyan');
 
-        foreach($formats as $format) {
+        foreach ($formats as $format) {
             $pages = sql_query('SELECT `id`, `name`, `seoname`, `type` FROM `doc_pages` WHERE `projects_id` = :projects_id', array(':projects_id' => $projects_id));
 
-            foreach($pages as $page) {
+            foreach ($pages as $page) {
                 try {
                     $page['values'] = sql_list('SELECT `id`, `key`, `value` FROM `doc_values` WHERE `pages_id` = :pages_id', array(':pages_id' => $page['id']));
                     doc_generate_page($format, $page);
@@ -1110,7 +1110,7 @@ function doc_generate($project = null) {
         if ($errors) {
             log_console(tr('Finished documentation parsing with the following issues:'));
 
-            foreach($errors as $error) {
+            foreach ($errors as $error) {
                 log_console($error, 'yellow');
             }
 
@@ -1161,14 +1161,14 @@ function doc_generate_page($format, $page) {
         $data = file_get_contents($path.'templates/'.$format.'/'.$page['type'].'.'.$format);
         $data = str_replace(':name', isset_get($page['name']), $data);
 
-        foreach($multis as $multi) {
+        foreach ($multis as $multi) {
             $replace = '';
 
             /*
              * Replace all "multi values", that is to say, the values that have
              * only one key in the template, but multiple values in the database
              */
-            foreach($page['values'] as $key => $value) {
+            foreach ($page['values'] as $key => $value) {
                 if ($value['key'] == $multi) {
                     $replace .= $value['value']."\n";
                     unset($page['values'][$key]);
@@ -1180,11 +1180,11 @@ function doc_generate_page($format, $page) {
             }
         }
 
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             /*
              * Replace all the single values
              */
-            foreach($page['values'] as $value) {
+            foreach ($page['values'] as $value) {
                 if ($value['key'] == $key) {
                     $data = str_replace(':'.$key, $value['value'], $data);
                     break;

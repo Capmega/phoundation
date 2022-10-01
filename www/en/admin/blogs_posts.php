@@ -138,7 +138,7 @@ if (isset_get($_POST['status'])) {
         redirect('self');
     }
 
-    switch($_POST['status']) {
+    switch ($_POST['status']) {
         case tr('published'):
             try {
                 /*
@@ -335,7 +335,7 @@ if (isset_get($_POST['status'])) {
 /*
  *
  */
-switch(isset_get($_POST['doaction'])) {
+switch (isset_get($_POST['doaction'])) {
     case tr('create'):
         redirect(str_replace('%blog%', $blog['seoname'], $params['create_url']));
 }
@@ -486,7 +486,7 @@ if (!$r->rowCount()) {
      * There are no blog posts
      */
     if ($blog) {
-        $html .= '<h3>The blog "'.str_log($blog['name']).'" has no posts yet</h3>';
+        $html .= '<h3>The blog "'.Strings::Log($blog['name']).'" has no posts yet</h3>';
 
     } else {
         $html .= '<h3>There are no blog posts yet</h3>';
@@ -495,8 +495,8 @@ if (!$r->rowCount()) {
 } else {
     $html .= '<table class="link select table mb-none table-striped table-hover">';
 
-    foreach($params['columns'] as $column => $display) {
-        switch($column) {
+    foreach ($params['columns'] as $column => $display) {
+        switch ($column) {
             case 'id':
                 $html .= '<th class="select"><input type="checkbox" name="id[]" class="all"></th>';
                 break;
@@ -511,8 +511,8 @@ if (!$r->rowCount()) {
     while ($post = sql_fetch($r)) {
         $html .= '<tr class="'.$params['class'].' '.$post['post_status'].'">';
 
-        foreach($params['columns'] as $column => $display) {
-            switch($column) {
+        foreach ($params['columns'] as $column => $display) {
+            switch ($column) {
                 case 'id':
                     $html .= '<td class="select"><input type="checkbox" name="id[]" value="'.$post['post_id'].'"></td>';
                     break;
@@ -558,7 +558,7 @@ if (!$r->rowCount()) {
                     break;
 
                 default:
-                    throw new CoreException('Unknown column "'.str_log($column).'" specified');
+                    throw new CoreException('Unknown column "'.Strings::Log($column).'" specified');
             }
         }
 

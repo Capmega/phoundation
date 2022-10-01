@@ -13,7 +13,7 @@ if ($selected) {
         /*
          *
          */
-        switch(isset_get($_POST['doblogaction'])) {
+        switch (isset_get($_POST['doblogaction'])) {
             case 'modify_blog':
                 redirect(domain('/admin/blog.php?blog='.$selected_blog['seoname']));
 
@@ -34,7 +34,7 @@ if ($selected) {
 /*
  *
  */
-switch(isset_get($_POST['doaction'])) {
+switch (isset_get($_POST['doaction'])) {
     case tr('create'):
         redirect('/admin/blog.php');
 
@@ -326,7 +326,7 @@ if ($selected) {
                                     <div class="form-group">
                                         <label class="col-md-3 control-label" for="name">'.tr('Name').'</label>
                                         <div class="col-md-9">
-                                            <p>'.tr('The specified blog "%blog%" does not exist', array('%blog%' => str_log($selected))).'</p>
+                                            <p>'.tr('The specified blog "%blog%" does not exist', array('%blog%' => Strings::Log($selected))).'</p>
                                         </div>
                                     </div>
                                 </div>';

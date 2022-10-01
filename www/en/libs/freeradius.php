@@ -93,7 +93,7 @@ function freeradius_sync_server($devices_local) {
 
         $devices_remote = sql_list('SELECT `username` FROM `radcheck`', null, false, 'radius');
 
-        foreach($devices_local as $device) {
+        foreach ($devices_local as $device) {
             if (in_array($device['mac_address'], $devices_remote)) {
                 if ($device['status'] == 'deleted') {
                     radius_delete_device_server($device);
@@ -108,7 +108,7 @@ function freeradius_sync_server($devices_local) {
 
         $devices_local_mac  = sql_list('SELECT `mac_address` FROM `radius_devices`');
 
-        foreach($devices_remote as $device) {
+        foreach ($devices_remote as $device) {
             if (!in_array($device, $devices_local_mac)) {
                 radius_delete_device_server(array('mac_address' => $device, 'status' => 'DELETED'));
             }

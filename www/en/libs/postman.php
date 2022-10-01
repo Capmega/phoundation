@@ -100,7 +100,7 @@ function postman_get_headers($headers) {
 
         }
 
-        foreach($headers as $header) {
+        foreach ($headers as $header) {
             $retval[] = $header['key'].': '.$header['value'];
         }
 
@@ -121,7 +121,7 @@ function postman_get_urlencoded($data) {
         load_libs('inet');
         $url = '';
 
-        foreach($data as $value) {
+        foreach ($data as $value) {
             $url = url_add_query($url, $value['key'].'='.$value['value']);
         }
 

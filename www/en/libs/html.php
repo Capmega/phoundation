@@ -194,7 +194,7 @@ function html_bundler($list) {
                 global $core, $_CONFIG;
 
                 if (!empty($core->register[$list])) {
-                    foreach($core->register[$list] as $file => $data) {
+                    foreach ($core->register[$list] as $file => $data) {
                         /*
                          * Check for @imports
                          */
@@ -219,7 +219,7 @@ function html_bundler($list) {
                         if ($extension === 'css') {
 // :TODO: ADD SUPPORT FOR RECURSIVE @IMPORT STATEMENTS!! What if the files that are imported with @import contain @import statements themselves!?!?!?
                             if (preg_match_all('/@import.+?;/', $data, $matches)) {
-                                foreach($matches[0] as $match) {
+                                foreach ($matches[0] as $match) {
                                     /*
                                      * Inline replace each @import with the file
                                      * contents
@@ -291,7 +291,7 @@ function html_bundler($list) {
                                      * In the bundled file, this should become
                                      * url("foo/1.jpg")
                                      */
-                                    foreach($matches[1] as $url) {
+                                    foreach ($matches[1] as $url) {
                                         if (strtolower(substr($url, 0, 5)) == 'data:') {
                                             /*
                                              * This is inline data, nothing we can do so
@@ -428,7 +428,7 @@ function html_load_css($files = '', $media = null) {
 
         $min = $_CONFIG['cdn']['min'];
 
-        foreach($files as $file) {
+        foreach ($files as $file) {
             $core->register['css'][$file] = array('min'   => $min,
                                                   'media' => $media);
         }
@@ -477,7 +477,7 @@ function html_generate_css() {
 
         html_bundler('css');
 
-        foreach($core->register['css'] as $file => $meta) {
+        foreach ($core->register['css'] as $file => $meta) {
             if (!$file) continue;
 
             if (!str_contains(substr($file, 0, 8), '//')) {
@@ -545,7 +545,7 @@ function html_load_js($files, $list = 'page') {
     try {
         $config = &$_CONFIG['cdn']['js'];
 
-        foreach(Arrays::force($files) as $file) {
+        foreach (Arrays::force($files) as $file) {
             if (strstr($file, '://')) {
                 /*
                  * Compatibility code: ALL LOCAL JS FILES SHOULD ALWAYS BE
@@ -572,7 +572,7 @@ function html_load_js($files, $list = 'page') {
             /*
              * Determine if this file should be delayed loaded or not
              */
-            switch(substr($file, 0, 1)) {
+            switch (substr($file, 0, 1)) {
                 case '<':
                     $file    = substr($file, 1);
                     $delayed =  false;
@@ -590,7 +590,7 @@ function html_load_js($files, $list = 'page') {
             /*
              * Determine if this file should be async or not
              */
-            switch(substr($file, -1, 1)) {
+            switch (substr($file, -1, 1)) {
                 case '&':
                     $async = true;
                     break;
@@ -659,8 +659,8 @@ function html_generate_js($lists = null) {
         /*
          * Merge all body file lists into one
          */
-        foreach($lists as $key => $section) {
-            switch($section) {
+        foreach ($lists as $key => $section) {
+            switch ($section) {
                 case 'js_header':
                     // FALLTHROUGH
                 case 'js_footer':
@@ -690,7 +690,7 @@ function html_generate_js($lists = null) {
          * Loop over header and body javascript file lists to generate the HTML
          * that will load javascript files to client
          */
-        foreach($lists as $section) {
+        foreach ($lists as $section) {
             /*
              * Bundle all files for this list into one?
              */
@@ -699,7 +699,7 @@ function html_generate_js($lists = null) {
             /*
              * Generate HTML that will load javascript files to client
              */
-            foreach($core->register[$section] as $file => $async) {
+            foreach ($core->register[$section] as $file => $async) {
                 if (!$file) {
                     /*
                      * We should never have empty files
@@ -827,7 +827,7 @@ function html_header($params, $meta, &$html) {
          * Load captcha javascript
          */
         if (!empty($_CONFIG['captcha']['type']) and $params['captcha']) {
-            switch($_CONFIG['captcha']['type']) {
+            switch ($_CONFIG['captcha']['type']) {
                 case 'recaptcha':
                     html_load_js($_CONFIG['captcha']['recaptcha']['js-api']);
                     break;
@@ -859,10 +859,10 @@ function html_header($params, $meta, &$html) {
 
             } else {
 // :OBSOLETE: Links specified as an array only adds more complexity, we're going to send it as plain HTML, and be done with the crap. This is still here for backward compatibility
-                foreach($params['links'] as $data) {
+                foreach ($params['links'] as $data) {
                     $sections = array();
 
-                    foreach($data as $key => $value) {
+                    foreach ($data as $key => $value) {
                         $sections[] = $key.'="'.$value.'"';
                     }
 
@@ -871,11 +871,11 @@ function html_header($params, $meta, &$html) {
             }
         }
 
-        foreach($params['prefetch_dns'] as $prefetch) {
+        foreach ($params['prefetch_dns'] as $prefetch) {
             $retval .= '<link rel="dns-prefetch" href="//'.$prefetch.'">';
         }
 
-        foreach($params['prefetch_files'] as $prefetch) {
+        foreach ($params['prefetch_files'] as $prefetch) {
             $retval .= '<link rel="prefetch" href="'.$prefetch.'">';
         }
 
@@ -899,10 +899,10 @@ function html_header($params, $meta, &$html) {
          * Add required fonts
          */
         if (!empty($params['fonts'])) {
-            foreach($params['fonts'] as $font) {
+            foreach ($params['fonts'] as $font) {
                 $extension = Strings::fromReverse($font, '.');
 
-                switch($extension) {
+                switch ($extension) {
                     case 'woff':
                         // FALLTHROUGH
                     case 'woff2':
@@ -1024,7 +1024,7 @@ function html_meta($meta) {
         $retval = '<meta http-equiv="Content-Type" content="text/html;charset="'.$_CONFIG['encoding']['charset'].'">'.
                   '<title>'.$meta['title'].'</title>';
 
-        foreach($meta as $key => $value) {
+        foreach ($meta as $key => $value) {
             if ($key === 'og') {
                 $retval .= html_og($value, $meta);
 
@@ -1096,7 +1096,7 @@ function html_og($og, $meta) {
 
         $og['locale'] = Strings::until($og['locale'], '.');
 
-        foreach($og as $property => $content) {
+        foreach ($og as $property => $content) {
             if (empty($content)) {
                 notify(new CoreException(tr('html_og(): Missing property content for meta og key ":property". Please add this data for SEO!', array(':property' => $property)), 'warning/not-specified'));
             }
@@ -1238,7 +1238,7 @@ function html_flash($class = null) {
 
         $retval = '';
 
-        foreach($_SESSION['flash'] as $id => $flash) {
+        foreach ($_SESSION['flash'] as $id => $flash) {
             array_default($flash, 'class', null);
 
             if ($flash['class'] and ($flash['class'] != $class)) {
@@ -1252,7 +1252,7 @@ function html_flash($class = null) {
 
             unset($flash['class']);
 
-            switch($type = strtolower($flash['type'])) {
+            switch ($type = strtolower($flash['type'])) {
                 case 'info':
                     break;
 
@@ -1290,13 +1290,13 @@ function html_flash($class = null) {
             /*
              * Set the indicator that we have added flash texts
              */
-            switch($_CONFIG['flash']['type']) {
+            switch ($_CONFIG['flash']['type']) {
                 case 'html':
                     /*
                      * Either text or html could have been specified, or both
                      * In case both are specified, show both!
                      */
-                    foreach(array('html', 'text') as $type) {
+                    foreach (array('html', 'text') as $type) {
                         if ($flash[$type]) {
                             $retval .= tr($_CONFIG['flash']['html'], array(':message' => $flash[$type], ':type' => $flash['type'], ':hidden' => ''), false);
                         }
@@ -1329,7 +1329,7 @@ function html_flash($class = null) {
             unset($_SESSION['flash'][$id]);
         }
 
-        switch($_CONFIG['flash']['type']) {
+        switch ($_CONFIG['flash']['type']) {
             case 'html':
 // :TODO: DONT USE tr() HERE!!!!
                 /*
@@ -1340,7 +1340,7 @@ function html_flash($class = null) {
             case 'sweetalert':
                 load_libs('sweetalert');
 
-                switch(count(isset_get($sweetalerts, array()))) {
+                switch (count(isset_get($sweetalerts, array()))) {
                     case 0:
                         /*
                          * No alerts
@@ -1446,7 +1446,7 @@ function html_flash_set($params, $type = 'info', $class = null) {
             throw new CoreException(tr('html_flash_set(): Invalid call data ":data", should contain at least "text" or "html" or "title"!', array(':data' => $params)), 'invalid');
         }
 
-        switch(strtolower($params['type'])) {
+        switch (strtolower($params['type'])) {
             case 'success':
                 $color = 'green';
                 break;
@@ -1495,7 +1495,7 @@ function html_flash_set($params, $type = 'info', $class = null) {
 //function html_flash_class($class = null) {
 //    try {
 //        if (isset($_SESSION['flash'])) {
-//            foreach($_SESSION['flash'] as $message) {
+//            foreach ($_SESSION['flash'] as $message) {
 //                if ((isset_get($message['class']) == $class) or ($message['class'] == '*')) {
 //                    return true;
 //                }
@@ -1529,7 +1529,7 @@ function html_a($params) {
         array_default($params, 'target', '');
         array_default($params, 'rel'   , '');
 
-        switch($params['target']) {
+        switch ($params['target']) {
             case '_blank':
                 $params['rel'] .= ' noreferrer noopener';
                 break;
@@ -1637,7 +1637,7 @@ function html_select_submit($params) {
             $params['resource'] = $params['buttons'];
 
         } elseif (is_array($params['buttons'])) {
-            foreach($params['buttons'] as $key => $value) {
+            foreach ($params['buttons'] as $key => $value) {
                 if (is_numeric($key)) {
                     $key = $value;
                 }
@@ -1914,12 +1914,12 @@ function html_select_body($params) {
                 /*
                  * Process array resource
                  */
-                foreach($params['resource'] as $key => $value) {
+                foreach ($params['resource'] as $key => $value) {
                     $notempty    = true;
                     $option_data = '';
 
                     if ($params['data_resource']) {
-                        foreach($params['data_resource'] as $data_key => $resource) {
+                        foreach ($params['data_resource'] as $data_key => $resource) {
                             if (!empty($resource[$key])) {
                                 $option_data .= ' data-'.$data_key.'="'.$resource[$key].'"';
                             }
@@ -1959,7 +1959,7 @@ function html_select_body($params) {
                      * Add data- in this option?
                      */
                     if ($params['data_resource']) {
-                        foreach($params['data_resource'] as $data_key => $resource) {
+                        foreach ($params['data_resource'] as $data_key => $resource) {
                             if (!empty($resource[$key])) {
                                 $option_data = ' data-'.$data_key.'="'.$resource[$key].'"';
                             }
@@ -2046,7 +2046,7 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
             return '';
         }
 
-        switch($script['script'][0]) {
+        switch ($script['script'][0]) {
             case '>':
                 /*
                  * Keep this script internal! This is required when script contents
@@ -2076,7 +2076,7 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                  * If false, no event wrapper will be added
                  */
                 if ($script['event']) {
-                    switch($script['event']) {
+                    switch ($script['event']) {
                         case 'dom_content':
                             $retval = 'document.addEventListener("DOMContentLoaded", function(e) {
                                           '.$script['script'].'
@@ -2269,7 +2269,7 @@ function html_favicon($icon = null, $mobile_icon = null, $sizes = null, $precomp
             $params['sizes'] = Arrays::force($params['sizes']);
         }
 
-        foreach($params['sizes'] as $sizes) {
+        foreach ($params['sizes'] as $sizes) {
             if ($core->callType('mobile')) {
                 if (!$params['mobile_icon']) {
                     $params['mobile_icon'] = cdn_domain('img/mobile/favicon.png');
@@ -2338,7 +2338,7 @@ function html_list($params, $selected = '') {
 
         $count = 0;
 
-        foreach($params['steps'] as $name => $data) {
+        foreach ($params['steps'] as $name => $data) {
             $count++;
 
             $class = $params['class'].(($params['selected'] == $name) ? ' selected active' : '');
@@ -2718,7 +2718,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                         $image = getimagesize(TMP.$file);
 
                     }catch(Exception $e) {
-                        switch($e->getCode()) {
+                        switch ($e->getCode()) {
                             case 404:
                                 log_file(tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src)));
                                 break;
@@ -2757,7 +2757,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                             $image = getimagesize($file_src);
 
                         }catch(Exception $e) {
-                            switch($e->getCode()) {
+                            switch ($e->getCode()) {
                                 case 404:
                                     log_file(tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src)));
                                     break;
@@ -3022,12 +3022,12 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                      */
                     $options = array();
 
-                    foreach($_CONFIG['lazy_img'] as $key => $value) {
+                    foreach ($_CONFIG['lazy_img'] as $key => $value) {
                         if ($value === null) {
                             continue;
                         }
 
-                        switch($key) {
+                        switch ($key) {
                             /*
                              * Booleans
                              */
@@ -3212,7 +3212,7 @@ function html_video($params) {
                     throw new CoreException(tr('html_video(): No width specified for remote video'), 'not-specified');
                 }
 
-                switch($params['type']) {
+                switch ($params['type']) {
                     case 'mp4':
                         $params['type'] = 'video/mp4';
                         break;
@@ -3356,7 +3356,7 @@ function html_untranslate() {
     try {
         $count = 0;
 
-        foreach($_POST as $key => $value) {
+        foreach ($_POST as $key => $value) {
             if (substr($key, 0, 4) == '__HT') {
                 $_POST[Strings::until(substr($key, 4), '__')] = $_POST[$key];
                 unset($_POST[$key]);
@@ -3387,7 +3387,7 @@ function html_untranslate() {
  */
 function html_fix_checkbox_values() {
     try {
-        foreach($_POST as $key => $value) {
+        foreach ($_POST as $key => $value) {
             if (substr($key, 0, 4) === '__CB') {
                 if (!array_key_exists(substr($key, 4), $_POST)) {
                     $_POST[substr($key, 4)] = $value;
@@ -3436,7 +3436,7 @@ function html_form($params = null) {
         array_default($params, 'class' , 'form-horizontal');
         array_default($params, 'csrf'  , $_CONFIG['security']['csrf']['enabled']);
 
-        foreach(array('id', 'name', 'method', 'action', 'class', 'extra') as $key) {
+        foreach (array('id', 'name', 'method', 'action', 'class', 'extra') as $key) {
             if (!$params[$key]) continue;
 
             if ($params[$key] == 'extra') {
@@ -3534,13 +3534,13 @@ function html_filter_tags($html, $tags, $exception = false) {
 
         $dom->loadHTML($html);
 
-        foreach($tags as $tag) {
+        foreach ($tags as $tag) {
             $elements = $dom->getElementsByTagName($tag);
 
             /*
              * Generate a list of elements that must be removed
              */
-            foreach($elements as $element) {
+            foreach ($elements as $element) {
                 $list[] = $element;
             }
         }
@@ -3550,7 +3550,7 @@ function html_filter_tags($html, $tags, $exception = false) {
                 throw new CoreException('html_filter_tags(): Found HTML tags ":tags" which are forbidden', array(':tags', implode(', ', $list)), 'forbidden');
             }
 
-            foreach($list as $item) {
+            foreach ($list as $item) {
                 $item->parentNode->removeChild($item);
             }
         }
@@ -3676,7 +3676,7 @@ function html_loader_screen($params) {
         $html .= '  </div>';
 
         if (!$params['test_loader_screen']) {
-            switch($params['transition_style']) {
+            switch ($params['transition_style']) {
                 case 'fade':
                     if ($params['page_selector']) {
                         /*
@@ -3744,11 +3744,11 @@ function html_strip_attributes($source, $allowed_attributes = null) {
         $xml = new DOMDocument();
 
         if ($xml->loadHTML($source, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
-            foreach($xml->getElementsByTagName("*") as $tag) {
+            foreach ($xml->getElementsByTagName("*") as $tag) {
                 /*
                  * Filter attributes
                  */
-                foreach($tag->attributes as $attr) {
+                foreach ($tag->attributes as $attr) {
                     if (!in_array($attr->nodeName, $allowed_attributes)) {
                         $tag->removeAttribute($attr->nodeName);
                     }

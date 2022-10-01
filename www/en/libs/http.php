@@ -152,7 +152,7 @@ function session_redirect($method = 'http', $force = false) {
             unset($_SESSION['sso_referrer']);
         }
 
-        switch($method) {
+        switch ($method) {
             case 'json':
                 /*
                  * Send JSON redirect. json_reply() will end script, so no break needed
@@ -194,7 +194,7 @@ function store_post($redirect) {
  */
 function http_get_to_post($keys, $overwrite = true) {
     try {
-        foreach(Arrays::force($keys) as $key) {
+        foreach (Arrays::force($keys) as $key) {
             if (isset($_GET[$key]) and ($overwrite or empty($_POST[$key]))) {
                 $_POST[$key] = $_GET[$key];
             }
@@ -225,11 +225,11 @@ function http_get_to_post($keys, $overwrite = true) {
 //                             503 => 'Service Unavailable');
 //
 //    if (!is_numeric($code) or ($code < 0) or ($code > 1000)) {
-//        throw new CoreException('http_status_message(): Invalid code "'.str_log($code).'" specified');
+//        throw new CoreException('http_status_message(): Invalid code "'.Strings::Log($code).'" specified');
 //    }
 //
 //    if (!isset($messages[$code])) {
-//        throw new CoreException('http_status_message(): Specified code "'.str_log($code).'" is not supported');
+//        throw new CoreException('http_status_message(): Specified code "'.Strings::Log($code).'" is not supported');
 //    }
 //
 //    return $messages[$code];
@@ -336,8 +336,8 @@ function http_headers($params, $content_length) {
              */
             $params['cors'] = array_merge($_CONFIG['cors'], Arrays::force($params['cors']));
 
-            foreach($params['cors'] as $key => $value) {
-                switch($key) {
+            foreach ($params['cors'] as $key => $value) {
+                switch ($key) {
                     case 'origin':
                         if ($value == '*.') {
                             /*
@@ -407,7 +407,7 @@ function http_headers($params, $content_length) {
             log_console(tr('Page ":script" was processed in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()))));
         }
 
-        foreach($headers as $header) {
+        foreach ($headers as $header) {
             header($header);
         }
 
@@ -418,7 +418,7 @@ function http_headers($params, $content_length) {
             die();
         }
 
-        switch($params['http_code']) {
+        switch ($params['http_code']) {
             case 304:
                 /*
                  * 304 requests indicate the browser to use it's local cache,
@@ -632,7 +632,7 @@ function http_cache($params, $http_code, $headers = array()) {
                  * Send caching headers
                  * Ajax, API, and admin calls do not have proxy caching
                  */
-                switch($core->callType()) {
+                switch ($core->callType()) {
                     case 'api':
                         // FALLTHROUGH
                     case 'ajax':
@@ -772,7 +772,7 @@ function http_validate_get() {
     global $_CONFIG;
 
     try {
-        foreach($_GET as $key => &$value) {
+        foreach ($_GET as $key => &$value) {
             if (!is_scalar($value)) {
                 if ($value) {
                     throw new CoreException(tr('http_validate_get(): The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', array(':key' => $key, ':content' => $value)), 400);
