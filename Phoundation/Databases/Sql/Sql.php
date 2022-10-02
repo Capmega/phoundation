@@ -3,6 +3,7 @@
 namespace Phoundation\Databases;
 
 use Exception;
+use Paging;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -11,10 +12,16 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Databases\Exception\MysqlException;
 use Phoundation\Databases\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Exception\SqlException;
 use Phoundation\Developer\Debug;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\File;
+use Server;
+use Servers;
 use Throwable;
+
 
 
 /**
@@ -336,40 +343,23 @@ class Sql
     /**
      * Prepare specified query
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @param string $query
+     * @return PDOStatement
      */
-    public static function prepare($query, $connector_name = null)
+    public static function prepare(string $query): PDOStatement
     {
-        global $core;
-
-        try {
-            $connector_name = Sql::connectorName($connector_name);
-            $connector_name = Sql::init($connector_name);
-
-            return self::$interface->prepare($query);
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::prepare(): Failed', $e);
-        }
+        return self::$interface->prepare($query);
     }
+
 
 
     /**
      * Fetch and return data from specified resource
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
      * @param
-     * @return
+     * @param bool $single_column
+     * @param int $fetch_style
+     * @return mixed|null
      */
     public static function fetch($r, $single_column = false, $fetch_style = PDO::FETCH_ASSOC)
     {
@@ -421,18 +411,12 @@ class Sql
     /**
      * Execute query and return only the first row
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
      * @param
      * @return
      */
-    public static function get(string $query, array $execute = null, $connector_name = null): array
+    public static function get(string $query, array $execute = null): array
     {
         try {
-            $connector_name = Sql::connectorName($connector_name);
             $result = Sql::query($query, $execute, $connector_name);
 
             if ($result->rowCount() > 1) {
@@ -493,11 +477,9 @@ class Sql
      * @param
      * @return
      */
-    public static function list($query, $execute = null, $numerical_array = false, $connector_name = null)
+    public static function list($query, $execute = null, $numerical_array = false)
     {
         try {
-            $connector_name = Sql::connectorName($connector_name);
-
             if (is_object($query)) {
                 $r = $query;
                 $query = $r->queryString;
@@ -552,11 +534,6 @@ class Sql
      * @param
      * @param bool $use_database
      * @return mixed|PDO
-     * @package sql
-     *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
      */
     protected static function connect(bool $use_database = true)
     {
@@ -661,82 +638,16 @@ class Sql
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Connect with the main database
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @return mixed|void
      */
-    public static function init($connector_name = null)
+    public static function init()
     {
         global $_CONFIG, $core;
 
         try {
-            $connector_name = Sql::connectorName($connector_name);
-
             if (!empty(self::$interface)) {
                 /*
                  * Already connected to requested DB
@@ -869,25 +780,20 @@ class Sql
         }
     }
 
+    
 
     /**
      * Close the connection for the specified connector
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
      * @param
      * @return
      */
-    public static function close($connector = null)
+    public static function close()
     {
         global $_CONFIG, $core;
 
         try {
-            $connector = Sql::connectorName($connector);
-            unset($core->sql[$connector]);
+            unset(self::$interface);
 
         } catch (Exception $e) {
             throw new SqlException(tr('Sql::close(): Failed for connector ":connector"', array(':connector' => $connector)), $e);
@@ -895,61 +801,38 @@ class Sql
     }
 
 
-
     /**
      * Import data from specified file
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @param string $file
+     * @return void
      */
-    public static function import($file, $connector = null)
+    public static function import(string $file): void
     {
-        global $core;
+        $tel = 0;
+        $handle = File::open($file, 'r');
 
-        try {
-            $connector = Sql::connectorName($connector);
+        while (($buffer = fgets($handle)) !== false) {
+            $buffer = trim($buffer);
 
-            if (!file_exists($file)) {
-                throw new SqlException(tr('Sql::import(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
+            if (!empty($buffer)) {
+                self::$interface->query($buffer);
+
+                $tel++;
+                // :TODO:SVEN:20130717: Right now it updates the display for each record. This may actually slow down import. Make display update only every 10 records or so
+                echo 'Importing SQL data (' . $file . ') : ' . number_format($tel) . "\n";
+                //one line up!
+                echo "\033[1A";
             }
-
-            $tel = 0;
-            $handle = @fopen($file, 'r');
-
-            if (!$handle) {
-                throw new isException('Sql::import(): Could not open file', 'notopen');
-            }
-
-            while (($buffer = fgets($handle)) !== false) {
-                $buffer = trim($buffer);
-
-                if (!empty($buffer)) {
-                    $core->sql[$connector]->query(trim($buffer));
-
-                    $tel++;
-                    // :TODO:SVEN:20130717: Right now it updates the display for each record. This may actually slow down import. Make display update only every 10 records or so
-                    echo 'Importing SQL data (' . $file . ') : ' . number_format($tel) . "\n";
-                    //one line up!
-                    echo "\033[1A";
-                }
-            }
-
-            echo "\nDone\n";
-
-            if (!feof($handle)) {
-                throw new isException(tr('Sql::import(): Unexpected EOF'), 'invalid');
-            }
-
-            fclose($handle);
-
-        } catch (Exception $e) {
-            throw new SqlException(tr('Sql::import(): Failed to import file ":file"', array(':file' => $file)), $e);
         }
+
+        echo "\nDone\n";
+
+        if (!feof($handle)) {
+            throw new SqlException(tr('Import of file ":file" unexpectedly halted', [':file' => $file]));
+        }
+
+        fclose($handle);
     }
 
 
@@ -957,117 +840,26 @@ class Sql
     /**
      *
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @param array $source
+     * @param array|string $columns
+     * @return string
      */
-    public static function columns($source, $columns)
+    public static function columns(array $source, array|string $columns): string
     {
-        try {
-            if (!is_array($source)) {
-                throw new SqlException('Sql::columns(): Specified source is not an array');
+        $columns = Arrays::force($columns);
+        $retval = array();
+
+        foreach ($source as $key => $value) {
+            if (in_array($key, $columns)) {
+                $retval[] = '`' . $key . '`';
             }
-
-            $columns = Arrays::force($columns);
-            $retval = array();
-
-            foreach ($source as $key => $value) {
-                if (in_array($key, $columns)) {
-                    $retval[] = '`' . $key . '`';
-                }
-            }
-
-            if (!count($retval)) {
-                throw new SqlException('Sql::columns(): Specified source contains non of the specified columns "' . Strings::log(implode(',', $columns)) . '"');
-            }
-
-            return implode(', ', $retval);
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::columns(): Failed', $e);
         }
-    }
 
-
-
-    // :OBSOLETE: Remove this function soon
-    ///*
-    // *
-    // */
-    //public static function set($source, $columns, $filter = 'id') {
-    //    try {
-    //        if (!is_array($source)) {
-    //            throw new SqlException('Sql::set(): Specified source is not an array', 'invalid');
-    //        }
-    //
-    //        $columns = Arrays::force($columns);
-    //        $filter  = Arrays::force($filter);
-    //        $retval  = array();
-    //
-    //        foreach ($source as $key => $value) {
-    //            /*
-    //             * Add all in columns, but not in filter (usually to skip the id column)
-    //             */
-    //            if (in_array($key, $columns) and !in_array($key, $filter)) {
-    //                $retval[] = '`' . $key . '` = :' . $key;
-    //            }
-    //        }
-    //
-    //        foreach ($filter as $item) {
-    //            if (!isset($source[$item])) {
-    //                throw new SqlException('Sql::set(): Specified filter item "'.Strings::log($item) . '" was not found in source', 'not-exists');
-    //            }
-    //        }
-    //
-    //        if (!count($retval)) {
-    //            throw new SqlException('Sql::set(): Specified source contains non of the specified columns "'.Strings::log(implode(',', $columns)) . '"', 'empty');
-    //        }
-    //
-    //        return implode(', ', $retval);
-    //
-    //    } catch (Exception $e) {
-    //        throw new SqlException('Sql::set(): Failed', $e);
-    //    }
-    //}
-
-
-
-    /**
-     *
-     *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
-     */
-    public static function values($source, $columns, $prefix = ':')
-    {
-        try {
-            if (!is_array($source)) {
-                throw new SqlException('Sql::values(): Specified source is not an array');
-            }
-
-            $columns = Arrays::force($columns);
-            $retval = array();
-
-            foreach ($source as $key => $value) {
-                if (in_array($key, $columns) or ($key == 'id')) {
-                    $retval[$prefix . $key] = $value;
-                }
-            }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::values(): Failed', $e);
+        if (!count($retval)) {
+            throw new SqlException(tr('Specified source contains non of the specified columns ":columns"', [':columns' => $columns]));
         }
+
+        return implode(', ', $retval);
     }
 
 
@@ -1075,25 +867,23 @@ class Sql
     /**
      *
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @param array|string $source
+     * @param array|Strings $columns
+     * @param string $prefix
+     * @return array
      */
-    public static function insert_id($connector = null)
+    public static function values(array|string $source, array|strings $columns, string $prefix = ':'): array
     {
-        global $core;
+        $columns = Arrays::force($columns);
+        $retval = [];
 
-        try {
-            $connector = Sql::connectorName($connector);
-            return $core->sql[Sql::connectorName($connector)]->lastInsertId();
-
-        } catch (Exception $e) {
-            throw new SqlException(tr('Sql::insert_id(): Failed for connector ":connector"', array(':connector' => $connector)), $e);
+        foreach ($source as $key => $value) {
+            if (in_array($key, $columns) or ($key == 'id')) {
+                $retval[$prefix . $key] = $value;
+            }
         }
+
+        return $retval;
     }
 
 
@@ -1101,150 +891,144 @@ class Sql
     /**
      *
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @return ?int
      */
-    public static function get_id_or_name($entry, $seo = true, $code = false)
+    public static function insertId(): ?int
     {
-        try {
-            if (is_array($entry)) {
-                if (!empty($entry['id'])) {
-                    $entry = $entry['id'];
+        $insert_id = self::$interface->lastInsertId();
 
-                } elseif (!empty($entry['name'])) {
-                    $entry = $entry['name'];
+        if ($insert_id) {
+            return (int) $insert_id;
+        }
 
-                } elseif (!empty($entry['seoname'])) {
-                    $entry = $entry['seoname'];
+        return null;
+    }
 
-                } elseif (!empty($entry['code'])) {
-                    $entry = $entry['code'];
+
+    /**
+     *
+     *
+     * @param mixed $entry
+     * @param bool $seo
+     * @param bool $code
+     * @return string
+     */
+    public static function getIdOrName(mixed $entry, bool $seo = true, bool $code = false): array
+    {
+        // TODO Figure out WTF this function is and what it is supposed to do
+        if (is_array($entry)) {
+            if (!empty($entry['id'])) {
+                $entry = $entry['id'];
+
+            } elseif (!empty($entry['name'])) {
+                $entry = $entry['name'];
+
+            } elseif (!empty($entry['seoname'])) {
+                $entry = $entry['seoname'];
+
+            } elseif (!empty($entry['code'])) {
+                $entry = $entry['code'];
+
+            } else {
+                throw new SqlException(tr('Invalid entry array specified'));
+            }
+        }
+
+        if (is_numeric($entry)) {
+            $retval['where'] = '`id` = :id';
+            $retval['execute'] = array(':id' => $entry);
+
+        } elseif (is_string($entry)) {
+            if ($seo) {
+                if ($code) {
+                    $retval['where'] = '`name` = :name OR `seoname` = :seoname OR `code` = :code';
+                    $retval['execute'] = array(':code' => $entry,
+                        ':name' => $entry,
+                        ':seoname' => $entry);
 
                 } else {
-                    throw new SqlException('Sql::get_id_or_name(): Invalid entry array specified', 'invalid');
-                }
-            }
-
-            if (is_numeric($entry)) {
-                $retval['where'] = '`id` = :id';
-                $retval['execute'] = array(':id' => $entry);
-
-            } elseif (is_string($entry)) {
-                if ($seo) {
-                    if ($code) {
-                        $retval['where'] = '`name` = :name OR `seoname` = :seoname OR `code` = :code';
-                        $retval['execute'] = array(':code' => $entry,
-                            ':name' => $entry,
-                            ':seoname' => $entry);
-
-                    } else {
-                        $retval['where'] = '`name` = :name OR `seoname` = :seoname';
-                        $retval['execute'] = array(':name' => $entry,
-                            ':seoname' => $entry);
-                    }
-
-                } else {
-                    if ($code) {
-                        $retval['where'] = '`name` = :name OR `code` = :code';
-                        $retval['execute'] = array(':code' => $entry,
-                            ':name' => $entry);
-
-                    } else {
-                        $retval['where'] = '`name` = :name';
-                        $retval['execute'] = array(':name' => $entry);
-                    }
+                    $retval['where'] = '`name` = :name OR `seoname` = :seoname';
+                    $retval['execute'] = array(':name' => $entry,
+                        ':seoname' => $entry);
                 }
 
             } else {
-                throw new SqlException('Sql::get_id_or_name(): Invalid entry with type "' . gettype($entry) . '" specified', 'invalid');
-            }
-
-            return $retval;
-
-        } catch (SqlException $e) {
-            throw new SqlException('Sql::get_id_or_name(): Failed (use either numeric id, name sting, or entry array with id or name)', $e);
-        }
-    }
-
-
-
-    /**
-     * Return a unique, non existing ID for the specified table.column
-     *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
-     */
-    public static function unique_id($table, $column = 'id', $max = 10000000, $connector = null)
-    {
-        try {
-            $connector = Sql::connectorName($connector);
-
-            $retries = 0;
-            $maxretries = 50;
-
-            while (++$retries < $maxretries) {
-                $id = mt_rand(1, $max);
-
-                if (!Sql::get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :id', array(':id' => $id), null, $connector)) {
-                    return $id;
-                }
-            }
-
-            throw new SqlException('Sql::unique_id(): Could not find a unique id in "' . $maxretries . '" retries', 'not-exists');
-
-        } catch (SqlException $e) {
-            throw new SqlException('Sql::unique_id(): Failed', $e);
-        }
-    }
-
-
-
-    /**
-     *
-     *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
-     */
-    public static function filters($params, $columns, $table = '')
-    {
-        try {
-            $retval = array('filters' => array(),
-                'execute' => array());
-
-            $filters = array_keep($params, $columns);
-
-            foreach ($filters as $key => $value) {
-                $safe_key = str_replace('`.`', '_', $key);
-
-                if ($value === null) {
-                    $retval['filters'][] = ($table ? '`' . $table . '`.' : '') . '`' . $key . '` IS NULL';
+                if ($code) {
+                    $retval['where'] = '`name` = :name OR `code` = :code';
+                    $retval['execute'] = array(':code' => $entry,
+                        ':name' => $entry);
 
                 } else {
-                    $retval['filters'][] = ($table ? '`' . $table . '`.' : '') . '`' . $key . '` = :' . $safe_key;
-                    $retval['execute'][':' . $safe_key] = $value;
+                    $retval['where'] = '`name` = :name';
+                    $retval['execute'] = array(':name' => $entry);
                 }
             }
 
-            return $retval;
-
-        } catch (SqlException $e) {
-            throw new SqlException('Sql::filters(): Failed', $e);
+        } else {
+            throw new SqlException(tr('Invalid entry with type ":type" specified', [':type' => gettype($entry)]));
         }
+
+        return $retval;
+    }
+
+
+    /**
+     * Return a unique, non-existing ID for the specified table.column
+     *
+     * @param $table
+     * @param string $column
+     * @param int $max
+     * @return int
+     */
+    public static function uniqueId(string $table, string $column = 'id', int $max = 10000000): int
+    {
+        $retries = 0;
+        $maxretries = 50;
+
+        while (++$retries < $maxretries) {
+            $id = mt_rand(1, $max);
+
+            // TODO Find a better algorithm than "Just try random shit until something sticks"
+            if (!Sql::get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :id', [':id' => $id])) {
+                return $id;
+            }
+        }
+
+        throw new SqlException(tr('Could not find a unique id in ":retries" retries', [':retries' => $maxretries]));
+    }
+
+
+
+    /**
+     *
+     *
+     * @param $params
+     * @param $columns
+     * @param string $table
+     * @return array
+     */
+    public static function filters($params, $columns, $table = ''): array
+    {
+        $retval = [
+            'filters' => [],
+            'execute' => []
+        ];
+
+        $filters = Arrays::keep($params, $columns);
+
+        foreach ($filters as $key => $value) {
+            $safe_key = str_replace('`.`', '_', $key);
+
+            if ($value === null) {
+                $retval['filters'][] = ($table ? '`' . $table . '`.' : '') . '`' . $key . '` IS NULL';
+
+            } else {
+                $retval['filters'][] = ($table ? '`' . $table . '`.' : '') . '`' . $key . '` = :' . $safe_key;
+                $retval['execute'][':' . $safe_key] = $value;
+            }
+        }
+
+        return $retval;
     }
 
 
@@ -1252,29 +1036,22 @@ class Sql
     /**
      * Return a sequential array that can be used in Sql::in
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @param array|string $source
+     * @param string $column
+     * @param bool $filter_null
+     * @param bool $null_string
+     * @return array
      */
-    public static function in($source, $column = ':value', $filter_null = false, $null_string = false)
+    public static function in(array|string $source, string $column = ':value', bool $filter_null = false, bool $null_string = false): array
     {
-        try {
-            if (empty($source)) {
-                throw new SqlException(tr('Sql::in(): Specified source is empty'), 'not-specified');
-            }
-
-            $column = Strings::startsWith($column, ':');
-            $source = Arrays::force($source);
-
-            return Arrays::sequentialKeys($source, $column, $filter_null, $null_string);
-
-        } catch (SqlException $e) {
-            throw new SqlException('Sql::in(): Failed', $e);
+        if (empty($source)) {
+            throw new OutOfBoundsException(tr('Specified source is empty'));
         }
+
+        $column = Strings::startsWith($column, ':');
+        $source = Arrays::force($source);
+
+        return Arrays::sequentialKeys($source, $column, $filter_null, $null_string);
     }
 
 
@@ -1289,27 +1066,20 @@ class Sql
      *
      * @param array $in
      * @param int|string|null $column_starts_with
-     * @return string a comma delimeted string of columns
+     * @return string a comma delimited string of columns
      */
-    public static function inColumns(array $in, int|string|null $column_starts_with = null)
+    public static function inColumns(array $in, int|string|null $column_starts_with = null): string
     {
-        try {
-            if ($column_starts_with) {
-                /*
-                 * Only return those columns that start with this string
-                 */
-                foreach ($in as $key => $column) {
-                    if (substr($key, 0, strlen($column_starts_with)) !== $column_starts_with) {
-                        unset($in[$key]);
-                    }
+        if ($column_starts_with) {
+            // Only return those columns that start with this string
+            foreach ($in as $key => $column) {
+                if (!Strings::startsWith($key, $column_starts_with)) {
+                    unset($in[$key]);
                 }
             }
-
-            return implode(', ', array_keys($in));
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::in_columns(): Failed', $e);
         }
+
+        return implode(', ', array_keys($in));
     }
 
 
@@ -1318,54 +1088,46 @@ class Sql
      * Try to get single data entry from memcached. If not available, get it from
      * MySQL and store results in memcached for future use
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @param $key
+     * @param $query
+     * @param bool $column
+     * @param bool $execute
+     * @param int $expiration_time
+     * @return array|false|null
      */
-    public static function getCached($key, $query, $column = false, $execute = false, $expiration_time = 86400, $connector = null)
+    public static function getCached($key, $query, $column = false, $execute = false, $expiration_time = 86400)
     {
-        try {
-            $connector = Sql::connectorName($connector);
-
-            if (($value = Mc::get($key, 'Sql::')) === false) {
+        if (($value = Mc::get($key, 'Sql::')) === false) {
+            /*
+             * Keyword data not found in cache, get it from MySQL with
+             * specified query and store it in cache for next read
+             */
+            if (is_array($column)) {
                 /*
-                 * Keyword data not found in cache, get it from MySQL with
-                 * specified query and store it in cache for next read
+                 * Argument shift, no columns were specified.
                  */
-                if (is_array($column)) {
-                    /*
-                     * Argument shift, no columns were specified.
-                     */
-                    $tmp = $execute;
-                    $execute = $column;
-                    $column = $tmp;
-                    unset($tmp);
-                }
-
-                if (is_numeric($column)) {
-                    /*
-                     * Argument shift, no columns were specified.
-                     */
-                    $tmp = $expiration_time;
-                    $expiration_time = $execute;
-                    $execute = $tmp;
-                    unset($tmp);
-                }
-
-                $value = Sql::get($query, $column, $execute, $connector);
-
-                Mc::set($value, $key, 'Sql::', $expiration_time);
+                $tmp = $execute;
+                $execute = $column;
+                $column = $tmp;
+                unset($tmp);
             }
 
-            return $value;
+            if (is_numeric($column)) {
+                /*
+                 * Argument shift, no columns were specified.
+                 */
+                $tmp = $expiration_time;
+                $expiration_time = $execute;
+                $execute = $tmp;
+                unset($tmp);
+            }
 
-        } catch (SqlException $e) {
-            throw new SqlException('Sql::getCached(): Failed', $e);
+            $value = Sql::get($query, $column, $execute, $connector);
+
+            Mc::set($value, $key, 'Sql::', $expiration_time);
         }
+
+        return $value;
     }
 
 
@@ -1374,13 +1136,13 @@ class Sql
      * Try to get data list from memcached. If not available, get it from
      * MySQL and store results in memcached for future use
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @param $key
+     * @param $query
+     * @param bool $execute
+     * @param bool $numerical_array
+     * @param null $connector
+     * @param int $expiration_time
+     * @return array|false
      */
     public static function listCached($key, $query, $execute = false, $numerical_array = false, $connector = null, $expiration_time = 86400)
     {
@@ -1405,32 +1167,22 @@ class Sql
     }
 
 
-
     /**
      * Fetch and return data from specified resource
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @param PDOStatement $r
+     * @param string $column
+     * @return string
      */
-    public static function fetchColumn($r, $column)
+    public static function fetchColumn(PDOStatement $r, string $column): string
     {
-        try {
-            $row = Sql::fetch($r);
+        $row = Sql::fetch($r);
 
-            if (!isset($row[$column])) {
-                throw new SqlException('Sql::fetchColumn(): Specified column "' . Strings::log($column) . '" does not exist', $e);
-            }
-
-            return $row[$column];
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::fetchColumn(): Failed', $e);
+        if (!array_key_exists($column, $row)) {
+            throw new SqlException(tr('Sql::fetchColumn(): Specified column ":column" does not exist', [':column' => $column]));
         }
+
+        return $row[$column];
     }
 
 
@@ -1449,139 +1201,82 @@ class Sql
      * @param mixed $skip
      * @return array The specified datab ase entry, updated with all the data from the specified $_POST entry
      */
-    public static function merge($database_entry, $post, $skip = null)
+    public static function merge(array $database_entry, array $post, $skip = null): array
     {
-        try {
-            if (!$post) {
-                /*
-                 * No post was done, there is nothing to merge
-                 */
-                return $database_entry;
+        if (!$post) {
+            /*
+             * No post was done, there is nothing to merge
+             */
+            return $database_entry;
+        }
+
+        if ($skip === null) {
+            $skip = 'id,status';
+        }
+
+        if (!is_array($database_entry)) {
+            if ($database_entry !== null) {
+                throw new SqlException(tr('Sql::merge(): Specified database source data type should be an array but is a ":type"', array(':type' => gettype($database_entry))), 'invalid');
             }
-
-            if ($skip === null) {
-                $skip = 'id,status';
-            }
-
-            if (!is_array($database_entry)) {
-                if ($database_entry !== null) {
-                    throw new SqlException(tr('Sql::merge(): Specified database source data type should be an array but is a ":type"', array(':type' => gettype($database_entry))), 'invalid');
-                }
-
-                /*
-                 * Nothing to merge
-                 */
-                $database_entry = array();
-            }
-
-            if (!is_array($post)) {
-                if ($post !== null) {
-                    throw new SqlException(tr('Sql::merge(): Specified post source data type should be an array but is a ":type"', array(':type' => gettype($post))), 'invalid');
-                }
-
-                /*
-                 * Nothing to merge
-                 */
-                $post = array();
-            }
-
-            $skip = Arrays::force($skip);
 
             /*
-             * Copy all POST variables over DB
-             * Skip POST variables that have NULL value
+             * Nothing to merge
              */
-            foreach ($post as $key => $value) {
-                if (in_array($key, $skip)) {
-                    continue;
-                }
-
-                $database_entry[$key] = $post[$key];
-            }
-
-            return $database_entry;
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::merge(): Failed', $e);
+            $database_entry = array();
         }
-    }
 
-
-
-    /**
-     * Ensure that $connector_name is default in case its not specified
-     *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param string $connector_name
-     * @return string The connector that should be used
-     */
-    public static function connectorName($connector_name)
-    {
-        global $_CONFIG, $core;
-
-        try {
-            if (!$connector_name) {
-                $connector_name = $core->register('Sql::connector');
-
-                if ($connector_name) {
-                    return $connector_name;
-                }
-
-                return $_CONFIG['db']['default'];
+        if (!is_array($post)) {
+            if ($post !== null) {
+                throw new SqlException(tr('Sql::merge(): Specified post source data type should be an array but is a ":type"', array(':type' => gettype($post))), 'invalid');
             }
 
-            if (!is_scalar($connector_name)) {
-                throw new SqlException(tr('Sql::connectorName(): Invalid connector ":connector" specified, it must be scalar', array(':connector' => $connector_name)), 'invalid');
-            }
-
-            if (empty($_CONFIG['db'][$connector_name])) {
-                throw new SqlException(tr('Sql::connectorName(): Specified database connector ":connector" does not exist', array(':connector' => $connector_name)), 'not-exists');
-            }
-
-            return $connector_name;
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::connectorName(): Failed', $e);
+            /*
+             * Nothing to merge
+             */
+            $post = array();
         }
-    }
 
+        $skip = Arrays::force($skip);
+
+        /*
+         * Copy all POST variables over DB
+         * Skip POST variables that have NULL value
+         */
+        foreach ($post as $key => $value) {
+            if (in_array($key, $skip)) {
+                continue;
+            }
+
+            $database_entry[$key] = $post[$key];
+        }
+
+        return $database_entry;
+    }
 
 
     /**
      * Use correct SQL in case NULL is used in queries
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @param $value
+     * @param $label
+     * @param bool $not
+     * @return string
      */
-    public static function is($value, $label, $not = false)
+    public static function is($value, $label, $not = false): string
     {
-        try {
-            if ($not) {
-                if ($value === null) {
-                    return ' IS NOT ' . $label . ' ';
-                }
-
-                return ' != ' . $label . ' ';
-            }
-
+        if ($not) {
             if ($value === null) {
-                return ' IS ' . $label . ' ';
+                return ' IS NOT ' . $label . ' ';
             }
 
-            return ' = ' . $label . ' ';
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::is(): Failed', $e);
+            return ' != ' . $label . ' ';
         }
+
+        if ($value === null) {
+            return ' IS ' . $label . ' ';
+        }
+
+        return ' = ' . $label . ' ';
     }
 
 
@@ -1589,56 +1284,38 @@ class Sql
     /**
      * Enable / Disable all query logging on mysql server
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @param bool $enable
+     * @return void
      */
-    public static function log($enable)
+    public static function log(bool $enable)
     {
-        try {
-            if ($enable) {
-                Sql::query('SET global log_output = "FILE";');
-                Sql::query('SET global general_log_file="/var/log/mysql/queries.log";');
-                Sql::query('SET global general_log = 1;');
+        if ($enable) {
+            Sql::query('SET global log_output = "FILE";');
+            Sql::query('SET global general_log_file="/var/log/mysql/queries.log";');
+            Sql::query('SET global general_log = 1;');
 
-            } else {
-                Sql::query('SET global log_output = "OFF";');
-            }
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::log(): Failed', $e);
+        } else {
+            Sql::query('SET global log_output = "OFF";');
         }
     }
-
 
 
     /**
      *
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @param string $table
+     * @param string $column
+     * @param int|string|null $value
+     * @param int|null $id
+     * @return bool
      */
-    public static function rowExists($table, $column, $value, $id = null)
+    public static function rowExists(string $table, string $column, int|string|null $value, ?int $id = null): bool
     {
-        try {
-            if ($id) {
-                return Sql::get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `id` != :id', true, array($column => $value, ':id' => $id));
-            }
-
-            return Sql::get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . '', true, array($column => $value));
-
-        } catch (Exception $e) {
-            throw new SqlException(tr('Sql::rowExists(): Failed'), $e);
+        if ($id) {
+            return Sql::get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `id` != :id', true, [$column => $value, ':id' => $id]);
         }
+
+        return Sql::get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . '', true, [$column => $value]));
     }
 
 
@@ -1649,55 +1326,41 @@ class Sql
      * Return table row count by returning results count for SELECT `id`
      * Results will be cached in a counts table
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
      * @param
      * @return
      */
     public static function count($table, $where = '', $execute = null, $column = '`id`')
     {
-        global $_CONFIG;
+        $expires = $_CONFIG['Sql::large']['cache']['expires'];
+        $hash = hash('sha1', $table . $where . $column . json_encode($execute));
+        $count = Sql::get('SELECT `count` FROM `counts` WHERE `hash` = :hash AND `until` > NOW()', 'count', array(':hash' => $hash));
 
-        try {
-            load_config('Sql::large');
-
-            $expires = $_CONFIG['Sql::large']['cache']['expires'];
-            $hash = hash('sha1', $table . $where . $column . json_encode($execute));
-            $count = Sql::get('SELECT `count` FROM `counts` WHERE `hash` = :hash AND `until` > NOW()', 'count', array(':hash' => $hash));
-
-            if ($count) {
-                return $count;
-            }
-
-            /*
-             * Count value was not found cached, count it directly
-             */
-            $count = Sql::get('SELECT COUNT(' . $column . ') AS `count` FROM `' . $table . '` ' . $where, 'count', $execute);
-
-            Sql::query('INSERT INTO `counts` (`createdby`, `count`, `hash`, `until`)
-                       VALUES               (:createdby , :count , :hash , NOW() + INTERVAL :expires SECOND)
-    
-                       ON DUPLICATE KEY UPDATE `count`      = :update_count,
-                                               `modifiedon` = NOW(),
-                                               `modifiedby` = :update_modifiedby,
-                                               `until`      = NOW() + INTERVAL :update_expires SECOND',
-
-                array(':createdby' => isset_get($_SESSION['user']['id']),
-                    ':hash' => $hash,
-                    ':count' => $count,
-                    ':expires' => $expires,
-                    ':update_expires' => $expires,
-                    ':update_modifiedby' => isset_get($_SESSION['user']['id']),
-                    ':update_count' => $count));
-
+        if ($count) {
             return $count;
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::count(): Failed', $e);
         }
+
+        /*
+         * Count value was not found cached, count it directly
+         */
+        $count = Sql::get('SELECT COUNT(' . $column . ') AS `count` FROM `' . $table . '` ' . $where, 'count', $execute);
+
+        Sql::query('INSERT INTO `counts` (`createdby`, `count`, `hash`, `until`)
+                   VALUES               (:createdby , :count , :hash , NOW() + INTERVAL :expires SECOND)
+
+                   ON DUPLICATE KEY UPDATE `count`      = :update_count,
+                                           `modifiedon` = NOW(),
+                                           `modifiedby` = :update_modifiedby,
+                                           `until`      = NOW() + INTERVAL :update_expires SECOND',
+
+            array(':createdby' => isset_get($_SESSION['user']['id']),
+                ':hash' => $hash,
+                ':count' => $count,
+                ':expires' => $expires,
+                ':update_expires' => $expires,
+                ':update_modifiedby' => isset_get($_SESSION['user']['id']),
+                ':update_count' => $count));
+
+        return $count;
     }
 
 
@@ -1705,114 +1368,81 @@ class Sql
     /**
      * Returns what database currently is selected
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
      * @param
      * @return
      */
-    public static function currentDatabase()
+    public static function currentDatabase(): string
     {
-        try {
-            return Sql::get('SELECT DATABASE() AS `database` FROM DUAL;');
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::currentDatabase(): Failed', $e);
-        }
+        return Sql::getColumn('SELECT DATABASE() AS `database` FROM DUAL;');
     }
-
 
 
     /**
      *
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @param string $table
+     * @param int $min
+     * @param int $max
+     * @return int
      */
-    public static function randomId($table, $min = 1, $max = 2147483648, $connector_name = null)
+    public static function randomId(string $table, int $min = 1, int $max = 2147483648): int
     {
-        try {
-            $connector_name = Sql::connectorName($connector_name);
-            $exists = true;
-            $timeout = 50; // Don't do more than 50 tries on this!
+        $exists = true;
+        $id = -1; // Initialize id negatively to ensure
+        $timeout = 50; // Don't do more than 50 tries on this!
 
-            while ($exists and --$timeout > 0) {
-                $id = mt_rand($min, $max);
-                $exists = Sql::query('SELECT `id` FROM `' . $table . '` WHERE `id` = :id', array(':id' => $id), $connector_name);
-            }
-
-            return $id;
-
-        } catch (Exception $e) {
-            throw new SqlException(tr('Sql::randomId(): Failed for table ":table"', array(':table' => $table)), $e);
+        while ($exists and --$timeout > 0) {
+            $id = mt_rand($min, $max);
+            $exists = Sql::query('SELECT `id` FROM `' . $table . '` WHERE `id` = :id', [':id' => $id]);
         }
+
+        return $id;
     }
 
 
 
     /**
-     * Execute a query on a remote SSH server.
-     * NOTE: This does NOT support bound variables!
+     * Execute a query on a remote SSH server in a bash command
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @note: This does NOT support bound variables!
+     * @todo: This method uses a password file which might be left behind if (for example) the connection would drop
+     *        half way
+     * @param string|Server $server
+     * @param string $query
+     * @param bool $root
+     * @param bool $simple_quotes
+     * @return array
      */
-    public static function exec($server, $query, $root = false, $simple_quotes = false)
+    public static function exec(string|Server $server, string $query, bool $root = false, bool $simple_quotes = false): array
     {
         try {
-            load_libs('servers');
-
             $query = addslashes($query);
 
             if (!is_array($server)) {
-                $server = servers_get($server, true);
+                $server = Servers::get($server, true);
             }
 
-            /*
-             * Are we going to execute as root?
-             */
+            // Are we going to execute as root?
             if ($root) {
-                MySql::create_password_file('root', $server['db_root_password'], $server);
+                MySql::createPasswordFile('root', $server['db_root_password'], $server);
 
             } else {
-                MySql::create_password_file($server['db_username'], $server['db_password'], $server);
+                MySql::createPasswordFile($server['db_username'], $server['db_password'], $server);
             }
 
             if ($simple_quotes) {
-                $results = servers_exec($server, 'mysql -e \'' . Strings::ends($query, ';') . '\'');
+                $results = Servers::exec($server, 'mysql -e \'' . Strings::ends($query, ';') . '\'');
 
             } else {
-                $results = servers_exec($server, 'mysql -e \"' . Strings::ends($query, ';') . '\"');
+                $results = Servers::exec($server, 'mysql -e \"' . Strings::ends($query, ';') . '\"');
             }
 
-            MySql::delete_password_file($server);
+            MySql::deletePasswordFile($server);
 
             return $results;
-
-        } catch (Exception $e) {
-            /*
-             * Make sure the password file gets removed!
-             */
-            try {
-                MySql::delete_password_file($server);
-
-            } catch (Exception $e) {
-
-            }
-
-            throw new SqlException(tr('Sql::exec(): Failed'), $e);
+        } catch (MysqlException $e) {
+            // Ensure that the password file will be removed
+            MySql::deletePasswordFile($server);
         }
     }
 
@@ -1841,55 +1471,45 @@ class Sql
     /**
      *
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param array $params
-     * @return
+     * @param string $db_name
+     * @return array
      */
-    public static function getDatabase($db_name)
+    public static function getDatabase(string $db_name): array
     {
-        try {
-            $database = self::get('SELECT  `databases`.`id`,
-                                           `databases`.`servers_id`,
-                                           `databases`.`status`,
-                                           `databases`.`replication_status`,
-                                           `databases`.`name` AS `database`,
-                                           `databases`.`error`,
-    
-                                           `servers`.`id` AS `servers_id`,
-                                           `servers`.`hostname`,
-                                           `servers`.`port`,
-                                           `servers`.`replication_status` AS `servers_replication_status`,
-    
-                                           `database_accounts`.`username`      AS `replication_db_user`,
-                                           `database_accounts`.`password`      AS `replication_db_password`,
-                                           `database_accounts`.`root_password` AS `root_db_password`
-    
-                                 FROM      `databases`
-    
-                                 LEFT JOIN `servers`
-                                 ON        `servers`.`id`           = `databases`.`servers_id`
-    
-                                 LEFT JOIN `database_accounts`
-                                 ON        `database_accounts`.`id` = `servers`.`database_accounts_id`
-    
-                                 WHERE     `databases`.`id`         = :name
-                                 OR        `databases`.`name`       = :name',
+        $database = self::get('SELECT  `databases`.`id`,
+                                       `databases`.`servers_id`,
+                                       `databases`.`status`,
+                                       `databases`.`replication_status`,
+                                       `databases`.`name` AS `database`,
+                                       `databases`.`error`,
 
-                array(':name' => $db_name));
+                                       `servers`.`id` AS `servers_id`,
+                                       `servers`.`hostname`,
+                                       `servers`.`port`,
+                                       `servers`.`replication_status` AS `servers_replication_status`,
 
-            if (!$database) {
-                throw new SqlException(log_database(tr('Specified database ":database" does not exist', array(':database' => $_GET['database'])), 'not-exists'));
-            }
+                                       `database_accounts`.`username`      AS `replication_db_user`,
+                                       `database_accounts`.`password`      AS `replication_db_password`,
+                                       `database_accounts`.`root_password` AS `root_db_password`
 
-            return $database;
+                             FROM      `databases`
 
-        } catch (Exception $e) {
-            throw new SqlException(tr('Sql::getDatabase(): Failed'), $e);
+                             LEFT JOIN `servers`
+                             ON        `servers`.`id`           = `databases`.`servers_id`
+
+                             LEFT JOIN `database_accounts`
+                             ON        `database_accounts`.`id` = `servers`.`database_accounts_id`
+
+                             WHERE     `databases`.`id`         = :name
+                             OR        `databases`.`name`       = :name',
+
+                             [':name' => $db_name]);
+
+        if (!$database) {
+            throw new SqlException(tr('Specified database ":database" does not exist', [':database' => $_GET['database']]));
         }
+
+        return $database;
     }
 
 
@@ -1899,87 +1519,73 @@ class Sql
      *
      * Connector data will first be searched for in $_CONFIG[db][CONNECTOR]. If the connector is not found there, the Sql::connectors table will be searched. If the connector is not found there either, NULL will be returned
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
      * @param string $connector_name The requested connector name
      * @return array The requested connector data. NULL if the specified connector does not exist
      */
-    public static function getConnector($connector_name)
+    public static function getConnector(string $connector_name): array
     {
-        global $_CONFIG;
-
-        try {
-            if (!is_natural($connector_name)) {
-                /*
-                 * Connector was specified by name
-                 */
-                if (isset($_CONFIG['db'][$connector_name])) {
-                    return $_CONFIG['db'][$connector_name];
-                }
-
-                $where = ' `name` = :name ';
-                $execute = array(':name' => $connector_name);
-
-            } else {
-                /*
-                 * Connector was specified by id
-                 */
-                $where = ' `id` = :id ';
-                $execute = array(':id' => $connector_name);
+        if (!is_natural($connector_name)) {
+            // Connector was specified by name
+            if (isset($_CONFIG['db'][$connector_name])) {
+                return $_CONFIG['db'][$connector_name];
             }
 
-            $connector = Sql::get('SELECT `id`,
-                                         `createdon`,
-                                         `createdby`,
-                                         `meta_id`,
-                                         `status`,
-                                         `name`,
-                                         `seoname`,
-                                         `servers_id`,
-                                         `hostname`,
-                                         `driver`,
-                                         `database`,
-                                         `user`,
-                                         `password`,
-                                         `autoincrement`,
-                                         `buffered`,
-                                         `charset`,
-                                         `collate`,
-                                         `limit_max`,
-                                         `mode`,
-                                         `ssh_tunnel_required`,
-                                         `ssh_tunnel_source_port`,
-                                         `ssh_tunnel_hostname`,
-                                         `usleep`,
-                                         `pdo_attributes`,
-                                         `timezone`
-    
-                                  FROM   `Sql::connectors`
-    
-                                  WHERE  ' . $where,
+            $where = ' `name` = :name ';
+            $execute = array(':name' => $connector_name);
 
-                null, $execute, 'core');
-
-            if ($connector) {
-                $connector['ssh_tunnel'] = array('required' => $connector['ssh_tunnel_required'],
-                    'source_port' => $connector['ssh_tunnel_source_port'],
-                    'hostname' => $connector['ssh_tunnel_hostname']);
-
-                unset($connector['ssh_tunnel_required']);
-                unset($connector['ssh_tunnel_source_port']);
-                unset($connector['ssh_tunnel_hostname']);
-
-                $_CONFIG['db'][$connector_name] = $connector;
-            }
-
-            return $connector;
-
-        } catch (Exception $e) {
-            throw new SqlException(tr('Sql::getConnector(): Failed'), $e);
+        } else {
+            /*
+             * Connector was specified by id
+             */
+            $where = ' `id` = :id ';
+            $execute = array(':id' => $connector_name);
         }
+
+        $connector = Sql::get('SELECT `id`,
+                                     `createdon`,
+                                     `createdby`,
+                                     `meta_id`,
+                                     `status`,
+                                     `name`,
+                                     `seoname`,
+                                     `servers_id`,
+                                     `hostname`,
+                                     `driver`,
+                                     `database`,
+                                     `user`,
+                                     `password`,
+                                     `autoincrement`,
+                                     `buffered`,
+                                     `charset`,
+                                     `collate`,
+                                     `limit_max`,
+                                     `mode`,
+                                     `ssh_tunnel_required`,
+                                     `ssh_tunnel_source_port`,
+                                     `ssh_tunnel_hostname`,
+                                     `usleep`,
+                                     `pdo_attributes`,
+                                     `timezone`
+
+                              FROM   `Sql::connectors`
+
+                              WHERE  ' . $where,
+
+            null, $execute, 'core');
+
+        if ($connector) {
+            $connector['ssh_tunnel'] = array('required' => $connector['ssh_tunnel_required'],
+                'source_port' => $connector['ssh_tunnel_source_port'],
+                'hostname' => $connector['ssh_tunnel_hostname']);
+
+            unset($connector['ssh_tunnel_required']);
+            unset($connector['ssh_tunnel_source_port']);
+            unset($connector['ssh_tunnel_hostname']);
+
+            $_CONFIG['db'][$connector_name] = $connector;
+        }
+
+        return $connector;
     }
 
 
@@ -1987,42 +1593,30 @@ class Sql
     /**
      * Create an SQL connector in $_CONFIG['db'][$connector_name] = $data
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
      * @param string $connector_name
      * @param array $connector
      * @return array The specified connector data, with all informatinon completed if missing
      */
-    public static function makeConnector($connector_name, $connector)
+    public static function makeConnector(string $connector_name, array $connector): array
     {
-        global $_CONFIG;
-
-        try {
-            if (empty($connector['ssh_tunnel'])) {
-                $connector['ssh_tunnel'] = array();
-            }
-
-            if (Sql::getConnector($connector_name)) {
-                if (empty($connector['overwrite'])) {
-                    throw new SqlException(tr('Sql::makeConnector(): The specified connector name ":name" already exists', array(':name' => $connector_name)), 'exists');
-                }
-            }
-
-            $connector = Sql::ensureConnector($connector);
-
-            if ($connector['ssh_tunnel']) {
-                $connector['ssh_tunnel']['required'] = true;
-            }
-
-            $_CONFIG['db'][$connector_name] = $connector;
-            return $connector;
-
-        } catch (Exception $e) {
-            throw new SqlException(tr('Sql::makeConnector(): Failed'), $e);
+        if (empty($connector['ssh_tunnel'])) {
+            $connector['ssh_tunnel'] = array();
         }
+
+        if (Sql::getConnector($connector_name)) {
+            if (empty($connector['overwrite'])) {
+                throw new SqlException(tr('The specified connector name ":name" already exists', [':name' => $connector_name]));
+            }
+        }
+
+        $connector = Sql::ensureConnector($connector);
+
+        if ($connector['ssh_tunnel']) {
+            $connector['ssh_tunnel']['required'] = true;
+        }
+
+        $_CONFIG['db'][$connector_name] = $connector;
+        return $connector;
     }
 
 
@@ -2030,50 +1624,41 @@ class Sql
     /**
      * Ensure all SQL connector fields are available
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
      * @param array $connector
      * @return array The specified connector data with all fields available
      */
-    public static function ensureConnector($connector)
+    public static function ensureConnector(array $connector): array
     {
-        try {
-            $template = array('driver' => 'mysql',
-                'host' => '127.0.0.1',
-                'port' => null,
-                'db' => '',
-                'user' => '',
-                'pass' => '',
-                'autoincrement' => 1,
-                'init' => false,
-                'buffered' => false,
-                'charset' => 'utf8mb4',
-                'collate' => 'utf8mb4_general_ci',
-                'limit_max' => 10000,
-                'mode' => 'PIPES_AS_CONCAT,IGNORE_SPACE,NO_KEY_OPTIONS,NO_TABLE_OPTIONS,NO_FIELD_OPTIONS',
-                'ssh_tunnel' => array('required' => false,
-                    'source_port' => null,
-                    'hostname' => '',
-                    'usleep' => 1200000),
-                'pdo_attributes' => array(),
-                'version' => '0.0.0',
-                'timezone' => 'UTC');
+        $template = [
+            'driver' => 'mysql',
+            'host' => '127.0.0.1',
+            'port' => null,
+            'db' => '',
+            'user' => '',
+            'pass' => '',
+            'autoincrement' => 1,
+            'init' => false,
+            'buffered' => false,
+            'charset' => 'utf8mb4',
+            'collate' => 'utf8mb4_general_ci',
+            'limit_max' => 10000,
+            'mode' => 'PIPES_AS_CONCAT,IGNORE_SPACE,NO_KEY_OPTIONS,NO_TABLE_OPTIONS,NO_FIELD_OPTIONS',
+            'ssh_tunnel' => array('required' => false,
+                'source_port' => null,
+                'hostname' => '',
+                'usleep' => 1200000),
+            'pdo_attributes' => array(),
+            'version' => '0.0.0',
+            'timezone' => 'UTC'];
 
-            $connector['ssh_tunnel'] = Sql::merge($template['ssh_tunnel'], isset_get($connector['ssh_tunnel'], array()));
-            $connector = Sql::merge($template, $connector);
+        $connector['ssh_tunnel'] = Sql::merge($template['ssh_tunnel'], isset_get($connector['ssh_tunnel'], array()));
+        $connector = Sql::merge($template, $connector);
 
-            if (!is_array($connector['ssh_tunnel'])) {
-                throw new SqlException(tr('Sql::ensureConnector(): Specified ssh_tunnel ":tunnel" should be an array but is a ":type"', array(':tunnel' => $connector['ssh_tunnel'], ':type' => gettype($connector['ssh_tunnel']))), 'invalid');
-            }
-
-            return $connector;
-
-        } catch (Exception $e) {
-            throw new SqlException(tr('Sql::ensureConnector(): Failed'), $e);
+        if (!is_array($connector['ssh_tunnel'])) {
+            throw new SqlException(tr('Specified ssh_tunnel ":tunnel" should be an array but is a ":type"', [':tunnel' => $connector['ssh_tunnel'], ':type' => gettype($connector['ssh_tunnel'])]));
         }
+
+        return $connector;
     }
 
 
@@ -2081,41 +1666,30 @@ class Sql
     /**
      * Test SQL functions over SSH tunnel for the specified server
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     * @exception SqlException when the test failse
-     *
-     * @param mixed $server The server that is to be tested
+     * @param string|Server $server The server that is to be tested
      * @return void
      */
-    public static function testTunnel($server)
+    public static function testTunnel(string|Server $server): void
     {
-        global $_CONFIG;
+        $connector_name = 'test';
+        $port = 6000;
+        $server = servers_get($server, true);
 
-        try {
-            load_libs('servers');
-
-            $connector_name = 'test';
-            $port = 6000;
-            $server = servers_get($server, true);
-
-            if (!$server['database_accounts_id']) {
-                throw new SqlException(tr('Sql::testTunnel(): Cannot test SQL over SSH tunnel, server ":server" has no database account linked', array(':server' => $server['domain'])), 'not-exists');
-            }
-
-            Sql::makeConnector($connector_name, array('port' => $port,
-                'user' => $server['db_username'],
-                'pass' => $server['db_password'],
-                'ssh_tunnel' => array('source_port' => $port,
-                    'domain' => $server['domain'])));
-
-            Sql::get('SELECT TRUE', true, null, $connector_name);
-
-        } catch (Exception $e) {
-            throw new SqlException(tr('Sql::testTunnel(): Failed'), $e);
+        if (!$server['database_accounts_id']) {
+            throw new SqlException(tr('Cannot test SQL over SSH tunnel, server ":server" has no database account linked', [':server' => $server['domain']]));
         }
+
+        Sql::makeConnector($connector_name, [
+            'port' => $port,
+            'user' => $server['db_username'],
+            'pass' => $server['db_password'],
+            'ssh_tunnel' => [
+                'source_port' => $port,
+                'domain' => $server['domain']
+            ]
+        ]);
+
+        Sql::get('SELECT TRUE', true, null, $connector_name);
     }
 
     
@@ -2145,18 +1719,10 @@ class Sql
             }
         }
 
-        if (!is_object($sql)) {
-            if (empty($core->sql['core'])) {
-                throw new SqlException('The $sql is not an object, cannot get more info from there', $e);
-            }
-
-            $sql = $core->sql['core'];
-        }
-
         if ($query) {
             if ($execute) {
                 if (!is_array($execute)) {
-                    throw new SqlException(tr('The specified $execute parameter is NOT an array, it is an ":type"', array(':type' => gettype($execute))), $e);
+                    throw new SqlException(tr('The specified $execute parameter is NOT an array, it is an ":type"', [':type' => gettype($execute)]), $e);
                 }
 
                 foreach ($execute as $key => $value) {
@@ -2164,7 +1730,7 @@ class Sql
                         /*
                          * This is automatically a problem!
                          */
-                        throw new SqlException(tr('POSSIBLE ERROR: The specified $execute array contains key ":key" with non scalar value ":value"', array(':key' => $key, ':value' => $value)), $e);
+                        throw new SqlException(tr('POSSIBLE ERROR: The specified $execute array contains key ":key" with non scalar value ":value"', [':key' => $key, ':value' => $value]), $e);
                     }
                 }
             }
@@ -2173,7 +1739,7 @@ class Sql
         /*
          * Get error data
          */
-        $error = $sql->errorInfo();
+        $error = self::errorInfo();
 
         if (($error[0] == '00000') and !$error[1]) {
             $error = $e->errorInfo;
@@ -2202,10 +1768,10 @@ class Sql
                 preg_match_all('/:\w+/imus', $query, $matches);
 
                 if (count($matches[0]) != count($execute)) {
-                    throw new SqlException(tr('Query ":query" failed with error HY093, the number of query tokens does not match the number of bound variables. The query contains tokens ":tokens", where the bound variables are ":variables"', array(':query' => $query, ':tokens' => implode(',', $matches['0']), ':variables' => implode(',', array_keys($execute)))), $e);
+                    throw new SqlException(tr('Query ":query" failed with error HY093, the number of query tokens does not match the number of bound variables. The query contains tokens ":tokens", where the bound variables are ":variables"', [':query' => $query, ':tokens' => implode(',', $matches['0']), ':variables' => implode(',', array_keys($execute))]), $e);
                 }
 
-                throw new SqlException(tr('Query ":query" failed with error HY093, One or more query tokens does not match the bound variables keys. The query contains tokens ":tokens", where the bound variables are ":variables"', array(':query' => $query, ':tokens' => implode(',', $matches['0']), ':variables' => implode(',', array_keys($execute)))), $e);
+                throw new SqlException(tr('Query ":query" failed with error HY093, One or more query tokens does not match the bound variables keys. The query contains tokens ":tokens", where the bound variables are ":variables"', [':query' => $query, ':tokens' => implode(',', $matches['0']), ':variables' => implode(',', array_keys($execute))]), $e);
 
             case '23000':
                 /*
@@ -2227,13 +1793,13 @@ class Sql
                          */
                         if (!is_array($query)) {
                             if (empty($query['db'])) {
-                                throw new SqlException(tr('Query ":query" failed, access to database denied', array(':query' => $query)), $e);
+                                throw new SqlException(tr('Query ":query" failed, access to database denied', [':query' => $query]), $e);
                             }
 
-                            throw new SqlException(tr('Cannot use database ":db", this user has no access to it', array(':db' => $query['db'])), $e);
+                            throw new SqlException(tr('Cannot use database ":db", this user has no access to it', [':db' => $query['db']]), $e);
                         }
 
-                        throw new SqlException(tr('Cannot use database with query ":query", this user has no access to it', array(':query' => debug_sql($query, $execute, true))), $e);
+                        throw new SqlException(tr('Cannot use database with query ":query", this user has no access to it', [':query' => Sql::buildQueryString($query, $execute, true)]), $e);
 
                     case 1049:
                         /*
@@ -2243,7 +1809,7 @@ class Sql
 
                         if (($core->register['script'] == 'init')) {
                             if ($retry) {
-                                $e = new SqlException(tr('Cannot use database ":db", it does not exist and cannot be created automatically with the current user ":user"', array(':db' => isset_get($query['db']), ':user' => isset_get($query['user']))), $e);
+                                $e = new SqlException(tr('Cannot use database ":db", it does not exist and cannot be created automatically with the current user ":user"', [':db' => isset_get($query['db']), ':user' => isset_get($query['user'])]), $e);
                                 $e->addMessages(tr('Possible reason can be that the configured user does not have the required GRANT to create database'));
                                 $e->addMessages(tr('Possible reason can be that MySQL cannot create the database because the filesystem permissions of the mysql data files has been borked up (on linux, usually this is /var/lib/mysql, and this should have the user:group mysql:mysql)'));
 
@@ -2256,39 +1822,39 @@ class Sql
                             $retry = true;
                             Log::warning('Database "'.$query['db'].'" does not exist, attempting to create it automatically');
 
-                            $sql->query('CREATE DATABASE `'.$query['db'].'` DEFAULT CHARSET="'.$connector['charset'].'" COLLATE="'.$connector['collate'].'";');
-                            return sql_connect($query);
+                            self::query('CREATE DATABASE `:db` DEFAULT CHARSET=":charset" COLLATE=":collate";', [':db' => $query['db'], ':charset' => self::$connector['charset'], ':collate' => self::$connector['collate']]);
+                            return self::connect($query);
                         }
 
-                        throw new SqlException(tr('Cannot use database ":db", it does not exist', array(':db' => $query['db'])), $e);
+                        throw new SqlException(tr('Cannot use database ":db", it does not exist', [':db' => $query['db']]), $e);
 
                     case 1052:
                         /*
                          * Integrity constraint violation
                          */
-                        throw new SqlException(tr('Query ":query" contains an abiguous column', array(':query' => debug_sql($query, $execute, true))), $e);
+                        throw new SqlException(tr('Query ":query" contains an abiguous column', [':query' => Sql::buildQueryString($query, $execute, true)]), $e);
 
                     case 1054:
                         /*
                          * Column not found
                          */
-                        throw new SqlException(tr('Query ":query" refers to a column that does not exist', array(':query' => debug_sql($query, $execute, true))), $e);
+                        throw new SqlException(tr('Query ":query" refers to a column that does not exist', [':query' => Sql::buildQueryString($query, $execute, true)]), $e);
 
                     case 1064:
                         /*
                          * Syntax error or access violation
                          */
                         if (str_contains(strtoupper($query), 'DELIMITER')) {
-                            throw new SqlException(tr('Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', array(':query' => debug_sql($query, $execute, true))), $e);
+                            throw new SqlException(tr('Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', array(':query' => Sql::buildQueryString($query, $execute, true))), $e);
                         }
 
-                        throw new SqlException(tr('Query ":query" has a syntax error', array(':query' => debug_sql($query, $execute, true))), $e);
+                        throw new SqlException(tr('Query ":query" has a syntax error', [':query' => Sql::buildQueryString($query, $execute, true)]), $e);
 
                     case 1072:
                         /*
                          * Adding index error, index probably does not exist
                          */
-                        throw new SqlException(tr('Query ":query" failed with error 1072 with the message ":message"', array(':query' => debug_sql($query, $execute, true), ':message' => isset_get($error[2]))), $e);
+                        throw new SqlException(tr('Query ":query" failed with error 1072 with the message ":message"', [':query' => Sql::buildQueryString($query, $execute, true), ':message' => isset_get($error[2])]), $e);
 
                     case 1005:
                         //FALLTHROUGH
@@ -2306,32 +1872,32 @@ class Sql
                             $fk = str_replace("\n", ' ', $fk);
 
                         }catch(Exception $e) {
-                            throw new SqlException(tr('Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', array(':query' => debug_sql($query, $execute, true))), $e);
+                            throw new SqlException(tr('Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', [':query' => Sql::buildQueryString($query, $execute, true)]), $e);
                         }
 
-                        throw new SqlException(tr('Query ":query" failed with error 1005 with the message ":message"', array(':query' => debug_sql($query, $execute, true), ':message' => $fk)), $e);
+                        throw new SqlException(tr('Query ":query" failed with error 1005 with the message ":message"', [':query' => Sql::buildQueryString($query, $execute, true), ':message' => $fk]), $e);
 
                     case 1146:
                         /*
                          * Base table or view not found
                          */
-                        throw new SqlException(tr('Query ":query" refers to a base table or view that does not exist', array(':query' => debug_sql($query, $execute, true))), $e);
+                        throw new SqlException(tr('Query ":query" refers to a base table or view that does not exist', [':query' => Sql::buildQueryString($query, $execute, true)]), $e);
 
                     default:
                         if (!is_string($query)) {
                             if (!is_object($query) or !($query instanceof PDOStatement)) {
-                                throw new SqlException('Specified query is neither a SQL string or a PDOStatement it seems to be a ":type"', array(':type' => gettype($query)), 'invalid');
+                                throw new SqlException('Specified query is neither a SQL string or a PDOStatement it seems to be a ":type"', [':type' => gettype($query)], 'invalid');
                             }
 
                             $query = $query->queryString;
                         }
 
-                        throw new SqlException(tr('Query ":query" failed', array(':query' => debug_sql(preg_replace('!\s+!', ' ', $query), $execute, true))), $e);
+                        throw new SqlException(tr('Query ":query" failed', array(':query' => Sql::buildQueryString(preg_replace('!\s+!', ' ', $query), $execute, true))), $e);
 
                         $body = "SQL STATE ERROR : \"".$error[0]."\"\n".
                             "DRIVER ERROR    : \"".$error[1]."\"\n".
                             "ERROR MESSAGE   : \"".$error[2]."\"\n".
-                            "query           : \"".(PLATFORM_HTTP ? "<b>".Strings::Log(debug_sql($query, $execute, true), 4096)."</b>" : Strings::Log(debug_sql($query, $execute, true), 4096))."\"\n".
+                            "query           : \"".(PLATFORM_HTTP ? "<b>".Strings::Log(Sql::buildQueryString($query, $execute, true), 4096)."</b>" : Strings::Log(Sql::buildQueryString($query, $execute, true), 4096))."\"\n".
                             "date            : \"".date('d m y h:i:s')."\"\n";
 
                         if (isset($_SESSION)) {
@@ -2342,7 +1908,7 @@ class Sql
                           GET    : ".print_r($_GET   , true)."
                           SERVER : ".print_r($_SERVER, true)."\n";
 
-                        error_log('PHP SQL_ERROR: '.Strings::Log($error[2]).' on '.Strings::Log(debug_sql($query, $execute, true), 4096));
+                        error_log('PHP SQL_ERROR: '.Strings::Log($error[2]).' on '.Strings::Log(Sql::buildQueryString($query, $execute, true), 4096));
 
                         if (!$_CONFIG['production']) {
                             throw new SqlException(nl2br($body), $e);
@@ -2358,69 +1924,40 @@ class Sql
     /**
      *
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @param int $limit
+     * @return int
      */
-    public static function validLimit($limit, $connector = null)
+    public static function validLimit(int $limit): int
     {
-        global $_CONFIG;
+        $limit = force_natural($limit);
 
-        try {
-            $connector = Sql::connectorName($connector);
-            $limit = force_natural($limit);
-
-            if ($limit > $_CONFIG['db'][$connector]['limit_max']) {
-                return $_CONFIG['db'][$connector]['limit_max'];
-            }
-
-            return $limit;
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::validLimit(): Failed', $e);
+        if ($limit > $_CONFIG['db'][self::$connector]['limit_max']) {
+            return $_CONFIG['db'][self::$connector]['limit_max'];
         }
-    }
 
+        return $limit;
+    }
 
 
     /**
      * Return a valid " LIMIT X, Y " string built from the specified parameters
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     * @version 2.4.8: Added function and documentation
-     *
-     * @param int $limit
-     * @param int $limit
+     * @param int|null $limit
+     * @param int|null $page
      * @return string The SQL " LIMIT X, Y " string
      */
-    public static function limit($limit = null, $page = null)
+    protected static function limit(?int $limit = null, ?int $page = null): string
     {
-        try {
-            load_libs('paging');
+        $limit = Paging::limit($limit);
 
-            if (!$limit) {
-                $limit = paging_limit();
-            }
-
-            if (!$limit) {
-                /*
-                 * No limits, so show all
-                 */
-                return '';
-            }
-
-            return ' LIMIT ' . ((paging_page($page) - 1) * $limit) . ', ' . $limit;
-
-        } catch (Exception $e) {
-            throw new SqlException(tr('Sql::limit(): Failed'), $e);
+        if (!$limit) {
+            /*
+             * No limits, so show all
+             */
+            return '';
         }
+
+        return ' LIMIT ' . ((Paging::page($page) - 1) * $limit) . ', ' . $limit;
     }
 
 
@@ -2428,13 +1965,13 @@ class Sql
     /**
      * Show the specified SQL query in a debug
      *
-     * @param string $query
-     * @param string|null $execute
+     * @param string|PDOStatement $query
+     * @param ?array $execute
      * @param bool $return_only
      * @return mixed
-     * @throws CoreException
+     * @throws SqlException
      */
-    public static function show(string $query, ?string $execute = null, bool $return_only = false): mixed
+    public static function show(string|PDOStatement $query, ?array $execute = null, bool $return_only = false): mixed
     {
         if (is_array($execute)) {
             /*
@@ -2497,185 +2034,6 @@ class Sql
             Log::debug(Strings::endsWith($query, ';'));
         }
 
-        return show(Strings::endsWith($query, ';'), 6);
-    }
-
-
-
-    /**
-     * Access the Simple SQL class
-     *
-     * @return SqlSimple
-     */
-    public static function simple(): SqlSimple
-    {
-        return new SqlSimple(self);
-    }
-
-
-
-    /**
-     * Access the SQL "exists" class
-     *
-     * @return SqlExists
-     */
-    public static function exists(): SqlExists
-    {
-        return new SqlExists(self);
-    }
-
-
-
-    /**
-     * Generate a unique seo name for the seo column
-     *
-     * This function will use seo_string() to convert the specified $source variable to a seo optimized string, and then it will check the specified $table to ensure that it does not yet exist. If the current seo string already exists, it will be expanded with a natural number and the table will be checked again. If the seo string is still found, this number will be incremented each loop, until the string is no longer found
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package seo
-     * @see seo_string()
-     * @version 1.27.0: Added documentation
-     * @example
-     * code
-     * $name   = 'Capmega';
-     * $result = seo_unique($name, 'customers', 15);
-     * showdie($result);
-     * /code
-     *
-     * This would return
-     * code
-     * capmega
-     * /code
-     *
-     * @param string $source
-     * @param string $table
-     * @param int|null $ownid
-     * @param string $column
-     * @param string $replace
-     * @param string|null $first_suffix
-     * @param $connector_name
-     * @return array|mixed|string|null
-     * @throws \CoreException
-     */
-    // :TODO: Update to use bound variable queries
-    public static function getUniqueSeo(string $source, string $table, ?int $ownid = null, string $column = 'seoname', string $replace = '-', ?string $first_suffix = null, $connector_name )
-    {
-        /*
-         * Prepare string
-         */
-        $id = 0;
-
-        if (empty($source)) {
-            /*
-             * If the given string is empty, then treat seoname as null, this should not cause indexing issues
-             */
-            return null;
-        }
-
-        if (is_array($source)) {
-            /*
-             * The specified source is a key => value array which can be used
-             * for unique entries spanning multiple columns
-             *
-             * Example: geo_cities has unique states_id with seoname
-             * $source = array('seoname'   => 'cityname',
-             *                 'states_id' => 3);
-             *
-             * NOTE: The first column will have the identifier added
-             */
-            foreach ($source as $column => &$value) {
-                if (empty($first)) {
-                    $first = array($column => $value);
-                }
-
-                $value = trim(seo_string($value, $replace));
-            }
-
-            unset($value);
-
-        } else {
-            $source = trim(seo_string($source, $replace));
-        }
-
-        /*
-         * Filter out the id of the record itself
-         */
-        if ($ownid) {
-            if (is_scalar($ownid)) {
-                $ownid = ' AND `id` != ' . $ownid;
-
-            } elseif (is_array($ownid)) {
-                $key = key($ownid);
-
-                if (!is_numeric($ownid[$key])) {
-                    if (!is_scalar($ownid[$key])) {
-                        throw new OutOfBoundsException(tr('seo_unique(): Invalid $ownid array value datatype specified, should be scalar and numeric, but is "%type%"', array('%type%' => gettype($ownid[$key]))), 'invalid');
-                    }
-
-                    $ownid[$key] = '"' . $ownid[$key] . '"';
-                }
-
-                $ownid = ' AND `' . $key . '` != ' . $ownid[$key];
-
-            } else {
-                throw new OutOfBoundsException(tr('seo_unique(): Invalid $ownid datatype specified, should be either scalar, or array, but is "%type%"', array('%type%' => gettype($ownid))), 'invalid');
-            }
-
-        } else {
-            $ownid = '';
-        }
-
-        /*
-         * If the seostring exists, add an identifier to it.
-         */
-        while (true) {
-            if (is_array($source)) {
-                /*
-                 * Check on multiple columns, add identifier on first column value
-                 */
-                if ($id) {
-                    if ($first_suffix) {
-                        $source[key($first)] = reset($first) . trim(seo_string($first_suffix, $replace));
-                        $first_suffix = null;
-                        $id--;
-
-                    } else {
-                        $source[key($first)] = reset($first) . $id;
-                    }
-                }
-
-                $exists = sql_get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . array_implode_with_keys($source, '" AND `', '` = "', true) . '"' . $ownid . ';', true, null, $connector_name);
-
-                if (!$exists) {
-                    return $source[key($first)];
-                }
-
-            } else {
-                if (!$id) {
-                    $str = $source;
-
-                } else {
-                    if ($first_suffix) {
-                        $source = $source . trim(seo_string($first_suffix, $replace));
-                        $first_suffix = null;
-                        $id--;
-
-                    } else {
-                        $str = $source . $id;
-                    }
-                }
-
-                $exists = sql_get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . $column . '` = "' . $str . '"' . $ownid . ';', true, null, $connector_name);
-
-                if (!$exists) {
-                    return $str;
-                }
-            }
-
-            $id++;
-        }
+        return Debug::show(Strings::endsWith($query, ';'), 6);
     }
 }

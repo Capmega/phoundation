@@ -1,18 +1,17 @@
 <?php
 
-namespace Phoundation\Databases;
+namespace Phoundation\Databases\Exception;
 
 /**
- * Class Redis
+ * Class MysqlException
  *
- *
+ * This is the basic exception for the Phoundation Mysql class
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @package Phoundation\Databases
  */
-class Redis
+class MysqlException extends DatabasesException
 {
-
 }

@@ -12,7 +12,7 @@ namespace Phoundation\Utils;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-cclass Compression
+class Compression
 {
 
 }

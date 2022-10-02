@@ -532,7 +532,7 @@ function array_sequential_keys($source, $base_keyname, $filter_null = false, $nu
 /*
  * Return the source array with the specified keys kept, all else removed.
  */
-function array_keep($source, $keys) {
+function Arrays::keep($source, $keys) {
     try {
         $retval = array();
 
@@ -545,7 +545,7 @@ function array_keep($source, $keys) {
         return $retval;
 
     }catch(Exception $e) {
-        throw new CoreException('array_keep(): Failed', $e);
+        throw new CoreException('Arrays::keep(): Failed', $e);
     }
 }
 

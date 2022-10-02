@@ -4,6 +4,7 @@ namespace Phoundation\Seo;
 
 use Exception;
 use Phoundation\Databases\Sql;
+use Phoundation\Exception\OutOfBoundsException;
 
 /**
  * Class Seo
@@ -51,7 +52,7 @@ class Seo
      *
      */
     // :TODO: Update to use bound variable queries
-    public function unique(string $source, string $table, ?int $ownid = null, $column = 'seoname', $replace = '-', $first_suffix = null, $connector_name = null): string|null
+    public function unique(string $source, string $table, ?int $ownid = null, string $column = 'seoname', string $replace = '-', $first_suffix = null, $connector_name = null): string|null
     {
         /*
          * Prepare string
@@ -78,16 +79,16 @@ class Seo
              */
             foreach ($source as $column => &$value) {
                 if (empty($first)) {
-                    $first = array($column => $value);
+                    $first = [$column => $value];
                 }
 
-                $value = trim(Seo::string($value, $replace));
+                $value = trim(self::string($value, $replace));
             }
 
             unset($value);
 
         } else {
-            $source = trim(seo_string($source, $replace));
+            $source = trim(self::string($source, $replace));
         }
 
         /*
@@ -102,7 +103,7 @@ class Seo
 
                 if (!is_numeric($ownid[$key])) {
                     if (!is_scalar($ownid[$key])) {
-                        throw new OutOfBoundsException(tr('seo_unique(): Invalid $ownid array value datatype specified, should be scalar and numeric, but is "%type%"', array('%type%' => gettype($ownid[$key]))), 'invalid');
+                        throw new OutOfBoundsException(tr('Invalid $ownid array value datatype specified, should be scalar and numeric, but is ":type"', [':type' => gettype($ownid[$key])]));
                     }
 
                     $ownid[$key] = '"' . $ownid[$key] . '"';
@@ -111,7 +112,7 @@ class Seo
                 $ownid = ' AND `' . $key . '` != ' . $ownid[$key];
 
             } else {
-                throw new OutOfBoundsException(tr('seo_unique(): Invalid $ownid datatype specified, should be either scalar, or array, but is "%type%"', array('%type%' => gettype($ownid))), 'invalid');
+                throw new OutOfBoundsException(tr('Invalid $ownid datatype specified, should be either scalar, or array, but is ":type"', [':type' => gettype($ownid)]));
             }
 
         } else {
@@ -128,7 +129,7 @@ class Seo
                  */
                 if ($id) {
                     if ($first_suffix) {
-                        $source[key($first)] = reset($first) . trim(seo_string($first_suffix, $replace));
+                        $source[key($first)] = reset($first) . trim(self::string($first_suffix, $replace));
                         $first_suffix = null;
                         $id--;
 
@@ -137,7 +138,7 @@ class Seo
                     }
                 }
 
-                $exists = SQL::get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . array_implode_with_keys($source, '" AND `', '` = "', true) . '"' . $ownid . ';', true, null, $connector_name);
+                $exists = Sql::get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . array_implode_with_keys($source, '" AND `', '` = "', true) . '"' . $ownid . ';', true, null, $connector_name);
 
                 if (!$exists) {
                     return $source[key($first)];
@@ -158,7 +159,7 @@ class Seo
                     }
                 }
 
-                $exists = SQL::get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . $column . '` = "' . $str . '"' . $ownid . ';', true, null, $connector_name);
+                $exists = Sql::get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . $column . '` = "' . $str . '"' . $ownid . ';', true, null, $connector_name);
 
                 if (!$exists) {
                     return $str;

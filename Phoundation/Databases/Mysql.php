@@ -2,17 +2,20 @@
 
 namespace Phoundation\Databases;
 
+
+
 /**
- * Class Redis
+ * Mysql class
  *
+ * This class can manage MySQL servers and databases
  *
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @category Function reference
+ * @package Phoundation\Filesystem
  */
-class Redis
+class Mysql
 {
 
 }

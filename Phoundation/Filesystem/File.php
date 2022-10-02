@@ -33,6 +33,18 @@ use Throwable;
 class File
 {
     /**
+     * File READ method
+     */
+    public const READ = 1;
+
+    /**
+     * File WRITE method
+     */
+    public const WRITE = 2;
+
+
+
+    /**
      * Append specified data string to the end of the specified file
      *
      * @param string $file
@@ -1905,6 +1917,43 @@ class File
         }catch(Exception $e) {
             throw new FilesystemException(tr('file_tree(): Failed'), $e);
         }
+    }
+
+
+    /**
+     * This is an fopen() wrapper with some built-in error handling
+     *
+     * @param string $file
+     * @param string $mode
+     * @return resource
+     */
+    public static function open(string $file, string $mode)
+    {
+        $handle = @fopen($file, 'r');
+
+        if (!$handle) {
+            // Check if the mode is valid and if the file can be opened for the requested mode
+            $method = match ($mode) {
+                'r' => FILE::READ,
+                'r+', 'w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+', 'ce+' => FILE::WRITE,
+                default => throw new FilesystemException(tr('Could not open file ":file"', [':file' => $file])),
+            };
+
+            // Mode is valid, check if file is accessible.
+            switch ($method) {
+                case FILE::READ:
+                    File::checkReadable($file);
+                    break;
+
+                case FILE::WRITE:
+                    File::checkWritable($file);
+                    break;
+            }
+
+            throw new FilesystemException(tr('Failed to open file ":file"', [':file' => $file]));
+        }
+
+        return $handle;
     }
 
 

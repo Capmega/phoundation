@@ -1004,7 +1004,7 @@ function sql_filters($params, $columns, $table = ''){
         $retval  = array('filters' => array(),
                          'execute' => array());
 
-        $filters = array_keep($params, $columns);
+        $filters = Arrays::keep($params, $columns);
 
         foreach ($filters as $key => $value){
             $safe_key = str_replace('`.`', '_', $key);
