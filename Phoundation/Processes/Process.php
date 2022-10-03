@@ -76,7 +76,7 @@ Class Process
     /**
      * The process id of the process running in the background. Will only be set when running processes in background
      *
-     * @var ?int $pid
+     * @var int|null $pid
      */
     protected ?int $pid = null;
 
@@ -84,7 +84,7 @@ Class Process
      * Sets whether the command should be executed with sudo or not. If not NULL, it should contain the user as which
      * the command should be exeuted
      *
-     * @var ?string $sudo
+     * @var string|null $sudo
      */
     protected ?string $sudo = null;
 

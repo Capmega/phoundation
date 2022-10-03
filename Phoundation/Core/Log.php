@@ -72,14 +72,14 @@ Class Log {
     /**
      * The current file where the log class will write to.
      *
-     * @var ?string $file
+     * @var string|null $file
      */
     protected static ?string $file = null;
 
     /**
      * The current backtrace display configuration
      *
-     * @var ?int $display
+     * @var int|null $display
      */
     protected static ?int $display = null;
 

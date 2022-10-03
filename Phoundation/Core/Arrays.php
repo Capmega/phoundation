@@ -871,12 +871,6 @@ class Arrays {
      * Example:
      * Arrays::all(array(1, 2, 3), function($value) { return $value });
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package array
-     *
      * @param array $source The array to check
      * @param callable $function The function to execute
      * @return boolean Returns true if the specified callback function returned true for all elements in the array, false otherwise
@@ -898,13 +892,7 @@ class Arrays {
      * Returns if the specified callback function returns true for all elements
      *
      * Example:
-     * array_any(array(0, 1, 2, 3), function($value) { return $value });
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package array
+     * Arrays::any(array(0, 1, 2, 3), function($value) { return $value });
      *
      * @param array $source The array to check
      * @param callable $function The function to execute
@@ -927,13 +915,7 @@ class Arrays {
      * Returns if the specified callback has duplicate values
      *
      * Example:
-     * array_has_duplicates(array(0, 1, 2, 1));
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package array
+     * Arrays::countDuplicates(array(0, 1, 2, 1));
      *
      * @param array $source The array to check
      * @return int Returns the amount of duplicate entries in the specified source array
@@ -949,13 +931,7 @@ class Arrays {
      * Returns if the specified callback has duplicate values
      *
      * Example:
-     * array_has_duplicates(array(0, 1, 2, 1));
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package array
+     * Arrays::hasDuplicates(array(0, 1, 2, 1));
      *
      * @param array $source The array to check
      * @return boolean Returns true if the specified array contains duplicate values, false otherwise
@@ -975,14 +951,8 @@ class Arrays {
      * Example:
      * Arrays::pluck(array('foo', 'bar', 'Frack!', 'test'), '/^F/i');
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package array
-     *
      * @param array $source The array to check
-     * @return boolean Returns true if the specified array contains duplicate values, false otherwise
+     * @return array Returns true if the specified array contains duplicate values, false otherwise
      */
     public static function pluck(array $source, string $regex): array
     {
@@ -1004,16 +974,10 @@ class Arrays {
     /**
      * Merge multiple arrays together, but overwrite null values
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package array
-     *
-     * @param array
+     * @param array ...
      * @return array
      */
-    public static function mergeNull()
+    public static function mergeNull(): array
     {
         $args   = func_get_args();
         $retval = [];
@@ -1034,12 +998,6 @@ class Arrays {
     /**
      * Hide the specified keys from the specified array
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package array
-     *
      * @param array|null $source
      * @param mixed $keys
      * @param string $hide
@@ -1054,16 +1012,14 @@ class Arrays {
                 return null;
             }
 
-            throw new CoreException(tr('Specified source is not an array'), 'invalid');
+            throw new OutOfBoundsException(tr('Specified source is not an array nor NULL'));
         }
 
         $keys = Arrays::force($keys);
 
         foreach ($source as $source_key => &$source_value) {
             foreach ($keys as $key) {
-                /*
-                 *
-                 */
+                //
                 if (strstr($key, '%')) {
                     if (strstr($source_key, Strings::replace('%', '', $key))) {
                         $source_value = Strings::hide($source_value, $hide, $empty);
@@ -1092,11 +1048,6 @@ class Arrays {
     /**
      * Rename the specified old key to the new key
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package array
      * @version 2.7.100: Added function and documentation
      *
      * @param array $source
@@ -1106,12 +1057,8 @@ class Arrays {
      */
     public static function renameKey(array $source, int|string $old_key, int|string $new_key): array
     {
-        if (!is_array($source)) {
-            throw new CoreException(tr('array_rename_key(): Specified source is not an array'), 'invalid');
-        }
-
         if (!array_key_exists($old_key, $source)) {
-            throw new CoreException(tr('array_rename_key(): Specified $old_key does not exist in the specified source array'), 'not-exists');
+            throw new CoreException(tr('Specified $old_key does not exist in the specified source array'));
         }
 
         $source[$new_key] = $source[$old_key];
@@ -1125,12 +1072,7 @@ class Arrays {
     /**
      * Returns the value of the first element of the specified array
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package array
-     * @see array_last()
+     * @see Arrays::lastValue()
      * @version 1.27.0: Added function and documentation
      *
      * @param array $source The source array from which the first value must be returned
@@ -1147,15 +1089,8 @@ class Arrays {
     /**
      * Returns the value of the last element of the specified array
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package array
-     * @see array_first()
-     * @see date_convert() Used to convert the sitemap entry dates
+     * @see Arrays::firstValue()
      * @version 1.27.0: Added function and documentation
-     *
      * @param array $source The source array from which the last value must be returned
      * @return mixed The last value of the specified source array
      */
@@ -1169,31 +1104,14 @@ class Arrays {
     /**
      * Make sure the specified keys are available on the array
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package array
-     *
      * @param array $source
-     * @param array (optional) $keys
-     * @param mixed (optional) $default_value
-     * @param bool (optional) $trim_existing
+     * @param string|array $keys
+     * @param mixed $default_value
+     * @param bool $trim_existing
      * @return array
      */
-    public static function ensure(array &$source, array $keys = [], mixed $default_value = null, bool $trim_existing = false): array
+    public static function ensure(array &$source, string|array $keys = [], mixed $default_value = null, bool $trim_existing = false): array
     {
-        if (!$source) {
-            $source = [];
-
-        } elseif (!is_array($source)) {
-            if (is_object($source)) {
-                throw new CoreException(tr('Arrays::ensure(): Specified source is not an array but an object of the class ":class"', array(':class' => get_class($source))), 'invalid');
-            }
-
-            throw new CoreException(tr('Arrays::ensure(): Specified source is not an array but a ":type"', array(':type' => gettype($source))), 'invalid');
-        }
-
         if ($keys) {
             foreach (Arrays::force($keys) as $key) {
                 if (!$key) {
@@ -1202,9 +1120,7 @@ class Arrays {
 
                 if (array_key_exists($key, $source)) {
                     if ($trim_existing and is_string($source[$key])) {
-                        /*
-                         * Automatically trim the found value
-                         */
+                        // Automatically trim the found value
                         $source[$key] = trim($source[$key], (is_bool($trim_existing) ? ' ' : $trim_existing));
                     }
 
@@ -1220,10 +1136,6 @@ class Arrays {
     /**
      * Specified variable may be either string or array, but ensure that its returned as an array.
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
      * @see Strings::force()
      * @example
      * code

@@ -28,12 +28,18 @@ class Stopwatch
 
 
     /**
-     * @param string $timer_name
+     * Start a new stopwatch
+     *
+     * @param string $name
      * @return float
      */
-    public static function start(string $timer_name): float
+    public static function start(string $name): float
     {
-        self::$timers[$timer_name] = microtime(true);
+        if (!array_key_exists($name, self::$timers)) {
+            throw new OutOfBoundsException('The specified stopwatch ":name" already exists', [':name' => $name]);
+        }
+
+        return self::$timers[$name] = microtime(true);
     }
 
 
@@ -51,5 +57,26 @@ class Stopwatch
         }
 
         return microtime(true) - self::$timers[$name];
+    }
+
+
+
+    /**
+     * Stop the specified stopwatch and returns the passed time
+     *
+     * @param string $name
+     * @return float
+     */
+    public static function stop(string $name): float
+    {
+        if (!array_key_exists($name, self::$timers)) {
+            throw new OutOfBoundsException('The specified stopwatch ":name" does not exist', [':name' => $name]);
+        }
+
+        // Get the passed time, remove the stopwatch and return the passed time
+        $passed = microtime(true) - self::$timers[$name];
+        unset(self::$timers[$name]);
+
+        return $passed;
     }
 }

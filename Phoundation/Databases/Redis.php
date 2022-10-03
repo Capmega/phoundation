@@ -19,7 +19,7 @@ class Redis
     /**
      * Singleton variable
      *
-     * @var ?Redis $instance
+     * @var Redis|null $instance
      */
     protected static ?Redis $instance = null;
 

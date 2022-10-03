@@ -3,13 +3,15 @@
 namespace Phoundation\Web;
 
 use Exception;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Databases\Sql;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Http\Exception\RouteException;
-
+use Phoundation\Http\Url;
 
 
 /**
@@ -149,7 +151,7 @@ class Route
             if (!$init) {
                 $init = true;
                 Log::notice(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', array(':domain' => $_CONFIG['domain'], ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'].(empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')'))), 'route', 'white');
-                Core::registerShutdown('Route::shutdown');
+                Core::registerShutdown(['Route']['shutdown']);
             }
 
             if (!$url_regex) {
@@ -174,7 +176,7 @@ class Route
             $uri   = Strings::until($uri                           , '?');
 
             if (strlen($uri) > 2048) {
-                Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See route() function). 404-ing the request', array(':uri' => $uri, ':count' => strlen($uri))), 'route', 'yellow');
+                Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See route() function). 404-ing the request', [':uri' => $uri, ':count' => strlen($uri)]));
                 Route::execute404();
             }
 
@@ -195,12 +197,12 @@ class Route
                          * Include domain in match
                          */
                         $uri = $_SERVER['HTTP_HOST'].$uri;
-                        Log::notice(tr('Adding complete HTTP_HOST in match for URI ":uri"', array(':uri' => $uri)));
+                        Log::notice(tr('Adding complete HTTP_HOST in match for URI ":uri"', [':uri' => $uri]));
                         break;
 
                     case 'M':
                         $uri .= '?' . $query;
-                        Log::notice(tr('Adding query to URI ":uri"', array(':uri' => $uri)), 'route');
+                        Log::notice(tr('Adding query to URI ":uri"', array(':uri' => $uri)));
 
                         if (!array_search('Q', $flags)) {
                             /*
@@ -219,7 +221,7 @@ class Route
             if (($count === 1) and $_CONFIG['route']['static']) {
                 if ($static) {
                     // Check if remote IP is registered for special routing
-                    $exists = Sql::get('SELECT `id`, `uri`, `regex`, `target`, `flags` FROM `routes_static` WHERE `ip` = :ip AND `status` IS NULL AND `expiredon` >= NOW() ORDER BY `createdon` DESC LIMIT 1', array(':ip' => $ip));
+                    $exists = Sql::get('SELECT `id`, `uri`, `regex`, `target`, `flags` FROM `routes_static` WHERE `ip` = :ip AND `status` IS NULL AND `expiredon` >= NOW() ORDER BY `createdon` DESC LIMIT 1', [':ip' => $ip]);
 
                     if ($exists) {
                         // Apply semi-permanent routing for this IP
@@ -230,7 +232,7 @@ class Route
                         $target    = $exists['target'];
                         $flags     = explode(',', $exists['flags']);
 
-                        Sql::query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', array(':id' => $exists['id']));
+                        Sql::query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', [':id' => $exists['id']]);
 
                         unset($exists);
                     }
@@ -294,7 +296,7 @@ class Route
                             /*
                              * The language requested in the current request
                              */
-                            $requested = Arrays::first($core->register['accepts_languages']);
+                            $requested = Arrays::firstValue($core->register['accepts_languages']);
                             $route     = str_replace(':REQUESTED_LANGUAGE', $requested['language'], $route);
                             break;
 
@@ -315,7 +317,7 @@ class Route
                             break;
 
                         default:
-                            throw new RouteException(tr('Unknown variable ":variable" found in target ":target"', array(':variable' => ':' . $variable, ':target' => ':' . $target)));
+                            throw new OutOfBoundsException(tr('Unknown variable ":variable" found in target ":target"', [':variable' => ':' . $variable, ':target' => ':' . $target]));
                     }
                 }
             }
@@ -331,7 +333,7 @@ class Route
                 foreach ($replacements[1] as $replacement) {
                     try {
                         if (!$replacement[0] or empty($matches[$replacement[0]])) {
-                            throw new RouteException(tr('route(): Non existing regex replacement ":replacement" specified in route ":route"', array(':replacement' => '$' . $replacement[0], ':route' => $route)), 'invalid');
+                            throw new RouteException(tr('Non existing regex replacement ":replacement" specified in route ":route"', [':replacement' => '$' . $replacement[0], ':route' => $route]));
                         }
 
                         $route = str_replace('$' . $replacement[0], $matches[$replacement[0]][0], $route);
@@ -366,14 +368,12 @@ class Route
                     case 'B':
                         // Block this request, send nothing
                         Log::warning(tr('Blocking request as per B flag'));
-                        unregister_shutdown('Route::shutdown');
+                        Core::unregisterShutdown('Route::shutdown');
                         $block = true;
                         break;
 
                     case 'C':
                         // URL cloaking was used. See if we have a real URL behind the specified cloak
-                        load_libs('url');
-
                         $_SERVER['REQUEST_URI'] = Url::decloak($route);
 
                         if (!$_SERVER['REQUEST_URI']) {

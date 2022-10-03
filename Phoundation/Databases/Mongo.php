@@ -20,7 +20,7 @@ class Mongo
     /**
      * Singleton variable
      *
-     * @var ?Mongo $instance
+     * @var Mongo|null $instance
      */
     protected static ?Mongo $instance = null;
 

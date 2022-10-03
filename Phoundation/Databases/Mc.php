@@ -2,9 +2,13 @@
 
 namespace Phoundation\Databases;
 
+use Memcached;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Log;
 use Phoundation\Databases\Exception\MemcachedException;
-
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpModuleNotAvailableException;
 
 
 /**
@@ -20,11 +24,11 @@ use Phoundation\Databases\Exception\MemcachedException;
 class Mc
 {
     /**
-     * Singleton variable
+     * Identifier of this instance
      *
-     * @var ?Mc $instance
+     * @var string|null $instance_name
      */
-    protected static ?Mc $instance = null;
+    protected ?string $instance_name = null;
 
     /**
      * Instances store
@@ -34,11 +38,25 @@ class Mc
     protected static array $instances = [];
 
     /**
-     * Connections store
+     * PHP Memcached drivers
+     *
+     * @var Memcached| null $memcached
+     */
+    protected ?Memcached $memcached = null;
+
+    /**
+     * Memcached configuration
+     *
+     * @var array $configuration
+     */
+    protected array $configuration = [];
+
+    /**
+     * Actove memcached connections for this instance
      *
      * @var array $connections
      */
-    protected static array $connections = [];
+    protected array $connections = [];
 
 
 
@@ -47,45 +65,51 @@ class Mc
      *
      * MC constructor.
      */
-    protected function __construct()
+    protected function __construct(?string $instance_name = null)
     {
-        $this->connections = Config::get('memcached.connections');
+        if (!class_exists('Memcached')) {
+            throw new PhpModuleNotAvailableException(tr('The PHP module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php5-memcached; sudo php5enmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'));
+        }
+
+        // Get the configuration for the specified instance
+        if (!$instance_name) {
+            $instance_name = 'core';
+        }
+
+        // Get instance information and connect to memcached servers
+        $this->instance_name = $instance_name;
+        $this->readConfiguration();
+        $this->setConnections($this->configuration['connectors']);
+        $this->connect();
     }
 
 
 
     /**
-     * Singleton, ensure to always return the same Mc object.
+     * Quick access to Mc instances
      *
      * @param string|null $instance_name
      * @return Mc
      */
-    public static function getInstance(?string $instance_name = null): Mc
+    public static function database(?string $instance_name = null): Mc
     {
-        if (!self::$instance) {
-            self::$instance = new static();
+        if (!self::$instances[$instance_name]) {
+            self::$instances[$instance_name] = new Mc($instance_name);
         }
 
-        return self::$instance;
+        return self::$instances[$instance_name];
     }
 
 
 
     /**
-     * Returns a Mc object for the specified database / server
+     * Return the active Mc connections
      *
-     * In case another than the core database and server is needed
-     *
-     * @param string $database_name
-     * @return Mc
+     * @return array
      */
-    public static function database(string $database_name): Mc
+    public function getActiveConnections(): array
     {
-        if (!array_key_exists($database_name, self::$databases)) {
-            throw new MemcachedException('The specified Mongo database ":db" does not exist', [':db' => $database_name]);
-        }
-
-        return self::$databases[$database_name];
+        return $this->connections;
     }
 
 
@@ -95,9 +119,9 @@ class Mc
      *
      * @return array
      */
-    public static function getConnections(): array
+    public function getConnections(): array
     {
-        return self::$connections;
+        return $this->configuration['connections'];
     }
 
 
@@ -109,10 +133,10 @@ class Mc
      * @param array $connections
      * @return void
      */
-    public static function setConnections(array $connections): void
+    public function setConnections(array $connections): void
     {
-        self::$connections = [];
-        self::addConnections($connections);
+        $this->configuration['connections'] = [];
+        $this->addConnections($connections);
     }
 
 
@@ -123,10 +147,10 @@ class Mc
      * @param array $connections
      * @return void
      */
-    public static function addConnections(array $connections): void
+    public function addConnections(array $connections): void
     {
         foreach ($connections as $connection => $configuration) {
-            self::addConnection($connection, $configuration);
+            $this->addConnection($connection, $configuration);
         }
     }
 
@@ -139,169 +163,25 @@ class Mc
      * @param array $configuration
      * @return void
      */
-    public static function addConnection(string $connection_name, array $configuration): void
+    public function addConnection(string $connection_name, array $configuration): void
     {
-        self::$connections[$connection_name] = $configuration;
+        $this->configuration['connections'][$connection_name] = $configuration;
     }
 
-
-
-    /**
-     * Remove the connection with the specified connection name
-     *
-     * @param string $connection_name
-     * @return void
-     */
-    public static function removeConnections(string $connection_name): void
-    {
-        unset(self::$connections[$connection_name]);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*
-         * Initialize the library
-         * Automatically executed by libs_load()
-         */
-    public function  __constructor()
-    {
-        try {
-            if (!class_exists('Memcached')) {
-                throw new MemcachedException(tr('memcached_library_init(): php module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php5-memcached; sudo php5enmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'not_available');
-            }
-
-        } catch (Exception $e) {
-            throw new MemcachedException('memcached_library_init(): failed', $e);
-        }
-    }
-
-
-    /*
-     * Connect to the memcached server
-     */
-    public function connect()
-    {
-        global $_CONFIG, $core;
-
-        try {
-            if (empty($core->register['memcached'])) {
-                /*
-                 * Memcached disabled?
-                 */
-                if (!$_CONFIG['memcached']) {
-                    $core->register['memcached'] = false;
-                    log_file('memcached_connect(): Not using memcached, its disabled by configuration $_CONFIG[memcached]', 'yellow');
-
-                } else {
-                    $failed = 0;
-                    $core->register['memcached'] = new Memcached;
-
-                    /*
-                     * Connect to all memcached servers, but only if no servers were added yet
-                     * (this should normally be the case)
-                     */
-                    if (!$core->register['memcached']->getServerList()) {
-                        $core->register['memcached']->addServers($_CONFIG['memcached']['servers']);
-                    }
-
-                    /*
-                     * Check connection status of memcached servers
-                     * (To avoid memcached servers being down and nobody knows about it)
-                     */
-                    //:TODO: Maybe we should check this just once every 10 connects or so? is it really needed?
-                    try {
-                        foreach ($core->register['memcached']->getStats() as $server => $server_data) {
-                            if ($server_data['pid'] < 0) {
-                                /*
-                                 * Could not connect to this memcached server. Notify, and remove from the connections list
-                                 */
-                                $failed++;
-
-                                notify(array('code' => 'warning/not-available',
-                                    'groups' => 'developers',
-                                    'title' => tr('Memcached server not available'),
-                                    'message' => tr('memcached_connect(): Failed to connect to memcached server ":server"', array(':server' => $server))));
-                            }
-                        }
-
-                    } catch (Exception $e) {
-                        /*
-                         * Server status check failed, I think its safe
-                         * to assume that no memcached server is working.
-                         * Fake "all severs failed" so that memcached won't
-                         * be used
-                         */
-                        $failed = count($_CONFIG['memcached']['servers']);
-                    }
-
-                    if ($failed >= count($_CONFIG['memcached']['servers'])) {
-                        /*
-                         * All memcached servers failed to connect!
-                         * Send error notification
-                         */
-                        notify(array('code' => 'not-available',
-                            'groups' => 'developers',
-                            'title' => tr('Memcached server not available'),
-                            'message' => tr('memcached_connect(): Failed to connect to all ":count" memcached servers', array(':server' => count($_CONFIG['memcached']['servers'])))));
-
-                        return false;
-                    }
-                }
-            }
-
-            return $core->register['memcached'];
-
-        } catch (Exception $e) {
-            throw new MemcachedException('memcached_connect(): failed', $e);
-        }
-    }
 
 
     /*
      *
      */
-    public function put($value, $key, $namespace = null, $expiration_time = null)
+    public function set(mixed $value, string $key, ?string $namespace = null, ?int $expires = null)
     {
-        global $_CONFIG, $core;
+        $key = $this->buildKey($key, $namespace);
+        $expires = $expires ?? $this->configuration['expires'];
 
-        try {
-            if (!memcached_connect()) {
-                return false;
-            }
+        $this->memcached->set($this->configuration['prefix'] . $key, $value, $expires);
+        Log::success(tr('Wrote key ":key"', [':key' => $key]), 3);
 
-            if ($namespace) {
-                $namespace = memcached_namespace($namespace) . '_';
-            }
-
-            if ($expiration_time === null) {
-                /*
-                 * Use default cache expire time
-                 */
-                $expiration_time = $_CONFIG['memcached']['expire_time'];
-            }
-
-            $core->register['memcached']->set($_CONFIG['memcached']['prefix'] . memcached_namespace($namespace) . $key, $value, $expiration_time);
-            log_console(tr('memcached_put(): Wrote key ":key"', array(':key' => $_CONFIG['memcached']['prefix'] . memcached_namespace($namespace) . $key)), 'VERYVERBOSE/green');
-
-            return $value;
-
-        } catch (Exception $e) {
-            throw new MemcachedException('memcached_put(): failed', $e);
-        }
+        return $value;
     }
 
 
@@ -559,5 +439,128 @@ class Mc
         } catch (Exception $e) {
             throw new MemcachedException('memcached_stats(): Failed', $e);
         }
+    }
+
+
+
+    /**
+     * Read the configuration for this instance
+     *
+     * @return void
+     */
+    protected function readConfiguration(): void
+    {
+        // Read the configuration
+        $this->configuration = Config::get('memcached.instances.' . $this->instance_name);
+
+        // Ensure that all required keys are available
+        Arrays::ensure($this->configuration, 'connections');
+        Arrays::default($this->configuration['expires'], 86400);
+        Arrays::default($this->configuration['prefix'], gethostname());
+
+        // Default connections to localhost if nothing was defined
+        if (!$this->configuration['connnections']) {
+            Log::warning(tr('No memcached connections configured for instance ":instance", defaulting to localhost::11211', [':instance' => $this->instance_name]));
+
+            $this->configuration['connnections'] = [
+                'host' => '127.0.0.1',
+                'port' => '11211'
+            ];
+        }
+
+        if (!is_array($this->configuration['connnections'])) {
+            throw new OutOfBoundsException(tr('Invalid memcached connections configured for instance ":instance", it should be an array but is an ":type"', [':instance' => $this->instance_name, ':type' => gettype($this->configuration['connnections'])]));
+        }
+
+        // Ensure all connections are valid
+        foreach ($this->configuration['connnections'] as &$connection) {
+            Arrays::ensure($connection, 'host,port');
+        }
+    }
+
+
+
+    /**
+     * Connect to the memcached servers
+     */
+    protected static  function connect()
+    {
+        if (empty($core->register['memcached'])) {
+            // Memcached disabled?
+            if (!Config::get('memcached.enabled', true)) {
+                Log::warning('Not using memcached, its disabled by configuration "memcached.enabled"');
+
+            } else {
+                $failed = 0;
+
+                /*
+                 * Connect to all memcached servers, but only if no servers were added yet
+                 * (this should normally be the case)
+                 */
+                if (!$core->register['memcached']->getServerList()) {
+                    $core->register['memcached']->addServers($_CONFIG['memcached']['servers']);
+                }
+
+                /*
+                 * Check connection status of memcached servers
+                 * (To avoid memcached servers being down and nobody knows about it)
+                 */
+                //:TODO: Maybe we should check this just once every 10 connects or so? is it really needed?
+                try {
+                    foreach ($core->register['memcached']->getStats() as $server => $server_data) {
+                        if ($server_data['pid'] < 0) {
+                            /*
+                             * Could not connect to this memcached server. Notify, and remove from the connections list
+                             */
+                            $failed++;
+
+                            notify(array('code' => 'warning/not-available',
+                                'groups' => 'developers',
+                                'title' => tr('Memcached server not available'),
+                                'message' => tr('memcached_connect(): Failed to connect to memcached server ":server"', array(':server' => $server))));
+                        }
+                    }
+
+                } catch (Exception $e) {
+                    /*
+                     * Server status check failed, I think its safe
+                     * to assume that no memcached server is working.
+                     * Fake "all severs failed" so that memcached won't
+                     * be used
+                     */
+                    $failed = count($_CONFIG['memcached']['servers']);
+                }
+
+                if ($failed >= count($_CONFIG['memcached']['servers'])) {
+                    /*
+                     * All memcached servers failed to connect!
+                     * Send error notification
+                     */
+                    notify(array('code' => 'not-available',
+                        'groups' => 'developers',
+                        'title' => tr('Memcached server not available'),
+                        'message' => tr('memcached_connect(): Failed to connect to all ":count" memcached servers', array(':server' => count($_CONFIG['memcached']['servers'])))));
+
+                    return false;
+                }
+            }
+        }
+
+        return $core->register['memcached'];
+    }
+
+
+
+    /**
+     * Build the Mc key from the specified key and namespace
+     *
+     * @todo Add support for namespaces
+     * @param string $key
+     * @param string $namespace
+     * @return string
+     */
+    protected function buildKey(string $key, string $namespace): string
+    {
+        return $key;
     }
 }

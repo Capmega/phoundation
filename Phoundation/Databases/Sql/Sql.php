@@ -60,14 +60,14 @@ class Sql
     /**
      * The identifier name for this connector
      *
-     * @var ?string $connector_name
+     * @var string|null $connector_name
      */
     protected static ?string $connector_name = null;
 
     /**
      * The actual database interface
      *
-     * @var ?PDO $interface
+     * @var PDO|null $interface
      */
     protected static ?PDO $interface = null;
 

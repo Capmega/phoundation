@@ -29,7 +29,7 @@ class Core {
     /**
      * Singleton variable
      *
-     * @var ?Core $instance
+     * @var Core|null $instance
      */
     protected static ?Core $instance = null;
 
@@ -41,9 +41,16 @@ class Core {
     protected static bool $debug = false;
 
     /**
+     * The type of call for this process. One of http, admin, cli, mobile, ajax, api, amp (deprecated), system
+     *
+     * @var string|null
+     */
+    protected static ?string $call_type = null;
+
+    /**
      *
      *
-     * @var ?string $processType
+     * @var string|null $processType
      */
     protected static ?string $processType = null;
 
@@ -152,7 +159,7 @@ class Core {
             }
 
         } catch (Throwable $e) {
-            // Startup failed miserably
+            // Startup failed miserably. Don't use anything fancy here, we're dying!
             if (defined('PLATFORM_HTTP')) {
                 if (PLATFORM_HTTP) {
                     /*
@@ -185,16 +192,8 @@ class Core {
      */
     public static function getInstance(): Core
     {
-        try {
-            if (!isset(self::$instance)) {
-                self::$instance = new Core();
-            }
-        } catch (Throwable $e) {
-            // Crap, we could not get a Log instance
-            self::$fail = true;
-
-            error_log('Log constructor failed with the following message. Until the following issue has been resolved, all log entries will be written to the PHP system log only');
-            error_log($e->getMessage());
+        if (!isset(self::$instance)) {
+            self::$instance = new Core();
         }
 
         return self::$instance;
@@ -218,12 +217,6 @@ class Core {
         global $_CONFIG, $core;
 
         try {
-            if (isset($this->register['startup'])) {
-                // Core already started up
-                Log::error(tr('Core already started @ ":time", not starting again', [':time' => $this->register['startup']]));
-                return;
-            }
-
             // Detect platform and execute specific platform startup sequence
             switch (PLATFORM) {
                 case 'http':
@@ -382,75 +375,26 @@ class Core {
 
 
     /**
-     * The register allows to store global variables without using the $GLOBALS scope
+     * This method will return the calltype for this call, as is stored in the private variable core::callType
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     *
-     * @param string $key The key for the value that needs to be stored
-     * @param mixed $value The data that has to be stored. If no value is specified, the function will return the value for the specified key.
-     * @return mixed If a value is specified, this function will return the specified value. If no value is specified, it will return the value for the specified key.
+     * @return string Returns core::callType
      */
-    public function register($key, $value = null)
+    public function getCallType(): string
     {
-        if ($value === null) {
-            return isset_get($this->register[$key]);
-        }
-
-        if (is_array($value)) {
-            /*
-             * If value is an array, then build up a list
-             */
-            if (!isset($this->register[$key])) {
-                $this->register[$key] = array();
-            }
-
-            $this->register[$key] = array_merge($this->register[$key], $value);
-            return $this->register[$key];
-        }
-
-        return $this->register[$key] = $value;
+        return self::$call_type;
     }
 
 
+
     /**
-     * This method will return the calltype for this call, as is stored in the private variable core::callType or if $type is specified, will return true if $calltype is equal to core::callType, false if not.
+     * Will return true if $call_type is equal to core::callType, false if not.
      *
-     * @param string $type The call type you wish to compare to, or nothing if you wish to receive the current core::callType
-     * @return mixed If $type is specified, this function will return true if $type matches core::callType, or false if it does not. If $type is not specified, it will return core::callType
+     * @param string $type The call type you wish to compare to
+     * @return bool This function will return true if $type matches core::callType, or false if it does not.
      */
-    public function callType(?string $type = null): string
+    public function isCallType(string $type): bool
     {
-        if ($type) {
-            switch ($type) {
-                case 'http':
-                    // FALLTHROUGH
-                case 'admin':
-                    // FALLTHROUGH
-                case 'cli':
-                    // FALLTHROUGH
-                case 'mobile':
-                    // FALLTHROUGH
-                case 'ajax':
-                    // FALLTHROUGH
-                case 'api':
-                    // FALLTHROUGH
-                case 'amp':
-                    // FALLTHROUGH
-                case 'system':
-                    break;
-
-                default:
-                    throw new OutOfBoundsException(tr('core::callType(): Unknown call type ":type" specified', [':type' => $type[]));
-            }
-
-            return (self::$callType === $type);
-        }
-
-        return self::$callType;
+        return (self::$call_type === $type);
     }
 
 

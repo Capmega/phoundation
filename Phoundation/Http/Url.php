@@ -2,9 +2,12 @@
 
 namespace Phoundation\Http;
 
-use Phoundation\Core\CoreException;
-use Phoundation\Core\Json\Strings;
+use Phoundation\Core\Config;
+use Phoundation\Core\Core;
+use Phoundation\Core\Strings;
 use Phoundation\Databases\Sql;
+
+
 
 /**
  * Class
@@ -324,40 +327,37 @@ class Url {
      */
     public static function cloak(string $url): string
     {
-        try {
-            $cloak = Sql::get('SELECT `cloak`
+        Mc::set();
 
-                          FROM   `url_cloaks`
+        $cloak = Sql::get('SELECT `cloak`
 
-                          WHERE  `url`       = :url
-                          AND    `createdby` = :createdby',
+                      FROM   `url_cloaks`
 
-                true, array(':url'       => $url,
-                    ':createdby' => isset_get($_SESSION['user']['id'])));
+                      WHERE  `url`       = :url
+                      AND    `createdby` = :createdby',
 
-            if ($cloak) {
-                /*
-                 * Found cloaking URL, update the createdon time so that it won't
-                 * exipre too soon
-                 */
-                Sql::query('UPDATE `url_cloaks` SET `createdon` = NOW() WHERE `url` = :url', array(':url' => $url));
-                return $cloak;
-            }
+            true, array(':url'       => $url,
+                ':createdby' => isset_get($_SESSION['user']['id'])));
 
-            $cloak = str_random(32);
-
-            Sql::query('INSERT INTO `url_cloaks` (`createdby`, `url`, `cloak`)
-                   VALUES                   (:createdby , :url , :cloak )',
-
-                array(':createdby' => isset_get($_SESSION['user']['id']),
-                    ':cloak'     => $cloak,
-                    ':url'       => $url));
-
+        if ($cloak) {
+            /*
+             * Found cloaking URL, update the createdon time so that it won't
+             * exipre too soon
+             */
+            Sql::query('UPDATE `url_cloaks` SET `createdon` = NOW() WHERE `url` = :url', array(':url' => $url));
             return $cloak;
-
-        }catch(Exception $e) {
-            throw new CoreException('url_cloak(): Failed', $e);
         }
+
+        $cloak = str_random(32);
+
+        Sql::query('INSERT INTO `url_cloaks` (`createdby`, `url`, `cloak`)
+               VALUES                   (:createdby , :url , :cloak )',
+
+            array(':createdby' => isset_get($_SESSION['user']['id']),
+                ':cloak'     => $cloak,
+                ':url'       => $url));
+
+        return $cloak;
     }
 
 
@@ -367,38 +367,29 @@ class Url {
      *
      * URL cloaking is nothing more than
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package url
      * @see Url::decloak()
      * @version 2.4.4: Added function and documentation
-     *
-     * @param string the URL to be cloaked
+     * @param string $cloak the URL to be cloaked
      * @return string The cloaked URL
      */
-    public static function decloak(string $cloak): string
+    public static function decloak(string $cloak): ?string
     {
-        global $_CONFIG, $core;
+        $data = Sql::get('SELECT `createdby`, `url` FROM `url_cloaks` WHERE `cloak` = :cloak', array(':cloak' => $cloak));
 
-        try {
-            $data = Sql::get('SELECT `createdby`, `url` FROM `url_cloaks` WHERE `cloak` = :cloak', array(':cloak' => $cloak));
-
-            if (mt_rand(0, 100) <= $_CONFIG['security']['url_cloaking']['interval']) {
-                url_cloak_cleanup();
-            }
-
-            if ($data) {
-                $core->register['url_cloak_users_id'] = $data['createdby'];
-                return $data['url'];
-            }
-
-            return '';
-
-        }catch(Exception $e) {
-            throw new CoreException('url_decloak(): Failed', $e);
+        if (!$data) {
         }
+
+        // Auto cleanup?
+// TODO Redo this. We can't cleanup once in a 100 clicks or something that is stupid with any traffic at all. Clean up all after 24 hours, cleanup once every 24 hours, something like that.
+
+//        $interval = Config::get('web.urls.cloaking.interval', 86400);
+//
+//        if (mt_rand(0, 100) <=  {
+//            self::cleanupCloak();
+//        }
+
+        Core::writeRegister($data['createdby'], 'http', 'url_cloak_users_id');
+        return $data['url'];
     }
 
 
@@ -418,11 +409,11 @@ class Url {
      *
      * @return int The amount of expired entries removed from the `url_cloaks` table
      */
-    public static function cloakCleanup(): int
+    public static function cleanupCloak(): int
     {
         global $_CONFIG;
 
-        log_console(tr('Cleaning up `url_cloaks` table'), 'VERBOSE/cyan');
+        Log::notice(tr('Cleaning up `url_cloaks` table'));
 
         $r = Sql::query('DELETE FROM `url_cloaks` 
                          WHERE `createdon` < DATE_SUB(NOW(), INTERVAL '.$_CONFIG['security']['url_cloaking']['expires'].' SECOND);');
