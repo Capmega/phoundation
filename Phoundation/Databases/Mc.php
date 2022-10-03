@@ -2,13 +2,13 @@
 
 namespace Phoundation\Databases;
 
-use Exception;
+use Phoundation\Core\Config;
 use Phoundation\Databases\Exception\MemcachedException;
 
 /**
- * MC class
+ * Class Mc
  *
- * This class is the main memcached access class
+ * This is the default MemCached object
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -17,10 +17,162 @@ use Phoundation\Databases\Exception\MemcachedException;
  */
 class Mc
 {
-    /*
-     * Initialize the library
-     * Automatically executed by libs_load()
+    /**
+     * Singleton variable
+     *
+     * @var ?Mc $instance
      */
+    protected static ?Mc $instance = null;
+
+    /**
+     * Instances store
+     *
+     * @var array $instances
+     */
+    protected static array $instances = [];
+
+    /**
+     * Connections store
+     *
+     * @var array $connections
+     */
+    protected static array $connections = [];
+
+
+
+    /**
+     * Initialize the class object through the constructor.
+     *
+     * MC constructor.
+     */
+    protected function __construct()
+    {
+        $this->connections = Config::get('memcached.connections');
+    }
+
+
+    /**
+     * Singleton, ensure to always return the same Mc object.
+     *
+     * @param string|null $instance_name
+     * @return Mc
+     */
+    public static function getInstance(?string $instance_name = null): Mc
+    {
+        if (!self::$instance) {
+            self::$instance = new static();
+        }
+
+        return self::$instance;
+    }
+
+
+    /**
+     * Returns a Mc object for the specified database / server
+     *
+     * In case another than the core database and server is needed
+     *
+     * @param string $database_name
+     * @return Mc
+     */
+    public static function database(string $database_name): Mc
+    {
+        if (!array_key_exists($database_name, self::$databases)) {
+            throw new MemcachedException('The specified Mongo database ":db" does not exist', [':db' => $database_name]);
+        }
+
+        return self::$databases[$database_name];
+    }
+
+
+
+    /**
+     * Return the configured Mc connections
+     *
+     * @return array
+     */
+    public static function getConnections(): array
+    {
+        return self::$connections;
+    }
+
+
+
+    /**
+     * Set the configured Mc connections
+     *
+     * @note This method will reset the currently existing connections
+     * @param array $connections
+     * @return void
+     */
+    public static function setConnections(array $connections): void
+    {
+        self::$connections = [];
+        self::addConnections($connections);
+    }
+
+
+
+    /**
+     * Add the multiple specified connections
+     *
+     * @param array $connections
+     * @return void
+     */
+    public static function addConnections(array $connections): void
+    {
+        foreach ($connections as $connection => $configuration) {
+            self::addConnection($connection, $configuration);
+        }
+    }
+
+
+
+    /**
+     * Add the specified connection
+     *
+     * @param string $connection_name
+     * @param array $configuration
+     * @return void
+     */
+    public static function addConnection(string $connection_name, array $configuration): void
+    {
+        self::$connections[$connection_name] = $configuration;
+    }
+
+
+
+    /**
+     * Remove the connection with the specified connection name
+     *
+     * @param string $connection_name
+     * @return void
+     */
+    public static function removeConnections(string $connection_name): void
+    {
+        unset(self::$connections[$connection_name]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
+         * Initialize the library
+         * Automatically executed by libs_load()
+         */
     public function  __constructor()
     {
         try {
