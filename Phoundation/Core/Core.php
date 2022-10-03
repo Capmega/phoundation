@@ -4,6 +4,8 @@ namespace Phoundation\Core;
 
 use Throwable;
 
+
+
 /**
  * Class Core
  *
@@ -15,6 +17,12 @@ use Throwable;
  * @package Phoundation\Core
  */
 class Core {
+    /**
+     * Framework version and minimum required PHP version
+     */
+    public const FRAMEWORKCODEVERSION = '4.0.0';
+    public const PHP_MINIMUM_VERSION = '8.1.0';
+
     /**
      * Singleton variable
      *
@@ -30,9 +38,11 @@ class Core {
     protected static bool $debug = false;
 
     /**
-     * @var null
+     *
+     *
+     * @var ?string $processType
      */
-    protected static ?string $callType = null;
+    protected static ?string $processType = null;
 
     /**
      * @var array $db
@@ -60,45 +70,28 @@ class Core {
 
 
     /**
-     * Class constructor
+     * Initialize the class object through the constructor.
+     *
+     * Core constructor.
      */
-    private function __construct()
+    protected function __construct()
     {
-        /*
-         * Framework version
-         */
-        define('FRAMEWORKCODEVERSION', '4.0.0');
-        define('PHP_MINIMUM_VERSION', '8.1.0');
-
+        // Register the process start
+        Stopwatch::start('process');
 
         /*
-         * This constant can be used to measure time used to render page or process
-         * script
-         */
-        define('STARTTIME', microtime(true));
-        define('REQUEST', substr(uniqid(), 7));
-
-
-        /*
+         * Define a unique process request ID
          * Define project paths.
          *
          * ROOT   is the root directory of this project and should be used as the root for all other paths
          * TMP    is a private temporary directory
          * PUBTMP is a public (accessible by web server) temporary directory
          */
+        define('REQUEST', substr(uniqid(), 7));
         define('ROOT', realpath(__DIR__ . '/../../..') . '/');
         define('TMP', ROOT . 'data/tmp/');
         define('PUBTMP', ROOT . 'data/content/tmp/');
         define('CRLF', "\r\n");
-
-
-        /*
-         * Include project setup file. This file contains the very bare bones basic
-         * information about this project
-         *
-         * Load system library and initialize core
-         */
-        include_once(ROOT . 'config/project.php');
 
 
         /*
@@ -232,14 +225,18 @@ class Core {
     }
 
 
+        $this->connections = Config::get('memcached.connections');
+    }
+
+
 
     /**
      * Singleton
      *
      * @param string|null $target
-     * @return Log
+     * @return Core
      */
-    public static function getInstance(string $target = null): Log
+    public static function getInstance(string $target = null): Core
     {
         try {
             if (!isset(self::$instance)) {
@@ -836,87 +833,73 @@ function page_show($pagename, $params = null, $get = null)
     }
 
 
-    /*
-     * THIS FUNCTION SHOULD NOT BE RUN BY ANYBODY! IT IS EXECUTED AUTOMATICALLY ON
-     * SHUTDOWN
+
+    /**
+     * THIS METHOD SHOULD NOT BE RUN BY ANYBODY! IT IS EXECUTED AUTOMATICALLY ON SHUTDOWN
      *
      * This function facilitates execution of multiple registered shutdown functions
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     *
-     * @param boolean $value The true or false value to be asserted
      * @return void
      */
-    function shutdown()
+    public static function shutdown(): void
     {
-        global $core, $_CONFIG;
+        /*
+         * Do we need to run other shutdown functions?
+         */
+        if (empty(self::$register['script'])) {
+            error_log(tr('Shutdown procedure started before self::$register[script] was ready, possibly on script ":script"', array(':script' => $_SERVER['PHP_SELF'])));
+            return;
+        }
 
-        try {
-            /*
-             * Do we need to run other shutdown functions?
-             */
-            if (empty(self::$register['script'])) {
-                error_log(tr('Shutdown procedure started before self::$register[script] was ready, possibly on script ":script"', array(':script' => $_SERVER['PHP_SELF'])));
-                return;
-            }
+        Log::notice(tr('Starting shutdown procedure for script ":script"', [':script' => self::$register['script']]));
 
-            log_console(tr('Starting shutdown procedure for script ":script"', array(':script' => self::$register['script'])), 'VERYVERBOSE/cyan');
+        foreach (self::$register as $key => $value) {
+            try {
+                if (substr($key, 0, 9) !== 'shutdown_') {
+                    continue;
+                }
 
-            foreach (self::$register as $key => $value) {
-                try {
-                    if (substr($key, 0, 9) !== 'shutdown_') {
-                        continue;
-                    }
+                $key = substr($key, 9);
 
-                    $key = substr($key, 9);
-
+                /*
+                 * Execute this shutdown function with the specified value
+                 */
+                if (is_array($value)) {
                     /*
-                     * Execute this shutdown function with the specified value
+                     * Shutdown function value is an array. Execute it for each entry
                      */
-                    if (is_array($value)) {
-                        /*
-                         * Shutdown function value is an array. Execute it for each entry
-                         */
-                        foreach ($value as $entry) {
-                            log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key . '()', ':value' => $entry)), 'VERBOSE/cyan');
-                            $key($entry);
-                        }
-
-                    } else {
-                        log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key . '()', ':value' => $value)), 'VERBOSE/cyan');
-                        $key($value);
+                    foreach ($value as $entry) {
+                        log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key . '()', ':value' => $entry)), 'VERBOSE/cyan');
+                        $key($entry);
                     }
 
-                } catch (Exception $e) {
-                    notify($e);
+                } else {
+                    log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key . '()', ':value' => $value)), 'VERBOSE/cyan');
+                    $key($value);
                 }
+
+            } catch (Exception $e) {
+                notify($e);
+            }
+        }
+
+        /*
+         * Periodically execute the following functions
+         */
+        $level = mt_rand(0, 100);
+
+        if (!empty($_CONFIG['shutdown'])) {
+            if (!is_array($_CONFIG['shutdown'])) {
+                throw new OutOfBoundsException(tr('shutdown(): Invalid $_CONFIG[shutdown], it should be an array'), 'invalid');
             }
 
-            /*
-             * Periodically execute the following functions
-             */
-            $level = mt_rand(0, 100);
-
-            if (!empty($_CONFIG['shutdown'])) {
-                if (!is_array($_CONFIG['shutdown'])) {
-                    throw new OutOfBoundsException(tr('shutdown(): Invalid $_CONFIG[shutdown], it should be an array'), 'invalid');
-                }
-
-                foreach ($_CONFIG['shutdown'] as $name => $parameters) {
-                    if ($parameters['interval'] and ($level < $parameters['interval'])) {
-                        log_file(tr('Executing periodical shutdown function ":function()"', array(':function' => $name)), 'shutdown', 'cyan');
-                        load_libs($parameters['library']);
-                        $parameters['function']();
-                    }
+            foreach ($_CONFIG['shutdown'] as $name => $parameters) {
+                if ($parameters['interval'] and ($level < $parameters['interval'])) {
+                    log_file(tr('Executing periodical shutdown function ":function()"', array(':function' => $name)), 'shutdown', 'cyan');
+                    load_libs($parameters['library']);
+                    $parameters['function']();
                 }
             }
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException(tr('shutdown(): Failed'), $e);
         }
     }
 
@@ -986,207 +969,6 @@ function page_show($pagename, $params = null, $get = null)
 
 
 }
-
-
-///*
-// * Extend basic PHP exception to automatically add exception trace information inside the exception objects
-// *
-// * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-// * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-// * @category Function reference
-// * @package system
-// */
-//class CoreException extends Exception{
-//    private $messages = array();
-//    private $data     = null;
-//    public  $code     = null;
-//
-//    /*
-//     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @package system
-//     *
-//     * @param mixed $messages
-//     * @param string $code
-//     * @param mixed $data
-//     */
-//    function __construct($messages, $code, $data = null) {
-//        return include(__DIR__.'/handlers/system-CoreException-construct.php');
-//    }
-//
-//
-//
-//    /*
-//     * Add specified $message to the exception messages list
-//     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @package system
-//     *
-//     * @param string $message The message you wish to add to the exceptions messages list
-//     * @return object $this, so that you can string multiple calls together
-//     */
-//    public function addMessages($messages) {
-//        if (is_object($messages)) {
-//            if (!($messages instanceof CoreException)) {
-//                throw new OutOfBoundsException(tr('CoreException::addMessages(): Only supported object class to add to messages is CoreException'), 'invalid');
-//            }
-//
-//            $messages = $messages->getMessages();
-//        }
-//
-//        foreach (Arrays::force($messages) as $message) {
-//            $this->messages[] = $message;
-//        }
-//
-//        return $this;
-//    }
-//
-//
-//
-//    /*
-//     * Set the exception objects code to the specified $code
-//     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @package system
-//     *
-//     * @param string $code The new exception code you wish to set CoreException::code to
-//     * @return object $this, so that you can string multiple calls together
-//     */
-//    public function setCode($code) {
-//        $this->code = $code;
-//        return $this;
-//    }
-//
-//
-//
-//    /*
-//     * Returns the current exception code but without any warning prefix. If the exception code has a prefix, it will be separated from the actual code by a forward slash /. For example, "warning/invalid" would return "invalid"
-//     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @package system
-//     *
-//     * @return string The current CoreException::code value from the first /
-//     */
-//    public function getRealCode() {
-//        return Strings::from($this->code, '/');
-//    }
-//
-//
-//
-//    /*
-//     * Returns all messages from this exception object
-//     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @package system
-//     *
-//     * @param string $separator If specified, all messages will be returned as a string, each message separated by the specified $separator. If not specified, the messages will be returned as an array
-//     * @return mixed An array with the messages list for this exception. If $separator has been specified, this method will return all messages in one string, each message separated by $separator
-//     */
-//    public function getMessages($separator = null) {
-//        if ($separator === null) {
-//            return $this->messages;
-//        }
-//
-//        return implode($separator, $this->messages);
-//    }
-//
-//
-//
-//    /*
-//     * Returns the data associated with the exception
-//     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @package system
-//     *
-//     * @return mixed Returns the content for CoreException::data
-//     */
-//    public function getData() {
-//        return $this->data;
-//    }
-//
-//
-//
-//    /*
-//     * Set the data associated with the exception. This content could be a data structure received by the function or method that caused the exception, which could help with handling the exception, logging information, or debugging the issue
-//     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @package system
-//     *
-//     * @param mixed $data The content for this exception
-//     */
-//    public function setData($data) {
-//        $this->data = Arrays::force($data);
-//    }
-//
-//
-//
-//    /*
-//     * Make this exception a warning or not.
-//     *
-//     * Returns all messages from this exception object
-//     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @package system
-//     *
-//     * @param boolean $value Specify true if this exception should be a warning, false if not
-//     * @return object $this, so that you can string multiple calls together
-//     */
-//    public function makeWarning($value) {
-//        if ($value) {
-//            $this->code = Strings::startsWith($this->code, 'warning/');
-//
-//        } else {
-//            $this->code = Strings::startsNotWith($this->code, 'warning/');
-//        }
-//
-//        return $this;
-//    }
-//
-//
-//
-//    /*
-//     * Returns if this exception is a warning exception or not
-//     *
-//     * Returns all messages from this exception object
-//     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @package system
-//     *
-//     * @return boolean True if thie exception is a warning, false if it is a real exception
-//     */
-//    public function isWarning() {
-//        return (substr($this->code, 0, 7) === 'warning');
-//    }
-//}
-
 
 
 
@@ -1336,85 +1118,6 @@ function variable_zts_safe($variable, $level = 0)
 }
 
 
-/*
- * Force the specified $source variable to be a clean string
- *
- * A clean string, in this case, means a string data type which contains no HTML code
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package system
- * @see str_clean()
- * @deprecated This function is now replaced by str_clean()
- *
- * @param mixed $source The variable that should be forced to be a string data type
- * @return float The specified $source variable being a string datatype
- */
-function cfm($source, $utf8 = true)
-{
-    try {
-        return str_clean($source, $utf8);
-
-    } catch (Exception $e) {
-        throw new OutOfBoundsException(tr('cfm(): Failed'), $e);
-    }
-}
-
-
-/*
- * Force the specified $source variable to be an integer
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package system
- *
- * @param mixed $source The variable that should be forced to be a integer data type
- * @return float The specified $source variable being a integer datatype
- */
-function cfi($source, $allow_null = true)
-{
-    try {
-        if (!$source and $allow_null) {
-            return null;
-        }
-
-        return (integer)$source;
-
-    } catch (Exception $e) {
-        throw new OutOfBoundsException(tr('cfi(): Failed'), $e);
-    }
-}
-
-
-/*
- * Force the specified $source variable to be a float
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package system
- *
- * @param mixed $source The variable that should be forced to be a float data type
- * @return float The specified $source variable being a float datatype
- */
-function cf($source, $allow_null = true)
-{
-    try {
-        if (!$source and $allow_null) {
-            return null;
-        }
-
-        return (float)$source;
-
-    } catch (Exception $e) {
-        throw new OutOfBoundsException(tr('cf(): Failed'), $e);
-    }
-}
 
 
 

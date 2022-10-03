@@ -5,6 +5,8 @@ namespace Phoundation\Databases;
 use Phoundation\Core\Config;
 use Phoundation\Databases\Exception\MemcachedException;
 
+
+
 /**
  * Class Mc
  *
@@ -51,6 +53,7 @@ class Mc
     }
 
 
+
     /**
      * Singleton, ensure to always return the same Mc object.
      *
@@ -65,6 +68,7 @@ class Mc
 
         return self::$instance;
     }
+
 
 
     /**

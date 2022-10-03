@@ -1,0 +1,6 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Cli\Scripts;
+
+Scripts::executeCommand($argv);
