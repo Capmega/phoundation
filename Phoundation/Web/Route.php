@@ -3,8 +3,12 @@
 namespace Phoundation\Web;
 
 use Exception;
+use Phoundation\Core\Core;
+use Phoundation\Core\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Databases\Sql;
 use Phoundation\Filesystem\File;
+use Phoundation\Http\Exception\RouteException;
 
 
 
@@ -145,7 +149,7 @@ class Route
             if (!$init) {
                 $init = true;
                 Log::notice(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', array(':domain' => $_CONFIG['domain'], ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'].(empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')'))), 'route', 'white');
-                register_shutdown('Route::shutdown');
+                Core::registerShutdown('Route::shutdown');
             }
 
             if (!$url_regex) {
@@ -826,58 +830,53 @@ class Route
      */
     protected static function execute(string $target, bool $attachment, array $restrictions): void
     {
-        global $_CONFIG, $core;
+        Core::writeRegister(Strings::untilReverse(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.php'), 'script');
+        Core::writeRegister(self::$register['script'], real_script);
+        Core::writeRegister($target, 'route_exec']);
 
-        try {
-            $core->register['Route::exec'] = $target;
-
-            if (substr($target, -3, 3) === 'php') {
-                if ($attachment) {
-                    throw new RouteException(tr('Route::exec(): Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', array(':target' => $target)), 'access-denied');
-                }
-
-                Log::notice(tr('Executing page ":target"', [':target' => $target]));
-
-                /*
-                 * Auto start the phoundation core
-                 */
-                if (empty($core->register['startup'])) {
-                    $core->startup();
-                }
-
-                include($target);
-
-            } else {
-                if ($attachment) {
-                    /*
-                     * Upload the file to the client as an attachment
-                     */
-                    $target = file_absolute(Strings::unslash($target), ROOT.'www/');
-
-                    Log::success(tr('Sending file ":target" as attachment', [':target' => $target]));
-                    File::httpDownload(array('restrictions' => $restrictions,
-                        'attachment'   => $attachment,
-                        'file'         => $target,
-                        'filename'     => basename($target)));
-
-                } else {
-                    $mimetype = mime_content_type($target);
-                    $bytes    = filesize($target);
-
-                    Log::success(tr('Sending contents of file ":target" with mime-type ":type" directly to client', [':target' => $target, ':type' => $mimetype]));
-
-                    header('Content-Type: ' . $mimetype);
-                    header('Content-length: ' . $bytes);
-
-                    include($target);
-                }
+        if (substr($target, -3, 3) === 'php') {
+            if ($attachment) {
+                throw new RouteException(tr('Route::exec(): Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', array(':target' => $target)), 'access-denied');
             }
 
-            die();
+            Log::notice(tr('Executing page ":target"', [':target' => $target]));
 
-        } catch (Exception $e) {
-            throw new RouteException(tr('Route::exec(): Failed to execute page ":target"', array(':target' => $target)), $e);
+            /*
+             * Auto start the phoundation core
+             */
+            if (empty($core->register['startup'])) {
+                Core::startup();
+            }
+
+            include($target);
+
+        } else {
+            if ($attachment) {
+                /*
+                 * Upload the file to the client as an attachment
+                 */
+                $target = file_absolute(Strings::unslash($target), ROOT.'www/');
+
+                Log::success(tr('Sending file ":target" as attachment', [':target' => $target]));
+                File::httpDownload(array('restrictions' => $restrictions,
+                    'attachment'   => $attachment,
+                    'file'         => $target,
+                    'filename'     => basename($target)));
+
+            } else {
+                $mimetype = mime_content_type($target);
+                $bytes    = filesize($target);
+
+                Log::success(tr('Sending contents of file ":target" with mime-type ":type" directly to client', [':target' => $target, ':type' => $mimetype]));
+
+                header('Content-Type: ' . $mimetype);
+                header('Content-length: ' . $bytes);
+
+                include($target);
+            }
         }
+
+        die();
     }
 
 

@@ -2,11 +2,9 @@
 
 namespace Phoundation\Http;
 
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
-use Phoundation\Core\CoreException;
-use Phoundation\Core\Json;
-use Phoundation\Core\Json\Arrays;
-use Phoundation\Core\Json\Strings;
+use Phoundation\Core\Strings;
 use Phoundation\Exception\UnderConstructionException;
 
 /**
@@ -249,6 +247,126 @@ class Http
 
 
     /**
+     * Returns requested main mimetype, or if requested mimetype is accepted or not
+     *
+     * If $mimetype is specified, the function will return true if the specified mimetype is supported, or false, if not
+     *
+     * If $mimetype is not specified, the function will return the first mimetype that was specified in the HTTP ACCEPT header
+     *
+     * @see acceptsLanguages()
+     * @version 2.4.11: Added function and documentation
+     * @version 2.5.170: Added documentation, added support for $mimetype
+     * @example
+     * code
+     * // This will return true
+     * $result = accepts('image/webp');
+     *
+     * // This will return false
+     * $result = accepts('image/foobar');
+     *
+     * // On a browser, this typically would return text/html
+     * $result = accepts();
+     * /code
+     *
+     * This would return
+     * code
+     * Foo...bar
+     * /code
+     *
+     * @param null string $mimetype If specified, the mimetype that must be tested if accepted by the client
+     * @return mixed If $mimetype was specified, true if the client accepts it, false if not. If $mimetype was not specified, a string will be returned containing the first requested mimetype
+     */
+    public static function accepts($mimetype)
+    {
+        static $headers = null;
+
+        if (!$headers) {
+            /*
+             * Cleanup the HTTP accept headers (opera aparently puts spaces in
+             * there, wtf?), then convert them to an array where the accepted
+             * headers are the keys so that they are faster to access
+             */
+            $headers = isset_get($_SERVER['HTTP_ACCEPT']);
+            $headers = str_replace(', ', '', $headers);
+            $headers = Arrays::force($headers);
+            $headers = array_flip($headers);
+        }
+
+        if ($mimetype) {
+            // Return if the browser supports the specified mimetype
+            return isset($headers[$mimetype]);
+        }
+
+        reset($headers);
+        return key($headers);
+    }
+
+
+
+    /**
+     * Parse the HTTP_ACCEPT_LANGUAGES header and return requested / available languages by priority and return a list of languages / locales accepted by the HTTP client
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     * @see accepts()
+     * @note: This function is called by the startup system and its output stored in $core->register['accept_language']. There is typically no need to execute this function on any other places
+     * @version 1.27.0: Added function and documentation
+     *
+     * @return array The list of accepted languages and locales as specified by the HTTP client
+     */
+    public static function acceptsLanguages(): array
+    {
+        if (empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            /*
+             * No accept language headers were specified
+             */
+           $retval  = array('1.0' => array('language' => isset_get($_CONFIG['language']['default'], 'en'),
+                                            'locale'   => Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
+
+        } else {
+            $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+            $headers = Arrays::force($headers, ',');
+            $default = array_shift($headers);
+            $retval  = array('1.0' => array('language' => Strings::until($default, '-'),
+                                            'locale'   => (str_contains($default, '-') ? Strings::from($default, '-') : null)));
+
+            if (empty($retval['1.0']['language'])) {
+                /*
+                 * Specified accept language headers contain no language
+                 */
+                $retval['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
+            }
+
+            if (empty($retval['1.0']['locale'])) {
+                /*
+                 * Specified accept language headers contain no locale
+                 */
+                $retval['1.0']['locale'] = Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
+            }
+
+            foreach ($headers as $header) {
+                $requested =  Strings::until($header, ';');
+                $requested =  array('language' => Strings::until($requested, '-'),
+                                    'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null));
+
+                if (empty($_CONFIG['language']['supported'][$requested['language']])) {
+                    continue;
+                }
+
+                $retval[Strings::from(Strings::from($header, ';'), 'q=')] = $requested;
+            }
+        }
+
+        krsort($retval);
+        return $retval;
+    }
+
+
+
+    /**
      * Set the default context for SSL requests that phoundation has to make when using (for example) file_get_contents()
      *
      * @param bool|null $verify_peer
@@ -461,6 +579,7 @@ class Http
 
         return $headers;
     }
+
 
 
     /**

@@ -4,6 +4,7 @@ namespace Phoundation\Cli;
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
 use Throwable;
 
@@ -32,8 +33,14 @@ class Scripts
         try {
             // Get the script file to execute
             $script = self::findScript($argv);
+
+            // All scripts will execute the cli_done() call, register basic script information
+            Core::registerShutdown('cli_done');
+            Core::writeRegister($script, 'real_script');
+            Core::writeRegister(Strings::fromReverse($script, '/'), 'script');
+
+            // Execute the script
             self::executeScript($script, $argv);
-            self::done();
 
         } catch (Throwable $e) {
             // Something, anything went wrong with the execution of this script.

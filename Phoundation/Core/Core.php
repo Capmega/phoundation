@@ -2,6 +2,8 @@
 
 namespace Phoundation\Core;
 
+use Phoundation\Core\Exception\CoreException;
+use Phoundation\Http\Http;
 use Throwable;
 
 
@@ -103,30 +105,12 @@ class Core {
 
 
         try {
-            /*
-             * Check what platform we're in
-             */
+            // Check what platform we're in
             switch (php_sapi_name()) {
                 case 'cli':
-                    global $argv;
-
                     define('PLATFORM'     , 'cli');
                     define('PLATFORM_HTTP', false);
                     define('PLATFORM_CLI' , true);
-
-                    $file = realpath(ROOT . 'scripts/' . Strings::from($argv[0], 'scripts/'));
-                    $file = Strings::from($file, ROOT . 'scripts/');
-
-                    self::$register['real_script'] = $file;
-                    self::$register['script'] = Strings::fromReverse($file, '/');
-
-                    unset($file);
-
-                    /*
-                     * Load basic libraries for command line interface
-                     * All scripts will execute cli_done() automatically once done
-                     */
-                    register_shutdown_function('cli_done');
                     break;
 
                 default:
@@ -135,35 +119,21 @@ class Core {
                     define('PLATFORM_CLI', false);
                     define('NOCOLOR', (getenv('NOCOLOR') ? 'NOCOLOR' : null));
 
-                    /*
-                     * Define what the current script
-                     * Detect requested language
-                     */
-                    self::$register['http_code'] = 200;
-                    self::$register['script'] = Strings::untilReverse(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.php');
-                    self::$register['real_script'] = self::$register['script'];
-                    self::$register['accepts'] = accepts();
-                    self::$register['accepts_languages'] = accepts_languages();
+                    // Register basic HTTP information
+                    // TODO MOVE TO HTTP CLASS
+                    self::$register['http']['code'] = 200;
+                    self::$register['http']['accepts'] = Http::accepts();
+                    self::$register['http']['accepts_languages'] = Http::acceptsLanguages();
 
-                    /*
-                     * Load basic libraries
-                     * All scripts will execute http_done() automatically once done
-                     */
-                    register_shutdown_function('http_done');
-
-                    /*
-                     * Check what environment we're in
-                     */
+                    // Check what environment we're in
                     $env = getenv(PROJECT . '_ENVIRONMENT');
 
                     if (empty($env)) {
-                        /*
-                         * No environment set in ENV, maybe given by parameter?
-                         */
+                        // No environment set in ENV, maybe given by parameter?
                         die('startup: Required environment not specified for project "' . PROJECT . '"');
                     }
 
-                    if (strstr($env, '_')) {
+                    if (str_contains($env, '_')) {
                         die('startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
                     }
 
@@ -175,32 +145,13 @@ class Core {
                      */
                     self::$register['ready'] = true;
 
-                    /*
-                     * Define VERBOSE / VERYVERBOSE here because we need debug() data
-                     */
-                    define('VERYVERBOSE', (debug() and ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose']))) ? 'VERYVERBOSE' : null));
-                    define('VERBOSE', (debug() and (VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE' : null));
-
-                    /*
-                     * Set protocol
-                     */
-                    global $_CONFIG;
-                    define('PROTOCOL', 'http' . ($_CONFIG['sessions']['secure'] ? 's' : '') . '://');
+                    // Set protocol
+                    define('PROTOCOL', Config::get('web.protocol', 'http'));
                     break;
             }
 
-        } catch (\Throwable $e) {
-            /*
-             * Startup failed miserably, we will NOT have log_file() or exception
-             * handler available!
-             *
-             * Unregister shutdown handler by kicking the entire array to avoid issues
-             * with those shutdown handlers!
-             */
-            if (isset($core)) {
-                self::$register = array();
-            }
-
+        } catch (Throwable $e) {
+            // Startup failed miserably
             if (defined('PLATFORM_HTTP')) {
                 if (PLATFORM_HTTP) {
                     /*
@@ -225,22 +176,17 @@ class Core {
     }
 
 
-        $this->connections = Config::get('memcached.connections');
-    }
-
-
 
     /**
      * Singleton
      *
-     * @param string|null $target
      * @return Core
      */
-    public static function getInstance(string $target = null): Core
+    public static function getInstance(): Core
     {
         try {
             if (!isset(self::$instance)) {
-                self::$instance = new Core($target);
+                self::$instance = new Core();
             }
         } catch (Throwable $e) {
             // Crap, we could not get a Log instance
@@ -251,18 +197,6 @@ class Core {
         }
 
         return self::$instance;
-    }
-
-
-
-    /**
-     * Returns if the system is running in debug mode or not
-     *
-     * @return bool
-     */
-    public static function debug(): bool
-    {
-        return self::$debug;
     }
 
 
@@ -284,16 +218,12 @@ class Core {
 
         try {
             if (isset($this->register['startup'])) {
-                /*
-                 * Core already started up
-                 */
-                log_file(tr('Core already started @ ":time", not starting again', array(':time' => $this->register['startup'])), 'core::startup', 'error');
-                return false;
+                // Core already started up
+                Log::error(tr('Core already started @ ":time", not starting again', [':time' => $this->register['startup']]));
+                return;
             }
 
-            /*
-             * Detect platform and execute specific platform startup sequence
-             */
+            // Detect platform and execute specific platform startup sequence
             switch (PLATFORM) {
                 case 'http':
                     /*
@@ -380,6 +310,52 @@ class Core {
             }
 
             throw new OutOfBoundsException(tr('core::startup(): Failed calltype ":calltype"', array(':calltype' => $this->callType)), $e);
+        }
+    }
+
+
+
+    /**
+     * Read and return the specified key / sub key from the core register.
+     *
+     * @note Will return NULL if the specified key does not exist
+     * @param string $key
+     * @param string $subkey
+     * @return mixed
+     */
+    public static function readRegister(string$key, string $subkey): mixed
+    {
+        return isset_get(self::$register[$key][$subkey]);
+    }
+
+
+    /**
+     * write the specified variable to the specified key / sub key in the core register
+     *
+     * @param mixed $value
+     * @param string $key
+     * @param string|null $subkey
+     * @return void
+     */
+    public static function writeRegister(mixed $value, string $key, ?string $subkey = null): void
+    {
+        if ($subkey) {
+            // We want to write to a sub key. Ensure that the key exists and is an array
+            if (array_key_exists($key, self::$register)) {
+                if (!is_array(self::$register[$key])) {
+                    // Key exists but is not an array so cannot handle sub keys
+                    throw new CoreException('Cannot write to register key "" subkey "" as register key "" already exist as a value instead of an array', [':key' => $key, 'subkey' => $subkey]);
+                }
+            } else {
+                // Initialize the register sub array
+                self::$register[$key] = [];
+            }
+
+            // Write the key / subkey
+            self::$register[$key][$subkey] = $value;
+        } else {
+            // Write the key
+            self::$register[$key] = $value;
         }
     }
 
@@ -483,43 +459,6 @@ class Core {
     }
 
 
-
-
-    /*
-     * Set or get debug mode.
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     *
-     * @param boolean $enable If set to true, will enable debug mode. If set to false, will disable debug mode. If not set at all, will only return the current debug mode setting.
-     * @return boolean the current debug mode setting
-     */
-    function debug($enabled = null)
-    {
-        global $_CONFIG, $core;
-
-        try {
-            if (!self::$register['ready']) {
-                throw new OutOfBoundsException(tr('debug(): Startup has not yet finished and base is not ready to start working properly. debug() may not be called until configuration is fully loaded and available'), 'invalid');
-            }
-
-            if (!is_array($_CONFIG['debug'])) {
-                throw new OutOfBoundsException(tr('debug(): Invalid configuration, $_CONFIG[debug] is boolean, and it should be an array. Please check your config/ directory for "$_CONFIG[\'debug\']"'), 'invalid');
-            }
-
-            if ($enabled !== null) {
-                $_CONFIG['debug']['enabled'] = (boolean)$enabled;
-            }
-
-            return $_CONFIG['debug']['enabled'];
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException(tr('debug(): Failed'), $e);
-        }
-    }
 
     /*
      * Get a valid language from the specified language
@@ -830,6 +769,19 @@ function page_show($pagename, $params = null, $get = null)
     function get_global_data_path($section = '', $writable = true)
     {
         return include(__DIR__ . '/handlers/system-get-global-data-path.php');
+    }
+
+
+
+    /**
+     * Reguster a shutdown function
+     *
+     * @param string $function_name
+     * @return void
+     */
+    public static function registerShutdown(string $function_name): void
+    {
+        self::register['shutdown'][] = $function_name;
     }
 
 
