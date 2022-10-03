@@ -325,9 +325,9 @@ function notifications_validate($notification, $log, $throw = null) {
          */
         switch ($notification['code']) {
             case 'error':
-                // FALLTHROUGH
+                // no-break
             case 'exception':
-                // FALLTHROUGH
+                // no-break
             case 'CoreException':
                 /*
                  * These are always only for the system developers, override

@@ -14,7 +14,7 @@ try {
         throw new CoreException(tr('debug_show(): Specified $trace_offset ":trace" is not numeric', array(':trace' => $trace_offset)), 'invalid');
     }
 
-    if (!debug()) {
+    if (!Debug::enabled()) {
         return $data;
     }
 
@@ -32,7 +32,7 @@ try {
     }
 
     if ($_CONFIG['production']) {
-        if (!debug()) {
+        if (!Debug::enabled()) {
             return '';
         }
 
@@ -43,7 +43,7 @@ try {
         if (empty($core->register['debug_plain'])) {
             switch ($core->callType()) {
                 case 'api':
-                    // FALLTHROUGH
+                    // no-break
                 case 'ajax':
                     /*
                      * If JSON, CORS requests require correct headers!
@@ -111,7 +111,7 @@ try {
     return $data;
 
 }catch(Exception $e) {
-    if ($_CONFIG['production'] or debug()) {
+    if ($_CONFIG['production'] or Debug::enabled()) {
         /*
          * Show the error message with a conventional die() call
          */

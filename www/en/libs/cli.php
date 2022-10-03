@@ -1532,7 +1532,7 @@ function cli_status_color($status){
 
         switch (trim(strtolower($status))){
             case 'ok':
-                // FALLTHROUGH
+                // no-break
             case 'completed':
                 return cli_color($status, 'green');
 
@@ -2201,17 +2201,17 @@ function cli_find($params){
                     break;
 
                 case 'iregex':
-                    // FALLTHROUGH
+                    // no-break
                 case 'regex':
-                    // FALLTHROUGH
+                    // no-break
                 case 'path':
-                    // FALLTHROUGH
+                    // no-break
                 case 'ipath':
-                    // FALLTHROUGH
+                    // no-break
                 case 'name':
-                    // FALLTHROUGH
+                    // no-break
                 case 'iname':
-                    // FALLTHROUGH
+                    // no-break
                 case 'type':
                     /*
                      * Build all normal arguments

@@ -569,7 +569,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
                     return isset_get($result['data']);
 
                 case 'SIGNIN':
-                    // FALLTHROUGH
+                    // no-break
                 case 'SIGN-IN':
                     /*
                      * Session key is not valid

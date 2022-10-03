@@ -77,9 +77,9 @@ function mysqlr_update_server_replication_status($params, $status) {
                 break;
 
             case 'error':
-                // FALLTHROUGH
+                // no-break
             case 'disabled_lock':
-                // FALLTHROUGH
+                // no-break
             case 'enabled':
                 sql_query('UPDATE `servers` SET `replication_lock`   = :replication_lock   WHERE `id` = :id', array(':replication_lock'   => 0      , ':id' => $params['servers_id']));
                 sql_query('UPDATE `servers` SET `replication_status` = :replication_status WHERE `id` = :id', array(':replication_status' => $status, ':id' => $params['servers_id']));
@@ -143,21 +143,21 @@ function mysqlr_update_replication_status($params, $status) {
          */
         switch ($status) {
             case 'disabling':
-                // FALLTHROUGH
+                // no-break
             case 'resuming':
-                // FALLTHROUGH
+                // no-break
             case 'pausing':
-                // FALLTHROUGH
+                // no-break
             case 'preparing':
                 sql_query('UPDATE `servers` SET `replication_lock` = :replication_lock WHERE `id` = :id', array(':replication_lock' => 1, ':id' => $params['servers_id']));
                 break;
 
             case 'paused':
-                // FALLTHROUGH
+                // no-break
             case 'disabled':
-                // FALLTHROUGH
+                // no-break
             case 'error':
-                // FALLTHROUGH
+                // no-break
             case 'enabled':
                 sql_query('UPDATE `servers` SET `replication_lock` = :replication_lock WHERE `id` = :id', array(':replication_lock' => 0, ':id' => $params['servers_id']));
                 break;
@@ -1011,13 +1011,13 @@ function mysqlr_add_log($params) {
          */
         switch ($params['type']) {
             case 'mysql_issue':
-                // FALLTHROUGH
+                // no-break
             case 'ssh_tunnel':
-                // FALLTHROUGH
+                // no-break
             case 'table_issue':
-                // FALLTHROUGH
+                // no-break
             case 'misconfiguration':
-                // FALLTHROUGH
+                // no-break
             case 'other':
                 /*
                  * Do nothing

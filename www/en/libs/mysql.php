@@ -301,13 +301,13 @@ function mysql_register_databases($server) {
         foreach ($databases as $database) {
             switch ($database) {
                 case '':
-                    // FALLTHROUGH
+                    // no-break
                 case 'Database':
-                    // FALLTHROUGH
+                    // no-break
                 case 'mysql':
-                    // FALLTHROUGH
+                    // no-break
                 case 'performance_schema':
-                    // FALLTHROUGH
+                    // no-break
                 case 'information_schema':
                     $skip = true;
                     break;

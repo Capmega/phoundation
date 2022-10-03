@@ -1000,9 +1000,9 @@ function code_patch($params) {
                 break;
 
             case 'create':
-                // FALLTHROUGH
+                // no-break
             case 'apply':
-                // FALLTHROUGH
+                // no-break
             case 'patch':
                 log_console(tr('Trying to patch ":file"', array(':file' => $params['file'])), 'VERBOSE/cyan');
 

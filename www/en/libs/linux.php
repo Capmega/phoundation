@@ -442,7 +442,7 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_t
 
         switch ($signal) {
             case 9:
-                // FALLTHROUGH
+                // no-break
             case 15:
                 /*
                  * These are valid and supported signal
@@ -691,7 +691,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false) {
 
         switch ($server['domain']) {
             case '':
-                // FALLTHROUGH
+                // no-break
             case 'localhost':
                 try {
                     if (str_contains(ROOT, linux_realpath($server, $path))) {
@@ -1007,27 +1007,27 @@ function linux_install_package($server, $package) {
 
         switch ($os['distribution']) {
             case 'debian':
-                // FALLTHROUGH
+                // no-break
             case 'ubuntu':
-                // FALLTHROUGH
+                // no-break
             case 'ubuntu-server':
-                // FALLTHROUGH
+                // no-break
             case 'kubuntu':
-                // FALLTHROUGH
+                // no-break
             case 'lubuntu':
-                // FALLTHROUGH
+                // no-break
             case 'xubuntu':
-                // FALLTHROUGH
+                // no-break
             case 'edubuntu':
-                // FALLTHROUGH
+                // no-break
             case 'mint':
                 load_libs('ubuntu');
                 return ubuntu_install_package($package, $server);
 
             case 'redhat':
-                // FALLTHROUGH
+                // no-break
             case 'centos':
-                // FALLTHROUGH
+                // no-break
             case 'fedora':
                 load_libs('redhat');
                 return redhat_install_package($package, $server);

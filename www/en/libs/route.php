@@ -309,7 +309,7 @@ function route($regex, $target, $flags = null) {
                         break;
 
                     case 'PORT':
-                        // FALLTHROUGH
+                        // no-break
                     case 'SERVER_PORT':
                         /*
                          * The port used in the current request
@@ -484,7 +484,7 @@ function route($regex, $target, $flags = null) {
                             break;
 
                         case '301':
-                            // FALLTHROUGH
+                            // no-break
 
                         case '302':
                             break;
@@ -730,7 +730,7 @@ function route($regex, $target, $flags = null) {
             foreach ($flags as $id => $flag) {
                 switch ($flag[0]) {
                     case 'H':
-                        // FALLTHROUGH
+                        // no-break
                     case 'S':
                         unset($flags[$id]);
                         break;

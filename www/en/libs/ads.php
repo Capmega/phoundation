@@ -138,19 +138,19 @@ function ads_validate_image($image, $old_image = null) {
 
         switch ($image['platform']) {
             case 'unknown':
-                // FALLTHROUGH
+                // no-break
             case 'android':
-                // FALLTHROUGH
+                // no-break
             case 'ios':
-                // FALLTHROUGH
+                // no-break
             case 'mobile':
-                // FALLTHROUGH
+                // no-break
             case 'windows':
-                // FALLTHROUGH
+                // no-break
             case 'mac':
-                // FALLTHROUGH
+                // no-break
             case 'linux':
-                // FALLTHROUGH
+                // no-break
             case 'desktop':
                 break;
 
@@ -491,13 +491,13 @@ function ads_update_image_cluster($user, $cluster, $image) {
 //    try {
 //        switch ($size) {
 //            case 'large':
-//                // FALLTHROUGH
+//                // no-break
 //            case 'medium':
-//                // FALLTHROUGH
+//                // no-break
 //            case 'small':
-//                // FALLTHROUGH
+//                // no-break
 //            case 'wide':
-//                // FALLTHROUGH
+//                // no-break
 //            case 'thumb':
 //                /*
 //                 * Valid
@@ -553,27 +553,27 @@ function ads_get() {
 
         switch ($userdata['os']) {
             case 'android':
-                // FALLTHROUGH
+                // no-break
             case 'ios':
-                // FALLTHROUGH
+                // no-break
             case 'mobile':
                 $userdata['os1'] = 'mobile';
                 $userdata['os2'] = $userdata['os'];
                 break;
 
             case 'linux':
-                // FALLTHROUGH
+                // no-break
             case 'mac':
-                // FALLTHROUGH
+                // no-break
             case 'windows':
-                // FALLTHROUGH
+                // no-break
             case 'desktop':
                 $userdata['os1'] = 'desktop';
                 $userdata['os2'] = $userdata['os'];
                 break;
 
             default:
-                // FALLTHROUGH
+                // no-break
             case 'unknown':
                 $userdata['os1'] = 'unknown';
                 $userdata['os2'] = 'unknown';
@@ -688,27 +688,27 @@ function amp_ads_get() {
 
         switch ($userdata['os']) {
             case 'android':
-                // FALLTHROUGH
+                // no-break
             case 'ios':
-                // FALLTHROUGH
+                // no-break
             case 'mobile':
                 $userdata['os1'] = 'mobile';
                 $userdata['os2'] = $userdata['os'];
                 break;
 
             case 'linux':
-                // FALLTHROUGH
+                // no-break
             case 'mac':
-                // FALLTHROUGH
+                // no-break
             case 'windows':
-                // FALLTHROUGH
+                // no-break
             case 'desktop':
                 $userdata['os1'] = 'desktop';
                 $userdata['os2'] = $userdata['os'];
                 break;
 
             default:
-                // FALLTHROUGH
+                // no-break
             case 'unknown':
                 $userdata['os1'] = 'unknown';
                 $userdata['os2'] = 'unknown';

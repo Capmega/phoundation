@@ -304,7 +304,7 @@ function shortlink_get_provider($provider = null) {
                 return shortlink_get_provider($_CONFIG['shortlink']['default']);
 
             case 'bitly':
-                // FALLTHROUGH
+                // no-break
             case 'internal':
                 /*
                  * These are supported providers

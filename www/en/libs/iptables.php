@@ -309,11 +309,11 @@ function iptables_validate_protocol($protocol) {
 
         switch ($protocol) {
             case 'tcp':
-                // FALLTHROUGH
+                // no-break
             case 'udp':
-                // FALLTHROUGH
+                // no-break
             case 'icmp':
-                // FALLTHROUGH
+                // no-break
                 break;
 
             default:
@@ -374,7 +374,7 @@ function iptables_validate_chain_type($chain_type) {
 
         switch ($chain_type) {
             case 'prerouting':
-                // FALLTHROUGH
+                // no-break
             case 'postrouting':
                 //valid chaing types
                 break;

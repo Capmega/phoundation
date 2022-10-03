@@ -177,7 +177,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500) {
 
                 $code = $message->getCode();
 
-                if (debug()) {
+                if (Debug::enabled()) {
                     /*
                      * This is a user visible message
                      */
@@ -207,7 +207,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500) {
                     $data = $message->getMessage();
 
                 } else {
-                    if (debug()) {
+                    if (Debug::enabled()) {
                         /*
                          * This is a user visible message
                          */
@@ -266,7 +266,7 @@ function json_message($code, $data = null) {
 
         switch ($code) {
             case 301:
-                // FALLTHROUGH
+                // no-break
             case 'redirect':
                 json_error(null, array('location' => $data), 'REDIRECT', 301);
 
@@ -277,9 +277,9 @@ function json_message($code, $data = null) {
                 json_error(null, array('location' => domain($_CONFIG['redirects']['signin'])), 'SIGNIN', 302);
 
             case 400:
-                // FALLTHROUGH
+                // no-break
             case 'invalid':
-                // FALLTHROUGH
+                // no-break
             case 'validation':
                 json_error(null, $data, 'BAD-REQUEST', 400);
 
@@ -287,14 +287,14 @@ function json_message($code, $data = null) {
                 json_error(null, $data, 'LOCKED', 403);
 
             case 403:
-                // FALLTHROUGH
+                // no-break
             case 'forbidden':
-                // FALLTHROUGH
+                // no-break
             case 'access-denied':
                 json_error(null, $data, 'FORBIDDEN', 403);
 
             case 404:
-                // FALLTHROUGH
+                // no-break
             case 'not-found':
                 json_error(null, $data, 'NOT-FOUND', 404);
 
@@ -302,59 +302,59 @@ function json_message($code, $data = null) {
                 json_error(null, $data, 'NOT-EXISTS', 404);
 
             case 405:
-                // FALLTHROUGH
+                // no-break
             case 'method-not-allowed':
                 json_error(null, $data, 'METHOD-NOT-ALLOWED', 405);
 
             case 406:
-                // FALLTHROUGH
+                // no-break
             case 'not-acceptable':
                 json_error(null, $data, 'NOT-ACCEPTABLE', 406);
 
             case 408:
-                // FALLTHROUGH
+                // no-break
             case 'timeout':
                 json_error(null, $data, 'TIMEOUT', 408);
 
             case 409:
-                // FALLTHROUGH
+                // no-break
             case 'conflict':
                 json_error(null, $data, 'CONFLICT', 409);
 
             case 412:
-                // FALLTHROUGH
+                // no-break
             case 'expectation-failed':
                 json_error(null, $data, 'EXPECTATION-FAILED', 412);
 
             case 418:
-                // FALLTHROUGH
+                // no-break
             case 'im-a-teapot':
                 json_error(null, $data, 'IM-A-TEAPOT', 418);
 
             case 429:
-                // FALLTHROUGH
+                // no-break
             case 'too-many-requests':
                 json_error(null, $data, 'TOO-MANY-REQUESTS', 429);
 
             case 451:
-                // FALLTHROUGH
+                // no-break
             case 'unavailable-for-legal-reasons':
                 json_error(null, $data, 'UNAVAILABLE-FOR-LEGAL-REASONS', 451);
 
             case 500:
-                // FALLTHROUGH
+                // no-break
             case 'error':
                 json_error(null, $data, 'ERROR', 500);
 
             case 503:
-                // FALLTHROUGH
+                // no-break
             case 'maintenance':
-                // FALLTHROUGH
+                // no-break
             case 'service-unavailable':
                 json_error(null, null, 'SERVICE-UNAVAILABLE', 503);
 
             case 504:
-                // FALLTHROUGH
+                // no-break
             case 'gateway-timeout':
                 json_error(null, null, 'GATEWAY-TIMEOUT', 504);
 
@@ -367,7 +367,7 @@ function json_message($code, $data = null) {
                              'title'   => tr('Unknown message specified'),
                              'message' => tr('json_message(): Unknown code ":code" specified', array(':code' => $code))));
 
-                json_error(null, (debug() ? $data : null), 'ERROR', 500);
+                json_error(null, (Debug::enabled() ? $data : null), 'ERROR', 500);
         }
 
     }catch(Exception $e) {

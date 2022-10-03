@@ -3,6 +3,7 @@
 namespace Phoundation\Core;
 
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Http\Http;
 use Throwable;
 
@@ -418,16 +419,10 @@ class Core {
     /**
      * This method will return the calltype for this call, as is stored in the private variable core::callType or if $type is specified, will return true if $calltype is equal to core::callType, false if not.
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     *
-     * @param (optional) string $type The call type you wish to compare to, or nothing if you wish to receive the current core::callType
+     * @param string $type The call type you wish to compare to, or nothing if you wish to receive the current core::callType
      * @return mixed If $type is specified, this function will return true if $type matches core::callType, or false if it does not. If $type is not specified, it will return core::callType
      */
-    public function callType($type = null)
+    public function callType(?string $type = null): string
     {
         if ($type) {
             switch ($type) {
@@ -449,31 +444,25 @@ class Core {
                     break;
 
                 default:
-                    throw new OutOfBoundsException(tr('core::callType(): Unknown call type ":type" specified', array(':type' => $type)), 'unknown');
+                    throw new OutOfBoundsException(tr('core::callType(): Unknown call type ":type" specified', [':type' => $type[]));
             }
 
-            return ($this->callType === $type);
+            return (self::$callType === $type);
         }
 
-        return $this->callType;
+        return self::$callType;
     }
 
 
 
-    /*
+    /**
      * Get a valid language from the specified language
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
      * @version 2.0.7: Added function and documentation
-     *
      * @param string $language a language code
      * @return null string a valid language that is supported by the systems configuration
      */
-    function get_language($language)
+    function getLanguage($language)
     {
         global $_CONFIG;
 

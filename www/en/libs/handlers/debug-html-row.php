@@ -67,7 +67,7 @@ try {
                     </tr>';
 
         case 'method':
-            // FALLTHROUGH
+            // no-break
 
         case 'property':
             return '<tr><td>'.htmlentities($key).'</td>

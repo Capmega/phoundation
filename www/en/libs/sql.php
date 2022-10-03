@@ -140,7 +140,7 @@ function sql_query($query, $execute = null, $connector_name = null) {
             }
         }
 
-        if (debug()) {
+        if (Debug::enabled()) {
             /*
              * Get current function / file@line. If current function is actually
              * an include then assume this is the actual script that was

@@ -59,7 +59,7 @@ try {
             foreach ($item as $key => $value) {
                 switch ($value) {
                     case '-E';
-                        // FALLTHROUGH
+                        // no-break
                     case '--env';
                         $environment = true;
                         break 2;

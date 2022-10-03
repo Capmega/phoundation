@@ -257,7 +257,7 @@ function doc_parse_file($project, $file, $root) {
                  */
                 switch ($type) {
                     case 'ignore':
-                        // FALLTHROUGH
+                        // no-break
                     case 'unknown':
                         /*
                          * Do not process these types

@@ -591,9 +591,9 @@ function blogs_update_post_status($blog, $params, $list, $status) {
              */
             switch ($status) {
                 case 'erased':
-                    // FALLTHROUGH
+                    // no-break
                 case 'deleted':
-                    // FALLTHROUGH
+                    // no-break
                 case 'unpublished':
 // :TODO: sitemap script can detect new and updated links, it cannot detect deleted links, so with deleting we always force generation of new sitemap files. Make a better solution for this
                     $force = true;
@@ -1491,7 +1491,7 @@ function blogs_validate_post($post, $params = null) {
             }catch(Exception $e) {
                 switch ($e->getCode()) {
                     case 'not-member':
-                        // FALLTHROUGH
+                        // no-break
                     case 'not-specified':
                         throw $e->makeWarning(true);
 
@@ -2091,15 +2091,15 @@ function blogs_photo_url($media, $size, $section = '') {
 
         switch ($size) {
             case 'original':
-                // FALLTHROUGH
+                // no-break
             case 'large':
-                // FALLTHROUGH
+                // no-break
             case 'medium':
-                // FALLTHROUGH
+                // no-break
             case 'small':
-                // FALLTHROUGH
+                // no-break
             case 'wide':
-                // FALLTHROUGH
+                // no-break
             case 'thumb':
                 /*
                  * Valid
@@ -2700,9 +2700,9 @@ function blogs_post_up($id, $object, $view) {
                 break;
 
             case 'deleted':
-                // FALLTHROUGH
+                // no-break
             case 'published':
-                // FALLTHROUGH
+                // no-break
             case 'unpublished':
                 $where = ' AND `blogs_posts`.`status` = "'.$view.'" ';
                 $join  = ' AND `higher`.`status`      = "'.$view.'" ';
@@ -2801,9 +2801,9 @@ function blogs_post_down($id, $object, $view) {
                 break;
 
             case 'deleted':
-                // FALLTHROUGH
+                // no-break
             case 'published':
-                // FALLTHROUGH
+                // no-break
             case 'unpublished':
                 $where = ' AND `blogs_posts`.`status` = "'.$view.'" ';
                 $join  = ' AND `lower`.`status`       = "'.$view.'" ';
@@ -3066,21 +3066,21 @@ function blogs_get_location($posts_id) {
         foreach ($values as $key => $value) {
             switch ($key) {
                 case 'accuracy':
-                    // FALLTHROUGH
+                    // no-break
                 case 'latitude':
-                    // FALLTHROUGH
+                    // no-break
                 case 'longitude':
-                    // FALLTHROUGH
+                    // no-break
                 case 'offset_latitude':
-                    // FALLTHROUGH
+                    // no-break
                 case 'offset_longitude':
-                    // FALLTHROUGH
+                    // no-break
                 case 'cities_id':
-                    // FALLTHROUGH
+                    // no-break
                 case 'states_id':
-                    // FALLTHROUGH
+                    // no-break
                 case 'countries_id':
-                    // FALLTHROUGH
+                    // no-break
                     break;
 
                 default:
@@ -3133,21 +3133,21 @@ function blogs_update_location($posts_id, $geo) {
         foreach ($geo as $key => $value) {
             switch ($key) {
                 case 'accuracy':
-                    // FALLTHROUGH
+                    // no-break
                 case 'latitude':
-                    // FALLTHROUGH
+                    // no-break
                 case 'longitude':
-                    // FALLTHROUGH
+                    // no-break
                 case 'offset_latitude':
-                    // FALLTHROUGH
+                    // no-break
                 case 'offset_longitude':
-                    // FALLTHROUGH
+                    // no-break
                 case 'cities_id':
-                    // FALLTHROUGH
+                    // no-break
                 case 'states_id':
-                    // FALLTHROUGH
+                    // no-break
                 case 'countries_id':
-                    // FALLTHROUGH
+                    // no-break
                     $count++;
 
                     $insert->execute(array(':blogs_posts_id'  => $posts_id,

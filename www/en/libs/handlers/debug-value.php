@@ -4,13 +4,13 @@
  */
 load_libs('synonyms');
 
-if (!debug()) {
+if (!Debug::enabled()) {
     return '';
 }
 
 switch ($format) {
     case 'username':
-        // FALLTHROUGH
+        // no-break
     case 'word':
         return synonym_random(1, true);
 
@@ -18,7 +18,7 @@ switch ($format) {
         return not_empty(str_force(synonym_random(not_empty($size, mt_rand(1, 4))), ' '), str_random(not_empty($size, 32), false, '0123456789abcdefghijklmnopqrstuvwxyz     '));
 
     case 'text':
-        // FALLTHROUGH
+        // no-break
     case 'words':
         return not_empty(str_force(synonym_random(not_empty($size, mt_rand(5, 15))), ' '), str_random(not_empty($size, 150), false, '0123456789abcdefghijklmnopqrstuvwxyz     '));
 
@@ -32,7 +32,7 @@ switch ($format) {
         return str_random(not_empty($size, 150), false, '0123456789abcdefghijklmnopqrstuvwxyz     ');
 
     case 'zip':
-        // FALLTHROUGH
+        // no-break
     case 'zipcode':
         return str_random(not_empty($size, 5), false, '0123456789');
 

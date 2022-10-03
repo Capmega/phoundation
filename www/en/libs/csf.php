@@ -342,11 +342,11 @@ function csf_validate_protocol($protocol, $lower_case = false) {
 
         switch ($protocol) {
             case 'TCP':
-                // FALLTHROUGH
+                // no-break
             case 'UDP':
-                // FALLTHROUGH
+                // no-break
             case 'TCP6':
-                // FALLTHROUGH
+                // no-break
             case 'UDP6':
                 /*
                  * These are valid
@@ -379,7 +379,7 @@ function csf_validate_rule_type($rule_type, $upper_case = false) {
 
         switch ($rule_type) {
             case 'in':
-                // FALLTHROUGH
+                // no-break
             case 'out':
                 /*
                  * These are valid
@@ -458,7 +458,7 @@ function csf_validate_testing($value) {
 
         switch ($value) {
             case '0':
-                // FALLTHROUGH
+                // no-break
             case '1':
                 //These are valid
                 break;
@@ -487,11 +487,11 @@ function csf_validate_restrictsyslog($value) {
 
         switch ($value) {
             case '0':
-                // FALLTHROUGH
+                // no-break
             case '1':
-                // FALLTHROUGH
+                // no-break
             case '2':
-                // FALLTHROUGH
+                // no-break
             case '3':
                 //These are valid
                 break;

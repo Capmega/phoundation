@@ -916,11 +916,11 @@ function devices_get_option_html_element($params) {
 
                 switch ($params['key']) {
                     case 'x':
-                        // FALLTHROUGH
+                        // no-break
                     case 'y':
-                        // FALLTHROUGH
+                        // no-break
                     case 'l':
-                        // FALLTHROUGH
+                        // no-break
                     case 't':
                         $data['step'] = '0.01';
                         break;
@@ -1324,11 +1324,11 @@ function devices_scan($types, $server = null, $sudo = false) {
 
             switch ($type) {
                 case 'usb':
-                    // FALLTHROUGH
+                    // no-break
                 case 'fingerprint-reader':
-                    // FALLTHROUGH
+                    // no-break
                 case 'barcode-scanner':
-                    // FALLTHROUGH
+                    // no-break
                 case 'webcam':
                     $devices = servers_exec($server, array('ok_exitcodes' => '0,1',
                                                            'commands'     => array('lsusb', array('sudo' => $sudo, 'connector' => '|'),

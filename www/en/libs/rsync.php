@@ -133,7 +133,7 @@ function rsync($params) {
                      */
                     switch ($server['domain']) {
                         case '':
-                            // FALLTHROUGH
+                            // no-break
                         case 'localhost':
                             foreach (array('source', 'target') as $subitem) {
                                 if (str_contains($params[$subitem], ':')) {

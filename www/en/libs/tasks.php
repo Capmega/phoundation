@@ -255,17 +255,17 @@ function tasks_validate_status($status) {
         foreach (Arrays::force($status) as $entry) {
             switch ($entry) {
                 case 'new':
-                    // FALLTHROUGH
+                    // no-break
                 case 'processing':
-                    // FALLTHROUGH
+                    // no-break
                 case 'completed':
-                    // FALLTHROUGH
+                    // no-break
                 case 'failed':
-                    // FALLTHROUGH
+                    // no-break
                 case 'waiting_parent':
-                    // FALLTHROUGH
+                    // no-break
                 case 'timeout':
-                    // FALLTHROUGH
+                    // no-break
                 case 'deleted':
                     break;
 

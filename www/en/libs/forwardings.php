@@ -416,15 +416,15 @@ function forwardings_validate($forward) {
         if ($forward['protocol']) {
             switch ($forward['protocol']) {
                 case 'ssh':
-                    // FALLTHROUGH
+                    // no-break
                 case 'http':
-                    // FALLTHROUGH
+                    // no-break
                 case 'https':
-                    // FALLTHROUGH
+                    // no-break
                 case 'smtp':
-                    // FALLTHROUGH
+                    // no-break
                 case 'imap':
-                    // FALLTHROUGH
+                    // no-break
                     break;
 
                 case '':

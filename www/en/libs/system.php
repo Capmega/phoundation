@@ -144,10 +144,10 @@
 //            $core->register['ready'] = true;
 //
 //            /*
-//             * Define VERBOSE / VERYVERBOSE here because we need debug() data
+//             * Define VERBOSE / VERYVERBOSE here because we need Debug::enabled() data
 //             */
-//            define('VERYVERBOSE', (debug() and ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose'])))      ? 'VERYVERBOSE' : null));
-//            define('VERBOSE'    , (debug() and (VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
+//            define('VERYVERBOSE', (Debug::enabled() and ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose'])))      ? 'VERYVERBOSE' : null));
+//            define('VERBOSE'    , (Debug::enabled() and (VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
 //
 //            /*
 //             * Set protocol
@@ -419,19 +419,19 @@
 //        if ($type) {
 //            switch ($type) {
 //                case 'http':
-//                    // FALLTHROUGH
+//                    // no-break
 //                case 'admin':
-//                    // FALLTHROUGH
+//                    // no-break
 //                case 'cli':
-//                    // FALLTHROUGH
+//                    // no-break
 //                case 'mobile':
-//                    // FALLTHROUGH
+//                    // no-break
 //                case 'ajax':
-//                    // FALLTHROUGH
+//                    // no-break
 //                case 'api':
-//                    // FALLTHROUGH
+//                    // no-break
 //                case 'amp':
-//                    // FALLTHROUGH
+//                    // no-break
 //                case 'system':
 //                    break;
 //
@@ -843,11 +843,11 @@
 //
 //    try {
 //        if (!$core->register['ready']) {
-//            throw new CoreException(tr('debug(): Startup has not yet finished and base is not ready to start working properly. debug() may not be called until configuration is fully loaded and available'), 'invalid');
+//            throw new CoreException(tr('Debug::enabled(): Startup has not yet finished and base is not ready to start working properly. Debug::enabled() may not be called until configuration is fully loaded and available'), 'invalid');
 //        }
 //
 //        if (!is_array($_CONFIG['debug'])) {
-//            throw new CoreException(tr('debug(): Invalid configuration, $_CONFIG[debug] is boolean, and it should be an array. Please check your config/ directory for "$_CONFIG[\'debug\']"'), 'invalid');
+//            throw new CoreException(tr('Debug::enabled(): Invalid configuration, $_CONFIG[debug] is boolean, and it should be an array. Please check your config/ directory for "$_CONFIG[\'debug\']"'), 'invalid');
 //        }
 //
 //        if ($enabled !== null) {
@@ -857,7 +857,7 @@
 //        return $_CONFIG['debug']['enabled'];
 //
 //    }catch(Exception $e) {
-//        throw new CoreException(tr('debug(): Failed'), $e);
+//        throw new CoreException(tr('Debug::enabled(): Failed'), $e);
 //    }
 //}
 //
@@ -1608,7 +1608,7 @@
 //                break;
 //
 //            case 'DEBUG':
-//                if (!debug()) {
+//                if (!Debug::enabled()) {
 //                    /*
 //                     * Only log this if we're in debug mode
 //                     */
@@ -1807,11 +1807,11 @@
 //
 //            switch ($color) {
 //                case 'yellow':
-//                    // FALLTHROUGH
+//                    // no-break
 //                case 'warning':
-//                    // FALLTHROUGH
+//                    // no-break
 //                case 'red':
-//                    // FALLTHROUGH
+//                    // no-break
 //                case 'error':
 //                    $error = true;
 //            }
@@ -3394,7 +3394,7 @@
 //
 //            case 'admin':
 //                $admin = '/admin';
-//                // FALLTHROUGH
+//                // no-break
 //
 //            default:
 //                if (is_numeric($pagename)) {
@@ -5383,7 +5383,7 @@
 // * @category Function reference
 // * @package system
 // * @note This function will NOT return any values when not running in debug mode
-// * @see debug()
+// * @see Debug::enabled()
 // * @example
 // * code
 // * echo '<input type="text" name="username" value="'.value('username').'">';
@@ -5400,7 +5400,7 @@
 // * @return string The value to be inserted.
 // */
 //function value($format, $size = null) {
-//    if (!debug()) return '';
+//    if (!Debug::enabled()) return '';
 //    return include(__DIR__.'/handlers/debug-value.php');
 //}
 //

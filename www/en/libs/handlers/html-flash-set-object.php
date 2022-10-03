@@ -14,7 +14,7 @@ $params = array('class' => $class, // Done for backward compatibility
                 'title' => tr('Oops'));
 
 if ($object instanceof CoreException) {
-    if (debug()) {
+    if (Debug::enabled()) {
         if (($object->getCode() !== 'validation') and (Strings::until($object->getCode(), '/') !== 'warning')) {
             /*
              * This is not a warning, this is a real exception!
@@ -53,7 +53,7 @@ if ($object instanceof CoreException) {
     } else {
         $params['type'] = 'error';
 
-        if (debug()) {
+        if (Debug::enabled()) {
             $params['html'] = $object->getMessage();
 
         } else {
@@ -106,7 +106,7 @@ if ($object instanceof CoreException) {
     } else {
         $params['type'] = 'error';
 
-        if (debug()) {
+        if (Debug::enabled()) {
             $params['html'] = $object->getMessage();
 
         } else {

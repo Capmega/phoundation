@@ -38,7 +38,7 @@ function drivers_setup($type, $brand, $model, $server = null) {
 
         switch ($type) {
             case 'printer':
-                // FALLTHROUGH
+                // no-break
             case 'scanner':
                 switch ($brand) {
                     case 'brother':

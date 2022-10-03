@@ -1592,12 +1592,12 @@ function file_get_local($url, &$is_downloaded = false, $context = null) {
 function file_system_path($type, $path = '') {
     switch ($type) {
         case 'img':
-            // FALLTHROUGH
+            // no-break
         case 'image':
             return '/pub/img/'.$path;
 
         case 'css':
-            // FALLTHROUGH
+            // no-break
         case 'style':
             return '/pub/css/'.$path;
 
@@ -1921,21 +1921,21 @@ function file_is_binary($primary, $secondary = null) {
             default:
                 switch ($secondary) {
                     case 'json':
-                        // FALLTHROUGH
+                        // no-break
                     case 'ld+json':
-                        // FALLTHROUGH
+                        // no-break
                     case 'svg+xml':
-                        // FALLTHROUGH
+                        // no-break
                     case 'x-csh':
-                        // FALLTHROUGH
+                        // no-break
                     case 'x-sh':
-                        // FALLTHROUGH
+                        // no-break
                     case 'xhtml+xml':
-                        // FALLTHROUGH
+                        // no-break
                     case 'xml':
-                        // FALLTHROUGH
+                        // no-break
                     case 'xml':
-                        // FALLTHROUGH
+                        // no-break
                     case 'vnd.mozilla.xul+xml':
                         /*
                          * This should be text
@@ -2005,9 +2005,9 @@ function file_is_compressed($primary, $secondary = null) {
         } else {
             switch ($secondary) {
                 case 'jpeg':
-                    // FALLTHROUGH
+                    // no-break
                 case 'mpeg':
-                    // FALLTHROUGH
+                    // no-break
                 case 'ogg':
                     /*
                      * This file is already compressed
@@ -2019,7 +2019,7 @@ function file_is_compressed($primary, $secondary = null) {
                         case 'audio':
                             switch ($secondary) {
                                 case 'mpeg':
-                                    // FALLTHROUGH
+                                    // no-break
                                 case 'ogg':
                             }
                             break;
@@ -2246,7 +2246,7 @@ function file_tree($path, $method) {
 
         switch ($method) {
             case 'size':
-                // FALLTHROUGH
+                // no-break
             case 'count':
                 break;
 
@@ -2639,10 +2639,10 @@ function file_tree_execute($params) {
                                  * Restart the process recursively to process this file
                                  */
 
-                                // FALLTHROUGH
+                                // no-break
 
                             case 'directory':
-                                // FALLTHROUGH
+                                // no-break
                             case 'regular file':
                                 if (($type != 'directory') or $params['execute_directory']) {
                                     /*

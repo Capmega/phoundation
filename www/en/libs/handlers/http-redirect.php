@@ -66,11 +66,11 @@ try {
      */
     switch ($http_code) {
         case 301:
-            // FALLTHROUGH
+            // no-break
         case 302:
-            // FALLTHROUGH
+            // no-break
         case 303:
-            // FALLTHROUGH
+            // no-break
         case 307:
             /*
              * All valid

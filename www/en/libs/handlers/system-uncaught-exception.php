@@ -361,7 +361,7 @@ try {
                     page_show($e->getRealCode(), array('message' =>$e->getMessage()));
                 }
 
-                if (debug()) {
+                if (Debug::enabled()) {
                     /*
                      * We're trying to show an html error here!
                      */
@@ -372,7 +372,7 @@ try {
 
                     switch ($core->callType()) {
                         case 'api':
-                            // FALLTHROUGH
+                            // no-break
                         case 'ajax':
                             echo "UNCAUGHT EXCEPTION\n\n";
                             showdie($e);
@@ -463,7 +463,7 @@ try {
 
                 switch ($core->callType()) {
                     case 'api':
-                        // FALLTHROUGH
+                        // no-break
                     case 'ajax':
                         if ($e instanceof CoreException) {
                             json_message($e->getRealCode(), array('reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')));
@@ -512,7 +512,7 @@ try {
                     header('Content-Type: text/html');
                 }
 
-                if (!debug()) {
+                if (!Debug::enabled()) {
                     notify($f, false, false);
                     notify($e, false, false);
                     page_show(500);

@@ -160,7 +160,7 @@ function scanimage($params) {
                         break;
 
                     case 'jpg':
-                        // FALLTHROUGH
+                        // no-break
                     case 'jpeg':
                         /*
                          * We have to convert it to a JPG file
@@ -426,7 +426,7 @@ function scanimage_validate($params) {
          */
         switch ($params['format']) {
             case 'jpg':
-                // FALLTHROUGH
+                // no-break
             case 'jpeg':
                 $extension = 'jpg';
                 break;
@@ -883,9 +883,9 @@ function scanimage_get_options($device, $server = null, $sudo = false) {
                 } else {
                     switch ($key) {
                         case 'mode':
-                            // FALLTHROUGH
+                            // no-break
                         case 'scan-area':
-                            // FALLTHROUGH
+                            // no-break
                         case 'source':
                             $data = explode('|', $data);
                             break;

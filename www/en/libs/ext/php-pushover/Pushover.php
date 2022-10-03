@@ -512,7 +512,7 @@ class Pushover
             $response = curl_exec($c);
             $xml = simplexml_load_string($response);
 
-            if ($this->getDebug()) {
+            if ($this->getDebug::enabled()) {
                 return array('output' => $xml, 'input' => $this);
             }
             else {

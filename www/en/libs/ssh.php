@@ -166,7 +166,7 @@ function ssh_exec($server, $params) {
     }catch(Exception $e) {
         switch ($e->getRealCode()) {
             case 'not-exists':
-                // FALLTHROUGH
+                // no-break
             case 'invalid':
                 break;
 
@@ -494,9 +494,9 @@ showdie($command);
 
             switch ($params['ssh_command']) {
                 case 'ssh':
-                    // FALLTHROUGH
+                    // no-break
                 case 'autossh':
-                    // FALLTHROUGH
+                    // no-break
                 case 'ssh-copy-id':
                     $command .= ' -p "'.$server['port'].'"';
                     break;

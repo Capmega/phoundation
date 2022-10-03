@@ -169,7 +169,7 @@ function detect_client() {
                             break;
 
                         case 'unknown':
-                            // FALLTHROUGH
+                            // no-break
 
                         default:
                             /*

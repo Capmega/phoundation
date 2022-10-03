@@ -412,7 +412,7 @@ Array
  */
 function upload_check_files($max_uploads = null, $min_uploads = null) {
     try {
-        if (debug()) {
+        if (Debug::enabled()) {
             $errors = array(UPLOAD_ERR_OK         => tr('ok'),
                             UPLOAD_ERR_INI_SIZE   => tr('The uploaded file exceeds the upload_max_filesize directive in php.ini'),
                             UPLOAD_ERR_FORM_SIZE  => tr('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form'),
@@ -505,11 +505,11 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
                         continue 2;
 
                     case 6: // UPLOAD_ERR_NO_TMP_DIR
-                        // FALLTHROUGH
+                        // no-break
                     case 7: // UPLOAD_ERR_CANT_WRITE
-                        // FALLTHROUGH
+                        // no-break
                     case 8: // UPLOAD_ERR_EXTENSION
-                        if (!debug()) {
+                        if (!Debug::enabled()) {
                             /*
                              * In debug mode we show the error, but in this case
                              * we can only notify
@@ -522,7 +522,7 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
                             break;
                         }
 
-                        // FALLTHROUGH
+                        // no-break
                     default:
                         $value['error_message'] = $errors[$value['error']];
                         $error_list[$key]       = array($value['error'] => $errors[$value['error']]);

@@ -194,7 +194,7 @@ try {
                 ini_set('session.referer_check', $domain);
             }
 
-            if (debug() or !$_CONFIG['cache']['http']['enabled']) {
+            if (Debug::enabled() or !$_CONFIG['cache']['http']['enabled']) {
                  ini_set('session.cache_limiter', 'nocache');
 
             } else {

@@ -10,7 +10,7 @@ try {
     array_default($messages, 'validation', $e->getMessages());
     array_default($messages, 'captcha'   , $e->getMessages());
 
-    if (debug()) {
+    if (Debug::enabled()) {
         if ($e instanceof CoreException) {
             return $e->getMessages();
         }

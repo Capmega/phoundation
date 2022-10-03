@@ -17,31 +17,31 @@ function time_difference($start, $stop, $precision = 'auto', $decimals = 2) {
 
         switch ($precision) {
             case 'second':
-                // FALLTHROUGH
+                // no-break
             case 'seconds':
                 $time = number_format($time, $decimals);
                 return str_plural($time, tr(':time second', array(':time' => $time)), tr(':time seconds', array(':time' => $time)));
 
             case 'minute':
-                // FALLTHROUGH
+                // no-break
             case 'minutes':
                 $time = number_format($time / 60, $decimals);
                 return str_plural($time, tr(':time minute', array(':time' => $time)), tr(':time minutes', array(':time' => $time)));
 
             case 'hour':
-                // FALLTHROUGH
+                // no-break
             case 'hours':
                 $time = number_format($time / 3600, $decimals);
                 return str_plural($time, tr(':time hour', array(':time' => $time)), tr(':time hours', array(':time' => $time)));
 
             case 'day':
-                // FALLTHROUGH
+                // no-break
             case 'days':
                 $time = number_format($time / 86400, $decimals);
                 return str_plural($time, tr(':time day', array(':time' => $time)), tr(':time days', array(':time' => $time)));
 
             case 'week':
-                // FALLTHROUGH
+                // no-break
             case 'weeks':
                 $time = number_format($time / 604800, $decimals);
                 return str_plural($time, tr(':time week', array(':time' => $time)), tr(':time weeks', array(':time' => $time)));
@@ -56,7 +56,7 @@ function time_difference($start, $stop, $precision = 'auto', $decimals = 2) {
                 return str_plural($time, tr(':time month', array(':time' => $time)), tr(':time months', array(':time' => $time)));
 
             case 'year':
-                // FALLTHROUGH
+                // no-break
             case 'years':
                 /*
                  * NOTE: Year is assumed 365 days!

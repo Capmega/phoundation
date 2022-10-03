@@ -364,10 +364,10 @@ function http_headers($params, $content_length) {
                             }
                         }
 
-                        // FALLTHROUGH
+                        // no-break
 
                     case 'methods':
-                        // FALLTHROUGH
+                        // no-break
                     case 'headers':
                         if ($value) {
                             $headers[] = 'Access-Control-Allow-'.str_capitalize($key).': '.$value;
@@ -424,7 +424,7 @@ function http_headers($params, $content_length) {
                  * 304 requests indicate the browser to use it's local cache,
                  * send nothing
                  */
-                // FALLTHROUGH
+                // no-break
 
             case 429:
                 /*
@@ -634,9 +634,9 @@ function http_cache($params, $http_code, $headers = array()) {
                  */
                 switch ($core->callType()) {
                     case 'api':
-                        // FALLTHROUGH
+                        // no-break
                     case 'ajax':
-                        // FALLTHROUGH
+                        // no-break
                     case 'admin':
                         break;
 

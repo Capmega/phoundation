@@ -18,17 +18,17 @@ function persons_names_get($gender, $name_count, $lastname_count) {
 
         switch (strtolower($gender)) {
             case 'man':
-                // FALLTHROUGH
+                // no-break
             case 'boy':
-                // FALLTHROUGH
+                // no-break
             case 'male':
                 $column = 'male';
                 break;
 
             case 'woman':
-                // FALLTHROUGH
+                // no-break
             case 'girl':
-                // FALLTHROUGH
+                // no-break
             case 'female':
                 $column = 'female';
                 break;

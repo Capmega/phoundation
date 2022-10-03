@@ -66,7 +66,7 @@ function shortlink_get_provider($provider = null) {
                  * that it exists (Hey, somebody can make a typo!)
                  */
                 $provider = $_CONFIG['shortlink']['default'];
-                // FALLTHROUGH
+                // no-break
 
             default:
                 if (empty($_CONFIG['shortlink'][$provider])) {

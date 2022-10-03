@@ -4,7 +4,7 @@ global $_CONFIG, $core;
 try {
     load_libs('numbers');
 
-    if (!debug()) return '';
+    if (!Debug::enabled()) return '';
 
     if ($_CONFIG['debug']['bar'] === false) {
         return '';

@@ -1197,7 +1197,7 @@ function email_validate($email) {
         switch (isset_get($email['format'])) {
             case '':
                 $email['format'] = 'text';
-                // FALLTHROUGH
+                // no-break
             case 'text':
                 $email['html'] = $email['body'];
                 $email['text'] = $email['body'];

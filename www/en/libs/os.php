@@ -87,11 +87,11 @@ showdie($command);
                 return 'linux_'.$command($server, $command);
 
             case 'mac':
-                // FALLTHROUGH
+                // no-break
             case 'windows':
-                // FALLTHROUGH
+                // no-break
             case 'freebsd':
-                // FALLTHROUGH
+                // no-break
             case 'openbsd':
                 /*
                  * These operating systems are currently not supported

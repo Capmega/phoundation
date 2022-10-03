@@ -317,9 +317,9 @@ function mailer_list($status = null, $columns = '`id`, `name`') {
 
         switch ($status) {
             case '':
-                // Fallthrough
+                // no-break
             case 'started':
-                // Fallthrough
+                // no-break
             case 'stopped':
                 break;
 
@@ -679,7 +679,7 @@ function mailer_status($mailers, $status) {
     try {
         switch ($status) {
             case 'started':
-                // FALLTHROUGH
+                // no-break
             case 'stopped':
                 $execute = array(':status' => $status);
                 break;
@@ -808,9 +808,9 @@ function mailer_get_recipientcount($mailings_id, $status = 'all') {
 
             case '':
                 $status = null;
-                // FALLTHROUGH
+                // no-break
             case 'sent':
-                // FALLTHROUGH
+                // no-break
             case 'failed':
                 $where .= ' AND `status` = :status';
                 $execute[':status'] = $status;

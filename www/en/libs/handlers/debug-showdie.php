@@ -9,7 +9,7 @@ try {
         }
     }
 
-    if (!debug()) {
+    if (!Debug::enabled()) {
         return $data;
     }
 

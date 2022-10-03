@@ -204,7 +204,7 @@ function image_convert($params) {
                 break;
 
             case 'jpeg':
-                // FALLTHROUGH
+                // no-break
             case 'jpg':
                 array_params($params, 'background', 'white');
                 $dest_file = Strings::untilReverse($dest_file, '.').'.'.$params['format'];
@@ -381,16 +381,16 @@ function image_convert($params) {
 
                 case 'x':
                     //do nothing (x-pos)
-                    // FALLTHROUGH
+                    // no-break
                 case 'y':
                     //do nothing (y-pos)
-                    // FALLTHROUGH
+                    // no-break
                 case 'h':
                     //do nothing (height)
-                    // FALLTHROUGH
+                    // no-break
                 case 'w':
                     //do nothing (width)
-                    // FALLTHROUGH
+                    // no-break
                 case 'custom':
                     //do nothing (custom imagemagick parameters)
                     //FALLTHROUGH
@@ -653,15 +653,15 @@ function image_interlace_valid($value, $source = false) {
 
     switch ($check) {
         case 'jpeg':
-            // FALLTHROUGH
+            // no-break
         case 'gif':
-            // FALLTHROUGH
+            // no-break
         case 'png':
-            // FALLTHROUGH
+            // no-break
         case 'line':
-            // FALLTHROUGH
+            // no-break
         case 'partition':
-            // FALLTHROUGH
+            // no-break
         case 'plane':
             return $check;
 
@@ -1109,29 +1109,29 @@ function imagecreatefromany($filename) {
                 break;
 
             case IMAGETYPE_SWF:
-                // FALLTHROUGH
+                // no-break
             case IMAGETYPE_PSD:
-                // FALLTHROUGH
+                // no-break
             case IMAGETYPE_BMP:
-                // FALLTHROUGH
+                // no-break
             case IMAGETYPE_TIFF_II: // (intel byte order)
-                // FALLTHROUGH
+                // no-break
             case IMAGETYPE_TIFF_MM: // (motorola byte order)
-                // FALLTHROUGH
+                // no-break
             case IMAGETYPE_JPC:
-                // FALLTHROUGH
+                // no-break
             case IMAGETYPE_JP2:
-                // FALLTHROUGH
+                // no-break
             case IMAGETYPE_JPX:
-                // FALLTHROUGH
+                // no-break
             case IMAGETYPE_JB2:
-                // FALLTHROUGH
+                // no-break
             case IMAGETYPE_SWC:
-                // FALLTHROUGH
+                // no-break
             case IMAGETYPE_IFF:
-                // FALLTHROUGH
+                // no-break
             case IMAGETYPE_XBM:
-                // FALLTHROUGH
+                // no-break
             case IMAGETYPE_ICO:
                 throw new CoreException('imagecreatefromany(): Image types "'.exif_imagetype($filename).'" of file "'.Strings::Log($filename).'" is not supported', 'notsupported');
 

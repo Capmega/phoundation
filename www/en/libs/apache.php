@@ -55,9 +55,9 @@ function apache_write_vhost($hostname, $vhost_name, $params, $port) {
 
         switch ($os['name']) {
             case 'debian':
-                // FALLTHROUGH
+                // no-break
             case 'ubuntu':
-                // FALLTHROUGH
+                // no-break
             case 'mint':
                 $full_path = apache_get_vhosts_path($os['name']).$vhost_name.'.conf';
 
@@ -76,9 +76,9 @@ function apache_write_vhost($hostname, $vhost_name, $params, $port) {
                 break;
 
             case 'redhat':
-                // FALLTHROUGH
+                // no-break
             case 'fedora':
-                // FALLTHROUGH
+                // no-break
             case 'centos':
 // :TODO: Implement
                 break;

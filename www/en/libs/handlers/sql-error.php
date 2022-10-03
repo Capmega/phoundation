@@ -51,7 +51,7 @@ try {
 
     switch ($e->getCode()) {
         case 'denied':
-            // FALLTHROUGH
+            // no-break
         case 'invalidforce':
 
             /*

@@ -113,9 +113,9 @@ function sso($provider, $method, $redirect, $role = 'user') {
     try {
         switch ($provider) {
             case 'facebook':
-                // FALLTHROUGH
+                // no-break
             case 'twitter':
-                // FALLTHROUGH
+                // no-break
             case 'google':
                 break;
 

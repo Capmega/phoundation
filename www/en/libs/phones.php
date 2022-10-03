@@ -116,13 +116,13 @@ function phones_format_number($number) {
 
         switch ($digits) {
             case 0:
-                // FALLTHROUGH
+                // no-break
             case 1:
-                // FALLTHROUGH
+                // no-break
             case 2:
-                // FALLTHROUGH
+                // no-break
             case 3:
-                // FALLTHROUGH
+                // no-break
             case 4:
                 break;
 

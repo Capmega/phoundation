@@ -47,7 +47,7 @@ function storage_files_insert($params) {
 
             switch ($params['convert']) {
                 case 'jpg':
-                    // FALLTHROUGH
+                    // no-break
                 case 'jpeg':
                     /*
                      * Convert to JPEG

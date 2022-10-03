@@ -85,7 +85,7 @@ function coinpayments_call($command, $post = array()) {
 
         switch (isset_get($results['error'])) {
             case '':
-                // FALLTHROUGH
+                // no-break
             case 'ok':
                 break;
 

@@ -107,7 +107,7 @@ function verify_js($params) {
 
         $script = '';
 
-        if (debug()) {
+        if (Debug::enabled()) {
             $script .= "$.verify.debug = true;\n";
             }
 
@@ -178,17 +178,17 @@ class ValidateJquery {
     function validate($element, $rule, $value, $message) {
         switch ($rule) {
             case 'required':
-                // FALLTHROUGH
+                // no-break
             case 'email':
-                // FALLTHROUGH
+                // no-break
             case 'remote':
-                // FALLTHROUGH
+                // no-break
             case 'minlength':
-                // FALLTHROUGH
+                // no-break
             case 'maxlength':
-                // FALLTHROUGH
+                // no-break
             case 'equalTo':
-                // FALLTHROUGH
+                // no-break
             case 'regex':
                 break;
 

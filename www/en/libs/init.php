@@ -360,13 +360,13 @@ function init_process_version_diff() {
     try {
         switch ($core->register['real_script']) {
             case 'base/info':
-                // FALLTHROUGH
+                // no-break
             case 'base/init':
-                // FALLTHROUGH
+                // no-break
             case 'base/sync':
-                // FALLTHROUGH
+                // no-break
             case 'base/update':
-                // FALLTHROUGH
+                // no-break
             case 'base/version':
                 return false;
         }
@@ -772,7 +772,7 @@ function init_get_highest_file_version($section) {
     try {
         switch ($section) {
             case 'framework':
-                // FALLTHROUGH
+                // no-break
             case 'project':
                 /*
                  * These are the default sections, these are okay

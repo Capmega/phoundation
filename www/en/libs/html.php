@@ -322,7 +322,7 @@ function html_bundler($list) {
                             }
                         }
 
-                        if (debug()) {
+                        if (Debug::enabled()) {
                             file_append($bundle_file, "\n/* *** BUNDLER FILE \"".$orgfile."\" *** */\n".$data.($_CONFIG['cdn']['min'] ? '' : "\n"));
 
                         } else {
@@ -662,7 +662,7 @@ function html_generate_js($lists = null) {
         foreach ($lists as $key => $section) {
             switch ($section) {
                 case 'js_header':
-                    // FALLTHROUGH
+                    // no-break
                 case 'js_footer':
                     continue 2;
 
@@ -904,7 +904,7 @@ function html_header($params, $meta, &$html) {
 
                 switch ($extension) {
                     case 'woff':
-                        // FALLTHROUGH
+                        // no-break
                     case 'woff2':
                         $retval .= '<link rel="preload" href="'.$font.'" as="font" type="font/'.$extension.'" crossorigin="anonymous">';
                         break;
@@ -1139,7 +1139,7 @@ function html_footer() {
     try {
         $html = '';
 
-        if (debug()) {
+        if (Debug::enabled()) {
             $html .= debug_bar();
         }
 
@@ -1279,7 +1279,7 @@ function html_flash($class = null) {
 // :TODO: NOTIFY OF UNKNOWN HTML FLASH TYPE
             }
 
-            if (!debug()) {
+            if (!Debug::enabled()) {
                 /*
                  * Don't show "function_name(): " part of message
                  */
@@ -1452,7 +1452,7 @@ function html_flash_set($params, $type = 'info', $class = null) {
                 break;
 
             case 'exception':
-                // FALLTHROUGH
+                // no-break
             case 'error':
                 $color = 'green';
                 break;
@@ -1470,7 +1470,7 @@ function html_flash_set($params, $type = 'info', $class = null) {
         log_file(strip_tags($params['html']), $core->register['script'], $color);
 
     }catch(Exception $e) {
-        if (debug() and (substr(Strings::from($e->getCode(), '/'), 0, 1) == '_')) {
+        if (Debug::enabled() and (substr(Strings::from($e->getCode(), '/'), 0, 1) == '_')) {
             /*
              * These are exceptions sent to be shown as an html flash error, but
              * since we're in debug mode, we'll just show it as an uncaught
@@ -2064,7 +2064,7 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                 $retval            = substr($script['script'], 1);
                 $script['to_file'] = false;
 
-                // FALLTHROUGH
+                // no-break
 
             default:
                 /*
@@ -3032,25 +3032,25 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                              * Booleans
                              */
                             case 'auto_destroy':
-                                // FALLTHROUGH
+                                // no-break
                             case 'chainable':
-                                // FALLTHROUGH
+                                // no-break
                             case 'combined':
-                                // FALLTHROUGH
+                                // no-break
                             case 'enable_throttle':
-                                // FALLTHROUGH
+                                // no-break
                             case 'visible_only':
-                                // FALLTHROUGH
+                                // no-break
 
                             /*
                              * Numbers
                              */
                             case 'delay':
-                                // FALLTHROUGH
+                                // no-break
                             case 'effect_time':
-                                // FALLTHROUGH
+                                // no-break
                             case 'threshold':
-                                // FALLTHROUGH
+                                // no-break
                             case 'throttle':
                                 /*
                                  * All these need no quotes
@@ -3062,13 +3062,13 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                              * Callbacks
                              */
                             case 'after_load':
-                                // FALLTHROUGH
+                                // no-break
                             case 'on_load':
-                                // FALLTHROUGH
+                                // no-break
                             case 'before_load':
-                                // FALLTHROUGH
+                                // no-break
                             case 'on_error':
-                                // FALLTHROUGH
+                                // no-break
                             case 'on_finished_all':
                                 /*
                                  * All these need no quotes
@@ -3080,21 +3080,21 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                              * Strings
                              */
                             case 'append_scroll':
-                                // FALLTHROUGH
+                                // no-break
                             case 'bind':
-                                // FALLTHROUGH
+                                // no-break
                             case 'default_image':
-                                // FALLTHROUGH
+                                // no-break
                             case 'effect':
-                                // FALLTHROUGH
+                                // no-break
                             case 'image_base':
-                                // FALLTHROUGH
+                                // no-break
                             case 'name':
-                                // FALLTHROUGH
+                                // no-break
                             case 'placeholder':
-                                // FALLTHROUGH
+                                // no-break
                             case 'retina_attribute':
-                                // FALLTHROUGH
+                                // no-break
                             case 'scroll_direction':
                                 /*
                                  * All these need quotes

@@ -109,18 +109,18 @@ try {
                     break;
 
                 case '-U':
-                    // FALLTHROUGH
+                    // no-break
                 case '--usage':
-                    // FALLTHROUGH
+                    // no-break
                 case 'usage':
                     cli_show_usage(isset_get($GLOBALS['usage']), 'white');
                     $die = 0;
                     break;
 
                 case '-H':
-                    // FALLTHROUGH
+                    // no-break
                 case '--help':
-                    // FALLTHROUGH
+                    // no-break
                 case 'help':
                     if (isset_get($GLOBALS['argv'][$argid + 1]) == 'system') {
                         load_libs('help');
@@ -149,7 +149,7 @@ try {
                     break;
 
                 case '-L':
-                    // FALLTHROUGH
+                    // no-break
                 case '--language':
                     /*
                      * Set language to be used
@@ -169,7 +169,7 @@ try {
                     break;
 
                 //case '-E':
-                //    // FALLTHROUGH
+                //    // no-break
                 //case '--env':
                 //    /*
                 //     * Set environment and reset next
@@ -226,7 +226,7 @@ try {
                     break;
 
                 case '-I':
-                    // FALLTHROUGH
+                    // no-break
                 case '--skip-init-check':
                     /*
                      * Skip init check for the core database
@@ -402,7 +402,7 @@ try {
     $core->register['ready'] = true;
 
     if (cli_argument('-D,--debug')) {
-        debug();
+        Debug::enabled();
     }
 
 
@@ -447,7 +447,7 @@ try {
         log_console(tr('Running in TEST mode'), 'yellow');
     }
 
-    if (debug()) {
+    if (Debug::enabled()) {
         log_console(tr('Running in DEBUG mode'), 'VERBOSE/yellow');
     }
 

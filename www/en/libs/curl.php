@@ -402,17 +402,17 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
 
                 switch ($params['method']) {
                     case 'POST':
-                        // FALLTHROUGH
+                        // no-break
                     case 'HEAD':
-                        // FALLTHROUGH
+                        // no-break
                     case 'PUT':
-                        // FALLTHROUGH
+                        // no-break
                     case 'DELETE':
-                        // FALLTHROUGH
+                        // no-break
                     case 'OPTIONS':
-                        // FALLTHROUGH
+                        // no-break
                     case 'TRACE':
-                        // FALLTHROUGH
+                        // no-break
                     case 'CONNECT':
                         /*
                          * Use a different method than GET

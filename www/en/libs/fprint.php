@@ -292,23 +292,23 @@ function fprint_verify_finger($finger) {
                 return '';
 
             case 'left-thumb':
-                // FALLTHROUGH
+                // no-break
             case 'left-index-finger':
-                // FALLTHROUGH
+                // no-break
             case 'left-middle-finger':
-                // FALLTHROUGH
+                // no-break
             case 'left-ring-finger':
-                // FALLTHROUGH
+                // no-break
             case 'left-little-finger':
-                // FALLTHROUGH
+                // no-break
             case 'right-thumb':
-                // FALLTHROUGH
+                // no-break
             case 'right-index-finger':
-                // FALLTHROUGH
+                // no-break
             case 'right-middle-finger':
-                // FALLTHROUGH
+                // no-break
             case 'right-ring-finger':
-                // FALLTHROUGH
+                // no-break
             case 'right-little-finger':
                 return $finger;
 
