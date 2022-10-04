@@ -56,7 +56,8 @@ class Timers
     public static function get(string $name): Timer
     {
         if (!array_key_exists($name, self::$timers)) {
-            throw new OutOfBoundsException('The specified timer ":name" does not exist', [':name' => $name]);
+            // Create the timer
+            return Timer::create($name);
         }
 
         return self::$timers[$name];

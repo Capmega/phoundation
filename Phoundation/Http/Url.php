@@ -348,7 +348,7 @@ class Url {
             return $cloak;
         }
 
-        $cloak = str_random(32);
+        $cloak = Strings::random(32);
 
         Sql::query('INSERT INTO `url_cloaks` (`createdby`, `url`, `cloak`)
                VALUES                   (:createdby , :url , :cloak )',

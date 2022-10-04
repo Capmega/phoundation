@@ -1533,4 +1533,44 @@ class Strings
 
         return $source;
     }
+
+
+
+    /**
+     * Return a random word
+     *
+     * @param int $count
+     * @param bool $nospaces
+     * @return string
+     */
+    public static function randomWord(int $count = 1, bool $nospaces = false): string
+    {
+        if ($nospaces) {
+            if (!is_string($nospaces)) {
+                $nospaces = '';
+            }
+        }
+
+        if (!$data = sql_list('SELECT `word` FROM `synonyms` ORDER BY RAND() LIMIT '.cfi($count))) {
+            throw new CoreException(tr('Synonyms table is empty. Please run ROOT/cli system strings init'));
+        }
+
+        if ($count == 1) {
+            if ($nospaces !== false) {
+                return str_replace(' ', $nospaces, array_pop($data));
+            }
+
+            return array_pop($data);
+        }
+
+        if ($nospaces) {
+            foreach ($data as $key => &$value) {
+                $value = str_replace(' ', $nospaces, $value);
+            }
+
+            unset($value);
+        }
+
+        return $data;
+    }
 }

@@ -31,7 +31,7 @@ class Debug {
      *
      * @var array $statistics
      */
-    protected array $statistics = [];
+    protected static array $statistics = [];
 
 
 
@@ -86,7 +86,7 @@ class Debug {
             return (bool) Config::get('debug.production', false);
         }
 
-        // Make the setting
+        // Set the value
         Config::set('debug.production', $production);
         return $production;
     }
@@ -395,9 +395,14 @@ class Debug {
 
 
     /**
+     * Returns an HTML table that contains the specified $value in a very nice and readable way for debugging purposes
      *
+     * @param mixed $value
+     * @param string|null $key
+     * @param int $trace_offset
+     * @return string
      */
-    protected static function showHtml(mixed $value, int|float|bool|string|null $key = null, int $trace_offset = 0): string
+    protected static function showHtml(mixed $value, string|null $key = null, int $trace_offset = 0): string
     {
         static $style;
 
@@ -445,9 +450,11 @@ class Debug {
     /**
      * Generates and returns a single HTML line with debug information for the specified value
      *
+     * @param mixed $value
+     * @param string|null $key
      * @return string
      */
-    protected static function showHtmlRow(mixed $value, int|float|bool|string|null $key = null): string
+    protected static function showHtmlRow(mixed $value, ?string $key = null): string
     {
         if ($key === null) {
             $key = tr('Unknown');
@@ -477,10 +484,10 @@ class Debug {
                     $type = tr('string');
                 }
 
-                //FALLTHROUGH
+                // no-break
 
             case 'integer':
-                //FALLTHROUGH
+                // no-break
 
             case 'double':
                 return '<tr>
@@ -570,18 +577,17 @@ class Debug {
     }
 
 
-    /*
-     * Auto fill in values in HTML forms (very useful for debugging and testing)
+
+    /**
+     * Return semi random values to automatically fill in values in HTML forms (very useful for debugging and testing)
      *
      * In environments where debug is enabled, this function can pre-fill large HTML forms with test data
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
+     * @param string $format
+     * @param int|null $size
+     * @return string The value to be inserted.
      * @note This function will NOT return any values when not running in debug mode
-     * @see debug()
+     * @see Debug::enabled()
      * @example
      * code
      * echo '<input type="text" name="username" value="'.value('username').'">';
@@ -593,22 +599,15 @@ class Debug {
      * <input type="text" name="username" value="YtiukrtyeG">
      * /code
      *
-     * @param mixed $format
-     * @param natural $size
-     * @return string The value to be inserted.
      */
-    function value($format, $size = null)
+    function value(string $format, ?int $size = null): string
     {
         if (!self::enabled()) return '';
+        if (!Debug::enabled()) return '';
 
-        /*
-         * Generate debug value
-         */
+
+        // Generate debug value
         load_libs('synonyms');
-
-        if (!Debug::enabled()) {
-            return '';
-        }
 
         switch ($format) {
             case 'username':
@@ -617,32 +616,32 @@ class Debug {
                 return synonym_random(1, true);
 
             case 'name':
-                return not_empty(str_force(synonym_random(not_empty($size, mt_rand(1, 4))), ' '), str_random(not_empty($size, 32), false, '0123456789abcdefghijklmnopqrstuvwxyz     '));
+                return not_empty(Strings::force(synonym_random(not_empty($size, mt_rand(1, 4))), ' '), Strings::random(not_empty($size, 32), false, '0123456789abcdefghijklmnopqrstuvwxyz     '));
 
             case 'text':
                 // no-break
             case 'words':
-                return not_empty(str_force(synonym_random(not_empty($size, mt_rand(5, 15))), ' '), str_random(not_empty($size, 150), false, '0123456789abcdefghijklmnopqrstuvwxyz     '));
+                return not_empty(Strings::force(synonym_random(not_empty($size, mt_rand(5, 15))), ' '), Strings::random(not_empty($size, 150), false, '0123456789abcdefghijklmnopqrstuvwxyz     '));
 
             case 'email':
-                return str_replace('-', '', str_replace(' ', '', not_empty(str_force(synonym_random(mt_rand(1, 2), true), str_random(mt_rand(0, 1), false, '._-')), str_random())).'@'.str_replace(' ', '', not_empty(str_force(synonym_random(mt_rand(1, 2), true), str_random(mt_rand(0, 1), false, '_-')), str_random()).'.com'));
+                return str_replace('-', '', str_replace(' ', '', not_empty(Strings::force(synonym_random(mt_rand(1, 2), true), Strings::random(mt_rand(0, 1), false, '._-')), Strings::random())).'@'.str_replace(' ', '', not_empty(Strings::force(synonym_random(mt_rand(1, 2), true), Strings::random(mt_rand(0, 1), false, '_-')), Strings::random()).'.com'));
 
             case 'url':
-                return str_replace(' ', '', 'http://'.not_empty(str_force(synonym_random(mt_rand(1, 2), true), str_random(mt_rand(0, 1), false, '._-')), str_random()).'.'.pick_random(1, 'com', 'co', 'mx', 'org', 'net', 'guru'));
+                return str_replace(' ', '', 'http://'.not_empty(Strings::force(synonym_random(mt_rand(1, 2), true), Strings::random(mt_rand(0, 1), false, '._-')), Strings::random()).'.'.pick_random(1, 'com', 'co', 'mx', 'org', 'net', 'guru'));
 
             case 'random':
-                return str_random(not_empty($size, 150), false, '0123456789abcdefghijklmnopqrstuvwxyz     ');
+                return Strings::random(not_empty($size, 150), false, '0123456789abcdefghijklmnopqrstuvwxyz     ');
 
             case 'zip':
                 // no-break
             case 'zipcode':
-                return str_random(not_empty($size, 5), false, '0123456789');
+                return Strings::random(not_empty($size, 5), false, '0123456789');
 
             case 'number':
-                return str_random(not_empty($size, 8), false, '0123456789');
+                return Strings::random(not_empty($size, 8), false, '0123456789');
 
             case 'address':
-                return str_random().' '.str_random(not_empty($size, 8), false, '0123456789');
+                return Strings::random().' '.Strings::random(not_empty($size, 8), false, '0123456789');
 
             case 'password':
                 return 'aaaaaaaa';
@@ -665,6 +664,7 @@ class Debug {
                 return $format;
         }
     }
+
 
 
     /**
@@ -720,20 +720,15 @@ class Debug {
     }
 
 
+
     /**
      * Show HTML <tr> for the specified debug data
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     * @see show()
      *
      * @param mixed $value
      * @param string|null $key
      * @param string|null $type
-     * @return
+     * @return string
+     * @see show()
      */
     protected function debugHtmlRow(mixed $value, ?string $key = null, ?string $type = null): string
     {
@@ -767,10 +762,10 @@ class Debug {
                     $type = tr('string');
                 }
 
-            //FALLTHROUGH
+            // no-break
 
             case 'integer':
-                //FALLTHROUGH
+                // no-break
 
             case 'double':
                 return '<tr>

@@ -11,7 +11,6 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log;
-use Phoundation\Core\Stopwatch;
 use Phoundation\Core\Strings;
 use Phoundation\Core\Timers;
 use Phoundation\Databases\Exception\MysqlException;
@@ -136,8 +135,6 @@ class Sql
         try {
             Log::notice(tr('Executing query ":query"', [':query' => $query]));
 
-            $query_start = microtime(true);
-
             // PDO statement can be specified instead of a query
             if (!is_string($query)) {
                 if (Config::get('databases.sql.debug', false) or ($query->queryString[0] == ' ')) {
@@ -145,7 +142,9 @@ class Sql
                     Log::sql($query, $execute);
                 }
 
+                Timers::get('query')->startLap($query->queryString);
                 $query->execute($execute);
+                Timers::get('query')->stopLap($query->queryString);
                 return $query;
             }
 
@@ -158,6 +157,8 @@ class Sql
             if ($query[0] == ' ') {
                 Log::sql($query, $execute);
             }
+
+            Timers::get('query')->startLap($query);
 
             if (!$execute) {
                 // Just execute plain SQL query string.
@@ -194,35 +195,18 @@ class Sql
                  * an include then assume this is the actual script that was
                  * executed by route()
                  */
-                $current = 1;
-
-                if (substr(Debug::currentFunction($current), 0, 4) == 'Sql::') {
-                    $current = 2;
-
-                    if (substr(Debug::currentFunction($current), 0, 4) == 'Sql::') {
-                        $current = 3;
-                    }
-                }
-
-                $function = Debug::currentFunction($current);
-
-                if ($function === 'include') {
-                    $function = '-';
-                }
-
-                $file = Debug::currentFile($current);
-                $line = Debug::currentLine($current);
-
                 Debug::addStatistic()
                     ->setQuery($this->show($query, $execute, true))
                     ->setTime(Timers::get('queries')->stopLap());
             }
 
+            Timers::get('query')->stopLap($query);
             return $pdo_statement;
 
         } catch (Throwable $e) {
             // Let Sql::error() try and generate more understandable errors
             Sql::error($e, $query, $execute);
+            throw new SqlException(tr('Query failed'), previous: $e);
         }
     }
 
@@ -240,7 +224,7 @@ class Sql
     {
         if (is_object($query)) {
             if (!($query instanceof PDOStatement)) {
-                throw new LogException(tr('Object of unknown class ":class" specified where PDOStatement was expected', [':class' => get_class($query)]));
+                throw new SqlException(tr('Object of unknown class ":class" specified where PDOStatement was expected', [':class' => get_class($query)]));
             }
 
             // Query to be logged is a PDO statement, extract the query
@@ -1808,9 +1792,9 @@ class Sql
                         throw new SqlException(tr('Query ":query" failed with error 1072 with the message ":message"', [':query' => Sql::buildQueryString($query, $execute, true), ':message' => isset_get($error[2])]), $e);
 
                     case 1005:
-                        //FALLTHROUGH
+                        // no-break
                     case 1217:
-                        //FALLTHROUGH
+                        // no-break
                     case 1452:
                         /*
                          * Foreign key error, get the FK error data from mysql
@@ -1873,7 +1857,7 @@ class Sql
 
 
     /**
-     *
+     * Ensure that the specified limit is below or equal to the maximum configured limit
      *
      * @param int $limit
      * @return int
@@ -1882,8 +1866,8 @@ class Sql
     {
         $limit = force_natural($limit);
 
-        if ($limit > $_CONFIG['db'][$this->configuration]['limit_max']) {
-            return $_CONFIG['db'][$this->configuration]['limit_max'];
+        if ($limit > $this->configuration['limit_max']) {
+            return $this->configuration['limit_max'];
         }
 
         return $limit;
@@ -1942,7 +1926,7 @@ class Sql
                  * Query to be debugged is a PDO statement, extract the query
                  */
                 if (!($query instanceof PDOStatement)) {
-                    throw new SqlException(tr('Log::sql(): Object of unknown class ":class" specified where PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
+                    throw new SqlException(tr('Object of unknown class ":class" specified where PDOStatement was expected', [':class' => get_class($query)]));
                 }
 
                 $query = $query->queryString;

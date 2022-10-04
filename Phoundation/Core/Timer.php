@@ -111,16 +111,16 @@ class Timer
     }
 
 
-
     /**
      * Records a passed lap and returns the time for that lap
      *
+     * @param string $key
      * @return float
      */
-    public function startLap(): float
+    public function startLap(string $key): float
     {
         $time = microtime(true);
-        $this->laps[] = $time;
+        $this->laps[$key] = $time;
         return $time;
     }
 
@@ -129,12 +129,12 @@ class Timer
     /**
      * Stop the specified stopwatch and returns the passed time
      *
+     * @param string $key
      * @return float
      */
-    public function stopLap(): float
+    public function stopLap(string $key): float
     {
         // Get the passed time for this lap and calculate the passed time
-        $key = array_key_last($this->laps);
         $passed = microtime(true) - $this->laps[$key];
 
         $this->laps[$key] = $passed;

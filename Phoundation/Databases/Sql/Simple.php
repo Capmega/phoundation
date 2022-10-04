@@ -96,7 +96,7 @@ class SqlSimple
         }
 
         $columns = Sql::getColumnsString($params['columns'], $params['table']);
-        $joins = str_force($params['joins'], ' ');
+        $joins = Strings::force($params['joins'], ' ');
         $where = Sql::getWhereString($params['filters'], $execute, $params['table'], $params['combine']);
         $orderby = Sql::getOrderbyString($params['orderby']);
         $limit = Sql::limit($params['limit'], $params['page']);
@@ -191,7 +191,7 @@ class SqlSimple
         }
 
         $columns = Sql::getColumnsString($params['columns'], $params['table']);
-        $joins = str_force($params['joins'], ' ');
+        $joins = Strings::force($params['joins'], ' ');
         $where = Sql::getWhereString($params['filters'], $execute, $params['table'], $params['combine']);
         $retval = Sql::get(($params['debug'] ? ' ' : '') . 'SELECT ' . $columns . ' FROM  `' . $params['table'] . '` ' . $joins . $where, $execute, $params['single'], $params['connector']);
 
