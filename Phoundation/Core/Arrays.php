@@ -1021,7 +1021,7 @@ class Arrays {
             foreach ($keys as $key) {
                 //
                 if (strstr($key, '%')) {
-                    if (strstr($source_key, Strings::replace('%', '', $key))) {
+                    if (strstr($source_key, str_replace('%', '', $key))) {
                         $source_value = Strings::hide($source_value, $hide, $empty);
                     }
 

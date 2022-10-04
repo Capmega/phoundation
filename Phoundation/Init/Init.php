@@ -567,7 +567,7 @@ Class Init
                 throw new CoreException(tr('init_section(): Specified section ":section" path ":path" does not exist', array(':section' => $section, ':path' => $path)), 'not-exists');
             }
 
-            $connector = Sql::getConnector($section);
+            $connector = Sql::getConfiguration($section);
 
             if (!$connector) {
                 throw new CoreException(tr('init_section(): Specified section ":section" does not have a connector configuration. Please check $_CONFIG[db] or the `Sql::connectors` table', array(':section' => $section)), 'not-exists');

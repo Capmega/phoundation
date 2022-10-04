@@ -11,7 +11,9 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log;
+use Phoundation\Core\Stopwatch;
 use Phoundation\Core\Strings;
+use Phoundation\Core\Timers;
 use Phoundation\Databases\Exception\MysqlException;
 use Phoundation\Databases\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Exception\SqlException;
@@ -37,49 +39,42 @@ use Throwable;
 class Sql
 {
     /**
-     * Singleton variable
+     * Identifier of this instance
      *
-     * @var Sql|null $instance
+     * @var string|null $instance_name
      */
-    protected static ?Sql $instance = null;
+    protected ?string $instance_name = null;
 
     /**
-     * Other databases variable
+     * Database instances store
      *
-     * @var array $connectors
+     * @var array $instance
      */
-    protected static array $connectors = [];
+    protected static array $instances = [];
 
     /**
      * Connector configuration
      *
-     * @var array $connector
+     * @var array $configuration
      */
-    protected static array $connector = [];
-
-    /**
-     * The identifier name for this connector
-     *
-     * @var string|null $connector_name
-     */
-    protected static ?string $connector_name = null;
+    protected array $configuration = [];
 
     /**
      * The actual database interface
      *
      * @var PDO|null $interface
      */
-    protected static ?PDO $interface = null;
+    protected ?PDO $interface = null;
 
 
 
     /**
      * Sql constructor
      *
-     * @param string|null $connector_name
+     * @param string|null $instance_name
      * @return void
      */
-    protected function __constructor(?string $connector_name = null)
+    protected function __construct(?string $instance_name = null)
     {
         if (!class_exists('PDO')) {
             /*
@@ -95,95 +90,66 @@ class Sql
             throw new SqlException('Could not find the "MySQL" library for PDO. To install this on Ubuntu derivatives, please type "sudo apt install php-mysql');
         }
 
-        if ($connector_name === null) {
-            $connector_name = 'core';
+        if ($instance_name === null) {
+            $instance_name = 'core';
         }
 
         // Clean connector name, get connector configuration and ensure all required config data is there
-        $connector_name = self::connectorName($connector_name);
-        self::$connector_name = $connector_name;
-        self::$connector = Config::get('databases.connectors.' . self::$connector_name);
-        Arrays::ensure(self::$connectors[$connector_name], ['driver', 'host', 'user', 'pass', 'charset']);
-        self::$connectors[$connector_name] = &self::$connector;
+        $this->instance_name = $instance_name;
+        $this->configuration = Config::get('databases.instances.' . $instance_name);
+        Arrays::ensure($this->configuration, ['driver', 'host', 'user', 'pass', 'charset']);
     }
 
 
 
     /**
-     * Singleton, ensure to always return the same Log object.
+     * Quick access to Mc instances. Defaults to "system" instance
      *
+     * @param string|null $instance_name
      * @return Sql
      */
-    public static function getInstance(): Sql
+    public static function database(?string $instance_name = null): Sql
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new Sql('core');
-            self::$connectors['core'] = self::$instance;
+        if (!$instance_name) {
+            // Always default to system instance
+            $instance_name = 'system';
         }
 
-        return self::$instance;
+        if (!self::$instances[$instance_name]) {
+            self::$instances[$instance_name] = new Sql($instance_name);
+        }
+
+        return self::$instances[$instance_name];
     }
 
 
 
     /**
-     * Access a different SQL object for the specified (different) database
+     * Executes specified query and returns a PDOStatement object
      *
-     * @param string $connector_name
-     * @return Sql
-     */
-    public static function database(string $connector_name): Sql
-    {
-        if (!array_key_exists($connector_name, self::$connectors)) {
-            self::$instance = new Sql($connector_name);
-            self::$connectors[$connector_name] = self::$instance;
-        }
-
-        return self::$instance;
-    }
-
-
-
-    /**
-     * Execute specified query
-     *
-     * @param
-     * @param null $execute
+     * @param string|PDOStatement $query
+     * @param array|null $execute
      * @return PDOStatement
-     * @package sql
-     *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
      */
-    public static function query($query, $execute = null): PDOStatement
+    public function query(string|PDOStatement $query, ?array $execute = null): PDOStatement
     {
-        global $core;
-
         try {
             Log::notice(tr('Executing query ":query"', [':query' => $query]));
 
-            $connector_name = self::init();
             $query_start = microtime(true);
 
+            // PDO statement can be specified instead of a query
             if (!is_string($query)) {
-                if (is_object($query)) {
-                    if (!($query instanceof PDOStatement)) {
-                        throw new SqlException(tr('Object of unknown class ":class" specified where either a string or a PDOStatement was expected', [':class' => get_class($query)]));
-                    }
-
-                    // PDO statement was specified instead of a query
-                    if ($query[0] == ' ') {
-                        Log::sql($query, $execute);
-                    }
-
-                    $query->execute($execute);
-                    return $query;
+                if (Config::get('databases.sql.debug', false) or ($query->queryString[0] == ' ')) {
+                    // Log query
+                    Log::sql($query, $execute);
                 }
 
-                throw new SqlException(tr('Specified query ":query" is not a string or PDOStatement class', [':query' => $query]));
+                $query->execute($execute);
+                return $query;
             }
 
+            // Log all queries?
             if (!empty($core->register['Sql::debug_queries'])) {
                 $core->register['Sql::debug_queries']--;
                 $query = ' ' . $query;
@@ -195,11 +161,11 @@ class Sql
 
             if (!$execute) {
                 // Just execute plain SQL query string.
-                $pdo_statement = self::$interface->query($query);
+                $pdo_statement = $this->interface->query($query);
 
             } else {
                 // Execute the query with the specified $execute variables
-                $pdo_statement = self::$interface->prepare($query);
+                $pdo_statement = $this->interface->prepare($query);
 
                 try {
                     $pdo_statement->execute($execute);
@@ -208,7 +174,7 @@ class Sql
                     // Failure is probably that one of the $execute array values is not scalar
 
                     // Check execute array for possible problems
-                    foreach ($execute as $key => &$value) {
+                    foreach ($execute as $key => $value) {
                         if (!is_scalar($value) and !is_null($value)) {
                             throw new SqlException(tr('Specified key ":value" in the execute array for query ":query" is NOT scalar or NULL! Value is ":value"', [
                                 ':key' => str_replace(':', '.', $key),
@@ -247,31 +213,16 @@ class Sql
                 $file = Debug::currentFile($current);
                 $line = Debug::currentLine($current);
 
-                $core->executedQuery([
-                    'time' => microtime(true) - $query_start,
-                    'query' => self::show($query, $execute, true),
-                    'function' => $function,
-                    'file' => $file,
-                    'line' => $line
-                ]);
+                Debug::addStatistic()
+                    ->setQuery($this->show($query, $execute, true))
+                    ->setTime(Timers::get('queries')->stopLap());
             }
 
             return $pdo_statement;
 
-        } catch (Exception $e) {
-            try {
-                // Let Sql::error() try and generate more understandable errors
-                Sql::error($e, $query, $execute, isset_get(self::$interface));
-
-                if (!is_string($connector_name)) {
-                    throw new SqlException(tr('Sql::query(): Specified connector name ":connector" for query ":query" is invalid, it should be a string', array(':connector' => $connector_name, ':query' => $query)), $e);
-                }
-
-                Sql::error($e, $query, $execute, isset_get(self::$interface));
-
-            } catch (Exception $e) {
-                throw new SqlException(tr('Sql::query(:connector): Query ":query" failed', array(':connector' => $connector_name, ':query' => $query)), $e);
-            }
+        } catch (Throwable $e) {
+            // Let Sql::error() try and generate more understandable errors
+            Sql::error($e, $query, $execute);
         }
     }
 
@@ -285,7 +236,7 @@ class Sql
      * @param bool $clean
      * @return string
      */
-    public static function buildQueryString(string|PDOStatement $query, ?array $execute = null, bool $clean = true): string
+    public function buildQueryString(string|PDOStatement $query, ?array $execute = null, bool $clean = true): string
     {
         if (is_object($query)) {
             if (!($query instanceof PDOStatement)) {
@@ -346,9 +297,9 @@ class Sql
      * @param string $query
      * @return PDOStatement
      */
-    public static function prepare(string $query): PDOStatement
+    public function prepare(string $query): PDOStatement
     {
-        return self::$interface->prepare($query);
+        return $this->interface->prepare($query);
     }
 
 
@@ -361,7 +312,7 @@ class Sql
      * @param int $fetch_style
      * @return mixed|null
      */
-    public static function fetch($r, $single_column = false, $fetch_style = PDO::FETCH_ASSOC)
+    public function fetch($r, $single_column = false, $fetch_style = PDO::FETCH_ASSOC)
     {
         try {
             if (!is_object($r)) {
@@ -414,7 +365,7 @@ class Sql
      * @param
      * @return
      */
-    public static function get(string $query, array $execute = null): array
+    public function get(string $query, array $execute = null): array
     {
         try {
             $result = Sql::query($query, $execute, $connector_name);
@@ -448,9 +399,9 @@ class Sql
      * @param null $connector_name
      * @return string|null
      */
-    public static function getColumn(string $query, string $column, array $execute = null, $connector_name = null): ?string
+    public function getColumn(string $query, string $column, array $execute = null, $connector_name = null): ?string
     {
-        $result = self::get($query, $execute);
+        $result = $this->get($query, $execute);
 
         if (!$result) {
             // No results
@@ -477,7 +428,7 @@ class Sql
      * @param
      * @return
      */
-    public static function list($query, $execute = null, $numerical_array = false)
+    public function list($query, $execute = null, $numerical_array = false)
     {
         try {
             if (is_object($query)) {
@@ -535,26 +486,26 @@ class Sql
      * @param bool $use_database
      * @return mixed|PDO
      */
-    protected static function connect(bool $use_database = true)
+    protected function connect(bool $use_database = true)
     {
         try {
             /*
              * Does this connector require an SSH tunnel?
              */
-            if (isset_get(self::$connector['ssh_tunnel']['required'])) {
-                self::sshTunnel();
+            if (isset_get($this->configuration['ssh_tunnel']['required'])) {
+                $this->sshTunnel();
             }
 
             // Connect!
-            self::$connector['pdo_attributes'][PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
-            self::$connector['pdo_attributes'][PDO::ATTR_USE_BUFFERED_QUERY] = !(boolean)self::$connector['buffered'];
-            self::$connector['pdo_attributes'][PDO::ATTR_INIT_COMMAND] = 'SET NAMES ' . strtoupper(self::$connector['charset']);
+            $this->configuration['pdo_attributes'][PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
+            $this->configuration['pdo_attributes'][PDO::ATTR_USE_BUFFERED_QUERY] = !(boolean)$this->configuration['buffered'];
+            $this->configuration['pdo_attributes'][PDO::ATTR_INIT_COMMAND] = 'SET NAMES ' . strtoupper($this->configuration['charset']);
             $retries = 7;
 
             while (--$retries >= 0) {
                 try {
-                    $connect_string = self::$connector['driver'] . ':host=' . self::$connector['host'] . (empty(self::$connector['port']) ? '' : ';port=' . self::$connector['port']) . ((empty(self::$connector['db']) or !$use_database) ? '' : ';dbname=' . self::$connector['db']);
-                    $pdo = new PDO($connect_string, self::$connector['user'], self::$connector['pass'], self::$connector['pdo_attributes']);
+                    $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['host'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . ((empty($this->configuration['db']) or !$use_database) ? '' : ';dbname=' . $this->configuration['db']);
+                    $pdo = new PDO($connect_string, $this->configuration['user'], $this->configuration['pass'], $this->configuration['pdo_attributes']);
 
                     log_console(tr('Connected with PDO connect string ":string"', array(':string' => $connect_string)), 'VERYVERBOSE/green');
                     break;
@@ -582,13 +533,13 @@ class Sql
 
                     if (!strstr($message, 'errno=32')) {
                         if ($e->getMessage() == 'ERROR 2013 (HY000): Lost connection to MySQL server at \'reading initial communication packet\', system error: 0') {
-                            if (isset_get(self::$connector['ssh_tunnel']['required'])) {
+                            if (isset_get($this->configuration['ssh_tunnel']['required'])) {
                                 /*
                                  * The tunneling server has "AllowTcpForwarding"
                                  * set to "no" in the sshd_config, attempt auto
                                  * fix
                                  */
-                                os_enable_ssh_tcp_forwarding(self::$connector['ssh_tunnel']['server']);
+                                os_enable_ssh_tcp_forwarding($this->configuration['ssh_tunnel']['server']);
                                 continue;
                             }
                         }
@@ -609,14 +560,14 @@ class Sql
             }
 
             try {
-                $pdo->query('SET time_zone = "' . self::$connector['timezone'] . '";');
+                $pdo->query('SET time_zone = "' . $this->configuration['timezone'] . '";');
 
             } catch (Exception $e) {
                 include(__DIR__ . '/handlers/sql-error-timezone.php');
             }
 
-            if (!empty(self::$connector['mode'])) {
-                $pdo->query('SET Sql::mode="' . self::$connector['mode'] . '";');
+            if (!empty($this->configuration['mode'])) {
+                $pdo->query('SET Sql::mode="' . $this->configuration['mode'] . '";');
             }
 
             return $pdo;
@@ -631,7 +582,7 @@ class Sql
     /**
      * @return void
      */
-    protected static function sshTunnel(): void
+    protected function sshTunnel(): void
     {
 
     }
@@ -643,12 +594,12 @@ class Sql
      *
      * @return mixed|void
      */
-    public static function init()
+    public function init()
     {
         global $_CONFIG, $core;
 
         try {
-            if (!empty(self::$interface)) {
+            if (!empty($this->interface)) {
                 /*
                  * Already connected to requested DB
                  */
@@ -670,7 +621,7 @@ class Sql
              * Connect to database
              */
             log_console(tr('Connecting with SQL connector ":name"', array(':name' => $connector_name)), 'VERYVERBOSE/cyan');
-            self::$interface = Sql::connect($connector);
+            $this->interface = Sql::connect($connector);
 
             /*
              * This is only required for the system connection
@@ -691,12 +642,12 @@ class Sql
                      */
                     if (!empty($_CONFIG['db'][$connector_name]['init'])) {
                         try {
-                            $r = self::$interface->query('SELECT `project`, `framework`, `offline_until` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
+                            $r = $this->interface->query('SELECT `project`, `framework`, `offline_until` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
 
                         } catch (Exception $e) {
                             if ($e->getCode() !== '42S02') {
                                 if ($e->getMessage() === 'SQLSTATE[42S22]: Column not found: 1054 Unknown column \'offline_until\' in \'field list\'') {
-                                    $r = self::$interface->query('SELECT `project`, `framework` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
+                                    $r = $this->interface->query('SELECT `project`, `framework` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
 
                                 } else {
                                     /*
@@ -788,12 +739,12 @@ class Sql
      * @param
      * @return
      */
-    public static function close()
+    public function close()
     {
         global $_CONFIG, $core;
 
         try {
-            unset(self::$interface);
+            unset($this->interface);
 
         } catch (Exception $e) {
             throw new SqlException(tr('Sql::close(): Failed for connector ":connector"', array(':connector' => $connector)), $e);
@@ -807,7 +758,7 @@ class Sql
      * @param string $file
      * @return void
      */
-    public static function import(string $file): void
+    public function import(string $file): void
     {
         $tel = 0;
         $handle = File::open($file, 'r');
@@ -816,7 +767,7 @@ class Sql
             $buffer = trim($buffer);
 
             if (!empty($buffer)) {
-                self::$interface->query($buffer);
+                $this->interface->query($buffer);
 
                 $tel++;
                 // :TODO:SVEN:20130717: Right now it updates the display for each record. This may actually slow down import. Make display update only every 10 records or so
@@ -844,7 +795,7 @@ class Sql
      * @param array|string $columns
      * @return string
      */
-    public static function columns(array $source, array|string $columns): string
+    public function columns(array $source, array|string $columns): string
     {
         $columns = Arrays::force($columns);
         $retval = array();
@@ -872,7 +823,7 @@ class Sql
      * @param string $prefix
      * @return array
      */
-    public static function values(array|string $source, array|strings $columns, string $prefix = ':'): array
+    public function values(array|string $source, array|strings $columns, string $prefix = ':'): array
     {
         $columns = Arrays::force($columns);
         $retval = [];
@@ -893,9 +844,9 @@ class Sql
      *
      * @return ?int
      */
-    public static function insertId(): ?int
+    public function insertId(): ?int
     {
-        $insert_id = self::$interface->lastInsertId();
+        $insert_id = $this->interface->lastInsertId();
 
         if ($insert_id) {
             return (int) $insert_id;
@@ -913,7 +864,7 @@ class Sql
      * @param bool $code
      * @return string
      */
-    public static function getIdOrName(mixed $entry, bool $seo = true, bool $code = false): array
+    public function getIdOrName(mixed $entry, bool $seo = true, bool $code = false): array
     {
         // TODO Figure out WTF this function is and what it is supposed to do
         if (is_array($entry)) {
@@ -980,7 +931,7 @@ class Sql
      * @param int $max
      * @return int
      */
-    public static function uniqueId(string $table, string $column = 'id', int $max = 10000000): int
+    public function uniqueId(string $table, string $column = 'id', int $max = 10000000): int
     {
         $retries = 0;
         $maxretries = 50;
@@ -1007,7 +958,7 @@ class Sql
      * @param string $table
      * @return array
      */
-    public static function filters($params, $columns, $table = ''): array
+    public function filters($params, $columns, $table = ''): array
     {
         $retval = [
             'filters' => [],
@@ -1042,7 +993,7 @@ class Sql
      * @param bool $null_string
      * @return array
      */
-    public static function in(array|string $source, string $column = ':value', bool $filter_null = false, bool $null_string = false): array
+    public function in(array|string $source, string $column = ':value', bool $filter_null = false, bool $null_string = false): array
     {
         if (empty($source)) {
             throw new OutOfBoundsException(tr('Specified source is empty'));
@@ -1068,7 +1019,7 @@ class Sql
      * @param int|string|null $column_starts_with
      * @return string a comma delimited string of columns
      */
-    public static function inColumns(array $in, int|string|null $column_starts_with = null): string
+    public function inColumns(array $in, int|string|null $column_starts_with = null): string
     {
         if ($column_starts_with) {
             // Only return those columns that start with this string
@@ -1095,7 +1046,7 @@ class Sql
      * @param int $expiration_time
      * @return array|false|null
      */
-    public static function getCached($key, $query, $column = false, $execute = false, $expiration_time = 86400)
+    public function getCached($key, $query, $column = false, $execute = false, $expiration_time = 86400)
     {
         if (($value = Mc::get($key, 'Sql::')) === false) {
             /*
@@ -1144,7 +1095,7 @@ class Sql
      * @param int $expiration_time
      * @return array|false
      */
-    public static function listCached($key, $query, $execute = false, $numerical_array = false, $connector = null, $expiration_time = 86400)
+    public function listCached($key, $query, $execute = false, $numerical_array = false, $connector = null, $expiration_time = 86400)
     {
         try {
             $connector = Sql::connectorName($connector);
@@ -1174,7 +1125,7 @@ class Sql
      * @param string $column
      * @return string
      */
-    public static function fetchColumn(PDOStatement $r, string $column): string
+    public function fetchColumn(PDOStatement $r, string $column): string
     {
         $row = Sql::fetch($r);
 
@@ -1201,7 +1152,7 @@ class Sql
      * @param mixed $skip
      * @return array The specified datab ase entry, updated with all the data from the specified $_POST entry
      */
-    public static function merge(array $database_entry, array $post, $skip = null): array
+    public function merge(array $database_entry, array $post, $skip = null): array
     {
         if (!$post) {
             /*
@@ -1262,7 +1213,7 @@ class Sql
      * @param bool $not
      * @return string
      */
-    public static function is($value, $label, $not = false): string
+    public function is($value, $label, $not = false): string
     {
         if ($not) {
             if ($value === null) {
@@ -1287,7 +1238,7 @@ class Sql
      * @param bool $enable
      * @return void
      */
-    public static function log(bool $enable)
+    public function log(bool $enable)
     {
         if ($enable) {
             Sql::query('SET global log_output = "FILE";');
@@ -1309,7 +1260,7 @@ class Sql
      * @param int|null $id
      * @return bool
      */
-    public static function rowExists(string $table, string $column, int|string|null $value, ?int $id = null): bool
+    public function rowExists(string $table, string $column, int|string|null $value, ?int $id = null): bool
     {
         if ($id) {
             return Sql::get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `id` != :id', true, [$column => $value, ':id' => $id]);
@@ -1329,7 +1280,7 @@ class Sql
      * @param
      * @return
      */
-    public static function count($table, $where = '', $execute = null, $column = '`id`')
+    public function count($table, $where = '', $execute = null, $column = '`id`')
     {
         $expires = $_CONFIG['Sql::large']['cache']['expires'];
         $hash = hash('sha1', $table . $where . $column . json_encode($execute));
@@ -1371,7 +1322,7 @@ class Sql
      * @param
      * @return
      */
-    public static function currentDatabase(): string
+    public function currentDatabase(): string
     {
         return Sql::getColumn('SELECT DATABASE() AS `database` FROM DUAL;');
     }
@@ -1385,7 +1336,7 @@ class Sql
      * @param int $max
      * @return int
      */
-    public static function randomId(string $table, int $min = 1, int $max = 2147483648): int
+    public function randomId(string $table, int $min = 1, int $max = 2147483648): int
     {
         $exists = true;
         $id = -1; // Initialize id negatively to ensure
@@ -1413,7 +1364,7 @@ class Sql
      * @param bool $simple_quotes
      * @return array
      */
-    public static function exec(string|Server $server, string $query, bool $root = false, bool $simple_quotes = false): array
+    public function exec(string|Server $server, string $query, bool $root = false, bool $simple_quotes = false): array
     {
         try {
             $query = addslashes($query);
@@ -1458,7 +1409,7 @@ class Sql
     // *
     // * @return array
     // */
-    //public static function exec_get($server, $query, $root = false, $simple_quotes = false) {
+    //public function exec_get($server, $query, $root = false, $simple_quotes = false) {
     //    try {
     //
     //    } catch (Exception $e) {
@@ -1474,9 +1425,9 @@ class Sql
      * @param string $db_name
      * @return array
      */
-    public static function getDatabase(string $db_name): array
+    public function getDatabase(string $db_name): array
     {
-        $database = self::get('SELECT  `databases`.`id`,
+        $database = $this->get('SELECT  `databases`.`id`,
                                        `databases`.`servers_id`,
                                        `databases`.`status`,
                                        `databases`.`replication_status`,
@@ -1522,7 +1473,7 @@ class Sql
      * @param string $connector_name The requested connector name
      * @return array The requested connector data. NULL if the specified connector does not exist
      */
-    public static function getConnector(string $connector_name): array
+    public function getConfiguration(string $connector_name): array
     {
         if (!is_natural($connector_name)) {
             // Connector was specified by name
@@ -1597,13 +1548,13 @@ class Sql
      * @param array $connector
      * @return array The specified connector data, with all informatinon completed if missing
      */
-    public static function makeConnector(string $connector_name, array $connector): array
+    public function makeConnector(string $connector_name, array $connector): array
     {
         if (empty($connector['ssh_tunnel'])) {
             $connector['ssh_tunnel'] = array();
         }
 
-        if (Sql::getConnector($connector_name)) {
+        if (Sql::getConfiguration($connector_name)) {
             if (empty($connector['overwrite'])) {
                 throw new SqlException(tr('The specified connector name ":name" already exists', [':name' => $connector_name]));
             }
@@ -1627,7 +1578,7 @@ class Sql
      * @param array $connector
      * @return array The specified connector data with all fields available
      */
-    public static function ensureConnector(array $connector): array
+    public function ensureConnector(array $connector): array
     {
         $template = [
             'driver' => 'mysql',
@@ -1669,7 +1620,7 @@ class Sql
      * @param string|Server $server The server that is to be tested
      * @return void
      */
-    public static function testTunnel(string|Server $server): void
+    public function testTunnel(string|Server $server): void
     {
         $connector_name = 'test';
         $port = 6000;
@@ -1702,7 +1653,7 @@ class Sql
      * @param array|null $execute The bound query variables
      * @return void
      */
-    public static function error(Throwable $e, string|PDOStatement $query, ?array $execute = null)
+    public function error(Throwable $e, string|PDOStatement $query, ?array $execute = null)
     {
         global $_CONFIG, $core;
 
@@ -1739,7 +1690,7 @@ class Sql
         /*
          * Get error data
          */
-        $error = self::errorInfo();
+        $error = $this->errorInfo();
 
         if (($error[0] == '00000') and !$error[1]) {
             $error = $e->errorInfo;
@@ -1805,7 +1756,7 @@ class Sql
                         /*
                          * Specified database does not exist
                          */
-                        static $retry;
+                        $retry;
 
                         if (($core->register['script'] == 'init')) {
                             if ($retry) {
@@ -1822,8 +1773,8 @@ class Sql
                             $retry = true;
                             Log::warning('Database "'.$query['db'].'" does not exist, attempting to create it automatically');
 
-                            self::query('CREATE DATABASE `:db` DEFAULT CHARSET=":charset" COLLATE=":collate";', [':db' => $query['db'], ':charset' => self::$connector['charset'], ':collate' => self::$connector['collate']]);
-                            return self::connect($query);
+                            $this->query('CREATE DATABASE `:db` DEFAULT CHARSET=":charset" COLLATE=":collate";', [':db' => $query['db'], ':charset' => $this->configuration['charset'], ':collate' => $this->configuration['collate']]);
+                            return $this->connect($query);
                         }
 
                         throw new SqlException(tr('Cannot use database ":db", it does not exist', [':db' => $query['db']]), $e);
@@ -1927,12 +1878,12 @@ class Sql
      * @param int $limit
      * @return int
      */
-    public static function validLimit(int $limit): int
+    public function validLimit(int $limit): int
     {
         $limit = force_natural($limit);
 
-        if ($limit > $_CONFIG['db'][self::$connector]['limit_max']) {
-            return $_CONFIG['db'][self::$connector]['limit_max'];
+        if ($limit > $_CONFIG['db'][$this->configuration]['limit_max']) {
+            return $_CONFIG['db'][$this->configuration]['limit_max'];
         }
 
         return $limit;
@@ -1946,7 +1897,7 @@ class Sql
      * @param int|null $page
      * @return string The SQL " LIMIT X, Y " string
      */
-    protected static function limit(?int $limit = null, ?int $page = null): string
+    protected function limit(?int $limit = null, ?int $page = null): string
     {
         $limit = Paging::limit($limit);
 
@@ -1971,7 +1922,7 @@ class Sql
      * @return mixed
      * @throws SqlException
      */
-    public static function show(string|PDOStatement $query, ?array $execute = null, bool $return_only = false): mixed
+    public function show(string|PDOStatement $query, ?array $execute = null, bool $return_only = false): mixed
     {
         if (is_array($execute)) {
             /*
