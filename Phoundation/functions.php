@@ -248,14 +248,18 @@ function is_version(string $version): bool
  *
  * A data entry is considered new when the id is null, or _new
  *
- * @param array|object $entry The entry to check
+ * @param DataEntry|array $entry The entry to check
  * @return boolean TRUE if the specified $entry is new
  * @version 2.5.46: Added function and documentation
  */
-function is_new(array|object $entry): bool
+function is_new(DataEntry|array $entry): bool
 {
     if (!is_array($entry)) {
-        throw new CoreException(tr('is_new(): Specified entry is not an array'), 'invalid');
+        if (!is_object($entry)) {
+            throw new CoreException(tr('Specified entry is not an array or object'));
+        }
+
+        return $entry->isNew();
     }
 
     if (isset_get($entry['status']) === '_new') {
@@ -288,10 +292,15 @@ public function br2nl(string $source, string $nl = "\n"): string
 
 
 
-/*
- * Return the first non empty argument
+/**
+ * Return the first non-empty argument
+ *
+ * @params mixed $value
+ * @params mixed $value ...
+ *
+ * @return mixed The first value that is not empty, or NULL if all arguments were NULL
  */
-function not_empty()
+function not_empty(): mixed
 {
     foreach (func_get_args() as $argument) {
         if ($argument) {
@@ -299,67 +308,78 @@ function not_empty()
         }
     }
 
-    return $argument;
+    return null;
 }
 
 
-/*
+
+/**
  * Return the first non null argument
+ *
+ * @params mixed $value
+ * @params mixed $value ...
+ *
+ * @return mixed The first value that is not NULL, or NULL if all arguments were NULL
  */
-function not_null()
+function not_null(): mixed
 {
     foreach (func_get_args() as $argument) {
         if ($argument === null) continue;
         return $argument;
     }
+
+    return null;
 }
 
 
-/*
- * Return the first non empty argument
+
+/**
+ * Return a randomly picked argument
+ *
+ * @return string
  */
-function pick_random($count)
+function pick_random(): string
 {
-    try {
-        $args = func_get_args();
+    $args = func_get_args();
+    $key = array_rand($args, count($args));
+    return $args[$key];
+}
 
-        /*
-         * Remove the $count argument from the list
-         */
-        array_shift($args);
 
-        if (!$count) {
-            /*
-             * Get a random count
-             */
-            $count = mt_rand(1, count($args));
-            $array = true;
-        }
 
-        if (($count < 1) or ($count > count($args))) {
-            throw new OutOfBoundsException(tr('pick_random(): Invalid count ":count" specified for ":args" arguments', array(':count' => $count, ':args' => count($args))), 'invalid');
+/**
+ * Return randomly picked arguments
+ *
+ * @param int|null $count
+ * @return string|array
+ */
+function pick_random_multiple(?int $count = null): string|array
+{
+    $args = func_get_args();
 
-        } elseif ($count == 1) {
-            if (empty($array)) {
-                return $args[array_rand($args, $count)];
-            }
+    // Remove the $count argument from the list
+    array_shift($args);
 
-            return array($args[array_rand($args, $count)]);
-
-        } else {
-            $retval = array();
-
-            for ($i = 0; $i < $count; $i++) {
-                $retval[] = $args[$key = array_rand($args)];
-                unset($args[$key]);
-            }
-
-            return $retval;
-        }
-
-    } catch (Exception $e) {
-        throw new OutOfBoundsException(tr('pick_random(): Failed'), $e);
+    if (!$count) {
+        // Get a random count
+        $count = mt_rand(1, count($args));
     }
+
+    if (($count < 1) or ($count > count($args))) {
+        // Invalid count specified
+        throw new OutOfBoundsException(tr('Invalid count ":count" specified for ":args" arguments', [':count' => $count, ':args' => count($args)]));
+
+    }
+
+    // Return multiple arguments in an array
+    $retval = [];
+
+    for ($i = 0; $i < $count; $i++) {
+        $retval[] = $args[$key = array_rand($args)];
+        unset($args[$key]);
+    }
+
+    return $retval;
 }
 
 
@@ -393,14 +413,11 @@ function showdie(mixed $source): void
 
 
 
-/*
+/**
  * Return $source if $source is not considered "empty". Return null if specified variable is considered "empty", like 0, "", array(), etc.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package system
+ * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
+ * @return mixed Either $source or null, depending on if $source is empty or not
  * @see get_empty()
  * @note This function is a wrapper for get_empty($source, null);
  * @version 2.6.27: Added documentation
@@ -414,93 +431,46 @@ function showdie(mixed $source): void
  * code
  * null
  * /code
- *
- * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
- * @return mixed Either $source or null, depending on if $source is empty or not
  */
-function get_null($source)
+function get_null(mixed $source): mixed
 {
-    try {
-        return get_empty($source, null);
-
-    } catch (Exception $e) {
-        throw new OutOfBoundsException(tr('get_null(): Failed'), $e);
-    }
+    return $source ?? null;
 }
 
 
-/*
- * Return $source if $source is not considered "empty". Return $default if specified variable is considered "empty", like 0, "", array(), etc.
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package system
- * @see get_null()
- * @version 2.6.27: Added function and documentation
- * @example
- * code
- * $result = get_empty(null, false);
- * showdie($result);
- * /code
- *
- * This would return
- * code
- * false
- * /code
- *
- * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
- * @param mixed $default The value to be returned if $source evalidates to empty
- * @return mixed Either $source or $default, depending on if $source is empty or not
- */
-function get_empty($source, $default)
-{
-    try {
-        if ($source) {
-            return $source;
-        }
 
-        return $default;
-
-    } catch (Exception $e) {
-        throw new OutOfBoundsException(tr('get_empty(): Failed'), $e);
-    }
-}
-
-
-/*
+/**
  * Return the value quoted if non numeric string
+ *
+ * @param int|string $value
+ * @return int|string
  */
-function quote($value)
+function quote(int|string $value): int|string
 {
-    try {
-        if (!is_numeric($value) and is_string($value)) {
-            return '"' . $value . '"';
-        }
-
-        return $value;
-
-    } catch (Exception $e) {
-        throw new OutOfBoundsException(tr('quote(): Failed'), $e);
+    if (!is_numeric($value) and is_string($value)) {
+        return '"' . $value . '"';
     }
+
+    return $value;
 }
 
-/*
+
+
+/**
+ * Returns either the specified value if it exists in the array, or the default vaule if it does not
  *
+ * @param int|string $value
+ * @param array $array
+ * @param mixed $default
+ * @return mixed
  */
-function ensure_value($value, $enum, $default)
+function ensure_value(int|string $value, array $array, mixed $default): mixed
 {
-    try {
-        if (in_array($value, $enum)) {
-            return $value;
-        }
-
-        return $default;
-
-    } catch (Exception $e) {
-        throw new OutOfBoundsException(tr('ensure_value(): Failed'), $e);
+    if (in_array($value, $array)) {
+        return $value;
     }
+
+    return $default;
 }
 
 

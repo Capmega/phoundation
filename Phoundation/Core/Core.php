@@ -96,34 +96,34 @@ class Core {
      */
     protected function __construct()
     {
-        // Register the process start
-        Timer::create('process');
-
-        /*
-         * Define a unique process request ID
-         * Define project paths.
-         *
-         * ROOT   is the root directory of this project and should be used as the root for all other paths
-         * TMP    is a private temporary directory
-         * PUBTMP is a public (accessible by web server) temporary directory
-         */
-        define('REQUEST', substr(uniqid(), 7));
-        define('ROOT', realpath(__DIR__ . '/../../..') . '/');
-        define('TMP', ROOT . 'data/tmp/');
-        define('PUBTMP', ROOT . 'data/content/tmp/');
-        define('CRLF', "\r\n");
-
-        /*
-         * Setup error handling, report ALL errors
-         */
-        error_reporting(E_ALL);
-        set_error_handler(['\Phoundation\Core\Core', 'phpErrorHandler']);
-        set_exception_handler(['\Phoundation\Core\Core', 'uncaughtException']);
-
-        // Load the functions file
-        require('../functions.php');
-
         try {
+            // Register the process start
+            Timer::create('process');
+
+            /*
+             * Define a unique process request ID
+             * Define project paths.
+             *
+             * ROOT   is the root directory of this project and should be used as the root for all other paths
+             * TMP    is a private temporary directory
+             * PUBTMP is a public (accessible by web server) temporary directory
+             */
+            define('REQUEST', substr(uniqid(), 7));
+            define('ROOT', realpath(__DIR__ . '/../..') . '/');
+            define('TMP', ROOT . 'data/tmp/');
+            define('PUBTMP', ROOT . 'data/content/tmp/');
+            define('CRLF', "\r\n");
+
+            /*
+             * Setup error handling, report ALL errors
+             */
+            error_reporting(E_ALL);
+            set_error_handler(['\Phoundation\Core\Core', 'phpErrorHandler']);
+            set_exception_handler(['\Phoundation\Core\Core', 'uncaughtException']);
+
+            // Load the functions file
+            require(ROOT . 'Phoundation/functions.php');
+
             // Check what platform we're in
             switch (php_sapi_name()) {
                 case 'cli':
@@ -180,17 +180,13 @@ class Core {
                     die('startup: Failed, see web server error log');
                 }
 
-                /*
-                 * Died in CLI
-                 */
+                // Died in CLI
                 die('startup: Failed with "' . $e->getMessage() . '"');
             }
 
-            /*
-             * We died even before PLATFORM_HTTP was defined? How?
-             */
+            // Wowza things went to @#*$@( really fast! The standard defines aren't even available yet
             error_log('startup: Failed with "' . $e->getMessage() . '"');
-            die('startup: Failed, see error log');
+            die('startup: Failed, see error log' . PHP_EOL);
         }
     }
 
@@ -650,9 +646,8 @@ class Core {
      */
     public static function phpErrorHandler(int $errno, string $errstr, string $errfile, int $errline): void
     {
-die('PHPERRORHANDLER');
         if (!self::$ready) {
-            throw new PhpException(tr('Pre system ready PHP ERROR [:errno] ":errstr" in ":errfile@:errline" with context ":errcontext"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline)));
+            throw new PhpException('Pre system ready PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline));
         }
 
         $trace = Debug::backtrace();
@@ -663,7 +658,7 @@ die('PHPERRORHANDLER');
             ->setCode('PHP-ERROR-' . $errno)
             ->addGroup('developers')
             ->setTitle(tr('PHP ERROR ":errno"', [':errno' => $errno]))
-            ->setMessage(tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline" with context ":errcontext"', [':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline]))
+            ->setMessage(tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', [':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline]))
             ->setData([
                 'errno' => $errno,
                 'errstr' => $errstr,
@@ -693,6 +688,7 @@ die('PHPERRORHANDLER');
      */
     public static function uncaughtException(Throwable $e, bool $die = true)
     {
+        die('UNCAUGHTEXCEPTION');
 //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
         /*
          * Phoundation uncaught exception handler
