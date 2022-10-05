@@ -317,10 +317,11 @@ class Core {
      * @param string $subkey
      * @return mixed
      */
-    public static function readRegister(string$key, string $subkey): mixed
+    public static function readRegister(string $key, string $subkey): mixed
     {
         return isset_get(self::$register[$key][$subkey]);
     }
+
 
 
     /**
@@ -351,6 +352,22 @@ class Core {
             // Write the key
             self::$register[$key] = $value;
         }
+    }
+
+
+
+    /**
+     * Compare the specified value with the registered value for the specified key / sub key in the core register.
+     *
+     * @note Will return NULL if the specified key does not exist
+     * @param mixed $value
+     * @param string $key
+     * @param string|null $subkey
+     * @return bool
+     */
+    public static function compareRegister(mixed $value, string $key,?string $subkey = null): bool
+    {
+        return $value === isset_get(self::$register[$key][$subkey]);
     }
 
 

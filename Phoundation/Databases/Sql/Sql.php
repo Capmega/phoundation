@@ -9,15 +9,19 @@ use PDOException;
 use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Core;
+use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Core\Timers;
 use Phoundation\Databases\Exception\MysqlException;
-use Phoundation\Databases\Exception\SqlColumnDoesNotExistsException;
-use Phoundation\Databases\Exception\SqlException;
+use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
+use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Filesystem\File;
 use Server;
 use Servers;
@@ -65,6 +69,20 @@ class Sql
      */
     protected ?PDO $interface = null;
 
+    /**
+     * True if a database is in use
+     *
+     * @var bool $using_database
+     */
+    protected bool $using_database = false;
+
+    /**
+     * The database interface
+     *
+     * @var PDO|null $pdo
+     */
+    protected ?PDO $pdo = null;
+
 
 
     /**
@@ -82,7 +100,7 @@ class Sql
             throw new SqlException('Could not find the "PDO" class, does this PHP have PDO available?');
         }
 
-        if (!defined('PDO::MYSql::ATTR_USE_BUFFERED_QUERY')) {
+        if (!defined('PDO::MY$this->ATTR_USE_BUFFERED_QUERY')) {
             /*
              * Wulp, MySQL library is not available
              */
@@ -149,8 +167,7 @@ class Sql
             }
 
             // Log all queries?
-            if (!empty($core->register['Sql::debug_queries'])) {
-                $core->register['Sql::debug_queries']--;
+            if (Debug::enabled() and Config::get('debug.queries')) {
                 $query = ' ' . $query;
             }
 
@@ -190,22 +207,18 @@ class Sql
             }
 
             if (Debug::enabled()) {
-                /*
-                 * Get current function / file@line. If current function is actually
-                 * an include then assume this is the actual script that was
-                 * executed by route()
-                 */
+                 // Get current function / file@line. If current function is actually an include then assume this is the
+                 // actual script that was executed by route()
                 Debug::addStatistic()
                     ->setQuery($this->show($query, $execute, true))
-                    ->setTime(Timers::get('queries')->stopLap());
+                    ->setTime(Timers::get('queries')->stopLap($query));
             }
 
-            Timers::get('query')->stopLap($query);
             return $pdo_statement;
 
         } catch (Throwable $e) {
-            // Let Sql::error() try and generate more understandable errors
-            Sql::error($e, $query, $execute);
+            // Let $this->error() try and generate more understandable errors
+            $this->errorQuery($e, $query, $execute);
             throw new SqlException(tr('Query failed'), previous: $e);
         }
     }
@@ -289,87 +302,77 @@ class Sql
 
 
     /**
-     * Fetch and return data from specified resource
+     * Fetch and return one complete row from specified resource
      *
-     * @param
-     * @param bool $single_column
+     * @param PDOStatement $resource
      * @param int $fetch_style
-     * @return mixed|null
+     * @return array|string
      */
-    public function fetch($r, $single_column = false, $fetch_style = PDO::FETCH_ASSOC)
+    public function fetch(PDOStatement $resource, int $fetch_style = PDO::FETCH_ASSOC): ?array
     {
-        try {
-            if (!is_object($r)) {
-                throw new SqlException('Sql::fetch(): Specified resource is not a PDO object', 'invalid');
-            }
+        $result = $resource->fetch($fetch_style);
 
-            $result = $r->fetch($fetch_style);
-
-            if ($result === false) {
-                /*
-                 * There are no entries
-                 */
-                return null;
-            }
-
-            if ($single_column === true) {
-                /*
-                 * Return only the first column
-                 */
-                if (count($result) !== 1) {
-                    throw new SqlException(tr('Sql::fetch(): Failed for query ":query" to fetch single column, specified query result contains not 1 but ":count" columns', array(':count' => count($result), ':query' => $r->queryString)), 'multiple');
-                }
-
-                return array_shift($result);
-            }
-
-            if ($single_column) {
-                if (!array_key_exists($single_column, $result)) {
-                    throw new SqlException(tr('Sql::fetch(): Failed for query ":query" to fetch single column ":column", specified query result does not contain the requested column', array(':column' => $single_column, ':query' => $r->queryString)), 'multiple');
-                }
-
-                return $result[$single_column];
-            }
-
-            /*
-             * Return everything
-             */
-            return $result;
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::fetch(): Failed', $e);
+        if ($result === false) {
+            // There are no entries
+            return null;
         }
+
+        // Return all columns
+        return $result;
     }
 
 
 
     /**
+     * Fetch and return one column from specified resource
+     *
+     * @param PDOStatement $resource
+     * @param string $column
+     * @param int $fetch_style
+     * @return string|null
+     */
+    public function fetchColumn(PDOStatement $resource, string $column, int $fetch_style = PDO::FETCH_ASSOC): ?string
+    {
+        $result = $this->fetch($resource, $fetch_style);
+
+        if ($result) {
+            if (!array_key_exists($column, $result)) {
+                throw new SqlException(tr('Failed to fetch single column ":column" from query ":query", specified query result does not contain the requested column', [':column' => $column, ':query' => $resource->queryString]));
+            }
+
+            return $result[$column];
+        }
+
+        // There are no entries
+        return null;
+    }
+
+
+    /**
      * Execute query and return only the first row
      *
-     * @param
-     * @return
+     * @param string|PDOStatement $query
+     * @param array|null $execute
+     * @return array|null
      */
-    public function get(string $query, array $execute = null): array
+    public function get(string|PDOStatement $query, array $execute = null): ?array
     {
-        try {
-            $result = Sql::query($query, $execute, $connector_name);
+        $result = $this->query($query, $execute);
 
-            if ($result->rowCount() > 1) {
-                throw new SqlException(tr('Sql::get(): Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', array(':count' => $result->rowCount(), ':query' => Log::sql($result->queryString, $execute, true))), 'multiple');
-            }
+        switch ($result->rowCount()) {
+            case 0:
+                // No results. This is probably okay, but do check if the query was a select or show query, jsut to
+                // be sure
+                $this->ensureShowSelect($query);
+                return null;
 
-            return Sql::fetch($result);
+            case 1:
+                return $this->fetch($result);
 
-        } catch (Exception $e) {
-            if (is_object($query)) {
-                $query = $query->queryString;
-            }
-
-            if ((strtolower(substr(trim($query), 0, 6)) !== 'select') and (strtolower(substr(trim($query), 0, 4)) !== 'show')) {
-                throw new SqlException('Sql::get(): Query "' . Strings::log(Log::sql($query, $execute, true), 4096) . '" is not a select or show query and as such cannot return results', $e);
-            }
-
-            throw new SqlException('Sql::get(): Failed', $e);
+            default:
+                // Multiple results, this is always bad for a function that should only return one result!
+                $this->ensureShowSelect($query);
+                throw new SqlMultipleResultsException(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [':count' => $result->rowCount(), ':query' => $this->buildQueryString($result->queryString, $execute)]));
         }
     }
 
@@ -378,12 +381,12 @@ class Sql
     /**
      * Get the value of a single column from a single row for the specified query
      *
-     * @param string $query
+     * @param string|PDOStatement $query
      * @param array|null $execute
-     * @param null $connector_name
+     * @param string|null $column
      * @return string|null
      */
-    public function getColumn(string $query, string $column, array $execute = null, $connector_name = null): ?string
+    public function getColumn(string|PDOStatement $query, array $execute = null, ?string $column = null): ?string
     {
         $result = $this->get($query, $execute);
 
@@ -392,73 +395,75 @@ class Sql
             return null;
         }
 
-        if (count($result) > 1) {
-            throw new SqlException('The query ":query" returned ":count" columns while Sql::getColumn() can only return one single column', [':query' => $query, ':count' => count($result)]);
-        }
+        if ($column) {
+            // Column was specified, so we can process multiple columns in the results
+            if (array_key_exists($column, $result)) {
+                return $result[$column];
+            }
 
-        if (array_key_exists($column, $result)) {
-            return $result[$column];
-        }
+            // Specified column doesn't exist
+            throw new SqlColumnDoesNotExistsException('Cannot return column ":column", it does not exist in the result set for query ":query"', [':query' => $query, ':column' => $column]);
+        } else {
+            // No column was specified, so we MUST have received only one column!
+            if (count($result) > 1) {
+                // The query returned multiple columns
+                throw new SqlException('The query ":query" returned ":count" columns while $this->getColumn() can only return one single column', [':query' => $query, ':count' => count($result)]);
+            }
 
-        // Specified column doesn't exist
-        throw new SqlColumnDoesNotExistsException('Cannot select column ":column", it does not exist in the result set for query ":query"', [':query' => $query, ':column' => $column]);
+            return Arrays::firstValue($result);
+        }
     }
-
 
 
     /**
      * Execute query and return only the first row
      *
-     * @param
-     * @return
+     * @param string|PDOStatement $query
+     * @param array|null $execute
+     * @param bool $numerical_array
+     * @return array
      */
-    public function list($query, $execute = null, $numerical_array = false)
+    public function list(string|PDOStatement $query, ?array $execute = null, bool $numerical_array = false): array
     {
-        try {
-            if (is_object($query)) {
-                $r = $query;
-                $query = $r->queryString;
+        if (is_object($query)) {
+            $r = $query;
+            $query = $r->queryString;
+
+        } else {
+            $r = $this->query($query, $execute);
+        }
+
+        $retval = [];
+
+        while ($row = $this->fetch($r)) {
+            if (is_scalar($row)) {
+                $retval[] = $row;
 
             } else {
-                $r = Sql::query($query, $execute, $connector_name);
-            }
+                switch ($numerical_array ? 0 : count($row)) {
+                    case 0:
+                        /*
+                         * Force numerical array
+                         */
+                        $retval[] = $row;
+                        break;
 
-            $retval = array();
+                    case 1:
+                        $retval[] = array_shift($row);
+                        break;
 
-            while ($row = Sql::fetch($r)) {
-                if (is_scalar($row)) {
-                    $retval[] = $row;
+                    case 2:
+                        $retval[array_shift($row)] = array_shift($row);
+                        break;
 
-                } else {
-                    switch ($numerical_array ? 0 : count($row)) {
-                        case 0:
-                            /*
-                             * Force numerical array
-                             */
-                            $retval[] = $row;
-                            break;
-
-                        case 1:
-                            $retval[] = array_shift($row);
-                            break;
-
-                        case 2:
-                            $retval[array_shift($row)] = array_shift($row);
-                            break;
-
-                        default:
-                            $retval[array_shift($row)] = $row;
-                    }
+                    default:
+                        $retval[array_shift($row)] = $row;
                 }
             }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::list(): Failed', $e);
         }
-    }
 
+        return $retval;
+    }
 
 
     /**
@@ -466,11 +471,11 @@ class Sql
      * If the database was already connected, then just ignore and continue.
      * If the database version check fails, then exception
      *
-     * @param
      * @param bool $use_database
-     * @return mixed|PDO
+     * @return PDO
+     * @throws SqlException
      */
-    protected function connect(bool $use_database = true)
+    protected function connect(bool $use_database = true): PDO
     {
         try {
             /*
@@ -491,31 +496,16 @@ class Sql
                     $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['host'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . ((empty($this->configuration['db']) or !$use_database) ? '' : ';dbname=' . $this->configuration['db']);
                     $pdo = new PDO($connect_string, $this->configuration['user'], $this->configuration['pass'], $this->configuration['pdo_attributes']);
 
-                    log_console(tr('Connected with PDO connect string ":string"', array(':string' => $connect_string)), 'VERYVERBOSE/green');
+                    Log::success(tr('Connected with PDO connect string ":string"', [':string' => $connect_string]), 3);
                     break;
 
                 } catch (Exception $e) {
-                    /*
-                     * This is a work around for the weird PHP MySQL error
-                     * "PDO::__construct(): send of 5 bytes failed with errno=32
-                     * Broken pipe". So far we have not been able to find a fix
-                     * for this but we have noted that you always have to
-                     * connect 3 times, and the 3rd time the bug magically
-                     * disappears. The work around will detect the error and
-                     * retry up to 3 times to work around this issue for now.
-                     *
-                     * Over time, it has appeared that the cause of this issue
-                     * may be that MySQL is chewing on a huge and slow query
-                     * which prevents it from accepting new connections. This is
-                     * not confirmed yet, but very likely. Either way, this
-                     * "fix" still fixes the issue..
-                     */
-                    log_console(tr('Failed to connect with PDO connect string ":string"', array(':string' => $connect_string)), 'exception');
-                    log_console($e->getMessage(), 'exception');
+                    Log::error(tr('Failed to connect with PDO connect string ":string"', [':string' => $connect_string]));
+                    Log::error($e);
 
                     $message = $e->getMessage();
 
-                    if (!strstr($message, 'errno=32')) {
+                    if (!str_contains($message, 'errno=32')) {
                         if ($e->getMessage() == 'ERROR 2013 (HY000): Lost connection to MySQL server at \'reading initial communication packet\', system error: 0') {
                             if (isset_get($this->configuration['ssh_tunnel']['required'])) {
                                 /*
@@ -523,7 +513,7 @@ class Sql
                                  * set to "no" in the sshd_config, attempt auto
                                  * fix
                                  */
-                                os_enable_ssh_tcp_forwarding($this->configuration['ssh_tunnel']['server']);
+                                Os::ssh->enableTcpForwarding($this->configuration['ssh_tunnel']['server']);
                                 continue;
                             }
                         }
@@ -536,28 +526,47 @@ class Sql
                     }
 
                     /*
-                     * This error seems to happen when MySQL is VERY busy
-                     * processing queries. Wait a little before trying again
+                     * This is a workaround for the weird PHP MySQL error "PDO::__construct(): send of 5 bytes failed
+                     * with errno=32 Broken pipe". So far we have not been able to find a fix for this but we have noted
+                     * that you always have to connect 3 times, and the 3rd time the bug magically disappears. The
+                     * workaround will detect the error and retry up to 3 times to work around this issue for now.
+                     *
+                     * Over time, it has appeared that the cause of this issue may be that MySQL is chewing on a huge
+                     * and slow query which prevents it from accepting new connections. This is not confirmed yet, but
+                     * very likely. Either way, this "fix" still fixes the issue..
+                     *
+                     * This error seems to happen when MySQL is VERY busy processing queries. Wait a little before
+                     * trying again
                      */
                     usleep(100000);
                 }
             }
 
             try {
-                $pdo->query('SET time_zone = "' . $this->configuration['timezone'] . '";');
+                $this->pdo->query('SET time_zone = "' . $this->configuration['timezone'] . '";');
 
-            } catch (Exception $e) {
-                include(__DIR__ . '/handlers/sql-error-timezone.php');
+            } catch (Throwable $e) {
+                global $core;
+
+                if (!Core::readRegister('no_time_zone') and (Core::compareRegister('init', 'script'))) {
+                    throw $e;
+                }
+
+                /*
+                 * Indicate that time_zone settings failed (this will subsequently be used by the init system to automatically initialize that as well)
+                 */
+                unset(Core::register['no_time_zone']);
+                Core::register['time_zone_fail'] = true;
             }
 
             if (!empty($this->configuration['mode'])) {
-                $pdo->query('SET Sql::mode="' . $this->configuration['mode'] . '";');
+                $pdo->query('SET $this->mode="' . $this->configuration['mode'] . '";');
             }
 
             return $pdo;
 
-        } catch (Exception $e) {
-            return include(__DIR__ . '/handlers/sql-error-connect.php');
+        } catch (Throwable $e) {
+            $this->errorConnect($e);
         }
     }
 
@@ -587,44 +596,44 @@ class Sql
                 /*
                  * Already connected to requested DB
                  */
-                return $connector_name;
+                return $this->configuration_name;
             }
 
             /*
              * Get a database configuration connector and ensure its valid
              */
-            $connector = Sql::ensureConnector($_CONFIG['db'][$connector_name]);
+            $this->configuration = $this->ensureConnector($_CONFIG['db'][$this->configuration_name]);
 
             /*
              * Set the MySQL rand() seed for this session
              */
             // :TODO: On PHP7, update to random_int() for better cryptographic numbers
-            $_SESSION['Sql::random_seed'] = mt_rand();
+            $_SESSION['$this->random_seed'] = mt_rand();
 
             /*
              * Connect to database
              */
-            log_console(tr('Connecting with SQL connector ":name"', array(':name' => $connector_name)), 'VERYVERBOSE/cyan');
-            $this->interface = Sql::connect($connector);
+            log_console(tr('Connecting with SQL connector ":name"', array(':name' => $this->configuration_name)), 'VERYVERBOSE/cyan');
+            $this->interface = $this->connect($this->configuration);
 
             /*
              * This is only required for the system connection
              */
-            if ((PLATFORM_CLI) and ($core->register['script'] == 'init') and FORCE and !empty($connector['init'])) {
+            if ((PLATFORM_CLI) and (Core::register['script'] == 'init') and FORCE and !empty($this->configuration['init'])) {
                 include(__DIR__ . '/handlers/sql-init-force.php');
             }
 
             /*
              * Check current init data?
              */
-            if (empty($core->register['skip_init_check'])) {
+            if (empty(Core::register['skip_init_check'])) {
                 if (!defined('FRAMEWORKDBVERSION')) {
                     /*
                      * Get database version
                      *
                      * This can be disabled by setting $_CONFIG[db][CONNECTORNAME][init] to false
                      */
-                    if (!empty($_CONFIG['db'][$connector_name]['init'])) {
+                    if (!empty($_CONFIG['db'][$this->configuration_name]['init'])) {
                         try {
                             $r = $this->interface->query('SELECT `project`, `framework`, `offline_until` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
 
@@ -646,12 +655,12 @@ class Sql
 
                         try {
                             if (empty($r) or !$r->rowCount()) {
-                                log_console(tr('Sql::init(): No versions table found or no versions in versions table found, assumed empty database ":db"', array(':db' => $_CONFIG['db'][$connector_name]['db'])), 'yellow');
+                                log_console(tr('$this->init(): No versions table found or no versions in versions table found, assumed empty database ":db"', array(':db' => $_CONFIG['db'][$this->configuration_name]['db'])), 'yellow');
 
                                 define('FRAMEWORKDBVERSION', 0);
                                 define('PROJECTDBVERSION', 0);
 
-                                $core->register['no-db'] = true;
+                                $this->using_database = true;
 
                             } else {
                                 $versions = $r->fetch(PDO::FETCH_ASSOC);
@@ -666,7 +675,7 @@ class Sql
                                 define('PROJECTDBVERSION', $versions['project']);
 
                                 if (version_compare(FRAMEWORKDBVERSION, '0.1.0') === -1) {
-                                    $core->register['no-db'] = true;
+                                    $this->using_database = true;
                                 }
                             }
 
@@ -684,8 +693,8 @@ class Sql
                          * On console, show current versions
                          */
                         if ((PLATFORM_CLI) and VERBOSE) {
-                            log_console(tr('Sql::init(): Found framework code version ":frameworkcodeversion" and framework database version ":frameworkdbversion"', array(':frameworkcodeversion' => FRAMEWORKCODEVERSION, ':frameworkdbversion' => FRAMEWORKDBVERSION)));
-                            log_console(tr('Sql::init(): Found project code version ":projectcodeversion" and project database version ":projectdbversion"', array(':projectcodeversion' => PROJECTCODEVERSION, ':projectdbversion' => PROJECTDBVERSION)));
+                            log_console(tr('$this->init(): Found framework code version ":frameworkcodeversion" and framework database version ":frameworkdbversion"', array(':frameworkcodeversion' => FRAMEWORKCODEVERSION, ':frameworkdbversion' => FRAMEWORKDBVERSION)));
+                            log_console(tr('$this->init(): Found project code version ":projectcodeversion" and project database version ":projectdbversion"', array(':projectcodeversion' => PROJECTCODEVERSION, ':projectdbversion' => PROJECTDBVERSION)));
                         }
 
 
@@ -708,7 +717,7 @@ class Sql
                 define('PROJECTDBVERSION', PROJECTCODEVERSION);
             }
 
-            return $connector_name;
+            return $this->configuration_name;
 
         } catch (Exception $e) {
             include(__DIR__ . '/handlers/sql-init-fail.php');
@@ -731,7 +740,7 @@ class Sql
             unset($this->interface);
 
         } catch (Exception $e) {
-            throw new SqlException(tr('Sql::close(): Failed for connector ":connector"', array(':connector' => $connector)), $e);
+            throw new SqlException(tr('$this->close(): Failed for connector ":connector"', array(':connector' => $this->configuration)), $e);
         }
     }
 
@@ -924,7 +933,7 @@ class Sql
             $id = mt_rand(1, $max);
 
             // TODO Find a better algorithm than "Just try random shit until something sticks"
-            if (!Sql::get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :id', [':id' => $id])) {
+            if (!$this->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :id', [':id' => $id])) {
                 return $id;
             }
         }
@@ -969,7 +978,7 @@ class Sql
 
 
     /**
-     * Return a sequential array that can be used in Sql::in
+     * Return a sequential array that can be used in $this->in
      *
      * @param array|string $source
      * @param string $column
@@ -992,7 +1001,7 @@ class Sql
 
 
     /**
-     * Helper for building Sql::in key value pairs
+     * Helper for building $this->in key value pairs
      *
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -1032,7 +1041,7 @@ class Sql
      */
     public function getCached($key, $query, $column = false, $execute = false, $expiration_time = 86400)
     {
-        if (($value = Mc::get($key, 'Sql::')) === false) {
+        if (($value = Mc::get($key, '$this->')) === false) {
             /*
              * Keyword data not found in cache, get it from MySQL with
              * specified query and store it in cache for next read
@@ -1057,9 +1066,9 @@ class Sql
                 unset($tmp);
             }
 
-            $value = Sql::get($query, $column, $execute, $connector);
+            $value = $this->get($query, $column, $execute, $this->configuration);
 
-            Mc::set($value, $key, 'Sql::', $expiration_time);
+            Mc::set($value, $key, '$this->', $expiration_time);
         }
 
         return $value;
@@ -1075,29 +1084,29 @@ class Sql
      * @param $query
      * @param bool $execute
      * @param bool $numerical_array
-     * @param null $connector
+     * @param null $this->configuration
      * @param int $expiration_time
      * @return array|false
      */
-    public function listCached($key, $query, $execute = false, $numerical_array = false, $connector = null, $expiration_time = 86400)
+    public function listCached($key, $query, $execute = false, $numerical_array = false, $this->configuration = null, $expiration_time = 86400)
     {
         try {
-            $connector = Sql::connectorName($connector);
+            $this->configuration = $this->connectorName($this->configuration);
 
-            if (($list = Mc::get($key, 'Sql::')) === false) {
+            if (($list = Mc::get($key, '$this->')) === false) {
                 /*
                  * Keyword data not found in cache, get it from MySQL with
                  * specified query and store it in cache for next read
                  */
-                $list = Sql::list($query, $execute, $numerical_array, $connector);
+                $list = $this->list($query, $execute, $numerical_array, $this->configuration);
 
-                Mc::set($list, $key, 'Sql::', $expiration_time);
+                Mc::set($list, $key, '$this->', $expiration_time);
             }
 
             return $list;
 
         } catch (SqlException $e) {
-            throw new SqlException('Sql::list_cached(): Failed', $e);
+            throw new SqlException('$this->list_cached(): Failed', $e);
         }
     }
 
@@ -1111,10 +1120,10 @@ class Sql
      */
     public function fetchColumn(PDOStatement $r, string $column): string
     {
-        $row = Sql::fetch($r);
+        $row = $this->fetch($r);
 
         if (!array_key_exists($column, $row)) {
-            throw new SqlException(tr('Sql::fetchColumn(): Specified column ":column" does not exist', [':column' => $column]));
+            throw new SqlException(tr('$this->fetchColumn(): Specified column ":column" does not exist', [':column' => $column]));
         }
 
         return $row[$column];
@@ -1126,22 +1135,15 @@ class Sql
      * Merge database entry with new posted entry, overwriting the old DB values,
      * while skipping the values specified in $skip
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
      * @param array $database_entry
      * @param array $post
      * @param mixed $skip
-     * @return array The specified datab ase entry, updated with all the data from the specified $_POST entry
+     * @return array|null The specified datab ase entry, updated with all the data from the specified $_POST entry
      */
-    public function merge(array $database_entry, array $post, $skip = null): array
+    public function merge(array $database_entry, array $post, array|string|null $skip = null): ?array
     {
         if (!$post) {
-            /*
-             * No post was done, there is nothing to merge
-             */
+            // No post was done, there is nothing to merge
             return $database_entry;
         }
 
@@ -1151,42 +1153,36 @@ class Sql
 
         if (!is_array($database_entry)) {
             if ($database_entry !== null) {
-                throw new SqlException(tr('Sql::merge(): Specified database source data type should be an array but is a ":type"', array(':type' => gettype($database_entry))), 'invalid');
+                throw new SqlException(tr('Specified database source data type should be an array but is a ":type"', [':type' => gettype($database_entry)]));
             }
 
-            /*
-             * Nothing to merge
-             */
-            $database_entry = array();
+            // Nothing to merge
+            $database_entry = [];
         }
 
         if (!is_array($post)) {
             if ($post !== null) {
-                throw new SqlException(tr('Sql::merge(): Specified post source data type should be an array but is a ":type"', array(':type' => gettype($post))), 'invalid');
+                throw new SqlException(tr('Specified post source data type should be an array but is a ":type"', [':type' => gettype($post)]));
             }
 
-            /*
-             * Nothing to merge
-             */
-            $post = array();
+            // Nothing to merge
+            $post = [];
         }
 
         $skip = Arrays::force($skip);
 
-        /*
-         * Copy all POST variables over DB
-         * Skip POST variables that have NULL value
-         */
+        // Copy all POST variables over DB. Skip POST variables that have NULL value
         foreach ($post as $key => $value) {
             if (in_array($key, $skip)) {
                 continue;
             }
 
-            $database_entry[$key] = $post[$key];
+            $database_entry[$key] = $value;
         }
 
         return $database_entry;
     }
+
 
 
     /**
@@ -1225,12 +1221,12 @@ class Sql
     public function log(bool $enable)
     {
         if ($enable) {
-            Sql::query('SET global log_output = "FILE";');
-            Sql::query('SET global general_log_file="/var/log/mysql/queries.log";');
-            Sql::query('SET global general_log = 1;');
+            $this->query('SET global log_output = "FILE";');
+            $this->query('SET global general_log_file="/var/log/mysql/queries.log";');
+            $this->query('SET global general_log = 1;');
 
         } else {
-            Sql::query('SET global log_output = "OFF";');
+            $this->query('SET global log_output = "OFF";');
         }
     }
 
@@ -1247,10 +1243,10 @@ class Sql
     public function rowExists(string $table, string $column, int|string|null $value, ?int $id = null): bool
     {
         if ($id) {
-            return Sql::get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `id` != :id', true, [$column => $value, ':id' => $id]);
+            return $this->get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `id` != :id', true, [$column => $value, ':id' => $id]);
         }
 
-        return Sql::get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . '', true, [$column => $value]));
+        return $this->get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . '', true, [$column => $value]));
     }
 
 
@@ -1266,9 +1262,9 @@ class Sql
      */
     public function count($table, $where = '', $execute = null, $column = '`id`')
     {
-        $expires = $_CONFIG['Sql::large']['cache']['expires'];
+        $expires = $_CONFIG['$this->large']['cache']['expires'];
         $hash = hash('sha1', $table . $where . $column . json_encode($execute));
-        $count = Sql::get('SELECT `count` FROM `counts` WHERE `hash` = :hash AND `until` > NOW()', 'count', array(':hash' => $hash));
+        $count = $this->get('SELECT `count` FROM `counts` WHERE `hash` = :hash AND `until` > NOW()', 'count', array(':hash' => $hash));
 
         if ($count) {
             return $count;
@@ -1277,9 +1273,9 @@ class Sql
         /*
          * Count value was not found cached, count it directly
          */
-        $count = Sql::get('SELECT COUNT(' . $column . ') AS `count` FROM `' . $table . '` ' . $where, 'count', $execute);
+        $count = $this->get('SELECT COUNT(' . $column . ') AS `count` FROM `' . $table . '` ' . $where, 'count', $execute);
 
-        Sql::query('INSERT INTO `counts` (`createdby`, `count`, `hash`, `until`)
+        $this->query('INSERT INTO `counts` (`createdby`, `count`, `hash`, `until`)
                    VALUES               (:createdby , :count , :hash , NOW() + INTERVAL :expires SECOND)
 
                    ON DUPLICATE KEY UPDATE `count`      = :update_count,
@@ -1308,7 +1304,7 @@ class Sql
      */
     public function currentDatabase(): string
     {
-        return Sql::getColumn('SELECT DATABASE() AS `database` FROM DUAL;');
+        return $this->getColumn('SELECT DATABASE() AS `database` FROM DUAL;');
     }
 
 
@@ -1328,7 +1324,7 @@ class Sql
 
         while ($exists and --$timeout > 0) {
             $id = mt_rand($min, $max);
-            $exists = Sql::query('SELECT `id` FROM `' . $table . '` WHERE `id` = :id', [':id' => $id]);
+            $exists = $this->query('SELECT `id` FROM `' . $table . '` WHERE `id` = :id', [':id' => $id]);
         }
 
         return $id;
@@ -1359,10 +1355,10 @@ class Sql
 
             // Are we going to execute as root?
             if ($root) {
-                MySql::createPasswordFile('root', $server['db_root_password'], $server);
+                My$this->createPasswordFile('root', $server['db_root_password'], $server);
 
             } else {
-                MySql::createPasswordFile($server['db_username'], $server['db_password'], $server);
+                My$this->createPasswordFile($server['db_username'], $server['db_password'], $server);
             }
 
             if ($simple_quotes) {
@@ -1372,12 +1368,12 @@ class Sql
                 $results = Servers::exec($server, 'mysql -e \"' . Strings::ends($query, ';') . '\"');
             }
 
-            MySql::deletePasswordFile($server);
+            My$this->deletePasswordFile($server);
 
             return $results;
         } catch (MysqlException $e) {
             // Ensure that the password file will be removed
-            MySql::deletePasswordFile($server);
+            My$this->deletePasswordFile($server);
         }
     }
 
@@ -1397,7 +1393,7 @@ class Sql
     //    try {
     //
     //    } catch (Exception $e) {
-    //        throw new SqlException(tr('Sql::exec_get(): Failed'), $e);
+    //        throw new SqlException(tr('$this->exec_get(): Failed'), $e);
     //    }
     //}
 
@@ -1452,31 +1448,31 @@ class Sql
     /**
      * Return connector data for the specified connector.
      *
-     * Connector data will first be searched for in $_CONFIG[db][CONNECTOR]. If the connector is not found there, the Sql::connectors table will be searched. If the connector is not found there either, NULL will be returned
+     * Connector data will first be searched for in $_CONFIG[db][CONNECTOR]. If the connector is not found there, the $this->connectors table will be searched. If the connector is not found there either, NULL will be returned
      *
-     * @param string $connector_name The requested connector name
+     * @param string $this->configuration_name The requested connector name
      * @return array The requested connector data. NULL if the specified connector does not exist
      */
-    public function getConfiguration(string $connector_name): array
+    public function getConfiguration(string $this->configuration_name): array
     {
-        if (!is_natural($connector_name)) {
+        if (!is_natural($this->configuration_name)) {
             // Connector was specified by name
-            if (isset($_CONFIG['db'][$connector_name])) {
-                return $_CONFIG['db'][$connector_name];
+            if (isset($_CONFIG['db'][$this->configuration_name])) {
+                return $_CONFIG['db'][$this->configuration_name];
             }
 
             $where = ' `name` = :name ';
-            $execute = array(':name' => $connector_name);
+            $execute = array(':name' => $this->configuration_name);
 
         } else {
             /*
              * Connector was specified by id
              */
             $where = ' `id` = :id ';
-            $execute = array(':id' => $connector_name);
+            $execute = array(':id' => $this->configuration_name);
         }
 
-        $connector = Sql::get('SELECT `id`,
+        $this->configuration = $this->get('SELECT `id`,
                                      `createdon`,
                                      `createdby`,
                                      `meta_id`,
@@ -1502,56 +1498,56 @@ class Sql
                                      `pdo_attributes`,
                                      `timezone`
 
-                              FROM   `Sql::connectors`
+                              FROM   `$this->connectors`
 
                               WHERE  ' . $where,
 
             null, $execute, 'core');
 
-        if ($connector) {
-            $connector['ssh_tunnel'] = array('required' => $connector['ssh_tunnel_required'],
-                'source_port' => $connector['ssh_tunnel_source_port'],
-                'hostname' => $connector['ssh_tunnel_hostname']);
+        if ($this->configuration) {
+            $this->configuration['ssh_tunnel'] = array('required' => $this->configuration['ssh_tunnel_required'],
+                'source_port' => $this->configuration['ssh_tunnel_source_port'],
+                'hostname' => $this->configuration['ssh_tunnel_hostname']);
 
-            unset($connector['ssh_tunnel_required']);
-            unset($connector['ssh_tunnel_source_port']);
-            unset($connector['ssh_tunnel_hostname']);
+            unset($this->configuration['ssh_tunnel_required']);
+            unset($this->configuration['ssh_tunnel_source_port']);
+            unset($this->configuration['ssh_tunnel_hostname']);
 
-            $_CONFIG['db'][$connector_name] = $connector;
+            $_CONFIG['db'][$this->configuration_name] = $this->configuration;
         }
 
-        return $connector;
+        return $this->configuration;
     }
 
 
 
     /**
-     * Create an SQL connector in $_CONFIG['db'][$connector_name] = $data
+     * Create an SQL connector in $_CONFIG['db'][$this->configuration_name] = $data
      *
-     * @param string $connector_name
-     * @param array $connector
+     * @param string $this->configuration_name
+     * @param array $this->configuration
      * @return array The specified connector data, with all informatinon completed if missing
      */
-    public function makeConnector(string $connector_name, array $connector): array
+    public function makeConfiguration(string $configuration_name, array $configuration): array
     {
-        if (empty($connector['ssh_tunnel'])) {
-            $connector['ssh_tunnel'] = array();
+        if (empty($configuration['ssh_tunnel'])) {
+            $configuration['ssh_tunnel'] = array();
         }
 
-        if (Sql::getConfiguration($connector_name)) {
-            if (empty($connector['overwrite'])) {
-                throw new SqlException(tr('The specified connector name ":name" already exists', [':name' => $connector_name]));
+        if ($this->getConfiguration($configuration_name)) {
+            if (empty($configuration['overwrite'])) {
+                throw new SqlException(tr('The specified connector name ":name" already exists', [':name' => $configuration_name]));
             }
         }
 
-        $connector = Sql::ensureConnector($connector);
+        $configuration = $this->ensureConnector($configuration);
 
-        if ($connector['ssh_tunnel']) {
-            $connector['ssh_tunnel']['required'] = true;
+        if ($configuration['ssh_tunnel']) {
+            $configuration['ssh_tunnel']['required'] = true;
         }
 
-        $_CONFIG['db'][$connector_name] = $connector;
-        return $connector;
+        Config::set('database.instances.' . $configuration_name, $configuration);
+        return $configuration;
     }
 
 
@@ -1559,10 +1555,10 @@ class Sql
     /**
      * Ensure all SQL connector fields are available
      *
-     * @param array $connector
-     * @return array The specified connector data with all fields available
+     * @param array $configuration
+     * @return array The specified $configuration data with all fields validated
      */
-    public function ensureConnector(array $connector): array
+    public function ensureConfiguration(array $configuration): array
     {
         $template = [
             'driver' => 'mysql',
@@ -1586,14 +1582,14 @@ class Sql
             'version' => '0.0.0',
             'timezone' => 'UTC'];
 
-        $connector['ssh_tunnel'] = Sql::merge($template['ssh_tunnel'], isset_get($connector['ssh_tunnel'], array()));
-        $connector = Sql::merge($template, $connector);
+        $this->configuration['ssh_tunnel'] = $this->merge($template['ssh_tunnel'], isset_get($this->configuration['ssh_tunnel'], array()));
+        $this->configuration = $this->merge($template, $this->configuration);
 
-        if (!is_array($connector['ssh_tunnel'])) {
-            throw new SqlException(tr('Specified ssh_tunnel ":tunnel" should be an array but is a ":type"', [':tunnel' => $connector['ssh_tunnel'], ':type' => gettype($connector['ssh_tunnel'])]));
+        if (!is_array($this->configuration['ssh_tunnel'])) {
+            throw new SqlException(tr('Specified ssh_tunnel ":tunnel" should be an array but is a ":type"', [':tunnel' => $this->configuration['ssh_tunnel'], ':type' => gettype($this->configuration['ssh_tunnel'])]));
         }
 
-        return $connector;
+        return $this->configuration;
     }
 
 
@@ -1606,7 +1602,7 @@ class Sql
      */
     public function testTunnel(string|Server $server): void
     {
-        $connector_name = 'test';
+        $this->configuration_name = 'test';
         $port = 6000;
         $server = servers_get($server, true);
 
@@ -1614,7 +1610,7 @@ class Sql
             throw new SqlException(tr('Cannot test SQL over SSH tunnel, server ":server" has no database account linked', [':server' => $server['domain']]));
         }
 
-        Sql::makeConnector($connector_name, [
+        $this->makeConnector($this->configuration_name, [
             'port' => $port,
             'user' => $server['db_username'],
             'pass' => $server['db_password'],
@@ -1624,10 +1620,157 @@ class Sql
             ]
         ]);
 
-        Sql::get('SELECT TRUE', true, null, $connector_name);
+        $this->get('SELECT TRUE', true, null, $this->configuration_name);
     }
 
     
+
+    protected function errorConnect(Throwable $e)
+    {
+        if ($e->getMessage() == 'could not find driver') {
+            throw new PhpModuleNotAvailableException(tr('Failed to connect with ":driver" driver, it looks like its not available', [':driver' => $this->configuration['driver']]));
+        }
+
+        Log::Warning(tr('Encountered exception ":e" while connecting to database server, attempting to resolve', array(':e' => $e->getMessage())));
+
+        /*
+         * Check that all connector values have been set!
+         */
+        foreach (array('driver', 'host', 'user', 'pass') as $key) {
+            if (empty($this->configuration[$key])) {
+                throw new ConfigException(tr('The database configuration has key ":key" missing, check your database configuration in :rootconfig/', [':key' => $key, ':root' => ROOT]));
+            }
+        }
+
+        switch ($e->getCode()) {
+            case 1049:
+                /*
+                 * Database not found!
+                 */
+                $this->using_database = true;
+
+                if (!(PLATFORM_CLI and ((Core::register['script'] == 'init') or (Core::register['script'] == 'sync')))) {
+                    throw $e;
+                }
+
+                Log::warning(tr('Database base server conntection failed because database ":db" does not exist. Attempting to connect without using a database to correct issue', [':db' => $this->configuration['db']]));
+
+                /*
+                 * We're running the init script, so go ahead and create the DB already!
+                 */
+                $db  = $this->configuration['db'];
+                unset($this->configuration['db']);
+                $pdo = sql_connect($this->configuration);
+
+                Log::warning(tr('Successfully connected to database server. Attempting to create database ":db"', [':db' => $db]));
+
+                $pdo->query('CREATE DATABASE `'.$db.'`');
+
+                Log::warning(tr('Reconnecting to database server with database ":db"', [':db' => $db]));
+
+                $this->configuration['db'] = $db;
+                return $this->connect(true);
+
+            case 2002:
+                /*
+                 * Connection refused
+                 */
+                if (empty($this->configuration['ssh_tunnel']['required'])) {
+                    throw new SqlException(tr('sql_connect(): Connection refused for host ":hostname::port"', array(':hostname' => $this->configuration['host'], ':port' => $this->configuration['port'])), $e);
+                }
+
+                /*
+                 * This connection requires an SSH tunnel. Check if the tunnel process still exists
+                 */
+                load_libs('cli,servers');
+
+                if (!cli_pidgrep($tunnel['pid'])) {
+                    $server     = servers_get($this->configuration['ssh_tunnel']['domain']);
+                    $registered = ssh_host_is_known($server['hostname'], $server['port']);
+
+                    if ($registered === false) {
+                        throw new SqlException(tr('sql_connect(): Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', array(':hostname' => $this->configuration['ssh_tunnel']['domain'])), $e);
+                    }
+
+                    if ($registered === true) {
+                        throw new SqlException(tr('sql_connect(): Connection refused for host ":hostname" on local port ":port" because the tunnel process either started too late or already died. The server has its SSH fingerprints registered in the ROOT/data/ssh/known_hosts file.', array(':hostname' => $this->configuration['ssh_tunnel']['domain'], ':port' => $this->configuration['port'])), $e);
+                    }
+
+                    /*
+                     * The server was not registerd in the ROOT/data/ssh/known_hosts file, but was registered in the ssh_fingerprints table, and automatically updated. Retry to connect
+                     */
+                    return sql_connect($this->configuration, $use_database);
+                }
+
+//:TODO: SSH to the server and check if the msyql process is up!
+                throw new SqlException(tr('sql_connect(): Connection refused for SSH tunnel requiring host ":hostname::port". The tunnel process is available, maybe the MySQL on the target server is down?', array(':hostname' => $this->configuration['host'], ':port' => $this->configuration['port'])), $e);
+
+            case 2006:
+                /*
+                 * MySQL server went away
+                 *
+                 * Check if tunnel PID is still there
+                 * Check if target server supports TCP forwarding.
+                 * Check if the tunnel is still responding to TCP requests
+                 */
+                if (empty($this->configuration['ssh_tunnel']['required'])) {
+                    /*
+                     * No SSH tunnel was required for this connector
+                     */
+                    throw $e;
+                }
+
+                load_libs('servers,linux');
+
+                $server  = servers_get($this->configuration['ssh_tunnel']['domain']);
+                $allowed = linux_get_ssh_tcp_forwarding($server);
+
+                if (!$allowed) {
+                    /*
+                     * SSH tunnel is required for this connector, but tcp fowarding
+                     * is not allowed. Allow it and retry
+                     */
+                    if (!$server['allow_sshd_modification']) {
+                        throw new SqlException(tr('sql_connect(): Connector ":connector" requires SSH tunnel to server, but that server does not allow TCP fowarding, nor does it allow auto modification of its SSH server configuration', array(':connector' => $this->configuration)), 'configuration');
+                    }
+
+                    log_console(tr('Connector ":connector" requires SSH tunnel to server ":server", but that server does not allow TCP fowarding. Server allows SSH server configuration modification, attempting to resolve issue', array(':server' => $this->configuration['ssh_tunnel']['domain'])), 'yellow');
+
+                    /*
+                     * Now enable TCP forwarding on the server, and retry connection
+                     */
+                    linux_set_ssh_tcp_forwarding($server, true);
+                    log_console(tr('Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', array(':server' => $this->configuration['ssh_tunnel']['domain'])), 'yellow');
+
+                    if ($this->configuration['ssh_tunnel']['pid']) {
+                        log_console(tr('Closing previously opened SSH tunnel to server ":server"', array(':server' => $this->configuration['ssh_tunnel']['domain'])), 'yellow');
+                        ssh_close_tunnel($this->configuration['ssh_tunnel']['pid']);
+                    }
+
+                    return sql_connect($this->configuration);
+                }
+
+                /*
+                 * Check if the tunnel process is still up and about
+                 */
+                if (!cli_pid($this->configuration['ssh_tunnel']['pid'])) {
+                    throw new SqlException(tr('sql_connect(): SSH tunnel process ":pid" is gone', array(':pid' => $this->configuration['ssh_tunnel']['pid'])), 'failed');
+                }
+
+                /*
+                 * Check if we can connect over the tunnel to the remote SSH
+                 */
+                $results = inet_telnet(array('host' => '127.0.0.1',
+                    'port' => $this->configuration['ssh_tunnel']['source_port']));
+
+// :TODO: Implement further error handling.. From here on, appearently inet_telnet() did NOT cause an exception, so we have a result.. We can check the result for mysql server data and with that confirm that it is working, but what would.. well, cause a problem, because if everything worked we would not be here...
+
+            default:
+                throw new SqlException('Failed to create PDO SQL object', previous: $e);
+        }
+    }
+
+
 
     /**
      * Process SQL query errors
@@ -1637,7 +1780,7 @@ class Sql
      * @param array|null $execute The bound query variables
      * @return void
      */
-    public function error(Throwable $e, string|PDOStatement $query, ?array $execute = null)
+    protected function errorQuery(Throwable $e, string|PDOStatement $query, ?array $execute = null): void
     {
         global $_CONFIG, $core;
 
@@ -1734,7 +1877,7 @@ class Sql
                             throw new SqlException(tr('Cannot use database ":db", this user has no access to it', [':db' => $query['db']]), $e);
                         }
 
-                        throw new SqlException(tr('Cannot use database with query ":query", this user has no access to it', [':query' => Sql::buildQueryString($query, $execute, true)]), $e);
+                        throw new SqlException(tr('Cannot use database with query ":query", this user has no access to it', [':query' => $this->buildQueryString($query, $execute, true)]), $e);
 
                     case 1049:
                         /*
@@ -1742,7 +1885,7 @@ class Sql
                          */
                         $retry;
 
-                        if (($core->register['script'] == 'init')) {
+                        if ((Core::register['script'] == 'init')) {
                             if ($retry) {
                                 $e = new SqlException(tr('Cannot use database ":db", it does not exist and cannot be created automatically with the current user ":user"', [':db' => isset_get($query['db']), ':user' => isset_get($query['user'])]), $e);
                                 $e->addMessages(tr('Possible reason can be that the configured user does not have the required GRANT to create database'));
@@ -1767,29 +1910,29 @@ class Sql
                         /*
                          * Integrity constraint violation
                          */
-                        throw new SqlException(tr('Query ":query" contains an abiguous column', [':query' => Sql::buildQueryString($query, $execute, true)]), $e);
+                        throw new SqlException(tr('Query ":query" contains an abiguous column', [':query' => $this->buildQueryString($query, $execute, true)]), $e);
 
                     case 1054:
                         /*
                          * Column not found
                          */
-                        throw new SqlException(tr('Query ":query" refers to a column that does not exist', [':query' => Sql::buildQueryString($query, $execute, true)]), $e);
+                        throw new SqlException(tr('Query ":query" refers to a column that does not exist', [':query' => $this->buildQueryString($query, $execute, true)]), $e);
 
                     case 1064:
                         /*
                          * Syntax error or access violation
                          */
                         if (str_contains(strtoupper($query), 'DELIMITER')) {
-                            throw new SqlException(tr('Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', array(':query' => Sql::buildQueryString($query, $execute, true))), $e);
+                            throw new SqlException(tr('Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', array(':query' => $this->buildQueryString($query, $execute, true))), $e);
                         }
 
-                        throw new SqlException(tr('Query ":query" has a syntax error', [':query' => Sql::buildQueryString($query, $execute, true)]), $e);
+                        throw new SqlException(tr('Query ":query" has a syntax error', [':query' => $this->buildQueryString($query, $execute, true)]), $e);
 
                     case 1072:
                         /*
                          * Adding index error, index probably does not exist
                          */
-                        throw new SqlException(tr('Query ":query" failed with error 1072 with the message ":message"', [':query' => Sql::buildQueryString($query, $execute, true), ':message' => isset_get($error[2])]), $e);
+                        throw new SqlException(tr('Query ":query" failed with error 1072 with the message ":message"', [':query' => $this->buildQueryString($query, $execute, true), ':message' => isset_get($error[2])]), $e);
 
                     case 1005:
                         // no-break
@@ -1800,23 +1943,23 @@ class Sql
                          * Foreign key error, get the FK error data from mysql
                          */
                         try {
-                            $fk = Sql::getColumn('SHOW ENGINE INNODB STATUS', 'Status', null));
+                            $fk = $this->getColumn('SHOW ENGINE INNODB STATUS', 'Status', null));
                             $fk = Strings::from($fk, 'LATEST FOREIGN KEY ERROR');
                             $fk = Strings::from($fk, '------------------------');
                             $fk = Strings::until($fk, '------------');
                             $fk = str_replace("\n", ' ', $fk);
 
                         }catch(Exception $e) {
-                            throw new SqlException(tr('Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', [':query' => Sql::buildQueryString($query, $execute, true)]), $e);
+                            throw new SqlException(tr('Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', [':query' => $this->buildQueryString($query, $execute, true)]), $e);
                         }
 
-                        throw new SqlException(tr('Query ":query" failed with error 1005 with the message ":message"', [':query' => Sql::buildQueryString($query, $execute, true), ':message' => $fk]), $e);
+                        throw new SqlException(tr('Query ":query" failed with error 1005 with the message ":message"', [':query' => $this->buildQueryString($query, $execute, true), ':message' => $fk]), $e);
 
                     case 1146:
                         /*
                          * Base table or view not found
                          */
-                        throw new SqlException(tr('Query ":query" refers to a base table or view that does not exist', [':query' => Sql::buildQueryString($query, $execute, true)]), $e);
+                        throw new SqlException(tr('Query ":query" refers to a base table or view that does not exist', [':query' => $this->buildQueryString($query, $execute, true)]), $e);
 
                     default:
                         if (!is_string($query)) {
@@ -1827,12 +1970,12 @@ class Sql
                             $query = $query->queryString;
                         }
 
-                        throw new SqlException(tr('Query ":query" failed', array(':query' => Sql::buildQueryString(preg_replace('!\s+!', ' ', $query), $execute, true))), $e);
+                        throw new SqlException(tr('Query ":query" failed', array(':query' => $this->buildQueryString(preg_replace('!\s+!', ' ', $query), $execute, true))), $e);
 
                         $body = "SQL STATE ERROR : \"".$error[0]."\"\n".
                             "DRIVER ERROR    : \"".$error[1]."\"\n".
                             "ERROR MESSAGE   : \"".$error[2]."\"\n".
-                            "query           : \"".(PLATFORM_HTTP ? "<b>".Strings::Log(Sql::buildQueryString($query, $execute, true), 4096)."</b>" : Strings::Log(Sql::buildQueryString($query, $execute, true), 4096))."\"\n".
+                            "query           : \"".(PLATFORM_HTTP ? "<b>".Strings::Log($this->buildQueryString($query, $execute, true), 4096)."</b>" : Strings::Log($this->buildQueryString($query, $execute, true), 4096))."\"\n".
                             "date            : \"".date('d m y h:i:s')."\"\n";
 
                         if (isset($_SESSION)) {
@@ -1843,7 +1986,7 @@ class Sql
                           GET    : ".print_r($_GET   , true)."
                           SERVER : ".print_r($_SERVER, true)."\n";
 
-                        error_log('PHP SQL_ERROR: '.Strings::Log($error[2]).' on '.Strings::Log(Sql::buildQueryString($query, $execute, true), 4096));
+                        error_log('PHP SQL_ERROR: '.Strings::Log($error[2]).' on '.Strings::Log($this->buildQueryString($query, $execute, true), 4096));
 
                         if (!$_CONFIG['production']) {
                             throw new SqlException(nl2br($body), $e);
@@ -1957,7 +2100,7 @@ class Sql
             return $query;
         }
 
-        if (empty($core->register['clean_debug'])) {
+        if (empty(Core::register['clean_debug'])) {
             $query = str_replace("\n", ' ', $query);
             $query = Strings::nodouble($query, ' ', '\s');
         }
@@ -1970,5 +2113,26 @@ class Sql
         }
 
         return Debug::show(Strings::endsWith($query, ';'), 6);
+    }
+
+
+
+    /**
+     * Ensure that the specified query is either a select query or a show query
+     *
+     * @param string|PDOStatement $query
+     * @return void
+     */
+    protected function ensureShowSelect(string|PDOStatement $query): void
+    {
+        if (is_object($query)) {
+            $query = $query->queryString;
+        }
+
+        $query = strtolower(substr(trim($query), 10));
+
+        if (!str_starts_with($query, 'select') and !str_starts_with($query, 'show')) {
+            throw new SqlException('Query "' . Strings::log(Log::sql($query, $execute, true), 4096) . '" is not a SELECT or SHOW query and as such cannot return results');
+        }
     }
 }

@@ -8,7 +8,7 @@ use PDOStatement;
 use Phoundation\Core\CoreException;
 use Phoundation\Core\Json\Strings;
 use Phoundation\Core\Log\Log;
-use Phoundation\Databases\Exception\SqlException;
+use Phoundation\Databases\Sql\Exception\SqlException;
 
 /**
  * SqlSimple class

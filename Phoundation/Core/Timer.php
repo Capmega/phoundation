@@ -2,9 +2,9 @@
 
 namespace Phoundation\Core;
 
-
-
 use Phoundation\Exception\OutOfBoundsException;
+
+
 
 /**
  * Class Timer
