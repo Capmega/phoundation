@@ -5,7 +5,6 @@ namespace Phoundation\Developer;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
-use Phoundation\Core\CoreException;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
@@ -13,6 +12,8 @@ use Phoundation\Http\Html\Html;
 use Phoundation\Http\Http;
 use Phoundation\Users\User;
 use Throwable;
+
+
 
 /**
  * Class Debug

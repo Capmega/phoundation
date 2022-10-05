@@ -5,6 +5,7 @@ namespace Phoundation\Http;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 
 /**
@@ -26,6 +27,14 @@ class Http
      */
     protected static ?Http $instance = null;
 
+    /**
+     * The status code that will be returned to the client
+     *
+     * @var int $status_code
+     */
+    protected static int $status_code = 200;
+
+
 
     /**
      * Singleton
@@ -40,6 +49,32 @@ class Http
 
         return self::$instance;
     }
+
+
+
+    /**
+     * Returns the status code that will be sent to the client
+     *
+     * @return int
+     */
+    public static function getStatusCode(): int
+    {
+        return self::$status_code;
+    }
+
+
+
+    /**
+     * Sets the status code that will be sent to the client
+     *
+     * @param int $code
+     */
+    public static function setStatusCode(int $code)
+    {
+        self::validateStatusCode($code);
+        self::$status_code = $code;
+    }
+
 
 
     /**
@@ -1664,5 +1699,16 @@ class Http
     }
 
 
+
+    /**
+     * Throws an exception if the specified status code is invalid
+     *
+     * @param int $code
+     */
+    protected function validateStatusCode(int $code): void
+    {
+        // TODO Implement
+        throw new OutOfBoundsException(tr('The specified status code ":code" is invalid', [':code' => $code]));
+    }
 
 }

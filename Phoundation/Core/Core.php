@@ -2,9 +2,11 @@
 
 namespace Phoundation\Core;
 
+use Phoundation\Cli\Scripts;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpException;
 use Phoundation\Http\Http;
 use Phoundation\Notify\Notification;
 use Throwable;
@@ -70,7 +72,6 @@ class Core {
      */
     protected static array $register = [
         'tabindex' => 0,
-        'ready' => false,
         'js_header' => [],
         'js_footer' => [],
         'css' => [],
@@ -78,6 +79,13 @@ class Core {
         'footer' => '',
         'debug_queries' => []
     ];
+
+    /**
+     * Keeps track of if the core is ready or not
+     *
+     * @var bool
+     */
+    protected static bool $ready = false;
 
 
 
@@ -109,8 +117,8 @@ class Core {
          * Setup error handling, report ALL errors
          */
         error_reporting(E_ALL);
-        set_error_handler(['Core', 'phpErrorHandler']);
-        set_exception_handler(['Core', 'uncaughtException']);
+        set_error_handler(['\Phoundation\Core\Core', 'phpErrorHandler']);
+        set_exception_handler(['\Phoundation\Core\Core', 'uncaughtException']);
 
         // Load the functions file
         require('../functions.php');
@@ -154,7 +162,7 @@ class Core {
                      * Load basic configuration for the current environment
                      * Load cache libraries (done until here since these need configuration @ load time)
                      */
-                    self::$register['ready'] = true;
+                    self::$ready = true;
 
                     // Set protocol
                     define('PROTOCOL', Config::get('web.protocol', 'http'));
@@ -637,13 +645,14 @@ class Core {
      * @param string $errstr
      * @param string $errfile
      * @param int $errline
-     * @param $errcontext
-     * @return object $this, so that you can string multiple calls together
+     * @return void
+     * @throws PhpException
      */
-    function phpErrorHandler(int $errno, string $errstr, string $errfile, int $errline, $errcontext)
+    public static function phpErrorHandler(int $errno, string $errstr, string $errfile, int $errline): void
     {
-        if (empty($core->register['ready'])) {
-            throw new CoreException(tr('Pre system ready PHP ERROR [:errno] ":errstr" in ":errfile@:errline" with context ":errcontext"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline, ':errcontext' => $errcontext)));
+die('PHPERRORHANDLER');
+        if (!self::$ready) {
+            throw new PhpException(tr('Pre system ready PHP ERROR [:errno] ":errstr" in ":errfile@:errline" with context ":errcontext"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline)));
         }
 
         $trace = Debug::backtrace();
@@ -654,17 +663,16 @@ class Core {
             ->setCode('PHP-ERROR-' . $errno)
             ->addGroup('developers')
             ->setTitle(tr('PHP ERROR ":errno"', [':errno' => $errno]))
-            ->setMessage(tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline" with context ":errcontext"', [':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline, ':errcontext' => $errcontext]))
+            ->setMessage(tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline" with context ":errcontext"', [':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline]))
             ->setData([
                 'errno' => $errno,
                 'errstr' => $errstr,
                 'errfile' => $errfile,
                 'errline' => $errline,
-                'errcontext' => $errcontext,
                 'trace' => $trace
             ])->send();
 
-        throw new CoreException(tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', [':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline]), [':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline, ':errcontext' => $errcontext, ':trace' => $trace], 'PHP'.$errno);
+        throw new PhpException(tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', [':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline]), [':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline, ':trace' => $trace], 'PHP'.$errno);
     }
 
 
@@ -683,7 +691,7 @@ class Core {
      * @param boolean $value Specify true if this exception should be a warning, false if not
      * @return object $this, so that you can string multiple calls together
      */
-    function uncaughtException(Throwable $e, bool $die = true)
+    public static function uncaughtException(Throwable $e, bool $die = true)
     {
 //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
         /*
@@ -715,7 +723,6 @@ class Core {
          * For cases like these, uncomment the following lines and you should see your
          * error displayed on your browser.
          */
-        global $_CONFIG, $core;
         static $executed = false;
 
         try {
@@ -730,33 +737,26 @@ class Core {
 
                 $executed = true;
 
-                if (isset($core)) {
-                    if (empty($core->register['script'])) {
-                        Core::readRegister('script', 'unknown');
-                    }
+                if (empty(self::readRegister('script'))) {
+                    Core::readRegister('script', 'unknown');
+                }
 
-                    if ($core->register['ready']) {
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => Core::callType(), ':script' => isset_get($core->register['script'])]));
-                        Log::error($e, 'uncaught-exception', 'exception');
-
-                    } else {
-                        /*
-                         * System is not ready, we cannot log to syslog
-                         */
-                        error_log(tr('*** UNCAUGHT PRE-CORE-READY EXCEPTION ":code" ***', array(':code' => $e->getCode())));
-                        error_log($e->getMessage());
-                        die(1);
-                    }
+                if (self::$ready) {
+                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => Core::callType(), ':script' => isset_get(self::readRegister('script'))]));
+                    Log::error($e, 'uncaught-exception', 'exception');
 
                 } else {
-                    error_log(tr('*** UNCAUGHT PRE-CORE-AVAILABLE EXCEPTION ":code" ***', array(':code' => $e->getCode())));
-                    error_log($e->getMessage(), 'uncaught-exception');
+                    /*
+                     * System is not ready, we cannot log to syslog
+                     */
+                    error_log(tr('*** UNCAUGHT PRE-CORE-READY EXCEPTION ":code" ***', array(':code' => $e->getCode())));
+                    error_log($e->getMessage());
                     die(1);
                 }
 
                 if (!defined('PLATFORM')) {
                     /*
-                     * Wow, system crashed before platform detection. See $core->__constructor()
+                     * Wow, system crashed before platform detection.
                      */
                     die('exception before platform detection');
                 }
@@ -804,7 +804,7 @@ class Core {
                             die(1);
                         }
 
-                        if (!$core->register['ready']) {
+                        if (!self::$ready) {
                             /*
                              * Configuration hasn't been loaded yet, we cannot even know if
                              * we are in debug mode or not!
@@ -838,42 +838,42 @@ class Core {
                                  * such needed, only show the principal message
                                  */
                                 Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-                                $core->register['exit_code'] = 255;
-                                die($core->register['exit_code']);
+                                Scripts::setExitCode(255);
+                                die(Scripts::getExitCode());
                             }
 
                             switch ((string) $e->getCode()) {
                                 case 'already-running':
                                     Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-                                    $core->register['exit_code'] = 254;
-                                    die($core->register['exit_code']);
+                                    Scripts::setExitCode(254);
+                                    die(Scripts::getExitCode());
 
                                 case 'no-method':
                                     Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
                                     cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-                                    $core->register['exit_code'] = 253;
-                                    die($core->register['exit_code']);
+                                    Scripts::setExitCode(253);
+                                    die(Scripts::getExitCode());
 
                                 case 'unknown-method':
                                     Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
                                     cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-                                    $core->register['exit_code'] = 252;
-                                    die($core->register['exit_code']);
+                                    Scripts::setExitCode(252);
+                                    die(Scripts::getExitCode());
 
                                 case 'missing-arguments':
                                     Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
                                     cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-                                    $core->register['exit_code'] = 253;
-                                    die($core->register['exit_code']);
+                                    Scripts::setExitCode(253);
+                                    die(Scripts::getExitCode());
 
                                 case 'invalid-arguments':
                                     Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
                                     cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-                                    $core->register['exit_code'] = 251;
-                                    die($core->register['exit_code']);
+                                    Scripts::setExitCode(251);
+                                    die(Scripts::getExitCode());
 
                                 case 'validation':
-                                    if ($core->register['script'] === 'init') {
+                                    if (self::readRegister('script') === 'init') {
                                         /*
                                          * In the init script, all validations are fatal!
                                          */
@@ -899,12 +899,12 @@ class Core {
                                     }
 
                                     cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-                                    $core->register['exit_code'] = 250;
-                                    die($core->register['exit_code']);
+                                    Scripts::setExitCode(250);
+                                    die(Scripts::getExitCode());
                             }
                         }
 
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN CONSOLE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'])));
+                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN CONSOLE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => self::readRegister('script'))));
                         Debug::enabled(true);
 
                         if ($e instanceof CoreException) {
@@ -931,7 +931,7 @@ class Core {
                                     Log::error('    '.$message);
                                 }
 
-                                Log::error('    '.$core->register['script'].': Failed');
+                                Log::error('    '.self::readRegister('script').': Failed');
                                 Log::error(tr('Exception function trace:'));
 
                                 if ($trace) {
@@ -962,7 +962,7 @@ class Core {
                             }
                         }
 
-                        $core->register['exit_code'] = 64;
+                        Scripts::setExitCode(64);
                         die(8);
 
                     case 'http':
@@ -976,22 +976,19 @@ class Core {
                             header_remove('Content-Type');
                         }
 
-                        /*
-                         *
-                         */
-                        $core->register['http_code'] = 500;
-                        unregister_shutdown('route_404');
+                        //
+                        Http::setStatusCode(500);
+                        self::unregisterShutdown(['Route', '404']);
 
-                        /*
-                         * Ensure that required defines are available
-                         */
+                        // Ensure that required defines are available
                         if (!defined('VERYVERBOSE')) {
                             define('VERYVERBOSE', (getenv('VERYVERBOSE') ? 'VERYVERBOSE' : null));
                         }
 
-                        log_file($e, 'uncaught-exception', 'exception');
+                        Log::error($e);
 
-                        $defines = array('ADMIN'    => '',
+                        $defines = [
+                            'ADMIN'    => '',
                             'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
                             'STARTDIR' => Strings::slash(getcwd()),
                             'FORCE'    => (getenv('FORCE')                    ? 'FORCE'   : null),
@@ -1002,7 +999,8 @@ class Core {
                             'ORDERBY'  => (getenv('ORDERBY')                  ? 'ORDERBY' : null),
                             'ALL'      => (getenv('ALL')                      ? 'ALL'     : null),
                             'DELETED'  => (getenv('DELETED')                  ? 'DELETED' : null),
-                            'STATUS'   => (getenv('STATUS')                   ? 'STATUS'  : null));
+                            'STATUS'   => (getenv('STATUS')                   ? 'STATUS'  : null)
+                        ];
 
                         foreach ($defines as $key => $value) {
                             if (!defined($key)) {
@@ -1012,7 +1010,7 @@ class Core {
 
                         notify($e, false, false);
 
-                        if (!$core->register['ready']) {
+                        if (!self::$ready) {
                             /*
                              * Configuration hasn't been loaded yet, we cannot even know
                              * if we are in debug mode or not!
@@ -1106,13 +1104,13 @@ class Core {
                                 <table class="exception">
                                     <thead>
                                         <td colspan="2" class="center">
-                                            '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'], 'type' => Core::callType())).'
+                                            '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => self::readRegister('script'), 'type' => Core::callType())).'
                                         </td>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td colspan="2" class="center">
-                                                '.tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => $core->register['script'])).'
+                                                '.tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => self::readRegister('script'))).'
                                             </td>
                                         </tr>
                                         <tr>
@@ -1177,8 +1175,8 @@ class Core {
 //                    die('Pre core available exception with handling failure. Please your application or webserver error log files, or enable the first line in the exception handler file for more information');
 //                }
 
-                if (!defined('PLATFORM') or !$core->register['ready']) {
-                    error_log(tr('*** UNCAUGHT PRE READY EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])));
+                if (!defined('PLATFORM') or !self::$ready) {
+                    error_log(tr('*** UNCAUGHT PRE READY EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('script'))));
                     error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
                     error_log($f->getMessage());
                     die('Pre core ready exception with handling failure. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
@@ -1189,7 +1187,7 @@ class Core {
 
                 switch (PLATFORM) {
                     case 'cli':
-                        Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])));
+                        Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('script'))));
                         Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
 
                         debug(true);
@@ -1208,7 +1206,7 @@ class Core {
                             page_show(500);
                         }
 
-                        show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])));
+                        show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('script'))));
                         show('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***');
 
                         show($f);
