@@ -16,3 +16,4 @@ www/en/admin/pub/js/bundle-*
 www/en/admin/pub/css/bundle-*
 *.patch
 phoundation.komodoproject
+vendor
