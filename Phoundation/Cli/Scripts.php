@@ -5,6 +5,7 @@ namespace Phoundation\Cli;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Throwable;
 
@@ -31,11 +32,16 @@ class Scripts
     public static function executeCommand(array $argv): void
     {
         try {
+            // All scripts will execute the cli_done() call, register basic script information
+            Core::registerShutdown('cli_done');
+
+            if (count($argv) <= 1) {
+                throw new OutOfBoundsException('No method specified!');
+            }
+
             // Get the script file to execute
             $script = self::findScript($argv);
 
-            // All scripts will execute the cli_done() call, register basic script information
-            Core::registerShutdown('cli_done');
             Core::writeRegister($script, 'real_script');
             Core::writeRegister(Strings::fromReverse($script, '/'), 'script');
 
@@ -108,7 +114,7 @@ class Scripts
      */
     protected static function handleException(Throwable $e): void
     {
-
+        Cli::setExitCode($e->getCode());
     }
 
 
@@ -120,15 +126,13 @@ class Scripts
      */
     protected static function done(): void
     {
-        $exit_code = Core::getExitCode();
+        $exit_code = Cli::getExitCode();
 
-        /*
-         * Execute all shutdown functions
-         */
+        // Execute all shutdown functions
         Core::shutdown();
 
         if (!QUIET){
-            if ($exit_code and is_numeric($exit_code)){
+            if ($exit_code) {
                 if ($exit_code > 200){
                     /*
                      * Script ended with warning

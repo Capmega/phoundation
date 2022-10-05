@@ -23,6 +23,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Filesystem\File;
+use Phoundation\Processes\Commands;
 use Server;
 use Servers;
 use Throwable;
@@ -513,7 +514,7 @@ class Sql
                                  * set to "no" in the sshd_config, attempt auto
                                  * fix
                                  */
-                                Os::ssh->enableTcpForwarding($this->configuration['ssh_tunnel']['server']);
+                                Commands::server($this->configuration['server'])->enableTcpForwarding($this->configuration['ssh_tunnel']['server']);
                                 continue;
                             }
                         }

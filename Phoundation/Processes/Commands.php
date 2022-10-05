@@ -41,7 +41,7 @@ class Commands
      * Returns the realpath for the specified command
      *
      * @param string $command The command for which the realpath must be known
-     * @return string
+     * @return string The real path for the specified command
      */
     public function which(string $command): string
     {

@@ -212,7 +212,7 @@ class Core {
      *
      * @return void
      */
-    public function startup(): void
+    public static function startup(): void
     {
         global $_CONFIG, $core;
 
@@ -462,151 +462,134 @@ class Core {
     }
 
 
-    /*
+
+    /**
      * Return the correct current domain
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
      * @version 2.0.7: Added function and documentation
-     *
-     * @return void
+     * @return string
      */
-    function get_domain()
+    function getDomain(): string
     {
-        global $_CONFIG;
+        if (PLATFORM_HTTP) {
+            return $_SERVER['HTTP_HOST'];
+        }
+
+        return Config::get('domain');
+    }
+
+
+
+    /**
+     * Show the specified page
+     */
+    function pageShow(string $pagename, array $params = null, $get = null): string
+    {
+        global $_CONFIG, $core;
 
         try {
-            if (PLATFORM_HTTP) {
-                return $_SERVER['HTTP_HOST'];
-            }
+            Arrays::ensure($params, 'message');
 
-            return $_CONFIG['domain'];
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException('get_domain(): Failed', $e);
-        }
-    }
-
-
-/*
- * Show the specified page
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package system
- */
-function page_show($pagename, $params = null, $get = null)
-{
-    global $_CONFIG, $core;
-
-    try {
-        Arrays::ensure($params, 'message');
-
-        if ($get) {
-            if (!is_array($get)) {
-                throw new OutOfBoundsException(tr('page_show(): Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
-            }
-
-            $_GET = $get;
-        }
-
-        if (defined('LANGUAGE')) {
-            $language = LANGUAGE;
-
-        } else {
-            $language = 'en';
-        }
-
-        $params['page'] = $pagename;
-
-        if (is_numeric($pagename)) {
-            /*
-             * This is a system page, HTTP code. Use the page code as http code as well
-             */
-            self::$register['http_code'] = $pagename;
-        }
-
-        self::$register['real_script'] = $pagename;
-
-        switch ($core->callType()) {
-            case 'ajax':
-                $include = ROOT . 'www/' . $language . '/ajax/' . $pagename . '.php';
-
-                if (isset_get($params['exists'])) {
-                    return file_exists($include);
+            if ($get) {
+                if (!is_array($get)) {
+                    throw new OutOfBoundsException(tr('Specified $get MUST be an array, but is an ":type"', [':type' => gettype($get)]));
                 }
 
+                $_GET = $get;
+            }
+
+            if (defined('LANGUAGE')) {
+                $language = LANGUAGE;
+
+            } else {
+                $language = 'en';
+            }
+
+            $params['page'] = $pagename;
+
+            if (is_numeric($pagename)) {
                 /*
-                 * Execute ajax page
+                 * This is a system page, HTTP code. Use the page code as http code as well
                  */
-                log_file(tr('Showing ":language" language ajax page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
-                return include($include);
+                self::$register['http_code'] = $pagename;
+            }
 
-            case 'api':
-                $include = ROOT . 'www/api/' . (is_numeric($pagename) ? 'system/' : '') . $pagename . '.php';
+            self::$register['real_script'] = $pagename;
 
-                if (isset_get($params['exists'])) {
-                    return file_exists($include);
-                }
-
-                /*
-                 * Execute ajax page
-                 */
-                log_file(tr('Showing ":language" language api page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
-                return include($include);
-
-            case 'admin':
-                $admin = '/admin';
-            // FALLTHROUGH
-
-            default:
-                if (is_numeric($pagename)) {
-                    $include = ROOT . 'www/' . $language . isset_get($admin) . '/system/' . $pagename . '.php';
+            switch ($core->callType()) {
+                case 'ajax':
+                    $include = ROOT . 'www/' . $language . '/ajax/' . $pagename . '.php';
 
                     if (isset_get($params['exists'])) {
                         return file_exists($include);
                     }
-
-                    log_file(tr('Showing ":language" language system page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'warning');
 
                     /*
-                     * Wait a small random time to avoid timing attacks on
-                     * system pages
+                     * Execute ajax page
                      */
-                    usleep(mt_rand(1, 250));
+                    Log::notice(tr('Showing ":language" language ajax page ":page"', [':page' => $pagename, ':language' => $language]));
+                    return include($include);
 
-                } else {
-                    $include = ROOT . 'www/' . $language . isset_get($admin) . '/' . $pagename . '.php';
+                case 'api':
+                    $include = ROOT . 'www/api/' . (is_numeric($pagename) ? 'system/' : '') . $pagename . '.php';
 
                     if (isset_get($params['exists'])) {
                         return file_exists($include);
                     }
 
-                    log_file(tr('Showing ":language" language http page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
-                }
+                    /*
+                     * Execute ajax page
+                     */
+                    Log::notice(tr('Showing ":language" language api page ":page"', [':page' => $pagename, ':language' => $language]));
+                    return include($include);
 
-                $result = include($include);
+                case 'admin':
+                    $admin = '/admin';
+                // FALLTHROUGH
 
-                if (isset_get($params['return'])) {
-                    return $result;
-                }
+                default:
+                    if (is_numeric($pagename)) {
+                        $include = ROOT . 'www/' . $language . isset_get($admin) . '/system/' . $pagename . '.php';
+
+                        if (isset_get($params['exists'])) {
+                            return file_exists($include);
+                        }
+
+                        Log::warning(tr('Showing ":language" language system page ":page"', [':page' => $pagename, ':language' => $language]));
+
+                        /*
+                         * Wait a small random time to avoid timing attacks on
+                         * system pages
+                         */
+                        usleep(mt_rand(1, 250));
+
+                    } else {
+                        $include = ROOT . 'www/' . $language . isset_get($admin) . '/' . $pagename . '.php';
+
+                        if (isset_get($params['exists'])) {
+                            return file_exists($include);
+                        }
+
+                        Log::notice(tr('Showing ":language" language http page ":page"', [':page' => $pagename, ':language' => $language]));
+                    }
+
+                    $result = include($include);
+
+                    if (isset_get($params['return'])) {
+                        return $result;
+                    }
+            }
+
+            die();
+
+        } catch (Throwable $e) {
+            if (isset($include) and !file_exists($include)) {
+                throw new OutOfBoundsException(tr('The requested page ":page" does not exist', [':page' => $pagename]));
+            }
+
+            throw new OutOfBoundsException(tr('Failed to show page ":page"', [':page' => $pagename]), previous: $e);
         }
-
-        die();
-
-    } catch (Exception $e) {
-        if (isset($include) and !file_exists($include)) {
-            throw new OutOfBoundsException(tr('page_show(): The requested page ":page" does not exist', array(':page' => $pagename)), 'not-exists');
-        }
-
-        throw new OutOfBoundsException(tr('page_show(): Failed to show page ":page"', array(':page' => $pagename)), $e);
     }
-
 
 
 
@@ -624,18 +607,13 @@ function page_show($pagename, $params = null, $get = null)
      * @param null params $params
       * @return string The results from the callback function, or null if no callback function was specified
      */
-    function execute_callback($callback, $params = null)
+    function executeCallback($callback, $params = null)
     {
-        try {
-            if (is_callable($callback)) {
-                return $callback($params);
-            }
-
-            return null;
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException(tr('execute_callback(): Failed'), $e);
+        if (is_callable($callback)) {
+            return $callback($params);
         }
+
+        return null;
     }
 
 
@@ -695,28 +673,21 @@ function page_show($pagename, $params = null, $get = null)
      * @return void
      */
 
-    function set_timeout($timeout = null)
+    public static function setTimeout($timeout = null)
     {
-        global $core, $_CONFIG;
-
-        try {
-            if ($timeout === null) {
-                $timeout = getenv('TIMEOUT') ? getenv('TIMEOUT') : $_CONFIG['exec']['timeout'];
-            }
-
-            self::$register['timeout'] = $timeout;
-            set_time_limit($timeout);
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException(tr('set_timeout(): Failed'), $e);
+        if ($timeout === null) {
+            $timeout = getenv('TIMEOUT') ? getenv('TIMEOUT') : $_CONFIG['exec']['timeout'];
         }
+
+        self::$register['timeout'] = $timeout;
+        set_time_limit($timeout);
     }
 
 
     /*
      *
      */
-    function get_global_data_path($section = '', $writable = true)
+    public static function getGlobalDataPath($section = '', $writable = true)
     {
         return include(__DIR__ . '/handlers/system-get-global-data-path.php');
     }
@@ -731,7 +702,40 @@ function page_show($pagename, $params = null, $get = null)
      */
     public static function registerShutdown(string $function_name): void
     {
-        self::register['shutdown'][] = $function_name;
+        self::$register['shutdown'][] = $function_name;
+    }
+
+
+
+    /**
+     * Unregister the specified shutdown function
+     *
+     * This function will ensure that the specified function will not be executed on shutdown
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     * @see shutdown()
+     * @see register_shutdown()
+     * @version 1.27.0: Added function and documentation
+     *
+     * @param string $name The function name to be executed
+     * @return mixed The value of the shutdown function in case it existed
+     */
+    public static function unregisterShutdown($name)
+    {
+        global $core;
+
+        try {
+            $value = self::$register('shutdown_' . $name);
+            unset(self::$register['shutdown_' . $name]);
+            return $value;
+
+        } catch (Exception $e) {
+            throw new OutOfBoundsException(tr('unregister_shutdown(): Failed'), $e);
+        }
     }
 
 
@@ -749,7 +753,7 @@ function page_show($pagename, $params = null, $get = null)
          * Do we need to run other shutdown functions?
          */
         if (empty(self::$register['script'])) {
-            error_log(tr('Shutdown procedure started before self::$register[script] was ready, possibly on script ":script"', array(':script' => $_SERVER['PHP_SELF'])));
+            error_log(tr('Shutdown procedure started before self::$register[script] was ready, possibly on script ":script"', [':script' => $_SERVER['PHP_SELF']]));
             return;
         }
 
@@ -771,16 +775,16 @@ function page_show($pagename, $params = null, $get = null)
                      * Shutdown function value is an array. Execute it for each entry
                      */
                     foreach ($value as $entry) {
-                        log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key . '()', ':value' => $entry)), 'VERBOSE/cyan');
+                        Log::notice(tr('shutdown(): Executing shutdown function ":function" with value ":value"', [':function' => $key . '()', ':value' => $entry]));
                         $key($entry);
                     }
 
                 } else {
-                    log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key . '()', ':value' => $value)), 'VERBOSE/cyan');
+                    Log::notice(tr('shutdown(): Executing shutdown function ":function" with value ":value"', [':function' => $key . '()', ':value' => $value]));
                     $key($value);
                 }
 
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 notify($e);
             }
         }
@@ -797,79 +801,12 @@ function page_show($pagename, $params = null, $get = null)
 
             foreach ($_CONFIG['shutdown'] as $name => $parameters) {
                 if ($parameters['interval'] and ($level < $parameters['interval'])) {
-                    log_file(tr('Executing periodical shutdown function ":function()"', array(':function' => $name)), 'shutdown', 'cyan');
-                    load_libs($parameters['library']);
+                    Log::notice(tr('Executing periodical shutdown function ":function()"', [':function' => $name]));
                     $parameters['function']();
                 }
             }
         }
     }
-
-
-    /*
-     * Register the specified shutdown function
-     *
-     * This function will ensure that the specified function will be executed on shutdown with the specified value.
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     * @see shutdown()
-     * @see unregister_shutdown()
-     * @version 1.27.0: Added function and documentation
-     * @version 2.8.18: $value is now optional, defaults to null
-     *
-     * @param string $name The function name to be executed
-     * @param null mixed $value The value to be sent to the shutdown function. If $value is an array, and the function was already regsitered, the previous and current array will be mixed. See shutdown() for more on this subject
-     * @return mixed The value as it is registered with the specified shutdown function. If the function name was already registered before, and the specified value was an array, then the return value will now contain the specified array merged with the already existing array
-     */
-    function register_shutdown($name, $value = null)
-    {
-        global $core;
-
-        try {
-            return self::$register('shutdown_' . $name, $value);
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException('register_shutdown(): Failed', $e);
-        }
-    }
-
-
-    /*
-     * Unregister the specified shutdown function
-     *
-     * This function will ensure that the specified function will not be executed on shutdown
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     * @see shutdown()
-     * @see register_shutdown()
-     * @version 1.27.0: Added function and documentation
-     *
-     * @param string $name The function name to be executed
-     * @return mixed The value of the shutdown function in case it existed
-     */
-    function unregister_shutdown($name)
-    {
-        global $core;
-
-        try {
-            $value = self::$register('shutdown_' . $name);
-            unset(self::$register['shutdown_' . $name]);
-            return $value;
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException(tr('unregister_shutdown(): Failed'), $e);
-        }
-    }
-
-
 }
 
 

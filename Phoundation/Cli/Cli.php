@@ -2,6 +2,7 @@
 
 namespace Phoundation\Cli;
 
+use CliException;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
@@ -19,6 +20,15 @@ use Phoundation\Exception\OutOfBoundsException;
 class Cli
 {
     /**
+     * The exit code for this process
+     *
+     * @var int $exit_code
+     */
+    protected static int $exit_code = 0;
+
+
+
+    /**
      * Safe and simple way to get arguments from CLI
      *
      * This function will REMOVE and then return the argument when its found
@@ -32,19 +42,16 @@ class Cli
      *              a next argument will be returned, if available.
      * @param string|null $default
      * @return mixed If $next is null, it will return a boolean value, true if the specified key exists, false if not.
-     *              If $next is true or "optional", the next value will be returned as a string. However, if "optional"
-     *              was used, and the next value was not specified, boolean FALSE will be returned instead. If $next
-     *              is specified as all, all subsequent values will be returned in an array
-     * @category Function reference
-     * @package cli
-     *
-     * @author Sven Olaf Oostenbrink <sven@zonworks.com>
+     *               If $next is true or "optional", the next value will be returned as a string. However, if "optional"
+     *               was used, and the next value was not specified, boolean FALSE will be returned instead. If $next
+     *               is specified as all, all subsequent values will be returned in an array
      */
-    public static function argument(string $keys = null, bool $next = false, ?string $default = null)
+    public static function argument(int|string|null $keys = null, string|bool $next = false, ?string $default = null): mixed
     {
         global $argv;
 
         if (is_integer($keys)) {
+            // Get arguments by index
             if ($next === 'all') {
                 foreach ($argv as $argv_key => $argv_value) {
                     if ($argv_key < $keys) {
@@ -56,12 +63,12 @@ class Cli
                         continue;
                     }
 
-                    if (substr($argv_value, 0, 1) == '-') {
-                        //Encountered a new option, stop!
+                    if (str_starts_with($argv_value, '-')) {
+                        // Encountered a new option, stop!
                         break;
                     }
 
-                    //Add this argument to the list
+                    // Add this argument to the list
                     $value[] = $argv_value;
                     unset($argv[$argv_key]);
                 }
@@ -75,13 +82,14 @@ class Cli
                 return $argument;
             }
 
-            //No arguments found (except perhaps for test or force)
+            // No arguments found (except perhaps for test or force)
             return $default;
         }
 
         if ($keys === null) {
+            // Get the next argument
             $value = array_shift($argv);
-            $value = Strings::startsNot((string)$value, '-');
+            $value = Strings::startsNotWith((string) $value, '-');
             return $value;
         }
 
@@ -122,20 +130,18 @@ class Cli
 
                 default:
                     //Multiple command line options were specified, this is not allowed!
-                    throw new CliScriptException(
-                        'Multiple command line arguments "' . Strings::log($results) . '" for the same option specified. Please specify only one'
-                    );
+                    throw new CliException('Multiple command line arguments ":results" for the same option specified. Please specify only one', [':results' => $results]);
             }
         }
 
         if (($key = array_search($keys, $argv)) === false) {
-            //Specified argument not found
+            // Specified argument not found
             return $default;
         }
 
         if ($next) {
             if ($next === 'all') {
-                //Return all following arguments, if available, until the next option
+                // Return all following arguments, if available, until the next option
                 $value = array();
 
                 foreach ($argv as $argv_key => $argv_value) {
@@ -149,7 +155,7 @@ class Cli
                     }
 
                     if (substr($argv_value, 0, 1) == '-') {
-                        //Encountered a new option, stop!
+                        // Encountered a new option, stop!
                         break;
                     }
 
@@ -166,10 +172,10 @@ class Cli
 
             try {
                 $value = Arrays::nextValue($argv, $keys, true);
-            } catch (NotExistsException $e) {
+            } catch (OutOfBoundsException $e) {
                 if ($e->getCode() == 'invalid') {
                     if ($next !== 'optional') {
-                        //This argument requires another parameter
+                        // This argument requires another parameter
                         throw $e->setCode('missing-arguments');
                     }
 
@@ -258,7 +264,7 @@ class Cli
 
         if ($keys === null) {
             $value = array_shift($argv);
-            $value = Strings::startsNot((string)$value, '-');
+            $value = Strings::startsNotWith((string)$value, '-');
             return $value;
         }
 
@@ -491,4 +497,31 @@ class Cli
     }
 
 
+
+    /**
+     * Returns the process exit code
+     *
+     * @return int
+     */
+    public static function getExitCode(): int
+    {
+        return self::$exit_code;
+    }
+
+
+
+    /**
+     * Sets the process exit code
+     *
+     * @param int $code
+     * @return void
+     */
+    public static function setExitCode(int $code): void
+    {
+        if (($code < 0) or ($code > 255)) {
+            throw new OutOfBoundsException(tr('Invalid exit code ":code" specified, it should be a positive integer value between 0 and 255', [':code' => $code]));
+        }
+
+        self::$exit_code = $code;
+    }
 }

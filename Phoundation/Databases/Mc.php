@@ -6,7 +6,6 @@ use Memcached;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
-use Phoundation\Databases\Exception\MemcachedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Notify\Notification;
