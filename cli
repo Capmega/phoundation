@@ -3,4 +3,5 @@
 
 use Phoundation\Cli\Scripts;
 
+require('./vendor/autoload.php');
 Scripts::executeCommand($argv);
