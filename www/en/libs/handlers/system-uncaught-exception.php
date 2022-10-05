@@ -46,11 +46,11 @@ try {
 
         if (isset($core)) {
             if (empty($core->register['script'])) {
-                $core->register('script', 'unknown');
+                Core::readRegister('script', 'unknown');
             }
 
             if ($core->register['ready']) {
-                log_file(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':type' => $core->callType(), ':script' => isset_get($core->register['script']))), 'uncaught-exception', 'exception');
+                log_file(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':type' => Core::callType(), ':script' => isset_get($core->register['script']))), 'uncaught-exception', 'exception');
                 log_file($e, 'uncaught-exception', 'exception');
 
             } else {
@@ -370,7 +370,7 @@ try {
                         header('Content-Type: text/html', true);
                     }
 
-                    switch ($core->callType()) {
+                    switch (Core::callType()) {
                         case 'api':
                             // no-break
                         case 'ajax':
@@ -416,7 +416,7 @@ try {
                                 <table class="exception">
                                     <thead>
                                         <td colspan="2" class="center">
-                                            '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'], 'type' => $core->callType())).'
+                                            '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'], 'type' => Core::callType())).'
                                         </td>
                                     </thead>
                                     <tbody>
@@ -461,7 +461,7 @@ try {
                  */
                 notify($e, false, false);
 
-                switch ($core->callType()) {
+                switch (Core::callType()) {
                     case 'api':
                         // no-break
                     case 'ajax':

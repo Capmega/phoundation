@@ -12,7 +12,7 @@
  */
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Strings;
-
+use Phoundation\Developer\Debug;
 
 
 /**
@@ -360,6 +360,35 @@ function pick_random($count)
     } catch (Exception $e) {
         throw new OutOfBoundsException(tr('pick_random(): Failed'), $e);
     }
+}
+
+
+
+/**
+ * Shortcut to the Debug::show() call
+ *
+ * @param mixed $source
+ * @param int|null $trace_offset
+ * @param bool $quiet
+ * @return mixed
+ */
+function show(mixed $source, int $trace_offset = null, bool $quiet = false): mixed
+{
+    return Debug::show($source, $trace_offset, $quiet);
+}
+
+
+
+
+/**
+ * Shortcut to the Debug::show() call
+ *
+ * @param mixed $source
+ * @return void
+ */
+function showdie(mixed $source): void
+{
+    Debug::showdie($source);
 }
 
 

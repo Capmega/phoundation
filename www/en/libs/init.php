@@ -558,7 +558,7 @@ function init_section($section, $version) {
         /*
          * Set the default connector to the connector for the specified section
          */
-        $core->register('sql_connector', $section);
+        Core::readRegister('sql_connector', $section);
         $exists = sql_get('SHOW TABLES LIKE "versions"', true);
 
         if ($exists) {
@@ -705,7 +705,7 @@ function init_section($section, $version) {
         /*
          * Reset the default connector
          */
-        $core->register('sql_connector', null);
+        Core::readRegister('sql_connector', null);
 
     }catch(Exception $e) {
         throw new CoreException('init_section(): Failed', $e);

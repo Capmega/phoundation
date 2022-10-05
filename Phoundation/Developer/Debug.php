@@ -6,7 +6,13 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\CoreException;
+use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Http\Html\Html;
+use Phoundation\Http\Http;
+use Phoundation\Users\User;
+use Throwable;
 
 /**
  * Class Debug
@@ -223,8 +229,6 @@ class Debug {
      */
     public static function show(mixed $value, int $trace_offset = null, bool $quiet = false): mixed
     {
-        global $_CONFIG, $core;
-
         if (!self::enabled()) {
             return null;
         }
@@ -239,7 +243,7 @@ class Debug {
                 }
 
             } elseif (!is_numeric($trace_offset)) {
-                throw new CoreException(tr('debug_show(): Specified $trace_offset ":trace" is not numeric', array(':trace' => $trace_offset)), 'invalid');
+                throw new CoreException(tr('Specified $trace_offset ":trace" is not numeric', [':trace' => $trace_offset]));
             }
 
             if (!self::enabled()) {
@@ -259,8 +263,8 @@ class Debug {
                 Http::headers(null, 0);
             }
 
-            if ($_CONFIG['production']) {
-                if (!debug()) {
+            if (Debug::production()) {
+                if (!Debug::enabled()) {
                     return '';
                 }
 
@@ -269,7 +273,7 @@ class Debug {
 
             if (PLATFORM_HTTP) {
                 if (empty($core->register['debug_plain'])) {
-                    switch ($core->callType()) {
+                    switch (Core::callType()) {
                         case 'api':
                             // FALLTHROUGH
                         case 'ajax':
@@ -297,7 +301,7 @@ class Debug {
                                 header('Content-Type: text/html', true);
                             }
 
-                            echo debug_html($value, tr('Unknown'), $trace_offset);
+                            echo self::html($value, tr('Unknown'), $trace_offset);
                             ob_flush();
                             flush();
                     }
@@ -338,7 +342,7 @@ class Debug {
 
             return $value;
 
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             if (self::production() or self::enabled()) {
                 /*
                  * Show the error message with a conventional die() call
@@ -349,7 +353,7 @@ class Debug {
             try {
                 notify($e);
 
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 /*
                  * Sigh, if notify and error_log failed as well, then there is little to do but go on
                  */
@@ -388,7 +392,7 @@ class Debug {
     public static function addStatistic(): Statistic
     {
         $statistic = new Statistic();
-        self::statistics[] = $statistic;
+        self::$statistics[] = $statistic;
         return $statistic;
     }
 
@@ -902,7 +906,7 @@ class Debug {
 
                 } else {
                     if (!is_scalar($value)) {
-                        throw new CoreException(tr('debug_sql(): Specified key ":key" has non-scalar value ":value"', array(':key' => $key, ':value' => $value)), 'invalid');
+                        throw new CoreException(tr('Specified key ":key" has non-scalar value ":value"', [':key' => $key, ':value' => $value]));
                     }
 
                     $query = str_replace($key, $value, $query);
@@ -914,7 +918,7 @@ class Debug {
             return $query;
         }
 
-        if (empty($core->register['clean_debug'])) {
+        if (empty(Core::readRegister('debug', 'clean'))) {
             $query = str_replace("\n", ' ', $query);
             $query = Strings::noDouble($query, ' ', '\s');
         }
@@ -923,7 +927,7 @@ class Debug {
          * VERYVERBOSE already logs the query, don't log it again
          */
         if (!VERYVERBOSE) {
-            log_file(Strings::endsWith($query, ';'), 'debug-sql');
+            Log::printr(Strings::endsWith($query, ';'));
         }
 
         return show(Strings::endsWith($query, ';'), 6);
@@ -972,31 +976,26 @@ class Debug {
     /**
      * Return an HTML bar with debug information that can be used to monitor site and fix issues
      *
-     * @return string The HTML that can be included at the end of the web page which will show the debug bar.
+     * @return string|null The HTML that can be included at the end of the web page which will show the debug bar.
      */
-    function debugBar()
+    function debugBar(): ?string
     {
-        load_libs('numbers');
-
         if (!Debug::enabled()) return '';
 
-        if ($_CONFIG['debug']['bar'] === false) {
-            return '';
+        $enabled = Config::get('debug.bar.enabled', false);
 
-        } elseif ($_CONFIG['debug']['bar'] === 'limited') {
-            if (empty($_SESSION['user']['id']) or !has_rights("debug")) {
+        if ($enabled === false) {
+            return null;
+        }
+
+        if ($enabled === 'limited') {
+            if (empty($_SESSION['user']['id']) or !User::current()->hasAllRights("debug")) {
                 /*
                  * Only show debug bar to authenticated users with "debug" right
                  */
-                return false;
+                return null;
             }
-
-        } elseif ($_CONFIG['debug']['bar'] === true) {
-            /*
-             * Show debug bar!
-             */
-
-        } else {
+        } elseif ($enabled !== true) {
             throw new CoreException(tr('debug_bar(): Unknown configuration option ":option" specified. Please specify true, false, or "limited"', array(':option' => $_CONFIG['debug']['bar'])), 'unknown');
         }
 
@@ -1004,7 +1003,7 @@ class Debug {
          * Add debug bar javascript directly to the footer, as this debug bar is
          * added AFTER html_generate_js() and so won't be processed anymore
          */
-        $core->register['footer'] .= html_script('$("#debug-bar").click(function(e) { $("#debug-bar").find(".list").toggleClass("hidden"); });');
+        Html::prependToFooter(html_script('$("#debug-bar").click(function(e) { $("#debug-bar").find(".list").toggleClass("hidden"); });'));
 
         /*
          * Setup required variables
@@ -1018,7 +1017,7 @@ class Debug {
          * Build HTML
          */
         $html = '<div class="debug" id="debug-bar">
-                '.($_CONFIG['cache']['method'] ? '(CACHE='.$_CONFIG['cache']['method'].') ' : '').count($core->register('debug_queries')).' / '.number_format(microtime(true) - STARTTIME, 6).'
+                '.($_CONFIG['cache']['method'] ? '(CACHE='.$_CONFIG['cache']['method'].') ' : '').count(Core::readRegister('debug_queries')).' / '.number_format(microtime(true) - STARTTIME, 6).'
                 <div class="hidden list">
                     <div style="width:100%; background: #2d3945; text-align: center; font-weight: bold; padding: 3px 0 3px;">
                         '.tr('Debug report').'
@@ -1109,7 +1108,7 @@ class Debug {
         $html .= '  </div>
              </div>';
 
-        $html  = str_replace(':query_count'   , count($core->register('debug_queries'))      , $html);
+        $html  = str_replace(':query_count'   , count(Core::readRegister('debug_queries'))      , $html);
         $html  = str_replace(':execution_time', number_format(microtime(true) - STARTTIME, 6), $html);
 
         return $html;

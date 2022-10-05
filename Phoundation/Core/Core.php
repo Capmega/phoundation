@@ -3,8 +3,10 @@
 namespace Phoundation\Core;
 
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Http\Http;
+use Phoundation\Notify\Notification;
 use Throwable;
 
 
@@ -87,7 +89,7 @@ class Core {
     protected function __construct()
     {
         // Register the process start
-        Stopwatch::start('process');
+        Timer::create('process');
 
         /*
          * Define a unique process request ID
@@ -103,7 +105,6 @@ class Core {
         define('PUBTMP', ROOT . 'data/content/tmp/');
         define('CRLF', "\r\n");
 
-
         /*
          * Setup error handling, report ALL errors
          */
@@ -111,6 +112,8 @@ class Core {
         set_error_handler(['Core', 'phpErrorHandler']);
         set_exception_handler(['Core', 'uncaughtException']);
 
+        // Load the functions file
+        require('../functions.php');
 
         try {
             // Check what platform we're in
@@ -214,7 +217,7 @@ class Core {
      */
     public static function startup(): void
     {
-        global $_CONFIG, $core;
+        self::getInstance();
 
         try {
             // Detect platform and execute specific platform startup sequence
@@ -225,10 +228,10 @@ class Core {
                      * $_SERVER[PHP_SELF] would contain this, with route
                      * execution, $_SERVER[PHP_SELF] would be route, so we
                      * cannot use that. Route will store the file being executed
-                     * in $this->register['script_path'] instead
+                     * in self::$register['script_path'] instead
                      */
-                    if (isset($this->register['script_path'])) {
-                        $file = '/' . $this->register['script_path'];
+                    if (isset(self::$register['script_path'])) {
+                        $file = '/' . self::$register['script_path'];
 
                     } else {
                         $file = '/' . $_SERVER['PHP_SELF'];
@@ -239,46 +242,46 @@ class Core {
                      * being executed
                      */
                     if (str_contains($file, '/admin/')) {
-                        $this->callType = 'admin';
+                        self::$call_type = 'admin';
 
                     } elseif (str_contains($file, '/ajax/')) {
-                        $this->callType = 'ajax';
+                        self::$call_type = 'ajax';
 
                     } elseif (str_contains($file, '/api/')) {
-                        $this->callType = 'api';
+                        self::$call_type = 'api';
 
-                    } elseif ((substr($_SERVER['SERVER_NAME'], 0, 3) === 'api') and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                        $this->callType = 'api';
+                    } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
+                        self::$call_type = 'api';
 
-                    } elseif ((substr($_SERVER['SERVER_NAME'], 0, 3) === 'cdn') and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                        $this->callType = 'api';
+                    } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
+                        self::$call_type = 'api';
 
-                    } elseif ($_CONFIG['amp']['enabled'] and !empty($_GET['amp'])) {
-                        $this->callType = 'amp';
+                    } elseif (Config::get('web.html.amp.enabled', false) and !empty($_GET['amp'])) {
+                        self::$call_type = 'amp';
 
                     } elseif (is_numeric(substr($file, -3, 3))) {
-                        $this->register['http_code'] = substr($file, -3, 3);
-                        $this->callType = 'system';
+                        self::$register['http']['code'] = substr($file, -3, 3);
+                        self::$call_type = 'system';
 
                     } else {
-                        $this->callType = 'http';
+                        self::$call_type = 'http';
                     }
 
                     break;
 
                 case 'cli':
-                    $this->callType = 'cli';
+                    self::$call_type = 'cli';
                     break;
             }
 
-            $this->register['startup'] = microtime(true);
+            self::$register['startup'] = microtime(true);
 
-            require('handlers/system-' . $this->callType . '.php');
+            require('handlers/system-' . self::$call_type . '.php');
 
             /*
              * Set timeout for this request
              */
-            set_timeout();
+            self::setTimeout();
 
             /*
              * Verify project data integrity
@@ -291,10 +294,7 @@ class Core {
                 }
             }
 
-        } catch (Error $e) {
-            throw new OutOfBoundsException(tr('core::startup(): Failed calltype ":calltype" with PHP error', array(':calltype' => $this->callType)), $e);
-
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             if (PLATFORM_HTTP and headers_sent($file, $line)) {
                 if (preg_match('/debug-.+\.php$/', $file)) {
                     throw new OutOfBoundsException(tr('core::startup(): Failed because headers were already sent on ":location", so probably some added debug code caused this issue', array(':location' => $file . '@' . $line)), $e);
@@ -303,7 +303,7 @@ class Core {
                 throw new OutOfBoundsException(tr('core::startup(): Failed because headers were already sent on ":location"', array(':location' => $file . '@' . $line)), $e);
             }
 
-            throw new OutOfBoundsException(tr('core::startup(): Failed calltype ":calltype"', array(':calltype' => $this->callType)), $e);
+            throw new OutOfBoundsException(tr('core::startup(): Failed calltype ":calltype"', array(':calltype' => self::$call_type)), $e);
         }
     }
 
@@ -319,6 +319,7 @@ class Core {
      */
     public static function readRegister(string $key, string $subkey): mixed
     {
+        self::getInstance();
         return isset_get(self::$register[$key][$subkey]);
     }
 
@@ -334,6 +335,8 @@ class Core {
      */
     public static function writeRegister(mixed $value, string $key, ?string $subkey = null): void
     {
+        self::getInstance();
+
         if ($subkey) {
             // We want to write to a sub key. Ensure that the key exists and is an array
             if (array_key_exists($key, self::$register)) {
@@ -367,6 +370,8 @@ class Core {
      */
     public static function compareRegister(mixed $value, string $key,?string $subkey = null): bool
     {
+        self::getInstance();
+
         return $value === isset_get(self::$register[$key][$subkey]);
     }
 
@@ -385,8 +390,10 @@ class Core {
      */
     public function executedQuery($query_data)
     {
-        $this->register['debug_queries'][] = $query_data;
-        return count($this->register['debug_queries']);
+        self::getInstance();
+
+        self::$register['debug_queries'][] = $query_data;
+        return count(self::$register['debug_queries']);
     }
 
 
@@ -398,6 +405,8 @@ class Core {
      */
     public function getCallType(): string
     {
+        self::getInstance();
+
         return self::$call_type;
     }
 
@@ -411,6 +420,8 @@ class Core {
      */
     public function isCallType(string $type): bool
     {
+        self::getInstance();
+
         return (self::$call_type === $type);
     }
 
@@ -425,40 +436,35 @@ class Core {
      */
     function getLanguage($language)
     {
-        global $_CONFIG;
+        self::getInstance();
 
-        try {
-            if (empty($_CONFIG['language']['supported'])) {
-                return '';
-            }
-
-            /*
-             * Multilingual site
-             */
-            if ($language === null) {
-                $language = LANGUAGE;
-            }
-
-            if ($language) {
-                /*
-                 * This is a multilingual website. Ensure language is supported and
-                 * add language selection to the URL.
-                 */
-                if (empty($_CONFIG['language']['supported'][$language])) {
-                    $language = $_CONFIG['language']['default'];
-
-                    notify(array('code' => 'unknown',
-                        'groups' => 'developers',
-                        'title' => tr('Unknown language specified'),
-                        'message' => tr('get_language(): The specified language ":language" is not known', array(':language' => $language))));
-                }
-            }
-
-            return $language;
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException('get_language(): Failed', $e);
+        if (empty($_CONFIG['language']['supported'])) {
+            return '';
         }
+
+        /*
+         * Multilingual site
+         */
+        if ($language === null) {
+            $language = LANGUAGE;
+        }
+
+        if ($language) {
+            /*
+             * This is a multilingual website. Ensure language is supported and
+             * add language selection to the URL.
+             */
+            if (empty($_CONFIG['language']['supported'][$language])) {
+                $language = $_CONFIG['language']['default'];
+
+                notify(array('code' => 'unknown',
+                    'groups' => 'developers',
+                    'title' => tr('Unknown language specified'),
+                    'message' => tr('get_language(): The specified language ":language" is not known', array(':language' => $language))));
+            }
+        }
+
+        return $language;
     }
 
 
@@ -471,6 +477,8 @@ class Core {
      */
     function getDomain(): string
     {
+        self::getInstance();
+
         if (PLATFORM_HTTP) {
             return $_SERVER['HTTP_HOST'];
         }
@@ -485,7 +493,7 @@ class Core {
      */
     function pageShow(string $pagename, array $params = null, $get = null): string
     {
-        global $_CONFIG, $core;
+        self::getInstance();
 
         try {
             Arrays::ensure($params, 'message');
@@ -516,7 +524,7 @@ class Core {
 
             self::$register['real_script'] = $pagename;
 
-            switch ($core->callType()) {
+            switch (Core::callType()) {
                 case 'ajax':
                     $include = ROOT . 'www/' . $language . '/ajax/' . $pagename . '.php';
 
@@ -609,6 +617,8 @@ class Core {
      */
     function executeCallback($callback, $params = null)
     {
+        self::getInstance();
+
         if (is_callable($callback)) {
             return $callback($params);
         }
@@ -617,27 +627,49 @@ class Core {
     }
 
 
-    /*
-     * Convert all PHP errors in exceptions. With this function the entirety of base works only with exceptions, and function output normally does not need to be checked for errors.
+    /**
+     * Convert all PHP errors in exceptions. With this function the entirety of base works only with exceptions, and
+     * function output normally does not need to be checked for errors.
      *
-     * NOTE: This function should never be called directly
+     * NOTE: This method should never be called directly
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     *
-     * @param boolean $value Specify true if this exception should be a warning, false if not
+     * @param int $errno
+     * @param string $errstr
+     * @param string $errfile
+     * @param int $errline
+     * @param $errcontext
      * @return object $this, so that you can string multiple calls together
      */
-    function php_error_handler($errno, $errstr, $errfile, $errline, $errcontext)
+    function phpErrorHandler(int $errno, string $errstr, string $errfile, int $errline, $errcontext)
     {
-        return include(__DIR__ . '/handlers/system-php-error-handler.php');
+        if (empty($core->register['ready'])) {
+            throw new CoreException(tr('Pre system ready PHP ERROR [:errno] ":errstr" in ":errfile@:errline" with context ":errcontext"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline, ':errcontext' => $errcontext)));
+        }
+
+        $trace = Debug::backtrace();
+        unset($trace[0]);
+        unset($trace[1]);
+
+        Notification::getInstance()
+            ->setCode('PHP-ERROR-' . $errno)
+            ->addGroup('developers')
+            ->setTitle(tr('PHP ERROR ":errno"', [':errno' => $errno]))
+            ->setMessage(tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline" with context ":errcontext"', [':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline, ':errcontext' => $errcontext]))
+            ->setData([
+                'errno' => $errno,
+                'errstr' => $errstr,
+                'errfile' => $errfile,
+                'errline' => $errline,
+                'errcontext' => $errcontext,
+                'trace' => $trace
+            ])->send();
+
+        throw new CoreException(tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', [':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline]), [':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline, ':errcontext' => $errcontext, ':trace' => $trace], 'PHP'.$errno);
     }
 
 
-    /*
+
+    /**
      * This function is called automaticaly
      *
      * NOTE: This function should never be called directly
@@ -651,9 +683,545 @@ class Core {
      * @param boolean $value Specify true if this exception should be a warning, false if not
      * @return object $this, so that you can string multiple calls together
      */
-    function uncaught_exception($e, $die = 1)
+    function uncaughtException(Throwable $e, bool $die = true)
     {
-        return include(__DIR__ . '/handlers/system-uncaught-exception.php');
+//if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
+        /*
+         * Phoundation uncaught exception handler
+         *
+         * IMPORTANT! IF YOU ARE FACED WITH AN UNCAUGHT EXCEPTION, OR WEIRD EFFECTS LIKE
+         * WHITE SCREEN, ALWAYS FOLLOW THESE STEPS:
+         *
+         *    Check the ROOT/data/log/syslog (or exception log if you have single_log
+         *    disabled). In here you can find 99% of the issues
+         *
+         *    If the syslog did not contain information, then check your apache / nginx
+         *    or PHP error logs. Typically you will find these in /var/log/php and
+         *    /var/log/apache2 or /var/log/nginx
+         *
+         *    If that gives you nothing, then try uncommenting the line in the section
+         *    right below these comments. This will forcibly display the error
+         */
+
+        /*
+         * If you are faced with an uncaught exception that does not give any
+         * information (for example, "exception before platform detection", or
+         * "pre ready exception"), uncomment the files line of this file to see whats up.
+         *
+         * The reason that this is normally commented out and that logging or displaying
+         * your errors might fail is for security, as Phoundation may not know at the
+         * point where your error occurred if it is on a production environment or not.
+         *
+         * For cases like these, uncomment the following lines and you should see your
+         * error displayed on your browser.
+         */
+        global $_CONFIG, $core;
+        static $executed = false;
+
+        try {
+            try {
+                if ($executed) {
+                    /*
+                     * We seem to be stuck in an uncaught exception loop, cut it out now!
+                     */
+                    // :TODO: ADD NOTIFICATIONS OF STUFF GOING FUBAR HERE!
+                    die('exception loop detected');
+                }
+
+                $executed = true;
+
+                if (isset($core)) {
+                    if (empty($core->register['script'])) {
+                        Core::readRegister('script', 'unknown');
+                    }
+
+                    if ($core->register['ready']) {
+                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => Core::callType(), ':script' => isset_get($core->register['script'])]));
+                        Log::error($e, 'uncaught-exception', 'exception');
+
+                    } else {
+                        /*
+                         * System is not ready, we cannot log to syslog
+                         */
+                        error_log(tr('*** UNCAUGHT PRE-CORE-READY EXCEPTION ":code" ***', array(':code' => $e->getCode())));
+                        error_log($e->getMessage());
+                        die(1);
+                    }
+
+                } else {
+                    error_log(tr('*** UNCAUGHT PRE-CORE-AVAILABLE EXCEPTION ":code" ***', array(':code' => $e->getCode())));
+                    error_log($e->getMessage(), 'uncaught-exception');
+                    die(1);
+                }
+
+                if (!defined('PLATFORM')) {
+                    /*
+                     * Wow, system crashed before platform detection. See $core->__constructor()
+                     */
+                    die('exception before platform detection');
+                }
+
+                switch (PLATFORM) {
+                    case 'cli':
+                        /*
+                         * Ensure that required defines are available
+                         */
+                        if (!defined('VERYVERBOSE')) {
+                            define('VERYVERBOSE', (cli_argument('-VV,--very-verbose') ? 'VERYVERBOSE' : null));
+                        }
+
+                        self::setTimeout(1);
+
+                        $defines = [
+                            'ADMIN'    => '',
+                            'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
+                            'VERBOSE'  => ((VERYVERBOSE or cli_argument('-V,--verbose,-V2,--very-verbose')) ? 'VERBOSE' : null),
+                            'QUIET'    => cli_argument('-Q,--quiet'),
+                            'FORCE'    => cli_argument('-F,--force'),
+                            'TEST'     => cli_argument('-T,--test'),
+                            'LIMIT'    => not_empty(cli_argument('--limit'  , true), $_CONFIG['paging']['limit']),
+                            'ALL'      => cli_argument('-A,--all'),
+                            'DELETED'  => cli_argument('--deleted'),
+                            'STATUS'   => cli_argument('-S,--status' , true),
+                            'STARTDIR' => Strings::slash(getcwd())
+                        ];
+
+                        foreach ($defines as $key => $value) {
+                            if (!defined($key)) {
+                                define($key, $value);
+                            }
+                        }
+
+                        Notification::getInstance()
+                            ->setException($e)
+                            ->send();
+
+                        // Specified arguments were wrong
+                        // TODO CHANGE PARAMETERS TO "ARGUMENTS"
+                        if ($e->getCode() === 'parameters') {
+                            Log::warning(trim(Strings::from($e->getMessage(), '():')));
+                            $GLOBALS['core'] = false;
+                            die(1);
+                        }
+
+                        if (!$core->register['ready']) {
+                            /*
+                             * Configuration hasn't been loaded yet, we cannot even know if
+                             * we are in debug mode or not!
+                             *
+                             * Log to the webserver error log files at the very least
+                             */
+                            if (method_exists($e, 'getMessages')) {
+                                foreach ($e->getMessages() as $message) {
+                                    error_log($message);
+                                }
+
+                            } else {
+                                error_log($e->getMessage());
+                            }
+
+                            echo "\033[1;31mPre ready exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information\033[0m\n";
+                            print_r($e);
+                            die("\033[1;31mPre ready exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information\033[0m\n");
+                        }
+
+                        /*
+                         * Command line script crashed.
+                         *
+                         * If not using VERBOSE mode, then try to give nice error messages
+                         * for known issues
+                         */
+                        if (!VERBOSE) {
+                            if (Strings::until($e->getCode(), '/') === 'warning') {
+                                /*
+                                 * This is just a simple general warning, no backtrace and
+                                 * such needed, only show the principal message
+                                 */
+                                Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+                                $core->register['exit_code'] = 255;
+                                die($core->register['exit_code']);
+                            }
+
+                            switch ((string) $e->getCode()) {
+                                case 'already-running':
+                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+                                    $core->register['exit_code'] = 254;
+                                    die($core->register['exit_code']);
+
+                                case 'no-method':
+                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
+                                    $core->register['exit_code'] = 253;
+                                    die($core->register['exit_code']);
+
+                                case 'unknown-method':
+                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
+                                    $core->register['exit_code'] = 252;
+                                    die($core->register['exit_code']);
+
+                                case 'missing-arguments':
+                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
+                                    $core->register['exit_code'] = 253;
+                                    die($core->register['exit_code']);
+
+                                case 'invalid-arguments':
+                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
+                                    $core->register['exit_code'] = 251;
+                                    die($core->register['exit_code']);
+
+                                case 'validation':
+                                    if ($core->register['script'] === 'init') {
+                                        /*
+                                         * In the init script, all validations are fatal!
+                                         */
+                                        $e->makeWarning(false);
+                                        break;
+                                    }
+
+                                    if (method_exists($e, 'getMessages')) {
+                                        $messages = $e->getMessages();
+
+                                    } else {
+                                        $messages = $e->getMessage();
+                                    }
+
+                                    if (count($messages) > 2) {
+                                        array_pop($messages);
+                                        array_pop($messages);
+                                        Log::warning(tr('Validation failed'));
+                                        Log::warning($messages, 'yellow');
+
+                                    } else {
+                                        Log::warning($messages);
+                                    }
+
+                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
+                                    $core->register['exit_code'] = 250;
+                                    die($core->register['exit_code']);
+                            }
+                        }
+
+                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN CONSOLE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'])));
+                        Debug::enabled(true);
+
+                        if ($e instanceof CoreException) {
+                            if ($e->getCode() === 'no-trace') {
+                                $messages = $e->getMessages();
+                                Log::error(array_pop($messages));
+
+                            } else {
+                                /*
+                                 * Show the entire exception
+                                 */
+                                $messages = $e->getMessages();
+                                $data     = $e->getData();
+                                $code     = $e->getCode();
+                                $file     = $e->getFile();
+                                $line     = $e->getLine();
+                                $trace    = $e->getTrace();
+
+                                Log::error(tr('Exception code    : ":code"'      , array(':code' => $code))                  );
+                                Log::error(tr('Exception location: ":file@:line"', array(':file' => $file, ':line' => $line)));
+                                Log::error(tr('Exception messages trace:'));
+
+                                foreach ($messages as $message) {
+                                    Log::error('    '.$message);
+                                }
+
+                                Log::error('    '.$core->register['script'].': Failed');
+                                Log::error(tr('Exception function trace:'));
+
+                                if ($trace) {
+                                    Log::error(Strings::Log($trace));
+
+                                } else {
+                                    Log::error(tr('N/A'));
+                                }
+
+                                if ($data) {
+                                    Log::error(tr('Exception data:'));
+                                    Log::error(Strings::Log($data));
+                                }
+                            }
+
+                        } else {
+                            /*
+                             * Treat this as a normal PHP Exception object
+                             */
+                            if ($e->getCode() === 'no-trace') {
+                                Log::error($e->getMessage());
+
+                            } else {
+                                /*
+                                 * Show the entire exception
+                                 */
+                                show($e, null, true);
+                            }
+                        }
+
+                        $core->register['exit_code'] = 64;
+                        die(8);
+
+                    case 'http':
+                        /*
+                         * Remove all caching headers
+                         */
+                        if (!headers_sent()) {
+                            header_remove('ETag');
+                            header_remove('Cache-Control');
+                            header_remove('Expires');
+                            header_remove('Content-Type');
+                        }
+
+                        /*
+                         *
+                         */
+                        $core->register['http_code'] = 500;
+                        unregister_shutdown('route_404');
+
+                        /*
+                         * Ensure that required defines are available
+                         */
+                        if (!defined('VERYVERBOSE')) {
+                            define('VERYVERBOSE', (getenv('VERYVERBOSE') ? 'VERYVERBOSE' : null));
+                        }
+
+                        log_file($e, 'uncaught-exception', 'exception');
+
+                        $defines = array('ADMIN'    => '',
+                            'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
+                            'STARTDIR' => Strings::slash(getcwd()),
+                            'FORCE'    => (getenv('FORCE')                    ? 'FORCE'   : null),
+                            'TEST'     => (getenv('TEST')                     ? 'TEST'    : null),
+                            'VERBOSE'  => ((VERYVERBOSE or getenv('VERBOSE')) ? 'VERBOSE' : null),
+                            'QUIET'    => (getenv('QUIET')                    ? 'QUIET'   : null),
+                            'LIMIT'    => (getenv('LIMIT')                    ? 'LIMIT'   : $_CONFIG['paging']['limit']),
+                            'ORDERBY'  => (getenv('ORDERBY')                  ? 'ORDERBY' : null),
+                            'ALL'      => (getenv('ALL')                      ? 'ALL'     : null),
+                            'DELETED'  => (getenv('DELETED')                  ? 'DELETED' : null),
+                            'STATUS'   => (getenv('STATUS')                   ? 'STATUS'  : null));
+
+                        foreach ($defines as $key => $value) {
+                            if (!defined($key)) {
+                                define($key, $value);
+                            }
+                        }
+
+                        notify($e, false, false);
+
+                        if (!$core->register['ready']) {
+                            /*
+                             * Configuration hasn't been loaded yet, we cannot even know
+                             * if we are in debug mode or not!
+                             *
+                             * Try sending the right response code and content type
+                             * headers so that at least there will be a visible page
+                             * with the right mimetype
+                             */
+                            if (!headers_sent()) {
+                                header('Content-Type: text/html', true);
+                            }
+
+
+                            if (method_exists($e, 'getMessages')) {
+                                foreach ($e->getMessages() as $message) {
+                                    error_log($message);
+                                }
+
+                            } else {
+                                error_log($e->getMessage());
+                            }
+
+                            die(tr('Pre ready exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
+                        }
+
+                        if ($e->getCode() === 'validation') {
+                            $e->setCode(400);
+                        }
+
+                        if (($e instanceof CoreException) and is_numeric($e->getRealCode()) and ($e->getRealCode() > 100) and page_show($e->getRealCode(), array('exists' => true))) {
+                            if ($e->isWarning()) {
+                                html_flash_set($e->getMessage(), 'warning', $e->getRealCode());
+                            }
+
+                            log_file(tr('Displaying exception page ":page"', array(':page' => $e->getRealCode())), 'exceptions', 'error');
+                            page_show($e->getRealCode(), array('message' =>$e->getMessage()));
+                        }
+
+                        if (Debug::enabled()) {
+                            /*
+                             * We're trying to show an html error here!
+                             */
+                            if (!headers_sent()) {
+                                http_response_code(500);
+                                header('Content-Type: text/html', true);
+                            }
+
+                            switch (Core::callType()) {
+                                case 'api':
+                                    // no-break
+                                case 'ajax':
+                                    echo "UNCAUGHT EXCEPTION\n\n";
+                                    showdie($e);
+                            }
+
+                            $retval = ' <style type="text/css">
+                                table.exception{
+                                    font-family: sans-serif;
+                                    width:99%;
+                                    background:#AAAAAA;
+                                    border-collapse:collapse;
+                                    border-spacing:2px;
+                                    margin: 5px auto 5px auto;
+                                }
+                                td.center{
+                                    text-align: center;
+                                }
+                                table.exception thead{
+                                    background: #CE0000;
+                                    color: white;
+                                    font-weight: bold;
+                                }
+                                table.exception td{
+                                    border: 1px solid black;
+                                    padding: 15px;
+                                }
+                                table.exception td.value{
+                                    word-break: break-all;
+                                }
+                                table.debug{
+                                    background:#AAAAAA !important;
+                                }
+                                table.debug thead{
+                                    background: #CE0000 !important;
+                                    color: white;
+                                }
+                                table.debug .debug-header{
+                                    display: none;
+                                }
+                                </style>
+                                <table class="exception">
+                                    <thead>
+                                        <td colspan="2" class="center">
+                                            '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'], 'type' => Core::callType())).'
+                                        </td>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="2" class="center">
+                                                '.tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => $core->register['script'])).'
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                '.tr('File').'
+                                            </td>
+                                            <td>
+                                                '.$e->getFile().'
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                '.tr('Line').'
+                                            </td>
+                                            <td>
+                                                '.$e->getLine().'
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>';
+
+                            echo $retval;
+
+                            if ($e instanceof CoreException) {
+                                /*
+                                 * Clean data
+                                 */
+                                $e->setData(array_hide(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
+                            }
+
+                            showdie($e);
+                        }
+
+                        /*
+                         * We're not in debug mode.
+                         */
+                        notify($e, false, false);
+
+                        switch (Core::callType()) {
+                            case 'api':
+                                // no-break
+                            case 'ajax':
+                                if ($e instanceof CoreException) {
+                                    json_message($e->getRealCode(), array('reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')));
+                                }
+
+                                /*
+                                 * Assume that all non CoreException exceptions are not
+                                 * warnings!
+                                 */
+                                json_message($e->getCode(), array('reason' => ''));
+                        }
+
+                        page_show($e->getCode());
+                }
+
+            }catch(Throwable $f) {
+//                if (!isset($core)) {
+//                    error_log(tr('*** UNCAUGHT PRE CORE AVAILABLE EXCEPTION HANDLER CRASHED ***'));
+//                    error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+//                    error_log($f->getMessage());
+//                    die('Pre core available exception with handling failure. Please your application or webserver error log files, or enable the first line in the exception handler file for more information');
+//                }
+
+                if (!defined('PLATFORM') or !$core->register['ready']) {
+                    error_log(tr('*** UNCAUGHT PRE READY EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])));
+                    error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+                    error_log($f->getMessage());
+                    die('Pre core ready exception with handling failure. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
+                }
+
+                Log::error('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!');
+                Log::error($f);
+
+                switch (PLATFORM) {
+                    case 'cli':
+                        Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])));
+                        Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+
+                        debug(true);
+                        show($f);
+                        showdie($e);
+
+                    case 'http':
+                        if (!headers_sent()) {
+                            http_response_code(500);
+                            header('Content-Type: text/html');
+                        }
+
+                        if (!Debug::enabled()) {
+                            notify($f, false, false);
+                            notify($e, false, false);
+                            page_show(500);
+                        }
+
+                        show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])));
+                        show('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***');
+
+                        show($f);
+                        showdie($e);
+                }
+            }
+
+        }catch(Throwable $g) {
+            /*
+             * Well, we tried. Here we just give up all together
+             */
+            die("Fatal error. check ROOT/data/syslog, application server logs, or webserver logs for more information\n");
+        }
     }
 
 
@@ -675,6 +1243,8 @@ class Core {
 
     public static function setTimeout($timeout = null)
     {
+        self::getInstance();
+
         if ($timeout === null) {
             $timeout = getenv('TIMEOUT') ? getenv('TIMEOUT') : $_CONFIG['exec']['timeout'];
         }
@@ -689,20 +1259,22 @@ class Core {
      */
     public static function getGlobalDataPath($section = '', $writable = true)
     {
+        self::getInstance();
         return include(__DIR__ . '/handlers/system-get-global-data-path.php');
     }
 
 
 
     /**
-     * Reguster a shutdown function
+     * Register a shutdown function
      *
-     * @param string $function_name
+     * @param array|string $function_name
      * @return void
      */
-    public static function registerShutdown(string $function_name): void
+    public static function registerShutdown(array|string $function_name): void
     {
-        self::$register['shutdown'][] = $function_name;
+        self::getInstance();
+        self::$register['shutdown'][Strings::force($function_name)] = $function_name;
     }
 
 
@@ -721,21 +1293,20 @@ class Core {
      * @see register_shutdown()
      * @version 1.27.0: Added function and documentation
      *
-     * @param string $name The function name to be executed
-     * @return mixed The value of the shutdown function in case it existed
+     * @param array|string $function_name
+     * @return bool
      */
-    public static function unregisterShutdown($name)
+    public static function unregisterShutdown(array|string $function_name): bool
     {
-        global $core;
+        self::getInstance();
+        $key = Strings::force($function_name);
 
-        try {
-            $value = self::$register('shutdown_' . $name);
-            unset(self::$register['shutdown_' . $name]);
-            return $value;
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException(tr('unregister_shutdown(): Failed'), $e);
+        if (array_key_exists($key, self::$register['shutdown'])) {
+            unset(self::$register['shutdown'][$key]);
+            return true;
         }
+
+        return false;
     }
 
 
@@ -749,6 +1320,8 @@ class Core {
      */
     public static function shutdown(): void
     {
+        self::getInstance();
+
         /*
          * Do we need to run other shutdown functions?
          */

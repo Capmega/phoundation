@@ -656,17 +656,18 @@ Class Log {
     }
 
 
-
     /**
      * Write the specified log message to the current log file for this instance
      *
      * @param string $class
      * @param mixed $messages
      * @param int $level
-     * @param bool $clean
-     * @return bool
+     * @param bool $clean If true, the data will be cleaned before written to log. This will avoid (for example) binary
+     *                    data from corrupting the log file
+     * @param bool $newline If true, a newline will be appended at the end of the log line
+     * @return bool True if the line was written, false if it was dropped
      */
-    protected static function write(string $class, mixed $messages, int $level, bool $clean = true): bool
+    public static function write(string $class, mixed $messages, int $level, bool $clean = true, bool $newline = true): bool
     {
         try {
             // Do we have a log file setup?
@@ -816,7 +817,7 @@ Class Log {
                 return Strings::cleanWhiteSpace($messages);
             }
 
-            $messages = date('Y-m-d H:i:s') . ' ' . $level . ' ' . getmypid() . ' ' . self::$global_id . '/' . self::$local_id . $messages . PHP_EOL;
+            $messages = date('Y-m-d H:i:s') . ' ' . $level . ' ' . getmypid() . ' ' . self::$global_id . '/' . self::$local_id . $messages . ($newline ? PHP_EOL : null);
             fwrite(self::$handles[self::$file], $messages);
 
             // In Command Line mode always log to the screen too
@@ -1381,7 +1382,7 @@ Class Log {
 //            /*
 //             * Single log or multi log?
 //             */
-//            if (!$core or !$core->register('ready')) {
+//            if (!$core or !Core::readRegister('ready')) {
 //                $file = 'syslog';
 //                $class = $session . cli_color('[ ' . $class . ' ] ', 'white', null, true);
 //
@@ -1438,7 +1439,7 @@ Class Log {
 //                        $message = cli_color($message, $color, null, true);
 //                    }
 //
-//                    fwrite($h[$file], cli_color($date, 'cyan', null, true) . ' ' . $core->callType() . '/' . $core->register['real_script'] . ' ' . $class . $key . ' => ' . $message . "\n");
+//                    fwrite($h[$file], cli_color($date, 'cyan', null, true) . ' ' . Core::callType() . '/' . $core->register['real_script'] . ' ' . $class . $key . ' => ' . $message . "\n");
 //
 //                } else {
 //                    /*
@@ -1450,7 +1451,7 @@ Class Log {
 //                        $message = cli_color($message, $color, null, true);
 //                    }
 //
-//                    fwrite($h[$file], cli_color($date, 'cyan', null, true) . ' ' . $core->callType() . '/' . $core->register['real_script'] . ' ' . $class . $message . "\n");
+//                    fwrite($h[$file], cli_color($date, 'cyan', null, true) . ' ' . Core::callType() . '/' . $core->register['real_script'] . ' ' . $class . $message . "\n");
 //                }
 //            }
 //

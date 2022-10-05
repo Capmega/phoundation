@@ -257,7 +257,7 @@ function cli_readline($prompt = '', $hidden = false, $question_fore_color = null
  * code
  * log_console('Started test');
  * cli_run_once_local();
- * safe_exec($core->register('script'));
+ * safe_exec(Core::readRegister('script'));
  * cli_run_once_local(true);
  * /code
  *
@@ -345,7 +345,7 @@ function cli_run_once_local($close = false) {
          * No run file exists yet, create one now
          */
         file_put_contents($run_dir.$script, getmypid());
-        $core->register('shutdown_cli_run_once_local', array(true));
+        Core::readRegister('shutdown_cli_run_once_local', array(true));
 
     }catch(Exception $e) {
         if ($e->getCode() == 'already-running') {

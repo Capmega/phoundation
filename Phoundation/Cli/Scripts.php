@@ -2,9 +2,11 @@
 
 namespace Phoundation\Cli;
 
+use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Throwable;
@@ -24,6 +26,15 @@ use Throwable;
 class Scripts
 {
     /**
+     * The exit code for this process
+     *
+     * @var int $exit_code
+     */
+    protected static int $exit_code = 0;
+
+
+
+    /**
      * Execute a command by the "cli" script
      *
      * @param array $argv The PHP $argv
@@ -32,9 +43,12 @@ class Scripts
     public static function executeCommand(array $argv): void
     {
         try {
+Debug::enabled(true);
             // All scripts will execute the cli_done() call, register basic script information
             Core::registerShutdown('cli_done');
 
+show($argv);
+die('bbbbbbbbb');
             if (count($argv) <= 1) {
                 throw new OutOfBoundsException('No method specified!');
             }
@@ -114,7 +128,7 @@ class Scripts
      */
     protected static function handleException(Throwable $e): void
     {
-        Cli::setExitCode($e->getCode());
+        self::setExitCode($e->getCode());
     }
 
 
@@ -124,9 +138,9 @@ class Scripts
      *
      * @return void
      */
-    protected static function done(): void
+    #[NoReturn] protected static function done(): void
     {
-        $exit_code = Cli::getExitCode();
+        $exit_code = self::getExitCode();
 
         // Execute all shutdown functions
         Core::shutdown();
@@ -134,20 +148,49 @@ class Scripts
         if (!QUIET) {
             if ($exit_code) {
                 if ($exit_code > 200) {
-                    /*
-                     * Script ended with warning
-                     */
-                    Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in :time with ":usage" peak memory usage', [':script' => Core::register('script'), ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
+                    // Script ended with warning
+                    Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
 
                 } else {
-                    Log::error(tr('Script ":script" failed with exit code ":exitcode" in :time with ":usage" peak memory usage', [':script' => Core::register('script'), ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
+                    // Script ended with error
+                    Log::error(tr('Script ":script" failed with exit code ":exitcode" in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
                 }
 
             } else {
-                Log::success(tr('Finished ":script" script in :time with ":usage" peak memory usage', [':script' => Core::register('script'), ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage())]), 'green');
+                // Script ended successfully
+                Log::success(tr('Finished ":script" script in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage())]), 'green');
             }
         }
 
         die($exit_code);
+    }
+
+
+
+    /**
+     * Returns the process exit code
+     *
+     * @return int
+     */
+    public static function getExitCode(): int
+    {
+        return self::$exit_code;
+    }
+
+
+
+    /**
+     * Sets the process exit code
+     *
+     * @param int $code
+     * @return void
+     */
+    public static function setExitCode(int $code): void
+    {
+        if (($code < 0) or ($code > 255)) {
+            throw new OutOfBoundsException(tr('Invalid exit code ":code" specified, it should be a positive integer value between 0 and 255', [':code' => $code]));
+        }
+
+        self::$exit_code = $code;
     }
 }

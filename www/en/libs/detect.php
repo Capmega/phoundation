@@ -40,7 +40,7 @@ function detect() {
         $location = detect_location();
         $language = detect_language();
 
-        $core->register('session', array('client'   => $client,
+        Core::readRegister('session', array('client'   => $client,
                                          'mobile'   => $mobile,
                                          'location' => $location,
                                          'language' => $language));

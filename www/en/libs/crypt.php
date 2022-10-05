@@ -114,7 +114,7 @@ function decrypt($data, $key, $method = null) {
         $backend = Strings::until($data, '^');
         $data    = str_from ($data, '^');
 
-        switch ($core->register('crypt_backend')) {
+        switch (Core::readRegister('crypt_backend')) {
             case 'sodium':
                 $data = sodium_decrypt($data, $key);
                 break;

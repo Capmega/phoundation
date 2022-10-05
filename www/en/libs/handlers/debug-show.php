@@ -41,7 +41,7 @@ try {
 
     if (PLATFORM_HTTP) {
         if (empty($core->register['debug_plain'])) {
-            switch ($core->callType()) {
+            switch (Core::callType()) {
                 case 'api':
                     // no-break
                 case 'ajax':

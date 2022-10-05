@@ -1327,7 +1327,7 @@ function servers_create_identity_file($server) {
         chmod($identity_file, 0400);
         servers_clear_key($server);
 
-        $core->register('shutdown_servers_remove_identity_file', array($identity_file));
+        Core::readRegister('shutdown_servers_remove_identity_file', array($identity_file));
 
         return ROOT.'data/ssh/keys/'.substr($identity_file, -8, 8);
 

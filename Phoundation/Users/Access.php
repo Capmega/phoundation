@@ -163,7 +163,7 @@ class Access
                 /*
                  * No session
                  */
-                if ($core->callType('api') or $core->callType('ajax')) {
+                if (Core::callType('api') or Core::callType('ajax')) {
                     json_reply(tr('Specified token ":token" has no session', array(':token' => isset_get($_POST['PHPSESSID']))), 'signin');
                 }
 

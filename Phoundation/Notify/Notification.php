@@ -5,6 +5,7 @@ namespace Phoundation\Notify;
 
 
 use Phoundation\Exception\OutOfBoundsException;
+use Throwable;
 
 /**
  * Class Notification
@@ -19,41 +20,67 @@ use Phoundation\Exception\OutOfBoundsException;
 class Notification
 {
     /**
-     *
-     *
-     * @var string|null $code
-     */
-    protected ?string $code = null;
-
-    /**
-     *
+     * The group that will receive  this notification
      *
      * @var array $groups
      */
     protected array $groups = [];
 
     /**
+     * The code for this notification
      *
+     * @var string|null $code
+     */
+    protected ?string $code = null;
+
+    /**
+     * The title for this notification
      *
      * @var string|null $title
      */
     protected ?string $title = null;
 
     /**
-     *
+     * The message for this notification
      *
      * @var string|null $message
      */
     protected ?string $message = null;
 
-
+    /**
+     * The file that generated this notification
+     *
+     * @var string|null $file
+     */
+    protected ?string $file = null;
 
     /**
+     * The line that generated this notification
      *
+     * @var int|null $line
      */
-    public function __construct()
-    {
-    }
+    protected ?int $line = null;
+
+    /**
+     * The trace for this notification
+     *
+     * @var array|null $trace
+     */
+    protected ?array $trace = null;
+
+    /**
+     * The data for this notification
+     *
+     * @var mixed $data
+     */
+    protected mixed $data = null;
+
+    /**
+     * The exception for this notification
+     *
+     * @var Throwable|null $e
+     */
+    protected ?Throwable $e = null;
 
 
 
@@ -160,6 +187,61 @@ class Notification
 
 
     /**
+     * Returns the data for this notification
+     *
+     * @return mixed
+     */
+    public function getData(): mixed
+    {
+        return $this->data;
+    }
+
+
+
+    /**
+     * Sets the exception for this notification
+     *
+     * @param Throwable $e
+     * @return Notification
+     */
+    public function setException(Throwable $e): Notification
+    {
+        $this->e = $e;
+        $this->code = $e->getCode();
+        $this->message = $e->getMessage();
+        $this->previous_e = $e->getPrevious();
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the exception for this notification
+     *
+     * @return Throwable
+     */
+    public function getException(): Throwable
+    {
+        return $this->e;
+    }
+
+
+
+    /**
+     * Sets the data for this notification
+     *
+     * @param mixed $data
+     * @return Notification
+     */
+    public function setData(mixed $data): Notification
+    {
+        $this->data = $data;
+        return $this;
+    }
+
+
+
+    /**
      * Returns the groups for this notification
      *
      * @return array
@@ -256,5 +338,11 @@ class Notification
         }
 
         // TODO IMPLEMENT
+
+        if ($this->e) {
+            $this->file = $this->e->getFile();
+            $this->line = $this->e->getLine();
+            $this->trace = $this->e->getTrace();
+        }
     }
 }

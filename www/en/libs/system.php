@@ -1283,7 +1283,7 @@
 //         * Set default values
 //         */
 //        if ($language === null) {
-//            if ($core->callType('cli')) {
+//            if (Core::callType('cli')) {
 //                $language = '';
 //
 //            } else {
@@ -1918,7 +1918,7 @@
 //        /*
 //         * Single log or multi log?
 //         */
-//        if (!$core or !$core->register('ready')) {
+//        if (!$core or !Core::readRegister('ready')) {
 //            $file  = 'syslog';
 //            $class = $session.cli_color('[ '.$class.' ] ', 'white', null, true);
 //
@@ -1975,7 +1975,7 @@
 //                    $message = cli_color($message, $color, null, true);
 //                }
 //
-//                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.$core->register['real_script'].' '.$class.$key.' => '.$message."\n");
+//                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.Core::callType().'/'.$core->register['real_script'].' '.$class.$key.' => '.$message."\n");
 //
 //            } else {
 //                /*
@@ -1987,7 +1987,7 @@
 //                    $message = cli_color($message, $color, null, true);
 //                }
 //
-//                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.$core->register['real_script'].' '.$class.$message."\n");
+//                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.Core::callType().'/'.$core->register['real_script'].' '.$class.$message."\n");
 //            }
 //        }
 //
@@ -2620,7 +2620,7 @@
 //            /*
 //             * No session
 //             */
-//            if ($core->callType('api') or $core->callType('ajax')) {
+//            if (Core::callType('api') or Core::callType('ajax')) {
 //                json_reply(tr('Specified token ":token" has no session', array(':token' => isset_get($_POST['PHPSESSID']))), 'signin');
 //            }
 //
@@ -2956,8 +2956,8 @@
 //            return false;
 //        }
 //
-//        if ($core->register('csrf')) {
-//            return $core->register('csrf');
+//        if (Core::readRegister('csrf')) {
+//            return Core::readRegister('csrf');
 //        }
 //
 //        /*
@@ -2988,7 +2988,7 @@
 //        $_SESSION['csrf'][$csrf] = new DateTime();
 //        $_SESSION['csrf'][$csrf] = $_SESSION['csrf'][$csrf]->getTimestamp();
 //
-//        $core->register('csrf', $csrf);
+//        Core::readRegister('csrf', $csrf);
 //        return $csrf;
 //
 //    }catch(Exception $e) {
@@ -3012,7 +3012,7 @@
 //            return false;
 //        }
 //
-//        if (!$core->callType('http') and !$core->callType('admin')) {
+//        if (!Core::callType('http') and !Core::callType('admin')) {
 //            /*
 //             * CSRF only works for HTTP or ADMIN requests
 //             */
@@ -3034,11 +3034,11 @@
 //        }
 //
 //        if (empty($_POST['csrf'])) {
-//log_file($core->callType());
+//log_file(Core::callType());
 //            throw new CoreException(tr('check_csrf(): No CSRF field specified'), 'warning/not-specified');
 //        }
 //
-//        if ($core->callType('ajax')) {
+//        if (Core::callType('ajax')) {
 //            if (substr($_POST['csrf'], 0, 5) != 'ajax_') {
 //                /*
 //                 * Invalid CSRF code is sppokie, don't make this a warning
@@ -3070,7 +3070,7 @@
 //
 //        $core->register['csrf_ok'] = true;
 //
-//        if ($core->callType('ajax')) {
+//        if (Core::callType('ajax')) {
 //            /*
 //             * Send new CSRF code with the AJAX return payload
 //             */
@@ -3089,7 +3089,7 @@
 //            }
 //        }
 //log_file('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-//log_file($core->callType('http'));
+//log_file(Core::callType('http'));
 //        log_file($e);
 //        html_flash_set(tr('The form data was too old, please try again'), 'warning');
 //    }
@@ -3365,7 +3365,7 @@
 //
 //        $core->register['real_script'] = $pagename;
 //
-//        switch ($core->callType()) {
+//        switch (Core::callType()) {
 //            case 'ajax':
 //                $include = ROOT.'www/'.$language.'/ajax/'.$pagename.'.php';
 //
@@ -5879,7 +5879,7 @@
 //    global $core;
 //
 //    try {
-//        return $core->register('shutdown_'.$name, $value);
+//        return Core::readRegister('shutdown_'.$name, $value);
 //
 //    }catch(Exception $e) {
 //        throw new CoreException('register_shutdown(): Failed', $e);
@@ -5909,7 +5909,7 @@
 //    global $core;
 //
 //    try {
-//        $value = $core->register('shutdown_'.$name);
+//        $value = Core::readRegister('shutdown_'.$name);
 //        unset($core->register['shutdown_'.$name]);
 //        return $value;
 //

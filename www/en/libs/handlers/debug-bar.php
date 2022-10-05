@@ -44,7 +44,7 @@ try {
      * Build HTML
      */
     $html = '<div class="debug" id="debug-bar">
-                '.($_CONFIG['cache']['method'] ? '(CACHE='.$_CONFIG['cache']['method'].') ' : '').count($core->register('debug_queries')).' / '.number_format(microtime(true) - STARTTIME, 6).'
+                '.($_CONFIG['cache']['method'] ? '(CACHE='.$_CONFIG['cache']['method'].') ' : '').count(Core::readRegister('debug_queries')).' / '.number_format(microtime(true) - STARTTIME, 6).'
                 <div class="hidden list">
                     <div style="width:100%; background: #2d3945; text-align: center; font-weight: bold; padding: 3px 0 3px;">
                         '.tr('Debug report').'
@@ -135,7 +135,7 @@ try {
     $html .= '  </div>
              </div>';
 
-    $html  = str_replace(':query_count'   , count($core->register('debug_queries'))      , $html);
+    $html  = str_replace(':query_count'   , count(Core::readRegister('debug_queries'))      , $html);
     $html  = str_replace(':execution_time', number_format(microtime(true) - STARTTIME, 6), $html);
 
     return $html;

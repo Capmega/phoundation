@@ -120,7 +120,7 @@ class Http
              *
              These pages should NEVER be indexed
              */
-            if (!$_CONFIG['production'] or $_CONFIG['noindex'] or !$core->callType('http')) {
+            if (!$_CONFIG['production'] or $_CONFIG['noindex'] or !Core::callType('http')) {
                 $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
             }
 
@@ -551,7 +551,7 @@ class Http
                  * Send caching headers
                  * Ajax, API, and admin calls do not have proxy caching
                  */
-                switch ($core->callType()) {
+                switch (Core::callType()) {
                     case 'api':
                         // FALLTHROUGH
                     case 'ajax':
@@ -623,7 +623,7 @@ class Http
                 return false;
             }
 
-            if ($core->callType('ajax') or $core->callType('api')) {
+            if (Core::callType('ajax') or Core::callType('api')) {
                 return false;
             }
 
@@ -661,7 +661,7 @@ class Http
              * ETAG requires HTTP caching enabled
              * Ajax and API calls do not use ETAG
              */
-            if (!$_CONFIG['cache']['http']['enabled'] or $core->callType('ajax') or $core->callType('api')) {
+            if (!$_CONFIG['cache']['http']['enabled'] or Core::callType('ajax') or Core::callType('api')) {
                 unset($core->register['etag']);
                 return false;
             }
@@ -669,7 +669,7 @@ class Http
             /*
              * Create local ETAG
              */
-            $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . $core->register('etag'));
+            $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
 
 // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
             if (trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']) {
@@ -1497,8 +1497,8 @@ class Http
                 return false;
             }
 
-            if ($core->register('csrf')) {
-                return $core->register('csrf');
+            if (Core::readRegister('csrf')) {
+                return Core::readRegister('csrf');
             }
 
             /*
@@ -1529,7 +1529,7 @@ class Http
             $_SESSION['csrf'][$csrf] = new DateTime();
             $_SESSION['csrf'][$csrf] = $_SESSION['csrf'][$csrf]->getTimestamp();
 
-            $core->register('csrf', $csrf);
+            Core::readRegister('csrf', $csrf);
             return $csrf;
 
         } catch (Exception $e) {
@@ -1553,7 +1553,7 @@ class Http
                 return false;
             }
 
-            if (!$core->callType('http') and !$core->callType('admin')) {
+            if (!Core::callType('http') and !Core::callType('admin')) {
                 /*
                  * CSRF only works for HTTP or ADMIN requests
                  */
@@ -1575,11 +1575,11 @@ class Http
             }
 
             if (empty($_POST['csrf'])) {
-                log_file($core->callType());
+                log_file(Core::callType());
                 throw new OutOfBoundsException(tr('check_csrf(): No CSRF field specified'), 'warning/not-specified');
             }
 
-            if ($core->callType('ajax')) {
+            if (Core::callType('ajax')) {
                 if (substr($_POST['csrf'], 0, 5) != 'ajax_') {
                     /*
                      * Invalid CSRF code is sppokie, don't make this a warning
@@ -1611,7 +1611,7 @@ class Http
 
             $core->register['csrf_ok'] = true;
 
-            if ($core->callType('ajax')) {
+            if (Core::callType('ajax')) {
                 /*
                  * Send new CSRF code with the AJAX return payload
                  */
@@ -1630,7 +1630,7 @@ class Http
                 }
             }
             log_file('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-            log_file($core->callType('http'));
+            log_file(Core::callType('http'));
             log_file($e);
             html_flash_set(tr('The form data was too old, please try again'), 'warning');
         }

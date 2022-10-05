@@ -1,5 +1,9 @@
 <?php
 
+namespace Phoundation\Users;
+
+
+
 /**
  * Class Users
  *

@@ -323,7 +323,7 @@ function http_headers($params, $content_length) {
          *
          These pages should NEVER be indexed
          */
-        if (!$_CONFIG['production'] or $_CONFIG['noindex'] or !$core->callType('http')) {
+        if (!$_CONFIG['production'] or $_CONFIG['noindex'] or !Core::callType('http')) {
             $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
         }
 
@@ -514,7 +514,7 @@ function http_cache_etag() {
          * ETAG requires HTTP caching enabled
          * Ajax and API calls do not use ETAG
          */
-        if (!$_CONFIG['cache']['http']['enabled'] or $core->callType('ajax') or $core->callType('api')) {
+        if (!$_CONFIG['cache']['http']['enabled'] or Core::callType('ajax') or Core::callType('api')) {
             unset($core->register['etag']);
             return false;
         }
@@ -522,7 +522,7 @@ function http_cache_etag() {
         /*
          * Create local ETAG
          */
-        $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).$core->register('etag'));
+        $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).Core::readRegister('etag'));
 
 // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
         if (trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']) {
@@ -562,7 +562,7 @@ function http_cache_test($etag = null) {
             return false;
         }
 
-        if ($core->callType('ajax') or $core->callType('api')) {
+        if (Core::callType('ajax') or Core::callType('api')) {
             return false;
         }
 
@@ -632,7 +632,7 @@ function http_cache($params, $http_code, $headers = array()) {
                  * Send caching headers
                  * Ajax, API, and admin calls do not have proxy caching
                  */
-                switch ($core->callType()) {
+                switch (Core::callType()) {
                     case 'api':
                         // no-break
                     case 'ajax':

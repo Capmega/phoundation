@@ -401,7 +401,7 @@ function paging_page($page = null) {
 
     try {
         if (!$page) {
-            $page = $core->register('page');
+            $page = Core::readRegister('page');
         }
 
         if ($page) {

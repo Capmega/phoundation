@@ -327,7 +327,7 @@ function cache_showpage($key = null, $namespace = 'htmlpage', $etag = null) {
                 $etag = isset_get($core->register['etag']);
             }
 
-            $core->register('page_cache_key', $key);
+            Core::readRegister('page_cache_key', $key);
 
             /*
              * First try to apply HTTP ETag cache test

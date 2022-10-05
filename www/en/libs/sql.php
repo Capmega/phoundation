@@ -1295,7 +1295,7 @@ function sql_connector_name($connector_name) {
 
     try {
         if (!$connector_name) {
-            $connector_name = $core->register('sql_connector');
+            $connector_name = Core::readRegister('sql_connector');
 
             if ($connector_name) {
                 return $connector_name;

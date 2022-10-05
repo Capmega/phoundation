@@ -152,7 +152,7 @@ function ssh_exec($server, $params) {
                 /*
                  * This SSH tunnel must be closed automatically once the script finishes
                  */
-                $core->register('shutdown_ssh_close_tunnel', $results);
+                Core::readRegister('shutdown_ssh_close_tunnel', $results);
 
             } else {
 
