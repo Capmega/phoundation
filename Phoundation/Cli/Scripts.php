@@ -131,9 +131,9 @@ class Scripts
         // Execute all shutdown functions
         Core::shutdown();
 
-        if (!QUIET){
+        if (!QUIET) {
             if ($exit_code) {
-                if ($exit_code > 200){
+                if ($exit_code > 200) {
                     /*
                      * Script ended with warning
                      */

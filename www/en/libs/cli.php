@@ -567,10 +567,10 @@ function cli_method($index = null, $default = null) {
             $method[$index] = null;
         }
 
-        if (isset($method[$index])){
+        if (isset($method[$index])) {
             $reappeared = array_search($method[$index], $argv);
 
-            if (is_numeric($reappeared)){
+            if (is_numeric($reappeared)) {
                 /*
                  * The argument has been readded to $argv. This is very likely
                  * happened by safe_exec() that included the specified script
@@ -582,8 +582,8 @@ function cli_method($index = null, $default = null) {
             return $method[$index];
         }
 
-        foreach ($argv as $key => $value){
-            if (substr($value, 0, 1) !== '-'){
+        foreach ($argv as $key => $value) {
+            if (substr($value, 0, 1) !== '-') {
                 unset($argv[$key]);
                 $method[$index] = $value;
                 return $value;
@@ -592,7 +592,7 @@ function cli_method($index = null, $default = null) {
 
         return $default;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_method(): Failed', $e);
     }
 }
@@ -615,26 +615,26 @@ function cli_method($index = null, $default = null) {
  * @params mixed $next. If set to true, cli_argument() REQUIRES that the specified key contains a next argument, and this will be returned. If set to "all", it will return all following arguments. If set to "optional", a next argument will be retuned, if available.
  * @return mixed If $next is null, cli_argument() will return a boolean value, true if the specified key exists, false if not. If $next is true or "optional", the next value will be returned as a string. However, if "optional" was used, and the next value was not specified, boolean FALSE will be returned instead. If $next is specified as all, all subsequent values will be returned in an array
  */
-function cli_argument($keys = null, $next = null, $default = null){
+function cli_argument($keys = null, $next = null, $default = null) {
     global $argv;
 
     try {
-        if (is_integer($keys)){
+        if (is_integer($keys)) {
             $count = count($argv) - 1;
 
-            if ($next === 'all'){
+            if ($next === 'all') {
 // :TODO: This could be optimized using a for() starting at $keys instead of a foreach () over all entries
-                foreach ($argv as $argv_key => $argv_value){
-                    if ($argv_key < $keys){
+                foreach ($argv as $argv_key => $argv_value) {
+                    if ($argv_key < $keys) {
                         continue;
                     }
 
-                    if ($argv_key == $keys){
+                    if ($argv_key == $keys) {
                         unset($argv[$keys]);
                         continue;
                     }
 
-                    if (substr($argv_value, 0, 1) == '-'){
+                    if (substr($argv_value, 0, 1) == '-') {
                         /*
                          * Encountered a new option, stop!
                          */
@@ -652,7 +652,7 @@ function cli_argument($keys = null, $next = null, $default = null){
                 return isset_get($retval);
             }
 
-            if (isset($argv[$keys++])){
+            if (isset($argv[$keys++])) {
                 $argument = $argv[$keys - 1];
                 unset($argv[$keys - 1]);
                 return $argument;
@@ -664,7 +664,7 @@ function cli_argument($keys = null, $next = null, $default = null){
             return $default;
         }
 
-        if ($keys === null){
+        if ($keys === null) {
             $retval = array_shift($argv);
             $retval = Strings::startsNotWith($retval, '-');
             return $retval;
@@ -674,12 +674,12 @@ function cli_argument($keys = null, $next = null, $default = null){
          * Detect multiple key options for the same command, but ensure only one
          * is specified
          */
-        if (is_array($keys) or (is_string($keys) and strstr($keys, ','))){
+        if (is_array($keys) or (is_string($keys) and strstr($keys, ','))) {
             $keys    = Arrays::force($keys);
             $results = array();
 
-            foreach ($keys as $key){
-                if ($next === 'all'){
+            foreach ($keys as $key) {
+                if ($next === 'all') {
                     /*
                      * We're requesting all values for all specified keys
                      * cli_argument will return null in case the specified key
@@ -687,7 +687,7 @@ function cli_argument($keys = null, $next = null, $default = null){
                      */
                     $value = cli_argument($key, 'all', null);
 
-                    if (is_array($value)){
+                    if (is_array($value)) {
                         $found   = true;
                         $results = array_merge($results, $value);
                     }
@@ -695,17 +695,17 @@ function cli_argument($keys = null, $next = null, $default = null){
                 } else {
                     $value = cli_argument($key, $next, null);
 
-                    if ($value){
+                    if ($value) {
                         $results[$key] = $value;
                     }
                 }
             }
 
-            if (($next === 'all') and isset($found)){
+            if (($next === 'all') and isset($found)) {
                 return $results;
             }
 
-            switch (count($results)){
+            switch (count($results)) {
                 case 0:
                     return $default;
 
@@ -721,23 +721,23 @@ function cli_argument($keys = null, $next = null, $default = null){
             }
         }
 
-        if (($key = array_search($keys, $argv)) === false){
+        if (($key = array_search($keys, $argv)) === false) {
             /*
              * Specified argument not found
              */
             return $default;
         }
 
-        if ($next){
-            if ($next === 'all'){
+        if ($next) {
+            if ($next === 'all') {
                 /*
                  * Return all following arguments, if available, until the next option
                  */
                 $retval = array();
 
-                foreach ($argv as $argv_key => $argv_value){
-                    if (empty($start)){
-                        if ($argv_value == $keys){
+                foreach ($argv as $argv_key => $argv_value) {
+                    if (empty($start)) {
+                        if ($argv_value == $keys) {
                             $start = true;
                             unset($argv[$argv_key]);
                         }
@@ -745,7 +745,7 @@ function cli_argument($keys = null, $next = null, $default = null){
                         continue;
                     }
 
-                    if (substr($argv_value, 0, 1) == '-'){
+                    if (substr($argv_value, 0, 1) == '-') {
                         /*
                          * Encountered a new option, stop!
                          */
@@ -768,9 +768,9 @@ function cli_argument($keys = null, $next = null, $default = null){
             try {
                 $retval = array_next_value($argv, $keys, true);
 
-            }catch(Exception $e){
-                if ($e->getCode() == 'invalid'){
-                    if ($next !== 'optional'){
+            }catch(Exception $e) {
+                if ($e->getCode() == 'invalid') {
+                    if ($next !== 'optional') {
                         /*
                          * This argument requires another parameter
                          */
@@ -781,7 +781,7 @@ function cli_argument($keys = null, $next = null, $default = null){
                 }
             }
 
-            if (substr($retval, 0, 1) == '-'){
+            if (substr($retval, 0, 1) == '-') {
                 throw new CoreException(tr('cli_argument(): Argument ":argument1" has no assigned value, it is immediately followed by argument ":argument2"', array(':argument1' => $keys, ':argument2' => $retval)), 'invalid');
             }
 
@@ -791,7 +791,7 @@ function cli_argument($keys = null, $next = null, $default = null){
         unset($argv[$key]);
         return true;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('cli_argument(): Failed'), $e);
     }
 }
@@ -801,11 +801,11 @@ function cli_argument($keys = null, $next = null, $default = null){
 /*
  *
  */
-function cli_arguments($arguments = null){
+function cli_arguments($arguments = null) {
     global $argv;
 
     try {
-        if (!$arguments){
+        if (!$arguments) {
             $retval = $argv;
             $argv   = array();
             return $retval;
@@ -813,22 +813,22 @@ function cli_arguments($arguments = null){
 
         $retval = array();
 
-        foreach (Arrays::force($arguments) as $argument){
-            if (is_numeric($argument)){
+        foreach (Arrays::force($arguments) as $argument) {
+            if (is_numeric($argument)) {
                 /*
                  * If the key would be numeric, argument() would get into an endless loop
                  */
                 throw new CoreException(tr('cli_arguments(): The specified argument ":argument" is numeric, and as such, invalid. cli_arguments() can only check for key-value pairs, where the keys can not be numeric', array(':argument' => $argument)), 'invalid');
             }
 
-            if ($value = cli_argument($argument, true)){
+            if ($value = cli_argument($argument, true)) {
                 $retval[str_replace('-', '', $argument)] = $value;
             }
         }
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('cli_arguments(): Failed'), $e);
     }
 }
@@ -839,10 +839,10 @@ function cli_arguments($arguments = null){
  * Ensures that no other command line arguments are left.
  * If arguments were still found, an appropriate error will be thrown
  */
-function cli_no_arguments_left(){
+function cli_no_arguments_left() {
     global $argv;
 
-    if (!$argv){
+    if (!$argv) {
         return true;
     }
 
@@ -854,21 +854,21 @@ function cli_no_arguments_left(){
 /*
  * Mark the specified keywords in the specified string with the specified color
  */
-function cli_highlight($string, $keywords, $fore_color, $back_color = null){
+function cli_highlight($string, $keywords, $fore_color, $back_color = null) {
     static $color;
 
     try {
-        if (!$color){
+        if (!$color) {
             $color = new Colors();
         }
 
-        foreach (Arrays::force($keywords) as $keyword){
+        foreach (Arrays::force($keywords) as $keyword) {
             $string = str_replace($keyword, $color->getColoredString($string, $fore_color, $back_color), $string);
         }
 
         return $string;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_highlight(): Failed', $e);
     }
 }
@@ -878,15 +878,15 @@ function cli_highlight($string, $keywords, $fore_color, $back_color = null){
 /*
  * Show error on screen with usage
  */
-function cli_error($e = null){
+function cli_error($e = null) {
     global $usage;
 
-    switch ($e->getCode()){
+    switch ($e->getCode()) {
         case 'already-running':
             break;
 
         default:
-            if (!empty($usage)){
+            if (!empty($usage)) {
                 echo "\n";
                 cli_show_usage($usage, 'white');
             }
@@ -898,22 +898,22 @@ function cli_error($e = null){
 /*
  *
  */
-function cli_show_usage($usage, $color){
+function cli_show_usage($usage, $color) {
     try {
-        if (!$usage){
+        if (!$usage) {
             log_console(tr('Sorry, this script has no usage description defined yet'), 'yellow');
 
         } else {
             $usage = Arrays::force(trim($usage), "\n");
 
-            if (count($usage) == 1){
+            if (count($usage) == 1) {
                 log_console(tr('Usage:')       , $color);
                 log_console(array_shift($usage), $color);
 
             } else {
                 log_console(tr('Usage:'), $color);
 
-                foreach (Arrays::force($usage, "\n") as $line){
+                foreach (Arrays::force($usage, "\n") as $line) {
                     log_console($line, $color);
                 }
 
@@ -921,7 +921,7 @@ function cli_show_usage($usage, $color){
             }
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_show_usage(): Failed', $e);
     }
 }
@@ -941,19 +941,19 @@ function cli_show_usage($usage, $color){
  * @param boolean $permit_root If set to true, and the script was run by root, it will be authorized anyway
  * @return void
  */
-function cli_process_uid_matches($auto_switch = false, $permit_root = true){
+function cli_process_uid_matches($auto_switch = false, $permit_root = true) {
     global $core;
 
     try {
-        if (cli_get_process_uid() !== getmyuid()){
-            if (!cli_get_process_uid() and $permit_root){
+        if (cli_get_process_uid() !== getmyuid()) {
+            if (!cli_get_process_uid() and $permit_root) {
                 /*
                  * Root is authorized!
                  */
                 return;
             }
 
-            if (!$auto_switch){
+            if (!$auto_switch) {
                 throw new CoreException(tr('cli_process_uid_matches(): The user ":puser" is not allowed to execute these scripts, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', array(':puser' => get_current_user(), ':fuser' => cli_get_process_user())), 'not-authorized');
             }
 
@@ -971,7 +971,7 @@ function cli_process_uid_matches($auto_switch = false, $permit_root = true){
             /*
              * Ensure --timeout is added to the script
              */
-            if (!in_array('--timeout', $arguments)){
+            if (!in_array('--timeout', $arguments)) {
                 $arguments[] = '--timeout';
                 $arguments[] = $core->register['timeout'];
             }
@@ -984,7 +984,7 @@ function cli_process_uid_matches($auto_switch = false, $permit_root = true){
             die();
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_process_uid_matches(): Failed', $e);
     }
 }
@@ -1000,7 +1000,7 @@ function cli_process_uid_matches($auto_switch = false, $permit_root = true){
  * @category Function reference
  * @package cli
  */
-function cli_process_user_has_free_sudo(){
+function cli_process_user_has_free_sudo() {
     try {
         $results = safe_exec(array('timeout'  => '0.1',
                                    'commands' => array('sudo', array('-v'))));
@@ -1008,7 +1008,7 @@ function cli_process_user_has_free_sudo(){
 
         return !$results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_process_user_has_free_sudo(): Failed', $e);
     }
 }
@@ -1024,11 +1024,11 @@ function cli_process_user_has_free_sudo(){
  * @category Function reference
  * @package cli
  */
-function cli_get_process_uid(){
+function cli_get_process_uid() {
     global $core;
 
     try {
-        if ($core->register['posix']){
+        if ($core->register['posix']) {
             return posix_getuid();
         }
 
@@ -1037,7 +1037,7 @@ function cli_get_process_uid(){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_get_process_uid(): Failed', $e);
     }
 }
@@ -1053,11 +1053,11 @@ function cli_get_process_uid(){
  * @category Function reference
  * @package cli
  */
-function cli_get_process_user(){
+function cli_get_process_user() {
     global $core;
 
     try {
-        if ($core->register['posix']){
+        if ($core->register['posix']) {
             return posix_getpwuid(posix_geteuid())['name'];;
         }
 
@@ -1066,7 +1066,7 @@ function cli_get_process_user(){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_get_process_user(): Failed', $e);
     }
 }
@@ -1082,11 +1082,11 @@ function cli_get_process_user(){
  * @category Function reference
  * @package cli
  */
-function cli_is_root(){
+function cli_is_root() {
     try {
         return cli_get_process_uid() === 0;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_is_root(): Failed', $e);
     }
 }
@@ -1102,15 +1102,15 @@ function cli_is_root(){
  * @category Function reference
  * @package cli
  */
-function cli_root_only(){
+function cli_root_only() {
     try {
-        if (!cli_is_root()){
+        if (!cli_is_root()) {
             throw new CoreException('cli_root_only(): This script can ONLY be executed by the root user', 'not-allowed');
         }
 
         return true;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_root_only(): Failed', $e);
     }
 }
@@ -1126,15 +1126,15 @@ function cli_root_only(){
  * @category Function reference
  * @package cli
  */
-function cli_not_root(){
+function cli_not_root() {
     try {
-        if (cli_is_root()){
+        if (cli_is_root()) {
             throw new CoreException('cli_not_root(): This script can NOT be executed by the root user', 'not-allowed');
         }
 
         return true;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_not_root(): Failed', $e);
     }
 }
@@ -1150,15 +1150,15 @@ function cli_not_root(){
  * @category Function reference
  * @package cli
  */
-function cli_sudo($command){
+function cli_sudo($command) {
     try {
-        if (!cli_process_user_has_free_sudo()){
+        if (!cli_process_user_has_free_sudo()) {
             throw new CoreException(tr('cli_sudo(): This script requires sudo privileges but the current user ":user" does not have these', array(':user' => cli_get_process_user())), 'no-sudo');
         }
 
         return $command;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_sudo(): Failed', $e);
     }
 }
@@ -1168,7 +1168,7 @@ function cli_sudo($command){
 /*
  *
  */
-function cli_arguments_none_left(){
+function cli_arguments_none_left() {
     return cli_no_arguments_left();
 }
 
@@ -1177,16 +1177,16 @@ function cli_arguments_none_left(){
 /*
  *
  */
-function cli_done(){
+function cli_done() {
     global $core;
 
     try {
-        if (!isset($core)){
+        if (!isset($core)) {
             echo "\033[1;31mCommand line terminated before \$core created\033[0m\n";
             die(1);
         }
 
-        if ($core === false){
+        if ($core === false) {
             /*
              * Core wasn't created yet, but uncaught exception handler basically
              * is saying that's okay, just warning stuff
@@ -1201,11 +1201,11 @@ function cli_done(){
          */
         shutdown();
 
-        if (!QUIET){
+        if (!QUIET) {
             load_libs('time,numbers');
 
-            if ($exit_code and is_numeric($exit_code)){
-                if ($exit_code > 200){
+            if ($exit_code and is_numeric($exit_code)) {
+                if ($exit_code > 200) {
                     /*
                      * Script ended with warning
                      */
@@ -1222,7 +1222,7 @@ function cli_done(){
 
         die($exit_code);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_done(): Failed', $e);
     }
 }
@@ -1243,12 +1243,12 @@ function cli_done(){
  * @param string $name The process name to scan for
  * @return array The list of process ids found that maches the specified name
  */
-function cli_pgrep($name){
+function cli_pgrep($name) {
     try {
         return safe_exec(array('ok_exitcodes' => '0,1',
                                'commands'     => array('pgrep', array($name))));
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_pgrep(): Failed', $e);
     }
 }
@@ -1269,7 +1269,7 @@ function cli_pgrep($name){
  * @param string $name The process id to scan for
  * @return string The process name found that maches the specified PID
  */
-function cli_pidgrep($pid){
+function cli_pidgrep($pid) {
     try {
         $results = safe_exec(array('ok_exitcodes' => '0,1',
                                    'commands'     => array('ps'  , array($pid, 'connector' => '|'),
@@ -1279,7 +1279,7 @@ function cli_pidgrep($pid){
 
         return $result;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_pgrep(): Failed', $e);
     }
 }
@@ -1301,20 +1301,20 @@ function cli_pidgrep($pid){
  * @param boolean $sudo
  * @return natural The amount of processes killed. 0 if no processes were killed
  */
-function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
+function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false) {
     try {
-        if (!$pids){
+        if (!$pids) {
             throw new CoreException(tr('cli_kill(): No process ids specified'), 'not-specified');
         }
 
-        if (!$signal){
+        if (!$signal) {
             $signal = 15;
         }
 
         $pids  = Arrays::force($pids);
         $count = 0;
 
-        foreach ($pids as $pid){
+        foreach ($pids as $pid) {
             /*
              * pkill returns 1 if process wasn't found, we can ignore that
              */
@@ -1323,11 +1323,11 @@ function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
             $results = safe_exec(array('ok_exitcodes' => '0,1',
                                        'commands'     => array('kill', array('sudo' => $sudo, '-'.$signal, $pid))));
 
-            if ($results){
+            if ($results) {
                 $results = array_shift($results);
                 $results = strtolower($results);
 
-                if (str_contains($results, 'no such process')){
+                if (str_contains($results, 'no such process')) {
                     /*
                      * Process didn't exist!
                      */
@@ -1336,17 +1336,17 @@ function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
                 }
             }
 
-            if ($verify){
+            if ($verify) {
                 $sigkill = ($verify < 0);
                 $verify  = abs($verify);
 
-                while (--$verify >= 0){
+                while (--$verify >= 0) {
                     usleep(100000);
 
                     /*
                      * Ensure that the progress is gone
                      */
-                    if (!cli_pidgrep($pid)){
+                    if (!cli_pidgrep($pid)) {
                         /*
                          * Killed it softly
                          */
@@ -1358,14 +1358,14 @@ function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
                     usleep(100000);
                 }
 
-                if ($sigkill){
+                if ($sigkill) {
                     /*
                      * Sigkill it!
                      */
                     log_console(tr('Killing PID ":pid" with signal ":signal"', array(':pid' => $pid, ':signal' => 9)), 'cyan');
                     $result = cli_kill($pid, 9, 0, $sudo);
 
-                    if ($result){
+                    if ($result) {
                         /*
                          * Killed it the hard way!
                          */
@@ -1380,7 +1380,7 @@ function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
 
         return $count;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_kill(): Failed', $e);
     }
 }
@@ -1390,9 +1390,9 @@ function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
 /*
  * Send a signal to the specified process. S
  */
-function cli_pkill($process, $signal = null, $sudo = false, $verify = 3, $sigkill = true){
+function cli_pkill($process, $signal = null, $sudo = false, $verify = 3, $sigkill = true) {
     try {
-        if (!$signal){
+        if (!$signal) {
             $signal = 15;
         }
 
@@ -1402,8 +1402,8 @@ function cli_pkill($process, $signal = null, $sudo = false, $verify = 3, $sigkil
         $results = safe_exec(array('ok_exitcodes' => '0,1',
                                    'commands'     => array('pkill', array('sudo' => $sudo, '-'.$signal, $process))));
 
-        if ($verify){
-            while (--$verify >= 0){
+        if ($verify) {
+            while (--$verify >= 0) {
                 sleep(0.5);
 
                 /*
@@ -1411,7 +1411,7 @@ function cli_pkill($process, $signal = null, $sudo = false, $verify = 3, $sigkil
                  */
                 $results = cli_pgrep($process);
 
-                if (!$results){
+                if (!$results) {
                     /*
                      * Killed it softly
                      */
@@ -1421,13 +1421,13 @@ function cli_pkill($process, $signal = null, $sudo = false, $verify = 3, $sigkil
                 sleep(0.5);
             }
 
-            if ($sigkill){
+            if ($sigkill) {
                 /*
                  * Sigkill it!
                  */
                 $result = cli_pkill($process, 9, $sudo, $verify, false);
 
-                if ($result){
+                if ($result) {
                     /*
                      * Killed it the hard way!
                      */
@@ -1438,7 +1438,7 @@ function cli_pkill($process, $signal = null, $sudo = false, $verify = 3, $sigkil
             throw new CoreException(tr('cli_pkill(): Failed to kill process ":process"', array(':process' => $process)), 'failed');
         }
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_pkill(): Failed', $e);
     }
 }
@@ -1448,12 +1448,12 @@ function cli_pkill($process, $signal = null, $sudo = false, $verify = 3, $sigkil
 /*
  *
  */
-function cli_get_term(){
+function cli_get_term() {
     try {
         $term = exec('echo $TERM');
         return $term;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_get_term(): Failed', $e);
     }
 }
@@ -1463,12 +1463,12 @@ function cli_get_term(){
 /*
  *
  */
-function cli_get_columns(){
+function cli_get_columns() {
     try {
         $cols = exec('tput cols');
         return $cols;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_get_columns(): Failed', $e);
     }
 }
@@ -1477,12 +1477,12 @@ function cli_get_columns(){
 /*
  *
  */
-function cli_get_lines(){
+function cli_get_lines() {
     try {
         $rows = exec('tput lines');
         return $rows;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_get_lines(): Failed', $e);
     }
 }
@@ -1492,7 +1492,7 @@ function cli_get_lines(){
 /*
  * Run a process and run callbacks over the output
  */
-function cli_run_process($command, $callback){
+function cli_run_process($command, $callback) {
     try {
 //$p = popen('executable_file_or_script', 'r');
 //while (!feof($p)) {
@@ -1502,7 +1502,7 @@ function cli_run_process($command, $callback){
 //}
 //pclose($p);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_run_process(): Failed', $e);
     }
 }
@@ -1513,10 +1513,10 @@ function cli_run_process($command, $callback){
  * Show a X% width pogress bar on the current line
  * See https://github.com/guiguiboy/PHP-CLI-Progress-Bar/blob/master/ProgressBar/Manager.php for inspiration
  */
-function cli_progress_bar($width, $percentage, $color){
+function cli_progress_bar($width, $percentage, $color) {
     try {
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_progress_bar(): Failed', $e);
     }
 }
@@ -1526,11 +1526,11 @@ function cli_progress_bar($width, $percentage, $color){
 /*
  *
  */
-function cli_status_color($status){
+function cli_status_color($status) {
     try {
         $status = status($status);
 
-        switch (trim(strtolower($status))){
+        switch (trim(strtolower($status))) {
             case 'ok':
                 // no-break
             case 'completed':
@@ -1560,7 +1560,7 @@ function cli_status_color($status){
 
         return cli_color($status, 'purple');
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_status_color(): Failed', $e);
     }
 }
@@ -1579,11 +1579,11 @@ function cli_status_color($status){
  * @param natural $pid The PID to be tested
  * @return boolean True if the specified PID is available on the specified server, false otherwise
  */
-function cli_pid($pid){
+function cli_pid($pid) {
     try {
         return file_exists('/proc/'.$pid);
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_pid(): Failed', $e);
     }
 }
@@ -1602,13 +1602,13 @@ function cli_pid($pid){
  * @param mixed $filters
  * @return
  */
-function cli_list_processes($filters){
+function cli_list_processes($filters) {
     try {
         $filters  = Arrays::force($filters);
         $commands = array('ps', array('ax', 'connector' => '|'));
 
-        foreach ($filters as $filter){
-            if ($filter[0] === '-'){
+        foreach ($filters as $filter) {
+            if ($filter[0] === '-') {
                 /*
                  * Escape anything that looks like a command line parameter
                  */
@@ -1626,7 +1626,7 @@ function cli_list_processes($filters){
         $results = safe_exec(array('ok_exitcodes' => '0,1',
                                    'commands'     => $commands));
 
-        foreach ($results as $key => $result){
+        foreach ($results as $key => $result) {
             $result       = trim($result);
             $pid          = Strings::until($result, ' ');
             $retval[$pid] = substr($result, 27);
@@ -1634,7 +1634,7 @@ function cli_list_processes($filters){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_list_processes(): Failed', $e);
     }
 }
@@ -1656,9 +1656,9 @@ function cli_list_processes($filters){
  * @param boolean $remove If set to true, the specified zip file will be removed after the unzip action
  * @return string The specified $target_path, or if not specified, the temporary path where the file has been extracted
  */
-function cli_unzip($file, $target_path = null, $remove = true){
+function cli_unzip($file, $target_path = null, $remove = true) {
     try {
-        if (!$target_path){
+        if (!$target_path) {
             $target_path = file_temp(false);
         }
 
@@ -1667,7 +1667,7 @@ function cli_unzip($file, $target_path = null, $remove = true){
 
         file_ensure_path($target_path);
 
-        if ($remove){
+        if ($remove) {
             rename($file, $target_path.$filename);
 
         } else {
@@ -1679,7 +1679,7 @@ function cli_unzip($file, $target_path = null, $remove = true){
          */
         $arguments = array($filename);
 
-        if ($target_path){
+        if ($target_path) {
             $arguments[] = '-d';
             $arguments[] = $target_path;
         }
@@ -1690,8 +1690,8 @@ function cli_unzip($file, $target_path = null, $remove = true){
         file_delete($target_path.$filename, $target_path);
         return $target_path;
 
-    }catch(Exception $e){
-        if (!file_exists($file)){
+    }catch(Exception $e) {
+        if (!file_exists($file)) {
             throw new CoreException(tr('cli_unzip(): The specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
@@ -1714,15 +1714,15 @@ function cli_unzip($file, $target_path = null, $remove = true){
  * @param string $command The command to test
  * @return boolean True if the specified command is built in, false if not
  */
-function cli_is_builtin($command){
+function cli_is_builtin($command) {
     static $cache = array();
 
     try {
-        if (isset($cache[$command])){
+        if (isset($cache[$command])) {
             return $cache[$command];
         }
 
-        if (str_contains($command, '/')){
+        if (str_contains($command, '/')) {
             /*
              * This command includes a path, so automatically is external
              */
@@ -1737,8 +1737,8 @@ function cli_is_builtin($command){
 
         return $results;
 
-    }catch(Exception $e){
-        if ($e->getRealCode() === '127'){
+    }catch(Exception $e) {
+        if ($e->getRealCode() === '127') {
             throw new CoreException(tr('cli_is_builtin(): The specified command ":command" was not found and probably does not exist', array(':command' => $command)), 'not-installed');
         }
 
@@ -1762,7 +1762,7 @@ function cli_is_builtin($command){
  * @param array $params The commands array from which the commands string must be built
  * @return string The command string
  */
-function cli_build_commands_string(&$params){
+function cli_build_commands_string(&$params) {
     global $_CONFIG, $core;
 
     try {
@@ -1774,19 +1774,19 @@ function cli_build_commands_string(&$params){
         array_default($params, 'background'  , false);
         array_default($params, 'delay'       , 0);
 
-        if (!is_array($params['commands'])){
+        if (!is_array($params['commands'])) {
             throw new CoreException(tr('cli_build_commands_string(): Specified commands is not an array'), 'invalid');
         }
 
         /*
          * Ensure that there are at least two command sections
          */
-        if (count($params['commands']) == 1){
+        if (count($params['commands']) == 1) {
             $params['commands'][] = array();
         }
 
-        if ($params['delay']){
-            if (!is_numeric($params['delay']) or ($params['delay'] < 0)){
+        if ($params['delay']) {
+            if (!is_numeric($params['delay']) or ($params['delay'] < 0)) {
                 throw new CoreException(tr('cli_build_commands_string(): Invalid delay ":delay" specified. Please specify a valid amount of seconds, like 1, 0.5, .4, 3.9, 7, etc.', array(':delay' => $params['delay'])), 'invalid');
             }
 
@@ -1799,7 +1799,7 @@ function cli_build_commands_string(&$params){
          */
         $background = $params['background'];
 
-        if (count($params['commands']) === 1){
+        if (count($params['commands']) === 1) {
             $params['commands'][] = null;
         }
 
@@ -1807,20 +1807,20 @@ function cli_build_commands_string(&$params){
          * Build the commands together
          * Escape all commands and arguments first
          */
-        foreach ($params['commands'] as $key => $value){
-            if (!is_numeric($key)){
+        foreach ($params['commands'] as $key => $value) {
+            if (!is_numeric($key)) {
                 throw new CoreException(tr('cli_build_commands_string(): Specified command structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $params['commands'])), 'invalid');
             }
 
-            if (!($key % 2)){
+            if (!($key % 2)) {
                 /*
                  * This value should contain a command
                  */
-                if (!$value){
+                if (!$value) {
                     throw new CoreException(tr('cli_build_commands_string(): No command specified'), 'invalid');
                 }
 
-                if (!is_string($value)){
+                if (!is_string($value)) {
                     throw new CoreException(tr('cli_build_commands_string(): Specified command ":command" is invalid. It should be a string but is a ":type"', array(':command' => $value, ':type' => gettype($value))), 'invalid');
                 }
 
@@ -1839,14 +1839,14 @@ function cli_build_commands_string(&$params){
                 /*
                  * Check if command is built in
                  */
-                switch ($value){
+                switch ($value) {
                     case 'type':
                         $builtin       = true;
                         $params['log'] = false;
                         break;
 
                     default:
-                        if (cli_is_builtin($value)){
+                        if (cli_is_builtin($value)) {
                             /*
                              * timeout does NOT work with builtin bash commands!
                              * timeout does NOT work with SSH either for some reason
@@ -1855,7 +1855,7 @@ function cli_build_commands_string(&$params){
                         }
                 }
 
-                if ($params['route_errors']){
+                if ($params['route_errors']) {
                     $route = ' 2>&1 ';
 
                 } else {
@@ -1871,16 +1871,16 @@ function cli_build_commands_string(&$params){
              */
             $params['background'] = false;
 
-            if ($params['timeout']){
+            if ($params['timeout']) {
                 $timeout = 'timeout --foreground '.escapeshellarg($params['timeout']).' ';
 
             } else {
                 $timeout = '';
             }
 
-            if ($value){
-                if (!is_array($value)){
-                    if (empty($command)){
+            if ($value) {
+                if (!is_array($value)) {
+                    if (empty($command)) {
                         /*
                          * No command was set yet, probably commands / arguments out of order?
                          */
@@ -1890,10 +1890,10 @@ function cli_build_commands_string(&$params){
                     throw new CoreException(tr('cli_build_commands_string(): Specified arguments for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $command, ':type' => gettype($params['commands']))), 'invalid');
                 }
 
-                foreach ($value as $special => &$argument){
+                foreach ($value as $special => &$argument) {
                     $special = (string) $special;
 
-                    if (!$argument){
+                    if (!$argument) {
                         /*
                          * Skip empty arguments
                          */
@@ -1901,26 +1901,26 @@ function cli_build_commands_string(&$params){
                         continue;
                     }
 
-                    if (!is_scalar($argument)){
+                    if (!is_scalar($argument)) {
                         throw new CoreException(tr('cli_build_commands_string(): Specified arguments ":argument" for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $params['commands'], ':argument' => $argument, ':type' => gettype($params['commands']))), 'invalid');
                     }
 
-                    if (is_string($special) and ($special[0] === '#')){
+                    if (is_string($special) and ($special[0] === '#')) {
                         /*
                          * Do not escape this argument
                          */
                         $special = Strings::startsNotWith($special, '#');
 
-                        if (!$special){
+                        if (!$special) {
                             $special = 'nothing';
                         }
                     }
 
-                    if (is_numeric($special)){
+                    if (is_numeric($special)) {
                         /*
                          * This is a normal argument
                          */
-                        if (is_string($argument) and ($argument[0] === '$')){
+                        if (is_string($argument) and ($argument[0] === '$')) {
                             /*
                              * Apparently this is a variable which should not be
                              * quoted. Ensure there is no funny stuff going on
@@ -1928,14 +1928,14 @@ function cli_build_commands_string(&$params){
                              */
                             $argument = mb_trim($argument);
 
-                            if (strlen($argument) == 2){
+                            if (strlen($argument) == 2) {
                                 $valid = preg_match('/^\$[0-9#?$!-*@]$/i', $argument);
 
                             } else {
                                 $valid = preg_match('/^\${?[A-Z_]+(?:\[[0-9]\])?}?$/i', $argument);
                             }
 
-                            if (!$valid){
+                            if (!$valid) {
                                 throw new CoreException(tr('cli_build_commands_string(): Encountered what appears to be an invalid shell variable ":variable". Shell variables are only allowed to use A-Z, -, and _', array(':variable' => $argument)), 'invalid');
                             }
 
@@ -1953,14 +1953,14 @@ function cli_build_commands_string(&$params){
                          * This argument appears to be special, check what to do
                          * with it
                          */
-                        switch ($special){
+                        switch ($special) {
                             case 'nothing':
                                 break;
 
                             case 'background':
                                 $params['background'] = $argument;
 
-                                if ($params['route_errors']){
+                                if ($params['route_errors']) {
                                     $route = ' > '.$params['output_log'].' 2>&1 3>&1 & echo $!';
 
                                 } else {
@@ -1977,10 +1977,10 @@ function cli_build_commands_string(&$params){
                                 break;
 
                             case 'sudo':
-                                if ($argument === true){
+                                if ($argument === true) {
                                     $sudo = 'sudo ';
 
-                                } elseif ($argument){
+                                } elseif ($argument) {
                                     $sudo = $argument.' ';
                                 }
 
@@ -2012,7 +2012,7 @@ function cli_build_commands_string(&$params){
                                 break;
 
                             default:
-                                switch ($special){
+                                switch ($special) {
                                     case 'connect':
                                         throw new CoreException(tr('cli_build_commands_string(): Unknown argument modifier ":argument" specified, maybe should be "connector" ?', array(':argument' => $special)), 'invalid');
                                 }
@@ -2030,7 +2030,7 @@ function cli_build_commands_string(&$params){
             $command .= $route;
             $command  = $prefix.$command;
 
-            if (!$builtin and !$background){
+            if (!$builtin and !$background) {
                 $command  = $timeout.$command;
             }
 
@@ -2042,7 +2042,7 @@ function cli_build_commands_string(&$params){
             unset($command);
         }
 
-        if ($background){
+        if ($background) {
             /*
              * Put the entire command in the background
              */
@@ -2052,7 +2052,7 @@ function cli_build_commands_string(&$params){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_build_commands_string(): Failed', $e);
     }
 }
@@ -2072,9 +2072,9 @@ function cli_build_commands_string(&$params){
  * @param natural The PID for which the CWD is required
  * @return string The CWD for the specified PID if it exist
  */
-function cli_get_cwd($pid, $ignore_gone = false){
+function cli_get_cwd($pid, $ignore_gone = false) {
     try {
-        if (!is_natural($pid) or ($pid > 65535)){
+        if (!is_natural($pid) or ($pid > 65535)) {
             throw new CoreException(tr('cli_get_cwd(): Specified PID ":pid" is invalid', array(':pid' => $pid)), 'invalid');
         }
 
@@ -2084,7 +2084,7 @@ function cli_get_cwd($pid, $ignore_gone = false){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('cli_get_cwd(): Failed', $e);
     }
 }
@@ -2105,10 +2105,10 @@ function cli_get_cwd($pid, $ignore_gone = false){
  * @param numeric $delay The amount of time to wait in background before restarting the script to ensure that this script has finished
  * @return void
  */
-function cli_restart($delay = 1){
+function cli_restart($delay = 1) {
     global $core;
     try {
-        if (!PLATFORM_CLI){
+        if (!PLATFORM_CLI) {
             throw new CoreException(tr('cli_restart(): This function can only be run from a CLI platform'), $e);
         }
 
@@ -2119,7 +2119,7 @@ function cli_restart($delay = 1){
         log_console(tr('Restarted script ":script" in background with pid ":pid" with ":delay" seconds delay', array(':pid' => $pid, ':script' => $script, '::delay' => $delay)), 'green');
         die();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('cli_restart(): Failed'), $e);
     }
 }
@@ -2148,12 +2148,12 @@ function cli_restart($delay = 1){
  * @param string $params[type] Type of file to find. "b" for block (buffered) special, "c" for character (unbuffered) special, "d" for directory, "p" for named pipe (FIFO), "f" for regular file, "l" for symbolic link; this is never true if the -L option or the -follow option is in effect, unless the symbolic link is broken.  If you want to search for symbolic links when -L is in effect, use -xtype., "s" for socket
  * @return array The output from the find command
  */
-function cli_find($params){
+function cli_find($params) {
     try {
         Arrays::ensure($params, 'sudo,timeout,start');
         array_default($params, 'timeout', 30);
 
-        if (empty($params['start'])){
+        if (empty($params['start'])) {
             throw new CoreException(tr('cli_find(): No start specified'), 'not-specified');
         }
 
@@ -2162,7 +2162,7 @@ function cli_find($params){
          */
         $params['start'] = Arrays::force($params['start'], ',');
 
-        foreach ($params['start'] as &$item){
+        foreach ($params['start'] as &$item) {
             $item = escapeshellarg($item);
         }
 
@@ -2171,12 +2171,12 @@ function cli_find($params){
         unset($params['start']);
         unset($item);
 
-        foreach ($params as $key => $value){
-            if (!$value){
+        foreach ($params as $key => $value) {
+            if (!$value) {
                 continue;
             }
 
-            switch ($key){
+            switch ($key) {
                 case 'timeout':
                     break;
 
@@ -2185,7 +2185,7 @@ function cli_find($params){
                     break;
 
                 case 'exec':
-                    switch (isset_get($params['exec'])){
+                    switch (isset_get($params['exec'])) {
                         case '':
                             break;
 
@@ -2225,7 +2225,7 @@ function cli_find($params){
             }
         }
 
-        switch (isset_get($params['exec'])){
+        switch (isset_get($params['exec'])) {
             case '':
                 break;
 
@@ -2241,7 +2241,7 @@ function cli_find($params){
 
         return $results;
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException(tr('cli_find(): Failed'), $e);
     }
 }
@@ -2251,6 +2251,6 @@ function cli_find($params){
 /*
  * WARNING! BELOW HERE BE OBSOLETE FUNCTIONS AND OBSOLETE-BUT-WE-WANT-TO-BE-BACKWARD-COMPATIBLE WRAPPERS
  */
-function cli_exclusive($action = 'exception', $force = false){
+function cli_exclusive($action = 'exception', $force = false) {
     return cli_run_once($action, $force);
 }

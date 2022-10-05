@@ -100,7 +100,7 @@ try {
      * MMS message?
      */
     for($i = 0; $i < 20; $i++) {
-        if (empty($_REQUEST['MediaUrl'.$i])){
+        if (empty($_REQUEST['MediaUrl'.$i])) {
             break;
         }
 
@@ -122,10 +122,10 @@ try {
 
     echo $html;
 
-}catch(Exception $e){
+}catch(Exception $e) {
     log_error($e->getMessage(), 'twilio');
 
-    if (empty($header_sent)){
+    if (empty($header_sent)) {
         header("content-type: text/xml");
         echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     }

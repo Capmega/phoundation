@@ -392,7 +392,7 @@ class Mc
     {
         $stats = $this->memcached->getStats();
 
-        if (!$stats){
+        if (!$stats) {
             // No stats data available, but this might be FALSE, return [] to ensure proper datatype for return
             return [];
         }

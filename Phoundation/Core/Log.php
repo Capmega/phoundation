@@ -712,7 +712,7 @@ Class Log {
 
                 // Redetermine the log class
                 if ($messages instanceof Exception) {
-                    if ($messages->getWarning()){
+                    if ($messages->getWarning()) {
                         // This is a warning exception, which can be displayed to user (usually this is caused by user
                         // data validation issues, etc.
                         $class = 'warning';

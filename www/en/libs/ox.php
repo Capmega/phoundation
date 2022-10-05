@@ -17,7 +17,7 @@
 function ox_library_init() {
     try {
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
         throw new CoreException('ox_library_init(): Failed', $e);
     }
 }

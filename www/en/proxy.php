@@ -16,7 +16,7 @@ if (empty($_GET['apikey']) or ($_GET['apikey'] != $_CONFIG['curl']['apikey'])) {
 	die('Unauthorized');
 }
 
-if (empty($_GET['url'])){
+if (empty($_GET['url'])) {
 	http_response_code('400');
 	die('Bad request');
 }
@@ -34,7 +34,7 @@ try {
 							'getheaders' => $getheaders,
 							'contains'   => $contains));
 
-}catch(Exception $e){
+}catch(Exception $e) {
 	$data = array('data'   => null,
 				  'status' => array('http'    => str_replace('HTTP', '', $e->getCode())),
 				  'error'  => array('code'    => $e->getCode(),

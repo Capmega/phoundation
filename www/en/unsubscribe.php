@@ -11,7 +11,7 @@ if (empty($_GET['code'])) {
     redirect();
 }
 
-if (empty($_GET['confirm'])){
+if (empty($_GET['confirm'])) {
     $html = tr('If you wish to unsubscribe from ###DOMAIN###, please click <a href="###HERE###">HERE</a>', array('###HERE###', '###DOMAIN###'), array(current_domain('/unsubscribe.php?code='.$_GET['code'].'&confirm=yes'), $_CONFIG['domain']));
 
 } else {
@@ -25,7 +25,7 @@ if (empty($_GET['confirm'])){
         html_flash_set(tr('You have been unsubscribed from base project.'));
         redirect();
 
-    }catch(Exception $e){
+    }catch(Exception $e) {
 showdie($e);
         html_flash_set(tr('We\'re sorry, something went wrong and we could not unsubscribe you at this time. Please try again later'), 'error');
         redirect();
