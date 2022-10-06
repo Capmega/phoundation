@@ -4,6 +4,7 @@ namespace Phoundation\Notify;
 
 
 
+use Phoundation\Core\Arrays;
 use Phoundation\Exception\OutOfBoundsException;
 use Throwable;
 
@@ -257,10 +258,10 @@ class Notification
      * Sets the message for this notification
      *
      * @note: This will reset the current already registered groups
-     * @param array $groups
+     * @param array|string $groups
      * @return Notification
      */
-    public function setGroups(array $groups): Notification
+    public function setGroups(array|string $groups): Notification
     {
         if (!$groups) {
             throw new OutOfBoundsException('No groups specified for this notification');
@@ -276,21 +277,22 @@ class Notification
     /**
      * Sets the message for this notification
      *
-     * @param array $groups
+     * @param array|string $groups
      * @return Notification
      */
-    public function addGroups(array $groups): Notification
+    public function addGroups(array|string $groups): Notification
     {
         if (!$groups) {
             throw new OutOfBoundsException('No groups specified for this notification');
         }
 
-        foreach ($groups as $group) {
+        foreach (Arrays::force($groups) as $group) {
             $this->addGroup($group);
         }
 
         return $this;
     }
+
 
 
     /**

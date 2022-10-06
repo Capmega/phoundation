@@ -4,6 +4,7 @@ namespace Phoundation\Web;
 
 
 
+use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Http\Http;
 
@@ -121,4 +122,21 @@ class Web
 
         die();
    }
+
+
+
+    /**
+     * Return the correct current domain
+     *
+     * @version 2.0.7: Added function and documentation
+     * @return string
+     */
+    function getDomain(): string
+    {
+        if (PLATFORM_HTTP) {
+            return $_SERVER['HTTP_HOST'];
+        }
+
+        return Config::get('domain');
+    }
 }

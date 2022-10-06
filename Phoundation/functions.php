@@ -11,7 +11,6 @@
  * @package functions
  */
 
-use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
@@ -475,6 +474,26 @@ function ensure_value(int|string $value, array $array, mixed $default): mixed
     }
 
     return $default;
+}
+
+
+
+/**
+ * Execute the specified callback function with the specified $params only if the callback has been set with an
+ * executable function
+ *
+ * @version 2.0.6: Added documentation
+ * @param callable|null $callback
+ * @param array|null $params
+ * @return string|null The results from the callback function, or null if no callback function was specified
+ */
+function execute_callback(?callable $callback, ?array $params = null): ?string
+{
+    if (is_callable($callback)) {
+        return $callback($params);
+    }
+
+    return null;
 }
 
 
