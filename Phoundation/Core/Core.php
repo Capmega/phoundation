@@ -9,6 +9,8 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Http\Http;
 use Phoundation\Notify\Notification;
+use Phoundation\Utils\Json;
+use Phoundation\Web\Web;
 use Throwable;
 
 
@@ -528,7 +530,7 @@ class Core {
 
             self::$register['real_script'] = $pagename;
 
-            switch (Core::callType()) {
+            switch (Core::getCallType()) {
                 case 'ajax':
                     $include = ROOT . 'www/' . $language . '/ajax/' . $pagename . '.php';
 
@@ -646,6 +648,8 @@ class Core {
      */
     public static function phpErrorHandler(int $errno, string $errstr, string $errfile, int $errline): void
     {
+        echo ('PHPERROR');
+        die($errstr);
         if (!self::$ready) {
             throw new PhpException('Pre system ready PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline));
         }
@@ -675,18 +679,12 @@ class Core {
     /**
      * This function is called automaticaly
      *
-     * NOTE: This function should never be called directly
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     *
-     * @param boolean $value Specify true if this exception should be a warning, false if not
-     * @return object $this, so that you can string multiple calls together
+     * @param Throwable $e
+     * @param boolean $die Specify false if this exception should be a warning and continue, true if it should die
+     * @return void
+     * @note: This function should never be called directly
      */
-    public static function uncaughtException(Throwable $e, bool $die = true)
+    public static function uncaughtException(Throwable $e, bool $die = true): void
     {
         die('UNCAUGHTEXCEPTION');
 //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
@@ -738,7 +736,7 @@ class Core {
                 }
 
                 if (self::$ready) {
-                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => Core::callType(), ':script' => isset_get(self::readRegister('script'))]));
+                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => Core::getCallType(), ':script' => isset_get(self::readRegister('script'))]));
                     Log::error($e, 'uncaught-exception', 'exception');
 
                 } else {
@@ -1054,7 +1052,7 @@ class Core {
                                 header('Content-Type: text/html', true);
                             }
 
-                            switch (Core::callType()) {
+                            switch (Core::getCallType()) {
                                 case 'api':
                                     // no-break
                                 case 'ajax':
@@ -1100,7 +1098,7 @@ class Core {
                                 <table class="exception">
                                     <thead>
                                         <td colspan="2" class="center">
-                                            '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => self::readRegister('script'), 'type' => Core::callType())).'
+                                            '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => self::readRegister('script'), 'type' => Core::getCallType())).'
                                         </td>
                                     </thead>
                                     <tbody>
@@ -1131,10 +1129,8 @@ class Core {
                             echo $retval;
 
                             if ($e instanceof CoreException) {
-                                /*
-                                 * Clean data
-                                 */
-                                $e->setData(array_hide(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
+                                // Clean data
+                                $e->setData(Arrays::hide(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
                             }
 
                             showdie($e);
@@ -1145,22 +1141,22 @@ class Core {
                          */
                         notify($e, false, false);
 
-                        switch (Core::callType()) {
+                        switch (Core::getCallType()) {
                             case 'api':
                                 // no-break
                             case 'ajax':
                                 if ($e instanceof CoreException) {
-                                    json_message($e->getRealCode(), array('reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')));
+                                    Json::message($e->getRealCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
                                 }
 
                                 /*
                                  * Assume that all non CoreException exceptions are not
                                  * warnings!
                                  */
-                                json_message($e->getCode(), array('reason' => ''));
+                            Json::message($e->getCode(), ['reason' => '']);
                         }
 
-                        page_show($e->getCode());
+                        Web::execute($e->getCode());
                 }
 
             }catch(Throwable $f) {
@@ -1186,7 +1182,7 @@ class Core {
                         Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('script'))));
                         Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
 
-                        debug(true);
+                        Debug::enabled(true);
                         show($f);
                         showdie($e);
 

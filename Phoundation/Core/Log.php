@@ -1439,7 +1439,7 @@ Class Log {
 //                        $message = cli_color($message, $color, null, true);
 //                    }
 //
-//                    fwrite($h[$file], cli_color($date, 'cyan', null, true) . ' ' . Core::callType() . '/' . $core->register['real_script'] . ' ' . $class . $key . ' => ' . $message . "\n");
+//                    fwrite($h[$file], cli_color($date, 'cyan', null, true) . ' ' . Core::getCallType() . '/' . $core->register['real_script'] . ' ' . $class . $key . ' => ' . $message . "\n");
 //
 //                } else {
 //                    /*
@@ -1451,7 +1451,7 @@ Class Log {
 //                        $message = cli_color($message, $color, null, true);
 //                    }
 //
-//                    fwrite($h[$file], cli_color($date, 'cyan', null, true) . ' ' . Core::callType() . '/' . $core->register['real_script'] . ' ' . $class . $message . "\n");
+//                    fwrite($h[$file], cli_color($date, 'cyan', null, true) . ' ' . Core::getCallType() . '/' . $core->register['real_script'] . ' ' . $class . $message . "\n");
 //                }
 //            }
 //

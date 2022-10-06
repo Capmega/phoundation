@@ -3,8 +3,15 @@
 namespace Phoundation\Utils;
 
 use Exception;
-use JsonException;
-use Phoundation\Core\CoreException\CoreException;
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Strings;
+use Phoundation\Developer\Debug;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Http\Http;
+use Phoundation\Notify\Notification;
+use Phoundation\Utils\Exception\JsonException;
+use Throwable;
+
 
 /**
  * Class Json
@@ -20,81 +27,80 @@ class Json
 {
     /**
      * Send correct JSON reply
+     *
+     * @param string|array|null $data
+     * @param string $result
+     * @param int|null $http_code
+     * @param string $after
+     * @return void
      */
-    static function reply($data = null, $result = 'OK', $http_code = null, $after = 'die')
+    static function reply(null|string|array $data = null, string $result = 'OK', ?int $http_code = null, string $after = 'die'): void
     {
-        global $core;
+        if (!$data) {
+            $data = Arrays::force($data);
+        }
 
-        try {
-            if (!$data) {
-                $data = Arrays::force($data);
+        /*
+         * Auto assume result = "OK" entry if not specified
+         */
+        if (empty($data['data'])) {
+            $data = ['data' => $data];
+        }
+
+        if ($result) {
+            if (isset($data['result'])) {
+                throw new JsonException(tr('Result was specified both in the data array as ":result1" as wel as the separate variable as ":result2"', [':result1' => $data['result'], ':result2' => $result]));
             }
 
             /*
-             * Auto assume result = "OK" entry if not specified
+             * Add result to the reply
              */
-            if (empty($data['data'])) {
-                $data = ['data' => $data];
-            }
+            $data['result'] = $result;
+        }
 
-            if ($result) {
-                if (isset($data['result'])) {
-                    throw new JsonException(tr('Json::reply(): Result was specified both in the data array as ":result1" as wel as the separate variable as ":result2"', array(':result1' => $data['result'], ':result2' => $result)), 'invalid');
-                }
+        /*
+         * Send a new CSRF code with this payload?
+         */
+        if (!empty($core->register['csrf_ajax'])) {
+            $data['csrf'] = $core->register['csrf_ajax'];
+            unset($core->register['csrf_ajax']);
+        }
 
+        $data['result'] = strtoupper($data['result']);
+        $data = Json::encode($data);
+
+        $params = [
+            'http_code' => $http_code,
+            'mimetype' => 'application/json'
+        ];
+
+        http_headers($params, strlen($data));
+
+        echo $data;
+
+        switch ($after) {
+            case 'die':
                 /*
-                 * Add result to the reply
+                 * We're done, kill the connection % process (default)
                  */
-                $data['result'] = $result;
-            }
+                die();
 
-            /*
-             * Send a new CSRF code with this payload?
-             */
-            if (!empty($core->register['csrf_ajax'])) {
-                $data['csrf'] = $core->register['csrf_ajax'];
-                unset($core->register['csrf_ajax']);
-            }
+            case 'continue':
+                /*
+                 * Continue running
+                 */
+                return;
 
-            $data['result'] = strtoupper($data['result']);
-            $data = Json::encode($data);
+            case 'close_continue':
+                /*
+                 * Close the current HTTP connection but continue in the background
+                 */
+                session_write_close();
+                fastcgi_finish_request();
+                return;
 
-            $params = [
-                'http_code' => $http_code,
-                'mimetype' => 'application/json'
-            ];
-
-            http_headers($params, strlen($data));
-
-            echo $data;
-
-            switch ($after) {
-                case 'die':
-                    /*
-                     * We're done, kill the connection % process (default)
-                     */
-                    die();
-
-                case 'continue':
-                    /*
-                     * Continue running
-                     */
-                    return;
-
-                case 'close_continue':
-                    /*
-                     * Close the current HTTP connection but continue in the background
-                     */
-                    session_write_close();
-                    fastcgi_finish_request();
-                    return;
-
-                default:
-                    throw new JsonException(tr('Json::reply(): Unknown after ":after" specified. Use one of "die", "continue", or "close_continue"', array(':after' => $after)), 'unknown');
-            }
-
-        } catch (Exception $e) {
-            throw new JsonException('Json::reply(): Failed', $e);
+            default:
+                throw new JsonException(tr('Unknown after ":after" specified. Use one of "die", "continue", or "close_continue"', [':after' => $after]));
         }
     }
 
@@ -118,7 +124,7 @@ class Json
      * @note Uses Json::reply() to send the error to the client
      *
      */
-    static public function error($message, $data = null, $result = null, $http_code = 500)
+    static public function error($message, $data = null, $result = null, $http_code = 500): void
     {
         global $_CONFIG;
 
@@ -216,7 +222,7 @@ class Json
                         $data = $message->getMessage();
 
                     } else {
-                        if (debug()) {
+                        if (Debug::enabled()) {
                             /*
                              * This is a user visible message
                              */
@@ -251,136 +257,137 @@ class Json
     }
 
 
+
     /**
+     * Send a JSON message
      *
+     * @param int|string|object $code
+     * @param mixed $data
+     * @return void
      */
-    static public function message($code, $data = null)
+    static public function message(int|string|object $code, mixed $data = null): void
     {
-        global $_CONFIG;
-
-        try {
-            if (is_object($code)) {
-                /*
-                 * This is (presumably) an exception
-                 */
-                $code = $code->getRealCode();
+        if (is_object($code)) {
+            if (!$code instanceof Throwable) {
+                throw new OutOfBoundsException(tr('Specified code is a ":code" object class. Code must be an numeric HTTP code, a key word string or an exception object', [':code' => $code]);
             }
 
-            if (str_contains($code, '_')) {
-                /*
-                 * Codes should always use -, never _
-                 */
-                notify(new JsonException(tr('Json::message(): Specified code ":code" contains an _ which should never be used, always use a -', array(':code' => $code)), 'warning/invalid'));
-            }
+            // This is (presumably) an exception
+            $code = $code->getRealCode();
+        }
 
-            switch ($code) {
-                case 301:
-                    // FALLTHROUGH
-                case 'redirect':
-                    Json::error(null, array('location' => $data), 'REDIRECT', 301);
+        if (str_contains($code, '_')) {
+            // Codes should always use -, never _
+            Notification::getInstance()
+                ->setException(new JsonException(tr('Specified code ":code" contains an _ which should never be used, always use a -', [':code' => $code])))
+                ->send();
+        }
 
-                case 302:
-                    Json::error(null, array('location' => domain($_CONFIG['redirects']['signin'])), 'REDIRECT', 302);
+        switch ($code) {
+            case 301:
+                // FALLTHROUGH
+            case 'redirect':
+                Json::error(null, array('location' => $data), 'REDIRECT', 301);
 
-                case 'signin':
-                    Json::error(null, array('location' => domain($_CONFIG['redirects']['signin'])), 'SIGNIN', 302);
+            case 302:
+                Json::error(null, array('location' => Http::buildUrl($_CONFIG['redirects']['signin'])), 'REDIRECT', 302);
 
-                case 400:
-                    // FALLTHROUGH
-                case 'invalid':
-                    // FALLTHROUGH
-                case 'validation':
-                    Json::error(null, $data, 'BAD-REQUEST', 400);
+            case 'signin':
+                Json::error(null, array('location' => Http::buildUrl($_CONFIG['redirects']['signin'])), 'SIGNIN', 302);
 
-                case 'locked':
-                    Json::error(null, $data, 'LOCKED', 403);
+            case 400:
+                // FALLTHROUGH
+            case 'invalid':
+                // FALLTHROUGH
+            case 'validation':
+                Json::error(null, $data, 'BAD-REQUEST', 400);
 
-                case 403:
-                    // FALLTHROUGH
-                case 'forbidden':
-                    // FALLTHROUGH
-                case 'access-denied':
-                    Json::error(null, $data, 'FORBIDDEN', 403);
+            case 'locked':
+                Json::error(null, $data, 'LOCKED', 403);
 
-                case 404:
-                    // FALLTHROUGH
-                case 'not-found':
-                    Json::error(null, $data, 'NOT-FOUND', 404);
+            case 403:
+                // FALLTHROUGH
+            case 'forbidden':
+                // FALLTHROUGH
+            case 'access-denied':
+                Json::error(null, $data, 'FORBIDDEN', 403);
 
-                case 'not-exists':
-                    Json::error(null, $data, 'NOT-EXISTS', 404);
+            case 404:
+                // FALLTHROUGH
+            case 'not-found':
+                Json::error(null, $data, 'NOT-FOUND', 404);
 
-                case 405:
-                    // FALLTHROUGH
-                case 'method-not-allowed':
-                    Json::error(null, $data, 'METHOD-NOT-ALLOWED', 405);
+            case 'not-exists':
+                Json::error(null, $data, 'NOT-EXISTS', 404);
 
-                case 406:
-                    // FALLTHROUGH
-                case 'not-acceptable':
-                    Json::error(null, $data, 'NOT-ACCEPTABLE', 406);
+            case 405:
+                // FALLTHROUGH
+            case 'method-not-allowed':
+                Json::error(null, $data, 'METHOD-NOT-ALLOWED', 405);
 
-                case 408:
-                    // FALLTHROUGH
-                case 'timeout':
-                    Json::error(null, $data, 'TIMEOUT', 408);
+            case 406:
+                // FALLTHROUGH
+            case 'not-acceptable':
+                Json::error(null, $data, 'NOT-ACCEPTABLE', 406);
 
-                case 409:
-                    // FALLTHROUGH
-                case 'conflict':
-                    Json::error(null, $data, 'CONFLICT', 409);
+            case 408:
+                // FALLTHROUGH
+            case 'timeout':
+                Json::error(null, $data, 'TIMEOUT', 408);
 
-                case 412:
-                    // FALLTHROUGH
-                case 'expectation-failed':
-                    Json::error(null, $data, 'EXPECTATION-FAILED', 412);
+            case 409:
+                // FALLTHROUGH
+            case 'conflict':
+                Json::error(null, $data, 'CONFLICT', 409);
 
-                case 418:
-                    // FALLTHROUGH
-                case 'im-a-teapot':
-                    Json::error(null, $data, 'IM-A-TEAPOT', 418);
+            case 412:
+                // FALLTHROUGH
+            case 'expectation-failed':
+                Json::error(null, $data, 'EXPECTATION-FAILED', 412);
 
-                case 429:
-                    // FALLTHROUGH
-                case 'too-many-requests':
-                    Json::error(null, $data, 'TOO-MANY-REQUESTS', 429);
+            case 418:
+                // FALLTHROUGH
+            case 'im-a-teapot':
+                Json::error(null, $data, 'IM-A-TEAPOT', 418);
 
-                case 451:
-                    // FALLTHROUGH
-                case 'unavailable-for-legal-reasons':
-                    Json::error(null, $data, 'UNAVAILABLE-FOR-LEGAL-REASONS', 451);
+            case 429:
+                // FALLTHROUGH
+            case 'too-many-requests':
+                Json::error(null, $data, 'TOO-MANY-REQUESTS', 429);
 
-                case 500:
-                    // FALLTHROUGH
-                case 'error':
-                    Json::error(null, $data, 'ERROR', 500);
+            case 451:
+                // FALLTHROUGH
+            case 'unavailable-for-legal-reasons':
+                Json::error(null, $data, 'UNAVAILABLE-FOR-LEGAL-REASONS', 451);
 
-                case 503:
-                    // FALLTHROUGH
-                case 'maintenance':
-                    // FALLTHROUGH
-                case 'service-unavailable':
-                    Json::error(null, null, 'SERVICE-UNAVAILABLE', 503);
+            case 500:
+                // FALLTHROUGH
+            case 'error':
+                Json::error(null, $data, 'ERROR', 500);
 
-                case 504:
-                    // FALLTHROUGH
-                case 'gateway-timeout':
-                    Json::error(null, null, 'GATEWAY-TIMEOUT', 504);
+            case 503:
+                // FALLTHROUGH
+            case 'maintenance':
+                // FALLTHROUGH
+            case 'service-unavailable':
+                Json::error(null, null, 'SERVICE-UNAVAILABLE', 503);
 
-                case 'reload':
-                    Json::reply(null, 'RELOAD');
+            case 504:
+                // FALLTHROUGH
+            case 'gateway-timeout':
+                Json::error(null, null, 'GATEWAY-TIMEOUT', 504);
 
-                default:
-                    notify(array('code' => 'unknown',
-                        'groups' => 'developers',
-                        'title' => tr('Unknown message specified'),
-                        'message' => tr('Json::message(): Unknown code ":code" specified', array(':code' => $code))));
+            case 'reload':
+                Json::reply(null, 'RELOAD');
 
-                    Json::error(null, (debug() ? $data : null), 'ERROR', 500);
-            }
+            default:
+                Notification::getInstance()
+                    ->setCode('unknown')
+                    ->setGroups('developers')
+                    ->setTitle('Unknown message specified')
+                    ->setMessage(tr('Json::message(): Unknown code ":code" specified', [':code' => $code]));
 
-        } catch (Exception $e) {
-            throw new JsonException('Json::message(): Failed', $e);
+                Json::error(null, (Debug::enabled() ? $data : null), 'ERROR', 500);
         }
     }
 

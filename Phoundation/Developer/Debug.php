@@ -10,8 +10,8 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Http\Html\Html;
 use Phoundation\Http\Http;
+use Phoundation\Notify\Notification;
 use Phoundation\Users\User;
-use Throwable;
 
 
 
@@ -52,7 +52,7 @@ class Debug {
     {
         if ($enabled === null) {
             // Return the setting
-            return (bool) Config::get('debug.enabled', false);
+            return strings::getBoolean(Config::get('debug.enabled', false));
         }
 
         // Make the setting
@@ -223,146 +223,106 @@ class Debug {
      * in web page mode, the value will be nicely displayed in a recursive table
      *
      * @param mixed $value
-     * @param int|null $trace_offset
+     * @param int $trace_offset
      * @param bool $quiet
      * @return mixed
      * @throws CoreException
      */
-    public static function show(mixed $value, int $trace_offset = null, bool $quiet = false): mixed
+    public static function show(mixed $value, int $trace_offset = 0, bool $quiet = false): mixed
     {
         if (!self::enabled()) {
             return null;
         }
 
-        try {
-            if ($trace_offset === null) {
-                if (PLATFORM_HTTP) {
-                    $trace_offset = 3;
+        if (Debug::production()) {
+            // This is not usually something you want to happen!
+            Notification::getInstance()
+                ->setTitle('Debug mode enabled on production environment!')
+                ->setMessage('Debug mode enabled on production environment, with this all internal debug information can be visible to everybody!')
+                ->setGroups('developers')
+                ->send();
+        }
 
-                } else {
-                    $trace_offset = 2;
+
+        // Filter secure data
+        if (is_array($value)) {
+            $value = Arrays::hide($value, 'GLOBALS,%pass,ssh_key');
+        }
+
+        $retval = '';
+
+        if (PLATFORM_HTTP) {
+            // Show output on web
+            Http::headers(null, 0);
+
+            if (empty($core->register['debug_plain'])) {
+                switch (Core::getCallType()) {
+                    case 'api':
+                        // FALLTHROUGH
+                    case 'ajax':
+                        /*
+                         * If JSON, CORS requests require correct headers!
+                         * Also force plain text content type
+                         */
+                    Http::headers(null, 0);
+
+                        if (!headers_sent()) {
+                            header_remove('Content-Type');
+                            header('Content-Type: text/plain', true);
+                        }
+
+                        echo "\n".tr('DEBUG SHOW (:file@:line) ', array(':file' => self::currentFile($trace_offset - 1), ':line' => self::currentLine($trace_offset - 1)))."\n";
+                        print_r($value)."\n";
+                        break;
+
+                    default:
+                        /*
+                         * Force HTML content type, and show HTML data
+                         */
+                        if (!headers_sent()) {
+                            header_remove('Content-Type');
+                            header('Content-Type: text/html', true);
+                        }
+
+                        echo self::html($value, tr('Unknown'), $trace_offset);
+                        ob_flush();
+                        flush();
                 }
-
-            } elseif (!is_numeric($trace_offset)) {
-                throw new CoreException(tr('Specified $trace_offset ":trace" is not numeric', [':trace' => $trace_offset]));
-            }
-
-            if (!self::enabled()) {
-                return $value;
-            }
-
-            /*
-             * First cleanup data
-             */
-            if (is_array($value)) {
-                $value = array_hide($value, 'GLOBALS,%pass,ssh_key');
-            }
-
-            $retval = '';
-
-            if (PLATFORM_HTTP) {
-                Http::headers(null, 0);
-            }
-
-            if (Debug::production()) {
-                if (!Debug::enabled()) {
-                    return '';
-                }
-
-// :TODO:SVEN:20130430: This should NEVER happen, send notification!
-            }
-
-            if (PLATFORM_HTTP) {
-                if (empty($core->register['debug_plain'])) {
-                    switch (Core::callType()) {
-                        case 'api':
-                            // FALLTHROUGH
-                        case 'ajax':
-                            /*
-                             * If JSON, CORS requests require correct headers!
-                             * Also force plain text content type
-                             */
-                        Http::headers(null, 0);
-
-                            if (!headers_sent()) {
-                                header_remove('Content-Type');
-                                header('Content-Type: text/plain', true);
-                            }
-
-                            echo "\n".tr('DEBUG SHOW (:file@:line) ', array(':file' => self::currentFile($trace_offset - 1), ':line' => self::currentLine($trace_offset - 1)))."\n";
-                            print_r($value)."\n";
-                            break;
-
-                        default:
-                            /*
-                             * Force HTML content type, and show HTML data
-                             */
-                            if (!headers_sent()) {
-                                header_remove('Content-Type');
-                                header('Content-Type: text/html', true);
-                            }
-
-                            echo self::html($value, tr('Unknown'), $trace_offset);
-                            ob_flush();
-                            flush();
-                    }
-
-                } else {
-                    echo "\n".tr('DEBUG SHOW (:file@:line) ', array(':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset)))."\n";
-                    print_r($value)."\n";
-                    ob_flush();
-                    flush();
-                }
-
-                echo $retval;
-                ob_flush();
-                flush();
 
             } else {
-                if (is_scalar($value)) {
-                    $retval .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) ', array(':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset)))) . $value."\n";
+                echo "\n".tr('DEBUG SHOW (:file@:line) ', array(':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset)))."\n";
+                print_r($value)."\n";
+                ob_flush();
+                flush();
+            }
 
-                } else {
-                    /*
-                     * Sort if is array for easier reading
-                     */
-                    if (is_array($value)) {
-                        ksort($value);
-                    }
+            echo $retval;
+            ob_flush();
+            flush();
 
-                    if (!$quiet) {
-                        $retval .= tr('DEBUG SHOW (:file@:line) ', array(':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset)))."\n";
-                    }
+        } else {
+            // Show output on CLI console
+            if (is_scalar($value)) {
+                $retval .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) ', array(':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset)))) . $value."\n";
 
-                    $retval .= print_r(variable_zts_safe($value), true);
-                    $retval .= "\n";
+            } else {
+                // Sort if is array for easier reading
+                if (is_array($value)) {
+                    ksort($value);
                 }
 
-                echo $retval;
+                if (!$quiet) {
+                    $retval .= tr('DEBUG SHOW (:file@:line) ', array(':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset)))."\n";
+                }
+
+                $retval .= print_r($value, true);
+                $retval .= "\n";
             }
 
-            return $value;
-
-        } catch (Throwable $e) {
-            if (self::production() or self::enabled()) {
-                /*
-                 * Show the error message with a conventional die() call
-                 */
-                die(tr('Debug::show() command at ":file@:line" failed with ":e"', array(':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset), ':e' => $e->getMessage())));
-            }
-
-            try {
-                notify($e);
-
-            } catch (Throwable $e) {
-                /*
-                 * Sigh, if notify and error_log failed as well, then there is little to do but go on
-                 */
-
-            }
-
-            return null;
+            echo $retval;
         }
+
+        return $value;
     }
 
 

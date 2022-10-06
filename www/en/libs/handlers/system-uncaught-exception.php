@@ -50,7 +50,7 @@ try {
             }
 
             if ($core->register['ready']) {
-                log_file(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':type' => Core::callType(), ':script' => isset_get($core->register['script']))), 'uncaught-exception', 'exception');
+                log_file(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':type' => Core::getCallType(), ':script' => isset_get($core->register['script']))), 'uncaught-exception', 'exception');
                 log_file($e, 'uncaught-exception', 'exception');
 
             } else {
@@ -370,7 +370,7 @@ try {
                         header('Content-Type: text/html', true);
                     }
 
-                    switch (Core::callType()) {
+                    switch (Core::getCallType()) {
                         case 'api':
                             // no-break
                         case 'ajax':
@@ -416,7 +416,7 @@ try {
                                 <table class="exception">
                                     <thead>
                                         <td colspan="2" class="center">
-                                            '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'], 'type' => Core::callType())).'
+                                            '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'], 'type' => Core::getCallType())).'
                                         </td>
                                     </thead>
                                     <tbody>
@@ -461,7 +461,7 @@ try {
                  */
                 notify($e, false, false);
 
-                switch (Core::callType()) {
+                switch (Core::getCallType()) {
                     case 'api':
                         // no-break
                     case 'ajax':

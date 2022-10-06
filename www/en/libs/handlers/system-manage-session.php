@@ -265,7 +265,7 @@ try {
                     }
                 }
 
-                if (!Core::callType('api')) {
+                if (!Core::getCallType('api')) {
                     /*
                      *
                      */
@@ -346,7 +346,7 @@ try {
                          * Only check cloaking rules if we are NOT displaying a
                          * system page
                          */
-                        if (!Core::callType('system')) {
+                        if (!Core::getCallType('system')) {
                             if (empty($core->register['url_cloak_users_id'])) {
                                 throw new CoreException(tr('startup-webpage(): Failed cloaked URL strict checking, no cloaked URL users_id registered'), 403);
                             }

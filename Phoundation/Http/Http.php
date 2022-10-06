@@ -155,7 +155,7 @@ class Http
              *
              These pages should NEVER be indexed
              */
-            if (!$_CONFIG['production'] or $_CONFIG['noindex'] or !Core::callType('http')) {
+            if (!$_CONFIG['production'] or $_CONFIG['noindex'] or !Core::getCallType('http')) {
                 $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
             }
 
@@ -586,7 +586,7 @@ class Http
                  * Send caching headers
                  * Ajax, API, and admin calls do not have proxy caching
                  */
-                switch (Core::callType()) {
+                switch (Core::getCallType()) {
                     case 'api':
                         // FALLTHROUGH
                     case 'ajax':
@@ -658,7 +658,7 @@ class Http
                 return false;
             }
 
-            if (Core::callType('ajax') or Core::callType('api')) {
+            if (Core::getCallType('ajax') or Core::getCallType('api')) {
                 return false;
             }
 
@@ -696,7 +696,7 @@ class Http
              * ETAG requires HTTP caching enabled
              * Ajax and API calls do not use ETAG
              */
-            if (!$_CONFIG['cache']['http']['enabled'] or Core::callType('ajax') or Core::callType('api')) {
+            if (!$_CONFIG['cache']['http']['enabled'] or Core::getCallType('ajax') or Core::getCallType('api')) {
                 unset($core->register['etag']);
                 return false;
             }
@@ -1588,7 +1588,7 @@ class Http
                 return false;
             }
 
-            if (!Core::callType('http') and !Core::callType('admin')) {
+            if (!Core::getCallType('http') and !Core::getCallType('admin')) {
                 /*
                  * CSRF only works for HTTP or ADMIN requests
                  */
@@ -1610,11 +1610,11 @@ class Http
             }
 
             if (empty($_POST['csrf'])) {
-                log_file(Core::callType());
+                log_file(Core::getCallType());
                 throw new OutOfBoundsException(tr('check_csrf(): No CSRF field specified'), 'warning/not-specified');
             }
 
-            if (Core::callType('ajax')) {
+            if (Core::getCallType('ajax')) {
                 if (substr($_POST['csrf'], 0, 5) != 'ajax_') {
                     /*
                      * Invalid CSRF code is sppokie, don't make this a warning
@@ -1646,7 +1646,7 @@ class Http
 
             $core->register['csrf_ok'] = true;
 
-            if (Core::callType('ajax')) {
+            if (Core::getCallType('ajax')) {
                 /*
                  * Send new CSRF code with the AJAX return payload
                  */
@@ -1665,7 +1665,7 @@ class Http
                 }
             }
             log_file('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-            log_file(Core::callType('http'));
+            log_file(Core::getCallType('http'));
             log_file($e);
             html_flash_set(tr('The form data was too old, please try again'), 'warning');
         }

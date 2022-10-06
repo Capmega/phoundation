@@ -1485,11 +1485,15 @@ class Strings
     /**
      * Get a boolean value from the specified "boolean" string, like "true" to TRUE and "off" to FALSE
      *
-     * FALSE: "false", "no", "n", "off", "0"
-     * TRUE: "true", "yes", "y", "on", "1"
+     * FALSE: FALSE, "false", "no", "n", "off", "0"
+     * TRUE: TRUE, "true", "yes", "y", "on", "1"
      */
-    function getBoolean(string $value): bool
+    public static function getBoolean(bool|int|string $value): bool
     {
+        if (is_bool($value)) {
+            return $value;
+        }
+
         switch (strtolower($value)) {
             case 'true':
                 // no-break
@@ -1514,7 +1518,7 @@ class Strings
                 return false;
 
             default:
-                throw new OutOfBoundsException(tr('Unknown value ":value"', array(':value' => $value)), 'unknown');
+                throw new OutOfBoundsException(tr('Unknown value ":value"', [':value' => $value]), 'unknown');
         }
     }
 

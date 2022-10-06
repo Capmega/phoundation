@@ -436,7 +436,7 @@
 //                    break;
 //
 //                default:
-//                    throw new CoreException(tr('core::callType(): Unknown call type ":type" specified', array(':type' => $type)), 'unknown');
+//                    throw new CoreException(tr('Core::getCallType(): Unknown call type ":type" specified', array(':type' => $type)), 'unknown');
 //            }
 //
 //            return ($this->callType === $type);
@@ -1283,7 +1283,7 @@
 //         * Set default values
 //         */
 //        if ($language === null) {
-//            if (Core::callType('cli')) {
+//            if (Core::getCallType('cli')) {
 //                $language = '';
 //
 //            } else {
@@ -1975,7 +1975,7 @@
 //                    $message = cli_color($message, $color, null, true);
 //                }
 //
-//                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.Core::callType().'/'.$core->register['real_script'].' '.$class.$key.' => '.$message."\n");
+//                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.Core::getCallType().'/'.$core->register['real_script'].' '.$class.$key.' => '.$message."\n");
 //
 //            } else {
 //                /*
@@ -1987,7 +1987,7 @@
 //                    $message = cli_color($message, $color, null, true);
 //                }
 //
-//                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.Core::callType().'/'.$core->register['real_script'].' '.$class.$message."\n");
+//                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.Core::getCallType().'/'.$core->register['real_script'].' '.$class.$message."\n");
 //            }
 //        }
 //
@@ -2620,7 +2620,7 @@
 //            /*
 //             * No session
 //             */
-//            if (Core::callType('api') or Core::callType('ajax')) {
+//            if (Core::getCallType('api') or Core::getCallType('ajax')) {
 //                json_reply(tr('Specified token ":token" has no session', array(':token' => isset_get($_POST['PHPSESSID']))), 'signin');
 //            }
 //
@@ -3012,7 +3012,7 @@
 //            return false;
 //        }
 //
-//        if (!Core::callType('http') and !Core::callType('admin')) {
+//        if (!Core::getCallType('http') and !Core::getCallType('admin')) {
 //            /*
 //             * CSRF only works for HTTP or ADMIN requests
 //             */
@@ -3034,11 +3034,11 @@
 //        }
 //
 //        if (empty($_POST['csrf'])) {
-//log_file(Core::callType());
+//log_file(Core::getCallType());
 //            throw new CoreException(tr('check_csrf(): No CSRF field specified'), 'warning/not-specified');
 //        }
 //
-//        if (Core::callType('ajax')) {
+//        if (Core::getCallType('ajax')) {
 //            if (substr($_POST['csrf'], 0, 5) != 'ajax_') {
 //                /*
 //                 * Invalid CSRF code is sppokie, don't make this a warning
@@ -3070,7 +3070,7 @@
 //
 //        $core->register['csrf_ok'] = true;
 //
-//        if (Core::callType('ajax')) {
+//        if (Core::getCallType('ajax')) {
 //            /*
 //             * Send new CSRF code with the AJAX return payload
 //             */
@@ -3089,7 +3089,7 @@
 //            }
 //        }
 //log_file('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-//log_file(Core::callType('http'));
+//log_file(Core::getCallType('http'));
 //        log_file($e);
 //        html_flash_set(tr('The form data was too old, please try again'), 'warning');
 //    }
@@ -3365,7 +3365,7 @@
 //
 //        $core->register['real_script'] = $pagename;
 //
-//        switch (Core::callType()) {
+//        switch (Core::getCallType()) {
 //            case 'ajax':
 //                $include = ROOT.'www/'.$language.'/ajax/'.$pagename.'.php';
 //

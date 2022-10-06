@@ -2,13 +2,11 @@
 
 namespace Phoundation\Databases;
 
-use Debug;
-use Exception;
-use PDOStatement;
-use Phoundation\Core\CoreException;
-use Phoundation\Core\Json\Strings;
-use Phoundation\Core\Log\Log;
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Strings;
 use Phoundation\Databases\Sql\Exception\SqlException;
+
+
 
 /**
  * SqlSimple class
@@ -46,12 +44,7 @@ class SqlSimple
      *
      * This function can build a SELECT query, specifying the required table columns, WHERE filtering, ORDER BY, and LIMIT
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     * @see Sql::simple_get()
+     * @see Simple::get()
      * @note Any filter key that has the value "-" WILL BE IGNORED
      * @version 2.5.38: Added function and documentation
      *
@@ -130,12 +123,7 @@ class SqlSimple
      *
      * This function can build a SELECT query, specifying the required table columns, WHERE filtering
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     * @see Sql::simple_list()
+     * @see Simple::list()
      * @note Any filter key that has the value "-" WILL BE IGNORED
      * @version 2.5.38: Added function and documentation
      *
@@ -218,34 +206,25 @@ class SqlSimple
     /**
      *
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param
-     * @return
+     * @param String|null $value
+     * @param bool $not
+     * @return string
      */
-    protected static function whereNull($value, $not = false)
+    protected static function whereNull(?String $value, bool $not = false): string
     {
-        try {
-            if ($value === null) {
-                if ($not) {
-                    return ' IS NOT NULL ';
-                }
-
-                return ' IS NULL ';
-            }
-
+        if ($value === null) {
             if ($not) {
-                return ' != ' . Strings::quote($value);
+                return ' IS NOT NULL ';
             }
 
-            return ' = ' . Strings::quote($value);
-
-        } catch (SqlException $e) {
-            throw new SqlException('Sql::whereNull(): Failed', $e);
+            return ' IS NULL ';
         }
+
+        if ($not) {
+            return ' != ' . Strings::quote($value);
+        }
+
+        return ' = ' . Strings::quote($value);
     }
 
 
@@ -253,60 +232,52 @@ class SqlSimple
     /**
      * Return a valid " WHERE `column` = :value ", " WHERE `column` IS NULL ", or " WHERE `column` IN (:values) " string built from the specified parameters
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
      * @version 2.4.8: Added function and documentation
-     *
      * @param string $column
-     * @param mixed $values
+     * @param null|string|array $values
      * @param boolean $not
+     * @param string|null $extra
      * @return string The SQL " WHERE.... " string
      */
-    protected static function simpleWhere(string $column, mixed $values, bool $not = false, $extra = null)
+    protected static function simpleWhere(string $column, null|string|array $values, bool $not = false, string|null $extra = null): string
     {
-        try {
-            $table = Strings::until($column, '.', 0, 0, true);
-            $column = Strings::from($column, '.');
+        $table = Strings::until($column, '.', 0, 0, true);
+        $column = Strings::from($column, '.');
 
-            if (!$values) {
-                return $extra;
-            }
-
-            if (is_scalar($values)) {
-                if ($not) {
-                    return ' WHERE ' . ($table ? '`' . $table . '`.' : '') . '`' . $column . '` != :' . $column . ' ' . $extra . ' ';
-                }
-
-                return ' WHERE ' . ($table ? '`' . $table . '`.' : '') . '`' . $column . '` = :' . $column . ' ' . $extra . ' ';
-            }
-
-            $not = ($not ? 'NOT' : '');
-
-            if (($values === null) or ($values === 'null') or ($values === 'NULL')) {
-                return ' WHERE ' . ($table ? '`' . $table . '`.' : '') . '`' . $column . '` IS ' . $not . ' NULL ' . $extra . ' ';
-            }
-
-            if (is_array($values)) {
-                $values = Sql::in($values);
-
-                foreach ($values as $key => $value) {
-                    if (($value === null) or ($value === 'null') or ($value === 'NULL')) {
-                        unset($values[$key]);
-                        $extra = ' OR ' . ($table ? '`' . $table . '`.' : '') . '`' . $column . '` IS ' . $not . ' NULL ';
-                        break;
-                    }
-                }
-
-                return ' WHERE (' . ($table ? '`' . $table . '`.' : '') . '`' . $column . '` ' . $not . ' IN (' . Sql::inColumns($values) . ')' . $extra . ') ' . $extra . ' ';
-            }
-
-            throw new SqlException(tr('Sql::simpleWhere(): Specified values ":values" is neither NULL nor scalar nor an array', array(':values' => $values)), 'invalid');
-
-        } catch (Exception $e) {
-            throw new SqlException(tr('Sql::simpleWhere(): Failed'), $e);
+        if (!$values) {
+            die('Simple::simpleWhere() TEST THIS WHERE VALUES IS NULL');
+            return $extra;
         }
+
+        if (is_scalar($values)) {
+            if ($not) {
+                return ' WHERE ' . ($table ? '`' . $table . '`.' : '') . '`' . $column . '` != :' . $column . ' ' . $extra . ' ';
+            }
+
+            return ' WHERE ' . ($table ? '`' . $table . '`.' : '') . '`' . $column . '` = :' . $column . ' ' . $extra . ' ';
+        }
+
+        $not = ($not ? 'NOT' : '');
+
+        if (($values === null) or ($values === 'null') or ($values === 'NULL')) {
+            return ' WHERE ' . ($table ? '`' . $table . '`.' : '') . '`' . $column . '` IS ' . $not . ' NULL ' . $extra . ' ';
+        }
+
+        if (is_array($values)) {
+            $values = Sql::in($values);
+
+            foreach ($values as $key => $value) {
+                if (($value === null) or ($value === 'null') or ($value === 'NULL')) {
+                    unset($values[$key]);
+                    $extra = ' OR ' . ($table ? '`' . $table . '`.' : '') . '`' . $column . '` IS ' . $not . ' NULL ';
+                    break;
+                }
+            }
+
+            return ' WHERE (' . ($table ? '`' . $table . '`.' : '') . '`' . $column . '` ' . $not . ' IN (' . Sql::inColumns($values) . ')' . $extra . ') ' . $extra . ' ';
+        }
+
+        throw new SqlException(tr('Specified values ":values" is neither NULL nor scalar nor an array', [':values' => $values]));
     }
 
 
@@ -321,35 +292,31 @@ class SqlSimple
      * @version 2.4.8: Added function and documentation
      *
      * @param string $column
-     * @param mixed $values
-     * @return params The execute array corrected
+     * @param string|array $values
+     * @param array|null $extra
+     * @return array The $execute array corrected
      */
-    protected static function simpleExecute($column, $values, $extra = null)
+    protected static function simpleExecute(string $column, string|array $values, ?array $extra = null): array
     {
-        try {
-            if (!$values) {
-                return $extra;
-            }
-
-            if (is_scalar($values) or ($values === null)) {
-                $values = array(Strings::startsWith($column, ':') => $values);
-
-            } elseif (is_array($values)) {
-                $values = Sql::in($values, ':value', true, true);
-
-            } else {
-                throw new SqlException(tr('Sql::simpleExecute(): Specified values ":values" is neither NULL nor scalar nor an array', array(':values' => $values)), 'invalid');
-            }
-
-            if ($extra) {
-                $values = array_merge($values, $extra);
-            }
-
-            return $values;
-
-        } catch (Exception $e) {
-            throw new SqlException(tr('Sql::simpleExecute(): Failed'), $e);
+        if (!$values) {
+            return $extra;
         }
+
+        if (is_scalar($values) or ($values === null)) {
+            $values = array(Strings::startsWith($column, ':') => $values);
+
+        } elseif (is_array($values)) {
+            $values = Sql::in($values, ':value', true, true);
+
+        } else {
+            throw new SqlException(tr('Specified values ":values" is neither NULL nor scalar nor an array', [':values' => $values]));
+        }
+
+        if ($extra) {
+            $values = array_merge($values, $extra);
+        }
+
+        return $values;
     }
 
 
@@ -367,11 +334,6 @@ class SqlSimple
     /**
      * Build an SQL WHERE string out of the specified filters, typically used for basic foobar_list() like functions
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
      * @note Any filter key that has the value "-" WILL BE IGNORED
      * @note Any keys prefixed with ! will perform a NOT operation
      * @note Any keys prefixed with ~ will perform a LIKE operation
@@ -379,257 +341,249 @@ class SqlSimple
      * @note Key prefixes may be combined in any order
      * @version 2.5.38: Added function and documentation
      *
-     * @param array A key => value array with required filters
-     * @param byref array $execute The execute array that will be created by this function
+     * @param array $filters A key => value array with required filters
+     * @param array $execute The $execute array that will be created by this function
      * @param string $table The table for which these colums will be setup
+     * @param string|null $combine
      * @return string The WHERE string
      */
-    protected static function getWhereString($filters, &$execute, $table, $combine = null)
+    protected static function getWhereString(array $filters, array &$execute, string $table, ?string $combine = null): string
     {
-        try {
-            $where = '';
+        $where = '';
 
-            if (!is_array($filters)) {
-                throw new SqlException(tr('Sql::getWhereString(): The specified filters are invalid, it should be a key => value array'), 'invalid');
+        if (!$combine) {
+            $combine = 'AND';
+        }
+
+        /*
+         * Build the where section from the specified filters
+         */
+        foreach ($filters as $key => $value) {
+            /*
+             * Any entry with value BOOLEAN FALSE will not be considered. this
+             * way we have a simple way to skip keys if needed
+             */
+            // :TODO: Look up why '-' also was considered "skip"
+            if (($value === '-') or ($value === false)) {
+                /*
+                 * Ignore this entry
+                 */
+                continue;
             }
 
-            if (!$combine) {
-                $combine = 'AND';
-            }
+            $use_value = true;
+            $like = false;
+            $array = false;
+            $not_string = '';
+            $not = '';
+            $use_combine = $combine;
+            $comparison = '=';
 
             /*
-             * Build the where section from the specified filters
+             * Check for modifiers in the keys
+             * ! will make it a NOT filter
+             * # will allow arrays
              */
-            foreach ($filters as $key => $value) {
-                /*
-                 * Any entry with value BOOLEAN FALSE will not be considered. this
-                 * way we have a simple way to skip keys if needed
-                 */
-                // :TODO: Look up why '-' also was considered "skip"
-                if (($value === '-') or ($value === false)) {
-                    /*
-                     * Ignore this entry
-                     */
-                    continue;
-                }
+            while (true) {
+                switch ($key[0]) {
+                    case '*':
+                        /*
+                         * Do not use value, key only
+                         */
+                        $key = substr($key, 1);
+                        $use_value = false;
+                        break;
 
-                $use_value = true;
-                $like = false;
-                $array = false;
-                $not_string = '';
-                $not = '';
-                $use_combine = $combine;
-                $comparison = '=';
+                    case '<':
+                        /*
+                         * Smaller than
+                         */
+                        if ($not) {
+                            $comparison = '>=';
 
-                /*
-                 * Check for modifiers in the keys
-                 * ! will make it a NOT filter
-                 * # will allow arrays
-                 */
-                while (true) {
-                    switch ($key[0]) {
-                        case '*':
-                            /*
-                             * Do not use value, key only
-                             */
-                            $key = substr($key, 1);
-                            $use_value = false;
-                            break;
+                        } else {
+                            $comparison = '<';
+                        }
 
-                        case '<':
-                            /*
-                             * Smaller than
-                             */
-                            if ($not) {
+                        $key = substr($key, 1);
+                        break;
+
+                    case '>':
+                        /*
+                         * larger than
+                         */
+                        if ($not) {
+                            $comparison = '<=';
+
+                        } else {
+                            $comparison = '>';
+                        }
+
+                        $key = substr($key, 1);
+                        break;
+
+                    case '&':
+                        $key = substr($key, 1);
+                        $use_combine = 'AND';
+                        break;
+
+                    case '|':
+                        $key = substr($key, 1);
+                        $use_combine = 'OR';
+                        break;
+
+                    case '~':
+                        /*
+                         * LIKE
+                         */
+                        $key = substr($key, 1);
+                        $like = true;
+                        $value = '%' . $value . '%';
+                        break;
+
+                    case '!':
+                        /*
+                         * NOT
+                         */
+                        $key = substr($key, 1);
+
+                        switch ($comparison) {
+                            case '<':
                                 $comparison = '>=';
+                                $not = '';
+                                break;
 
-                            } else {
-                                $comparison = '<';
-                            }
-
-                            $key = substr($key, 1);
-                            break;
-
-                        case '>':
-                            /*
-                             * larger than
-                             */
-                            if ($not) {
+                            case '>':
                                 $comparison = '<=';
+                                $not = '';
+                                break;
 
-                            } else {
-                                $comparison = '>';
-                            }
+                            default:
+                                $not_string = ' NOT ';
+                                $not = '!';
+                        }
+                        break;
 
-                            $key = substr($key, 1);
-                            break;
+                    case '#':
+                        /*
+                         * IN
+                         */
+                        $key = substr($key, 1);
+                        $array = true;
 
-                        case '&':
-                            $key = substr($key, 1);
-                            $use_combine = 'AND';
-                            break;
+                    default:
+                        break 2;
+                }
+            }
 
-                        case '|':
-                            $key = substr($key, 1);
-                            $use_combine = 'OR';
-                            break;
-
-                        case '~':
-                            /*
-                             * LIKE
-                             */
-                            $key = substr($key, 1);
-                            $like = true;
-                            $value = '%' . $value . '%';
-                            break;
-
-                        case '!':
-                            /*
-                             * NOT
-                             */
-                            $key = substr($key, 1);
-
-                            switch ($comparison) {
-                                case '<':
-                                    $comparison = '>=';
-                                    $not = '';
-                                    break;
-
-                                case '>':
-                                    $comparison = '<=';
-                                    $not = '';
-                                    break;
-
-                                default:
-                                    $not_string = ' NOT ';
-                                    $not = '!';
-                            }
-                            break;
-
-                        case '#':
-                            /*
-                             * IN
-                             */
-                            $key = substr($key, 1);
-                            $array = true;
-
-                        default:
-                            break 2;
-                    }
+            if ($use_value) {
+                if (!str_contains($key, '.')) {
+                    $key = $table . '.' . $key;
                 }
 
-                if ($use_value) {
-                    if (strpos($key, '.') === false) {
-                        $key = $table . '.' . $key;
-                    }
+                $column = '`' . str_replace('.', '`.`', trim($key)) . '`';
+                $key = str_replace('.', '_', $key);
 
-                    $column = '`' . str_replace('.', '`.`', trim($key)) . '`';
-                    $key = str_replace('.', '_', $key);
+            } else {
+                $column = trim($key);
+            }
 
-                } else {
-                    $column = trim($key);
+            if ($like) {
+                if (!$use_value) {
+                    throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but also # to use LIKE which cannot work together', array(':key' => $key)), 'invalid');
                 }
 
-                if ($like) {
-                    if (!$use_value) {
-                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but also # to use LIKE which cannot work together', array(':key' => $key)), 'invalid');
-                    }
-
-                    if (is_string($value)) {
-                        $filter = ' ' . $column . ' ' . $not . 'LIKE :' . $key . ' ';
-                        $execute[':' . $key] = $value;
-
-                    } else {
-                        if (is_array($value)) {
-                            throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" is an array, which is not allowed with a LIKE comparisson.', array(':key' => $key)), 'invalid');
-                        }
-
-                        if (is_bool($value)) {
-                            throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" is a boolean, which is not allowed with a LIKE comparisson.', array(':key' => $key)), 'invalid');
-                        }
-
-                        if ($value === null) {
-                            throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" is a null, which is not allowed with a LIKE comparisson.', array(':key' => $key)), 'invalid');
-                        }
-
-                        throw new SqlException(tr('Sql::getWhereString(): Specified value ":value" is of invalid datatype ":datatype"', array(':value' => $value, ':datatype' => gettype($value))), 'invalid');
-                    }
+                if (is_string($value)) {
+                    $filter = ' ' . $column . ' ' . $not . 'LIKE :' . $key . ' ';
+                    $execute[':' . $key] = $value;
 
                 } else {
                     if (is_array($value)) {
-                        if (!$use_value) {
-                            throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but the value contains an array while "null" is required', array(':key' => $key)), 'invalid');
-                        }
-
-                        if ($array) {
-                            throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" contains an array, which is not allowed. Specify the key as "#:array" to allow arrays', array(':key' => $key, ':array' => $key)), 'invalid');
-                        }
-
-                        /*
-                         * The $value may be specified as an empty array, which then
-                         * will be ignored
-                         */
-                        if ($value) {
-                            $value = Sql::in($value);
-                            $filter = ' ' . $column . ' ' . $not_string . 'IN (' . Sql::in_columns($value) . ') ';
-                            $execute = array_merge($execute, $value);
-                        }
-
-                    } elseif (is_bool($value)) {
-                        if (!$use_value) {
-                            throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but the value contains a boolean while "null" is required', array(':key' => $key)), 'invalid');
-                        }
-
-                        $filter = ' ' . $column . ' ' . $not . '= :' . $key . ' ';
-                        $execute[':' . $key] = (integer)$value;
-
-                    } elseif (is_string($value)) {
-                        if (!$use_value) {
-                            throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but the value contains a string while "null" is required', array(':key' => $key)), 'invalid');
-                        }
-
-                        $filter = ' ' . $column . ' ' . $not . $comparison . ' :' . $key . ' ';
-                        $execute[':' . $key] = $value;
-
-                    } elseif (is_numeric($value)) {
-                        if (!$use_value) {
-                            throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but the value contains a number while "false" is required', array(':key' => $key)), 'invalid');
-                        }
-
-                        $filter = ' ' . $column . ' ' . $not . $comparison . ' :' . $key . ' ';
-                        $execute[':' . $key] = $value;
-
-                    } elseif ($value === null) {
-                        if (!$use_value) {
-                            /*
-                             * Do NOT use a value, so also don't add an execute
-                             * value
-                             */
-                            $filter = ' ' . $column . ' ';
-
-                        } else {
-                            $filter = ' ' . $column . ' IS' . $not_string . ' :' . $key . ' ';
-                            $execute[':' . $key] = $value;
-                        }
-
-                    } else {
-                        throw new SqlException(tr('Sql::getWhereString(): Specified value ":value" is of invalid datatype ":datatype"', array(':value' => $value, ':datatype' => gettype($value))), 'invalid');
+                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" is an array, which is not allowed with a LIKE comparisson.', array(':key' => $key)), 'invalid');
                     }
+
+                    if (is_bool($value)) {
+                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" is a boolean, which is not allowed with a LIKE comparisson.', array(':key' => $key)), 'invalid');
+                    }
+
+                    if ($value === null) {
+                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" is a null, which is not allowed with a LIKE comparisson.', array(':key' => $key)), 'invalid');
+                    }
+
+                    throw new SqlException(tr('Sql::getWhereString(): Specified value ":value" is of invalid datatype ":datatype"', array(':value' => $value, ':datatype' => gettype($value))), 'invalid');
                 }
 
-                if ($where) {
-                    $where .= ' ' . $use_combine . ' ' . $filter;
+            } else {
+                if (is_array($value)) {
+                    if (!$use_value) {
+                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but the value contains an array while "null" is required', array(':key' => $key)), 'invalid');
+                    }
+
+                    if ($array) {
+                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" contains an array, which is not allowed. Specify the key as "#:array" to allow arrays', array(':key' => $key, ':array' => $key)), 'invalid');
+                    }
+
+                    /*
+                     * The $value may be specified as an empty array, which then
+                     * will be ignored
+                     */
+                    if ($value) {
+                        $value = Sql::in($value);
+                        $filter = ' ' . $column . ' ' . $not_string . 'IN (' . Sql::inColumns($value) . ') ';
+                        $execute = array_merge($execute, $value);
+                    }
+
+                } elseif (is_bool($value)) {
+                    if (!$use_value) {
+                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but the value contains a boolean while "null" is required', array(':key' => $key)), 'invalid');
+                    }
+
+                    $filter = ' ' . $column . ' ' . $not . '= :' . $key . ' ';
+                    $execute[':' . $key] = (integer)$value;
+
+                } elseif (is_string($value)) {
+                    if (!$use_value) {
+                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but the value contains a string while "null" is required', array(':key' => $key)), 'invalid');
+                    }
+
+                    $filter = ' ' . $column . ' ' . $not . $comparison . ' :' . $key . ' ';
+                    $execute[':' . $key] = $value;
+
+                } elseif (is_numeric($value)) {
+                    if (!$use_value) {
+                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but the value contains a number while "false" is required', array(':key' => $key)), 'invalid');
+                    }
+
+                    $filter = ' ' . $column . ' ' . $not . $comparison . ' :' . $key . ' ';
+                    $execute[':' . $key] = $value;
+
+                } elseif ($value === null) {
+                    if (!$use_value) {
+                        /*
+                         * Do NOT use a value, so also don't add an execute
+                         * value
+                         */
+                        $filter = ' ' . $column . ' ';
+
+                    } else {
+                        $filter = ' ' . $column . ' IS' . $not_string . ' :' . $key . ' ';
+                        $execute[':' . $key] = $value;
+                    }
 
                 } else {
-                    $where = ' WHERE ' . $filter;
+                    throw new SqlException(tr('Sql::getWhereString(): Specified value ":value" is of invalid datatype ":datatype"', array(':value' => $value, ':datatype' => gettype($value))), 'invalid');
                 }
             }
 
-            return $where;
+            if ($where) {
+                $where .= ' ' . $use_combine . ' ' . $filter;
 
-        } catch (Exception $e) {
-            throw new SqlException('Sql::getWhereString(): Failed', $e);
+            } else {
+                $where = ' WHERE ' . $filter;
+            }
         }
+
+        return $where;
     }
 
 
@@ -639,60 +593,47 @@ class SqlSimple
      *
      * If the specified column is of the "column" format, it will be returned as "`column`". If its of the "table.column" format, it will be returned as "`table`.`column`"
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
      * @version 2.5.38: Added function and documentation
-     *
-     * @param csv array $columns The list of columns from which the query must be built
+     * @param array|string $columns The list of columns from which the query must be built
      * @param string $table The table for which these colums will be setup
      * @return string The columns with column quotes
      */
-    protected static function getColumnsString($columns, $table)
+    protected static function getColumnsString(string|array $columns, string $table): string
     {
-        try {
-            /*
-             * Validate the columns
-             */
-            if (!$columns) {
-                throw new SqlException(tr('Sql::getColumnsString(): No columns specified'));
-            }
-
-            $columns = Arrays::force($columns);
-
-            foreach ($columns as $id => &$column) {
-                if (!$column) {
-                    unset($columns[$id]);
-                    continue;
-                }
-
-                $column = strtolower(trim($column));
-
-                if (strpos($column, '.') === false) {
-                    $column = $table . '.' . $column;
-                }
-
-                if (str_contains($column, ' as ')) {
-                    $target = trim(Strings::from($column, ' as '));
-                    $column = trim(Strings::until($column, ' as '));
-                    $column = '`' . str_replace('.', '`.`', trim($column)) . '`';
-                    $column .= ' AS `' . trim($target) . '`';
-
-                } else {
-                    $column = '`' . str_replace('.', '`.`', trim($column)) . '`';
-                }
-            }
-
-            $columns = implode(', ', $columns);
-
-            unset($column);
-            return $columns;
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::getColumnsString(): Failed', $e);
+        // Validate the columns
+        if (!$columns) {
+            throw new SqlException(tr('No columns specified'));
         }
+
+        $columns = Arrays::force($columns);
+
+        foreach ($columns as $id => &$column) {
+            if (!$column) {
+                unset($columns[$id]);
+                continue;
+            }
+
+            $column = strtolower(trim($column));
+
+            if (!str_contains($column, '.')) {
+                $column = $table . '.' . $column;
+            }
+
+            if (str_contains($column, ' as ')) {
+                $target = trim(Strings::from($column, ' as '));
+                $column = trim(Strings::until($column, ' as '));
+                $column = '`' . str_replace('.', '`.`', trim($column)) . '`';
+                $column .= ' AS `' . trim($target) . '`';
+
+            } else {
+                $column = '`' . str_replace('.', '`.`', trim($column)) . '`';
+            }
+        }
+
+        $columns = implode(', ', $columns);
+
+        unset($column);
+        return $columns;
     }
 
 
@@ -700,56 +641,39 @@ class SqlSimple
     /**
      * Build the SQL columns list for the specified columns list
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
      * @version 2.5.38: Added function and documentation
-     *
      * @param array $orderby A key => value array containing the columns => direction definitions
      * @return string The columns with column quotes
      */
-    protected static function getOrderbyString($orderby)
+    protected static function getOrderbyString(array $orderby): string
     {
-        try {
-            /*
-             * Validate the columns
-             */
-            if (!$orderby) {
-                return '';
-            }
-
-            if (!is_array($orderby)) {
-                throw new SqlException(tr('Sql::getOrderbyString(): Specified orderby ":orderby" should be an array but is a ":datatype"', array(':orderby' => $orderby, ':datatype' => gettype($orderby))), 'invalid');
-            }
-
-            foreach ($orderby as $column => $direction) {
-                if (!is_string($direction)) {
-                    throw new SqlException(tr('Sql::getOrderbyString(): Specified orderby direction ":direction" for column ":column" is invalid, it should be a string', array(':direction' => $direction, ':column' => $column)), 'invalid');
-                }
-
-                $direction = strtoupper($direction);
-
-                switch ($direction) {
-                    case 'ASC':
-                        // FALLTHOGUH
-                    case 'DESC':
-                        break;
-
-                    default:
-                        throw new SqlException(tr('Sql::getOrderbyString(): Specified orderby direction ":direction" for column ":column" is invalid, it should be either "ASC" or "DESC"', array(':direction' => $direction, ':column' => $column)), 'invalid');
-                }
-
-                $retval[] = '`' . $column . '` ' . $direction;
-            }
-
-            $retval = implode(', ', $retval);
-
-            return ' ORDER BY ' . $retval . ' ';
-
-        } catch (Exception $e) {
-            throw new SqlException('Sql::getOrderbyString(): Failed', $e);
+        // Validate the columns
+        if (!$orderby) {
+            return '';
         }
+
+        foreach ($orderby as $column => $direction) {
+            if (!is_string($direction)) {
+                throw new SqlException(tr('Specified orderby direction ":direction" for column ":column" is invalid, it should be a string', [':direction' => $direction, ':column' => $column]));
+            }
+
+            $direction = strtoupper($direction);
+
+            switch ($direction) {
+                case 'ASC':
+                    // FALLTHOGUH
+                case 'DESC':
+                    break;
+
+                default:
+                    throw new SqlException(tr('Specified orderby direction ":direction" for column ":column" is invalid, it should be either "ASC" or "DESC"', [':direction' => $direction, ':column' => $column]));
+            }
+
+            $retval[] = '`' . $column . '` ' . $direction;
+        }
+
+        $retval = implode(', ', $retval);
+
+        return ' ORDER BY ' . $retval . ' ';
     }
 }

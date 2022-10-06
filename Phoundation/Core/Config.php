@@ -116,19 +116,34 @@ class Config{
      */
     public static function set(string|array $keys, mixed $value = null): mixed
     {
-        // Get the section and store the data in the return value
-        $section = self::getSection($keys, $value);
-        $return = $section;
+        $keys = Arrays::force($keys, '.');
+        $data = &static::$data;
 
-        // Update the sectoin data
-        $section = $value;
-        return $return;
+        // Go over each key and if the value for the key is an array, request a subsection
+        foreach ($keys as $key) {
+            if (!is_array($data)) {
+                // Oops, this data section should be an array
+                throw new ConfigException(tr('The configuration key ":key" from key path ":keys" does not exist', [':key' => $key, ':keys' => $keys]));
+            }
+
+            if (!array_key_exists($key, $data)) {
+                // The requested key does not exist, initialize with an array just in case
+                $data[$key] = [];
+            }
+
+            // Get the requested subsection
+            $data = &$data[$key];
+        }
+
+        // The variable $data should now be the correct leaf node. Assign it $value and return it.
+        $data = $value;
+        return $data;
     }
 
 
 
     /**
-     * Return a byreference configuration data section for the specified key path
+     * Return a configuration data section for the specified key path
      *
      * @param string|array $keys    The key path to search for. This should be specified either as an array with key
      *                              names or a . separated string
@@ -137,12 +152,12 @@ class Config{
      */
     protected static function &getSection(string|array $keys, mixed $default = null): mixed
     {
-        $keys = explode($keys, '.');
+        $keys = Arrays::force($keys, '.');
         $data = &static::$data;
 
         // Go over each key and if the value for the key is an array, request a subsection
         foreach ($keys as $key) {
-            if (!isset($data[$key])) {
+            if (!array_key_exists($key, $data)) {
                 // The requested key does not exist
                 if ($default === null) {
                     // We have no default configuration either

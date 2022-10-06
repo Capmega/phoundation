@@ -47,8 +47,6 @@ Debug::enabled(true);
             // All scripts will execute the cli_done() call, register basic script information
             Core::registerShutdown('cli_done');
 
-show($argv);
-die('bbbbbbbbb');
             if (count($argv) <= 1) {
                 throw new OutOfBoundsException('No method specified!');
             }
@@ -63,6 +61,7 @@ die('bbbbbbbbb');
             self::executeScript($script, $argv);
 
         } catch (Throwable $e) {
+showdie($e);
             // Something, anything went wrong with the execution of this script.
             self::handleException($e);
         }

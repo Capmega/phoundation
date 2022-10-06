@@ -26,7 +26,7 @@ class Exception extends RuntimeException
     /**
      * Exception data, if available
      *
-     * @var array
+     * @var mixed
      */
     protected mixed $data;
 
@@ -98,10 +98,10 @@ class Exception extends RuntimeException
     /**
      * Set the exception data
      *
-     * @param array $data
+     * @param mixed $data
      * @return CoreException $this
      */
-    public function setData(array $data): Exception
+    public function setData(mixed $data): Exception
     {
         $this->data = $data;
         return $this;

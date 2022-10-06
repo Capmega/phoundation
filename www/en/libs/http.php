@@ -323,7 +323,7 @@ function http_headers($params, $content_length) {
          *
          These pages should NEVER be indexed
          */
-        if (!$_CONFIG['production'] or $_CONFIG['noindex'] or !Core::callType('http')) {
+        if (!$_CONFIG['production'] or $_CONFIG['noindex'] or !Core::getCallType('http')) {
             $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
         }
 
@@ -514,7 +514,7 @@ function http_cache_etag() {
          * ETAG requires HTTP caching enabled
          * Ajax and API calls do not use ETAG
          */
-        if (!$_CONFIG['cache']['http']['enabled'] or Core::callType('ajax') or Core::callType('api')) {
+        if (!$_CONFIG['cache']['http']['enabled'] or Core::getCallType('ajax') or Core::getCallType('api')) {
             unset($core->register['etag']);
             return false;
         }
@@ -562,7 +562,7 @@ function http_cache_test($etag = null) {
             return false;
         }
 
-        if (Core::callType('ajax') or Core::callType('api')) {
+        if (Core::getCallType('ajax') or Core::getCallType('api')) {
             return false;
         }
 
@@ -632,7 +632,7 @@ function http_cache($params, $http_code, $headers = array()) {
                  * Send caching headers
                  * Ajax, API, and admin calls do not have proxy caching
                  */
-                switch (Core::callType()) {
+                switch (Core::getCallType()) {
                     case 'api':
                         // no-break
                     case 'ajax':

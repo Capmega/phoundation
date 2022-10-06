@@ -140,7 +140,7 @@ function html_bundler($list) {
          * we can easily set caching to a year if needed, any updates to CSS or
          * JS will cause the client browser to load the new bundle files.
          */
-        $admin_path  = (Core::callType('admin') ? 'admin/'           : '');
+        $admin_path  = (Core::getCallType('admin') ? 'admin/'           : '');
         $ext         = ($_CONFIG['cdn']['min']   ? '.min.'.$extension : '.'.$extension);
         $bundle      =  str_force(array_keys($core->register[$list]));
         $bundle      =  substr(sha1($bundle.FRAMEWORKCODEVERSION.PROJECTCODEVERSION), 1, 16);
@@ -971,7 +971,7 @@ function html_meta($meta) {
         /*
          * Add meta tag no-index for non production environments and admin pages
          */
-        if (!empty($meta['noindex']) or !$_CONFIG['production'] or $_CONFIG['noindex'] or Core::callType('admin')) {
+        if (!empty($meta['noindex']) or !$_CONFIG['production'] or $_CONFIG['noindex'] or Core::getCallType('admin')) {
             $meta['robots'] = 'noindex, nofollow, nosnippet, noarchive, noydir';
             unset($meta['noindex']);
         }
@@ -2125,7 +2125,7 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                  * Create the cached file names
                  */
                 $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.($core->register['real_script'] ? $core->register['real_script'].'-' : '').$count;
-                $file = ROOT.'www/'.LANGUAGE.(Core::callType('admin') ? '/admin' : '').'/pub/js/'.$base;
+                $file = ROOT.'www/'.LANGUAGE.(Core::getCallType('admin') ? '/admin' : '').'/pub/js/'.$base;
 
                 log_file(tr('Creating externally cached javascript file ":file"', array(':file' => $file.'.js')), 'html-script', 'VERYVERBOSE/cyan');
 
@@ -2270,7 +2270,7 @@ function html_favicon($icon = null, $mobile_icon = null, $sizes = null, $precomp
         }
 
         foreach ($params['sizes'] as $sizes) {
-            if (Core::callType('mobile')) {
+            if (Core::getCallType('mobile')) {
                 if (!$params['mobile_icon']) {
                     $params['mobile_icon'] = cdn_domain('img/mobile/favicon.png');
                 }

@@ -999,13 +999,13 @@ class Arrays {
      * Hide the specified keys from the specified array
      *
      * @param array|null $source
-     * @param mixed $keys
+     * @param string|array $keys
      * @param string $hide
      * @param string $empty
      * @param boolean $recurse
      * @return array|null
      */
-    public static function hide(?array $source, array $keys = ['GLOBALS', '%pass', 'ssh_key'], string $hide = '*** HIDDEN ***', string $empty = '-', bool $recurse = true): ?array
+    public static function hide(?array $source, string|array $keys = ['GLOBALS', '%pass', 'ssh_key'], string $hide = '*** HIDDEN ***', string $empty = '-', bool $recurse = true): ?array
     {
         if (!is_array($source)) {
             if ($source === null) {
@@ -1020,7 +1020,7 @@ class Arrays {
         foreach ($source as $source_key => &$source_value) {
             foreach ($keys as $key) {
                 //
-                if (strstr($key, '%')) {
+                if (str_contains($key, '%')) {
                     if (strstr($source_key, str_replace('%', '', $key))) {
                         $source_value = Strings::hide($source_value, $hide, $empty);
                     }

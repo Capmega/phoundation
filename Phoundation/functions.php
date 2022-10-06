@@ -10,6 +10,8 @@
  * @category Function reference
  * @package functions
  */
+
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
@@ -52,7 +54,7 @@ function tr(string $text, ?array $replace = null, bool $verify = true): string
             /*
              * Only on non production machines, crash when not all entries were replaced as an extra check.
              */
-            if (core::isProduction() and $verify) {
+            if (Debug::production() and $verify) {
                 if ($count != count($replace)) {
                     foreach ($replace as $value) {
                         if (str_contains($value, ':')) {
@@ -275,6 +277,7 @@ function is_new(DataEntry|array $entry): bool
 
 
 
+
 /**
  * Correctly converts <br> to \n
  *
@@ -282,7 +285,7 @@ function is_new(DataEntry|array $entry): bool
  * @param string $nl
  * @return string
  */
-public function br2nl(string $source, string $nl = "\n"): string
+function br2nl(string $source, string $nl = "\n"): string
 {
     $source = preg_replace("/(\r\n|\n|\r)/u", '' , $source);
     $source = preg_replace("/<br *\/?>/iu"  , $nl, $source);
@@ -388,11 +391,11 @@ function pick_random_multiple(?int $count = null): string|array
  * Shortcut to the Debug::show() call
  *
  * @param mixed $source
- * @param int|null $trace_offset
+ * @param int $trace_offset
  * @param bool $quiet
  * @return mixed
  */
-function show(mixed $source, int $trace_offset = null, bool $quiet = false): mixed
+function show(mixed $source, int $trace_offset = 1, bool $quiet = false): mixed
 {
     return Debug::show($source, $trace_offset, $quiet);
 }

@@ -2,7 +2,14 @@
 
 namespace Phoundation\Core;
 
+use Exception;
+use Phoundation\Core\Exception\CoreException;
+use Phoundation\Developer\Debug;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Throwable;
+
+
 
 /**
  * Class Exceptions
@@ -16,16 +23,18 @@ use Throwable;
  */
 class Exceptions
 {
-    /*
+    /**
      * Throw an "under-construction" exception
+     *
+     * @param string|null $functionality
      */
-    function under_construction($functionality = '')
+    function under_construction(?string $functionality = null)
     {
         if ($functionality) {
-            throw new OutOfBoundsException(tr('The functionality ":f" is under construction!', array(':f' => $functionality)), 'under-construction');
+            throw new UnderConstructionException(tr('The functionality ":f" is under construction!', [':f' => $functionality]));
         }
 
-        throw new OutOfBoundsException(tr('This function is under construction!'), 'under-construction');
+        throw new UnderConstructionException(tr('This function is under construction!'), 'under-construction');
     }
 
 
@@ -78,14 +87,12 @@ class Exceptions
      */
     function getMessage(Throwable $e, array $messages = array(), string $default = null): string
     {
-        /*
-         * Set some default message codes
-         */
+        // Set some default message codes
         Arrays::ensure($messages);
         array_default($messages, 'validation', $e->getMessages());
         array_default($messages, 'captcha'   , $e->getMessages());
 
-        if (debug()) {
+        if (Debug::enabled()) {
             if ($e instanceof CoreException) {
                 return $e->getMessages();
             }
@@ -94,7 +101,7 @@ class Exceptions
                 return $e->getMessage();
             }
 
-            throw new CoreException(tr('error_message(): Specified $e is not an exception object'), 'invalid');
+            throw new CoreException(tr('Specified $e is not an exception object'));
 
         } elseif (empty($messages[$e->getCode()])) {
             if (!$default) {
