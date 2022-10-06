@@ -4,6 +4,8 @@ namespace Phoundation\Utils;
 
 use Exception;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
@@ -11,6 +13,7 @@ use Phoundation\Http\Http;
 use Phoundation\Notify\Notification;
 use Phoundation\Utils\Exception\JsonException;
 use Throwable;
+
 
 
 /**
@@ -108,7 +111,7 @@ class Json
     /**
      * Send JSON error to client
      *
-     * @param string $message
+     * @param string|array $message
      * @param mixed $data
      * @param mixed $result
      * @param int $http_code The HTTP code to send out with Json::reply()
@@ -122,138 +125,131 @@ class Json
      * @see Json::message()
      * @version 2.7.102: Added function and documentation
      * @note Uses Json::reply() to send the error to the client
-     *
+     * @todo Fix $data and $result parameters. Are they used correctly? They are sometimes overwritten in the method
      */
-    static public function error($message, $data = null, $result = null, $http_code = 500): void
+    static public function error(string|array $message, $data = null, $result = null, int $http_code = 500): void
     {
-        global $_CONFIG;
+        if (!$message) {
+            $message = '';
 
-        try {
-            if (!$message) {
-                $message = '';
+        } elseif (is_scalar($message)) {
 
-            } elseif (is_scalar($message)) {
+        } elseif (is_array($message)) {
+            if (empty($message['default'])) {
+                $default = tr('Something went wrong, please try again later');
 
-            } elseif (is_array($message)) {
-                if (empty($message['default'])) {
-                    $default = tr('Something went wrong, please try again later');
+            } else {
+                $default = $message['default'];
+                unset($message['default']);
+            }
+
+            if (empty($message['e'])) {
+                if ($_CONFIG['production']) {
+                    $message = $default;
+                    Log::warning('No exception object specified for following error');
+                    Log::warning($message);
 
                 } else {
-                    $default = $message['default'];
-                    unset($message['default']);
+                    if (count($message) == 1) {
+                        $message = array_pop($message);
+                    }
                 }
 
-                if (empty($message['e'])) {
-                    if ($_CONFIG['production']) {
+            } else {
+                if ($_CONFIG['production']) {
+                    Log::notice($message['e']);
+
+                    $code = $message['e']->getCode();
+
+                    if (empty($message[$code])) {
                         $message = $default;
-                        log_console('Json::error(): No exception object specified for following error', 'yellow');
-                        log_console($message, 'yellow');
 
                     } else {
-                        if (count($message) == 1) {
-                            $message = array_pop($message);
-                        }
+                        $message = $message[$code];
                     }
 
                 } else {
-                    if ($_CONFIG['production']) {
-                        log_console($message['e']);
+                    $message = $message['e']->getMessages("\n<br>");
+                }
+            }
 
-                        $code = $message['e']->getCode();
+            $message = trim(Strings::from($message, '():'));
 
-                        if (empty($message[$code])) {
-                            $message = $default;
+        } elseif (is_object($message)) {
+            /*
+             * Assume this is an CoreException object
+             */
+            if (!($message instanceof CoreException)) {
+                if (!($message instanceof Exception)) {
+                    $type = gettype($message);
 
-                        } else {
-                            $message = $message[$code];
-                        }
-
-                    } else {
-                        $message = $message['e']->getMessages("\n<br>");
+                    if ($type === 'object') {
+                        $type .= '/' . get_class($message);
                     }
+
+                    throw new JsonException(tr('Specified message must either be a string or an CoreException ojbect, or PHP Exception ojbect, but is a ":type"', [':type' => $type]));
                 }
 
-                $message = trim(Strings::from($message, '():'));
+                $code = $message->getCode();
 
-            } elseif (is_object($message)) {
-                /*
-                 * Assume this is an CoreException object
-                 */
-                if (!($message instanceof CoreException)) {
-                    if (!($message instanceof Exception)) {
-                        $type = gettype($message);
+                if (Debug::enabled()) {
+                    /*
+                     * This is a user visible message
+                     */
+                    $message = $message->getMessage();
 
-                        if ($type === 'object') {
-                            $type .= '/' . get_class($message);
-                        }
+                } elseif (!empty($default)) {
+                    $message = $default;
+                }
 
-                        throw new JsonException(tr('Json::error(): Specified message must either be a string or an CoreException ojbect, or PHP Exception ojbect, but is a ":type"', array(':type' => $type)), 'invalid');
-                    }
+            } else {
+                $result = $message->getCode();
 
-                    $code = $message->getCode();
+                switch ($result) {
+                    case 'access-denied':
+                        $http_code = '403';
+                        break;
 
-                    if (debug()) {
+                    case 'ssl-required':
+                        $http_code = '403.4';
+                        break;
+
+                    default:
+                        $http_code = '500';
+                }
+
+                if (Strings::until($result, '/') == 'warning') {
+                    $data = $message->getMessage();
+
+                } else {
+                    if (Debug::enabled()) {
                         /*
                          * This is a user visible message
                          */
-                        $message = $message->getMessage();
+                        $messages = $message->getMessages();
+
+                        foreach ($messages as $id => &$message) {
+                            $message = trim(Strings::from($message, '():'));
+
+                            if ($message == tr('Failed')) {
+                                unset($messages[$id]);
+                            }
+                        }
+
+                        unset($message);
+
+                        $data = implode("\n", $messages);
 
                     } elseif (!empty($default)) {
                         $message = $default;
                     }
-
-                } else {
-                    $result = $message->getCode();
-
-                    switch ($result) {
-                        case 'access-denied':
-                            $http_code = '403';
-                            break;
-
-                        case 'ssl-required':
-                            $http_code = '403.4';
-                            break;
-
-                        default:
-                            $http_code = '500';
-                    }
-
-                    if (Strings::until($result, '/') == 'warning') {
-                        $data = $message->getMessage();
-
-                    } else {
-                        if (Debug::enabled()) {
-                            /*
-                             * This is a user visible message
-                             */
-                            $messages = $message->getMessages();
-
-                            foreach ($messages as $id => &$message) {
-                                $message = trim(Strings::from($message, '():'));
-
-                                if ($message == tr('Failed')) {
-                                    unset($messages[$id]);
-                                }
-                            }
-
-                            unset($message);
-
-                            $data = implode("\n", $messages);
-
-                        } elseif (!empty($default)) {
-                            $message = $default;
-                        }
-                    }
                 }
             }
-
-            $data = Arrays::force($data);
-
-            Json::reply($data, ($result ? $result : 'ERROR'), $http_code);
-
-        } catch (Exception $e) {
-            throw new JsonException('Json::error(): Failed', $e);
         }
+
+        $data = Arrays::force($data);
+
+        Json::reply($data, ($result ? $result : 'ERROR'), $http_code);
     }
 
 
@@ -269,11 +265,11 @@ class Json
     {
         if (is_object($code)) {
             if (!$code instanceof Throwable) {
-                throw new OutOfBoundsException(tr('Specified code is a ":code" object class. Code must be an numeric HTTP code, a key word string or an exception object', [':code' => $code]);
+                throw new OutOfBoundsException(tr('Specified code is a ":code" object class. Code must be an numeric HTTP code, a key word string or an exception object', [':code' => $code]));
             }
 
             // This is (presumably) an exception
-            $code = $code->getRealCode();
+            $code = $code->getCode();
         }
 
         if (str_contains($code, '_')) {

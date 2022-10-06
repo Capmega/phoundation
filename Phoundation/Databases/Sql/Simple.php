@@ -1,5 +1,4 @@
 <?php
-
 namespace Phoundation\Databases;
 
 use Phoundation\Core\Arrays;
@@ -18,6 +17,7 @@ use Phoundation\Databases\Sql\Exception\SqlException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
+die('Killed by Databases\Sql\Simple');
 class SqlSimple
 {
     /**

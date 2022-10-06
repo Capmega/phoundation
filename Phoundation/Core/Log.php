@@ -2,7 +2,6 @@
 
 namespace Phoundation\Core;
 
-use JsonException;
 use PDOStatement;
 use Phoundation\Cli\Colors;
 use Phoundation\Core\Exception\LogException;
@@ -12,6 +11,7 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
+use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Throwable;
 
@@ -149,7 +149,7 @@ Class Log {
      * @param string|null $target
      * @return Log
      */
-    public static function getInstance(string $target = null): Log
+    public static function getInstance(?string $target = null): Log
     {
         try {
             if (!isset(self::$instance)) {
@@ -160,7 +160,7 @@ Class Log {
             self::$fail = true;
 
             error_log('Log constructor failed with the following message. Until the following issue has been resolved, all log entries will be written to the PHP system log only');
-            error_log($e->getMessage());
+            error_log($e);
         }
 
         return self::$instance;
