@@ -402,16 +402,17 @@ function show(mixed $source, int $trace_offset = 1, bool $quiet = false): mixed
 
 
 
-
 /**
  * Shortcut to the Debug::show() call
  *
  * @param mixed $source
+ * @param int $trace_offset
+ * @param bool $quiet
  * @return void
  */
-function showdie(mixed $source): void
+function showdie(mixed $source, int $trace_offset = 2, bool $quiet = false): void
 {
-    Debug::showdie($source);
+    Debug::showdie($source, $trace_offset, $quiet);
 }
 
 

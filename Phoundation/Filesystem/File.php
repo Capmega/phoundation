@@ -649,7 +649,7 @@ class File
      *
      * @version 2.4.40: Added documentation, upgraded function
      * @param string $path The path from which
-     * @param ?string $pattern
+     * @param string|null $pattern
      * @param boolean $recursive If set to true, return all files below the specified path, including in sub-directories
      * @return array The matched files
      */
@@ -1180,7 +1180,7 @@ class File
 
             safe_exec([
                 'timeout'  => $timeout,
-                'commands' => array('chmod', $arguments
+                'commands' => ['chmod', $arguments]
             ]);
         }
     }
@@ -2053,20 +2053,19 @@ class File
     {
         // If the specified file exists and is writable, then we're done.
         if (is_writable($file)) {
-
             return false;
         }
 
-        // From here the file is not writable. It may not exist or it may simply not be writable. Lets continue...
+        // From here the file is not writable. It may not exist, or it may simply not be writable. Lets continue...
 
         // Get configuration. We need file and directory default modes
-        $file_mode = Config::get('filesystem.mode.default.file', 0640, $file_mode);
+        $file_mode      = Config::get('filesystem.mode.default.file'     , 0640, $file_mode);
         $directory_mode = Config::get('filesystem.mode.default.directory', 0750, $directory_mode);
 
         if (file_exists($file)) {
             // Great! The file exists, but it is not writable at this moment. Try to make it writable.
             try {
-                Log::warning(tr('The specified file ":file" (Realpath ":path") is not writable. Attempting to apply default file mode "' . $file_mode . '"', [':file' => $file, ':path' => realpath($file)]);
+                Log::warning(tr('The specified file ":file" (Realpath ":path") is not writable. Attempting to apply default file mode ":file_mode"', [':file' => $file, ':path' => realpath($file), ':file_mode' => $file_mode]));
                 self::chmod($file, 'u+w');
                 return $file;
             } catch (ProcessesException $e) {
@@ -2082,13 +2081,7 @@ class File
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
         Path::ensure(dirname($file));
-        Log::warning(tr(
-            'The specified file ":file" (Realpath ":path") does not exist. Attempting to create it with file mode "' . $file_mode . '"',
-            [
-                ':file' => $file,
-                ':path' => realpath($file)
-            ]
-        ));
+        Log::warning(tr('The specified file ":file" (Realpath ":path") does not exist. Attempting to create it with file mode ":filemode"', [':file' => $file, ':path' => realpath($file), ':filemode' => $file_mode]));
 
         switch ($type) {
             case 'file':
@@ -2102,7 +2095,7 @@ class File
                 break;
 
             default:
-                throw new OutOfBoundsException('The specified type "' . Strings::log($type) . '" is invalid, it should be one of "file" or "directory"');
+                throw new OutOfBoundsException(tr('The specified type ":type" is invalid, it should be one of "file" or "directory"', [':type' => $type]));
         }
 
         return realpath($file);
@@ -2110,12 +2103,16 @@ class File
 
 
 
-    /*
+    /**
      * Returns array with all permission information about the specified file.
      *
      * Idea taken from http://php.net/manual/en/function.fileperms.php
+     *
+     * @param string $file
+     * @return string
      */
-    public static function type($file) {
+    public static function type(string $file): string
+    {
         $perms     = fileperms($file);
         $socket    = (($perms & 0xC000) == 0xC000);
         $symlink   = (($perms & 0xA000) == 0xA000);

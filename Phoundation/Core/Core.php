@@ -686,7 +686,7 @@ class Core {
      */
     public static function uncaughtException(Throwable $e, bool $die = true): void
     {
-        die('UNCAUGHTEXCEPTION');
+die('UNCAUGHTEXCEPTION');
 //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
         /*
          * Phoundation uncaught exception handler

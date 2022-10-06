@@ -64,7 +64,7 @@ class DataEntry
     /**
      * Set the status for this database entry
      *
-     * @param ?String $status
+     * @param string|null $status
      * @return DataEntry
      */
     public function setStatus(?String $status): DataEntry

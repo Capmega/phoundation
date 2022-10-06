@@ -326,7 +326,6 @@ class Debug {
     }
 
 
-
     /**
      * Show the given value on screen, then die.
      *
@@ -334,11 +333,13 @@ class Debug {
      * in web page mode, the value will be nicely displayed in a recursive table
      *
      * @param mixed $value
+     * @param int $trace_offset
+     * @param bool $quiet
      */
-    public static function showDie(mixed $value): void
+    public static function showDie(mixed $value, int $trace_offset = 1, bool $quiet = false): void
     {
         if (self::enabled()) {
-            self::show($value);
+            self::show($value, $trace_offset, $quiet);
             die();
         }
     }

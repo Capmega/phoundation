@@ -53,6 +53,8 @@ Debug::enabled(true);
 
             // Get the script file to execute
             $script = self::findScript($argv);
+show($script);
+showdie('AAAAAAAAAAAAAAAAAAAAAA');
 
             Core::writeRegister($script, 'real_script');
             Core::writeRegister(Strings::fromReverse($script, '/'), 'script');
@@ -79,6 +81,9 @@ showdie($e);
     {
         $file = ROOT . 'scripts/';
 
+        show($file);
+        show($arguments);
+die();
         foreach ($arguments as $argument) {
             if (str_ends_with($argument, 'php')) {
                 // This is the PHP command, ignore it

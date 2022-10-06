@@ -79,9 +79,9 @@ Class Log {
     /**
      * The current backtrace display configuration
      *
-     * @var int|null $display
+     * @var int $display
      */
-    protected static ?int $display = null;
+    protected static int $display = self::BACKTRACE_DISPLAY_FILE;
 
     /**
      * Keeps track of if the static object has been initialized or not
@@ -112,12 +112,21 @@ Class Log {
      */
     protected static ?string $last_message = null;
 
+    /**
+     * Lock the Log class from writing in case it is busy to avoid race conditions
+     *
+     * @var bool $lock
+     */
+    protected static bool $lock = false;
+
 
 
     /**
      * Log constructor
+     *
+     * @param string|null $global_id
      */
-    protected function __construct(?int $global_id = null)
+    protected function __construct(?string $global_id = null)
     {
         // Ensure that the log class hasn't been initialized yet
         if (self::$init) {
@@ -239,11 +248,11 @@ Class Log {
      * Sets the log threshold level to the newly specified level and will return the previous level. Once a log file has
      * been opened it will remain open until closed with the Log::closeFile() method
      *
-     * @param ?string $file
-     * @return string
+     * @param string|null $file
+     * @return string|null
      * @throws LogException if the specified threshold is invalid.
      */
-    public static function setFile(string $file = null): string
+    public static function setFile(string $file = null): ?string
     {
         try {
             $return = self::$file;
@@ -266,7 +275,7 @@ Class Log {
         } catch (Throwable $e) {
             // Something went wrong trying to open the log file. Log the error but do continue
             self::$fail = true;
-            self::error(tr('Failed to open log file ":file" because of exception ":e"', [':file' => $file, ':e' => $e]));
+            self::error(tr('Failed to open log file ":file" because of exception ":e"', [':file' => $file, ':e' => $e->getMessage()]));
         }
 
         return $return;
@@ -402,10 +411,10 @@ Class Log {
      * processes over (optionally) multiple servers to identify all messages that are relevant to a single request.
      *
      * @note The global_id can be set only once to avoid log discrepancies
-     * @param string $global_id
+     * @param string|null $global_id
      * @return void
      */
-    public function setGlobalId(string $global_id): void
+    public function setGlobalId(?string $global_id): void
     {
         if (self::$global_id) {
             throw new LogException('Cannot set the global log id, it has already been set');
@@ -425,7 +434,7 @@ Class Log {
      */
     public static function success(string $message, int $level = 5): bool
     {
-        return self::getInstance()->write('success', $message, $level);
+        return self::write('success', $message, $level);
     }
 
 
@@ -439,7 +448,7 @@ Class Log {
      */
     public static function warning(string $message, int $level = 7): bool
     {
-        return self::getInstance()->write('warning', $message, $level);
+        return self::write('warning', $message, $level);
     }
 
 
@@ -453,7 +462,7 @@ Class Log {
      */
     public static function error(string $message, int $level = 10): bool
     {
-        return self::getInstance()->write('error', $message, $level);
+        return self::write('error', $message, $level);
     }
 
 
@@ -467,7 +476,7 @@ Class Log {
      */
     public static function notice(string $message, int $level = 3): bool
     {
-        return self::getInstance()->write('notice', $message, $level);
+        return self::write('notice', $message, $level);
     }
 
 
@@ -481,7 +490,7 @@ Class Log {
      */
     public static function information(string $message, int $level = 7): bool
     {
-        return self::getInstance()->write('information', $message, $level);
+        return self::write('information', $message, $level);
     }
 
 
@@ -531,7 +540,7 @@ Class Log {
         $message = $prefix . $message;
 
         self::logDebugHeader('PRINTR', $level);
-        return self::getInstance()->write('debug', $message, $level);
+        return self::write('debug', $message, $level);
     }
 
 
@@ -656,6 +665,7 @@ Class Log {
     }
 
 
+
     /**
      * Write the specified log message to the current log file for this instance
      *
@@ -669,9 +679,24 @@ Class Log {
      */
     public static function write(string $class, mixed $messages, int $level, bool $clean = true, bool $newline = true): bool
     {
+        if (self::$lock) {
+            // Do not log anything while locked
+            error_log($messages);
+
+            if (PLATFORM_CLI) {
+                echo Strings::log($messages);
+            }
+
+            return false;
+        }
+
+        self::$lock = true;
+        self::getInstance();
+
         try {
             // Do we have a log file setup?
             if (empty(self::$file)) {
+                showdie($messages);
                 throw new LogException(tr('Cannot log, no log file specified'));
             }
 
@@ -683,6 +708,7 @@ Class Log {
                     $success = ($success and self::write($class, $message, $level, $clean));
                 }
 
+                self::$lock = false;
                 return $success;
             }
 
@@ -692,6 +718,7 @@ Class Log {
 
             if ($real_level < self::$threshold) {
                 // This log message level did not meet the threshold, discard it
+                self::$lock = false;
                 return false;
             }
 
@@ -754,6 +781,7 @@ Class Log {
                     }
                 }
 
+                self::$lock = false;
                 return true;
             }
 
@@ -764,10 +792,18 @@ Class Log {
 
             // Don't log the same message twice in a row
             if (($level > 0) and (self::$last_message === $messages)) {
+                self::$lock = false;
                 return false;
             }
 
             self::$last_message = $messages;
+
+            // If we're initializing the log then write to the system log
+            if (self::$init or self::$fail) {
+                error_log($messages);
+                self::$lock = false;
+                return true;
+            }
 
             // Add coloring for easier reading
             switch ($class) {
@@ -814,6 +850,7 @@ Class Log {
             // Build the message to be logged, clean it and log
             // The log line format is DATE LEVEL PID GLOBALID/LOCALID MESSAGE EOL
             if (Debug::cleanData()) {
+                self::$lock = false;
                 return Strings::cleanWhiteSpace($messages);
             }
 
@@ -825,8 +862,11 @@ Class Log {
                 echo $messages;
             }
 
+            self::$lock = false;
             return true;
+
         } catch (Throwable $e) {
+showdie($e);
             // Don't ever let the system crash because of a log issue so we catch all possible exceptions
             self::$fail = true;
 

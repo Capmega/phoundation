@@ -82,7 +82,7 @@ class Exceptions
      *
      * @param Throwable $e
      * @param array $messages
-     * @param ?string $default
+     * @param string|null $default
      * @return string
      */
     function getMessage(Throwable $e, array $messages = array(), string $default = null): string
