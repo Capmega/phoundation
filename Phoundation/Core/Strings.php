@@ -1311,8 +1311,12 @@ class Strings
      */
     public static function truncate(string$source, int $length, string $fill = ' ... ', string $method = 'right', bool $on_word = false): string
     {
-        if (!$length or ($length < (mb_strlen($fill) + 1))) {
-            throw new OutOfBoundsException(tr('Specified length ":length" is invalid. You must specify a length of minimal $fill length + 1, so at least ":fill"', ['length' => $length, ':fill' => mb_strlen($fill) + 1]), ['length' => $length]);
+        if (!$length) {
+            return $source;
+        }
+
+        if ($length < (mb_strlen($fill) + 1)) {
+            throw new OutOfBoundsException(tr('Specified length ":length" is invalid. You must specify a length of minimal $fill length + 1, so at least ":fill"', [':length' => $length, ':fill' => mb_strlen($fill) + 1]), [':length' => $length]);
         }
 
         if ($length >= mb_strlen($source)) {

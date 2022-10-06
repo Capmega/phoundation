@@ -77,7 +77,6 @@ class Exception extends RuntimeException
 
         if (Debug::enabled()) {
             // Always log all Phoundation Exceptions in debug mode
-            show($this);
             Log::error($this);
         }
     }

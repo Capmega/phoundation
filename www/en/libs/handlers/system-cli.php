@@ -488,7 +488,7 @@ try {
      * page?
      */
     if (isset($core->register['page_show'])) {
-        page_show($core->register['page_show']);
+        Web::execute($core->register['page_show']);
     }
 
     /*

@@ -148,7 +148,7 @@ under_construction();
         /*
          * We are in maintenance mode, have to show mainenance page.
          */
-        page_show(500);
+        Web::execute(500);
     }
 
 
@@ -221,7 +221,7 @@ under_construction();
      * page?
      */
     if (isset($core->register['page_show'])) {
-        page_show($core->register['page_show']);
+        Web::execute($core->register['page_show']);
     }
 
 }catch(Exception $e) {

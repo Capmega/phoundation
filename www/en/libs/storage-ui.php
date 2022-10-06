@@ -255,7 +255,7 @@ function storage_ui_get_section($params) {
              * No section available, we cannot do anything!
              */
             html_flash_set(tr('No :labelsection specified', array(':labelsection' => $params['section'])), 'warning', 400);
-            page_show(400);
+            Web::execute(400);
 
         }
 
@@ -263,7 +263,7 @@ function storage_ui_get_section($params) {
 
         if (!$section or is_new($section)) {
             html_flash_set(log_database(tr('Specified :labelsection ":section" does not exist', array(':labelsection' => $params['section'], ':section' => $_GET[$params['seosection']])), 'not-exists'), 'error', 404);
-            page_show(404);
+            Web::execute(404);
         }
 
         return $section;
@@ -291,7 +291,7 @@ function storage_ui_get_page($params, $section, $object) {
 
             if (!$page) {
                 html_flash_set(log_database(tr('Specified :labeldocument ":document" does not exist', array(':labeldocument' => $params[$object], ':document' => $_GET[$params['seo'.$object]])), 'not-exists'), 'error', 404);
-                page_show(404);
+                Web::execute(404);
             }
 
             log_database(tr('View :labeldocument ":document"', array(':labeldocument' => $params[$object], ':document' => $page['name'])), 'storage-documents/view');

@@ -444,11 +444,11 @@ function sso_fail($message, $redirect = null) {
         html_flash_set($message, 'error');
 
         if (empty($redirect)) {
-            page_show(500);
+            Web::execute(500);
         }
 
     }catch(Exception $e) {
-        page_show(500);
+        Web::execute(500);
     }
 }
 ?>

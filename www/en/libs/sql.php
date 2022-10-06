@@ -480,7 +480,7 @@ function sql_init($connector_name = null) {
 
                             if (!empty($versions['offline_until'])) {
                                 if (PLATFORM_HTTP) {
-                                    page_show(503, array('offline_until' => $versions['offline_until']));
+                                    Web::execute(503, array('offline_until' => $versions['offline_until']));
                                 }
                             }
 

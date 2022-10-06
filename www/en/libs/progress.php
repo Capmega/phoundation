@@ -605,7 +605,7 @@ function progress_exec_step($project) {
         }
 
         $step_data['url'] = 'projects/'.$project['seoname'].'/'.$step_data['url'];
-        page_show($step_data['url'], array('project' => $project));
+        Web::execute($step_data['url'], array('project' => $project));
 
     }catch(Exception $e) {
         throw new CoreException('progress_exec_step(): Failed', $e);

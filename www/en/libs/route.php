@@ -922,7 +922,7 @@ function route_404() {
             $core->startup();
         }
 
-        page_show(404);
+        Web::execute(404);
 
     }catch(Exception $e) {
         if ($e->getCode() === 'not-exists') {

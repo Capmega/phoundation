@@ -295,7 +295,7 @@ function paging_data($page, $limit, $rows) {
             /*
              * Specified page is out of range
              */
-            page_show(404);
+            Web::execute(404);
         }
 
         throw new CoreException('paging_data(): Failed', $e);

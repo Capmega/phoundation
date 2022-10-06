@@ -2694,7 +2694,7 @@
 //        }
 //
 //        log_file(tr('User ":user" is missing one or more of the rights ":rights"', array(':user' => name($_SESSION['user']), ':rights' => $rights)), 'rights-or-access-denied', 'yellow');
-//        page_show(403);
+//        Web::execute(403);
 //
 //    }catch(Exception $e) {
 //        throw new CoreException('rights_or_access_denied(): Failed', $e);
@@ -2720,7 +2720,7 @@
 //            redirect(domain($_CONFIG['redirects']['signin']));
 //        }
 //
-//        page_show($_CONFIG['redirects']['access-denied']);
+//        Web::execute($_CONFIG['redirects']['access-denied']);
 //
 //    }catch(Exception $e) {
 //        throw new CoreException('groups_or_access_denied(): Failed', $e);
@@ -2734,7 +2734,7 @@
 // */
 //function user_or_page($page) {
 //    if (empty($_SESSION['user'])) {
-//        page_show($page);
+//        Web::execute($page);
 //        return false;
 //    }
 //
@@ -3333,7 +3333,7 @@
 // * @category Function reference
 // * @package system
 // */
-//function page_show($pagename, $params = null, $get = null) {
+//function Web::execute($pagename, $params = null, $get = null) {
 //    global $_CONFIG, $core;
 //
 //    try {
@@ -3341,7 +3341,7 @@
 //
 //        if ($get) {
 //            if (!is_array($get)) {
-//                throw new CoreException(tr('page_show(): Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
+//                throw new CoreException(tr('Web::execute(): Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
 //            }
 //
 //            $_GET = $get;
@@ -3433,10 +3433,10 @@
 //
 //    }catch(Exception $e) {
 //        if (isset($include) and !file_exists($include)) {
-//            throw new CoreException(tr('page_show(): The requested page ":page" does not exist', array(':page' => $pagename)), 'not-exists');
+//            throw new CoreException(tr('Web::execute(): The requested page ":page" does not exist', array(':page' => $pagename)), 'not-exists');
 //        }
 //
-//        throw new CoreException(tr('page_show(): Failed to show page ":page"', array(':page' => $pagename)), $e);
+//        throw new CoreException(tr('Web::execute(): Failed to show page ":page"', array(':page' => $pagename)), $e);
 //    }
 //}
 //
@@ -3790,14 +3790,14 @@
 //             * Show the specified script, it will create the content for
 //             * this $core->register['script']
 //             */
-//            page_show($script);
+//            Web::execute($script);
 //        }
 //
 //        /*
 //         * Script and language match, continue
 //         */
 //        if ($incorrect) {
-//            page_show(404);
+//            Web::execute(404);
 //        }
 //
 //    }catch(Exception $e) {

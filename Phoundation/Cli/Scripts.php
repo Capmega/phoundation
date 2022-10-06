@@ -32,6 +32,13 @@ class Scripts
      */
     protected static int $exit_code = 0;
 
+    /**
+     * The command line arguments
+     *
+     * @var array|null $argv
+     */
+    protected static ?array $argv = null;
+
 
 
     /**
@@ -44,7 +51,11 @@ class Scripts
     {
         try {
 Debug::enabled(true);
+            // Backup the command line arguments
+            self::$argv = $GLOBALS['argv'];
+
             // All scripts will execute the cli_done() call, register basic script information
+            Core::startup();
             Core::registerShutdown('cli_done');
 
             if (count($argv) <= 1) {

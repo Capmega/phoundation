@@ -352,13 +352,13 @@ try {
                     $e->setCode(400);
                 }
 
-                if (($e instanceof CoreException) and is_numeric($e->getRealCode()) and ($e->getRealCode() > 100) and page_show($e->getRealCode(), array('exists' => true))) {
+                if (($e instanceof CoreException) and is_numeric($e->getRealCode()) and ($e->getRealCode() > 100) and Web::execute($e->getRealCode(), array('exists' => true))) {
                     if ($e->isWarning()) {
                         html_flash_set($e->getMessage(), 'warning', $e->getRealCode());
                     }
 
                     log_file(tr('Displaying exception page ":page"', array(':page' => $e->getRealCode())), 'exceptions', 'error');
-                    page_show($e->getRealCode(), array('message' =>$e->getMessage()));
+                    Web::execute($e->getRealCode(), array('message' =>$e->getMessage()));
                 }
 
                 if (Debug::enabled()) {
@@ -476,7 +476,7 @@ try {
                         json_message($e->getCode(), array('reason' => ''));
                 }
 
-                page_show($e->getCode());
+                Web::execute($e->getCode());
         }
 
     }catch(Exception $f) {
@@ -515,7 +515,7 @@ try {
                 if (!Debug::enabled()) {
                     notify($f, false, false);
                     notify($e, false, false);
-                    page_show(500);
+                    Web::execute(500);
                 }
 
                 show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])));

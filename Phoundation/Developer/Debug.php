@@ -228,7 +228,7 @@ class Debug {
      * @return mixed
      * @throws CoreException
      */
-    public static function show(mixed $value, int $trace_offset = 0, bool $quiet = false): mixed
+    public static function show(mixed $value = null, int $trace_offset = 0, bool $quiet = false): mixed
     {
         if (!self::enabled()) {
             return null;
@@ -336,7 +336,7 @@ class Debug {
      * @param int $trace_offset
      * @param bool $quiet
      */
-    public static function showDie(mixed $value, int $trace_offset = 1, bool $quiet = false): void
+    public static function showDie(mixed $value = null, int $trace_offset = 1, bool $quiet = false): void
     {
         if (self::enabled()) {
             self::show($value, $trace_offset, $quiet);

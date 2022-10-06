@@ -135,6 +135,9 @@ Class Log {
 
         self::$init = true;
 
+        // Startup the core object
+        Core::startup();
+
         // Apply configuration
         self::setThreshold(Config::get('log.level', 7));
         self::setFile(Config::get('log.file', ROOT . 'data/log/syslog'));
@@ -155,14 +158,14 @@ Class Log {
     /**
      * Singleton, ensure to always return the same Log object.
      *
-     * @param string|null $target
+     * @param string|null $global_id
      * @return Log
      */
-    public static function getInstance(?string $target = null): Log
+    public static function getInstance(?string $global_id = null): Log
     {
         try {
             if (!isset(self::$instance)) {
-                self::$instance = new Log($target);
+                self::$instance = new Log($global_id);
             }
         } catch (Throwable $e) {
             // Crap, we could not get a Log instance
@@ -659,7 +662,7 @@ Class Log {
      */
     public static function sql(string|PDOStatement $query, ?array $execute = null, int $level = 3): bool
     {
-        $query = Sql::buildQueryString($query, $execute, false);
+        $query = Sql::database()->buildQueryString($query, $execute, false);
         $query = Strings::endsWith($query, ';');
         return Log::printr($query, $level);
     }
@@ -679,14 +682,9 @@ Class Log {
      */
     public static function write(string $class, mixed $messages, int $level, bool $clean = true, bool $newline = true): bool
     {
-        if (self::$lock) {
-            // Do not log anything while locked
+        if (self::$lock or self::$fail or self::$init) {
+            // Do not log anything while locked, initialising, or while dealing with a Log internal failure
             error_log($messages);
-
-            if (PLATFORM_CLI) {
-                echo Strings::log($messages);
-            }
-
             return false;
         }
 
@@ -696,7 +694,6 @@ Class Log {
         try {
             // Do we have a log file setup?
             if (empty(self::$file)) {
-                showdie($messages);
                 throw new LogException(tr('Cannot log, no log file specified'));
             }
 

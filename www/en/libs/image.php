@@ -874,7 +874,7 @@ function image_send($file, $cache_maxage = 86400) {
             /*
              * Requested image does not exist
              */
-            page_show(404);
+            Web::execute(404);
         }
 
         /*

@@ -4,6 +4,9 @@ namespace Phoundation\Web;
 
 
 
+use Phoundation\Core\Core;
+use Phoundation\Http\Http;
+
 /**
  * Class Web
  *
@@ -24,6 +27,98 @@ class Web
      */
     public static function execute(string $page): void
     {
+        Arrays::ensure($params, 'message');
 
-    }
+        if ($get) {
+            if (!is_array($get)) {
+                throw new CoreException(tr('page_show(): Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
+            }
+
+            $_GET = $get;
+        }
+
+        if (defined('LANGUAGE')) {
+            $language = LANGUAGE;
+
+        } else {
+            $language = 'en';
+        }
+
+        $params['page'] = $pagename;
+
+        if (is_numeric($pagename)) {
+            /*
+             * This is a system page, HTTP code. Use the page code as http code as well
+             */
+            Http::setStatusCode($page_name);
+        }
+
+        $core->register['real_script'] = $pagename;
+
+        switch (Core::getCallType()) {
+            case 'ajax':
+                $include = ROOT.'www/'.$language.'/ajax/'.$pagename.'.php';
+
+                if (isset_get($params['exists'])) {
+                    return file_exists($include);
+                }
+
+                /*
+                 * Execute ajax page
+                 */
+                log_file(tr('Showing ":language" language ajax page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
+                return include($include);
+
+            case 'api':
+                $include = ROOT.'www/api/'.(is_numeric($pagename) ? 'system/' : '').$pagename.'.php';
+
+                if (isset_get($params['exists'])) {
+                    return file_exists($include);
+                }
+
+                /*
+                 * Execute ajax page
+                 */
+                log_file(tr('Showing ":language" language api page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
+                return include($include);
+
+            case 'admin':
+                $admin = '/admin';
+                // no-break
+
+            default:
+                if (is_numeric($pagename)) {
+                    $include = ROOT.'www/'.$language.isset_get($admin).'/system/'.$pagename.'.php';
+
+                    if (isset_get($params['exists'])) {
+                        return file_exists($include);
+                    }
+
+                    log_file(tr('Showing ":language" language system page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'warning');
+
+                    /*
+                     * Wait a small random time to avoid timing attacks on
+                     * system pages
+                     */
+                    usleep(mt_rand(1, 250));
+
+                } else {
+                    $include = ROOT.'www/'.$language.isset_get($admin).'/'.$pagename.'.php';
+
+                    if (isset_get($params['exists'])) {
+                        return file_exists($include);
+                    }
+
+                    log_file(tr('Showing ":language" language http page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
+                }
+
+                $result = include($include);
+
+                if (isset_get($params['return'])) {
+                    return $result;
+                }
+        }
+
+        die();
+   }
 }
