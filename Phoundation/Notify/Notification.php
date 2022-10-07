@@ -5,6 +5,7 @@ namespace Phoundation\Notify;
 
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Throwable;
 
@@ -323,6 +324,11 @@ class Notification
      */
     public function send(): void
     {
+        Log::warning('Notifications::send() not yet implemented! Not sending subsequent message');
+        Log::warning($this->title);
+        Log::warning($this->message);
+return;
+
         if (!$this->code) {
             throw new OutOfBoundsException('Cannot send notification, no notification code specified');
         }

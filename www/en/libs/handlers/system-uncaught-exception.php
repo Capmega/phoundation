@@ -46,7 +46,7 @@ try {
 
         if (isset($core)) {
             if (empty($core->register['script'])) {
-                Core::readRegister('script', 'unknown');
+                Core::readRegister('system', 'script', 'unknown');
             }
 
             if ($core->register['ready']) {

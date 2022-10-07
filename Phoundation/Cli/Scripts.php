@@ -52,37 +52,28 @@ class Scripts
      */
     public static function execute(array $argv): void
     {
-        try {
 Debug::enabled(true);
-            // Backup the command line arguments
-            self::$argv = $GLOBALS['argv'];
+        // Backup the command line arguments
+        self::$argv = $GLOBALS['argv'];
 
-            // All scripts will execute the cli_done() call, register basic script information
-            Core::startup();
-            Core::registerShutdown('cli_done');
+        // All scripts will execute the cli_done() call, register basic script information
+        Core::startup();
+        Core::registerShutdown('cli_done');
 
-            if (count($argv) <= 1) {
-                throw new OutOfBoundsException('No method specified!');
-            }
+        if (count($argv) <= 1) {
+            throw new OutOfBoundsException('No method specified!');
+        }
 
-            // Get the script file to execute
-            $script = self::findScript($argv);
+        // Get the script file to execute
+        $script = self::findScript($argv);
 show($script);
 showdie('AAAAAAAAAAAAAAAAAAAAAA');
 
-            Core::writeRegister($script, 'real_script');
-            Core::writeRegister(Strings::fromReverse($script, '/'), 'script');
+        Core::writeRegister($script, 'real_script');
+        Core::writeRegister(Strings::fromReverse($script, '/'), 'script');
 
-            // Execute the script
-            self::executeScript($script, $argv);
-
-        } catch (Throwable $e) {
-print_r($e);
-die();
-showdie($e);
-            // Something, anything went wrong with the execution of this script.
-            self::handleException($e);
-        }
+        // Execute the script
+        self::executeScript($script, $argv);
     }
 
 
@@ -141,25 +132,13 @@ showdie($arguments);
 
 
     /**
-     * Handle the script exception
-     *
-     * @param Throwable $e
-     * @return void
-     */
-    protected static function handleException(Throwable $e): void
-    {
-        self::setExitCode($e->getCode());
-    }
-
-
-    /**
      * Script execution has finished
      *
      * @param int|null $exit_code
      * @param string|null $exit_message
      * @return void
      */
-    #[NoReturn] public static function done(?int $exit_code = null, ?string $exit_message = null): void
+    #[NoReturn] public static function die(?int $exit_code = null, ?string $exit_message = null): void
     {
         if (!$exit_code) {
             Scripts::setExitCode($exit_code);
@@ -176,7 +155,7 @@ showdie($arguments);
                     }
 
                     // Script ended with warning
-                    Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
+                    Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in :time with ":usage" peak memory usage', [':script' => Core::readRegister('system', 'script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
 
                 } else {
                     if ($exit_message) {
@@ -184,7 +163,7 @@ showdie($arguments);
                     }
 
                     // Script ended with error
-                    Log::error(tr('Script ":script" failed with exit code ":exitcode" in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
+                    Log::error(tr('Script ":script" failed with exit code ":exitcode" in :time with ":usage" peak memory usage', [':script' => Core::readRegister('system', 'script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
                 }
 
             } else {
@@ -193,7 +172,7 @@ showdie($arguments);
                 }
 
                 // Script ended successfully
-                Log::success(tr('Finished ":script" script in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage())]), 'green');
+                Log::success(tr('Finished ":script" script in :time with ":usage" peak memory usage', [':script' => Core::readRegister('system', 'script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage())]), 'green');
             }
         }
 

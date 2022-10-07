@@ -1400,12 +1400,7 @@ class Strings
 
         if (!is_scalar($source)) {
             if (is_array($source)) {
-                foreach ($source as $key => &$value) {
-                    $value = Strings::hide($value, ['password', 'ssh_key']);
-                }
-
-                unset($value);
-
+                $source = Arrays::hide($source, ['password', 'ssh_key']);
                 $source = trim(JSON::encode($source));
 
             } elseif (is_object($source) and ($source instanceof CoreException)) {

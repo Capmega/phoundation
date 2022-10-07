@@ -51,6 +51,11 @@ class Debug {
      */
     public static function enabled(?bool $enabled = null): bool
     {
+        if (Core::startupState()) {
+            // System startup has not yet completed, disable debug!
+            return false;
+        }
+
         if ($enabled === null) {
             // Return the setting
             return strings::getBoolean(Config::get('debug.enabled', false));
@@ -252,7 +257,7 @@ class Debug {
 
         $retval = '';
 
-        if (Core::getReady() and PLATFORM_HTTP) {
+        if (Core::readyState() and PLATFORM_HTTP) {
             // Show output on web
             Http::headers(null, 0);
 

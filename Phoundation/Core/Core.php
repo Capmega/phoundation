@@ -7,6 +7,7 @@ use Phoundation\Cli\Colors;
 use Phoundation\Cli\Scripts;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Developer\Debug;
+use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
@@ -95,6 +96,23 @@ class Core {
      */
     protected static bool $ready = false;
 
+    /**
+     * Keep track of system status
+     *
+     * Can be one of:
+     *
+     * init     Core is initializing
+     * startup  Core is starting up
+     * script   Script execution is now running
+     * shutdown Core is shutting down after normal script execution
+     * error    Core is processing an uncaught exception and will die soon
+     * phperror Core encountered a PHP error, which (typically, but not always) will end un an uncaught exception,
+     *          switching system state to "error"
+     *
+     * @var string $state
+     */
+    protected static string $state = 'init';
+
 
 
     /**
@@ -127,8 +145,9 @@ class Core {
             set_error_handler(['\Phoundation\Core\Core', 'phpErrorHandler']);
             set_exception_handler(['\Phoundation\Core\Core', 'uncaughtException']);
 
-            // Load the functions file
+            // Load the functions and mb files
             require(ROOT . 'Phoundation/functions.php');
+            require(ROOT . 'Phoundation/mb.php');
 
             // Get the project name
             try {
@@ -171,20 +190,14 @@ class Core {
 
                     if (empty($env)) {
                         // No environment set in ENV, maybe given by parameter?
-                        Web::done(1, 'startup: No required environment specified for project "' . PROJECT . '"');
+                        Web::die(1, 'startup: No required environment specified for project "' . PROJECT . '"');
                     }
 
                     if (str_contains($env, '_')) {
-                        Web::done(1, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
+                        Web::die(1, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
                     }
 
                     define('ENVIRONMENT', $env);
-
-                    /*
-                     * Load basic configuration for the current environment
-                     * Load cache libraries (done until here since these need configuration @ load time)
-                     */
-                    self::$ready = true;
 
                     // Set protocol
                     define('PROTOCOL', Config::get('web.protocol', 'http'));
@@ -200,11 +213,11 @@ class Core {
                          * Died in browser
                          */
                         error_log('startup: Failed with "' . $e->getMessage() . '"');
-                        Web::done('startup: Failed, see web server error log');
+                        Web::die('startup: Failed, see web server error log');
                     }
 
                     // Died in CLI
-                    Scripts::done(1, 'startup: Failed with "' . $e->getMessage() . '"');
+                    Scripts::die(1, 'startup: Failed with "' . $e->getMessage() . '"');
                 }
 
             } catch (Throwable $e) {
@@ -235,29 +248,30 @@ class Core {
     }
 
 
-
     /**
      * The core::startup() method will start up the core class
      *
      * This method starts the correct call type handler
      *
      * @return void
+     * @throws Throwable
      */
     public static function startup(): void
     {
         try {
+            self::$state = 'startup';
+
             self::getInstance();
-            self::$register['startup'] = microtime(true);
+            self::$register['system']['startup'] = microtime(true);
+            self::$register['system']['script']  = Strings::until(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.');
 
             // Detect platform and execute specific platform startup sequence
             switch (PLATFORM) {
                 case 'http':
                     /*
-                     * Determine what our target file is. With direct execution,
-                     * $_SERVER[PHP_SELF] would contain this, with route
-                     * execution, $_SERVER[PHP_SELF] would be route, so we
-                     * cannot use that. Route will store the file being executed
-                     * in self::$register['script_path'] instead
+                     * Determine what our target file is. With direct execution, $_SERVER[PHP_SELF] would contain this,
+                     * with route execution, $_SERVER[PHP_SELF] would be route, so we cannot use that. Route will store
+                     * the file being executed in self::$register['script_path'] instead
                      */
                     if (isset(self::$register['script_path'])) {
                         $file = '/' . self::$register['script_path'];
@@ -266,10 +280,7 @@ class Core {
                         $file = '/' . $_SERVER['PHP_SELF'];
                     }
 
-                    /*
-                     * Auto detect what http call type we're on from the script
-                     * being executed
-                     */
+                    // Auto detect what http call type we're on from the script being executed
                     if (str_contains($file, '/admin/')) {
                         self::$call_type = 'admin';
 
@@ -385,7 +396,7 @@ class Core {
 
                     // Prepare for unicode usage
                     if (Config::get('encoding.charset', 'UTF8') === 'UTF-8') {
-                        mb_init(not_empty($_CONFIG['locale'][LC_CTYPE], $_CONFIG['locale'][LC_ALL]));
+                        mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
 
                         if (function_exists('mb_internal_encoding')) {
                             mb_internal_encoding('UTF-8');
@@ -452,7 +463,7 @@ class Core {
                         $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
 
                         if (empty($env)) {
-                            Scripts::done(2, 'startup: No required environment specified for project "' . PROJECT . '"');
+                            Scripts::die(2, 'startup: No required environment specified for project "' . PROJECT . '"');
                         }
 
                     } else {
@@ -460,13 +471,13 @@ class Core {
                     }
 
                     if (str_contains($env, '_')) {
-                        Scripts::done(4, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
+                        Scripts::die(4, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
                     }
 
                     define('ENVIRONMENT', $env);
 
                     if (!file_exists(ROOT.'config/'.$env.'.php')) {
-                        Scripts::done(5, 'startup: Configuration file "ROOT/config/' . $env . '.php" for specified environment "' . $env . '" not found');
+                        Scripts::die(5, 'startup: Configuration file "ROOT/config/' . $env . '.php" for specified environment "' . $env . '" not found');
                     }
 
                     // Set protocol
@@ -649,9 +660,7 @@ class Core {
                     }
 
                     if (isset($die)) {
-                        Core::$ready = true;
-                        Scripts::setExitCode($die);
-                        die($die);
+                        Scripts::die($die);
                     }
 
                     // set terminal data
@@ -713,7 +722,8 @@ class Core {
 
                     // Prepare for unicode usage
                     if (Config::get('encoding.charset', 'UTF-8') === 'UTF-8') {
-                        mb_init(not_empty($_CONFIG['locale'][LC_CTYPE], $_CONFIG['locale'][LC_ALL]));
+// TOOD Fix this godawful mess!
+                        mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
 
                         if (function_exists('mb_internal_encoding')) {
                             mb_internal_encoding('UTF-8');
@@ -732,7 +742,7 @@ class Core {
 
                     self::$register['all']         = Cli::argument('-A,--all');
                     self::$register['page']        = not_empty(Cli::argument('-P,--page', true), 1);
-                    self::$register['limit']       = not_empty(Cli::argument('--limit'  , true), $_CONFIG['paging']['limit']);
+                    self::$register['limit']       = not_empty(Cli::argument('--limit'  , true), Config::get('paging.limit', 50));
                     self::$register['clean_debug'] = Cli::argument('--clean-debug');
 
                     // Validate parameters and give some startup messages, if needed
@@ -794,27 +804,26 @@ class Core {
                     break;
             }
 
-
-            // Verify project data integrity
-            if (!defined('SEED') or !SEED or (PROJECTCODEVERSION == '0.0.0')) {
-                if (self::$register['script'] !== 'setup') {
-                    if (!FORCE) {
-                        throw new OutOfBoundsException(tr('startup: Project data in "ROOT/config/project.php" has not been fully configured. Please ensure that PROJECT is not empty, SEED is not empty, and PROJECTCODEVERSION is valid and not "0.0.0"'), 'project-not-setup');
-                    }
+            // Ensure that SEED has been configured
+            // Todo Move this to a security class where its actually used. No need to check this every time when its not being used in 99% of the page calls
+            if (!defined('SEED') or !SEED) {
+                if (self::$register['system']['script'] !== 'setup') {
+                    throw Exceptions::outOfBoundsException(tr('startup: Configuration data in "ROOT/config/production.yaml"' . (ENVIRONMENT === 'production' ? '' : ' or "ROOT/config/' . ENVIRONMENT . '.yaml"') . ' has not been fully configured. Please ensure that security.seed is not empty'))->makeWarning();
                 }
             }
+
+            self::$state = 'script';
 
         } catch (Throwable $e) {
-showdie($e);
             if (PLATFORM_HTTP and headers_sent($file, $line)) {
                 if (preg_match('/debug-.+\.php$/', $file)) {
-                    throw new OutOfBoundsException(tr('Failed because headers were already sent on ":location", so probably some added debug code caused this issue', array(':location' => $file . '@' . $line)), $e);
+                    throw new CoreException(tr('Failed because headers were already sent on ":location", so probably some added debug code caused this issue', array(':location' => $file . '@' . $line)), $e);
                 }
 
-                throw new OutOfBoundsException(tr('Failed because headers were already sent on ":location"', array(':location' => $file . '@' . $line)), $e);
+                throw new CoreException(tr('Failed because headers were already sent on ":location"', [':location' => $file . '@' . $line]), $e);
             }
 
-            throw new OutOfBoundsException(tr('Failed calltype ":calltype"', [':calltype' => self::$call_type]), $e);
+            throw $e;
         }
     }
 
@@ -849,12 +858,16 @@ showdie($e);
      */
     public static function writeRegister(mixed $value, string $key, ?string $subkey = null): void
     {
+        if ($key === 'system') {
+            throw new AccessDeniedException('The "system" register cannot be written to');
+        }
+
         if ($subkey) {
             // We want to write to a sub key. Ensure that the key exists and is an array
             if (array_key_exists($key, self::$register)) {
                 if (!is_array(self::$register[$key])) {
                     // Key exists but is not an array so cannot handle sub keys
-                    throw new CoreException('Cannot write to register key "" subkey "" as register key "" already exist as a value instead of an array', [':key' => $key, 'subkey' => $subkey]);
+                    throw new CoreException('Cannot write to register key ":key.:subkey" as register key ":key" already exist as a value instead of an array', [':key' => $key, 'subkey' => $subkey]);
                 }
             } else {
                 // Initialize the register sub array
@@ -888,13 +901,67 @@ showdie($e);
 
 
     /**
-     * Returns if the Core object is ready with startup or not
+     * Returns Core system state
      *
+     * Can be one of
+     *
+     * startup  System is starting up
+     * script   Script execution is now running
+     * shutdown System is shutting down after normal script execution
+     * error    System is processing an uncaught exception and will die soon
+     * phperror System encountered a PHP error, which (typically, but not always) will end un an uncaught exception,
+     *          switching system state to "error"
+     *
+     * @return string
+     */
+    public static function getState(): string
+    {
+        return self::$state;
+    }
+
+
+
+    /**
+     * Returns true if the system is still starting up
+     *
+     * @see Core::getState()
      * @return bool
      */
-    public static function getReady(): bool
+    public static function startupState(): bool
     {
-        return self::$ready;
+        return match (self::$state) {
+            'init', 'startup' => true,
+            default           => false,
+        };
+    }
+
+
+
+    /**
+     * Returns true if the system has finished starting up
+     *
+     * @see Core::getState()
+     * @return bool
+     */
+    public static function readyState(): bool
+    {
+        return !self::startupState();
+    }
+
+
+
+    /**
+     * Returns true if the system is in error state
+     *
+     * @see Core::getState()
+     * @return bool
+     */
+    public static function errorState(): bool
+    {
+        return match (self::$state) {
+            'error', 'phperror' => true,
+            default             => false,
+        };
     }
 
 
@@ -996,8 +1063,12 @@ showdie($e);
      */
     public static function phpErrorHandler(int $errno, string $errstr, string $errfile, int $errline): void
     {
-        if (!self::$ready) {
-            throw new PhpException('Pre system ready PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline));
+        self::$state = 'phperror';
+
+        if (self::startupState()) {
+            // Wut? We're not even ready to go! Likely we don't have configuration available so we cannot even send out
+            // notifications. Just crash
+            throw new PhpException('Core startup PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline));
         }
 
         $trace = Debug::backtrace();
@@ -1032,8 +1103,9 @@ showdie($e);
      */
     public static function uncaughtException(Throwable $e, bool $die = true): void
     {
-die('UNCAUGHTEXCEPTION');
-//if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
+        self::$state = 'error';
+
+        //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
         /*
          * Phoundation uncaught exception handler
          *
@@ -1077,27 +1149,23 @@ die('UNCAUGHTEXCEPTION');
 
                 $executed = true;
 
-                if (empty(self::readRegister('script'))) {
-                    Core::readRegister('script', 'unknown');
+                if (empty(self::readRegister('system', 'script'))) {
+                    Core::readRegister('system', 'script', 'unknown');
                 }
 
-                if (self::$ready) {
-                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => Core::getCallType(), ':script' => isset_get(self::readRegister('script'))]));
-                    Log::error($e, 'uncaught-exception', 'exception');
-
-                } else {
-                    /*
-                     * System is not ready, we cannot log to syslog
-                     */
-                    error_log(tr('*** UNCAUGHT PRE-CORE-READY EXCEPTION ":code" ***', array(':code' => $e->getCode())));
+                if (self::startupState()) {
+                    // System is not ready, we cannot log to syslog
+                    error_log(tr('*** UNCAUGHT PRE-CORE-READY EXCEPTION ":code" ***', [':code' => $e->getCode()]));
                     error_log($e->getMessage());
                     die(1);
+
+                } else {
+                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getCallType(), ':script' => self::readRegister('system', 'script')]));
+                    Log::error($e, 'uncaught-exception', 'exception');
                 }
 
                 if (!defined('PLATFORM')) {
-                    /*
-                     * Wow, system crashed before platform detection.
-                     */
+                    // System crashed before platform detection.
                     die('exception before platform detection');
                 }
 
@@ -1144,7 +1212,7 @@ die('UNCAUGHTEXCEPTION');
                             die(1);
                         }
 
-                        if (!self::$ready) {
+                        if (self::startupState()) {
                             /*
                              * Configuration hasn't been loaded yet, we cannot even know if
                              * we are in debug mode or not!
@@ -1160,9 +1228,11 @@ die('UNCAUGHTEXCEPTION');
                                 error_log($e->getMessage());
                             }
 
-                            echo "\033[1;31mPre ready exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information\033[0m\n";
+
+                            echo Colors::apply('System startup exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information', 'red');
                             print_r($e);
-                            die("\033[1;31mPre ready exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information\033[0m\n");
+                            echo Colors::apply('System startup exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information', 'red');
+                            Scripts::die(1);
                         }
 
                         /*
@@ -1213,7 +1283,7 @@ die('UNCAUGHTEXCEPTION');
                                     die(Scripts::getExitCode());
 
                                 case 'validation':
-                                    if (self::readRegister('script') === 'init') {
+                                    if (self::readRegister('system', 'script') === 'init') {
                                         /*
                                          * In the init script, all validations are fatal!
                                          */
@@ -1244,7 +1314,7 @@ die('UNCAUGHTEXCEPTION');
                             }
                         }
 
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN CONSOLE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => self::readRegister('script'))));
+                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN CONSOLE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => self::readRegister('system', 'script'))));
                         Debug::enabled(true);
 
                         if ($e instanceof CoreException) {
@@ -1271,7 +1341,7 @@ die('UNCAUGHTEXCEPTION');
                                     Log::error('    '.$message);
                                 }
 
-                                Log::error('    '.self::readRegister('script').': Failed');
+                                Log::error('    '.self::readRegister('system', 'script').': Failed');
                                 Log::error(tr('Exception function trace:'));
 
                                 if ($trace) {
@@ -1352,7 +1422,7 @@ die('UNCAUGHTEXCEPTION');
                             ->setException($e)
                             ->send();
 
-                        if (!self::$ready) {
+                        if (self::startupState()) {
                             /*
                              * Configuration hasn't been loaded yet, we cannot even know
                              * if we are in debug mode or not!
@@ -1375,7 +1445,7 @@ die('UNCAUGHTEXCEPTION');
                                 error_log($e->getMessage());
                             }
 
-                            die(tr('Pre ready exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
+                            Web::die(tr('System startup exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
                         }
 
                         if ($e->getCode() === 'validation') {
@@ -1387,8 +1457,8 @@ die('UNCAUGHTEXCEPTION');
                                 html_flash_set($e->getMessage(), 'warning', $e->getRealCode());
                             }
 
-                            log_file(tr('Displaying exception page ":page"', array(':page' => $e->getRealCode())), 'exceptions', 'error');
-                            page_show($e->getRealCode(), array('message' =>$e->getMessage()));
+                            Log::error(tr('Displaying exception page ":page"', [':page' => $e->getRealCode()]));
+                            Web::execute($e->getRealCode(), ['message' =>$e->getMessage()]);
                         }
 
                         if (Debug::enabled()) {
@@ -1446,13 +1516,13 @@ die('UNCAUGHTEXCEPTION');
                                 <table class="exception">
                                     <thead>
                                         <td colspan="2" class="center">
-                                            '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => self::readRegister('script'), 'type' => Core::getCallType())).'
+                                            '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => self::readRegister('system', 'script'), 'type' => Core::getCallType())).'
                                         </td>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td colspan="2" class="center">
-                                                '.tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => self::readRegister('script'))).'
+                                                '.tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => self::readRegister('system', 'script'))).'
                                             </td>
                                         </tr>
                                         <tr>
@@ -1515,8 +1585,8 @@ die('UNCAUGHTEXCEPTION');
 //                    die('Pre core available exception with handling failure. Please your application or webserver error log files, or enable the first line in the exception handler file for more information');
 //                }
 
-                if (!defined('PLATFORM') or !self::$ready) {
-                    error_log(tr('*** UNCAUGHT PRE READY EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('script'))));
+                if (!defined('PLATFORM') or self::startupState()) {
+                    error_log(tr('*** UNCAUGHT PRE READY EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('system', 'script'))));
                     error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
                     error_log($f->getMessage());
                     die('Pre core ready exception with handling failure. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
@@ -1527,7 +1597,7 @@ die('UNCAUGHTEXCEPTION');
 
                 switch (PLATFORM) {
                     case 'cli':
-                        Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('script'))));
+                        Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('system', 'script'))));
                         Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
 
                         Debug::enabled(true);
@@ -1546,7 +1616,7 @@ die('UNCAUGHTEXCEPTION');
                             page_show(500);
                         }
 
-                        show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('script'))));
+                        show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('system', 'script'))));
                         show('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***');
 
                         show($f);
@@ -1814,8 +1884,10 @@ die('UNCAUGHTEXCEPTION');
      */
     public static function shutdown(?int $error_code = null): void
     {
+        self::$state = 'shutdown';
+
         // Do we need to run other shutdown functions?
-        if (!self::$ready) {
+        if (self::startupState()) {
             if (!$error_code) {
                 error_log(tr('Shutdown procedure started before self::$register[script] was ready, possibly on script ":script"', [':script' => $_SERVER['PHP_SELF']]));
                 return;
@@ -1825,7 +1897,7 @@ die('UNCAUGHTEXCEPTION');
             return;
         }
 
-        Log::notice(tr('Starting shutdown procedure for script ":script"', [':script' => self::$register['script']]));
+        Log::notice(tr('Starting shutdown procedure for script ":script"', [':script' => self::$register['system']['script']]));
 
         foreach (self::$register as $key => $value) {
             try {
@@ -1923,7 +1995,7 @@ die('UNCAUGHTEXCEPTION');
                 'commands' => [self::$register['real_script'], $arguments]
             ]);
 
-            Log::success(tr('Finished re-executed script ":script"', [':script' => self::$register['script']]));
+            Log::success(tr('Finished re-executed script ":script"', [':script' => self::$register['system']['script']]));
             die();
         }
     }
@@ -1938,8 +2010,10 @@ die('UNCAUGHTEXCEPTION');
     protected static function setTimeZone(): void
     {
         // Set system timezone
+        $timezone = isset_get($_SESSION['user']['timezone'], Config::get('system.timezone.system', 'UTC'));
+
         try {
-            date_default_timezone_set(Config::get(['system.timezone.system']));
+            date_default_timezone_set($timezone);
 
         }catch(Throwable $e) {
             // Users timezone failed, use the configured one
@@ -1949,8 +2023,8 @@ die('UNCAUGHTEXCEPTION');
         }
 
         // Set user timezone
-        define('TIMEZONE', Config::get('system.timezone.display', isset_get($_SESSION['user']['timezone'])));
-        ensure_variable($_SESSION['user']['timezone'], $_CONFIG['timezone']['display']);
+        define('TIMEZONE', $timezone);
+        ensure_variable($_SESSION['user']['timezone'], 'UTC');
     }
 }
 

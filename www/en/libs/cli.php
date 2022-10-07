@@ -257,7 +257,7 @@ function cli_readline($prompt = '', $hidden = false, $question_fore_color = null
  * code
  * log_console('Started test');
  * cli_run_once_local();
- * safe_exec(Core::readRegister('script'));
+ * safe_exec(Core::readRegister('system', 'script'));
  * cli_run_once_local(true);
  * /code
  *

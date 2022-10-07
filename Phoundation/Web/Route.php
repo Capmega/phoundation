@@ -832,7 +832,7 @@ class Route
     protected static function execute(string $target, bool $attachment, array $restrictions): void
     {
         Core::writeRegister(Strings::untilReverse(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.php'), 'script');
-        Core::writeRegister(self::$register['script'], real_script);
+        Core::writeRegister(self::$register['system']['script'], real_script);
         Core::writeRegister($target, 'route_exec']);
 
         if (substr($target, -3, 3) === 'php') {

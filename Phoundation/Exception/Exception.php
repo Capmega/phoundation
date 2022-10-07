@@ -3,6 +3,7 @@
 namespace Phoundation\Exception;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
@@ -75,8 +76,8 @@ class Exception extends RuntimeException
 
         parent::__construct($message, 0, $previous);
 
-        if (Debug::enabled()) {
-            // Always log all Phoundation Exceptions in debug mode
+        if (Debug::enabled() or Core::startupState()) {
+            // Always log all Phoundation Exceptions in debug mode or at system startup
             Log::error($this);
         }
     }
@@ -132,6 +133,7 @@ class Exception extends RuntimeException
     }
 
 
+
     /**
      * Returns the warning setting for this exception. If true, the exception message may be displayed completely
      *
@@ -145,6 +147,8 @@ class Exception extends RuntimeException
 
 
     /**
+     * Set the exception code
+     *
      * @param mixed $code
      */
     public function setCode(?string $code = null): void
@@ -178,6 +182,18 @@ class Exception extends RuntimeException
     public function makeWarning(): Exception
     {
         return $this->setWarning(true);
+    }
+
+
+
+    /**
+     * Returns true if this exception is a warning or false if not
+     *
+     * @return bool
+     */
+    public function isWarning(): bool
+    {
+        return $this->getWarning();
     }
 
 

@@ -5,10 +5,6 @@ namespace Phoundation\Exception;
 use Exception;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Developer\Debug;
-use Phoundation\Exception\NotSupportedException;
-use Phoundation\Exception\ObsoleteException;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Notify\Notification;
 use Throwable;
 
@@ -155,5 +151,21 @@ class Exceptions
         }
 
         return $messages[$e->getCode()];
+    }
+
+
+
+    /**
+     * Exceptions factory for OutOfBoundsException
+     *
+     * @param string|array $messages
+     * @param mixed|null $data
+     * @param string|null $code
+     * @param Throwable|null $previous
+     * @return \Phoundation\Exception\OutOfBoundsException
+     */
+    public static function outOfBoundsException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): OutOfBoundsException
+    {
+        return new OutOfBoundsException($messages, $data, $code, $previous);
     }
 }

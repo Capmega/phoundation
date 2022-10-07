@@ -151,7 +151,7 @@ class Web
      *
      * @return void
      */
-    #[NoReturn] public static function done(): void
+    #[NoReturn] public static function die(): void
     {
         die();
     }

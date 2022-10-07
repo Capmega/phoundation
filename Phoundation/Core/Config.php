@@ -3,7 +3,7 @@
 namespace Phoundation\Core;
 
 use Phoundation\Core\Exception\ConfigException;
-
+use Throwable;
 
 
 /**
@@ -20,6 +20,13 @@ use Phoundation\Core\Exception\ConfigException;
  */
 class Config{
     /**
+     * Singleton variable
+     *
+     * @var Config|null $instance
+     */
+    protected static ?Config $instance = null;
+
+    /**
      * The generic system register to store data
      *
      * @var array $data
@@ -34,32 +41,28 @@ class Config{
     protected static array $files = [];
 
 
+    /**
+     * Config constructor
+     */
+    protected function __construct()
+    {
+        self::read(ENVIRONMENT);
+    }
+
+
 
     /**
-     * Reads the configuration file for the specified configuration environment
+     * Singleton, ensure to always return the same Log object.
      *
-     * @param string $environment
-     * @return bool True if any configuration files were read, false if the file already was read before, or if no
-     *      configuration files are available for the specified section
+     * @return Config
      */
-    public function read(string $environment): bool
+    public static function getInstance(): Config
     {
-        $read = false;
-
-        // Read the section for each environment
-        foreach (['production', ENVIRONMENT] as $environment) {
-            $file = ROOT . 'config/' . $environment . '.yaml';
-
-            // Check if a configuration file exists for this environment
-            if (!file_exists($file)) {
-                // Read the configuration data and merge it in the internal configuration data array
-                $read = true;
-                $data = yaml_parse_file($file);
-                self::$data = array_merge(self::$data, $data);
-            }
+        if (!isset(self::$instance)) {
+            self::$instance = new Config();
         }
 
-        return $read;
+        return self::$instance;
     }
 
 
@@ -67,7 +70,7 @@ class Config{
     /**
      * Return configuration data for the specified key path
      *
-     * @param string|array $keys    The key path to search for. This should be specified either as an array with key
+     * @param string|array $path    The key path to search for. This should be specified either as an array with key
      *                              names or a . separated string
      * @param mixed|null $default   The default value to return if no value was found in the configuration files
      * @param mixed|null $specified A value that might have been specified by a calling function. IF this value is not
@@ -75,22 +78,24 @@ class Config{
      *                             (developer) specified value we should be using, overriding configuration and defaults
      * @return mixed
      */
-    public static function get(string|array $keys, mixed $default = null, mixed $specified = null): mixed
+    public static function get(string|array $path, mixed $default = null, mixed $specified = null): mixed
     {
+        self::getInstance();
+
         if ($specified) {
             return $specified;
         }
 
-        $keys = Arrays::force($keys, '.');
+        $path = Arrays::force($path, '.');
         $data = &static::$data;
 
         // Go over each key and if the value for the key is an array, request a subsection
-        foreach ($keys as $key) {
+        foreach ($path as $key) {
             if (!array_key_exists($key, $data)) {
                 // The requested key does not exist
                 if ($default === null) {
                     // We have no default configuration either
-                    throw new ConfigException(tr('The configuration key ":key" from key path ":keys" does not exist', [':key' => $key, ':keys' => $keys]));
+                    throw new ConfigException(tr('The configuration key ":key" from key path ":path" does not exist', [':key' => $key, ':path' => $path]));
                 }
 
                 // The requested key does not exist in configuration, return the default value instead
@@ -166,6 +171,45 @@ class Config{
         // The variable $data should now be the correct leaf node. Assign it $value and return it.
         $data = $value;
         return $data;
+    }
+
+
+
+    /**
+     * Reads the configuration file for the specified configuration environment
+     *
+     * @param string $environment
+     * @return bool True if any configuration files were read, false if the file already was read before, or if no
+     *      configuration files are available for the specified section
+     */
+    protected static function read(string $environment): bool
+    {
+        $read = false;
+
+        // Read the section for each environment
+        foreach (['production', ENVIRONMENT] as $environment) {
+            $file = ROOT . 'config/' . $environment . '.yaml';
+
+            // Check if a configuration file exists for this environment
+            if (file_exists($file)) {
+                // Read the configuration data and merge it in the internal configuration data array
+                $read = true;
+
+                try {
+                    $data = yaml_parse_file($file);
+                } catch (Throwable $e) {
+                    Log::error($e);
+                }
+
+print_r($data);
+die();
+                self::$data = array_merge(self::$data, $data);
+            }
+print_r('WUT?');
+die();
+        }
+
+        return $read;
     }
 
 

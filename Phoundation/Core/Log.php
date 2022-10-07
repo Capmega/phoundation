@@ -432,11 +432,11 @@ Class Log {
     /**
      * Write a success message in the log file
      *
-     * @param string $message
+     * @param string|null $message
      * @param int $level
      * @return bool
      */
-    public static function success(string $message, int $level = 5): bool
+    public static function success(?string $message, int $level = 5): bool
     {
         return self::write('success', $message, $level);
     }
@@ -446,11 +446,11 @@ Class Log {
     /**
      * Write a warning message in the log file
      *
-     * @param string $message
+     * @param string|null $message
      * @param int $level
      * @return bool
      */
-    public static function warning(string $message, int $level = 7): bool
+    public static function warning(?string $message, int $level = 7): bool
     {
         return self::write('warning', $message, $level);
     }
@@ -460,11 +460,11 @@ Class Log {
     /**
      * Write an error message in the log file
      *
-     * @param string $message
+     * @param string|null $message
      * @param int $level
      * @return bool
      */
-    public static function error(string $message, int $level = 10): bool
+    public static function error(?string $message, int $level = 10): bool
     {
         return self::write('error', $message, $level);
     }
@@ -474,11 +474,11 @@ Class Log {
     /**
      * Write a notice message in the log file
      *
-     * @param string $message
+     * @param string|null $message
      * @param int $level
      * @return bool
      */
-    public static function notice(string $message, int $level = 3): bool
+    public static function notice(?string $message, int $level = 3): bool
     {
         return self::write('notice', $message, $level);
     }
@@ -488,11 +488,11 @@ Class Log {
     /**
      * Write a information message in the log file
      *
-     * @param string $message
+     * @param string|null $message
      * @param int $level
      * @return bool
      */
-    public static function information(string $message, int $level = 7): bool
+    public static function information(?string $message, int $level = 7): bool
     {
         return self::write('information', $message, $level);
     }
@@ -683,7 +683,7 @@ Class Log {
      */
     public static function write(string $class, mixed $messages, int $level, bool $clean = true, bool $newline = true): bool
     {
-        if (self::$lock or self::$fail or self::$init) {
+        if (self::$lock or self::$fail or self::$init or Core::errorState()) {
             // Do not log anything while locked, initialising, or while dealing with a Log internal failure
             error_log($messages);
             return false;
