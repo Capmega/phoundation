@@ -11,6 +11,7 @@
  * @package functions
  */
 
+use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
@@ -409,7 +410,7 @@ function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false):
  * @param bool $quiet
  * @return void
  */
-function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): void
+#[NoReturn] function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): void
 {
     Debug::showdie($source, $trace_offset, $quiet);
 }
@@ -417,7 +418,9 @@ function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = fals
 
 
 /**
- * Return $source if $source is not considered "empty". Return null if specified variable is considered "empty", like 0, "", array(), etc.
+ * Return $source if $source is not considered "empty".
+ *
+ * Return null if specified variable is considered "empty", like 0, "", array(), etc.
  *
  * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
  * @return mixed Either $source or null, depending on if $source is empty or not
@@ -437,7 +440,11 @@ function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = fals
  */
 function get_null(mixed $source): mixed
 {
-    return $source ?? null;
+    if (empty($source)) {
+        return null;
+    }
+
+    return $source;
 }
 
 

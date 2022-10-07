@@ -11,6 +11,7 @@ use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Processes\Commands;
 use Throwable;
 
 
@@ -226,5 +227,22 @@ showdie($arguments);
         }
 
         self::$exit_code = $code;
+    }
+
+
+
+    /**
+     * Returns the UID for the current process
+     */
+    public static function getProcessUid(): int
+    {
+        if (function_exists('posix_getuid')) {
+            return posix_getuid();
+        }
+
+        $results = Commands::id(array('-u'));
+        $results = array_pop($results);
+
+        return $results;
     }
 }

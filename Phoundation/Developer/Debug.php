@@ -2,6 +2,7 @@
 
 namespace Phoundation\Developer;
 
+use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
@@ -336,7 +337,7 @@ class Debug {
      * @param int $trace_offset
      * @param bool $quiet
      */
-    public static function showDie(mixed $value = null, int $trace_offset = 1, bool $quiet = false): void
+    #[NoReturn] public static function showDie(mixed $value = null, int $trace_offset = 1, bool $quiet = false): void
     {
         if (self::enabled()) {
             self::show($value, $trace_offset, $quiet);

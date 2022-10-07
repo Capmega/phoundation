@@ -171,11 +171,11 @@ class Core {
 
                     if (empty($env)) {
                         // No environment set in ENV, maybe given by parameter?
-                        Scripts::done(1, 'startup: Required environment not specified for project "' . PROJECT . '"');
+                        Web::done(1, 'startup: No required environment specified for project "' . PROJECT . '"');
                     }
 
                     if (str_contains($env, '_')) {
-                        Scripts::done(1, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
+                        Web::done(1, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
                     }
 
                     define('ENVIRONMENT', $env);
@@ -449,7 +449,7 @@ class Core {
                     $environment = Cli::argument('-E,--env,--environment', true);
 
                     if (empty($environment)) {
-                        $env = getenv(PROJECT.'_ENVIRONMENT');
+                        $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
 
                         if (empty($env)) {
                             Scripts::done(2, 'startup: No required environment specified for project "' . PROJECT . '"');
@@ -682,15 +682,11 @@ class Core {
                     self::processFileUidMatches(true);
                     Log::notice(tr('Running script ":script"', [':script' => $_SERVER['PHP_SELF']]));
 
-
-
-                    /*
-                     * Get required language.
-                     */
+                    // Get required language.
                     try {
-                        $language = not_empty(Cli::argument('--language'), Cli::argument('L'), $_CONFIG['language']['default']);
+                        $language = not_empty(Cli::argument('--language'), Cli::argument('L'), Config::get('language.default', 'en'));
 
-                        if ($_CONFIG['language']['supported'] and !isset($_CONFIG['language']['supported'][$language])) {
+                        if (Config::get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
                             throw new CoreException(tr('Unknown language ":language" specified', array(':language' => $language)), 'unknown');
                         }
 
@@ -716,7 +712,7 @@ class Core {
                     self::$register['system']['locale'] = self::setLocale();
 
                     // Prepare for unicode usage
-                    if ($_CONFIG['encoding']['charset'] == 'UTF-8') {
+                    if (Config::get('encoding.charset', 'UTF-8') === 'UTF-8') {
                         mb_init(not_empty($_CONFIG['locale'][LC_CTYPE], $_CONFIG['locale'][LC_ALL]));
 
                         if (function_exists('mb_internal_encoding')) {
@@ -1581,7 +1577,7 @@ die('UNCAUGHTEXCEPTION');
     {
         if ($timeout === null) {
             // Default timeout to either system configuration system.timeout, or environment variable TIMEOUT
-            $timeout = Config::get('system.timeout', getenv('TIMEOUT') ?? 30);
+            $timeout = Config::get('system.timeout', get_null(getenv('TIMEOUT')) ?? 30);
         }
 
         self::$register['system']['timeout'] = $timeout;
@@ -1590,16 +1586,31 @@ die('UNCAUGHTEXCEPTION');
 
 
 
-    public static function setLocale()
+    /**
+     * Apply the specified or configured locale
+     *
+     * @todo what is this supposed to return anyway?
+     * @param array $locale
+     * @return string
+     */
+    public static function setLocale(array $locale = null): string
     {
         $retval = '';
 
-        if (!$data) {
-            $data = $_CONFIG['locale'];
+        if (!$locale) {
+            $locale = Config::get('locale', [
+                LC_ALL      => ':LANGUAGE_:COUNTRY.UTF8',
+                LC_COLLATE  => null,
+                LC_CTYPE    => null,
+                LC_MONETARY => null,
+                LC_NUMERIC  => null,
+                LC_TIME     => null,
+                LC_MESSAGES => null
+            ]);
         }
 
-        if (!is_array($data)) {
-            throw new CoreException(tr('set_locale(): Specified $data should be an array but is an ":type"', array(':type' => gettype($data))));
+        if (!is_array($locale)) {
+            throw new CoreException(tr('Specified $data should be an array but is an ":type"', [':type' => gettype($locale)]));
         }
 
         /*
@@ -1609,48 +1620,40 @@ die('UNCAUGHTEXCEPTION');
             $language = LANGUAGE;
 
         } else {
-            $language = $_CONFIG['language']['default'];
+            $language = Config::get('language.default', 'en');
         }
 
         if (isset($_SESSION['location']['country']['code'])) {
             $country = strtoupper($_SESSION['location']['country']['code']);
 
         } else {
-            $country = $_CONFIG['location']['default_country'];
+            $country = Config::get('location.default-country', 'us');
         }
 
-        /*
-         * First set LC_ALL as a baseline, then each individual entry
-         */
-        if (isset($data[LC_ALL])) {
-            $data[LC_ALL] = str_replace(':LANGUAGE', $language, $data[LC_ALL]);
-            $data[LC_ALL] = str_replace(':COUNTRY' , $country , $data[LC_ALL]);
+        // First set LC_ALL as a baseline, then each individual entry
+        if (isset($locale[LC_ALL])) {
+            $locale[LC_ALL] = str_replace(':LANGUAGE', $language, $locale[LC_ALL]);
+            $locale[LC_ALL] = str_replace(':COUNTRY' , $country , $locale[LC_ALL]);
 
-            setlocale(LC_ALL, $data[LC_ALL]);
-            $retval = $data[LC_ALL];
-            unset($data[LC_ALL]);
+            setlocale(LC_ALL, $locale[LC_ALL]);
+            $retval = $locale[LC_ALL];
+            unset($locale[LC_ALL]);
         }
 
-        /*
-         * Apply all parameters
-         */
-        foreach ($data as $key => $value) {
+        // Apply all parameters
+        foreach ($locale as $key => $value) {
             if ($key === 'country') {
-                /*
-                 * Ignore this key
-                 */
+                // Ignore this key
                 continue;
             }
 
             if ($value) {
-                /*
-                 * Ignore this empty value
-                 */
+                // Ignore this empty value
                 continue;
             }
 
-            $value = str_replace(':LANGUAGE', $language, $value);
-            $value = str_replace(':COUNTRY' , $country , $value);
+            $value = str_replace(':LANGUAGE', $language, (string) $value);
+            $value = str_replace(':COUNTRY' , $country , (string) $value);
 
             setlocale($key, $value);
         }
@@ -1658,10 +1661,16 @@ die('UNCAUGHTEXCEPTION');
         return $retval;
     }
 
-    /*
+
+
+    /**
+     * ???
      *
+     * @param string $section
+     * @param bool $writable
+     * @return string
      */
-    public static function getGlobalDataPath($section = '', $writable = true)
+    public static function getGlobalDataPath(string $section = '', bool $writable = true): string
     {
         /*
          * First find the global data path. For now, either same height as this
@@ -1883,8 +1892,8 @@ die('UNCAUGHTEXCEPTION');
      */
     protected static function processFileUidMatches(bool $auto_switch = false, bool $permit_root = true): void
     {
-        if (cli_get_process_uid() !== getmyuid()) {
-            if (!cli_get_process_uid() and $permit_root) {
+        if (Scripts::getProcessUid() !== getmyuid()) {
+            if (!Scripts::getProcessUid() and $permit_root) {
                 // Root is authorized!
                 return;
             }

@@ -65,26 +65,6 @@ class Config{
 
 
     /**
-     * Only set the specified configuration data for the specified key, if the specified key does not yet exist in
-     * memory
-     *
-     * @param string|array $keys    The key path to search for. This should be specified either as an array with key
-     *                              names or a . separated string
-     * @param mixed $value
-     * @return bool True if the default value was applied, false if not
-     */
-    public function default(string|array $keys, mixed $value): bool
-    {
-        if (self::getSection($keys) === null) {
-            return false;
-        }
-
-        self::set($keys, $value);
-        return true;
-    }
-
-
-    /**
      * Return configuration data for the specified key path
      *
      * @param string|array $keys    The key path to search for. This should be specified either as an array with key
@@ -101,7 +81,55 @@ class Config{
             return $specified;
         }
 
-        return self::getSection($keys, $default);
+        $keys = Arrays::force($keys, '.');
+        $data = &static::$data;
+
+        // Go over each key and if the value for the key is an array, request a subsection
+        foreach ($keys as $key) {
+            if (!array_key_exists($key, $data)) {
+                // The requested key does not exist
+                if ($default === null) {
+                    // We have no default configuration either
+                    throw new ConfigException(tr('The configuration key ":key" from key path ":keys" does not exist', [':key' => $key, ':keys' => $keys]));
+                }
+
+                // The requested key does not exist in configuration, return the default value instead
+                return $default;
+            }
+
+            // Get the requested subsection
+            $data = &$data[$key];
+        }
+
+        return $data;
+    }
+
+
+
+    /**
+     * Return if the specified configuration key path exists or not
+     *
+     * @param string|array $keys The key path to search for. This should be specified either as an array with key names
+     *                           or a . separated string
+     * @return bool
+     */
+    public static function exists(string|array $keys): bool
+    {
+        $keys = Arrays::force($keys, '.');
+        $data = &static::$data;
+
+        // Go over each key and if the value for the key is an array, request a subsection
+        foreach ($keys as $key) {
+            if (!array_key_exists($key, $data)) {
+                // The requested key does not exist
+                return false;
+            }
+
+            // Get the requested subsection
+            $data = &$data[$key];
+        }
+
+        return true;
     }
 
 
@@ -137,41 +165,6 @@ class Config{
 
         // The variable $data should now be the correct leaf node. Assign it $value and return it.
         $data = $value;
-        return $data;
-    }
-
-
-
-    /**
-     * Return a configuration data section for the specified key path
-     *
-     * @param string|array $keys    The key path to search for. This should be specified either as an array with key
-     *                              names or a . separated string
-     * @param mixed|null $default   The default value to return if no value was found in the configuration files
-     * @return mixed
-     */
-    protected static function &getSection(string|array $keys, mixed $default = null): mixed
-    {
-        $keys = Arrays::force($keys, '.');
-        $data = &static::$data;
-
-        // Go over each key and if the value for the key is an array, request a subsection
-        foreach ($keys as $key) {
-            if (!array_key_exists($key, $data)) {
-                // The requested key does not exist
-                if ($default === null) {
-                    // We have no default configuration either
-                    throw new ConfigException(tr('The configuration key ":key" from key path ":keys" does not exist', [':key' => $key, ':keys' => $keys]));
-                }
-
-                // The requested key does not exist in configuration, return the default value instead
-                return $default;
-            }
-
-            // Get the requested subsection
-            $data = &$data[$key];
-        }
-
         return $data;
     }
 
