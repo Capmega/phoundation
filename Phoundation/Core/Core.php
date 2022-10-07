@@ -3,6 +3,7 @@
 namespace Phoundation\Core;
 
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\Colors;
 use Phoundation\Cli\Scripts;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Developer\Debug;
@@ -451,8 +452,7 @@ class Core {
                         $env = getenv(PROJECT.'_ENVIRONMENT');
 
                         if (empty($env)) {
-                            echo "\033[0;31mstartup: No required environment specified for project \"".PROJECT."\"\033[0m\n";
-                            Scripts::done(2);
+                            Scripts::done(2, 'startup: No required environment specified for project "' . PROJECT . '"');
                         }
 
                     } else {
@@ -460,15 +460,13 @@ class Core {
                     }
 
                     if (str_contains($env, '_')) {
-                        echo "\033[0;31mstartup: Specified environment \"$env\" is invalid, environment names cannot contain the underscore character\033[0m\n";
-                        Scripts::done(4);
+                        Scripts::done(4, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
                     }
 
                     define('ENVIRONMENT', $env);
 
                     if (!file_exists(ROOT.'config/'.$env.'.php')) {
-                        echo "\033[0;31mstartup: Configuration file \"ROOT/config/".$env.".php\" for specified environment\"".$env."\" not found\033[0m\n";
-                        Scripts::done(5);
+                        Scripts::done(5, 'startup: Configuration file "ROOT/config/' . $env . '.php" for specified environment "' . $env . '" not found');
                     }
 
                     // Set protocol

@@ -96,8 +96,13 @@ class Colors
         $retval .= "\033[" . self::$available_foreground_colors[$foreground_color] . "m";
         $retval .= "\033[" . self::$available_background_colors[$background_color] . "m";
 
-        // Add the specified string that should be colored and the coloring end-tag
-        $retval .= $source . self::getColorReset();
+        // Add the specified string that should be colored and the coloring reset tag
+        $retval .= $source;
+
+        if ($reset) {
+            $retval .= self::getColorReset();
+        }
+
 
         return $retval;
     }
@@ -135,7 +140,7 @@ class Colors
      */
     public static function getColorReset(): string
     {
-        return '"\033[0m"';
+        return "\033[0m";
     }
 }
 

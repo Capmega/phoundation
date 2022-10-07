@@ -181,9 +181,9 @@ showdie($arguments);
                     if ($exit_message) {
                         Log::error($exit_message);
                     }
+
                     // Script ended with error
                     Log::error(tr('Script ":script" failed with exit code ":exitcode" in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
-showdie();
                 }
 
             } else {
