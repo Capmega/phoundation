@@ -759,14 +759,14 @@ function route($regex, $target, $flags = null) {
             /*
              * A "user" regex failed, give pretty error
              */
-            throw new CoreException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $regex, ':e' => trim(Strings::cut(($e->getMessage(), 'preg_match_all():', '" in')))), 'syntax');
+            throw new CoreException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $regex, ':e' => trim(Strings::cut($e->getMessage(), 'preg_match_all():', '" in')))), 'syntax');
         }
 
         if (substr($e->getMessage(), 0, 28) == 'PHP ERROR [2] "preg_match():') {
             /*
              * A "user" regex failed, give pretty error
              */
-            throw new CoreException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $regex, ':e' => trim(Strings::cut(($e->getMessage(), 'preg_match():', '" in')))), 'syntax');
+            throw new CoreException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $regex, ':e' => trim(Strings::cut($e->getMessage(), 'preg_match():', '" in')))), 'syntax');
         }
 
         throw new CoreException('route(): Failed', $e);

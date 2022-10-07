@@ -761,11 +761,11 @@ function email_cleanup($email) {
         }
 
         if (strstr($email['to'], '<')) {
-            $email['to'] = Strings::cut(($email['to'], '<', '>');
+            $email['to'] = Strings::cut($email['to'], '<', '>');
         }
 
         if (strstr($email['from'], '<')) {
-            $email['from'] = Strings::cut(($email['from'], '<', '>');
+            $email['from'] = Strings::cut($email['from'], '<', '>');
         }
 
         return $email;
@@ -1057,7 +1057,7 @@ function email_from_exists($email) {
          * Validate email, extract it from "user <email>" if needed
          */
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $email = Strings::cut(($email, '<', '>');
+            $email = Strings::cut($email, '<', '>');
 
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 throw new CoreException(tr('email_from_exists(): Specified "from" email address ":email" is not a valid email address', array(':email' => $email)), 'invalid');
@@ -1306,7 +1306,7 @@ function email_prepare($email) {
          */
         if (strpos($email['to'], '<') !== false) {
             $email['to_name'] = trim(Strings::until($email['to'], '<'));
-            $email['to']      = trim(Strings::cut(($email['to'], '<', '>'));
+            $email['to']      = trim(Strings::cut($email['to'], '<', '>'));
 
         } else {
             $email['to_name'] = '';
@@ -1314,7 +1314,7 @@ function email_prepare($email) {
 
         if (strpos($email['from'], '<') !== false) {
             $email['from_name'] = trim(Strings::until($email['from'], '<'));
-            $email['from']      = trim(Strings::cut(($email['from'], '<', '>'));
+            $email['from']      = trim(Strings::cut($email['from'], '<', '>'));
 
         } else {
             $email['from_name'] = '';
@@ -1361,7 +1361,7 @@ function email_get_account($email, $columns = null) {
          * Get domain name
          */
         if (strpos($email, '<') !== false) {
-            $email = Strings::cut(($email, '<', '>');
+            $email = Strings::cut($email, '<', '>');
         }
 
         if (!$columns) {
@@ -1427,7 +1427,7 @@ function email_get_client_account($email, $columns = null) {
          * Get domain name
          */
         if (strpos($email, '<') !== false) {
-            $email = Strings::cut(($email, '<', '>');
+            $email = Strings::cut($email, '<', '>');
         }
 
         if (!$columns) {
@@ -1514,7 +1514,7 @@ function email_get_domain($email_or_domain, $columns = null, $table = 'email_dom
          * Get domain name
          */
         if (strpos($email_or_domain, '<') !== false) {
-            $email_or_domain = Strings::cut(($email_or_domain, '<', '>');
+            $email_or_domain = Strings::cut($email_or_domain, '<', '>');
         }
 
         $domain = Strings::from($email_or_domain, '@');

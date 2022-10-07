@@ -84,7 +84,7 @@ function scanimage($params) {
                                                'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
                     $result  = array_pop($results);
-                    $result  = Strings::cut(($result, ',', 'pages');
+                    $result  = Strings::cut($result, ',', 'pages');
                     $result  = trim($result);
 
                     $params['results'] = $results;

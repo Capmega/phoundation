@@ -89,7 +89,7 @@ function wp_admin_signin($params) {
             throw new CoreException('wp_admin_signin(): Signin on site "'.Strings::Log($params['url']).'" failed with "'.Strings::Log($failed).'"', 'signinfailed');
         }
 
-        if (!$curl['user_id'] = Strings::cut(($curl['data'], '"uid":"', '"')) {
+        if (!$curl['user_id'] = Strings::cut($curl['data'], '"uid":"', '"')) {
             if (!$params['simulation']) {
                 throw new CoreException('wp_signin_admin(): Failed to find user id', 'failed');
             }
@@ -257,7 +257,7 @@ function wp_admin_post($params, $force_new = false) {
         /*
          * Get the new page URL
          */
-        if (!$retval['post_url'] = Strings::cut(($retval['curl']['data'], '<div id="message" class="updated">', '</div>')) {
+        if (!$retval['post_url'] = Strings::cut($retval['curl']['data'], '<div id="message" class="updated">', '</div>')) {
             /*
              * Looks like the page was not updated successfully
              */
@@ -269,7 +269,7 @@ show($retval['curl']['data']);
             $retval['post_url'] = 'simulation_'.uniqid();
 
         } else {
-            $retval['post_url'] = Strings::cut(($retval['post_url'], '<a href="', '">');
+            $retval['post_url'] = Strings::cut($retval['post_url'], '<a href="', '">');
             unset($retval['curl']['data']);
         }
 

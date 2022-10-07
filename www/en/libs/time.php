@@ -11,7 +11,7 @@
 /*
  * Returns the diference in times with the pointed precision
  */
-function time_difference($start, $stop, $precision = 'auto', $decimals = 2) {
+function Time::difference($start, $stop, $precision = 'auto', $decimals = 2) {
     try {
         $time  = cf($stop) - cf($start);
 
@@ -20,31 +20,31 @@ function time_difference($start, $stop, $precision = 'auto', $decimals = 2) {
                 // no-break
             case 'seconds':
                 $time = number_format($time, $decimals);
-                return str_plural($time, tr(':time second', array(':time' => $time)), tr(':time seconds', array(':time' => $time)));
+                return Strings::plural($time, tr(':time second', array(':time' => $time)), tr(':time seconds', array(':time' => $time)));
 
             case 'minute':
                 // no-break
             case 'minutes':
                 $time = number_format($time / 60, $decimals);
-                return str_plural($time, tr(':time minute', array(':time' => $time)), tr(':time minutes', array(':time' => $time)));
+                return Strings::plural($time, tr(':time minute', array(':time' => $time)), tr(':time minutes', array(':time' => $time)));
 
             case 'hour':
                 // no-break
             case 'hours':
                 $time = number_format($time / 3600, $decimals);
-                return str_plural($time, tr(':time hour', array(':time' => $time)), tr(':time hours', array(':time' => $time)));
+                return Strings::plural($time, tr(':time hour', array(':time' => $time)), tr(':time hours', array(':time' => $time)));
 
             case 'day':
                 // no-break
             case 'days':
                 $time = number_format($time / 86400, $decimals);
-                return str_plural($time, tr(':time day', array(':time' => $time)), tr(':time days', array(':time' => $time)));
+                return Strings::plural($time, tr(':time day', array(':time' => $time)), tr(':time days', array(':time' => $time)));
 
             case 'week':
                 // no-break
             case 'weeks':
                 $time = number_format($time / 604800, $decimals);
-                return str_plural($time, tr(':time week', array(':time' => $time)), tr(':time weeks', array(':time' => $time)));
+                return Strings::plural($time, tr(':time week', array(':time' => $time)), tr(':time weeks', array(':time' => $time)));
 
             case 'month':
                 //FALLTHROUGH
@@ -53,7 +53,7 @@ function time_difference($start, $stop, $precision = 'auto', $decimals = 2) {
                  * NOTE: Month is assumed 30 days!
                  */
                 $time    = number_format($time / 2592000, $decimals);
-                return str_plural($time, tr(':time month', array(':time' => $time)), tr(':time months', array(':time' => $time)));
+                return Strings::plural($time, tr(':time month', array(':time' => $time)), tr(':time months', array(':time' => $time)));
 
             case 'year':
                 // no-break
@@ -62,62 +62,62 @@ function time_difference($start, $stop, $precision = 'auto', $decimals = 2) {
                  * NOTE: Year is assumed 365 days!
                  */
                 $time    = number_format($time / 31536000, $decimals);
-                return str_plural($time, tr(':time year', array(':time' => $time)), tr(':time years', array(':time' => $time)));
+                return Strings::plural($time, tr(':time year', array(':time' => $time)), tr(':time years', array(':time' => $time)));
 
             case 'auto':
                 if ($time < 60) {
                     /*
                      * Seconds
                      */
-                    return time_difference($start, $stop, 'seconds', $decimals);
+                    return Time::difference($start, $stop, 'seconds', $decimals);
                 }
 
                 if ($time / 60 < 60) {
                     /*
                      * Minutes
                      */
-                    return time_difference($start, $stop, 'minutes', $decimals);
+                    return Time::difference($start, $stop, 'minutes', $decimals);
                 }
 
                 if ($time / 3600 < 24) {
                     /*
                      * Hours
                      */
-                    return time_difference($start, $stop, 'hours', $decimals);
+                    return Time::difference($start, $stop, 'hours', $decimals);
                 }
 
                 if ($time / 86400 < 7) {
                     /*
                      * Days
                      */
-                    return time_difference($start, $stop, 'days', $decimals);
+                    return Time::difference($start, $stop, 'days', $decimals);
                 }
 
                 if ($time / 604800 < 52) {
                     /*
                      * Weeks
                      */
-                    return time_difference($start, $stop, 'weeks', $decimals);
+                    return Time::difference($start, $stop, 'weeks', $decimals);
                 }
 
                 if ($time / 2592000 < 12) {
                     /*
                      * Months
                      */
-                    return time_difference($start, $stop, 'months', $decimals);
+                    return Time::difference($start, $stop, 'months', $decimals);
                 }
 
                 /*
                  * Years
                  */
-                return time_difference($start, $stop, 'years', $decimals);
+                return Time::difference($start, $stop, 'years', $decimals);
 
             default:
-                throw new OutOfBoundsException(tr('time_difference(): Unknown precision ":precision" specified', array(':precision' => $precision)), 'unknown');
+                throw new OutOfBoundsException(tr('Time::difference(): Unknown precision ":precision" specified', array(':precision' => $precision)), 'unknown');
         }
 
     }catch(Exception $e) {
-        throw new OutOfBoundsException('time_difference(): Failed', $e);
+        throw new OutOfBoundsException('Time::difference(): Failed', $e);
     }
 }
 

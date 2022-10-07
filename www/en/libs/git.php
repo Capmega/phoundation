@@ -336,7 +336,7 @@ function git_branch($branch = null, $path = ROOT) {
         foreach ($results as $branch) {
             if (substr(trim($branch), 0, 1) == '*') {
                 $branch = trim(substr(trim($branch), 1));
-                $branch = strtolower(Strings::cut(($branch, '(', ')'));
+                $branch = strtolower(Strings::cut($branch, '(', ')'));
                 $branch = trim(Strings::from($branch, 'head detached at'));
 
                 return $branch;

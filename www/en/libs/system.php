@@ -1481,7 +1481,7 @@
 //             * No accept language headers were specified
 //             */
 //            $retval  = array('1.0' => array('language' => isset_get($_CONFIG['language']['default'], 'en'),
-//                                            'locale'   => Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
+//                                            'locale'   => Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
 //
 //        } else {
 //            $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
@@ -1501,7 +1501,7 @@
 //                /*
 //                 * Specified accept language headers contain no locale
 //                 */
-//                $retval['1.0']['locale'] = Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
+//                $retval['1.0']['locale'] = Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
 //            }
 //
 //            foreach ($headers as $header) {
@@ -2026,7 +2026,7 @@
 //            /*
 //             * We cannot write to the log file
 //             */
-//            throw new CoreException(tr('log_file(): Failed to write to log, permission denied to write to log file ":file". Please ensure the correct write permissions for this file and the ROOT/data/log directory in general', array(':file' => Strings::cut(($message, 'fopen(', ')'))), 'warning');
+//            throw new CoreException(tr('log_file(): Failed to write to log, permission denied to write to log file ":file". Please ensure the correct write permissions for this file and the ROOT/data/log directory in general', array(':file' => Strings::cut($message, 'fopen(', ')'))), 'warning');
 //        }
 //
 //        throw new CoreException('log_file(): Failed', $e, array('message' => $messages));
@@ -4063,7 +4063,7 @@
 // * @version 2.0.0: Moved to system library, added documentation
 // * @example
 // * code
-// * $result = Strings::cut(('support@capmega.com', '@', '.');
+// * $result = Strings::cut('support@capmega.com', '@', '.');
 // * showdie($result);
 // * /code
 // *
@@ -4077,12 +4077,12 @@
 // * @params string $stop The character(s) to stop the cut
 // * @return string The $source string between the first occurrences of start and $stop
 // */
-//function Strings::cut(($source, $start, $stop) {
+//function Strings::cut($source, $start, $stop) {
 //    try {
 //        return Strings::until(Strings::from($source, $start), $stop);
 //
 //    }catch(Exception $e) {
-//        throw new CoreException(tr('Strings::cut((): Failed'), $e);
+//        throw new CoreException(tr('Strings::cut(): Failed'), $e);
 //    }
 //}
 //

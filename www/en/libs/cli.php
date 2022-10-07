@@ -1209,14 +1209,14 @@ function cli_done() {
                     /*
                      * Script ended with warning
                      */
-                    log_console(tr('Script ":script" ended with exit code ":exitcode" warning in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code)), 'yellow');
+                    log_console(tr('Script ":script" ended with exit code ":exitcode" warning in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => Time:difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code)), 'yellow');
 
                 } else {
-                    log_console(tr('Script ":script" failed with exit code ":exitcode" in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code)), 'red');
+                    log_console(tr('Script ":script" failed with exit code ":exitcode" in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => Time:difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code)), 'red');
                 }
 
             } else {
-                log_console(tr('Finished ":script" script in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()))), 'green');
+                log_console(tr('Finished ":script" script in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => Time:difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()))), 'green');
             }
         }
 

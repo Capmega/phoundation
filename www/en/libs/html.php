@@ -228,7 +228,7 @@ function html_bundler($list) {
 //                                if (preg_match('/@import\s?(?:url\()?((?:"?.+?"?)|(?:\'.+?\'))\)?/', $match)) {
                                     if (preg_match('/@import\s"|\'.+?"|\'/', $match)) {
 // :TODO: What if specified URLs are absolute? WHat if start with either / or http(s):// ????
-                                        $import = Strings::cut(($match, '"', '"');
+                                        $import = Strings::cut($match, '"', '"');
 
                                         if (!file_exists($path.$import)) {
                                             notify(array('code'    => 'not-exists',
@@ -248,7 +248,7 @@ function html_bundler($list) {
                                          * This is an external URL. Get it locally
                                          * as a temp file, then include
                                          */
-                                        $import = Strings::cut(($match, '(', ')');
+                                        $import = Strings::cut($match, '(', ')');
                                         $import = Strings::slash(dirname($file)).Strings::unslash($import);
 
                                         if (!file_exists($import)) {

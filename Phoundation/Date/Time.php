@@ -2,9 +2,10 @@
 
 namespace Phoundation\Date;
 
-
-
+use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+
+
 
 /**
  * Class Time
@@ -29,38 +30,39 @@ class Time
      */
     public static function difference(float $start, float $stop, string $precision = 'auto', int $decimals = 2): string
     {
-        $time  = cf($stop) - cf($start);
+        $time = $stop - $start;
+        $ceil = ceil($time);
 
         switch ($precision) {
             case 'second':
                 // no-break
             case 'seconds':
                 $time = number_format($time, $decimals);
-                return str_plural($time, tr(':time second', [':time' => $time]), tr(':time seconds', [':time' => $time]));
+                return Strings::plural($ceil, tr(':time second', [':time' => $time]), tr(':time seconds', [':time' => $time]));
 
             case 'minute':
                 // no-break
             case 'minutes':
                 $time = number_format($time / 60, $decimals);
-                return str_plural($time, tr(':time minute', [':time' => $time]), tr(':time minutes', [':time' => $time]));
+                return Strings::plural($ceil, tr(':time minute', [':time' => $time]), tr(':time minutes', [':time' => $time]));
 
             case 'hour':
                 // no-break
             case 'hours':
                 $time = number_format($time / 3600, $decimals);
-                return str_plural($time, tr(':time hour', [':time' => $time]), tr(':time hours', [':time' => $time]));
+                return Strings::plural($ceil, tr(':time hour', [':time' => $time]), tr(':time hours', [':time' => $time]));
 
             case 'day':
                 // no-break
             case 'days':
                 $time = number_format($time / 86400, $decimals);
-                return str_plural($time, tr(':time day', [':time' => $time]), tr(':time days', [':time' => $time]));
+                return Strings::plural($ceil, tr(':time day', [':time' => $time]), tr(':time days', [':time' => $time]));
 
             case 'week':
                 // no-break
             case 'weeks':
                 $time = number_format($time / 604800, $decimals);
-                return str_plural($time, tr(':time week', [':time' => $time]), tr(':time weeks', [':time' => $time]));
+                return Strings::plural($ceil, tr(':time week', [':time' => $time]), tr(':time weeks', [':time' => $time]));
 
             case 'month':
                 //FALLTHROUGH
@@ -69,7 +71,7 @@ class Time
                  * NOTE: Month is assumed 30 days!
                  */
                 $time    = number_format($time / 2592000, $decimals);
-                return str_plural($time, tr(':time month', [':time' => $time]), tr(':time months', [':time' => $time]));
+                return Strings::plural($ceil, tr(':time month', [':time' => $time]), tr(':time months', [':time' => $time]));
 
             case 'year':
                 // no-break
@@ -78,55 +80,55 @@ class Time
                  * NOTE: Year is assumed 365 days!
                  */
                 $time    = number_format($time / 31536000, $decimals);
-                return str_plural($time, tr(':time year', [':time' => $time]), tr(':time years', [':time' => $time]));
+                return Strings::plural($ceil, tr(':time year', [':time' => $time]), tr(':time years', [':time' => $time]));
 
             case 'auto':
                 if ($time < 60) {
                     /*
                      * Seconds
                      */
-                    return time_difference($start, $stop, 'seconds', $decimals);
+                    return Time::difference($start, $stop, 'seconds', $decimals);
                 }
 
                 if ($time / 60 < 60) {
                     /*
                      * Minutes
                      */
-                    return time_difference($start, $stop, 'minutes', $decimals);
+                    return Time::difference($start, $stop, 'minutes', $decimals);
                 }
 
                 if ($time / 3600 < 24) {
                     /*
                      * Hours
                      */
-                    return time_difference($start, $stop, 'hours', $decimals);
+                    return Time::difference($start, $stop, 'hours', $decimals);
                 }
 
                 if ($time / 86400 < 7) {
                     /*
                      * Days
                      */
-                    return time_difference($start, $stop, 'days', $decimals);
+                    return Time::difference($start, $stop, 'days', $decimals);
                 }
 
                 if ($time / 604800 < 52) {
                     /*
                      * Weeks
                      */
-                    return time_difference($start, $stop, 'weeks', $decimals);
+                    return Time::difference($start, $stop, 'weeks', $decimals);
                 }
 
                 if ($time / 2592000 < 12) {
                     /*
                      * Months
                      */
-                    return time_difference($start, $stop, 'months', $decimals);
+                    return Time::difference($start, $stop, 'months', $decimals);
                 }
 
                 /*
                  * Years
                  */
-                return time_difference($start, $stop, 'years', $decimals);
+                return Time::difference($start, $stop, 'years', $decimals);
 
             default:
                 throw new OutOfBoundsException(tr('Unknown precision ":precision" specified', [':precision' => $precision]));

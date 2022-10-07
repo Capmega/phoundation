@@ -105,7 +105,7 @@ class Core {
     {
         try {
             // Register the process start
-            Timer::create('process');
+            define('STARTTIME', Timer::create('process')->getStart());
 
             /*
              * Define a unique process request ID

@@ -6,6 +6,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
@@ -173,14 +174,14 @@ showdie($arguments);
                     }
 
                     // Script ended with warning
-                    Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
+                    Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
 
                 } else {
                     if ($exit_message) {
                         Log::error($exit_message);
                     }
                     // Script ended with error
-                    Log::error(tr('Script ":script" failed with exit code ":exitcode" in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
+                    Log::error(tr('Script ":script" failed with exit code ":exitcode" in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
                 }
 
             } else {
@@ -188,7 +189,7 @@ showdie($arguments);
                     Log::success($exit_message);
                 }
                 // Script ended successfully
-                Log::success(tr('Finished ":script" script in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage())]), 'green');
+                Log::success(tr('Finished ":script" script in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage())]), 'green');
             }
         }
 

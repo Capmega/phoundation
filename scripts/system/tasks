@@ -558,7 +558,7 @@ under_construction('add');
                         break;
 
                     default:
-                        throw new CoreException(tr('Unknown task execution method ":method" specified for task ":id" in ":time"', array(':method' => $task['method'], ':id' => $task['id'], ':time' => time_difference($start, $end, 'auto', 5))), 'warning/unknown');
+                        throw new CoreException(tr('Unknown task execution method ":method" specified for task ":id" in ":time"', array(':method' => $task['method'], ':id' => $task['id'], ':time' => Time::difference($start, $end, 'auto', 5))), 'warning/unknown');
                 }
 
                 /*
@@ -578,7 +578,7 @@ under_construction('add');
                 tasks_update($task, true);
                 set_time_limit(0);
 
-                log_console(tr('Task ":task" executed successfully in ":time"', array(':task' => $task['id'], ':time' => time_difference($start, $end, 'auto', 5))), 'green');
+                log_console(tr('Task ":task" executed successfully in ":time"', array(':task' => $task['id'], ':time' => Time::difference($start, $end, 'auto', 5))), 'green');
 
             }catch(Exception $e) {
                 $end  = microtime(true);
@@ -594,7 +594,7 @@ under_construction('add');
                 task_test_mysql();
 
                 try {
-                    log_console(tr('Task ":task" failed with ":e" in ":time"', array(':task' => $task['id'], ':e' => $e, ':time' => time_difference($start, $end, 'auto', 5))), $color);
+                    log_console(tr('Task ":task" failed with ":e" in ":time"', array(':task' => $task['id'], ':e' => $e, ':time' => Time::difference($start, $end, 'auto', 5))), $color);
 
                     if ($data) {
                         log_console(tr('Failed task ":task" exitcode: :code', array(':code' => $e->getRealCode())), $color);

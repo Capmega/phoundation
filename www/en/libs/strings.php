@@ -34,7 +34,7 @@ function str_ensure_url($url, $protocol = 'http://') {
 /*
  * Return "casa" or "casas" based on number
  */
-function str_plural($count, $single_text, $multiple_text) {
+function Strings::plural($count, $single_text, $multiple_text) {
     try {
         if ($count == 1) {
             return $single_text;
@@ -44,7 +44,7 @@ function str_plural($count, $single_text, $multiple_text) {
         return $multiple_text;
 
     }catch(Exception $e) {
-        throw new OutOfBoundsException(tr('str_plural(): Failed'), $e);
+        throw new OutOfBoundsException(tr('Strings::plural(): Failed'), $e);
     }
 }
 

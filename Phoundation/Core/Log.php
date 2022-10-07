@@ -1524,7 +1524,7 @@ showdie($e);
 //                /*
 //                 * We cannot write in the log file
 //                 */
-//                throw new OutOfBoundsException(tr('log_file(): Failed to write to log, permission denied to write to log file ":file". Please ensure the correct write permissions for this file and the ROOT/data/log directory in general', array(':file' => Strings::cut(($message, 'fopen(', ')'))), 'warning');
+//                throw new OutOfBoundsException(tr('log_file(): Failed to write to log, permission denied to write to log file ":file". Please ensure the correct write permissions for this file and the ROOT/data/log directory in general', array(':file' => Strings::cut($message, 'fopen(', ')'))), 'warning');
 //            }
 //
 //            throw new OutOfBoundsException('log_file(): Failed', $e, array('message' => $messages));

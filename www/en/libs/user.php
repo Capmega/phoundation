@@ -647,7 +647,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
             $algorithm = 'sha256';
 
         } else {
-            $algorithm = Strings::cut(($user['password'], '*', '*');
+            $algorithm = Strings::cut($user['password'], '*', '*');
         }
 
         if (strlen($password) > 256) {

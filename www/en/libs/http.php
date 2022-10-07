@@ -404,7 +404,7 @@ function http_headers($params, $content_length) {
 
         if (VERYVERBOSE) {
             load_libs('time,numbers');
-            log_console(tr('Page ":script" was processed in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()))));
+            log_console(tr('Page ":script" was processed in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => Time:difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()))));
         }
 
         foreach ($headers as $header) {

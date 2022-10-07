@@ -1776,7 +1776,7 @@ function ssh_persistent_pid($socket) {
     try {
         $results = ssh_exec(array('commands' => array('ssh', array('-O', 'check', 'foobar', '-o', 'controlpath="'.$socket.'"'))));
         $result  = array_shift($results);
-        $result  = Strings::cut(($result, '=', ')');
+        $result  = Strings::cut($result, '=', ')');
 
         return $result;
 

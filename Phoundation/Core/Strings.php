@@ -982,7 +982,7 @@ class Strings
      * @version 2.0.0: Moved to system library, added documentation
      * @example
      * code
-     * $result = Strings::cut(('support@capmega.com', '@', '.');
+     * $result = Strings::cut('support@capmega.com', '@', '.');
      * showdie($result);
      * /code
      *

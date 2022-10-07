@@ -2,11 +2,22 @@
 
 namespace Phoundation\Http;
 
+use DateTime;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Core;
+use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Date\Date;
+use Phoundation\Date\Time;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Http\Exception\HttpException;
+use Phoundation\Processes\Commands;
+use Phoundation\Users\Users;
+use Throwable;
+
+
 
 /**
  * Class Http
@@ -208,7 +219,7 @@ class Http
                             break;
 
                         default:
-                            throw new HttpException(tr('http_headers(): Unknown CORS header ":header" specified', array(':header' => $key)), 'unknown');
+                            throw new HttpException(tr('Unknown CORS header ":header" specified', [':header' => $key]));
                     }
                 }
             }
@@ -222,21 +233,18 @@ class Http
             header_remove('Expires');
             header_remove('Pragma');
 
-            /*
-             * Set correct headers
-             */
+            // Set correct headers
             http_response_code($params['http_code']);
 
             if (($params['http_code'] != 200)) {
-                log_file(tr('Phoundation sent :http for URL ":url"', array(':http' => ($params['http_code'] ? 'HTTP' . $params['http_code'] : 'HTTP0'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'])), 'warning', 'yellow');
+                Log::warning(tr('Phoundation sent :http for URL ":url"', array(':http' => ($params['http_code'] ? 'HTTP' . $params['http_code'] : 'HTTP0'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'])));
 
             } elseif (VERBOSE) {
-                log_file(tr('Phoundation sent :http for URL ":url"', array(':http' => ($params['http_code'] ? 'HTTP' . $params['http_code'] : 'HTTP0'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'])), 'http', 'green');
+                Log::success(tr('Phoundation sent :http for URL ":url"', array(':http' => ($params['http_code'] ? 'HTTP' . $params['http_code'] : 'HTTP0'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'])), 'http', 'green');
             }
 
             if (VERYVERBOSE) {
-                load_libs('time,numbers');
-                log_console(tr('Page ":script" was processed in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()))));
+                Log::notice(tr('Page ":script" was processed in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()))));
             }
 
             foreach ($headers as $header) {
@@ -268,7 +276,7 @@ class Http
 
             return true;
 
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             /*
              * http_headers() itself crashed. Since http_headers()
              * would send out http 500, and since it crashed, it no
@@ -355,11 +363,9 @@ class Http
     public static function acceptsLanguages(): array
     {
         if (empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            /*
-             * No accept language headers were specified
-             */
+            // No accept language headers were specified
            $retval  = array('1.0' => array('language' => isset_get($_CONFIG['language']['default'], 'en'),
-                                            'locale'   => Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
+                                            'locale'   => Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
 
         } else {
             $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
@@ -369,17 +375,13 @@ class Http
                                             'locale'   => (str_contains($default, '-') ? Strings::from($default, '-') : null)));
 
             if (empty($retval['1.0']['language'])) {
-                /*
-                 * Specified accept language headers contain no language
-                 */
+                // Specified accept language headers contain no language
                 $retval['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
             }
 
             if (empty($retval['1.0']['locale'])) {
-                /*
-                 * Specified accept language headers contain no locale
-                 */
-                $retval['1.0']['locale'] = Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
+                // Specified accept language headers contain no locale
+                $retval['1.0']['locale'] = Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
             }
 
             foreach ($headers as $header) {
@@ -452,27 +454,20 @@ class Http
     {
         global $_CONFIG;
 
-        try {
-            foreach ($_GET as $key => &$value) {
-                if (!is_scalar($value)) {
-                    if ($value) {
-                        throw new HttpException(tr('http_validate_get(): The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', array(':key' => $key, ':content' => $value)), 400);
-                    }
-
-                    /*
-                     * The value is NULL
-                     */
-                    $value = '';
+        foreach ($_GET as $key => &$value) {
+            if (!is_scalar($value)) {
+                if ($value) {
+                    throw new HttpException(tr('http_validate_get(): The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', array(':key' => $key, ':content' => $value)), 400);
                 }
+
+                // The value is NULL
+                $value = '';
             }
-
-            unset($value);
-
-            $_GET['limit'] = (integer)ensure_value(isset_get($_GET['limit'], $_CONFIG['paging']['limit']), array_keys($_CONFIG['paging']['list']), $_CONFIG['paging']['limit']);
-
-        } catch (Exception $e) {
-            throw new HttpException('http_validate_get(): Failed', $e);
         }
+
+        unset($value);
+
+        $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], $_CONFIG['paging']['limit']), array_keys($_CONFIG['paging']['list']), $_CONFIG['paging']['limit']);
     }
 
 
@@ -489,35 +484,28 @@ class Http
      */
     public static function done()
     {
-        global $core, $_CONFIG;
-
-        try {
-            if (!isset($core)) {
-                /*
-                 * We died very early in startup. For more information see either
-                 * the ROOT/data/log/syslog file, or your webserver log file
-                 */
-                die('Exception: See log files');
-            }
-
-            if ($core === false) {
-                /*
-                 * Core wasn't created yet, but uncaught exception handler basically
-                 * is saying that's okay, just warning stuff
-                 */
-                die();
-            }
-
-            $exit_code = isset_get($core->register['exit_code'], 0);
-
+        if (!isset($core)) {
             /*
-             * Do we need to run other shutdown functions?
+             * We died very early in startup. For more information see either
+             * the ROOT/data/log/syslog file, or your webserver log file
              */
-            Core::shutdown();
-
-        } catch (Exception $e) {
-            throw new HttpException('http_done(): Failed', $e);
+            die('Exception: See log files');
         }
+
+        if ($core === false) {
+            /*
+             * Core wasn't created yet, but uncaught exception handler basically
+             * is saying that's okay, just warning stuff
+             */
+            die();
+        }
+
+        $exit_code = isset_get($core->register['exit_code'], 0);
+
+        /*
+         * Do we need to run other shutdown functions?
+         */
+        Core::shutdown();
     }
 
 
@@ -649,33 +637,26 @@ class Http
      */
     protected static function cacheTest($etag = null): bool
     {
-        global $_CONFIG, $core;
+        $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . $etag);
 
-        try {
-            $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . $etag);
-
-            if (!$_CONFIG['cache']['http']['enabled']) {
-                return false;
-            }
-
-            if (Core::getCallType('ajax') or Core::getCallType('api')) {
-                return false;
-            }
-
-            if ((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']) {
-                if (empty($core->register['flash'])) {
-                    /*
-                     * The client sent an etag which is still valid, no body (or anything else) necesary
-                     */
-                    http_headers(304, 0);
-                }
-            }
-
-            return true;
-
-        }catch(Exception $e) {
-            throw new HttpException('http_cacheTest(): Failed', $e);
+        if (!$_CONFIG['cache']['http']['enabled']) {
+            return false;
         }
+
+        if (Core::getCallType('ajax') or Core::getCallType('api')) {
+            return false;
+        }
+
+        if ((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']) {
+            if (empty($core->register['flash'])) {
+                /*
+                 * The client sent an etag which is still valid, no body (or anything else) necesary
+                 */
+                http_headers(304, 0);
+            }
+        }
+
+        return true;
     }
 
 
@@ -688,40 +669,34 @@ class Http
      * For more information, see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
      * and https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
      */
-    protected static function cacheEtag() {
-        global $_CONFIG, $core;
+    protected static function cacheEtag()
+    {
+        /*
+         * ETAG requires HTTP caching enabled
+         * Ajax and API calls do not use ETAG
+         */
+        if (!$_CONFIG['cache']['http']['enabled'] or Core::getCallType('ajax') or Core::getCallType('api')) {
+            unset($core->register['etag']);
+            return false;
+        }
 
-        try {
-            /*
-             * ETAG requires HTTP caching enabled
-             * Ajax and API calls do not use ETAG
-             */
-            if (!$_CONFIG['cache']['http']['enabled'] or Core::getCallType('ajax') or Core::getCallType('api')) {
-                unset($core->register['etag']);
-                return false;
-            }
-
-            /*
-             * Create local ETAG
-             */
-            $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
+        /*
+         * Create local ETAG
+         */
+        $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
 
 // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
-            if (trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']) {
-                if (empty($core->register['flash'])) {
-                    /*
-                     * The client sent an etag which is still valid, no body (or anything else) necesary
-                     */
-                    http_response_code(304);
-                    die();
-                }
+        if (trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']) {
+            if (empty($core->register['flash'])) {
+                /*
+                 * The client sent an etag which is still valid, no body (or anything else) necesary
+                 */
+                http_response_code(304);
+                die();
             }
-
-            return true;
-
-        }catch(Exception $e) {
-            throw new HttpException('http_cacheEtag(): Failed', $e);
         }
+
+        return true;
     }
 
 
@@ -736,20 +711,15 @@ class Http
      */
     public static function addVariable(string $url, string $key, int|float|string|array $value): string
     {
-        try {
-            if (!$key or !$value) {
-                return $url;
-            }
-
-            if (str_contains($url, '?')) {
-                return $url.'&'.urlencode($key) . '='.urlencode($value);
-            }
-
-            return $url.'?'.urlencode($key) . '='.urlencode($value);
-
-        }catch(Exception $e) {
-            throw new HttpException('http_add_variable(): Failed', $e);
+        if (!$key or !$value) {
+            return $url;
         }
+
+        if (str_contains($url, '?')) {
+            return $url.'&'.urlencode($key) . '='.urlencode($value);
+        }
+
+        return $url.'?'.urlencode($key) . '='.urlencode($value);
     }
 
 
@@ -764,25 +734,20 @@ class Http
      */
     public static function removeVariable(string $url, string $key): string
     {
-        try {
-            throw new UnderConstructionException('Http::removeVariable() is under construction!');
-            //if (!$key) {
-            //    return $url;
-            //}
-            //
-            //if ($pos = strpos($url, $key . '=') === false) {
-            //    return $url;
-            //}
-            //
-            //if ($pos2 = strpos($url, '&', $pos) === false) {
-            //    return substr($url, 0, $pos).;
-            //}
-            //
-            //return substr($url, 0, );
-
-        }catch(Exception $e) {
-            throw new HttpException('http_remove_variable(): Failed', $e);
-        }
+        throw new UnderConstructionException('Http::removeVariable() is under construction!');
+        //if (!$key) {
+        //    return $url;
+        //}
+        //
+        //if ($pos = strpos($url, $key . '=') === false) {
+        //    return $url;
+        //}
+        //
+        //if ($pos2 = strpos($url, '&', $pos) === false) {
+        //    return substr($url, 0, $pos).;
+        //}
+        //
+        //return substr($url, 0, );
     }
 
 
@@ -909,6 +874,8 @@ class Http
         die();
     }
 
+
+
     /**
      * Redirect if the session redirector is set
      *
@@ -979,38 +946,33 @@ class Http
     public static function getSubmit() {
         static $submit;
 
-        try {
-            if ($submit !== null) {
-                /*
-                 * We have a cached value
-                 */
-                return $submit;
-            }
-
+        if ($submit !== null) {
             /*
-             * Get submit value
+             * We have a cached value
              */
-            if (empty($_POST['dosubmit'])) {
-                if (empty($_POST['multisubmit'])) {
-                    $submit = '';
+            return $submit;
+        }
 
-                } else {
-                    $submit = $_POST['multisubmit'];
-                    unset($_POST['multisubmit']);
-                }
+        /*
+         * Get submit value
+         */
+        if (empty($_POST['dosubmit'])) {
+            if (empty($_POST['multisubmit'])) {
+                $submit = '';
 
             } else {
-                $submit = $_POST['dosubmit'];
-                unset($_POST['dosubmit']);
+                $submit = $_POST['multisubmit'];
+                unset($_POST['multisubmit']);
             }
 
-            $submit = strtolower($submit);
-
-            return $submit;
-
-        }catch(Exception $e) {
-            throw new CoreException('get_submit(): Failed', $e);
+        } else {
+            $submit = $_POST['dosubmit'];
+            unset($_POST['dosubmit']);
         }
+
+        $submit = strtolower($submit);
+
+        return $submit;
     }
 
 
@@ -1107,7 +1069,7 @@ class Http
 //                 * No accept language headers were specified
 //                 */
 //                $retval = array('1.0' => array('language' => isset_get($_CONFIG['language']['default'], 'en'),
-//                    'locale' => Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
+//                    'locale' => Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
 //
 //            } else {
 //                $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
@@ -1127,7 +1089,7 @@ class Http
 //                    /*
 //                     * Specified accept language headers contain no locale
 //                     */
-//                    $retval['1.0']['locale'] = Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
+//                    $retval['1.0']['locale'] = Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
 //                }
 //
 //                foreach ($headers as $header) {
@@ -1374,42 +1336,36 @@ class Http
      * @param null boolean $allow_url_cloak
      * @return string the URL
      */
-    function ajax_domain($url = null, $query = null, $language = null, $allow_url_cloak = true)
+    function ajaxDomain(?string $url = null, ?string $query = null, $language = null, $allow_url_cloak = true)
     {
-        global $_CONFIG;
+        if ($_CONFIG['ajax']['prefix']) {
+            $prefix = $_CONFIG['ajax']['prefix'];
 
-        try {
-            if ($_CONFIG['ajax']['prefix']) {
-                $prefix = $_CONFIG['ajax']['prefix'];
-
-            } else {
-                $prefix = null;
-            }
-
-            if ($_CONFIG['ajax']['domain']) {
-                return domain($url, $query, $prefix, $_CONFIG['ajax']['domain'], $language, $allow_url_cloak);
-            }
-
-            return domain($url, $query, $prefix, null, $language, $allow_url_cloak);
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException('ajax_domain(): Failed', $e);
+        } else {
+            $prefix = null;
         }
+
+        if ($_CONFIG['ajax']['domain']) {
+            return self::domain($url, $query, $prefix, $_CONFIG['ajax']['domain'], $language, $allow_url_cloak);
+        }
+
+        return self::domain($url, $query, $prefix, null, $language, $allow_url_cloak);
     }
 
 
-    /*
+
+    /**
      * Download the specified single file to the specified path
      *
      * If the path is not specified then by default the function will download to the TMP directory; ROOT/data/tmp
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     * @see file_get_local()
-     * @version 2.0.3: Added function and documentation
+     * @param string $url             The URL of the file to be downloaded
+     * @param bool $contents          If set to false, will return the contents of the downloaded file instead of the
+     *                                target filename. As the caller function will not know the exact filename used, the
+     *                                target file will be deleted automatically! If set to a string
+     * @param callable|null $callback If specified, download will execute this callback with either the filename or file
+     *                                contents (depending on $section)
+     * @return string The path to the downloaded file
      * @example This shows how to download a single file
      * code
      * $result = download('https://capmega.com', TMP);
@@ -1421,162 +1377,142 @@ class Http
      * ROOT/data/tmp/capmega.com
      * /code
      *
-     * @param string $url The URL of the file to be downloaded
-     * @param mixed $section If set to false, will return the contents of the downloaded file instead of the target filename. As the caller function will not know the exact filename used, the target file will be deleted automatically! If set to a string
-     * @param null function $callback If specified, download will execute this callback with either the filename or file contents (depending on $section)
-     * @return string The downloaded file
      */
-    function download($url, $contents = false, $callback = null)
+    function download(string $url, bool $contents = false, callable $callback = null): string
     {
-        try {
-            load_libs('wget');
-            $file = wget($url);
+        $file = Commands::wget($url);
 
-            if ($contents) {
-                /*
-                 * Do not return the filename but the file contents instead
-                 * When doing this, automatically delete the temporary file in
-                 * question, since the caller will not know the exact file name used
-                 */
-                $retval = file_get_contents($file);
-                file_delete($file);
-
-                if ($callback) {
-                    $callback($retval);
-                }
-
-                return $retval;
-            }
-
+        if ($contents) {
             /*
-             * No section was specified, return contents of file instead.
+             * Do not return the filename but the file contents instead
+             * When doing this, automatically delete the temporary file in
+             * question, since the caller will not know the exact file name used
              */
+            $retval = file_get_contents($file);
+            file_delete($file);
+
             if ($callback) {
-                /*
-                 * Execute the callbacks before returning the data, delete the
-                 * temporary file after
-                 */
-                $callback($file);
-                file_delete($file);
+                $callback($retval);
             }
 
-            return $file;
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException('download(): Failed', $e);
+            return $retval;
         }
+
+        /*
+         * No section was specified, return contents of file instead.
+         */
+        if ($callback) {
+            /*
+             * Execute the callbacks before returning the data, delete the
+             * temporary file after
+             */
+            $callback($file);
+            file_delete($file);
+        }
+
+        return $file;
     }
 
-    /*
- * Read extended signin
- */
-    function check_extended_session()
+
+
+    /**
+     * Checks if an extended session is available for this user
+     *
+     * @return bool
+     */
+    function check_extended_session(): bool
     {
-        global $_CONFIG;
+        if (empty($_CONFIG['sessions']['extended']['enabled'])) {
+            return false;
+        }
 
-        try {
-            if (empty($_CONFIG['sessions']['extended']['enabled'])) {
-                return false;
-            }
+        if (isset($_COOKIE['extsession']) and !isset($_SESSION['user'])) {
+            // Pull  extsession data
+            $ext = sql_get('SELECT `users_id` FROM `extended_sessions` WHERE `session_key` = ":session_key" AND DATE(`addedon`) < DATE(NOW());', array(':session_key' => cfm($_COOKIE['extsession'])));
 
-            if (isset($_COOKIE['extsession']) and !isset($_SESSION['user'])) {
-                /*
-                 * Pull  extsession data
-                 */
-                $ext = sql_get('SELECT `users_id` FROM `extended_sessions` WHERE `session_key` = ":session_key" AND DATE(`addedon`) < DATE(NOW());', array(':session_key' => cfm($_COOKIE['extsession'])));
+            if ($ext['users_id']) {
+                $user = sql_get('SELECT * FROM `users` WHERE `users`.`id` = :id', array(':id' => cfi($ext['users_id'])));
 
-                if ($ext['users_id']) {
-                    $user = sql_get('SELECT * FROM `users` WHERE `users`.`id` = :id', array(':id' => cfi($ext['users_id'])));
-
-                    if ($user['id']) {
-                        /*
-                         * Auto sign in user
-                         */
-                        load_libs('user');
-                        user_signin($user, true);
-
-                    } else {
-                        /*
-                         * Remove cookie
-                         */
-                        setcookie('extsession', 'stub', 1);
-                    }
+                if ($user['id']) {
+                    // Auto sign in user
+                    Users::signin($user, true);
+                    return true;
 
                 } else {
-                    /*
-                     * Remove cookie
-                     */
+                    // Remove cookie
                     setcookie('extsession', 'stub', 1);
                 }
-            }
 
-        } catch (Exception $e) {
-            throw new OutOfBoundsException('user_create_extended_session(): Failed', $e);
+            } else {
+                // Remove cookie
+                setcookie('extsession', 'stub', 1);
+            }
         }
+
+        return false;
     }
 
 
 
-    /*
+    /**
      * Generate a CSRF code and set it in the $_SESSION[csrf] array
+     *
+     * @param string|null $prefix
+     * @return string
      */
-    function set_csrf($prefix = '')
+    function set_csrf(?string $prefix = null): string
     {
-        global $_CONFIG, $core;
-
-        try {
-            if (empty($_CONFIG['security']['csrf']['enabled'])) {
-                /*
-                 * CSRF check system has been disabled
-                 */
-                return false;
-            }
-
-            if (Core::readRegister('csrf')) {
-                return Core::readRegister('csrf');
-            }
-
+        if (empty($_CONFIG['security']['csrf']['enabled'])) {
             /*
-             * Avoid people messing around
+             * CSRF check system has been disabled
              */
-            if (isset($_SESSION['csrf']) and (count($_SESSION['csrf']) >= $_CONFIG['security']['csrf']['buffer_size'])) {
-                /*
-                 * Too many csrf, so too many post requests open. Remove the oldest
-                 * CSRF code and add a new one
-                 */
-                if (count($_SESSION['csrf']) >= ($_CONFIG['security']['csrf']['buffer_size'] + 5)) {
-                    /*
-                     * WTF? How did we get so many?? Throw it all away, start over
-                     */
-                    unset($_SESSION['csrf']);
-
-                } else {
-                    array_shift($_SESSION['csrf']);
-                }
-            }
-
-            $csrf = $prefix . unique_code('sha256');
-
-            if (empty($_SESSION['csrf'])) {
-                $_SESSION['csrf'] = array();
-            }
-
-            $_SESSION['csrf'][$csrf] = new DateTime();
-            $_SESSION['csrf'][$csrf] = $_SESSION['csrf'][$csrf]->getTimestamp();
-
-            Core::readRegister('csrf', $csrf);
-            return $csrf;
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException(tr('set_csrf(): Failed'), $e);
+            return false;
         }
+
+        if (Core::readRegister('csrf')) {
+            return Core::readRegister('csrf');
+        }
+
+        /*
+         * Avoid people messing around
+         */
+        if (isset($_SESSION['csrf']) and (count($_SESSION['csrf']) >= $_CONFIG['security']['csrf']['buffer_size'])) {
+            /*
+             * Too many csrf, so too many post requests open. Remove the oldest
+             * CSRF code and add a new one
+             */
+            if (count($_SESSION['csrf']) >= ($_CONFIG['security']['csrf']['buffer_size'] + 5)) {
+                /*
+                 * WTF? How did we get so many?? Throw it all away, start over
+                 */
+                unset($_SESSION['csrf']);
+
+            } else {
+                array_shift($_SESSION['csrf']);
+            }
+        }
+
+        $csrf = $prefix . Strings::unique('sha256');
+
+        if (empty($_SESSION['csrf'])) {
+            $_SESSION['csrf'] = array();
+        }
+
+        $_SESSION['csrf'][$csrf] = new DateTime();
+        $_SESSION['csrf'][$csrf] = $_SESSION['csrf'][$csrf]->getTimestamp();
+
+        Core::readRegister('csrf', $csrf);
+        return $csrf;
     }
 
 
-    /*
+
+    /**
+     * Check that the CSRF was valid
      *
+     * @return bool
      */
-    function check_csrf()
+    function checkCsrf(): bool
     {
         global $_CONFIG, $core;
 
@@ -1655,7 +1591,7 @@ class Http
 
             return true;
 
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             /*
              * CSRF check failed, drop $_POST
              */
@@ -1664,6 +1600,7 @@ class Http
                     unset($_POST[$key]);
                 }
             }
+
             log_file('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
             log_file(Core::getCallType('http'));
             log_file($e);
@@ -1671,30 +1608,22 @@ class Http
         }
     }
 
-    /*
+
+
+    /**
      * Limit the HTTP request to the specified request type, typically GET or POST
      *
      * If the HTTP request is not of the specified type, this function will throw an exception
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
      * @version 2.7.98: Added function and documentation
      *
-     * @param params $params A parameters array
+     * @param string $method
      * @return void
      */
-    function limit_request_method($method)
+    function limitRequestMethod(string $method): void
     {
-        try {
-            if ($_SERVER['REQUEST_METHOD'] !== $method) {
-                throw new OutOfBoundsException(tr('limit_request_method(): This request was made with HTTP method ":server_method" but for this page or call only HTTP method ":method" is allowed', array(':method' => $method, ':server_method' => $_SERVER['REQUEST_METHOD'])), 'warning/method-not-allowed');
-            }
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException(tr('limit_request_method(): Failed'), $e);
+        if ($_SERVER['REQUEST_METHOD'] !== $method) {
+            throw new OutOfBoundsException(tr('limit_request_method(): This request was made with HTTP method ":server_method" but for this page or call only HTTP method ":method" is allowed', array(':method' => $method, ':server_method' => $_SERVER['REQUEST_METHOD'])), 'warning/method-not-allowed');
         }
     }
 

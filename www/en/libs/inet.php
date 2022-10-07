@@ -371,7 +371,7 @@ function inet_add_query($url) {
                 /*
                  * The query already exists in the specified URL, replace it.
                  */
-                $replace = Strings::cut(($url, $key.'=', '&');
+                $replace = Strings::cut($url, $key.'=', '&');
                 $url     = str_replace($key.'='.$replace, $key.'='.Strings::from($query, '='), $url);
 
             } else {
@@ -441,7 +441,7 @@ function inet_dig($domain, $section = false) {
             throw new OutOfBoundsException(tr('inet_dig(): Specified domain ":domain" was not found', array(':domain' => $domain)), 'not-exists');
         }
 
-        $data   = Strings::cut(($data, "ANSWER SECTION:\n", "\n;;");
+        $data   = Strings::cut($data, "ANSWER SECTION:\n", "\n;;");
         $retval = array();
 
         if ($section) {

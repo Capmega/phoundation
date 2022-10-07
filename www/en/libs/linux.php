@@ -60,7 +60,7 @@ function linux_get_ssh_tcp_forwarding($server) {
                                                                     'grep', array('-i', 'allowtcpforwarding'))));
         $result   = array_pop($results);
         $result   = strtolower(trim($result));
-        $result   = Strings::cut(($result, ' ', ' ');
+        $result   = Strings::cut($result, ' ', ' ');
 
         switch ($result) {
             case 'yes';

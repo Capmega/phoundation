@@ -63,7 +63,7 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
             throw new CoreException(tr('curl_get_proxy(): No proxy server URL(s) specified'), 'not-specified');
         }
 
-        log_console(tr('Using proxy ":proxy"', array(':proxy' => Strings::cut((Strings::Log($serverurl), '://', '/'))), 'VERBOSE');
+        log_console(tr('Using proxy ":proxy"', array(':proxy' => Strings::cut(Strings::Log($serverurl), '://', '/'))), 'VERBOSE');
 
         $data = curl_get(array('url'        => Strings::endsWith($serverurl, '?apikey='.$_CONFIG['curl']['apikey'].'&url=').urlencode($url),
                                'getheaders' => false,
@@ -74,7 +74,7 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
         }
 
         if (substr($data['data'], 0, 12) !== 'PROXY_RESULT') {
-            throw new CoreException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', array(':data' => Strings::Log($data), ':proxy' => Strings::cut((Strings::Log($serverurl), '://', '/'))), 'not-specified');
+            throw new CoreException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', array(':data' => Strings::Log($data), ':proxy' => Strings::cut(Strings::Log($serverurl), '://', '/'))), 'not-specified');
         }
 
         $data         = substr($data['data'], 12);
