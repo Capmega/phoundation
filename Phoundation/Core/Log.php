@@ -93,17 +93,17 @@ Class Log {
     /**
      * A unique local code for this log entry
      *
-     * @var string|null
+     * @var string
      */
-    protected static ?string $local_id = null;
+    protected static string $local_id = '-';
 
     /**
      * A unique global code for this log entry that is the same code over multiple machines to be able to follow
      * multi-machine requests more easily
      *
-     * @var string|null
+     * @var string
      */
-    protected static ?string $global_id = null;
+    protected static string $global_id = '-';
 
     /**
      * The last message that was logged.
@@ -124,9 +124,9 @@ Class Log {
     /**
      * Log constructor
      *
-     * @param string|null $global_id
+     * @param string $global_id
      */
-    protected function __construct(?string $global_id = null)
+    protected function __construct(string $global_id = '')
     {
         // Ensure that the log class hasn't been initialized yet
         if (self::$init) {
@@ -136,7 +136,7 @@ Class Log {
         self::$init = true;
 
         // Apply configuration
-        self::setThreshold(Config::get('log.level', 7));
+        self::setThreshold(Config::get('log.threshold', 5));
         self::setFile(Config::get('log.file', ROOT . 'data/log/syslog'));
         self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_FILE));
         self::setLocalId(substr(uniqid(true), -8, 8));
@@ -155,10 +155,10 @@ Class Log {
     /**
      * Singleton, ensure to always return the same Log object.
      *
-     * @param string|null $global_id
+     * @param string $global_id
      * @return Log
      */
-    public static function getInstance(?string $global_id = null): Log
+    public static function getInstance(string $global_id = ''): Log
     {
         try {
             if (!isset(self::$instance)) {
@@ -332,8 +332,8 @@ Class Log {
      */
     public function setLocalId(string $local_id): void
     {
-        if (self::$local_id) {
-            throw new LogException('Cannot set the global log id, it has already been set');
+        if (self::$local_id !== '-') {
+            throw new LogException('Cannot set the local log id, it has already been set');
         }
 
         self::$local_id = $local_id;
@@ -411,12 +411,16 @@ Class Log {
      * processes over (optionally) multiple servers to identify all messages that are relevant to a single request.
      *
      * @note The global_id can be set only once to avoid log discrepancies
-     * @param string|null $global_id
+     * @param string $global_id
      * @return void
      */
-    public function setGlobalId(?string $global_id): void
+    public function setGlobalId(string $global_id): void
     {
-        if (self::$global_id) {
+        if (!$global_id) {
+            return;
+        }
+
+        if (self::$global_id !== '-') {
             throw new LogException('Cannot set the global log id, it has already been set');
         }
 
@@ -843,12 +847,11 @@ Class Log {
 
             // Build the message to be logged, clean it and log
             // The log line format is DATE LEVEL PID GLOBALID/LOCALID MESSAGE EOL
-            if (Debug::cleanData()) {
-                self::$lock = false;
-                return Strings::cleanWhiteSpace($messages);
+            if ($clean) {
+                $messages = Strings::cleanWhiteSpace($messages);
             }
 
-            $messages = date('Y-m-d H:i:s') . ' ' . $level . ' ' . getmypid() . ' ' . self::$global_id . '/' . self::$local_id . $messages . ($newline ? PHP_EOL : null);
+            $messages = date('Y-m-d H:i:s') . ' ' . $level . ' ' . getmypid() . ' ' . self::$global_id . ' / ' . self::$local_id . ' ' . $messages . ($newline ? PHP_EOL : null);
             fwrite(self::$handles[self::$file], $messages);
 
             // In Command Line mode always log to the screen too

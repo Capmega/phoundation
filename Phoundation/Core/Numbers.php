@@ -48,25 +48,16 @@ class Numbers
 
 
     /**
-    * Format integer into Kilo / Mega / Giga Byte
-    */
-    function bytes($value, $unit = 'auto', $precision = 2) {
-        return bytes_convert($value, $unit, $precision, true);
-    }
-
-
-
-    /**
      * Convert specified amount explicitly to specified multiplier
      *
      * @param string|float|int $amount
      * @param string $unit
      * @param int $precision
      * @param bool $add_suffix
-     * @return int
+     * @return string
      * @throws OutOfBoundsException
      */
-    function bytes_convert(string|float|int $amount, string $unit = 'auto', int $precision = 2, bool $add_suffix = false): int
+    public static function bytes(string|float|int $amount, string $unit = 'auto', int $precision = 2, bool $add_suffix = false): string
     {
         if (!$amount) {
             $amount = 0;
@@ -77,7 +68,7 @@ class Numbers
         if (!is_numeric($amount)) {
             // Calculate back to bytes
             if (!preg_match('/(\d+(?:\.\d+)?)(\w{1,3})/', $amount, $matches))  {
-                throw new CoreException(tr('Specified amount ":amount" is not a valid byte amount. Format should be either n, or nKB, nKiB, etc', [':amount' => $amount]);
+                throw new CoreException(tr('Specified amount ":amount" is not a valid byte amount. Format should be either n, or nKB, nKiB, etc', [':amount' => $amount]));
             }
 
             switch (strtolower($matches[2])) {
@@ -87,42 +78,42 @@ class Numbers
                     break;
 
                 case 'kb':
-                    // Kilo bytes
+                    // Kilobytes
                     $amount = $matches[1] * 1000;
                     break;
 
                 case 'kib':
-                    // Kibi bytes
+                    // Kibibytes
                     $amount = $matches[1] * 1024;
                     break;
 
                 case 'mb':
-                    // Mega bytes
+                    // Megabytes
                     $amount = $matches[1] * 1000000;
                     break;
 
                 case 'mib':
-                    // Mibi bytes
+                    // Mibibytes
                     $amount = $matches[1] * 1048576;
                     break;
 
                 case 'gb':
-                    // Giga bytes
+                    // Gigabytes
                     $amount = $matches[1] * 1000000 * 1000;
                     break;
 
                 case 'gib':
-                    // Gibi bytes
+                    // Gibibytes
                     $amount = $matches[1] * 1048576 * 1024;
                     break;
 
                 case 'tb':
-                    // Tera bytes
+                    // Terabytes
                     $amount = $matches[1] * 1000000 * 1000000;
                     break;
 
                 case 'tib':
-                    // Tibi bytes
+                    // Tibibytes
                     $amount = $matches[1] * 1048576 * 1048576;
                     break;
 
@@ -161,44 +152,42 @@ class Numbers
                 break;
 
             case 'kb':
-                // Kilo bytes
+                // Kilobytes
                 $amount = $amount / 1000;
                 break;
 
             case 'kib':
-                // Kibi bytes
+                // Kibibytes
                 $amount = $amount / 1024;
                 break;
 
             case 'mb':
-                // Mega bytes
+                // Megabytes
                 $amount = $amount / 1000000;
                 break;
 
             case 'mib':
-                /*
-                 * Mibi bytes
-                 */
+                // Mibibytes
                 $amount = $amount / 1048576;
                 break;
 
             case 'gb':
-                // Giga bytes
+                // Gigabytes
                 $amount = $amount / 1000000 / 1000;
                 break;
 
             case 'gib':
-                // Gibi bytes
+                // Gibibytes
                 $amount = $amount / 1048576 / 1024;
                 break;
 
             case 'tb':
-                // Tera bytes
+                // Terabytes
                 $amount = $amount / 1000000 / 1000000;
                 break;
 
             case 'tib':
-                // Tibi bytes
+                // Tibibytes
                 $amount = $amount / 1048576 / 1048576;
                 break;
 
