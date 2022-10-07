@@ -4,6 +4,7 @@ namespace Phoundation\Web;
 
 
 
+use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Http\Http;
@@ -29,6 +30,9 @@ class Web
     public static function execute(string $page): void
     {
         Arrays::ensure($params, 'message');
+
+        // Startup the core object
+        Core::startup();
 
         if ($get) {
             if (!is_array($get)) {
@@ -138,5 +142,17 @@ class Web
         }
 
         return Config::get('domain');
+    }
+
+
+
+    /**
+     *
+     *
+     * @return void
+     */
+    #[NoReturn] public static function done(): void
+    {
+        die();
     }
 }

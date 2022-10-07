@@ -14,7 +14,7 @@ use Throwable;
 /**
  * Class CoreException
  *
- * This is the most basic Exception class
+ * This is the most standard exception class
  *
  * @author Sven Olaf Oostenbrink
  * @copyright Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -165,6 +165,19 @@ class Exception extends RuntimeException
     {
         $this->warning = $warning;
         return $this;
+    }
+
+
+
+    /**
+     * Sets that this exception is a warning. If an exception is a warning, its message may be displayed completely
+     *
+     * @note This method returns $this, allowing chaining
+     * @return Exception
+     */
+    public function makeWarning(): Exception
+    {
+        return $this->setWarning(true);
     }
 
 

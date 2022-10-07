@@ -7,7 +7,7 @@ use Phoundation\Exception\Exception;
 /**
  * Class ProcessesException
  *
- * This is the basic exception for all Phoundation Processes classes
+ * This is the standard exception for all Phoundation Processes classes
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

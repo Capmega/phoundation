@@ -251,7 +251,7 @@ class Debug {
 
         $retval = '';
 
-        if (PLATFORM_HTTP) {
+        if (Core::getReady() and PLATFORM_HTTP) {
             // Show output on web
             Http::headers(null, 0);
 

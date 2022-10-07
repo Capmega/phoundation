@@ -135,9 +135,6 @@ Class Log {
 
         self::$init = true;
 
-        // Startup the core object
-        Core::startup();
-
         // Apply configuration
         self::setThreshold(Config::get('log.level', 7));
         self::setFile(Config::get('log.file', ROOT . 'data/log/syslog'));

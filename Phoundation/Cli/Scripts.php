@@ -47,7 +47,7 @@ class Scripts
      * @param array $argv The PHP $argv
      * @return void
      */
-    public static function executeCommand(array $argv): void
+    public static function execute(array $argv): void
     {
         try {
 Debug::enabled(true);
@@ -74,6 +74,8 @@ showdie('AAAAAAAAAAAAAAAAAAAAAA');
             self::executeScript($script, $argv);
 
         } catch (Throwable $e) {
+print_r($e);
+die();
 showdie($e);
             // Something, anything went wrong with the execution of this script.
             self::handleException($e);
@@ -92,9 +94,9 @@ showdie($e);
     {
         $file = ROOT . 'scripts/';
 
-        show($file);
-        show($arguments);
-die();
+show($file);
+showdie($arguments);
+
         foreach ($arguments as $argument) {
             if (str_ends_with($argument, 'php')) {
                 // This is the PHP command, ignore it
@@ -147,31 +149,44 @@ die();
     }
 
 
-
     /**
      * Script execution has finished
      *
+     * @param int|null $exit_code
+     * @param string|null $exit_message
      * @return void
      */
-    #[NoReturn] protected static function done(): void
+    #[NoReturn] public static function done(?int $exit_code = null, ?string $exit_message = null): void
     {
-        $exit_code = self::getExitCode();
+        if (!$exit_code) {
+            Scripts::setExitCode($exit_code);
+        }
 
         // Execute all shutdown functions
-        Core::shutdown();
+        Core::shutdown($exit_code);
 
         if (!QUIET) {
             if ($exit_code) {
                 if ($exit_code > 200) {
+                    if ($exit_message) {
+                        Log::warning($exit_message);
+                    }
+
                     // Script ended with warning
                     Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
 
                 } else {
+                    if ($exit_message) {
+                        Log::error($exit_message);
+                    }
                     // Script ended with error
                     Log::error(tr('Script ":script" failed with exit code ":exitcode" in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
                 }
 
             } else {
+                if ($exit_message) {
+                    Log::success($exit_message);
+                }
                 // Script ended successfully
                 Log::success(tr('Finished ":script" script in :time with ":usage" peak memory usage', [':script' => Core::readRegister('script'), ':time' => time_difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage())]), 'green');
             }

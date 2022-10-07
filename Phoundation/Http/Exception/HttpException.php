@@ -7,7 +7,7 @@ use Phoundation\Exception\Exception;
 /**
  * Class HttpException
  *
- * This is the basic exception for all Phoundation Http classes
+ * This is the standard exception for all Phoundation Http classes
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
