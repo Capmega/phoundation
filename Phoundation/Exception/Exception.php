@@ -2,20 +2,21 @@
 
 namespace Phoundation\Exception;
 
+use MongoDB\Exception\RuntimeException;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
-use RuntimeException;
 use Throwable;
 
 
+
 /**
- * Class CoreException
+ * Class Exception
  *
- * This is the most standard exception class
+ * This is the most basic Phoundation exception class
  *
  * @author Sven Olaf Oostenbrink
  * @copyright Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -115,6 +116,7 @@ class Exception extends RuntimeException
      */
     public function getMessages(): array
     {
+echo 'GET MESSAGE FROM EXCEPTION '.PHP_EOL;
         return $this->messages;
     }
 

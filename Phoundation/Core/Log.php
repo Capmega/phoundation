@@ -136,7 +136,7 @@ Class Log {
         self::$init = true;
 
         // Apply configuration
-        self::setThreshold(Config::get('log.threshold', 5));
+        self::setThreshold(Config::get('log.threshold', Core::errorState() ? 1 : 5));
         self::setFile(Config::get('log.file', ROOT . 'data/log/syslog'));
         self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_FILE));
         self::setLocalId(substr(uniqid(true), -8, 8));

@@ -2,7 +2,11 @@
 
 namespace Phoundation\Core;
 
+use ErrorException;
 use Phoundation\Core\Exception\ConfigException;
+use Phoundation\Exception\Exception;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpException;
 use Throwable;
 
 
@@ -25,6 +29,13 @@ class Config{
      * @var Config|null $instance
      */
     protected static ?Config $instance = null;
+
+    /**
+     * Keeps track of configuration failures
+     *
+     * @var bool $fail
+     */
+    protected static bool $fail = false;
 
     /**
      * The generic system register to store data
@@ -80,6 +91,11 @@ class Config{
      */
     public static function get(string|array $path, mixed $default = null, mixed $specified = null): mixed
     {
+        if (self::$fail) {
+            // Config class failed, always return all default values
+            return $default;
+        }
+
         self::getInstance();
 
         if ($specified) {
@@ -170,7 +186,7 @@ class Config{
 
         // The variable $data should now be the correct leaf node. Assign it $value and return it.
         $data = $value;
-        return $data;
+        return $value;
     }
 
 
@@ -181,6 +197,8 @@ class Config{
      * @param string $environment
      * @return bool True if any configuration files were read, false if the file already was read before, or if no
      *      configuration files are available for the specified section
+     * @throws Throwable
+     * @throws OutOfBoundsException
      */
     protected static function read(string $environment): bool
     {
@@ -198,15 +216,18 @@ class Config{
                 try {
                     $data = yaml_parse_file($file);
                 } catch (Throwable $e) {
+                    // Failed to read YAML data from configuration file
+                    self::$fail = true;
                     Log::error($e);
+                    throw $e;
                 }
 
-print_r($data);
-die();
+                if (!is_array($data)) {
+                    throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [':file' => $file]));
+                }
+
                 self::$data = array_merge(self::$data, $data);
             }
-print_r('WUT?');
-die();
         }
 
         return $read;

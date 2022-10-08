@@ -2,12 +2,14 @@
 
 namespace Phoundation\Core;
 
+use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Colors;
 use Phoundation\Cli\Scripts;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
+use Phoundation\Exception\Exception;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
@@ -922,14 +924,52 @@ class Core {
 
 
     /**
+     * Allows to change the Core class state
+     *
+     * @note This method only allows a change to the states "error" or "phperror"
+     * @param string $state
+     * @return void
+     */
+    public static function setState(string $state): void
+    {
+        switch ($state) {
+            case 'error':
+                // no-break
+            case 'phperror':
+                self::$state = $state;
+                break;
+
+            case 'init':
+                // no-break
+            case 'startup':
+                // no-break
+            case 'shutdown':
+                // These are not allowed
+                throw new OutOfBoundsException(tr('Core state update to ":state" is not allowed. Core state can only be updated to "error" or "phperror"', [':state' => $state]));
+
+            default:
+                // Wut?
+                throw new OutOfBoundsException(tr('Unknown core state ":state" specified. Core state can only be updated to "error" or "phperror"', [':state' => $state]));
+        }
+    }
+
+
+
+    /**
      * Returns true if the system is still starting up
      *
-     * @see Core::getState()
+     * @param bool|null $state If specified will return the startup state for the specified state instead of the
+     *                         internal Core state
      * @return bool
+     * @see Core::getState()
      */
-    public static function startupState(): bool
+    public static function startupState(?bool $state = null): bool
     {
-        return match (self::$state) {
+        if ($state === null) {
+            $state = self::$state;
+        }
+
+        return match ($state) {
             'init', 'startup' => true,
             default           => false,
         };
@@ -940,12 +980,14 @@ class Core {
     /**
      * Returns true if the system has finished starting up
      *
+     * @param bool|null $state If specified will return the startup state for the specified state instead of the
+     *                         internal Core state
      * @see Core::getState()
      * @return bool
      */
-    public static function readyState(): bool
+    public static function readyState(?bool $state = null): bool
     {
-        return !self::startupState();
+        return !self::startupState($state);
     }
 
 
@@ -1048,6 +1090,8 @@ class Core {
 
 
 
+// TODO Remove the code below as PHP, for some reason, completely loses its marbles when trying to do PHP error handling in a static class method. This seems to only work as a function
+
     /**
      * Convert all PHP errors in exceptions. With this function the entirety of base works only with exceptions, and
      * function output normally does not need to be checked for errors.
@@ -1059,17 +1103,17 @@ class Core {
      * @param string $errfile
      * @param int $errline
      * @return void
-     * @throws PhpException
+     * @throws \Exception
      */
     public static function phpErrorHandler(int $errno, string $errstr, string $errfile, int $errline): void
     {
-        self::$state = 'phperror';
-
         if (self::startupState()) {
             // Wut? We're not even ready to go! Likely we don't have configuration available so we cannot even send out
-            // notifications. Just crash
-            throw new PhpException('Core startup PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline));
+            // notifications. Just crash with a standard PHP exception
+            throw new \Exception('Core startup PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"');
         }
+
+        self::$state = 'phperror';
 
         $trace = Debug::backtrace();
         unset($trace[0]);
@@ -1088,23 +1132,21 @@ class Core {
                 'trace' => $trace
             ])->send();
 
-        throw new PhpException(tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', [':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline]), [':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline, ':trace' => $trace], 'PHP'.$errno);
+        throw new \Exception('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', 'PHP'.$errno);
     }
 
 
 
     /**
-     * This function is called automaticaly
+     * This function is called automatically
      *
      * @param Throwable $e
      * @param boolean $die Specify false if this exception should be a warning and continue, true if it should die
      * @return void
      * @note: This function should never be called directly
      */
-    public static function uncaughtException(Throwable $e, bool $die = true): void
+    #[NoReturn] public static function uncaughtException(Throwable $e, bool $die = true): void
     {
-        self::$state = 'error';
-
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
         /*
          * Phoundation uncaught exception handler
@@ -1137,25 +1179,28 @@ class Core {
          */
         static $executed = false;
 
+        $state = self::$state;
+        self::$state = 'error';
+
         try {
             try {
                 if ($executed) {
-                    /*
-                     * We seem to be stuck in an uncaught exception loop, cut it out now!
-                     */
+                    // We seem to be stuck in an uncaught exception loop, cut it out now!
+                    // This basically means that the unhandledException handler also is causing exceptions.
                     // :TODO: ADD NOTIFICATIONS OF STUFF GOING FUBAR HERE!
-                    die('exception loop detected');
+                    die('uncaught exception handler loop detected');
                 }
 
                 $executed = true;
 
-                if (empty(self::readRegister('system', 'script'))) {
-                    Core::readRegister('system', 'script', 'unknown');
+                if (empty(self::$register['system']['script'])) {
+                    self::$register['system']['script'] = 'unknown';
                 }
 
-                if (self::startupState()) {
-                    // System is not ready, we cannot log to syslog
-                    error_log(tr('*** UNCAUGHT PRE-CORE-READY EXCEPTION ":code" ***', [':code' => $e->getCode()]));
+                if (self::startupState($state)) {
+                    // System is not ready as it is still starting up. We cannot assumre we have configuration available
+                    // As such, we cannot log to syslog
+                    error_log(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION ":code" ***', [':code' => $e->getCode()]));
                     error_log($e->getMessage());
                     die(1);
 
@@ -1212,7 +1257,7 @@ class Core {
                             die(1);
                         }
 
-                        if (self::startupState()) {
+                        if (self::startupState($state)) {
                             /*
                              * Configuration hasn't been loaded yet, we cannot even know if
                              * we are in debug mode or not!
@@ -1422,7 +1467,7 @@ class Core {
                             ->setException($e)
                             ->send();
 
-                        if (self::startupState()) {
+                        if (self::startupState($state)) {
                             /*
                              * Configuration hasn't been loaded yet, we cannot even know
                              * if we are in debug mode or not!
@@ -1585,8 +1630,8 @@ class Core {
 //                    die('Pre core available exception with handling failure. Please your application or webserver error log files, or enable the first line in the exception handler file for more information');
 //                }
 
-                if (!defined('PLATFORM') or self::startupState()) {
-                    error_log(tr('*** UNCAUGHT PRE READY EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('system', 'script'))));
+                if (!defined('PLATFORM') or self::startupState($state)) {
+                    error_log(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('system', 'script'))));
                     error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
                     error_log($f->getMessage());
                     die('Pre core ready exception with handling failure. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
