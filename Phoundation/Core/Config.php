@@ -218,7 +218,6 @@ class Config{
                 } catch (Throwable $e) {
                     // Failed to read YAML data from configuration file
                     self::$fail = true;
-                    Log::error($e);
                     throw $e;
                 }
 

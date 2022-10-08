@@ -432,27 +432,13 @@ Class Log {
     /**
      * Write a success message in the log file
      *
-     * @param string|null $message
+     * @param mixed $messages
      * @param int $level
      * @return bool
      */
-    public static function success(?string $message, int $level = 5): bool
+    public static function success(mixed $messages, int $level = 5): bool
     {
-        return self::write('success', $message, $level);
-    }
-
-
-
-    /**
-     * Write a warning message in the log file
-     *
-     * @param string|null $message
-     * @param int $level
-     * @return bool
-     */
-    public static function warning(?string $message, int $level = 7): bool
-    {
-        return self::write('warning', $message, $level);
+        return self::write('success', $messages, $level);
     }
 
 
@@ -460,13 +446,27 @@ Class Log {
     /**
      * Write an error message in the log file
      *
-     * @param string|null $message
+     * @param mixed $messages
      * @param int $level
      * @return bool
      */
-    public static function error(?string $message, int $level = 10): bool
+    public static function error(mixed $messages, int $level = 10): bool
     {
-        return self::write('error', $message, $level);
+        return self::write('error', $messages, $level);
+    }
+
+
+
+    /**
+     * Write a warning message in the log file
+     *
+     * @param mixed $messages
+     * @param int $level
+     * @return bool
+     */
+    public static function warning(mixed $messages, int $level = 7): bool
+    {
+        return self::write('warning', $messages, $level);
     }
 
 
@@ -474,13 +474,13 @@ Class Log {
     /**
      * Write a notice message in the log file
      *
-     * @param string|null $message
+     * @param mixed $messages
      * @param int $level
      * @return bool
      */
-    public static function notice(?string $message, int $level = 3): bool
+    public static function notice(mixed $messages, int $level = 3): bool
     {
-        return self::write('notice', $message, $level);
+        return self::write('notice', $messages, $level);
     }
 
 
@@ -488,13 +488,13 @@ Class Log {
     /**
      * Write a information message in the log file
      *
-     * @param string|null $message
+     * @param mixed $messages
      * @param int $level
      * @return bool
      */
-    public static function information(?string $message, int $level = 7): bool
+    public static function information(mixed $messages, int $level = 7): bool
     {
-        return self::write('information', $message, $level);
+        return self::write('information', $messages, $level);
     }
 
 
@@ -502,26 +502,26 @@ Class Log {
     /**
      * Write a debug message in the log file
      *
-     * @param mixed $message
+     * @param mixed $messages
      * @param int $level
      * @return bool
      */
-    public static function debug(mixed $message, int $level = 10): bool
+    public static function debug(mixed $messages, int $level = 10): bool
     {
-        $type = gettype($message);
+        $type = gettype($messages);
 
         switch ($type) {
             case 'array':
-                $size = count($message);
+                $size = count($messages);
                 break;
 
             case 'boolean':
                 $size = '-';
-                $message = strtoupper(Strings::boolean($message));
+                $message = strtoupper(Strings::boolean($messages));
                 break;
 
             case 'string':
-                $size = strlen($message);
+                $size = strlen($messages);
                 break;
 
             default:
@@ -529,22 +529,22 @@ Class Log {
                 $size = '-';
         }
 
-        if (!is_scalar($message)) {
+        if (!is_scalar($messages)) {
             // We cannot display non-scalar data, encode it with JSON
             try {
-                $message = Json::encode($message,JSON_INVALID_UTF8_IGNORE | JSON_INVALID_UTF8_SUBSTITUTE | JSON_UNESCAPED_UNICODE);
+                $messages = Json::encode($messages,JSON_INVALID_UTF8_IGNORE | JSON_INVALID_UTF8_SUBSTITUTE | JSON_UNESCAPED_UNICODE);
             } catch (JsonException $e) {
                 // Message failed to be JSON encoded
-                $message = tr('JSON data could not be encoded for this log message');
+                $messages = tr('JSON data could not be encoded for this log message');
             }
         }
 
         // Build the message
         $prefix = strtoupper($type) . ' [' . $size . '] ';
-        $message = $prefix . $message;
+        $messages = $prefix . $messages;
 
         self::logDebugHeader('PRINTR', $level);
-        return self::write('debug', $message, $level);
+        return self::write('debug', $messages, $level);
     }
 
 
@@ -566,14 +566,14 @@ Class Log {
      * Write a hex encoded message in the log file. All hex codes will be grouped in groups of 2 characters for
      * readability
      *
-     * @param mixed $message
+     * @param mixed $messages
      * @param int $level
      * @return bool
      */
-    public static function hex(mixed $message, int $level = 3): bool
+    public static function hex(mixed $messages, int $level = 3): bool
     {
         self::logDebugHeader('HEX', $level);
-        return self::write('hex', Strings::interleave(bin2hex(Strings::force($message)), 10), $level);
+        return self::write('hex', Strings::interleave(bin2hex(Strings::force($messages)), 10), $level);
     }
 
 
@@ -596,14 +596,14 @@ Class Log {
     /**
      * Write a debug message using print_r() in the log file
      *
-     * @param mixed $message
+     * @param mixed $messages
      * @param int $level
      * @return bool
      */
-    public static function printr(mixed $message, int $level = 10): bool
+    public static function printr(mixed $messages, int $level = 10): bool
     {
         self::logDebugHeader('PRINTR', $level);
-        return self::write('debug', print_r($message, true), $level, false);
+        return self::write('debug', print_r($messages, true), $level, false);
     }
 
 
@@ -611,14 +611,14 @@ Class Log {
     /**
      * Write a debug message using vardump() in the log file
      *
-     * @param mixed $message
+     * @param mixed $messages
      * @param int $level
      * @return bool
      */
-    public static function vardump(mixed $message, int $level = 10): bool
+    public static function vardump(mixed $messages, int $level = 10): bool
     {
         self::logDebugHeader('VARDUMP', $level);
-        return self::write('debug', var_export($message, true), $level, false);
+        return self::write('debug', var_export($messages, true), $level, false);
     }
 
 
@@ -674,7 +674,7 @@ Class Log {
      * Write the specified log message to the current log file for this instance
      *
      * @param string $class
-     * @param mixed $messages
+     * @param mixed $messagess
      * @param int $level
      * @param bool $clean If true, the data will be cleaned before written to log. This will avoid (for example) binary
      *                    data from corrupting the log file
@@ -683,7 +683,7 @@ Class Log {
      */
     public static function write(string $class, mixed $messages, int $level, bool $clean = true, bool $newline = true): bool
     {
-        if (self::$lock or self::$fail or self::$init or Core::errorState()) {
+        if (self::$lock or self::$fail or self::$init) {
             // Do not log anything while locked, initialising, or while dealing with a Log internal failure
             error_log($messages);
             return false;
@@ -1143,7 +1143,7 @@ showdie($e);
 //     * @note: This function basically only needs to be executed by log_file() and log_console()
 //     * @version 2.5.22: Added function and documentation
 //     *
-//     * @param mixed $messages
+//     * @param mixed $messagess
 //     * @param string $color
 //     * @param boolean $filter_double
 //     * @return null string $class
@@ -1244,7 +1244,7 @@ showdie($e);
 //     * @package system
 //     * @version 2.5.22: Added documentation, upgraded to use log_sanitize()
 //     *
-//     * @param mixed $messages
+//     * @param mixed $messagess
 //     * @param string $color
 //     * @param boolean $newline
 //     * @param boolean $filter_double
@@ -1364,7 +1364,7 @@ showdie($e);
 //     * @package system
 //     * @version 2.5.22: Added documentation, upgraded to use log_sanitize()
 //     *
-//     * @param mixed $messages
+//     * @param mixed $messagess
 //     * @param string $class
 //     * @param string $color
 //     * @param string $color

@@ -214,7 +214,7 @@ class Core {
                         /*
                          * Died in browser
                          */
-                        error_log('startup: Failed with "' . $e->getMessage() . '"');
+                        Log::error('startup: Failed with "' . $e->getMessage() . '"');
                         Web::die('startup: Failed, see web server error log');
                     }
 
@@ -958,12 +958,12 @@ class Core {
     /**
      * Returns true if the system is still starting up
      *
-     * @param bool|null $state If specified will return the startup state for the specified state instead of the
-     *                         internal Core state
+     * @param string|null $state If specified will return the startup state for the specified state instead of the
+     *                           internal Core state
      * @return bool
      * @see Core::getState()
      */
-    public static function startupState(?bool $state = null): bool
+    public static function startupState(?string $state = null): bool
     {
         if ($state === null) {
             $state = self::$state;
@@ -980,12 +980,12 @@ class Core {
     /**
      * Returns true if the system has finished starting up
      *
-     * @param bool|null $state If specified will return the startup state for the specified state instead of the
-     *                         internal Core state
+     * @param string|null $state If specified will return the startup state for the specified state instead of the
+     *                           internal Core state
      * @see Core::getState()
      * @return bool
      */
-    public static function readyState(?bool $state = null): bool
+    public static function readyState(?string $state = null): bool
     {
         return !self::startupState($state);
     }
@@ -1197,17 +1197,8 @@ class Core {
                     self::$register['system']['script'] = 'unknown';
                 }
 
-                if (self::startupState($state)) {
-                    // System is not ready as it is still starting up. We cannot assumre we have configuration available
-                    // As such, we cannot log to syslog
-                    error_log(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION ":code" ***', [':code' => $e->getCode()]));
-                    error_log($e->getMessage());
-                    die(1);
-
-                } else {
-                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getCallType(), ':script' => self::readRegister('system', 'script')]));
-                    Log::error($e, 'uncaught-exception', 'exception');
-                }
+                Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getCallType(), ':script' => self::readRegister('system', 'script')]));
+                Log::error($e);
 
                 if (!defined('PLATFORM')) {
                     // System crashed before platform detection.
@@ -1266,11 +1257,11 @@ class Core {
                              */
                             if (method_exists($e, 'getMessages')) {
                                 foreach ($e->getMessages() as $message) {
-                                    error_log($message);
+                                    Log::error($message);
                                 }
 
                             } else {
-                                error_log($e->getMessage());
+                                Log::error($e->getMessage());
                             }
 
 
@@ -1483,11 +1474,11 @@ class Core {
 
                             if (method_exists($e, 'getMessages')) {
                                 foreach ($e->getMessages() as $message) {
-                                    error_log($message);
+                                    Log::error($message);
                                 }
 
                             } else {
-                                error_log($e->getMessage());
+                                Log::error($e->getMessage());
                             }
 
                             Web::die(tr('System startup exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
@@ -1624,17 +1615,18 @@ class Core {
 
             }catch(Throwable $f) {
 //                if (!isset($core)) {
-//                    error_log(tr('*** UNCAUGHT PRE CORE AVAILABLE EXCEPTION HANDLER CRASHED ***'));
-//                    error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
-//                    error_log($f->getMessage());
+//                    Log::error(tr('*** UNCAUGHT PRE CORE AVAILABLE EXCEPTION HANDLER CRASHED ***'));
+//                    Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+//                    Log::error($f->getMessage());
 //                    die('Pre core available exception with handling failure. Please your application or webserver error log files, or enable the first line in the exception handler file for more information');
 //                }
 
                 if (!defined('PLATFORM') or self::startupState($state)) {
-                    error_log(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('system', 'script'))));
-                    error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
-                    error_log($f->getMessage());
-                    die('Pre core ready exception with handling failure. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
+                    Log::error(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('system', 'script'))));
+                    Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+                    Log::error($f->getMessage());
+                    Log::error($f->getTrace());
+                    die('System startup exception with handling failure. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
                 }
 
                 Log::error('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!');
@@ -1934,7 +1926,7 @@ class Core {
         // Do we need to run other shutdown functions?
         if (self::startupState()) {
             if (!$error_code) {
-                error_log(tr('Shutdown procedure started before self::$register[script] was ready, possibly on script ":script"', [':script' => $_SERVER['PHP_SELF']]));
+                Log::error(tr('Shutdown procedure started before self::$register[script] was ready, possibly on script ":script"', [':script' => $_SERVER['PHP_SELF']]));
                 return;
             }
 
