@@ -669,12 +669,11 @@ Class Log {
     }
 
 
-
     /**
      * Write the specified log message to the current log file for this instance
      *
      * @param string $class
-     * @param mixed $messagess
+     * @param mixed $messages
      * @param int $level
      * @param bool $clean If true, the data will be cleaned before written to log. This will avoid (for example) binary
      *                    data from corrupting the log file
@@ -851,7 +850,7 @@ Class Log {
                 $messages = Strings::cleanWhiteSpace($messages);
             }
 
-            $messages = date('Y-m-d H:i:s') . ' ' . $level . ' ' . getmypid() . ' ' . self::$global_id . ' / ' . self::$local_id . ' ' . $messages . ($newline ? PHP_EOL : null);
+            $messages = date('Y-m-d H:i:s') . ' ' . ($level === 10 ? 10 : ' ' . $level) . ' ' . getmypid() . ' ' . self::$global_id . ' / ' . self::$local_id . ' ' . $messages . ($newline ? PHP_EOL : null);
             fwrite(self::$handles[self::$file], $messages);
 
             // In Command Line mode always log to the screen too
