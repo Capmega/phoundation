@@ -9,6 +9,7 @@ use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
+use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Processes\Commands;
@@ -61,7 +62,7 @@ Debug::enabled(true);
         Core::registerShutdown('cli_done');
 
         if (count($argv) <= 1) {
-            throw new OutOfBoundsException('No method specified!');
+            throw Exceptions::OutOfBoundsException('No method specified!')->makeWarning();
         }
 
         // Get the script file to execute

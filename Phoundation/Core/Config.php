@@ -204,8 +204,15 @@ class Config{
     {
         $read = false;
 
+        // What environments should be read?
+        if (ENVIRONMENT === 'production') {
+            $environments = ['production'];
+        } else {
+            $environments = ['production', ENVIRONMENT];
+        }
+
         // Read the section for each environment
-        foreach (['production', ENVIRONMENT] as $environment) {
+        foreach ($environments as $environment) {
             $file = ROOT . 'config/' . $environment . '.yaml';
 
             // Check if a configuration file exists for this environment

@@ -737,7 +737,7 @@ Class Log {
 
                 // Redetermine the log class
                 if ($messages instanceof Exception) {
-                    if ($messages->getWarning()) {
+                    if ($messages->isWarning()) {
                         // This is a warning exception, which can be displayed to user (usually this is caused by user
                         // data validation issues, etc.
                         $class = 'warning';
@@ -753,7 +753,7 @@ Class Log {
 
                 // Log the initial exception message
                 self::write($class, 'Encountered "' . get_class($messages) . '" class exception in "' . $messages->getFile() . '@' . $messages->getLine() . '" (Main script "' . basename(isset_get($_SERVER['SCRIPT_FILENAME'])) . '")', $level);
-                self::write($class, 'Exception message : [' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $level);
+                self::write($class, 'Exception message: [' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $level);
 
                 // Warning exceptions do not need to show the extra messages, trace, or data or previous exception
                 if ($class == 'error') {

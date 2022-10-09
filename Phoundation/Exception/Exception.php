@@ -30,28 +30,28 @@ class Exception extends RuntimeException
      *
      * @var mixed
      */
-    protected mixed $data;
+    protected mixed $data = null;
 
     /**
      * Exception messages
      *
      * @var array
      */
-    protected array $messages;
+    protected array $messages = [];
 
     /**
      * Exception is warning or not
      *
      * @var bool $warning
      */
-    protected bool $warning;
+    protected bool $warning = false;
 
     /**
      * Exception code
      *
      * @var string $code
      */
-    protected $code;
+    protected $code = 0;
 
 
 

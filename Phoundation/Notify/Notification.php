@@ -2,17 +2,17 @@
 
 namespace Phoundation\Notify;
 
-
-
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Throwable;
 
+
+
 /**
  * Class Notification
  *
- * This is the default MemCached object
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

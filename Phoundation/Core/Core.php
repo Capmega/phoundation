@@ -151,6 +151,9 @@ class Core {
             require(ROOT . 'Phoundation/functions.php');
             require(ROOT . 'Phoundation/mb.php');
 
+            // Ensure safe PHP configuration
+            self::securePhpSettings();
+
             // Get the project name
             try {
                 define('PROJECT', strtoupper(trim(file_get_contents( ROOT . 'config/project'))));
@@ -282,7 +285,7 @@ class Core {
                         $file = '/' . $_SERVER['PHP_SELF'];
                     }
 
-                    // Auto detect what http call type we're on from the script being executed
+                    // Autodetect what http call type we're on from the script being executed
                     if (str_contains($file, '/admin/')) {
                         self::$call_type = 'admin';
 
@@ -421,10 +424,8 @@ class Core {
                         Html::untranslate();
                         Html::fixCheckboxValues();
 
-                        if ($_CONFIG['security']['csrf']['enabled'] === 'force') {
-                            /*
-                             * Force CSRF checks on every submit!
-                             */
+                        if (Config('security.csrf.enabled') === 'force') {
+                            // Force CSRF checks on every submit!
                             Http::checkCsrf();
                         }
                     }
@@ -804,14 +805,6 @@ class Core {
                     // Setup language map in case domain() calls are used
 //                    Route::map();
                     break;
-            }
-
-            // Ensure that SEED has been configured
-            // Todo Move this to a security class where its actually used. No need to check this every time when its not being used in 99% of the page calls
-            if (!defined('SEED') or !SEED) {
-                if (self::$register['system']['script'] !== 'setup') {
-                    throw Exceptions::outOfBoundsException(tr('startup: Configuration data in "ROOT/config/production.yaml"' . (ENVIRONMENT === 'production' ? '' : ' or "ROOT/config/' . ENVIRONMENT . '.yaml"') . ' has not been fully configured. Please ensure that security.seed is not empty'))->makeWarning();
-                }
             }
 
             self::$state = 'script';
@@ -1992,6 +1985,19 @@ class Core {
         // Set user timezone
         define('TIMEZONE', $timezone);
         ensure_variable($_SESSION['user']['timezone'], 'UTC');
+    }
+
+
+
+    /**
+     * Apply various settings to ensure this process is running as secure as possible
+     *
+     * @todo Should these issues be detected and logged if found, instead? What if somebody, for example, would need yaml.decode_php?
+     * @return void
+     */
+    protected static function securePhpSettings(): void
+    {
+        ini_set('yaml.decode_php', 'off'); // Do this to avoid the ability to unserialize PHP code
     }
 }
 
