@@ -1196,79 +1196,72 @@ class Core {
                     self::$register['system']['script'] = 'unknown';
                 }
 
-                Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getCallType(), ':script' => self::readRegister('system', 'script')]));
-                Log::error($e);
-
                 if (!defined('PLATFORM')) {
                     // System crashed before platform detection.
+                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getCallType(), ':script' => self::readRegister('system', 'script')]));
+                    Log::error($e);
                     die('exception before platform detection');
                 }
 
                 switch (PLATFORM) {
                     case 'cli':
-                        /*
-                         * Ensure that required defines are available
-                         */
-                        if (!defined('VERYVERBOSE')) {
-                            define('VERYVERBOSE', (Cli::argument('-VV,--very-verbose') ? 'VERYVERBOSE' : null));
-                        }
-
-                        self::setTimeout(1);
-
-                        $defines = [
-                            'ADMIN'    => '',
-                            'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
-                            'VERBOSE'  => ((VERYVERBOSE or Cli::argument('-V,--verbose,-V2,--very-verbose')) ? 'VERBOSE' : null),
-                            'QUIET'    => Cli::argument('-Q,--quiet'),
-                            'FORCE'    => Cli::argument('-F,--force'),
-                            'TEST'     => Cli::argument('-T,--test'),
-                            'LIMIT'    => not_empty(Cli::argument('--limit'  , true), Config::get('paging.limit', 50)),
-                            'ALL'      => Cli::argument('-A,--all'),
-                            'DELETED'  => Cli::argument('--deleted'),
-                            'STATUS'   => Cli::argument('-S,--status' , true),
-                            'STARTDIR' => Strings::slash(getcwd())
-                        ];
-
-                        foreach ($defines as $key => $value) {
-                            if (!defined($key)) {
-                                define($key, $value);
-                            }
-                        }
-
-                        Notification::getInstance()
-                            ->setException($e)
-                            ->send();
-
-                        // Specified arguments were wrong
-                        // TODO CHANGE PARAMETERS TO "ARGUMENTS"
-                        if ($e->getCode() === 'parameters') {
-                            Log::warning(trim(Strings::from($e->getMessage(), '():')));
-                            $GLOBALS['core'] = false;
-                            die(1);
-                        }
-
-                        if (self::startupState($state)) {
-                            /*
-                             * Configuration hasn't been loaded yet, we cannot even know if
-                             * we are in debug mode or not!
-                             *
-                             * Log to the webserver error log files at the very least
-                             */
-                            if (method_exists($e, 'getMessages')) {
-                                foreach ($e->getMessages() as $message) {
-                                    Log::error($message);
-                                }
-
-                            } else {
-                                Log::error($e->getMessage());
-                            }
-
-
-                            echo Colors::apply('System startup exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information', 'red');
-                            print_r($e);
-                            echo Colors::apply('System startup exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information', 'red');
-                            Scripts::die(1);
-                        }
+//                        // Ensure that required defines are available
+//                        if (!defined('VERYVERBOSE')) {
+//                            define('VERYVERBOSE', (Cli::argument('-VV,--very-verbose') ? 'VERYVERBOSE' : null));
+//                        }
+//
+//                        self::setTimeout(1);
+//
+//                        $defines = [
+//                            'ADMIN'    => '',
+//                            'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
+//                            'VERBOSE'  => ((VERYVERBOSE or Cli::argument('-V,--verbose,-V2,--very-verbose')) ? 'VERBOSE' : null),
+//                            'QUIET'    => Cli::argument('-Q,--quiet'),
+//                            'FORCE'    => Cli::argument('-F,--force'),
+//                            'TEST'     => Cli::argument('-T,--test'),
+//                            'LIMIT'    => not_empty(Cli::argument('--limit'  , true), Config::get('paging.limit', 50)),
+//                            'ALL'      => Cli::argument('-A,--all'),
+//                            'DELETED'  => Cli::argument('--deleted'),
+//                            'STATUS'   => Cli::argument('-S,--status' , true),
+//                            'STARTDIR' => Strings::slash(getcwd())
+//                        ];
+//
+//                        foreach ($defines as $key => $value) {
+//                            if (!defined($key)) {
+//                                define($key, $value);
+//                            }
+//                        }
+//
+//                        Notification::getInstance()
+//                            ->setException($e)
+//                            ->send();
+//
+//                        // Specified arguments were wrong
+//                        // TODO CHANGE PARAMETERS TO "ARGUMENTS"
+//                        if ($e->getCode() === 'parameters') {
+//                            Log::warning(trim(Strings::from($e->getMessage(), '():')));
+//                            $GLOBALS['core'] = false;
+//                            die(1);
+//                        }
+//
+//                        if (self::startupState($state)) {
+//                            /*
+//                             * Configuration hasn't been loaded yet, we cannot even know if
+//                             * we are in debug mode or not!
+//                             *
+//                             * Log to the webserver error log files at the very least
+//                             */
+//                            if (method_exists($e, 'getMessages')) {
+//                                foreach ($e->getMessages() as $message) {
+//                                    Log::error($message);
+//                                }
+//
+//                            } else {
+//                                Log::error($e->getMessage());
+//                            }
+//
+//                            Scripts::die(1);
+//                        }
 
                         /*
                          * Command line script crashed.
@@ -1276,144 +1269,82 @@ class Core {
                          * If not using VERBOSE mode, then try to give nice error messages
                          * for known issues
                          */
-                        if (!VERBOSE) {
-                            if (Strings::until($e->getCode(), '/') === 'warning') {
-                                /*
-                                 * This is just a simple general warning, no backtrace and
-                                 * such needed, only show the principal message
-                                 */
-                                Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-                                Scripts::setExitCode(255);
-                                die(Scripts::getExitCode());
-                            }
-
-                            switch ((string) $e->getCode()) {
-                                case 'already-running':
-                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-                                    Scripts::setExitCode(254);
-                                    die(Scripts::getExitCode());
-
-                                case 'no-method':
-                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-                                    Scripts::setExitCode(253);
-                                    die(Scripts::getExitCode());
-
-                                case 'unknown-method':
-                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-                                    Scripts::setExitCode(252);
-                                    die(Scripts::getExitCode());
-
-                                case 'missing-arguments':
-                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-                                    Scripts::setExitCode(253);
-                                    die(Scripts::getExitCode());
-
-                                case 'invalid-arguments':
-                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-                                    Scripts::setExitCode(251);
-                                    die(Scripts::getExitCode());
-
-                                case 'validation':
-                                    if (self::readRegister('system', 'script') === 'init') {
-                                        /*
-                                         * In the init script, all validations are fatal!
-                                         */
-                                        $e->makeWarning(false);
-                                        break;
-                                    }
-
-                                    if (method_exists($e, 'getMessages')) {
-                                        $messages = $e->getMessages();
-
-                                    } else {
-                                        $messages = $e->getMessage();
-                                    }
-
-                                    if (count($messages) > 2) {
-                                        array_pop($messages);
-                                        array_pop($messages);
-                                        Log::warning(tr('Validation failed'));
-                                        Log::warning($messages, 'yellow');
-
-                                    } else {
-                                        Log::warning($messages);
-                                    }
-
-                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-                                    Scripts::setExitCode(250);
-                                    die(Scripts::getExitCode());
-                            }
+                        if (($e instanceof Exception) and $e->isWarning()) {
+                            // This is just a simple general warning, no backtrace and such needed, only show the
+                            // principal message
+                            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+                            Scripts::die(255);
                         }
 
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN CONSOLE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => self::readRegister('system', 'script'))));
-                        Debug::enabled(true);
+// TODO Remplement this with proper exception classes
+//                            switch ((string) $e->getCode()) {
+//                                case 'already-running':
+//                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+//                                    Scripts::setExitCode(254);
+//                                    die(Scripts::getExitCode());
+//
+//                                case 'no-method':
+//                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+//                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
+//                                    Scripts::setExitCode(253);
+//                                    die(Scripts::getExitCode());
+//
+//                                case 'unknown-method':
+//                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+//                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
+//                                    Scripts::setExitCode(252);
+//                                    die(Scripts::getExitCode());
+//
+//                                case 'missing-arguments':
+//                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+//                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
+//                                    Scripts::setExitCode(253);
+//                                    die(Scripts::getExitCode());
+//
+//                                case 'invalid-arguments':
+//                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+//                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
+//                                    Scripts::setExitCode(251);
+//                                    die(Scripts::getExitCode());
+//
+//                                case 'validation':
+//                                    if (self::readRegister('system', 'script') === 'init') {
+//                                        /*
+//                                         * In the init script, all validations are fatal!
+//                                         */
+//                                        $e->makeWarning(false);
+//                                        break;
+//                                    }
+//
+//                                    if (method_exists($e, 'getMessages')) {
+//                                        $messages = $e->getMessages();
+//
+//                                    } else {
+//                                        $messages = $e->getMessage();
+//                                    }
+//
+//                                    if (count($messages) > 2) {
+//                                        array_pop($messages);
+//                                        array_pop($messages);
+//                                        Log::warning(tr('Validation failed'));
+//                                        Log::warning($messages, 'yellow');
+//
+//                                    } else {
+//                                        Log::warning($messages);
+//                                    }
+//
+//                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
+//                                    Scripts::setExitCode(250);
+//                                    die(Scripts::getExitCode());
+//                            }
 
-                        if ($e instanceof CoreException) {
-                            if ($e->getCode() === 'no-trace') {
-                                $messages = $e->getMessages();
-                                Log::error(array_pop($messages));
-
-                            } else {
-                                /*
-                                 * Show the entire exception
-                                 */
-                                $messages = $e->getMessages();
-                                $data     = $e->getData();
-                                $code     = $e->getCode();
-                                $file     = $e->getFile();
-                                $line     = $e->getLine();
-                                $trace    = $e->getTrace();
-
-                                Log::error(tr('Exception code    : ":code"'      , array(':code' => $code))                  );
-                                Log::error(tr('Exception location: ":file@:line"', array(':file' => $file, ':line' => $line)));
-                                Log::error(tr('Exception messages trace:'));
-
-                                foreach ($messages as $message) {
-                                    Log::error('    '.$message);
-                                }
-
-                                Log::error('    '.self::readRegister('system', 'script').': Failed');
-                                Log::error(tr('Exception function trace:'));
-
-                                if ($trace) {
-                                    Log::error(Strings::Log($trace));
-
-                                } else {
-                                    Log::error(tr('N/A'));
-                                }
-
-                                if ($data) {
-                                    Log::error(tr('Exception data:'));
-                                    Log::error(Strings::Log($data));
-                                }
-                            }
-
-                        } else {
-                            /*
-                             * Treat this as a normal PHP Exception object
-                             */
-                            if ($e->getCode() === 'no-trace') {
-                                Log::error($e->getMessage());
-
-                            } else {
-                                /*
-                                 * Show the entire exception
-                                 */
-                                show($e, null, true);
-                            }
-                        }
-
-                        Scripts::setExitCode(64);
-                        die(8);
+                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getCallType(), ':script' => self::readRegister('system', 'script')]));
+                        Log::error(tr('Exception data:'));
+                        Log::error($e);
+                        Scripts::die(1);
 
                     case 'http':
-                        /*
-                         * Remove all caching headers
-                         */
+                        // Remove all caching headers
                         if (!headers_sent()) {
                             header_remove('ETag');
                             header_remove('Cache-Control');

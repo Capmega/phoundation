@@ -57,7 +57,7 @@ class Numbers
      * @return string
      * @throws OutOfBoundsException
      */
-    public static function bytes(string|float|int $amount, string $unit = 'auto', int $precision = 2, bool $add_suffix = false): string
+    public static function bytes(string|float|int $amount, string $unit = 'auto', int $precision = 2, bool $add_suffix = true): string
     {
         if (!$amount) {
             $amount = 0;
@@ -192,7 +192,7 @@ class Numbers
                 break;
 
             default:
-                throw new OutOfBoundsException('Specified unit "'.$unit.'" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc');
+                throw new OutOfBoundsException(tr('Specified unit ":unit" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc', [':unit' => $unit]));
         }
 
         $amount = number_format(round($amount, $precision), $precision);
@@ -207,10 +207,10 @@ class Numbers
                 return $amount.'b';
 
             case 2:
-                return $amount.strtoupper($unit);
+                return $amount . strtoupper($unit);
 
             case 3:
-                return $amount.strtoupper($unit[0]).strtolower($unit[1]).strtoupper($unit[2]);
+                return $amount . strtoupper($unit[0]) . strtolower($unit[1]) . strtoupper($unit[2]);
         }
 
         throw new OutOfBoundsException(tr('Unknown selected unit ":unit", ensure that only correct abbreviations like b, B, KB, KiB, GiB, etc are used', [':unit' => $unit]));

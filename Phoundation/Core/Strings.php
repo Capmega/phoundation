@@ -48,14 +48,14 @@ class Strings
      * Return "house" or "houses" based on the specified count. If the specified $count is 1,the single_text will be
      * returned. If not, the $multiple_text will be retuned
      *
-     * @param int $count
+     * @param int|float $count
      * @param string $single_text The text to be returned if the specified $count is 1
      * @param string $multiple_text The text to be returned if the specified $count is not 1
      * @return string
      */
-    public static function plural(int $count, string $single_text, string $multiple_text): string
+    public static function plural(int|float $count, string $single_text, string $multiple_text): string
     {
-        if ($count == 1) {
+        if ($count === 1) {
             return $single_text;
 
         }

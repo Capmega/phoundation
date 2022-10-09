@@ -141,7 +141,7 @@ showdie($arguments);
     #[NoReturn] public static function die(?int $exit_code = null, ?string $exit_message = null): void
     {
         if (!$exit_code) {
-            Scripts::setExitCode($exit_code);
+            Scripts::setExitCode($exit_code, true);
         }
 
         // Execute all shutdown functions
@@ -155,7 +155,7 @@ showdie($arguments);
                     }
 
                     // Script ended with warning
-                    Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in :time with ":usage" peak memory usage', [':script' => Core::readRegister('system', 'script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
+                    Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [':script' => Core::readRegister('system', 'script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
 
                 } else {
                     if ($exit_message) {
@@ -163,7 +163,7 @@ showdie($arguments);
                     }
 
                     // Script ended with error
-                    Log::error(tr('Script ":script" failed with exit code ":exitcode" in :time with ":usage" peak memory usage', [':script' => Core::readRegister('system', 'script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
+                    Log::error(tr('Script ":script" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [':script' => Core::readRegister('system', 'script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
                 }
 
             } else {
@@ -172,7 +172,7 @@ showdie($arguments);
                 }
 
                 // Script ended successfully
-                Log::success(tr('Finished ":script" script in :time with ":usage" peak memory usage', [':script' => Core::readRegister('system', 'script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage())]), 'green');
+                Log::success(tr('Finished ":script" script in ":time" with ":usage" peak memory usage', [':script' => Core::readRegister('system', 'script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage())]), 'green');
             }
         }
 
@@ -197,15 +197,18 @@ showdie($arguments);
      * Sets the process exit code
      *
      * @param int $code
+     * @param bool $only_if_null
      * @return void
      */
-    public static function setExitCode(int $code): void
+    public static function setExitCode(int $code, bool $only_if_null = false): void
     {
         if (($code < 0) or ($code > 255)) {
             throw new OutOfBoundsException(tr('Invalid exit code ":code" specified, it should be a positive integer value between 0 and 255', [':code' => $code]));
         }
 
-        self::$exit_code = $code;
+        if (!$only_if_null or !self::$exit_code) {
+            self::$exit_code = $code;
+        }
     }
 
 
