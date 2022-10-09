@@ -1090,13 +1090,12 @@ class Core {
 
 
 
-// TODO Remove the code below as PHP, for some reason, completely loses its marbles when trying to do PHP error handling in a static class method. This seems to only work as a function
-
     /**
      * Convert all PHP errors in exceptions. With this function the entirety of base works only with exceptions, and
      * function output normally does not need to be checked for errors.
      *
-     * NOTE: This method should never be called directly
+     * @note This method should never be called directly
+     * @note This method uses untranslated texts as using tr() could potentially cause other issues
      *
      * @param int $errno
      * @param string $errstr
@@ -1122,8 +1121,8 @@ class Core {
         Notification::getInstance()
             ->setCode('PHP-ERROR-' . $errno)
             ->addGroup('developers')
-            ->setTitle(tr('PHP ERROR ":errno"', [':errno' => $errno]))
-            ->setMessage(tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', [':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline]))
+            ->setTitle('PHP ERROR "' . $errno . '"')
+            ->setMessage(tr('PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline .'"'))
             ->setData([
                 'errno' => $errno,
                 'errstr' => $errstr,
@@ -1132,7 +1131,7 @@ class Core {
                 'trace' => $trace
             ])->send();
 
-        throw new \Exception('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', 'PHP'.$errno);
+        throw new \Exception('PHP ERROR [' .$errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"', $errno);
     }
 
 
@@ -1223,7 +1222,7 @@ class Core {
                             'QUIET'    => Cli::argument('-Q,--quiet'),
                             'FORCE'    => Cli::argument('-F,--force'),
                             'TEST'     => Cli::argument('-T,--test'),
-                            'LIMIT'    => not_empty(Cli::argument('--limit'  , true), $_CONFIG['paging']['limit']),
+                            'LIMIT'    => not_empty(Cli::argument('--limit'  , true), Config::get('paging.limit', 50)),
                             'ALL'      => Cli::argument('-A,--all'),
                             'DELETED'  => Cli::argument('--deleted'),
                             'STATUS'   => Cli::argument('-S,--status' , true),

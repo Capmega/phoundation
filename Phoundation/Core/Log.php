@@ -81,7 +81,7 @@ Class Log {
      *
      * @var int $display
      */
-    protected static int $display = self::BACKTRACE_DISPLAY_FILE;
+    protected static int $display = self::BACKTRACE_DISPLAY_BOTH;
 
     /**
      * Keeps track of if the static object has been initialized or not
@@ -138,7 +138,7 @@ Class Log {
         // Apply configuration
         self::setThreshold(Config::get('log.threshold', Core::errorState() ? 1 : 5));
         self::setFile(Config::get('log.file', ROOT . 'data/log/syslog'));
-        self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_FILE));
+        self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
         self::setLocalId(substr(uniqid(true), -8, 8));
         self::setGlobalId($global_id);
 
@@ -683,11 +683,11 @@ Class Log {
      */
     public static function write(string $class, mixed $messages, int $level, bool $clean = true, bool $newline = true): bool
     {
-        if (self::$lock or self::$fail or self::$init) {
-            // Do not log anything while locked, initialising, or while dealing with a Log internal failure
-            error_log($messages);
-            return false;
-        }
+//        if (self::$lock) {
+//            // Do not log anything while locked, initialising, or while dealing with a Log internal failure
+//            error_log($messages);
+//            return false;
+//        }
 
         self::$lock = true;
         self::getInstance();
@@ -753,7 +753,7 @@ Class Log {
                 }
 
                 // Log the initial exception message
-                self::write($class, get_class($messages) . ' exception in "' . $messages->getFile() . '@' . $messages->getLine() . '" (Main script "' . basename(isset_get($_SERVER['SCRIPT_FILENAME'])) . '")', $level);
+                self::write($class, 'Encountered "' . get_class($messages) . '" class exception in "' . $messages->getFile() . '@' . $messages->getLine() . '" (Main script "' . basename(isset_get($_SERVER['SCRIPT_FILENAME'])) . '")', $level);
                 self::write($class, 'Exception message : [' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $level);
 
                 // Warning exceptions do not need to show the extra messages, trace, or data or previous exception
@@ -863,7 +863,6 @@ Class Log {
             return true;
 
         } catch (Throwable $e) {
-showdie($e);
             // Don't ever let the system crash because of a log issue so we catch all possible exceptions
             self::$fail = true;
 
@@ -909,7 +908,7 @@ showdie($e);
             $class .= '::';
         }
 
-        self::write('debug', tr(':keyword :class:function() in :file@:line',
+        return self::write('debug', tr(':keyword :class:function() in :file@:line',
             [
                 ':keyword' => $keyword,
                 ':class' => $class,
@@ -934,28 +933,37 @@ showdie($e);
     {
         try {
             $count = 0;
+            $largest = 0;
+            $lines = [];
 
-            // Parse backtrace data and log the information
-            foreach ($backtrace as $step) {
+            if ($display === null) {
+                $display = self::$display;
+            }
+
+            // Parse backtrace data and build the log lines
+            foreach ($backtrace as $id => $step) {
                 // We usually don't want to see arguments as that clogs up BADLY
                 unset($step['args']);
 
                 // Remove unneeded information depending on the specified display
                 switch ($display) {
                     case self::BACKTRACE_DISPLAY_FILE:
-                        // Display only file@line information
+                        // Display only file@line information, but ONLY if file@line information is available
+                        if (isset($step['file'])) {
+                            unset($step['class']);
+                            unset($step['function']);
+                        }
+
                         break;
 
                     case self::BACKTRACE_DISPLAY_FUNCTION:
                         // Display only function / class information
-                        unset($step['class']);
-                        unset($step['function']);
+                        unset($step['file']);
+                        unset($step['line']);
                         break;
 
                     case self::BACKTRACE_DISPLAY_BOTH:
                         // Display both function / class and file@line information
-                        unset($step['file']);
-                        unset($step['line']);
                         break;
 
                     default:
@@ -965,30 +973,55 @@ showdie($e);
                 }
 
                 // Build up log line from here. Start by getting the file information
-                $file = '';
-
-                if (isset($step['file'])) {
-                    // Remove ROOT from the filenames for clarity
-                    $file = ' in ' . Strings::from($step['file'], ROOT) . '@' . $step['line'];
-                }
-
-                $count++;
+                $line = [];
 
                 if (isset($step['class'])) {
-                    if (isset($step['function'])) {
-                        self::write('debug', $step['function'] . '()' . $file, $level);
+                    if (isset_get($step['class']) === 'Closure') {
+                        // Log the closure call
+                        $line['call'] = '{closure}';
                     } else {
-                        self::write('debug', $file, $level);
+                        // Log the class method call
+                        $line['call'] = $step['class'] . $step['type'] . $step['function'] . '()';
                     }
-                } else {
-                    if ($step['class'] === 'Closure') {
-                        // Log the closure calls
-                        self::write('debug', '{closure}' . $file, $level);
-                    } else {
-                        // Log the class method calls
-                        self::write('debug', $step['class'] . '::' . $step['function'] . '()' . $file, $level);
-                    }
+                } elseif (isset($step['function'])) {
+                    // Log the function call
+                    $line['call'] = $step['function'] . '()';
                 }
+
+                // Log the file@line information
+                if (isset($step['file'])) {
+                    // Remove ROOT from the filenames for clarity
+                    $line['location'] = ' in ' . Strings::from($step['file'], ROOT) . '@' . $step['line'];
+                }
+
+                if (!$line) {
+                    // Failed to build backtrace line
+                    self::write('warning', tr('Invalid backtrace data encountered, do not know how to process and display the following entry'), $level);
+                    self::printr($step, 10);
+                    self::write('warning', tr('Original backtrace data entry format below'), $level);
+                    self::printr($backtrace[$id], 10);
+                }
+
+                // Determine the largest call line
+                $size = strlen(isset_get($line['call']));
+
+                if ($size > $largest) {
+                    $largest = $size;
+                }
+
+                $lines[] = $line;
+            }
+
+            // format and write the lines
+            foreach ($lines as $line){
+                $count++;
+
+                if (isset($line['call'])) {
+                    // Resize the call lines to all have the same size for easier log reading
+                    $line['call'] = Strings::size($line['call'], $largest);
+                }
+
+                self::write('debug', trim(($line['call'] ?? null) . ($line['location'] ?? null)), $level, false);
             }
 
             return $count;

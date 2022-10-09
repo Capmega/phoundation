@@ -75,9 +75,7 @@ class Colors
     public static function apply(string $source, ?string $foreground_color, ?string $background_color = null, bool $reset = true): string
     {
         if (NOCOLOR) {
-            /*
-             * Do NOT apply color
-             */
+            // Do NOT apply color
             return $source;
         }
 
@@ -141,6 +139,22 @@ class Colors
     public static function getColorReset(): string
     {
         return "\033[0m";
+    }
+
+
+
+    /**
+     * Return the specified string without color information
+     *
+     * @param string $source
+     * @return string
+     */
+    public static function strip(string $source): string
+    {
+        return preg_replace('/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]/', '',  $source);
+// :DELETE:
+//        return preg_replace('/\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]/', '',  $string);
+//        return preg_replace('/\033\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]/', '',  $string);
     }
 }
 

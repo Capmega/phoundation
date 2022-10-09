@@ -4,6 +4,7 @@ namespace Phoundation\Core;
 
 use Exception;
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\Colors;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
@@ -675,10 +676,10 @@ class Strings
     public static function size(string $source, int $size, string $add = ' ', bool $prefix = false): string
     {
         if ($size < 0) {
-            throw new OutOfBoundsException(tr('Specified size ":size" is invalid, it must be 0 or highter', [':size' => $size]));
+            throw new OutOfBoundsException(tr('Specified size ":size" is invalid, it must be 0 or higher', [':size' => $size]));
         }
 
-        $strlen = mb_strlen(Cli::stripColor($source));
+        $strlen = mb_strlen(Colors::strip($source));
 
         if ($strlen == $size) {
             return $source;
