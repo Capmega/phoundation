@@ -421,10 +421,10 @@ class Arrays {
      * Return the source array with the specified keys kept, all else removed.
      *
      * @param array $source
-     * @param array $keys
+     * @param string|array $keys
      * @return array
      */
-    public static function keep(array $source, array $keys): array
+    public static function keep(array $source, string|array $keys): array
     {
         $retval = [];
 

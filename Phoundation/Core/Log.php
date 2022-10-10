@@ -136,7 +136,7 @@ Class Log {
         self::$init = true;
 
         // Apply configuration
-        self::setThreshold(Config::get('log.threshold', Core::errorState() ? 1 : 5));
+        self::setThreshold(Config::get('log.threshold', Core::errorState() ? 1 : 2));
         self::setFile(Config::get('log.file', ROOT . 'data/log/syslog'));
         self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
         self::setLocalId(substr(uniqid(true), -8, 8));
@@ -438,7 +438,7 @@ Class Log {
      */
     public static function success(mixed $messages, int $level = 5): bool
     {
-        return self::write('success', $messages, $level);
+        return self::write($messages, 'success', $level);
     }
 
 
@@ -452,7 +452,7 @@ Class Log {
      */
     public static function error(mixed $messages, int $level = 10): bool
     {
-        return self::write('error', $messages, $level);
+        return self::write($messages, 'error', $level);
     }
 
 
@@ -466,7 +466,7 @@ Class Log {
      */
     public static function warning(mixed $messages, int $level = 7): bool
     {
-        return self::write('warning', $messages, $level);
+        return self::write($messages, 'warning', $level);
     }
 
 
@@ -480,7 +480,7 @@ Class Log {
      */
     public static function notice(mixed $messages, int $level = 3): bool
     {
-        return self::write('notice', $messages, $level);
+        return self::write($messages, 'notice', $level);
     }
 
 
@@ -494,7 +494,7 @@ Class Log {
      */
     public static function information(mixed $messages, int $level = 7): bool
     {
-        return self::write('information', $messages, $level);
+        return self::write($messages, 'information', $level);
     }
 
 
@@ -544,7 +544,7 @@ Class Log {
         $messages = $prefix . $messages;
 
         self::logDebugHeader('PRINTR', $level);
-        return self::write('debug', $messages, $level);
+        return self::write($messages, 'debug', $level);
     }
 
 
@@ -573,7 +573,7 @@ Class Log {
     public static function hex(mixed $messages, int $level = 3): bool
     {
         self::logDebugHeader('HEX', $level);
-        return self::write('hex', Strings::interleave(bin2hex(Strings::force($messages)), 10), $level);
+        return self::write(Strings::interleave(bin2hex(Strings::force($messages)), 10), 'debug', $level);
     }
 
 
@@ -603,7 +603,7 @@ Class Log {
     public static function printr(mixed $messages, int $level = 10): bool
     {
         self::logDebugHeader('PRINTR', $level);
-        return self::write('debug', print_r($messages, true), $level, false);
+        return self::write(print_r($messages, true), 'debug', $level, false);
     }
 
 
@@ -618,7 +618,7 @@ Class Log {
     public static function vardump(mixed $messages, int $level = 10): bool
     {
         self::logDebugHeader('VARDUMP', $level);
-        return self::write('debug', var_export($messages, true), $level, false);
+        return self::write(var_export($messages, true), 'debug', $level, false);
     }
 
 
@@ -672,22 +672,25 @@ Class Log {
     /**
      * Write the specified log message to the current log file for this instance
      *
-     * @param string $class
-     * @param mixed $messages
-     * @param int $level
+     * @param mixed $messages The messages that are to be logged
+     * @param string $class The class of message that will be logged. Different classes will show in different colors
+     * @param int $level The threshold level for this message. If the level is lower than the threshold, the message
+     *                   will be dropped and not appear in the log files to avoid clutter
      * @param bool $clean If true, the data will be cleaned before written to log. This will avoid (for example) binary
      *                    data from corrupting the log file
      * @param bool $newline If true, a newline will be appended at the end of the log line
      * @return bool True if the line was written, false if it was dropped
      */
-    public static function write(string $class, mixed $messages, int $level, bool $clean = true, bool $newline = true): bool
+    public static function write(mixed $messages, string $class, int $level = 10, bool $clean = true, bool $newline = true): bool
     {
+// TODO Delete the following code block, looks like we won't need it anymore
 //        if (self::$lock) {
 //            // Do not log anything while locked, initialising, or while dealing with a Log internal failure
 //            error_log($messages);
 //            return false;
 //        }
 
+// TODO Delete self::$lock as it looks like its not needed anymore
         self::$lock = true;
         self::getInstance();
 
@@ -702,7 +705,7 @@ Class Log {
                 $success = true;
 
                 foreach ($messages as $message) {
-                    $success = ($success and self::write($class, $message, $level, $clean));
+                    $success = ($success and self::write($message, $class, $level, $clean));
                 }
 
                 self::$lock = false;
@@ -752,8 +755,8 @@ Class Log {
                 }
 
                 // Log the initial exception message
-                self::write($class, 'Encountered "' . get_class($messages) . '" class exception in "' . $messages->getFile() . '@' . $messages->getLine() . '" (Main script "' . basename(isset_get($_SERVER['SCRIPT_FILENAME'])) . '")', $level);
-                self::write($class, 'Exception message: [' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $level);
+                self::write('Encountered "' . get_class($messages) . '" class exception in "' . $messages->getFile() . '@' . $messages->getLine() . '" (Main script "' . basename(isset_get($_SERVER['SCRIPT_FILENAME'])) . '")', $class, $level);
+                self::write('Exception message: [' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $class, $level);
 
                 // Warning exceptions do not need to show the extra messages, trace, or data or previous exception
                 if ($class == 'error') {
@@ -764,15 +767,15 @@ Class Log {
                     if ($messages instanceof Exception) {
                         self::printr($messages->getData());
                     } else {
-                        self::write($class, 'Exception contains no data', $level);
+                        self::write('Exception contains no data', $class, $level);
                     }
 
                     // Log all previous exceptions as well
                     $previous = $messages->getPrevious();
 
                     while ($previous) {
-                        self::write($class, 'Previous exception: ', $level);
-                        self::write($class, $previous, $level, $clean);
+                        self::write('Previous exception: ', $class, $level);
+                        self::write($previous, $class, $level, $clean);
 
                         $previous = $previous->getPrevious();
                     }
@@ -803,46 +806,7 @@ Class Log {
             }
 
             // Add coloring for easier reading
-            switch ($class) {
-                case 'success':
-                    // no-break
-                case 'greeen':
-                    $messages = Color::apply($messages, 'green');
-                    break;
-
-                case 'red':
-                    // no-break
-                case 'error':
-                    // no-break
-                case 'exception':
-                    $messages = Color::apply($messages, 'red');
-                    break;
-
-                case 'yellow':
-                    // no-break
-                case 'warning':
-                    $messages = Color::apply($messages, 'yellow');
-                    break;
-
-                case 'notice':
-                    // These messages don't get color
-                    break;
-
-                case 'information':
-                    // no-break
-                case 'white':
-                    $messages = Color::apply($messages, 'white');
-                    break;
-
-                case 'debug':
-                    // no-break
-                case 'blue':
-                    $messages = Color::apply($messages, 'light_blue');
-                    break;
-
-                default:
-                    throw new LogException('Unknown log message class ":class" specified', [':class' => $class]);
-            }
+            $messages = Color::apply($messages, $class);
 
             // Build the message to be logged, clean it and log
             // The log line format is DATE LEVEL PID GLOBALID/LOCALID MESSAGE EOL
@@ -907,14 +871,14 @@ Class Log {
             $class .= '::';
         }
 
-        return self::write('debug', tr(':keyword :class:function() in :file@:line',
+        return self::write(tr(':keyword :class:function() in :file@:line',
             [
-                ':keyword' => $keyword,
-                ':class' => $class,
+                ':keyword'  => $keyword,
+                ':class'    => $class,
                 ':function' => $function,
-                ':file' => $file,
-                ':line' => $line
-            ]), $level);
+                ':file'     => $file,
+                ':line'     => $line
+            ]), 'debug', $level);
     }
 
 
@@ -995,9 +959,9 @@ Class Log {
 
                 if (!$line) {
                     // Failed to build backtrace line
-                    self::write('warning', tr('Invalid backtrace data encountered, do not know how to process and display the following entry'), $level);
+                    self::write(tr('Invalid backtrace data encountered, do not know how to process and display the following entry'), 'warning', $level);
                     self::printr($step, 10);
-                    self::write('warning', tr('Original backtrace data entry format below'), $level);
+                    self::write(tr('Original backtrace data entry format below'), 'warning', $level);
                     self::printr($backtrace[$id], 10);
                 }
 
@@ -1020,7 +984,7 @@ Class Log {
                     $line['call'] = Strings::size($line['call'], $largest);
                 }
 
-                self::write('debug', trim(($line['call'] ?? null) . ($line['location'] ?? null)), $level, false);
+                self::write(trim(($line['call'] ?? null) . ($line['location'] ?? null)), 'debug', $level, false);
             }
 
             return $count;
@@ -1030,541 +994,4 @@ Class Log {
             return -1;
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//
-//
-//    /*
-//     * Parse flags from the specified log text color
-//     */
-//    function log_flags($color)
-//    {
-//        try {
-//            switch (Strings::until($color, '/')) {
-//                case 'VERBOSE':
-//                    if (!VERBOSE) {
-//                        /*
-//                         * Only log this if we're in verbose mode
-//                         */
-//                        return false;
-//                    }
-//
-//                    /*
-//                     * Remove the VERBOSE
-//                     */
-//                    $color = Strings::from(Strings::from($color, 'VERBOSE', 0, true), '/');
-//                    break;
-//
-//                case 'VERBOSEDOT':
-//                    if (!VERBOSE) {
-//                        /*
-//                         * Only log this if we're in verbose mode
-//                         */
-//                        $color = Strings::from(Strings::from($color, 'VERBOSEDOT', 0, true), '/');
-//                        cli_dot(10, $color);
-//                        return false;
-//                    }
-//
-//                    /*
-//                     * Remove the VERBOSE
-//                     */
-//                    $color = Strings::from(Strings::from($color, 'VERBOSEDOT', 0, true), '/');
-//                    break;
-//
-//                case 'VERYVERBOSE':
-//                    if (!VERYVERBOSE) {
-//                        /*
-//                         * Only log this if we're in verbose mode
-//                         */
-//                        return false;
-//                    }
-//
-//                    /*
-//                     * Remove the VERYVERBOSE
-//                     */
-//                    $color = Strings::from(Strings::from($color, 'VERYVERBOSE', 0, true), '/');
-//                    break;
-//
-//                case 'VERYVERBOSEDOT':
-//                    if (!VERYVERBOSE) {
-//                        /*
-//                         * Only log this if we're in verbose mode
-//                         */
-//                        $color = Strings::from(Strings::from($color, 'VERYVERBOSEDOT', 0, true), '/');
-//                        cli_dot(10, $color);
-//                        return false;
-//                    }
-//
-//                    /*
-//                     * Remove the VERYVERBOSE
-//                     */
-//                    $color = Strings::from(Strings::from($color, 'VERYVERBOSEDOT', 0, true), '/');
-//                    break;
-//
-//                case 'QUIET':
-//                    if (QUIET) {
-//                        /*
-//                         * Only log this if we're in verbose mode
-//                         */
-//                        return false;
-//                    }
-//
-//                    /*
-//                     * Remove the QUIET
-//                     */
-//                    $color = Strings::from(Strings::from($color, 'QUIET', 0, true), '/');
-//                    break;
-//
-//                case 'DEBUG':
-//                    if (!debug()) {
-//                        /*
-//                         * Only log this if we're in debug mode
-//                         */
-//                        return false;
-//                    }
-//
-//                    /*
-//                     * Remove the QUIET
-//                     */
-//                    $color = Strings::from(Strings::from($color, 'DEBUG', 0, true), '/');
-//            }
-//
-//            return $color;
-//
-//        } catch (Exception $e) {
-//            throw new OutOfBoundsException(tr('log_flags(): Failed'), $e);
-//        }
-//    }
-//
-//
-//    /*
-//     * Sanitize the specified log message
-//     *
-//     * Also, if required, sets the log message color, filters double messages and can set the log_file() $class
-//     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @package system
-//     * @note: This function basically only needs to be executed by log_file() and log_console()
-//     * @version 2.5.22: Added function and documentation
-//     *
-//     * @param mixed $messagess
-//     * @param string $color
-//     * @param boolean $filter_double
-//     * @return null string $class
-//     */
-//    function log_sanitize($messages, $color, $filter_double = true, &$class = null)
-//    {
-//        static $last;
-//
-//        try {
-//            if ($filter_double and ($messages == $last)) {
-//                /*
-//                * We already displayed this message, skip!
-//                */
-//                return array();
-//            }
-//
-//            if (is_scalar($messages)) {
-//                $messages = array($messages);
-//
-//            } elseif (is_array($messages)) {
-//                /*
-//                 * Do nothing, we're good
-//                 */
-//
-//            } elseif (is_object($messages)) {
-//                if ($messages instanceof CoreException) {
-//                    $data = $messages->getData();
-//
-//                    if ($messages->isWarning()) {
-//                        $messages = array($messages->getMessage());
-//                        $color = 'warning';
-//
-//                    } else {
-//                        $messages = $messages->getMessages();
-//                        $color = 'error';
-//                    }
-//
-//                    if ($data) {
-//                        /*
-//                         * Add data to messages
-//                         */
-//                        $messages[] = Color::apply('Exception data:', 'error', null, true);
-//
-//                        foreach (Arrays::force($data) as $line) {
-//                            if ($line) {
-//                                if (is_scalar($line)) {
-//                                    $messages[] = Color::apply($line, 'error', null, true);
-//
-//                                } elseif (is_array($line)) {
-//                                    /*
-//                                     * This is a multi dimensional array or object,
-//                                     * we cannot Color::apply() these, so just JSON it.
-//                                     */
-//                                    $messages[] = Color::apply(json_encode_custom($line), 'error', null, true);
-//                                }
-//                            }
-//                        }
-//                    }
-//
-//                    if (!$class) {
-//                        $class = 'exception';
-//                    }
-//
-//                } elseif ($messages instanceof Exception) {
-//                    $messages = array($messages->getMessage());
-//
-//                } elseif ($messages instanceof Error) {
-//                    $messages = array($messages->getMessage());
-//
-//                } else {
-//                    $messages = $messages->__toString();
-//                }
-//            }
-//
-//            $last = $messages;
-//
-//            return $messages;
-//
-//        } catch (Exception $e) {
-//            throw new OutOfBoundsException('log_sanitize(): Failed', $e);
-//        }
-//    }
-//
-//
-//    /*
-//     * Log specified message to console, but only if we are in console mode!
-//     *
-//     * Messages can be specified as a string, array, or Error, Exception or CoreException objects
-//     *
-//     * The function will sanitize the log message using log_sanitize() before displaying it on the console, and by default also log to the system logs using log_file()
-//     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @see log_sanitize()
-//     * @see log_file()
-//     * @package system
-//     * @version 2.5.22: Added documentation, upgraded to use log_sanitize()
-//     *
-//     * @param mixed $messagess
-//     * @param string $color
-//     * @param boolean $newline
-//     * @param boolean $filter_double
-//     * @param boolean $log_file
-//     * @return array the sanitized log messages in array format
-//     */
-//    function log_console($messages = '', $color = null, $newline = true, $filter_double = false, $log_file = true)
-//    {
-//        global $core;
-//        static $c;
-//
-//        try {
-//            if ($color and !is_scalar($color)) {
-//                log_console(tr('[ WARNING ] log_console(): Invalid color ":color" specified for the following message, color has been stripped', array(':color' => $color)), 'warning');
-//                $color = null;
-//            }
-//
-//            /*
-//             * Process logging flags embedded in the log text color
-//             */
-//            $color = log_flags($color);
-//
-//            if ($color === false) {
-//                /*
-//                 * log_flags() returned false, do not log anything at all
-//                 */
-//                return false;
-//            }
-//
-//            /*
-//             * Always log to file log as well
-//             */
-//            if ($log_file) {
-//                log_file($messages, $core->register['script_file'], $color);
-//            }
-//
-//            if (!PLATFORM_CLI) {
-//                /*
-//                 * Only log to console on CLI platform
-//                 */
-//                return false;
-//            }
-//
-//            $messages = log_sanitize($messages, $color, $filter_double);
-//
-//            if ($color) {
-//                if (defined('NOCOLOR') and !NOCOLOR) {
-//                    if (empty($c)) {
-//                        if (!class_exists('Colors')) {
-//                            /*
-//                             * This log_console() was called before the "cli" library
-//                             * was loaded. Show the line without color
-//                             */
-//                            $color = '';
-//
-//                        } else {
-//                            $c = new Colors();
-//                        }
-//                    }
-//                }
-//
-//                switch ($color) {
-//                    case 'yellow':
-//                        // FALLTHROUGH
-//                    case 'warning':
-//                        // FALLTHROUGH
-//                    case 'red':
-//                        // FALLTHROUGH
-//                    case 'error':
-//                        $error = true;
-//                }
-//            }
-//
-//            foreach ($messages as $message) {
-//                if ($color and defined('NOCOLOR') and !NOCOLOR) {
-//                    $message = $c->getColoredString($message, $color);
-//                }
-//
-//                if (QUIET) {
-//                    $message = trim($message);
-//                }
-//
-//                $message = stripslashes(br2nl($message)) . ($newline ? "\n" : '');
-//
-//                if (empty($error)) {
-//                    echo $message;
-//
-//                } else {
-//                    /*
-//                     * Log to STDERR instead of STDOUT
-//                     */
-//                    fwrite(STDERR, $message);
-//                }
-//            }
-//
-//            return $messages;
-//
-//        } catch (Exception $e) {
-//            throw new OutOfBoundsException('log_console(): Failed', $e, array('message' => $messages));
-//        }
-//    }
-//
-//
-//    /*
-//     * Log specified message(s) to file.
-//     *
-//     * Messages can be specified as a string, array, or Error, Exception or CoreException objects
-//     *
-//     * The function will sanitize the log message using log_sanitize() before displaying it on the console, and by default also log to the system logs using log_file()
-//
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @see log_sanitize()
-//     * @see log_console()
-//     * @package system
-//     * @version 2.5.22: Added documentation, upgraded to use log_sanitize()
-//     *
-//     * @param mixed $messagess
-//     * @param string $class
-//     * @param string $color
-//     * @param string $color
-//     * @return array the sanitized log messages in array format
-//     */
-//    function log_file($messages, $class = 'syslog', $color = null, $filter_double = true)
-//    {
-//        global $_CONFIG, $core;
-//        static $h = array(),
-//        $log = true;
-//
-//        try {
-//            if (!$log) {
-//                /*
-//                 * Do not log!
-//                 */
-//                return false;
-//            }
-//
-//            /*
-//             * Process logging flags embedded in the log text color
-//             */
-//            $color = log_flags($color);
-//
-//            if ($color === false) {
-//                /*
-//                 * log_flags() returned false, do not log anything at all
-//                 */
-//                return false;
-//            }
-//
-//            $messages = log_sanitize($messages, $color, $filter_double, $class);
-//
-//            if (!is_scalar($class)) {
-//                if ($class) {
-//                    throw new OutOfBoundsException(tr('log_file(): Specified class ":class" is not scalar', array(':class' => str_truncate(json_encode_custom($class), 20))), 'invalid');
-//                }
-//
-//                $class = $core->register['script'];
-//            }
-//
-//            /*
-//             * Add session data
-//             */
-//            if (PLATFORM_HTTP) {
-//                $session = '(' . substr(session_id(), -8, 8) . ' / ' . REQUEST . ') ';
-//
-//            } else {
-//                $session = '(CLI-' . getmypid() . ' / ' . REQUEST . ') ';
-//            }
-//
-//            /*
-//             * Single log or multi log?
-//             */
-//            if (!$core or !Core::readRegister('ready')) {
-//                $file = 'syslog';
-//                $class = $session . Color::apply('[ ' . $class . ' ] ', 'white', null, true);
-//
-//            } elseif ($_CONFIG['log']['single']) {
-//                $file = 'syslog';
-//                $class = $session . Color::apply('[ ' . $class . ' ] ', 'white', null, true);
-//
-//            } else {
-//                $file = $class;
-//                $class = $session;
-//            }
-//
-//            /*
-//             * Write log entries
-//             */
-//            if (empty($h[$file])) {
-//                file_ensure_path(ROOT . 'data/log');
-//
-//                try {
-//                    $h[$file] = @fopen(ROOT . 'data/log/' . $file, 'a+');
-//
-//                } catch (Exception $e) {
-//                    throw new OutOfBoundsException(tr('log_file(): Failed to open logfile ":file" to store messages ":messages"', array(':file' => $file, ':messages' => $messages)), $e);
-//                }
-//
-//                if (!$h[$file]) {
-//                    throw new OutOfBoundsException(tr('log_file(): Failed to open logfile ":file" to store messages ":messages"', array(':file' => $file, ':messages' => $messages)), 'failed');
-//                }
-//            }
-//
-//            $date = new DateTime();
-//            $date = $date->format('Y/m/d H:i:s');
-//
-//            foreach ($messages as $key => $message) {
-//                if (!is_scalar($message)) {
-//                    if (is_array($message) or is_object($message)) {
-//                        $message = json_encode_custom($message);
-//
-//                    } else {
-//                        $message = '* ' . gettype($message) . ' *';
-//                    }
-//                }
-//
-//                if (count($messages) > 1) {
-//                    /*
-//                     * There are multiple messages in this log_file() call. Display
-//                     * them all using their keys
-//                     */
-//                    if (!is_scalar($message)) {
-//                        $message = Strings::Log($message);
-//                    }
-//
-//                    if (!empty($color)) {
-//                        $message = Color::apply($message, $color, null, true);
-//                    }
-//
-//                    fwrite($h[$file], Color::apply($date, 'cyan', null, true) . ' ' . Core::getCallType() . '/' . $core->register['script_file'] . ' ' . $class . $key . ' => ' . $message . "\n");
-//
-//                } else {
-//                    /*
-//                     * There is only one message in this log_file() call, even when
-//                     * the log_file() was called with an array, it only contained
-//                     * one entry
-//                     */
-//                    if (!empty($color)) {
-//                        $message = Color::apply($message, $color, null, true);
-//                    }
-//
-//                    fwrite($h[$file], Color::apply($date, 'cyan', null, true) . ' ' . Core::getCallType() . '/' . $core->register['script_file'] . ' ' . $class . $message . "\n");
-//                }
-//            }
-//
-//            return $messages;
-//
-//        } catch (Exception $e) {
-//            /*
-//             * We encountered an exception trying to log, don't log ever again
-//             */
-//            $log = false;
-//
-//            if (empty($file)) {
-//                throw new OutOfBoundsException('log_file(): Failed before $file was determined', $e, array('message' => $messages));
-//            }
-//
-//            if (!is_writable(Strings::slash(ROOT . 'data/log') . $file)) {
-//                if (PLATFORM_HTTP) {
-//                    error_log(tr('log_file() failed because log file ":file" is not writable', array(':file' => $file)));
-//                }
-//
-//                throw new OutOfBoundsException(tr('log_file(): Failed because log file ":file" is not writable', array(':file' => $file)), $e);
-//            }
-//
-//            /*
-//             * If log_file() fails, assume we cannot log to data/log/, log to PHP error instead
-//             */
-//            error_log(tr('log_file() failed to log the following exception:'));
-//
-//            foreach ($e->getMessages() as $message) {
-//                error_log($message);
-//            }
-//
-//            $message = $e->getMessage();
-//
-//            if (strstr($message, 'data/log') and strstr($message, 'failed to open stream: Permission denied')) {
-//                /*
-//                 * We cannot write in the log file
-//                 */
-//                throw new OutOfBoundsException(tr('log_file(): Failed to write to log, permission denied to write to log file ":file". Please ensure the correct write permissions for this file and the ROOT/data/log directory in general', array(':file' => Strings::cut($message, 'fopen(', ')'))), 'warning');
-//            }
-//
-//            throw new OutOfBoundsException('log_file(): Failed', $e, array('message' => $messages));
-//        }
-//    }
-//
-//
 }

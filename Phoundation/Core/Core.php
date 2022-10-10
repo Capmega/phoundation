@@ -880,6 +880,41 @@ class Core {
 
 
     /**
+     * Delete the specified variable from the core register
+     *
+     * @param string $key
+     * @param string|null $subkey
+     * @return void
+     */
+    public static function deleteRegister(string $key, ?string $subkey = null): void
+    {
+        if ($key === 'system') {
+            throw new AccessDeniedException('The "system" register cannot be written to');
+        }
+
+        if ($subkey) {
+            // We want to write to a sub key. Ensure that the key exists and is an array
+            if (array_key_exists($key, self::$register)) {
+                if (!is_array(self::$register[$key])) {
+                    // Key exists but is not an array so cannot handle sub keys
+                    throw new CoreException('Cannot write to register key ":key.:subkey" as register key ":key" already exist as a value instead of an array', [':key' => $key, 'subkey' => $subkey]);
+                }
+            } else {
+                // The key doesn't exist, so we don't have to worry about the sub key
+                return;
+            }
+
+            // Delete the key / subkey
+            unset(self::$register[$key][$subkey]);
+        } else {
+            // Delete the key
+            unset(self::$register[$key]);
+        }
+    }
+
+
+
+    /**
      * Compare the specified value with the registered value for the specified key / sub key in the core register.
      *
      * @note Will return NULL if the specified key does not exist

@@ -3,6 +3,7 @@
 namespace Phoundation\Databases;
 
 use Phoundation\Core\Config;
+use Phoundation\Databases\Exception\RedisException;
 
 /**
  * Class Redis
@@ -17,11 +18,11 @@ use Phoundation\Core\Config;
 class Redis
 {
     /**
-     * Singleton variable
+     * Identifier of this instance
      *
-     * @var Redis|null $instance
+     * @var string|null $instance_name
      */
-    protected static ?Redis $instance = null;
+    protected ?string $instance_name = null;
 
     /**
      * Instances store
@@ -50,20 +51,39 @@ class Redis
     }
 
 
+
     /**
-     * Singleton, ensure to always return the same Redis object.
+     * Returns a Redis object for the specified database / server
      *
+     * In case another than the core database and server is needed
+     *
+     * @param string $database_name
+     * @return Redis
+     * @throws RedisException
+     */
+    public static function db(string $database_name): Redis
+    {
+        if (!array_key_exists($database_name, self::$databases)) {
+            throw new RedisException('The specified Redis database ":db" does not exist', [':db' => $database_name]);
+        }
+
+        return self::$databases[$database_name];
+    }
+
+
+
+    /**
+     * Wrapper to Redis::db()
+     *
+     * @see Redis::db()
      * @param string|null $instance_name
      * @return Redis
      */
-    public static function getInstance(?string $instance_name = null): Redis
+    public static function database(?string $instance_name = null): Redis
     {
-        if (!self::$instance) {
-            self::$instance = new static();
-        }
-
-        return self::$instance;
+        return self::db($instance_name);
     }
+
 
 
     /**
@@ -71,7 +91,7 @@ class Redis
      *
      * @return array
      */
-    public static function getConnections(): array
+    public function getConnections(): array
     {
         return self::$connections;
     }
@@ -85,7 +105,7 @@ class Redis
      * @param array $connections
      * @return void
      */
-    public static function setConnections(array $connections): void
+    public function setConnections(array $connections): void
     {
         self::$connections = [];
         self::addConnections($connections);
@@ -99,7 +119,7 @@ class Redis
      * @param array $connections
      * @return void
      */
-    public static function addConnections(array $connections): void
+    public function addConnections(array $connections): void
     {
         foreach ($connections as $connection => $configuration) {
             self::addConnection($connection, $configuration);
@@ -115,7 +135,7 @@ class Redis
      * @param array $configuration
      * @return void
      */
-    public static function addConnection(string $connection_name, array $configuration): void
+    public function addConnection(string $connection_name, array $configuration): void
     {
         self::$connections[$connection_name] = $configuration;
     }
@@ -128,7 +148,7 @@ class Redis
      * @param string $connection_name
      * @return void
      */
-    public static function removeConnections(string $connection_name): void
+    public function removeConnections(string $connection_name): void
     {
         unset(self::$connections[$connection_name]);
     }

@@ -6,7 +6,7 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Databases\Sql;
+use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\ScriptException;
 
@@ -28,46 +28,45 @@ $help  = 'The info script will show detailed information about the current frame
 
 Scripts::noArgumentsLeft($argv);
 
-try {
-    Sql::db()->query('SELECT 1');
+//try {
+//    Sql::db()->query('SELECT 1');
+//
+//}catch(Exception $e) {
+//    if ($e->getCode() != '1049') {
+//        throw $e;
+//    }
+//
+//    $no_db = true;
+//    define('FRAMEWORKDBVERSION', tr('database ":db" does not exist', [':db' => Config::get('databases.system.name')]));
+//    define('PROJECTDBVERSION'  , tr('database ":db" does not exist', [':db' => Config::get('databases.system.name')]));
+//}
 
-}catch(Exception $e) {
-    if ($e->getCode() != '1049') {
-        throw $e;
-    }
+//$framework_status = version_compare(Core::FRAMEWORKCODEVERSION, Core::getVersion('framework'));
+//$project_status   = version_compare(Config::get('project.version')  , Core::getVersion('project'));
 
-    $no_db = true;
-    define('FRAMEWORKDBVERSION', tr('database ":db" does not exist', [':db' => Config::get('databases.core.name')]));
-    define('PROJECTDBVERSION'  , tr('database ":db" does not exist', [':db' => Config::get('databases.core.name')]));
-}
-
-$framework_status = version_compare(Core::FRAMEWORKCODEVERSION, Core::getVersion('framework'));
-$project_status   = version_compare(Config::get('project.version')  , Core::getVersion('project'));
-
-Log::notice(Color::apply(Strings::size(tr('Project name:')              , 27), 'white') . ' ' . PROJECT);
-Log::notice(Color::apply(Strings::size(tr('Framework code version:')    , 27), ($framework_status ? (($framework_status < 0) ? 'error' : 'warning') : 'white')) . ' ' . Core::FRAMEWORKCODEVERSION);
-Log::notice(Color::apply(Strings::size(tr('Framework database version:'), 27), ($framework_status ? (($framework_status < 0) ? 'error' : 'warning') : 'white')) . ' ' . FRAMEWORKDBVERSION);
-Log::notice(Color::apply(Strings::size(tr('Project code version:')      , 27), ($project_status   ? (($project_status < 0)   ? 'error' : 'warning') : 'white')) . ' ' . PROJECTCODEVERSION);
-Log::notice(Color::apply(Strings::size(tr('Project database version:')  , 27), ($project_status   ? (($project_status < 0)   ? 'error' : 'warning') : 'white')) . ' ' . PROJECTDBVERSION);
-Log::notice(Color::apply(Strings::size(tr('Init required:')             , 27), 'white') . ' ' . Strings::boolean((Core::FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)));
+Log::write(Color::apply(Strings::size(tr('Project name:')              , 27), 'white') . ' ' . PROJECT, 'cli');
+//Log::notice(Color::apply(Strings::size(tr('Framework code version:')    , 27), ($framework_status ? (($framework_status < 0) ? 'error' : 'warning') : 'white')) . ' ' . Core::FRAMEWORKCODEVERSION);
+//Log::notice(Color::apply(Strings::size(tr('Framework database version:'), 27), ($framework_status ? (($framework_status < 0) ? 'error' : 'warning') : 'white')) . ' ' . Sql::db()->getDatabaseVersion());
+//Log::notice(Color::apply(Strings::size(tr('Project code version:')      , 27), ($project_status   ? (($project_status < 0)   ? 'error' : 'warning') : 'white')) . ' ' . PROJECTCODEVERSION);
+//Log::notice(Color::apply(Strings::size(tr('Project database version:')  , 27), ($project_status   ? (($project_status < 0)   ? 'error' : 'warning') : 'white')) . ' ' . PROJECTDBVERSION);
+//Log::notice(Color::apply(Strings::size(tr('Init required:')             , 27), 'white') . ' ' . Strings::boolean((Core::FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)));
 Log::notice(Color::apply(Strings::size(tr('Platform:')                  , 27), 'white') . ' ' . PLATFORM);
 Log::notice(Color::apply(Strings::size(tr('Environment:')               , 27), 'white') . ' ' . ENVIRONMENT);
 Log::notice(Color::apply(Strings::size(tr('Production:')                , 27), 'white') . ' ' . Strings::boolean(Debug::production()));
 Log::notice(Color::apply(Strings::size(tr('Debug:')                     , 27), 'white') . ' ' . Strings::boolean(Debug::enabled()));
-Log::notice(Color::apply(Strings::size(tr('Core database:')             , 27), 'white') . ' ' . Config::get('databases.core.name'));
-
-// Show the following lines only if the core database is available
-if (empty($no_db)) {
-    Log::notice(Color::apply(Strings::size(tr('Active users:')          , 27), 'white') . ' ' . sql_get('SELECT COUNT(`id`) AS `count` FROM `users` WHERE `status` IS NULL', true));
-
-    if (($framework_status < 0) or ($project_status < 0)) {
-        Log::notice();
-        throw new ScriptException(tr('One or both database versions are ahead of the code version. Fix this with running the init script with  "./scripts/base/init reset"'));
-    }
-
-    if (($framework_status > 0) or ($project_status > 0)) {
-        Log::notice();
-        throw new ScriptException(tr('One or both database versions are behind the code version. Fix this with running the init script with "./scripts/base/init"'));
-    }
-}
-?>
+//Log::notice(Color::apply(Strings::size(tr('Core database:')             , 27), 'white') . ' ' . Config::get('databases.system.name'));
+//
+//// Show the following lines only if the core database is available
+//if (empty($no_db)) {
+//    Log::notice(Color::apply(Strings::size(tr('Active users:')          , 27), 'white') . ' ' . sql_get('SELECT COUNT(`id`) AS `count` FROM `users` WHERE `status` IS NULL', true));
+//
+//    if (($framework_status < 0) or ($project_status < 0)) {
+//        Log::notice();
+//        throw new ScriptException(tr('One or both database versions are ahead of the code version. Fix this with running the init script with  "./scripts/base/init reset"'));
+//    }
+//
+//    if (($framework_status > 0) or ($project_status > 0)) {
+//        Log::notice();
+//        throw new ScriptException(tr('One or both database versions are behind the code version. Fix this with running the init script with "./scripts/base/init"'));
+//    }
+//}

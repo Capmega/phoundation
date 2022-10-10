@@ -103,7 +103,7 @@ class Mc
      * @param string|null $instance_name
      * @return Mc
      */
-    public static function database(?string $instance_name = null): Mc
+    public static function db(?string $instance_name = null): Mc
     {
         if (!$instance_name) {
             // Always default to system instance
@@ -115,6 +115,20 @@ class Mc
         }
 
         return self::$instances[$instance_name];
+    }
+
+
+
+    /**
+     * Wrapper to Mc::db()
+     *
+     * @see Mc::db()
+     * @param string|null $instance_name
+     * @return Mc
+     */
+    public static function database(?string $instance_name = null): Mc
+    {
+        return self::db($instance_name);
     }
 
 

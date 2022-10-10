@@ -2,7 +2,7 @@
 
 namespace Phoundation\Cli;
 
-use CliException;
+use Phoundation\Cli\Exception\CliException;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
@@ -235,7 +235,7 @@ class Cli
                 /*
                  * Only show "Done" if we have shown any dot at all
                  */
-                Log::write($color, tr('Done'), 10, false, false);
+                Log::write(tr('Done'), $color, 10, false, false);
             }
 
             $l_each = 0;
@@ -252,7 +252,7 @@ class Cli
 
         if ($count >= $l_each) {
             $count = 0;
-            Log::write($color, $dot, 10, false, false);
+            Log::write($dot, $color, 10, false, false);
             return true;
         }
 

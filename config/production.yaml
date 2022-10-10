@@ -2,3 +2,13 @@ security:
   seed: "t456lerwtvgjh2ql453kywlkcejghle5k6jy14v(4%#^yrtynRY1"
 debug:
   enabled: true
+project:
+  name: "Phoundation"
+  version: "0.0.0"
+databases:
+  instances:
+    system:
+      server: "localhost"
+      name: "phoundation"
+      user: "base"
+      pass: "base"

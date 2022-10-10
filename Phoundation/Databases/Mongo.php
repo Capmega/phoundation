@@ -18,11 +18,11 @@ use Phoundation\Databases\Exception\MongoException;
 class Mongo
 {
     /**
-     * Singleton variable
+     * Identifier of this instance
      *
-     * @var Mongo|null $instance
+     * @var string|null $instance_name
      */
-    protected static ?Mongo $instance = null;
+    protected ?string $instance_name = null;
 
     /**
      * Instances store
@@ -67,6 +67,7 @@ class Mongo
     }
 
 
+
     /**
      * Returns a Mongo object for the specified database / server
      *
@@ -76,13 +77,27 @@ class Mongo
      * @return Mongo
      * @throws MongoException
      */
-    public static function database(string $database_name): Mongo
+    public static function db(string $database_name): Mongo
     {
         if (!array_key_exists($database_name, self::$databases)) {
             throw new MongoException('The specified Mongo database ":db" does not exist', [':db' => $database_name]);
         }
 
         return self::$databases[$database_name];
+    }
+
+
+
+    /**
+     * Wrapper to Mongo::db()
+     *
+     * @see Mongo::db()
+     * @param string|null $instance_name
+     * @return Mongo
+     */
+    public static function database(?string $instance_name = null): Mongo
+    {
+        return self::db($instance_name);
     }
 
 
@@ -152,19 +167,5 @@ class Mongo
     public static function removeConnections(string $connection_name): void
     {
         unset(self::$connections[$connection_name]);
-    }
-
-
-
-    /**
-     *
-     *
-     * @param $connection_name
-     * @param array $configuration
-     * @return static
-     */
-    public static function addConnection(string $connection_name, array $configuration): static
-    {
-
     }
 }
