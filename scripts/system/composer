@@ -11,7 +11,6 @@ $usage = './scripts/base/composer OPTIONS
 
 $help  = 'This is the phoundation composer front-end script';
 
-require_once(__DIR__.'/../../libs/startup.php');
 load_libs('composer');
 
 switch (cli_method()) {

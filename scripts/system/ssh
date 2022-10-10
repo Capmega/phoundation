@@ -64,7 +64,6 @@ rebuild                         - Rebuild the known_host file from the
                                   specified, the file will first be deleted and
                                   then rebuild with only entries from the table';
 
-require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('servers');
 

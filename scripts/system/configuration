@@ -18,7 +18,6 @@ init                            - Initialize new configuration files
 
 show KEYS                       - ';
 
-require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('config');
 

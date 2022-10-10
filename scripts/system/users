@@ -236,7 +236,6 @@ whoami                          - Displays what user the current shell user is
 
 timezones                       - List the available timezones';
 
-require_once(__DIR__.'/../../libs/startup.php');
 
 load_libs('user');
 

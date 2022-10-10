@@ -71,7 +71,6 @@ replication
                                    for databases that are replicating';
 
 
-require_once(__DIR__.'/../../libs/startup.php');
 load_libs('mysql,mysqlr');
 cli_only();
 

@@ -138,9 +138,13 @@ class Scripts
      */
     protected static function executeScript(string $file, array $arguments): void
     {
-        Log::information(tr('Executing script ":script" with arguments ""', [':script' => $file, ':arguments' => $arguments]));
-showdie('EXECUTING ' . $file);
-        include($script);
+        if ($arguments) {
+            Log::information(tr('Executing script ":script" with arguments ""', [':script' => $file, ':arguments' => $arguments]));
+        } else {
+            Log::information(tr('Executing script ":script" with no arguments', [':script' => $file]));
+        }
+
+        include($file);
     }
 
 

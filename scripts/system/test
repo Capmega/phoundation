@@ -3,7 +3,6 @@
 /*
  *
  */
-require_once(__DIR__.'/../../libs/startup.php');
 
 try {
     if (cli_exclusive()) {

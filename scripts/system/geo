@@ -92,7 +92,6 @@ ip                              - GEO-IP management
         --no-structures        - Do not fix the data structures for correct use
                                  with the PHP base framework"';
 
-require_once(__DIR__.'/../../libs/startup.php');
 cli_exclusive();
 cli_only();
 

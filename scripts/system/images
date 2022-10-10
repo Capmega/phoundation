@@ -235,7 +235,6 @@ OPTIONS (WEBP FORMAT ONLY)
 --use-sharp-yuv             - If needed, use sharp (and slow) RGB->YUV
                               conversion.';
 
-require_once(__DIR__.'/../../libs/startup.php');
 
 cli_only();
 load_libs('image');

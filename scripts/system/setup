@@ -8,7 +8,6 @@ $usage = './scripts/base/setup [PROJECTNAME]
 
 $help  = 'This is the BASE framework install script. It will ask you a number of questions and from that setup and configure your BASE framework for your new project.';
 
-require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('git,config');
 

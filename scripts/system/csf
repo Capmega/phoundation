@@ -53,7 +53,6 @@ set-testing-mode                    -
 set-restrict-syslog                 -
 ';
 
-require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('csf');
 

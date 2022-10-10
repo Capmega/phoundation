@@ -45,7 +45,6 @@ delete                          - Detele a Device
 
 undelete                        - Undelete a device';
 
-require_once(__DIR__.'/../../libs/startup.php');
 
 try {
     cli_only();

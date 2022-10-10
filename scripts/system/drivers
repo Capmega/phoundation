@@ -21,7 +21,6 @@ list                            - List the currently configured devices
 show DEVICE                     - Show all available options for the specified
                                   device';
 
-require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('test');
 

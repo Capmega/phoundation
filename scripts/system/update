@@ -37,7 +37,6 @@ Possible arguments:
 -b --branch BRANCH            - Get the PHOUNDATION updates from branch BRANCH
                                 instead of the standard production branch';
 
-require_once(__DIR__.'/../../libs/startup.php');
 cli_only(true);
 
 try {

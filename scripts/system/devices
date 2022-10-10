@@ -142,7 +142,6 @@ clear [TYPE]                    - Erase the specified TYPE type devices from the
 setup DEVICE                    - Setup the specified device by automatically
                                   installing the required drivers (EXPERIMENTAL)';
 
-require_once(__DIR__.'/../../libs/startup.php');
 load_libs('devices');
 
 switch (cli_method()) {

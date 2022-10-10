@@ -56,7 +56,6 @@ generate TEMPLATE               - Will generate new documents based on the
                                   specified TEMPLATE from the documentation in
                                   the database';
 
-require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('doc');
 

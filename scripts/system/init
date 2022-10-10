@@ -84,7 +84,6 @@ reset                           - Reset the database version back to the current
                                   initialize the specified section starting at
                                   the specified VERSION';
 
-require_once(__DIR__.'/../../libs/startup.php');
 
 /*
  * Setup database connection with core database so that FRAMEWORKDBVERSION and

@@ -42,7 +42,6 @@ reprocess-images               - Will take all blog post images, and recompress
                                  them and ensure they all have the configured
                                  sizes';
 
-require_once(__DIR__.'/../../libs/startup.php');
 load_config('blogs');
 
 switch (cli_method()) {

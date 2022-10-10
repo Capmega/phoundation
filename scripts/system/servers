@@ -86,7 +86,6 @@ unregister DOMAIN [SSH-PORT]    - Remove the registered domain / port
                                   fingerprints from the ROOT/data/ssh/known_host
                                   file and the ssh_fingerprints table';
 
-require_once(__DIR__.'/../../libs/startup.php');
 
 try {
     cli_only();

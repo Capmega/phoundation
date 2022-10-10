@@ -12,7 +12,6 @@ ARGUMENTS
 
 FILE                            - The file to view';
 
-require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('view');
 $file = cli_argument(0);

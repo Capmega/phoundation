@@ -10,7 +10,6 @@ $usage = './scripts/base/fonts
 
 $help  = 'This script can help with managing the various font icons installations';
 
-require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('fonts');
 

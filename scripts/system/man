@@ -10,7 +10,6 @@ $usage = './scripts/base/man
 
 $help  = 'The man script is the base manual interface. It allows generation of the manual, listing of available manual entries, and viewing specific manual entries';
 
-require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('manual');
 

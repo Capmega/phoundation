@@ -92,7 +92,6 @@ ARGUMENTS
                                           to the translation server (NOT YET
                                           IMPLEMENTED)';
 
-require_once(__DIR__.'/../../libs/startup.php');
 load_libs('inet,curl');
 load_config('translate');
 

@@ -19,7 +19,6 @@ ARGUMENTS
 -s, --seconds SECONDS           - The amount of seconds to wait until the
                                   reset() call is made. Defaults to 1';
 
-require_once(__DIR__.'/../../libs/startup.php');
 cli_only(true);
 
 /*

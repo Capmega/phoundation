@@ -17,7 +17,6 @@ static                      - Manage static routes
     reset IP [IP]           - Reset static routes for the specified IP
                               address(es)';
 
-require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 
 switch (cli_method()) {

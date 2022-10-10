@@ -38,7 +38,6 @@ OPTIONS
 --height -y                    -
 ";
 
-require_once(__DIR__.'/../../libs/startup.php');
 throw new CoreException('THIS SCRIPT IS OBSOLETE! PLEASE USE scripts/base/images INSTEAD!', 'OBSOLETE');
 cli_only();
 load_libs('image');

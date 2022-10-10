@@ -40,7 +40,6 @@ delete [USERS]                  - Delete the finger print data for the
 test                            - Test the fingerprint scanner by turning it on
                                   for a second';
 
-require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('fprint');
 

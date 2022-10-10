@@ -12,7 +12,6 @@ $usage = './scripts/base/backup all
 
 $help  = 'The backup script can create (zipped) backups of directory trees, and databases, and / or sync them with a remote localtion. It currently only supports MySQL databases';
 
-require_once(__DIR__.'/../../libs/startup.php');
 
 load_libs('backup');
 

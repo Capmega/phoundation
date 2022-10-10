@@ -7,7 +7,6 @@ $usage = './scripts/base/info';
 
 $help  = 'The info script will show detailed information about the current framework, project, database and more';
 
-require_once(__DIR__.'/../../libs/startup.php');
 
 cli_no_arguments_left();
 

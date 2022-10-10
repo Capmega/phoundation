@@ -3,7 +3,6 @@
 /*
  * This script can return various stats about the website
  */
-require_once(__DIR__.'/../../libs/startup.php');
 
 
 try {
