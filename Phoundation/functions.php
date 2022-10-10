@@ -14,6 +14,7 @@
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
@@ -504,4 +505,24 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
     }
 
     return null;
+}
+
+
+
+/**
+ * Execute the specified script file
+ *
+ * @param string $file
+ * @param array $argv
+ * @return void
+ */
+function execute_script(string $file, array $argv): void
+{
+    if ($argv) {
+        Log::information(tr('Executing script ":script" with arguments ""', [':script' => $file, ':arguments' => $argv]));
+    } else {
+        Log::information(tr('Executing script ":script" with no arguments', [':script' => $file]));
+    }
+
+    include($file);
 }

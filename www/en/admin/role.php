@@ -108,7 +108,7 @@ try {
         $role['id']     = sql_insert_id();
         $role['rights'] = s_update_rights($role);
 
-        html_flash_set(log_database(tr('Created role "%role%" with rights "%rights%"', array('%role%' => Strings::Log($role['name']), '%rights%' => Strings::Log(str_force($role['rights'])))), 'role_create'), 'success');
+        html_flash_set(log_database(tr('Created role "%role%" with rights "%rights%"', array('%role%' => Strings::Log($role['name']), '%rights%' => Strings::Log(Strings::force($role['rights'])))), 'role_create'), 'success');
 
         $role = array();
 
@@ -182,7 +182,7 @@ try {
         /*
          * Done!
          */
-        html_flash_set(log_database('Updated role "'.Strings::Log($role['name']).'" with rights "'.Strings::Log(str_force($role['rights'])).'"', 'role_update'), 'success');
+        html_flash_set(log_database('Updated role "'.Strings::Log($role['name']).'" with rights "'.Strings::Log(Strings::force($role['rights'])).'"', 'role_update'), 'success');
 
         if ($r->rowCount()) {
             html_flash_set(tr('Updated rights for "%count%" users with the role "%role%"', array('%count%' => $r->rowCount(), '%role%' => Strings::Log($role['name']))), 'success');

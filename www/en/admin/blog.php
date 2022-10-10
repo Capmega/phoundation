@@ -322,12 +322,12 @@ function s_validate_blog($blog) {
         // Validate input
         $v = new validate_form($blog, 'name,url_template,slogan,keywords,description,thumbs_x,thumbs_y,medium_x,medium_y,images_x,images_y');
 
-        $blog['thumbs_x'] = str_replace('px', '', str_force($blog['thumbs_x']));
-        $blog['thumbs_y'] = str_replace('px', '', str_force($blog['thumbs_y']));
-        $blog['medium_x'] = str_replace('px', '', str_force($blog['medium_x']));
-        $blog['medium_y'] = str_replace('px', '', str_force($blog['medium_y']));
-        $blog['images_x'] = str_replace('px', '', str_force($blog['images_x']));
-        $blog['images_y'] = str_replace('px', '', str_force($blog['images_y']));
+        $blog['thumbs_x'] = str_replace('px', '', Strings::force($blog['thumbs_x']));
+        $blog['thumbs_y'] = str_replace('px', '', Strings::force($blog['thumbs_y']));
+        $blog['medium_x'] = str_replace('px', '', Strings::force($blog['medium_x']));
+        $blog['medium_y'] = str_replace('px', '', Strings::force($blog['medium_y']));
+        $blog['images_x'] = str_replace('px', '', Strings::force($blog['images_x']));
+        $blog['images_y'] = str_replace('px', '', Strings::force($blog['images_y']));
 
         $v->isChecked  ($blog['name']            , tr('Please provide the name of your blog'));
         $v->isNotEmpty ($blog['slogan']          , tr('Please provide a slogan for your blog'));

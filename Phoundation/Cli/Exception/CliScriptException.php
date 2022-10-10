@@ -5,7 +5,7 @@ namespace Phoundation\Cli\Exception;
 
 
 /**
- * Class CliColorsException
+ * Class CliScriptException
  *
  * This exception is thrown in case of errors in the Command Line Exception Color class, Cli\Color
  *
@@ -14,6 +14,6 @@ namespace Phoundation\Cli\Exception;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
-class CliColorsException extends CliException
+class CliScriptException extends CliException
 {
 }

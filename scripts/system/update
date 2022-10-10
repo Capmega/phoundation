@@ -462,7 +462,7 @@ try {
         git_reset();
     }
 
-    switch ($e->getRealCode()) {
+    switch ($e->getCode()) {
         case 'busy':
             $e->makeWarning(true);
             // FALLTHROUGH

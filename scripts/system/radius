@@ -103,21 +103,21 @@ try {
 
             } else {
 
-                log_console(str_size(tr('#id'), 7).
-                            str_size(tr('Assigned to'), 21).
-                            str_size(tr('Type'), 13).
-                            str_size(tr('Mac address'), 21).
-                            str_size(tr('Status'), 11).
-                            str_size(tr('Created on'), 13).
-                            str_size(tr('Created by'), 32), 'QUIET/cyan');
+                log_console(Strings::size(tr('#id'), 7).
+                            Strings::size(tr('Assigned to'), 21).
+                            Strings::size(tr('Type'), 13).
+                            Strings::size(tr('Mac address'), 21).
+                            Strings::size(tr('Status'), 11).
+                            Strings::size(tr('Created on'), 13).
+                            Strings::size(tr('Created by'), 32), 'QUIET/cyan');
 
                 while ($device = sql_fetch($devices)) {
-                    log_console(str_size($device['id'], 6, ' ', true).' '.
-                                str_size($device['assigned_user'], 20).' '.
-                                str_size($device['type'], 12).' '.
-                                str_size($device['mac_address'], 20).' '.
-                                str_size($device['status'], 10).' '.
-                                cli_status_color(str_size($device['createdon'], 12)).' '.
+                    log_console(Strings::size($device['id'], 6, ' ', true).' '.
+                                Strings::size($device['assigned_user'], 20).' '.
+                                Strings::size($device['type'], 12).' '.
+                                Strings::size($device['mac_address'], 20).' '.
+                                Strings::size($device['status'], 10).' '.
+                                cli_status_color(Strings::size($device['createdon'], 12)).' '.
                                 name($device, 'user_'));
                 }
             }
@@ -195,7 +195,7 @@ try {
     }
 
 }catch(Exception $e) {
-    switch ($e->getRealCode()) {
+    switch ($e->getCode()) {
         case 'not-exist':
             // FALLTHROUGH
         case 'multiple':

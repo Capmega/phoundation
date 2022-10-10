@@ -4,7 +4,7 @@ namespace Phoundation\Core;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Colors;
+use Phoundation\Cli\Color;
 use Phoundation\Cli\Scripts;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Developer\Debug;
@@ -1411,13 +1411,13 @@ class Core {
                             $e->setCode(400);
                         }
 
-                        if (($e instanceof CoreException) and is_numeric($e->getRealCode()) and ($e->getRealCode() > 100) and page_show($e->getRealCode(), array('exists' => true))) {
+                        if (($e instanceof CoreException) and is_numeric($e->getCode()) and ($e->getCode() > 100) and page_show($e->getCode(), array('exists' => true))) {
                             if ($e->isWarning()) {
-                                html_flash_set($e->getMessage(), 'warning', $e->getRealCode());
+                                html_flash_set($e->getMessage(), 'warning', $e->getCode());
                             }
 
-                            Log::error(tr('Displaying exception page ":page"', [':page' => $e->getRealCode()]));
-                            Web::execute($e->getRealCode(), ['message' =>$e->getMessage()]);
+                            Log::error(tr('Displaying exception page ":page"', [':page' => $e->getCode()]));
+                            Web::execute($e->getCode(), ['message' =>$e->getMessage()]);
                         }
 
                         if (Debug::enabled()) {
@@ -1523,7 +1523,7 @@ class Core {
                                 // no-break
                             case 'ajax':
                                 if ($e instanceof CoreException) {
-                                    Json::message($e->getRealCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
+                                    Json::message($e->getCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
                                 }
 
                                 /*
@@ -1907,6 +1907,21 @@ class Core {
             }
         }
     }
+
+
+
+    /**
+     * Returns the framework database version
+     *
+     * @param string $type
+     * @return string
+     */
+    public static function getVersion(string $type): string
+    {
+// TODO implement
+        return 'unknown';
+    }
+
 
 
     /**

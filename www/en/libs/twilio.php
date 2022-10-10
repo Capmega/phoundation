@@ -186,7 +186,7 @@ function twilio_name_phones($numbers, $non_numeric = null) {
             }
         }
 
-        return str_force($numbers, ', ');
+        return Strings::force($numbers, ', ');
 
     }catch(Exception $e) {
         throw new CoreException('twilio_name_phones(): Failed', $e);

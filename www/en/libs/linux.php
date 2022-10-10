@@ -699,7 +699,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false) {
                     }
 
                 }catch(Exception $e) {
-                    if ($e->getRealCode() !== 'not-exists') {
+                    if ($e->getCode() !== 'not-exists') {
                         /*
                          * If the target path would not exist we'd be okay
                          */

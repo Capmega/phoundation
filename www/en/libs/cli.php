@@ -219,13 +219,13 @@ function cli_restore($echo = false) {
 // :TODO: Implement support for answer coloring
 function cli_readline($prompt = '', $hidden = false, $question_fore_color = null, $question_back_color = null, $answer_fore_color = null, $answer_back_color = null) {
     try {
-        if ($prompt) echo cli_color($prompt, $question_fore_color, $question_back_color);
+        if ($prompt) echo Color::apply($prompt, $question_fore_color, $question_back_color);
 
         if ($hidden) {
             echo cli_hide();
         }
 
-        echo cli_color('', $answer_fore_color, $answer_back_color, false, false);
+        echo Color::apply('', $answer_fore_color, $answer_back_color, false, false);
         $retval = rtrim(fgets(STDIN), "\n");
         echo cli_reset_color();
 
@@ -846,7 +846,7 @@ function cli_no_arguments_left() {
         return true;
     }
 
-    throw new CoreException(tr('cli_no_arguments_left(): Unknown arguments ":arguments" encountered', array(':arguments' => str_force($argv, ', '))), 'invalid-arguments');
+    throw new CoreException(tr('cli_no_arguments_left(): Unknown arguments ":arguments" encountered', array(':arguments' => Strings::force($argv, ', '))), 'invalid-arguments');
 }
 
 
@@ -1534,31 +1534,31 @@ function cli_status_color($status) {
             case 'ok':
                 // no-break
             case 'completed':
-                return cli_color($status, 'green');
+                return Color::apply($status, 'green');
 
             case 'processing':
-                return cli_color($status, 'light_blue');
+                return Color::apply($status, 'light_blue');
 
             case 'failed':
-                return cli_color($status, 'red');
+                return Color::apply($status, 'red');
 
             case 'disabled':
-                return cli_color($status, 'yellow');
+                return Color::apply($status, 'yellow');
 
             case 'not found':
-                return cli_color($status, 'yellow');
+                return Color::apply($status, 'yellow');
 
             case 'not exists':
-                return cli_color($status, 'yellow');
+                return Color::apply($status, 'yellow');
 
             case 'deleted':
-                return cli_color($status, 'yellow');
+                return Color::apply($status, 'yellow');
 
             default:
 
         }
 
-        return cli_color($status, 'purple');
+        return Color::apply($status, 'purple');
 
     }catch(Exception $e) {
         throw new CoreException('cli_status_color(): Failed', $e);
@@ -1738,7 +1738,7 @@ function cli_is_builtin($command) {
         return $results;
 
     }catch(Exception $e) {
-        if ($e->getRealCode() === '127') {
+        if ($e->getCode() === '127') {
             throw new CoreException(tr('cli_is_builtin(): The specified command ":command" was not found and probably does not exist', array(':command' => $command)), 'not-installed');
         }
 

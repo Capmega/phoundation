@@ -778,7 +778,7 @@ function email_servers_validate_account($account) {
             /*
              * For now, servers_get also gives exception if server does not exist!
              */
-            switch ($e->getRealCode()) {
+            switch ($e->getCode()) {
                 case 'not-exists';
                     $v->setError(tr('The specified mail server ":server" does not exist', array(':server' => $account['server'])));
                     break;

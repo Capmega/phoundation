@@ -49,7 +49,7 @@ try {
     rsync($params);
 
 }catch(Exception $e) {
-    switch ($e->getRealCode()) {
+    switch ($e->getCode()) {
         case 'invalid':
             throw $e->makeWarning(true);
     }

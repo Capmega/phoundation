@@ -387,17 +387,17 @@ switch (cli_method()) {
         foreach ($params as $key => $value) {
             if (is_array($value)) {
                 foreach ($value as $subkey => $subvalue) {
-                    log_console(str_size($key   , 20), 'cyan', false);
+                    log_console(Strings::size($key   , 20), 'cyan', false);
 
                     if (!is_numeric($subkey)) {
-                        log_console(str_size($subkey, 20), 'cyan', false);
+                        log_console(Strings::size($subkey, 20), 'cyan', false);
                     }
 
                     if (($key === 'blur') and (!$value)) {
                         $value = tr('No');
                     }
 
-                    log_console(str_force($subvalue), 'white');
+                    log_console(Strings::force($subvalue), 'white');
                 }
 
                 continue;
@@ -412,8 +412,8 @@ switch (cli_method()) {
                 }
             }
 
-            log_console(str_size($key, 20), 'cyan', false);
-            log_console(str_force($value) , 'white');
+            log_console(Strings::size($key, 20), 'cyan', false);
+            log_console(Strings::force($value) , 'white');
         }
 
         break;
@@ -730,52 +730,52 @@ switch (cli_method()) {
  */
 function s_display_info($info) {
     try {
-        log_console(str_size(tr('File'), 20), 'cyan', false);
+        log_console(Strings::size(tr('File'), 20), 'cyan', false);
         log_console($info['path'].$info['filename'], 'white');
-        log_console(str_size(tr('Path'), 20), 'cyan', false);
+        log_console(Strings::size(tr('Path'), 20), 'cyan', false);
         log_console($info['path'], 'white');
-        log_console(str_size(tr('Filename'), 20), 'cyan', false);
+        log_console(Strings::size(tr('Filename'), 20), 'cyan', false);
         log_console($info['filename'], 'white');
-        log_console(str_size(tr('File size'), 20), 'cyan', false);
+        log_console(Strings::size(tr('File size'), 20), 'cyan', false);
         log_console(bytes($info['size']) , 'white');
-        log_console(str_size(tr('Mimetype'), 20), 'cyan', false);
+        log_console(Strings::size(tr('Mimetype'), 20), 'cyan', false);
         log_console($info['mime'], 'white');
-        log_console(str_size(tr('Width'), 20), 'cyan', false);
+        log_console(Strings::size(tr('Width'), 20), 'cyan', false);
         log_console($info['x'], 'white');
-        log_console(str_size(tr('Height'), 20), 'cyan', false);
+        log_console(Strings::size(tr('Height'), 20), 'cyan', false);
         log_console($info['y'], 'white');
-        log_console(str_size(tr('Bits'), 20), 'cyan', false);
+        log_console(Strings::size(tr('Bits'), 20), 'cyan', false);
         log_console($info['bits'], 'white');
 
         if (!empty($info['compression'])) {
-            log_console(str_size(tr('Compression'), 20), 'cyan', false);
-            log_console(str_force($info['compression']) , 'white');
+            log_console(Strings::size(tr('Compression'), 20), 'cyan', false);
+            log_console(Strings::force($info['compression']) , 'white');
         }
 
         if (!empty($info['exif'])) {
-            log_console(str_size(tr('EXIF INFORMATION:'), 20), 'cyan');
+            log_console(Strings::size(tr('EXIF INFORMATION:'), 20), 'cyan');
 
             foreach ($info['exif'] as $key => $value) {
                 if (is_array($value)) {
                     foreach ($value as $subkey => $subvalue) {
-                        log_console(str_size($key   , 30), 'cyan', false);
+                        log_console(Strings::size($key   , 30), 'cyan', false);
 
                         if (!is_numeric($subkey)) {
-                            log_console(str_size($subkey, 30), 'cyan', false);
+                            log_console(Strings::size($subkey, 30), 'cyan', false);
                         }
 
                         if ($key === 'THUMBNAIL') {
                             $subvalue = tr('YES');
                         }
 
-                        log_console(str_force($subvalue), 'white');
+                        log_console(Strings::force($subvalue), 'white');
                     }
 
                     continue;
                 }
 
-                log_console(str_size($key, 30), 'cyan', false);
-                log_console(str_force($value) , 'white');
+                log_console(Strings::size($key, 30), 'cyan', false);
+                log_console(Strings::force($value) , 'white');
             }
         }
 

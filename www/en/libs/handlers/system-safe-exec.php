@@ -232,7 +232,7 @@ under_construction();
             }
         }
 
-        if ($e->getRealCode() === 124) {
+        if ($e->getCode() === 124) {
             throw new CoreException(tr('safe_exec(): Command appears to have been terminated by timeout'), $e);
         }
     }

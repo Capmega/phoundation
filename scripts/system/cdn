@@ -115,14 +115,14 @@ switch (cli_method()) {
 
         foreach ($list as $cdn => $count) {
            if (!in_array($cdn, $_CONFIG['cdn']['servers'])) {
-               log_console(str_size($cdn, 4).'   '.str_size($count, 16, ' ', true).' '.str_size(isset_get($images[$cdn], 0), 16, ' ', true).' '.str_size(isset_get($videos[$cdn], 0), 16, ' ', true).'     NOT CONFIGURED!', '', 'yellow');
+               log_console(Strings::size($cdn, 4).'   '.Strings::size($count, 16, ' ', true).' '.Strings::size(isset_get($images[$cdn], 0), 16, ' ', true).' '.Strings::size(isset_get($videos[$cdn], 0), 16, ' ', true).'     NOT CONFIGURED!', '', 'yellow');
 
            } else {
-               log_console(str_size($cdn, 4).'   '.str_size($count, 16, ' ', true).' '.str_size(isset_get($images[$cdn], 0), 16, ' ', true).' '.str_size(isset_get($videos[$cdn], 0), 16, ' ', true));
+               log_console(Strings::size($cdn, 4).'   '.Strings::size($count, 16, ' ', true).' '.Strings::size(isset_get($images[$cdn], 0), 16, ' ', true).' '.Strings::size(isset_get($videos[$cdn], 0), 16, ' ', true));
            }
         }
 
-        log_console('Total  '.str_size($total['listings'], 16, ' ', true).' '.str_size(isset_get($total['images'], 0), 16, ' ', true).' '.str_size(isset_get($total['videos'], 0), 16, ' ', true), '', 'green');
+        log_console('Total  '.Strings::size($total['listings'], 16, ' ', true).' '.Strings::size(isset_get($total['images'], 0), 16, ' ', true).' '.Strings::size(isset_get($total['videos'], 0), 16, ' ', true), '', 'green');
         break;
 
     case 'remove':
@@ -223,10 +223,10 @@ switch (cli_method()) {
                     $result[] = '200 OK';
                 }
 
-                $result = '[ '.str_size($success, 2, ' ', true).' / '.str_size($fail, 2, ' ', true).' ] '.implode(', ', $result);
+                $result = '[ '.Strings::size($success, 2, ' ', true).' / '.Strings::size($fail, 2, ' ', true).' ] '.implode(', ', $result);
             }
 
-            log_console(str_size($listing['id'], 11, ' ', true).' '.str_size($listing['status'], 17).str_size($listing['cdn'], 3, ' ', true).' '.$result, $color);
+            log_console(Strings::size($listing['id'], 11, ' ', true).' '.Strings::size($listing['status'], 17).Strings::size($listing['cdn'], 3, ' ', true).' '.$result, $color);
         }
 
         log_console(tr('Processed ":count" listings', array(':count' => $count)), 'green');

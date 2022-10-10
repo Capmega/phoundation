@@ -93,7 +93,7 @@ try {
             log_console('#id   Notifications class             User', '', 'white');
 
             while ($member = sql_fetch($r)) {
-                log_console(str_size($member['id'], 5, ' ', true).' '.str_size($member['class_name'], 32).' '.str_size($member['user_name'], 32), '');
+                log_console(Strings::size($member['id'], 5, ' ', true).' '.Strings::size($member['class_name'], 32).' '.Strings::size($member['user_name'], 32), '');
             }
 
             break;

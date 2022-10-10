@@ -302,7 +302,7 @@ if (!$r->rowCount()) {
                         <td>'.$a.$role['createdby'].'</a></td>
                         <td>'.$a.$role['createdon'].'</a></td>
                         <td>'.$a.$role['description'].'</a></td>
-                        <td>'.$a.str_force($role['rights'], ', ').'</a></td>
+                        <td>'.$a.Strings::force($role['rights'], ', ').'</a></td>
                     </tr>';
     }
 

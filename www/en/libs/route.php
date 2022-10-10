@@ -208,7 +208,7 @@ function route($regex, $target, $flags = null) {
                     $uri .= '?'.$query;
                     log_file(tr('Adding query to URI ":uri"', array(':uri' => $uri)), 'route', 'VERYVERBOSE/green');
 
-                    if (!str_contains(str_force($flags), 'Q')) {
+                    if (!str_contains(Strings::force($flags), 'Q')) {
                         /*
                          * Auto imply Q
                          */
@@ -1099,7 +1099,7 @@ function route_validate_static($route) {
 
         $v = new ValidateForm($route, 'uri,regex,target,until,ip');
 
-        $route['flags'] = str_force($route['flags']);
+        $route['flags'] = Strings::force($route['flags']);
 
         $v->hasMaxChars($route['uri'], 255, tr('Please ensure uri is less than 255 characters'));
         $v->isFilter($route['ip'], FILTER_VALIDATE_IP, tr('Please specify a valid IP address'));

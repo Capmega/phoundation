@@ -30,7 +30,7 @@ html_load_css('jquery/jquery-ui,base/jquery-ui/themes/'.$_CONFIG['jquery-ui']['t
 function jqueryui_accordeon($selector, $options = 'collapsible: true,heightStyle: "content"') {
     try {
         if ($options) {
-            $options = Strings::endsWith(Strings::startsWith(str_force($options), '{'), '}');
+            $options = Strings::endsWith(Strings::startsWith(Strings::force($options), '{'), '}');
 
         } else {
             $options = '';
@@ -154,7 +154,7 @@ function jqueryui_time($selector, $params = null) {
                 $script  = '["'.isset_get($range[0]).'", "'.isset_get($range[1]).'"]';
             }
 
-            $script  = str_force($entries, ",\n").']';
+            $script  = Strings::force($entries, ",\n").']';
         }
 
         $script .= '    });
@@ -233,7 +233,7 @@ throw new CoreException('jqueryui_datepair(): This function is not yet implement
     //            $script  = '["'.isset_get($range[0]).'", "'.isset_get($range[1]).'"]';
     //        }
     //
-    //        $script  = str_force($entries, ",\n").']';
+    //        $script  = Strings::force($entries, ",\n").']';
     //    }
     //
     //    $script .= '    });
@@ -315,7 +315,7 @@ function jqueryui_date_range($params = null) {
             $params['options'] = '';
 
         } else {
-            $params['options'] = Strings::endsWith(Strings::startsWith(str_force($params['options']), '{'), '}');
+            $params['options'] = Strings::endsWith(Strings::startsWith(Strings::force($params['options']), '{'), '}');
         }
 
         if ($params['time']) {

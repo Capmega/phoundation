@@ -177,7 +177,7 @@ function fprint_list_users() {
 function fprint_list($users) {
     try {
         $device  = fprint_pick_device();
-        $results = servers_exec($device['servers_id'], array('commands' => array('fprintd-list', array('sudo' => true, str_force($users, ' ')))));
+        $results = servers_exec($device['servers_id'], array('commands' => array('fprintd-list', array('sudo' => true, Strings::force($users, ' ')))));
 
         return $results;
 

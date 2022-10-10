@@ -76,7 +76,7 @@ function apt_install($packages, $auto_update = true, $server = null) {
         return $results;
 
     }catch(Exception $e) {
-        switch ($e->getRealCode()) {
+        switch ($e->getCode()) {
             case '100':
                 /*
                  * Package doesn't exist, proabably

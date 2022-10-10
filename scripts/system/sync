@@ -126,7 +126,7 @@ try {
     $dumpfile      = uniqid().'.sql';
 
 }catch(Exception $e) {
-    if ($e->getRealCode() === 'not-exists') {
+    if ($e->getCode() === 'not-exists') {
         $e->makeWarning(true);
     }
 

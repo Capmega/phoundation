@@ -32,10 +32,10 @@ switch (cli_method()) {
                         log_console(tr('There are currently no static routes registered'), 'QUIET/yellow');
 
                 } else {
-                    log_console(str_size(tr('#id'), 7).str_size(tr('Status'), 11).str_size(tr('Created on'), 20).str_size(tr('Expires on'), 20).str_size(tr('Applied'), 8).str_size(tr('IP address'), 16).str_size(tr('uri'), 33).str_size(tr('Target'), 33).str_size(tr('Regular expression'), 33).str_size(tr('Flags'), 16), 'QUIET/cyan');
+                    log_console(Strings::size(tr('#id'), 7).Strings::size(tr('Status'), 11).Strings::size(tr('Created on'), 20).Strings::size(tr('Expires on'), 20).Strings::size(tr('Applied'), 8).Strings::size(tr('IP address'), 16).Strings::size(tr('uri'), 33).Strings::size(tr('Target'), 33).Strings::size(tr('Regular expression'), 33).Strings::size(tr('Flags'), 16), 'QUIET/cyan');
 
                     while ($route = sql_fetch($routes)) {
-                        log_console(str_size($route['id'], 6, ' ', true).' '.cli_status_color(str_size(status($route['status']), 10)).' '.date_convert($route['createdon'], 'human_datetime').' '.date_convert($route['expiredon'], 'human_datetime').' '.str_size($route['applied'], 7, ' ', true).' '.str_size($route['ip'], 15).' '.str_size($route['uri'], 32).' '.str_size($route['target'], 32).' '.str_size($route['regex'], 32).' '.str_size($route['flags'], 16));
+                        log_console(Strings::size($route['id'], 6, ' ', true).' '.cli_status_color(Strings::size(status($route['status']), 10)).' '.date_convert($route['createdon'], 'human_datetime').' '.date_convert($route['expiredon'], 'human_datetime').' '.Strings::size($route['applied'], 7, ' ', true).' '.Strings::size($route['ip'], 15).' '.Strings::size($route['uri'], 32).' '.Strings::size($route['target'], 32).' '.Strings::size($route['regex'], 32).' '.Strings::size($route['flags'], 16));
                     }
                 }
 

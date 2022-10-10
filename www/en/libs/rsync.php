@@ -147,7 +147,7 @@ function rsync($params) {
                                         }
 
                                     }catch(Exception $e) {
-                                        if ($e->getRealCode() !== 'not-exists') {
+                                        if ($e->getCode() !== 'not-exists') {
                                             /*
                                              * If the target path would not exist we'd be okay
                                              */
@@ -166,7 +166,7 @@ function rsync($params) {
                 }
 
             }catch(Exception $e) {
-                switch ($e->getRealCode()) {
+                switch ($e->getCode()) {
                     case 'not-exists':
                         throw new CoreException(tr('rsync(): Specified ":item" server ":server" does not exist', array(':item' => $item, ':server' => Strings::until($params['source'], ':', 0, 0, true))), $e);
 
@@ -348,7 +348,7 @@ function rsync($params) {
         /*
          * Give nice rsync errors
          */
-        switch ($e->getRealCode()) {
+        switch ($e->getCode()) {
             case 0:
                 $e->makeWarning(true);
                 throw new CoreException(tr('rsync(): Rsync failed with "Success"'), $e);

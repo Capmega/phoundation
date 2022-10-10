@@ -1684,19 +1684,19 @@
 //                    /*
 //                     * Add data to messages
 //                     */
-//                    $messages[] = cli_color('Exception data:', 'error', null, true);
+//                    $messages[] = Color::apply('Exception data:', 'error', null, true);
 //
 //                    foreach (Arrays::force($data) as $line) {
 //                        if ($line) {
 //                            if (is_scalar($line)) {
-//                                $messages[] = cli_color($line, 'error', null, true);
+//                                $messages[] = Color::apply($line, 'error', null, true);
 //
 //                            } elseif (is_array($line)) {
 //                                /*
 //                                 * This is a multi dimensional array or object,
-//                                 * we cannot cli_color() these, so just JSON it.
+//                                 * we cannot Color::apply() these, so just JSON it.
 //                                 */
-//                                $messages[] = cli_color(json_encode_custom($line), 'error', null, true);
+//                                $messages[] = Color::apply(json_encode_custom($line), 'error', null, true);
 //                            }
 //                        }
 //                    }
@@ -1920,11 +1920,11 @@
 //         */
 //        if (!$core or !Core::readRegister('ready')) {
 //            $file  = 'syslog';
-//            $class = $session.cli_color('[ '.$class.' ] ', 'white', null, true);
+//            $class = $session.Color::apply('[ '.$class.' ] ', 'white', null, true);
 //
 //        } elseif ($_CONFIG['log']['single']) {
 //            $file  = 'syslog';
-//            $class = $session.cli_color('[ '.$class.' ] ', 'white', null, true);
+//            $class = $session.Color::apply('[ '.$class.' ] ', 'white', null, true);
 //
 //        } else {
 //            $file  = $class;
@@ -1972,10 +1972,10 @@
 //                }
 //
 //                if (!empty($color)) {
-//                    $message = cli_color($message, $color, null, true);
+//                    $message = Color::apply($message, $color, null, true);
 //                }
 //
-//                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.Core::getCallType().'/'.$core->register['script_file'].' '.$class.$key.' => '.$message."\n");
+//                fwrite($h[$file], Color::apply($date, 'cyan', null, true).' '.Core::getCallType().'/'.$core->register['script_file'].' '.$class.$key.' => '.$message."\n");
 //
 //            } else {
 //                /*
@@ -1984,10 +1984,10 @@
 //                 * one entry
 //                 */
 //                if (!empty($color)) {
-//                    $message = cli_color($message, $color, null, true);
+//                    $message = Color::apply($message, $color, null, true);
 //                }
 //
-//                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.Core::getCallType().'/'.$core->register['script_file'].' '.$class.$message."\n");
+//                fwrite($h[$file], Color::apply($date, 'cyan', null, true).' '.Core::getCallType().'/'.$core->register['script_file'].' '.$class.$message."\n");
 //            }
 //        }
 //
@@ -4575,7 +4575,7 @@
 //        return Strings::noDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', str_truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
 //
 //    }catch(Exception $e) {
-//        if ($e->getRealCode() === 'invalid') {
+//        if ($e->getCode() === 'invalid') {
 //            notify($e->makeWarning(true));
 //            return "Data converted using print_r() instead of json_encode() because json_encode_custom() failed on this data: ".print_r($source, true);
 //        }
@@ -4701,7 +4701,7 @@
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
-// * @see str_force()
+// * @see Strings::force()
 // * @example
 // * code
 // * print_r(Arrays::force(array('test')));
@@ -4981,7 +4981,7 @@
 ///*
 // * Return the specified string in the specified color
 // */
-//function cli_color($string, $fore_color = null, $back_color = null, $force = false, $reset = true) {
+//function Color::apply($string, $fore_color = null, $back_color = null, $force = false, $reset = true) {
 //    try {
 //        static $color;
 //
@@ -4992,7 +4992,7 @@
 //        return $color->getColoredString($string, $fore_color, $back_color, $force, $reset);
 //
 //    }catch(Exception $e) {
-//        throw new CoreException('cli_color(): Failed', $e);
+//        throw new CoreException('Color::apply(): Failed', $e);
 //    }
 //}
 //
@@ -6093,7 +6093,7 @@
 // */
 //function log_database($messages, $class = 'syslog') {
 //    try {
-//        return str_force(log_file($messages, $class));
+//        return Strings::force(log_file($messages, $class));
 //
 //    }catch(Exception $e) {
 //        throw new CoreException('log_database(): Failed', $e);

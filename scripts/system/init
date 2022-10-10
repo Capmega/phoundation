@@ -185,7 +185,7 @@ switch ($method) {
                 init_section($section, $version);
 
             }catch(Exception $e) {
-                if ($e->getRealCode() == 'not-exists') {
+                if ($e->getCode() == 'not-exists') {
                     $e->makeWarning(true);
                 }
 

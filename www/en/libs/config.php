@@ -331,7 +331,7 @@ function config_lines($key, $value, $config_string = '$_CONFIG') {
             $value   = preg_replace('/(\(|,|\=>)\s+/', '$1 ', $value);
             $value   = str_replace('array ( ', 'array(', $value);
             $value   = str_replace(', )', ')', $value);
-            $lines[] = str_size($config_string.'[\''.$key.'\']', 120).'= '.$value.';';
+            $lines[] = Strings::size($config_string.'[\''.$key.'\']', 120).'= '.$value.';';
 
         } else {
             /*
@@ -388,9 +388,9 @@ function config_write_project($project, $project_code_version, $seed) {
  */
 ';
 
-        $data .= str_size('define(\'SEED\''              , 33).', \''.$seed.'\');'.CRLF;
-        $data .= str_size('define(\'PROJECT\''           , 33).', \''.$project.'\');'.CRLF;
-        $data .= str_size('define(\'PROJECTCODEVERSION\'', 33).', \''.$project_code_version.'\');'.CRLF;
+        $data .= Strings::size('define(\'SEED\''              , 33).', \''.$seed.'\');'.CRLF;
+        $data .= Strings::size('define(\'PROJECT\''           , 33).', \''.$project.'\');'.CRLF;
+        $data .= Strings::size('define(\'PROJECTCODEVERSION\'', 33).', \''.$project_code_version.'\');'.CRLF;
         $data .= '?>'.CRLF;
 
         file_put_contents(ROOT.'config/project.php', $data);

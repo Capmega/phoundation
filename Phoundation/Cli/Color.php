@@ -2,10 +2,12 @@
 
 namespace Phoundation\Cli;
 
-use CliColorsException;
+use Phoundation\Cli\Exception\CliColorException;
+
+
 
 /**
- * Cli\Colors class
+ * Cli\Color class
  *
  * This class manages color usage on the Linux Command Line Interface
  * Taken from http://www.if-not-true-then-false.com/2010/php-class-for-coloring-php-command-line-cli-scripts-output-php-output-colorizing-using-bash-shell-colors/
@@ -16,7 +18,7 @@ use CliColorsException;
  * @package Phoundation\Cli
  */
 
-class Colors
+class Color
 {
     /**
      * The supported foreground colors
@@ -83,11 +85,11 @@ class Colors
 
         // Validate the specified foreground and background colors
         if (!array_key_exists($foreground_color, self::$available_foreground_colors)) {
-            throw new CliColorsException('The specified foreground color "' . $foreground_color . '" does not exist');
+            throw new CliColorException(tr('The specified foreground color ":color" does not exist', [':color' => $foreground_color]));
         }
 
         if (!array_key_exists($background_color, self::$available_background_colors)) {
-            throw new CliColorsException('The specified background color "' . $background_color . '" does not exist');
+            throw new CliColorException(tr('The specified background color ":color" does not exist', [':color' => $background_color]));
         }
 
         // Apply colors

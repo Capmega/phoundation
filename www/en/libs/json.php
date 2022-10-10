@@ -254,7 +254,7 @@ function json_message($code, $data = null) {
             /*
              * This is (presumably) an exception
              */
-            $code = $code->getRealCode();
+            $code = $code->getCode();
         }
 
         if (str_contains($code, '_')) {

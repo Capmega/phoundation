@@ -164,7 +164,7 @@ function ssh_exec($server, $params) {
         return $results;
 
     }catch(Exception $e) {
-        switch ($e->getRealCode()) {
+        switch ($e->getCode()) {
             case 'not-exists':
                 // no-break
             case 'invalid':

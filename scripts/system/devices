@@ -201,10 +201,10 @@ switch (cli_method()) {
 
         } else {
             log_console(tr('Showing currently available devices'), 'QUIET/white');
-            log_console(str_size(tr('#id'), 6, ' ', true).' '.str_size(tr('Name'), 20).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 12).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.str_size(tr('Description'), 32).' '.tr('Device string'), 'QUIET/cyan');
+            log_console(Strings::size(tr('#id'), 6, ' ', true).' '.Strings::size(tr('Name'), 20).' '.Strings::size(tr('Type'), 20).' '.Strings::size(tr('Domain'), 20).' '.Strings::size(tr('Status'), 12).' '.Strings::size(tr('Vendor'), 16).' '.Strings::size(tr('Manufacturer'), 16).' '.Strings::size(tr('Model'), 16).' '.Strings::size(tr('Bus'), 3).' '.Strings::size(tr('Device'), 3).' '.Strings::size(tr('Description'), 32).' '.tr('Device string'), 'QUIET/cyan');
 
             while ($device = sql_fetch($devices)) {
-                log_console(str_size($device['id'], 6, ' ', true).' '.str_size(not_empty($device['name'], '-'), 20).' '.str_size($device['type'], 20).' '.str_size(not_empty($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 12).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.str_size($device['description'], 32).' '.$device['string']);
+                log_console(Strings::size($device['id'], 6, ' ', true).' '.Strings::size(not_empty($device['name'], '-'), 20).' '.Strings::size($device['type'], 20).' '.Strings::size(not_empty($device['domain'], '-'), 20).' '.Strings::size(cli_status_color($device['status']), 12).' '.Strings::size($device['vendor_string'], 16).' '.Strings::size($device['manufacturer'], 16).' '.Strings::size($device['model'], 16).' '.Strings::size($device['bus'], 3).' '.Strings::size($device['device'], 3).' '.Strings::size($device['description'], 32).' '.$device['string']);
             }
         }
 
@@ -220,7 +220,7 @@ switch (cli_method()) {
             $device = devices_get($id, $server);
 
         }catch(Exception $e) {
-            switch ($e->getRealCode()) {
+            switch ($e->getCode()) {
                 case 'invalid':
                     // FALLTHROUGH
                 case 'not-specified':
@@ -235,7 +235,7 @@ switch (cli_method()) {
         ksort($device);
 
         foreach ($device as $key => $value) {
-            log_console(cli_color($key.':', 'white').' '.$value);
+            log_console(Color::apply($key.':', 'white').' '.$value);
         }
 
         $options = devices_list_option_keys($device['id']);
@@ -257,7 +257,7 @@ switch (cli_method()) {
                     $default = null;
                 }
 
-                log_console($key.':'.($default ? cli_color(' [ '.$default.' ]', 'cyan') : ''), 'white');
+                log_console($key.':'.($default ? Color::apply(' [ '.$default.' ]', 'cyan') : ''), 'white');
 
                 foreach ($values as $value) {
                     log_console('        '.$value);
@@ -375,7 +375,7 @@ switch (cli_method()) {
             devices_update($device);
 
         }catch(Exception $e) {
-            switch ($e->getRealCode()) {
+            switch ($e->getCode()) {
                 case 'not-exists':
                     throw $e->makeWarning(true);
             }
@@ -538,7 +538,7 @@ switch (cli_method()) {
             }
 
         }catch(Exception $e) {
-            switch ($e->getRealCode()) {
+            switch ($e->getCode()) {
                 case 'not-exists':
                     throw $e->makeWarning(true);
             }

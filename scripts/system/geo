@@ -770,7 +770,7 @@ switch (cli_method()) {
 
 // :DELETE: Delete following 2 lines. States will no longer be deleted. Before insert, a check will be done if the state already exists, and if so, it will be skipped
                 //log_console('Clearing old states...');
-                //sql_query('DELETE FROM `geo_states` WHERE `countries_id` IN ('.str_force($country_idlist).');');
+                //sql_query('DELETE FROM `geo_states` WHERE `countries_id` IN ('.Strings::force($country_idlist).');');
                 $state_exists_statement = sql_prepare('SELECT `id`
 
                                                        FROM   `geo_states`

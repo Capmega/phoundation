@@ -449,7 +449,7 @@ function inet_dig($domain, $section = false) {
              * If specific sections were requested,
              * then store those lowercased in an array for easy lookup
              */
-            $section = strtolower(str_force($section));
+            $section = strtolower(Strings::force($section));
             $section = array_flip(Arrays::force($section));
         }
 

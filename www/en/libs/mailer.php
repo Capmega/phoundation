@@ -694,7 +694,7 @@ function mailer_status($mailers, $status) {
                 throw new CoreException('mailer_status(): Unknown status "'.Strings::Log($status).'" specified', 'unknown');
         }
 
-        switch (str_force($mailers)) {
+        switch (Strings::force($mailers)) {
             case 'all':
                 /*
                  * Update all status "started" to "stopped

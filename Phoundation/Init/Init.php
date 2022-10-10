@@ -322,7 +322,7 @@ Class Init
             log_console('Finished all', 'green');
 
         }catch(Exception $e) {
-            switch ($e->getRealCode()) {
+            switch ($e->getCode()) {
                 case 'invalidforce':
                     foreach ($e->getMessages() as $message) {
                         log_console($message);

@@ -3,7 +3,7 @@
 namespace Phoundation\Core;
 
 use PDOStatement;
-use Phoundation\Cli\Colors;
+use Phoundation\Cli\Color;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Databases\Sql;
 use Phoundation\Developer\Debug;
@@ -807,7 +807,7 @@ Class Log {
                 case 'success':
                     // no-break
                 case 'greeen':
-                    $messages = Colors::apply($messages, 'green');
+                    $messages = Color::apply($messages, 'green');
                     break;
 
                 case 'red':
@@ -815,13 +815,13 @@ Class Log {
                 case 'error':
                     // no-break
                 case 'exception':
-                    $messages = Colors::apply($messages, 'red');
+                    $messages = Color::apply($messages, 'red');
                     break;
 
                 case 'yellow':
                     // no-break
                 case 'warning':
-                    $messages = Colors::apply($messages, 'yellow');
+                    $messages = Color::apply($messages, 'yellow');
                     break;
 
                 case 'notice':
@@ -831,13 +831,13 @@ Class Log {
                 case 'information':
                     // no-break
                 case 'white':
-                    $messages = Colors::apply($messages, 'white');
+                    $messages = Color::apply($messages, 'white');
                     break;
 
                 case 'debug':
                     // no-break
                 case 'blue':
-                    $messages = Colors::apply($messages, 'light_blue');
+                    $messages = Color::apply($messages, 'light_blue');
                     break;
 
                 default:
@@ -1217,19 +1217,19 @@ Class Log {
 //                        /*
 //                         * Add data to messages
 //                         */
-//                        $messages[] = cli_color('Exception data:', 'error', null, true);
+//                        $messages[] = Color::apply('Exception data:', 'error', null, true);
 //
 //                        foreach (Arrays::force($data) as $line) {
 //                            if ($line) {
 //                                if (is_scalar($line)) {
-//                                    $messages[] = cli_color($line, 'error', null, true);
+//                                    $messages[] = Color::apply($line, 'error', null, true);
 //
 //                                } elseif (is_array($line)) {
 //                                    /*
 //                                     * This is a multi dimensional array or object,
-//                                     * we cannot cli_color() these, so just JSON it.
+//                                     * we cannot Color::apply() these, so just JSON it.
 //                                     */
-//                                    $messages[] = cli_color(json_encode_custom($line), 'error', null, true);
+//                                    $messages[] = Color::apply(json_encode_custom($line), 'error', null, true);
 //                                }
 //                            }
 //                        }
@@ -1453,11 +1453,11 @@ Class Log {
 //             */
 //            if (!$core or !Core::readRegister('ready')) {
 //                $file = 'syslog';
-//                $class = $session . cli_color('[ ' . $class . ' ] ', 'white', null, true);
+//                $class = $session . Color::apply('[ ' . $class . ' ] ', 'white', null, true);
 //
 //            } elseif ($_CONFIG['log']['single']) {
 //                $file = 'syslog';
-//                $class = $session . cli_color('[ ' . $class . ' ] ', 'white', null, true);
+//                $class = $session . Color::apply('[ ' . $class . ' ] ', 'white', null, true);
 //
 //            } else {
 //                $file = $class;
@@ -1505,10 +1505,10 @@ Class Log {
 //                    }
 //
 //                    if (!empty($color)) {
-//                        $message = cli_color($message, $color, null, true);
+//                        $message = Color::apply($message, $color, null, true);
 //                    }
 //
-//                    fwrite($h[$file], cli_color($date, 'cyan', null, true) . ' ' . Core::getCallType() . '/' . $core->register['script_file'] . ' ' . $class . $key . ' => ' . $message . "\n");
+//                    fwrite($h[$file], Color::apply($date, 'cyan', null, true) . ' ' . Core::getCallType() . '/' . $core->register['script_file'] . ' ' . $class . $key . ' => ' . $message . "\n");
 //
 //                } else {
 //                    /*
@@ -1517,10 +1517,10 @@ Class Log {
 //                     * one entry
 //                     */
 //                    if (!empty($color)) {
-//                        $message = cli_color($message, $color, null, true);
+//                        $message = Color::apply($message, $color, null, true);
 //                    }
 //
-//                    fwrite($h[$file], cli_color($date, 'cyan', null, true) . ' ' . Core::getCallType() . '/' . $core->register['script_file'] . ' ' . $class . $message . "\n");
+//                    fwrite($h[$file], Color::apply($date, 'cyan', null, true) . ' ' . Core::getCallType() . '/' . $core->register['script_file'] . ' ' . $class . $message . "\n");
 //                }
 //            }
 //

@@ -31,7 +31,7 @@ function synonym($source, $params = array()) {
         }
 
         if ($params['skip']) {
-            $params['skip'] = Arrays::force(strtolower(str_force($params['skip'])));
+            $params['skip'] = Arrays::force(strtolower(Strings::force($params['skip'])));
         }
 
         /*

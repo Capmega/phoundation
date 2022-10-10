@@ -251,27 +251,27 @@ under_construction('add');
 
         } else {
             if (!QUIET) {
-                log_console(str_size('#id', 6).' '.str_size('Meta id', 7).' '.str_size('User', 22).' '.str_size('Parent task id', 14).' '.str_size('Command', 32).' '.str_size('Status', 16).' '.str_size('Description', 48).' '.str_size('Execution method', 20).' '.str_size('Timeout', 4).' '.str_size('Time spent', 10), 'cyan');
+                log_console(Strings::size('#id', 6).' '.Strings::size('Meta id', 7).' '.Strings::size('User', 22).' '.Strings::size('Parent task id', 14).' '.Strings::size('Command', 32).' '.Strings::size('Status', 16).' '.Strings::size('Description', 48).' '.Strings::size('Execution method', 20).' '.Strings::size('Timeout', 4).' '.Strings::size('Time spent', 10), 'cyan');
             }
 
             while ($task = sql_fetch($tasks)) {
                 switch ($task['status']) {
                     case 'processing':
-                        $task['status'] = cli_color($task['status'], 'light_blue');
+                        $task['status'] = Color::apply($task['status'], 'light_blue');
                         break;
 
                     case 'completed':
-                        $task['status'] = cli_color($task['status'], 'green');
+                        $task['status'] = Color::apply($task['status'], 'green');
                         break;
 
                     case 'timeout':
                         // FALLTHROUGH
                     case 'failed':
-                        $task['status'] = cli_color($task['status'], 'red');
+                        $task['status'] = Color::apply($task['status'], 'red');
                         break;
                 }
 
-                log_console(str_size($task['id'], 6).' '.str_size($task['meta_id'], 7, ' ', true).' '.str_size(name($task), 22).' '.str_size(not_empty($task['parents_id'], '-'), 14, ' ', true).' '.str_size($task['command'], 32).' '.str_size($task['status'], 16).' '.str_size($task['description'], 48).' '.str_size($task['method'], 20).' '.str_size(($task['timeout'] ? $task['timeout'] : '-'), 4, ' ', true).' '.str_size($task['time_spent'] ? $task['time_spent'] : '-', 10, ' ', true));
+                log_console(Strings::size($task['id'], 6).' '.Strings::size($task['meta_id'], 7, ' ', true).' '.Strings::size(name($task), 22).' '.Strings::size(not_empty($task['parents_id'], '-'), 14, ' ', true).' '.Strings::size($task['command'], 32).' '.Strings::size($task['status'], 16).' '.Strings::size($task['description'], 48).' '.Strings::size($task['method'], 20).' '.Strings::size(($task['timeout'] ? $task['timeout'] : '-'), 4, ' ', true).' '.Strings::size($task['time_spent'] ? $task['time_spent'] : '-', 10, ' ', true));
             }
         }
 
@@ -314,16 +314,16 @@ under_construction('add');
         foreach ($task as $key => $value) {
             switch ($key) {
                 case 'status':
-                    log_console(cli_color(str_capitalize($key).':', 'white').' '.cli_status_color($value));
+                    log_console(Color::apply(str_capitalize($key).':', 'white').' '.cli_status_color($value));
                     break;
 
                 default:
-                    log_console(cli_color(str_capitalize($key).':', 'white').' '.$value);
+                    log_console(Color::apply(str_capitalize($key).':', 'white').' '.$value);
             }
         }
 
-        log_console(cli_color('Description:', 'white').' '.$description);
-        log_console(cli_color('Data:', 'white'));
+        log_console(Color::apply('Description:', 'white').' '.$description);
+        log_console(Color::apply('Data:', 'white'));
 
         if (empty($data)) {
             log_console(tr('This task has no data'), 'yellow');
@@ -342,7 +342,7 @@ under_construction('add');
                  * Task has finished or failed, show results
                  */
                 log_console();
-                log_console(cli_color('Results:', 'white'));
+                log_console(Color::apply('Results:', 'white'));
 
                 if (empty($results)) {
                     log_console(tr('This task has no results'), 'yellow');
@@ -596,7 +596,7 @@ under_construction('add');
                     log_console(tr('Task ":task" failed with ":e" in ":time"', array(':task' => $task['id'], ':e' => $e, ':time' => Time::difference($start, $end, 'auto', 5))), $color);
 
                     if ($data) {
-                        log_console(tr('Failed task ":task" exitcode: :code', array(':code' => $e->getRealCode())), $color);
+                        log_console(tr('Failed task ":task" exitcode: :code', array(':code' => $e->getCode())), $color);
                         log_console(tr('Failed task ":task" output:', array(':task' => $task['id'])), $color);
                         log_console($data, 'red');
 
@@ -605,7 +605,7 @@ under_construction('add');
                         $task['results'] = array_merge($e->getMessages(), array(' '), Arrays::force($e->getData()));
                     }
 
-                    if ($e->getRealCode() == '124') {
+                    if ($e->getCode() == '124') {
                         $task['status'] = 'timeout';
 
                     } else {

@@ -1543,7 +1543,7 @@ function blogs_validate_post($post, $params = null) {
         if (!empty($params['label_status'])) {
             if (!isset($params['status_list'][$post['status']])) {
                 if ($post['status'] and ($post['status'] != $params['status_default'])) {
-                    $v->setError(tr('The specified status ":status" is invalid, it must be either one of ":status_list"', array(':status' => $post['status'], ':status_list' => str_force($params['status_list']))));
+                    $v->setError(tr('The specified status ":status" is invalid, it must be either one of ":status_list"', array(':status' => $post['status'], ':status_list' => Strings::force($params['status_list']))));
 
                 } else {
                     $post['status'] = $params['status_default'];
@@ -2346,7 +2346,7 @@ function blogs_update_url($post) {
         $url = blogs_post_url($post);
 
         if ((PLATFORM_CLI) and VERBOSE) {
-            log_console(tr('blogs_update_url(): Updating blog post :post to URL ":url"', array(':url' => $url, ':post' => str_size('"'.str_truncate($post['seoname'], 40).'"', 42, ' '))));
+            log_console(tr('blogs_update_url(): Updating blog post :post to URL ":url"', array(':url' => $url, ':post' => Strings::size('"'.str_truncate($post['seoname'], 40).'"', 42, ' '))));
         }
 
         sql_query('UPDATE `blogs_posts`
@@ -2437,11 +2437,11 @@ function blogs_update_urls($blogs = null, $category = null) {
                 }
 
                 if (!$blog['url_template']) {
-                    log_console(tr('blogs_update_urls(): Skipping updating post urls for blog :blog, the blog has no URL template configured', array(':blog' => str_size('"'.str_truncate($blog['name'], 40).'"', 42, ' '))), 'yellow');
+                    log_console(tr('blogs_update_urls(): Skipping updating post urls for blog :blog, the blog has no URL template configured', array(':blog' => Strings::size('"'.str_truncate($blog['name'], 40).'"', 42, ' '))), 'yellow');
                     continue;
                 }
 
-                log_console(tr('blogs_update_urls(): Updating post urls for blog :blog', array(':blog' => str_size('"'.str_truncate($blog['name'], 40).'"', 42, ' '))));
+                log_console(tr('blogs_update_urls(): Updating post urls for blog :blog', array(':blog' => Strings::size('"'.str_truncate($blog['name'], 40).'"', 42, ' '))));
 
                 /*
                  * Walk over all posts of the specified blog
@@ -2904,7 +2904,7 @@ function blogs_post_get_atlant_media_html($photo, $params, &$tabindex) {
             }
 
         }catch(Exception $e) {
-            if ($e->getRealCode() !== 'not-exists') {
+            if ($e->getCode() !== 'not-exists') {
                 throw $e;
             }
 

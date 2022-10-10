@@ -118,10 +118,10 @@ try {
                     log_console(tr('There are currently no accounts registered'), 'QUIET/yellow');
 
             } else {
-                log_console(str_size(tr('#id'), 7).str_size(tr('Name'), 33).str_size(tr('User name'), 33).str_size(tr('Status'), 13).str_size(tr('Created by'), 32), 'QUIET/cyan');
+                log_console(Strings::size(tr('#id'), 7).Strings::size(tr('Name'), 33).Strings::size(tr('User name'), 33).Strings::size(tr('Status'), 13).Strings::size(tr('Created by'), 32), 'QUIET/cyan');
 
                 while ($account = sql_fetch($accounts)) {
-                    log_console(str_size($account['id'], 6, ' ', true).' '.str_size($account['name'], 32).' '.str_size($account['username'], 32).' '.str_size($account['status'], 12).' '.name($account, 'user'));
+                    log_console(Strings::size($account['id'], 6, ' ', true).' '.Strings::size($account['name'], 32).' '.Strings::size($account['username'], 32).' '.Strings::size($account['status'], 12).' '.name($account, 'user'));
                 }
             }
 
@@ -141,7 +141,7 @@ try {
 
             foreach ($account_data as $key => $value) {
                 if ($key == 'password') continue;
-                log_console(cli_color($key.':', 'white').' '.json_encode_custom($value));
+                log_console(Color::apply($key.':', 'white').' '.json_encode_custom($value));
             }
 
             die();

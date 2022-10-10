@@ -206,7 +206,7 @@ function notifications_validate($notification, $log, $throw = null) {
                                       'throw'     => $throw,
                                       'message'   => implode("\n", $notification->getMessages()),
                                       'data'      => $notification->getData(),
-                                      'real_code' => $notification->getRealCode(),
+                                      'real_code' => $notification->getCode(),
                                       'code'      => ($notification->isWarning() ? 'warning' : 'error'));
 
                 if ($log) {
@@ -242,7 +242,7 @@ function notifications_validate($notification, $log, $throw = null) {
             }
         }
 
-        if (isset_get($e) and $e->getRealCode() === 'load-libs-fail') {
+        if (isset_get($e) and $e->getCode() === 'load-libs-fail') {
             /*
              * A library failed to load. If this is the validation library,
              * then the next ValidateForm thing will mess us up badly!
@@ -302,7 +302,7 @@ function notifications_validate($notification, $log, $throw = null) {
         /*
          * Validate data
          */
-        $notification['data'] = str_force($notification['data'], 'json');
+        $notification['data'] = Strings::force($notification['data'], 'json');
         $v->hasMaxChars($notification['message'], 4090, tr('Please ensure that the notification data has less than 4090 characters'));
 
         /*

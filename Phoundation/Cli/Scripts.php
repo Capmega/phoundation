@@ -3,17 +3,15 @@
 namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Cli\Exception\CliInvalidArgumentsException;
 use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Date\Time;
-use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Filesystem\File;
 use Phoundation\Processes\Commands;
 use Throwable;
 
@@ -39,6 +37,13 @@ class Scripts
     protected static int $exit_code = 0;
 
     /**
+     * The arguments given to the executed script
+     *
+     * @var array|null $arguments
+     */
+    protected static ?array $arguments = null;
+
+    /**
      * The command line arguments
      *
      * @var array|null $argv
@@ -57,94 +62,25 @@ class Scripts
     public static function execute(array $argv): void
     {
         // Backup the command line arguments
-        self::$argv = $GLOBALS['argv'];
+        self::$argv      = $GLOBALS['argv'];
+        self::$arguments = $GLOBALS['argv'];
 
         // All scripts will execute the cli_done() call, register basic script information
         Core::startup();
         Core::registerShutdown('cli_done');
 
-        if (count($argv) <= 1) {
+        if (count(self::$argv) <= 1) {
             throw Exceptions::OutOfBoundsException('No method specified!')->makeWarning();
         }
 
         // Get the script file to execute
-        $file = self::findScript($argv);
+        $file = self::findScript();
 
         Core::writeRegister($file, 'script_file');
         Core::writeRegister(Strings::fromReverse($file, '/'), 'script');
 
         // Execute the script
-        self::executeScript($file, $argv);
-    }
-
-
-
-    /**
-     * Find the script to execute from the given arguments
-     *
-     * @param array $arguments
-     * @return string
-     */
-    protected static function findScript(array $arguments): string
-    {
-        $file = ROOT . 'scripts/';
-        $processed = [];
-
-        foreach ($arguments as $position => $argument) {
-            if (!$position) {
-                continue;
-            }
-
-            if (str_ends_with($argument, '/cli')) {
-                // This is the PHP command, ignore it
-                continue;
-            }
-
-            if (!ctype_alnum($argument)) {
-                // Methods can only have alphanumeric characters
-                throw new OutOfBoundsException(tr('The specified method ":method" contains non alphanumeric characters which is not allowed', [':method' => $argument]));
-            }
-
-            // Start processing arguments as methods here
-            $file .= $argument;
-            $processed[] = $argument;
-            unset($arguments[$position]);
-
-            if (!file_exists($file)) {
-                // The specified path doesn't exist
-                throw new MethodNotFoundException(tr('The specified method file ":file" was not found', [':file' => $file]));
-            }
-
-            if (!is_dir($file)) {
-                // This is a file, should be PHP, found it!
-                return $file;
-            }
-
-            // THis is a directory, continue scanning
-            $file .= '/';
-        }
-
-        throw new MethodNotFoundException(tr('The specified method file ":file" was not found', [':file' => $file]));
-    }
-
-
-
-    /**
-     * Execute the specified script
-     *
-     * @param string $file
-     * @param array $arguments
-     * @return void
-     */
-    protected static function executeScript(string $file, array $arguments): void
-    {
-        if ($arguments) {
-            Log::information(tr('Executing script ":script" with arguments ""', [':script' => $file, ':arguments' => $arguments]));
-        } else {
-            Log::information(tr('Executing script ":script" with no arguments', [':script' => $file]));
-        }
-
-        include($file);
+        execute_script($file, self::$arguments);
     }
 
 
@@ -244,5 +180,73 @@ class Scripts
         $results = array_pop($results);
 
         return $results;
+    }
+
+
+
+    /**
+     * Ensures that no other command line arguments are left.
+     *
+     * If arguments were still found, an appropriate exceptoin will be thrown
+     *
+     * @param array $arguments
+     * @return void
+     */
+    public static function noArgumentsLeft(array $arguments): void
+    {
+        if (!$arguments) {
+            return;
+        }
+
+        throw new CliInvalidArgumentsException(tr('Invalid arguments ":arguments" encountered', [':arguments' => Strings::force($arguments, ', ')]));
+    }
+
+
+
+    /**
+     * Find the script to execute from the given arguments
+     *
+     * @return string
+     */
+    protected static function findScript(): string
+    {
+        $file = ROOT . 'scripts/';
+
+        foreach (self::$arguments as $position => $argument) {
+            if (!$position) {
+                unset(self::$arguments[$position]);
+                continue;
+            }
+
+            if (str_ends_with($argument, '/cli')) {
+                // This is the cli command, ignore it
+                unset(self::$arguments[$position]);
+                continue;
+            }
+
+            if (!ctype_alnum($argument)) {
+                // Methods can only have alphanumeric characters
+                throw new OutOfBoundsException(tr('The specified method ":method" contains non alphanumeric characters which is not allowed', [':method' => $argument]));
+            }
+
+            // Start processing arguments as methods here
+            $file .= $argument;
+            unset(self::$arguments[$position]);
+
+            if (!file_exists($file)) {
+                // The specified path doesn't exist
+                throw new MethodNotFoundException(tr('The specified method file ":file" was not found', [':file' => $file]));
+            }
+
+            if (!is_dir($file)) {
+                // This is a file, should be PHP, found it! Update the arguments to remove all methods from them.
+                return $file;
+            }
+
+            // THis is a directory, continue scanning
+            $file .= '/';
+        }
+
+        throw new MethodNotFoundException(tr('The specified method file ":file" was not found', [':file' => $file]));
     }
 }

@@ -745,7 +745,7 @@ function str_caps_guess($string) {
 /*
  * Force the specified source to be a string
  */
-function str_force($source, $separator = ',') {
+function Strings::force($source, $separator = ',') {
     try {
         if (!is_scalar($source)) {
             if (!is_array($source)) {
@@ -754,10 +754,10 @@ function str_force($source, $separator = ',') {
                 }
 
                 if (is_object($source)) {
-                    throw new OutOfBoundsException(tr('str_force(): Specified source is neither scalar nor array but an object of class ":class"', array(':class' => get_class($source))), 'invalid');
+                    throw new OutOfBoundsException(tr('Strings::force(): Specified source is neither scalar nor array but an object of class ":class"', array(':class' => get_class($source))), 'invalid');
                 }
 
-                throw new OutOfBoundsException(tr('str_force(): Specified source is neither scalar nor array but an ":type"', array(':type' => gettype($source))), 'invalid');
+                throw new OutOfBoundsException(tr('Strings::force(): Specified source is neither scalar nor array but an ":type"', array(':type' => gettype($source))), 'invalid');
             }
 
             /*
@@ -774,7 +774,7 @@ function str_force($source, $separator = ',') {
         return (string) $source;
 
     }catch(Exception $e) {
-        throw new OutOfBoundsException('str_force(): Failed', $e);
+        throw new OutOfBoundsException('Strings::force(): Failed', $e);
     }
 }
 
@@ -783,7 +783,7 @@ function str_force($source, $separator = ',') {
 /*
  * Force the specified string to be the specified size.
  */
-function str_size($source, $size, $add = ' ', $prefix = false) {
+function Strings::size($source, $size, $add = ' ', $prefix = false) {
     try {
         load_libs('cli');
         $strlen = mb_strlen(cli_strip_color($source));
@@ -803,7 +803,7 @@ function str_size($source, $size, $add = ' ', $prefix = false) {
         return $source.str_repeat($add, $size - $strlen);
 
     }catch(Exception $e) {
-        throw new OutOfBoundsException('str_size(): Failed', $e);
+        throw new OutOfBoundsException('Strings::size(): Failed', $e);
     }
 }
 

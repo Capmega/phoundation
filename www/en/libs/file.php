@@ -548,7 +548,7 @@ function file_clear_path($paths, $restrictions = null) {
                 return file_clear_path($path, $restrictions);
 
             }catch(Exception $e) {
-                if ($e->getRealCode() === 'access-denied') {
+                if ($e->getCode() === 'access-denied') {
                     /*
                      * We no longer have access to move up more, stop here.
                      */
@@ -624,7 +624,7 @@ function file_clear_path($paths, $restrictions = null) {
             file_clear_path($path, $restrictions);
 
         }catch(Exception $e) {
-            if ($e->getRealCode() === 'access-denied') {
+            if ($e->getCode() === 'access-denied') {
                 /*
                  * We no longer have access to move up more, stop here.
                  */

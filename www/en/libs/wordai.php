@@ -103,7 +103,7 @@ function wordai($params, $email, $password, $quality = 50, $json = true) {
         }
 
         if (isset_get($params['protected'])) {
-            $post['protected'] = str_force($params['protected'], ',');
+            $post['protected'] = Strings::force($params['protected'], ',');
         }
 
         if (isset_get($params['synonyms'])) {
@@ -111,10 +111,10 @@ function wordai($params, $email, $password, $quality = 50, $json = true) {
 throw new CoreException('wordai(): Test the "synonymns" option befure using it, since the formatter for this option has not been tested yet!');
 
             foreach ($params['synonyms'] as $word => $synonyms) {
-                $post['synonyms'][] = $word.'|'.str_force($post['synonyms'], ',');
+                $post['synonyms'][] = $word.'|'.Strings::force($post['synonyms'], ',');
             }
 
-            $post['synonyms'] = str_force($post['synonyms'], '|');
+            $post['synonyms'] = Strings::force($post['synonyms'], '|');
         }
 
         /*

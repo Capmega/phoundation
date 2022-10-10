@@ -180,7 +180,7 @@ function scanimage($params) {
             return $params;
 
         }catch(Exception $e) {
-            if (!is_numeric($e->getRealCode())) {
+            if (!is_numeric($e->getCode())) {
                 /*
                  *  This is some exception in the processing code, not an
                  *  exception from the command line, apparently

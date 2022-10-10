@@ -409,7 +409,7 @@ if ($selected) {
                                                 <div class="form-group">
                                                     <label class=" col-md-3 control-label">'.tr('Categories').'</label>
                                                     <div class="col-lg-6">
-                                                        <p class="form-control-static">'.$count_categories.($count_categories ? ' ('.str_force($categories).')' : '').'</p>
+                                                        <p class="form-control-static">'.$count_categories.($count_categories ? ' ('.Strings::force($categories).')' : '').'</p>
                                                     </div>
                                                 </div>
                                             </div>

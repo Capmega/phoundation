@@ -2557,7 +2557,7 @@ function sql_simple_list($params) {
         }
 
         $columns  = sql_get_columns_string($params['columns'], $params['table']);
-        $joins    = str_force($params['joins'], ' ');
+        $joins    = Strings::force($params['joins'], ' ');
         $where    = sql_get_where_string($params['filters'], $execute, $params['table'], $params['combine']);
         $orderby  = sql_get_orderby_string($params['orderby']);
         $limit    = sql_limit($params['limit'], $params['page']);
@@ -2657,7 +2657,7 @@ function sql_simple_get($params) {
         }
 
         $columns = sql_get_columns_string($params['columns'], $params['table']);
-        $joins   = str_force($params['joins'], ' ');
+        $joins   = Strings::force($params['joins'], ' ');
         $where   = sql_get_where_string($params['filters'], $execute, $params['table'], $params['combine']);
         $retval  = sql_get(($params['debug'] ? ' ' : '').'SELECT '.$columns.' FROM  `'.$params['table'].'` '.$joins.$where, $execute, $params['single'], $params['connector']);
 

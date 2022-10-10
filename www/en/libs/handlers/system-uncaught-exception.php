@@ -352,13 +352,13 @@ try {
                     $e->setCode(400);
                 }
 
-                if (($e instanceof CoreException) and is_numeric($e->getRealCode()) and ($e->getRealCode() > 100) and Web::execute($e->getRealCode(), array('exists' => true))) {
+                if (($e instanceof CoreException) and is_numeric($e->getCode()) and ($e->getCode() > 100) and Web::execute($e->getCode(), array('exists' => true))) {
                     if ($e->isWarning()) {
-                        html_flash_set($e->getMessage(), 'warning', $e->getRealCode());
+                        html_flash_set($e->getMessage(), 'warning', $e->getCode());
                     }
 
-                    log_file(tr('Displaying exception page ":page"', array(':page' => $e->getRealCode())), 'exceptions', 'error');
-                    Web::execute($e->getRealCode(), array('message' =>$e->getMessage()));
+                    log_file(tr('Displaying exception page ":page"', array(':page' => $e->getCode())), 'exceptions', 'error');
+                    Web::execute($e->getCode(), array('message' =>$e->getMessage()));
                 }
 
                 if (Debug::enabled()) {
@@ -466,7 +466,7 @@ try {
                         // no-break
                     case 'ajax':
                         if ($e instanceof CoreException) {
-                            json_message($e->getRealCode(), array('reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')));
+                            json_message($e->getCode(), array('reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')));
                         }
 
                         /*

@@ -280,7 +280,7 @@ function sms_full_phones($phones) {
             }
         }
 
-        return str_force($phones, ',');
+        return Strings::force($phones, ',');
 
     }catch(Exception $e) {
         throw new CoreException('sms_full_phones(): Failed', $e);
@@ -317,7 +317,7 @@ function sms_no_country_phones($phones) {
             }
         }
 
-        return str_force($phones, ',');
+        return Strings::force($phones, ',');
 
     }catch(Exception $e) {
         throw new CoreException('sms_full_phones(): Failed', $e);

@@ -110,7 +110,7 @@ function providers_validate($provider) {
                 $v->isPhonenumber($phone, tr('Please ensure the phone number ":phone" is valid', array(':phone' => $phone)));
             }
 
-            $provider['phones'] = str_force($provider['phones']);
+            $provider['phones'] = Strings::force($provider['phones']);
 
         } else {
             $provider['phones'] = null;

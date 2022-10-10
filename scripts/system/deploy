@@ -374,10 +374,10 @@ if ($targets == 'all') {
     log_console(tr('Deploying to ALL target environments ":targets"', array(':targets' => $targets)), 'yellow');
 
 } elseif (is_array($targets)) {
-    log_console(tr('Deploying to specified target environments ":targets"', array(':targets' => str_force($targets, ', '))), 'yellow');
+    log_console(tr('Deploying to specified target environments ":targets"', array(':targets' => Strings::force($targets, ', '))), 'yellow');
 
 } else {
-    log_console(tr('Deploying to specified target environment ":target"', array(':target' => str_force($targets))), 'yellow');
+    log_console(tr('Deploying to specified target environment ":target"', array(':target' => Strings::force($targets))), 'yellow');
     $targets = array($targets);
 }
 

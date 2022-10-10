@@ -91,17 +91,17 @@ if (!empty($_POST['docreate'])) {
 
         switch ($_POST['setstatus']) {
             case 'erased':
-                $r = sql_query('DELETE FROM `tags` WHERE `id` IN ('.str_force(array_keys($in), ',').')', $in);
+                $r = sql_query('DELETE FROM `tags` WHERE `id` IN ('.Strings::force(array_keys($in), ',').')', $in);
                 html_flash_set('Erased "'.$r->rowCount().'" tags', 'success');
                 break;
 
             case 'deleted':
-                $r = sql_query('UPDATE `tags` SET `status` = "deleted" WHERE `id` IN ('.str_force(array_keys($in), ',').')', $in);
+                $r = sql_query('UPDATE `tags` SET `status` = "deleted" WHERE `id` IN ('.Strings::force(array_keys($in), ',').')', $in);
                 html_flash_set('Deleted "'.$r->rowCount().'" tags', 'success');
                 break;
 
             case 'undeleted':
-                $r = sql_query('UPDATE `tags` SET `status` = NULL WHERE `id` IN ('.str_force(array_keys($in), ',').')', $in);
+                $r = sql_query('UPDATE `tags` SET `status` = NULL WHERE `id` IN ('.Strings::force(array_keys($in), ',').')', $in);
                 html_flash_set('Deleted "'.$r->rowCount().'" tags', 'success');
                 break;
 

@@ -121,12 +121,25 @@ class Sql
 
 
     /**
-     * Quick access to Mc instances. Defaults to "system" instance
+     * Wrapper for Sql::db()
      *
      * @param string|null $instance_name
      * @return Sql
      */
     public static function database(?string $instance_name = null): Sql
+    {
+        return self::db($instance_name);
+    }
+
+
+
+    /**
+     * Quick access to Mc instances. Defaults to "system" instance
+     *
+     * @param string|null $instance_name
+     * @return Sql
+     */
+    public static function db(?string $instance_name = null): Sql
     {
         if (!$instance_name) {
             // Always default to system instance
@@ -1028,19 +1041,18 @@ class Sql
     }
 
 
-
     /**
      * Try to get single data entry from memcached. If not available, get it from
      * MySQL and store results in memcached for future use
      *
-     * @param $key
-     * @param $query
+     * @param string $key
+     * @param string $query
      * @param bool $column
-     * @param bool $execute
+     * @param array|null $execute
      * @param int $expiration_time
      * @return array|false|null
      */
-    public function getCached($key, $query, $column = false, $execute = false, $expiration_time = 86400)
+    public function getCached(string $key, string $query, bool $column = false, ?array $execute = null, int $expiration_time = 86400): mixed
     {
         if (($value = Mc::get($key, '$this->')) === false) {
             /*
@@ -2134,6 +2146,22 @@ class Sql
 
         if (!str_starts_with($query, 'select') and !str_starts_with($query, 'show')) {
             throw new SqlException('Query "' . Strings::log(Log::sql($query, $execute, true), 4096) . '" is not a SELECT or SHOW query and as such cannot return results');
+        }
+    }
+
+
+
+    /**
+     * If the specified query contains neither a "SELECT" or "SHOW" query, an exception will be thrown
+     *
+     * @param string $query
+     * @param array $execute
+     * @return void
+     */
+    protected function ensureShowSelect(string $query, array $execute): void
+    {
+        if ((strtolower(substr(trim($query), 0, 6)) !== 'select') and (strtolower(substr(trim($query), 0, 4)) !== 'show')) {
+            throw new SqlException(tr('Query ":query" is not a select or show query and as such cannot return results', [':query' => $this->buildQuery($query, $execute, true))]));
         }
     }
 }

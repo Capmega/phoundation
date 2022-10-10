@@ -23,7 +23,7 @@ switch (cli_method()) {
              * Use sms phone message
              */
             $phone   = cli_argument(0);
-            $message = str_force(cli_argument($phone, 'all'), ' ');
+            $message = Strings::force(cli_argument($phone, 'all'), ' ');
 
             if (!is_numeric(str_replace('+', '', $phone))) {
                 throw new CoreException(tr('Invalid arguments supplied. Please check script usage'), 'invalid');

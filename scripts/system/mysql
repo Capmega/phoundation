@@ -217,10 +217,10 @@ switch (cli_method()) {
                     log_console(tr('Changing default charset for tables (:count) in connector/host/database ":connector/:host/:database"', array(':connector' => $connector, ':host' => $_CONFIG['db'][$connector]['host'], ':database' => $database, ':count' => $tables->rowCount())), 'white');
                 }
 
-                log_console(str_size(tr('Database'), 40).tr('Table'), 'cyan');
+                log_console(Strings::size(tr('Database'), 40).tr('Table'), 'cyan');
 
                 while ($table = sql_fetch($tables)) {
-                    log_console(str_size($table['TABLE_SCHEMA'], 40).$table['TABLE_NAME']);
+                    log_console(Strings::size($table['TABLE_SCHEMA'], 40).$table['TABLE_NAME']);
                     sql_query('ALTER TABLE `'.$table['TABLE_SCHEMA'].'`.`'.$table['TABLE_NAME'].'` CONVERT TO CHARACTER SET "'.$charset.'"', null, null, $connector);
                 }
         }
@@ -273,10 +273,10 @@ switch (cli_method()) {
                     }
                 }
 
-                log_console(str_size(tr('Database'), 40).tr('Table'), 'cyan');
+                log_console(Strings::size(tr('Database'), 40).tr('Table'), 'cyan');
 
                 while ($table = sql_fetch($tables)) {
-                    log_console(str_size($table['TABLE_SCHEMA'], 40).$table['TABLE_NAME']);
+                    log_console(Strings::size($table['TABLE_SCHEMA'], 40).$table['TABLE_NAME']);
                 }
 
                 break;
@@ -329,7 +329,7 @@ switch (cli_method()) {
                     log_console(tr('Database           Constraint name                          Foreign key                              References'), 'cyan');
 
                     while ($row = sql_fetch($r)) {
-                        $row = str_size($row['database'], 18, ' ').' '.str_size($row['constraint'], 40, ' ').' '.str_size($row['foreign_key'], 40, ' ').' '.$row['references'];
+                        $row = Strings::size($row['database'], 18, ' ').' '.Strings::size($row['constraint'], 40, ' ').' '.Strings::size($row['foreign_key'], 40, ' ').' '.$row['references'];
 
                         if (!$filter or strstr($row, $filter)) {
                             log_console($row);

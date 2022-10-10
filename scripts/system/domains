@@ -154,7 +154,7 @@ try {
                 log_console(tr('Added domain ":domain"', array(':domain' => $domain)), 'green');
 
             }catch(Exception $e) {
-                if ($e->getRealCode() !== 'validation') {
+                if ($e->getCode() !== 'validation') {
                     throw $e;
                 }
 
@@ -343,10 +343,10 @@ try {
                     }
 
                 } else {
-                    log_console(str_size(tr('#id'), 7).str_size(tr('Customer'), 25).str_size(tr('Provider'), 25).str_size(tr('Hostname'), 33).str_size(tr('Status'), 13).str_size(tr('Created by'), 32), 'QUIET/cyan');
+                    log_console(Strings::size(tr('#id'), 7).Strings::size(tr('Customer'), 25).Strings::size(tr('Provider'), 25).Strings::size(tr('Hostname'), 33).Strings::size(tr('Status'), 13).Strings::size(tr('Created by'), 32), 'QUIET/cyan');
 
                     while ($server = sql_fetch($servers)) {
-                        log_console(str_size($server['id'], 6, ' ', true).' '.str_size($server['customer'], 24).' '.str_size($server['provider'], 24).' '.str_size($server['domain'], 32).' '.cli_status_color(str_size($server['status'], 12)).' '.name($server, 'user'));
+                        log_console(Strings::size($server['id'], 6, ' ', true).' '.Strings::size($server['customer'], 24).' '.Strings::size($server['provider'], 24).' '.Strings::size($server['domain'], 32).' '.cli_status_color(Strings::size($server['status'], 12)).' '.name($server, 'user'));
                     }
                 }
             }
@@ -361,7 +361,7 @@ try {
     }
 
 }catch(Exception $e) {
-    switch ($e->getRealCode()) {
+    switch ($e->getCode()) {
         case 'not-exists':
             // FALLTHROUGH
         case 'multiple':

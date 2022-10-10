@@ -142,7 +142,7 @@ try {
             log_console('#id   Name             Methods                Members Description', '', 'white');
 
             while ($class = sql_fetch($r)) {
-                log_console(str_size($class['id'], 5, ' ', true).' '.str_size($class['name'], 16).' '.str_size($class['methods'], 22).' '.str_size($class['members'], 8).' '.str_size($class['description'], 80), '');
+                log_console(Strings::size($class['id'], 5, ' ', true).' '.Strings::size($class['name'], 16).' '.Strings::size($class['methods'], 22).' '.Strings::size($class['members'], 8).' '.Strings::size($class['description'], 80), '');
             }
 
             break;

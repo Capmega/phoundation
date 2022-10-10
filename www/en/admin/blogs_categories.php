@@ -96,7 +96,7 @@ switch (strtolower(isset_get($_POST['doaction']))) {
             }
 
             if (!$v->isValid()) {
-               throw new CoreException(str_force($v->getErrors(), ', '), 'errors');
+               throw new CoreException(Strings::force($v->getErrors(), ', '), 'errors');
 
             }
 
@@ -182,7 +182,7 @@ switch (strtolower(isset_get($_POST['doaction']))) {
             }
 
             if (!$v->isValid()) {
-               throw new CoreException(str_force($v->getErrors(), ', '), 'errors');
+               throw new CoreException(Strings::force($v->getErrors(), ', '), 'errors');
             }
 
             if (!$dbcategory = sql_get('SELECT * FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `id` = :id', array(':blogs_id' => $blog['id'], ':id' => $category['id']))) {

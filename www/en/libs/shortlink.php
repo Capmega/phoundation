@@ -172,7 +172,7 @@ under_construction();
                      * The bitly provider regularly fails. If failure is detected, simply
                      * retry a few times
                      */
-                    if ($e->getRealCode() === 'CURL7') {
+                    if ($e->getCode() === 'CURL7') {
                         if (--$count >= 0) {
                             log_console(tr('Failed to connect to bitly provider to create shortlink. Retrying ":count" more times', array(':count' => $count)), 'warning');
                             usleep(mt_rand(1000, 1000000));

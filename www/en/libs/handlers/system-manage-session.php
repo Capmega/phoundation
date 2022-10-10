@@ -455,7 +455,7 @@ try {
         $_SESSION['domain'] = $domain;
 
     }catch(Exception $e) {
-        if ($e->getRealCode() == 403) {
+        if ($e->getCode() == 403) {
             log_file($e->getMessage(), 403, 'yellow');
             $core->register['page_show'] = 403;
 

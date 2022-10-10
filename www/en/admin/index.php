@@ -115,7 +115,7 @@ foreach ($messages_rec as $date => $count) {
     $list[] = '['.$date.', '.$count.']';
 }
 
-$html .= str_force($list, ',');
+$html .= Strings::force($list, ',');
 unset($messages_rec);
 
 $html .= '                          ],
@@ -132,7 +132,7 @@ foreach ($messages_snt as $date => $count) {
     $list[] = '['.$date.', '.$count.']';
 }
 
-$html .= str_force($list, ',');
+$html .= Strings::force($list, ',');
 unset($messages_snt);
 
 $html .= '                          ],
@@ -149,7 +149,7 @@ foreach ($messages_ref as $date => $count) {
     $list[] = '['.$date.', '.$count.']';
 }
 
-$html .= str_force($list, ',');
+$html .= Strings::force($list, ',');
 unset($messages_ref);
 
 $html .= '                          ],
@@ -190,7 +190,7 @@ foreach ($referrals_all as $date => $count) {
     $list[] = '['.$date.', '.$count.']';
 }
 
-$html .= str_force($list, ',');
+$html .= Strings::force($list, ',');
 unset($referrals_all);
 
 $html .= '                          ],
@@ -207,7 +207,7 @@ foreach ($referrals_con as $date => $count) {
     $list[] = '['.$date.', '.$count.']';
 }
 
-$html .= str_force($list, ',');
+$html .= Strings::force($list, ',');
 unset($referrals_con);
 
 $html .= '                          ],
@@ -224,7 +224,7 @@ foreach ($referrals_voi as $date => $count) {
     $list[] = '['.$date.', '.$count.']';
 }
 
-$html .= str_force($list, ',');
+$html .= Strings::force($list, ',');
 unset($referrals_voi);
 
 $html .= '                          ],
@@ -241,7 +241,7 @@ foreach ($referrals_dis as $date => $count) {
     $list[] = '['.$date.', '.$count.']';
 }
 
-$html .= str_force($list, ',');
+$html .= Strings::force($list, ',');
 unset($referrals_dis);
 
 $html .= '                          ],

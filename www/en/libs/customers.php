@@ -112,7 +112,7 @@ function customers_validate($customer) {
                 $v->isPhonenumber($phone, tr('Please ensure the phone number ":phone" is valid', array(':phone' => $phone)));
             }
 
-            $customer['phones'] = str_force($customer['phones']);
+            $customer['phones'] = Strings::force($customer['phones']);
 
         } else {
             $customer['phones'] = null;
