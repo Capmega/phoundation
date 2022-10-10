@@ -3,6 +3,7 @@
 namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Numbers;
@@ -11,6 +12,7 @@ use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Processes\Commands;
 use Throwable;
@@ -50,10 +52,10 @@ class Scripts
      *
      * @param array $argv The PHP $argv
      * @return void
+     * @throws Throwable
      */
     public static function execute(array $argv): void
     {
-Debug::enabled(true);
         // Backup the command line arguments
         self::$argv = $GLOBALS['argv'];
 
@@ -66,15 +68,13 @@ Debug::enabled(true);
         }
 
         // Get the script file to execute
-        $script = self::findScript($argv);
-show($script);
-showdie('AAAAAAAAAAAAAAAAAAAAAA');
+        $file = self::findScript($argv);
 
-        Core::writeRegister($script, 'real_script');
-        Core::writeRegister(Strings::fromReverse($script, '/'), 'script');
+        Core::writeRegister($file, 'script_file');
+        Core::writeRegister(Strings::fromReverse($file, '/'), 'script');
 
         // Execute the script
-        self::executeScript($script, $argv);
+        self::executeScript($file, $argv);
     }
 
 
@@ -88,32 +88,43 @@ showdie('AAAAAAAAAAAAAAAAAAAAAA');
     protected static function findScript(array $arguments): string
     {
         $file = ROOT . 'scripts/';
+        $processed = [];
 
-show($file);
-showdie($arguments);
+        foreach ($arguments as $position => $argument) {
+            if (!$position) {
+                continue;
+            }
 
-        foreach ($arguments as $argument) {
-            if (str_ends_with($argument, 'php')) {
+            if (str_ends_with($argument, '/cli')) {
                 // This is the PHP command, ignore it
                 continue;
             }
 
-            $file = $file . $argument;
-
-            File::checkReadable($file);
-
-            if (is_dir($file)) {
-                // Subdirectory, lets recurse in there
-                continue;
+            if (!ctype_alnum($argument)) {
+                // Methods can only have alphanumeric characters
+                throw new OutOfBoundsException(tr('The specified method ":method" contains non alphanumeric characters which is not allowed', [':method' => $argument]));
             }
 
-            if (is_file($file)) {
-                // Yay, this is a regular file we can execute!
+            // Start processing arguments as methods here
+            $file .= $argument;
+            $processed[] = $argument;
+            unset($arguments[$position]);
+
+            if (!file_exists($file)) {
+                // The specified path doesn't exist
+                throw new MethodNotFoundException(tr('The specified method file ":file" was not found', [':file' => $file]));
+            }
+
+            if (!is_dir($file)) {
+                // This is a file, should be PHP, found it!
                 return $file;
             }
 
-            // What is this?
+            // THis is a directory, continue scanning
+            $file .= '/';
         }
+
+        throw new MethodNotFoundException(tr('The specified method file ":file" was not found', [':file' => $file]));
     }
 
 
@@ -121,12 +132,14 @@ showdie($arguments);
     /**
      * Execute the specified script
      *
-     * @param string $script
-     * @param array $argv
+     * @param string $file
+     * @param array $arguments
      * @return void
      */
-    protected static function executeScript(string $script, array $argv): void
+    protected static function executeScript(string $file, array $arguments): void
     {
+        Log::information(tr('Executing script ":script" with arguments ""', [':script' => $file, ':arguments' => $arguments]));
+showdie('EXECUTING ' . $file);
         include($script);
     }
 

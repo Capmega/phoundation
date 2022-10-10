@@ -58,7 +58,7 @@ class Web
             Http::setStatusCode($page_name);
         }
 
-        $core->register['real_script'] = $pagename;
+        $core->register['script_file'] = $pagename;
 
         switch (Core::getCallType()) {
             case 'ajax':

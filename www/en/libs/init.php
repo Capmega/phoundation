@@ -358,7 +358,7 @@ function init_process_version_diff() {
     global $_CONFIG, $core;
 
     try {
-        switch ($core->register['real_script']) {
+        switch ($core->register['script_file']) {
             case 'base/info':
                 // no-break
             case 'base/init':

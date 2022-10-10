@@ -2124,7 +2124,7 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                 /*
                  * Create the cached file names
                  */
-                $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.($core->register['real_script'] ? $core->register['real_script'].'-' : '').$count;
+                $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.($core->register['script_file'] ? $core->register['script_file'].'-' : '').$count;
                 $file = ROOT.'www/'.LANGUAGE.(Core::getCallType('admin') ? '/admin' : '').'/pub/js/'.$base;
 
                 log_file(tr('Creating externally cached javascript file ":file"', array(':file' => $file.'.js')), 'html-script', 'VERYVERBOSE/cyan');

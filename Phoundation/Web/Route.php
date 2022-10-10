@@ -693,7 +693,7 @@ class Route
              */
             $core->register['script_path'] = $page;
             $core->register['script']      = Strings::fromReverse($page, '/');
-            $core->register['real_script'] = $core->register['script'];
+            $core->register['script_file'] = $core->register['script'];
 
             if ($until) {
                 /*
@@ -832,7 +832,7 @@ class Route
     protected static function execute(string $target, bool $attachment, array $restrictions): void
     {
         Core::writeRegister(Strings::untilReverse(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.php'), 'script');
-        Core::writeRegister(self::$register['system']['script'], real_script);
+        Core::writeRegister(self::$register['system']['script'], script_file);
         Core::writeRegister($target, 'route_exec']);
 
         if (substr($target, -3, 3) === 'php') {

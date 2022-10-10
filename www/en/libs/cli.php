@@ -484,7 +484,7 @@ function cli_run_once($action = 'exception', $force = false) {
 
             $process = Strings::until(Strings::fromReverse($matches[1], '/'), ' ');
 
-            if ($process == $core->register['real_script']) {
+            if ($process == $core->register['script_file']) {
                 if (++$count >= 2) {
                     switch ($action) {
                         case 'exception':
@@ -978,7 +978,7 @@ function cli_process_uid_matches($auto_switch = false, $permit_root = true) {
 
             script_exec(array('delay'    => 1,
                               'function' => 'passthru',
-                              'commands' => array($core->register['real_script'], $arguments)));
+                              'commands' => array($core->register['script_file'], $arguments)));
 
             log_console(tr('Finished reexecuted script ":script"', array(':script' => $core->register['script'])), 'VERYVERBOSE/green');
             die();
@@ -2114,7 +2114,7 @@ function cli_restart($delay = 1) {
 
         $pid = script_exec(array('background' => true,
                                  'delay'      => $delay,
-                                 'commands'   => array($core->register['real_script'], $core->register['argv'])));
+                                 'commands'   => array($core->register['script_file'], $core->register['argv'])));
 
         log_console(tr('Restarted script ":script" in background with pid ":pid" with ":delay" seconds delay', array(':pid' => $pid, ':script' => $script, '::delay' => $delay)), 'green');
         die();

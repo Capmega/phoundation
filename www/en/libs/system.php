@@ -82,7 +82,7 @@
 //            $file = realpath(ROOT.'scripts/'.Strings::from($argv[0], 'scripts/'));
 //            $file = Strings::from($file, ROOT.'scripts/');
 //
-//            $core->register['real_script'] = $file;
+//            $core->register['script_file'] = $file;
 //            $core->register['script']      = Strings::fromReverse($file, '/');
 //
 //            unset($file);
@@ -107,7 +107,7 @@
 //             */
 //            $core->register['http_code']         = 200;
 //            $core->register['script']            = Strings::untilReverse(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.php');
-//            $core->register['real_script']       = $core->register['script'];
+//            $core->register['script_file']       = $core->register['script'];
 //            $core->register['accepts']           = accepts();
 //            $core->register['accepts_languages'] = accepts_languages();
 //
@@ -1777,7 +1777,7 @@
 //         * Always log to file log as well
 //         */
 //        if ($log_file) {
-//            log_file($messages, $core->register['real_script'], $color);
+//            log_file($messages, $core->register['script_file'], $color);
 //        }
 //
 //        if (!PLATFORM_CLI) {
@@ -1975,7 +1975,7 @@
 //                    $message = cli_color($message, $color, null, true);
 //                }
 //
-//                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.Core::getCallType().'/'.$core->register['real_script'].' '.$class.$key.' => '.$message."\n");
+//                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.Core::getCallType().'/'.$core->register['script_file'].' '.$class.$key.' => '.$message."\n");
 //
 //            } else {
 //                /*
@@ -1987,7 +1987,7 @@
 //                    $message = cli_color($message, $color, null, true);
 //                }
 //
-//                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.Core::getCallType().'/'.$core->register['real_script'].' '.$class.$message."\n");
+//                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.Core::getCallType().'/'.$core->register['script_file'].' '.$class.$message."\n");
 //            }
 //        }
 //
@@ -3363,7 +3363,7 @@
 //            $core->register['http_code'] = $pagename;
 //        }
 //
-//        $core->register['real_script'] = $pagename;
+//        $core->register['script_file'] = $pagename;
 //
 //        switch (Core::getCallType()) {
 //            case 'ajax':

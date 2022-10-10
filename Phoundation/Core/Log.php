@@ -774,7 +774,7 @@ Class Log {
                         self::write($class, 'Previous exception: ', $level);
                         self::write($class, $previous, $level, $clean);
 
-                        $previous = $messages->getPrevious();
+                        $previous = $previous->getPrevious();
                     }
                 }
 
@@ -1310,7 +1310,7 @@ Class Log {
 //             * Always log to file log as well
 //             */
 //            if ($log_file) {
-//                log_file($messages, $core->register['real_script'], $color);
+//                log_file($messages, $core->register['script_file'], $color);
 //            }
 //
 //            if (!PLATFORM_CLI) {
@@ -1508,7 +1508,7 @@ Class Log {
 //                        $message = cli_color($message, $color, null, true);
 //                    }
 //
-//                    fwrite($h[$file], cli_color($date, 'cyan', null, true) . ' ' . Core::getCallType() . '/' . $core->register['real_script'] . ' ' . $class . $key . ' => ' . $message . "\n");
+//                    fwrite($h[$file], cli_color($date, 'cyan', null, true) . ' ' . Core::getCallType() . '/' . $core->register['script_file'] . ' ' . $class . $key . ' => ' . $message . "\n");
 //
 //                } else {
 //                    /*
@@ -1520,7 +1520,7 @@ Class Log {
 //                        $message = cli_color($message, $color, null, true);
 //                    }
 //
-//                    fwrite($h[$file], cli_color($date, 'cyan', null, true) . ' ' . Core::getCallType() . '/' . $core->register['real_script'] . ' ' . $class . $message . "\n");
+//                    fwrite($h[$file], cli_color($date, 'cyan', null, true) . ' ' . Core::getCallType() . '/' . $core->register['script_file'] . ' ' . $class . $message . "\n");
 //                }
 //            }
 //

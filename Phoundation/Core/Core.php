@@ -1952,7 +1952,7 @@ class Core {
             Scripts::execute([
                 'delay'    => 1,
                 'function' => 'passthru',
-                'commands' => [self::$register['real_script'], $arguments]
+                'commands' => [self::$register['script_file'], $arguments]
             ]);
 
             Log::success(tr('Finished re-executed script ":script"', [':script' => self::$register['system']['script']]));

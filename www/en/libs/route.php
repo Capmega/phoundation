@@ -710,7 +710,7 @@ function route($regex, $target, $flags = null) {
          */
         $core->register['script_path'] = $page;
         $core->register['script']      = Strings::fromReverse($page, '/');
-        $core->register['real_script'] = $core->register['script'];
+        $core->register['script_file'] = $core->register['script'];
 
         if ($until) {
             /*
