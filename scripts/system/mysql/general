@@ -129,44 +129,6 @@ if ($all) {
  * Process required methods
  */
 switch (cli_method()) {
-    case 'import':
-        switch (cli_method(1)) {
-            case 'timezones':
-                try {
-                    log_console(tr('Importing timezone data files in MySQL'), 'white');
-                    log_console(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'), 'warning');
-                    log_console(tr('Please fill in MySQL root password in the following "Enter password:" request'), 'white');
-
-                    safe_exec(array('commands' => array('mysql_tzinfo_to_sql', array('/usr/share/zoneinfo', 'connector' => '|'),
-                                                        'mysql'              , array('-p', '-u', 'root', 'mysql'))));
-
-                }catch(CoreException $e) {
-                    /*
-                     * Something went wrong during import Get MySQL error
-                     */
-                    $message = $e->getMessages();
-                    $message = array_shift($message);
-                    $message = json_decode_custom($message);
-                    $message = array_shift($message);
-
-                    if (strstr($message, 'ERROR 1045')) {
-                        throw new CoreException(tr('Incorrect MySQL root password supplied'), 'warning/passwordicorrect');
-                    }
-
-                    throw $e;
-                }
-
-                break;
-
-            case '':
-                throw new CoreException(tr('No sub method specified for method ":method"', array(':method' => cli_method())), 'not-specified');
-
-            default:
-                throw new CoreException(tr('Unknown sub method ":submethod" specified for method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
-        }
-
-        break;
-
     case 'check':
         /*
          * Perform MySQL checks
