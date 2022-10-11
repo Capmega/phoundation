@@ -226,7 +226,7 @@ class Scripts
 
             if (!ctype_alnum($argument)) {
                 // Methods can only have alphanumeric characters
-                throw new OutOfBoundsException(tr('The specified method ":method" contains non alphanumeric characters which is not allowed', [':method' => $argument]));
+                throw Exceptions::OutOfBoundsException(tr('The specified method ":method" contains non alphanumeric characters which is not allowed', [':method' => $argument]))->makeWarning();
             }
 
             // Start processing arguments as methods here

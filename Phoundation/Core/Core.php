@@ -692,7 +692,7 @@ class Core {
 
                     // Ensure that the process UID matches the file UID
                     self::processFileUidMatches(true);
-                    Log::notice(tr('Running script ":script"', [':script' => $_SERVER['PHP_SELF']]));
+                    Log::notice(tr('Running script ":script"', [':script' => $_SERVER['PHP_SELF']]), 1);
 
                     // Get required language.
                     try {
@@ -1896,7 +1896,7 @@ class Core {
             return;
         }
 
-        Log::notice(tr('Starting shutdown procedure for script ":script"', [':script' => self::$register['system']['script']]));
+        Log::notice(tr('Starting shutdown procedure for script ":script"', [':script' => self::$register['system']['script']]), 2);
 
         foreach (self::$register as $key => $value) {
             try {

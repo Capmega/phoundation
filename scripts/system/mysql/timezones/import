@@ -2,7 +2,11 @@
 <?php
 
 use Phoundation\Core\Log;
+use Phoundation\Exception\Exceptions;
+use Phoundation\Exception\ScriptException;
+use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Process;
+
 
 
 /**
@@ -24,23 +28,23 @@ try {
     Log::cli(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'), 'warning');
     Log::cli(tr('Please fill in MySQL root password in the following "Enter password:" request'), 'white');
 
+    $mysql = new Process('mysql');
+    $mysql->addArguments(['-p', '-u', 'root', 'msql']);
+
     $process = new Process('mysql_tzinfo_to_sql');
     $process->addArgument('/usr/share/zoneinfo');
+    $process->pipe($mysql->getFullCommand());
+    $process->executePassthru();
 
-    safe_exec(array('commands' => array('mysql_tzinfo_to_sql', array('/usr/share/zoneinfo', 'connector' => '|'),
-                                        'mysql'              , array('-p', '-u', 'root', 'mysql'))));
-
-}catch(CoreException $e) {
-    /*
-     * Something went wrong during import Get MySQL error
-     */
+}catch(ProcessFailedException $e) {
+    // Something went wrong during import Get MySQL error
     $message = $e->getMessages();
     $message = array_shift($message);
     $message = json_decode_custom($message);
     $message = array_shift($message);
 
-    if (strstr($message, 'ERROR 1045')) {
-        throw new CoreException(tr('Incorrect MySQL root password supplied'), 'warning/passwordicorrect');
+    if (str_contains($message, 'ERROR 1045')) {
+        throw Exceptions::ScriptException(tr('Incorrect MySQL root password supplied'))->makeWarning();
     }
 
     throw $e;

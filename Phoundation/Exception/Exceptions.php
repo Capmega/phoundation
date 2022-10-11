@@ -3,6 +3,7 @@
 namespace Phoundation\Exception;
 
 use Exception;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Developer\Debug;
 use Phoundation\Notify\Notification;
@@ -167,5 +168,37 @@ class Exceptions
     public static function outOfBoundsException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): OutOfBoundsException
     {
         return new OutOfBoundsException($messages, $data, $code, $previous);
+    }
+
+
+
+    /**
+     * Exceptions factory for ScriptException
+     *
+     * @param string|array $messages
+     * @param mixed|null $data
+     * @param string|null $code
+     * @param Throwable|null $previous
+     * @return \Phoundation\Exception\ScriptException
+     */
+    public static function ScriptException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): ScriptException
+    {
+        return new ScriptException($messages, $data, $code, $previous);
+    }
+
+
+
+    /**
+     * Exceptions factory for ScriptException
+     *
+     * @param string|array $messages
+     * @param mixed|null $data
+     * @param string|null $code
+     * @param Throwable|null $previous
+     * @return \Phoundation\Exception\WebException
+     */
+    public static function WebException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): WebException
+    {
+        return new WebException($messages, $data, $code, $previous);
     }
 }
