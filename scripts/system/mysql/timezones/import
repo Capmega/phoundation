@@ -3,7 +3,6 @@
 
 use Phoundation\Core\Log;
 use Phoundation\Exception\Exceptions;
-use Phoundation\Exception\ScriptException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Process;
 

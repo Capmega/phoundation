@@ -3,6 +3,8 @@
 namespace Phoundation\Exception;
 
 use Exception;
+use Phoundation\Cli\Exception\CliInvalidArgumentsException;
+use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Developer\Debug;
@@ -189,7 +191,7 @@ class Exceptions
 
 
     /**
-     * Exceptions factory for ScriptException
+     * Exceptions factory for WebException
      *
      * @param string|array $messages
      * @param mixed|null $data
@@ -200,5 +202,37 @@ class Exceptions
     public static function WebException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): WebException
     {
         return new WebException($messages, $data, $code, $previous);
+    }
+
+
+
+    /**
+     * Exceptions factory for MethodNotFoundException
+     *
+     * @param string|array $messages
+     * @param mixed|null $data
+     * @param string|null $code
+     * @param Throwable|null $previous
+     * @return \Phoundation\Cli\Exception\MethodNotFoundException
+     */
+    public static function MethodNotFoundException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): MethodNotFoundException
+    {
+        return new MethodNotFoundException($messages, $data, $code, $previous);
+    }
+
+
+
+    /**
+     * Exceptions factory for CliInvalidArgumentsException
+     *
+     * @param string|array $messages
+     * @param mixed|null $data
+     * @param string|null $code
+     * @param Throwable|null $previous
+     * @return \Phoundation\Cli\Exception\CliInvalidArgumentsException
+     */
+    public static function CliInvalidArgumentsException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): CliInvalidArgumentsException
+    {
+        return new CliInvalidArgumentsException($messages, $data, $code, $previous);
     }
 }

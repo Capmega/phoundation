@@ -4,7 +4,6 @@ namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Exception\CliInvalidArgumentsException;
-use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Numbers;
@@ -176,7 +175,7 @@ class Scripts
             return posix_getuid();
         }
 
-        $results = Commands::id(array('-u'));
+        $results = Commands::id(['-u']);
         $results = array_pop($results);
 
         return $results;
@@ -198,7 +197,7 @@ class Scripts
             return;
         }
 
-        throw new CliInvalidArgumentsException(tr('Invalid arguments ":arguments" encountered', [':arguments' => Strings::force($arguments, ', ')]));
+        throw Exceptions::CliInvalidArgumentsException(tr('Invalid arguments ":arguments" encountered', [':arguments' => Strings::force($arguments, ', ')]))->makeWarning();
     }
 
 
@@ -235,7 +234,7 @@ class Scripts
 
             if (!file_exists($file)) {
                 // The specified path doesn't exist
-                throw new MethodNotFoundException(tr('The specified method file ":file" was not found', [':file' => $file]));
+                throw Exceptions::MethodNotFoundException(tr('The specified method file ":file" was not found', [':file' => $file]))->makeWarning();
             }
 
             if (!is_dir($file)) {
@@ -247,6 +246,6 @@ class Scripts
             $file .= '/';
         }
 
-        throw new MethodNotFoundException(tr('The specified method file ":file" was not found', [':file' => $file]));
+        throw Exceptions::MethodNotFoundException(tr('The specified method file ":file" was not found', [':file' => $file]))->makeWarning();
     }
 }
