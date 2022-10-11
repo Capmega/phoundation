@@ -1,0 +1,47 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Core\Log;
+use Phoundation\Processes\Process;
+
+
+/**
+ * Script system/mysql/timezones/import
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\System
+ */
+$usage = './cli system mysql timezones import';
+
+$help  = '';
+
+try {
+    Log::cli(tr('Importing timezone data files in MySQL'), 'white');
+    Log::cli(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'), 'warning');
+    Log::cli(tr('Please fill in MySQL root password in the following "Enter password:" request'), 'white');
+
+    $process = new Process('mysql_tzinfo_to_sql');
+    $process->addArgument('/usr/share/zoneinfo');
+
+    safe_exec(array('commands' => array('mysql_tzinfo_to_sql', array('/usr/share/zoneinfo', 'connector' => '|'),
+                                        'mysql'              , array('-p', '-u', 'root', 'mysql'))));
+
+}catch(CoreException $e) {
+    /*
+     * Something went wrong during import Get MySQL error
+     */
+    $message = $e->getMessages();
+    $message = array_shift($message);
+    $message = json_decode_custom($message);
+    $message = array_shift($message);
+
+    if (strstr($message, 'ERROR 1045')) {
+        throw new CoreException(tr('Incorrect MySQL root password supplied'), 'warning/passwordicorrect');
+    }
+
+    throw $e;
+}

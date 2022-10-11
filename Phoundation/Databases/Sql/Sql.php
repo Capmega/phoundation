@@ -201,7 +201,7 @@ class Sql
 
 
     /**
-     * Reads, validates and returns the configuration for the specified instance
+     * Reads, validates structure and returns the configuration for the specified instance
      *
      * @param string $instance_name
      * @return array
@@ -221,9 +221,7 @@ class Sql
 
 
         if (!defined('PDO::MYSQL_ATTR_USE_BUFFERED_QUERY')) {
-            /*
-             * Wulp, MySQL library is not available
-             */
+            // Whelp, MySQL library is not available
             throw new SqlException('Could not find the "MySQL" library for PDO. To install this on Ubuntu derivatives, please type "sudo apt install php-mysql');
         }
 
@@ -399,7 +397,9 @@ class Sql
                 $this->pdo->query('SET time_zone = "' . $this->instance_configuration['timezone'] . '";');
 
             } catch (Throwable $e) {
-                if (!Core::readRegister('no_time_zone') and (Core::compareRegister('init', 'script'))) {
+                Log::warning(tr('Failed to set timezone for database instance ":instance" with error ":e"', [':instance' => $this->instance_name, ':e' => $e->getMessage()]));
+
+                if (!Core::readRegister('no_time_zone') and (Core::compareRegister('init', 'system', 'script'))) {
                     throw $e;
                 }
 
@@ -422,9 +422,7 @@ class Sql
 
             switch ($e->getCode()) {
                 case 1049:
-                    /*
-                     * Database not found!
-                     */
+                    // Database not found!
                     $this->using_database = true;
 
                     if (!(PLATFORM_CLI and ((Core::readRegister('system', 'script') == 'init') or (Core::readRegister('system', 'script') == 'sync')))) {
@@ -433,9 +431,7 @@ class Sql
 
                     Log::warning(tr('Database base server conntection failed because database ":db" does not exist. Attempting to connect without using a database to correct issue', [':db' => $this->instance_configuration['db']]));
 
-                    /*
-                     * We're running the init script, so go ahead and create the DB already!
-                     */
+                    // We're running the init script, so go ahead and create the DB already!
                     $db  = $this->instance_configuration['db'];
                     unset($this->instance_configuration['db']);
                     $pdo = sql_connect(self::$configuration);
@@ -450,16 +446,12 @@ class Sql
                     $this->connect();
 
                 case 2002:
-                    /*
-                     * Connection refused
-                     */
+                    // Connection refused
                     if (empty($this->instance_configuration['ssh_tunnel']['required'])) {
                         throw new SqlException(tr('sql_connect(): Connection refused for host ":hostname::port"', array(':hostname' => $this->instance_configuration['host'], ':port' => $this->instance_configuration['port'])), $e);
                     }
 
-                    /*
-                     * This connection requires an SSH tunnel. Check if the tunnel process still exists
-                     */
+                    // This connection requires an SSH tunnel. Check if the tunnel process still exists
                     if (!Cli::PidGrep($tunnel['pid'])) {
                         $server     = servers_get($this->instance_configuration['ssh_tunnel']['domain']);
                         $registered = ssh_host_is_known($server['hostname'], $server['port']);
@@ -1660,23 +1652,31 @@ class Sql
                 continue;
             }
 
-            if (is_array($database_entry[$key])) {
-                // This entry is an array, do a recursive merge if post was specified too
-                if (array_key_exists($key, $post)) {
-                    if (!is_array($post[$key])) {
-                        // Whoops, $post format is invalid
-                        throw new OutOfBoundsException(tr('Specified post entry key ":key" is invalid, it should be an array but is a ":type"', [':key' => $key, ':type' => gettype($post[$key])]));
-                    }
+            if (!array_key_exists($key, $post)) {
+                // This key doesn't exist in post, continue to the next
+                continue;
+            }
 
-                    // Recurse
-                    $database_entry[$key] = array_merge($post[$key]);
+            if (is_array($value)) {
+                // This entry is an array, do a recursive merge if post was specified too
+                if (!is_array($post[$key])) {
+                    // Whoops, $post format is invalid
+                    throw new OutOfBoundsException(tr('Specified post entry key ":key" is invalid, it should be an array but is a ":type"', [':key' => $key, ':type' => gettype($post[$key])]));
                 }
-            } elseif (is_scalar($database_entry[$key]) or ($database_entry[$key] === null)) {
-                // Copy if not exist
-                if (!array_key_exists($key, $database_entry)) {
-                    // $database_entry key doesn't exist, copy it completely
-                    $database_entry[$key] = $value;
+
+                // Recurse
+                if ($recurse) {
+                    $database_entry[$key] = Sql::merge($value, $post[$key], $skip, $recurse);
                 }
+            } elseif (is_scalar($post[$key]) or ($post[$key] === null)) {
+                if (is_scalar($value) or ($value === null)) {
+                    // Copy post key to database entry
+                    $database_entry[$key] = $post[$key];
+                } else {
+                    // Whoops, $post format is invalid
+                    throw new OutOfBoundsException(tr('Specified post entry key ":key" is invalid, it should be an array but is a ":type"', [':key' => $key, ':type' => gettype($post[$key])]));
+                }
+
             } else {
                 // Invalid datatype
                 throw new OutOfBoundsException(tr('Specified post entry key ":key" has an invalid datatype, it should be one of NULL, string, int, float, or bool but is a ":type"', [':key' => $key, ':type' => gettype($post[$key])]));
@@ -1696,7 +1696,7 @@ class Sql
      * @param bool $not
      * @return string
      */
-    public function is($value, $label, $not = false): string
+    public function is($value, $label, bool $not = false): string
     {
         if ($not) {
             if ($value === null) {

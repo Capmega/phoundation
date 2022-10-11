@@ -32,6 +32,7 @@ class Color
         'light_blue' => '1;34',
         'debug' => '1;34',
         'green' => '0;32',
+        'success' => '0;32',
         'light_green' => '1;32',
         'cyan' => '0;36',
         'light_cyan' => '1;36',
@@ -83,7 +84,7 @@ class Color
      */
     public static function apply(string $source, ?string $foreground_color, ?string $background_color = null, bool $reset = true): string
     {
-        if (NOCOLOR or (!$foreground_color or ($foreground_color === 'notice')) and !$background_color) {
+        if (NOCOLOR or (!$foreground_color or ($foreground_color === 'cli') or ($foreground_color === 'notice')) and !$background_color) {
             // Do NOT apply color
             return $source;
         }

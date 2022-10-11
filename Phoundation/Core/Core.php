@@ -925,6 +925,10 @@ class Core {
      */
     public static function compareRegister(mixed $value, string $key,?string $subkey = null): bool
     {
+        if ($subkey === null) {
+            return $value === isset_get(self::$register[$key]);
+        }
+
         return $value === isset_get(self::$register[$key][$subkey]);
     }
 

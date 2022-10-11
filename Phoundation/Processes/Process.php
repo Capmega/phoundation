@@ -95,13 +95,25 @@ Class Process
      */
     protected ?string $cached_command_line = null;
 
+    /**
+     * Contains the terminal that will be used to execute the command
+     *
+     * @var string $term
+     */
+    protected string $term = 'xterm';
+
 
 
     /**
      * Processes constructor.
+     *
+     * @param string|null $command
      */
-    public function __construct()
+    public function __construct(?string $command = null)
     {
+        if ($command) {
+            $this->command = $command;
+        }
     }
 
 
@@ -126,6 +138,8 @@ Class Process
      */
     public function setLogPath(string $path): Process
     {
+        $this->cached_command_line = null;
+
         if (!$path) {
             // Set the default log path
             $path = ROOT . 'data/log/';
@@ -161,6 +175,8 @@ Class Process
      */
     public function setRunPath(string $path): Process
     {
+        $this->cached_command_line = null;
+
         if (!$path) {
             // Set the default log path
             $path = ROOT . 'data/run/';
@@ -172,6 +188,31 @@ Class Process
         $this->run_path = $path;
 
         return $this;
+    }
+
+
+
+    /**
+     * Sets the terminal to execute this command
+     *
+     * @param string $term
+     */
+    public function setTerm(string $term): void
+    {
+        $this->cached_command_line = null;
+        $this->term = $term;
+    }
+
+
+
+    /**
+     * Return the terminal to execute this command
+     *
+     * @return string
+     */
+    public function getTerm(): string
+    {
+        return $this->term;
     }
 
 
@@ -201,6 +242,8 @@ Class Process
      */
     public function setSudo(bool|string $sudo): Process
     {
+        $this->cached_command_line = null;
+
         if (!$sudo) {
             $this->sudo = null;
 
@@ -302,6 +345,8 @@ Class Process
             'command'   => $this->command,
             'arguments' => $this->arguments,
             'timeout'   => $this->timeout,
+            'term'      => $this->term,
+            'sudo'      => $this->sudo,
             'log_path'  => $this->log_path,
             'run_path'  => $this->run_path,
             'exit_code' => $exit_code,
@@ -319,6 +364,7 @@ Class Process
      */
     public function setCommand(string $command): Process
     {
+        $this->cached_command_line = null;
         $command = trim($command);
 
         if (!$command) {
@@ -396,6 +442,8 @@ Class Process
      */
     public function addArguments(array $arguments): Process
     {
+        $this->cached_command_line = null;
+
         foreach ($arguments as $argument) {
             $this->addArgument($argument);
         }
@@ -435,6 +483,7 @@ Class Process
             throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be a natural number 0 or higher', [':timeout' => $timeout]));
         }
 
+        $this->cached_command_line = null;
         $this->timeout = $timeout;
 
         return $this;
@@ -464,10 +513,10 @@ Class Process
     public function executeReturnArray(): array
     {
         if (Debug::enabled()) {
-            Log::notice('Executing command ":command" using exec to return an array');
+            Log::notice(tr('Executing command ":command" using exec to return an array', [':command' => $this->buildCommandLine()]));
         }
 
-        exec($this->getCommandLine(), $output, $exit_code);
+        exec($this->buildCommandLine(), $output, $exit_code);
         $this->setExitCode($exit_code, $output);
         return $output;
     }
@@ -485,7 +534,7 @@ Class Process
             Log::notice('Executing command ":command" using exec to return an array');
         }
 
-        $output = passthru($this->getCommandLine(), $exit_code);
+        $output = passthru($this->buildCommandLine(), $exit_code);
         $this->setExitCode($exit_code, $output);
 
         // So according to the documentation, for some reason passthru() would return null on success and false on
@@ -529,7 +578,7 @@ Class Process
      * @return string
      * @throws ProcessException
      */
-    protected function getCommandLine(): string
+    protected function buildCommandLine(): string
     {
         if ($this->cached_command_line) {
             return $this->cached_command_line;
@@ -549,6 +598,10 @@ Class Process
         // Add sudo
         if ($this->timeout) {
             $this->cached_command_line = 'sudo -u ' . escapeshellarg($this->sudo) . ' ' . $this->cached_command_line;
+        }
+
+        if ($this->term) {
+            $this->cached_command_line = 'export TERM=' . $this->term . '; ' . $this->cached_command_line;
         }
 
         return $this->cached_command_line;

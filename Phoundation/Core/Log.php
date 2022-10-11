@@ -5,7 +5,7 @@ namespace Phoundation\Core;
 use PDOStatement;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Exception\LogException;
-use Phoundation\Databases\Sql;
+use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -486,6 +486,21 @@ Class Log {
 
 
     /**
+     * Write a command line interface message in the log file and to the screen
+     *
+     * @param mixed $messages
+     * @param int $level
+     * @param bool $newline
+     * @return bool
+     */
+    public static function cli(mixed $messages, int $level = 10, bool $newline = true): bool
+    {
+        return self::write($messages, 'cli', $level, false, $newline);
+    }
+
+
+
+    /**
      * Write a information message in the log file
      *
      * @param mixed $messages
@@ -663,10 +678,11 @@ Class Log {
      */
     public static function sql(string|PDOStatement $query, ?array $execute = null, int $level = 3): bool
     {
-        $query = Sql::database()->buildQueryString($query, $execute, false);
+        $query = Sql::db()->buildQueryString($query, $execute, false);
         $query = Strings::endsWith($query, ';');
         return Log::printr($query, $level);
     }
+
 
 
     /**
@@ -816,12 +832,12 @@ Class Log {
                 $messages = Strings::cleanWhiteSpace($messages);
             }
 
-            $messages = date('Y-m-d H:i:s') . ' ' . ($level === 10 ? 10 : ' ' . $level) . ' ' . getmypid() . ' ' . self::$global_id . ' / ' . self::$local_id . ' ' . $messages . ($newline ? PHP_EOL : null);
-            fwrite(self::$handles[self::$file], $messages);
+            $line = date('Y-m-d H:i:s') . ' ' . ($level === 10 ? 10 : ' ' . $level) . ' ' . getmypid() . ' ' . self::$global_id . ' / ' . self::$local_id . ' ' . $messages . ($newline ? PHP_EOL : null);
+            fwrite(self::$handles[self::$file], $line);
 
             // In Command Line mode always log to the screen too
             if (PHP_SAPI === 'cli') {
-                echo $messages;
+                echo $messages . ($newline ? PHP_EOL : null);
             }
 
             self::$lock = false;

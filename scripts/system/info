@@ -13,7 +13,7 @@ use Phoundation\Exception\ScriptException;
 
 
 /**
- * Script info
+ * Script system/info
  *
  * This script will display detailed information about the current framework, project, database ,etc.
  *
@@ -22,7 +22,7 @@ use Phoundation\Exception\ScriptException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\System
  */
-$usage = './scripts/base/info';
+$usage = './cli system info';
 
 $help  = 'The info script will show detailed information about the current framework, project, database and more';
 
@@ -44,16 +44,16 @@ try {
 //$framework_status = version_compare(Core::FRAMEWORKCODEVERSION, Core::getVersion('framework'));
 //$project_status   = version_compare(Config::get('project.version')  , Core::getVersion('project'));
 
-Log::write(Color::apply(Strings::size(tr('Project name:')              , 27), 'white') . ' ' . PROJECT);
+Log::cli(Color::apply(Strings::size(tr('Project name:')              , 27), 'white') . ' ' . PROJECT);
 //Log::notice(Color::apply(Strings::size(tr('Framework code version:')    , 27), ($framework_status ? (($framework_status < 0) ? 'error' : 'warning') : 'white')) . ' ' . Core::FRAMEWORKCODEVERSION);
 //Log::notice(Color::apply(Strings::size(tr('Framework database version:'), 27), ($framework_status ? (($framework_status < 0) ? 'error' : 'warning') : 'white')) . ' ' . Sql::db()->getDatabaseVersion());
 //Log::notice(Color::apply(Strings::size(tr('Project code version:')      , 27), ($project_status   ? (($project_status < 0)   ? 'error' : 'warning') : 'white')) . ' ' . PROJECTCODEVERSION);
 //Log::notice(Color::apply(Strings::size(tr('Project database version:')  , 27), ($project_status   ? (($project_status < 0)   ? 'error' : 'warning') : 'white')) . ' ' . PROJECTDBVERSION);
 //Log::notice(Color::apply(Strings::size(tr('Init required:')             , 27), 'white') . ' ' . Strings::boolean((Core::FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)));
-Log::write(Color::apply(Strings::size(tr('Platform:')                  , 27), 'white') . ' ' . PLATFORM);
-Log::write(Color::apply(Strings::size(tr('Environment:')               , 27), 'white') . ' ' . ENVIRONMENT);
-Log::write(Color::apply(Strings::size(tr('Production:')                , 27), 'white') . ' ' . Strings::boolean(Debug::production()));
-Log::write(Color::apply(Strings::size(tr('Debug:')                     , 27), 'white') . ' ' . Strings::boolean(Debug::enabled()));
+Log::cli(Color::apply(Strings::size(tr('Platform:')                  , 27), 'white') . ' ' . PLATFORM);
+Log::cli(Color::apply(Strings::size(tr('Environment:')               , 27), 'white') . ' ' . ENVIRONMENT);
+Log::cli(Color::apply(Strings::size(tr('Production:')                , 27), 'white') . ' ' . Strings::boolean(Debug::production()));
+Log::cli(Color::apply(Strings::size(tr('Debug:')                     , 27), 'white') . ' ' . Strings::boolean(Debug::enabled()));
 //Log::notice(Color::apply(Strings::size(tr('Core database:')             , 27), 'white') . ' ' . Config::get('databases.system.name'));
 //
 //// Show the following lines only if the core database is available
