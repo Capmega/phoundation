@@ -74,15 +74,15 @@ class Color
     /**
      * Apply the specified foreground color and background color to the specified text string
      *
-     * @param string $source The source text that should be colored
+     * @param string|null $source The source text that should be colored
      * @param string|null $foreground_color The foreground color for the text
      * @param string|null $background_color The background color for the text
      * @param bool $reset If true, will reset the color back to "no colors". If false, the color coding will remain
      *                    open, ensuring that all following text that is displayed on the CLI will have the same
      *                    coloring
-     * @return string
+     * @return string|null
      */
-    public static function apply(string $source, ?string $foreground_color, ?string $background_color = null, bool $reset = true): string
+    public static function apply(?string $source, ?string $foreground_color, ?string $background_color = null, bool $reset = true): ?string
     {
         if (NOCOLOR or (!$foreground_color or ($foreground_color === 'cli') or ($foreground_color === 'notice')) and !$background_color) {
             // Do NOT apply color

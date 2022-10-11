@@ -28,5 +28,9 @@ $help  = 'The info script will show detailed information about the current frame
 
 Scripts::noArgumentsLeft($argv);
 
-//Log::cli(Commands::which('chmod'));
-Log::cli(Commands::chmod(ROOT . 'READNE.md', 0o440));
+//Commands::which('chmod');
+//Commands::chmod(ROOT . 'README.md', 0o440);
+
+mkdir(ROOT . 'a/b/c/d/e', 0770,true);
+file_put_contents(ROOT . 'a/b/c/d/e/f', 'This is a test file');
+Commands::delete(ROOT . 'a/b/e');

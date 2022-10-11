@@ -1078,7 +1078,7 @@ class Arrays {
      * @param array $source The source array from which the first value must be returned
      * @return mixed The first value of the specified source array
      */
-    public static function firstValue(array$source): array
+    public static function firstValue(array$source): mixed
     {
         reset($source);
         return current($source);
@@ -1094,7 +1094,7 @@ class Arrays {
      * @param array $source The source array from which the last value must be returned
      * @return mixed The last value of the specified source array
      */
-    public static function lastValue(array $source): array
+    public static function lastValue(array $source): mixed
     {
         return end($source);
     }
