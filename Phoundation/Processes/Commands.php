@@ -3,6 +3,9 @@
 namespace Phoundation\Processes;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Config;
+use Phoundation\Core\Strings;
+use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Exception\CommandsException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Servers\Server;
@@ -89,9 +92,7 @@ class Commands
     public static function chmod(string $file, string $mode, bool $recurse = false): void
     {
         try {
-            if (is_numeric($mode)) {
-                $mode = sprintf('0%o', $mode);
-            }
+            $mode = Strings::fromOctal($mode);
 
             Processes::create('chmod', true)
                 ->addArguments([$mode, $file, $recurse ?? '-R'])
@@ -103,11 +104,11 @@ class Commands
             Commands::handleException('rm', $e, function($first_line, $last_line, $e) use ($file, $mode) {
                 if ($e->getCode() == 1) {
                     if (str_contains($last_line, 'no such file or directory')) {
-                        throw new CommandsException(tr('Failed to chmod file ":file" to ":mode" because it does not exist', [':file' => $file, ':mode' => $mode]));
+                        throw new CommandsException(tr('Failed to chmod file ":file" to ":mode", it does not exist', [':file' => $file, ':mode' => $mode]));
                     }
 
                     if (str_contains($last_line, 'operation not permitted')) {
-                        throw new CommandsException(tr('Failed to chmod file ":file" to ":mode" because the operation was not permitted', [':file' => $file, ':mode' => $mode]));
+                        throw new CommandsException(tr('Failed to chmod file ":file" to ":mode", permission denied', [':file' => $file, ':mode' => $mode]));
                     }
                 }
             });
@@ -133,6 +134,20 @@ class Commands
                 ->setTimeout(10)
                 ->executeReturnArray();
 
+            if ($cleanup) {
+                // Delete upwards as well as long as the parent directories are empty!
+                $empty = true;
+
+                while ($empty) {
+                    $path = dirname($file);
+                    $empty = Path::empty($path);
+
+                    if ($empty) {
+                        Commands::delete($file, $recurse, $cleanup);
+                    }
+                }
+            }
+
         } catch (ProcessFailedException $e) {
             // The command rm failed, most of the time either $file doesn't exist, or we don't have access to change the mode
             Commands::handleException('rm', $e, function($first_line, $last_line, $e) use ($file) {
@@ -143,7 +158,7 @@ class Commands
                     }
 
                     if (str_contains($last_line, 'is a directory')) {
-                        throw new CommandsException(tr('Failed to delete file ":file" to ":mode" because it is a directory and $recursive was not specified', [':file' => $file]));
+                        throw new CommandsException(tr('Failed to delete file ":file" to ":mode", it is a directory and $recursive was not specified', [':file' => $file]));
                     }
                 }
             });
@@ -151,18 +166,21 @@ class Commands
     }
 
 
-
     /**
      * Creates the specified directory
      *
      * @param string $file The directory to create
+     * @param string|int|null $mode
      * @return void
      */
-    public static function mkdir(string $file): void
+    public static function mkdir(string $file, string|int|null $mode = null): void
     {
         try {
+            $mode = Config::get('filesystem.mode.default.directory', 0750, $mode);
+            $mode = Strings::fromOctal($mode);
+
             Processes::create('mkdir', true)
-                ->addArguments([$file, '-p'])
+                ->addArguments([$file, '-p', '-m', $mode])
                 ->setTimeout(1)
                 ->executeReturnArray();
 
@@ -170,14 +188,18 @@ class Commands
             // The command mkdir failed, most of the time either $file doesn't exist, or we don't have access to change the mode
             Commands::handleException('mkdir', $e, function($first_line, $last_line, $e) use ($file) {
                 if ($e->getCode() == 1) {
-                    if (str_contains($first_line, 'no such file or directory')) {
-                        // The specified file does not exist, that is okay, we wanted it gone anyway
-                        return;
+                    if (str_contains($first_line, 'not a directory')) {
+                        $path = Strings::from($first_line, 'directory \'');
+                        $path = Strings::until($path, '\':');
+                        throw new CommandsException(tr('Failed to create directory file ":file" because the section ":path" already exists and is not a directory', [':file' => $file, ':path' => $path]));
                     }
 
-                    if (str_contains($first_line, 'is a directory')) {
-                        throw new CommandsException(tr('Failed to delete file ":file" to ":mode" because it is a directory and $recursive was not specified', [':file' => $file]));
+                    if (str_contains($first_line, 'permission denied')) {
+                        $path = Strings::from($first_line, 'directory \'');
+                        $path = Strings::until($path, '\':');
+                        throw new CommandsException(tr('Failed to create directory file ":file", permission denied to create section ":path" ', [':file' => $file, ':path' => $path]));
                     }
+
                 }
             });
         }

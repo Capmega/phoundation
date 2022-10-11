@@ -1578,4 +1578,22 @@ class Strings
 
         return $data;
     }
+
+
+
+    /**
+     * Returns a string displaying the specified ocal value
+     *
+     * @param string|int $source
+     * @return string
+     */
+    public static function fromOctal(string|int $source): string
+    {
+        if (is_integer($source)) {
+            return sprintf('0%o', $source);
+        }
+
+        // Source is already a string, just return it as-is
+        return $source;
+    }
 }

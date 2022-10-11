@@ -375,7 +375,7 @@ Class Process
             'run_path'     => $this->run_path,
             'exit_code'    => $exit_code,
             'output'       => $output,
-        ]);
+        ], $exit_code);
     }
 
 

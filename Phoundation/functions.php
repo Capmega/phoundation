@@ -18,7 +18,7 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
-use Phoundation\Notify\Notification;
+
 
 
 /**
@@ -55,17 +55,13 @@ function tr(string $text, ?array $replace = null, bool $verify = true): string
 
             $text = str_replace(array_keys($replace), array_values($replace), $text, $count);
 
-            /*
-             * Only on non production machines, crash when not all entries were replaced as an extra check.
-             */
+            // Only on non production machines, crash when not all entries were replaced as an extra check.
             if (Debug::production() and $verify) {
                 if ($count != count($replace)) {
                     foreach ($replace as $value) {
                         if (str_contains($value, ':')) {
-                            /*
-                             * One of the $replace values contains :blah. This will cause the detector to fire off
-                             * incorrectly. Ignore this.
-                             */
+                            // One of the $replace values contains :blah. This will cause the detector to fire off
+                            // incorrectly. Ignore this.
                             return $text;
                         }
                     }
@@ -73,9 +69,8 @@ function tr(string $text, ?array $replace = null, bool $verify = true): string
                     throw new CoreException('tr(): Not all specified keywords were found in text');
                 }
 
-                /*
-                 * Do NOT check for :value here since the given text itself may contain :value (ie, in prepared statements!)
-                 */
+                // Do NOT check for :value here since the given text itself may contain :value (ie, in prepared
+                // statements!)
             }
 
             return $text;
@@ -84,9 +79,7 @@ function tr(string $text, ?array $replace = null, bool $verify = true): string
         return $text;
 
     } catch (Exception $e) {
-        /*
-         * Do NOT use tr() here for obvious endless loop reasons!
-         */
+        // Do NOT use tr() here for obvious endless loop reasons!
         throw new CoreException('tr(): Failed with text "'.Strings::log($text) . '". Very likely issue with $replace not containing all keywords, or one of the $replace values is non-scalar', $e);
     }
 }
@@ -108,7 +101,6 @@ function in_source(array $source, string|int $key): bool
 
     return false;
 }
-
 
 
 

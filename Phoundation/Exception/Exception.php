@@ -67,7 +67,7 @@ class Exception extends RuntimeException
      */
     public function __construct(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null)
     {
-        $messages = Arrays::force($messages);
+        $messages = Arrays::force($messages, "\n");
         $message = reset($messages);
         $message = Strings::force($message);
 
