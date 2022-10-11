@@ -1,0 +1,32 @@
+#!/usr/bin/php
+<?php
+use Phoundation\Cli\Color;
+use Phoundation\Cli\Scripts;
+use Phoundation\Core\Config;
+use Phoundation\Core\Core;
+use Phoundation\Core\Log;
+use Phoundation\Core\Strings;
+use Phoundation\Databases\Sql\Sql;
+use Phoundation\Developer\Debug;
+use Phoundation\Exception\ScriptException;
+use Phoundation\Processes\Commands;
+
+
+/**
+ * Script system/test
+ *
+ * This is a test script where we can test various new systems
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\System
+ */
+$usage = './cli system info';
+
+$help  = 'The info script will show detailed information about the current framework, project, database and more';
+
+Scripts::noArgumentsLeft($argv);
+
+//Log::cli(Commands::which('chmod'));
+Log::cli(Commands::chmod(ROOT . 'READNE.md', 0o440));

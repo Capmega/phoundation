@@ -16,9 +16,16 @@ namespace Phoundation\Processes;
  */
 Class Processes
 {
-    public static function create(?string $command = null): Process
+    /**
+     * Create a new process factory
+     *
+     * @param string|null $command
+     * @param bool $which_command
+     * @return Process
+     */
+    public static function create(?string $command = null, bool $which_command = false): Process
     {
-        return new Process($command);
+        return new Process($command, $which_command);
     }
 
 

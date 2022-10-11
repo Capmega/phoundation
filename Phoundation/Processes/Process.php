@@ -121,7 +121,7 @@ Class Process
      *
      * @var array $output_redirect
      */
-    protected array $output_redirect = [];
+    protected array $output_redirect = [2 => '&1'];
 
 
 
@@ -129,11 +129,12 @@ Class Process
      * Processes constructor.
      *
      * @param string|null $command
+     * @param bool $which_command
      */
-    public function __construct(?string $command = null)
+    public function __construct(?string $command = null, bool $which_command = false)
     {
         if ($command) {
-            $this->command = $command;
+            $this->setCommand($command, $which_command);
         }
     }
 
@@ -365,7 +366,7 @@ Class Process
         throw new ProcessFailedException(tr('The command ":command" failed with exit code ":code"', [':command' => $this->command, ':code' => $exit_code]), [
             'command'      => $this->command,
             'full_command' => $this->getFullCommandLine(),
-            'pipe'         => $this->pipe->getFullCommandLine(),
+            'pipe'         => $this->pipe?->getFullCommandLine(),
             'arguments'    => $this->arguments,
             'timeout'      => $this->timeout,
             'term'         => $this->term,
@@ -383,9 +384,10 @@ Class Process
      * Set the command to be executed for this process
      *
      * @param string $command
+     * @param bool $which_command
      * @return Process This process so that multiple methods can be chained
      */
-    public function setCommand(string $command): Process
+    public function setCommand(string $command, bool $which_command = false): Process
     {
         $this->cached_command_line = null;
         $command = trim($command);
@@ -394,17 +396,20 @@ Class Process
             throw new OutOfBoundsException(tr('No command specified'));
         }
 
-        // Check if the command exist on disk
-        if (!file_exists($command)) {
-//            $real_command = Commands::which($command);
-//            $real_command = $command;
-            $real_command = null;
+        if ($which_command) {
+            $command = Commands::which($command);
+        } else {
+            // Check if the command exist on disk
+            if (($command !== 'which') and !file_exists($command)) {
+                // The specified command was not found, we'll have to look for it anyway!
+                $real_command = Commands::which($command);
 
-            if (!$real_command) {
-                throw new ProcessesException(tr('Specified process command ":command" does not exist', ['command' => $command]));
+                if (!$real_command) {
+                    throw new ProcessesException(tr('Specified process command ":command" does not exist', [':command' => $command]));
+                }
+
+                $command = $real_command;
             }
-
-            $command = $real_command;
         }
 
         // Apply proper escaping and register the command
@@ -468,6 +473,11 @@ Class Process
         $this->cached_command_line = null;
 
         foreach ($arguments as $argument) {
+            if (!$argument) {
+                // Ignore empty arguments
+                continue;
+            }
+
             $this->addArgument($argument);
         }
 
@@ -522,17 +532,24 @@ Class Process
     /**
      * Sets the output redirection for this process
      *
-     * @param string|null $file
+     * @param string|null $redirect
      * @param int $channel
      * @param bool $append
      * @return Process
      */
-    public function setOutputRedirect(?string $file, int $channel = 1, bool $append = false): Process
+    public function setOutputRedirect(?string $redirect, int $channel = 1, bool $append = false): Process
     {
-        File::checkWritable($file);
-
-        if ($file) {
-            $this->output_redirect[$channel] = ($append ? '*' : '') . $file;
+        if ($redirect) {
+            if ($redirect[0] === '&') {
+                // Redirect output to other channel
+                if (strlen($redirect) !== 2) {
+                    throw new OutOfBoundsException('Specified redirect ":redirect" is invalid. When redirecting to another channel, always specify &N where N is 0-9', [':redirect' => $redirect]);
+                }
+            } else {
+                // Redirect output to a file
+                File::checkWritable($redirect);
+                $this->output_redirect[$channel] = ($append ? '*' : '') . $redirect;
+            }
 
         } else {
             $this->output_redirect[$channel] = null;
@@ -570,16 +587,15 @@ Class Process
     /**
      * Sets the input redirection for this process
      *
-     * @param string|null $file
+     * @param string|null $redirect
      * @param int $channel
-     * @param bool $append
      * @return Process
      */
-    public function setInputRedirect(?string $file, int $channel = 1): Process
+    public function setInputRedirect(?string $redirect, int $channel = 1): Process
     {
-        File::checkReadable($file);
+        File::checkReadable($redirect);
 
-        $this->input_redirect[$channel] = get_null($file);
+        $this->input_redirect[$channel] = get_null($redirect);
 
         return $this;
     }
@@ -654,9 +670,7 @@ Class Process
      */
     public function executeReturnArray(): array
     {
-        if (Debug::enabled()) {
-            Log::notice(tr('Executing command ":command" using exec to return an array', [':command' => $this->getFullCommandLine()]));
-        }
+        Log::notice(tr('Executing command ":command" using exec() to return an array', [':command' => $this->getFullCommandLine()]));
 
         exec($this->getFullCommandLine(), $output, $exit_code);
         $this->setExitCode($exit_code, $output);
@@ -673,7 +687,7 @@ Class Process
     public function executePassthru(): bool
     {
         if (Debug::enabled()) {
-            Log::notice(tr('Executing command ":command" using passthru to return an array', [':command' => $this->getFullCommandLine()]));
+            Log::notice(tr('Executing command ":command" using passthru() to return an array', [':command' => $this->getFullCommandLine()]));
         }
 
         $output = passthru($this->getFullCommandLine(), $exit_code);
@@ -754,14 +768,24 @@ Class Process
 
         // Redirect command output to the specified files for the specified channels
         foreach ($this->output_redirect as $channel => $file) {
-            if ($file[0] === '*') {
-                $file = substr($file, 1);;
-                $redirect = ' >> ';
-            } else {
-                $redirect = ' > ';
+            switch ($file[0]) {
+                case '&':
+                    // Redirect to different channel
+                    $redirect = ' ' . $channel . '>&' . $file[1] . ' ';
+                    break;
+
+                case '*':
+                    // Redirect to file and append
+                    $file = substr($file, 1);;
+                    $redirect = ' ' . $channel . '>> ' . $file;
+                    break;
+
+                default:
+                    // Redirect to file and overwrite
+                    $redirect = ' ' . $channel . '> ' . $file;
             }
 
-            $this->cached_command_line .= $redirect . $file;
+            $this->cached_command_line .= $redirect;
         }
 
         return $this->cached_command_line;
