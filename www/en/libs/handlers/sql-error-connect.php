@@ -13,7 +13,7 @@ try {
      */
     foreach (array('driver', 'host', 'user', 'pass') as $key) {
         if (empty($connector[$key])) {
-            if ($_CONFIG['production']) {
+            if (Debug::production()) {
                 throw new CoreException(tr('sql_connect(): The database configuration has key ":key" missing, check your database configuration in :rootconfig/production.php', array(':key' => $key, ':root' => ROOT)), 'configuration');
             }
 

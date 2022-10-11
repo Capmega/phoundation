@@ -7,7 +7,7 @@ global $_CONFIG;
  *
  * Forced init is NOT allowed on production (for obvious safety reasons, doh!)
  */
-if ($_CONFIG['production']) {
+if (Debug::production()) {
     throw new CoreException(tr('sql_init(): For safety reasons, init force is NOT allowed on production environment! Please drop the database using "./scripts/base/init drop" or in the mysql console with "DROP DATABASE :db"and continue with a standard init', array(':db' => $_CONFIG['db'][$connector]['db'])), 'forcedenied');
 }
 

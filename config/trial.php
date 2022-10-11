@@ -17,7 +17,7 @@ $_CONFIG['cdn']['bundler']                                                      
 $_CONFIG['domain']                                                              = 'phoundation.org.t.cpamega.com';
 
 // This is not a production environment!
-$_CONFIG['production']                                                          = false;
+Debug::production()                                                          = false;
 
 $_CONFIG['notifications']['force']                                              = true;
 

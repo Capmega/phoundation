@@ -166,7 +166,7 @@ class Http
              *
              These pages should NEVER be indexed
              */
-            if (!$_CONFIG['production'] or $_CONFIG['noindex'] or !Core::getCallType('http')) {
+            if (!Debug::production() or $_CONFIG['noindex'] or !Core::getCallType('http')) {
                 $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
             }
 

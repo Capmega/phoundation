@@ -1787,55 +1787,6 @@ function sql_make_connector($connector_name, $connector) {
 
 
 
-/*
- * Ensure all SQL connector fields are available
- *
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package sql
- *
- * @param array $connector
- * @return array The specified connector data with all fields available
- */
-function sql_ensure_connector($connector) {
-    try {
-        $template = array('driver'           => 'mysql',
-                          'host'             => '127.0.0.1',
-                          'port'             => null,
-                          'db'               => '',
-                          'user'             => '',
-                          'pass'             => '',
-                          'autoincrement'    => 1,
-                          'init'             => false,
-                          'buffered'         => false,
-                          'charset'          => 'utf8mb4',
-                          'collate'          => 'utf8mb4_general_ci',
-                          'limit_max'        => 10000,
-                          'mode'             => 'PIPES_AS_CONCAT,IGNORE_SPACE',
-                          'ssh_tunnel'       => array('required'    => false,
-                                                      'source_port' => null,
-                                                      'hostname'    => '',
-                                                      'usleep'      => 1200000),
-                          'pdo_attributes'   => array(),
-                          'version'          => '0.0.0',
-                          'timezone'         => 'UTC');
-
-        $connector['ssh_tunnel'] = sql_merge($template['ssh_tunnel'], isset_get($connector['ssh_tunnel'], array()));
-        $connector               = sql_merge($template, $connector);
-
-        if (!is_array($connector['ssh_tunnel'])) {
-            throw new CoreException(tr('sql_ensure_connector(): Specified ssh_tunnel ":tunnel" should be an array but is a ":type"', array(':tunnel' => $connector['ssh_tunnel'], ':type' => gettype($connector['ssh_tunnel']))), 'invalid');
-        }
-
-        return $connector;
-
-    }catch(Exception $e) {
-        throw new CoreException(tr('sql_ensure_connector(): Failed'), $e);
-    }
-}
-
-
 
 /*
  * Test SQL functions over SSH tunnel for the specified server

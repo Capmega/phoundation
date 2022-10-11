@@ -305,7 +305,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
             }
         }
 
-        if ($_CONFIG['production']) {
+        if (Debug::production()) {
             log_console('Removing data symlink or files in all languages', 'cyan');
 
             if ($_CONFIG['language']['supported']) {

@@ -214,7 +214,7 @@ try {
 
                     error_log('PHP SQL_ERROR: '.Strings::Log($error[2]).' on '.Strings::Log(debug_sql($query, $execute, true), 4096));
 
-                    if (!$_CONFIG['production']) {
+                    if (!Debug::production()) {
                         throw new CoreException(nl2br($body), $e);
                     }
 

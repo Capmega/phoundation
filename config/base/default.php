@@ -287,7 +287,7 @@ $_CONFIG['prefetch']           = array('dns'                                => a
                                        'files'                              => array());
 
 // Is this a production environment?
-$_CONFIG['production']         = true;
+Debug::production()         = true;
 
 // Redirects configuration (This ususally would not require changes unless you want to have other file names for certain actions like signin, etc)
 $_CONFIG['redirects']          = array('auto'                               => 'get',                                                       // Auto redirects (usually because of user or right required) done by "session" or "get"

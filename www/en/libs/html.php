@@ -30,7 +30,7 @@ function html_echo($html) {
 
     try {
         if (ob_get_contents()) {
-            if ($_CONFIG['production']) {
+            if (Debug::production()) {
                 throw new CoreException(tr('html_echo(): Output buffer is not empty'), 'not-empty');
             }
 
@@ -971,7 +971,7 @@ function html_meta($meta) {
         /*
          * Add meta tag no-index for non production environments and admin pages
          */
-        if (!empty($meta['noindex']) or !$_CONFIG['production'] or $_CONFIG['noindex'] or Core::getCallType('admin')) {
+        if (!empty($meta['noindex']) or !Debug::production() or $_CONFIG['noindex'] or Core::getCallType('admin')) {
             $meta['robots'] = 'noindex, nofollow, nosnippet, noarchive, noydir';
             unset($meta['noindex']);
         }
@@ -1433,7 +1433,7 @@ function html_flash_set($params, $type = 'info', $class = null) {
          * Backward compatibility as well
          */
         if (empty($params['html']) and empty($params['text']) and empty($params['title'])) {
-            if ($_CONFIG['production']) {
+            if (Debug::production()) {
                 notify(array('code'    => 'invalid',
                              'groups'  => 'developers',
                              'title'   => tr('Invalid flash structure specified'),
@@ -2618,7 +2618,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
             /*
              * No image at all?
              */
-            if ($_CONFIG['production']) {
+            if (Debug::production()) {
                 /*
                  * On production, just notify and ignore
                  */
@@ -2632,7 +2632,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
             throw new CoreException(tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $params['alt'])), 'no-image');
         }
 
-        if (!$_CONFIG['production']) {
+        if (!Debug::production()) {
             if (!$params['src']) {
                 throw new CoreException(tr('html_img(): No image src specified'), 'not-specified');
             }
@@ -3144,7 +3144,7 @@ function html_video($params) {
         Arrays::ensure($params, 'src,width,height,more,type');
         array_default($params, 'controls', true);
 
-        if (!$_CONFIG['production']) {
+        if (!Debug::production()) {
             if (!$params['src']) {
                 throw new CoreException(tr('html_video(): No video src specified'), 'not-specified');
             }
@@ -3199,7 +3199,7 @@ function html_video($params) {
                 $params['src']  = ROOT.'www/en'.Strings::startsWith(Strings::from($params['src'], domain()), '/');
                 $params['type'] = mime_content_type($params['src']);
 
-            } elseif (!$_CONFIG['production']) {
+            } elseif (!Debug::production()) {
                 /*
                  * This is a remote video
                  * Remote videos MUST have height and width specified!
@@ -3244,7 +3244,7 @@ function html_video($params) {
         return $html;
 
     }catch(Exception $e) {
-        if (!$_CONFIG['production']) {
+        if (!Debug::production()) {
             throw new CoreException('html_video(): Failed', $e);
         }
 

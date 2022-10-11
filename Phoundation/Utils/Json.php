@@ -144,7 +144,7 @@ class Json
             }
 
             if (empty($message['e'])) {
-                if ($_CONFIG['production']) {
+                if (Debug::production()) {
                     $message = $default;
                     Log::warning('No exception object specified for following error');
                     Log::warning($message);
@@ -156,7 +156,7 @@ class Json
                 }
 
             } else {
-                if ($_CONFIG['production']) {
+                if (Debug::production()) {
                     Log::notice($message['e']);
 
                     $code = $message['e']->getCode();

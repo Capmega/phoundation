@@ -50,7 +50,7 @@ function mail_send_templated_email($params, $subject, $body, $language = false, 
         /*
          * On development servers do not send out mails to clients
          */
-        if (!$_CONFIG['production']) {
+        if (!Debug::production()) {
             //if (!$_CONFIG['notifications']['force']) {
             //    return false;
             //}

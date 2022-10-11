@@ -149,7 +149,7 @@ function coinpayments_get_ipn_transaction() {
         return $_POST;
 
     }catch(Exception $e) {
-        if (!$_CONFIG['production']) {
+        if (!Debug::production()) {
             /*
              * Ignore all issues, we're testing!
              */

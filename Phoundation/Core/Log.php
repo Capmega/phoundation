@@ -673,7 +673,8 @@ Class Log {
      * Write the specified log message to the current log file for this instance
      *
      * @param mixed $messages The messages that are to be logged
-     * @param string $class The class of message that will be logged. Different classes will show in different colors
+     * @param string|null $class The class of message that will be logged. Different classes will show in different
+     *                           colors
      * @param int $level The threshold level for this message. If the level is lower than the threshold, the message
      *                   will be dropped and not appear in the log files to avoid clutter
      * @param bool $clean If true, the data will be cleaned before written to log. This will avoid (for example) binary
@@ -681,7 +682,7 @@ Class Log {
      * @param bool $newline If true, a newline will be appended at the end of the log line
      * @return bool True if the line was written, false if it was dropped
      */
-    public static function write(mixed $messages, string $class, int $level = 10, bool $clean = true, bool $newline = true): bool
+    public static function write(mixed $messages, ?string $class = null, int $level = 10, bool $clean = true, bool $newline = true): bool
     {
 // TODO Delete the following code block, looks like we won't need it anymore
 //        if (self::$lock) {
@@ -786,7 +787,8 @@ Class Log {
             }
 
             // Make sure the log message is clean and readable. Don't truncate as we might have very large log mesages!
-            if ($clean) {
+            // If no or an empty class was specified, we do not clean
+            if ($class and $clean) {
                 $messages = Strings::log($messages, 0);
             }
 

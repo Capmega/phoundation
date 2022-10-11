@@ -790,7 +790,7 @@
 //            /*
 //             * Only on non production machines, crash when not all entries were replaced as an extra check.
 //             */
-//            if (empty($_CONFIG['production']) and $verify) {
+//            if (empty(Debug::production()) and $verify) {
 //                if ($count != count($replace)) {
 //                    foreach ($replace as $value) {
 //                        if (strstr($value, ':')) {
@@ -1321,7 +1321,7 @@
 //                /*
 //                 * Oops, specified $from array does not contain all replace markers
 //                 */
-//                if (!$_CONFIG['production']) {
+//                if (!Debug::production()) {
 //                    throw new CoreException(tr('load_content(): Missing markers ":markers" for content file ":file"', array(':markers' => $matches, ':file' => $realfile)), 'missing-markers');
 //                }
 //            }
@@ -1334,7 +1334,7 @@
 //        /*
 //         * From here, the file does not exist.
 //         */
-//        if (!$_CONFIG['production']) {
+//        if (!Debug::production()) {
 //            notify(array('code'    => 'not-exist',
 //                         'groups'  => 'developers',
 //                         'title'   => tr('Content file missing'),

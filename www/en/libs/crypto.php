@@ -195,7 +195,7 @@ function crypto_write_transaction($transaction, $provider) {
             $transaction['amount_usd_rounded'] = floor($transaction['amount_usd'] * 100) / 100;
         }
 
-        if ($_CONFIG['production']) {
+        if (Debug::production()) {
             /*
              * Internal transactions will always have users_id specified
              */

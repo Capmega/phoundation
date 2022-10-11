@@ -129,7 +129,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500) {
             }
 
             if (empty($message['e'])) {
-                if ($_CONFIG['production']) {
+                if (Debug::production()) {
                     $message = $default;
                     log_console('json_error(): No exception object specified for following error', 'yellow');
                     log_console($message, 'yellow');
@@ -141,7 +141,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500) {
                 }
 
             } else {
-                if ($_CONFIG['production']) {
+                if (Debug::production()) {
                     log_console($message['e']);
 
                     $code = $message['e']->getCode();

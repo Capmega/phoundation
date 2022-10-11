@@ -6,9 +6,11 @@ project:
   name: "Phoundation"
   version: "0.0.0"
 databases:
-  instances:
-    system:
-      server: "localhost"
-      name: "phoundation"
-      user: "base"
-      pass: "base"
+  sql:
+    instances:
+      system:
+        type: "mysql"
+        server: "localhost"
+        name: "phoundation"
+        user: "base"
+        pass: "base"

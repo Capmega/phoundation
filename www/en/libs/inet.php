@@ -544,7 +544,7 @@ function inet_get_client_data() {
         $client['latitude']  = isset_get($geodata['latitude']);
         $client['longitude'] = isset_get($geodata['longitude']);
 
-        //if (empty($client['email']) and $_CONFIG['production']) {
+        //if (empty($client['email']) and Debug::production()) {
         //    header("HTTP/1.0 404 Not Found");
         //    die('404 - Not Found');
         //}

@@ -23,7 +23,7 @@ load_libs('config');
 
 switch (cli_method()) {
     case 'init':
-        if ($_CONFIG['production']) {
+        if (Debug::production()) {
             if (!FORCE) {
                 throw new CoreException(tr('Cannot initialize configuration files on production without using FORCE mode. Please specify -f or --force'), 'warning/access-denied');
             }

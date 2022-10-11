@@ -89,7 +89,7 @@ return 0;
             $notification = notifications_insert($notification, $log);
         }
 
-        if ($notification['exception'] and !$_CONFIG['production'] and $notification['throw']) {
+        if ($notification['exception'] and !Debug::production() and $notification['throw']) {
             /*
              * Exception in non production environments, don't send
              * notifications since we're working on this project!
@@ -118,7 +118,7 @@ return 0;
         return isset_get($notification['id']);
 
     }catch(Exception $e) {
-        if (!$_CONFIG['production']) {
+        if (!Debug::production()) {
             throw new CoreException(tr('notifications(): Failed'), $e);
         }
 

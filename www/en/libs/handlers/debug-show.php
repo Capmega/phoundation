@@ -31,7 +31,7 @@ try {
         http_headers(null, 0);
     }
 
-    if ($_CONFIG['production']) {
+    if (Debug::production()) {
         if (!Debug::enabled()) {
             return '';
         }
@@ -111,7 +111,7 @@ try {
     return $data;
 
 }catch(Exception $e) {
-    if ($_CONFIG['production'] or Debug::enabled()) {
+    if (Debug::production() or Debug::enabled()) {
         /*
          * Show the error message with a conventional die() call
          */

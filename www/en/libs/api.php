@@ -211,12 +211,12 @@ function api_authenticate($api_key = null) {
     global $_CONFIG;
 
     try {
-        if ($_CONFIG['production']) {
+        if (Debug::production()) {
             /*
              * This is a production platform, only allow JSON API key
              * authentications over a secure connection
              */
-            if ((PROTOCOL !== 'https://') and !empty($_CONFIG['production'])) {
+            if ((PROTOCOL !== 'https://') and !empty(Debug::production())) {
                 throw new CoreException(tr('api_authenticate(): No API key authentication allowed on unsecure connections over non HTTPS connections'), 'ssl-required');
             }
         }

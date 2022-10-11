@@ -24,7 +24,7 @@ $_CONFIG['db']['core']['pass']                                                  
 $_CONFIG['domain']                                                              = 'phoundation.org.l.cpamega.com';
 
 // This is not a production environment!
-$_CONFIG['production']                                                          = false;
+Debug::production()                                                          = false;
 
 $_CONFIG['notifications']['force']                                              = true;
 
