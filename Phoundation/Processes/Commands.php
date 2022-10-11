@@ -120,30 +120,31 @@ class Commands
     /**
      * Deletes the specified file
      *
-     * @param string $file The file to delete
-     * @param bool $recurse If set to true and the file is a directory, all files below will also be recursively deleted
-     * @param bool $cleanup If set to true, all directories above will be deleted as well IF they are empty after this
-     *                      delete operation
+     * @param string $file       The file to delete
+     * @param bool $recurse_down If set to true and the file is a directory, all files below will also be recursively
+     *                           deleted
+     * @param bool $recurse_up   If set to true, all directories above will be deleted as well IF they are empty after this
+     *                           delete operation
      * @return void
      */
-    public static function delete(string $file, bool $recurse = true, bool $cleanup = false): void
+    public static function delete(string $file, bool $recurse_down = true, bool $recurse_up = false): void
     {
         try {
             Processes::create('rm', true)
-                ->addArguments([$file, '-f', $recurse ?? '-r'])
+                ->addArguments([$file, '-f', $recurse_down ?? '-r'])
                 ->setTimeout(10)
                 ->executeReturnArray();
 
-            if ($cleanup) {
+            if ($recurse_up) {
                 // Delete upwards as well as long as the parent directories are empty!
                 $empty = true;
 
                 while ($empty) {
                     $path = dirname($file);
-                    $empty = Path::empty($path);
+                    $empty = Path::isEmpty($path);
 
                     if ($empty) {
-                        Commands::delete($file, $recurse, $cleanup);
+                        Commands::delete($file, $recurse_down, $recurse_up);
                     }
                 }
             }
@@ -164,6 +165,7 @@ class Commands
             });
         }
     }
+
 
 
     /**

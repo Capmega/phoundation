@@ -5,6 +5,7 @@ namespace Phoundation\Filesystem;
 use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Throwable;
 
 /**
@@ -230,5 +231,38 @@ class Path
             // This is some other error, keep throwing
             throw new FilesystemException(tr('Failed'), previous: $e);
         }
+    }
+
+
+
+    /**
+     * Returns true if the specified directory is empty
+     *
+     * @param string $path
+     * @return bool
+     */
+    public static function isEmpty(string $path): bool
+    {
+        if (!is_dir($path)) {
+            File::checkReadable($path);
+
+            throw new PathNotDirectoryException(tr('The specified path ":path" is not a directory', [':path' => $path]));
+        }
+
+        // Start reading the directory.
+        $handle   = opendir($path);
+
+        while (($file = readdir($handle)) !== false) {
+            // Skip . and ..
+            if (($file == '.') or ($file == '..')) continue;
+
+            // Yeah, this has files
+            closedir($handle);
+            return false;
+        }
+
+        // Yay, no files encountered!
+        closedir($handle);
+        return true;
     }
 }
