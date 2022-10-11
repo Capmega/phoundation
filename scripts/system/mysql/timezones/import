@@ -1,10 +1,9 @@
 #!/usr/bin/php
 <?php
 
+use Phoundation\Cli\Color;
 use Phoundation\Core\Log;
-use Phoundation\Exception\Exceptions;
-use Phoundation\Processes\Exception\ProcessFailedException;
-use Phoundation\Processes\Process;
+use Phoundation\Processes\Processes;
 
 
 
@@ -22,29 +21,16 @@ $usage = './cli system mysql timezones import';
 
 $help  = '';
 
-try {
-    Log::cli(tr('Importing timezone data files in MySQL'), 'white');
-    Log::cli(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'), 'warning');
-    Log::cli(tr('Please fill in MySQL root password in the following "Enter password:" request'), 'white');
+Log::cli(Color::apply(tr('Importing timezone data files in MySQL, this may take a couple of seconds'), 'white'));
+Log::cli(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'));
+Log::cli(tr('Please fill in MySQL root password in the following "Enter password:" request'));
 
-    $mysql = new Process('mysql');
-    $mysql->addArguments(['-p', '-u', 'root', 'msql']);
+$mysql = Processes::create('mysql')
+    ->setTimeout(10)
+    ->addArguments(['-p', '-u', 'root', 'mysql']);
 
-    $process = new Process('mysql_tzinfo_to_sql');
-    $process->addArgument('/usr/share/zoneinfo');
-    $process->pipe($mysql->getFullCommand());
-    $process->executePassthru();
-
-}catch(ProcessFailedException $e) {
-    // Something went wrong during import Get MySQL error
-    $message = $e->getMessages();
-    $message = array_shift($message);
-    $message = json_decode_custom($message);
-    $message = array_shift($message);
-
-    if (str_contains($message, 'ERROR 1045')) {
-        throw Exceptions::ScriptException(tr('Incorrect MySQL root password supplied'))->makeWarning();
-    }
-
-    throw $e;
-}
+Processes::create('mysql_tzinfo_to_sql')
+    ->setTimeout(10)
+    ->addArgument('/usr/share/zoneinfo')
+    ->setPipe($mysql)
+    ->executePassthru();

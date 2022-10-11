@@ -80,6 +80,8 @@ class Scripts
 
         // Execute the script
         execute_script($file, self::$arguments);
+
+        self::die();
     }
 
 
@@ -93,7 +95,7 @@ class Scripts
      */
     #[NoReturn] public static function die(?int $exit_code = null, ?string $exit_message = null): void
     {
-        if (!$exit_code) {
+        if ($exit_code) {
             Scripts::setExitCode($exit_code, true);
         }
 
@@ -125,7 +127,7 @@ class Scripts
                 }
 
                 // Script ended successfully
-                Log::success(tr('Finished ":script" script in ":time" with ":usage" peak memory usage', [':script' => Core::readRegister('system', 'script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage())]), 'green');
+                Log::success(tr('Finished ":script" script in ":time" with ":usage" peak memory usage', [':script' => Core::readRegister('system', 'script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage())]));
             }
         }
 

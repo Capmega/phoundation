@@ -98,9 +98,30 @@ Class Process
     /**
      * Contains the terminal that will be used to execute the command
      *
-     * @var string $term
+     * @var string|null $term
      */
-    protected string $term = 'xterm';
+    protected ?string $term = null;
+
+    /**
+     * If specified, output from this command will be piped to the next command
+     *
+     * @var Process|null $pipe
+     */
+    protected ?Process $pipe = null;
+
+    /**
+     * Stores the data on where to redirect input channels
+     *
+     * @var array $input_redirect
+     */
+    protected array $input_redirect = [];
+
+    /**
+     * Stores the data on where to redirect output channels
+     *
+     * @var array $output_redirect
+     */
+    protected array $output_redirect = [];
 
 
 
@@ -195,9 +216,9 @@ Class Process
     /**
      * Sets the terminal to execute this command
      *
-     * @param string $term
+     * @param string|null $term
      */
-    public function setTerm(string $term): void
+    public function setTerm(string $term = null): void
     {
         $this->cached_command_line = null;
         $this->term = $term;
@@ -329,10 +350,10 @@ Class Process
      * This method will check if the specified exit code is accepted and if not, throw a Process exception
      *
      * @param int $exit_code
-     * @param string|array $output
+     * @param string|array|null $output
      * @return void
      */
-    protected function setExitCode(int $exit_code, string|array $output): void
+    protected function setExitCode(int $exit_code, string|array|null $output = null): void
     {
         $this->exit_code = $exit_code;
 
@@ -341,16 +362,18 @@ Class Process
             return;
         }
 
-        throw new ProcessFailedException('The command ":command" failed with exit code ":code"', [
-            'command'   => $this->command,
-            'arguments' => $this->arguments,
-            'timeout'   => $this->timeout,
-            'term'      => $this->term,
-            'sudo'      => $this->sudo,
-            'log_path'  => $this->log_path,
-            'run_path'  => $this->run_path,
-            'exit_code' => $exit_code,
-            'output'    => $output,
+        throw new ProcessFailedException(tr('The command ":command" failed with exit code ":code"', [':command' => $this->command, ':code' => $exit_code]), [
+            'command'      => $this->command,
+            'full_command' => $this->getFullCommandLine(),
+            'pipe'         => $this->pipe->getFullCommandLine(),
+            'arguments'    => $this->arguments,
+            'timeout'      => $this->timeout,
+            'term'         => $this->term,
+            'sudo'         => $this->sudo,
+            'log_path'     => $this->log_path,
+            'run_path'     => $this->run_path,
+            'exit_code'    => $exit_code,
+            'output'       => $output,
         ]);
     }
 
@@ -469,6 +492,125 @@ Class Process
 
 
     /**
+     * Sets the process where the output of this command will be piped to, IF specified
+     *
+     * @param Process|null $pipe
+     * @return Process
+     */
+    public function setPipe(?Process $pipe): Process
+    {
+        $this->pipe = $pipe;
+        $this->pipe->setTerm();
+
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the process where the output of this command will be piped to, IF specified
+     *
+     * @return Process|null
+     */
+    public function getPipe(): ?Process
+    {
+        return $this->pipe;
+    }
+
+
+
+    /**
+     * Sets the output redirection for this process
+     *
+     * @param string|null $file
+     * @param int $channel
+     * @param bool $append
+     * @return Process
+     */
+    public function setOutputRedirect(?string $file, int $channel = 1, bool $append = false): Process
+    {
+        File::checkWritable($file);
+
+        if ($file) {
+            $this->output_redirect[$channel] = ($append ? '*' : '') . $file;
+
+        } else {
+            $this->output_redirect[$channel] = null;
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the output redirection for the specified channel this process
+     *
+     * @return array|null
+     */
+    public function getOutputRedirect(int $channel): ?string
+    {
+        return $this->output_redirect[$channel];
+    }
+
+
+
+    /**
+     * Returns all the output redirections for this process
+     *
+     * @return array
+     */
+    public function getOutputRedirects(): array
+    {
+        return $this->output_redirect;
+    }
+
+
+
+    /**
+     * Sets the input redirection for this process
+     *
+     * @param string|null $file
+     * @param int $channel
+     * @param bool $append
+     * @return Process
+     */
+    public function setInputRedirect(?string $file, int $channel = 1): Process
+    {
+        File::checkReadable($file);
+
+        $this->input_redirect[$channel] = get_null($file);
+
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the input redirection for the specified channel this process
+     *
+     * @return array|null
+     */
+    public function getInputRedirect(int $channel): ?string
+    {
+        return $this->input_redirect[$channel];
+    }
+
+
+
+    /**
+     * Returns all the input redirections for this process
+     *
+     * @return array
+     */
+    public function getInputRedirects(): array
+    {
+        return $this->input_redirect;
+    }
+
+
+
+    /**
      * Sets the timeout value for this process.
      *
      * If the process requires more time than the specified timeout value, it will be terminated automatically. Set to
@@ -477,7 +619,7 @@ Class Process
      * @param int $timeout
      * @return Process
      */
-    public function setTimeout(int $timeout): PRocess
+    public function setTimeout(int $timeout): Process
     {
         if (!is_natural($timeout,  0)) {
             throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be a natural number 0 or higher', [':timeout' => $timeout]));
@@ -513,10 +655,10 @@ Class Process
     public function executeReturnArray(): array
     {
         if (Debug::enabled()) {
-            Log::notice(tr('Executing command ":command" using exec to return an array', [':command' => $this->buildCommandLine()]));
+            Log::notice(tr('Executing command ":command" using exec to return an array', [':command' => $this->getFullCommandLine()]));
         }
 
-        exec($this->buildCommandLine(), $output, $exit_code);
+        exec($this->getFullCommandLine(), $output, $exit_code);
         $this->setExitCode($exit_code, $output);
         return $output;
     }
@@ -531,11 +673,11 @@ Class Process
     public function executePassthru(): bool
     {
         if (Debug::enabled()) {
-            Log::notice('Executing command ":command" using exec to return an array');
+            Log::notice(tr('Executing command ":command" using passthru to return an array', [':command' => $this->getFullCommandLine()]));
         }
 
-        $output = passthru($this->buildCommandLine(), $exit_code);
-        $this->setExitCode($exit_code, $output);
+        $output = passthru($this->getFullCommandLine(), $exit_code);
+        $this->setExitCode($exit_code);
 
         // So according to the documentation, for some reason passthru() would return null on success and false on
         // failure. Makes sense, right? Just return true or false, please,
@@ -578,7 +720,7 @@ Class Process
      * @return string
      * @throws ProcessException
      */
-    protected function buildCommandLine(): string
+    public function getFullCommandLine(): string
     {
         if ($this->cached_command_line) {
             return $this->cached_command_line;
@@ -592,16 +734,34 @@ Class Process
 
         // Add timeout
         if ($this->timeout) {
-            $this->cached_command_line = 'timeout ' . escapeshellarg($this->timeout) . ' ' . $this->cached_command_line;
+            $this->cached_command_line = 'timeout --foreground ' . escapeshellarg($this->timeout) . ' ' . $this->cached_command_line;
         }
 
         // Add sudo
-        if ($this->timeout) {
+        if ($this->sudo) {
             $this->cached_command_line = 'sudo -u ' . escapeshellarg($this->sudo) . ' ' . $this->cached_command_line;
         }
 
+        // Execute the command in the specified terminal
         if ($this->term) {
             $this->cached_command_line = 'export TERM=' . $this->term . '; ' . $this->cached_command_line;
+        }
+
+        // Pipe the output through to the next command
+        if ($this->pipe) {
+            $this->cached_command_line .= ' | ' . $this->pipe->getFullCommandLine();
+        }
+
+        // Redirect command output to the specified files for the specified channels
+        foreach ($this->output_redirect as $channel => $file) {
+            if ($file[0] === '*') {
+                $file = substr($file, 1);;
+                $redirect = ' >> ';
+            } else {
+                $redirect = ' > ';
+            }
+
+            $this->cached_command_line .= $redirect . $file;
         }
 
         return $this->cached_command_line;

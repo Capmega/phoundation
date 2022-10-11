@@ -2,6 +2,8 @@
 
 namespace Phoundation\Processes;
 
+
+
 /**
  * Class Processes
  *
@@ -14,6 +16,12 @@ namespace Phoundation\Processes;
  */
 Class Processes
 {
+    public static function create(?string $command = null): Process
+    {
+        return new Process($command);
+    }
+
+
 
     /*
      * Execute the specified command as a background process
