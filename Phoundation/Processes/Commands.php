@@ -140,8 +140,8 @@ class Commands
                 $empty = true;
 
                 while ($empty) {
-                    $path = dirname($file);
-                    $empty = Path::isEmpty($path);
+                    $file = dirname($file);
+                    $empty = Path::isEmpty($file);
 
                     if ($empty) {
                         Commands::delete($file, $recurse_down, $recurse_up);

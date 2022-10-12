@@ -35,4 +35,4 @@ Commands::mkdir(ROOT . 'a/b/c/d/e', 0770,true);
 Commands::mkdir(ROOT . 'a/b/c/d/e', 0770,true);
 file_put_contents(ROOT . 'a/b/c/d/e/f', 'This the first test file');
 Commands::delete(ROOT . 'a/b/e');
-Commands::delete(ROOT . 'a/b/c', true);
+Commands::delete(ROOT . 'a/b/c', true, true);
