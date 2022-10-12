@@ -4,6 +4,8 @@ namespace Phoundation\Processes;
 
 
 
+use Phoundation\Servers\Server;
+
 /**
  * Class Processes
  *
@@ -20,12 +22,13 @@ Class Processes
      * Create a new process factory
      *
      * @param string|null $command
+     * @param Server|null $server
      * @param bool $which_command
      * @return Process
      */
-    public static function create(?string $command = null, bool $which_command = false): Process
+    public static function create(?string $command = null, ?Server $server = null, bool $which_command = false): Process
     {
-        return new Process($command, $which_command);
+        return new Process($command, $server, $which_command);
     }
 
 

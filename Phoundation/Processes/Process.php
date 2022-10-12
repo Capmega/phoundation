@@ -10,6 +10,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
+use Phoundation\Servers\Server;
 
 /**
  * Class Process
@@ -123,16 +124,28 @@ Class Process
      */
     protected array $output_redirect = [2 => '&1'];
 
+    /**
+     * Keeps track on which server this command should be executed. NULL means this local server
+     *
+     * @var Server|null
+     */
+    protected ?Server $server = null;
+
 
 
     /**
      * Processes constructor.
      *
      * @param string|null $command
+     * @param Server|null $server
      * @param bool $which_command
      */
-    public function __construct(?string $command = null, bool $which_command = false)
+    public function __construct(?string $command = null, ?Server $server = null, bool $which_command = false)
     {
+        if ($server) {
+            $this->setServer($server);
+        }
+
         if ($command) {
             $this->setCommand($command, $which_command);
         }
@@ -381,6 +394,34 @@ Class Process
 
 
     /**
+     * Returns the server on which the command should be executed for this process
+     *
+     * @note NULL means this local server
+     * @return Server|null
+     */
+    public function getServer(): ?Server
+    {
+        return $this->server;
+    }
+
+
+
+    /**
+     * Set the server on which the command should be executed for this process
+     *
+     * @note NULL means this local server
+     * @param Server|null $server
+     * @return $this
+     */
+    public function setServer(?Server $server): Process
+    {
+        $this->server = $server;
+        return $this;
+    }
+
+
+
+    /**
      * Set the command to be executed for this process
      *
      * @param string $command
@@ -397,7 +438,7 @@ Class Process
         }
 
         if ($which_command) {
-            $command = Commands::which($command);
+            $command = Commands::server($this->server)->which($command);
         } else {
             // Check if the command exist on disk
             if (($command !== 'which') and !file_exists($command)) {
