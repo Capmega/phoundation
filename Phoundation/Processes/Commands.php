@@ -144,7 +144,7 @@ class Commands
                     $empty = Path::isEmpty($file);
 
                     if ($empty) {
-                        Commands::delete($file, $recurse_down, $recurse_up);
+                        Commands::delete($file, $recurse_down, false, 1);
                     }
                 }
             }
