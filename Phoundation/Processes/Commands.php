@@ -95,7 +95,7 @@ class Commands
             $mode = Strings::fromOctal($mode);
 
             Processes::create('chmod', true)
-                ->addArguments([$mode, $file, $recurse ?? '-R'])
+                ->addArguments([$mode, $file, ($recurse ? '-R' : '')])
                 ->setTimeout(2)
                 ->executeReturnArray();
 
@@ -127,12 +127,12 @@ class Commands
      *                           delete operation
      * @return void
      */
-    public static function delete(string $file, bool $recurse_down = true, bool $recurse_up = false): void
+    public static function delete(string $file, bool $recurse_down = true, bool $recurse_up = false, int $timeout = 10): void
     {
         try {
             Processes::create('rm', true)
-                ->addArguments([$file, '-f', $recurse_down ?? '-r'])
-                ->setTimeout(10)
+                ->addArguments([$file, '-f', ($recurse_down ? '-r' : '')])
+                ->setTimeout($timeout)
                 ->executeReturnArray();
 
             if ($recurse_up) {
@@ -159,7 +159,7 @@ class Commands
                     }
 
                     if (str_contains($last_line, 'is a directory')) {
-                        throw new CommandsException(tr('Failed to delete file ":file" to ":mode", it is a directory and $recursive was not specified', [':file' => $file]));
+                        throw new CommandsException(tr('Failed to delete file ":file" to ":mode", it is a directory and $recurse_down was not specified', [':file' => $file]));
                     }
                 }
             });
