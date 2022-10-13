@@ -2081,7 +2081,7 @@ class File
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
         Path::ensure(dirname($file));
-        Log::warning(tr('The specified file ":file" (Realpath ":path") does not exist. Attempting to create it with file mode ":filemode"', [':file' => $file, ':path' => realpath($file), ':filemode' => $file_mode]));
+        Log::warning(tr('The specified file ":file" (Realpath ":path") does not exist. Attempting to create it with file mode ":filemode"', [':filemode' => Strings::fromOctal($file_mode), ':file' => $file, ':path' => realpath($file)]));
 
         switch ($type) {
             case 'file':
