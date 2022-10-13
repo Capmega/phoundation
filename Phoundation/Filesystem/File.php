@@ -409,14 +409,14 @@ class File
         $path = $paths;
 
         // Restrict location access
-        $restrictions::apply($path, $restrictions);
+        $restrictions::check($path, $restrictions);
 
         if (!file_exists($path)) {
             // This section does not exist, jump up to the next section
             $path = dirname($path);
 
             try {
-                $restrictions::apply($path, $restrictions);
+                $restrictions::check($path, $restrictions);
                 File::clearPath($path, $restrictions);
 
             }catch(RestrictionsException $e) {
@@ -1164,7 +1164,7 @@ class File
         }
 
         foreach (Arrays::force($path) as $path) {
-            $restrictions->apply($path, $restrictions);
+            $restrictions->check($path, $restrictions);
 
             $arguments      = array();
             $arguments[]    = $mode;

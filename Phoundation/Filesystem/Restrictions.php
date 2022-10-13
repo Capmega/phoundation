@@ -18,7 +18,36 @@ namespace Phoundation\Filesystem;
  */
 class Restrictions
 {
-    public static function apply(string|array $patterns): void
+    /**
+     * Internal store of all restrictions
+     *
+     * @var array $restrictions
+     */
+    protected array $restrictions = [];
+
+
+
+    /**
+     * Add new
+     *
+     * @param string $path
+     * @param bool $write
+     * @return Restrictions
+     */
+    public function add(string $path, bool $write = false): Restrictions
     {
+    }
+
+
+
+    /**
+     * @param string|array $patterns
+     * @return void
+     */
+    public function check(string|array $patterns): void
+    {
+        foreach ($this->restrictions as $path => $write) {
+
+        }
     }
 }
