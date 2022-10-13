@@ -309,7 +309,7 @@ class Debug {
         } else {
             // Show output on CLI console
             if (is_scalar($value)) {
-                $retval .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) ', array(':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset)))) . $value."\n";
+                $retval .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:size] ', [':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset), ':size' => strlen((string) $value)])) . $value . "\n";
 
             } else {
                 // Sort if is array for easier reading
@@ -318,7 +318,7 @@ class Debug {
                 }
 
                 if (!$quiet) {
-                    $retval .= tr('DEBUG SHOW (:file@:line) ', array(':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset)))."\n";
+                    $retval .= tr('DEBUG SHOW (:file@:line) [:size]', [':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset), ':size' => count((array) $value)])."\n";
                 }
 
                 $retval .= print_r($value, true);
