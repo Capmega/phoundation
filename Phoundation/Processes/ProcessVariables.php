@@ -148,9 +148,9 @@ trait ProcessVariables
     /**
      * Registers where the exit code for this process will be stored
      *
-     * @var bool $register_pid
+     * @var bool $register_run_file
      */
-    protected bool $register_pid = true;
+    protected bool $register_run_file = true;
 
     /**
      * Variable data that can modify the process command that will be executed
@@ -166,9 +166,9 @@ trait ProcessVariables
      *
      * @return bool
      */
-    public function getRegisterPid(): bool
+    public function getRegisterRunfile(): bool
     {
-        return $this->register_pid;
+        return $this->register_run_file;
     }
 
 
@@ -178,9 +178,9 @@ trait ProcessVariables
      *
      * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
      */
-    public function setRegisterPid(bool $register_pid): static
+    public function setRegisterRunfile(bool $register_run_file): static
     {
-        $this->register_pid = $register_pid;
+        $this->register_run_file = $register_run_file;
         return $this;
     }
 
@@ -267,6 +267,19 @@ trait ProcessVariables
 
         Log::notice(tr('Set identifier ":identifier"', [':identifier' => $identifier]), 2);
 
+        return $this;
+    }
+
+
+
+    /**
+     * Sets the run path where the process run file will be written
+     *
+     * @return Process|ProcessVariables|Workers|Workers
+     */
+    protected function setRunFile(): static
+    {
+        $this->run_file = ROOT . 'data/run/' . $this->getIdentifier();
         return $this;
     }
 
@@ -850,7 +863,7 @@ trait ProcessVariables
      */
     public function setPid(): void
     {
-        if (!$this->register_pid) {
+        if (!$this->register_run_file) {
             // Don't register PID information
             return;
         }
@@ -891,18 +904,5 @@ trait ProcessVariables
     public function getPid(): ?int
     {
         return $this->pid;
-    }
-
-
-
-    /**
-     * Sets the run path where the process run file will be written
-     *
-     * @return Process|ProcessVariables|Workers|Workers
-     */
-    protected function setPidFile(): static
-    {
-        $this->run_file = ROOT . 'data/run/' . $this->getIdentifier();
-        return $this;
     }
 }

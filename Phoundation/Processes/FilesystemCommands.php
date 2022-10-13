@@ -76,7 +76,7 @@ class FilesystemCommands extends Commands
             Processes::create('rm', $this->server, true)
                 ->addArguments([$file, '-f', ($recurse_down ? '-r' : '')])
                 ->setTimeout($timeout)
-                ->setRegisterPid(false)
+                ->setRegisterRunfile(false)
                 ->executeReturnArray();
 
             if ($recurse_up) {

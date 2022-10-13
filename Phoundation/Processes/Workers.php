@@ -3,6 +3,7 @@
 namespace Phoundation\Processes;
 
 use Phoundation\Core\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Processes\Exception\WorkersException;
 use Phoundation\Servers\Server;
@@ -44,11 +45,18 @@ class Workers extends Process
     protected int $maximum = 10;
 
     /**
-     * Amount of time in seconds that the process cycle should sleep before restarting
+     * Amount of time in milliseconds that the process cycle should sleep before retrying to start workers
      *
      * @var int $cycle_sleep
      */
-    protected int $cycle_sleep = 1;
+    protected int $cycle_sleep = 200;
+
+    /**
+     * Amount of time in milliseconds that the process cycle should sleep each cycle while checking alive workers
+     *
+     * @var int $wait_sleep
+     */
+    protected int $wait_sleep = 1000;
 
     /**
      * The variable key that will be processed
@@ -63,6 +71,20 @@ class Workers extends Process
      * @var array|null $values
      */
     protected ?array $values = null;
+
+    /**
+     * Counter for the amount of workers that have been executed
+     *
+     * @var int
+     */
+    protected int $workers_executed = 0;
+
+    /**
+     * If true, this process will wait for the workers to finish before returning
+     *
+     * @var bool $wait_worker_finish
+     */
+    protected bool $wait_worker_finish = false;
 
 
 
@@ -90,6 +112,32 @@ class Workers extends Process
     public static function create(?string $command = null, ?Server $server = null): static
     {
         return new static($command, $server);
+    }
+
+
+
+    /**
+     * Returns if this process will wait for the workers to finish before returning
+     *
+     * @return bool
+     */
+    public function getWaitWorkerFinish(): bool
+    {
+        return $this->wait_worker_finish;
+    }
+
+
+
+    /**
+     * Sets if this process will wait for the workers to finish before returning
+     *
+     * @param bool $wait_worker_finish
+     * @return static
+     */
+    public function setWaitWorkerFinish(bool $wait_worker_finish): static
+    {
+        $this->wait_worker_finish = $wait_worker_finish;
+        return $this;
     }
 
 
@@ -140,6 +188,56 @@ class Workers extends Process
     public function setMaximum(int $maximum): static
     {
         $this->maximum = $maximum;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns amount of time in milliseconds that the process cycle should sleep before retrying to start workers
+     *
+     * @return int
+     */
+    public function getWaitSleep(): int
+    {
+        return $this->wait_sleep;
+    }
+
+
+    /**
+     * Sets Amount of time in milliseconds that the process cycle should sleep before retrying to start workers
+     *
+     * @param int $wait_sleep
+     * @return static
+     */
+    public function setWaitSleep(int $wait_sleep): static
+    {
+        $this->wait_sleep = $wait_sleep;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns amount of time in milliseconds that the process cycle should sleep each cycle while checking alive workers
+     *
+     * @return int
+     */
+    public function getCycleSleep(): int
+    {
+        return $this->cycle_sleep;
+    }
+
+
+    /**
+     * Sets amount of time in milliseconds that the process cycle should sleep each cycle while checking alive workers
+     *
+     * @param int $cycle_sleep
+     * @return static
+     */
+    public function setCycleSleep(int $cycle_sleep): static
+    {
+        $this->cycle_sleep = $cycle_sleep;
         return $this;
     }
 
@@ -215,6 +313,26 @@ class Workers extends Process
      */
     public function getCurrent(): int
     {
+        // Check the workers that are still active
+        foreach ($this->workers as $pid => $worker) {
+            $ps = ProcessCommands::server($this->server)->ps($pid);
+
+            if ($ps) {
+                // There is A process, but is it the right one? Cleanup both commands to compare
+                $args = trim(Strings::from(Strings::untilReverse($worker->getFullCommandLine(), ';'), 'set -o'));
+                $ps_args = trim(Strings::from(Strings::untilReverse($ps['args'], ';'), 'set -o'));
+
+                if ($ps_args === $args) {
+                    // Yep, this worker is still active
+                    continue;
+                }
+            }
+
+            // This worker is dead, remove it from the list
+            Log::notice(tr('Worker with PI ":pid" finished process, removing from list', [':pid' => $pid]));
+            unset($this->workers[$pid]);
+        }
+
         return count($this->workers);
     }
 
@@ -239,15 +357,35 @@ class Workers extends Process
         $current = 0;
 
         while(true) {
+            if (!$this->values) {
+                Log::success(tr('Finished processing values list with ":count" workers', [':count' => $this->workers_executed]));
+                break;
+            }
+
             if ($current < $this->maximum) {
                 $this->startWorker();
 
             } else {
-                Log::notice(tr('Current amount of workers ":current" is higher than the maximum of ":max", not starting new workers', [':current' => $current, ':max' => $this->maximum]));
+                Log::warning(tr('Current amount of workers ":current" is higher than the maximum of ":max", not starting new workers', [':current' => $current, ':max' => $this->maximum]), 4);
             }
 
-            sleep($this->cycle_sleep);
+            usleep($this->cycle_sleep * 1000);
             $current = $this->getCurrent();
+        }
+
+        if ($this->wait_worker_finish) {
+            while(true) {
+                $current = $this->getCurrent();
+
+                Log::notice(tr('Waiting for ":count" workers to finish', [':count' => $current]));
+
+                if (!$this->getCurrent()) {
+                    Log::success(tr('All workers finished'));
+                    break;
+                }
+
+                usleep($this->wait_sleep * 1000);
+            }
         }
     }
 
@@ -284,5 +422,6 @@ class Workers extends Process
         $this->workers[$worker->getPid()] = $worker;
 
         Log::success(tr('Started worker with PID ":pid" for value ":value"', [':pid' => $worker->getPid(), ':value' => $value]));
+        $this->workers_executed++;
     }
 }

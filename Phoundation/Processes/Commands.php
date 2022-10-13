@@ -53,7 +53,7 @@ class Commands
     {
         $process = Processes::create('which', $this->server)
             ->addArgument($command)
-            ->setRegisterPid(false)
+            ->setRegisterRunfile(false)
             ->setTimeout(1);
 
         try {

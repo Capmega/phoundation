@@ -164,13 +164,9 @@ Class Process
     {
         // Ensure that this background command uses a terminal,
         $this->setTerm('xterm', true);
-        $this->setRegisterPid(false);
 
-        $command = '(nohup bash -c "set -o pipefail; ' . $this->getFullCommandLine() . ' ; echo $$" > ' . $this->log_file . ' 2>&1 & echo $! >&3) 3> ' . $this->run_file;
-        $this->setRegisterPid(true);
-
-        Log::notice(tr('Executing background command ":command" using exec()', [':command' => $command]));
-        exec($command, $output, $exit_code);
+        Log::notice(tr('Executing background command ":command" using exec()', [':command' => $this->getFullCommandLine(true)]));
+        exec($this->getFullCommandLine(true), $output, $exit_code);
 
         if ($exit_code) {
             // Something went wrong immediately while executing the command?
@@ -228,18 +224,18 @@ Class Process
     /**
      * Builds and returns the command line that will be executed
      *
+     * @param bool $background
      * @return string
-     * @throws ProcessException
      */
-    public function getFullCommandLine(): string
+    public function getFullCommandLine(bool $background = false): string
     {
         if ($this->cached_command_line) {
             return $this->cached_command_line;
         }
 
-        if ($this->register_pid) {
+        if ($this->register_run_file) {
             // Make sure we have a Pid file
-            $this->setPidFile();
+            $this->setRunFile();
         }
 
         if (!$this->command) {
@@ -311,8 +307,11 @@ Class Process
             $this->cached_command_line .= $redirect;
         }
 
-        if ($this->register_pid) {
-            // Make sure the PID will be registered
+        // Background commands get some extra options around
+        if ($background) {
+            $this->cached_command_line = '(nohup bash -c "set -o pipefail; ' . $this->cached_command_line . ' ; echo $$" > ' . $this->log_file . ' 2>&1 & echo $! >&3) 3> ' . $this->run_file;
+        } elseif ($this->register_run_file) {
+            // Make sure the PID will be registered in the run file
             $this->cached_command_line = 'bash -c "set -o pipefail; ' . $this->cached_command_line . '"; echo $$ > ' . $this->run_file;
         }
 

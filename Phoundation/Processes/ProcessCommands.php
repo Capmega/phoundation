@@ -157,4 +157,112 @@ class ProcessCommands extends Commands
             Commands::handleException('pkill', $e);
         }
     }
+
+
+    /**
+     * Returns limited process information about the specified PID
+     *
+     * @param int $pid
+     * @return array|null
+     */
+    public function ps(int $pid): ?array
+    {
+        try {
+            // Validate arguments
+            if ($pid < 1) {
+                throw new OutOfBoundsException(tr('Specified pid ":pid" is invalid, it should be an integer number 1 or higher', [':pid' => $pid]));
+            }
+
+            $data = Processes::create('ps', $this->server, true)
+                ->addArguments(['-p', $pid, '-o', 'pid,ppid,comm,cmd,args'])
+                ->setTimeout(1)
+                ->executeReturnArray();
+
+            if (count($data) <= 1) {
+                //only the top line was returned, so the specified PID was not found
+                return null;
+            }
+
+            $data = array_pop($data);
+show($data);
+            return [
+                'pid'  => trim(substr($data, 0,8)),
+                'ppid' => trim(substr($data, 8, 8)),
+                'comm' => trim(substr($data, 16, 16)),
+                'cmd'  => trim(substr($data, 28, 32)),
+                'args' => trim(substr($data, 60))
+            ];
+
+        } catch (ProcessFailedException $e) {
+            // The command pkill failed
+            Commands::handleException('pkill', $e);
+        }
+    }
+
+
+
+    /**
+     * Returns all process information about the specified PID
+     *
+     * @param int $pid
+     * @return array|null
+     */
+    public function psFull(int $pid): ?array
+    {
+        try {
+            // Validate arguments
+            if ($pid < 1) {
+                throw new OutOfBoundsException(tr('Specified pid ":pid" is invalid, it should be an integer number 1 or higher', [':pid' => $pid]));
+            }
+
+            $data = Processes::create('ps', $this->server, true)
+                ->addArguments(['-p', $pid, '-o', 'pid,ppid,uid,gid,comm,cmd,exe,args,nice,fuid,%cpu,%mem,size,cputime,cputimes,drs,etime,etimes,euid,egid,egroup,start_time,bsdtime,state,stat,time,vsize'])
+                ->setTimeout(1)
+                ->executeReturnArray();
+
+            if (count($data) <= 1) {
+                //only the top line was returned, so the specified PID was not found
+                return null;
+            }
+
+            $data = array_pop($data);
+
+            $return = [
+//                'pid'        => trim(substr($data, , )),
+//                'ppid'       => trim(substr($data, , )),
+//                'uid'        => trim(substr($data, , )),
+//                'gid'        => trim(substr($data, , )),
+//                'comm'       => trim(substr($data, , )),
+//                'cmd'        => trim(substr($data, , )),
+//                'exe'        => trim(substr($data, , )),
+//                'args'       => trim(substr($data, , )),
+//                'nice'       => trim(substr($data, , )),
+//                'fuid'       => trim(substr($data, , )),
+//                '%cpu'       => trim(substr($data, , )),
+//                '%mem'       => trim(substr($data, , )),
+//                'size'       => trim(substr($data, , )),
+//                'cputime'    => trim(substr($data, , )),
+//                'cputimes'   => trim(substr($data, , )),
+//                'drs'        => trim(substr($data, , )),
+//                'etime'      => trim(substr($data, , )),
+//                'etimes'     => trim(substr($data, , )),
+//                'euid'       => trim(substr($data, , )),
+//                'egid'       => trim(substr($data, , )),
+//                'egroup'     => trim(substr($data, , )),
+//                'start_time' => trim(substr($data, , )),
+//                'bsdtime'    => trim(substr($data, , )),
+//                'state'      => trim(substr($data, , )),
+//                'stat'       => trim(substr($data, , )),
+//                'time'       => trim(substr($data, , )),
+//                'vsize'      => substr($data, , )
+            ];
+showdie($return);
+
+//      1       0     0     0 systemd         /lib/systemd/systemd splash -                           /lib/systemd/systemd splash   0     0  0.0  0.0 21496 00:00:23       23 168232 22-06:40:52 1924852    0     0 root     Sep20   0:23 S Ss   00:00:23 168232
+
+        } catch (ProcessFailedException $e) {
+            // The command pkill failed
+            Commands::handleException('pkill', $e);
+        }
+    }
 }

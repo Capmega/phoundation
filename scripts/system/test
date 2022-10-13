@@ -42,31 +42,34 @@ FilesystemCommands::local()->delete(ROOT . 'a/b/e');
 FilesystemCommands::local()->delete(ROOT . 'a/b/c', true, true);
 
 
-$result = Processes::create('ping')
-    ->addArgument('1.1.1.1')
-    ->setTimeout(1)
-    ->executeBackground();
-
-$result = Processes::create('ping')
-    ->addArgument('8.8.8.8')
-    ->setTimeout(1)
-    ->executeBackground();
+//$result = Processes::create('ping')
+//    ->addArgument('1.1.1.1')
+//    ->setTimeout(1)
+//    ->executeBackground();
+//
+//$result = Processes::create('ping')
+//    ->addArgument('8.8.8.8')
+//    ->setTimeout(1)
+//    ->executeBackground();
 
 
 Workers::create('ping')
     ->addArgument('$server$')
-    ->setData([
-            '$server$' => [
-                '1.1.1.1',
-                '8.8.8.8',
-                'google.com',
-                'reddit.com',
-                'cnn.com',
-                '1.1.1.1',
-                '8.8.8.8',
-                'google.com',
-                'reddit.com',
-                'cnn.com'
-            ]
+    ->setTimeout(10)
+    ->setKey('$server$')
+    ->setWaitWorkerFinish(true)
+    ->setValues([
+        '1.1.1.1',
+        '8.8.8.8',
+        'google.com',
+        'reddit.com',
+        'cnn.com',
+        '1.1.1.1',
+        '8.8.8.8',
+        'google.com',
+        'reddit.com',
+        'cnn.com',
+        'reddit.com',
+        'cnn.com'
     ])->start();
 
