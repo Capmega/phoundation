@@ -188,83 +188,6 @@ Class Process
 
 
     /**
-     * Executes the command for this object as a background service process running under PID 1
-     *
-     * @return int The PID (Process ID) of the process running in the background
-     */
-    public function executeService(): int
-    {
-//        Log::notice(tr('Executing background command ":command" using exec()', [':command' => $this->getFullCommandLine()]));
-//
-//        if ($log) {
-//            if (substr($log, 0, 3) === 'tmp') {
-//                /*
-//                 * Log output to the TMP directory instead of the normal log output
-//                 */
-//                $log = TMP.Strings::startsNotWith(substr($log, 3), '/');
-//
-//            } else {
-//                $log = ROOT.'data/log/'.$log;
-//            }
-//
-//            file_ensure_path(dirname($log));
-//
-//            if (file_exists($log) and is_dir($log)) {
-//                /*
-//                 * Oops, the log file already exists, but as a directory! That is a
-//                 * problem, get rid of it or it will stop background execution all
-//                 * together!
-//                 */
-//                log_file(tr('Found specified log file ":path" to exist as a directory. Deleting the directory to avoid run_background() not working correctly', array(':path' => $log)), 'run_background');
-//                file_delete($log, ROOT.'data/log');
-//            }
-//
-//            $command = sprintf('export TERM='.$term.'; (nohup %s >> %s 2>&1 & echo $! >&3) 3> %s', 'sleep '.$wait.';'.$path.$cmd.' '.$args, $log, ROOT.'data/run-background/'.$cmd);
-//            log_console(tr('Executing background command ":command"', array(':command' => $command)), 'VERBOSE/cyan');
-//            exec($command);
-//
-//        } else {
-//            $command = sprintf('export TERM='.$term.'; (nohup %s > /dev/null 2>&1 & echo $! >&3) 3> %s', 'sleep '.$wait.';'.$path.$cmd.' '.$args, ROOT.'data/run-background/'.$cmd);
-//            log_console(tr('Executing background command ":command"', array(':command' => $command)), 'VERBOSE/cyan');
-//            exec($command);
-//        }
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//        $command = 'nohup ' . $this->getFullCommandLine();
-//        $command .= ' &';
-//
-//        exec($command, $output, $exit_code);
-//
-//        if ($exit_code) {
-//            // Something went wrong immediately while executing the command?
-//        }
-//
-//        $this->setExitCode($exit_code, $output);
-//
-//        // Get the process id
-//        $pid = array_shift($output);
-//
-//        if (is_numeric($pid)) {
-//            return $pid;
-//        }
-//
-//        throw new ProcessException(tr('Failed to find the background process PID'));
-    }
-
-
-
-    /**
      * Returns if the process has executed or not
      *
      * @return bool
@@ -324,7 +247,7 @@ Class Process
         }
 
         // Update the arguments with the variables
-        foreach ($this->arguments as $key => &$argument) {
+        foreach ($this->arguments as &$argument) {
             if (preg_match('/^\$.+?\$$/', $argument)) {
                 if (!array_key_exists($argument, $this->variables)) {
                     // This variable was not defined, cannot apply it.

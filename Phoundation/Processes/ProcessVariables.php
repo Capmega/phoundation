@@ -579,12 +579,18 @@ trait ProcessVariables
     /**
      * Adds an argument to the existing list of arguments for the command that will be executed
      *
+     * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
      * @param string $argument
      * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
      */
     public function addArgument(string $argument): static
     {
-        $this->arguments[] = escapeshellarg($argument);
+        // Do not escape variables!
+        if (!preg_match('/^\$.+?\$$/', $argument)) {
+            $arguments = escapeshellarg($argument);
+        }
+
+        $this->arguments[] = $argument;
 
         return $this;
     }
@@ -613,30 +619,9 @@ trait ProcessVariables
     public function setVariables(array $variables): static
     {
         $this->variables = [];
-        return $this->addVariables($variables);
-    }
-
-
-
-    /**
-     * Adds multiple variables to the existing list of Variables for the command that will be executed
-     *
-     * @param array $variables
-     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
-     */
-    public function addVariables(array $variables): static
-    {
-        $this->cached_command_line = null;
 
         foreach ($variables as $key => $value) {
-            if (!$key) {
-                if ($key !== 0) {
-                    // Ignore empty variables
-                    continue;
-                }
-            }
-
-            $this->setVariable($key, $value);
+            return $this->setVariable($key, $value);
         }
 
         return $this;
@@ -653,8 +638,8 @@ trait ProcessVariables
      */
     public function setVariable(string $key, string $value): static
     {
+        $this->cached_command_line = null;
         $this->variables[$key] = $value;
-
         return $this;
     }
 

@@ -4,6 +4,7 @@ namespace Phoundation\Processes;
 
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Processes\Exception\WorkersException;
 use Phoundation\Servers\Server;
 
 
@@ -194,6 +195,13 @@ class Workers extends Process
      */
     public function setValues(array $values): static
     {
+        // Valiate values
+        foreach ($values as $value) {
+            if (!is_scalar($value)) {
+                throw new OutOfBoundsException(tr('Specified value ":value" from the values list is invalid, it should be scalar', [':value' => $value]));
+            }
+        }
+
         $this->values = $values;
         return $this;
     }
@@ -266,11 +274,11 @@ class Workers extends Process
      */
     protected function startWorker(): void
     {
-        $value = array_unshift($this->values);
+        $value = array_shift($this->values);
 
         $worker = clone $this;
         $worker
-            ->setVariable($this->key, $value)
+            ->setVariables([$this->key => $value])
             ->executeBackground();
 
         $this->workers[$worker->getPid()] = $worker;
