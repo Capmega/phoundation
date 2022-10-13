@@ -502,21 +502,21 @@ class File
     }
 
 
-
     /**
      * Return a file path for a temporary file
      *
-     * @param bool|string $create If set to false, only the file path will be returned, the temporary file will NOT be
-     *                            created. If set to true, the file will be created. If set to a string, the temp file
-     *                            will be created with as contents the $create string
-     * @param bool $extension If specified, use ROOT/data/tmp/$name instead of a randomly generated filename
+     * @param bool|string $create    If set to false, only the file path will be returned, the temporary file will NOT
+     *                               be created. If set to true, the file will be created. If set to a string, the temp
+     *                               file will be created with as contents the $create string
+     * @param bool $extension        If specified, use ROOT/data/tmp/$name instead of a randomly generated filename
      * @param bool $limit_to_session
+     * @param string|null $path      If specified, make the temporary not in TMP but in $path instead
      * @return string The filename for the temp file
      * @version 2.5.90: Added documentation, expanded $create to be able to contain data for the temp file
      * @note: If the resolved temp file path already exist, it will be deleted!
      * @example
      * code
-     * $result = file_temp('This is temporary data!');
+     * $result = File::temp('This is temporary data!');
      * showdie(file_get_contents($result));
      * /code
      *
@@ -525,9 +525,13 @@ class File
      * This is temporary data!
      * /code
      */
-    public static function temp(bool|string $create = true, bool $extension = null, bool $limit_to_session = true) : string
+    public static function temp(bool|string $create = true, bool $extension = null, bool $limit_to_session = true, ?string $path = null) : string
     {
-        Path::ensure(TMP);
+        if (!$path) {
+            $path = TMP;
+        }
+
+        $path = Path::ensure($path);
 
         // Temp file will contain the session ID
         if ($limit_to_session) {
@@ -547,7 +551,7 @@ class File
             $name .= '.'.$extension;
         }
 
-        $file = TMP.$name;
+        $file = $path.$name;
 
         // Temp file can not exist
         if (file_exists($file)) {
@@ -705,7 +709,7 @@ class File
      * @version 2.7.60: Fixed safe file pattern issues
      * @param params $params
      * @param list $params[patterns] A list of path patterns to be deleted
-     * @param null list $params[restrictions] A list of paths to which file_delete() operations will be restricted
+     * @param null $sudo list $params[restrictions] A list of paths to which file_delete() operations will be restricted
      * @param boolean $params[clean_path] If specified true, all directories above each specified pattern will be deleted as well as long as they are empty. This way, no empty directories will be left laying around
      * @param boolean $params[sudo] If specified true, the rm command will be executed using sudo
      * @param boolean $params[force_writable] If specified true, the function will first execute chmod ug+w on each specified patterns before deleting them
@@ -718,20 +722,16 @@ class File
         $patterns     = Arrays::force($patterns);
         $restrictions = Arrays::force($restrictions);
 
-        /*
-         * Delete all specified patterns
-         */
+        // Delete all specified patterns
         foreach ($patterns as $pattern) {
-            /*
-             * Restrict pattern access
-             */
-            $restrictions::apply($pattern);
+            // Restrict pattern access
+            if ($restrictions) {
+                $restrictions::apply($pattern);
+            }
 
             if ($force_writable) {
                 try {
-                    /*
-                     * First ensure that the files to be deleted are writable
-                     */
+                    // First ensure that the files to be deleted are writable
                     File::chmod([
                         'path'         => $pattern,
                         'mode'         => 'ug+w',

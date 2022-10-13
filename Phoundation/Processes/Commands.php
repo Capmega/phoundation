@@ -3,6 +3,8 @@
 namespace Phoundation\Processes;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Exception\Exception;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Processes\Exception\CommandsException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Servers\Server;
@@ -51,6 +53,7 @@ class Commands
     {
         $process = Processes::create('which', $this->server)
             ->addArgument($command)
+            ->setRegisterPid(false)
             ->setTimeout(1);
 
         try {
@@ -80,14 +83,49 @@ class Commands
 
 
     /**
+     * Returns the user, group
+     *
+     * @param string $section
+     * @return int
+     */
+    public function id(string $section): int
+    {
+        if (($section != 'u') and ($section != 'g')) {
+            throw new OutOfBoundsException(tr('Invalid section ":section" specified. This value can only be "u" or "g"', [':section' => $section]));
+        }
+
+        $process = Processes::create('id', $this->server)
+            ->addArgument('-' . $section)
+            ->setTimeout(1);
+
+        try {
+            $output = $process->executeReturnArray();
+            $result = reset($output);
+
+            if (!$result or !is_numeric($result)) {
+                // So which gave us a path that doesn't exist or that we can't access
+                throw new CommandsException(tr('Failed to get id'));
+            }
+
+            return (int) $result;
+
+        } catch (ProcessFailedException $e) {
+            // The command id failed
+            Commands::handleException('rm', $e);
+        }
+    }
+
+
+
+    /**
      * Returns a commands object for the specified server so that we can execute commands there
      *
      * @param Server|null $server
-     * @return self
+     * @return static
      */
-    public static function server(?Server $server = null): self
+    public static function server(?Server $server = null): static
     {
-        return new self($server);
+        return new static($server);
     }
 
 
@@ -95,9 +133,9 @@ class Commands
     /**
      * Returns a commands object for this local machine
      *
-     * @return self
+     * @return static
      */
-    public static function local(): self
+    public static function local(): static
     {
         return new static();
     }
@@ -108,11 +146,11 @@ class Commands
      * Command exception handler
      *
      * @param string $command
-     * @param Throwable $e
-     * @param callable $function
+     * @param Exception $e
+     * @param callable|null $function
      * @return void
      */
-    protected static function handleException(string $command, Throwable $e, callable $function): void
+    protected static function handleException(string $command, Exception $e, ?callable $function = null): void
     {
         if ($e->getData()['output']) {
             $data       = $e->getData()['output'];
@@ -122,7 +160,9 @@ class Commands
             $last_line  = strtolower($last_line);
 
             // Process specified handlers
-            $function($first_line, $last_line, $e);
+            if ($function) {
+                $function($first_line, $last_line, $e);
+            }
 
             // Handlers were unable to make a clear exception out of this, show the standard command exception
             throw new CommandsException(tr('The command :command failed with ":output"', [':command' => $command, ':output' => $data]));

@@ -11,6 +11,9 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\ScriptException;
 use Phoundation\Processes\Commands;
 use Phoundation\Processes\FilesystemCommands;
+use Phoundation\Processes\ProcessCommands;
+use Phoundation\Processes\Processes;
+use Phoundation\Processes\Workers;
 
 
 /**
@@ -36,3 +39,28 @@ FilesystemCommands::local()->mkdir(ROOT . 'a/b/c/d/e', 0770,true);
 file_put_contents(ROOT . 'a/b/c/d/e/f', 'This the first test file');
 FilesystemCommands::local()->delete(ROOT . 'a/b/e');
 FilesystemCommands::local()->delete(ROOT . 'a/b/c', true, true);
+
+
+$result = Processes::create('ping')
+    ->addArgument('1.1.1.1')
+    ->executeBackground();
+showdie($result);
+
+
+
+
+
+//$pid = getmypid();
+//$children = ProcessCommands::server()->getChildren(0);
+//show($pid);
+//showdie($children);
+
+//$workers = Workers::create('ping');
+//$workers->setVariables([
+//    '1.1.1.1',
+//    '8.8.8.8',
+//    'google.com',
+//    'reddit.com',
+//    'cnn.com'
+//]);
+//

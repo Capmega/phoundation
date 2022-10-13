@@ -4,6 +4,7 @@ namespace Phoundation\Filesystem;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
+use Phoundation\Exception\Exception;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Throwable;
@@ -32,7 +33,7 @@ class Path
      * @version 2.4.16: Added documentation
      *
      * @param string $path The path that must exist
-     * @param string|null octal $mode If the specified $path does not exist, it will be created with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
+     * @param string|null $mode octal $mode If the specified $path does not exist, it will be created with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
      * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
      * @return string The specified file
      */
@@ -56,10 +57,7 @@ class Path
 
                 if (file_exists($path)) {
                     if (!is_dir($path)) {
-                        /*
-                         * Some normal file is in the way. Delete the file, and
-                         * retry
-                         */
+                        // Some normal file is in the way. Delete the file, and retry
                         File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions) {
                             File::delete($path, $restrictions);
                         });
@@ -70,28 +68,21 @@ class Path
                     continue;
 
                 } elseif (is_link($path)) {
-                    /*
-                     * This is a dead symlink, delete it
-                     */
+                    // This is a dead symlink, delete it
                     File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions) {
                         File::delete($path, $restrictions);
                     });
                 }
 
                 try {
-                    /*
-                     * Make sure that the parent path is writable when creating
-                     * the directory
-                     */
+                    // Make sure that the parent path is writable when creating the directory
                     File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode) {
                         mkdir($path, $mode);
                     });
 
                 }catch(Exception $e) {
-                    /*
-                     * It sometimes happens that the specified path was created
-                     * just in between the file_exists and mkdir
-                     */
+                    // It sometimes happens that the specified path was created just in between the file_exists and
+                    // mkdir
                     if (!file_exists($path)) {
                         throw $e;
                     }
@@ -99,17 +90,13 @@ class Path
             }
 
         } elseif (!is_dir($path)) {
-            /*
-             * Some other file is in the way. Delete the file, and retry.
-             *
-             * Ensure that the "file" is not accidentally specified as a
-             * directory ending in a /
-             */
+            // Some other file is in the way. Delete the file, and retry.
+            // Ensure that the "file" is not accidentally specified as a directory ending in a /
             File::delete(Strings::endsNotWith($path, '/'), $restrictions);
             return file_ensure_path($path, $mode);
         }
 
-        return Strings::slash(realpath($path).'/');
+        return Strings::slash(realpath($path));
     }
 
 

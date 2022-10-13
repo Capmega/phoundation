@@ -7,14 +7,14 @@ use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Exception\CommandsException;
 use Phoundation\Processes\Exception\ProcessFailedException;
-use Phoundation\Servers\Server;
 
 
 
 /**
  * Class FilesystemCommands
  *
- * This class contains various easy-to-use and ready-to-go command line commands in static methods.
+ * This class contains various easy-to-use and ready-to-go command line commands in static methods to manage Linux
+ * filesystems
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -23,25 +23,6 @@ use Phoundation\Servers\Server;
  */
 class FilesystemCommands extends Commands
 {
-    /**
-     * Where will this be executed? Locally or on the specified server
-     *
-     * @var Server|null $server
-     */
-    protected ?Server $server = null;
-
-
-
-    /**
-     * @param Server|null $server
-     */
-    public function __construct(?Server $server = null)
-    {
-        $this->server = $server;
-    }
-
-
-
     /**
      * Returns the realpath for the specified command
      *
@@ -95,6 +76,7 @@ class FilesystemCommands extends Commands
             Processes::create('rm', $this->server, true)
                 ->addArguments([$file, '-f', ($recurse_down ? '-r' : '')])
                 ->setTimeout($timeout)
+                ->setRegisterPid(false)
                 ->executeReturnArray();
 
             if ($recurse_up) {
@@ -106,7 +88,7 @@ class FilesystemCommands extends Commands
                     $empty = Path::isEmpty($file);
 
                     if ($empty) {
-                        self::delete($file, $recurse_down, false, 1);
+                        static::delete($file, $recurse_down, false, 1);
                     }
                 }
             }

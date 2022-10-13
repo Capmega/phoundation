@@ -177,10 +177,7 @@ class Scripts
             return posix_getuid();
         }
 
-        $results = Commands::id(['-u']);
-        $results = array_pop($results);
-
-        return $results;
+        return Commands::local()->id('u');
     }
 
 
