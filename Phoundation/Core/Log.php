@@ -700,12 +700,11 @@ Class Log {
      */
     public static function write(mixed $messages, ?string $class = null, int $level = 10, bool $clean = true, bool $newline = true): bool
     {
-// TODO Delete the following code block, looks like we won't need it anymore
-//        if (self::$lock) {
-//            // Do not log anything while locked, initialising, or while dealing with a Log internal failure
-//            error_log($messages);
-//            return false;
-//        }
+        if (self::$init) {
+            // Do not log anything while locked, initialising, or while dealing with a Log internal failure
+            error_log($messages);
+            return false;
+        }
 
 // TODO Delete self::$lock as it looks like its not needed anymore
         self::$lock = true;
@@ -817,7 +816,7 @@ Class Log {
             self::$last_message = $messages;
 
             // If we're initializing the log then write to the system log
-            if (self::$init or self::$fail) {
+            if (self::$fail) {
                 error_log($messages);
                 self::$lock = false;
                 return true;
