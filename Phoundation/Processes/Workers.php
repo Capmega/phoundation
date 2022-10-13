@@ -313,26 +313,7 @@ class Workers extends Process
      */
     public function getCurrent(): int
     {
-        // Check the workers that are still active
-        foreach ($this->workers as $pid => $worker) {
-            $ps = ProcessCommands::server($this->server)->ps($pid);
-
-            if ($ps) {
-                // There is A process, but is it the right one? Cleanup both commands to compare
-                $args = trim(Strings::from(Strings::untilReverse($worker->getFullCommandLine(), ';'), 'set -o'));
-                $ps_args = trim(Strings::from(Strings::untilReverse($ps['args'], ';'), 'set -o'));
-
-                if ($ps_args === $args) {
-                    // Yep, this worker is still active
-                    continue;
-                }
-            }
-
-            // This worker is dead, remove it from the list
-            Log::notice(tr('Worker with PI ":pid" finished process, removing from list', [':pid' => $pid]));
-            unset($this->workers[$pid]);
-        }
-
+        $this->cleanWorkers();
         return count($this->workers);
     }
 
@@ -423,5 +404,35 @@ class Workers extends Process
 
         Log::success(tr('Started worker with PID ":pid" for value ":value"', [':pid' => $worker->getPid(), ':value' => $value]));
         $this->workers_executed++;
+    }
+
+
+
+    /**
+     * Clean gone workers from the workers list
+     *
+     * @return void
+     */
+    protected function cleanWorkers(): void
+    {
+        // Check the workers that are still active
+        foreach ($this->workers as $pid => $worker) {
+            $ps = ProcessCommands::server($this->server)->ps($pid);
+
+            if ($ps) {
+                // There is A process, but is it the right one? Cleanup both commands to compare
+                $args = trim(Strings::from(Strings::untilReverse($worker->getFullCommandLine(), ';'), 'set -o'));
+                $ps_args = trim(Strings::from(Strings::untilReverse($ps['args'], ';'), 'set -o'));
+
+                if ($ps_args === $args) {
+                    // Yep, this worker is still active
+                    continue;
+                }
+            }
+
+            // This worker is dead, remove it from the list
+            Log::notice(tr('Worker with PI ":pid" finished process, removing from list', [':pid' => $pid]));
+            unset($this->workers[$pid]);
+        }
     }
 }

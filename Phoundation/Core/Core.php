@@ -4,7 +4,6 @@ namespace Phoundation\Core;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Color;
 use Phoundation\Cli\Scripts;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Developer\Debug;
@@ -12,7 +11,6 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\PhpException;
 use Phoundation\Filesystem\File;
 use Phoundation\Http\Html\Html;
 use Phoundation\Http\Http;
