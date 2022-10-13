@@ -2,13 +2,14 @@
 
 namespace Phoundation\Processes;
 
+use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Servers\Server;
-use Throwable;
+
 
 
 /**
@@ -256,6 +257,8 @@ trait ProcessVariables
 
         $this->log_file = ROOT . 'data/log/' . $identifier;
         $this->run_file = ROOT . 'data/run/' . $identifier;
+
+        Log::notice(tr('Set identifier ":identifier"', [':identifier' => $identifier]), 2);
 
         return $this;
     }

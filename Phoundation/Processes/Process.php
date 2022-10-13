@@ -5,6 +5,7 @@ namespace Phoundation\Processes;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Exception\ProcessException;
@@ -170,7 +171,6 @@ Class Process
         $this->setRegisterPid(true);
 
         Log::notice(tr('Executing background command ":command" using exec()', [':command' => $command]));
-show($command);
         exec($command, $output, $exit_code);
 
         if ($exit_code) {
@@ -181,9 +181,7 @@ show($command);
         // Set the process id and exit code for the nohup command
         $this->setPid();
         $exit_code = $this->setExitCode($exit_code, $output);
-
-var_dump($this->pid);
-showdie();
+        Log::success(tr('Executed background command ":command" with PID ":pid"', [':command' => $this->real_command, ':pid' => $this->pid]), 4);
 
         return $this->pid;
     }
@@ -275,6 +273,32 @@ showdie();
     public function hasExecuted(): bool
     {
         return !($this->exit_code === null);
+    }
+
+
+
+    /**
+     * Returns if the process is currently executing
+     *
+     * @return bool
+     */
+    public function isExecuting(): bool
+    {
+        return !($this->pid === null);
+    }
+
+
+    /**
+     * Kill this (backgroun) process
+     *
+     * @param int $signal
+     * @return void
+     */
+    public function kill(int $signal = 15): void
+    {
+        if ($this->pid) {
+            Commands::killPid($this->pid, $signal);
+        }
     }
 
 

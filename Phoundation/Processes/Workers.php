@@ -5,6 +5,7 @@ namespace Phoundation\Processes;
 
 
 use Phoundation\Cli\Cli;
+use Phoundation\Core\Log;
 use Phoundation\Servers\Server;
 
 /**
@@ -18,12 +19,8 @@ use Phoundation\Servers\Server;
  * @package Phoundation\Processes
  * @uses \Phoundation\Processes\ProcessVariables
  */
-class Workers
+class Workers extends Process
 {
-    use ProcessVariables;
-
-
-
     /**
      * The workers that are managed by this class
      *
@@ -44,6 +41,13 @@ class Workers
      * @var int|null $maximum
      */
     protected ?int $maximum = null;
+
+    /**
+     * Amount of time in seconds that the process cycle should sleep before restarting
+     *
+     * @var int $cycle_sleep
+     */
+    protected int $cycle_sleep = 1;
 
 
 
@@ -134,10 +138,7 @@ class Workers
      */
     public function getCurrent(): int
     {
-        $pid = getmypid();
-        $children = ProcessCommands::server($this->server)->getChildren($pid);
-
-        return count($children);
+        return count($this->workers);
     }
 
 
@@ -149,7 +150,19 @@ class Workers
      */
     public function start(): void
     {
+        $current = 0;
 
+        while(true) {
+            if ($current < $this->maximum) {
+                $this->startWorker();
+
+            } else {
+                Log::notice(tr('Current amount of workers ":current" is higher than the maximum of ":max", not starting new workers', [':current' => $current, ':max' => $this->maximum]));
+            }
+
+            sleep($this->cycle_sleep);
+            $current = $this->getCurrent();
+        }
     }
 
 
@@ -161,7 +174,9 @@ class Workers
      */
     public function stop(): void
     {
-
+        foreach ($this->workers as $worker) {
+            $worker->kill();
+        }
     }
 
 
@@ -173,6 +188,8 @@ class Workers
      */
     protected function startWorker(): void
     {
-        $worker = new Worker($this->server);
+        $worker = clone $this;
+        $worker->executeBackground();
+        $this->workers[$worker->getPid()] = $worker;
     }
 }
