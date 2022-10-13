@@ -152,6 +152,13 @@ trait ProcessVariables
      */
     protected bool $register_pid = true;
 
+    /**
+     * Variable data that can modify the process command that will be executed
+     *
+     * @var array|null
+     */
+    protected ?array $variables = [];
+
 
 
     /**
@@ -509,7 +516,19 @@ trait ProcessVariables
 
 
     /**
-     * Set the arguments for the command that will be executed
+     * Returns the arguments for the command that will be executed
+     *
+     * @return array
+     */
+    public function getArguments(): array
+    {
+        return $this->arguments;
+    }
+
+
+
+    /**
+     * Sets the arguments for the command that will be executed
      *
      * @note This will reset the currently existing list of arguments.
      * @param array $arguments
@@ -521,20 +540,6 @@ trait ProcessVariables
         return $this->addArguments($arguments);
     }
 
-
-
-    /**
-     * Adds an argument to the existing list of arguments for the command that will be executed
-     *
-     * @param string $argument
-     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
-     */
-    public function addArgument(string $argument): static
-    {
-        $this->arguments[] = escapeshellarg($argument);
-
-        return $this;
-    }
 
 
     /**
@@ -557,6 +562,90 @@ trait ProcessVariables
 
             $this->addArgument($argument);
         }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Adds an argument to the existing list of arguments for the command that will be executed
+     *
+     * @param string $argument
+     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     */
+    public function addArgument(string $argument): static
+    {
+        $this->arguments[] = escapeshellarg($argument);
+
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the Variables for the command that will be executed
+     *
+     * @return array
+     */
+    public function getVariables(): array
+    {
+        return $this->variables;
+    }
+
+
+
+    /**
+     * Sets the variables for the command that will be executed
+     *
+     * @note This will reset the currently existing list of variables.
+     * @param array $variables
+     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     */
+    public function setVariables(array $variables): static
+    {
+        $this->variables = [];
+        return $this->addVariables($variables);
+    }
+
+
+
+    /**
+     * Adds multiple variables to the existing list of Variables for the command that will be executed
+     *
+     * @param array $variables
+     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     */
+    public function addVariables(array $variables): static
+    {
+        $this->cached_command_line = null;
+
+        foreach ($variables as $key => $value) {
+            if (!$key) {
+                if ($key !== 0) {
+                    // Ignore empty variables
+                    continue;
+                }
+            }
+
+            $this->setVariable($key, $value);
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Adds a variable to the existing list of Variables for the command that will be executed
+     *
+     * @param string $key
+     * @param string $value
+     * @return ProcessVariables This process so that multiple methods can be chained
+     */
+    public function setVariable(string $key, string $value): static
+    {
+        $this->variables[$key] = $value;
 
         return $this;
     }

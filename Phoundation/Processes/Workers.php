@@ -2,11 +2,10 @@
 
 namespace Phoundation\Processes;
 
-
-
-use Phoundation\Cli\Cli;
 use Phoundation\Core\Log;
 use Phoundation\Servers\Server;
+
+
 
 /**
  * Class Workers
@@ -48,6 +47,13 @@ class Workers extends Process
      * @var int $cycle_sleep
      */
     protected int $cycle_sleep = 1;
+
+    /**
+     * The data that this workers manager class must process
+     *
+     * @var array $data
+     */
+    protected array $data = [];
 
 
 
@@ -132,6 +138,49 @@ class Workers extends Process
 
 
     /**
+     * Returns the data that this master worker will process
+     *
+     * @return array
+     */
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
+
+
+    /**
+     * Sets the data that this master worker will process
+     *
+     * @param array $data
+     * @return static
+     */
+    public function setData(array $data): static
+    {
+        $this->data = $data;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns a data entry and removes it from the data store
+     *
+     * @param $data
+     * @return array
+     */
+    protected function fetchData($data): array
+    {
+        $key = reset($this->data);
+        $return = [$key => $this->data[$key]];
+
+        unset($this->data[$key]);
+        return $return;
+    }
+
+
+
+    /**
      * Returns the current amount of workers running
      *
      * @return int
@@ -188,6 +237,9 @@ class Workers extends Process
      */
     protected function startWorker(): void
     {
+        $data = $this->fetchData();
+showdie($data);
+
         $worker = clone $this;
         $worker->executeBackground();
         $this->workers[$worker->getPid()] = $worker;

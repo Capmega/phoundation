@@ -16,6 +16,7 @@ use Phoundation\Processes\Processes;
 use Phoundation\Processes\Workers;
 
 
+
 /**
  * Script system/test
  *
@@ -43,24 +44,29 @@ FilesystemCommands::local()->delete(ROOT . 'a/b/c', true, true);
 
 $result = Processes::create('ping')
     ->addArgument('1.1.1.1')
+    ->setTimeout(1)
     ->executeBackground();
-showdie($result);
+
+$result = Processes::create('ping')
+    ->addArgument('8.8.8.8')
+    ->setTimeout(1)
+    ->executeBackground();
 
 
+Workers::create('ping')
+    ->addArgument('$server$')
+    ->setData([
+            '$server$' => [
+                '1.1.1.1',
+                '8.8.8.8',
+                'google.com',
+                'reddit.com',
+                'cnn.com',
+                '1.1.1.1',
+                '8.8.8.8',
+                'google.com',
+                'reddit.com',
+                'cnn.com'
+            ]
+    ])->start();
 
-
-
-//$pid = getmypid();
-//$children = ProcessCommands::server()->getChildren(0);
-//show($pid);
-//showdie($children);
-
-//$workers = Workers::create('ping');
-//$workers->setVariables([
-//    '1.1.1.1',
-//    '8.8.8.8',
-//    'google.com',
-//    'reddit.com',
-//    'cnn.com'
-//]);
-//

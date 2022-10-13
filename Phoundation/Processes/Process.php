@@ -5,7 +5,6 @@ namespace Phoundation\Processes;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Exception\ProcessException;
@@ -297,7 +296,7 @@ Class Process
     public function kill(int $signal = 15): void
     {
         if ($this->pid) {
-            Commands::killPid($this->pid, $signal);
+            Commands::server($this->server)->killPid($signal, $this->pid);
         }
     }
 
@@ -324,6 +323,25 @@ Class Process
             throw new ProcessException(tr('Cannot execute process, no command specified'));
         }
 
+        // Update the arguments with the variables
+        foreach ($this->arguments as $key => &$argument) {
+            if (preg_match('/^\$.+?\$$/', $argument)) {
+                if (!array_key_exists($argument, $this->variables)) {
+                    // This variable was not defined, cannot apply it.
+                    throw new ProcessException(tr('Specified variable ":variable" in the argument list was not defined', [':variable' => $argument]));
+                }
+
+                // Update the argument
+                $argument = $this->variables[$argument];
+            }
+
+            // Escape the argument
+            $argument = escapeshellarg($argument);
+        }
+
+        unset($value);
+
+        // Add arguments to the command
         $this->cached_command_line = $this->command . ' ' . implode(' ', $this->arguments);
 
         // Add wait
