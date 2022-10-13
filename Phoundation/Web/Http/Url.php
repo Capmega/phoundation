@@ -300,7 +300,7 @@ class Url {
                 /*
                  * Append the query to the URL
                  */
-                $url = Strings::endsWith($url, '&') . $query;
+                $url = Url . phpStrings::endsWith($url, '&');
             }
         }
 
