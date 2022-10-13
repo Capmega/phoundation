@@ -464,18 +464,26 @@ trait ProcessVariables
     /**
      * Set the command to be executed for this process
      *
-     * @param string $command
+     * @param string|null $command
      * @param bool $which_command
      * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
      */
-    public function setCommand(string $command, bool $which_command = false): static
+    public function setCommand(?string $command, bool $which_command = false): static
     {
+        if ($command) {
+            // Make sure we have a clean command
+            $command = trim($command);
+            $real_command = $command;
+        }
+
         $this->cached_command_line = null;
-        $command = trim($command);
-        $real_command = $command;
 
         if (!$command) {
-            throw new OutOfBoundsException(tr('No command specified'));
+            // Reset the command
+            $this->command      = null;
+            $this->real_command = null;
+
+            return $this;
         }
 
         if ($which_command) {

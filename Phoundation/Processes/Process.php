@@ -331,12 +331,9 @@ Class Process
                     throw new ProcessException(tr('Specified variable ":variable" in the argument list was not defined', [':variable' => $argument]));
                 }
 
-                // Update the argument
-                $argument = $this->variables[$argument];
+                // Update and escape the argument
+                $argument = escapeshellarg($this->variables[$argument]);
             }
-
-            // Escape the argument
-            $argument = escapeshellarg($argument);
         }
 
         unset($value);

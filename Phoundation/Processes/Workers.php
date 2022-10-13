@@ -3,6 +3,7 @@
 namespace Phoundation\Processes;
 
 use Phoundation\Core\Log;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Servers\Server;
 
 
@@ -30,16 +31,16 @@ class Workers extends Process
     /**
      * Minimum amount of workers required
      *
-     * @var int|null $minimum
+     * @var int $minimum
      */
-    protected ?int $minimum = null;
+    protected int $minimum = 0;
 
     /**
      * Maximum amount of workers required
      *
-     * @var int|null $maximum
+     * @var int $maximum
      */
-    protected ?int $maximum = null;
+    protected int $maximum = 10;
 
     /**
      * Amount of time in seconds that the process cycle should sleep before restarting
@@ -49,11 +50,18 @@ class Workers extends Process
     protected int $cycle_sleep = 1;
 
     /**
-     * The data that this workers manager class must process
+     * The variable key that will be processed
      *
-     * @var array $data
+     * @var string|null $key
      */
-    protected array $data = [];
+    protected ?string $key = null;
+
+    /**
+     * The variable value list that this workers manager class must process
+     *
+     * @var array|null $values
+     */
+    protected ?array $values = null;
 
 
 
@@ -80,7 +88,7 @@ class Workers extends Process
      */
     public static function create(?string $command = null, ?Server $server = null): static
     {
-        return new static();
+        return new static($command, $server);
     }
 
 
@@ -88,9 +96,9 @@ class Workers extends Process
     /**
      * Returns the minimum amount of workers required
      *
-     * @return int|null
+     * @return int
      */
-    public function getMinimum(): ?int
+    public function getMinimum(): int
     {
         return $this->minimum;
     }
@@ -100,10 +108,10 @@ class Workers extends Process
     /**
      * Sets the minimum amount of workers required
      *
-     * @param int|null $minimum
+     * @param int $minimum
      * @return static
      */
-    public function setMinimum(?int $minimum): static
+    public function setMinimum(int $minimum): static
     {
         $this->minimum = $minimum;
         return $this;
@@ -114,22 +122,21 @@ class Workers extends Process
     /**
      * Returns the maximum amount of workers required
      *
-     * @return int|null
+     * @return int
      */
-    public function getMaximum(): ?int
+    public function getMaximum(): int
     {
         return $this->maximum;
     }
 
 
-
     /**
      * Sets the maximum amount of workers required
      *
-     * @param int|null $maximum
+     * @param int $maximum
      * @return static
      */
-    public function setMaximum(?int $maximum): static
+    public function setMaximum(int $maximum): static
     {
         $this->maximum = $maximum;
         return $this;
@@ -138,44 +145,57 @@ class Workers extends Process
 
 
     /**
-     * Returns the data that this master worker will process
+     * Returns the variable values list that this master worker will process
      *
-     * @return array
+     * @return string|null
      */
-    public function getData(): array
+    public function getKey(): ?string
     {
-        return $this->data;
+        return $this->key;
     }
 
 
 
     /**
-     * Sets the data that this master worker will process
+     * Sets the variable values list that this master worker will process
      *
-     * @param array $data
+     * @param string $key
      * @return static
      */
-    public function setData(array $data): static
+    public function setKey(string $key): static
     {
-        $this->data = $data;
+        if (!preg_match('/^\$.+?\$$/', $key)) {
+            throw new OutOfBoundsException(tr('Specified key ":key" is invalid, it should be in the form of "$keyname$"', [':key' => $key]));
+        }
+
+        $this->key = $key;
         return $this;
     }
 
 
 
     /**
-     * Returns a data entry and removes it from the data store
+     * Returns the variable values list that this master worker will process
      *
-     * @param $data
-     * @return array
+     * @return array|null
      */
-    protected function fetchData($data): array
+    public function getValues(): ?array
     {
-        $key = reset($this->data);
-        $return = [$key => $this->data[$key]];
+        return $this->values;
+    }
 
-        unset($this->data[$key]);
-        return $return;
+
+
+    /**
+     * Sets the variable values list that this master worker will process
+     *
+     * @param array $values
+     * @return static
+     */
+    public function setValues(array $values): static
+    {
+        $this->values = $values;
+        return $this;
     }
 
 
@@ -199,6 +219,15 @@ class Workers extends Process
      */
     public function start(): void
     {
+        // We need BOTH key and values OR NONE
+        if (!$this->key and $this->values) {
+            throw new WorkersException(tr('Values specified without key'));
+        }
+
+        if ($this->key and !$this->values) {
+            throw new WorkersException(tr('Key specified without values'));
+        }
+
         $current = 0;
 
         while(true) {
@@ -237,11 +266,15 @@ class Workers extends Process
      */
     protected function startWorker(): void
     {
-        $data = $this->fetchData();
-showdie($data);
+        $value = array_unshift($this->values);
 
         $worker = clone $this;
-        $worker->executeBackground();
+        $worker
+            ->setVariable($this->key, $value)
+            ->executeBackground();
+
         $this->workers[$worker->getPid()] = $worker;
+
+        Log::success(tr('Started worker with PID ":pid" for value ":value"', [':pid' => $worker->getPid(), ':value' => $value]));
     }
 }
