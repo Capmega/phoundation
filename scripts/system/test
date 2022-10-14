@@ -52,6 +52,7 @@ FilesystemCommands::local()->delete(ROOT . 'a/b/c', true, true);
 //    ->setTimeout(1)
 //    ->executeBackground();
 
+ProcessCommands::local()->psFull(1);
 
 Workers::create('ping')
     ->addArgument('$server$')

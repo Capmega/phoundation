@@ -174,23 +174,23 @@ class ProcessCommands extends Commands
             }
 
             $data = Processes::create('ps', $this->server, true)
-                ->addArguments(['-p', $pid, '-o', 'pid,ppid,comm,cmd,args'])
+                ->addArguments(['-p', $pid, '--no-headers', '-o', 'pid,ppid,comm,cmd,args'])
                 ->setTimeout(1)
                 ->executeReturnArray();
 
-            if (count($data) <= 1) {
+            if (count($data) < 1) {
                 //only the top line was returned, so the specified PID was not found
                 return null;
             }
 
             $data = array_pop($data);
-show($data);
+
             return [
-                'pid'  => trim(substr($data, 0,8)),
-                'ppid' => trim(substr($data, 8, 8)),
-                'comm' => trim(substr($data, 16, 16)),
-                'cmd'  => trim(substr($data, 28, 32)),
-                'args' => trim(substr($data, 60))
+                'pid'  => (int) trim(substr($data, 0,8)),
+                'ppid' => (int) trim(substr($data, 8, 8)),
+                'comm' =>       trim(substr($data, 16, 16)),
+                'cmd'  =>       trim(substr($data, 28, 32)),
+                'args' =>       trim(substr($data, 60))
             ];
 
         } catch (ProcessFailedException $e) {
@@ -204,6 +204,9 @@ show($data);
     /**
      * Returns all process information about the specified PID
      *
+     * @note The parsing of this data is currently a mess as ps has no proper output formatting beyond "I'll separate
+     *       the fields by adding a space" which is really fun with arguments that have spaces too. This will be
+     *       improved at some later time when this method will be more needed
      * @param int $pid
      * @return array|null
      */
@@ -216,49 +219,72 @@ show($data);
             }
 
             $data = Processes::create('ps', $this->server, true)
-                ->addArguments(['-p', $pid, '-o', 'pid,ppid,uid,gid,comm,cmd,exe,args,nice,fuid,%cpu,%mem,size,cputime,cputimes,drs,etime,etimes,euid,egid,egroup,start_time,bsdtime,state,stat,time,vsize'])
+                ->addArguments(['-p', $pid, '--no-headers', '-o', 'pid:1,ppid:1,uid:1,gid:1,nice:1,fuid:1,%cpu:1,%mem:1,size:1,cputime:1,cputimes:1,drs:1,etime:1,etimes:1,euid:1,egid:1,egroup:1,start_time:1,bsdtime:1,state:1,stat:1,time:1,vsize:1,rss:1,args'])
                 ->setTimeout(1)
                 ->executeReturnArray();
 
-            if (count($data) <= 1) {
+            if (count($data) < 1) {
                 //only the top line was returned, so the specified PID was not found
                 return null;
             }
 
             $data = array_pop($data);
+            $return = [];
+            $return['pid']         = trim(Strings::until($data, ' '));
+            $return['ppid']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['uid']         = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['gid']         = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['nice']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['fuid']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['%cpu']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['%mem']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['size']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['cputime']     = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['cputimes']    = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['drs']         = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['etime']       = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['etimes']      = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['euid']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['egid']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['egroup']      = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['start_time']  = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['bsdtime']     = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['state']       = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['stat']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['time']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['vsize']       = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['rss']         = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
+            $return['args']        = trim(Strings::from ($data = trim(Strings::from($data, ' ')), ' '));
 
-            $return = [
-//                'pid'        => trim(substr($data, , )),
-//                'ppid'       => trim(substr($data, , )),
-//                'uid'        => trim(substr($data, , )),
-//                'gid'        => trim(substr($data, , )),
-//                'comm'       => trim(substr($data, , )),
-//                'cmd'        => trim(substr($data, , )),
-//                'exe'        => trim(substr($data, , )),
-//                'args'       => trim(substr($data, , )),
-//                'nice'       => trim(substr($data, , )),
-//                'fuid'       => trim(substr($data, , )),
-//                '%cpu'       => trim(substr($data, , )),
-//                '%mem'       => trim(substr($data, , )),
-//                'size'       => trim(substr($data, , )),
-//                'cputime'    => trim(substr($data, , )),
-//                'cputimes'   => trim(substr($data, , )),
-//                'drs'        => trim(substr($data, , )),
-//                'etime'      => trim(substr($data, , )),
-//                'etimes'     => trim(substr($data, , )),
-//                'euid'       => trim(substr($data, , )),
-//                'egid'       => trim(substr($data, , )),
-//                'egroup'     => trim(substr($data, , )),
-//                'start_time' => trim(substr($data, , )),
-//                'bsdtime'    => trim(substr($data, , )),
-//                'state'      => trim(substr($data, , )),
-//                'stat'       => trim(substr($data, , )),
-//                'time'       => trim(substr($data, , )),
-//                'vsize'      => substr($data, , )
-            ];
-showdie($return);
+            // Fix datatypes
+            $return['pid']    = (int)   $return['pid'];
+            $return['ppid']   = (int)   $return['ppid'];
+            $return['uid']    = (int)   $return['uid'];
+            $return['gid']    = (int)   $return['gid'];
+            $return['nice']   = (int)   $return['nice'];
+            $return['fuid']   = (int)   $return['fuid'];
+            $return['size']   = (int)   $return['size'];
+            $return['etimes'] = (int)   $return['etimes'];
+            $return['euid']   = (int)   $return['euid'];
+            $return['egid']   = (int)   $return['egid'];
+            $return['vsize']  = (int)   $return['vsize'];
+            $return['rss']    = (int)   $return['rss'];
+            $return['%cpu']   = (float) $return['%cpu'];
+            $return['%mem']   = (float) $return['%mem'];
 
-//      1       0     0     0 systemd         /lib/systemd/systemd splash -                           /lib/systemd/systemd splash   0     0  0.0  0.0 21496 00:00:23       23 168232 22-06:40:52 1924852    0     0 root     Sep20   0:23 S Ss   00:00:23 168232
+
+            $return['state_label'] = match ($return['state']) {
+                'D' => tr('uninterruptible sleep (usually IO)'),
+                'I' => tr('Idle kernel thread'),
+                'R' => tr('running or runnable (on run queue)'),
+                'S' => tr('interruptible sleep (waiting for an event to complete)'),
+                'T' => tr('stopped by job control signal'),
+                't' => tr('stopped by debugger during the tracing'),
+                'W' => tr('paging (not valid since the 2.6.xx kernel)'),
+                'X' => tr('dead (should never be seen)'),
+                'Z' => tr('defunct ("zombie") process, terminated but not reaped by its parent'),
+                default => tr('Unknown process state ":state" encountered', [':state' => $return['state']])
+            };
 
         } catch (ProcessFailedException $e) {
             // The command pkill failed
