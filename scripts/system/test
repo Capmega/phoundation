@@ -6,6 +6,7 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\ScriptException;
@@ -42,6 +43,16 @@ FilesystemCommands::local()->delete(ROOT . 'a/b/e');
 FilesystemCommands::local()->delete(ROOT . 'a/b/c', true, true);
 
 
+$array = [
+    'integer' => 293874,
+    'numeric' => ' 0',
+    'string' => 'blergh'
+];
+
+Validator::array($array)
+    ->select('integer')->isInteger()
+    ->validate();
+
 //$result = Processes::create('ping')
 //    ->addArgument('1.1.1.1')
 //    ->setTimeout(1)
@@ -51,26 +62,26 @@ FilesystemCommands::local()->delete(ROOT . 'a/b/c', true, true);
 //    ->addArgument('8.8.8.8')
 //    ->setTimeout(1)
 //    ->executeBackground();
-
-ProcessCommands::local()->psFull(1);
-
-Workers::create('ping')
-    ->addArgument('$server$')
-    ->setTimeout(10)
-    ->setKey('$server$')
-    ->setWaitWorkerFinish(true)
-    ->setValues([
-        '1.1.1.1',
-        '8.8.8.8',
-        'google.com',
-        'reddit.com',
-        'cnn.com',
-        '1.1.1.1',
-        '8.8.8.8',
-        'google.com',
-        'reddit.com',
-        'cnn.com',
-        'reddit.com',
-        'cnn.com'
-    ])->start();
+//
+//ProcessCommands::local()->psFull(1);
+//
+//Workers::create('ping')
+//    ->addArgument('$server$')
+//    ->setTimeout(10)
+//    ->setKey('$server$')
+//    ->setWaitWorkerFinish(true)
+//    ->setValues([
+//        '1.1.1.1',
+//        '8.8.8.8',
+//        'google.com',
+//        'reddit.com',
+//        'cnn.com',
+//        '1.1.1.1',
+//        '8.8.8.8',
+//        'google.com',
+//        'reddit.com',
+//        'cnn.com',
+//        'reddit.com',
+//        'cnn.com'
+//    ])->start();
 
