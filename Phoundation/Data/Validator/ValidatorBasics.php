@@ -2,6 +2,7 @@
 
 namespace Phoundation\Data\Validator;
 
+use Phoundation\Core\Log;
 use Phoundation\Data\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Exception\NoKeySelectedException;
 use Phoundation\Data\Exception\ValidationFailedException;
@@ -41,6 +42,13 @@ trait ValidatorBasics
      * @var string|int|null $selected_field
      */
     protected string|int|null $selected_field = null;
+
+    /**
+     * The human-readable label for the current field that is being validated
+     *
+     * @var string|int|null $selected_label
+     */
+    protected string|int|null $selected_label = null;
 
     /**
      * The keys that have been selected to be validated. All keys found in the $source array that are not in this array
@@ -107,12 +115,12 @@ trait ValidatorBasics
     /**
      * Returns a new array validator
      *
-     * @param array $array
+     * @param array $source
      * @return Validator
      */
-    public static function array(array $array): Validator
+    public static function array(array &$source): Validator
     {
-        return new Validator($array);
+        return new Validator($source);
     }
 
 
@@ -170,6 +178,7 @@ trait ValidatorBasics
     }
 
 
+
     /**
      * Sets the parent label with the specified name
      *
@@ -182,14 +191,14 @@ trait ValidatorBasics
     }
 
 
-
     /**
      * Selects the specified key within the array that we are validating
      *
-     * @param int|string $field
+     * @param int|string $field The array key (or HTML form field) that needs to be validated / sanitized
+     * @param string|null $label The pretty label for the field. If the field would be pwd, the label could be password
      * @return Validator
      */
-    public function select(int|string $field): Validator
+    public function select(int|string $field, ?string $label = null): Validator
     {
         if (!$field) {
             throw new OutOfBoundsException(tr('No field specified'));
@@ -203,18 +212,29 @@ trait ValidatorBasics
             throw new OutOfBoundsException(tr('No source array specified'));
         }
 
+        if (!$label) {
+            // The label defaults to the field
+            $label = $field;
+        }
+
         // Does the field exist in the source? If not, initialize it with NULL to be able to process it
         if (!array_key_exists($field, $this->source)) {
             $this->source[$field] = null;
         }
 
+show($field);
+show($this->parent_label);
+show($this->source);
+
         // Select the field
+        $this->selected_label = $label;
         $this->selected_field = $field;
         $this->selected_fields[] = $field;
         $this->selected_value = $this->source[$field];
 
         return $this;
     }
+
 
 
     /**
@@ -230,13 +250,14 @@ trait ValidatorBasics
         // send in an empty array so that the Validation chain won't break
         if (!is_array($this->selected_value)) {
             $array = [];
-            $validator = new Validator($array, $this);
+            $child = new Validator($array, $this);
         } else {
-            $validator = new Validator($this->selected_value, $this);
+            $child = new Validator($this->selected_value, $this);
         }
 
-        $this->children[$this->selected_field] = $validator;
-        return $validator;
+        $child->setParentLabel($this->selected_field);
+        $this->children[$this->selected_field] = $child;
+        return $child;
     }
 
 
@@ -251,18 +272,18 @@ trait ValidatorBasics
     public function validate(): ?Validator
     {
         if ($this->parent) {
-            // Add this child failures to the parent and return the parent
-            foreach ($this->failures as $field => $failure) {
-                $this->parent->addFailure($this->parent_label . ' > ' . $field, $failure);
-            }
-
+            unset($this->source);
             return $this->parent;
         }
 
         if ($this->failures) {
+            Log::warning(tr('Array validation ended with the following failures'), 3);
+            Log::warning($this->failures, 2);
+
             throw new ValidationFailedException(tr('Validation of the array failed with the registered failures'), $this->failures);
         }
 
+        unset($this->source);
         return null;
     }
 

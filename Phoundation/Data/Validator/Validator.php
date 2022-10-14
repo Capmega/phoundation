@@ -31,7 +31,7 @@ class Validator
         $this->ensureSelected();
 
         if (!is_integer($this->selected_value)) {
-            $this->addFailure(tr('The field ":field" must have an integer value', [':field' => $this->selected_field]));
+            $this->addFailure($this->selected_field, tr('The field ":field" must have an integer value', [':field' => $this->selected_field]));
         }
 
         return $this;
@@ -51,7 +51,7 @@ class Validator
         $this->ensureSelected();
 
         if (!is_numeric($this->selected_value)) {
-            $this->addFailure(tr('The field ":field" must have a numeric value', [':field' => $this->selected_field]));
+            $this->addFailure($this->selected_field, tr('The field ":field" must have a numeric value', [':field' => $this->selected_field]));
         }
 
         return $this;
@@ -71,7 +71,7 @@ class Validator
         $this->ensureSelected();
 
         if (!is_string($this->selected_value)) {
-            $this->addFailure(tr('The field ":field" must have a string value', [':field' => $this->selected_field]));
+            $this->addFailure($this->selected_field, tr('The field ":field" must have a string value', [':field' => $this->selected_field]));
         }
 
         return $this;
@@ -91,7 +91,7 @@ class Validator
         $this->ensureSelected();
 
         if (!is_array($this->selected_value)) {
-            $this->addFailure(tr('The field ":field" must have an array value', [':field' => $this->selected_field]));
+            $this->addFailure($this->selected_field, tr('The field ":field" must have an array value', [':field' => $this->selected_field]));
         }
 
         return $this;
