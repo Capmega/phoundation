@@ -57,6 +57,24 @@ trait ValidatorBasics
      */
     protected mixed $selected_value = null;
 
+    /**
+     * If specified, this is a child element to a parent.
+     *
+     * The ->validate() call will NOT cause an exception but instead will send the failures list to the parent and then
+     * return the parent element
+     *
+     * @var Validator|null
+     */
+    protected ?Validator $parent = null;
+
+    /**
+     * Child Validator object for sub array elements. When validating the final result, the results from all the child
+     * validators will be added to the result as well
+     *
+     * @var array $children
+     */
+    protected array $children = [];
+
 
 
     /**
@@ -147,18 +165,44 @@ trait ValidatorBasics
     }
 
 
+    /**
+     * Recurse into a sub array and return another validator object for that sub array
+     *
+     * @return Validator
+     */
+    public function recurse(): Validator
+    {
+        $this->ensureSelected();
+
+        if (!is_array($this->selected_value)) {
+            $array = [];
+            $validator = new Validator($array, $this);
+            $this->children[] = $validator;
+        }
+    }
+
+
 
     /**
      * Called at the end of defining all validation rules.
      *
      * This method will check the failures array and if any failures were registered, it will throw an exception
      *
-     * @return void
+     * @return Validator|null
      */
-    public function validate(): void
+    public function validate(): ?Validator
     {
         if ($this->failures) {
             throw new ValidationFailedException(tr('Validation of the array failed with the registered failures'), $this->failures);
+        }
+
+        if ($this->parent) {
+            // Add this child failures to the parent and return the parent
+            foreach ($this->failures as $failure) {
+                $this->parent->addFailure($failure);
+            }
+
+            return $this->parent;
         }
     }
 

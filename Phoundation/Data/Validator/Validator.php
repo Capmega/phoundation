@@ -42,7 +42,7 @@ class Validator
     /**
      * Validates the datatype for the selected array key
      *
-     * This method ensures that the specified array key is an integer
+     * This method ensures that the specified array key is numeric
      *
      * @return Validator
      */
@@ -72,6 +72,26 @@ class Validator
 
         if (!is_string($this->selected_value)) {
             $this->addFailure(tr('The field ":field" must have a string value', [':field' => $this->selected_field]));
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected array key
+     *
+     * This method ensures that the specified array key is an array
+     *
+     * @return Validator
+     */
+    public function isArray(): Validator
+    {
+        $this->ensureSelected();
+
+        if (!is_array($this->selected_value)) {
+            $this->addFailure(tr('The field ":field" must have an array value', [':field' => $this->selected_field]));
         }
 
         return $this;

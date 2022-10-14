@@ -46,14 +46,18 @@ Scripts::noArgumentsLeft($argv);
 $array = [
     'integer' => 293874,
     'numeric' => ' 1 ',
-    'string' => 'blergh'
+    'string' => 'blergh',
+    'array' => [
+        'sub-integer' => 23974,
+        'sub-email' => 'so.oostenbrink@gmail.com'
+    ]
 ];
 
 Validator::array($array)
     ->select('integer')->isInteger()
     ->select('numeric')->isNumeric()
     ->select('string')->isString()
-    ->select('string')->isString()
+    ->select('array')->isArray()
     ->validate();
 
 //$result = Processes::create('ping')
