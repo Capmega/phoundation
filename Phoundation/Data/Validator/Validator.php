@@ -4,6 +4,8 @@ namespace Phoundation\Data\Validator;
 
 
 
+use Phoundation\Core\Strings;
+
 /**
  * Validator class
  *
@@ -31,7 +33,7 @@ class Validator
         $this->ensureSelected();
 
         if (!is_integer($this->selected_value)) {
-            $this->addFailure($this->selected_field, tr('The field ":field" must have an integer value', [':field' => $this->selected_field]));
+            $this->addFailure($this->selected_field, tr('The field ":field" must have an integer value', [':field' => $this->selected_label]));
         }
 
         return $this;
@@ -51,7 +53,7 @@ class Validator
         $this->ensureSelected();
 
         if (!is_numeric($this->selected_value)) {
-            $this->addFailure($this->selected_field, tr('The field ":field" must have a numeric value', [':field' => $this->selected_field]));
+            $this->addFailure($this->selected_field, tr('The field ":field" must have a numeric value', [':field' => $this->selected_label]));
         }
 
         return $this;
@@ -71,7 +73,7 @@ class Validator
         $this->ensureSelected();
 
         if (!is_string($this->selected_value)) {
-            $this->addFailure($this->selected_field, tr('The field ":field" must have a string value', [':field' => $this->selected_field]));
+            $this->addFailure($this->selected_field, tr('The field ":field" must have a string value', [':field' => $this->selected_label]));
         }
 
         return $this;
@@ -91,9 +93,24 @@ class Validator
         $this->ensureSelected();
 
         if (!is_array($this->selected_value)) {
-            $this->addFailure($this->selected_field, tr('The field ":field" must have an array value', [':field' => $this->selected_field]));
+            $this->addFailure($this->selected_field, tr('The field ":field" must have an array value', [':field' => $this->selected_label]));
         }
 
         return $this;
+    }
+
+
+
+    /**
+     * Allow the validator to check each element in a list of values
+     *
+     * @return Validator
+     */
+    public function each(): Validator
+    {
+        // This obviously only works on arrays
+        $this->isArray();
+
+
     }
 }

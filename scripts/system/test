@@ -64,10 +64,12 @@ Validator::array($array)
         ->select('sub-integer')->isInteger()
         ->select('sub-email')->isString()
         ->validate()
-        ->select('test-not-array')->isArray()->recurse()
-        ->select('sub-integer')->isInteger()
-        ->select('sub-email')->isString()
-        ->validate()
+//        ->select('test-not-array')->isArray()->recurse()
+//        ->select('sub-integer')->isInteger()
+//        ->select('sub-email')->isString()
+//        ->validate()
+        ->select('test-list-array')->each()->isString()
+        ->select('')
     ->validate();
 
 show($array);
