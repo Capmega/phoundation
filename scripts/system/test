@@ -34,23 +34,26 @@ $help  = 'The info script will show detailed information about the current frame
 
 Scripts::noArgumentsLeft($argv);
 
-FilesystemCommands::local()->which('chmod');
-FilesystemCommands::local()->chmod(ROOT . 'README.md', 0o440);
-FilesystemCommands::local()->mkdir(ROOT . 'a/b/c/d/e', 0770,true);
-FilesystemCommands::local()->mkdir(ROOT . 'a/b/c/d/e', 0770,true);
-file_put_contents(ROOT . 'a/b/c/d/e/f', 'This the first test file');
-FilesystemCommands::local()->delete(ROOT . 'a/b/e');
-FilesystemCommands::local()->delete(ROOT . 'a/b/c', true, true);
+//FilesystemCommands::local()->which('chmod');
+//FilesystemCommands::local()->chmod(ROOT . 'README.md', 0o440);
+//FilesystemCommands::local()->mkdir(ROOT . 'a/b/c/d/e', 0770,true);
+//FilesystemCommands::local()->mkdir(ROOT . 'a/b/c/d/e', 0770,true);
+//file_put_contents(ROOT . 'a/b/c/d/e/f', 'This the first test file');
+//FilesystemCommands::local()->delete(ROOT . 'a/b/e');
+//FilesystemCommands::local()->delete(ROOT . 'a/b/c', true, true);
 
 
 $array = [
     'integer' => 293874,
-    'numeric' => ' 0',
+    'numeric' => ' 1 ',
     'string' => 'blergh'
 ];
 
 Validator::array($array)
     ->select('integer')->isInteger()
+    ->select('numeric')->isNumeric()
+    ->select('string')->isString()
+    ->select('string')->isString()
     ->validate();
 
 //$result = Processes::create('ping')

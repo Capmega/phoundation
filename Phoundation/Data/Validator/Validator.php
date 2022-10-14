@@ -30,8 +30,8 @@ class Validator
     {
         $this->ensureSelected();
 
-        if (!is_string($this->selected_value)) {
-            $this->addFailure(tr('The field ":key" must have an integer value'));
+        if (!is_integer($this->selected_value)) {
+            $this->addFailure(tr('The field ":field" must have an integer value', [':field' => $this->selected_field]));
         }
 
         return $this;
@@ -51,7 +51,7 @@ class Validator
         $this->ensureSelected();
 
         if (!is_numeric($this->selected_value)) {
-            $this->addFailure(tr('The field ":key" must have a numeric value'));
+            $this->addFailure(tr('The field ":field" must have a numeric value', [':field' => $this->selected_field]));
         }
 
         return $this;
@@ -71,7 +71,7 @@ class Validator
         $this->ensureSelected();
 
         if (!is_string($this->selected_value)) {
-            $this->addFailure(tr('The field ":key" must have a string value'));
+            $this->addFailure(tr('The field ":field" must have a string value', [':field' => $this->selected_field]));
         }
 
         return $this;

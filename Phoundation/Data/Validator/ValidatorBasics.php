@@ -129,18 +129,19 @@ trait ValidatorBasics
             throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [':key' => $field]));
         }
 
-        if ($this->data === null) {
+        if ($this->source === null) {
             throw new OutOfBoundsException(tr('No source array specified'));
         }
-
-        // Select the field
-        $this->selected_field = $field;
-        $this->selected_fields[] = $field;
 
         // Does the field exist in the source? If not, initialize it with NULL to be able to process it
         if (!array_key_exists($field, $this->source)) {
             $this->source[$field] = null;
         }
+
+        // Select the field
+        $this->selected_field = $field;
+        $this->selected_fields[] = $field;
+        $this->selected_value = $this->source[$field];
 
         return $this;
     }
@@ -159,66 +160,6 @@ trait ValidatorBasics
         if ($this->failures) {
             throw new ValidationFailedException(tr('Validation of the array failed with the registered failures'), $this->failures);
         }
-    }
-
-
-
-    /**
-     * Validates the datatype for the selected array key
-     *
-     * This method ensures that the specified array key is an integer
-     *
-     * @return Validator
-     */
-    public function isInteger(): Validator
-    {
-        $this->ensureSelected();
-
-        if (!is_string($this->selected_value)) {
-            $this->addFailure(tr('The field ":key" must have an integer value'));
-        }
-
-        return $this;
-    }
-
-
-
-    /**
-     * Validates the datatype for the selected array key
-     *
-     * This method ensures that the specified array key is an integer
-     *
-     * @return Validator
-     */
-    public function isNumeric(): Validator
-    {
-        $this->ensureSelected();
-
-        if (!is_numeric($this->selected_value)) {
-            $this->addFailure(tr('The field ":key" must have a numeric value'));
-        }
-
-        return $this;
-    }
-
-
-
-    /**
-     * Validates the datatype for the selected array key
-     *
-     * This method ensures that the specified array key is a string
-     *
-     * @return Validator
-     */
-    public function isString(): Validator
-    {
-        $this->ensureSelected();
-
-        if (!is_string($this->selected_value)) {
-            $this->addFailure(tr('The field ":key" must have a string value'));
-        }
-
-        return $this;
     }
 
 
