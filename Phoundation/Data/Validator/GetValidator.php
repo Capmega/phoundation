@@ -1,6 +1,8 @@
 <?php
 
-namespace Phoundation\Utils\Validator;
+namespace Phoundation\Data\Validator;
+
+
 
 /**
  * GetValidator class
