@@ -9,8 +9,8 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Http\Html\Html;
-use Phoundation\Http\Http;
+use Phoundation\Web\Http\Html\Html;
+use Phoundation\Web\Http\Http;
 use Phoundation\Notify\Notification;
 use Phoundation\Users\User;
 

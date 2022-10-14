@@ -7,7 +7,7 @@ namespace Phoundation\Web;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
-use Phoundation\Http\Http;
+use Phoundation\Web\Http\Http;
 
 /**
  * Class Web

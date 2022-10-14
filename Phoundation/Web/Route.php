@@ -7,11 +7,17 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Databases\Sql;
+use Phoundation\Data\Validator\Validator;
+use Phoundation\Databases\Sql\Sql;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Http\Exception\RouteException;
+use Phoundation\Http\Http;
 use Phoundation\Http\Url;
+use Phoundation\Notify\Notification;
+use Phoundation\Web\Http\Exception\RouteException;
+use Phoundation\Web\Http\Url;
 
 
 
@@ -135,10 +141,8 @@ class Route
      * /code
      *
      */
-    public static function add(string $url_regex, string $target, string $flags = ''): bool
+    public static function try(string $url_regex, string $target, string $flags = ''): bool
     {
-        global $_CONFIG, $core;
-
         static $count = 1,
         $init  = false;
 
@@ -181,10 +185,7 @@ class Route
                 Route::execute404();
             }
 
-            /*
-             * Apply pre-matching flags. Depending on individual flags we may do
-             * different things
-             */
+            // Apply pre-matching flags. Depending on individual flags we may do different things
             $flags  = strtoupper($flags);
             $flags  = explode(',', $flags);
             $until  = false; // By default, do not store this rule
@@ -194,9 +195,7 @@ class Route
             foreach ($flags as $flags_id => $flag) {
                 switch ($flag[0]) {
                     case 'D':
-                        /*
-                         * Include domain in match
-                         */
+                        // Include domain in match
                         $uri = $_SERVER['HTTP_HOST'].$uri;
                         Log::notice(tr('Adding complete HTTP_HOST in match for URI ":uri"', [':uri' => $uri]));
                         break;
@@ -233,7 +232,7 @@ class Route
                         $target    = $exists['target'];
                         $flags     = explode(',', $exists['flags']);
 
-                        Sql::query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', [':id' => $exists['id']]);
+                        Sql::db()->query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', [':id' => $exists['id']]);
 
                         unset($exists);
                     }
@@ -264,9 +263,7 @@ class Route
             $attachment   = false;
             $restrictions = ROOT.'www,'.ROOT.'data/content/downloads';
 
-            /*
-             * Regex matched. Do variable substitution on the target.
-             */
+            // Regex matched. Do variable substitution on the target.
             if (preg_match_all('/:([A-Z_]+)/', $target, $variables)) {
                 array_shift($variables);
 
@@ -408,17 +405,16 @@ class Route
 
                     case 'H':
                         Log::notice(tr('*POSSIBLE HACK ATTEMPT DETECTED*'));
-                        notify([
-                            'code'    => 'hack',
-                            'class'   => 'hack',
-                            'title'   => tr('*Possible hack attempt detected*'),
-                            'message' => tr('The IP address ":ip" made the request ":request" which was matched by regex ":regex" with flags ":flags" and caused this notification', [
+                        Notification::getInstance()
+                            ->setCode('hack')
+                            ->setGroups('security')
+                            ->setTitle(tr('*Possible hack attempt detected*'))
+                            ->setMessage(tr('The IP address ":ip" made the request ":request" which was matched by regex ":regex" with flags ":flags" and caused this notification', [
                                 ':ip'      => $ip,
                                 ':request' => $uri,
                                 ':regex'   => $url_regex,
                                 ':flags'   => implode(',', $flags)
-                            ])
-                        ]);
+                            ]))->send();
                         break;
 
                     case 'L':
@@ -473,15 +469,12 @@ class Route
                                 break;
 
                             default:
-                                throw new RouteException(tr('route(): Invalid R flag HTTP CODE ":code" specified for target ":target"', array(':code' => ':' . $http_code, ':target' => ':' . $target)), 'invalid');
+                                throw new RouteException(tr('Invalid R flag HTTP CODE ":code" specified for target ":target"', [':code' => ':' . $http_code, ':target' => ':' . $target]));
                         }
 
-                        /*
-                         * We are going to redirect so we no longer need to default
-                         * to 404
-                         */
+                        // We are going to redirect so we no longer need to default to 404
                         Log::success(tr('Redirecting to ":route" with HTTP code ":code"', [':route' => $route, ':code' => $http_code]));
-                        unregister_shutdown('Route::shutdown');
+                        Core::unregisterShutdown('Route::shutdown');
                         Http::redirect(Url::addToQuery($route, $_GET), $http_code);
                         break;
 
@@ -489,7 +482,7 @@ class Route
                         $until = substr($flag, 1);
 
                         if ($until and !is_natural($until)) {
-                            notify(new RouteException(tr('route(): Specified S flag value ":value" is invalid, natural number expected. Falling back to default value of 86400', array(':value' => $until)), 'warning/invalid'));
+                            Log::warning(tr('Specified S flag value ":value" is invalid, natural number expected. Falling back to default value of 86400', [':value' => $until]));
                             $until = null;
                         }
 
@@ -500,9 +493,7 @@ class Route
                         break;
 
                     case 'X':
-                        /*
-                         * Restrict access to the specified path list
-                         */
+                        // Restrict access to the specified path list
                         $restrictions = substr($flag, 1);
                         $restrictions = str_replace(';', ',', $restrictions);
                         break;
@@ -737,20 +728,16 @@ class Route
 
         } catch (Exception $e) {
             if (substr($e->getMessage(), 0, 32) == 'PHP ERROR [2] "preg_match_all():') {
-                /*
-                 * A "user" regex failed, give pretty error
-                 */
-                throw new RouteException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $url_regex, ':e' => trim(Strings::cut($e->getMessage(), 'preg_match_all():', '" in')))), 'syntax');
+                // A user defined regex failed, give pretty error
+                throw new RouteException(tr('Failed to process regex :count ":regex" with error ":e"', [':count' => $count, ':regex' => $url_regex, ':e' => trim(Strings::cut($e->getMessage(), 'preg_match_all():', '" in'))]));
             }
 
             if (substr($e->getMessage(), 0, 28) == 'PHP ERROR [2] "preg_match():') {
-                /*
-                 * A "user" regex failed, give pretty error
-                 */
-                throw new RouteException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $url_regex, ':e' => trim(Strings::cut($e->getMessage(), 'preg_match():', '" in')))), 'syntax');
+                // A user defined regex failed, give pretty error
+                throw new RouteException(tr('Failed to process regex :count ":regex" with error ":e"', [':count' => $count, ':regex' => $url_regex, ':e' => trim(Strings::cut($e->getMessage(), 'preg_match():', '" in'))]));
             }
 
-            throw new RouteException('Route::add(): Failed', $e);
+            throw new RouteException('Failed', $e);
         }
     }
 
@@ -837,7 +824,7 @@ class Route
 
         if (substr($target, -3, 3) === 'php') {
             if ($attachment) {
-                throw new RouteException(tr('Route::exec(): Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', array(':target' => $target)), 'access-denied');
+                throw new RouteException(tr('Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', [':target' => $target]));
             }
 
             Log::notice(tr('Executing page ":target"', [':target' => $target]));
@@ -898,25 +885,16 @@ class Route
      * @return void
      */
     protected static function shutdown() {
-        global $_CONFIG;
+        // Test the URI for known hacks. If so, apply configured response
+        if ($_CONFIG['route']['known_hacks']) {
+            Log::warning(tr('Applying known hacking rules'));
 
-        try {
-            /*
-             * Test the URI for known hacks. If so, apply configured response
-             */
-            if ($_CONFIG['route']['known_hacks']) {
-                Log::warning(tr('Applying known hacking rules'));
-
-                foreach ($_CONFIG['route']['known_hacks'] as $hacks) {
-                    route($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
-                }
+            foreach ($_CONFIG['route']['known_hacks'] as $hacks) {
+                route($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
             }
-
-            Route::execute404();
-
-        } catch (Exception $e) {
-            throw new RouteException(tr('Route::shutdown(): Failed'), $e);
         }
+
+        Route::execute404();
     }
 
 
@@ -939,8 +917,6 @@ class Route
      */
     protected static function execute404(): void
     {
-        global $core, $_CONFIG;
-
         try {
             $core->register['Route::exec']  = 'en/404.php';
             $core->register['script_path'] = 'system/404';
@@ -1016,25 +992,20 @@ class Route
      */
     protected static function insertStatic($route): void
     {
-        try {
-            $route = Route::validateStatic($route);
+        $route = Route::validateStatic($route);
 
-            Log::notice(tr('Storing static routing rule ":rule" for IP ":ip"', [':rule' => $route['target'], ':ip' => $route['ip']]));
+        Log::notice(tr('Storing static routing rule ":rule" for IP ":ip"', [':rule' => $route['target'], ':ip' => $route['ip']]));
 
-            Sql::query('INSERT INTO `routes_static` (`expiredon`                                , `meta_id`, `ip`, `uri`, `regex`, `target`, `flags`)
-                   VALUES                      (DATE_ADD(NOW(), INTERVAL :expiredon SECOND), :meta_id , :ip , :uri , :regex , :target , :flags )',
+        Sql::db()->query('INSERT INTO `routes_static` (`expiredon`                                , `meta_id`, `ip`, `uri`, `regex`, `target`, `flags`)
+               VALUES                      (DATE_ADD(NOW(), INTERVAL :expiredon SECOND), :meta_id , :ip , :uri , :regex , :target , :flags )',
 
-                array(':expiredon' => $route['expiredon'],
-                    ':meta_id'   => meta_action(),
-                    ':ip'        => $route['ip'],
-                    ':uri'       => $route['uri'],
-                    ':regex'     => $route['regex'],
-                    ':target'    => $route['target'],
-                    ':flags'     => $route['flags']));
-
-        } catch (Exception $e) {
-            throw new RouteException(tr('Route::insert_static(): Failed'), $e);
-        }
+            array(':expiredon' => $route['expiredon'],
+                ':meta_id'   => meta_action(),
+                ':ip'        => $route['ip'],
+                ':uri'       => $route['uri'],
+                ':regex'     => $route['regex'],
+                ':target'    => $route['target'],
+                ':flags'     => $route['flags']));
     }
 
 
@@ -1055,7 +1026,7 @@ class Route
      */
     protected static function validateStatic(StaticRoute $route)
     {
-        $v = new Validator($route, 'uri,regex,target,until,ip');
+        $v = new Validator::array($route, 'uri,regex,target,until,ip');
 
         $route['flags'] = Strings::force($route['flags']);
 

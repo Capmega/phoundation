@@ -12,7 +12,7 @@ use Phoundation\Date\Date;
 use Phoundation\Date\Time;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Http\Exception\HttpException;
+use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Processes\Commands;
 use Phoundation\Users\Users;
 use Throwable;

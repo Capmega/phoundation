@@ -34,8 +34,8 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package route
- * @see route_404()
- * @see mapped_domain()
+ * @see Route::404()
+ * @see Route::mappedDomain()
  * @table: `route`
  * @version 1.27.0: Added function and documentation
  * @version 2.0.7: Now uses route_404() to display 404 pages
@@ -79,7 +79,7 @@
  * @package route
  */
 
-use Phoundation\Http\Route;
+use Phoundation\Web\Route;
 
 
 
@@ -113,25 +113,25 @@ Route::mapUrl('nl', [
 /*
  * Front end pages
  */
-Route::add('/^([a-z]{2})\/$/'                                    , '$1/index.php'                                         , '');                 // Show index page
-Route::add('/^([a-z]{2})\/([-a-z]+).html$/'                      , '$1/$2.php'                                            , '');                 // Show pages with page name in URL
-Route::add('/^([a-z]{2})\/(?!admin)([a-z]+)\/([a-z0-9-]+).html$/', '$1/$2.php?item=$3'                                    , '');                 // Show pages with page/section name in URL
-Route::add(''                                                    , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/'                , 'R301');             // Main page has to redirect to a language page
+Route::try('/^([a-z]{2})\/$/'                                    , '$1/index.php'                                         , '');                 // Show index page
+Route::try('/^([a-z]{2})\/([-a-z]+).html$/'                      , '$1/$2.php'                                            , '');                 // Show pages with page name in URL
+Route::try('/^([a-z]{2})\/(?!admin)([a-z]+)\/([a-z0-9-]+).html$/', '$1/$2.php?item=$3'                                    , '');                 // Show pages with page/section name in URL
+Route::try(''                                                    , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/'                , 'R301');             // Main page has to redirect to a language page
 
 
 
 /*
  * Admin pages
  */
-Route::add('/^([a-z]{2})\/(admin\/)?ajax\/([a-z\/]+).php$/'      , '$1/$2ajax/$3.php'                                     , 'Q');                // Redirect to admin ajax pages
-Route::add('/^([a-z]{2})\/admin\/?$/'                            , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/admin/index.html', 'R301');             // /en/admin/ has to go to /en/admin/index.html
-Route::add('/^([a-z]{2})\/admin\/([a-z-]+).html$/'               , '$1/admin/$2.php'                                      , 'Q');                // Show admin pages with page name in URL
-Route::add('/^admin\/?$/'                                        , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/admin/index.html', 'R301');             // /admin/ has to go to /en/admin/index.html
+Route::try('/^([a-z]{2})\/(admin\/)?ajax\/([a-z\/]+).php$/'      , '$1/$2ajax/$3.php'                                     , 'Q');                // Redirect to admin ajax pages
+Route::try('/^([a-z]{2})\/admin\/?$/'                            , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/admin/index.html', 'R301');             // /en/admin/ has to go to /en/admin/index.html
+Route::try('/^([a-z]{2})\/admin\/([a-z-]+).html$/'               , '$1/admin/$2.php'                                      , 'Q');                // Show admin pages with page name in URL
+Route::try('/^admin\/?$/'                                        , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/admin/index.html', 'R301');             // /admin/ has to go to /en/admin/index.html
 
 
 
 /*
  * System files / downloadable files
  */
-Route::add('/(.+?(?:xml|txt))$/'                                 , '$1'                                                   , '');                 // System files like sitemap.xml, robot.txt, etc.
-Route::add('/\/files\/(.+)$/'                                    , '$1'                                                   , 'A');                // Downloadable files
+Route::try('/(.+?(?:xml|txt))$/'                                 , '$1'                                                   , '');                 // System files like sitemap.xml, robot.txt, etc.
+Route::try('/\/files\/(.+)$/'                                    , '$1'                                                   , 'A');                // Downloadable files
