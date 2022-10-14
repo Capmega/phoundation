@@ -66,6 +66,14 @@ trait ValidatorBasics
     protected mixed $selected_value = null;
 
     /**
+     * The value that actually will be tested. This most of the time will be a reference to $selected_value, but when
+     * ->each() validates a list of values, this will
+     *
+     * @var mixed|null $process_values
+     */
+    protected mixed $process_values = null;
+
+    /**
      * If specified, this is a child element to a parent.
      *
      * The ->validate() call will NOT cause an exception but instead will send the failures list to the parent and then
@@ -224,13 +232,13 @@ trait ValidatorBasics
 
 show($field);
 show($this->parent_label);
-show($this->source);
 
         // Select the field
-        $this->selected_label = $label;
-        $this->selected_field = $field;
+        $this->selected_label    = $label;
+        $this->selected_field    = $field;
         $this->selected_fields[] = $field;
-        $this->selected_value = $this->source[$field];
+        $this->selected_value    = $this->source[$field];
+        $this->process_values    = [&$this->selected_value];
 
         return $this;
     }

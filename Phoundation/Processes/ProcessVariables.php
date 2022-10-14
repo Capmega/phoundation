@@ -155,9 +155,58 @@ trait ProcessVariables
     /**
      * Variable data that can modify the process command that will be executed
      *
-     * @var array|null
+     * @var array|null $variables
      */
     protected ?array $variables = [];
+
+    /**
+     * If set true, the log output files will be deleted as soon as this object is destroyed.
+     *
+     * @var bool $clear_logs
+     */
+    protected bool $clear_logs = false;
+
+
+
+    /**
+     * Process destructor
+     */
+    public function __destruct()
+    {
+        // Delete the log file?
+        if ($this->clear_logs) {
+            File::delete($this->log_file);
+        }
+
+        // Delete the run file!
+        File::delete($this->run_file);
+    }
+
+
+
+    /**
+     * Returns if  the log files will be cleared after this object is destroyed or not
+     *
+     * @return bool
+     */
+    public function getClearLogs(): bool
+    {
+        return $this->clear_logs;
+    }
+
+
+
+    /**
+     * Sets if  the log files will be cleared after this object is destroyed or not
+     *
+     * @param bool $clear_logs
+     * @return $this
+     */
+    public function setClearLogs(bool $clear_logs): static
+    {
+        $this->clear_logs = $clear_logs;
+        return $this;
+    }
 
 
 

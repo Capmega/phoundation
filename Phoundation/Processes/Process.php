@@ -54,18 +54,6 @@ Class Process
 
 
     /**
-     * Process destructor
-     */
-    public function __destruct()
-    {
-        // Delete the log file?
-
-        // Delete the run file
-    }
-
-
-
-    /**
      * Sets the actual CLI exit code after the process finished its execution
      *
      * This method will check if the specified exit code is accepted and if not, throw a Process exception

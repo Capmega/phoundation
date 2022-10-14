@@ -53,7 +53,8 @@ $array = [
     ],
     'test-not-array' => 'blergh!',
     'test-not-validated' => 'This entry should be deleted!',
-    'test-list-array' => ['a', 'b', 'c', 'd', 'e']
+    'test-list-array' => ['a', 'b', 'c', 'd', 'e'],
+    'test-email' => 'so.oostenbrink@gmail.com',
 ];
 
 Validator::array($array)
@@ -69,7 +70,7 @@ Validator::array($array)
 //        ->select('sub-email')->isString()
 //        ->validate()
         ->select('test-list-array')->each()->isString()
-        ->select('')
+        ->select('test-email')->isEmail()
     ->validate();
 
 show($array);
