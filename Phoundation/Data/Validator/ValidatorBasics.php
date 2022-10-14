@@ -68,6 +68,13 @@ trait ValidatorBasics
     protected ?Validator $parent = null;
 
     /**
+     * If set, all label errors will show the parent name as well
+     *
+     * @var string|null
+     */
+    protected ?string $parent_label = null;
+
+    /**
      * Child Validator object for sub array elements. When validating the final result, the results from all the child
      * validators will be added to the result as well
      *
@@ -83,20 +90,25 @@ trait ValidatorBasics
      * @note Keys that do not exist in $data that are validated will automatically be created
      * @note Keys in $data that are not validated will automatically be removed
      * @param array|null $source The data array that must be validated.
+     * @param Validator|null $parent If specified, this is actually a child validator to the specified parent
      */
-    public function __construct(?array &$source = []) {
+    public function __construct(?array &$source = [], ?Validator $parent = null) {
         // Ensure the source is an array
         if ($source === null) {
             $source = [];
         }
 
         $this->source = &$source;
+        $this->parent = $parent;
     }
 
 
 
     /**
-     * Array validator
+     * Returns a new array validator
+     *
+     * @param array $array
+     * @return Validator
      */
     public static function array(array $array): Validator
     {
@@ -106,9 +118,11 @@ trait ValidatorBasics
 
 
     /**
-     * GET array validator
+     * Returns a new GET array validator
+     *
+     * @return Validator
      */
-    public static function get(array $array): Validator
+    public static function get(): Validator
     {
         // Clear the $_REQUEST array, it should never be used
         $_REQUEST = [];
@@ -119,7 +133,9 @@ trait ValidatorBasics
 
 
     /**
-     * POST array validator
+     * Returns a new POST array validator
+     *
+     * @return Validator
      */
     public static function post(): Validator
     {
@@ -127,6 +143,42 @@ trait ValidatorBasics
         $_REQUEST = [];
 
         return new Validator($_POST);
+    }
+
+
+    /**
+     * Returns a new file validator
+     *
+     * @param string $file
+     * @return FileValidator
+     */
+    public static function file(string $file): FileValidator
+    {
+        return new FileValidator($file);
+    }
+
+
+
+    /**
+     * Returns the parent label with the specified name
+     *
+     * @return string|null
+     */
+    public function getParentLabel(): ?string
+    {
+        return $this->parent_label;
+    }
+
+
+    /**
+     * Sets the parent label with the specified name
+     *
+     * @param string|null $label
+     * @return void
+     */
+    public function setParentLabel(?string $label): void
+    {
+        $this->parent_label = $label;
     }
 
 
@@ -174,11 +226,17 @@ trait ValidatorBasics
     {
         $this->ensureSelected();
 
+        // Create a new Validator object from the current value. If the current value is not an array (oopsie) then just
+        // send in an empty array so that the Validation chain won't break
         if (!is_array($this->selected_value)) {
             $array = [];
             $validator = new Validator($array, $this);
-            $this->children[] = $validator;
+        } else {
+            $validator = new Validator($this->selected_value, $this);
         }
+
+        $this->children[$this->selected_field] = $validator;
+        return $validator;
     }
 
 
@@ -192,18 +250,20 @@ trait ValidatorBasics
      */
     public function validate(): ?Validator
     {
-        if ($this->failures) {
-            throw new ValidationFailedException(tr('Validation of the array failed with the registered failures'), $this->failures);
-        }
-
         if ($this->parent) {
             // Add this child failures to the parent and return the parent
-            foreach ($this->failures as $failure) {
-                $this->parent->addFailure($failure);
+            foreach ($this->failures as $field => $failure) {
+                $this->parent->addFailure($this->parent_label . ' > ' . $field, $failure);
             }
 
             return $this->parent;
         }
+
+        if ($this->failures) {
+            throw new ValidationFailedException(tr('Validation of the array failed with the registered failures'), $this->failures);
+        }
+
+        return null;
     }
 
 
@@ -211,12 +271,13 @@ trait ValidatorBasics
     /**
      * Add the specified failure message to the failures list
      *
+     * @param string $field
      * @param string $failure
      * @return void
      */
-    public function addFailure(string $failure): void
+    public function addFailure(string $field, string $failure): void
     {
-        $this->failures[] = $failure;
+        $this->failures[$field] = $failure;
     }
 
 
