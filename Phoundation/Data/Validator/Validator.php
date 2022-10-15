@@ -502,7 +502,7 @@ show('each');
             }
 
             if (count($value) < $count) {
-                $this->addFailure(tr('must have ":count" characters or more', [':count' => $count]));
+                $this->addFailure(tr('must have ":count" elements or more', [':count' => $count]));
             }
 
             return $value;
@@ -528,7 +528,7 @@ show('each');
             }
 
             if (count($value) > $count) {
-                $this->addFailure(tr('must have ":count" characters or less', [':count' => $count]));
+                $this->addFailure(tr('must have ":count" elements or less', [':count' => $count]));
             }
 
             return $value;

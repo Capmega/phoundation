@@ -71,7 +71,7 @@ Validator::array($array)
 //        ->select('sub-email')->isString()
 //        ->validate()
     ->select('test-integer')->isInteger()
-    ->select('test-list-array')->hasMaximumElements(3)->each()->isString()
+    ->select('test-list-array')->hasMinimumElements(3)->each()->hasMinSize(4)
     ->select('test-email')->isEmail()
     ->validate();
 
