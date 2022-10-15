@@ -78,6 +78,8 @@ show('each');
     protected function validateValues(callable $function): Validator
     {
         $this->ensureSelected();
+        show('START VALIDATE VALUES (' . ($this->process_value_failed ? 'FAILED' : 'NOT FAILED') . ')');
+        show($this->process_values);
 
         if ($this->process_value_failed) {
             // In the span of multiple tests on one value, one test failed, don't execute the rest of the tests
@@ -107,7 +109,7 @@ show('each');
     {
         return $this->validateValues(function(mixed &$value) {
             if (!is_integer($value)) {
-                $this->addFailure($this->selected_label, tr('must have an integer value'));
+                $this->addFailure(tr('must have an integer value'));
             }
 
             return $value;
@@ -127,7 +129,7 @@ show('each');
     {
         return $this->validateValues(function(mixed &$value) {
             if (!is_float($value)) {
-                $this->addFailure($this->selected_label, tr('must have a float value'));
+                $this->addFailure(tr('must have a float value'));
             }
 
             return $value;
@@ -147,7 +149,7 @@ show('each');
     {
         return $this->validateValues(function(mixed &$value) {
             if (!is_numeric($value)) {
-                $this->addFailure($this->selected_label, tr('must have a numeric value'));
+                $this->addFailure(tr('must have a numeric value'));
             }
 
             return $value;
@@ -169,8 +171,13 @@ show('each');
         return $this->validateValues(function(mixed &$value) use ($allow_zero) {
             $this->isNumeric();
 
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
             if ($value < ($allow_zero ? 0 : 1)) {
-                $this->addFailure($this->selected_label, tr('must have a positive value', [':field' => $this->selected_label]));
+                $this->addFailure(tr('must have a positive value', [':field' => $this->selected_field]));
             }
 
             return $value;
@@ -192,8 +199,13 @@ show('each');
         return $this->validateValues(function(mixed &$value) use ($amount) {
             $this->isNumeric();
 
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
             if ($value <= $amount) {
-                $this->addFailure($this->selected_label, tr('must be more than than ":amount"', [':amount' => $amount]));
+                $this->addFailure(tr('must be more than than ":amount"', [':amount' => $amount]));
             }
 
             return $value;
@@ -215,8 +227,13 @@ show('each');
         return $this->validateValues(function(mixed &$value) use ($amount) {
             $this->isNumeric();
 
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
             if ($value >= $amount) {
-                $this->addFailure($this->selected_label, tr('must be less than ":amount"', [':amount' => $amount]));
+                $this->addFailure(tr('must be less than ":amount"', [':amount' => $amount]));
             }
 
             return $value;
@@ -239,8 +256,13 @@ show('each');
         return $this->validateValues(function(mixed &$value) use ($minimum, $maximum) {
             $this->isNumeric();
 
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
             if (($value <= $minimum) or ($value >= $maximum)) {
-                $this->addFailure($this->selected_label, tr('must be between ":amount" and ":maximum"', [':minimum' => $minimum, ':maximum' => $maximum]));
+                $this->addFailure(tr('must be between ":amount" and ":maximum"', [':minimum' => $minimum, ':maximum' => $maximum]));
             }
 
             return $value;
@@ -262,8 +284,13 @@ show('each');
         return $this->validateValues(function(mixed &$value) use ($allow_zero) {
             $this->isNumeric();
 
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
             if ($value > ($allow_zero ? 0 : 1)) {
-                $this->addFailure($this->selected_label, tr('must have a negative value'));
+                $this->addFailure(tr('must have a negative value'));
             }
 
             return $value;
@@ -284,7 +311,7 @@ show('each');
         return $this->validateValues(function(mixed &$value) {
             if (!is_scalar($value)) {
                 show($value);
-                $this->addFailure($this->selected_label, tr('must have a scalar value', [':field' => $this->selected_label]));
+                $this->addFailure(tr('must have a scalar value', [':field' => $this->selected_field]));
             }
 
             return $value;
@@ -308,8 +335,13 @@ show('each');
             $this->isScalar();
             $this->hasMaxSize(Arrays::getLongestString($array));
 
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
             if (!in_array($value, $array)) {
-                $this->addFailure($this->selected_label, tr('must be one of ":list"', [':list' => $array]));
+                $this->addFailure(tr('must be one of ":list"', [':list' => $array]));
             }
 
             return $value;
@@ -329,8 +361,7 @@ show('each');
     {
         return $this->validateValues(function(mixed &$value) {
             if (!is_string($value)) {
-                show($value);
-                $this->addFailure($this->selected_label, tr('must have a string value', [':field' => $this->selected_label]));
+                $this->addFailure(tr('must have a string value', [':field' => $this->selected_field]));
             }
 
             return $value;
@@ -350,8 +381,18 @@ show('each');
         return $this->validateValues(function(mixed $value) use ($characters) {
             $this->isString();
 
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
             if (strlen($value) < $characters) {
-                $this->addFailure($this->selected_label, tr('must have ":count" characters or more', [':count' => $characters]));
+                $this->addFailure(tr('must have ":count" characters or more', [':count' => $characters]));
             }
 
             return $value;
@@ -371,8 +412,13 @@ show('each');
         return $this->validateValues(function(mixed $value) use ($characters) {
             $this->isString();
 
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
             if (strlen($value) > $characters) {
-                $this->addFailure($this->selected_label, tr('must have ":count" characters or less', [':count' => $characters]));
+                $this->addFailure(tr('must have ":count" characters or less', [':count' => $characters]));
             }
 
             return $value;
@@ -392,7 +438,7 @@ show('each');
     {
         return $this->validateValues(function(mixed $value) {
             if (!is_array($value)) {
-                $this->addFailure($this->selected_label, tr('must have an array value'));
+                $this->addFailure(tr('must have an array value'));
             }
 
             return $value;
@@ -412,8 +458,13 @@ show('each');
         return $this->validateValues(function(mixed $value) use ($count) {
             $this->isArray();
 
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
             if (count($value) < $count) {
-                $this->addFailure($this->selected_label, tr('must have ":count" characters or more', [':count' => $count]));
+                $this->addFailure(tr('must have ":count" characters or more', [':count' => $count]));
             }
 
             return $value;
@@ -433,8 +484,13 @@ show('each');
         return $this->validateValues(function(mixed $value) use ($count) {
             $this->isArray();
 
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
             if (count($value) > $count) {
-                $this->addFailure($this->selected_label, tr('must have ":count" characters or less', [':count' => $count]));
+                $this->addFailure(tr('must have ":count" characters or less', [':count' => $count]));
             }
 
             return $value;
@@ -452,12 +508,19 @@ show('each');
      */
     public function isEmail(): Validator
     {
+show('TEST IS EMAIL');
         return $this->validateValues(function(mixed $value) {
+show('EMAIL FUNCTION');
             $this->hasMinSize(3);
             $this->hasMaxSize(128);
 
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
             if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                $this->addFailure($this->selected_label, tr('must contain a valid email'));
+                $this->addFailure(tr('must contain a valid email'));
             }
 
             return $value;

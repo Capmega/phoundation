@@ -43,6 +43,30 @@ Scripts::noArgumentsLeft($argv);
 //FilesystemCommands::local()->delete(ROOT . 'a/b/c', true, true);
 
 
+
+
+$array = [
+    'test-numeric' => 293874,
+];
+
+Validator::array($array)
+    ->select('test-name')->isString()
+    ->select('test-numeric')->isNumeric()
+    ->validate();
+
+show($array);
+
+
+
+
+
+
+
+
+
+
+die();
+
 $array = [
     'test-integer' => 293874,
     'test-numeric' => ' 1 ',
@@ -50,6 +74,9 @@ $array = [
     'test-array' => [
         'sub-integer' => 23974,
         'sub-email' => 'so.oostenbrink@gmail.com',
+        'sub-sub-array' => [
+            'sub-sub-email' => 'so.oostenbrink@gmail.com',
+        ]
     ],
     'test-not-array' => 'blergh!',
     'test-not-validated' => 'This entry should be deleted!',
@@ -62,17 +89,20 @@ Validator::array($array)
     ->select('test-name')->isString()
     ->select('test-numeric')->isNumeric()
     ->select('test-string')->isString()
-        ->select('test-array')->isArray()->recurse()
+    ->select('test-array')->isArray()->recurse()
         ->select('sub-integer')->isInteger()
+        ->select('sub-sub-array')->isArray()->recurse()
+            ->select('sub-sub-email')->isEmail()
+            ->validate()
         ->select('sub-email')->isString()
         ->validate()
-//        ->select('test-not-array')->isArray()->recurse()
+////        ->select('test-not-array')->isArray()->recurse()
 //        ->select('sub-integer')->isInteger()
 //        ->select('sub-email')->isString()
 //        ->validate()
     ->select('test-integer')->isInteger()
-        ->select('test-list-array')->hasMaximumElements(3)->each()->isString()
-        ->select('test-email')->isEmail()
+    ->select('test-list-array')->hasMaximumElements(3)->each()->isString()
+    ->select('test-email')->isEmail()
     ->validate();
 
 show($array);

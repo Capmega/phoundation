@@ -1606,7 +1606,7 @@ class Strings
      * @param int $count
      * @return string
      */
-    public function ordinalIndicator(int $count): string
+    public static function ordinalIndicator(int $count): string
     {
         switch ($count) {
             case 1:

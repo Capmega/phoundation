@@ -45,13 +45,6 @@ trait ValidatorBasics
     protected string|int|null $selected_field = null;
 
     /**
-     * The human-readable label for the current field that is being validated
-     *
-     * @var string|int|null $selected_label
-     */
-    protected string|int|null $selected_label = null;
-
-    /**
      * The keys that have been selected to be validated. All keys found in the $source array that are not in this array
      * will be removed
      *
@@ -99,11 +92,11 @@ trait ValidatorBasics
     protected ?Validator $parent = null;
 
     /**
-     * If set, all label errors will show the parent name as well
+     * If set, all field failure keys will show the parent field as well
      *
      * @var string|null
      */
-    protected ?string $parent_label = null;
+    protected ?string $parent_field = null;
 
     /**
      * Child Validator object for sub array elements. When validating the final result, the results from all the child
@@ -191,37 +184,37 @@ trait ValidatorBasics
 
 
     /**
-     * Returns the parent label with the specified name
+     * Returns the parent field with the specified name
      *
      * @return string|null
      */
-    public function getParentLabel(): ?string
+    public function getParentField(): ?string
     {
-        return $this->parent_label;
+        return $this->parent_field;
     }
 
 
 
     /**
-     * Sets the parent label with the specified name
+     * Sets the parent field with the specified name
      *
-     * @param string|null $label
+     * @param string|null $field
      * @return void
      */
-    public function setParentLabel(?string $label): void
+    public function setParentField(?string $field): void
     {
-        $this->parent_label = $label;
+        $this->parent_field = $field;
     }
+
 
 
     /**
      * Selects the specified key within the array that we are validating
      *
      * @param int|string $field The array key (or HTML form field) that needs to be validated / sanitized
-     * @param string|null $label The pretty label for the field. If the field would be pwd, the label could be password
      * @return Validator
      */
-    public function select(int|string $field, ?string $label = null): Validator
+    public function select(int|string $field): Validator
     {
         if (!$field) {
             throw new OutOfBoundsException(tr('No field specified'));
@@ -235,11 +228,6 @@ trait ValidatorBasics
             throw new OutOfBoundsException(tr('Cannot select field ":field", no source array specified', [':field' => $field]));
         }
 
-        if (!$label) {
-            // The label defaults to the field
-            $label = $field;
-        }
-
         // Does the field exist in the source? If not, initialize it with NULL to be able to process it
         if (!array_key_exists($field, $this->source)) {
             $this->source[$field] = null;
@@ -247,13 +235,13 @@ trait ValidatorBasics
 
         // Select the field. Unset process_values first to ensure the byref link is broken
         unset($this->process_values);
-show($field);
-        $this->selected_label    = $label;
+
         $this->selected_field    = $field;
         $this->selected_fields[] = $field;
         $this->selected_value    = $this->source[$field];
         $this->process_values    = [&$this->selected_value];
 
+        show('SELECTED ' . ($this->parent_field ? $this->parent_field . ' > ' : '') . $field);
         return $this;
     }
 
@@ -277,7 +265,8 @@ show($field);
             $child = new Validator($this->selected_value, $this);
         }
 
-        $child->setParentLabel($this->selected_field);
+        $child->setParentField(($this->parent_field ? $this->parent_field . ' > ' : '') . $this->selected_field);
+
         $this->children[$this->selected_field] = $child;
         return $child;
     }
@@ -296,7 +285,7 @@ show($field);
         if ($this->parent) {
             // Copy failures from the child to the parent and return the parent to continue
             foreach ($this->failures as $field => $failure) {
-                $this->parent->addFailure($this->parent_label . ' > ' . $field, $failure);
+                $this->parent->addFailure($field, $failure, false);
             }
 
             // Clear the contents of this object to avoid stuck references
@@ -325,42 +314,38 @@ show($field);
     {
         unset($this->selected_fields);
         unset($this->selected_value);
-        unset($this->selected_label);
         unset($this->process_values);
         unset($this->process_value);
         unset($this->source);
 
         $this->selected_fields = [];
         $this->selected_value  = null;
-        $this->selected_label  = null;
         $this->process_values  = null;
         $this->process_value   = null;
         $this->source          = null;
     }
 
 
-
     /**
      * Add the specified failure message to the failures list
      *
-     * @param string $field
      * @param string $failure
+     * @param bool $modify
      * @return void
      */
-    public function addFailure(string $field, string $failure): void
+    public function addFailure(string $failure, bool $modify = true): void
     {
-        if (is_numeric($field)) {
-            if ($this->parent_label) {
-                $failure = tr('The ":count" field in the section ":section" ', [':section' => $this->parent_label,':count' => Strings::ordinalIndicator($field)]) . $failure;
-
+show('FAILURE: ' . $failure);
+        if ($modify) {
+            if (is_numeric($this->selected_field)) {
+                $failure = tr('The ":count" field ', [':count' => Strings::ordinalIndicator($this->selected_field)]) . $failure;
             } else {
-                $failure = tr('The ":count" field ', [':count' => Strings::ordinalIndicator($field)]) . $failure;
+                $failure = tr('The ":field" field in the section ":parent" ', [':parent' => $this->parent_field, ':field' => $this->selected_field]) . $failure;
             }
-        } else {
-            $failure = tr('The ":field" field ', [':field' => $field]) . $failure;
         }
 
-        $this->failures[$field] = $failure;
+        $this->process_value_failed = true;
+        $this->failures[($this->parent_field ? $this->selected_field : '') . $this->selected_field] = $failure;
     }
 
 
