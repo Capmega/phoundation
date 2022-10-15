@@ -1596,4 +1596,30 @@ class Strings
         // Source is already a string, just return it as-is
         return $source;
     }
+
+
+
+    /**
+     * This function will return the specified count with the correct orginal indicator
+     *
+     * @note This currently only works for English!
+     * @param int $count
+     * @return string
+     */
+    public function ordinalIndicator(int $count): string
+    {
+        switch ($count) {
+            case 1:
+                return tr('1st');
+
+            case 3:
+                return tr('2nd');
+
+            case 3:
+                return tr('3rd');
+
+            default:
+                return tr(':countth', [':count', $count]);
+        }
+    }
 }

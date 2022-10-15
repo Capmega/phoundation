@@ -37,8 +37,12 @@ class Validator
     {
         // This obviously only works on arrays
         $this->isArray();
-        $this->process_values = &$this->selected_value;
 
+        // Unset process_values first to ensure the byref link is broken
+        unset($this->process_values);
+        $this->process_values = &$this->selected_value;
+show($this->process_values);
+show('each');
         return $this;
     }
 
@@ -64,8 +68,41 @@ class Validator
 
 
 
-   /**
-     * Validates the datatype for the selected array key
+    /**
+     * Apply the specified anonymous function on a single or all of the process_values for the selected field
+     *
+     * @param callable $function
+     * @return Validator
+     */
+    protected function validateValues(callable $function): Validator
+    {
+        $this->ensureSelected();
+
+        if ($this->process_value_failed) {
+            // In the span of multiple tests on one value, one test failed, don't execute the rest of the tests
+            return $this;
+        }
+
+        if ($this->process_value) {
+            // Process only one single process_value
+            $this->process_value = $function($this->process_value);
+
+        } else {
+            foreach ($this->process_values as &$value) {
+                // Process all process_values
+                $this->process_value_failed = false;
+                $this->process_value = &$value;
+                $this->process_value = $function($this->process_value);
+            }
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
      *
      * This method ensures that the specified array key is an integer
      *
@@ -73,21 +110,19 @@ class Validator
      */
     public function isInteger(): Validator
     {
-        $this->ensureSelected();
-
-        foreach ($this->process_values as &$value) {
+        return $this->validateValues(function(mixed &$value) {
             if (!is_integer($value)) {
-                $this->addFailure($this->selected_field, tr('The field ":field" must have an integer value', [':field' => $this->selected_label]));
+                $this->addFailure($this->selected_label, tr('must have an integer value'));
             }
-        }
 
-        return $this;
+            return $value;
+        });
     }
 
 
 
     /**
-     * Validates the datatype for the selected array key
+     * Validates the datatype for the selected field
      *
      * This method ensures that the specified array key is numeric
      *
@@ -95,21 +130,19 @@ class Validator
      */
     public function isNumeric(): Validator
     {
-        $this->ensureSelected();
-
-        foreach ($this->process_values as &$value) {
+        return $this->validateValues(function(mixed &$value) {
             if (!is_numeric($value)) {
-                $this->addFailure($this->selected_field, tr('The field ":field" must have a numeric value', [':field' => $this->selected_label]));
+                $this->addFailure($this->selected_label, tr('must have a numeric value'));
             }
-        }
 
-        return $this;
+            return $value;
+        });
     }
 
 
 
     /**
-     * Validates the datatype for the selected array key
+     * Validates the datatype for the selected field
      *
      * This method ensures that the specified array key is a string
      *
@@ -117,21 +150,62 @@ class Validator
      */
     public function isString(): Validator
     {
-        $this->ensureSelected();
-
-        foreach ($this->process_values as &$value) {
+        return $this->validateValues(function(mixed &$value) {
             if (!is_string($value)) {
-                $this->addFailure($this->selected_field, tr('The field ":field" must have a string value', [':field' => $this->selected_label]));
+show($value);
+                $this->addFailure($this->selected_label, tr('must have a string value', [':field' => $this->selected_label]));
             }
-        }
 
-        return $this;
+            return $value;
+        });
     }
 
 
 
     /**
-     * Validates the datatype for the selected array key
+     * Validates that the selected field is equal or larger than the specified amount of characters
+     *
+     * @param int $characters
+     * @return Validator
+     */
+    public function isMinSize(int $characters): Validator
+    {
+        return $this->validateValues(function(mixed $value) use ($characters) {
+            $this->isString();
+
+            if (strlen($value) < $characters) {
+                $this->addFailure($this->selected_label, tr('must have ":count" characters or more', [':count' => $characters]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field is equal or shorter than the specified amount of characters
+     *
+     * @param int $characters
+     * @return Validator
+     */
+    public function isMaxSize(int $characters): Validator
+    {
+        return $this->validateValues(function(mixed $value) use ($characters) {
+            $this->isString();
+
+            if (strlen($value) > $characters) {
+                $this->addFailure($this->selected_label, tr('must have ":count" characters or less', [':count' => $characters]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
      *
      * This method ensures that the specified array key is an array
      *
@@ -139,36 +213,35 @@ class Validator
      */
     public function isArray(): Validator
     {
-        $this->ensureSelected();
-
-        foreach ($this->process_values as &$value) {
+        return $this->validateValues(function(mixed $value) {
             if (!is_array($value)) {
-                $this->addFailure($this->selected_field, tr('The field ":field" must have an array value', [':field' => $this->selected_label]));
+                $this->addFailure($this->selected_label, tr('must have an array value'));
             }
-        }
 
-        return $this;
+            return $value;
+        });
     }
 
 
 
     /**
-     * Validates the datatype for the selected array key
+     * Validates if the selected field is a valid email address
      *
      * This method ensures that the specified array key is an array
      *
      * @return Validator
      */
-    public function isArray(): Validator
+    public function isEmail(): Validator
     {
-        $this->ensureSelected();
+        return $this->validateValues(function(mixed $value) {
+            $this->isMinSize(3);
+            $this->isMaxSize(128);
 
-        foreach ($this->process_values as &$value) {
-            if (!is_array($value)) {
-                $this->addFailure($this->selected_field, tr('The field ":field" must have an array value', [':field' => $this->selected_label]));
+            if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                $this->addFailure($this->selected_label, tr('must contain a valid email'));
             }
-        }
 
-        return $this;
-    }
+            return $value;
+        });
+   }
 }

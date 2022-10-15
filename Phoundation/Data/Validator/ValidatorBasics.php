@@ -3,6 +3,7 @@
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Core\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Data\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Exception\NoKeySelectedException;
 use Phoundation\Data\Exception\ValidationFailedException;
@@ -66,12 +67,26 @@ trait ValidatorBasics
     protected mixed $selected_value = null;
 
     /**
-     * The value that actually will be tested. This most of the time will be a reference to $selected_value, but when
-     * ->each() validates a list of values, this will
+     * The value(s) that actually will be tested. This most of the time will be an array with a single reference to
+     * $selected_value, but when ->each() validates a list of values, this will reference that list directly
      *
-     * @var mixed|null $process_values
+     * @var array|null $process_values
      */
-    protected mixed $process_values = null;
+    protected ?array $process_values = null;
+
+    /**
+     * The single value that actually will be tested.
+     *
+     * @var mixed $process_value
+     */
+    protected mixed $process_value = null;
+
+    /**
+     * Registers when the single value being tested failed during multiple tests or not
+     *
+     * @var bool $process_value_failed
+     */
+    protected bool $process_value_failed = false;
 
     /**
      * If specified, this is a child element to a parent.
@@ -217,7 +232,7 @@ trait ValidatorBasics
         }
 
         if ($this->source === null) {
-            throw new OutOfBoundsException(tr('No source array specified'));
+            throw new OutOfBoundsException(tr('Cannot select field ":field", no source array specified', [':field' => $field]));
         }
 
         if (!$label) {
@@ -230,10 +245,9 @@ trait ValidatorBasics
             $this->source[$field] = null;
         }
 
+        // Select the field. Unset process_values first to ensure the byref link is broken
+        unset($this->process_values);
 show($field);
-show($this->parent_label);
-
-        // Select the field
         $this->selected_label    = $label;
         $this->selected_field    = $field;
         $this->selected_fields[] = $field;
@@ -275,12 +289,18 @@ show($this->parent_label);
      *
      * This method will check the failures array and if any failures were registered, it will throw an exception
      *
-     * @return Validator|null
+     * @return Validator
      */
-    public function validate(): ?Validator
+    public function validate(): Validator
     {
         if ($this->parent) {
-            unset($this->source);
+            // Copy failures from the child to the parent and return the parent to continue
+            foreach ($this->failures as $field => $failure) {
+                $this->parent->addFailure($this->parent_label . ' > ' . $field, $failure);
+            }
+
+            // Clear the contents of this object to avoid stuck references
+            $this->clear();
             return $this->parent;
         }
 
@@ -291,8 +311,31 @@ show($this->parent_label);
             throw new ValidationFailedException(tr('Validation of the array failed with the registered failures'), $this->failures);
         }
 
+        return $this;
+    }
+
+
+
+    /**
+     * Resets the class for a new validation
+     *
+     * @return void
+     */
+    public function clear(): void
+    {
+        unset($this->selected_fields);
+        unset($this->selected_value);
+        unset($this->selected_label);
+        unset($this->process_values);
+        unset($this->process_value);
         unset($this->source);
-        return null;
+
+        $this->selected_fields = [];
+        $this->selected_value  = null;
+        $this->selected_label  = null;
+        $this->process_values  = null;
+        $this->process_value   = null;
+        $this->source          = null;
     }
 
 
@@ -306,6 +349,17 @@ show($this->parent_label);
      */
     public function addFailure(string $field, string $failure): void
     {
+        if (is_numeric($field)) {
+            if ($this->parent_label) {
+                $failure = tr('The ":count" field in the section ":section" ', [':section' => $this->parent_label,':count' => Strings::ordinalIndicator($field)]) . $failure;
+
+            } else {
+                $failure = tr('The ":count" field ', [':count' => Strings::ordinalIndicator($field)]) . $failure;
+            }
+        } else {
+            $failure = tr('The ":field" field ', [':field' => $field]) . $failure;
+        }
+
         $this->failures[$field] = $failure;
     }
 
