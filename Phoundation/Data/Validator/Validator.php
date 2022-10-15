@@ -4,6 +4,7 @@ namespace Phoundation\Data\Validator;
 
 
 
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 
 /**
@@ -118,6 +119,26 @@ show('each');
     /**
      * Validates the datatype for the selected field
      *
+     * This method ensures that the specified array key is an float
+     *
+     * @return Validator
+     */
+    public function isFloat(): Validator
+    {
+        return $this->validateValues(function(mixed &$value) {
+            if (!is_float($value)) {
+                $this->addFailure($this->selected_label, tr('must have a float value'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
      * This method ensures that the specified array key is numeric
      *
      * @return Validator
@@ -138,6 +159,51 @@ show('each');
     /**
      * Validates the datatype for the selected field
      *
+     * This method ensures that the specified array key is a scalar value
+     *
+     * @return Validator
+     */
+    public function isScalar(): Validator
+    {
+        return $this->validateValues(function(mixed &$value) {
+            if (!is_scalar($value)) {
+                show($value);
+                $this->addFailure($this->selected_label, tr('must have a scalar value', [':field' => $this->selected_label]));
+            }
+
+            return $value;
+        });
+    }
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is a scalar value
+     *
+     * @param array $array
+     * @return Validator
+     */
+    public function inArray(array $array) : Validator
+    {
+        return $this->validateValues(function(mixed &$value) use ($array) {
+            // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
+            $this->isScalar();
+            $this->hasMaxSize(Arrays::getLongestString($array));
+
+            if (!in_array($value, $array)) {
+                $this->addFailure($this->selected_label, tr('must be one of ":list"', [':list' => $array]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
      * This method ensures that the specified array key is a string
      *
      * @return Validator
@@ -146,7 +212,7 @@ show('each');
     {
         return $this->validateValues(function(mixed &$value) {
             if (!is_string($value)) {
-show($value);
+                show($value);
                 $this->addFailure($this->selected_label, tr('must have a string value', [':field' => $this->selected_label]));
             }
 
@@ -162,7 +228,7 @@ show($value);
      * @param int $characters
      * @return Validator
      */
-    public function isMinSize(int $characters): Validator
+    public function hasMinSize(int $characters): Validator
     {
         return $this->validateValues(function(mixed $value) use ($characters) {
             $this->isString();
@@ -183,7 +249,7 @@ show($value);
      * @param int $characters
      * @return Validator
      */
-    public function isMaxSize(int $characters): Validator
+    public function hasMaxSize(int $characters): Validator
     {
         return $this->validateValues(function(mixed $value) use ($characters) {
             $this->isString();
@@ -270,8 +336,8 @@ show($value);
     public function isEmail(): Validator
     {
         return $this->validateValues(function(mixed $value) {
-            $this->isMinSize(3);
-            $this->isMaxSize(128);
+            $this->hasMinSize(3);
+            $this->hasMaxSize(128);
 
             if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
                 $this->addFailure($this->selected_label, tr('must contain a valid email'));

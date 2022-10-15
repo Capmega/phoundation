@@ -1204,4 +1204,28 @@ class Arrays {
 
         return $source;
     }
+
+
+
+    /**
+     * Returns the longest string of all values in the specified source array
+     *
+     * @note Any non-scalar values will be silently ignored
+     * @param array $source
+     * @return int
+     */
+    public static function getLongestString(array $source): int
+    {
+        $longest = 0;
+
+        foreach ($source as $value) {
+            $len = strlen($value);
+
+            if ($len > $longest) {
+                $longest = $len;
+            }
+        }
+
+        return $longest;
+    }
 }
