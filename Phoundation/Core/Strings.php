@@ -1488,8 +1488,12 @@ class Strings
      *
      * FALSE: FALSE, "false", "no", "n", "off", "0"
      * TRUE: TRUE, "true", "yes", "y", "on", "1"
+     *
+     * @param bool|int|string $value
+     * @param bool $exception
+     * @return bool|null
      */
-    public static function getBoolean(bool|int|string $value): bool
+    public static function getBoolean(bool|int|string $value, bool $exception = true): ?bool
     {
         if (is_bool($value)) {
             return $value;
@@ -1519,7 +1523,11 @@ class Strings
                 return false;
 
             default:
-                throw new OutOfBoundsException(tr('Unknown value ":value"', [':value' => $value]), 'unknown');
+                if ($exception) {
+                    throw new OutOfBoundsException(tr('Unknown value ":value"', [':value' => $value]), 'unknown');
+                }
+
+                return null;
         }
     }
 

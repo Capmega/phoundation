@@ -8,7 +8,8 @@ use Phoundation\Data\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Exception\NoKeySelectedException;
 use Phoundation\Data\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
-
+use Phoundation\Processes\ProcessCommands;
+use function PHPUnit\Framework\returnArgument;
 
 
 /**
@@ -58,6 +59,13 @@ trait ValidatorBasics
      * @var mixed|null $selected_value
      */
     protected mixed $selected_value = null;
+
+    /**
+     * If true, the currently selected field may be non-existent or NULL
+     *
+     * @var bool $selected_optional
+     */
+    protected bool $selected_optional = false;
 
     /**
      * The value(s) that actually will be tested. This most of the time will be an array with a single reference to
@@ -240,9 +248,23 @@ trait ValidatorBasics
         $this->selected_fields[] = $field;
         $this->selected_value    = $this->source[$field];
         $this->process_values    = [&$this->selected_value];
+        $this->selected_optional = false;
 
         show('SELECTED ' . ($this->parent_field ? $this->parent_field . ' > ' : '') . $field);
         return $this;
+    }
+
+
+    /**
+     * This method will make the selected field optional
+     *
+     * This means that either it may not exist, or it's contents may be NULL
+     *
+     * @return Validator
+     */
+    public function isOptional(): Validator
+    {
+        $this->selected_optional = true;
     }
 
 
@@ -324,6 +346,37 @@ trait ValidatorBasics
         $this->process_value   = null;
         $this->source          = null;
     }
+
+
+
+    /**
+     * Return if this field is optional or not
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    protected function checkIsOptional(mixed $value): bool
+    {
+        if ($this->process_value_failed) {
+            // Value processing already failed anyway, so always fail
+            return false;
+        }
+
+        if ($this->selected_optional) {
+            // If value is set or not doesn't matter, its okay
+            return true;
+        }
+
+        if ($value === null) {
+            // At this point we know we MUST have a value, so we're bad here
+            $this->addFailure(tr('is required'));
+            return false;
+        }
+
+        // Field has a value, all okay
+        return true;
+    }
+
 
 
     /**
