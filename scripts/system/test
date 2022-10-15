@@ -59,20 +59,19 @@ $array = [
 ];
 
 Validator::array($array)
-//    ->select('test-name')->isString()
-//    ->select('test-integer')->isInteger()
-//    ->select('test-numeric')->isNumeric()
-//    ->select('test-string')->isString()
-//        ->select('test-array')->isArray()->recurse()
-//        ->select('sub-integer')->isInteger()
-//        ->select('sub-email')->isString()
-//        ->validate()
+    ->select('test-name')->isString()
+    ->select('test-numeric')->isNumeric()
+    ->select('test-string')->isString()
+        ->select('test-array')->isArray()->recurse()
+        ->select('sub-integer')->isInteger()
+        ->select('sub-email')->isString()
+        ->validate()
 //        ->select('test-not-array')->isArray()->recurse()
 //        ->select('sub-integer')->isInteger()
 //        ->select('sub-email')->isString()
 //        ->validate()
     ->select('test-integer')->isInteger()
-        ->select('test-list-array')->each()->isString()
+        ->select('test-list-array')->hasMaximumElements(3)->each()->isString()
         ->select('test-email')->isEmail()
     ->validate();
 

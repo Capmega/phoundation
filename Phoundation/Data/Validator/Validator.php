@@ -83,17 +83,11 @@ show('each');
             return $this;
         }
 
-        if ($this->process_value) {
-            // Process only one single process_value
+        foreach ($this->process_values as &$value) {
+            // Process all process_values
+            $this->process_value_failed = false;
+            $this->process_value = &$value;
             $this->process_value = $function($this->process_value);
-
-        } else {
-            foreach ($this->process_values as &$value) {
-                // Process all process_values
-                $this->process_value_failed = false;
-                $this->process_value = &$value;
-                $this->process_value = $function($this->process_value);
-            }
         }
 
         return $this;
@@ -216,6 +210,48 @@ show($value);
         return $this->validateValues(function(mixed $value) {
             if (!is_array($value)) {
                 $this->addFailure($this->selected_label, tr('must have an array value'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field array has a minimal amount of elements
+     *
+     * @param int $count
+     * @return Validator
+     */
+    public function hasMinimumElements(int $count): Validator
+    {
+        return $this->validateValues(function(mixed $value) use ($count) {
+            $this->isArray();
+
+            if (count($value) < $count) {
+                $this->addFailure($this->selected_label, tr('must have ":count" characters or more', [':count' => $count]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field array has a maximum amount of elements
+     *
+     * @param int $count
+     * @return Validator
+     */
+    public function hasMaximumElements(int $count): Validator
+    {
+        return $this->validateValues(function(mixed $value) use ($count) {
+            $this->isArray();
+
+            if (count($value) > $count) {
+                $this->addFailure($this->selected_label, tr('must have ":count" characters or less', [':count' => $count]));
             }
 
             return $value;
