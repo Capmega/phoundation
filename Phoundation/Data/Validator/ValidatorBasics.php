@@ -76,6 +76,13 @@ trait ValidatorBasics
     protected ?array $process_values = null;
 
     /**
+     * The single key that actually will be tested.
+     *
+     * @var int|string $process_key
+     */
+    protected mixed $process_key = null;
+
+    /**
      * The single value that actually will be tested.
      *
      * @var mixed $process_value
@@ -247,7 +254,7 @@ trait ValidatorBasics
         $this->selected_field    = $field;
         $this->selected_fields[] = $field;
         $this->selected_value    = $this->source[$field];
-        $this->process_values    = [&$this->selected_value];
+        $this->process_values    = [null => &$this->selected_value];
         $this->selected_optional = null;
 
         show('SELECTED ' . ($this->parent_field ? $this->parent_field . ' > ' : '') . $field);
@@ -392,7 +399,7 @@ trait ValidatorBasics
      */
     public function addFailure(string $failure, bool $modify = true): void
     {
-show('FAILURE: ' . $failure);
+show('FAILURE (' . $this->parent_field . ' / ' . $this->selected_field . ' / ' . $this->process_key . '): ' . $failure);
         if ($modify) {
             if (is_numeric($this->selected_field)) {
                 $failure = tr('The ":count" field ', [':count' => Strings::ordinalIndicator($this->selected_field)]) . $failure;
@@ -402,7 +409,7 @@ show('FAILURE: ' . $failure);
         }
 
         $this->process_value_failed = true;
-        $this->failures[($this->parent_field ? $this->selected_field : '') . $this->selected_field] = $failure;
+        $this->failures[($this->parent_field ? $this->selected_field . ' > ' : '') . $this->selected_field . ($this->process_key === null ? '' : ' > ' . $this->process_key)] = $failure;
     }
 
 

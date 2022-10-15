@@ -62,7 +62,7 @@ show('each');
      */
     public function single(): Validator
     {
-        $this->process_values = [&$this->selected_value];
+        $this->process_values = [null => &$this->selected_value];
 
         return $this;
     }
@@ -77,25 +77,38 @@ show('each');
      */
     protected function validateValues(callable $function): Validator
     {
-        $this->ensureSelected();
-        show('START VALIDATE VALUES "' . $this->selected_field . '" (' . ($this->process_value_failed ? 'FAILED' : 'NOT FAILED') . ')');
-        show($this->process_values);
-
-        if ($this->process_value_failed) {
-            show('NOT VALIDATING, ALREADY FAILED');
-            // In the span of multiple tests on one value, one test failed, don't execute the rest of the tests
-            return $this;
-        }
-
-        foreach ($this->process_values as &$value) {
-            show('VALUE:' . Strings::force($value));
-            // Process all process_values
-            $this->process_value_failed = false;
-            $this->process_value = &$value;
+        if ($this->process_value) {
+            // A single value was selected, test only this value
             $this->process_value = $function($this->process_value);
-        }
+        } else {
+            $this->ensureSelected();
+            show('START VALIDATE VALUES "' . $this->selected_field . '" (' . ($this->process_value_failed ? 'FAILED' : 'NOT FAILED') . ')');
+            show($this->process_values);
 
-        unset($value);
+            if ($this->process_value_failed) {
+                show('NOT VALIDATING, ALREADY FAILED');
+                // In the span of multiple tests on one value, one test failed, don't execute the rest of the tests
+                return $this;
+            }
+
+            foreach ($this->process_values as $key => &$value) {
+                show('KEY '.$key.' / VALUE:' . Strings::force($value));
+                // Process all process_values
+                $this->process_key = $key;
+                $this->process_value = &$value;
+                $this->process_value_failed = false;
+
+                $this->process_value = $function($this->process_value);
+            }
+
+            // Clear up work data
+            unset($value);
+            unset($this->process_key);
+            unset($this->process_value);
+
+            $this->process_key = null;
+            $this->process_value = null;
+        }
 
         return $this;
     }
@@ -111,7 +124,7 @@ show('each');
      */
     public function isBoolean(): Validator
     {
-        return $this->validateValues(function(mixed &$value) {
+        return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (Strings::getBoolean($value, false) === null) {
                     $this->addFailure(tr('must have a boolean value'));
@@ -133,7 +146,7 @@ show('each');
      */
     public function isInteger(): Validator
     {
-        return $this->validateValues(function(mixed &$value) {
+        return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (!is_integer($value)) {
                     $this->addFailure(tr('must have an integer value'));
@@ -155,7 +168,7 @@ show('each');
      */
     public function isFloat(): Validator
     {
-        return $this->validateValues(function(mixed &$value) {
+        return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (!is_float($value)) {
                     $this->addFailure(tr('must have a float value'));
@@ -177,7 +190,7 @@ show('each');
      */
     public function isNumeric(): Validator
     {
-        return $this->validateValues(function(mixed &$value) {
+        return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (!is_numeric($value)) {
                     $this->addFailure(tr('must have a numeric value'));
@@ -200,7 +213,7 @@ show('each');
      */
     public function isPositive(bool $allow_zero = false): Validator
     {
-        return $this->validateValues(function(mixed &$value) use ($allow_zero) {
+        return $this->validateValues(function($value) use ($allow_zero) {
             $this->isNumeric();
 
             if ($this->process_value_failed) {
@@ -228,7 +241,7 @@ show('each');
      */
     public function isMoreThan(int|float $amount): Validator
     {
-        return $this->validateValues(function(mixed &$value) use ($amount) {
+        return $this->validateValues(function($value) use ($amount) {
             $this->isNumeric();
 
             if ($this->process_value_failed) {
@@ -256,7 +269,7 @@ show('each');
      */
     public function isLessThan(int|float $amount): Validator
     {
-        return $this->validateValues(function(mixed &$value) use ($amount) {
+        return $this->validateValues(function($value) use ($amount) {
             $this->isNumeric();
 
             if ($this->process_value_failed) {
@@ -285,7 +298,7 @@ show('each');
      */
     public function isBetween(int|float $minimum, int|float $maximum): Validator
     {
-        return $this->validateValues(function(mixed &$value) use ($minimum, $maximum) {
+        return $this->validateValues(function($value) use ($minimum, $maximum) {
             $this->isNumeric();
 
             if ($this->process_value_failed) {
@@ -313,7 +326,7 @@ show('each');
      */
     public function isNegative(bool $allow_zero = false): Validator
     {
-        return $this->validateValues(function(mixed &$value) use ($allow_zero) {
+        return $this->validateValues(function($value) use ($allow_zero) {
             $this->isNumeric();
 
             if ($this->process_value_failed) {
@@ -340,7 +353,7 @@ show('each');
      */
     public function isScalar(): Validator
     {
-        return $this->validateValues(function(mixed &$value) {
+        return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (!is_scalar($value)) {
                     show($value);
@@ -364,7 +377,7 @@ show('each');
      */
     public function inArray(array $array) : Validator
     {
-        return $this->validateValues(function(mixed &$value) use ($array) {
+        return $this->validateValues(function($value) use ($array) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
             $this->hasMaxSize(Arrays::getLongestString($array));
@@ -393,7 +406,7 @@ show('each');
      */
     public function isString(): Validator
     {
-        return $this->validateValues(function(mixed &$value) {
+        return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (!is_string($value)) {
                     $this->addFailure(tr('must have a string value', [':field' => $this->selected_field]));
@@ -414,8 +427,10 @@ show('each');
      */
     public function hasMinSize(int $characters): Validator
     {
-        return $this->validateValues(function(mixed $value) use ($characters) {
+        return $this->validateValues(function($value) use ($characters) {
+            show('SIZE TEST KEY: '. $this->process_key);
             $this->isString();
+            show('SIZE TEST KEY: '. $this->process_key);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -445,7 +460,7 @@ show('each');
      */
     public function hasMaxSize(int $characters): Validator
     {
-        return $this->validateValues(function(mixed $value) use ($characters) {
+        return $this->validateValues(function($value) use ($characters) {
             $this->isString();
 
             if ($this->process_value_failed) {
@@ -472,7 +487,7 @@ show('each');
      */
     public function isArray(): Validator
     {
-        return $this->validateValues(function(mixed $value) {
+        return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (!is_array($value)) {
                     $this->addFailure(tr('must have an array value'));
@@ -493,7 +508,7 @@ show('each');
      */
     public function hasMinimumElements(int $count): Validator
     {
-        return $this->validateValues(function(mixed $value) use ($count) {
+        return $this->validateValues(function($value) use ($count) {
             $this->isArray();
 
             if ($this->process_value_failed) {
@@ -519,7 +534,7 @@ show('each');
      */
     public function hasMaximumElements(int $count): Validator
     {
-        return $this->validateValues(function(mixed $value) use ($count) {
+        return $this->validateValues(function($value) use ($count) {
             $this->isArray();
 
             if ($this->process_value_failed) {
@@ -547,7 +562,7 @@ show('each');
     public function isEmail(): Validator
     {
 show('TEST IS EMAIL');
-        return $this->validateValues(function(mixed $value) {
+        return $this->validateValues(function($value) {
 show('EMAIL FUNCTION');
             $this->hasMinSize(3);
             $this->hasMaxSize(128);
