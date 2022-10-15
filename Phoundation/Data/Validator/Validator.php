@@ -182,6 +182,76 @@ show('each');
     /**
      * Validates the datatype for the selected field
      *
+     * This method ensures that the specified array key is positive
+     *
+     * @param int|float $amount
+     * @return Validator
+     */
+    public function isMoreThan(int|float $amount): Validator
+    {
+        return $this->validateValues(function(mixed &$value) use ($amount) {
+            $this->isNumeric();
+
+            if ($value <= $amount) {
+                $this->addFailure($this->selected_label, tr('must be more than than ":amount"', [':amount' => $amount]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is positive
+     *
+     * @param int|float $amount
+     * @return Validator
+     */
+    public function isLessThan(int|float $amount): Validator
+    {
+        return $this->validateValues(function(mixed &$value) use ($amount) {
+            $this->isNumeric();
+
+            if ($value >= $amount) {
+                $this->addFailure($this->selected_label, tr('must be less than ":amount"', [':amount' => $amount]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is between the two specified amounts
+     *
+     * @param int|float $minimum
+     * @param int|float $maximum
+     * @return Validator
+     */
+    public function isBetween(int|float $minimum, int|float $maximum): Validator
+    {
+        return $this->validateValues(function(mixed &$value) use ($minimum, $maximum) {
+            $this->isNumeric();
+
+            if (($value <= $minimum) or ($value >= $maximum)) {
+                $this->addFailure($this->selected_label, tr('must be between ":amount" and ":maximum"', [':minimum' => $minimum, ':maximum' => $maximum]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
      * This method ensures that the specified array key is negative
      *
      * @param bool $allow_zero
@@ -193,7 +263,7 @@ show('each');
             $this->isNumeric();
 
             if ($value > ($allow_zero ? 0 : 1)) {
-                $this->addFailure($this->selected_label, tr('must have a negative value', [':field' => $this->selected_label]));
+                $this->addFailure($this->selected_label, tr('must have a negative value'));
             }
 
             return $value;
