@@ -159,6 +159,52 @@ show('each');
     /**
      * Validates the datatype for the selected field
      *
+     * This method ensures that the specified array key is positive
+     *
+     * @param bool $allow_zero
+     * @return Validator
+     */
+    public function isPositive(bool $allow_zero = false): Validator
+    {
+        return $this->validateValues(function(mixed &$value) use ($allow_zero) {
+            $this->isNumeric();
+
+            if ($value < ($allow_zero ? 0 : 1)) {
+                $this->addFailure($this->selected_label, tr('must have a positive value', [':field' => $this->selected_label]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is negative
+     *
+     * @param bool $allow_zero
+     * @return Validator
+     */
+    public function isNegative(bool $allow_zero = false): Validator
+    {
+        return $this->validateValues(function(mixed &$value) use ($allow_zero) {
+            $this->isNumeric();
+
+            if ($value > ($allow_zero ? 0 : 1)) {
+                $this->addFailure($this->selected_label, tr('must have a negative value', [':field' => $this->selected_label]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
      * This method ensures that the specified array key is a scalar value
      *
      * @return Validator
@@ -174,6 +220,7 @@ show('each');
             return $value;
         });
     }
+
 
 
     /**
