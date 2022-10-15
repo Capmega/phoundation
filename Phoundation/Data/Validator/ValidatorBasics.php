@@ -248,7 +248,7 @@ trait ValidatorBasics
         $this->selected_fields[] = $field;
         $this->selected_value    = $this->source[$field];
         $this->process_values    = [&$this->selected_value];
-        $this->selected_optional = false;
+        $this->selected_optional = null;
 
         show('SELECTED ' . ($this->parent_field ? $this->parent_field . ' > ' : '') . $field);
         return $this;
@@ -349,6 +349,7 @@ trait ValidatorBasics
         $this->process_value   = null;
         $this->source          = null;
     }
+
 
 
     /**

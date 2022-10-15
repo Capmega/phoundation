@@ -202,6 +202,26 @@ class Arrays {
 
 
     /**
+     * Return an array from the given object, recursively
+     *
+     * @param array $source
+     * @param string $separator
+     * @return string
+     */
+    public static function implode(array $source, string $separator = ','): string
+    {
+        foreach ($source as &$value) {
+            if (is_array($value)) {
+                $value = Arrays::implode($value, $separator);
+            }
+        }
+
+        return implode($separator, $source);
+    }
+
+
+
+    /**
      * Return an object from the given array, recursively
      *
      * @param array $array

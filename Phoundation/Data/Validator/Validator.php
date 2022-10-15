@@ -78,20 +78,24 @@ show('each');
     protected function validateValues(callable $function): Validator
     {
         $this->ensureSelected();
-        show('START VALIDATE VALUES (' . ($this->process_value_failed ? 'FAILED' : 'NOT FAILED') . ')');
+        show('START VALIDATE VALUES "' . $this->selected_field . '" (' . ($this->process_value_failed ? 'FAILED' : 'NOT FAILED') . ')');
         show($this->process_values);
 
         if ($this->process_value_failed) {
+            show('NOT VALIDATING, ALREADY FAILED');
             // In the span of multiple tests on one value, one test failed, don't execute the rest of the tests
             return $this;
         }
 
         foreach ($this->process_values as &$value) {
+            show('VALUE:' . Strings::force($value));
             // Process all process_values
             $this->process_value_failed = false;
             $this->process_value = &$value;
             $this->process_value = $function($this->process_value);
         }
+
+        unset($value);
 
         return $this;
     }

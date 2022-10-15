@@ -648,14 +648,12 @@ class Strings
                 return gettype($source);
             }
 
-            /*
-             * Encoding?
-             */
+            // Encoding?
             if ($separator === 'json') {
                 $source = Json::encode($source);
 
             } else {
-                $source = implode($separator, $source);
+                $source = Arrays::implode($source, $separator);
             }
         }
 
