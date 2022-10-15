@@ -41,11 +41,13 @@ Scripts::noArgumentsLeft($argv);
 
 
 $array = [
-    'test-list-array' => ['a', 'b', 'c', 'd', 'e'],
+    'test-list-array' => ['sub-list-array' => ['a', 'b', 'c', 'd', 'e']],
 ];
 
 Validator::array($array)
-    ->select('test-list-array')->hasMinimumElements(3)->each()->hasMinSize(4)
+    ->select('test-list-array')->recurse()
+        ->select('sub-list-array')->hasMinimumElements(3)->each()->hasMinSize(4)
+        ->validate()
     ->validate();
 
 show($array);

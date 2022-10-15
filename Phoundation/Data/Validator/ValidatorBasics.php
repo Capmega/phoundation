@@ -7,6 +7,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Exception\NoKeySelectedException;
 use Phoundation\Data\Exception\ValidationFailedException;
+use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Processes\ProcessCommands;
 use function PHPUnit\Framework\returnArgument;
@@ -121,6 +122,19 @@ trait ValidatorBasics
      */
     protected array $children = [];
 
+    /**
+     * Internal $_GET array until validation has been completed
+     *
+     * @var array|null
+     */
+    protected static ?array $get = null;
+
+    /**
+     * Internal $_POST array until validation has been completed
+     *
+     * @var array|null
+     */
+    protected static ?array $post = null;
 
 
     /**
@@ -317,7 +331,7 @@ trait ValidatorBasics
         if ($this->parent) {
             // Copy failures from the child to the parent and return the parent to continue
             foreach ($this->failures as $field => $failure) {
-                $this->parent->addFailure($field, $failure, false);
+                $this->parent->addFailure($failure, $field);
             }
 
             // Clear the contents of this object to avoid stuck references
@@ -329,7 +343,7 @@ trait ValidatorBasics
             Log::warning(tr('Array validation ended with the following failures'), 3);
             Log::warning($this->failures, 2);
 
-            throw new ValidationFailedException(tr('Validation of the array failed with the registered failures'), $this->failures);
+            throw Exceptions::ValidationFailedException(tr('Validation of the array failed with the registered failures'), $this->failures)->makeWarning();
         }
 
         return $this;
@@ -394,22 +408,53 @@ trait ValidatorBasics
      * Add the specified failure message to the failures list
      *
      * @param string $failure
-     * @param bool $modify
+     * @param string|null $field
      * @return void
      */
-    public function addFailure(string $failure, bool $modify = true): void
+    public function addFailure(string $failure, ?string $field = null): void
     {
 show('FAILURE (' . $this->parent_field . ' / ' . $this->selected_field . ' / ' . $this->process_key . '): ' . $failure);
-        if ($modify) {
+        // Build up the failure string
+        if (is_numeric($this->process_key)) {
             if (is_numeric($this->selected_field)) {
-                $failure = tr('The ":count" field ', [':count' => Strings::ordinalIndicator($this->selected_field)]) . $failure;
+                if ($this->parent_field) {
+                    $failure = tr('The ":key" field in ":field" in ":parent" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => Strings::ordinalIndicator($this->selected_field), ':parent' => $this->parent_field]) . $failure;
+                } else {
+                    $failure = tr('The ":key" field in ":field" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => Strings::ordinalIndicator($this->selected_field)]) . $failure;
+                }
+            } else if ($this->parent_field) {
+                $failure = tr('The ":key" field in ":field" in ":parent" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => $this->selected_field, ':parent' => $this->parent_field]) . $failure;
             } else {
-                $failure = tr('The ":field" field in the section ":parent" ', [':parent' => $this->parent_field, ':field' => $this->selected_field]) . $failure;
+                $failure = tr('The ":key" field in ":field" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => $this->selected_field]) . $failure;
+            }
+        } elseif (is_numeric($this->selected_field)) {
+            if ($this->parent_field) {
+                $failure = tr('The ":key" field in ":parent" ', [':count' => Strings::ordinalIndicator($this->selected_field), ':parent' => $this->parent_field]) . $failure;
+            } else {
+                $failure = tr('The ":key" field ', [':count' => Strings::ordinalIndicator($this->selected_field)]) . $failure;
+            }
+        } elseif ($this->parent_field) {
+            $failure = tr('The ":field" field in ":parent" ', [':parent' => $this->parent_field, ':field' => $this->selected_field]) . $failure;
+        } else {
+            $failure = tr('The ":field" ', [':parent' => $this->parent_field, ':field' => $this->selected_field]) . $failure;
+        }
+
+        // Generate key to store this failure
+        if (!$field){
+            if ($this->parent_field) {
+                $field = $this->parent_field . ':' . $this->selected_field;
+            } else {
+                $field = $this->selected_field;
+            }
+
+            if ($this->process_key !== null) {
+                $field .= ':' . $this->process_key;
             }
         }
 
+        // Store the failure
         $this->process_value_failed = true;
-        $this->failures[($this->parent_field ? $this->selected_field . ' > ' : '') . $this->selected_field . ($this->process_key === null ? '' : ' > ' . $this->process_key)] = $failure;
+        $this->failures[$field] = $failure;
     }
 
 
@@ -422,6 +467,44 @@ show('FAILURE (' . $this->parent_field . ' / ' . $this->selected_field . ' / ' .
     public function getFailures(): array
     {
         return $this->failures;
+    }
+
+
+
+    /**
+     * Link $_GET and $_POST data to internal arrays to ensure developers cannot access them until validation has been
+     * completed
+     *
+     * @param array $get
+     * @param array $post
+     * @return void
+     */
+    public function hideGetPost(array &$get, array &$post): void
+    {
+        global $_GET, $_POST;
+
+        $this->get  = &$get;
+        $this->post = &$post;
+
+        unset($_REQUEST);
+    }
+
+
+
+    /**
+     * Gives free and full access to $_GET and $_POST data, now that it has been validated
+     *
+     * @return void
+     */
+    protected static function liberateGetPost(): void
+    {
+        global $_GET, $_POST;
+
+        $_GET = &self::$get;
+        $_POST = &self::$post;
+
+        unset(self::$get);
+        unset(self::$post);
     }
 
 
