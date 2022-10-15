@@ -108,7 +108,7 @@ show('each');
     public function isBoolean(): Validator
     {
         return $this->validateValues(function(mixed &$value) {
-            if($this->checkIsOptional($value)) {
+            if ($this->checkIsOptional($value)) {
                 if (Strings::getBoolean($value, false) === null) {
                     $this->addFailure(tr('must have a boolean value'));
                 }
@@ -130,7 +130,7 @@ show('each');
     public function isInteger(): Validator
     {
         return $this->validateValues(function(mixed &$value) {
-            if($this->checkIsOptional($value)) {
+            if ($this->checkIsOptional($value)) {
                 if (!is_integer($value)) {
                     $this->addFailure(tr('must have an integer value'));
                 }
@@ -152,7 +152,7 @@ show('each');
     public function isFloat(): Validator
     {
         return $this->validateValues(function(mixed &$value) {
-            if($this->checkIsOptional($value)) {
+            if ($this->checkIsOptional($value)) {
                 if (!is_float($value)) {
                     $this->addFailure(tr('must have a float value'));
                 }
@@ -174,7 +174,7 @@ show('each');
     public function isNumeric(): Validator
     {
         return $this->validateValues(function(mixed &$value) {
-            if($this->checkIsOptional($value)) {
+            if ($this->checkIsOptional($value)) {
                 if (!is_numeric($value)) {
                     $this->addFailure(tr('must have a numeric value'));
                 }
@@ -337,7 +337,7 @@ show('each');
     public function isScalar(): Validator
     {
         return $this->validateValues(function(mixed &$value) {
-            if($this->checkIsOptional($value)) {
+            if ($this->checkIsOptional($value)) {
                 if (!is_scalar($value)) {
                     show($value);
                     $this->addFailure(tr('must have a scalar value', [':field' => $this->selected_field]));
@@ -390,7 +390,7 @@ show('each');
     public function isString(): Validator
     {
         return $this->validateValues(function(mixed &$value) {
-            if($this->checkIsOptional($value)) {
+            if ($this->checkIsOptional($value)) {
                 if (!is_string($value)) {
                     $this->addFailure(tr('must have a string value', [':field' => $this->selected_field]));
                 }
@@ -469,7 +469,7 @@ show('each');
     public function isArray(): Validator
     {
         return $this->validateValues(function(mixed $value) {
-            if($this->checkIsOptional($value)) {
+            if ($this->checkIsOptional($value)) {
                 if (!is_array($value)) {
                     $this->addFailure(tr('must have an array value'));
                 }

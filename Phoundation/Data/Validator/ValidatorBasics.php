@@ -61,11 +61,11 @@ trait ValidatorBasics
     protected mixed $selected_value = null;
 
     /**
-     * If true, the currently selected field may be non-existent or NULL
+     * If not NULL, the currently selected field may be non-existent or NULL, it will receive this default value
      *
-     * @var bool $selected_optional
+     * @var mixed $selected_optional
      */
-    protected bool $selected_optional = false;
+    protected mixed $selected_optional = null;
 
     /**
      * The value(s) that actually will be tested. This most of the time will be an array with a single reference to
@@ -255,16 +255,19 @@ trait ValidatorBasics
     }
 
 
+
     /**
-     * This method will make the selected field optional
+     * This method will make the selected field optional and use the specified $default instead
      *
      * This means that either it may not exist, or it's contents may be NULL
      *
+     * @param bool|int|float|string|array $default
      * @return Validator
      */
-    public function isOptional(): Validator
+    public function isOptional(bool|int|float|string|array $default): Validator
     {
-        $this->selected_optional = true;
+        $this->selected_optional = $default;
+        return $this;
     }
 
 
@@ -348,32 +351,32 @@ trait ValidatorBasics
     }
 
 
-
     /**
      * Return if this field is optional or not
      *
-     * @param mixed $value
+     * @param mixed $value The value to test
      * @return bool
      */
-    protected function checkIsOptional(mixed $value): bool
+    protected function checkIsOptional(mixed &$value): bool
     {
         if ($this->process_value_failed) {
             // Value processing already failed anyway, so always fail
             return false;
         }
 
-        if ($this->selected_optional) {
+        if ($value === null) {
+            if ($this->selected_optional === null) {
+                // At this point we know we MUST have a value, so we're bad here
+                $this->addFailure(tr('is required'));
+                return false;
+            }
+
             // If value is set or not doesn't matter, its okay
+            $value = $this->selected_optional;
             return true;
         }
 
-        if ($value === null) {
-            // At this point we know we MUST have a value, so we're bad here
-            $this->addFailure(tr('is required'));
-            return false;
-        }
-
-        // Field has a value, all okay
+        // Field has a value, we're okay
         return true;
     }
 
