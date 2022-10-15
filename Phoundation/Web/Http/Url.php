@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Http;
+namespace Phoundation\Web\Http;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;

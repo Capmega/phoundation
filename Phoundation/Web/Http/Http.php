@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Http;
+namespace Phoundation\Web\Http;
 
 use DateTime;
 use Phoundation\Core\Arrays;

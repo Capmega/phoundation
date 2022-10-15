@@ -6,6 +6,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Scripts;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Data\Exception\ValidationFailedException;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exception;
@@ -1299,7 +1300,7 @@ class Core {
                          * If not using VERBOSE mode, then try to give nice error messages
                          * for known issues
                          */
-                        if (($e instanceof Exception) and $e->isWarning()) {
+                        if (($e instanceof Exception) and ($e->isWarning() or $e instanceof ValidationFailedException)) {
                             // This is just a simple general warning, no backtrace and such needed, only show the
                             // principal message
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));

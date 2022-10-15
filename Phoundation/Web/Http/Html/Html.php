@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Http\Html;
+namespace Phoundation\Web\Http\Html;
 
 
 

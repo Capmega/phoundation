@@ -1,6 +1,8 @@
 <?php
 
-namespace Phoundation\Exception;
+namespace Phoundation\Web\Exception;
+
+use Phoundation\Exception\Exception;
 
 
 

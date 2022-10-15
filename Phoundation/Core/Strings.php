@@ -1609,10 +1609,10 @@ class Strings
      * This function will return the specified count with the correct orginal indicator
      *
      * @note This currently only works for English!
-     * @param int $count
+     * @param int|float $count
      * @return string
      */
-    public static function ordinalIndicator(int $count): string
+    public static function ordinalIndicator(int|float $count): string
     {
         switch ($count) {
             case 1:
@@ -1625,7 +1625,7 @@ class Strings
                 return tr('3rd');
 
             default:
-                return tr(':countth', [':count', $count]);
+                return tr(':countth', [':count' => $count]);
         }
     }
 }

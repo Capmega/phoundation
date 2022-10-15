@@ -2,12 +2,15 @@
 
 namespace Phoundation\Web;
 
-
-
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
+use Phoundation\Data\Validator\Validator;
+use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Http;
+
+
 
 /**
  * Class Web
@@ -22,6 +25,34 @@ use Phoundation\Web\Http\Http;
 class Web
 {
     /**
+     * Storage for the $_GET array data to hide it from the devs until validation is done
+     *
+     * @var array|null
+     */
+    protected ?array $get = null;
+
+    /**
+     * Storage for the $_POST array data to hide it from the devs until validation is done
+     *
+     * @var array|null
+     */
+    protected ?array $post = null;
+
+
+
+    /**
+     * Returns a validator object
+     *
+     * @return Validator
+     */
+    public function getValidator(): Validator
+    {
+        Validator::onValidationSuccess(function() use ($this) {$this->liberateUserData()});
+    }
+
+
+
+    /**
      * Execute the specified webpage
      *
      * @param string $page
@@ -29,6 +60,8 @@ class Web
      */
     public static function execute(string $page): void
     {
+        $this->hideserData();
+
         Arrays::ensure($params, 'message');
 
         // Startup the core object
@@ -36,7 +69,7 @@ class Web
 
         if ($get) {
             if (!is_array($get)) {
-                throw new CoreException(tr('page_show(): Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
+                throw new WebException(tr('page_show(): Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
             }
 
             $_GET = $get;

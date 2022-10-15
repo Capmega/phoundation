@@ -7,6 +7,7 @@ use Phoundation\Cli\Exception\CliInvalidArgumentsException;
 use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Data\Exception\ValidationFailedException;
 use Phoundation\Developer\Debug;
 use Phoundation\Notify\Notification;
 use Throwable;
@@ -234,5 +235,21 @@ class Exceptions
     public static function CliInvalidArgumentsException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): CliInvalidArgumentsException
     {
         return new CliInvalidArgumentsException($messages, $data, $code, $previous);
+    }
+
+
+
+    /**
+     * Exceptions factory for ValidationFailedException
+     *
+     * @param string|array $messages
+     * @param mixed|null $data
+     * @param string|null $code
+     * @param Throwable|null $previous
+     * @return \Phoundation\Cli\Exception\ValidationFailedException
+     */
+    public static function ValidationFailedException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): ValidationFailedException
+    {
+        return new ValidationFailedException($messages, $data, $code, $previous);
     }
 }
