@@ -425,17 +425,36 @@ show('each');
      * @param int $characters
      * @return Validator
      */
-    public function hasMinSize(int $characters): Validator
+    public function hasCharacters(int $characters): Validator
     {
         return $this->validateValues(function($value) use ($characters) {
-            show('SIZE TEST KEY: '. $this->process_key);
             $this->isString();
-            show('SIZE TEST KEY: '. $this->process_key);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return '';
             }
+
+            if (strlen($value) != $characters) {
+                $this->addFailure(tr('must have ":count" characters or more', [':count' => $characters]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field is equal or larger than the specified amount of characters
+     *
+     * @param int $characters
+     * @return Validator
+     */
+    public function hasMinCharacters(int $characters): Validator
+    {
+        return $this->validateValues(function($value) use ($characters) {
+            $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -458,7 +477,7 @@ show('each');
      * @param int $characters
      * @return Validator
      */
-    public function hasMaxSize(int $characters): Validator
+    public function hasMaxCharacters(int $characters): Validator
     {
         return $this->validateValues(function($value) use ($characters) {
             $this->isString();

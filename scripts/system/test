@@ -41,12 +41,29 @@ Scripts::noArgumentsLeft($argv);
 
 
 $array = [
+    'test-numeric' => ' 1 ',
+    'test-string' => 'blergh',
     'test-list-array' => ['sub-list-array' => ['a', 'b', 'c', 'd', 'e']],
+    'test-array' => [
+        'sub-integer' => 23974,
+        'sub-email' => 'so.oostenbrink@gmail.com',
+        'sub-sub-array' => [
+            'sub-sub-email' => 'so.oostenbrink@gmail.com',
+        ]
+    ],
 ];
 
 Validator::array($array)
+    ->select('test-optional')->isOptional([])->isArray()
     ->select('test-list-array')->recurse()
-        ->select('sub-list-array')->hasMinimumElements(3)->each()->hasMinSize(4)
+        ->select('sub-list-array')->hasMinimumElements(3)->each()->hasMinSize(1)
+        ->validate()
+    ->select('test-array')->isArray()->recurse()
+        ->select('sub-integer')->isInteger()
+        ->select('sub-sub-array')->isArray()->recurse()
+            ->select('sub-sub-email')->isEmail()
+            ->validate()
+        ->select('sub-email')->isString()
         ->validate()
     ->validate();
 
@@ -67,13 +84,6 @@ show($array);
 //    'test-integer' => 293874,
 //    'test-numeric' => ' 1 ',
 //    'test-string' => 'blergh',
-//    'test-array' => [
-//        'sub-integer' => 23974,
-//        'sub-email' => 'so.oostenbrink@gmail.com',
-//        'sub-sub-array' => [
-//            'sub-sub-email' => 'so.oostenbrink@gmail.com',
-//        ]
-//    ],
 //    'test-not-array' => 'blergh!',
 //    'test-not-validated' => 'This entry should be deleted!',
 //    'test-list-array' => ['a', 'b', 'c', 'd', 'e'],
@@ -82,17 +92,9 @@ show($array);
 //];
 //
 //Validator::array($array)
-//    ->select('test-optional')->isOptional([])->isArray()
 //    ->select('test-name')->isString()
 //    ->select('test-numeric')->isNumeric()
 //    ->select('test-string')->isString()
-//    ->select('test-array')->isArray()->recurse()
-//        ->select('sub-integer')->isInteger()
-//        ->select('sub-sub-array')->isArray()->recurse()
-//            ->select('sub-sub-email')->isEmail()
-//            ->validate()
-//        ->select('sub-email')->isString()
-//        ->validate()
 //////        ->select('test-not-array')->isArray()->recurse()
 ////        ->select('sub-integer')->isInteger()
 ////        ->select('sub-email')->isString()
