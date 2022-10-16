@@ -234,6 +234,20 @@ show('each');
     /**
      * Validates the datatype for the selected field
      *
+     * This method ensures that the specified array key is a valid database id (integer, 1 and above)
+     *
+     * @return Validator
+     */
+    public function isId(): Validator
+    {
+        return $this->isPositive(false);
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
      * This method ensures that the specified array key is positive
      *
      * @param int|float $amount
@@ -580,11 +594,8 @@ show('each');
      */
     public function isEmail(): Validator
     {
-show('TEST IS EMAIL');
         return $this->validateValues(function($value) {
-show('EMAIL FUNCTION');
-            $this->hasMinSize(3);
-            $this->hasMaxSize(128);
+            $this->hasMinCharacters(3)->hasMaxCharacters(128);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more

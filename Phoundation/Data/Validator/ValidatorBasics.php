@@ -7,6 +7,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Exception\NoKeySelectedException;
 use Phoundation\Data\Exception\ValidationFailedException;
+use Phoundation\Data\Exception\ValidatorException;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Processes\ProcessCommands;
@@ -282,12 +283,43 @@ trait ValidatorBasics
      *
      * This means that either it may not exist, or it's contents may be NULL
      *
+     * @see Validator::xor()
      * @param bool|int|float|string|array $default
      * @return Validator
      */
     public function isOptional(bool|int|float|string|array $default): Validator
     {
         $this->selected_optional = $default;
+        return $this;
+    }
+
+
+
+    /**
+     * This method will make sure that either this field OR the other specified field will have a value
+     *
+     * @see Validator::isOptional()
+     * @param string $field
+     * @return Validator
+     */
+    public function xor(string $field): Validator
+    {
+        if ($this->selected_field === $field) {
+            throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [':field' => $field]));
+        }
+
+        if (array_key_exists($this->selected_field, $this->source)) {
+            // The currently selected field exists, the specified field cannot exist
+            if (array_key_exists($field, $this->source)) {
+
+            }
+        } else {
+            // The currently selected field does not exists, the specified field MUST exist
+            if (!array_key_exists($field, $this->source)) {
+                
+            }
+        }
+
         return $this;
     }
 
