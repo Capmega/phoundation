@@ -1052,8 +1052,12 @@ show('each');
     /**
      * Validates if the selected field is a valid JSON string
      *
-     * @see self::sanitizeDecodeJson()
      * @return Validator
+     * @see self::isCsv()
+     * @see self::isBase58()
+     * @see self::isBase64()
+     * @see self::isSerialized()
+     * @see self::sanitizeDecodeJson()
      */
     public function isJson(): Validator
     {
@@ -1078,13 +1082,15 @@ show('each');
 
 
     /**
-     * Validates if the selected field is a valid JSON string
+     * Validates if the selected field is a valid CSV string
      *
-     * @note: This function is by default limited to 1073741824 (1GB) characters
      * @param string $separator The separation character, defaults to comma
      * @param string $enclosure
      * @param string $escape
      * @return Validator
+     * @see self::isBase58()
+     * @see self::isBase64()
+     * @see self::isSerialized()
      * @see self::sanitizeDecodeCsv()
      */
     public function isCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): Validator
@@ -1100,7 +1106,101 @@ show('each');
             try {
                 str_getcsv($value, $separator, $enclosure, $escape);
             } catch (Throwable $e) {
-                    $this->addFailure(tr('must contain a valid ":separator" separated string', [':separator' => $separator]));
+                $this->addFailure(tr('must contain a valid ":separator" separated string', [':separator' => $separator]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a serialized string
+     *
+     * @return Validator
+     * @see self::isCsv()
+     * @see self::isBase58()
+     * @see self::isBase64()
+     * @see self::isSerialized()
+     * @see self::sanitizeDecodeSerialized()
+     */
+    public function isSerialized(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(3)->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            try {
+                unserialize($value);
+            } catch (Throwable $e) {
+                $this->addFailure(tr('must contain a valid serialized string'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a base58 string
+     *
+     * @return Validator
+     * @see self::isCsv()
+     * @see self::isBase64()
+     * @see self::isSerialized()
+     * @see self::sanitizeDecodeBase58()
+     */
+    public function isBase58(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(3)->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            try {
+                base58_decode($value);
+            } catch (Throwable $e) {
+                $this->addFailure(tr('must contain a valid bas58 encoded string'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a base64 string
+     *
+     * @return Validator
+     * @see self::isCsv()
+     * @see self::isBase58()
+     * @see self::isSerialized()
+     * @see self::sanitizeDecodeBase64()
+     */
+    public function isBase64(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(3)->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            try {
+                base64_decode($value);
+            } catch (Throwable $e) {
+                $this->addFailure(tr('must contain a valid bas64 encoded string'));
             }
 
             return $value;
@@ -1127,6 +1227,64 @@ show('each');
             }
 
             $value = trim($value, $characters);
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Sanitize the selected value by making the entire string uppercase
+     *
+     * @return Validator
+     * @see self::sanitizeTrim()
+     * @see self::sanitizeLowercase()
+     */
+    public function sanitizeUppercase(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(3)->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            try {
+                $value = mb_strtoupper($value);
+            } catch (Throwable $e) {
+                $this->addFailure(tr('must contain a valid string'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Sanitize the selected value by making the entire string lowercase
+     *
+     * @return Validator
+     * @see self::sanitizeTrim()
+     * @see self::sanitizeUppercase()
+     */
+    public function sanitizeLowercase(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(3)->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            try {
+                $value = mb_strtolower($value);
+            } catch (Throwable $e) {
+                $this->addFailure(tr('must contain a valid string'));
+            }
 
             return $value;
         });
@@ -1207,8 +1365,11 @@ show('each');
      * @param string $escape
      * @return Validator
      * @see self::isCsv()
+     * @see self::sanitizeDecodeBase58()
+     * @see self::sanitizeDecodeBase64()
      * @see self::sanitizeDecodeJson()
      * @see self::sanitizeDecodeSerialized()
+     * @see self::sanitizeDecodeUrl()
      */
     public function sanitizeDecodeCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): Validator
     {
@@ -1234,8 +1395,11 @@ show('each');
      * Sanitize the selected value by decoding the specified CSV
      *
      * @return Validator
+     * @see self::sanitizeDecodeBase58()
+     * @see self::sanitizeDecodeBase64()
      * @see self::sanitizeDecodeCsv()
      * @see self::sanitizeDecodeJson()
+     * @see self::sanitizeDecodeUrl()
      */
     public function sanitizeDecodeSerialized(): Validator
     {
@@ -1249,6 +1413,96 @@ show('each');
                 $value = unserialize($value);
             } catch (Throwable $e) {
                 $this->addFailure(tr('must contain a valid serialized string'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Sanitize the selected value by decoding the specified CSV
+     *
+     * @return Validator
+     * @see self::sanitizeDecodeBase64()
+     * @see self::sanitizeDecodeCsv()
+     * @see self::sanitizeDecodeJson()
+     * @see self::sanitizeDecodeSerialized()
+     * @see self::sanitizeDecodeUrl()
+     */
+    public function sanitizeDecodeBase58(): Validator
+    {
+        return $this->validateValues(function($value) {
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            try {
+                $value = base58_decode($value);
+            } catch (Throwable $e) {
+                $this->addFailure(tr('must contain a valid base58 encoded string'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Sanitize the selected value by decoding the specified CSV
+     *
+     * @return Validator
+     * @see self::sanitizeDecodeBase58()
+     * @see self::sanitizeDecodeCsv()
+     * @see self::sanitizeDecodeJson()
+     * @see self::sanitizeDecodeSerialized()
+     * @see self::sanitizeDecodeUrl()
+     */
+    public function sanitizeDecodeBase64(): Validator
+    {
+        return $this->validateValues(function($value) {
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            try {
+                $value = base64_decode($value);
+            } catch (Throwable $e) {
+                $this->addFailure(tr('must contain a valid base64 encoded string'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Sanitize the selected value by decoding the specified CSV
+     *
+     * @return Validator
+     * @see self::sanitizeDecodeBase58()
+     * @see self::sanitizeDecodeBase64()
+     * @see self::sanitizeDecodeCsv()
+     * @see self::sanitizeDecodeJson()
+     * @see self::sanitizeDecodeSerialized()
+     */
+    public function sanitizeDecodeUrl(): Validator
+    {
+        return $this->validateValues(function($value) {
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            try {
+                $value = urldecode($value);
+            } catch (Throwable $e) {
+                $this->addFailure(tr('must contain a valid url string'));
             }
 
             return $value;
