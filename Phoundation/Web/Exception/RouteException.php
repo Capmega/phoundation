@@ -1,6 +1,8 @@
 <?php
 
-namespace Phoundation\Http\Exception;
+namespace Phoundation\Web\Exception;
+
+
 
 /**
  * Class RouteException
@@ -11,8 +13,8 @@ namespace Phoundation\Http\Exception;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Cli
+ * @package Phoundation\Web
  */
-class RouteException extends HttpException
+class RouteException extends WebException
 {
 }
