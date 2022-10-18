@@ -2,11 +2,11 @@
 
 namespace Phoundation\Data\Validator;
 
-
-
 use DateTime;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
+
+
 
 /**
  * Validator class
@@ -559,6 +559,206 @@ show('each');
 
             if (!preg_match($regex, $value)) {
                 $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field contains only alphabet characters
+     *
+     * @return Validator
+     */
+    public function isAlpha(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!ctype_alpha($value)) {
+                $this->addFailure(tr('must contain only letters'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field contains only alphanumeric characters
+     *
+     * @return Validator
+     */
+    public function isAlphaNumeric(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!ctype_alnum($value)) {
+                $this->addFailure(tr('must contain only letters and numbers'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field contains only lowercase letters
+     *
+     * @return Validator
+     */
+    public function isLowercase(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!ctype_lower($value)) {
+                $this->addFailure(tr('must contain only lowercase letters'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field contains only uppercase letters
+     *
+     * @return Validator
+     */
+    public function isUppercase(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!ctype_upper($value)) {
+                $this->addFailure(tr('must contain only uppercase letters'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field contains only characters that are printable, but neither letter, digit or blank
+     *
+     * @return Validator
+     */
+    public function isPunct(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!ctype_punct($value)) {
+                $this->addFailure(tr('must contain only uppercase letters'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field contains only printable characters (including blanks)
+     *
+     * @return Validator
+     */
+    public function isPrintable(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!ctype_print($value)) {
+                $this->addFailure(tr('must contain only printable characters'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field contains only printable characters (NO blanks)
+     *
+     * @return Validator
+     */
+    public function isGraph(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!ctype_graph($value)) {
+                $this->addFailure(tr('must contain only visible characters'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field contains only hexadecimal characters
+     *
+     * @return Validator
+     */
+    public function isHexadecimal(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!ctype_xdigit($value)) {
+                $this->addFailure(tr('must contain only hexadecimal characters'));
             }
 
             return $value;
