@@ -4,6 +4,7 @@ namespace Phoundation\Data\Validator;
 
 
 
+use DateTime;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 
@@ -394,7 +395,7 @@ show('each');
         return $this->validateValues(function($value) use ($array) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
-            $this->hasMaxSize(Arrays::getLongestString($array));
+            $this->hasMaxCharacters(Arrays::getLongestString($array));
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -403,6 +404,35 @@ show('each');
 
             if (!in_array($value, $array)) {
                 $this->addFailure(tr('must be one of ":list"', [':list' => $array]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key contains the specified string
+     *
+     * @param string $string
+     * @return Validator
+     */
+    public function contains(string $string) : Validator
+    {
+        return $this->validateValues(function($value) use ($string) {
+            // This value must be scalar
+            $this->isScalar();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!str_contains($value, $string)) {
+                $this->addFailure(tr('must contain ":value"', [':value' => $string]));
             }
 
             return $value;
@@ -512,6 +542,113 @@ show('each');
 
 
     /**
+     * Validates that the selected field matches the specified regex
+     *
+     * @param string $regex
+     * @return Validator
+     */
+    public function matchesRegex(string $regex): Validator
+    {
+        return $this->validateValues(function($value) use ($regex) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!preg_match($regex, $value)) {
+                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field is a date
+     *
+     * @return Validator
+     */
+    public function isDate(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->isString();
+            $this->hasMaxCharacters(64); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+// TODO Implement
+//            if (!preg_match($regex, $value)) {
+//                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
+//            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected date field is older than the specified date
+     *
+     * @param DateTime $date_time
+     * @return Validator
+     */
+    public function isOlderThan(DateTime $date_time): Validator
+    {
+        return $this->validateValues(function($value) use ($date_time) {
+            $this->isDate();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+// TODO Implement
+//            if (!preg_match($regex, $value)) {
+//                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
+//            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected date field is younger than the specified date
+     *
+     * @param DateTime $date_time
+     * @return Validator
+     */
+    public function isYoungerThan(DateTime $date_time): Validator
+    {
+        return $this->validateValues(function($value) use ($date_time) {
+            $this->isDate();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+// TODO Implement
+//            if (!preg_match($regex, $value)) {
+//                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
+//            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
      * Validates the datatype for the selected field
      *
      * This method ensures that the specified array key is an array
@@ -525,6 +662,32 @@ show('each');
                 if (!is_array($value)) {
                     $this->addFailure(tr('must have an array value'));
                 }
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field array has a minimal amount of elements
+     *
+     * @param int $count
+     * @return Validator
+     */
+    public function hasElements(int $count): Validator
+    {
+        return $this->validateValues(function($value) use ($count) {
+            $this->isArray();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (count($value) != $count) {
+                $this->addFailure(tr('must have exactly ":count" elements', [':count' => $count]));
             }
 
             return $value;

@@ -13,6 +13,7 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Processes\Processes;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
 use Phoundation\Notify\Notification;
@@ -1009,6 +1010,18 @@ class Core {
 
 
     /**
+     * Returns true if the system is running in PHPUnit
+     *
+     * @return bool
+     */
+    public static function isPhpUnitTest(): bool
+    {
+        return self::readRegister('system', 'script') === 'phpunit';
+    }
+
+
+
+    /**
      * Returns true if the system has finished starting up
      *
      * @param string|null $state If specified will return the startup state for the specified state instead of the
@@ -1977,6 +1990,11 @@ class Core {
      */
     protected static function processFileUidMatches(bool $auto_switch = false, bool $permit_root = true): void
     {
+        if (self::isPhpUnitTest()) {
+            // Don't restart PHPUnit
+            return;
+        }
+
         if (Scripts::getProcessUid() !== getmyuid()) {
             if (!Scripts::getProcessUid() and $permit_root) {
                 // Root is authorized!
@@ -1988,9 +2006,9 @@ class Core {
             }
 
             // Re-execute this command as the specified user
-            Log::warning(tr('Current user ":user" is not authorized to execute this script, re-executing script as user ":reuser"', [':user' => cli_get_process_uid(), ':reuser' => getmyuid()]));
+            Log::warning(tr('Current user ":user" is not authorized to execute this script, re-executing script as user ":reuser"', [':user' => Scripts::getProcessUid(), ':reuser' => getmyuid()]));
 
-            $argv = self::$register['argv'];
+            $argv = $GLOBALS['argv'];
             array_shift($argv);
 
             $arguments   = ['sudo' => 'sudo -Eu \''.get_current_user().'\''];
@@ -2002,11 +2020,12 @@ class Core {
                 $arguments[] = self::$register['timeout'];
             }
 
-            Scripts::execute([
-                'delay'    => 1,
-                'function' => 'passthru',
-                'commands' => [self::$register['script_file'], $arguments]
-            ]);
+            // Execute the process
+            Processes::create(ROOT . '/cli')
+                ->setWait(1)
+                ->setTimeout(self::readRegister('system', 'timeout'))
+                ->setArguments($arguments)
+                ->executePassthru();
 
             Log::success(tr('Finished re-executed script ":script"', [':script' => self::$register['system']['script']]));
             die();

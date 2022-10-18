@@ -6,12 +6,10 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Exception\NoKeySelectedException;
-use Phoundation\Data\Exception\ValidationFailedException;
 use Phoundation\Data\Exception\ValidatorException;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Processes\ProcessCommands;
-use function PHPUnit\Framework\returnArgument;
+
 
 
 /**
@@ -308,15 +306,15 @@ trait ValidatorBasics
             throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [':field' => $field]));
         }
 
-        if (array_key_exists($this->selected_field, $this->source)) {
+        if (isset_get($this->source[$this->selected_field])) {
             // The currently selected field exists, the specified field cannot exist
-            if (array_key_exists($field, $this->source)) {
-
+            if (isset_get($this->source[$field])) {
+                $this->addFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [':field' => $field, ':selected_field' => $this->selected_field]));
             }
         } else {
             // The currently selected field does not exists, the specified field MUST exist
-            if (!array_key_exists($field, $this->source)) {
-                
+            if (!isset_get($this->source[$field])) {
+                $this->addFailure(tr('Neither fields ":field" and ":selected_field" were set, where either one of them must be set', [':field' => $field, ':selected_field' => $this->selected_field]));
             }
         }
 
@@ -535,8 +533,8 @@ show('FAILURE (' . $this->parent_field . ' / ' . $this->selected_field . ' / ' .
         $_GET = &self::$get;
         $_POST = &self::$post;
 
-        unset(self::$get);
-        unset(self::$post);
+//        unset(self::$get);
+//        unset(self::$post);
     }
 
 

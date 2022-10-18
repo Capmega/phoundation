@@ -77,7 +77,7 @@ class Exception extends RuntimeException
 
         parent::__construct($message, 0, $previous);
 
-        if (Debug::enabled() or Core::startupState()) {
+        if ((Debug::enabled() or Core::startupState()) and !Core::isPhpUnitTest()) {
             // Always log all Phoundation Exceptions in debug mode or at system startup
             Log::error($this);
         }
