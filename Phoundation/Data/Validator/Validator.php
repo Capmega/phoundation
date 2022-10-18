@@ -5,7 +5,7 @@ namespace Phoundation\Data\Validator;
 use DateTime;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
-
+use Phoundation\Exception\OutOfBoundsException;
 
 
 /**
@@ -951,7 +951,45 @@ show('each');
     /**
      * Validates if the selected field is a valid email address
      *
-     * This method ensures that the specified array key is an array
+     * @return Validator
+     */
+    public function isHttpMethod(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(3)->hasMaxCharacters(128);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            $value = mb_strtoupper($value);
+
+            // Check against the HTTP methods that are considered valid
+            switch ($value) {
+                case 'GET':
+                case 'HEAD':
+                case 'POST':
+                case 'PUT':
+                case 'DELETE':
+                case 'CONNECT':
+                case 'OPTIONS':
+                case 'TRACE':
+                case 'PATCH':
+                    break;
+
+                default:
+                    $this->addFailure(tr('must contain a valid HTTP method'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid email address
      *
      * @return Validator
      */
@@ -971,5 +1009,87 @@ show('each');
 
             return $value;
         });
-   }
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid email address
+     *
+     * @return Validator
+     */
+    public function isUrl(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(3)->hasMaxCharacters(128);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!filter_var($value, FILTER_VALIDATE_URL)) {
+                $this->addFailure(tr('must contain a valid URL'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid JSON string
+     *
+     * @note: This function is by default limited to 1073741824 (1GB) characters
+     * @param int $max_size
+     * @return Validator
+     */
+    public function isJson(int $max_size = 1073741824): Validator
+    {
+        return $this->validateValues(function($value) use ($max_size) {
+            $this->hasMinCharacters(3)->hasMaxCharacters($max_size);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            json_decode($value);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $this->addFailure(tr('must contain a valid JSON string'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid JSON string
+     *
+     * @note: This function is by default limited to 1073741824 (1GB) characters
+     * @param string $separator The separation character, defaults to comma
+     * @param int $max_size
+     * @return Validator
+     */
+    public function isCsv(string $separator = ',', int $max_size = 1073741824): Validator
+    {
+        return $this->validateValues(function($value) use ($separator, $max_size) {
+            $this->hasMinCharacters(3)->hasMaxCharacters($max_size);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!preg_match('/^.*?,.*?$/', $value)) {
+                $this->addFailure(tr('must contain a valid ":separator" separated string', [':separator' => $separator]));
+            }
+
+            return $value;
+        });
+    }
 }
