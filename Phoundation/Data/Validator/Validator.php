@@ -754,6 +754,31 @@ show('each');
 
 
     /**
+     * Validates that the selected field contains only whitespace characters
+     *
+     * @return Validator
+     */
+    public function isWhitespace(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!ctype_space($value)) {
+                $this->addFailure(tr('must contain only whitespace characters'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
      * Validates that the selected field contains only hexadecimal characters
      *
      * @return Validator
@@ -771,6 +796,58 @@ show('each');
             if (!ctype_xdigit($value)) {
                 $this->addFailure(tr('must contain only hexadecimal characters'));
             }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field contains only octal numbers
+     *
+     * @return Validator
+     */
+    public function isOctal(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!preg_match('/^0-7*$/', $value)) {
+                $this->addFailure(tr('must contain only octal numbers'));
+            }
+
+            return $value;
+        });
+    }
+
+
+    
+    /**
+     * Validates that the selected field is the specified value
+     *
+     * @param mixed $validate_value
+     * @return Validator
+     */
+    public function isValue(mixed $validate_value): Validator
+    {
+        return $this->validateValues(function($value) use ($validate_value) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if ($value != $validate_value) {
+                $this->addFailure(tr('must be value ":value"', [':value' => $value]));
+            }
+
 
             return $value;
         });
