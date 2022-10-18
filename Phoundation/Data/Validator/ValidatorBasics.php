@@ -356,6 +356,39 @@ trait ValidatorBasics
 
 
     /**
+     * Will validate that the value of this field matches the value for the specified field
+     *
+     * @param string $field
+     * @param bool $strict If true will execute a strict comparison where the datatype must match as well (so 1 would
+     *                     not be the same as "1") for example
+     * @return Validator
+     * @see Validator::isOptional()
+     */
+    public function isEqualTo(string $field, bool $strict = false): Validator
+    {
+        return $this->validateValues(function($value) use ($field, $strict) {
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if ($strict) {
+                if ($value !== $this->source[$field]) {
+                    $this->addFailure(tr('must contain exactly the same value as the field ":field"', [':field' => $field]));
+                }
+            } else {
+                if ($value != $this->source[$field]) {
+                    $this->addFailure(tr('must contain the same value as the field ":field"', [':field' => $field]));
+                }
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
      * Recurse into a sub array and return another validator object for that sub array
      *
      * @return Validator

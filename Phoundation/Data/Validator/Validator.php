@@ -827,27 +827,44 @@ show('each');
     }
 
 
-    
+
     /**
      * Validates that the selected field is the specified value
      *
      * @param mixed $validate_value
+     * @param bool $strict If true, will perform a strict check
+     * @param bool $secret If specified the $validate_value will not be shown
      * @return Validator
      */
-    public function isValue(mixed $validate_value): Validator
+    public function isValue(mixed $validate_value, bool $strict = false, bool $secret = false): Validator
     {
-        return $this->validateValues(function($value) use ($validate_value) {
-            $this->isString();
+        return $this->validateValues(function($value) use ($validate_value, $strict, $secret) {
+            if ($strict) {
+                // Strict validation
+                if ($value !== $validate_value) {
+                    if ($secret) {
+                        $this->addFailure(tr('must be exactly value ":value"', [':value' => $value]));
+                    } else {
+                        $this->addFailure(tr('has an incorrect value'));
+                    }
+                }
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return '';
+            } else {
+                $this->isString();
+
+                if ($this->process_value_failed) {
+                    // Validation already failed, don't test anything more
+                    return '';
+                }
+
+                if ($value != $validate_value) {
+                    if ($secret) {
+                        $this->addFailure(tr('must be value ":value"', [':value' => $value]));
+                    } else {
+                        $this->addFailure(tr('has an incorrect value'));
+                    }
+                }
             }
-
-            if ($value != $validate_value) {
-                $this->addFailure(tr('must be value ":value"', [':value' => $value]));
-            }
-
 
             return $value;
         });
