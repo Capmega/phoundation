@@ -4,6 +4,7 @@ namespace Phoundation\Data\Validator;
 
 use DateTime;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 
 
@@ -518,10 +519,10 @@ show('each');
     /**
      * Validates that the selected field is equal or shorter than the specified amount of characters
      *
-     * @param int $characters
+     * @param int|null $characters
      * @return Validator
      */
-    public function hasMaxCharacters(int $characters): Validator
+    public function hasMaxCharacters(?int $characters = null): Validator
     {
         return $this->validateValues(function($value) use ($characters) {
             $this->isString();
@@ -529,6 +530,14 @@ show('each');
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return '';
+            }
+
+            // Validate the maximum amount of characters
+            if ($characters === null) {
+                $characters = $this->max_string_size;
+            } elseif ($characters > $this->max_string_size) {
+                Log::warning(tr('The specified amount of maximum characters ":specified" surpasses the configured amount of ":configured". Forcing configured amount instead', [':specified' => $characters, ':configured' => $this->max_string_size]));
+                $characters = $this->max_string_size;
             }
 
             if (strlen($value) > $characters) {
@@ -1041,14 +1050,12 @@ show('each');
     /**
      * Validates if the selected field is a valid JSON string
      *
-     * @note: This function is by default limited to 1073741824 (1GB) characters
-     * @param int $max_size
      * @return Validator
      */
-    public function isJson(int $max_size = 1073741824): Validator
+    public function isJson(): Validator
     {
-        return $this->validateValues(function($value) use ($max_size) {
-            $this->hasMinCharacters(3)->hasMaxCharacters($max_size);
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1072,13 +1079,12 @@ show('each');
      *
      * @note: This function is by default limited to 1073741824 (1GB) characters
      * @param string $separator The separation character, defaults to comma
-     * @param int $max_size
      * @return Validator
      */
-    public function isCsv(string $separator = ',', int $max_size = 1073741824): Validator
+    public function isCsv(string $separator = ','): Validator
     {
-        return $this->validateValues(function($value) use ($separator, $max_size) {
-            $this->hasMinCharacters(3)->hasMaxCharacters($max_size);
+        return $this->validateValues(function($value) use ($separator) {
+            $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1087,6 +1093,65 @@ show('each');
 
             if (!preg_match('/^.*?,.*?$/', $value)) {
                 $this->addFailure(tr('must contain a valid ":separator" separated string', [':separator' => $separator]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Sanitize the selected value by trimming whitespace
+     *
+     * @param string $characters
+     * @return Validator
+     * @see trim()
+     */
+    public function sanitizeTrim(string $characters = "\t\n\r\0\x0B"): Validator
+    {
+        return $this->validateValues(function($value) use ($characters) {
+            $this->hasMinCharacters(3)->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            $value = trim($value, $characters);
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Sanitize the selected value with a search / replace
+     *
+     * @param array $replace A key => value map of all items that should be searched / replaced
+     * @param bool $regex If true, all keys in the $replace array will be treated as a regex instead of a normal string
+     *                    This is slower and more memory intensive, but more flexible as well.
+     * @return Validator
+     * @see trim()
+     */
+    public function sanitizeSearchReplace(array $replace, bool $regex = false): Validator
+    {
+        return $this->validateValues(function($value) use ($replace, $regex) {
+            $this->hasMinCharacters(3)->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if ($regex) {
+                // Regex search / replace, each key will be treated as a regex instead of a normal string
+                $value = preg_replace(array_keys($replace), array_values($replace), $value);
+
+            } else {
+                // Standard string search / replace
+                $value = str_replace(array_keys($replace), array_values($replace), $value);
             }
 
             return $value;

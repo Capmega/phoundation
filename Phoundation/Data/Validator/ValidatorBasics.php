@@ -135,6 +135,13 @@ trait ValidatorBasics
      */
     protected static ?array $post = null;
 
+    /**
+     * The maximum string size that this validator will touch
+     *
+     * @var int $max_string_size
+     */
+    protected int $max_string_size = 1073741824;
+
 
     /**
      * Validator constructor.
@@ -207,6 +214,31 @@ trait ValidatorBasics
     public static function file(string $file): FileValidator
     {
         return new FileValidator($file);
+    }
+
+
+
+    /**
+     * Returns the maximum string size that this Validator will touch
+     *
+     * @return string|null
+     */
+    public function getMaximumStringSize(): ?string
+    {
+        return $this->max_string_size;
+    }
+
+
+
+    /**
+     * Returns the maximum string size that this Validator will touch
+     *
+     * @param string|null $max_string_size
+     * @return void
+     */
+    public function setMaximumStringSize(?string $max_string_size): void
+    {
+        $this->max_string_size = $max_string_size;
     }
 
 
