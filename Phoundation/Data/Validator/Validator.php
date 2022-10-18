@@ -6,7 +6,9 @@ use DateTime;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-
+use Phoundation\Utils\Exception\JsonException;
+use Phoundation\Utils\Json;
+use Throwable;
 
 
 /**
@@ -1050,6 +1052,7 @@ show('each');
     /**
      * Validates if the selected field is a valid JSON string
      *
+     * @see self::sanitizeDecodeJson()
      * @return Validator
      */
     public function isJson(): Validator
@@ -1079,11 +1082,14 @@ show('each');
      *
      * @note: This function is by default limited to 1073741824 (1GB) characters
      * @param string $separator The separation character, defaults to comma
+     * @param string $enclosure
+     * @param string $escape
      * @return Validator
+     * @see self::sanitizeDecodeCsv()
      */
-    public function isCsv(string $separator = ','): Validator
+    public function isCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): Validator
     {
-        return $this->validateValues(function($value) use ($separator) {
+        return $this->validateValues(function($value) use ($separator, $enclosure, $escape) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
@@ -1091,8 +1097,10 @@ show('each');
                 return '';
             }
 
-            if (!preg_match('/^.*?,.*?$/', $value)) {
-                $this->addFailure(tr('must contain a valid ":separator" separated string', [':separator' => $separator]));
+            try {
+                str_getcsv($value, $separator, $enclosure, $escape);
+            } catch (Throwable $e) {
+                    $this->addFailure(tr('must contain a valid ":separator" separated string', [':separator' => $separator]));
             }
 
             return $value;
@@ -1152,6 +1160,95 @@ show('each');
             } else {
                 // Standard string search / replace
                 $value = str_replace(array_keys($replace), array_values($replace), $value);
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Sanitize the selected value by decoding the JSON
+     *
+     * @param bool $array If true, will return the data in associative arrays instead of generic objects
+     * @return Validator
+     * @see self::isJson()
+     * @see self::sanitizeDecodeCsv()
+     * @see self::sanitizeDecodeSerialized()
+     */
+    public function sanitizeDecodeJson(bool $array = true): Validator
+    {
+        return $this->validateValues(function($value) use ($array) {
+            $this->hasMinCharacters(3)->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            try {
+                $value = Json::decode($value);
+            } catch (JsonException $e) {
+                $this->addFailure(tr('must contain a valid JSON string'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Sanitize the selected value by decoding the specified CSV
+     *
+     * @param string $separator The separation character, defaults to comma
+     * @param string $enclosure
+     * @param string $escape
+     * @return Validator
+     * @see self::isCsv()
+     * @see self::sanitizeDecodeJson()
+     * @see self::sanitizeDecodeSerialized()
+     */
+    public function sanitizeDecodeCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): Validator
+    {
+        return $this->validateValues(function($value) use ($separator, $enclosure, $escape) {
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            try {
+                $value = str_getcsv($value, $separator, $enclosure, $escape);
+            } catch (Throwable $e) {
+                $this->addFailure(tr('must contain a valid ":separator" separated string', [':separator' => $separator]));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Sanitize the selected value by decoding the specified CSV
+     *
+     * @return Validator
+     * @see self::sanitizeDecodeCsv()
+     * @see self::sanitizeDecodeJson()
+     */
+    public function sanitizeDecodeSerialized(): Validator
+    {
+        return $this->validateValues(function($value) {
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            try {
+                $value = unserialize($value);
+            } catch (Throwable $e) {
+                $this->addFailure(tr('must contain a valid serialized string'));
             }
 
             return $value;
