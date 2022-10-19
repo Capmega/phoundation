@@ -506,7 +506,7 @@ function sql_init($connector_name = null) {
                      * On console, show current versions
                      */
                     if ((PLATFORM_CLI) and VERBOSE) {
-                        log_console(tr('sql_init(): Found framework code version ":frameworkcodeversion" and framework database version ":frameworkdbversion"', array(':frameworkcodeversion' => FRAMEWORKCODEVERSION, ':frameworkdbversion' => FRAMEWORKDBVERSION)));
+                        log_console(tr('sql_init(): Found framework code version ":Core::FRAMEWORKCODEVERSION" and framework database version ":frameworkdbversion"', array(':Core::FRAMEWORKCODEVERSION' => Core::FRAMEWORKCODEVERSION, ':frameworkdbversion' => FRAMEWORKDBVERSION)));
                         log_console(tr('sql_init(): Found project code version ":projectcodeversion" and project database version ":projectdbversion"'        , array(':projectcodeversion'   => PROJECTCODEVERSION  , ':projectdbversion'   => PROJECTDBVERSION)));
                     }
 
@@ -515,7 +515,7 @@ function sql_init($connector_name = null) {
                      * Validate code and database version. If both FRAMEWORK and PROJECT versions of the CODE and DATABASE do not match,
                      * then check exactly what is the version difference
                      */
-                    if ((FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)) {
+                    if ((Core::FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)) {
                         load_libs('init');
                         init_process_version_diff();
                     }
@@ -527,7 +527,7 @@ function sql_init($connector_name = null) {
              * We were told NOT to do an init check. Assume database framework
              * and project versions are the same as their code variants
              */
-            define('FRAMEWORKDBVERSION', FRAMEWORKCODEVERSION);
+            define('FRAMEWORKDBVERSION', Core::FRAMEWORKCODEVERSION);
             define('PROJECTDBVERSION'  , PROJECTCODEVERSION);
         }
 

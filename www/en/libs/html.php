@@ -143,7 +143,7 @@ function html_bundler($list) {
         $admin_path  = (Core::getCallType('admin') ? 'admin/'           : '');
         $ext         = ($_CONFIG['cdn']['min']   ? '.min.'.$extension : '.'.$extension);
         $bundle      =  Strings::force(array_keys($core->register[$list]));
-        $bundle      =  substr(sha1($bundle.FRAMEWORKCODEVERSION.PROJECTCODEVERSION), 1, 16);
+        $bundle      =  substr(sha1($bundle.Core::FRAMEWORKCODEVERSION.PROJECTCODEVERSION), 1, 16);
         $path        =  ROOT.'www/'.LANGUAGE.'/'.$admin_path.'pub/'.$extension.'/';
         $bundle_file =  $path.'bundle-'.$bundle.$ext;
         $file_count  =  0;

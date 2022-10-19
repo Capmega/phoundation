@@ -105,7 +105,7 @@ Class Init
                         'rights'   => array('admin', 'users', 'rights'));
                 }
 
-            } elseif (!FORCE and (FRAMEWORKCODEVERSION == $codeversions['FRAMEWORK']) and (PROJECTCODEVERSION == $codeversions['PROJECT'])) {
+            } elseif (!FORCE and (Core::FRAMEWORKCODEVERSION == $codeversions['FRAMEWORK']) and (PROJECTCODEVERSION == $codeversions['PROJECT'])) {
                 /*
                  * Fetch me a pizza, all is just fine!
                  */
@@ -113,12 +113,12 @@ Class Init
                 $noinit = true;
             }
 
-            if (version_compare(FRAMEWORKCODEVERSION, $codeversions['FRAMEWORK']) < 0) {
-                if (!Strings::isVersion(FRAMEWORKCODEVERSION)) {
-                    throw new CoreException('init(): Cannot continue, the FRAMEWORK code version "'.Strings::log(FRAMEWORKCODEVERSION).'" (Defined at the top of '.ROOT.'/libs/system.php) is invalid', 'invalid-framework-code');
+            if (version_compare(Core::FRAMEWORKCODEVERSION, $codeversions['FRAMEWORK']) < 0) {
+                if (!Strings::isVersion(Core::FRAMEWORKCODEVERSION)) {
+                    throw new CoreException('init(): Cannot continue, the FRAMEWORK code version "'.Strings::log(Core::FRAMEWORKCODEVERSION).'" (Defined at the top of '.ROOT.'/libs/system.php) is invalid', 'invalid-framework-code');
                 }
 
-                throw new CoreException(tr('init(): Cannot continue, the FRAMEWORK code version ":code" is OLDER (LOWER) than the database version ":db", the project is running with either old code or a too new database!', array(':code' => FRAMEWORKCODEVERSION, ':db' => FRAMEWORKDBVERSION)), 'old-framework-code');
+                throw new CoreException(tr('init(): Cannot continue, the FRAMEWORK code version ":code" is OLDER (LOWER) than the database version ":db", the project is running with either old code or a too new database!', array(':code' => Core::FRAMEWORKCODEVERSION, ':db' => FRAMEWORKDBVERSION)), 'old-framework-code');
             }
 
             if (version_compare(PROJECTCODEVERSION, $codeversions['PROJECT']) < 0) {
@@ -375,7 +375,7 @@ Class Init
             }
 
             $compare_project   = version_compare(PROJECTCODEVERSION  , PROJECTDBVERSION);
-            $compare_framework = version_compare(FRAMEWORKCODEVERSION, FRAMEWORKDBVERSION);
+            $compare_framework = version_compare(Core::FRAMEWORKCODEVERSION, FRAMEWORKDBVERSION);
 
             if (PROJECTDBVERSION === 0) {
                 $versionerror     = 'Database is empty';
@@ -383,10 +383,10 @@ Class Init
 
             } else {
                 if ($compare_framework > 0) {
-                    $versionerror = (empty($versionerror) ? "" : "\n").tr('Framework core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => Strings::log($_CONFIG['db']['core']['db']), ':dbversion' => FRAMEWORKDBVERSION, ':codeversion' => FRAMEWORKCODEVERSION));
+                    $versionerror = (empty($versionerror) ? "" : "\n").tr('Framework core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => Strings::log($_CONFIG['db']['core']['db']), ':dbversion' => FRAMEWORKDBVERSION, ':codeversion' => Core::FRAMEWORKCODEVERSION));
 
                 } elseif ($compare_framework < 0) {
-                    $versionerror = (empty($versionerror) ? "" : "\n").tr('Framework core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => Strings::log($_CONFIG['db']['core']['db']), ':dbversion' => FRAMEWORKDBVERSION, ':codeversion' => FRAMEWORKCODEVERSION));
+                    $versionerror = (empty($versionerror) ? "" : "\n").tr('Framework core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => Strings::log($_CONFIG['db']['core']['db']), ':dbversion' => FRAMEWORKDBVERSION, ':codeversion' => Core::FRAMEWORKCODEVERSION));
                 }
 
                 if ($compare_project > 0) {
@@ -752,7 +752,7 @@ Class Init
             $changed  = 0;
 
             while ($version = Sql::fetch($versions)) {
-                if (version_compare($version['framework'], FRAMEWORKCODEVERSION) > 0) {
+                if (version_compare($version['framework'], Core::FRAMEWORKCODEVERSION) > 0) {
                     $erase->execute(array(':id' => $version['id']));
                     $changed++;
                     continue;

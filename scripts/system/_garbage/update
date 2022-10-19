@@ -179,7 +179,7 @@ try {
      * the local phoundation project
      */
     $current_branch       = code_phoundation_branch();
-    $current_version_line = code_get_version_line(FRAMEWORKCODEVERSION);
+    $current_version_line = code_get_version_line(Core::FRAMEWORKCODEVERSION);
 
     if ($upgrade) {
         /*
@@ -200,7 +200,7 @@ try {
         }
 
         $current_version_line = $upgrade;
-        $frameworkcodeversion = $upgrade.'.0';
+        $Core::FRAMEWORKCODEVERSION = $upgrade.'.0';
         $find_highest         = true;
 
     } elseif ($branch) {
@@ -208,7 +208,7 @@ try {
          * Upgrade to latest commit of specified branch
          */
         $available_branch_lines = code_get_phoundation_branch_lines();
-        $frameworkcodeversion   = FRAMEWORKCODEVERSION;
+        $Core::FRAMEWORKCODEVERSION   = Core::FRAMEWORKCODEVERSION;
         $find_highest           = false;
 
         if (!in_array($branch, $available_branch_lines)) {
@@ -220,7 +220,7 @@ try {
          * Update to latest version within our current code line
          */
         $available_version_lines = code_get_phoundation_lines();
-        $frameworkcodeversion    = FRAMEWORKCODEVERSION;
+        $Core::FRAMEWORKCODEVERSION    = Core::FRAMEWORKCODEVERSION;
         $find_highest            = true;
 
         if (!in_array($current_version_line, $available_version_lines)) {
@@ -238,9 +238,9 @@ try {
         $highest            = '0.0.0';
 
         foreach ($available_versions as $id => $version) {
-            switch (version_compare($version, $frameworkcodeversion)) {
+            switch (version_compare($version, $Core::FRAMEWORKCODEVERSION)) {
                 case 0:
-                    $phoundation_frameworkcodeversion = $frameworkcodeversion;
+                    $phoundation_Core::FRAMEWORKCODEVERSION = $Core::FRAMEWORKCODEVERSION;
                     break;
 
                 case 1:
@@ -255,17 +255,17 @@ try {
         switch ($highest) {
             case '0.0.0':
                 if (!$reupdate) {
-                    throw new CoreException(tr('There are currently no newer versions available on the ":line" version line in phoundation than the current framework version ":version"', array(':line' => $current_version_line, ':version' => $frameworkcodeversion)), 'warning/not-exists');
+                    throw new CoreException(tr('There are currently no newer versions available on the ":line" version line in phoundation than the current framework version ":version"', array(':line' => $current_version_line, ':version' => $Core::FRAMEWORKCODEVERSION)), 'warning/not-exists');
                 }
 
-                if (!isset($phoundation_frameworkcodeversion)) {
-                    throw new CoreException(tr('Reupdate failed because current framework code version ":version" does not exist in the found Phoundation project', array(':version' => $frameworkcodeversion)), 'warning/not-exists');
+                if (!isset($phoundation_Core::FRAMEWORKCODEVERSION)) {
+                    throw new CoreException(tr('Reupdate failed because current framework code version ":version" does not exist in the found Phoundation project', array(':version' => $Core::FRAMEWORKCODEVERSION)), 'warning/not-exists');
                 }
 
                 /*
                  * Update to the same current version
                  */
-                $highest = $phoundation_frameworkcodeversion;
+                $highest = $phoundation_Core::FRAMEWORKCODEVERSION;
                 log_console(tr('Reupdating to Phoundation version ":version"', array(':version' => $highest)), 'green');
                 break;
 

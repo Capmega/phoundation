@@ -935,7 +935,7 @@ function route_404() {
                 <h1>'.tr('Not Found').'</h1>
                 <p>'.tr('The requested URL /wer was not found on this server').'.</p>
                 <hr>
-                '.(!empty($_CONFIG['security']['signature']) ? '<address>Phoundation '.FRAMEWORKCODEVERSION.'</address>' : '').'
+                '.(!empty($_CONFIG['security']['signature']) ? '<address>Phoundation '.Core::FRAMEWORKCODEVERSION.'</address>' : '').'
                 </body></html>');
             die();
         }

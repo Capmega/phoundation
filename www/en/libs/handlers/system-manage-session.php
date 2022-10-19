@@ -27,7 +27,7 @@ try {
             header('Powered-By: Phoundation');
 
         } else {
-            header('Powered-By: Phoundation version "'.FRAMEWORKCODEVERSION.'"');
+            header('Powered-By: Phoundation version "'.Core::FRAMEWORKCODEVERSION.'"');
         }
     }
 

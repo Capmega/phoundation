@@ -146,7 +146,7 @@ switch (cli_method()) {
          */
         $current_branch       = code_phoundation_branch();
         $branches             = code_get_phoundation_branch_lines();
-        $current_version_line = code_get_version_line(FRAMEWORKCODEVERSION);
+        $current_version_line = code_get_version_line(Core::FRAMEWORKCODEVERSION);
 
         if (!in_array($current_version_line, $branches)) {
             throw new CoreException(tr('The current version line ":line" is not available in your phoundation project', array(':line' => $current_version_line)), 'warning/not-exists');
@@ -160,7 +160,7 @@ switch (cli_method()) {
         code_phoundation_checkout($current_version_line);
         $phoundation_version = code_get_phoundation_framework_version();
 
-        switch (version_compare(FRAMEWORKCODEVERSION, $phoundation_version)) {
+        switch (version_compare(Core::FRAMEWORKCODEVERSION, $phoundation_version)) {
             case 1:
                 /*
                  * The phoundation version is behind the current code version

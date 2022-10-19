@@ -5,6 +5,11 @@ debug:
 project:
   name: "Phoundation"
   version: "0.0.0"
+domain:
+  primary: localhost
+web:
+  route:
+    known-hacks:
 databases:
   sql:
     instances:

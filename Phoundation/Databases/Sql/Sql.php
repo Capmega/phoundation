@@ -655,7 +655,7 @@ class Sql
                          * On console, show current versions
                          */
                         if ((PLATFORM_CLI) and VERBOSE) {
-                            Log::notice(tr('Found framework code version ":frameworkcodeversion" and framework database version ":frameworkdbversion"', [':frameworkcodeversion' => Core::FRAMEWORKCODEVERSION, ':frameworkdbversion' => FRAMEWORKDBVERSION]));
+                            Log::notice(tr('Found framework code version ":Core::FRAMEWORKCODEVERSION" and framework database version ":frameworkdbversion"', [':Core::FRAMEWORKCODEVERSION' => Core::FRAMEWORKCODEVERSION, ':frameworkdbversion' => FRAMEWORKDBVERSION]));
                             Log::notice(tr('Found project code version ":projectcodeversion" and project database version ":projectdbversion"', [':projectcodeversion' => PROJECTCODEVERSION, ':projectdbversion' => PROJECTDBVERSION]));
                         }
 

@@ -138,7 +138,7 @@ switch ($method) {
             throw new CoreException(tr('WARNING: Database version has NOT been reset, it probably is already at or behind the framework and code versions. See ROOT/script/base/info for more information.'), 'warning/nothing-done');
         }
 
-        log_console(tr('WARNING: All version table entries beyond framework code version ":framework" and project code version ":project" have been removed. Restarting init to ensure versions will be correct', array(':framework' => FRAMEWORKCODEVERSION, ':project' => PROJECTCODEVERSION)), 'yellow');
+        log_console(tr('WARNING: All version table entries beyond framework code version ":framework" and project code version ":project" have been removed. Restarting init to ensure versions will be correct', array(':framework' => Core::FRAMEWORKCODEVERSION, ':project' => PROJECTCODEVERSION)), 'yellow');
         script_exec(array('background' => true,
                           'commands'   => array('base/init')));
         break;

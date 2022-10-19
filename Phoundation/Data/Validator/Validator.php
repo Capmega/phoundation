@@ -1150,6 +1150,31 @@ class Validator
 
 
     /**
+     * Validates if the selected field is a valid IP address
+     *
+     * @return Validator
+     */
+    public function isIp(): Validator
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(3)->hasMaxCharacters(48);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!filter_var($value, FILTER_VALIDATE_IP)) {
+                $this->addFailure(tr('must contain a valid IP address'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
      * Validates if the selected field is a valid JSON string
      *
      * @return Validator
@@ -1434,6 +1459,7 @@ class Validator
      * @see self::isJson()
      * @see self::sanitizeDecodeCsv()
      * @see self::sanitizeDecodeSerialized()
+     * @see self::sanitizeMakeString()
      */
     public function sanitizeDecodeJson(bool $array = true): Validator
     {
@@ -1470,6 +1496,7 @@ class Validator
      * @see self::sanitizeDecodeJson()
      * @see self::sanitizeDecodeSerialized()
      * @see self::sanitizeDecodeUrl()
+     * @see self::sanitizeMakeString()
      */
     public function sanitizeDecodeCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): Validator
     {
@@ -1500,6 +1527,7 @@ class Validator
      * @see self::sanitizeDecodeCsv()
      * @see self::sanitizeDecodeJson()
      * @see self::sanitizeDecodeUrl()
+     * @see self::sanitizeMakeString()
      */
     public function sanitizeDecodeSerialized(): Validator
     {
@@ -1530,6 +1558,7 @@ class Validator
      * @see self::sanitizeDecodeJson()
      * @see self::sanitizeDecodeSerialized()
      * @see self::sanitizeDecodeUrl()
+     * @see self::sanitizeMakeString()
      */
     public function sanitizeDecodeBase58(): Validator
     {
@@ -1560,6 +1589,7 @@ class Validator
      * @see self::sanitizeDecodeJson()
      * @see self::sanitizeDecodeSerialized()
      * @see self::sanitizeDecodeUrl()
+     * @see self::sanitizeMakeString()
      */
     public function sanitizeDecodeBase64(): Validator
     {
@@ -1590,6 +1620,7 @@ class Validator
      * @see self::sanitizeDecodeCsv()
      * @see self::sanitizeDecodeJson()
      * @see self::sanitizeDecodeSerialized()
+     * @see self::sanitizeMakeString()
      */
     public function sanitizeDecodeUrl(): Validator
     {
@@ -1603,6 +1634,37 @@ class Validator
                 $value = urldecode($value);
             } catch (Throwable $e) {
                 $this->addFailure(tr('must contain a valid url string'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Sanitize the selected value by making it a string
+     *
+     * @return Validator
+     * @see self::sanitizeDecodeBase58()
+     * @see self::sanitizeDecodeBase64()
+     * @see self::sanitizeDecodeCsv()
+     * @see self::sanitizeDecodeJson()
+     * @see self::sanitizeDecodeSerialized()
+     * @see self::sanitizeDecodeUrl()
+     */
+    public function sanitizeMakeString(): Validator
+    {
+        return $this->validateValues(function($value) {
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            try {
+                $value = Strings::force($value);
+            } catch (Throwable $e) {
+                $this->addFailure(tr('cannot be processed'));
             }
 
             return $value;

@@ -724,7 +724,7 @@ function code_get_framework_version($path = ROOT) {
         }
 
         $data   = file_get_contents($file);
-        $exists = preg_match_all('/define\(\'FRAMEWORKCODEVERSION\',\s+\'(\d+\.\d+\.\d+)\'\);/', $data, $matches);
+        $exists = preg_match_all('/define\(\'Core::FRAMEWORKCODEVERSION\',\s+\'(\d+\.\d+\.\d+)\'\);/', $data, $matches);
 
         if (!$exists) {
             throw new CoreException(tr('code_get_framework_version(): Failed to extract project framework version from system library file of Phoundation project in specified path ":path"', array(':path' => $path)), 'failed');
@@ -761,7 +761,7 @@ function code_update_framework_version($version, $path = ROOT) {
         }
 
         $data = file_get_contents($file);
-        $data = preg_replace('/define\(\'FRAMEWORKCODEVERSION\',\s+\'(\d+\.\d+\.\d+)\'\);/', "define('FRAMEWORKCODEVERSION', '".$version."');", $data);
+        $data = preg_replace('/define\(\'Core::FRAMEWORKCODEVERSION\',\s+\'(\d+\.\d+\.\d+)\'\);/', "define('Core::FRAMEWORKCODEVERSION', '".$version."');", $data);
 
         file_put_contents($file, $data);
 

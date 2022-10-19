@@ -510,7 +510,7 @@ class Core {
                                     /*
                                      * Show version information
                                      */
-                                    Log::information(tr('BASE framework code version ":fv", project code version ":pv"', [':fv' => FRAMEWORKCODEVERSION, ':pv' => PROJECTCODEVERSION]));
+                                    Log::information(tr('BASE framework code version ":fv", project code version ":pv"', [':fv' => self::FRAMEWORKCODEVERSION, ':pv' => PROJECTCODEVERSION]));
                                     $die = 0;
                                     break;
 

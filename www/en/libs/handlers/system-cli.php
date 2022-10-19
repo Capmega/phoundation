@@ -104,7 +104,7 @@ try {
                     /*
                      * Show version information
                      */
-                    log_console(tr('BASE framework code version ":fv", project code version ":pv"', array(':fv' => FRAMEWORKCODEVERSION, ':pv' => PROJECTCODEVERSION)));
+                    log_console(tr('BASE framework code version ":fv", project code version ":pv"', array(':fv' => Core::FRAMEWORKCODEVERSION, ':pv' => PROJECTCODEVERSION)));
                     $die = 0;
                     break;
 
