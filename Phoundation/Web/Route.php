@@ -158,9 +158,7 @@ class Route
             }
 
             if (!$url_regex) {
-                /*
-                 * Match an empty string
-                 */
+                // Match an empty string
                 $url_regex = '/^$/';
             }
 
@@ -240,10 +238,7 @@ class Route
                 }
             }
 
-            /*
-             * Match the specified regex. If there is no match, there is nothing
-             * else to do for us here
-             */
+            // Match the specified regex. If there is no match, there is nothing else to do for us here
             Log::notice(tr('Testing rule ":count" ":regex" on ":type" ":url"', [':count' => $count, ':regex' => $url_regex, ':type' => $type, ':url' => $uri]));
 
             $match = preg_match_all($url_regex, $uri, $matches);
@@ -268,47 +263,35 @@ class Route
                 foreach (array_shift($variables) as $variable) {
                     switch ($variable) {
                         case 'PROTOCOL':
-                            /*
-                             * The protocol used in the current request
-                             */
+                            // The protocol used in the current request
                             $route = str_replace(':PROTOCOL', $_SERVER['REQUEST_SCHEME'].'://', $route);
                             break;
 
                         case 'DOMAIN':
-                            /*
-                             * The domain used in the current request
-                             */
+                            // The domain used in the current request
                             $route = str_replace(':DOMAIN', $_SERVER['HTTP_HOST'], $route);
                             break;
 
                         case 'LANGUAGE':
-                            /*
-                             * The language specified in the current request
-                             */
+                            // The language specified in the current request
                             $route = str_replace(':LANGUAGE', LANGUAGE, $route);
                             break;
 
                         case 'REQUESTED_LANGUAGE':
-                            /*
-                             * The language requested in the current request
-                             */
+                            // The language requested in the current request
                             $requested = Arrays::firstValue($core->register['accepts_languages']);
                             $route     = str_replace(':REQUESTED_LANGUAGE', $requested['language'], $route);
                             break;
 
                         case 'PORT':
-                            // FALLTHROUGH
+                            // no-break
                         case 'SERVER_PORT':
-                            /*
-                             * The port used in the current request
-                             */
+                            // The port used in the current request
                             $route = str_replace(':PORT', $_SERVER['SERVER_PORT'], $route);
                             break;
 
                         case 'REMOTE_PORT':
-                            /*
-                             * The port used by the client
-                             */
+                            // The port used by the client
                             $route = str_replace(':REMOTE_PORT', $_SERVER['REMOTE_PORT'], $route);
                             break;
 
@@ -318,9 +301,7 @@ class Route
                 }
             }
 
-            /*
-             * Apply regex variables replacements
-             */
+            // Apply regex variables replacements
             if (preg_match_all('/\$(\d+)/', $route, $replacements)) {
                 if (preg_match('/\$\d+\.php/', $route)) {
                     $dynamic_pagematch = true;
@@ -340,10 +321,7 @@ class Route
                 }
 
                 if (str_contains('$', $route)) {
-                    /*
-                     * There are regex variables left that were not replaced.
-                     * Replace them with nothing
-                      */
+                    // There are regex variables left that were not replaced. Replace them with nothing
                     $route = preg_replace('/\$\d/', '', $route);
                 }
             }
@@ -389,9 +367,7 @@ class Route
                         Route::exec(Debug::currentFile(1), $attachment, $restrictions);
 
                     case 'G':
-                        /*
-                         * MUST be a GET reqest, NO POST data allowed!
-                         */
+                        // MUST be a GET reqest, NO POST data allowed!
                         if (!empty($_POST)) {
                             Log::notice(tr('Matched route ":route" allows only GET requests, cancelling match', [':route' => $route]));
 
@@ -416,16 +392,12 @@ class Route
                         break;
 
                     case 'L':
-                        /*
-                         * Disable language support
-                         */
+                        // Disable language support
                         $disable_language = true;
                         break;
 
                     case 'P':
-                        /*
-                         * MUST be a POST reqest, NO EMPTY POST data allowed!
-                         */
+                        // MUST be a POST reqest, NO EMPTY POST data allowed!
                         if (empty($_POST)) {
                             Log::notice(tr('Matched route ":route" allows only POST requests, cancelling match', [':route' => $route]));
 
@@ -436,9 +408,7 @@ class Route
                         break;
 
                     case 'Q':
-                        /*
-                         * Let GET request queries pass through
-                         */
+                        // Let GET request queries pass through
                         if (strlen($flag) === 1) {
                             $get = true;
                             break;
@@ -449,10 +419,7 @@ class Route
                         break;
 
                     case 'R':
-                        /*
-                         * Validate the HTTP code to use, then redirect to the
-                         * specified target
-                         */
+                        // Validate the HTTP code to use, then redirect to the specified target
                         $http_code = substr($flag, 1);
 
                         switch ($http_code) {
@@ -461,7 +428,7 @@ class Route
                                 break;
 
                             case '301':
-                                // FALLTHROUGH
+                                // no-break
 
                             case '302':
                                 break;
@@ -700,7 +667,7 @@ class Route
                 foreach ($flags as $id => $flag) {
                     switch ($flag[0]) {
                         case 'H':
-                            // FALLTHROUGH
+                            // no-break
                         case 'S':
                             unset($flags[$id]);
                             break;

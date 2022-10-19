@@ -1,15 +1,1 @@
-<?php
-require_once(__DIR__.'/libs/startup.php');
-
-load_libs('base');
-
-html_load_css('style,ie,ie6', 'print');
-
-$html = html_flash().'<br>'.tr('works').'<br>'.tr("also works");
-
-$params = array('title'       => 'Welcome to base');
-$meta   = array('description' => 'base',
-                'keywords'    => 'base');
-
-echo c_page($params, $meta, $html);
-?>
+<h1>SUCCESS<h1>

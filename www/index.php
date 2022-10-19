@@ -1,4 +1,7 @@
 <?php
+
+use Phoundation\Web\Route;
+
 /**
  * Routing table script
  *
@@ -79,40 +82,26 @@
  * @package route
  */
 
-use Phoundation\Web\Route;
+
+
+//// Setup URL translations map
+//Route::mapUrl('es', [
+//    'conferencias' => 'conferences',
+//    'portafolio'   => 'portfolio',
+//    'servicios'    => 'services',
+//    'nosotros'     => 'about'
+//]);
+//
+//Route::mapUrl('nl', [
+//    'conferenties' => 'conferences',
+//    'portefeuille' => 'portfolio',
+//    'diensten'     => 'services',
+//    'over-ons'     => 'about'
+//]);
 
 
 
-/*
- *
- */
-$verbose     = true;
-$veryverbose = true;
-
-
-
-/*
- * Setup URL translations map
- */
-Route::mapUrl('es', [
-    'conferencias' => 'conferences',
-    'portafolio'   => 'portfolio',
-    'servicios'    => 'services',
-    'nosotros'     => 'about'
-]);
-
-Route::mapUrl('nl', [
-    'conferenties' => 'conferences',
-    'portefeuille' => 'portfolio',
-    'diensten'     => 'services',
-    'over-ons'     => 'about'
-]);
-
-
-
-/*
- * Front end pages
- */
+// Front end pages
 Route::try('/^([a-z]{2})\/$/'                                    , '$1/index.php'                                         , '');                 // Show index page
 Route::try('/^([a-z]{2})\/([-a-z]+).html$/'                      , '$1/$2.php'                                            , '');                 // Show pages with page name in URL
 Route::try('/^([a-z]{2})\/(?!admin)([a-z]+)\/([a-z0-9-]+).html$/', '$1/$2.php?item=$3'                                    , '');                 // Show pages with page/section name in URL
@@ -120,9 +109,7 @@ Route::try(''                                                    , ':PROTOCOL:DO
 
 
 
-/*
- * Admin pages
- */
+// Admin pages
 Route::try('/^([a-z]{2})\/(admin\/)?ajax\/([a-z\/]+).php$/'      , '$1/$2ajax/$3.php'                                     , 'Q');                // Redirect to admin ajax pages
 Route::try('/^([a-z]{2})\/admin\/?$/'                            , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/admin/index.html', 'R301');             // /en/admin/ has to go to /en/admin/index.html
 Route::try('/^([a-z]{2})\/admin\/([a-z-]+).html$/'               , '$1/admin/$2.php'                                      , 'Q');                // Show admin pages with page name in URL
@@ -130,8 +117,6 @@ Route::try('/^admin\/?$/'                                        , ':PROTOCOL:DO
 
 
 
-/*
- * System files / downloadable files
- */
+// System files / downloadable files
 Route::try('/(.+?(?:xml|txt))$/'                                 , '$1'                                                   , '');                 // System files like sitemap.xml, robot.txt, etc.
 Route::try('/\/files\/(.+)$/'                                    , '$1'                                                   , 'A');                // Downloadable files
