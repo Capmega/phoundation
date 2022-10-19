@@ -2,6 +2,7 @@
 
 namespace Phoundation\Core;
 
+use DateTimeZone;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Scripts;
@@ -357,7 +358,7 @@ class Core {
                                 $language = Strings::until($url, '/');
 
                                 if (!array_key_exists($language, $supported)) {
-                                    Log::warning(tr('Detected language ":language" is not supported, falling back to default. See $_CONFIG[language][supported]', [':language' => $language]));
+                                    Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration languages.supported', [':language' => $language]));
                                     $language = Config::get('languages.default', 'en');
                                 }
 
@@ -365,7 +366,7 @@ class Core {
                                 $language = substr($url, 0, 2);
 
                                 if (!array_key_exists($language, $supported)) {
-                                    Log::warning(tr('Detected language ":language" is not supported, falling back to default. See $_CONFIG[language][supported]', [':language' => $language]));
+                                    Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration languages.supported', [':language' => $language]));
                                     $language = Config::get('languages.default', 'en');
                                 }
                             }
@@ -1943,12 +1944,12 @@ class Core {
         if (!$error_code) {
             $level = mt_rand(0, 100);
 
-            if (!empty($_CONFIG['shutdown'])) {
-                if (!is_array($_CONFIG['shutdown'])) {
+            if (Config::get('system.shutdown', false)) {
+                if (!is_array(Config::get('system.shutdown', false))) {
                     throw new OutOfBoundsException(tr('shutdown(): Invalid $_CONFIG[shutdown], it should be an array'));
                 }
 
-                foreach ($_CONFIG['shutdown'] as $name => $parameters) {
+                foreach (Config::get('system.shutdown', false) as $name => $parameters) {
                     if ($parameters['interval'] and ($level < $parameters['interval'])) {
                         Log::notice(tr('Executing periodical shutdown function ":function()"', [':function' => $name]));
                         $parameters['function']();
@@ -2086,7 +2087,7 @@ class Core {
         }
 
         // New session? Detect client type, language, and mobile device
-        if (empty($_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
+        if (empty($_COOKIE[Config::get('sessions.cookies.name', '')])) {
             load_libs('detect');
             detect();
         }
@@ -2241,32 +2242,29 @@ class Core {
 
         // Set session and cookie parameters
         try {
-            if ($_CONFIG['sessions']['enabled']) {
+            if (Config::get('sessions.enabled', true)) {
                 // Force session cookie configuration
-                ini_set('session.gc_maxlifetime' , $_CONFIG['sessions']['timeout']);
-                ini_set('session.cookie_lifetime', $_CONFIG['sessions']['lifetime']);
-                ini_set('session.use_strict_mode', $_CONFIG['sessions']['strict']);
-                ini_set('session.name'           , $_CONFIG['sessions']['cookie_name']);
-                ini_set('session.cookie_httponly', $_CONFIG['sessions']['http']);
-                ini_set('session.cookie_secure'  , $_CONFIG['sessions']['secure']);
-                ini_set('session.cookie_samesite', $_CONFIG['sessions']['same_site']);
-                ini_set('session.use_strict_mode', $_CONFIG['sessions']['strict']);
+                ini_set('session.gc_maxlifetime' , Config::get('sessions.timeout'            , true));
+                ini_set('session.cookie_lifetime', Config::get('sessions.cookies.lifetime'   , 0));
+                ini_set('session.use_strict_mode', Config::get('sessions.cookies.strict_mode', true));
+                ini_set('session.name'           , Config::get('sessions.cookies.name'       , ''));
+                ini_set('session.cookie_httponly', Config::get('sessions.cookies.http-only'  , true));
+                ini_set('session.cookie_secure'  , Config::get('sessions.cookies.secure'     , true));
+                ini_set('session.cookie_samesite', Config::get('sessions.cookies.same-site'  , true));
 
-                if ($_CONFIG['sessions']['check_referrer']) {
+                if (Config::get('sessions.check-referrer', true)) {
                     ini_set('session.referer_check', $domain);
                 }
 
-                if (Debug::enabled() or !$_CONFIG['cache']['http']['enabled']) {
+                if (Debug::enabled() or !Config::get('cache.http.enabled', true)) {
                     ini_set('session.cache_limiter', 'nocache');
 
                 } else {
-                    if ($_CONFIG['cache']['http']['enabled'] === 'auto') {
-                        ini_set('session.cache_limiter', $_CONFIG['cache']['http']['php_cache_limiter']);
-                        ini_set('session.cache_expire' , $_CONFIG['cache']['http']['php_cache_expire']);
+                    if (Config::get('cache.http.enabled', true) === 'auto') {
+                        ini_set('session.cache_limiter', Config::get('cache.http.php-cache-limiter'    , true));
+                        ini_set('session.cache_expire' , Config::get('cache.http.php-cache-php_cache_expire', true));
                     }
                 }
-
-
 
                 // Do not send cookies to crawlers!
                 if (isset_get($core->register['session']['client']['type']) === 'crawler') {
@@ -2276,44 +2274,32 @@ class Core {
                     /*
                      * Setup session handlers
                      */
-                    switch ($_CONFIG['sessions']['handler']) {
+                    switch (Config::get('sessions.handler', 'sql')) {
                         case false:
                             file_ensure_path(ROOT.'data/cookies/');
                             ini_set('session.save_path', ROOT.'data/cookies/');
                             break;
 
                         case 'sql':
-                            /*
-                             * Store session data in MySQL
-                             */
-                            load_libs('sessions-sql');
+                            // Store session data in MySQL
                             session_set_save_handler('sessions_sql_open', 'sessions_sql_close', 'sessions_sql_read', 'sessions_sql_write', 'sessions_sql_destroy', 'sessions_sql_gc', 'sessions_sql_create_sid');
                             register_shutdown_function('session_write_close');
 
                         case 'mc':
-                            /*
-                             * Store session data in memcached
-                             */
-                            load_libs('sessions-mc');
+                            // Store session data in memcached
                             session_set_save_handler('sessions_memcached_open', 'sessions_memcached_close', 'sessions_memcached_read', 'sessions_memcached_write', 'sessions_memcached_destroy', 'sessions_memcached_gc', 'sessions_memcached_create_sid');
                             register_shutdown_function('session_write_close');
 
                         case 'mm':
-                            /*
-                             * Store session data in shared memory
-                             */
-                            load_libs('sessions-mm');
+                            // Store session data in shared memory
                             session_set_save_handler('sessions_mm_open', 'sessions_mm_close', 'sessions_mm_read', 'sessions_mm_write', 'sessions_mm_destroy', 'sessions_mm_gc', 'sessions_mm_create_sid');
                             register_shutdown_function('session_write_close');
                     }
 
 
 
-                    /*
-                     * Set cookie, but only if page is not API and domain has
-                     * cookie configured
-                     */
-                    if ($_CONFIG['sessions']['euro_cookies'] and empty($_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
+                    // Set cookie, but only if page is not API and domain has cookie configured
+                    if (Config::get('sessions.cookies.europe', true) and !Config::get('sessions.cookies.name', '')) {
                         if (GeoIP::isEuropean()) {
                             // All first visits to european countries require cookie permissions given!
                             $_SESSION['euro_cookie'] = true;
@@ -2322,20 +2308,18 @@ class Core {
                     }
 
                     if (!Core::getCallType('api')) {
-                        /*
-                         *
-                         */
+                        //
                         try {
-                            if (isset($_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
-                                if (!is_string($_COOKIE[$_CONFIG['sessions']['cookie_name']]) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
-                                    Log::warning(tr('Received invalid cookie ":cookie", dropping', [':cookie' => $_COOKIE[$_CONFIG['sessions']['cookie_name']]]));
-                                    unset($_COOKIE[$_CONFIG['sessions']['cookie_name']]);
+                            if (Config::get('sessions.cookies.name', '')) {
+                                if (!is_string(Config::get('sessions.cookies.name', '')) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE[Config::get('sessions.cookies.name', '')])) {
+                                    Log::warning(tr('Received invalid cookie ":cookie", dropping', [':cookie' => $_COOKIE[Config::get('sessions.cookies.name', '')]]));
+                                    unset($_COOKIE[Config::get('sessions.cookies.name', '')]);
                                     $_POST = array();
 
                                     // Received cookie but it didn't pass. Start a new session without a cookie
                                     session_start();
 
-                                } elseif (!file_exists(ROOT.'data/cookies/sess_'.$_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
+                                } elseif (!file_exists(ROOT.'data/cookies/sess_'.$_COOKIE[Config::get('sessions.cookies.name', '')])) {
                                     /*
                                      * Cookie code is valid, but it doesn't exist.
                                      *
@@ -2344,15 +2328,15 @@ class Core {
                                      * from the browser turned out to be problematic to say
                                      * the least
                                      */
-                                    Log::information(tr('Received non existing cookie ":cookie", recreating', [':cookie' => $_COOKIE[$_CONFIG['sessions']['cookie_name']]]));
+                                    Log::information(tr('Received non existing cookie ":cookie", recreating', [':cookie' => $_COOKIE[Config::get('sessions.cookies.name', '')]]));
 
                                     session_start();
 
-                                    if ($_CONFIG['sessions']['notify_expired']) {
-                                        html_flash_set(tr('Your browser cookie was expired, or does not exist. You may have to sign in again'), 'warning');
+                                    if (Config::get('sessions.cookies.notify-expired', '')) {
+                                        Html::flash()->add(tr('Your browser cookie was expired, or does not exist. You may have to sign in again'), 'warning');
                                     }
 
-                                    $_POST = array();
+                                    $_POST = [];
 
                                 } else {
                                     // Cookie valid and found. Start a normal session with whit cookie
@@ -2404,7 +2388,7 @@ class Core {
                         }
 
                         if (Config::get('sessions.regenerate-id', false)) {
-                            if (isset($_SESSION['created']) and (time() - $_SESSION['created'] > $_CONFIG['sessions']['regenerate_id'])) {
+                            if (isset($_SESSION['created']) and (time() - $_SESSION['created'] > Config::get('sessions.regenerate_id', false))) {
                                 /*
                                  * Use "created" to monitor session id age and
                                  * refresh it periodically to mitigate attacks on
@@ -2415,11 +2399,9 @@ class Core {
                             }
                         }
 
-                        if ($_CONFIG['sessions']['lifetime']) {
-                            if (isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > $_CONFIG['sessions']['lifetime'])) {
-                                /*
-                                 * Session expired!
-                                 */
+                        if (Config::get('sessions.cookies.lifetime', 0)) {
+                            if (isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > Config::get('sessions.cookies.lifetime', 0))) {
+                                // Session expired!
                                 session_unset();
                                 session_destroy();
                                 session_start();
@@ -2427,11 +2409,7 @@ class Core {
                             }
                         }
 
-
-
-                        /*
-                         * Set last activity, and first_visit variables
-                         */
+                        // Set last activity, and first_visit variables
                         $_SESSION['last_activity'] = time();
 
                         if (isset($_SESSION['first_visit'])) {
@@ -2443,27 +2421,20 @@ class Core {
                             $_SESSION['first_visit'] = 1;
                         }
 
-
-
                         // Auto extended sessions?
-                        check_extended_session();
-
-
+                        Web::session()->checkExtended();
 
                         // Set users timezone
                         if (empty($_SESSION['user']['timezone'])) {
-                            $_SESSION['user']['timezone'] = $_CONFIG['timezone']['display'];
+                            $_SESSION['user']['timezone'] = Config::get('timezone.display', 0);
 
                         } else {
                             try {
                                 $check = new DateTimeZone($_SESSION['user']['timezone']);
 
                             }catch(Exception $e) {
-                                /*
-                                 * Timezone invalid for this user. Notify
-                                 * developers, and fix timezone for user
-                                 */
-                                $_SESSION['user']['timezone'] = $_CONFIG['timezone']['display'];
+                                // Timezone invalid for this user. Notify developers, and fix timezone for user
+                                $_SESSION['user']['timezone'] = Config::get('timezone.display', 0);
 
                                 user_update($_SESSION['user']);
 
