@@ -268,7 +268,7 @@ class File
          */
         if ($extension) {
             if (!str_contains($extension, '.')) {
-                $target .= '.'.$extension;
+                $target .= '.' . $extension;
 
             } else {
                 $target .= $extension;
@@ -539,7 +539,7 @@ class File
             $name       = substr(hash('sha1', uniqid().microtime()), 0, 12);
 
             if ($session_id) {
-                $name = $session_id.'-'.$name;
+                $name = $session_id.'-' . $name;
             }
 
         } else {
@@ -548,7 +548,7 @@ class File
 
         if ($extension) {
             // Temp file will have specified extension
-            $name .= '.'.$extension;
+            $name .= '.' . $extension;
         }
 
         $file = $path.$name;
@@ -990,7 +990,7 @@ class File
                         /*
                          * This symlink points to no file, its dead
                          */
-                        log_console('file_copy_tree(): Encountered dead symlink "'.$source.'", copying anyway...', 'warning');
+                        log_console('file_copy_tree(): Encountered dead symlink "' . $source.'", copying anyway...', 'warning');
                     }
 
                     /*
@@ -1199,12 +1199,12 @@ class File
             case 'img':
                 // no-break
             case 'image':
-                return '/pub/img/'.$path;
+                return '/pub/img/' . $path;
 
             case 'css':
                 // no-break
             case 'style':
-                return '/pub/css/'.$path;
+                return '/pub/css/' . $path;
 
             default:
                 throw new OutOfBoundsException(tr('Unknown type ":type" specified', [':type' => $type]));
@@ -1490,8 +1490,8 @@ class File
 // :TODO: Are these required?
             //header('Expires: -1');
             //header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
-            header('Content-Type: '.$mimetype);
-            header('Content-length: '.$bytes);
+            header('Content-Type: ' . $mimetype);
+            header('Content-length: ' . $bytes);
 
             if ($params['attachment']) {
                 /*
@@ -1499,7 +1499,7 @@ class File
                  * send it as a file attachement that will be downloaded to their
                  * disk
                  */
-                header('Content-Disposition: attachment; filename="'.$params['filename'].'"');
+                header('Content-Disposition: attachment; filename="' . $params['filename'].'"');
             }
 
             $f = fopen($params['file'], $mode);
@@ -1782,9 +1782,9 @@ class File
 // :TODO: Are these required?
             //header('Expires: -1');
             //header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
-            header('Content-Type: '.$mimetype);
+            header('Content-Type: ' . $mimetype);
             header("Content-length: ".$bytes);
-            header('Content-Disposition: attachment; filename="'.$params['filename'].'"');
+            header('Content-Disposition: attachment; filename="' . $params['filename'].'"');
 
             $f = fopen($params['file']);
             fpassthru($f);
@@ -2866,7 +2866,7 @@ class File
                 throw new FilesystemException(tr('file_chown(): Specified file ":file" is not in the projects ROOT path ":path"', array(':path' => $path, ':file' => $file)), 'invalid');
             }
 
-            safe_exec(array('commands' => array('chown', array('sudo' => true, $user.':'.$group, $file))));
+            safe_exec(array('commands' => array('chown', array('sudo' => true, $user.':' . $group, $file))));
 
         }catch(Exception $e) {
             throw new FilesystemException(tr('file_chown(): Failed'), $e);
@@ -2992,7 +2992,7 @@ class File
             } else {
                 $arguments[] = $params['regex'];
                 $arguments[] = $params['source'];
-                $arguments['redirect'] = '> '.$params['target'];
+                $arguments['redirect'] = '> ' . $params['target'];
             }
 
             if (!empty($sudo)) {

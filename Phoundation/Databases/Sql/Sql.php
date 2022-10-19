@@ -438,7 +438,7 @@ class Sql
 
                     Log::warning(tr('Successfully connected to database server. Attempting to create database ":db"', [':db' => $db]));
 
-                    $pdo->query('CREATE DATABASE `'.$db.'`');
+                    $pdo->query('CREATE DATABASE `' . $db.'`');
 
                     Log::warning(tr('Reconnecting to database server with database ":db"', [':db' => $db]));
 
@@ -582,9 +582,9 @@ class Sql
                     // Dump database, and recreate it
                     Sql::connect();
 
-                    $this->query('DROP   DATABASE IF EXISTS `'.$_CONFIG['db']['core']['db'].'`');
-                    $this->query('CREATE DATABASE           `'.$_CONFIG['db']['core']['db'].'` DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
-                    $this->query('USE                       `'.$_CONFIG['db']['core']['db'].'`');
+                    $this->query('DROP   DATABASE IF EXISTS `' . $_CONFIG['db']['core']['db'].'`');
+                    $this->query('CREATE DATABASE           `' . $_CONFIG['db']['core']['db'].'` DEFAULT CHARSET="' . $_CONFIG['db']['core']['charset'].'" COLLATE="' . $_CONFIG['db']['core']['collate'].'";');
+                    $this->query('USE                       `' . $_CONFIG['db']['core']['db'].'`');
                 }
             }
 
@@ -692,9 +692,9 @@ class Sql
                         global $_CONFIG;
 
                         try {
-                            $this->query('DROP DATABASE IF EXISTS `'.$connector['db'].'`;');
-                            $this->query('CREATE DATABASE         `'.$connector['db'].'` DEFAULT CHARSET="'.$connector['charset'].'" COLLATE="'.$connector['collate'].'";');
-                            $this->query('USE                     `'.$connector['db'].'`');
+                            $this->query('DROP DATABASE IF EXISTS `' . $connector['db'].'`;');
+                            $this->query('CREATE DATABASE         `' . $connector['db'].'` DEFAULT CHARSET="' . $connector['charset'].'" COLLATE="' . $connector['collate'].'";');
+                            $this->query('USE                     `' . $connector['db'].'`');
                             return;
 
                         }catch(Exception $e) {
@@ -907,7 +907,7 @@ class Sql
 
                                 // We're doing an init, try to automatically create the database
                                 $retry = true;
-                                Log::warning('Database "'.$query['db'].'" does not exist, attempting to create it automatically');
+                                Log::warning('Database "' . $query['db'].'" does not exist, attempting to create it automatically');
 
                                 $this->query('CREATE DATABASE `:db` DEFAULT CHARSET=":charset" COLLATE=":collate";', [':db' => $query['db'], ':charset' => $this->instance_configuration['charset'], ':collate' => $this->instance_configuration['collate']]);
                                 $this->connect();

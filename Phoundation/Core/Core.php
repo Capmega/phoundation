@@ -374,7 +374,7 @@ class Core {
                         }
 
                         define('LANGUAGE', $language);
-                        define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_'.$_SESSION['location']['country']['code']));
+                        define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
 
                         /*
                          * Ensure $_SESSION['language'] available
@@ -479,7 +479,7 @@ class Core {
 
                     define('ENVIRONMENT', $env);
 
-                    if (!file_exists(ROOT.'config/'.$env.'.php')) {
+                    if (!file_exists(ROOT.'config/' . $env.'.php')) {
                         Scripts::die(5, 'startup: Configuration file "ROOT/config/' . $env . '.php" for specified environment "' . $env . '" not found');
                     }
 
@@ -703,7 +703,7 @@ class Core {
                         }
 
                         define('LANGUAGE', $language);
-                        define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_'.$_SESSION['location']['country']['code']));
+                        define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
 
                         $_SESSION['language'] = $language;
 
@@ -1540,7 +1540,7 @@ class Core {
                                                 '.tr('File').'
                                             </td>
                                             <td>
-                                                '.$e->getFile().'
+                                                ' . $e->getFile().'
                                             </td>
                                         </tr>
                                         <tr>
@@ -1548,7 +1548,7 @@ class Core {
                                                 '.tr('Line').'
                                             </td>
                                             <td>
-                                                '.$e->getLine().'
+                                                ' . $e->getLine().'
                                             </td>
                                         </tr>
                                     </tbody>
@@ -1785,7 +1785,7 @@ class Core {
              * Cleanup path. If realpath fails, we know something is amiss
              */
             if (!$found = realpath($found)) {
-                throw new CoreException('get_global_data_path(): Found path "'.$path.'" failed realpath() check', 'path-failed');
+                throw new CoreException('get_global_data_path(): Found path "' . $path.'" failed realpath() check', 'path-failed');
             }
         }
 

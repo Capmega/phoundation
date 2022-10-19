@@ -53,7 +53,7 @@ class Path
             $path = '';
 
             foreach ($dirs as $dir) {
-                $path .= '/'.$dir;
+                $path .= '/' . $dir;
 
                 if (file_exists($path)) {
                     if (!is_dir($path)) {
@@ -159,7 +159,7 @@ class Path
             $name       = substr(hash('sha1', uniqid().microtime()), 0, 12);
 
             if ($session_id) {
-                $name = $session_id.'-'.$name;
+                $name = $session_id.'-' . $name;
             }
 
         } else {

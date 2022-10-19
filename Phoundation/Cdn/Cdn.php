@@ -213,7 +213,7 @@ class Cdn
             //    $_SESSION['cdn'] = Strings::slash($server).strtolower(str_replace('_', '-', PROJECT));
             //}
             //
-            //return $_SESSION['cdn'].$url;
+            //return $_SESSION['cdn'] . $url;
 
         } catch (Exception $e) {
             throw new OutOfBoundsException('cdn_domain(): Failed', $e);

@@ -858,7 +858,7 @@ class Http
         }
 
         if ((substr($target, 0, 1) != '/') and (substr($target, 0, 7) != 'http://') and (substr($target, 0, 8) != 'https://')) {
-            $target = $_CONFIG['url_prefix'].$target;
+            $target = $_CONFIG['url_prefix'] . $target;
         }
 
         $target = Url::redirect($target);

@@ -349,8 +349,8 @@ class SqlExists
 
                            FROM   INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 
-                           WHERE  REFERENCED_TABLE_NAME = "'.$table.'"
-             '.($column ? 'AND    REFERENCED_COLUMN_NAME = "'.$column.'"' : '' ).';', null, $connector);
+                           WHERE  REFERENCED_TABLE_NAME = "' . $table.'"
+             '.($column ? 'AND    REFERENCED_COLUMN_NAME = "' . $column.'"' : '' ).';', null, $connector);
 
             return $list;
 

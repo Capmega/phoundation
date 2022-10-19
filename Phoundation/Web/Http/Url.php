@@ -416,7 +416,7 @@ class Url {
         Log::notice(tr('Cleaning up `url_cloaks` table'));
 
         $r = Sql::query('DELETE FROM `url_cloaks` 
-                         WHERE `createdon` < DATE_SUB(NOW(), INTERVAL '.$_CONFIG['security']['url_cloaking']['expires'].' SECOND);');
+                         WHERE `createdon` < DATE_SUB(NOW(), INTERVAL ' . $_CONFIG['security']['url_cloaking']['expires'].' SECOND);');
 
         log_console(tr('Removed ":count" expired entries from the `url_cloaks` table', array(':count' => $r->rowCount())), 'green');
 

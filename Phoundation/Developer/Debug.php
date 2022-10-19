@@ -742,7 +742,7 @@ class Debug {
             case 'double':
                 return '<tr>
                         <td>'.htmlentities($key).'</td>
-                        <td>'.$type.'</td>
+                        <td>' . $type.'</td>
                         <td>'.strlen((string) $value).'</td>
                         <td class="value">'.htmlentities($value).'</td>
                     </tr>';
@@ -750,7 +750,7 @@ class Debug {
             case 'boolean':
                 return '<tr>
                         <td>'.htmlentities($key).'</td>
-                        <td>'.$type.'</td>
+                        <td>' . $type.'</td>
                         <td>1</td>
                         <td class="value">'.($value ? tr('true') : tr('false')).'</td>
                     </tr>';
@@ -758,16 +758,16 @@ class Debug {
             case 'NULL':
                 return '<tr>
                         <td>'.htmlentities($key).'</td>
-                        <td>'.$type.'</td>
+                        <td>' . $type.'</td>
                         <td>0</td>
                         <td class="value">'.htmlentities($value).'</td>
                     </tr>';
 
             case 'resource':
                 return '<tr><td>'.htmlentities($key).'</td>
-                        <td>'.$type.'</td>
+                        <td>' . $type.'</td>
                         <td>?</td>
-                        <td class="value">'.$value.'</td>
+                        <td class="value">' . $value.'</td>
                     </tr>';
 
             case 'method':
@@ -775,9 +775,9 @@ class Debug {
 
             case 'property':
                 return '<tr><td>'.htmlentities($key).'</td>
-                        <td>'.$type.'</td>
+                        <td>' . $type.'</td>
                         <td>'.strlen($value).'</td>
-                        <td class="value">'.$value.'</td>
+                        <td class="value">' . $value.'</td>
                     </tr>';
 
             case 'array':
@@ -791,11 +791,11 @@ class Debug {
 
                 return '<tr>
                         <td>'.htmlentities($key).'</td>
-                        <td>'.$type.'</td>
+                        <td>' . $type.'</td>
                         <td>'.count($value).'</td>
                         <td style="padding:0">
                             <table class="debug">
-                                <thead><td>'.tr('Key').'</td><td>'.tr('Type').'</td><td>'.tr('Size').'</td><td>'.tr('Value').'</td></thead>'.$retval.'
+                                <thead><td>'.tr('Key').'</td><td>'.tr('Type').'</td><td>'.tr('Size').'</td><td>'.tr('Value').'</td></thead>' . $retval.'
                             </table>
                         </td>
                     </tr>';
@@ -805,18 +805,18 @@ class Debug {
                 $value  = print_r($value, true);
                 $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
                 $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
-                $retval = '<pre>'.$value.'</pre>';
+                $retval = '<pre>' . $value.'</pre>';
 
                 return '<tr>
-                        <td>'.$key.'</td>
-                        <td>'.$type.'</td>
+                        <td>' . $key.'</td>
+                        <td>' . $type.'</td>
                         <td>?</td>
-                        <td>'.$retval.'</td>
+                        <td>' . $retval.'</td>
                     </tr>';
 
             default:
                 return '<tr>
-                        <td>'.$key.'</td>
+                        <td>' . $key.'</td>
                         <td>'.tr('Unknown').'</td>
                         <td>???</td>
                         <td class="value">'.htmlentities($value).'</td>
@@ -985,7 +985,7 @@ class Debug {
          * Build HTML
          */
         $html = '<div class="debug" id="debug-bar">
-                '.($_CONFIG['cache']['method'] ? '(CACHE='.$_CONFIG['cache']['method'].') ' : '').count(Core::readRegister('debug_queries')).' / '.number_format(microtime(true) - STARTTIME, 6).'
+                '.($_CONFIG['cache']['method'] ? '(CACHE=' . $_CONFIG['cache']['method'].') ' : '').count(Core::readRegister('debug_queries')).' / '.number_format(microtime(true) - STARTTIME, 6).'
                 <div class="hidden list">
                     <div style="width:100%; background: #2d3945; text-align: center; font-weight: bold; padding: 3px 0 3px;">
                         '.tr('Debug report').'
@@ -1009,8 +1009,8 @@ class Debug {
         foreach ($core->register['debug_queries'] as $query) {
             $html .= '      <tr>
                             <td>'.number_format($query['time'], 6).'</td>
-                            <td>'.$query['function'].'</td>
-                            <td>'.$query['query'].'</td>
+                            <td>' . $query['function'].'</td>
+                            <td>' . $query['query'].'</td>
                         </tr>';
         }
 
@@ -1066,7 +1066,7 @@ class Debug {
         foreach ($files as $id => $file) {
             $html .= '      <tr>
                             <td>'.($id + 1).'</td>
-                            <td>'.$file.'</td>
+                            <td>' . $file.'</td>
                         </tr>';
         }
 

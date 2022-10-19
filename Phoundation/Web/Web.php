@@ -95,7 +95,7 @@ class Web
 
         switch (Core::getCallType()) {
             case 'ajax':
-                $include = ROOT.'www/'.$language.'/ajax/'.$pagename.'.php';
+                $include = ROOT.'www/' . $language.'/ajax/' . $pagename.'.php';
 
                 if (isset_get($params['exists'])) {
                     return file_exists($include);
@@ -126,7 +126,7 @@ class Web
 
             default:
                 if (is_numeric($pagename)) {
-                    $include = ROOT.'www/'.$language.isset_get($admin).'/system/'.$pagename.'.php';
+                    $include = ROOT.'www/' . $language.isset_get($admin).'/system/' . $pagename.'.php';
 
                     if (isset_get($params['exists'])) {
                         return file_exists($include);
@@ -141,7 +141,7 @@ class Web
                     usleep(mt_rand(1, 250));
 
                 } else {
-                    $include = ROOT.'www/'.$language.isset_get($admin).'/'.$pagename.'.php';
+                    $include = ROOT.'www/' . $language.isset_get($admin).'/' . $pagename.'.php';
 
                     if (isset_get($params['exists'])) {
                         return file_exists($include);

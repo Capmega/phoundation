@@ -171,7 +171,7 @@ class Time
             }
         }
 
-        $output = ($count == 1) ? '1 '.$name : "$count {$name}s";
+        $output = ($count == 1) ? '1 ' . $name : "$count {$name}s";
 
         if ($i + 1 < $j) {
             // Retrieving the second relevant period
@@ -180,7 +180,7 @@ class Time
 
             // Only show it if it's greater than 0
             if (($count2 = floor(($since - ($seconds * $count)) / $seconds2)) != 0) {
-                $output .= ($count2 == 1) ? ', 1 '.$name2 : ", $count2 {$name2}s";
+                $output .= ($count2 == 1) ? ', 1 ' . $name2 : ", $count2 {$name2}s";
             }
         }
 
@@ -204,9 +204,9 @@ class Time
 
         // Check for 12 hours format
         if (!$format or ($format = '12')) {
-            if (preg_match('/^(0?\d|(?:1(?:0|1)))\s?'.$separator.'\s?((?:0?|[1-5])\d)(?:\s?'.$separator.'\s?((?:0?|[1-5])\d)|)\s*(am|pm)$/i', $time, $matches)) {
+            if (preg_match('/^(0?\d|(?:1(?:0|1)))\s?' . $separator.'\s?((?:0?|[1-5])\d)(?:\s?' . $separator.'\s?((?:0?|[1-5])\d)|)\s*(am|pm)$/i', $time, $matches)) {
                 return [
-                    'time'    => $matches[1].$separator.$matches[2].($matches[3] ? $separator.$matches[3] : '').' '.strtoupper($matches[4]),
+                    'time'    => $matches[1] . $separator.$matches[2].($matches[3] ? $separator.$matches[3] : '').' '.strtoupper($matches[4]),
                          'format'  => '12',
                          'hours'   => $matches[1],
                          'minutes' => $matches[2],
@@ -218,9 +218,9 @@ class Time
 
         // Check for 24 hours format
         if (!$format or ($format = '24')) {
-            if (preg_match('/^((?:0?|1)\d|(?:2[0-3]))\s?'.$separator.'\s?((?:0?|[1-5])\d)(?:\s?'.$separator.'\s?((?:0?|[1-5])\d)|)$/', $time, $matches)) {
+            if (preg_match('/^((?:0?|1)\d|(?:2[0-3]))\s?' . $separator.'\s?((?:0?|[1-5])\d)(?:\s?' . $separator.'\s?((?:0?|[1-5])\d)|)$/', $time, $matches)) {
                 return [
-                    'time'    => $matches[1].$separator.$matches[2].(isset_get($matches[3]) ? $separator.$matches[3] : ''),
+                    'time'    => $matches[1] . $separator.$matches[2].(isset_get($matches[3]) ? $separator.$matches[3] : ''),
                     'format'  => '24',
                     'hours'   => $matches[1],
                     'minutes' => $matches[2],
@@ -284,7 +284,7 @@ class Time
                 }
 
                 if ($time['seconds'] === null) {
-                    return $time['hours'].$separator.$time['minutes'];
+                    return $time['hours'] . $separator.$time['minutes'];
                 }
 
                 return $time['hours'] . $separator . $time['minutes'] . $separator . $time['seconds'];

@@ -96,7 +96,7 @@ class Validator
             }
 
             foreach ($this->process_values as $key => &$value) {
-//show('KEY '.$key.' / VALUE:' . Strings::force($value));
+//show('KEY ' . $key.' / VALUE:' . Strings::force($value));
                 // Process all process_values
                 $this->process_key = $key;
                 $this->process_value = &$value;

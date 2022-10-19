@@ -74,7 +74,7 @@ Class Init
                 /*
                  * We're (probably) redoing earlier versions, so remove registrations from earlier versions
                  */
-                Sql::query('DELETE FROM `versions` WHERE (SUBSTRING(`framework`, 1, 1) != "-") AND (INET_ATON(CONCAT(`framework`, REPEAT(".0", 3 - CHAR_LENGTH(`framework`) + CHAR_LENGTH(REPLACE(`framework`, ".", ""))))) >= INET_ATON(CONCAT("'.$framework_from.'", REPEAT(".0", 3 - CHAR_LENGTH("'.$framework_from.'") + CHAR_LENGTH(REPLACE("'.$framework_from.'", ".", ""))))))');
+                Sql::query('DELETE FROM `versions` WHERE (SUBSTRING(`framework`, 1, 1) != "-") AND (INET_ATON(CONCAT(`framework`, REPEAT(".0", 3 - CHAR_LENGTH(`framework`) + CHAR_LENGTH(REPLACE(`framework`, ".", ""))))) >= INET_ATON(CONCAT("' . $framework_from.'", REPEAT(".0", 3 - CHAR_LENGTH("' . $framework_from.'") + CHAR_LENGTH(REPLACE("' . $framework_from.'", ".", ""))))))');
                 $codeversions['FRAMEWORK'] = Sql::get('SELECT `framework` FROM `versions` ORDER BY `id` DESC LIMIT 1;', 'framework');
             }
 
@@ -85,7 +85,7 @@ Class Init
                 /*
                  * We're (probably) doing earlier versions, so remove registrations from earlier versions
                  */
-                Sql::query('DELETE FROM `versions` WHERE (SUBSTRING(`project`, 1, 1) != "-") AND (INET_ATON(CONCAT(`project`, REPEAT(".0", 3 - CHAR_LENGTH(`project`) + CHAR_LENGTH(REPLACE(`project`, ".", ""))))) >= INET_ATON(CONCAT("'.$project_from .'", REPEAT(".0", 3 - CHAR_LENGTH("'.$project_from .'") + CHAR_LENGTH(REPLACE("'.$project_from .'", ".", ""))))))');
+                Sql::query('DELETE FROM `versions` WHERE (SUBSTRING(`project`, 1, 1) != "-") AND (INET_ATON(CONCAT(`project`, REPEAT(".0", 3 - CHAR_LENGTH(`project`) + CHAR_LENGTH(REPLACE(`project`, ".", ""))))) >= INET_ATON(CONCAT("' . $project_from .'", REPEAT(".0", 3 - CHAR_LENGTH("' . $project_from .'") + CHAR_LENGTH(REPLACE("' . $project_from .'", ".", ""))))))');
                 $codeversions['PROJECT'] = Sql::get('SELECT `project` FROM `versions` ORDER BY `id` DESC LIMIT 1;', 'project');
             }
 
@@ -101,7 +101,7 @@ Class Init
                     $_SESSION['user'] = array('id'       => null,
                         'name'     => 'System Init',
                         'username' => 'init',
-                        'email'    => 'init@'.$_CONFIG['domain'],
+                        'email'    => 'init@' . $_CONFIG['domain'],
                         'rights'   => array('admin', 'users', 'rights'));
                 }
 
@@ -152,10 +152,10 @@ Class Init
 
             if (empty($noinit)) {
                 if (FORCE) {
-                    log_console('Starting '.$init.' FORCED from version "'.FORCE.'" for "'.$_CONFIG['name'].'" using PHP "'.phpversion().'"', 'white');
+                    log_console('Starting ' . $init.' FORCED from version "'.FORCE.'" for "' . $_CONFIG['name'].'" using PHP "'.phpversion().'"', 'white');
 
                 } else {
-                    log_console('Starting '.$init.' for "'.$_CONFIG['name'].'" using PHP "'.phpversion().'"', 'white');
+                    log_console('Starting ' . $init.' for "' . $_CONFIG['name'].'" using PHP "'.phpversion().'"', 'white');
                 }
 
                 /*
@@ -233,7 +233,7 @@ Class Init
                                  * This init file is higher than the DB version, but lower than the code version, so it must be executed
                                  */
                                 try {
-                                    if (file_exists($hook = $initpath.'hooks/pre_'.$file)) {
+                                    if (file_exists($hook = $initpath.'hooks/pre_' . $file)) {
                                         log_console(tr('Executing newer init "pre" hook file with version ":version"', array(':version' => $version)), 'cyan');
                                         include_once($hook);
                                     }
@@ -253,11 +253,11 @@ Class Init
                                     /*
                                      * INIT FILE FAILED!
                                      */
-                                    throw new CoreException('init('.$type.'): Init file "'.$file.'" failed', $e);
+                                    throw new CoreException('init(' . $type.'): Init file "' . $file.'" failed', $e);
                                 }
 
                                 try {
-                                    if (file_exists($hook = $initpath.'hooks/post_'.$file)) {
+                                    if (file_exists($hook = $initpath.'hooks/post_' . $file)) {
                                         log_console(tr('Executing newer init "post" hook file with version ":version"', array(':version' => $version)), 'VERBOSE/cyan');
                                         include_once($hook);
                                     }
@@ -266,20 +266,20 @@ Class Init
                                     /*
                                      * INIT FILE FAILED!
                                      */
-                                    throw new CoreException('init('.$type.'): Init "post" hook file "'.$file.'" failed', $e);
+                                    throw new CoreException('init(' . $type.'): Init "post" hook file "' . $file.'" failed', $e);
                                 }
 
                                 $versions[$type] = $version;
 
                                 $core->sql['core']->query('INSERT INTO `versions` (`framework`, `project`) VALUES ("'.cfm($versions['framework']).'", "'.cfm($versions['project']).'")');
 
-                                log_console('Finished init version "'.$version.'"', 'green');
+                                log_console('Finished init version "' . $version.'"', 'green');
 
                             } else {
                                 /*
                                  * This init file has already been executed so we can skip it.
                                  */
-                                log_console('Skipped older init file "'.$version.'"', 'VERBOSE/yellow');
+                                log_console('Skipped older init file "' . $version.'"', 'VERBOSE/yellow');
                             }
                         }
                     }
@@ -292,7 +292,7 @@ Class Init
                      * This way, the code version can be upped without having to add empty init files.
                      */
                     if (version_compare(constant($utype.'CODEVERSION'), $versions[$type]) > 0) {
-                        log_console('Last init file was "'.$versions[$type].'" while code version is still higher at "'.constant($utype.'CODEVERSION').'"', 'yellow');
+                        log_console('Last init file was "' . $versions[$type].'" while code version is still higher at "'.constant($utype.'CODEVERSION').'"', 'yellow');
                         log_console('Updating database version to code version manually'                                                                  , 'yellow');
 
                         $versions[$type] = constant($utype.'CODEVERSION');
@@ -421,7 +421,7 @@ Class Init
         global $_CONFIG, $core;
 
         try {
-            $r = $core->sql['core']->query('SHOW TABLES WHERE `Tables_in_'.$_CONFIG['db']['core']['db'].'` = "versions";');
+            $r = $core->sql['core']->query('SHOW TABLES WHERE `Tables_in_' . $_CONFIG['db']['core']['db'].'` = "versions";');
 
             if ($r->rowCount($r)) {
                 throw new CoreException('init_process_version_fail(): Failed version detection', $e);
@@ -467,8 +467,8 @@ Class Init
                 $disabled = $params;
             }
 
-            if (!$disabled and file_exists(ROOT.'scripts/hooks/'.$hook)) {
-                return script_exec(array('commands' => array('hooks/'.$hook, $params)));
+            if (!$disabled and file_exists(ROOT.'scripts/hooks/' . $hook)) {
+                return script_exec(array('commands' => array('hooks/' . $hook, $params)));
             }
 
         }catch(Exception $e) {
@@ -561,7 +561,7 @@ Class Init
         try {
             load_libs('sql_exists');
 
-            $path = ROOT.'init/'.$section.'/';
+            $path = ROOT.'init/' . $section.'/';
 
             if (!file_exists($path)) {
                 throw new CoreException(tr('init_section(): Specified section ":section" path ":path" does not exist', array(':section' => $section, ':path' => $path)), 'not-exists');
@@ -584,7 +584,7 @@ Class Init
                     /*
                      * Reset the versions table to the specified version
                      */
-                    Sql::query('DELETE FROM `versions` WHERE (SUBSTRING(`version`, 1, 1) != "-") AND (INET_ATON(CONCAT(`version`, REPEAT(".0", 3 - CHAR_LENGTH(`version`) + CHAR_LENGTH(REPLACE(`version`, ".", ""))))) >= INET_ATON(CONCAT("'.$version.'", REPEAT(".0", 3 - CHAR_LENGTH("'.$version.'") + CHAR_LENGTH(REPLACE("'.$version.'", ".", ""))))))');
+                    Sql::query('DELETE FROM `versions` WHERE (SUBSTRING(`version`, 1, 1) != "-") AND (INET_ATON(CONCAT(`version`, REPEAT(".0", 3 - CHAR_LENGTH(`version`) + CHAR_LENGTH(REPLACE(`version`, ".", ""))))) >= INET_ATON(CONCAT("' . $version.'", REPEAT(".0", 3 - CHAR_LENGTH("' . $version.'") + CHAR_LENGTH(REPLACE("' . $version.'", ".", ""))))))');
                 }
 
                 $dbversion = Sql::get('SELECT `version` FROM `versions` ORDER BY `id` DESC LIMIT 1', true);
@@ -649,8 +649,8 @@ Class Init
                          * This init file is higher than the DB version, but lower than the code version, so it must be executed
                          */
                         try {
-                            if (file_exists($hook = $path.'hooks/pre_'.$file)) {
-                                log_console('Executing newer init "pre" hook file with version "'.$version.'"', 'cyan');
+                            if (file_exists($hook = $path.'hooks/pre_' . $file)) {
+                                log_console('Executing newer init "pre" hook file with version "' . $version.'"', 'cyan');
                                 include_once($hook);
                             }
 
@@ -658,23 +658,23 @@ Class Init
                             /*
                              * INIT FILE FAILED!
                              */
-                            throw new CoreException('init('.$section.'): Init "pre" hook file "'.$file.'" failed', $e);
+                            throw new CoreException('init(' . $section.'): Init "pre" hook file "' . $file.'" failed', $e);
                         }
 
                         try {
-                            log_console('Executing newer init file with version "'.$version.'"', 'VERBOSE/cyan');
+                            log_console('Executing newer init file with version "' . $version.'"', 'VERBOSE/cyan');
                             init_include($path.$file, $section);
 
                         }catch(Exception $e) {
                             /*
                              * INIT FILE FAILED!
                              */
-                            throw new CoreException('init('.$section.'): Init file "'.$file.'" failed', $e);
+                            throw new CoreException('init(' . $section.'): Init file "' . $file.'" failed', $e);
                         }
 
                         try {
-                            if (file_exists($hook = $path.'hooks/post_'.$file)) {
-                                log_console('Executing newer init "post" hook file with version "'.$version.'"', 'VERBOSE/cyan');
+                            if (file_exists($hook = $path.'hooks/post_' . $file)) {
+                                log_console('Executing newer init "post" hook file with version "' . $version.'"', 'VERBOSE/cyan');
                                 include_once($hook);
                             }
 
@@ -682,18 +682,18 @@ Class Init
                             /*
                              * INIT FILE FAILED!
                              */
-                            throw new CoreException('init('.$section.'): Init "post" hook file "'.$file.'" failed', $e);
+                            throw new CoreException('init(' . $section.'): Init "post" hook file "' . $file.'" failed', $e);
                         }
 
                         Sql::query('INSERT INTO `versions` (`version`) VALUES (:version)', array(':version' => $version));
-                        log_console('Finished init version "'.$version.'"', 'green');
+                        log_console('Finished init version "' . $version.'"', 'green');
 
                     } else {
                         /*
                          * This init file has already been executed so we can skip it.
                          */
                         if (VERBOSE) {
-                            log_console('Skipped older init file "'.$version.'"', 'yellow');
+                            log_console('Skipped older init file "' . $version.'"', 'yellow');
                         }
                     }
                 }
@@ -707,7 +707,7 @@ Class Init
              * This way, the code version can be upped without having to add empty init files.
              */
             if (version_compare($dbversion, $version) > 0) {
-                log_console('Last init file was "'.$version.'" while code version is still higher at "'.$connector['version'].'"', 'yellow');
+                log_console('Last init file was "' . $version.'" while code version is still higher at "' . $connector['version'].'"', 'yellow');
                 log_console('Updating database version to code version manually'                                                 , 'yellow');
 
                 $version = $connector['version'];
@@ -802,13 +802,13 @@ Class Init
                     /*
                      * Custom section, check if it exists
                      */
-                    if (!file_exists(ROOT.'init/'.$section)) {
+                    if (!file_exists(ROOT.'init/' . $section)) {
                         throw new CoreException(tr('init_get_highest_file_version(): The specified custom init section ":section" does not exist', array(':section' => $section)), 'not-exist');
                     }
             }
 
             $version = '0.0.0';
-            $files   = scandir(ROOT.'init/'.$section);
+            $files   = scandir(ROOT.'init/' . $section);
 
             foreach ($files as $file) {
                 if (($file === '.') or ($file === '..')) {
