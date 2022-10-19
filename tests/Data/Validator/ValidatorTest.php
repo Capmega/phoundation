@@ -140,48 +140,6 @@ class ValidatorTest extends TestCase
 
 
     /**
-     * Test Validator::isNull()
-     *
-     * @return void
-     */
-    public function testIsNull()
-    {
-        // Test normal operation
-        $array = [
-            'test' => null,
-        ];
-
-        $result = [
-            'test' => null,
-        ];
-
-        Validator::array($array)
-            ->select('test')->isNull()
-            ->validate();
-
-        $this->assertEquals($result, $array);
-
-        // Test failures
-        $array = [
-            'test' => '',
-        ];
-
-        $result = [
-            'test' => null,
-        ];
-
-        $this->expectException(ValidatorException::class);
-
-        Validator::array($array)
-            ->select('test')->isNull()
-            ->validate();
-
-        $this->assertEquals($result, $array);
-    }
-
-
-
-    /**
      * Test Validator::isBoolean()
      *
      * @return void

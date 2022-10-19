@@ -2,8 +2,8 @@
 
 namespace Data\Validator;
 
+use Phoundation\Data\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
-use Phoundation\Exception\OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 
 
@@ -20,7 +20,9 @@ class FileValidatorTest extends TestCase
         // Test failures
 
         // Specified file should be a file, not a directory
-        $this->expectException(OutOfBoundsException::class);
-        Validator::file(ROOT);
+        $this->expectException(ValidationFailedException::class);
+        Validator::file(ROOT)
+            ->isFile()
+            ->validate();
     }
 }

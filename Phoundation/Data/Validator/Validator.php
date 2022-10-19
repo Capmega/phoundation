@@ -961,29 +961,6 @@ class Validator
     /**
      * Validates the datatype for the selected field
      *
-     * This method ensures that the specified array key is NULL
-     *
-     * @return Validator
-     */
-    public function isNull(): Validator
-    {
-        return $this->validateValues(function($value) {
-            if ($this->checkIsOptional($value)) {
-                if ($value !== null) {
-                    $this->addFailure(tr('must be NULL'));
-                    $value = null;
-                }
-            }
-
-            return $value;
-        });
-    }
-
-
-
-    /**
-     * Validates the datatype for the selected field
-     *
      * This method ensures that the specified array key is an array
      *
      * @return Validator

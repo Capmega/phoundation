@@ -834,8 +834,8 @@ Class Log {
             $line = date('Y-m-d H:i:s') . ' ' . ($level === 10 ? 10 : ' ' . $level) . ' ' . getmypid() . ' ' . self::$global_id . ' / ' . self::$local_id . ' ' . $messages . ($newline ? PHP_EOL : null);
             fwrite(self::$handles[self::$file], $line);
 
-            // In Command Line mode always log to the screen too
-            if (PHP_SAPI === 'cli') {
+            // In Command Line mode always log to the screen too, but not during PHPUnit test!
+            if ((PHP_SAPI === 'cli')  and !Core::isPhpUnitTest()) {
                 echo $messages . ($newline ? PHP_EOL : null);
             }
 
