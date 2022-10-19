@@ -13,95 +13,468 @@ use PHPUnit\Framework\TestCase;
  */
 class ValidatorTest extends TestCase
 {
+    /**
+     * Test Validator::isScalar()
+     *
+     * @return void
+     */
     public function testIsScalar()
     {
         // Test normal operation
         $array = [
-            'test-scalar' => ' 1 ',
+            'test' => ' 1 ',
         ];
 
         $result = [
-            'test-scalar' => ' 1 ',
+            'test' => ' 1 ',
         ];
 
         Validator::array($array)
-            ->select('test-scalar')->isScalar()
+            ->select('test')->isScalar()
             ->validate();
-
-        show($array);
 
         $this->assertEquals($result, $array);
 
         // Test failures
         $array = [
-            'test-scalar' => [],
+            'test' => [],
         ];
 
         $result = [
-            'test-scalar' => '',
+            'test' => '',
         ];
 
         $this->expectException(ValidatorException::class);
 
         Validator::array($array)
-            ->select('test-scalar')->isScalar()
+            ->select('test')->isScalar()
             ->validate();
 
         $this->assertEquals($result, $array);
     }
 
+
+
+    /**
+     * Test Validator::isString()
+     *
+     * @return void
+     */
     public function testIsString()
     {
+        // Test normal operation
+        $array = [
+            'test' => ' 1 ',
+        ];
 
+        $result = [
+            'test' => ' 1 ',
+        ];
+
+        Validator::array($array)
+            ->select('test')->isString()
+            ->validate();
+
+        $this->assertEquals($result, $array);
+
+        // Test failures
+        $array = [
+            'test' => [],
+        ];
+
+        $result = [
+            'test' => '',
+        ];
+
+        $this->expectException(ValidatorException::class);
+
+        Validator::array($array)
+            ->select('test')->isString()
+            ->validate();
+
+        $this->assertEquals($result, $array);
     }
 
+
+
+    /**
+     * Test Validator::isArray()
+     *
+     * @return void
+     */
     public function testIsArray()
     {
+        // Test normal operation
+        $array = [
+            'test' => [' 1 '],
+        ];
 
+        $result = [
+            'test' => [' 1 '],
+        ];
+
+        Validator::array($array)
+            ->select('test')->isArray()
+            ->validate();
+
+        $this->assertEquals($result, $array);
+
+        // Test failures
+        $array = [
+            'test' => '',
+        ];
+
+        $result = [
+            'test' => [],
+        ];
+
+        $this->expectException(ValidatorException::class);
+
+        Validator::array($array)
+            ->select('test')->isArray()
+            ->validate();
+
+        $this->assertEquals($result, $array);
     }
 
+
+
+    /**
+     * Test Validator::isNull()
+     *
+     * @return void
+     */
     public function testIsNull()
     {
+        // Test normal operation
+        $array = [
+            'test' => null,
+        ];
 
+        $result = [
+            'test' => null,
+        ];
+
+        Validator::array($array)
+            ->select('test')->isNull()
+            ->validate();
+
+        $this->assertEquals($result, $array);
+
+        // Test failures
+        $array = [
+            'test' => '',
+        ];
+
+        $result = [
+            'test' => null,
+        ];
+
+        $this->expectException(ValidatorException::class);
+
+        Validator::array($array)
+            ->select('test')->isNull()
+            ->validate();
+
+        $this->assertEquals($result, $array);
     }
 
+
+
+    /**
+     * Test Validator::isBoolean()
+     *
+     * @return void
+     */
     public function testIsBoolean()
     {
+        // Test normal operation
+        $array = [
+            'test' => false,
+        ];
 
+        $result = [
+            'test' => false,
+        ];
+
+        Validator::array($array)
+            ->select('test')->isBoolean()
+            ->validate();
+
+        $this->assertEquals($result, $array);
+
+        // Test failures
+        $array = [
+            'test' => '',
+        ];
+
+        $result = [
+            'test' => false,
+        ];
+
+        $this->expectException(ValidatorException::class);
+
+        Validator::array($array)
+            ->select('test')->isBoolean()
+            ->validate();
+
+        $this->assertEquals($result, $array);
     }
 
+
+
+    /**
+     * Test Validator::isNumeric()
+     *
+     * @return void
+     */
     public function testIsNumeric()
     {
+        // Test normal operation
+        $array = [
+            'test' => 0,
+        ];
 
+        $result = [
+            'test' => 0,
+        ];
+
+        Validator::array($array)
+            ->select('test')->isNumeric()
+            ->validate();
+
+        $this->assertEquals($result, $array);
+
+        // Test failures
+        $array = [
+            'test' => '',
+        ];
+
+        $result = [
+            'test' => 0,
+        ];
+
+        $this->expectException(ValidatorException::class);
+
+        Validator::array($array)
+            ->select('test')->isNumeric()
+            ->validate();
+
+        $this->assertEquals($result, $array);
     }
 
+
+
+    /**
+     * Test Validator::isInteger()
+     *
+     * @return void
+     */
     public function testIsInteger()
     {
+        // Test normal operation
+        $array = [
+            'test' => 0,
+        ];
 
+        $result = [
+            'test' => 0,
+        ];
+
+        Validator::array($array)
+            ->select('test')->isInteger()
+            ->validate();
+
+        $this->assertEquals($result, $array);
+
+        // Test failures
+        $array = [
+            'test' => '',
+        ];
+
+        $result = [
+            'test' => 0,
+        ];
+
+        $this->expectException(ValidatorException::class);
+
+        Validator::array($array)
+            ->select('test')->isInteger()
+            ->validate();
+
+        $this->assertEquals($result, $array);
     }
 
+
+
+    /**
+     * Test Validator::isFloat()
+     *
+     * @return void
+     */
     public function testIsFloat()
     {
+        // Test normal operation
+        $array = [
+            'test' => 0.0,
+        ];
 
+        $result = [
+            'test' => 0.0,
+        ];
+
+        Validator::array($array)
+            ->select('test')->isFloat()
+            ->validate();
+
+        $this->assertEquals($result, $array);
+
+        // Test failures
+        $array = [
+            'test' => '',
+        ];
+
+        $result = [
+            'test' => 0.0,
+        ];
+
+        $this->expectException(ValidatorException::class);
+
+        Validator::array($array)
+            ->select('test')->isFloat()
+            ->validate();
+
+        $this->assertEquals($result, $array);
     }
 
+
+
+    /**
+     * Test Validator::isLessThan()
+     *
+     * @return void
+     */
     public function testIsLessThan()
     {
+        // Test normal operation
+        $array = [
+            'test' => 0.0,
+        ];
 
+        $result = [
+            'test' => 0.0,
+        ];
+
+        Validator::array($array)
+            ->select('test')->isLessThan(1)
+            ->validate();
+
+        $this->assertEquals($result, $array);
+
+        // Test failures
+        $array = [
+            'test' => '',
+        ];
+
+        $result = [
+            'test' => 5.0,
+        ];
+
+        $this->expectException(ValidatorException::class);
+
+        Validator::array($array)
+            ->select('test')->isLessThan(1)
+            ->validate();
+
+        $this->assertEquals($result, $array);
     }
 
+
+
+    /**
+     * Test Validator::isMoreThan()
+     *
+     * @return void
+     */
     public function testIsMoreThan()
     {
+        // Test normal operation
+        $array = [
+            'test' => 1.0,
+        ];
 
+        $result = [
+            'test' => 1.0,
+        ];
+
+        Validator::array($array)
+            ->select('test')->isMoreThan(0)
+            ->validate();
+
+        $this->assertEquals($result, $array);
+
+        // Test failures
+        $array = [
+            'test' => '',
+        ];
+
+        $result = [
+            'test' => 0.0,
+        ];
+
+        $this->expectException(ValidatorException::class);
+
+        Validator::array($array)
+            ->select('test')->isMoreThan(1)
+            ->validate();
+
+        $this->assertEquals($result, $array);
     }
 
+
+
+    /**
+     * Test Validator::isBetween()
+     *
+     * @return void
+     */
     public function testIsBetween()
     {
+        // Test normal operation
+        $array = [
+            'test' => 1.0,
+        ];
 
+        $result = [
+            'test' => 1.0,
+        ];
+
+        Validator::array($array)
+            ->select('test')->isBetween(0, 2)
+            ->validate();
+
+        $this->assertEquals($result, $array);
+
+        // Test failures
+        $array = [
+            'test' => '',
+        ];
+
+        $result = [
+            'test' => 0.0,
+        ];
+
+        $this->expectException(ValidatorException::class);
+
+        Validator::array($array)
+            ->select('test')->isBetween(1, 2)
+            ->validate();
+
+        $this->assertEquals($result, $array);
     }
 
-    public function testAll()
-    {
+//    public function testAll()
+//    {
 //        $array = [
 //            'test-xora' => ' 1 ',
 //            'test-xorb' => ' 1 ',
@@ -151,7 +524,7 @@ class ValidatorTest extends TestCase
 //        // Test failures
 //        $this->expectException(OutOfBoundsException::class);
 //        $this->assertEquals(null, Strings::from('so.oostenbrink@gmail.com', ''));                           // Needle is obligatory
-
-
-    }
+//
+//
+//    }
 }

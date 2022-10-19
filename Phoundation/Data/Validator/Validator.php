@@ -132,6 +132,7 @@ class Validator
             if ($this->checkIsOptional($value)) {
                 if (Strings::getBoolean($value, false) === null) {
                     $this->addFailure(tr('must have a boolean value'));
+                    $value = false;
                 }
             }
 
@@ -154,6 +155,7 @@ class Validator
             if ($this->checkIsOptional($value)) {
                 if (!is_integer($value)) {
                     $this->addFailure(tr('must have an integer value'));
+                    $value = 0;
                 }
             }
 
@@ -176,6 +178,7 @@ class Validator
             if ($this->checkIsOptional($value)) {
                 if (!is_float($value)) {
                     $this->addFailure(tr('must have a float value'));
+                    $value = 0.0;
                 }
             }
 
@@ -198,6 +201,7 @@ class Validator
             if ($this->checkIsOptional($value)) {
                 if (!is_numeric($value)) {
                     $this->addFailure(tr('must have a numeric value'));
+                    $value = 0;
                 }
             }
 
@@ -457,6 +461,7 @@ class Validator
             if ($this->checkIsOptional($value)) {
                 if (!is_string($value)) {
                     $this->addFailure(tr('must have a string value', [':field' => $this->selected_field]));
+                    $value = '';
                 }
             }
 
@@ -966,6 +971,7 @@ class Validator
             if ($this->checkIsOptional($value)) {
                 if ($value !== null) {
                     $this->addFailure(tr('must be NULL'));
+                    $value = null;
                 }
             }
 
@@ -988,6 +994,7 @@ class Validator
             if ($this->checkIsOptional($value)) {
                 if (!is_array($value)) {
                     $this->addFailure(tr('must have an array value'));
+                    $value = [];
                 }
             }
 

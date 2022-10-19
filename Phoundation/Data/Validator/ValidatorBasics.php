@@ -438,7 +438,7 @@ trait ValidatorBasics
             Log::warning(tr('Array validation ended with the following failures'), 3);
             Log::warning($this->failures, 2);
 
-            throw Exceptions::ValidationFailedException(tr('Validation of the array failed with the registered failures'), $this->failures)->makeWarning();
+            throw Exceptions::ValidationFailedException(tr('Validation of the specified source array failed with the registered failures'), $this->failures)->makeWarning();
         }
 
         return $this;
