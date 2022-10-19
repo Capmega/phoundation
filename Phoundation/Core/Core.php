@@ -7,6 +7,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Cli\Scripts;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Data\Exception\ValidationFailedException;
+use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exception;
@@ -1413,7 +1414,7 @@ class Core {
                             'TEST'     => (getenv('TEST')                     ? 'TEST'    : null),
                             'VERBOSE'  => ((VERYVERBOSE or getenv('VERBOSE')) ? 'VERBOSE' : null),
                             'QUIET'    => (getenv('QUIET')                    ? 'QUIET'   : null),
-                            'LIMIT'    => (getenv('LIMIT')                    ? 'LIMIT'   : $_CONFIG['paging']['limit']),
+                            'LIMIT'    => (getenv('LIMIT')                    ? 'LIMIT'   : Config::get('paging.limit', 50)),
                             'ORDERBY'  => (getenv('ORDERBY')                  ? 'ORDERBY' : null),
                             'ALL'      => (getenv('ALL')                      ? 'ALL'     : null),
                             'DELETED'  => (getenv('DELETED')                  ? 'DELETED' : null),
@@ -2084,133 +2085,122 @@ class Core {
             $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
 
-
-
-        /*
-         * New session? Detect client type, language, and mobile device
-         */
+        // New session? Detect client type, language, and mobile device
         if (empty($_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
             load_libs('detect');
             detect();
         }
 
-
-
-        /*
-         * Add a powered-by header
-         */
-        if ($_CONFIG['security']['signature']) {
-            if ($_CONFIG['security']['signature'] === 'limited') {
+        // Add a powered-by header
+        switch (Config::get('security.signature', 'limited')) {
+            case 'limited':
                 header('Powered-By: Phoundation');
+                break;
 
-            } else {
-                header('Powered-By: Phoundation version "'.Core::FRAMEWORKCODEVERSION.'"');
-            }
+            case 'full':
+                header('Powered-By: Phoundation version "' . Core::FRAMEWORKCODEVERSION . '"');
+
+            case 'none':
+                break;
+
+            default:
+                throw new OutOfBoundsException(tr('Invalid configuration value ":value" for "security.signature" Please use one of "none", "limited", or "full"'));
         }
 
-
-
-// :TODO: The next section may be included in the whitelabel domain check
-        /*
-         * Check if the requested domain is allowed
-         */
+        // :TODO: The next section may be included in the whitelabel domain check
+        // Check if the requested domain is allowed
         $domain = cfm($_SERVER['HTTP_HOST']);
 
         if (!$domain) {
-            /*
-             * No domain was requested at all, so probably instead of a domain
-             * name, an IP was requested. Redirect to the domain name
-             */
-            redirect(PROTOCOL.$_CONFIG['domain']);
+            // No domain was requested at all, so probably instead of a domain name, an IP was requested. Redirect to
+            // the domain name
+            Http::redirect(PROTOCOL.Web::domain());
         }
 
 
 
-        /*
-         * Check the detected domain against the configured domain.
-         * If it doesnt match then check if its a registered whitelabel domain
-         */
-        if ($domain === $_CONFIG['domain']) {
-            /*
-             * This is the registered domain
-             */
+        // Check the detected domain against the configured domain. If it doesnt match then check if its a registered
+        // whitelabel domain
+        if ($domain === Web::domain()) {
+            // This is the primary domain
 
         } else {
-            /*
-             * This is not the registered domain!
-             */
-            if ($_CONFIG['whitelabels'] === false) {
-                /*
-                 * white label domains are disabled, so the requested domain
-                 * MUST match the configured domain
-                 */
-                log_file(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'yellow');
-                redirect(PROTOCOL.$_CONFIG['domain']);
+            // This is not the registered domain!
+            switch (Config::get('web.whitelabels', false)) {
+                case '':
+                    // White label domains are disabled, so the requested domain MUST match the configured domain
+                    Log::warning(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::domain()]));
+                    Http::redirect(PROTOCOL.Web::domain());
+                    break;
 
-            } elseif ($_CONFIG['whitelabels'] === 'all') {
-                // All domains are allowed
+                case 'all':
+                    // All domains are allowed
+                    break;
 
-            } elseif ($_CONFIG['whitelabels'] === 'sub') {
-                // White label domains are disabled, but sub domains from the primary domain are allowed
-                if (Strings::from($domain, '.') !== $_CONFIG['domain']) {
-                    log_file(tr('Whitelabels are set to sub domains only, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'VERBOSE/yellow');
-                    redirect(PROTOCOL.$_CONFIG['domain']);
-                }
+                case 'sub':
+                    // White label domains are disabled, but subdomains from the primary domain are allowed
+                    if (Strings::from($domain, '.') !== Web::domain()) {
+                        Log::warning(tr('Whitelabels are set to subdomains only, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::domain()]));
+                        redirect(PROTOCOL.Web::domain());
+                    }
 
-            } elseif ($_CONFIG['whitelabels'] === 'list') {
-                /*
-                 * This domain must be registered in the whitelabels list
-                 */
-                $domain = sql_get('SELECT `domain` FROM `whitelabels` WHERE `domain` = :domain AND `status` IS NULL', true, array(':domain' => $_SERVER['HTTP_HOST']));
+                    break;
 
-                if (empty($domain)) {
-                    log_file(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'VERBOSE/yellow');
-                    redirect(PROTOCOL.$_CONFIG['domain']);
-                }
+                case 'list':
+                    // This domain must be registered in the whitelabels list
+                    $domain = Sql::db()->getColumn('SELECT `domain` 
+                                                          FROM   `whitelabels` 
+                                                          WHERE  `domain` = :domain 
+                                                          AND `status` IS NULL',
+                                                          [':domain' => $_SERVER['HTTP_HOST']]);
 
-            } elseif (is_array($_CONFIG['whitelabels'])) {
-                /*
-                 * Domain must be specified in one of the array entries
-                 */
-                if (!in_array($domain, $_CONFIG['whitelabels'])) {
-                    log_file(tr('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'VERBOSE/yellow');
-                    redirect(PROTOCOL.$_CONFIG['domain']);
-                }
+                    if (empty($domain)) {
+                        Log::warning(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::domain()]));
+                        redirect(PROTOCOL.Web::domain());
+                    }
 
-            } else {
-                // The domain must match either $_CONFIG[domain] or the domain specified in configuration
-                // "whitelabels.enabled"
-                if ($domain !== $_CONFIG['whitelabels']) {
-                    Log::warning(tr('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', [
-                        ':source' => $_SERVER['HTTP_HOST'],
-                        ':target' => $_CONFIG['domain']
-                    ]));
-                    redirect(PROTOCOL.$_CONFIG['domain']);
-                }
+                    break;
 
-            }
+                default:
+                    if (is_array(Config::get('web.whitelabels', false))) {
+                        // Domain must be specified in one of the array entries
+                        if (!in_array($domain, Config::get('web.whitelabels', false))) {
+                            Log::warning(tr('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::domain()]));
+                            redirect(PROTOCOL.Web::domain());
+                        }
+
+                    } else {
+                        // The domain must match either $_CONFIG[domain] or the domain specified in configuration
+                        // "whitelabels.enabled"
+                        if ($domain !== Config::get('web.whitelabels', false)) {
+                            Log::warning(tr('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', [
+                                ':source' => $_SERVER['HTTP_HOST'],
+                                ':target' => Web::domain()
+                            ]));
+
+                            redirect(PROTOCOL.Web::domain());
+                        }
+                    }
         }
 
-
-
         /*
-         * Check the cookie domain configuration to see if its valid.
+         * Check the cookie domain configuration to see if it's valid.
          *
          * NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain]
          * must be one of "auto" or ".auto"
          */
-        switch ($_CONFIG['sessions']['domain']) {
+        switch (Config::get('sessions.cookies.domain', '.auto')) {
             case false:
                 // This domain has no cookies
                 break;
 
             case 'auto':
-                $_CONFIG['sessions']['domain'] = $domain;
+                Config::get('sessions.cookies.domain') = $domain;
                 ini_set('session.cookie_domain', $domain);
                 break;
 
             case '.auto':
-                $_CONFIG['sessions']['domain'] = '.'.$domain;
+                Config::get('sessions.cookies.domain') = '.'.$domain;
                 ini_set('session.cookie_domain', '.'.$domain);
                 break;
 
@@ -2221,11 +2211,11 @@ class Core {
                  * If the configured cookie domain is different from the current domain then all cookie will inexplicably fail without warning,
                  * so this must be detected to avoid lots of hair pulling and throwing arturo off the balcony incidents :)
                  */
-                if ($_CONFIG['sessions']['domain'][0] == '.') {
-                    $test = substr($_CONFIG['sessions']['domain'], 1);
+                if (Config::get('sessions.cookies.domain')[0] == '.') {
+                    $test = substr(Config::get('sessions.cookies.domain'), 1);
 
                 } else {
-                    $test = $_CONFIG['sessions']['domain'];
+                    $test = Config::get('sessions.cookies.domain');
                 }
 
                 if (!str_contains($domain, $test)) {
@@ -2234,15 +2224,15 @@ class Core {
                         ->setGroups('developers')
                         ->setTitle(tr('Invalid cookie domain'))
                         ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
-                            ':domain'         => Strings::startsNotWith($_CONFIG['sessions']['domain'], '.'),
-                            ':cookie_domain'  => $_CONFIG['sessions']['domain'],
+                            ':domain'         => Strings::startsNotWith(Config::get('sessions.cookies.domain'), '.'),
+                            ':cookie_domain'  => Config::get('sessions.cookies.domain'),
                             ':current_domain' => $domain]))
                         ->send();
 
-                    redirect(PROTOCOL.Strings::startsNotWith($_CONFIG['sessions']['domain'], '.'));
+                    redirect(PROTOCOL.Strings::startsNotWith(Config::get('sessions.cookies.domain'), '.'));
                 }
 
-                ini_set('session.cookie_domain', $_CONFIG['sessions']['domain']);
+                ini_set('session.cookie_domain', Config::get('sessions.cookies.domain'));
                 unset($test);
                 unset($length);
         }

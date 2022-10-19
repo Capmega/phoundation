@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http;
 
 use DateTime;
+use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
@@ -755,19 +756,13 @@ class Http
     /**
      * Redirect to the specified $target
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package http
-     *
-     * @param string $target
-     * @param integer $http_code
+     * @param string $url
+     * @param integer|null $http_code
      * @param boolean $clear_session_redirect
      * @param integer $time_delay
-     * @return void (dies)
+     * @return void
      */
-    public static function redirect(string $target = '', ?int $http_code = null, bool $clear_session_redirect = true, ?int $time_delay = null): void
+    #[NoReturn] public static function redirect(string $url = '', ?int $http_code = null, bool $clear_session_redirect = true, ?int $time_delay = null): void
     {
         global $_CONFIG;
 
@@ -778,36 +773,36 @@ class Http
         /*
          * Special targets?
          */
-        if (($target === true) or ($target === 'self')) {
+        if (($url === true) or ($url === 'self')) {
             /*
              * Special redirect. Redirect to this very page. Usefull for right after POST requests to avoid "confirm post submissions"
              */
-            $target = $_SERVER['REQUEST_URI'];
+            $url = $_SERVER['REQUEST_URI'];
 
-        } elseif ($target === 'prev') {
+        } elseif ($url === 'prev') {
             /*
              * Special redirect. Redirect to this very page. Usefull for right after POST requests to avoid "confirm post submissions"
              */
-            $target = isset_get($_SERVER['HTTP_REFERER']);
+            $url = isset_get($_SERVER['HTTP_REFERER']);
 
-            if (!$target or ($target == $_SERVER['REQUEST_URI'])) {
+            if (!$url or ($url == $_SERVER['REQUEST_URI'])) {
                 /*
                  * Don't redirect to the same page! If the referrer was this page, then drop back to the index page
                  */
-                $target = $_CONFIG['redirects']['index'];
+                $url = $_CONFIG['redirects']['index'];
             }
 
-        } elseif ($target === false) {
+        } elseif ($url === false) {
             /*
              * Special redirect. Redirect to this very page, but without query
              */
-            $target = Strings::until($_SERVER['REQUEST_URI'], '?');
+            $url = Strings::until($_SERVER['REQUEST_URI'], '?');
 
-        } elseif (!$target) {
+        } elseif (!$url) {
             /*
              * No target specified, redirect to index page
              */
-            $target = $_CONFIG['redirects']['index'];
+            $url = $_CONFIG['redirects']['index'];
         }
 
         if (empty($http_code)) {
@@ -857,20 +852,20 @@ class Http
             }
         }
 
-        if ((substr($target, 0, 1) != '/') and (substr($target, 0, 7) != 'http://') and (substr($target, 0, 8) != 'https://')) {
-            $target = $_CONFIG['url_prefix'] . $target;
+        if ((substr($url, 0, 1) != '/') and (substr($url, 0, 7) != 'http://') and (substr($url, 0, 8) != 'https://')) {
+            $url = $_CONFIG['url_prefix'] . $url;
         }
 
-        $target = Url::redirect($target);
+        $url = Url::redirect($url);
 
         if ($time_delay) {
-            log_file(tr('Redirecting with ":time" seconds delay to url ":url"', array(':time' => $time_delay, ':url' => $target)), null, 'cyan');
-            header('Refresh: ' . $time_delay.';' . $target, true, $http_code);
+            log_file(tr('Redirecting with ":time" seconds delay to url ":url"', array(':time' => $time_delay, ':url' => $url)), null, 'cyan');
+            header('Refresh: ' . $time_delay.';' . $url, true, $http_code);
             die();
         }
 
-        log_file(tr('Redirecting to url ":url"', array(':url' => $target)), null, 'cyan');
-        header('Location:' . Url::redirect($target), true, $http_code);
+        log_file(tr('Redirecting to url ":url"', array(':url' => $url)), null, 'cyan');
+        header('Location:' . Url::redirect($url), true, $http_code);
         die();
     }
 
