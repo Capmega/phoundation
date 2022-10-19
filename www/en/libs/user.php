@@ -2561,7 +2561,7 @@ function user_key_or_redirect($user, $key = null, $timestamp = null, $redirect =
         /*
          * Send JSON redirect. json_reply() will end script, so no break needed
          */
-        json_reply(isset_get($redirect, $_CONFIG['url_prefix']), 'signin');
+        json_reply(isset_get($redirect, Config::get('web.url.prefix', '')), 'signin');
 
     }catch(Exception $e) {
         throw new CoreException(tr('user_get_from_key(): Failed'), $e);

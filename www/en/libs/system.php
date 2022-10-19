@@ -2221,7 +2221,7 @@
 //         * "/admin/" is the prefix
 //         */
 //        if ($url_params['prefix'] === null) {
-//            $url_params['prefix'] = $_CONFIG['url_prefix'];
+//            $url_params['prefix'] = Config::get('web.url.prefix', '');
 //        }
 //
 //        $url_params['prefix']   = Strings::startsNotWith(Strings::endsWith($url_params['prefix'], '/'), '/');

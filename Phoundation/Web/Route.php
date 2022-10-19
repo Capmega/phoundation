@@ -187,7 +187,7 @@ class Route
             // Ensure the 404 shutdown function is registered
             if (!$init) {
                 $init = true;
-                Log::notice(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', [':domain' => Config::get('domain.primary'), ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')')]));
+                Log::notice(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', [':domain' => Config::get('web.domains.primary'), ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')')]));
                 Core::registerShutdown(['Route']['shutdown']);
             }
 
@@ -574,7 +574,7 @@ class Route
 
                         case 301:
                             // Redirect to URL without query
-                            $domain = Web::domain(true);
+                            $domain = Web::getDomain(true);
                             $domain = Strings::until($domain, '?');
 
                             Log::warning(tr('Matched route ":route" allows GET key ":key" as redirect to URL without query', [

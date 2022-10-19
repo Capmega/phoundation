@@ -310,8 +310,8 @@ Class Init
             if (Debug::production()) {
                 log_console('Removing data symlink or files in all languages', 'cyan');
 
-                if ($_CONFIG['language']['supported']) {
-                    foreach ($_CONFIG['language']['supported'] as $language => $name) {
+                if (Config::get('languages.supported', [])) {
+                    foreach (Config::get('languages.supported', []) as $language => $name) {
                         file_delete(ROOT.'www/'.substr($language, 0, 2).'/data', ROOT.'www/'.substr($language, 0, 2));
                     }
                 }

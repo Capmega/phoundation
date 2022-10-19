@@ -486,6 +486,20 @@ Class Log {
 
 
     /**
+     * Write a action message in the log file
+     *
+     * @param mixed $messages
+     * @param int $level
+     * @return bool
+     */
+    public static function action(mixed $messages, int $level = 5): bool
+    {
+        return self::write($messages, 'action', $level);
+    }
+
+
+
+    /**
      * Write a command line interface message in the log file and to the screen
      *
      * @param mixed $messages

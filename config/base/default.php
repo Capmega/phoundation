@@ -447,4 +447,4 @@ $_CONFIG['users']              = array('type_filter'                        => n
 $_CONFIG['whitelabels']        = false;                                                                                                     // Either false (No whitelabel domains, only the normal site FQDN allowed), "list" (only default and registered FQDNs allowed), "sub" (only default FQDN and its sub domains allowed), "all" (All domains allowed), or the specific FQDN that is allowed
 
 // Root URL of the website
-$_CONFIG['url_prefix']         = '';                                                                                                        //
+Config::get('web.url.prefix', '')         = '';                                                                                                        //

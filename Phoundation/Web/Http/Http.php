@@ -11,6 +11,7 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Date\Date;
 use Phoundation\Date\Time;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\Exception\HttpException;
@@ -45,6 +46,13 @@ class Http
      * @var int $status_code
      */
     protected static int $status_code = 200;
+
+    /**
+     * The client specified ETAG for this request
+     *
+     * @var string|null
+     */
+    protected static ?string $etag = null;
 
 
 
@@ -95,10 +103,9 @@ class Http
      * @param array $params
      * @param int $content_length
      * @return bool
-     * @throws HttpException
+     * @throws Throwable
      * @todo Refactor and remove $_CONFIG dependancies
      * @todo Refactor and remove $core dependancies
-     *
      * @todo Refactor and remove $params dependancies
      */
     public static function headers(array $params, int $content_length): bool
@@ -121,9 +128,7 @@ class Http
         }
 
         try {
-            /*
-             * Create ETAG, possibly send out HTTP304 if client sent matching ETAG
-             */
+            // Create ETAG, possibly send out HTTP304 if client sent matching ETAG
             Http::cacheEtag();
 
             Arrays::params($params, null, 'http_code', null);
@@ -135,14 +140,12 @@ class Http
 
             $headers = $params['headers'];
 
-            if ($_CONFIG['security']['expose_php'] === false) {
+            if (!Config::get('security.expose.php-signature', false)) {
                 header_remove('X-Powered-By');
 
-            } elseif ($_CONFIG['security']['expose_php'] !== true) {
-                /*
-                 * Send custom expose header to fake X-Powered-By header
-                 */
-                $headers[] = 'X-Powered-By: ' . $_CONFIG['security']['expose_php'];
+            } else {
+                // Send custom expose header to fake X-Powered-By header
+                $headers[] = 'X-Powered-By: ' . Config::get('security.expose.php-signature', false);
             }
 
             $headers[] = 'Content-Type: ' . $params['mimetype'] . '; charset=' . $_CONFIG['encoding']['charset'];
@@ -161,49 +164,33 @@ class Http
                 }
             }
 
-            /*
-             * Add noidex, nofollow and nosnipped headers for non production
-             * environments and non normal HTTP pages.
-             *
-             These pages should NEVER be indexed
-             */
-            if (!Debug::production() or $_CONFIG['noindex'] or !Core::getCallType('http')) {
+            // Add noidex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
+            // These pages should NEVER be indexed
+            if (!Debug::production() or !Core::getCallType('http') or Config::get('web.noindex', false)) {
                 $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
             }
 
-            /*
-             * CORS headers
-             */
-            if ($_CONFIG['cors'] or $params['cors']) {
-                /*
-                 * Add CORS / Access-Control-Allow-.... headers
-                 */
+            // CORS headers
+            if (Config::get('web.security.cors', true) or $params['cors']) {
+                // Add CORS / Access-Control-Allow-.... headers
                 $params['cors'] = array_merge($_CONFIG['cors'], Arrays::force($params['cors']));
 
                 foreach ($params['cors'] as $key => $value) {
                     switch ($key) {
                         case 'origin':
                             if ($value == '*.') {
-                                /*
-                                 * Origin is allowed from all sub domains
-                                 */
+                                // Origin is allowed from all subdomains
                                 $origin = Strings::from(isset_get($_SERVER['HTTP_ORIGIN']), '://');
                                 $length = strlen(isset_get($_SESSION['domain']));
 
                                 if (substr($origin, -$length, $length) === isset_get($_SESSION['domain'])) {
-                                    /*
-                                     * Sub domain matches. Since CORS does
-                                     * not support sub domains, just show
-                                     * the current sub domain.
-                                     */
+                                    // Sub domain matches. Since CORS does not support sub domains, just show the
+                                    // current sub domain.
                                     $value = $_SERVER['HTTP_ORIGIN'];
 
                                 } else {
-                                    /*
-                                     * Sub domain does not match. Since CORS does
-                                     * not support sub domains, just show no
-                                     * allowed origin domain at all
-                                     */
+                                    // Sub domain does not match. Since CORS does not support sub domains, just show no
+                                    // allowed origin domain at all
                                     $value = '';
                                 }
                             }
@@ -227,9 +214,7 @@ class Http
 
             $headers = self::cache($params, $params['http_code'], $headers);
 
-            /*
-             * Remove incorrect or insecure headers
-             */
+            // Remove incorrect or insecure headers
             header_remove('X-Powered-By');
             header_remove('Expires');
             header_remove('Pragma');
@@ -253,38 +238,27 @@ class Http
             }
 
             if (strtoupper($_SERVER['REQUEST_METHOD']) == 'HEAD') {
-                /*
-                 * HEAD request, do not return a body
-                 */
+                // HEAD request, do not return a body
                 die();
             }
 
             switch ($params['http_code']) {
                 case 304:
-                    /*
-                     * 304 requests indicate the browser to use it's local cache,
-                     * send nothing
-                     */
+                    // 304 requests indicate the browser to use it's local cache, send nothing
                     // no-break
 
                 case 429:
-                    /*
-                     * 429 Tell the client that it made too many requests, send
-                     * nothing
-                     */
+                    // 429 Tell the client that it made too many requests, send nothing
                     die();
             }
 
             return true;
 
         } catch (Throwable $e) {
-            /*
-             * http_headers() itself crashed. Since http_headers()
-             * would send out http 500, and since it crashed, it no
-             * longer can do this, send out the http 500 here.
-             */
+            // Http::headers() itself crashed. Since Http::headers() would send out http 500, and since it crashed, it
+            // no longer can do this, send out the http 500 here.
             http_response_code(500);
-            throw new HttpException('http_headers(): Failed', $e);
+            throw new $e;
         }
     }
 
@@ -365,18 +339,26 @@ class Http
     {
         if (empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             // No accept language headers were specified
-           $retval  = array('1.0' => array('language' => isset_get($_CONFIG['language']['default'], 'en'),
-                                            'locale'   => Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
+           $retval  = [
+               '1.0' => [
+                   'language' => Config::get('languages.default', 'en'),
+                   'locale'   => Strings::cut(Config::get('locale.LC_ALL', 'US'), '_', '.')
+               ]
+           ];
 
         } else {
             $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
             $headers = Arrays::force($headers, ',');
             $default = array_shift($headers);
-            $retval  = array('1.0' => array('language' => Strings::until($default, '-'),
-                                            'locale'   => (str_contains($default, '-') ? Strings::from($default, '-') : null)));
+            $retval  = [
+                '1.0' => [
+                    'language' => Strings::until($default, '-'),
+                    'locale'   => (str_contains($default, '-') ? Strings::from($default, '-') : null)
+                ]
+            ];
 
             if (empty($retval['1.0']['language'])) {
-                // Specified accept language headers contain no language
+                // Specified accepts language headers contain no language
                 $retval['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
             }
 
@@ -387,10 +369,12 @@ class Http
 
             foreach ($headers as $header) {
                 $requested =  Strings::until($header, ';');
-                $requested =  array('language' => Strings::until($requested, '-'),
-                                    'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null));
+                $requested =  [
+                    'language' => Strings::until($requested, '-'),
+                    'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null)
+                ];
 
-                if (empty($_CONFIG['language']['supported'][$requested['language']])) {
+                if (empty(Config::get('languages.supported', [])[$requested['language']])) {
                     continue;
                 }
 
@@ -421,14 +405,14 @@ class Http
      */
     public static function set_ssl_default_context(?bool $verify_peer = null, ?bool $verify_peer_name = null, ?bool $allow_self_signed = null)
     {
-        $verify_peer = not_null($verify_peer, Config::get('security.ssl.verify_peer', true));
-        $verify_peer_name = not_null($verify_peer, Config::get('security.ssl.verify_peer', true));
-        $allow_self_signed = not_null($verify_peer, Config::get('security.ssl.verify_peer', true));
+        $verify_peer = not_null($verify_peer, Config::get('security.ssl.verify.peer', true));
+        $verify_peer_name = not_null($verify_peer, Config::get('security.ssl.verify.peer_name', true));
+        $allow_self_signed = not_null($verify_peer, Config::get('security.ssl.verify.self_signed', true));
 
         return stream_context_set_default([
             'ssl' => [
-                'verify_peer' => $verify_peer,
-                'verify_peer_name' => $verify_peer_name,
+                'verify_peer'       => $verify_peer,
+                'verify_peer_name'  => $verify_peer_name,
                 'allow_self_signed' => $allow_self_signed
             ]
         ]);
@@ -453,8 +437,6 @@ class Http
      */
     public static function validateGet()
     {
-        global $_CONFIG;
-
         foreach ($_GET as $key => &$value) {
             if (!is_scalar($value)) {
                 if ($value) {
@@ -468,45 +450,7 @@ class Http
 
         unset($value);
 
-        $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], $_CONFIG['paging']['limit']), array_keys($_CONFIG['paging']['list']), $_CONFIG['paging']['limit']);
-    }
-
-
-
-    /**
-     *
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @todo Remove $core dependancy
-     * @todo Remove $_CONFIG dependancy
-     */
-    public static function done()
-    {
-        if (!isset($core)) {
-            /*
-             * We died very early in startup. For more information see either
-             * the ROOT/data/log/syslog file, or your webserver log file
-             */
-            die('Exception: See log files');
-        }
-
-        if ($core === false) {
-            /*
-             * Core wasn't created yet, but uncaught exception handler basically
-             * is saying that's okay, just warning stuff
-             */
-            die();
-        }
-
-        $exit_code = isset_get($core->register['exit_code'], 0);
-
-        /*
-         * Do we need to run other shutdown functions?
-         */
-        Core::shutdown();
+        $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], Config::get('paging.limit', 50)), array_keys(Config::get('paging.list', [10 => tr('Show 10 entries')])), Config::get('paging.limit', 50));
     }
 
 
@@ -549,32 +493,20 @@ class Http
      */
     protected static function cache(array $params, int $http_code, array $headers = []): array
     {
-        global $_CONFIG, $core;
-
         Arrays::ensure($params);
 
-        if ($_CONFIG['cache']['http']['enabled'] === 'auto') {
-            /*
-             * PHP will take care of the cache headers
-             */
+        if (Config::get('web.cache.enabled', 'auto') === 'auto') {
+            // PHP will take care of the cache headers
 
-        } elseif ($_CONFIG['cache']['http']['enabled'] === true) {
-            /*
-             * Place headers using phoundation algorithms
-             */
-            if (!$_CONFIG['cache']['http']['enabled'] or ($http_code != 200)) {
-                /*
-                 * Non HTTP 200 / 304 pages should NOT have cache enabled!
-                 * For example 404, 503 etc...
-                 */
+        } elseif (Config::get('web.cache.enabled', 'auto') === true) {
+            // Place headers using phoundation algorithms
+            if (!Config::get('web.cache.enabled', 'auto') or ($http_code != 200)) {
+                // Non HTTP 200 / 304 pages should NOT have cache enabled! For example 404, 503 etc...
                 $headers[] = 'Cache-Control: no-store, max-age=0';
-                unset($core->register['etag']);
+                self::$etag = null;
 
             } else {
-                /*
-                 * Send caching headers
-                 * Ajax, API, and admin calls do not have proxy caching
-                 */
+                // Send caching headers. Ajax, API, and admin calls do not have proxy caching
                 switch (Core::getCallType()) {
                     case 'api':
                         // no-break
@@ -584,18 +516,15 @@ class Http
                         break;
 
                     default:
-                        /*
-                         * Session pages for specific users should not be stored
-                         * on proxy servers either
-                         */
+                        // Session pages for specific users should not be stored on proxy servers either
                         if (!empty($_SESSION['user']['id'])) {
-                            $_CONFIG['cache']['http']['cacheability'] = 'private';
+                            Config::get('web.cache.cacheability', 'private');
                         }
 
-                        $headers[] = 'Cache-Control: ' . $_CONFIG['cache']['http']['cacheability'] . ', ' . $_CONFIG['cache']['http']['expiration'] . ', ' . $_CONFIG['cache']['http']['revalidation'] . ($_CONFIG['cache']['http']['other'] ? ', ' . $_CONFIG['cache']['http']['other'] : '');
+                        $headers[] = 'Cache-Control: ' . Config::get('web.cache.cacheability', 'private') . ', ' . Config::get('web.cache.expiration', 'max-age=604800') . ', ' . Config::get('web.cache.revalidation', 'must-revalidate') . Config::get('web.cache.other', 'no-transform');
 
-                        if (!empty($core->register['etag'])) {
-                            $headers[] = 'ETag: "' . $core->register['etag'] . '"';
+                        if (!empty(self::$etag)) {
+                            $headers[] = 'ETag: "' . self::$etag . '"';
                         }
                 }
             }
@@ -638,9 +567,9 @@ class Http
      */
     protected static function cacheTest($etag = null): bool
     {
-        $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . $etag);
+        self::$etag = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . $etag);
 
-        if (!$_CONFIG['cache']['http']['enabled']) {
+        if (!Config::get('web.cache.enabled', 'auto')) {
             return false;
         }
 
@@ -648,7 +577,7 @@ class Http
             return false;
         }
 
-        if ((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']) {
+        if ((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == self::$etag) {
             if (empty($core->register['flash'])) {
                 /*
                  * The client sent an etag which is still valid, no body (or anything else) necesary
@@ -676,18 +605,18 @@ class Http
          * ETAG requires HTTP caching enabled
          * Ajax and API calls do not use ETAG
          */
-        if (!$_CONFIG['cache']['http']['enabled'] or Core::getCallType('ajax') or Core::getCallType('api')) {
-            unset($core->register['etag']);
+        if (!Config::get('web.cache.enabled', 'auto') or Core::getCallType('ajax') or Core::getCallType('api')) {
+            unset(self::$etag);
             return false;
         }
 
         /*
          * Create local ETAG
          */
-        $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
+        self::$etag = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
 
 // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
-        if (trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']) {
+        if (trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == self::$etag) {
             if (empty($core->register['flash'])) {
                 /*
                  * The client sent an etag which is still valid, no body (or anything else) necesary
@@ -764,45 +693,33 @@ class Http
      */
     #[NoReturn] public static function redirect(string $url = '', ?int $http_code = null, bool $clear_session_redirect = true, ?int $time_delay = null): void
     {
-        global $_CONFIG;
-
-        if (PLATFORM != 'http') {
-            throw new CoreException(tr('redirect(): This function can only be called on webservers'));
+        if (!PLATFORM_HTTP) {
+            throw new HttpException(tr('This function can only be called on webservers'));
         }
 
-        /*
-         * Special targets?
-         */
+        // Special targets?
         if (($url === true) or ($url === 'self')) {
-            /*
-             * Special redirect. Redirect to this very page. Usefull for right after POST requests to avoid "confirm post submissions"
-             */
+            // Special redirect. Redirect to this very page. Usefull for right after POST requests to avoid
+            // "confirm post submissions"
             $url = $_SERVER['REQUEST_URI'];
 
         } elseif ($url === 'prev') {
-            /*
-             * Special redirect. Redirect to this very page. Usefull for right after POST requests to avoid "confirm post submissions"
-             */
+            // Special redirect. Redirect to this very page. Usefull for right after POST requests to avoid
+            // "confirm post submissions"
             $url = isset_get($_SERVER['HTTP_REFERER']);
 
             if (!$url or ($url == $_SERVER['REQUEST_URI'])) {
-                /*
-                 * Don't redirect to the same page! If the referrer was this page, then drop back to the index page
-                 */
-                $url = $_CONFIG['redirects']['index'];
+                // Don't redirect to the same page! If the referrer was this page, then drop back to the index page
+                $url = Config::get('web.redirects.index', '/');
             }
 
         } elseif ($url === false) {
-            /*
-             * Special redirect. Redirect to this very page, but without query
-             */
+            // Special redirect. Redirect to this very page, but without query
             $url = Strings::until($_SERVER['REQUEST_URI'], '?');
 
         } elseif (!$url) {
-            /*
-             * No target specified, redirect to index page
-             */
-            $url = $_CONFIG['redirects']['index'];
+            // No target specified, redirect to index page
+            $url = Config::get('web.redirects.index', '/');
         }
 
         if (empty($http_code)) {
@@ -842,7 +759,7 @@ class Http
                 break;
 
             default:
-                throw new CoreException(tr('redirect(): Invalid HTTP code ":code" specified', array(':code' => $http_code)), 'invalid-http-code');
+                throw new HttpException(tr('Invalid HTTP code ":code" specified', [':code' => $http_code]));
         }
 
         if ($clear_session_redirect) {
@@ -852,19 +769,19 @@ class Http
             }
         }
 
-        if ((substr($url, 0, 1) != '/') and (substr($url, 0, 7) != 'http://') and (substr($url, 0, 8) != 'https://')) {
-            $url = $_CONFIG['url_prefix'] . $url;
+        if ((!str_starts_with($url, '/')) and (!str_starts_with($url, 'http://')) and (!str_starts_with($url, 'https://'))) {
+            $url = Config::get('web.url.prefix', '') . $url;
         }
 
         $url = Url::redirect($url);
 
         if ($time_delay) {
-            log_file(tr('Redirecting with ":time" seconds delay to url ":url"', array(':time' => $time_delay, ':url' => $url)), null, 'cyan');
+            Log::action(tr('Redirecting with ":time" seconds delay to url ":url"', [':time' => $time_delay, ':url' => $url]));
             header('Refresh: ' . $time_delay.';' . $url, true, $http_code);
             die();
         }
 
-        log_file(tr('Redirecting to url ":url"', array(':url' => $url)), null, 'cyan');
+        Log::action(tr('Redirecting to url ":url"', [':url' => $url]));
         header('Location:' . Url::redirect($url), true, $http_code);
         die();
     }
@@ -876,7 +793,7 @@ class Http
      *
      * @param string $method
      * @param false $force
-     * @throws CoreException
+     * @throws HttpException
      */
     public static function sessionRedirect(string $method = 'http', bool $force = false)
     {
@@ -921,7 +838,7 @@ class Http
                 redirect($redirect);
 
             default:
-                throw new CoreException(tr('session_redirect(): Unknown method ":method" specified. Please speficy one of "json", or "http"', array(':method' => $method)), 'unknown');
+                throw new HttpException(tr('session_redirect(): Unknown method ":method" specified. Please speficy one of "json", or "http"', array(':method' => $method)), 'unknown');
         }
     }
 
@@ -1092,7 +1009,7 @@ class Http
 //                    $requested = array('language' => Strings::until($requested, '-'),
 //                        'locale' => (str_contains($requested, '-') ? Strings::from($requested, '-') : null));
 //
-//                    if (empty($_CONFIG['language']['supported'][$requested['language']])) {
+//                    if (empty(Config::get('languages.supported', [])[$requested['language']])) {
 //                        continue;
 //                    }
 //
@@ -1391,6 +1308,7 @@ class Http
      */
     protected static function validateStatusCode(int $code): void
     {
+        return;
         // TODO Implement
         throw new OutOfBoundsException(tr('The specified status code ":code" is invalid', [':code' => $code]));
     }

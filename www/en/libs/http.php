@@ -514,7 +514,7 @@ function http_cache_etag() {
          * ETAG requires HTTP caching enabled
          * Ajax and API calls do not use ETAG
          */
-        if (!$_CONFIG['cache']['http']['enabled'] or Core::getCallType('ajax') or Core::getCallType('api')) {
+        if (!Config::get('web.cache.enabled', 'auto') or Core::getCallType('ajax') or Core::getCallType('api')) {
             unset($core->register['etag']);
             return false;
         }
@@ -558,7 +558,7 @@ function http_cache_test($etag = null) {
     try {
         $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).$etag);
 
-        if (!$_CONFIG['cache']['http']['enabled']) {
+        if (!Config::get('web.cache.enabled', 'auto')) {
             return false;
         }
 
@@ -610,16 +610,16 @@ function http_cache($params, $http_code, $headers = array()) {
     try {
         Arrays::ensure($params);
 
-        if ($_CONFIG['cache']['http']['enabled'] === 'auto') {
+        if (Config::get('web.cache.enabled', 'auto') === 'auto') {
             /*
              * PHP will take care of the cache headers
              */
 
-        } elseif ($_CONFIG['cache']['http']['enabled'] === true) {
+        } elseif (Config::get('web.cache.enabled', 'auto') === true) {
             /*
              * Place headers using phoundation algorithms
              */
-            if (!$_CONFIG['cache']['http']['enabled'] or ($http_code != 200)) {
+            if (!Config::get('web.cache.enabled', 'auto') or ($http_code != 200)) {
                 /*
                  * Non HTTP 200 / 304 pages should NOT have cache enabled!
                  * For example 404, 503 etc...

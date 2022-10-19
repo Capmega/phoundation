@@ -16,6 +16,7 @@ use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Processes\Processes;
+use Phoundation\Web\Client;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
 use Phoundation\Notify\Notification;
@@ -421,7 +422,7 @@ class Core {
                         Html::untranslate();
                         Html::fixCheckboxValues();
 
-                        if (Config('security.csrf.enabled') === 'force') {
+                        if (Config::get('security.csrf.enabled') === 'force') {
                             // Force CSRF checks on every submit!
                             Http::checkCsrf();
                         }
@@ -2088,12 +2089,11 @@ class Core {
 
         // New session? Detect client type, language, and mobile device
         if (empty($_COOKIE[Config::get('sessions.cookies.name', '')])) {
-            load_libs('detect');
-            detect();
+            Client::detect();
         }
 
         // Add a powered-by header
-        switch (Config::get('security.signature', 'limited')) {
+        switch (Config::get('security.expose.phoundation', 'limited')) {
             case 'limited':
                 header('Powered-By: Phoundation');
                 break;
@@ -2110,28 +2110,28 @@ class Core {
 
         // :TODO: The next section may be included in the whitelabel domain check
         // Check if the requested domain is allowed
-        $domain = cfm($_SERVER['HTTP_HOST']);
+        $domain = $_SERVER['HTTP_HOST'];
 
         if (!$domain) {
             // No domain was requested at all, so probably instead of a domain name, an IP was requested. Redirect to
             // the domain name
-            Http::redirect(PROTOCOL.Web::domain());
+            Http::redirect(PROTOCOL.Web::getDomain());
         }
 
 
 
         // Check the detected domain against the configured domain. If it doesn't match then check if it's a registered
         // whitelabel domain
-        if ($domain === Web::domain()) {
+        if ($domain === Web::getDomain()) {
             // This is the primary domain
 
         } else {
             // This is not the registered domain!
-            switch (Config::get('web.whitelabels', false)) {
+            switch (Config::get('web.domains.whitelabels', false)) {
                 case '':
                     // White label domains are disabled, so the requested domain MUST match the configured domain
-                    Log::warning(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::domain()]));
-                    Http::redirect(PROTOCOL . Web::domain());
+                    Log::warning(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::getDomain()]));
+                    Http::redirect(PROTOCOL . Web::getDomain());
                     break;
 
                 case 'all':
@@ -2140,9 +2140,9 @@ class Core {
 
                 case 'sub':
                     // White label domains are disabled, but subdomains from the primary domain are allowed
-                    if (Strings::from($domain, '.') !== Web::domain()) {
-                        Log::warning(tr('Whitelabels are set to subdomains only, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::domain()]));
-                        redirect(PROTOCOL . Web::domain());
+                    if (Strings::from($domain, '.') !== Web::getDomain()) {
+                        Log::warning(tr('Whitelabels are set to subdomains only, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::getDomain()]));
+                        redirect(PROTOCOL . Web::getDomain());
                     }
 
                     break;
@@ -2156,30 +2156,30 @@ class Core {
                         [':domain' => $_SERVER['HTTP_HOST']]);
 
                     if (empty($domain)) {
-                        Log::warning(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::domain()]));
-                        redirect(PROTOCOL . Web::domain());
+                        Log::warning(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::getDomain()]));
+                        redirect(PROTOCOL . Web::getDomain());
                     }
 
                     break;
 
                 default:
-                    if (is_array(Config::get('web.whitelabels', false))) {
+                    if (is_array(Config::get('web.domains.whitelabels', false))) {
                         // Domain must be specified in one of the array entries
-                        if (!in_array($domain, Config::get('web.whitelabels', false))) {
-                            Log::warning(tr('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::domain()]));
-                            redirect(PROTOCOL . Web::domain());
+                        if (!in_array($domain, Config::get('web.domains.whitelabels', false))) {
+                            Log::warning(tr('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::getDomain()]));
+                            redirect(PROTOCOL . Web::getDomain());
                         }
 
                     } else {
                         // The domain must match either domain configuration or the domain specified in configuration
                         // "whitelabels.enabled"
-                        if ($domain !== Config::get('web.whitelabels', false)) {
+                        if ($domain !== Config::get('web.domains.whitelabels', false)) {
                             Log::warning(tr('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
-                                ':target' => Web::domain()
+                                ':target' => Web::getDomain()
                             ]));
 
-                            redirect(PROTOCOL . Web::domain());
+                            redirect(PROTOCOL . Web::getDomain());
                         }
                     }
             }

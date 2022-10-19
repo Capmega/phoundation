@@ -123,7 +123,7 @@ class Url {
          * "/admin/" is the prefix
          */
         if ($url_params['prefix'] === null) {
-            $url_params['prefix'] = $_CONFIG['url_prefix'];
+            $url_params['prefix'] = Config::get('web.url.prefix', '');
         }
 
         $url_params['prefix']   = Strings::startsNotWith(Strings::endsWith($url_params['prefix'], '/'), '/');
@@ -147,7 +147,7 @@ class Url {
          * Do language mapping, but only if routemap has been set
          */
 // :TODO: This will fail when using multiple CDN servers (WHY?)
-        if (!empty($_CONFIG['language']['supported']) and ($url_params['domain'] !== $_CONFIG['cdn']['domain'].'/')) {
+        if (!empty(Config::get('languages.supported', [])) and ($url_params['domain'] !== $_CONFIG['cdn']['domain'].'/')) {
             if ($url_params['from_language'] !== 'en') {
                 /*
                  * Translate the current non-English URL to English first
@@ -201,14 +201,13 @@ class Url {
         }
 
         if ($url_params['query']) {
-            load_libs('inet');
-            $retval = url_add_query($retval, $url_params['query']);
+            $retval = Url::addQuery($retval, $url_params['query']);
 
         } elseif ($url_params['query'] === false) {
             $retval = Strings::until($retval, '?');
         }
 
-        if ($url_params['allow_cloak'] and $_CONFIG['security']['url_cloaking']['enabled']) {
+        if ($url_params['allow_cloak'] and Config::get('web.url.cloaking.enabled', false)) {
             /*
              * Cloak the URL before returning it
              */
@@ -382,7 +381,7 @@ class Url {
         // Auto cleanup?
 // TODO Redo this. We can't cleanup once in a 100 clicks or something that is stupid with any traffic at all. Clean up all after 24 hours, cleanup once every 24 hours, something like that.
 
-//        $interval = Config::get('web.urls.cloaking.interval', 86400);
+//        $interval = Config::get('web.url.cloaking.interval', 86400);
 //
 //        if (mt_rand(0, 100) <=  {
 //            self::cleanupCloak();
@@ -416,7 +415,7 @@ class Url {
         Log::notice(tr('Cleaning up `url_cloaks` table'));
 
         $r = Sql::query('DELETE FROM `url_cloaks` 
-                         WHERE `createdon` < DATE_SUB(NOW(), INTERVAL ' . $_CONFIG['security']['url_cloaking']['expires'].' SECOND);');
+                         WHERE `createdon` < DATE_SUB(NOW(), INTERVAL ' . Config::get('web.url.cloaking.expires', 86400).' SECOND);');
 
         log_console(tr('Removed ":count" expired entries from the `url_cloaks` table', array(':count' => $r->rowCount())), 'green');
 

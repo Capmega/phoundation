@@ -35,6 +35,7 @@ class Color
         'success' => '0;32',
         'light_green' => '1;32',
         'cyan' => '0;36',
+        'action' => '0;36',
         'light_cyan' => '1;36',
         'red' => '0;31',
         'error' => '0;31',
