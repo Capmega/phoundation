@@ -51,7 +51,7 @@ class Debug {
      */
     public static function enabled(?bool $enabled = null): bool
     {
-        if (Core::startupState()) {
+        if (Core::initState()) {
             // System startup has not yet completed, disable debug!
             return false;
         }
@@ -266,11 +266,8 @@ class Debug {
                     case 'api':
                         // no-break
                     case 'ajax':
-                        /*
-                         * If JSON, CORS requests require correct headers!
-                         * Also force plain text content type
-                         */
-                    Http::headers(null, 0);
+                        // If JSON, CORS requests require correct headers! Also force plain text content type
+                        Http::headers(null, 0);
 
                         if (!headers_sent()) {
                             header_remove('Content-Type');
@@ -282,15 +279,13 @@ class Debug {
                         break;
 
                     default:
-                        /*
-                         * Force HTML content type, and show HTML data
-                         */
+                        // Force HTML content type, and show HTML data
                         if (!headers_sent()) {
                             header_remove('Content-Type');
                             header('Content-Type: text/html', true);
                         }
 
-                        echo self::html($value, tr('Unknown'), $trace_offset);
+                        echo self::showHtml($value, tr('Unknown'), $trace_offset);
                         ob_flush();
                         flush();
                 }
@@ -307,6 +302,11 @@ class Debug {
             flush();
 
         } else {
+            if (PLATFORM_HTTP) {
+                // We're displaying plain text to a browser platform. Send "<pre>" to force readable display
+                echo '<pre>';
+            }
+
             // Show output on CLI console
             if (is_scalar($value)) {
                 $retval .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:size] ', [':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset), ':size' => strlen((string) $value)])) . $value . "\n";
