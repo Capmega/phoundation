@@ -4,6 +4,7 @@ namespace Phoundation\Web;
 
 use Exception;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
@@ -153,7 +154,7 @@ class Route
              */
             if (!$init) {
                 $init = true;
-                Log::notice(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', array(':domain' => $_CONFIG['domain'], ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'].(empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')'))), 'route', 'white');
+                Log::notice(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', [':domain' => $_CONFIG['domain'], ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')')]));
                 Core::registerShutdown(['Route']['shutdown']);
             }
 
@@ -783,20 +784,19 @@ class Route
      */
     protected static function execute(string $target, bool $attachment, array $restrictions): void
     {
+die($target);
         Core::writeRegister(Strings::untilReverse(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.php'), 'script');
-        Core::writeRegister(self::$register['system']['script'], script_file);
-        Core::writeRegister($target, 'route_exec']);
+//        Core::writeRegister(self::$register['system']['script'], script_file);
+        Core::writeRegister($target, 'system', 'route_exec');
 
-        if (substr($target, -3, 3) === 'php') {
+        if (str_ends_with($target, 'php')) {
             if ($attachment) {
                 throw new RouteException(tr('Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', [':target' => $target]));
             }
 
             Log::notice(tr('Executing page ":target"', [':target' => $target]));
 
-            /*
-             * Auto start the phoundation core
-             */
+            // Auto start the phoundation core
             if (empty($core->register['startup'])) {
                 Core::startup();
             }
@@ -805,9 +805,7 @@ class Route
 
         } else {
             if ($attachment) {
-                /*
-                 * Upload the file to the client as an attachment
-                 */
+                // Upload the file to the client as an attachment
                 $target = file_absolute(Strings::unslash($target), ROOT.'www/');
 
                 Log::success(tr('Sending file ":target" as attachment', [':target' => $target]));
@@ -851,15 +849,15 @@ class Route
      */
     protected static function shutdown() {
         // Test the URI for known hacks. If so, apply configured response
-        if ($_CONFIG['route']['known_hacks']) {
+        if (Config::get('web.route.known_hacks', false)) {
             Log::warning(tr('Applying known hacking rules'));
 
-            foreach ($_CONFIG['route']['known_hacks'] as $hacks) {
-                route($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
+            foreach (Config::get('web.route.known_hacks') as $hacks) {
+                self::try($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
             }
         }
 
-        Route::execute404();
+        self::execute404();
     }
 
 
@@ -883,20 +881,18 @@ class Route
     protected static function execute404(): void
     {
         try {
-            $core->register['Route::exec']  = 'en/404.php';
-            $core->register['script_path'] = 'system/404';
-            $core->register['script']      = 404;
+            Core::writeRegister('en/404.php', 'system', 'route_exec');
+            Core::writeRegister('system/404', 'system', 'script_path');
+            Core::writeRegister('404', 'system', 'script');
 
-            /*
-             * Auto start the phoundation core if configured to do so
-             */
+            // Auto start the phoundation core if configured to do so
             if (!empty($GLOBALS['Route::start'])) {
                 $core->startup();
             }
 
-            page_show(404);
+            Web::execute(404);
 
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             if ($e->getCode() === 'not-exists') {
                 Log::warning(tr('The system/404.php page does not exist, showing basic 404 message instead'));
 

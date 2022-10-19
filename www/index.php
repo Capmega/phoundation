@@ -2,6 +2,8 @@
 
 use Phoundation\Web\Route;
 
+
+
 /**
  * Routing table script
  *
@@ -81,6 +83,7 @@ use Phoundation\Web\Route;
  * @category Function reference
  * @package route
  */
+require('../vendor/autoload.php');
 
 
 
