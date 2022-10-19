@@ -18,29 +18,5 @@ namespace Phoundation\Data\Validator;
  */
 class GetValidator extends Validator
 {
-    /**
-     * GetValidator constructor.
-     *
-     * @note This class will purge the $_REQUEST array as this array contains a mix of $_GET and $_POST variables which
-     *       should never be used
-     */
-    public function __construct() {
-        $_REQUEST = [];
-        parent::__construct($data);
-    }
 
-
-
-    /**
-     * Singleton
-     */
-    public static function getInstance(): Validator
-    {
-        if (!isset(self::$instance)) {
-            $array = [];
-            self::$instance = new Validator();
-        }
-
-        return self::$instance;
-    }
 }

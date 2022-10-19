@@ -124,16 +124,23 @@ trait ValidatorBasics
     /**
      * Internal $_GET array until validation has been completed
      *
-     * @var array|null
+     * @var array|null $get
      */
     protected static ?array $get = null;
 
     /**
      * Internal $_POST array until validation has been completed
      *
-     * @var array|null
+     * @var array|null $post
      */
     protected static ?array $post = null;
+
+    /**
+     * Internal $argv array containing command line variables until validation has been completed
+     *
+     * @var array|null $argv
+     */
+    protected static ?array $argv = null;
 
     /**
      * The maximum string size that this validator will touch
@@ -567,19 +574,19 @@ trait ValidatorBasics
 
 
     /**
-     * Link $_GET and $_POST data to internal arrays to ensure developers cannot access them until validation has been
-     * completed
+     * Link $_GET and $_POST and $argv data to internal arrays to ensure developers cannot access them until validation
+     * has been completed
      *
-     * @param array $get
-     * @param array $post
+     * @note This method will also delete the $_REQUEST array as that should never be used in principle
      * @return void
      */
-    public function hideGetPost(array &$get, array &$post): void
+    public static function hideUserData(): void
     {
-        global $_GET, $_POST;
+        global $argv, $_GET, $_POST;
 
-        $this->get  = &$get;
-        $this->post = &$post;
+        self::$get  = &$get;
+        self::$post = &$post;
+        self::$argv = &$argv;
 
         unset($_REQUEST);
     }
@@ -587,19 +594,43 @@ trait ValidatorBasics
 
 
     /**
-     * Gives free and full access to $_GET and $_POST data, now that it has been validated
+     * Gives free and full access to $_GET data, now that it has been validated
      *
      * @return void
      */
-    protected static function liberateGetPost(): void
+    protected static function liberateGet(): void
     {
-        global $_GET, $_POST;
+        global $_GET;
 
         $_GET = &self::$get;
-        $_POST = &self::$post;
+    }
 
-//        unset(self::$get);
-//        unset(self::$post);
+
+
+    /**
+     * Gives free and full access to $_POST data, now that it has been validated
+     *
+     * @return void
+     */
+    protected static function liberatePost(): void
+    {
+        global $_GET;
+
+        $_GET = &self::$get;
+    }
+
+
+
+    /**
+     * Gives free and full access to $_GET data, now that it has been validated
+     *
+     * @return void
+     */
+    protected static function liberateArgv(): void
+    {
+        global $argv;
+
+        $argv = &self::$argv;
     }
 
 

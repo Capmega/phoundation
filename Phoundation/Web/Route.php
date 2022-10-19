@@ -9,7 +9,6 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
@@ -33,6 +32,43 @@ use Throwable;
  */
 class Route
 {
+    /**
+     * Singleton variable
+     *
+     * @var Route|null $instance
+     */
+    protected static ?Route $instance = null;
+
+
+
+
+    /**
+     * Route constructor
+     */
+    protected function __construct()
+    {
+        // Start the Core object
+        Core::startup();
+    }
+
+
+
+    /**
+     * Singleton, ensure to always return the same Route object.
+     *
+     * @return Route
+     */
+    public static function getInstance(): Route
+    {
+        if (!isset(self::$instance)) {
+            self::$instance = new Route();
+        }
+
+        return self::$instance;
+    }
+
+
+
     /**
      * Route the request uri from the client to the correct php file
      *
@@ -139,6 +175,8 @@ class Route
      */
     public static function try(string $url_regex, string $target, string $flags = ''): bool
     {
+        self::getInstance();
+
         static $count = 1,
         $init  = false;
 
@@ -754,6 +792,8 @@ class Route
      */
     public static function mapUrl(string $language, array $map): void
     {
+        self::getInstance();
+
         // Set specific language map
         Log::notice(tr('Setting specified URL map'));
         Core::register($map, 'route', 'map');
@@ -779,6 +819,8 @@ class Route
      */
     #[NoReturn] protected static function execute(string $target, bool $attachment, array $restrictions): void
     {
+        self::getInstance();
+
 die($target);
         Core::writeRegister(Strings::untilReverse(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.php'), 'script');
 //        Core::writeRegister(self::$register['system']['script'], script_file);
@@ -843,6 +885,8 @@ die($target);
      * @return void
      */
     protected static function shutdown() {
+        self::getInstance();
+
         // Test the URI for known hacks. If so, apply configured response
         if (Config::get('web.route.known-hacks', false)) {
             Log::warning(tr('Applying known hacking rules'));
@@ -875,6 +919,8 @@ die($target);
      */
     protected static function execute404(): void
     {
+        self::getInstance();
+
         try {
             Core::writeRegister('en/404.php', 'system', 'route_exec');
             Core::writeRegister('system/404', 'system', 'script_path');
@@ -938,6 +984,8 @@ die($target);
      */
     protected static function insertStatic($route): void
     {
+        self::getInstance();
+
         $route = Route::validateStatic($route);
 
         Log::notice(tr('Storing static routing rule ":rule" for IP ":ip"', [':rule' => $route['target'], ':ip' => $route['ip']]));
@@ -975,6 +1023,8 @@ die($target);
      */
     protected static function validateStatic(StaticRoute $route)
     {
+        self::getInstance();
+
 //        Validator::array($route)
 //            ->select('uri')->isUrl('uri')
 //            ->select('fields')->sanitizeMakeString()->hasMaxCharacters(16)

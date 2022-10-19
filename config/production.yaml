@@ -7,6 +7,8 @@ project:
   version: "0.0.0"
 domain:
   primary: localhost
+languages:
+  supported: null
 web:
   route:
     known-hacks:

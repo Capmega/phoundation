@@ -1394,7 +1394,7 @@ class Http
      *
      * @param int $code
      */
-    protected function validateStatusCode(int $code): void
+    protected static function validateStatusCode(int $code): void
     {
         // TODO Implement
         throw new OutOfBoundsException(tr('The specified status code ":code" is invalid', [':code' => $code]));

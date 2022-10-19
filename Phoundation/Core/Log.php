@@ -143,11 +143,6 @@ Class Log {
         self::setGlobalId($global_id);
 
         self::$init = false;
-
-        // Log class startup message
-        if (Debug::enabled()) {
-            self::information(tr('Logger started with debug enabled, log threshold set to ":threshold"', [':threshold' => self::$threshold]));
-        }
     }
 
 
@@ -163,6 +158,11 @@ Class Log {
         try {
             if (!isset(self::$instance)) {
                 self::$instance = new Log($global_id);
+
+                // Log class startup message
+                if (Debug::enabled()) {
+                    self::information(tr('Logger started with debug enabled, log threshold set to ":threshold"', [':threshold' => self::$threshold]));
+                }
             }
         } catch (Throwable $e) {
             // Crap, we could not get a Log instance

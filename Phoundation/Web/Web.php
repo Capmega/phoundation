@@ -6,6 +6,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
+use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Exception\OutOfBoundsException;
@@ -43,40 +44,24 @@ class Web
 
 
     /**
-     * Returns a validator object
-     *
-     * @return Validator
-     */
-    public function getValidator(): Validator
-    {
-        Validator::onValidationSuccess(function() use ($this) {$this->liberateUserData()});
-    }
-
-
-
-    /**
      * Execute the specified webpage
      *
      * @param string $page
-     * @return void
+     * @param bool $return
+     * @return string
      */
-    public static function execute(string $page): void
+    public static function execute(string $page, bool $return = false): string
     {
         Core::startup();
-        $this->hideserData();
+        Validator::hideUserData();
 
-        Arrays::ensure($params, 'message');
-
-        // Startup the core object
-        Core::startup();
-
-        if ($get) {
-            if (!is_array($get)) {
-                throw new WebException(tr('page_show(): Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
-            }
-
-            $_GET = $get;
-        }
+//        if ($get) {
+//            if (!is_array($get)) {
+//                throw new WebException(tr('Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
+//            }
+//
+//            $_GET = $get;
+//        }
 
         if (defined('LANGUAGE')) {
             $language = LANGUAGE;
@@ -85,42 +70,26 @@ class Web
             $language = 'en';
         }
 
-        $params['page'] = $pagename;
-
-        if (is_numeric($pagename)) {
-            /*
-             * This is a system page, HTTP code. Use the page code as http code as well
-             */
-            Http::setStatusCode($page_name);
+        if (is_numeric($page)) {
+            // This is a system page, HTTP code. Use the page code as http code as well
+             Http::setStatusCode($page);
         }
 
-        $core->register['script_file'] = $pagename;
+        Core::writeRegister($page, 'system', 'script_file');
 
         switch (Core::getCallType()) {
             case 'ajax':
-                $include = ROOT.'www/' . $language.'/ajax/' . $pagename.'.php';
+                $include = ROOT.'www/' . $language.'/ajax/' . $page.'.php';
 
-                if (isset_get($params['exists'])) {
-                    return file_exists($include);
-                }
-
-                /*
-                 * Execute ajax page
-                 */
-                log_file(tr('Showing ":language" language ajax page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
+                // Execute ajax page
+                Log::notice(tr('Showing ":language" language ajax page ":page"', [':page' => $page, ':language' => $language]));
                 return include($include);
 
             case 'api':
-                $include = ROOT.'www/api/'.(is_numeric($pagename) ? 'system/' : '').$pagename.'.php';
+                $include = ROOT.'www/api/'.(is_numeric($page) ? 'system/' : '').$page.'.php';
 
-                if (isset_get($params['exists'])) {
-                    return file_exists($include);
-                }
-
-                /*
-                 * Execute ajax page
-                 */
-                log_file(tr('Showing ":language" language api page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
+                // Execute ajax page
+                Log::notice(tr('Showing ":language" language api page ":page"', [':page' => $page, ':language' => $language]));
                 return include($include);
 
             case 'admin':
@@ -128,34 +97,22 @@ class Web
                 // no-break
 
             default:
-                if (is_numeric($pagename)) {
-                    $include = ROOT.'www/' . $language.isset_get($admin).'/system/' . $pagename.'.php';
+                if (is_numeric($page)) {
+                    $include = ROOT.'www/' . $language.isset_get($admin).'/system/' . $page.'.php';
 
-                    if (isset_get($params['exists'])) {
-                        return file_exists($include);
-                    }
+                    Log::notice(tr('Showing ":language" language system page ":page"', [':page' => $page, ':language' => $language]));
 
-                    log_file(tr('Showing ":language" language system page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'warning');
-
-                    /*
-                     * Wait a small random time to avoid timing attacks on
-                     * system pages
-                     */
+                    // Wait a small random time to avoid timing attacks on system pages
                     usleep(mt_rand(1, 250));
 
                 } else {
-                    $include = ROOT.'www/' . $language.isset_get($admin).'/' . $pagename.'.php';
-
-                    if (isset_get($params['exists'])) {
-                        return file_exists($include);
-                    }
-
-                    log_file(tr('Showing ":language" language http page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
+                    $include = ROOT.'www/' . $language.isset_get($admin).'/' . $page.'.php';
+                    Log::notice(tr('Showing ":language" language http page ":page"', [':page' => $page, ':language' => $language]));
                 }
 
                 $result = include($include);
 
-                if (isset_get($params['return'])) {
+                if ($return) {
                     return $result;
                 }
         }

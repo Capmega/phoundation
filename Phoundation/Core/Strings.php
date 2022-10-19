@@ -793,16 +793,12 @@ class Strings
             return $hide;
         }
 
-        /*
-         * The string is empty
-         */
+        // The string is empty
         if ($empty) {
             return $empty;
         }
 
-        /*
-         * Always show the hidden message string
-         */
+        // Always show the hidden message string
         return $hide;
     }
 
@@ -990,12 +986,12 @@ class Strings
      * capmega
      * /code
      *
-     * @param string $source The string to be cut
+     * @param string|null $source The string to be cut
      * @params int $start The character(s) to start the cut
      * @params int $stop The character(s) to stop the cut
      * @return string The $source string between the first occurrences of start and $stop
      */
-    public static function cut(string $source, int $start, int $stop): string
+    public static function cut(?string $source, string $start, string $stop): string
     {
         return self::until(self::from($source, $start), $stop);
     }
@@ -1013,8 +1009,6 @@ class Strings
     public static function clean(string $source, bool $utf8 = true): string
     {
         if ($utf8) {
-            load_libs('utf8');
-
             $source = trim(html_entity_decode(utf8_unescape(strip_tags(utf8_escape($source)))));
 // :TODO: Check if the next line should also be added!
 //            $source = preg_replace('/\s|\/|\?|&+/u', $replace, $source);
@@ -1029,22 +1023,24 @@ class Strings
     }
 
 
+
     /**
      * Return the given string from the specified needle
      *
-     * @param string $source
+     * @param string|null $source
      * @param string $needle
      * @param int $more
      * @param bool $require
      * @return string
      */
-    public static function from(string $source, string $needle, int $more = 0, bool $require = false): string
+    public static function from(?string $source, string $needle, int $more = 0, bool $require = false): string
     {
         if (!$needle) {
             throw new OutOfBoundsException('No needle specified');
         }
 
-        $pos = mb_strpos($source, $needle);
+        $source = (string) $source;
+        $pos    = mb_strpos($source, $needle);
 
         if ($pos === false) {
             if ($require) {
@@ -1058,23 +1054,25 @@ class Strings
     }
 
 
+
     /**
      * Return the given string from 0 until the specified needle
      *
-     * @param string $source
+     * @param string|null $source
      * @param string $needle
      * @param int $more
      * @param int $start
      * @param bool $require
      * @return string
      */
-    public static function until(string $source, string $needle, int $more = 0, int $start = 0, bool $require = false): string
+    public static function until(?string $source, string $needle, int $more = 0, int $start = 0, bool $require = false): string
     {
         if (!$needle) {
             throw new OutOfBoundsException('No needle specified');
         }
 
-        $pos = mb_strpos($source, $needle);
+        $source = (string) $source;
+        $pos    = mb_strpos($source, $needle);
 
         if ($pos === false) {
             if ($require) {
@@ -1088,21 +1086,23 @@ class Strings
     }
 
 
+
     /**
      * Return the given string from the specified needle, starting from the end
      *
-     * @param string $source
+     * @param string|null $source
      * @param string $needle
      * @param int $more
      * @return string
      */
-    public static function fromReverse(string $source, string $needle, int $more = 0): string
+    public static function fromReverse(?string $source, string $needle, int $more = 0): string
     {
         if (!$needle) {
             throw new OutOfBoundsException('No needle specified');
         }
 
-        $pos = mb_strrpos($source, $needle);
+        $source = (string) $source;
+        $pos    = mb_strrpos($source, $needle);
 
         if ($pos === false) return $source;
 
@@ -1114,19 +1114,20 @@ class Strings
     /**
      * Return the given string from 0 until the specified needle, starting from the end
      *
-     * @param string $source
+     * @param string|null $source
      * @param string $needle
      * @param int $more
      * @param int $start
      * @return string
      */
-    public static function untilReverse(string $source, string $needle, int $more = 0, int $start = 0): string
+    public static function untilReverse(?string $source, string $needle, int $more = 0, int $start = 0): string
     {
         if (!$needle) {
             throw new OutOfBoundsException('No needle specified');
         }
 
-        $pos = mb_strrpos($source, $needle);
+        $source = (string) $source;
+        $pos    = mb_strrpos($source, $needle);
 
         if ($pos === false) {
             return $source;
@@ -1140,12 +1141,14 @@ class Strings
     /**
      * Ensure that specified source string starts with specified string
      *
-     * @param string $source
+     * @param string|null $source
      * @param string $string
      * @return string
      */
-    public static function startsWith(string $source, string $string): string
+    public static function startsWith(?string $source, string $string): string
     {
+        $source = (string) $source;
+
         if (mb_substr($source, 0, mb_strlen($string)) == $string) {
             return $source;
         }
@@ -1158,12 +1161,14 @@ class Strings
     /**
      * Ensure that specified source string starts NOT with specified string
      *
-     * @param string $source
+     * @param string|null $source
      * @param string $string
      * @return string
      */
-    public static function startsNotWith(string $source, string $string): string
+    public static function startsNotWith(?string $source, string $string): string
     {
+        $source = (string) $source;
+
         while (mb_substr($source, 0, mb_strlen($string)) == $string) {
             $source = mb_substr($source, mb_strlen($string));
         }
@@ -1176,12 +1181,13 @@ class Strings
     /**
      * Ensure that specified string ends with specified character
      *
-     * @param string $source
+     * @param string|null $source
      * @param string $string
      * @return string
      */
-    public static function endsWith(string $source, string $string): string
+    public static function endsWith(?string $source, string $string): string
     {
+        $source = (string) $source;
         $length = mb_strlen($string);
 
         if (mb_substr($source, -$length, $length) == $string) {
@@ -1196,13 +1202,15 @@ class Strings
     /**
      * Ensure that specified string ends NOT with specified character
      *
-     * @param string $source
+     * @param string|null $source
      * @param array|string $strings
      * @param bool $loop
      * @return string
      */
-    public static function endsNotWith(string $source, array|string $strings, bool $loop = true): string
+    public static function endsNotWith(?string $source, array|string $strings, bool $loop = true): string
     {
+        $source = (string) $source;
+
         if (is_array($strings)) {
             // For array test, we always loop
             $redo = true;
@@ -1240,10 +1248,10 @@ class Strings
     /**
      * Ensure that specified string ends with slash
      *
-     * @param string $string
+     * @param string|null $string
      * @return string
      */
-    public static function slash(string $string): string
+    public static function slash(?string $string): string
     {
         return self::endsWith($string, '/');
     }
@@ -1253,11 +1261,11 @@ class Strings
     /**
      * Ensure that specified string ends NOT with slash
      *
-     * @param string $string
+     * @param string|null $string
      * @param bool $loop
      * @return string
      */
-    public static function unslash(string $string, bool $loop = true): string
+    public static function unslash(?string $string, bool $loop = true): string
     {
         return self::endsNotWith($string, '/', $loop);
     }
