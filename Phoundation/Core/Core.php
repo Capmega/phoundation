@@ -1946,7 +1946,7 @@ class Core {
 
             if (Config::get('system.shutdown', false)) {
                 if (!is_array(Config::get('system.shutdown', false))) {
-                    throw new OutOfBoundsException(tr('shutdown(): Invalid $_CONFIG[shutdown], it should be an array'));
+                    throw new OutOfBoundsException(tr('Invalid system.shutdown configuration, it should be an array'));
                 }
 
                 foreach (Config::get('system.shutdown', false) as $name => $parameters) {
@@ -2120,7 +2120,7 @@ class Core {
 
 
 
-        // Check the detected domain against the configured domain. If it doesnt match then check if its a registered
+        // Check the detected domain against the configured domain. If it doesn't match then check if it's a registered
         // whitelabel domain
         if ($domain === Web::domain()) {
             // This is the primary domain
@@ -2131,7 +2131,7 @@ class Core {
                 case '':
                     // White label domains are disabled, so the requested domain MUST match the configured domain
                     Log::warning(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::domain()]));
-                    Http::redirect(PROTOCOL.Web::domain());
+                    Http::redirect(PROTOCOL . Web::domain());
                     break;
 
                 case 'all':
@@ -2142,7 +2142,7 @@ class Core {
                     // White label domains are disabled, but subdomains from the primary domain are allowed
                     if (Strings::from($domain, '.') !== Web::domain()) {
                         Log::warning(tr('Whitelabels are set to subdomains only, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::domain()]));
-                        redirect(PROTOCOL.Web::domain());
+                        redirect(PROTOCOL . Web::domain());
                     }
 
                     break;
@@ -2153,11 +2153,11 @@ class Core {
                                                           FROM   `whitelabels` 
                                                           WHERE  `domain` = :domain 
                                                           AND `status` IS NULL',
-                                                          [':domain' => $_SERVER['HTTP_HOST']]);
+                        [':domain' => $_SERVER['HTTP_HOST']]);
 
                     if (empty($domain)) {
                         Log::warning(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::domain()]));
-                        redirect(PROTOCOL.Web::domain());
+                        redirect(PROTOCOL . Web::domain());
                     }
 
                     break;
@@ -2167,11 +2167,11 @@ class Core {
                         // Domain must be specified in one of the array entries
                         if (!in_array($domain, Config::get('web.whitelabels', false))) {
                             Log::warning(tr('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::domain()]));
-                            redirect(PROTOCOL.Web::domain());
+                            redirect(PROTOCOL . Web::domain());
                         }
 
                     } else {
-                        // The domain must match either $_CONFIG[domain] or the domain specified in configuration
+                        // The domain must match either domain configuration or the domain specified in configuration
                         // "whitelabels.enabled"
                         if ($domain !== Config::get('web.whitelabels', false)) {
                             Log::warning(tr('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', [
@@ -2179,29 +2179,26 @@ class Core {
                                 ':target' => Web::domain()
                             ]));
 
-                            redirect(PROTOCOL.Web::domain());
+                            redirect(PROTOCOL . Web::domain());
                         }
                     }
+            }
         }
 
-        /*
-         * Check the cookie domain configuration to see if it's valid.
-         *
-         * NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain]
-         * must be one of "auto" or ".auto"
-         */
+        // Check the cookie domain configuration to see if it's valid.
+        // NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain] must be one of "auto" or ".auto"
         switch (Config::get('sessions.cookies.domain', '.auto')) {
             case false:
                 // This domain has no cookies
                 break;
 
             case 'auto':
-                Config::get('sessions.cookies.domain') = $domain;
+                Config::set('sessions.cookies.domain', $domain);
                 ini_set('session.cookie_domain', $domain);
                 break;
 
             case '.auto':
-                Config::get('sessions.cookies.domain') = '.'.$domain;
+                Config::get('sessions.cookies.domain', '.'.$domain);
                 ini_set('session.cookie_domain', '.'.$domain);
                 break;
 
@@ -2238,8 +2235,6 @@ class Core {
                 unset($length);
         }
 
-
-
         // Set session and cookie parameters
         try {
             if (Config::get('sessions.enabled', true)) {
@@ -2267,13 +2262,11 @@ class Core {
                 }
 
                 // Do not send cookies to crawlers!
-                if (isset_get($core->register['session']['client']['type']) === 'crawler') {
-                    Log::information(tr('Crawler ":crawler" on URL ":url"', [':crawler' => $core->register['session']['client'], ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']]));
+                if (self::readRegister('session', 'client')['type'] === 'crawler') {
+                    Log::information(tr('Crawler ":crawler" on URL ":url"', [':crawler' => self::readRegister('session', 'client'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']]));
 
                 } else {
-                    /*
-                     * Setup session handlers
-                     */
+                    // Setup session handlers
                     switch (Config::get('sessions.handler', 'sql')) {
                         case false:
                             file_ensure_path(ROOT.'data/cookies/');
