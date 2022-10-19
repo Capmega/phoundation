@@ -4,6 +4,8 @@ namespace Phoundation\Data\Validator;
 
 
 
+use Phoundation\Exception\OutOfBoundsException;
+
 /**
  * FileValidator class
  *
@@ -14,20 +16,59 @@ namespace Phoundation\Data\Validator;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Utils
+ * @package Company\Data
  */
-class FileValidator extends Validator
+class FileValidator
 {
     use ValidatorBasics;
 
 
 
     /**
+     * FileValidator constructor
+     *
+     * @param string $source
+     * @param Validator|null $parent
+     */
+    public function __construct(string $source, ?Validator $parent = null)
+    {
+        if (!$source) {
+            throw new OutOfBoundsException(tr('No source file specified'));
+        }
+
+        $this->source = &$source;
+        $this->parent = $parent;
+    }
+
+
+
+    /**
+     * Validates that the file is a file
+     *
+     * @return FileValidator
+     */
+    public function isFile(): FileValidator
+    {
+        if ($this->process_value_failed) {
+            // Validation already failed, don't test anything more
+            return $this;
+        }
+
+        if (!is_file($this->source)) {
+            $this->addFailure(tr('must be a file'));
+        }
+
+        return $this;
+    }
+
+
+
+    /**
      * Validates that the file is a plain text file
      *
-     * @return Validator
+     * @return FileValidator
      */
-    public function isText(): Validator
+    public function isText(): FileValidator
     {
         return $this;
     }
@@ -37,9 +78,9 @@ class FileValidator extends Validator
     /**
      * Validates that the file is an image
      *
-     * @return Validator
+     * @return FileValidator
      */
-    public function isImage(): Validator
+    public function isImage(): FileValidator
     {
         return $this;
     }
@@ -49,9 +90,9 @@ class FileValidator extends Validator
     /**
      * Validates that the file is a JPEG image
      *
-     * @return Validator
+     * @return FileValidator
      */
-    public function isJpeg(): Validator
+    public function isJpeg(): FileValidator
     {
         return $this;
     }
@@ -61,9 +102,9 @@ class FileValidator extends Validator
      * Validates that the file is smaller than the specified amount of bytes
      *
      * @param int $size
-     * @return Validator
+     * @return FileValidator
      */
-    public function isSmallerThan(int $size): Validator
+    public function isSmallerThan(int $size): FileValidator
     {
         return $this;
     }

@@ -28,7 +28,7 @@ class Numbers
      * @param string|float|int|null $min
      * @return string|float|int
      */
-    function limitRange(string|float|int $number, string|float|int $max, string|float|int|null $min = null): string|float|int
+    public static function limitRange(string|float|int $number, string|float|int $max, string|float|int|null $min = null): string|float|int
     {
         if (is_numeric($max)) {
             if ($number > $max) {
@@ -57,7 +57,7 @@ class Numbers
      * @return string
      * @throws OutOfBoundsException
      */
-    public static function bytes(string|float|int $amount, string $unit = 'auto', int $precision = 2, bool $add_suffix = true): string
+    public static function bytes(string|float|int $amount, string $unit = 'AUTO', int $precision = 2, bool $add_suffix = true): string
     {
         if (!$amount) {
             $amount = 0;
@@ -125,7 +125,25 @@ class Numbers
         // We can only have an integer amount of bytes
         $amount = ceil($amount);
 
-        if (strtolower($unit) == 'auto') {
+        if ($unit === 'auto') {
+            // Auto determine what unit to use
+            if ($amount > 1000000) {
+                if ($amount > (1000000 * 1000)) {
+                    if ($amount > (1000000 * 1000000)) {
+                        $unit = 'tib';
+
+                    } else {
+                        $unit = 'gib';
+                    }
+
+                } else {
+                    $unit = 'mib';
+                }
+
+            } else {
+                $unit = 'kib';
+            }
+        } elseif ($unit === 'AUTO') {
             // Auto determine what unit to use
             if ($amount > 1048576) {
                 if ($amount > (1048576 * 1024)) {
@@ -273,10 +291,9 @@ class Numbers
      * 0.001
      * /code
      *
-     * @param numeric One or multiple float numbers
      * @return string The step that can be used in the html <input type="number">
      */
-    function getStep(): string
+    public static function getStep(): string
     {
         // Remove the $count argument from the list Get default value from the list
         $args   = func_get_args();
@@ -315,7 +332,7 @@ class Numbers
 
         // Return the found step
         if ($retval) {
-            return '0.'.str_repeat('0', $retval - 1).'1';
+            return '0.' . str_repeat('0', $retval - 1) . '1';
         }
 
         return '1';

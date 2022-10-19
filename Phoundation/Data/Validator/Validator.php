@@ -19,7 +19,7 @@ use Throwable;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Utils
+ * @package Company\Data
  */
 class Validator
 {
@@ -46,8 +46,8 @@ class Validator
         // Unset process_values first to ensure the byref link is broken
         unset($this->process_values);
         $this->process_values = &$this->selected_value;
-show($this->process_values);
-show('each');
+//show($this->process_values);
+//show('each');
         return $this;
     }
 
@@ -86,17 +86,17 @@ show('each');
             $this->process_value = $function($this->process_value);
         } else {
             $this->ensureSelected();
-            show('START VALIDATE VALUES "' . $this->selected_field . '" (' . ($this->process_value_failed ? 'FAILED' : 'NOT FAILED') . ')');
-            show($this->process_values);
+//show('START VALIDATE VALUES "' . $this->selected_field . '" (' . ($this->process_value_failed ? 'FAILED' : 'NOT FAILED') . ')');
+//show($this->process_values);
 
             if ($this->process_value_failed) {
-                show('NOT VALIDATING, ALREADY FAILED');
+//show('NOT VALIDATING, ALREADY FAILED');
                 // In the span of multiple tests on one value, one test failed, don't execute the rest of the tests
                 return $this;
             }
 
             foreach ($this->process_values as $key => &$value) {
-                show('KEY '.$key.' / VALUE:' . Strings::force($value));
+//show('KEY '.$key.' / VALUE:' . Strings::force($value));
                 // Process all process_values
                 $this->process_key = $key;
                 $this->process_value = &$value;
@@ -374,7 +374,7 @@ show('each');
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (!is_scalar($value)) {
-                    show($value);
+//show($value);
                     $this->addFailure(tr('must have a scalar value', [':field' => $this->selected_field]));
                 }
             }
@@ -946,6 +946,28 @@ show('each');
 //            if (!preg_match($regex, $value)) {
 //                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
 //            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is NULL
+     *
+     * @return Validator
+     */
+    public function isNull(): Validator
+    {
+        return $this->validateValues(function($value) {
+            if ($this->checkIsOptional($value)) {
+                if ($value !== null) {
+                    $this->addFailure(tr('must be NULL'));
+                }
+            }
 
             return $value;
         });

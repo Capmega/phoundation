@@ -12,4 +12,13 @@ use PHPUnit\Framework\TestCase;
  */
 class ConfigTest extends TestCase
 {
+    public function testGet()
+    {
+        // Test normal operation
+
+        // Read non-existing key and return default value
+        $this->assertEquals('abcde', Config::get('+_)(*&^%$#@!~', 'abcde'));
+
+        // Test failures
+    }
 }

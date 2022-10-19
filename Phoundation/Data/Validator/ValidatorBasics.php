@@ -20,16 +20,16 @@ use Phoundation\Exception\OutOfBoundsException;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Utils
+ * @package Company\Data
  */
 trait ValidatorBasics
 {
     /**
-     * The source array that we will be validating
+     * The source data that we will be validating
      *
-     * @var array|null $source
+     * @var array|string|null $source
      */
-    protected ?array $source = null;
+    protected array|string|null $source = null;
 
     /**
      * Register for the failures occurred during validations
@@ -302,7 +302,7 @@ trait ValidatorBasics
         $this->process_values    = [null => &$this->selected_value];
         $this->selected_optional = null;
 
-        show('SELECTED ' . ($this->parent_field ? $this->parent_field . ' > ' : '') . $field);
+//show('SELECTED ' . ($this->parent_field ? $this->parent_field . ' > ' : '') . $field);
         return $this;
     }
 
@@ -508,7 +508,7 @@ trait ValidatorBasics
      */
     public function addFailure(string $failure, ?string $field = null): void
     {
-show('FAILURE (' . $this->parent_field . ' / ' . $this->selected_field . ' / ' . $this->process_key . '): ' . $failure);
+//show('FAILURE (' . $this->parent_field . ' / ' . $this->selected_field . ' / ' . $this->process_key . '): ' . $failure);
         // Build up the failure string
         if (is_numeric($this->process_key)) {
             if (is_numeric($this->selected_field)) {
