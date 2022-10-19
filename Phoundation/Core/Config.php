@@ -51,6 +51,14 @@ class Config{
      */
     protected static array $files = [];
 
+    /**
+     * Configuration cache
+     *
+     * @var array
+     */
+    protected static array $cache = [];
+
+
 
     /**
      * Config constructor
@@ -96,6 +104,13 @@ class Config{
             return $default;
         }
 
+        // Do we have cached configuration information?
+        $key = Strings::force($path, '.');
+
+        if (array_key_exists($key, self::$cache)) {
+            return self::$cache[$key];
+        }
+
         self::getInstance();
 
         if ($specified) {
@@ -115,14 +130,14 @@ class Config{
                 }
 
                 // The requested key does not exist in configuration, return the default value instead
-                return $default;
+                return self::$cache[$key] = $default;
             }
 
             // Get the requested subsection
             $data = &$data[$key];
         }
 
-        return $data;
+        return self::$cache[$key] = $data;
     }
 
 
@@ -158,21 +173,22 @@ class Config{
     /**
      * Return configuration data for the specified key path
      *
-     * @param string|array $keys    The key path to search for. This should be specified either as an array with key
+     * @param string|array $path    The key path to search for. This should be specified either as an array with key
      *                              names or a . separated string
      * @param mixed $value
      * @return mixed
      */
-    public static function set(string|array $keys, mixed $value = null): mixed
+    public static function set(string|array $path, mixed $value = null): mixed
     {
-        $keys = Arrays::force($keys, '.');
+        $key  = Strings::force($path, '.');
+        $path = Arrays::force($path, '.');
         $data = &static::$data;
 
         // Go over each key and if the value for the key is an array, request a subsection
-        foreach ($keys as $key) {
+        foreach ($path as $key) {
             if (!is_array($data)) {
                 // Oops, this data section should be an array
-                throw new ConfigException(tr('The configuration key ":key" from key path ":keys" does not exist', [':key' => $key, ':keys' => $keys]));
+                throw new ConfigException(tr('The configuration key ":key" from key path ":keys" does not exist', [':key' => $key, ':keys' => $path]));
             }
 
             if (!array_key_exists($key, $data)) {
@@ -186,7 +202,7 @@ class Config{
 
         // The variable $data should now be the correct leaf node. Assign it $value and return it.
         $data = $value;
-        return $value;
+        return self::$cache[$key] = $value;
     }
 
 
