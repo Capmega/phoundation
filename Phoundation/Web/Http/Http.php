@@ -100,7 +100,7 @@ class Http
     /**
      * Send all the HTTP headers
      *
-     * @param array $params
+     * @param array|null $params
      * @param int $content_length
      * @return bool
      * @throws Throwable
@@ -108,7 +108,7 @@ class Http
      * @todo Refactor and remove $core dependancies
      * @todo Refactor and remove $params dependancies
      */
-    public static function headers(array $params, int $content_length): bool
+    public static function headers(?array $params, int $content_length): bool
     {
         global $_CONFIG, $core;
         static $sent = false;

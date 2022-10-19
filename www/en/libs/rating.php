@@ -65,7 +65,7 @@ function rating_install($params) {
         $js  = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.js' , 'ratings');
 
         File::executeMode(ROOT.'pub/js/', 0770, function() {
-            file_ensure_path(ROOT.'pub/js/rating/', 0550);
+            Path::ensure(ROOT.'pub/js/rating/', 0550);
 
             File::executeMode(ROOT.'pub/js/rating/', 0770, function() {
                 rename($js , ROOT.'pub/js/rating/rating.js');

@@ -27,7 +27,7 @@ function ssh_library_init() {
     try {
         load_config('ssh');
         load_libs('cli');
-        file_ensure_path(ROOT.'data/run/ssh');
+        Path::ensure(ROOT.'data/run/ssh');
 
     }catch(Exception $e) {
         throw new CoreException('ssh_library_init(): Failed', $e);
@@ -751,7 +751,7 @@ function ssh_build_options($options = null) {
 //    global $_CONFIG;
 //
 //    try {
-//        file_ensure_path(TMP);
+//        Path::ensure(TMP);
 //
 //        if (!$socket) {
 //            $socket = file_temp();

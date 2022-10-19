@@ -32,7 +32,7 @@ function test_library_init() {
                                                              'test'    => array(),
                                                              'library' => array());
 
-        file_ensure_path(ROOT.'data/tests/contents');
+        Path::ensure(ROOT.'data/tests/contents');
 
         define('TESTPATH', ROOT.'data/tests/content/');
 

@@ -131,7 +131,7 @@ function analytics_matomo($sites_id) {
             $file = file_get_local($_CONFIG['analytics']['matomo_domain'].'/piwik.js');
 
             File::executeMode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
-                file_ensure_path($path.'matomo', 0550);
+                Path::ensure($path.'matomo', 0550);
 
                 File::executeMode($path.'matomo/', 0770, function($path) use ($file) {
                     rename($file, $path.'piwik.js');
@@ -199,7 +199,7 @@ function analytics_google($sites_id) {
             $file = file_get_local('https://www.google-analytics.com/analytics.js');
 
             File::executeMode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
-                file_ensure_path($path.'google', 0550);
+                Path::ensure($path.'google', 0550);
 
                 File::executeMode($path.'google/', 0770, function($path) use ($file) {
                     rename($file, $path.'analytics.js');

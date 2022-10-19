@@ -36,7 +36,7 @@ function image_library_init() {
         }
 
         load_config('images');
-        file_ensure_path(ROOT.'data/log');
+        Path::ensure(ROOT.'data/log');
 
     }catch(Exception $e) {
         throw new CoreException('image_library_init(): Failed', $e);
@@ -240,7 +240,7 @@ function image_convert($params) {
          * Yeah, bullshit, with parrallel sessions, others sessions might
          * delete it while this is in process, etc.
          */
-        file_ensure_path(ROOT.'data/log');
+        Path::ensure(ROOT.'data/log');
 
         if ($_CONFIG['log']['single']) {
             array_default($params, 'log', ROOT.'data/log/syslog');

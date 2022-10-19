@@ -122,6 +122,7 @@ class Config{
 
         // Go over each key and if the value for the key is an array, request a subsection
         foreach ($path as $key) {
+var_dump($data); echo "<br>";
             if (!array_key_exists($key, $data)) {
                 // The requested key does not exist
                 if ($default === null) {

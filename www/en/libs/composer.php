@@ -62,7 +62,7 @@ function composer_library_init() {
  */
 function composer_setup($params) {
     try {
-        file_ensure_path(TMP.'composer');
+        Path::ensure(TMP.'composer');
 
         $file          = download('https://getcomposer.org/installer');
         $file_hash     = hash_file('SHA384', $file);
@@ -146,7 +146,7 @@ function composer_exec($commands, $path = null) {
 
             } else {
                 File::executeMode(ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($commands) {
-                    file_ensure_path(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0550);
+                    Path::ensure(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0550);
 
                     File::executeMode(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0770, function() use ($commands) {
                         file_chmod(array('path'         => ROOT.'www/'.LANGUAGE.'/libs/vendor',

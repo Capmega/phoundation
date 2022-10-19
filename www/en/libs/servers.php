@@ -1313,7 +1313,7 @@ function servers_create_identity_file($server) {
         /*
          * Ensure that ssh/keys directory exists and that its safe
          */
-        file_ensure_path(ROOT.'data/ssh/keys', 0700);
+        Path::ensure(ROOT.'data/ssh/keys', 0700);
         chmod(ROOT.'data/ssh', 0700);
 
         /*

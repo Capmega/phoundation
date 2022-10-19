@@ -686,7 +686,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave) {
         /*
          * Ensure that ssh/keys directory exists and that its safe
          */
-        file_ensure_path(ROOT.'data/ssh/keys');
+        Path::ensure(ROOT.'data/ssh/keys');
         chmod(ROOT.'data/ssh', 0770);
 
         /*
@@ -921,7 +921,7 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
         /*
          * Ensure that ssh/keys directory exists and that its safe
          */
-        file_ensure_path(ROOT.'data/ssh/keys');
+        Path::ensure(ROOT.'data/ssh/keys');
         chmod(ROOT.'data/ssh', 0770);
 
         /*

@@ -8,6 +8,8 @@ project:
 languages:
   supported: null
 web:
+  sessions:
+    cookies:
   domains:
     primary: localhost
   route:

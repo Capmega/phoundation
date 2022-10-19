@@ -25,8 +25,8 @@ if (!$database) {
     throw new CoreException(tr('No database specified'), 'not-specified');
 }
 
-file_ensure_path(TMP.'dropload');
-file_ensure_path(ROOT.'data/backups/databases');
+Path::ensure(TMP.'dropload');
+Path::ensure(ROOT.'data/backups/databases');
 
 if ($table) {
     /*

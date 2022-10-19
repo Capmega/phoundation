@@ -58,7 +58,7 @@ function twiml_write($name, $data, $root = null) {
             throw new CoreException(tr('twiml_write(): Invalid twiml file name ":name" specified, use only a-z, 0-9 and -', array(':name' => $name)), 'invalid');
         }
 
-        file_ensure_path($root);
+        Path::ensure($root);
         file_put_contents($root.$name, $data);
 
     }catch(Exception $e) {

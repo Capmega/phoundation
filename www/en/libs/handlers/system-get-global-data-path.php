@@ -71,7 +71,7 @@ try {
      * Now check if the specified section exists
      */
     if ($section and !file_exists($path.$section)) {
-        file_ensure_path($path.$section);
+        Path::ensure($path.$section);
     }
 
     if ($writable and !is_writable($path.$section)) {

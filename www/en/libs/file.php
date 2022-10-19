@@ -104,7 +104,7 @@ function file_get_uploaded($source) {
 
 
         is_file($source);
-        file_ensure_path($destination);
+        Path::ensure($destination);
 
         /*
          * Ensure we're not overwriting anything!
@@ -212,7 +212,7 @@ function file_move_to_target($file, $path, $extension = false, $singledir = fals
             throw new CoreException(tr('file_move_to_target(): Copy option has been set, but specified file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', array(':file' => $file)));
         }
 
-        $path     = file_ensure_path($path);
+        $path     = Path::ensure($path);
         $filename = basename($file);
 
         if (!$filename) {
@@ -313,7 +313,7 @@ function file_create_target_path($path, $singledir = false, $length = false) {
             $length = $_CONFIG['file']['target_path_size'];
         }
 
-        $path = Strings::unslash(file_ensure_path($path));
+        $path = Strings::unslash(Path::ensure($path));
 
         if ($singledir) {
             /*
@@ -330,7 +330,7 @@ function file_create_target_path($path, $singledir = false, $length = false) {
             }
         }
 
-        return Strings::slash(file_ensure_path($path));
+        return Strings::slash(Path::ensure($path));
 
     }catch(Exception $e) {
         throw new CoreException(tr('file_create_target_path(): Failed'), $e);
@@ -363,7 +363,7 @@ function file_ensure_file($file, $mode = null, $path_mode = null) {
             $mode = $_CONFIG['file']['file_mode'];
         }
 
-        file_ensure_path(dirname($file), $path_mode);
+        Path::ensure(dirname($file), $path_mode);
 
         if (!file_exists($file)) {
             /*
@@ -403,7 +403,7 @@ function file_ensure_file($file, $mode = null, $path_mode = null) {
  * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
  * @return string The specified file
  */
-function file_ensure_path($path, $mode = null, $clear = false, $restrictions = ROOT) {
+function Path::ensure($path, $mode = null, $clear = false, $restrictions = ROOT) {
     global $_CONFIG;
 
     try {
@@ -449,7 +449,7 @@ function file_ensure_path($path, $mode = null, $clear = false, $restrictions = R
                             file_delete($path, $restrictions);
                         });
 
-                        return file_ensure_path($path, $mode);
+                        return Path::ensure($path, $mode);
                     }
 
                     continue;
@@ -491,13 +491,13 @@ function file_ensure_path($path, $mode = null, $clear = false, $restrictions = R
              * directory ending in a /
              */
             file_delete(Strings::endsNotWith($path, '/'), $restrictions);
-            return file_ensure_path($path, $mode);
+            return Path::ensure($path, $mode);
         }
 
         return Strings::slash(realpath($path).'/');
 
     }catch(Exception $e) {
-        throw new CoreException(tr('file_ensure_path(): Failed to ensure path ":path"', array(':path' => $path)), $e);
+        throw new CoreException(tr('Path::ensure(): Failed to ensure path ":path"', array(':path' => $path)), $e);
     }
 }
 
@@ -681,7 +681,7 @@ function file_get_extension($filename) {
  */
 function file_temp($create = true, $extension = null, $limit_to_session = true) {
     try {
-        file_ensure_path(TMP);
+        Path::ensure(TMP);
 
         /*
          * Temp file will contain the session ID
@@ -1250,7 +1250,7 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
                         }
                     }
 
-                    file_ensure_path($destination.$file, $filemode);
+                    Path::ensure($destination.$file, $filemode);
                 }
 
                 file_copy_tree($source.$file, $destination.$file, $search, $replace, $extensions, $mode, true);
@@ -1433,7 +1433,7 @@ function file_temp_dir($prefix = '', $mode = null) {
             $mode = $_CONFIG['file']['dir_mode'];
         }
 
-        file_ensure_path($path = TMP);
+        Path::ensure($path = TMP);
 
         while (true) {
             $unique = uniqid($prefix);
@@ -1448,7 +1448,7 @@ function file_temp_dir($prefix = '', $mode = null) {
         /*
          * Make sure the temp dir exists
          */
-        file_ensure_path($path);
+        Path::ensure($path);
 
         return Strings::slash($path);
 
@@ -1563,7 +1563,7 @@ function file_get_local($url, &$is_downloaded = false, $context = null) {
         $file          = file_temp($file);
         $is_downloaded = true;
 
-        file_ensure_path(dirname($file));
+        Path::ensure(dirname($file));
         file_put_contents($file, file_get_contents($url, false, $context));
 
         return $file;
@@ -2781,7 +2781,7 @@ function file_root($path) {
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package file
- * @see file_ensure_path()
+ * @see Path::ensure()
  * @version 2.7.13: Added function and documentation
  * @note: If the specified path has an asterix (*) in front of it, ALL sub directories will be updated with the specified mode, and each will have their original file mode restored after
  *

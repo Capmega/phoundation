@@ -198,7 +198,7 @@ function node_find_modules() {
                 log_console(tr('node_find_modules(): node_modules path not found, initializing now with ROOT/node_modules'), 'yellow');
 
                 $found = ROOT.'node_modules/';
-                file_ensure_path($found, 0550);
+                Path::ensure($found, 0550);
             });
         }
 
@@ -280,7 +280,7 @@ function node_install_npm($packages) {
         log_console(tr('node_install_npm(): Installing packages ":packages"', array(':packages' => $packages)), 'VERBOSE/cyan');
 
         File::executeMode(ROOT, 0770, function() use ($packages) {
-            file_ensure_path(ROOT.'node_modules');
+            Path::ensure(ROOT.'node_modules');
 
             /*
              * Force everything in the node_modules directory to be writable

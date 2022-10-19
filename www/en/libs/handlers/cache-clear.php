@@ -50,7 +50,7 @@ try {
                                   'clean_path'   => false));
             }
 
-            file_ensure_path(ROOT.'data/cache');
+            Path::ensure(ROOT.'data/cache');
             log_console(tr('Cleared file caches from path ":path"', array(':path' => ROOT.'data/cache')), 'green');
             break;
 
@@ -88,7 +88,7 @@ try {
                       'restrictions' => ROOT.'data/',
                       'clean_path'   => false));
 
-    file_ensure_path(ROOT.'data/tmp');
+    Path::ensure(ROOT.'data/tmp');
     log_console(tr('Cleared data/tmp'), 'green');
 
     /*

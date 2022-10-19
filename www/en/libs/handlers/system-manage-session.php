@@ -218,7 +218,7 @@ try {
                  */
                 switch ($_CONFIG['sessions']['handler']) {
                     case false:
-                        file_ensure_path(ROOT.'data/cookies/');
+                        Path::ensure(ROOT.'data/cookies/');
                         ini_set('session.save_path', ROOT.'data/cookies/');
                         break;
 

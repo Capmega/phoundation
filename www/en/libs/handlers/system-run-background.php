@@ -47,7 +47,7 @@ try {
         $log = str_replace('/', '-', $cmd);
     }
 
-    file_ensure_path(ROOT.'data/run-background');
+    Path::ensure(ROOT.'data/run-background');
 
     if (!strstr($args, '--env') and !strstr($args, '-E')) {
         /*
@@ -67,7 +67,7 @@ try {
             $log = ROOT.'data/log/'.$log;
         }
 
-        file_ensure_path(dirname($log));
+        Path::ensure(dirname($log));
 
         if (file_exists($log) and is_dir($log)) {
             /*

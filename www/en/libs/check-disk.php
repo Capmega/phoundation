@@ -65,9 +65,9 @@ function check_disk($params = null) {
                 /*
                  * Regenerate the paths to ensure that they are available
                  */
-                file_ensure_path(ROOT.'data/tmp');
-                file_ensure_path(ROOT.'data/cache');
-                file_ensure_path(ROOT.'data/log');
+                Path::ensure(ROOT.'data/tmp');
+                Path::ensure(ROOT.'data/cache');
+                Path::ensure(ROOT.'data/log');
 
                 notify(array('code'    => 'low-disk',
                              'groups'  => 'developers',

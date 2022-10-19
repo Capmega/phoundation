@@ -109,6 +109,60 @@ class Arrays {
 
 
     /**
+     * Ensure that the specified $params source is an array. If it's a numeric value, convert it to
+     * [$numeric_key => $params]. If its a string value, convert it to [$string_key => $params]
+     *
+     * @param mixed $params A parameters array
+     * @param string|null $string_key
+     * @param string $numeric_key
+     * @param bool|null $default The default value for the non-selected key
+     * @return void
+     *
+     * @see Arrays::ensure()
+     * @note The default value for this function for non-assigned values is boolean false, not null. The reason for this
+     *       is that many of its dependancies use "false" as "do not use" because "null" would be interpreted as
+     *       "compare to null"
+     * @version 2.5.119: Added function and documentation
+     *
+     */
+    public static function params(mixed &$params, string $string_key = null, $numeric_key = null, ?bool $default = false): void
+    {
+        if(!$params){
+            // The specified value is empty (probably null, "", etc). Convert it into an array containing the numeric and string keys with null values
+            $params = [];
+        }
+
+        if(is_array($params)){
+            Arrays::ensure($params, array($string_key, $numeric_key), $default);
+            return;
+        }
+
+        if(is_numeric($params)){
+            // The specified value is numeric, convert it to an array with the specified numeric key set having the value $params
+            $params = [
+                $numeric_key => $params,
+                $string_key  => $default
+            ];
+
+            return;
+        }
+
+        if(is_string($params)){
+            // The specified value is string, convert it to an array with the specified string key set having the value $params
+            $params = [
+                $numeric_key => $default,
+                $string_key  => $params
+            ];
+
+            return;
+        }
+
+        throw new CoreException(tr('Specified $params ":params" is invalid. It is an ":datatype" but should be either one of array, integer, or string', [':datatype' => gettype($params), ':params' => (is_resource($params) ? '{php resource}' : $params)]));
+    }
+
+
+
+    /**
      * Ensures that the specified $key exists in the specified $source.
      *
      * If the specified $key does not exist, it will be initialized with the specified $default value. This function is
@@ -1128,9 +1182,9 @@ class Arrays {
      * @param string|array $keys
      * @param mixed $default_value
      * @param bool $trim_existing
-     * @return array
+     * @return void
      */
-    public static function ensure(array &$source, string|array $keys = [], mixed $default_value = null, bool $trim_existing = false): array
+    public static function ensure(array &$source, string|array $keys = [], mixed $default_value = null, bool $trim_existing = false): void
     {
         if ($keys) {
             foreach (Arrays::force($keys) as $key) {

@@ -153,7 +153,7 @@ function sitemap_install_files($files) {
 
                         } else {
                             if ($file['language']) {
-                                file_ensure_path(ROOT.'www/'.$file['language'].'/sitemaps/');
+                                Path::ensure(ROOT.'www/'.$file['language'].'/sitemaps/');
                                 $filename = $file['language'].'/sitemaps/'.$file['file'].'.xml';
 
                             } else {
@@ -164,7 +164,7 @@ function sitemap_install_files($files) {
                         log_console(tr('Installing sitemap file ":file"', array(':file' => $file['path'])), 'VERBOSE/cyan');
 
                         file_delete($file['path'], ROOT.'www/');
-                        file_ensure_path(dirname($file['path']));
+                        Path::ensure(dirname($file['path']));
 
                         rename($file['tmp'], $file['path']);
                         chmod(ROOT.'www/'.$filename, 0440);
@@ -491,7 +491,7 @@ function sitemap_list_files() {
 
             while ($file = sql_fetch($files)) {
                 if ($file['file']) {
-                    file_ensure_path(ROOT.'www/'.$code.'/sitemaps');
+                    Path::ensure(ROOT.'www/'.$code.'/sitemaps');
                     $file['path'] = ROOT.'www/'.$code.'/sitemaps/'.$file['file'].'.xml';
 
                 } else {
@@ -711,7 +711,7 @@ function sitemap_make_backup() {
         $count  = 0;
         $target = ROOT.'data/backups/sitemaps/'.date_convert(null, 'Ymd-Hmi').'/';
 
-        file_ensure_path($target);
+        Path::ensure($target);
         log_console(tr('Making backup of current sitemape files in ":path"', array(':path' => $target)), 'cyan');
 
         if (file_exists(ROOT.'www/sitemap.xml')) {
@@ -721,7 +721,7 @@ function sitemap_make_backup() {
 
         foreach ($_CONFIG['language']['supported'] as $code => $language) {
             $source = ROOT.'www/'.$code.'/';
-            file_ensure_path($target.$code.'/');
+            Path::ensure($target.$code.'/');
 
             foreach (scandir($source) as $file) {
                 $filename = basename($file);

@@ -123,7 +123,7 @@ function scanimage($params) {
                      * This is the own machine. Scan to the TMP file
                      */
                     $file = TMP.str_random(16);
-                    file_ensure_path(dirname($file));
+                    Path::ensure(dirname($file));
 
                     $params['options']['redirect'] = ' > '.$file;
                     $results                       = servers_exec($server, array('timeout'  => $params['timeout'],
@@ -382,7 +382,7 @@ function scanimage_validate($params) {
              * Ensure the target path exists as a directory
              */
             $params['path'] = file_absolute_path($params['file']);
-            $params['path'] = file_ensure_path($params['path']);
+            $params['path'] = Path::ensure($params['path']);
 
         } else {
             /*
@@ -407,7 +407,7 @@ function scanimage_validate($params) {
                 }
 
             } else {
-                file_ensure_path($params['path']);
+                Path::ensure($params['path']);
             }
         }
 

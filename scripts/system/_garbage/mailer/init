@@ -7,7 +7,7 @@
 require_once(__DIR__.'/../../../libs/startup.php');
 
 try {
-    file_ensure_path(ROOT.'data/content/en/mailer');
+    Path::ensure(ROOT.'data/content/en/mailer');
     touch(ROOT.'data/content/en/mailer/template.html');
 
     log_console('Initialized mailer system', 'init', 'green');

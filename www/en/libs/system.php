@@ -1354,7 +1354,7 @@
 //        /*
 //         * Make content directory exists
 //         */
-//        file_ensure_path(dirname($realfile));
+//        Path::ensure(dirname($realfile));
 //
 //        $default  = 'File created '.$file.' by '.realpath(PWD.$_SERVER['PHP_SELF'])."\n";
 //        $default .= print_r($replace, true);
@@ -1935,7 +1935,7 @@
 //         * Write log entries
 //         */
 //        if (empty($h[$file])) {
-//            file_ensure_path(ROOT.'data/log');
+//            Path::ensure(ROOT.'data/log');
 //
 //            try {
 //                $h[$file] = @fopen(ROOT.'data/log/'.$file, 'a+');

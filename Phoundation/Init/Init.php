@@ -44,7 +44,7 @@ Class Init
             /*
              * Check tmp dir configuration
              */
-            file_ensure_path(TMP.'www');
+            Path::ensure(TMP.'www');
             touch(TMP.'www/.donotdelete');
 
             /*

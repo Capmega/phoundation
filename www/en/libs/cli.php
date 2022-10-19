@@ -277,7 +277,7 @@ function cli_run_once_local($close = false) {
         $run_dir = ROOT.'data/run/';
         $script  = $core->register['script'];
 
-        file_ensure_path(dirname($run_dir.$script));
+        Path::ensure(dirname($run_dir.$script));
 
         if ($close) {
             if (!$executed) {
@@ -371,7 +371,7 @@ under_construction();
         $run_dir = ROOT.'data/run/';
         $script  = $core->register['script'];
 
-        file_ensure_path(dirmode($run_dir.$script));
+        Path::ensure(dirmode($run_dir.$script));
 
         if ($processes === false) {
             if (!$executed) {
@@ -1665,7 +1665,7 @@ function cli_unzip($file, $target_path = null, $remove = true) {
         $filename    = basename($file);
         $target_path = Strings::slash($target_path);
 
-        file_ensure_path($target_path);
+        Path::ensure($target_path);
 
         if ($remove) {
             rename($file, $target_path.$filename);

@@ -418,7 +418,7 @@ function sso_config($provider) {
                     throw new CoreException(tr('sso(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
             }
 
-            file_ensure_path($path);
+            Path::ensure($path);
             chmod($path, 0700);
 
             file_put_contents($file, '<?php return '.var_export($config, true).'; ?>');

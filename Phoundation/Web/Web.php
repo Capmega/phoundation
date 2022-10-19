@@ -138,6 +138,22 @@ class Web
 
 
     /**
+     * Return the domain for this process
+     *
+     * @see Http::buildUrl()
+     */
+    public static function getDomain(): string
+    {
+        if (PLATFORM_HTTP) {
+            return $_SERVER['HTTP_HOST'];
+        }
+
+        return Config::get('web.domains.primary');
+    }
+
+
+
+    /**
      * Return complete domain with HTTP and all
      *
      * @param string|null $url
@@ -153,7 +169,7 @@ class Web
      * @see get_domain()
      * @see mapped_domain()
      */
-    public static function getDomain(?string $url = null, ?string $query = null, ?string $prefix = null, ?string $domain = null, ?string $language = null, ?string $from_language = null, bool $allow_cloak = true): string
+    public static function buildUrl(?string $url = null, ?string $query = null, ?string $prefix = null, ?string $domain = null, ?string $language = null, ?string $from_language = null, bool $allow_cloak = true): string
     {
         $url = (string) $url;
 
@@ -171,11 +187,7 @@ class Web
              * example). In that case, fall back on the configured domain
              * $_CONFIG[domain]
              */
-            if (PLATFORM_HTTP) {
-                $domain = $_SERVER['HTTP_HOST'];
-            } else {
-                $domain = Config::get('web.domains.primary');
-            }
+            $domain = self::getDomain();
         }
 
         // Use url_prefix, for URL's like domain.com/en/admin/page.html, where "/admin/" is the prefix
@@ -183,8 +195,8 @@ class Web
             $prefix = Config::get('web.url.prefix', '');
         }
 
-        $prefix = Strings::startsNotWith(Strings::endsWith($prefix, '/'), '/');
-        $domain = Strings::slash($domain);
+        $prefix   = Strings::startsNotWith(Strings::endsWith($prefix, '/'), '/');
+        $domain   = Strings::slash($domain);
         $language = self::getLanguage($language);
 
         // Build up the URL part

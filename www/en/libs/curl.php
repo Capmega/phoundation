@@ -386,7 +386,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
                     $params['log'] = ROOT.'data/log/curl';
                 }
 
-                file_ensure_path(dirname($params['log']));
+                Path::ensure(dirname($params['log']));
                 curl_setopt($ch, CURLOPT_STDERR, fopen($params['log'], 'a'));
 
                 if ($params['post']) {
@@ -438,7 +438,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
                 /*
                  * Make sure the specified cookie path exists
                  */
-                file_ensure_path(dirname($params['cookie_file']));
+                Path::ensure(dirname($params['cookie_file']));
 
                 /*
                  * Set cookie options

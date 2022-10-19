@@ -82,7 +82,7 @@ cli_no_arguments_left();
 
 if ($destination) {
     $destination = Strings::slash($destination);
-    file_ensure_path($destination);
+    Path::ensure($destination);
 }
 
 

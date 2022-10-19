@@ -192,7 +192,7 @@ function googlemaps_cache_streetmaps($lat, $long, $x = 640, $y = 480) {
                 return false;
 
             } else {
-                file_ensure_path(dirname($cache_dir.$cache_file));
+                Path::ensure(dirname($cache_dir.$cache_file));
                 file_put_contents($cache_dir.$cache_file,$filedata);
             }
         }

@@ -191,7 +191,7 @@ function backup_library_init() {
 //        }
 //
 //        $params['target'] = Strings::slash($params['target']).$params['date']->format('Ymd-His').'/mysql/'.$params['database'].'/';
-//        file_ensure_path($params['target']);
+//        Path::ensure($params['target']);
 //
 //        $target    = $params['target'].$params['table'].'.sql';
 //        $command   = 'mysqldump -p"'.$params['pass'].'" -u '.$params['user'].' --single-transaction';

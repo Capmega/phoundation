@@ -1156,7 +1156,7 @@ function doc_generate_page($format, $page) {
                         'versions');
 
         log_console(tr('Generating page ":page"', array(':page' => $page['name'])), 'VERYVERBOSEDOT/cyan');
-        file_ensure_path($path.$format);
+        Path::ensure($path.$format);
 
         $data = file_get_contents($path.'templates/'.$format.'/'.$page['type'].'.'.$format);
         $data = str_replace(':name', isset_get($page['name']), $data);

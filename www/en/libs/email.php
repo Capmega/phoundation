@@ -794,7 +794,7 @@ function email_check_images($email) {
         while (!empty($email['img'.$i])) {
             if (empty($path)) {
                 $path = ROOT.'data/email/images/'.$domain.'/'.$name.'/'.$email['id'];
-                file_ensure_path($path);
+                Path::ensure($path);
             }
 
             /*
@@ -1134,7 +1134,7 @@ function email_load_phpmailer() {
              * Update parent directory file mode first to be sure its writable
              */
             File::executeMode(ROOT.'libs/', 0750, function() use ($path) {
-                file_ensure_path(ROOT.'libs/vendor/');
+                Path::ensure(ROOT.'libs/vendor/');
 
                 File::executeMode(ROOT.'libs/vendor/', 0750, function() use ($path) {
                     /*

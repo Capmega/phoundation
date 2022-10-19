@@ -253,7 +253,7 @@ function cache_write_file($value, $key, $namespace = null) {
 
         $file = ROOT.'data/cache/'.$namespace.$key;
 
-        file_ensure_path(dirname($file), 0770);
+        Path::ensure(dirname($file), 0770);
         file_put_contents($file, $value);
         chmod($file, 0660);
 

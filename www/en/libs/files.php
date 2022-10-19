@@ -73,7 +73,7 @@ function files_insert($file, $require_unique = false) {
         /*
          * Ensure that the files base path exists
          */
-        file_ensure_path($base_path);
+        Path::ensure($base_path);
 
         $extension = Strings::fromReverse($file['filename'], '.');
         $base_path = Strings::slash($base_path);
@@ -278,7 +278,7 @@ function files_search_orphans() {
                                        'filters' => array('!status' => 'orphaned')));
 
         log_file('Searching `files` table for orphaned entries', 'cyan');
-        file_ensure_path($quarantine);
+        Path::ensure($quarantine);
 
         foreach ($files as $file) {
             if (!file_exists($root.$file['file'])) {
@@ -302,7 +302,7 @@ function files_search_orphans() {
                                          * Ensure that the file itself does not
                                          * exist
                                          */
-                                        file_ensure_path(dirname($quarantine.$file));
+                                        Path::ensure(dirname($quarantine.$file));
                                         file_delete($quarantine.$file, ROOT.'data/files/quarantine/orphans/');
 
                                         /*

@@ -70,7 +70,7 @@ function captcha_html($class = null) {
             $file = download('https://www.google.com/recaptcha/api.js');
 
             File::executeMode(ROOT.'pub/js/', 0770, function() use ($file) {
-                file_ensure_path(ROOT.'pub/js/recaptcha/', 0550);
+                Path::ensure(ROOT.'pub/js/recaptcha/', 0550);
 
                 File::executeMode(ROOT.'pub/js/recaptcha/', 0770, function() use ($file) {
                     rename($file, ROOT.'pub/js/recaptcha/api.js');

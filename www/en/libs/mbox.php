@@ -49,7 +49,7 @@ function mbox_import_file($domain, $user, $file, $box = 'Archives', $mail_path =
         $path  = mbox_test_access($mail_path);
         $path .= $path.'vhosts/'.$domain.'/'.$user.'/mail/';
 
-        file_ensure_path($path);
+        Path::ensure($path);
 
         if (file_exists($path.$box)) {
             /*

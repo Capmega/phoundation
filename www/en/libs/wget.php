@@ -64,7 +64,7 @@ function wget($params) {
         }
 
         if (empty($params['file'])) {
-            file_ensure_path(TMP);
+            Path::ensure(TMP);
             $params['file'] = file_temp(false);
         }
 

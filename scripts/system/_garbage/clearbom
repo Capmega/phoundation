@@ -141,7 +141,7 @@ if ($setdate) {
     /*
      * Set the cache file
      */
-    file_ensure_path(dirname($cachefile));
+    Path::ensure(dirname($cachefile));
     touch($cachefile, $setdate);
 }
 

@@ -9,12 +9,14 @@ use Phoundation\Cli\Scripts;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Data\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Processes;
 use Phoundation\Web\Client;
 use Phoundation\Web\Http\Html\Html;
@@ -202,7 +204,7 @@ class Core {
                     define('ENVIRONMENT', $env);
 
                     // Set protocol
-                    define('PROTOCOL', Config::get('web.protocol', 'http'));
+                    define('PROTOCOL', Config::get('web.protocol', 'https://'));
 
                     // Register basic HTTP information
                     // TODO MOVE TO HTTP CLASS
@@ -992,6 +994,7 @@ class Core {
      *                           internal Core state
      * @return bool
      * @see Core::getState()
+     * @see Core::initState()
      */
     public static function startupState(?string $state = null): bool
     {
@@ -1003,6 +1006,26 @@ class Core {
             'init', 'startup' => true,
             default           => false,
         };
+    }
+
+
+
+    /**
+     * Returns true if the system is still starting up
+     *
+     * @param string|null $state If specified will return the startup state for the specified state instead of the
+     *                           internal Core state
+     * @return bool
+     * @see Core::getState()
+     * @see Core::startupState()
+     */
+    public static function initState(?string $state = null): bool
+    {
+        if ($state === null) {
+            $state = self::$state;
+        }
+
+        return $state === 'init';
     }
 
 
@@ -1823,7 +1846,7 @@ class Core {
          * Now check if the specified section exists
          */
         if ($section and !file_exists($path.$section)) {
-            file_ensure_path($path.$section);
+            Path::ensure($path.$section);
         }
 
         if ($writable and !is_writable($path.$section)) {
@@ -1851,7 +1874,12 @@ class Core {
      */
     public static function registerShutdown(array|string $function_name): void
     {
-        self::$register['shutdown'][Strings::force($function_name)] = $function_name;
+        if (!is_array(self::readRegister('system', 'shutdown'))) {
+            // Initialize shutdown list
+            self::$register['system']['shutdown'] = [];
+        }
+
+        self::$register['system']['shutdown'][Strings::force($function_name)] = $function_name;
     }
 
 
@@ -1877,8 +1905,13 @@ class Core {
     {
         $key = Strings::force($function_name);
 
-        if (array_key_exists($key, self::$register['shutdown'])) {
-            unset(self::$register['shutdown'][$key]);
+        if (!is_array(self::readRegister('system', 'shutdown'))) {
+            // Initialize shutdown list
+            self::$register['system']['shutdown'] = [];
+        }
+
+        if (array_key_exists($key, self::$register['system']['shutdown'])) {
+            unset(self::$register['system']['shutdown'][$key]);
             return true;
         }
 
@@ -1911,19 +1944,18 @@ class Core {
 
         Log::notice(tr('Starting shutdown procedure for script ":script"', [':script' => self::$register['system']['script']]), 2);
 
-        foreach (self::$register as $key => $value) {
-            try {
-                if (!str_starts_with($key, 'shutdown_')) {
-                    continue;
-                }
+        if (!is_array(self::readRegister('system', 'shutdown'))) {
+            // Initialize shutdown list
+            self::$register['system']['shutdown'] = [];
+        }
 
+        foreach (self::$register['system']['shutdown'] as $key => $value) {
+            try {
                 $key = substr($key, 9);
 
                 // Execute this shutdown function with the specified value
                 if (is_array($value)) {
-                    /*
-                     * Shutdown function value is an array. Execute it for each entry
-                     */
+                    // Shutdown function value is an array. Execute it for each entry
                     foreach ($value as $entry) {
                         Log::notice(tr('Executing shutdown function ":function" with value ":value"', [':function' => $key . '()', ':value' => $entry]));
                         $key($entry);
@@ -2088,7 +2120,7 @@ class Core {
         }
 
         // New session? Detect client type, language, and mobile device
-        if (empty($_COOKIE[Config::get('sessions.cookies.name', '')])) {
+        if (empty($_COOKIE[Config::get('web.sessions.cookies.name', '')])) {
             Client::detect();
         }
 
@@ -2187,7 +2219,7 @@ class Core {
 
         // Check the cookie domain configuration to see if it's valid.
         // NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain] must be one of "auto" or ".auto"
-        switch (Config::get('sessions.cookies.domain', '.auto')) {
+        switch (Config::get('web.sessions.cookies.domain', '.auto')) {
             case false:
                 // This domain has no cookies
                 break;
@@ -2198,7 +2230,7 @@ class Core {
                 break;
 
             case '.auto':
-                Config::get('sessions.cookies.domain', '.'.$domain);
+                Config::get('web.sessions.cookies.domain', '.'.$domain);
                 ini_set('session.cookie_domain', '.'.$domain);
                 break;
 
@@ -2209,11 +2241,11 @@ class Core {
                  * If the configured cookie domain is different from the current domain then all cookie will inexplicably fail without warning,
                  * so this must be detected to avoid lots of hair pulling and throwing arturo off the balcony incidents :)
                  */
-                if (Config::get('sessions.cookies.domain')[0] == '.') {
-                    $test = substr(Config::get('sessions.cookies.domain'), 1);
+                if (Config::get('web.sessions.cookies.domain')[0] == '.') {
+                    $test = substr(Config::get('web.sessions.cookies.domain'), 1);
 
                 } else {
-                    $test = Config::get('sessions.cookies.domain');
+                    $test = Config::get('web.sessions.cookies.domain');
                 }
 
                 if (!str_contains($domain, $test)) {
@@ -2222,32 +2254,32 @@ class Core {
                         ->setGroups('developers')
                         ->setTitle(tr('Invalid cookie domain'))
                         ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
-                            ':domain'         => Strings::startsNotWith(Config::get('sessions.cookies.domain'), '.'),
-                            ':cookie_domain'  => Config::get('sessions.cookies.domain'),
+                            ':domain'         => Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'),
+                            ':cookie_domain'  => Config::get('web.sessions.cookies.domain'),
                             ':current_domain' => $domain]))
                         ->send();
 
-                    redirect(PROTOCOL.Strings::startsNotWith(Config::get('sessions.cookies.domain'), '.'));
+                    redirect(PROTOCOL.Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'));
                 }
 
-                ini_set('session.cookie_domain', Config::get('sessions.cookies.domain'));
+                ini_set('session.cookie_domain', Config::get('web.sessions.cookies.domain'));
                 unset($test);
                 unset($length);
         }
 
         // Set session and cookie parameters
         try {
-            if (Config::get('sessions.enabled', true)) {
+            if (Config::get('web.sessions.enabled', true)) {
                 // Force session cookie configuration
-                ini_set('session.gc_maxlifetime' , Config::get('sessions.timeout'            , true));
-                ini_set('session.cookie_lifetime', Config::get('sessions.cookies.lifetime'   , 0));
-                ini_set('session.use_strict_mode', Config::get('sessions.cookies.strict_mode', true));
-                ini_set('session.name'           , Config::get('sessions.cookies.name'       , ''));
-                ini_set('session.cookie_httponly', Config::get('sessions.cookies.http-only'  , true));
-                ini_set('session.cookie_secure'  , Config::get('sessions.cookies.secure'     , true));
-                ini_set('session.cookie_samesite', Config::get('sessions.cookies.same-site'  , true));
+                ini_set('session.gc_maxlifetime' , Config::get('web.sessions.timeout'            , true));
+                ini_set('session.cookie_lifetime', Config::get('web.sessions.cookies.lifetime'   , 0));
+                ini_set('session.use_strict_mode', Config::get('web.sessions.cookies.strict_mode', true));
+                ini_set('session.name'           , Config::get('web.sessions.cookies.name'       , 'phoundation'));
+                ini_set('session.cookie_httponly', Config::get('web.sessions.cookies.http-only'  , true));
+                ini_set('session.cookie_secure'  , Config::get('web.sessions.cookies.secure'     , true));
+                ini_set('session.cookie_samesite', Config::get('web.sessions.cookies.same-site'  , true));
 
-                if (Config::get('sessions.check-referrer', true)) {
+                if (Config::get('web.sessions.check-referrer', true)) {
                     ini_set('session.referer_check', $domain);
                 }
 
@@ -2262,14 +2294,15 @@ class Core {
                 }
 
                 // Do not send cookies to crawlers!
-                if (self::readRegister('session', 'client')['type'] === 'crawler') {
+                if (isset_get(self::readRegister('session', 'client')['type']) === 'crawler') {
                     Log::information(tr('Crawler ":crawler" on URL ":url"', [':crawler' => self::readRegister('session', 'client'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']]));
 
                 } else {
                     // Setup session handlers
-                    switch (Config::get('sessions.handler', 'sql')) {
+                    // TODO Implement alternative session handlers
+                    switch (Config::get('web.sessions.handler', false)) {
                         case false:
-                            file_ensure_path(ROOT.'data/cookies/');
+                            Path::ensure(ROOT.'data/cookies/');
                             ini_set('session.save_path', ROOT.'data/cookies/');
                             break;
 
@@ -2289,10 +2322,8 @@ class Core {
                             register_shutdown_function('session_write_close');
                     }
 
-
-
                     // Set cookie, but only if page is not API and domain has cookie configured
-                    if (Config::get('sessions.cookies.europe', true) and !Config::get('sessions.cookies.name', '')) {
+                    if (Config::get('web.sessions.cookies.europe', true) and !Config::get('web.sessions.cookies.name', 'phoundation')) {
                         if (GeoIP::isEuropean()) {
                             // All first visits to european countries require cookie permissions given!
                             $_SESSION['euro_cookie'] = true;
@@ -2303,16 +2334,16 @@ class Core {
                     if (!Core::getCallType('api')) {
                         //
                         try {
-                            if (Config::get('sessions.cookies.name', '')) {
-                                if (!is_string(Config::get('sessions.cookies.name', '')) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE[Config::get('sessions.cookies.name', '')])) {
-                                    Log::warning(tr('Received invalid cookie ":cookie", dropping', [':cookie' => $_COOKIE[Config::get('sessions.cookies.name', '')]]));
-                                    unset($_COOKIE[Config::get('sessions.cookies.name', '')]);
+                            if (Config::get('web.sessions.cookies.name', '')) {
+                                if (!is_string(Config::get('web.sessions.cookies.name', '')) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE[Config::get('web.sessions.cookies.name', '')])) {
+                                    Log::warning(tr('Received invalid cookie ":cookie", dropping', [':cookie' => $_COOKIE[Config::get('web.sessions.cookies.name', '')]]));
+                                    unset($_COOKIE[Config::get('web.sessions.cookies.name', '')]);
                                     $_POST = array();
 
                                     // Received cookie but it didn't pass. Start a new session without a cookie
                                     session_start();
 
-                                } elseif (!file_exists(ROOT.'data/cookies/sess_'.$_COOKIE[Config::get('sessions.cookies.name', '')])) {
+                                } elseif (!file_exists(ROOT.'data/cookies/sess_'.$_COOKIE[Config::get('web.sessions.cookies.name', '')])) {
                                     /*
                                      * Cookie code is valid, but it doesn't exist.
                                      *
@@ -2321,11 +2352,11 @@ class Core {
                                      * from the browser turned out to be problematic to say
                                      * the least
                                      */
-                                    Log::information(tr('Received non existing cookie ":cookie", recreating', [':cookie' => $_COOKIE[Config::get('sessions.cookies.name', '')]]));
+                                    Log::information(tr('Received non existing cookie ":cookie", recreating', [':cookie' => $_COOKIE[Config::get('web.sessions.cookies.name', '')]]));
 
                                     session_start();
 
-                                    if (Config::get('sessions.cookies.notify-expired', '')) {
+                                    if (Config::get('web.sessions.cookies.notify-expired', '')) {
                                         Html::flash()->add(tr('Your browser cookie was expired, or does not exist. You may have to sign in again'), 'warning');
                                     }
 
@@ -2380,8 +2411,8 @@ class Core {
                             }
                         }
 
-                        if (Config::get('sessions.regenerate-id', false)) {
-                            if (isset($_SESSION['created']) and (time() - $_SESSION['created'] > Config::get('sessions.regenerate_id', false))) {
+                        if (Config::get('web.sessions.regenerate-id', false)) {
+                            if (isset($_SESSION['created']) and (time() - $_SESSION['created'] > Config::get('web.sessions.regenerate_id', false))) {
                                 /*
                                  * Use "created" to monitor session id age and
                                  * refresh it periodically to mitigate attacks on
@@ -2392,8 +2423,8 @@ class Core {
                             }
                         }
 
-                        if (Config::get('sessions.cookies.lifetime', 0)) {
-                            if (isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > Config::get('sessions.cookies.lifetime', 0))) {
+                        if (Config::get('web.sessions.cookies.lifetime', 0)) {
+                            if (isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > Config::get('web.sessions.cookies.lifetime', 0))) {
                                 // Session expired!
                                 session_unset();
                                 session_destroy();

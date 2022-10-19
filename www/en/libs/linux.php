@@ -659,7 +659,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false) {
             /*
              * Do this locally!
              */
-            return file_ensure_path($path, $mode, $clear);
+            return Path::ensure($path, $mode, $clear);
         }
 
         if (!$mode) {

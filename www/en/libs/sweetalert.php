@@ -67,7 +67,7 @@ function sweetalert_install($params) {
         $js  = download('https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.js');
 
         File::executeMode(ROOT.'pub/js/', 0770, function() {
-            file_ensure_path(ROOT.'pub/js/sweetalert/', 0550);
+            Path::ensure(ROOT.'pub/js/sweetalert/', 0550);
 
             File::executeMode(ROOT.'pub/js/sweetalert/', 0770, function() {
                 rename($js , ROOT.'pub/js/sweetalert/sweetalert.js');

@@ -93,7 +93,7 @@ class Path
             // Some other file is in the way. Delete the file, and retry.
             // Ensure that the "file" is not accidentally specified as a directory ending in a /
             File::delete(Strings::endsNotWith($path, '/'), $restrictions);
-            return file_ensure_path($path, $mode);
+            return Path::ensure($path, $mode);
         }
 
         return Strings::slash(realpath($path));
