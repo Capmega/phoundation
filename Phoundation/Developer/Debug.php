@@ -264,7 +264,7 @@ class Debug {
             if (empty($core->register['debug_plain'])) {
                 switch (Core::getCallType()) {
                     case 'api':
-                        // FALLTHROUGH
+                        // no-break
                     case 'ajax':
                         /*
                          * If JSON, CORS requests require correct headers!
@@ -493,7 +493,7 @@ class Debug {
                 </tr>';
 
             case 'method':
-                // FALLTHROUGH
+                // no-break
 
             case 'property':
                 return '<tr><td>'.htmlentities($key) . '</td>

@@ -65,7 +65,7 @@ class Time
                 return Strings::plural($ceil, tr(':time week', [':time' => $time]), tr(':time weeks', [':time' => $time]));
 
             case 'month':
-                //FALLTHROUGH
+                // no-break
             case 'months':
                 /*
                  * NOTE: Month is assumed 30 days!

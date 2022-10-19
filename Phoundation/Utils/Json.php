@@ -281,7 +281,7 @@ class Json
 
         switch ($code) {
             case 301:
-                // FALLTHROUGH
+                // no-break
             case 'redirect':
                 Json::error(null, array('location' => $data), 'REDIRECT', 301);
 
@@ -292,9 +292,9 @@ class Json
                 Json::error(null, array('location' => Http::buildUrl($_CONFIG['redirects']['signin'])), 'SIGNIN', 302);
 
             case 400:
-                // FALLTHROUGH
+                // no-break
             case 'invalid':
-                // FALLTHROUGH
+                // no-break
             case 'validation':
                 Json::error(null, $data, 'BAD-REQUEST', 400);
 
@@ -302,14 +302,14 @@ class Json
                 Json::error(null, $data, 'LOCKED', 403);
 
             case 403:
-                // FALLTHROUGH
+                // no-break
             case 'forbidden':
-                // FALLTHROUGH
+                // no-break
             case 'access-denied':
                 Json::error(null, $data, 'FORBIDDEN', 403);
 
             case 404:
-                // FALLTHROUGH
+                // no-break
             case 'not-found':
                 Json::error(null, $data, 'NOT-FOUND', 404);
 
@@ -317,59 +317,59 @@ class Json
                 Json::error(null, $data, 'NOT-EXISTS', 404);
 
             case 405:
-                // FALLTHROUGH
+                // no-break
             case 'method-not-allowed':
                 Json::error(null, $data, 'METHOD-NOT-ALLOWED', 405);
 
             case 406:
-                // FALLTHROUGH
+                // no-break
             case 'not-acceptable':
                 Json::error(null, $data, 'NOT-ACCEPTABLE', 406);
 
             case 408:
-                // FALLTHROUGH
+                // no-break
             case 'timeout':
                 Json::error(null, $data, 'TIMEOUT', 408);
 
             case 409:
-                // FALLTHROUGH
+                // no-break
             case 'conflict':
                 Json::error(null, $data, 'CONFLICT', 409);
 
             case 412:
-                // FALLTHROUGH
+                // no-break
             case 'expectation-failed':
                 Json::error(null, $data, 'EXPECTATION-FAILED', 412);
 
             case 418:
-                // FALLTHROUGH
+                // no-break
             case 'im-a-teapot':
                 Json::error(null, $data, 'IM-A-TEAPOT', 418);
 
             case 429:
-                // FALLTHROUGH
+                // no-break
             case 'too-many-requests':
                 Json::error(null, $data, 'TOO-MANY-REQUESTS', 429);
 
             case 451:
-                // FALLTHROUGH
+                // no-break
             case 'unavailable-for-legal-reasons':
                 Json::error(null, $data, 'UNAVAILABLE-FOR-LEGAL-REASONS', 451);
 
             case 500:
-                // FALLTHROUGH
+                // no-break
             case 'error':
                 Json::error(null, $data, 'ERROR', 500);
 
             case 503:
-                // FALLTHROUGH
+                // no-break
             case 'maintenance':
-                // FALLTHROUGH
+                // no-break
             case 'service-unavailable':
                 Json::error(null, null, 'SERVICE-UNAVAILABLE', 503);
 
             case 504:
-                // FALLTHROUGH
+                // no-break
             case 'gateway-timeout':
                 Json::error(null, null, 'GATEWAY-TIMEOUT', 504);
 

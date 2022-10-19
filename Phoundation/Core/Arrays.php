@@ -860,9 +860,9 @@ class Arrays {
         foreach ($source as &$value) {
             switch (gettype($value)) {
                 case 'integer':
-                    // FALLTHROUGH
+                    // no-break
                 case 'double':
-                    // FALLTHROUGH
+                    // no-break
                 case 'float':
                     $value = cfi($value);
                     break;

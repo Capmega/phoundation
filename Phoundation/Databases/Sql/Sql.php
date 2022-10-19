@@ -847,7 +847,7 @@ class Sql
 
             switch ($e->getCode()) {
                 case 'denied':
-                    // FALLTHROUGH
+                    // no-break
                 case 'invalidforce':
 
                     /*

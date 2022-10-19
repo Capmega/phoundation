@@ -1197,12 +1197,12 @@ class File
     {
         switch ($type) {
             case 'img':
-                // FALLTHROUGH
+                // no-break
             case 'image':
                 return '/pub/img/'.$path;
 
             case 'css':
-                // FALLTHROUGH
+                // no-break
             case 'style':
                 return '/pub/css/'.$path;
 
@@ -1569,21 +1569,21 @@ class File
                 default:
                     switch ($secondary) {
                         case 'json':
-                            // FALLTHROUGH
+                            // no-break
                         case 'ld+json':
-                            // FALLTHROUGH
+                            // no-break
                         case 'svg+xml':
-                            // FALLTHROUGH
+                            // no-break
                         case 'x-csh':
-                            // FALLTHROUGH
+                            // no-break
                         case 'x-sh':
-                            // FALLTHROUGH
+                            // no-break
                         case 'xhtml+xml':
-                            // FALLTHROUGH
+                            // no-break
                         case 'xml':
-                            // FALLTHROUGH
+                            // no-break
                         case 'xml':
-                            // FALLTHROUGH
+                            // no-break
                         case 'vnd.mozilla.xul+xml':
                             /*
                              * This should be text
@@ -1647,9 +1647,9 @@ class File
             } else {
                 switch ($secondary) {
                     case 'jpeg':
-                        // FALLTHROUGH
+                        // no-break
                     case 'mpeg':
-                        // FALLTHROUGH
+                        // no-break
                     case 'ogg':
                         /*
                          * This file is already compressed
@@ -1661,7 +1661,7 @@ class File
                             case 'audio':
                                 switch ($secondary) {
                                     case 'mpeg':
-                                        // FALLTHROUGH
+                                        // no-break
                                     case 'ogg':
                                 }
                                 break;
@@ -1882,7 +1882,7 @@ class File
 
             switch ($method) {
                 case 'size':
-                    // FALLTHROUGH
+                    // no-break
                 case 'count':
                     break;
 
@@ -2423,10 +2423,10 @@ class File
                                  * Restart the process recursively to process this file
                                  */
 
-                                // FALLTHROUGH
+                                // no-break
 
                                 case 'directory':
-                                    // FALLTHROUGH
+                                    // no-break
                                 case 'regular file':
                                     if (($type != 'directory') or $params['execute_directory']) {
                                         /*

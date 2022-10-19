@@ -207,10 +207,10 @@ class Http
                                 }
                             }
 
-                        // FALLTHROUGH
+                        // no-break
 
                         case 'methods':
-                            // FALLTHROUGH
+                            // no-break
                         case 'headers':
                             if ($value) {
                                 $headers[] = 'Access-Control-Allow-' . Strings::capitalize($key) . ': ' . $value;
@@ -264,7 +264,7 @@ class Http
                      * 304 requests indicate the browser to use it's local cache,
                      * send nothing
                      */
-                    // FALLTHROUGH
+                    // no-break
 
                 case 429:
                     /*
@@ -576,9 +576,9 @@ class Http
                  */
                 switch (Core::getCallType()) {
                     case 'api':
-                        // FALLTHROUGH
+                        // no-break
                     case 'ajax':
-                        // FALLTHROUGH
+                        // no-break
                     case 'admin':
                         break;
 
@@ -835,11 +835,11 @@ class Http
          */
         switch ($http_code) {
             case 301:
-                // FALLTHROUGH
+                // no-break
             case 302:
-                // FALLTHROUGH
+                // no-break
             case 303:
-                // FALLTHROUGH
+                // no-break
             case 307:
                 /*
                  * All valid
