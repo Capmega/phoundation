@@ -72,11 +72,11 @@ class SqlSimple
             throw new SqlException(tr('Sql::simple_list(): No columns specified'), 'not-specified');
         }
 
-        array_default($params, 'connector', null);
-        array_default($params, 'method', 'resource');
-        array_default($params, 'filters', array('status' => null));
-        array_default($params, 'orderby', null);
-        array_default($params, 'auto_status', null);
+        Arrays::default($params, 'connector', null);
+        Arrays::default($params, 'method', 'resource');
+        Arrays::default($params, 'filters', array('status' => null));
+        Arrays::default($params, 'orderby', null);
+        Arrays::default($params, 'auto_status', null);
 
         /*
          * Apply automatic filter settings
@@ -151,12 +151,12 @@ class SqlSimple
             throw new SqlException(tr('Sql::simple_get(): No columns specified'), 'not-specified');
         }
 
-        array_default($params, 'connector', null);
-        array_default($params, 'single', null);
-        array_default($params, 'filters', array('status' => null));
-        array_default($params, 'auto_status', null);
-        array_default($params, 'page', null);
-        array_default($params, 'template', false);
+        Arrays::default($params, 'connector', null);
+        Arrays::default($params, 'single', null);
+        Arrays::default($params, 'filters', array('status' => null));
+        Arrays::default($params, 'auto_status', null);
+        Arrays::default($params, 'page', null);
+        Arrays::default($params, 'template', false);
 
         $params['columns'] = Arrays::force($params['columns']);
 

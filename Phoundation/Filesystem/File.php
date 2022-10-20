@@ -1379,11 +1379,11 @@ class File
 
         try {
             Arrays::ensure($params, 'file,data,name');
-            array_default($params, 'restrictions', ROOT.'data/downloads');
-            array_default($params, 'compression' , $_CONFIG['file']['download']['compression']);
-            array_default($params, 'filename'    , basename($params['file']));
-            array_default($params, 'attachment'  , false);
-            array_default($params, 'die'         , true);
+            Arrays::default($params, 'restrictions', ROOT.'data/downloads');
+            Arrays::default($params, 'compression' , $_CONFIG['file']['download']['compression']);
+            Arrays::default($params, 'filename'    , basename($params['file']));
+            Arrays::default($params, 'attachment'  , false);
+            Arrays::default($params, 'die'         , true);
 
             /*
              * Validate the file name for the user
@@ -1700,10 +1700,10 @@ class File
 
         try {
             Arrays::ensure($params, 'file,data,name');
-            array_default($params, 'restrictions', ROOT.'data/downloads');
-            array_default($params, 'compression' , $_CONFIG['file']['download']['compression']);
-            array_default($params, 'filename'    , basename($params['file']));
-            array_default($params, 'die'         , true);
+            Arrays::default($params, 'restrictions', ROOT.'data/downloads');
+            Arrays::default($params, 'compression' , $_CONFIG['file']['download']['compression']);
+            Arrays::default($params, 'filename'    , basename($params['file']));
+            Arrays::default($params, 'die'         , true);
 
             /*
              * Do we need compression?
@@ -2311,14 +2311,14 @@ class File
     public static function treeExecute($params) {
         try {
             Arrays::ensure($params);
-            array_default($params, 'ignore_exceptions', true);
-            array_default($params, 'path'             , null);
-            array_default($params, 'filters'          , null);
-            array_default($params, 'follow_symlinks'  , false);
-            array_default($params, 'follow_hidden'    , false);
-            array_default($params, 'recursive'        , false);
-            array_default($params, 'execute_directory', false);
-            array_default($params, 'params'           , null);
+            Arrays::default($params, 'ignore_exceptions', true);
+            Arrays::default($params, 'path'             , null);
+            Arrays::default($params, 'filters'          , null);
+            Arrays::default($params, 'follow_symlinks'  , false);
+            Arrays::default($params, 'follow_hidden'    , false);
+            Arrays::default($params, 'recursive'        , false);
+            Arrays::default($params, 'execute_directory', false);
+            Arrays::default($params, 'params'           , null);
 
             /*
              * Validate data

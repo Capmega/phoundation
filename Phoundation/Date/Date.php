@@ -226,7 +226,7 @@ class Date
     public static function timezonesSelect($params = null)
     {
         Arrays::ensure($params);
-        array_default($params, 'name', 'timezone');
+        Arrays::default($params, 'name', 'timezone');
 
         $params['resource'] = Date::timezonesList();
         asort($params['resource']);

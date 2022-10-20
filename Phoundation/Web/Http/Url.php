@@ -91,7 +91,7 @@ class Url {
                 'allow_cloak'   => $allow_cloak);
         }
 
-        array_default($url_params, 'from_language', LANGUAGE);
+        Arrays::default($url_params, 'from_language', LANGUAGE);
 
         if (preg_match('/^(?:(?:https?)|(?:ftp):)?\/\//i', $url_params['url'])) {
             /*

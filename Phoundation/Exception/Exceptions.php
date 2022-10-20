@@ -132,8 +132,8 @@ class Exceptions
     {
         // Set some default message codes
         Arrays::ensure($messages);
-        array_default($messages, 'validation', $e->getMessages());
-        array_default($messages, 'captcha'   , $e->getMessages());
+        Arrays::default($messages, 'validation', $e->getMessages());
+        Arrays::default($messages, 'captcha'   , $e->getMessages());
 
         if (Debug::enabled()) {
             if ($e instanceof CoreException) {
