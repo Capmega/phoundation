@@ -66,7 +66,7 @@ class Scripts
 
         // All scripts will execute the cli_done() call, register basic script information
         Core::startup();
-        Core::registerShutdown('cli_done');
+        Core::registerShutdown(['Cli', 'done']);
 
         if (count(self::$argv) <= 1) {
             throw Exceptions::OutOfBoundsException('No method specified!')->makeWarning();
@@ -75,7 +75,7 @@ class Scripts
         // Get the script file to execute
         $file = self::findScript();
 
-        Core::writeRegister($file, 'script_file');
+        Core::writeRegister($file, 'system', 'script');
         Core::writeRegister(Strings::fromReverse($file, '/'), 'script');
 
         // Execute the script

@@ -808,20 +808,28 @@ Class Log {
 
                 // Warning exceptions do not need to show the extra messages, trace, or data or previous exception
                 if ($class == 'error') {
-                    // Log the backtrace data
-                    self::dumpTrace($messages->getTrace());
+                    // Log the backtrace
+                    $trace = $messages->getTrace();
+
+                    if ($trace) {
+                        self::write(tr('Backtrace:'), 'debug', $level);
+                        self::dumpTrace($messages->getTrace());
+                    }
 
                     // Log the exception data
                     if ($messages instanceof Exception) {
-                        self::printr($messages->getData());
-                    } else {
-                        self::write('Exception contains no data', $class, $level);
+                        $data = $messages->getData();
+
+                        if ($data) {
+                            return self::write(print_r($messages, true), 'debug', $level, false);
+                        }
                     }
 
                     // Log all previous exceptions as well
                     $previous = $messages->getPrevious();
 
                     while ($previous) {
+
                         self::write('Previous exception: ', $class, $level);
                         self::write($previous, $class, $level, $clean);
 
@@ -863,7 +871,7 @@ Class Log {
                 $messages = Strings::cleanWhiteSpace($messages);
             }
 
-            $line = date('Y-m-d H:i:s') . ' ' . ($level === 10 ? 10 : ' ' . $level) . ' ' . getmypid() . ' ' . self::$global_id . ' / ' . self::$local_id . ' ' . $messages . ($newline ? PHP_EOL : null);
+            $line = date('Y-m-d H:i:s.') . substr(microtime(FALSE), 2, 3) . ' ' . ($level === 10 ? 10 : ' ' . $level) . ' ' . getmypid() . ' ' . self::$global_id . ' / ' . self::$local_id . ' ' . $messages . ($newline ? PHP_EOL : null);
             fwrite(self::$handles[self::$file], $line);
 
             // In Command Line mode always log to the screen too, but not during PHPUnit test!
@@ -910,10 +918,10 @@ Class Log {
     protected static function logDebugHeader(string $keyword, int $level = 10): bool
     {
         // Get the class, method, file and line data.
-        $class = Debug::currentClass(0);
-        $function = Debug::currentFunction(0);
-        $file = Strings::from(Debug::currentFile(1), ROOT);
-        $line = Debug::currentLine(0);
+        $class    = Debug::currentClass(4);
+        $function = Debug::currentFunction(4);
+        $file     = Strings::from(Debug::currentFile(4), ROOT);
+        $line     = Debug::currentLine(4);
 
         if ($class) {
             // Add class - method separator

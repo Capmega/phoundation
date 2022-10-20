@@ -4,7 +4,6 @@ namespace Phoundation\Web;
 
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
@@ -187,7 +186,7 @@ class Route
             // Ensure the 404 shutdown function is registered
             if (!$init) {
                 $init = true;
-                Log::notice(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', [':domain' => Config::get('web.domains.primary'), ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')')]));
+                Log::action(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', [':domain' => Config::get('web.domains.primary'), ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')')]));
                 Core::registerShutdown(['Route', 'shutdown']);
             }
 
@@ -336,8 +335,11 @@ class Route
 
                         case 'REQUESTED_LANGUAGE':
                             // The language requested in the current request
-                            $requested = Arrays::firstValue(Core::readRegister('http', 'accepts_languages'));
-                            $route     = str_replace(':REQUESTED_LANGUAGE', $requested['language'], $route);
+                            // TODO This should be coming from Http class
+                            // TODO Implement
+//                            $requested = Arrays::firstValue(Arrays::force(Core::readRegister('http', 'accepts_languages')));
+//                            $route     = str_replace(':REQUESTED_LANGUAGE', $requested['language'], $route);
+                            $route     = str_replace(':REQUESTED_LANGUAGE', 'en', $route);
                             break;
 
                         case 'PORT':
@@ -535,16 +537,12 @@ class Route
                 }
             }
 
-            /*
-             * Do we allow any $_GET queries from the REQUEST_URI?
-             */
+            // Do we allow any $_GET queries from the REQUEST_URI?
             if (empty($get)) {
                 if (!empty($_GET)) {
-                    /*
-                     * Client specified variables on a URL that does not allow
-                     * queries, cancel the match
-                     */
+                    // Client specified variables on a URL that does not allow queries, cancel the match
                     Log::warning(tr('Matched route ":route" does not allow query variables while client specified them, cancelling match', [':route' => $route]));
+//                    Log::vardump($_GET);
 
                     $count++;
                     return false;
@@ -554,9 +552,7 @@ class Route
                 // Only allow specific query keys. First check all allowed query keys if they have actions specified
                 foreach ($get as $key => $value) {
                     if (str_contains('=', $key)) {
-                        /*
-                         * Regenerate the key as a $key => $value instead of $key=$value => null
-                         */
+                        // Regenerate the key as a $key => $value instead of $key=$value => null
                         $get[Strings::until($key, '=')] = Strings::from ($key, '=');
                         unset($get[$key]);
                     }
@@ -568,7 +564,7 @@ class Route
                     if (empty($get[$key])) {
                         Log::warning(tr('Matched route ":route" contains GET key ":key" which is not specifically allowed, cancelling match', [
                             ':route' => $route,
-                            ':key' => $key
+                            ':key'   => $key
                         ]));
 
                         $count++;
@@ -587,7 +583,7 @@ class Route
 
                             Log::warning(tr('Matched route ":route" allows GET key ":key" as redirect to URL without query', [
                                 ':route' => $route,
-                                ':key' => $key
+                                ':key'   => $key
                             ]));
 
                             Core::unregisterShutdown(['Route', 'shutdown']);
@@ -656,6 +652,12 @@ class Route
             }
 
             // Check if configured page exists
+            if ($page === 'index.php') {
+                throw new RouteException(tr('Route regex ":url_regex" resolved to main index.php page which would cause an endless loop', [':url_regex' => $url_regex]));
+            }
+
+            $page = WWW_PATH . $page;
+
             if (!file_exists($page) and !$block) {
                 if (isset($dynamic_pagematch)) {
                     Log::warning(tr('Dynamically matched page ":page" does not exist', [':page' => $page]));
@@ -690,9 +692,8 @@ class Route
              * now english keys. This way, the routemap can be easily used to
              * generate foreign language URLs
              */
-            $core->register['script_path'] = $page;
-            $core->register['script']      = Strings::fromReverse($page, '/');
-            $core->register['script_file'] = $core->register['script'];
+            Core::writeRegister($page                                  , 'system', 'script_path') ;
+            Core::writeRegister(Strings::fromReverse($page, '/'), 'system', 'script') ;
 
             if ($until) {
                 /*
@@ -753,7 +754,7 @@ class Route
                 ]));
             }
 
-            throw new RouteException('Failed', $e);
+            throw $e;
         }
     }
 
@@ -817,9 +818,12 @@ class Route
      * We have a target for the requested route. If the resource is a PHP page, then
      * execute it. Anything else, send it directly to the client
      *
-     * @param string $target The target file that should be executed or sent to the client
-     * @param boolean $attachment If specified as true, will send the file as an downloadable attachement, to be written to disk instead of displayed on the browser. If set to false, the file will be sent as a file to be displayed in the browser itself.
-     * @param array $restrictions If specified, apply the specified file system restrictions, which may block the request if the requested file is outside of these restrictions
+     * @param string $target             The target file that should be executed or sent to the client
+     * @param boolean $attachment        If specified as true, will send the file as a downloadable attachement, to be
+     *                                   written to disk instead of displayed on the browser. If set to false, the file
+     *                                   will be sent as a file to be displayed in the browser itself.
+     * @param array|string $restrictions If specified, apply the specified file system restrictions, which may block the
+     *                                   request if the requested file is outside these restrictions
      * @return void
      * @throws \Throwable
      * @package Web
@@ -827,26 +831,16 @@ class Route
      * @note: This function will kill the process once it has finished executing / sending the target file to the client
      * @version 2.5.88: Added function and documentation
      */
-    #[NoReturn] protected static function execute(string $target, bool $attachment, array $restrictions): void
+    #[NoReturn] protected static function execute(string $target, bool $attachment, array|string $restrictions): void
     {
         self::getInstance();
-
-die($target);
-        Core::writeRegister(Strings::untilReverse(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.php'), 'script');
-//        Core::writeRegister(self::$register['system']['script'], script_file);
-        Core::writeRegister($target, 'system', 'route_exec');
 
         if (str_ends_with($target, 'php')) {
             if ($attachment) {
                 throw new RouteException(tr('Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', [':target' => $target]));
             }
 
-            Log::notice(tr('Executing page ":target"', [':target' => $target]));
-
-            // Auto start the phoundation core
-            if (empty($core->register['startup'])) {
-                Core::startup();
-            }
+            Log::action(tr('Executing page ":target"', [':target' => $target]));
 
             include($target);
 
@@ -932,8 +926,7 @@ die($target);
         self::getInstance();
 
         try {
-            Core::writeRegister('en/404.php', 'system', 'route_exec');
-            Core::writeRegister('system/404', 'system', 'script_path');
+            Core::writeRegister(WWW_PATH . 'system/404', 'system', 'script_path');
             Core::writeRegister('404', 'system', 'script');
 
             Web::execute(404);

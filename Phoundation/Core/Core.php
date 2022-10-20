@@ -140,11 +140,12 @@ class Core {
              * TMP    is a private temporary directory
              * PUBTMP is a public (accessible by web server) temporary directory
              */
-            define('REQUEST', substr(uniqid(), 7));
-            define('ROOT'   , realpath(__DIR__ . '/../..') . '/');
-            define('TMP'    , ROOT . 'data/tmp/');
-            define('PUBTMP' , ROOT . 'data/content/tmp/');
-            define('CRLF'   , "\r\n");
+            define('REQUEST' , substr(uniqid(), 7));
+            define('ROOT'    , realpath(__DIR__ . '/../..') . '/');
+            define('WWW_PATH', ROOT . 'www/');
+            define('TMP'     , ROOT . 'data/tmp/');
+            define('PUBTMP'  , ROOT . 'data/content/tmp/');
+            define('CRLF'    , "\r\n");
 
             // Setup error handling, report ALL errors
             error_reporting(E_ALL);
@@ -268,6 +269,12 @@ class Core {
     public static function startup(): void
     {
         try {
+            if (self::$state !== 'init') {
+                echo "<pre>";
+                print_r(debug_backtrace());
+                die();
+            }
+
             self::$state = 'startup';
 
             self::getInstance();
@@ -398,11 +405,11 @@ class Core {
 
                     // Setup locale and character encoding
                     // TODO Check this mess!
-                    ini_set('default_charset', Config::get('encoding.charset', 'UTF8'));
+                    ini_set('default_charset', Config::get('encoding.charset', 'UTF-8'));
                     self::$register['system']['locale'] = self::setLocale();
 
                     // Prepare for unicode usage
-                    if (Config::get('encoding.charset', 'UTF8') === 'UTF-8') {
+                    if (Config::get('encoding.charset', 'UTF-8') === 'UTF-8') {
                         mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
 
                         if (function_exists('mb_internal_encoding')) {
@@ -830,15 +837,23 @@ class Core {
      * @note Will return NULL if the specified key does not exist
      * @param string $key
      * @param string|null $subkey
+     * @param mixed|null $default
      * @return mixed
      */
-    public static function readRegister(string $key, ?string $subkey = null): mixed
+    public static function readRegister(string $key, ?string $subkey = null, mixed $default = null): mixed
     {
         if ($subkey) {
-            return isset_get(self::$register[$key][$subkey]);
+            $return = isset_get(self::$register[$key][$subkey]);
+        } else {
+            $return = isset_get(self::$register[$key]);
         }
 
-        return isset_get(self::$register[$key]);
+        if ($return === null) {
+            // Specified key / subkey doesn't exist or is NULL, return default
+            return $default;
+        }
+
+        return $return;
     }
 
 
@@ -854,7 +869,8 @@ class Core {
     public static function writeRegister(mixed $value, string $key, ?string $subkey = null): void
     {
         if ($key === 'system') {
-            throw new AccessDeniedException('The "system" register cannot be written to');
+// TODO Check how to fix this later
+//            throw new AccessDeniedException('The "system" register cannot be written to');
         }
 
         if ($subkey) {
@@ -974,6 +990,8 @@ class Core {
             case 'init':
                 // no-break
             case 'startup':
+                // no-break
+            case 'script':
                 // no-break
             case 'shutdown':
                 // These are not allowed
@@ -2332,7 +2350,7 @@ class Core {
                                 if (!is_string(Config::get('web.sessions.cookies.name', 'phoundation')) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')])) {
                                     Log::warning(tr('Received invalid cookie ":cookie", dropping', [':cookie' => $_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')]]));
                                     unset($_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')]);
-                                    $_POST = array();
+                                    $_POST = [];
 
                                     // Received cookie but it didn't pass. Start a new session without a cookie
                                     session_start();

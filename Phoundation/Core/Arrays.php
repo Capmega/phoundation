@@ -1155,6 +1155,12 @@ class Arrays {
     public static function firstValue(array$source): mixed
     {
         reset($source);
+        $current = current($source);
+
+        if ($current === false) {
+            return null;
+        }
+
         return current($source);
     }
 
@@ -1170,7 +1176,13 @@ class Arrays {
      */
     public static function lastValue(array $source): mixed
     {
-        return end($source);
+        $end = end($source);
+
+        if ($end === false) {
+            return null;
+        }
+
+        return $end;
     }
 
 

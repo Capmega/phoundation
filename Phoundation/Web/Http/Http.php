@@ -8,6 +8,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
+use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Date\Date;
 use Phoundation\Date\Time;
@@ -240,10 +241,11 @@ class Http
             Log::success(tr('Phoundation sent :http for URL ":url"', array(':http' => ($params['http_code'] ? 'HTTP' . $params['http_code'] : 'HTTP0'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'])));
 
             if (Debug::enabled()) {
-                Log::notice(tr('Page ":script" was processed in :time with ":usage" peak memory usage', [
+                // TODO This is only sending headers, page is not completed its process!
+                Log::success(tr('Page ":script" was processed in :time with ":usage" peak memory usage', [
                     ':script' => Core::readRegister('system', 'script'),
                     ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage' => bytes(memory_get_peak_usage())
+                    ':usage' => Numbers::bytes(memory_get_peak_usage())
                 ]));
             }
 
@@ -466,7 +468,9 @@ class Http
 
         unset($value);
 
-        $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], Config::get('paging.limit', 50)), array_keys(Config::get('paging.list', [10 => tr('Show 10 entries')])), Config::get('paging.limit', 50));
+// TODO Implement
+// TODO This would break Route class when no query variables may be passed!
+//        $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], Config::get('paging.limit', 50)), array_keys(Config::get('paging.list', [10 => tr('Show 10 entries')])), Config::get('paging.limit', 50));
     }
 
 
@@ -1250,7 +1254,7 @@ class Http
                 }
             }
 
-            Log::warning('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+            Log::warning('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
             Log::warning(Core::getCallType('http'));
             Log::warning($e);
             Html::flashSet(tr('The form data was too old, please try again'), 'warning');

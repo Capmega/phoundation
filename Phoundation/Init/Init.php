@@ -361,7 +361,7 @@ Class Init
         global $_CONFIG, $core;
 
         try {
-            switch ($core->register['script_file']) {
+            switch ($core->register['script']) {
                 case 'base/info':
                     // no-break
                 case 'base/init':
