@@ -654,7 +654,7 @@ class Sql
                         /*
                          * On console, show current versions
                          */
-                        if ((PLATFORM_CLI) and VERBOSE) {
+                        if ((PLATFORM_CLI) and Debug::enabled()) {
                             Log::notice(tr('Found framework code version ":Core::FRAMEWORKCODEVERSION" and framework database version ":frameworkdbversion"', [':Core::FRAMEWORKCODEVERSION' => Core::FRAMEWORKCODEVERSION, ':frameworkdbversion' => FRAMEWORKDBVERSION]));
                             Log::notice(tr('Found project code version ":projectcodeversion" and project database version ":projectdbversion"', [':projectcodeversion' => PROJECTCODEVERSION, ':projectdbversion' => PROJECTDBVERSION]));
                         }
@@ -2044,8 +2044,8 @@ class Sql
             $query = Strings::nodouble($query, ' ', '\s');
         }
 
-        // VERYVERBOSE already logs the query, don't log it again
-        if (!VERYVERBOSE) {
+        // Debug::enabled() already logs the query, don't log it again
+        if (!Debug::enabled()) {
             Log::debug(Strings::endsWith($query, ';'));
         }
 

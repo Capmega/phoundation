@@ -898,10 +898,8 @@ class Debug {
             $query = Strings::noDouble($query, ' ', '\s');
         }
 
-        /*
-         * VERYVERBOSE already logs the query, don't log it again
-         */
-        if (!VERYVERBOSE) {
+        // Debug::enabled() already logs the query, don't log it again
+        if (!Debug::enabled()) {
             Log::printr(Strings::endsWith($query, ';'));
         }
 

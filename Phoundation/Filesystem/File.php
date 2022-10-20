@@ -2347,7 +2347,7 @@ class File
              * Follow hidden files?
              */
             if ((substr(basename($path), 0, 1) == '.') and !$params['follow_hidden']) {
-                if (VERBOSE and PLATFORM_CLI) {
+                if (Debug::enabled() and PLATFORM_CLI) {
                     log_console(tr('file_tree_execute(): Skipping file ":file" because its hidden', array(':file' => $path)), 'yellow');
                 }
 
@@ -2359,7 +2359,7 @@ class File
              */
             foreach (Arrays::force($params['filters']) as $filter) {
                 if (preg_match($filter, $path)) {
-                    if (VERBOSE and PLATFORM_CLI) {
+                    if (Debug::enabled() and PLATFORM_CLI) {
                         log_console(tr('file_tree_execute(): Skipping file ":file" because of filter ":filter"', array(':file' => $path, ':filter' => $filter)), 'yellow');
                     }
 
@@ -2375,7 +2375,7 @@ class File
                     $params['callback']($path);
                     $count++;
 
-                    log_console(tr('file_tree_execute(): Executed code for file ":file"', array(':file' => $path)), 'VERYVERBOSEDOT/green');
+                    log_console(tr('file_tree_execute(): Executed code for file ":file"', array(':file' => $path)), 'Debug::enabled()DOT/green');
                     break;
 
                 case 'symlink':
@@ -2395,7 +2395,7 @@ class File
                             if (($file == '.') or ($file == '..')) continue;
 
                             if ((substr(basename($file), 0, 1) == '.') and !$params['follow_hidden']) {
-                                if (VERBOSE and PLATFORM_CLI) {
+                                if (Debug::enabled() and PLATFORM_CLI) {
                                     log_console(tr('file_tree_execute(): Skipping file ":file" because its hidden', array(':file' => $file)), 'yellow');
                                 }
 
@@ -2436,7 +2436,7 @@ class File
 
                                         foreach (Arrays::force($params['filters']) as $filter) {
                                             if (preg_match($filter, $file)) {
-                                                if (VERBOSE and PLATFORM_CLI) {
+                                                if (Debug::enabled() and PLATFORM_CLI) {
                                                     log_console(tr('file_tree_execute(): Skipping file ":file" because of filter ":filter"', array(':file' => $path, ':filter' => $filter)), 'yellow');
                                                 }
 
@@ -2456,7 +2456,7 @@ class File
                                                 goto end;
                                             }
 
-                                            log_console(tr('file_tree_execute(): Executed code for file ":file"', array(':file' => $file)), 'VERYVERBOSEDOT/green');
+                                            log_console(tr('file_tree_execute(): Executed code for file ":file"', array(':file' => $file)), 'Debug::enabled()DOT/green');
                                         }
                                     }
 
@@ -2471,7 +2471,7 @@ class File
                                     /*
                                      * Skip this unsupported file type
                                      */
-                                    if (VERBOSE and PLATFORM_CLI) {
+                                    if (Debug::enabled() and PLATFORM_CLI) {
                                         log_console(tr('file_tree_execute(): Skipping file ":file" with unsupported file type ":type"', array(':file' => $file, ':type' => $type)), 'yellow');
                                     }
                             }
@@ -2482,7 +2482,7 @@ class File
                             }
 
                             if ($e->getCode() === 'not-exists') {
-                                log_console(tr('file_tree_execute(): Skipping file ":file", it does not exist (in case of a symlink, it may be that the target does not exist)', array(':file' => $file)), 'VERBOSE/yellow');
+                                log_console(tr('file_tree_execute(): Skipping file ":file", it does not exist (in case of a symlink, it may be that the target does not exist)', array(':file' => $file)), 'Debug::enabled()/yellow');
 
                             } else {
                                 log_console($e);
@@ -2499,7 +2499,7 @@ class File
                     /*
                      * Skip this unsupported file type
                      */
-                    if (VERBOSE and PLATFORM_CLI) {
+                    if (Debug::enabled() and PLATFORM_CLI) {
                         log_console(tr('file_tree_execute(): Skipping file ":file" with unsupported file type ":type"', array(':file' => $file, ':type' => $path)), 'yellow');
                     }
             }

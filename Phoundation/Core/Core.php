@@ -449,17 +449,15 @@ class Core {
                     putenv('TIMEOUT='.Cli::argument('--timeout', true));
 
                     // Define basic platform constants
-                    define('ADMIN'      , '');
-                    define('PWD'        , Strings::slash(isset_get($_SERVER['PWD'])));
-                    define('VERYVERBOSE', (Cli::argument('-VV,--very-verbose')                               ? 'VERYVERBOSE' : null));
-                    define('VERBOSE'    , ((VERYVERBOSE or Cli::argument('-V,--verbose,-V2,--very-verbose')) ? 'VERBOSE'     : null));
-                    define('QUIET'      , Cli::argument('-Q,--quiet'));
-                    define('FORCE'      , Cli::argument('-F,--force'));
-                    define('NOCOLOR'    , Cli::argument('-C,--no-color'));
-                    define('TEST'       , Cli::argument('-T,--test'));
-                    define('DELETED'    , Cli::argument('--deleted'));
-                    define('STATUS'     , Cli::argument('-S,--status', true));
-                    define('STARTDIR'   , Strings::slash(getcwd()));
+                    define('ADMIN'   , '');
+                    define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
+                    define('QUIET'   , Cli::argument('-Q,--quiet'));
+                    define('FORCE'   , Cli::argument('-F,--force'));
+                    define('NOCOLOR' , Cli::argument('-C,--no-color'));
+                    define('TEST'    , Cli::argument('-T,--test'));
+                    define('DELETED' , Cli::argument('--deleted'));
+                    define('STATUS'  , Cli::argument('-S,--status', true));
+                    define('STARTDIR', Strings::slash(getcwd()));
 
                     // Check what environment we're in
                     $environment = Cli::argument('-E,--env,--environment', true);
@@ -751,16 +749,16 @@ class Core {
                     self::$register['clean_debug'] = Cli::argument('--clean-debug');
 
                     // Validate parameters and give some startup messages, if needed
-                    if (VERBOSE) {
+                    if (Debug::enabled()) {
                         if (QUIET) {
-                            throw new CoreException(tr('Both QUIET and VERBOSE have been specified but these options are mutually exclusive. Please specify either one or the other'));
+                            throw new CoreException(tr('Both QUIET and Debug::enabled() have been specified but these options are mutually exclusive. Please specify either one or the other'));
                         }
 
-                        if (VERYVERBOSE) {
-                            Log::information(tr('Running in VERYVERBOSE mode, started @ ":datetime"', array(':datetime' => Date::convert(STARTTIME, 'human_datetime'))));
+                        if (Debug::enabled()) {
+                            Log::information(tr('Running in Debug::enabled() mode, started @ ":datetime"', array(':datetime' => Date::convert(STARTTIME, 'human_datetime'))));
 
                         } else {
-                            Log::information(tr('Running in VERBOSE mode, started @ ":datetime"', array(':datetime' => Date::convert(STARTTIME, 'human_datetime'))));
+                            Log::information(tr('Running in Debug::enabled() mode, started @ ":datetime"', array(':datetime' => Date::convert(STARTTIME, 'human_datetime'))));
                         }
 
                         Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [':size' => self::$register['cli']['size'], ':columns' => self::$register['cli']['columns'], ':lines' => self::$register['cli']['lines']]));
@@ -1273,8 +1271,8 @@ class Core {
                 switch (PLATFORM) {
                     case 'cli':
 //                        // Ensure that required defines are available
-//                        if (!defined('VERYVERBOSE')) {
-//                            define('VERYVERBOSE', (Cli::argument('-VV,--very-verbose') ? 'VERYVERBOSE' : null));
+//                        if (!defined('Debug::enabled()')) {
+//                            define('Debug::enabled()', (Cli::argument('-VV,--very-Debug::enabled()') ? 'Debug::enabled()' : null));
 //                        }
 //
 //                        self::setTimeout(1);
@@ -1282,7 +1280,7 @@ class Core {
 //                        $defines = [
 //                            'ADMIN'    => '',
 //                            'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
-//                            'VERBOSE'  => ((VERYVERBOSE or Cli::argument('-V,--verbose,-V2,--very-verbose')) ? 'VERBOSE' : null),
+//                            'Debug::enabled()'  => ((Debug::enabled() or Cli::argument('-V,--Debug::enabled(),-V2,--very-Debug::enabled()')) ? 'Debug::enabled()' : null),
 //                            'QUIET'    => Cli::argument('-Q,--quiet'),
 //                            'FORCE'    => Cli::argument('-F,--force'),
 //                            'TEST'     => Cli::argument('-T,--test'),
@@ -1333,7 +1331,7 @@ class Core {
                         /*
                          * Command line script crashed.
                          *
-                         * If not using VERBOSE mode, then try to give nice error messages
+                         * If not using Debug::enabled() mode, then try to give nice error messages
                          * for known issues
                          */
                         if (($e instanceof Exception) and ($e->isWarning() or $e instanceof ValidationFailedException)) {
@@ -1428,24 +1426,18 @@ class Core {
                         Http::setHttpCode(500);
                         self::unregisterShutdown(['Route', '404']);
 
-                        // Ensure that required defines are available
-                        if (!defined('VERYVERBOSE')) {
-                            define('VERYVERBOSE', (getenv('VERYVERBOSE') ? 'VERYVERBOSE' : null));
-                        }
-
                         $defines = [
                             'ADMIN'    => '',
                             'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
                             'STARTDIR' => Strings::slash(getcwd()),
-                            'FORCE'    => (getenv('FORCE')                    ? 'FORCE'   : null),
-                            'TEST'     => (getenv('TEST')                     ? 'TEST'    : null),
-                            'VERBOSE'  => ((VERYVERBOSE or getenv('VERBOSE')) ? 'VERBOSE' : null),
-                            'QUIET'    => (getenv('QUIET')                    ? 'QUIET'   : null),
-                            'LIMIT'    => (getenv('LIMIT')                    ? 'LIMIT'   : Config::get('paging.limit', 50)),
-                            'ORDERBY'  => (getenv('ORDERBY')                  ? 'ORDERBY' : null),
-                            'ALL'      => (getenv('ALL')                      ? 'ALL'     : null),
-                            'DELETED'  => (getenv('DELETED')                  ? 'DELETED' : null),
-                            'STATUS'   => (getenv('STATUS')                   ? 'STATUS'  : null)
+                            'FORCE'    => (getenv('FORCE')   ? 'FORCE'   : null),
+                            'TEST'     => (getenv('TEST')    ? 'TEST'    : null),
+                            'QUIET'    => (getenv('QUIET')   ? 'QUIET'   : null),
+                            'LIMIT'    => (getenv('LIMIT')   ? 'LIMIT'   : Config::get('paging.limit', 50)),
+                            'ORDERBY'  => (getenv('ORDERBY') ? 'ORDERBY' : null),
+                            'ALL'      => (getenv('ALL')     ? 'ALL'     : null),
+                            'DELETED'  => (getenv('DELETED') ? 'DELETED' : null),
+                            'STATUS'   => (getenv('STATUS')  ? 'STATUS'  : null)
                         ];
 
                         foreach ($defines as $key => $value) {

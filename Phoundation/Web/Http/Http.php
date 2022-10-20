@@ -235,12 +235,11 @@ class Http
 
             if (($params['http_code'] != 200)) {
                 Log::warning(tr('Phoundation sent :http for URL ":url"', array(':http' => ($params['http_code'] ? 'HTTP' . $params['http_code'] : 'HTTP0'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'])));
-
-            } elseif (VERBOSE) {
-                Log::success(tr('Phoundation sent :http for URL ":url"', array(':http' => ($params['http_code'] ? 'HTTP' . $params['http_code'] : 'HTTP0'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'])), 'http', 'green');
             }
 
-            if (VERYVERBOSE) {
+            Log::success(tr('Phoundation sent :http for URL ":url"', array(':http' => ($params['http_code'] ? 'HTTP' . $params['http_code'] : 'HTTP0'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'])));
+
+            if (Debug::enabled()) {
                 Log::notice(tr('Page ":script" was processed in :time with ":usage" peak memory usage', [
                     ':script' => Core::readRegister('system', 'script'),
                     ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),

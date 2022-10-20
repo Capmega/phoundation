@@ -225,7 +225,7 @@ Class Init
                             /*
                              * This init file has a higher version number than the current code, so it should not yet be executed (until a later time that is)
                              */
-                            log_console(tr('Skipped future init file ":version"', array(':version' => $version)), 'VERBOSE/warning');
+                            log_console(tr('Skipped future init file ":version"', array(':version' => $version)), 'Debug::enabled()/warning');
 
                         } else {
                             if (($dbversion === 0) or (version_compare($version, $dbversion) >= 1)) {
@@ -246,7 +246,7 @@ Class Init
                                 }
 
                                 try {
-                                    log_console(tr('Executing newer init file with version ":version"', array(':version' => $version)), 'VERBOSE/cyan');
+                                    log_console(tr('Executing newer init file with version ":version"', array(':version' => $version)), 'Debug::enabled()/cyan');
                                     init_include($initpath.$file);
 
                                 }catch(Exception $e) {
@@ -258,7 +258,7 @@ Class Init
 
                                 try {
                                     if (file_exists($hook = $initpath.'hooks/post_' . $file)) {
-                                        log_console(tr('Executing newer init "post" hook file with version ":version"', array(':version' => $version)), 'VERBOSE/cyan');
+                                        log_console(tr('Executing newer init "post" hook file with version ":version"', array(':version' => $version)), 'Debug::enabled()/cyan');
                                         include_once($hook);
                                     }
 
@@ -279,7 +279,7 @@ Class Init
                                 /*
                                  * This init file has already been executed so we can skip it.
                                  */
-                                log_console('Skipped older init file "' . $version.'"', 'VERBOSE/yellow');
+                                log_console('Skipped older init file "' . $version.'"', 'Debug::enabled()/yellow');
                             }
                         }
                     }
@@ -641,7 +641,7 @@ Class Init
                     /*
                      * This init file has a higher version number than the current code, so it should not yet be executed (until a later time that is)
                      */
-                    log_console(tr('Skipped future section ":section" init file ":version"', array(':version' => $version, ':section' => $section)), 'VERBOSE');
+                    log_console(tr('Skipped future section ":section" init file ":version"', array(':version' => $version, ':section' => $section)), 'Debug::enabled()');
 
                 } else {
                     if (($dbversion === 0) or (version_compare($version, $dbversion) >= 1)) {
@@ -662,7 +662,7 @@ Class Init
                         }
 
                         try {
-                            log_console('Executing newer init file with version "' . $version.'"', 'VERBOSE/cyan');
+                            log_console('Executing newer init file with version "' . $version.'"', 'Debug::enabled()/cyan');
                             init_include($path.$file, $section);
 
                         }catch(Exception $e) {
@@ -674,7 +674,7 @@ Class Init
 
                         try {
                             if (file_exists($hook = $path.'hooks/post_' . $file)) {
-                                log_console('Executing newer init "post" hook file with version "' . $version.'"', 'VERBOSE/cyan');
+                                log_console('Executing newer init "post" hook file with version "' . $version.'"', 'Debug::enabled()/cyan');
                                 include_once($hook);
                             }
 
@@ -692,7 +692,7 @@ Class Init
                         /*
                          * This init file has already been executed so we can skip it.
                          */
-                        if (VERBOSE) {
+                        if (Debug::enabled()) {
                             log_console('Skipped older init file "' . $version.'"', 'yellow');
                         }
                     }

@@ -63,7 +63,7 @@ class Access
 
         foreach (Arrays::force($rights) as $right) {
             if (empty($user['rights'][$right]) or !empty($user['rights']['devil']) or !empty($fail)) {
-                if ((PLATFORM_CLI) and VERBOSE) {
+                if ((PLATFORM_CLI) and Debug::enabled()) {
                     Log::Warning(tr('Access denied for user ":user" in page ":page" for missing right ":right"', [
                         ':user' => name($_SESSION['user']),
                         ':page' => $_SERVER['PHP_SELF'], ':right' => $right
@@ -124,7 +124,7 @@ class Access
 
         foreach (Arrays::force($groups) as $group) {
             if (empty($user['groups'][$group]) or !empty($user['rights']['devil']) or !empty($fail)) {
-                if ((PLATFORM_CLI) and VERBOSE) {
+                if ((PLATFORM_CLI) and Debug::enabled()) {
                     Log::warning(tr('Access denied for user ":user" in page ":page" for missing group ":group"', [
                         ':user' => name($_SESSION['user']),
                         ':page' => $_SERVER['PHP_SELF'], ':group' => $group
