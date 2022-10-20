@@ -4,6 +4,7 @@ namespace Phoundation\Core;
 
 use ErrorException;
 use Phoundation\Core\Exception\ConfigException;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
@@ -99,16 +100,18 @@ class Config{
      */
     public static function get(string|array $path, mixed $default = null, mixed $specified = null): mixed
     {
+        Debug::counter('Config::get()')->increase();
+
         if (self::$fail) {
             // Config class failed, always return all default values
             return $default;
         }
 
         // Do we have cached configuration information?
-        $key = Strings::force($path, '.');
+        $cache_key = Strings::force($path, '.');
 
-        if (array_key_exists($key, self::$cache)) {
-            return self::$cache[$key];
+        if (array_key_exists($cache_key, self::$cache)) {
+            return self::$cache[$cache_key];
         }
 
         self::getInstance();
@@ -121,24 +124,37 @@ class Config{
         $data = &static::$data;
 
         // Go over each key and if the value for the key is an array, request a subsection
-        foreach ($path as $key) {
-var_dump($data); echo "<br>";
-            if (!array_key_exists($key, $data)) {
+        foreach ($path as $section) {
+            if (!is_array($data)) {
+//                echo "<pre>";var_dump($path);var_dump($section);var_dump($data);echo "\n";
+
+                if ($data !== null) {
+                    Log::warning(tr('Encountered invalid configuration structure whilst looking for ":path". Section ":section" should contain sub values but does not. Please check your configuration files that this structure exists correctly', [
+                        ':path' => $path,
+                        ':section' => $section
+                    ]));
+                }
+
+                // This section is missing in config files. No biggie, initialize it as an array
+                $data = [];
+            }
+
+            if (!array_key_exists($section, $data)) {
                 // The requested key does not exist
                 if ($default === null) {
                     // We have no default configuration either
-                    throw new ConfigException(tr('The configuration key ":key" from key path ":path" does not exist', [':key' => $key, ':path' => $path]));
+                    throw new ConfigException(tr('The configuration section ":section" from key path ":path" does not exist', [':section' => $section, ':path' => $path]));
                 }
 
                 // The requested key does not exist in configuration, return the default value instead
-                return self::$cache[$key] = $default;
+                return self::$cache[$cache_key] = $default;
             }
 
-            // Get the requested subsection
-            $data = &$data[$key];
+            // Get the requested subsection. This subsection must be an array!
+            $data = &$data[$section];
         }
 
-        return self::$cache[$key] = $data;
+        return self::$cache[$cache_key] = $data;
     }
 
 
@@ -181,29 +197,29 @@ var_dump($data); echo "<br>";
      */
     public static function set(string|array $path, mixed $value = null): mixed
     {
-        $key  = Strings::force($path, '.');
-        $path = Arrays::force($path, '.');
-        $data = &static::$data;
+        $cache_key = Strings::force($path, '.');
+        $path      = Arrays::force($path, '.');
+        $data      = &static::$data;
 
         // Go over each key and if the value for the key is an array, request a subsection
-        foreach ($path as $key) {
+        foreach ($path as $section) {
             if (!is_array($data)) {
                 // Oops, this data section should be an array
-                throw new ConfigException(tr('The configuration key ":key" from key path ":keys" does not exist', [':key' => $key, ':keys' => $path]));
+                throw new ConfigException(tr('The configuration section ":section" from requested path ":path" does not exist', [':section' => $section, ':path' => $path]));
             }
 
-            if (!array_key_exists($key, $data)) {
+            if (!array_key_exists($section, $data)) {
                 // The requested key does not exist, initialize with an array just in case
-                $data[$key] = [];
+                $data[$section] = [];
             }
 
             // Get the requested subsection
-            $data = &$data[$key];
+            $data = &$data[$section];
         }
 
         // The variable $data should now be the correct leaf node. Assign it $value and return it.
         $data = $value;
-        return self::$cache[$key] = $value;
+        return self::$cache[$cache_key] = $value;
     }
 
 

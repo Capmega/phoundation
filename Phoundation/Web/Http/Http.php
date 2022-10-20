@@ -16,7 +16,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Processes\Commands;
-use Phoundation\Users\Users;
+use Phoundation\Web\Http\Html\Html;
 use Throwable;
 
 
@@ -29,7 +29,7 @@ use Throwable;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Http
+ * @package Phoundation\Web
  */
 class Http
 {
@@ -43,16 +43,23 @@ class Http
     /**
      * The status code that will be returned to the client
      *
-     * @var int $status_code
+     * @var int $http_code
      */
-    protected static int $status_code = 200;
+    protected static int $http_code = 200;
 
     /**
      * The client specified ETAG for this request
      *
-     * @var string|null
+     * @var string|null $etag
      */
     protected static ?string $etag = null;
+
+    /**
+     * The list of meta data that the client accepts
+     *
+     * @var array|null $accepts
+     */
+    protected static ?array $accepts = null;
 
 
 
@@ -77,9 +84,9 @@ class Http
      *
      * @return int
      */
-    public static function getStatusCode(): int
+    public static function getHttpCode(): int
     {
-        return self::$status_code;
+        return self::$http_code;
     }
 
 
@@ -89,10 +96,10 @@ class Http
      *
      * @param int $code
      */
-    public static function setStatusCode(int $code)
+    public static function setHttpCode(int $code)
     {
         self::validateStatusCode($code);
-        self::$status_code = $code;
+        self::$http_code = $code;
     }
 
 
@@ -110,7 +117,6 @@ class Http
      */
     public static function headers(?array $params, int $content_length): bool
     {
-        global $_CONFIG, $core;
         static $sent = false;
 
         if ($sent) return false;
@@ -132,11 +138,15 @@ class Http
             Http::cacheEtag();
 
             Arrays::params($params, null, 'http_code', null);
-            Arrays::default($params, 'http_code', $core->register['http_code']);
-            Arrays::default($params, 'cors', false);
-            Arrays::default($params, 'mimetype', $core->register['accepts']);
-            Arrays::default($params, 'headers', array());
-            Arrays::default($params, 'cache', array());
+            Arrays::default($params, 'http_code', self::$http_code);
+            Arrays::default($params, 'cors', [
+                'origin'  => '*.',
+                'methods' => 'GET, POST',
+                'headers' => ''
+            ]);
+            Arrays::default($params, 'mimetype', self::$accepts);
+            Arrays::default($params, 'headers', []);
+            Arrays::default($params, 'cache', []);
 
             $headers = $params['headers'];
 
@@ -148,7 +158,7 @@ class Http
                 $headers[] = 'X-Powered-By: ' . Config::get('security.expose.php-signature', false);
             }
 
-            $headers[] = 'Content-Type: ' . $params['mimetype'] . '; charset=' . $_CONFIG['encoding']['charset'];
+            $headers[] = 'Content-Type: ' . $params['mimetype'] . '; charset=' . Config::get('encoding.charset', 'UTF-8');
             $headers[] = 'Content-Language: ' . LANGUAGE;
 
             if ($content_length) {
@@ -173,7 +183,8 @@ class Http
             // CORS headers
             if (Config::get('web.security.cors', true) or $params['cors']) {
                 // Add CORS / Access-Control-Allow-.... headers
-                $params['cors'] = array_merge($_CONFIG['cors'], Arrays::force($params['cors']));
+                // TODO This will cause issues if configured web.cors is not an array!
+                $params['cors'] = array_merge(Arrays::force(Config::get('web.cors', [])), Arrays::force($params['cors']));
 
                 foreach ($params['cors'] as $key => $value) {
                     switch ($key) {
@@ -230,7 +241,11 @@ class Http
             }
 
             if (VERYVERBOSE) {
-                Log::notice(tr('Page ":script" was processed in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => bytes(memory_get_peak_usage()))));
+                Log::notice(tr('Page ":script" was processed in :time with ":usage" peak memory usage', [
+                    ':script' => Core::readRegister('system', 'script'),
+                    ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':usage' => bytes(memory_get_peak_usage())
+                ]));
             }
 
             foreach ($headers as $header) {
@@ -255,6 +270,8 @@ class Http
             return true;
 
         } catch (Throwable $e) {
+            Log::error('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+            Log::debug($e);
             // Http::headers() itself crashed. Since Http::headers() would send out http 500, and since it crashed, it
             // no longer can do this, send out the http 500 here.
             http_response_code(500);
@@ -606,7 +623,7 @@ class Http
          * Ajax and API calls do not use ETAG
          */
         if (!Config::get('web.cache.enabled', 'auto') or Core::getCallType('ajax') or Core::getCallType('api')) {
-            unset(self::$etag);
+            self::$etag = null;
             return false;
         }
 
@@ -1088,45 +1105,6 @@ class Http
 
 
     /**
-     * Checks if an extended session is available for this user
-     *
-     * @return bool
-     */
-    function check_extended_session(): bool
-    {
-        if (empty($_CONFIG['sessions']['extended']['enabled'])) {
-            return false;
-        }
-
-        if (isset($_COOKIE['extsession']) and !isset($_SESSION['user'])) {
-            // Pull  extsession data
-            $ext = sql_get('SELECT `users_id` FROM `extended_sessions` WHERE `session_key` = ":session_key" AND DATE(`addedon`) < DATE(NOW());', array(':session_key' => cfm($_COOKIE['extsession'])));
-
-            if ($ext['users_id']) {
-                $user = sql_get('SELECT * FROM `users` WHERE `users`.`id` = :id', array(':id' => cfi($ext['users_id'])));
-
-                if ($user['id']) {
-                    // Auto sign in user
-                    Users::signin($user, true);
-                    return true;
-
-                } else {
-                    // Remove cookie
-                    setcookie('extsession', 'stub', 1);
-                }
-
-            } else {
-                // Remove cookie
-                setcookie('extsession', 'stub', 1);
-            }
-        }
-
-        return false;
-    }
-
-
-
-    /**
      * Generate a CSRF code and set it in the $_SESSION[csrf] array
      *
      * @param string|null $prefix
@@ -1273,10 +1251,10 @@ class Http
                 }
             }
 
-            log_file('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-            log_file(Core::getCallType('http'));
-            log_file($e);
-            html_flash_set(tr('The form data was too old, please try again'), 'warning');
+            Log::warning('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+            Log::warning(Core::getCallType('http'));
+            Log::warning($e);
+            Html::flashSet(tr('The form data was too old, please try again'), 'warning');
         }
     }
 

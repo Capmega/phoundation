@@ -73,7 +73,7 @@ class Web
 
         if (is_numeric($page)) {
             // This is a system page, HTTP code. Use the page code as http code as well
-             Http::setStatusCode($page);
+             Http::setHttpCode($page);
         }
 
         Core::writeRegister($page, 'system', 'script_file');

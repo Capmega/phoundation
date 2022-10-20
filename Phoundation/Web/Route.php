@@ -188,7 +188,7 @@ class Route
             if (!$init) {
                 $init = true;
                 Log::notice(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', [':domain' => Config::get('web.domains.primary'), ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')')]));
-                Core::registerShutdown(['Route']['shutdown']);
+                Core::registerShutdown(['Route', 'shutdown']);
             }
 
             if (!$url_regex) {
@@ -211,7 +211,11 @@ class Route
             $uri   = Strings::until($uri                           , '?');
 
             if (strlen($uri) > 2048) {
-                Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See route() function). 404-ing the request', [':uri' => $uri, ':count' => strlen($uri)]));
+                Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See route() function). 404-ing the request', [
+                    ':uri' => $uri,
+                    ':count' => strlen($uri)
+                ]));
+
                 Route::execute404();
             }
 
@@ -223,6 +227,10 @@ class Route
             $static = true;  // By default, do check for static rules, if configured so
 
             foreach ($flags as $flag) {
+                if (!$flag) {
+                    continue;
+                }
+
                 switch ($flag[0]) {
                     case 'D':
                         // Include domain in match
@@ -279,7 +287,7 @@ class Route
             }
 
             // Match the specified regex. If there is no match, there is nothing else to do for us here
-            Log::notice(tr('Testing rule ":count" ":regex" on ":type" ":url"', [
+            Log::action(tr('Testing rule ":count" ":regex" on ":type" ":url"', [
                 ':count' => $count,
                 ':regex' => $url_regex,
                 ':type' => $type,
@@ -709,12 +717,14 @@ class Route
                     }
                 }
 
-                Route::insertStatic(array('expiredon' => $until,
+                Route::insertStatic([
+                    'expiredon' => $until,
                     'target'    => $target,
                     'regex'     => $url_regex,
                     'flags'     => $flags,
                     'uri'       => $uri,
-                    'ip'        => $ip));
+                    'ip'        => $ip
+                ]);
             }
 
             if ($block) {

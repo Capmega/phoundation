@@ -559,6 +559,24 @@ Class Log {
         }
 
         if (!is_scalar($messages)) {
+            if (is_object($messages) and $messages instanceof Throwable) {
+                // Convert exception in readable message
+                if ($messages instanceof Exception) {
+                    $messages = [
+                        'exception' => get_class($messages),
+                        'code'      => $messages->getCode(),
+                        'messages'  => $messages->getMessages(),
+                        'data'      => $messages->getData()
+                    ];
+                } else{
+                    $messages = [
+                        'exception' => get_class($messages),
+                        'code'      => $messages->getCode(),
+                        'message'   => $messages->getMessage()
+                    ];
+                }
+            }
+
             // We cannot display non-scalar data, encode it with JSON
             try {
                 $messages = Json::encode($messages,JSON_INVALID_UTF8_IGNORE | JSON_INVALID_UTF8_SUBSTITUTE | JSON_UNESCAPED_UNICODE);
@@ -902,7 +920,7 @@ Class Log {
             $class .= '::';
         }
 
-        return self::write(tr(':keyword :class:function() in :file@:line',
+        return self::write(tr('Showing debug data with :keyword :class:function() in :file@:line',
             [
                 ':keyword'  => $keyword,
                 ':class'    => $class,

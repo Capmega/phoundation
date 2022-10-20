@@ -14,6 +14,10 @@ web:
     primary: localhost
   route:
     known-hacks:
+notifications:
+  groups:
+    developers:
+      "so.oostenbrink@gmail.com"
 databases:
   sql:
     instances:

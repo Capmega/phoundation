@@ -23,7 +23,6 @@ use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
 use Phoundation\Notify\Notification;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Route;
 use Phoundation\Web\Web;
 use Throwable;
 
@@ -348,12 +347,14 @@ class Core {
                      * This is normally done by checking the current dirname of the startup file, this will be
                      * LANGUAGECODE/libs/handlers/system-webpage.php
                      */
+                    // DEPRECATED
+                    // TODO THIS SHOULD BE DONE BY THE Route CLASS!
                     try {
                         $supported = Config::get('languages.supported', ['en' => []]);
 
                         if ($supported) {
                             // Language is defined by the www/LANGUAGE dir that is used.
-                            $url = Route::getRequestUri();
+                            $url = $_SERVER['REQUEST_URI'];
 
                             if (empty($url)) {
                                 $url      = $_SERVER['REQUEST_URI'];
@@ -431,7 +432,8 @@ class Core {
                     }
 
                     // Set the CDN url for javascript and validate HTTP GET request data
-                    Html::setJsCdnUrl();
+// TODO Below
+//                    Html::setJsCdnUrl();
                     Http::validateGet();
 
                     // Did the startup sequence encounter reasons for us to actually show another page?
@@ -720,7 +722,7 @@ class Core {
 
                     // Setup locale and character encoding
                     // TODO Check this mess!
-                    ini_set('default_charset', Config::get('encoding.charset', 'UTF8'));
+                    ini_set('default_charset', Config::get('encoding.charset', 'UTF-8'));
                     self::$register['system']['locale'] = self::setLocale();
 
                     // Prepare for unicode usage
@@ -1423,7 +1425,7 @@ class Core {
                         }
 
                         //
-                        Http::setStatusCode(500);
+                        Http::setHttpCode(500);
                         self::unregisterShutdown(['Route', '404']);
 
                         // Ensure that required defines are available
@@ -2120,7 +2122,7 @@ class Core {
         }
 
         // New session? Detect client type, language, and mobile device
-        if (empty($_COOKIE[Config::get('web.sessions.cookies.name', '')])) {
+        if (empty($_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')])) {
             Client::detect();
         }
 
@@ -2334,16 +2336,16 @@ class Core {
                     if (!Core::getCallType('api')) {
                         //
                         try {
-                            if (Config::get('web.sessions.cookies.name', '')) {
-                                if (!is_string(Config::get('web.sessions.cookies.name', '')) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE[Config::get('web.sessions.cookies.name', '')])) {
-                                    Log::warning(tr('Received invalid cookie ":cookie", dropping', [':cookie' => $_COOKIE[Config::get('web.sessions.cookies.name', '')]]));
-                                    unset($_COOKIE[Config::get('web.sessions.cookies.name', '')]);
+                            if (Config::get('web.sessions.cookies.name', 'phoundation')) {
+                                if (!is_string(Config::get('web.sessions.cookies.name', 'phoundation')) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')])) {
+                                    Log::warning(tr('Received invalid cookie ":cookie", dropping', [':cookie' => $_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')]]));
+                                    unset($_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')]);
                                     $_POST = array();
 
                                     // Received cookie but it didn't pass. Start a new session without a cookie
                                     session_start();
 
-                                } elseif (!file_exists(ROOT.'data/cookies/sess_'.$_COOKIE[Config::get('web.sessions.cookies.name', '')])) {
+                                } elseif (!file_exists(ROOT.'data/cookies/sess_'.$_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')])) {
                                     /*
                                      * Cookie code is valid, but it doesn't exist.
                                      *
@@ -2352,11 +2354,11 @@ class Core {
                                      * from the browser turned out to be problematic to say
                                      * the least
                                      */
-                                    Log::information(tr('Received non existing cookie ":cookie", recreating', [':cookie' => $_COOKIE[Config::get('web.sessions.cookies.name', '')]]));
+                                    Log::information(tr('Received non existing cookie ":cookie", recreating', [':cookie' => $_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')]]));
 
                                     session_start();
 
-                                    if (Config::get('web.sessions.cookies.notify-expired', '')) {
+                                    if (Config::get('web.sessions.cookies.notify-expired', false)) {
                                         Html::flash()->add(tr('Your browser cookie was expired, or does not exist. You may have to sign in again'), 'warning');
                                     }
 
@@ -2477,15 +2479,15 @@ class Core {
                         $_SESSION['init']         = time();
                         $_SESSION['first_domain'] = $domain;
 // :TODO: Make a permanent fix for this isset_get() use. These client, location, and language indices should be set, but sometimes location is NOT set for unknown reasons. Find out why it is not set, and fix that instead!
-                        $_SESSION['client']       = isset_get($core->register['session']['client']);
-                        $_SESSION['mobile']       = isset_get($core->register['session']['mobile']);
-                        $_SESSION['location']     = isset_get($core->register['session']['location']);
-                        $_SESSION['language']     = isset_get($core->register['session']['language']);
+                        $_SESSION['client']       = isset_get(self::$register['system']['session']['client']);
+                        $_SESSION['mobile']       = isset_get(self::$register['system']['session']['mobile']);
+                        $_SESSION['location']     = isset_get(self::$register['system']['session']['location']);
+                        $_SESSION['language']     = isset_get(self::$register['system']['session']['language']);
                     }
                 }
 
                 if (!isset($_SESSION['cache'])) {
-                    $_SESSION['cache'] = array();
+                    $_SESSION['cache'] = [];
                 }
             }
 
@@ -2505,6 +2507,7 @@ class Core {
             }
         }
 
-        Http::setSslDefaultContext();
+// TODO Fix below
+//        Http::setSslDefaultContext();
     }
 }

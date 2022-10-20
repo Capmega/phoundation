@@ -41,6 +41,13 @@ class Debug {
      */
     protected static array $statistics = [];
 
+    /**
+     * A simple counter for debugging
+     *
+     * @var DebugCounter|null $counter
+     */
+    protected static ?DebugCounter $counter = null;
+
 
 
     /**
@@ -1116,7 +1123,7 @@ class Debug {
      * @param string|null $message
      * @return void
      */
-    function dieIn(int $count, string $message = null): void
+    public static function dieIn(int $count, string $message = null): void
     {
         static $counter = 1;
 
@@ -1130,5 +1137,23 @@ class Debug {
 
             die(Strings::endsWith(str_replace('%count%', $count, $message), "\n"));
         }
+    }
+
+
+
+    /**
+     * Returns the debug counter and selects the specified counter
+     *
+     * @param string $counter
+     * @return DebugCounter
+     */
+    public static function counter(string $counter): DebugCounter
+    {
+        if (self::$counter === null) {
+            self::$counter = new DebugCounter();
+        }
+
+        self::$counter->select($counter);
+        return self::$counter;
     }
 }
