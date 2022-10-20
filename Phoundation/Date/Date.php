@@ -6,6 +6,7 @@ use DateInterval;
 use DateTime;
 use DateTimeZone;
 use Exception;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Date\Exception\DateException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -61,37 +62,27 @@ class Date
              */
             $format = 'Y-m-d H:i:s';
 
-        } elseif (isset($_CONFIG['formats'][$requested_format])) {
-            /*
-             * Use predefined format
-             */
-            $format = $_CONFIG['formats'][$requested_format];
+        } elseif (Config::get('formats.date.' . $requested_format, false)) {
+            // Use predefined format
+            $format = Config::get('formats.date.' . $requested_format, false);
 
         } else {
-            /*
-             * Use custom format
-             */
+            // Use custom format
             $format = $requested_format;
         }
 
-        /*
-         * Force 12 or 24 hour format?
-         */
+        // Force 12 or 24 hour format?
         if ($requested_format == 'object') {
-            /*
-             * Return a PHP DateTime object
-             */
+            // Return a PHP DateTime object
             $format = $requested_format;
 
         } else {
-            switch ($_CONFIG['formats']['force1224']) {
+            switch (Config::get('formats.date.force1224', '24')) {
                 case false:
                     break;
 
                 case '12':
-                    /*
-                     * Only add AM/PM in case original spec has 24H and no AM/PM
-                     */
+                    // Only add AM/PM in case original spec has 24H and no AM/PM
                     if (($requested_format != 'mysql') and str_contains($format, 'g')) {
                         $format = str_replace('H', 'g', $format);
 
@@ -108,7 +99,9 @@ class Date
                     break;
 
                 default:
-                    throw new OutOfBoundsException(tr('Invalid force1224 hour format ":format" specified. Must be either false, "12", or "24". See $_CONFIG[formats][force1224]', [':format' => $_CONFIG['formats']['force1224']]));
+                    throw new OutOfBoundsException(tr('Invalid force1224 hour format ":format" specified. Must be either false, "12", or "24". See configuration formats.date.force1224', [
+                        ':format' => Config::get('formats.date.' . $requested_format, '24')
+                    ]));
             }
         }
 
@@ -123,7 +116,9 @@ class Date
 
         } else {
             if (!($date instanceof DateTime)) {
-                throw new OutOfBoundsException(tr('Specified date variable is a ":type" which is invalid. Should be either scalar or a DateTime object', [':type' => gettype($date)]));
+                throw new OutOfBoundsException(tr('Specified date variable is a ":type" which is invalid. Should be either scalar or a DateTime object', [
+                    ':type' => gettype($date)
+                ]));
             }
         }
 
@@ -220,6 +215,7 @@ class Date
     }
 
 
+
     /**
      * Returns the HTML for a timezone selection HTML select
      *
@@ -229,28 +225,23 @@ class Date
      */
     public static function timezonesSelect($params = null)
     {
-        try {
-            Arrays::ensure($params);
-            array_default($params, 'name', 'timezone');
+        Arrays::ensure($params);
+        array_default($params, 'name', 'timezone');
 
-            $params['resource'] = Date::timezonesList();
-            asort($params['resource']);
+        $params['resource'] = Date::timezonesList();
+        asort($params['resource']);
 
 // :DELETE: Remove MySQL requirement because production users will not have access to "mysql" database
-            //$params['resource'] = Sql::query('SELECT   LCASE(SUBSTR(`Name`, 7)) AS `id`,
-            //                                                SUBSTR(`Name`, 7)  AS `name`
-            //
-            //                                 FROM     `mysql`.`time_zone_name`
-            //
-            //                                 WHERE    `Name` LIKE "posix%"
-            //
-            //                                 ORDER BY `id`');
+        //$params['resource'] = Sql::query('SELECT   LCASE(SUBSTR(`Name`, 7)) AS `id`,
+        //                                                SUBSTR(`Name`, 7)  AS `name`
+        //
+        //                                 FROM     `mysql`.`time_zone_name`
+        //
+        //                                 WHERE    `Name` LIKE "posix%"
+        //
+        //                                 ORDER BY `id`');
 
-            return html_select($params);
-
-        }catch(Exception $e) {
-            throw new CoreException(tr('Date::timezones_select(): Failed'), $e);
-        }
+        return html_select($params);
     }
 
 
@@ -284,6 +275,7 @@ class Date
 
         return $list;
     }
+
 
 
     /**
@@ -345,210 +337,61 @@ class Date
      */
     public static function translate(DateTime|string $date): string
     {
-        try {
-            /*
-             * First check if there are any translatable words in the specified date
-             */
-            if (!is_string($date)) {
-                throw new CoreException(tr('Date::translate(): The specified date should be a string but is a ":type"', array(':type' => gettype($date))), 'invalid');
-            }
+        // First check if there are any translatable words in the specified date
+        if (!is_string($date)) {
+            throw new DateException(tr('The specified date should be a string but is a ":type"', [':type' => gettype($date)]));
+        }
 
-            if (!preg_match('/[a-z]/', $date)) {
-                return $date;
-            }
-
-            /*
-             * Date contains translatable text, translate all possible words
-             */
-            $words = array('January'   => tr('January'),
-                'February'  => tr('February'),
-                'March'     => tr('March'),
-                'April'     => tr('April'),
-                'May'       => tr('May'),
-                'June'      => tr('June'),
-                'July'      => tr('July'),
-                'August'    => tr('August'),
-                'September' => tr('September'),
-                'October'   => tr('October'),
-                'November'  => tr('November'),
-                'December'  => tr('December'),
-                'Jan'       => tr('Jan'),
-                'Feb'       => tr('Feb'),
-                'Mar'       => tr('Mar'),
-                'Apr'       => tr('Apr'),
-                'May'       => tr('May'),
-                'Jun'       => tr('Jun'),
-                'Jul'       => tr('Jul'),
-                'Aug'       => tr('Aug'),
-                'Sep'       => tr('Sep'),
-                'Oct'       => tr('Oct'),
-                'Nov'       => tr('Nov'),
-                'Dec'       => tr('Dec'),
-                'Sunday'    => tr('Sunday'),
-                'Monday'    => tr('Monday'),
-                'Tuesday'   => tr('Tuesday'),
-                'Wednesday' => tr('Wednesday'),
-                'Thursday'  => tr('Thursday'),
-                'Friday'    => tr('Friday'),
-                'Saturday'  => tr('Saturday'),
-                'Sun'       => tr('Sun'),
-                'Mon'       => tr('Mon'),
-                'Tue'       => tr('Tue'),
-                'Wed'       => tr('Wed'),
-                'Thu'       => tr('Thu'),
-                'Fri'       => tr('Fri'),
-                'Sat'       => tr('Sat'));
-
-            foreach ($words as $english => $translation) {
-                $date = str_replace($english, $translation, $date);
-            }
-
+        if (!preg_match('/[a-z]/', $date)) {
             return $date;
-
-        }catch(Exception $e) {
-            throw new CoreException(tr('Date::translate(): Failed'), $e);
         }
-    }
 
+        // Date contains translatable text, translate all possible words
+        $words = [
+            'January'   => tr('January'),
+            'February'  => tr('February'),
+            'March'     => tr('March'),
+            'April'     => tr('April'),
+            'May'       => tr('May'),
+            'June'      => tr('June'),
+            'July'      => tr('July'),
+            'August'    => tr('August'),
+            'September' => tr('September'),
+            'October'   => tr('October'),
+            'November'  => tr('November'),
+            'December'  => tr('December'),
+            'Jan'       => tr('Jan'),
+            'Feb'       => tr('Feb'),
+            'Mar'       => tr('Mar'),
+            'Apr'       => tr('Apr'),
+            'May'       => tr('May'),
+            'Jun'       => tr('Jun'),
+            'Jul'       => tr('Jul'),
+            'Aug'       => tr('Aug'),
+            'Sep'       => tr('Sep'),
+            'Oct'       => tr('Oct'),
+            'Nov'       => tr('Nov'),
+            'Dec'       => tr('Dec'),
+            'Sunday'    => tr('Sunday'),
+            'Monday'    => tr('Monday'),
+            'Tuesday'   => tr('Tuesday'),
+            'Wednesday' => tr('Wednesday'),
+            'Thursday'  => tr('Thursday'),
+            'Friday'    => tr('Friday'),
+            'Saturday'  => tr('Saturday'),
+            'Sun'       => tr('Sun'),
+            'Mon'       => tr('Mon'),
+            'Tue'       => tr('Tue'),
+            'Wed'       => tr('Wed'),
+            'Thu'       => tr('Thu'),
+            'Fri'       => tr('Fri'),
+            'Sat'       => tr('Sat')
+        ];
 
-
-
-    /*
-     *
-     */
-    function date_convert($date = null, $requested_format = 'human_datetime', $to_timezone = null, $from_timezone = null)
-    {
-        global $_CONFIG;
-
-        try {
-            /*
-             * Ensure we have some valid date string
-             */
-            if ($date === null) {
-                $date = date('Y-m-d H:i:s');
-
-            } elseif (!$date) {
-                return '';
-
-            } elseif (is_numeric($date)) {
-                $date = date('Y-m-d H:i:s', $date);
-            }
-
-            /*
-             * Compatibility check!
-             * Older systems will still have the timezone specified as a single string, newer as an array
-             * The difference between these two can result in systems no longer starting up after an update
-             */
-            if ($to_timezone === null) {
-                $to_timezone = TIMEZONE;
-            }
-
-            if ($from_timezone === null) {
-                $from_timezone = $_CONFIG['timezone']['system'];
-            }
-
-            /*
-             * Ensure we have a valid format
-             */
-            if ($requested_format == 'mysql') {
-                /*
-                 * Use mysql format
-                 */
-                $format = 'Y-m-d H:i:s';
-
-            } elseif (isset($_CONFIG['formats'][$requested_format])) {
-                /*
-                 * Use predefined format
-                 */
-                $format = $_CONFIG['formats'][$requested_format];
-
-            } else {
-                /*
-                 * Use custom format
-                 */
-                $format = $requested_format;
-            }
-
-            /*
-             * Force 12 or 24 hour format?
-             */
-            if ($requested_format == 'object') {
-                /*
-                 * Return a PHP DateTime object
-                 */
-                $format = $requested_format;
-
-            } else {
-                switch ($_CONFIG['formats']['force1224']) {
-                    case false:
-                        break;
-
-                    case '12':
-                        /*
-                         * Only add AM/PM in case original spec has 24H and no AM/PM
-                         */
-                        if (($requested_format != 'mysql') and strstr($format, 'g')) {
-                            $format = str_replace('H', 'g', $format);
-
-                            if (!strstr($format, 'a')) {
-                                $format .= ' a';
-                            }
-                        }
-
-                        break;
-
-                    case '24':
-                        $format = str_replace('g', 'H', $format);
-                        $format = trim(str_replace('a', '', $format));
-                        break;
-
-                    default:
-                        throw new OutOfBoundsException(tr('date_convert(): Invalid force1224 hour format ":format" specified. Must be either false, "12", or "24". See $_CONFIG[formats][force1224]', array(':format' => $_CONFIG['formats']['force1224'])), 'invalid');
-                }
-            }
-
-            /*
-             * Create date in specified timezone (if specifed)
-             * Return formatted date
-             *
-             * If specified date is already a DateTime object, then from_timezone will not work
-             */
-            if (is_scalar($date)) {
-                $date = new DateTime($date, ($from_timezone ? new DateTimeZone($from_timezone) : null));
-
-            } else {
-                if (!($date instanceof DateTime)) {
-                    throw new OutOfBoundsException(tr('date_convert(): Specified date variable is a ":type" which is invalid. Should be either scalar or a DateTime object', array(':type' => gettype($date))), 'invalid');
-                }
-            }
-
-            if ($to_timezone) {
-                /*
-                 * Output to specified timezone
-                 */
-                $date->setTimezone(new DateTimeZone($to_timezone));
-            }
-
-            try {
-                if ($format === 'object') {
-                    return $date;
-                }
-
-                $retval = $date->format($format);
-
-                if (LANGUAGE === 'en') {
-                    return $retval;
-                }
-
-                load_libs('date');
-                return date_translate($retval);
-
-            } catch (Exception $e) {
-                throw new OutOfBoundsException(tr('date_convert(): Failed to convert to format ":format" because ":e"', array(':format' => $format, ':e' => $e)), 'invalid');
-            }
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException('date_convert(): Failed', $e);
+        foreach ($words as $english => $translation) {
+            $date = str_replace($english, $translation, $date);
         }
+
+        return $date;
     }
 }
