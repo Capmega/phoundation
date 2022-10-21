@@ -2,14 +2,12 @@
 
 namespace Phoundation\Web\Http;
 
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Web;
+
 
 
 /**
@@ -36,9 +34,9 @@ class File
     /**
      * If true, files will be transferred using compression
      *
-     * @var bool $compression
+     * @var string|bool $compression
      */
-    protected bool $compression = false;
+    protected string|bool $compression = false;
 
     /**
      * If true, the file will be transferred as an attachment
@@ -138,8 +136,14 @@ class File
      * @param bool $compression
      * @return File
      */
-    public function setCompression(bool $compression): File
+    public function setCompression(string|bool $compression): File
     {
+        if (is_string($compression)) {
+            if ($compression !== 'auto') {
+                throw new OutOfBoundsException(tr('Unknown value ":value" specified for $compression, please use true, false, or "auto"', [':value' => $compression]));
+            }
+        }
+
         $this->compression = $compression;
         return $this;
     }
