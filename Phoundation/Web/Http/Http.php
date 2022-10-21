@@ -15,6 +15,7 @@ use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Processes\Commands;
 use Phoundation\Web\Http\Html\Html;
@@ -1294,4 +1295,16 @@ class Http
         throw new OutOfBoundsException(tr('The specified status code ":code" is invalid', [':code' => $code]));
     }
 
+
+
+    /**
+     * Returns a new Http\File object to send files over HTTP to clients
+     *
+     * @param Restrictions $restrictions
+     * @return File
+     */
+    public static function file(Restrictions $restrictions): File
+    {
+        return new File($restrictions);
+    }
 }

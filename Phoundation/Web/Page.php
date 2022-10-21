@@ -7,7 +7,7 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
 use Phoundation\Web\Exception\RouteException;
-
+use Phoundation\Web\Http\Http;
 
 
 /**
@@ -60,12 +60,12 @@ class Page
                 $target = File::absolutePath(Strings::unslash($target), ROOT.'www/');
 
                 Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
-                File::httpDownload([
-                    'restrictions' => $restrictions,
-                    'attachment'   => $attachment,
-                    'file'         => $target,
-                    'filename'     => basename($target)
-                ]);
+
+                Http::file($restrictions)
+                    ->setAttachment($attachment)
+                    ->setFile($target)
+                    ->setFilename(basename($target))
+                    ->send();
 
             } else {
                 $mimetype = mime_content_type($target);
@@ -88,4 +88,13 @@ class Page
 
 
 
+    /**
+     * Send the current buffer to the client
+     *
+     * @return void
+     */
+    public static function send(): void
+    {
+
+    }
 }

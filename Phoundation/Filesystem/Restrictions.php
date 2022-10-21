@@ -5,6 +5,8 @@ namespace Phoundation\Filesystem;
 
 
 
+use Phoundation\Exception\UnderConstructionException;
+
 /**
  * Restrictions class
  *
@@ -47,7 +49,7 @@ class Restrictions
     public function check(string|array $patterns): void
     {
         foreach ($this->restrictions as $path => $write) {
-
+throw new UnderConstructionException();
         }
     }
 }

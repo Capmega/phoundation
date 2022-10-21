@@ -12,7 +12,8 @@
     "ext-mbstring": "*",
     "ext-posix": "*",
     "ext-fileinfo": "*",
-    "mongodb/mongodb":"^1.6"
+    "mongodb/mongodb":"^1.6",
+    "ext-apache": "*"
   },
   "require-dev": {
     "phpmd/phpmd": "@stable",

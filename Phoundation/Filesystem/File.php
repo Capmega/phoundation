@@ -1282,32 +1282,6 @@ class File
     }
 
 
-
-    /*
-     * Checks if the specified path exists, is a dir, and optionally, if its writable or not
-     */
-    public static function checkDir($path, $writable = false)
-    {
-        try {
-            if (!file_exists($path)) {
-                throw new FilesystemException(tr('file_check_dir(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
-            }
-
-            if (!is_dir($path)) {
-                throw new FilesystemException(tr('file_check_dir(): The specified path ":path" is not a directory', array(':path' => $path)), 'notadirectory');
-            }
-
-            if ($writable and !is_writable($path)) {
-                throw new FilesystemException(tr('file_check_dir(): The specified path ":path" is not writable', array(':path' => $path)), 'notwritable');
-            }
-
-        }catch(Exception $e) {
-            throw new FilesystemException(tr('file_check_dir(): Failed'), $e);
-        }
-    }
-
-
-
     /**
      * If the specified file is an HTTP, HTTPS, or FTP URL, then get it locally as a temp file
      *
@@ -1366,437 +1340,139 @@ class File
 
 
 
-    /*
-     * Send the specified file to the client as a download using the HTTP protocol with correct headers
-     *
-     * @version 2.5.89: Rewrote function and added documentation
-     * @param params $params The file parameters
-     * @return void
-     */
-    public static function httpDownload($params)
-    {
-        global $_CONFIG;
-
-        try {
-            Arrays::ensure($params, 'file,data,name');
-            Arrays::default($params, 'restrictions', ROOT.'data/downloads');
-            Arrays::default($params, 'compression' , $_CONFIG['file']['download']['compression']);
-            Arrays::default($params, 'filename'    , basename($params['file']));
-            Arrays::default($params, 'attachment'  , false);
-            Arrays::default($params, 'die'         , true);
-
-            /*
-             * Validate the file name for the user
-             */
-            if (!$params['filename']) {
-                throw new FilesystemException(tr('file_http_download(): No filename specified. Note: This is not the file to be downloaded to the client, but the name it will have when saved on the clients storage'), 'not-specified');
-            }
-
-            if (!is_scalar($params['filename'])) {
-                throw new FilesystemException(tr('file_http_download(): Specified filename ":filename" is not scalar', array(':filename' => $params['filename'])), 'invalid');
-            }
-
-            if (mb_strlen($params['filename']) > 250) {
-                throw new FilesystemException(tr('file_http_download(): Specified filename ":filename" is too long, it cannot be longer than 250 characters', array(':filename' => $params['filename'])), 'invalid');
-            }
-
-            if ($params['data']) {
-                /*
-                 * Send the specified data as a file to the client
-                 * Write the data to a temp file first so we can just upload from
-                 * there
-                 */
-                if ($params['file']) {
-                    throw new FilesystemException(tr('file_http_download(): Both "file" and "data" were specified, these parameters are mutually exclusive. Please specify one or the other'), 'invalid');
-                }
-
-                $params['file'] = file_temp($params['data']);
-                $params['data'] = $params['file'];
-            }
-
-            if (!$params['file']) {
-                throw new FilesystemException(tr('file_http_download(): No file or data specified to download to client'), 'not-specified');
-            }
-
-            /*
-             * Send a file from disk
-             * Validate data
-             */
-            if (!is_scalar($params['file'])) {
-                throw new FilesystemException(tr('file_http_download(): Specified file ":file" is not scalar', array(':file' => $params['file'])), 'invalid');
-            }
-
-            if (!file_exists($params['file'])) {
-                throw new FilesystemException(tr('file_http_download(): Specified file ":file" does not exist or is not accessible', array(':file' => $params['file'])), 'not-exists');
-            }
-
-            if (!is_readable($params['file'])) {
-                throw new FilesystemException(tr('file_http_download(): Specified file ":file" exists but is not readable', array(':file' => $params['file'])), 'not-readable');
-            }
-
-            $restrictions->apply($params['file'], $restrictions);
-
-            /*
-             * We have to send the right content type headers and we might need to
-             * figure out if we need to use compression or not
-             */
-            $mimetype  = mime_content_type($params['file']);
-            $primary   = Strings::until($mimetype, '/');
-            $secondary = Strings::from($mimetype , '/');
-
-            /*
-             * What file mode will we use?
-             */
-            if (file_is_binary($primary, $secondary)) {
-                $mode = 'rb';
-
-            } else {
-                $mode = 'r';
-            }
-
-            /*
-             * Do we need compression?
-             */
-            if ($params['compression'] === 'auto') {
-                /*
-                 * Detect if the file is already compressed. If so, we don't need
-                 * the server to try to compress the data stream too because it
-                 * won't do anything (possibly make it even worse)
-                 */
-                $params['compression'] = !file_is_compressed($primary, $secondary);
-            }
-
-            if ($params['compression']) {
-                if (is_executable('apache_setenv')) {
-                    apache_setenv('no-gzip', 0);
-                }
-
-                ini_set('zlib.output_compression', 'On');
-
-            } else {
-                if (is_executable('apache_setenv')) {
-                    apache_setenv('no-gzip', 1);
-                }
-
-                ini_set('zlib.output_compression', 'Off');
-            }
-
-            /*
-             * Send the specified file to the client
-             */
-            $bytes = filesize($params['file']);
-            log_file(tr('HTTP downloading ":bytes" bytes file ":file" to client as ":filename"', array(':bytes' => $bytes, ':filename' => $params['filename'], ':file' => $params['file'])), 'http-download', 'cyan');
-
-// :TODO: Are these required?
-            //header('Expires: -1');
-            //header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
-            header('Content-Type: ' . $mimetype);
-            header('Content-length: ' . $bytes);
-
-            if ($params['attachment']) {
-                /*
-                 * Instead of sending the file to the browser to display directly,
-                 * send it as a file attachement that will be downloaded to their
-                 * disk
-                 */
-                header('Content-Disposition: attachment; filename="' . $params['filename'].'"');
-            }
-
-            $f = fopen($params['file'], $mode);
-            fpassthru($f);
-            fclose($f);
-
-            /*
-             * If we created a temporary file for a given data string, then delete
-             * the temp file
-             */
-            if ($params['data']) {
-                file_delete($params['data']);
-            }
-
-            if ($params['die']) {
-                die();
-            }
-
-        }catch(Exception $e) {
-            /*
-             * If we created a temporary file for a given data string, then delete
-             * the temp file
-             */
-            if ($params['data']) {
-                file_delete($params['data']);
-            }
-
-            throw new FilesystemException(tr('file_http_download(): Failed'), $e);
-        }
-    }
-
-
-
-    /*
+    /**
      * Return true if the specified mimetype is for a binary file or false if it is for a text file
      *
      * @version 2.5.90: Added function and documentation
-     * @param string $mimetype The primary mimetype section to check. If the mimetype is "text/plain", this variable would receive "text". You can also leave $secondary empty and specify the complete mimetype "text/plain" here, both will work
-     * @param string $mimetype The secondary mimetype section to check. If the mimetype is "text/plain", this variable would receive "plain". If the complete mimetype is specified in $primary, you can leave this one empty
+     * @param string $primary        The primary mimetype section to check. If the mimetype is "text/plain", this
+     *                               variable would receive "text". You can also leave $secondary empty and specify the
+     *                               complete mimetype "text/plain" here, both will work
+     * @param string|null $secondary The secondary mimetype section to check. If the mimetype is "text/plain", this
+     *                               variable would receive "plain". If the complete mimetype is specified in $primary,
+                                     you can leave this one empty
      * @return boolean True if the specified mimetype is for a binary file, false if it is a text file
      */
-    public static function isBinary($primary, $secondary = null) {
-        try {
+    public static function isBinary(string $primary, ?string $secondary = null): bool
+    {
 // :TODO: IMPROVE THIS! Loads of files that are not text/ are still not binary
-            /*
-             * Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
-             */
-            if (!$secondary) {
-                if (!str_contains($primary, '/')) {
-                    throw new FilesystemException(tr('file_is_compressed(): Invalid primary mimetype data "" specified. Either specify the complete mimetype in $primary, or specify the independant primary and secondary sections in $primary and $secondary', array(':primary' => $primary)), $e);
-                }
-
-                $secondary = Strings::from($primary , '/');
-                $primary   = Strings::until($primary, '/');
+        // Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
+        if (!$secondary) {
+            if (!str_contains($primary, '/')) {
+                throw new FilesystemException(tr('Invalid primary mimetype data ":primary" specified. Either specify the complete mimetype in $primary, or specify the independent primary and secondary sections in $primary and $secondary', [':primary' => $primary]));
             }
 
-            /*
-             * Check the mimetype data
-             */
-            switch ($primary) {
-                case 'text':
-                    /*
-                     * Readonly
-                     */
-                    return false;
+            $secondary = Strings::from($primary , '/');
+            $primary   = Strings::until($primary, '/');
+        }
+
+        // Check the mimetype data
+        switch ($primary) {
+            case 'text':
+                // Plain text
+                return false;
+
+            default:
+                switch ($secondary) {
+                    case 'json':
+                        // no-break
+                    case 'ld+json':
+                        // no-break
+                    case 'svg+xml':
+                        // no-break
+                    case 'x-csh':
+                        // no-break
+                    case 'x-sh':
+                        // no-break
+                    case 'xhtml+xml':
+                        // no-break
+                    case 'xml':
+                        // no-break
+                    case 'vnd.mozilla.xul+xml':
+                        // This is all text
+                        return false;
+                }
+        }
+
+        // This is binary
+        return true;
+    }
+
+
+
+    /**
+     * Return true if the specified mimetype is for a compressed file, false if not
+     *
+     * This function will check the primary and secondary sections of the mimetype and depending on their values,
+     * determine if the file format should use compression or not
+     *
+     * @version 2.5.90: Added function and documentation
+     * @param string $primary        The primary mimetype section to check. If the mimetype is "text/plain", this
+     *                               variable would receive "text". You can also leave $secondary empty and specify the
+     *                               complete mimetype "text/plain" here, both will work
+     * @param string|null $secondary The secondary mimetype section to check. If the mimetype is "text/plain", this
+     *                               variable would receive "plain". If the complete mimetype is specified in $primary,
+     *                               you can leave this one empty
+     * @return boolean True if the specified mimetype is for a compressed file, false if not
+     */
+    public static function isCompressed(string $primary, ?string $secondary = null): bool
+    {
+// :TODO: IMPROVE THIS! Loads of files that may be mis detected
+        // Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
+        if (!$secondary) {
+            if (!str_contains($primary, '/')) {
+                throw new FilesystemException(tr('Invalid primary mimetype data ":primary" specified. Either specify the complete mimetype in $primary, or specify the independent primary and secondary sections in $primary and $secondary', [':primary' => $primary]));
+            }
+
+            $secondary = Strings::from($primary , '/');
+            $primary   = Strings::until($primary, '/');
+        }
+
+        // Check the mimetype data
+        if (str_contains($secondary, 'compressed')) {
+            // This file is already compressed
+            return true;
+
+        } elseif (str_contains($secondary, 'zip')) {
+            // This file is already compressed
+            return true;
+
+        } else {
+            switch ($secondary) {
+                case 'jpeg':
+                    // no-break
+                case 'mpeg':
+                    // no-break
+                case 'ogg':
+                    // This file is already compressed
+                    return true;
 
                 default:
-                    switch ($secondary) {
-                        case 'json':
-                            // no-break
-                        case 'ld+json':
-                            // no-break
-                        case 'svg+xml':
-                            // no-break
-                        case 'x-csh':
-                            // no-break
-                        case 'x-sh':
-                            // no-break
-                        case 'xhtml+xml':
-                            // no-break
-                        case 'xml':
-                            // no-break
-                        case 'xml':
-                            // no-break
-                        case 'vnd.mozilla.xul+xml':
-                            /*
-                             * This should be text
-                             */
+                    switch ($primary) {
+                        case 'audio':
+                            switch ($secondary) {
+                                case 'mpeg':
+                                    // no-break
+                                case 'ogg':
+                            }
+                            break;
+
+                        case 'image':
+                            break;
+
+                        case 'video':
+                            break;
+
+                        default:
+                            // This file probably is not compressed
                             return false;
                     }
             }
-
-            /*
-             * This should be binary
-             */
-            return true;
-
-        }catch(Exception $e) {
-            throw new FilesystemException('file_is_binary(): Failed', $e);
         }
-    }
 
-
-
-    /*
-     * Return true if the specified mimetype is for a compressed file, false if not
-     *
-     * This function will check the primary and secondary sections of the mimetype and depending on their values, determine if the file format should use compression or not
-     *
-     * @version 2.5.90: Added function and documentation
-     * @param string $mimetype The primary mimetype section to check. If the mimetype is "text/plain", this variable would receive "text". You can also leave $secondary empty and specify the complete mimetype "text/plain" here, both will work
-     * @param string $mimetype The secondary mimetype section to check. If the mimetype is "text/plain", this variable would receive "plain". If the complete mimetype is specified in $primary, you can leave this one empty
-     * @return boolean True if the specified mimetype is for a compressed file, false if not
-     */
-    public static function isCompressed($primary, $secondary = null) {
-        try {
-// :TODO: IMPROVE THIS! Loads of files that may be mis detected
-            /*
-             * Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
-             */
-            if (!$secondary) {
-                if (!str_contains($primary, '/')) {
-                    throw new FilesystemException(tr('file_is_compressed(): Invalid primary mimetype data "" specified. Either specify the complete mimetype in $primary, or specify the independant primary and secondary sections in $primary and $secondary', array(':primary' => $primary)), $e);
-                }
-
-                $secondary = Strings::from($primary , '/');
-                $primary   = Strings::until($primary, '/');
-            }
-
-            /*
-             * Check the mimetype data
-             */
-            if (str_contains($secondary, 'compressed')) {
-                /*
-                 * This file is already compressed
-                 */
-                return true;
-
-            } elseif (str_contains($secondary, 'zip')) {
-                /*
-                 * This file is already compressed
-                 */
-                return true;
-
-            } else {
-                switch ($secondary) {
-                    case 'jpeg':
-                        // no-break
-                    case 'mpeg':
-                        // no-break
-                    case 'ogg':
-                        /*
-                         * This file is already compressed
-                         */
-                        return true;
-
-                    default:
-                        switch ($primary) {
-                            case 'audio':
-                                switch ($secondary) {
-                                    case 'mpeg':
-                                        // no-break
-                                    case 'ogg':
-                                }
-                                break;
-
-                            case 'image':
-                                break;
-
-                            case 'video':
-                                break;
-
-                            default:
-                                /*
-                                 * This file probably is not compressed
-                                 */
-                                return false;
-                        }
-                }
-            }
-
-        }catch(Exception $e) {
-            throw new FilesystemException('template_function(): Failed', $e);
-        }
-    }
-
-
-
-    /*
-     * Send the specified file to the client using the HTTP protocol with correct headers
-     *
-     * @version 2.5.92: Rewrote function and added documentation
-     * @param $file
-     * @return void
-     */
-    public static function httpSend($params) {
-        global $_CONFIG;
-
-        try {
-            Arrays::ensure($params, 'file,data,name');
-            Arrays::default($params, 'restrictions', ROOT.'data/downloads');
-            Arrays::default($params, 'compression' , $_CONFIG['file']['download']['compression']);
-            Arrays::default($params, 'filename'    , basename($params['file']));
-            Arrays::default($params, 'die'         , true);
-
-            /*
-             * Do we need compression?
-             */
-            if ($params['compression']) {
-                apache_setenv('no-gzip', 0);
-                ini_set('zlib.output_compression', 'On');
-
-            } else {
-                apache_setenv('no-gzip', 1);
-                ini_set('zlib.output_compression', 'Off');
-            }
-
-            /*
-             * Validate the file name for the user
-             */
-            if (!$params['filename']) {
-                throw new FilesystemException(tr('file_http_download(): No filename specified. Note: This is not the file to be downloaded to the client, but the name it will have when saved on the clients storage'), 'not-specified');
-            }
-
-            if (!is_scalar($params['filename'])) {
-                throw new FilesystemException(tr('file_http_download(): Specified filename ":filename" is not scalar', array(':filename' => $params['filename'])), 'invalid');
-            }
-
-            if (mb_strlen($params['filename']) > 250) {
-                throw new FilesystemException(tr('file_http_download(): Specified filename ":filename" is too long, it cannot be longer than 250 characters', array(':filename' => $params['filename'])), 'invalid');
-            }
-
-            if ($params['data']) {
-                /*
-                 * Send the specified data as a file to the client
-                 * Write the data to a temp file first so we can just upload from
-                 * there
-                 */
-                if ($params['file']) {
-                    throw new FilesystemException(tr('file_http_download(): Both "file" and "data" were specified, these parameters are mutually exclusive. Please specify one or the other'), 'invalid');
-                }
-
-                $params['file'] = file_temp($params['data']);
-                unset($params['data']);
-            }
-
-            if (!$params['file']) {
-                throw new FilesystemException(tr('file_http_download(): No file or data specified to download to client'), 'not-specified');
-            }
-
-            /*
-             * Send a file from disk
-             * Validate data
-             */
-            if (!is_scalar($params['file'])) {
-                throw new FilesystemException(tr('file_http_download(): Specified file ":file" is not scalar', array(':file' => $params['file'])), 'invalid');
-            }
-
-            if (file_exists($params['file'])) {
-                throw new FilesystemException(tr('file_http_download(): Specified file ":file" does not exist or is not accessible', array(':file' => $params['file'])), 'not-exists');
-            }
-
-            if (is_readable($params['file'])) {
-                throw new FilesystemException(tr('file_http_download(): Specified file ":file" exists but is not readable', array(':file' => $params['file'])), 'not-readable');
-            }
-
-            $restrictions->apply($params['file'], $restrictions);
-
-            /*
-             * We have to send the right content type headers
-             */
-            $mimetype = mime_content_type($params['file']);
-
-            /*
-             * Send the specified file to the client
-             */
-            $bytes = filesize($params['file']);
-            log_file(tr('HTTP downloading ":bytes" bytes file ":file" to client as ":filename"', array(':bytes' => $bytes, ':filename' => $params['filename'], ':file' => $params['file'])), 'http-download', 'cyan');
-
-// :TODO: Are these required?
-            //header('Expires: -1');
-            //header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
-            header('Content-Type: ' . $mimetype);
-            header("Content-length: ".$bytes);
-            header('Content-Disposition: attachment; filename="' . $params['filename'].'"');
-
-            $f = fopen($params['file']);
-            fpassthru($f);
-            fclose($f);
-
-            if ($params['die']) {
-                die();
-            }
-
-        }catch(Exception $e) {
-            throw new FilesystemException(tr('file_http_download(): Failed'), $e);
-        }
+        throw new FilesystemException(tr('Unable to determine if mimetype ":primary/:secondary" is compressed or not', [
+            ':primary' => $primary,
+            ':secondary' => $secondary
+        ]));
     }
 
 
@@ -1975,6 +1651,8 @@ class File
      */
     public static function checkReadable(string $file, ?string $type = null, bool $no_directories = false, ?Throwable $previous_e = null) : void
     {
+        self::validateFilename($file);
+
         if (!file_exists($file)) {
             if (!file_exists(dirname($file))) {
                 // The file doesn't exist and neither does its parent directory
@@ -2016,6 +1694,8 @@ class File
      */
     public static function checkWritable(string $file, ?string $type = null, ?Throwable $previous_e = null) : void
     {
+        self::validateFilename($file);
+
         if (!file_exists($file)) {
             if (!file_exists(dirname($file))) {
                 // The file doesn't exist and neither does its parent directory
@@ -2051,6 +1731,8 @@ class File
      */
     public static function ensureWritable(string $file, ?int $file_mode = null, ?int $directory_mode = null, string $type = 'file'): string
     {
+        self::validateFilename($file);
+
         // If the specified file exists and is writable, then we're done.
         if (is_writable($file)) {
             return false;
@@ -3291,5 +2973,24 @@ class File
     }
 
 
+
+    /**
+     * Ensures that the specified file name is valid
+     *
+     * @param string $file
+     * @return void
+     */
+    public static function validateFilename(string $file): void
+    {
+        $file = trim($file);
+
+        if (!$file) {
+            throw new OutOfBoundsException(tr('No file specified'));
+        }
+
+        if (strlen($file) > 4096) {
+            throw new OutOfBoundsException(tr('The specified filename is too large with ":size" bytes', [':size' => strlen($file)]));
+        }
+    }
 
 }

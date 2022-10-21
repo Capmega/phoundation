@@ -19,18 +19,6 @@ use Phoundation\Core\Arrays;
 class Autosuggest extends Element
 {
     /**
-     * @var string|null $none
-     */
-    protected ?string $none = null;
-
-    /**
-     * @var string|null $empty
-     */
-    protected ?string $empty = null;
-
-
-
-    /**
      * Generates and returns the HTML string for a <select> control
      *
      * @return string

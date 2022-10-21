@@ -9,6 +9,8 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Throwable;
 
+
+
 /**
  * Path class
  *
@@ -39,6 +41,8 @@ class Path
      */
     public static function ensure(string $path, ?string $mode = null, ?bool $clear = false, ?Restrictions $restrictions = null): string
     {
+        File::validateFilename($path);
+
         $mode = Config::get('filesystem.mode.defaults.directories', 0750, $mode);
 
         if ($clear) {
@@ -117,6 +121,8 @@ class Path
      */
     public static function checkReadable(string $file, ?string $type = null, ?Throwable $previous_e = null): void
     {
+        File::validateFilename($file);
+
         if (!file_exists($file)) {
             if (!file_exists(dirname($file))) {
                 // The file doesn't exist and neither does its parent directory

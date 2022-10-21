@@ -66,7 +66,7 @@ abstract class Element
 
 
     /**
-     * Set the HTML id element attribute
+     * Sets the HTML id element attribute
      *
      * @param string|null $id
      * @return Element
@@ -92,7 +92,7 @@ abstract class Element
 
 
     /**
-     * Set the HTML name element attribute
+     * Sets the HTML name element attribute
      *
      * @param string|null $name
      * @return Element
