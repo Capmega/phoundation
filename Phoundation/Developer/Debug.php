@@ -249,7 +249,7 @@ class Debug {
 
         if (Debug::production()) {
             // This is not usually something you want to happen!
-            Notification::getInstance()
+            Notification::create()
                 ->setTitle('Debug mode enabled on production environment!')
                 ->setMessage('Debug mode enabled on production environment, with this all internal debug information can be visible to everybody!')
                 ->setGroups('developers')

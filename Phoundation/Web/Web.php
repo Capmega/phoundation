@@ -244,7 +244,7 @@ class Web
 
                 } else {
                     if (empty($core->register['route_map'][$language])) {
-                        Notification::getInstance()
+                        Notification::create()
                             ->setException(new OutOfBoundsException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', [':url' => $retval, ':language' => $language])))
                             ->send();
 

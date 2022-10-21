@@ -227,7 +227,7 @@ class Script extends Element
                      * Moving internal javascript to external files failed, notify
                      * developers
                      */
-                    Notification::getInstance()
+                    Notification::create()
                         ->setException($e)
                         ->send();
 

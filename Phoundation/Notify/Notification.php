@@ -91,7 +91,7 @@ class Notification
      *
      * @return Notification
      */
-    public static function getInstance(): Notification
+    public static function create(): Notification
     {
         return new Notification();
     }

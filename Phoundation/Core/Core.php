@@ -1159,7 +1159,7 @@ class Core {
             if (empty(Config::get('language.default' . $language))) {
                 $language = Config::get('language.default', 'en');
 
-                Notification::getInstance()
+                Notification::create()
                     ->setCode('unknown-language')
                     ->setGroups('developers')
                     ->setTitle(tr('Unknown language specified'))
@@ -1201,7 +1201,7 @@ class Core {
         unset($trace[0]);
         unset($trace[1]);
 
-        Notification::getInstance()
+        Notification::create()
             ->setCode('PHP-ERROR-' . $errno)
             ->addGroup('developers')
             ->setTitle('PHP ERROR "' . $errno . '"')
@@ -1464,7 +1464,7 @@ class Core {
                             }
                         }
 
-                        Notification::getInstance()
+                        Notification::create()
                             ->setException($e)
                             ->send();
 
@@ -1601,7 +1601,7 @@ class Core {
                         }
 
                         // We're not in debug mode.
-                        Notification::getInstance()
+                        Notification::create()
                             ->setException($e)
                             ->send();
 
@@ -1979,7 +1979,7 @@ class Core {
                 }
 
             } catch (Throwable $e) {
-                Notification::getInstance()
+                Notification::create()
                     ->setException($e)
                     ->send();
             }
@@ -2094,7 +2094,7 @@ class Core {
 
         }catch(Throwable $e) {
             // Users timezone failed, use the configured one
-            Notification::getInstance()
+            Notification::create()
                 ->setException($e)
                 ->send();
         }
@@ -2261,7 +2261,7 @@ class Core {
                 }
 
                 if (!str_contains($domain, $test)) {
-                    Notification::getInstance()
+                    Notification::create()
                         ->setCode('configuration')
                         ->setGroups('developers')
                         ->setTitle(tr('Invalid cookie domain'))
@@ -2477,7 +2477,7 @@ class Core {
                                 $e = new CoreException(tr('core::manage_session(): Reset timezone for user ":user" to ":timezone"', array(':user' => name($_SESSION['user']), ':timezone' => $_SESSION['user']['timezone'])), $e);
                                 $e->makeWarning(true);
 
-                                Notification::getInstance()
+                                Notification::create()
                                     ->setException($e)
                                     ->send();
                             }

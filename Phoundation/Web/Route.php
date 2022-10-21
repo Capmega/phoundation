@@ -453,7 +453,7 @@ class Route
 
                     case 'H':
                         Log::notice(tr('*POSSIBLE HACK ATTEMPT DETECTED*'));
-                        Notification::getInstance()
+                        Notification::create()
                             ->setCode('hack')
                             ->setGroups('security')
                             ->setTitle(tr('*Possible hack attempt detected*'))
