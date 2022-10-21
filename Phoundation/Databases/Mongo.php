@@ -18,20 +18,6 @@ use Phoundation\Databases\Exception\MongoException;
 class Mongo
 {
     /**
-     * Identifier of this instance
-     *
-     * @var string|null $instance_name
-     */
-    protected ?string $instance_name = null;
-
-    /**
-     * Instances store
-     *
-     * @var array $instances
-     */
-    protected static array $instances = [];
-
-    /**
      * Connections store
      *
      * @var array $connections
@@ -45,59 +31,9 @@ class Mongo
      *
      * MC constructor.
      */
-    protected function __construct()
+    public function __construct()
     {
         $this->connections = Config::get('mongo.connections');
-    }
-
-
-    /**
-     * Instance factory
-     *
-     * @param string|null $instance_name
-     * @return Mongo
-     */
-    public static function getInstance(?string $instance_name = null): Mongo
-    {
-        if (!self::$instances) {
-            self::$instances[$instance_name] = new Mongo($instance_name);
-        }
-
-        return self::$instances[$instance_name];
-    }
-
-
-
-    /**
-     * Returns a Mongo object for the specified database / server
-     *
-     * In case another than the core database and server is needed
-     *
-     * @param string $database_name
-     * @return Mongo
-     * @throws MongoException
-     */
-    public static function db(string $database_name): Mongo
-    {
-        if (!array_key_exists($database_name, self::$databases)) {
-            throw new MongoException('The specified Mongo database ":db" does not exist', [':db' => $database_name]);
-        }
-
-        return self::$databases[$database_name];
-    }
-
-
-
-    /**
-     * Wrapper to Mongo::db()
-     *
-     * @see Mongo::db()
-     * @param string|null $instance_name
-     * @return Mongo
-     */
-    public static function database(?string $instance_name = null): Mongo
-    {
-        return self::db($instance_name);
     }
 
 

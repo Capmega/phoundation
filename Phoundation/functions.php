@@ -15,6 +15,11 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Databases\Databases;
+use Phoundation\Databases\Mc;
+use Phoundation\Databases\Mongo;
+use Phoundation\Databases\Redis;
+use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 
@@ -560,4 +565,60 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
 
     unset($value);
     return $variable;
+}
+
+
+
+/**
+ * Returns the system SQL database object
+ *
+ * @param string|null $instance_name
+ * @return Sql
+ * @throws Exception|\Exception
+ */
+function sql(?string $instance_name = null): Sql
+{
+    return Databases::Sql($instance_name);
+}
+
+
+
+/**
+ * Returns the system SQL database object
+ *
+ * @param string|null $instance_name
+ * @return Mc
+ * @throws Exception|\Exception
+ */
+function mc(?string $instance_name = null): Mc
+{
+    return Databases::Mc($instance_name);
+}
+
+
+
+/**
+ * Returns the system SQL database object
+ *
+ * @param string|null $instance_name
+ * @return Mongo
+ * @throws Exception|\Exception
+ */
+function mongo(?string $instance_name = null): Mongo
+{
+    return Databases::Mongo($instance_name);
+}
+
+
+
+/**
+ * Returns the system SQL database object
+ *
+ * @param string|null $instance_name
+ * @return Redis
+ * @throws Exception|\Exception
+ */
+function redis(?string $instance_name = null): Redis
+{
+    return Databases::Redis($instance_name);
 }

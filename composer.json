@@ -4,16 +4,19 @@
   "require": {
     "php": "^8.1.0",
     "ext-json": "*",
-    "ext-memcached": "*",
-    "ext-mongodb": "*",
     "ext-pdo": "*",
-    "ext-redis": "*",
     "ext-yaml": "*",
     "ext-mbstring": "*",
     "ext-posix": "*",
     "ext-fileinfo": "*",
     "mongodb/mongodb":"^1.6",
-    "ext-apache": "*"
+    "ext-apache": "*",
+  },
+  "suggest": {
+    "ext-redis": "*",
+    "ext-mongo": "*",
+    "ext-mongodb": "*",
+    "ext-memcached": "*"
   },
   "require-dev": {
     "phpmd/phpmd": "@stable",

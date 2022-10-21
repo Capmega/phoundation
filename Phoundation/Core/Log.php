@@ -710,7 +710,7 @@ Class Log {
      */
     public static function sql(string|PDOStatement $query, ?array $execute = null, int $level = 3): bool
     {
-        $query = Sql::db()->buildQueryString($query, $execute, false);
+        $query = sql()->buildQueryString($query, $execute, false);
         $query = Strings::endsWith($query, ';');
         return Log::printr($query, $level);
     }

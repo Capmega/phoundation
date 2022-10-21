@@ -26,20 +26,6 @@ use Throwable;
 class Mc
 {
     /**
-     * Identifier of this instance
-     *
-     * @var string|null $instance_name
-     */
-    protected ?string $instance_name = null;
-
-    /**
-     * Instances store
-     *
-     * @var array $instances
-     */
-    protected static array $instances = [];
-
-    /**
      * PHP Memcached drivers
      *
      * @var Memcached| null $memcached
@@ -76,7 +62,7 @@ class Mc
      * @note Instance always defaults to "system" if not specified
      * @param string|null $instance_name
      */
-    protected function __construct(?string $instance_name = null)
+    public function __construct(?string $instance_name = null)
     {
         if (!class_exists('Memcached')) {
             throw new PhpModuleNotAvailableException(tr('The PHP module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php5-memcached; sudo php5enmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'));
@@ -93,42 +79,6 @@ class Mc
         $this->readConfiguration();
         $this->setConnections($this->configuration['connectors']);
         $this->connect();
-    }
-
-
-
-    /**
-     * Quick access to Mc instances. Defaults to "system" instance
-     *
-     * @param string|null $instance_name
-     * @return Mc
-     */
-    public static function db(?string $instance_name = null): Mc
-    {
-        if (!$instance_name) {
-            // Always default to system instance
-            $instance_name = 'system';
-        }
-
-        if (!self::$instances[$instance_name]) {
-            self::$instances[$instance_name] = new Mc($instance_name);
-        }
-
-        return self::$instances[$instance_name];
-    }
-
-
-
-    /**
-     * Wrapper to Mc::db()
-     *
-     * @see Mc::db()
-     * @param string|null $instance_name
-     * @return Mc
-     */
-    public static function database(?string $instance_name = null): Mc
-    {
-        return self::db($instance_name);
     }
 
 

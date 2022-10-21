@@ -52,13 +52,6 @@ class Sql
     protected static bool $init = false;
 
     /**
-     * Database instances store
-     *
-     * @var array $instance
-     */
-    protected static array $instances = [];
-
-    /**
      * All SQL database configuration
      *
      * @var array $configuration
@@ -101,6 +94,7 @@ class Sql
     protected ?PDO $pdo = null;
 
 
+
     /**
      * Sql constructor
      *
@@ -108,7 +102,7 @@ class Sql
      * @return void
      * @throws Exception
      */
-    protected function __construct(?string $instance_name = null)
+    public function __construct(?string $instance_name = null)
     {
         if ($instance_name === null) {
             $instance_name = 'system';
@@ -120,18 +114,6 @@ class Sql
         $this->init();
     }
 
-
-
-    /**
-     * Wrapper for Sql::db()
-     *
-     * @param string|null $instance_name
-     * @return Sql
-     */
-    public static function database(?string $instance_name = null): Sql
-    {
-        return self::db($instance_name);
-    }
 
 
     /**

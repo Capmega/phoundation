@@ -6,6 +6,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Web\Exception\RouteException;
 use Phoundation\Web\Http\Http;
 
@@ -32,7 +33,7 @@ class Page
      * @param boolean $attachment        If specified as true, will send the file as a downloadable attachement, to be
      *                                   written to disk instead of displayed on the browser. If set to false, the file
      *                                   will be sent as a file to be displayed in the browser itself.
-     * @param array|string $restrictions If specified, apply the specified file system restrictions, which may block the
+     * @param Restrictions $restrictions If specified, apply the specified file system restrictions, which may block the
      *                                   request if the requested file is outside these restrictions
      * @return void
      * @throws \Throwable
@@ -41,7 +42,7 @@ class Page
      * @note: This function will kill the process once it has finished executing / sending the target file to the client
      * @version 2.5.88: Added function and documentation
      */
-    #[NoReturn] public static function execute(string $target, bool $attachment, array|string $restrictions): void
+    #[NoReturn] public static function execute(string $target, bool $attachment, Restrictions $restrictions): void
     {
         if (str_ends_with($target, 'php')) {
             if ($attachment) {

@@ -18,20 +18,6 @@ use Phoundation\Databases\Exception\RedisException;
 class Redis
 {
     /**
-     * Identifier of this instance
-     *
-     * @var string|null $instance_name
-     */
-    protected ?string $instance_name = null;
-
-    /**
-     * Instances store
-     *
-     * @var array $instances
-     */
-    protected static array $instances = [];
-
-    /**
      * Connections store
      *
      * @var array $connections
@@ -45,43 +31,9 @@ class Redis
      *
      * MC constructor.
      */
-    protected function __construct()
+    public function __construct()
     {
         $this->connections = Config::get('redis.connections');
-    }
-
-
-
-    /**
-     * Returns a Redis object for the specified database / server
-     *
-     * In case another than the core database and server is needed
-     *
-     * @param string $database_name
-     * @return Redis
-     * @throws RedisException
-     */
-    public static function db(string $database_name): Redis
-    {
-        if (!array_key_exists($database_name, self::$databases)) {
-            throw new RedisException('The specified Redis database ":db" does not exist', [':db' => $database_name]);
-        }
-
-        return self::$databases[$database_name];
-    }
-
-
-
-    /**
-     * Wrapper to Redis::db()
-     *
-     * @see Redis::db()
-     * @param string|null $instance_name
-     * @return Redis
-     */
-    public static function database(?string $instance_name = null): Redis
-    {
-        return self::db($instance_name);
     }
 
 

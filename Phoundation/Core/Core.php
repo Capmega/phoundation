@@ -2193,7 +2193,7 @@ class Core {
 
                 case 'list':
                     // This domain must be registered in the whitelabels list
-                    $domain = Sql::db()->getColumn('SELECT `domain` 
+                    $domain = sql()->getColumn('SELECT `domain` 
                                                           FROM   `whitelabels` 
                                                           WHERE  `domain` = :domain 
                                                           AND `status` IS NULL',

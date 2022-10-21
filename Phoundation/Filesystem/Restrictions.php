@@ -5,6 +5,7 @@ namespace Phoundation\Filesystem;
 
 
 
+use Phoundation\Core\Arrays;
 use Phoundation\Exception\UnderConstructionException;
 
 /**
@@ -23,21 +24,56 @@ class Restrictions
     /**
      * Internal store of all restrictions
      *
-     * @var array $restrictions
+     * @var array $paths
      */
-    protected array $restrictions = [];
+    protected array $paths = [];
 
 
 
     /**
-     * Add new
+     * Restrictions constructor
+     *
+     * @param string|array|null $paths
+     * @param bool $write
+     */
+    public function __construct(string|array|null $paths, bool $write = false)
+    {
+        if ($paths) {
+            $this->setPaths($paths, $write);
+        }
+    }
+
+
+
+    /**
+     * Set all paths for this restriction
+     *
+     * @param array|string $paths
+     * @param bool $write
+     * @return Restrictions
+     */
+    public function setPaths(array|string $paths, bool $write = false): Restrictions
+    {
+        foreach (Arrays::force($paths) as $path) {
+            $this->addPath($path, $write);
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Add new path for this restriction
      *
      * @param string $path
      * @param bool $write
      * @return Restrictions
      */
-    public function add(string $path, bool $write = false): Restrictions
+    public function addPath(string $path, bool $write = false): Restrictions
     {
+        $this->paths[$path] = $write;
+        return $this;
     }
 
 
@@ -48,7 +84,7 @@ class Restrictions
      */
     public function check(string|array $patterns): void
     {
-        foreach ($this->restrictions as $path => $write) {
+        foreach ($this->paths as $path => $write) {
 throw new UnderConstructionException();
         }
     }

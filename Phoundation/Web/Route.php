@@ -10,6 +10,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notify\Notification;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
@@ -257,7 +258,7 @@ class Route
             if (($count === 1) and Config::get('web.route.static', false)) {
                 if ($static) {
                     // Check if remote IP is registered for special routing
-                    $exists = Sql::db()->get('SELECT   `id`, `uri`, `regex`, `target`, `flags`
+                    $exists = sql()->get('SELECT   `id`, `uri`, `regex`, `target`, `flags`
                                                     FROM     `routes_static` 
                                                     WHERE    `ip` = :ip 
                                                       AND    `status` IS NULL 
@@ -267,14 +268,20 @@ class Route
 
                     if ($exists) {
                         // Apply semi-permanent routing for this IP
-                        Log::warning(tr('Found active static routing for IP ":ip", continuing routing as if request is URI ":uri" with regex ":regex", target ":target", and flags ":flags" instead', [':ip' => $ip, ':uri' => $exists['uri'], ':regex' => $exists['regex'], ':target' => $exists['target'], ':flags' => $exists['flags']]));
+                        Log::warning(tr('Found active static routing for IP ":ip", continuing routing as if request is URI ":uri" with regex ":regex", target ":target", and flags ":flags" instead', [
+                            ':ip' => $ip,
+                            ':uri' => $exists['uri'],
+                            ':regex' => $exists['regex'],
+                            ':target' => $exists['target'],
+                            ':flags' => $exists['flags']
+                        ]));
 
                         $uri       = $exists['uri'];
                         $url_regex = $exists['regex'];
                         $target    = $exists['target'];
                         $flags     = explode(',', $exists['flags']);
 
-                        Sql::db()->query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', [':id' => $exists['id']]);
+                        sql()->query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', [':id' => $exists['id']]);
 
                         unset($exists);
                     }
@@ -309,7 +316,7 @@ class Route
 
             $route        = $target;
             $attachment   = false;
-            $restrictions = ROOT.'www,'.ROOT.'data/content/downloads';
+            $restrictions = new Restrictions([WWW_PATH , ROOT.'data/content/downloads']);
 
             // Regex matched. Do variable substitution on the target.
             if (preg_match_all('/:([A-Z_]+)/', $target, $variables)) {
@@ -931,7 +938,7 @@ class Route
 
         Log::notice(tr('Storing static routing rule ":rule" for IP ":ip"', [':rule' => $route['target'], ':ip' => $route['ip']]));
 
-        Sql::db()->query(
+        sql()->query(
             'INSERT INTO `routes_static` (`expiredon`                                , `meta_id`, `ip`, `uri`, `regex`, `target`, `flags`)
                    VALUES                      (DATE_ADD(NOW(), INTERVAL :expiredon SECOND), :meta_id , :ip , :uri , :regex , :target , :flags )',
 
