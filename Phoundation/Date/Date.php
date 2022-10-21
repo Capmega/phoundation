@@ -19,25 +19,21 @@ use Throwable;
  *
  * This class contains various date handling methods
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Date
  */
 class Date
 {
-    public static function convert($date = null, $requested_format = 'human_datetime', $to_timezone = null, $from_timezone = null) {
-        /*
-         * Ensure we have some valid date string
-         */
+    public static function convert(int|float|DateTime|null $date = null, $requested_format = 'human_datetime', $to_timezone = null, $from_timezone = null)
+    {
+        // Ensure we have some valid date string
         if ($date === null) {
             $date = date('Y-m-d H:i:s');
 
         } elseif (!$date) {
+            // TODO WTF? Return nothing?
             return '';
 
         } elseif (is_numeric($date)) {
-            $date = date('Y-m-d H:i:s', $date);
+            $date = date('Y-m-d H:i:s', (int) $date);
         }
 
         /*

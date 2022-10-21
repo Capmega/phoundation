@@ -6,7 +6,7 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Exception\NoKeySelectedException;
-use Phoundation\Data\Exception\ValidatorException;
+use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 

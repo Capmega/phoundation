@@ -515,9 +515,14 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
 function execute_script(string $file, array $argv): void
 {
     if ($argv) {
-        Log::information(tr('Executing script ":script" with arguments ""', [':script' => $file, ':arguments' => $argv]));
+        Log::information(tr('Executing script ":script" with arguments ""', [
+            ':script' => $file,
+            ':arguments' => $argv
+        ]));
     } else {
-        Log::information(tr('Executing script ":script" with no arguments', [':script' => $file]));
+        Log::information(tr('Executing script ":script" with no arguments', [
+            ':script' => $file
+        ]));
     }
 
     include($file);
@@ -526,7 +531,7 @@ function execute_script(string $file, array $argv): void
 
 
 /**
- * ???
+ * ??? No idea what this is supposed to do or if its important. Figure it out later, I guess?
  *
  * @param mixed $variable
  * @param int $level
@@ -539,9 +544,7 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
     }
 
     if (++$level > 20) {
-        /*
-         * Recursion level reached, until here, no further!
-         */
+        // Recursion level reached, until here, no further!
         return '***  Resource limit reached! ***';
     }
 

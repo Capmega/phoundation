@@ -7,9 +7,12 @@ use Phoundation\Cli\Exception\CliInvalidArgumentsException;
 use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Data\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Developer\Debug;
+use Phoundation\Init\Exception\InitException;
 use Phoundation\Notify\Notification;
+use Phoundation\Web\Exception\WebException;
 use Throwable;
 
 
@@ -166,7 +169,7 @@ class Exceptions
      * @param mixed|null $data
      * @param string|null $code
      * @param Throwable|null $previous
-     * @return \Phoundation\Exception\OutOfBoundsException
+     * @return OutOfBoundsException
      */
     public static function outOfBoundsException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): OutOfBoundsException
     {
@@ -182,7 +185,7 @@ class Exceptions
      * @param mixed|null $data
      * @param string|null $code
      * @param Throwable|null $previous
-     * @return \Phoundation\Exception\ScriptException
+     * @return ScriptException
      */
     public static function ScriptException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): ScriptException
     {
@@ -198,7 +201,7 @@ class Exceptions
      * @param mixed|null $data
      * @param string|null $code
      * @param Throwable|null $previous
-     * @return \Phoundation\Exception\WebException
+     * @return WebException
      */
     public static function WebException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): WebException
     {
@@ -214,7 +217,7 @@ class Exceptions
      * @param mixed|null $data
      * @param string|null $code
      * @param Throwable|null $previous
-     * @return \Phoundation\Cli\Exception\MethodNotFoundException
+     * @return MethodNotFoundException
      */
     public static function MethodNotFoundException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): MethodNotFoundException
     {
@@ -230,11 +233,26 @@ class Exceptions
      * @param mixed|null $data
      * @param string|null $code
      * @param Throwable|null $previous
-     * @return \Phoundation\Cli\Exception\CliInvalidArgumentsException
+     * @return CliInvalidArgumentsException
      */
     public static function CliInvalidArgumentsException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): CliInvalidArgumentsException
     {
         return new CliInvalidArgumentsException($messages, $data, $code, $previous);
+    }
+
+
+    /**
+     * Exceptions factory for ValidationFailedException
+     *
+     * @param string|array $messages
+     * @param mixed|null $data
+     * @param string|null $code
+     * @param Throwable|null $previous
+     * @return ValidationFailedException
+     */
+    public static function ValidationFailedException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): ValidationFailedException
+    {
+        return new ValidationFailedException($messages, $data, $code, $previous);
     }
 
 
@@ -246,10 +264,10 @@ class Exceptions
      * @param mixed|null $data
      * @param string|null $code
      * @param Throwable|null $previous
-     * @return \Phoundation\Cli\Exception\ValidationFailedException
+     * @return InitException
      */
-    public static function ValidationFailedException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): ValidationFailedException
+    public static function InitException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): InitException
     {
-        return new ValidationFailedException($messages, $data, $code, $previous);
+        return new InitException($messages, $data, $code, $previous);
     }
 }

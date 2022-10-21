@@ -7,8 +7,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Scripts;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Data\Exception\ValidationFailedException;
-use Phoundation\Databases\Sql\Sql;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
@@ -453,21 +452,21 @@ class Core {
                 case 'cli':
                     self::$call_type = 'cli';
                     // Make sure we have the original arguments available
-                    putenv('TIMEOUT='.Cli::argument('--timeout', true));
+                    putenv('TIMEOUT='.Scripts::argument('--timeout', true));
 
                     // Define basic platform constants
                     define('ADMIN'   , '');
                     define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
-                    define('QUIET'   , Cli::argument('-Q,--quiet'));
-                    define('FORCE'   , Cli::argument('-F,--force'));
-                    define('NOCOLOR' , Cli::argument('-C,--no-color'));
-                    define('TEST'    , Cli::argument('-T,--test'));
-                    define('DELETED' , Cli::argument('--deleted'));
-                    define('STATUS'  , Cli::argument('-S,--status', true));
+                    define('QUIET'   , Scripts::argument('-Q,--quiet'));
+                    define('FORCE'   , Scripts::argument('-F,--force'));
+                    define('NOCOLOR' , Scripts::argument('-C,--no-color'));
+                    define('TEST'    , Scripts::argument('-T,--test'));
+                    define('DELETED' , Scripts::argument('--deleted'));
+                    define('STATUS'  , Scripts::argument('-S,--status', true));
                     define('STARTDIR', Strings::slash(getcwd()));
 
                     // Check what environment we're in
-                    $environment = Cli::argument('-E,--env,--environment', true);
+                    $environment = Scripts::argument('-E,--env,--environment', true);
 
                     if (empty($environment)) {
                         $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
@@ -703,7 +702,7 @@ class Core {
 
                     // Get required language.
                     try {
-                        $language = not_empty(Cli::argument('--language'), Cli::argument('L'), Config::get('language.default', 'en'));
+                        $language = not_empty(Scripts::argument('--language'), Scripts::argument('L'), Config::get('language.default', 'en'));
 
                         if (Config::get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
                             throw new CoreException(tr('Unknown language ":language" specified', array(':language' => $language)), 'unknown');
@@ -746,14 +745,14 @@ class Core {
                     self::$register['ready'] = true;
 
                     // Set more system parameters
-                    if (Cli::argument('-D,--debug')) {
+                    if (Scripts::argument('-D,--debug')) {
                         Debug::enabled();
                     }
 
-                    self::$register['all']         = Cli::argument('-A,--all');
-                    self::$register['page']        = not_empty(Cli::argument('-P,--page', true), 1);
-                    self::$register['limit']       = not_empty(Cli::argument('--limit'  , true), Config::get('paging.limit', 50));
-                    self::$register['clean_debug'] = Cli::argument('--clean-debug');
+                    self::$register['all']         = Scripts::argument('-A,--all');
+                    self::$register['page']        = not_empty(Scripts::argument('-P,--page', true), 1);
+                    self::$register['limit']       = not_empty(Scripts::argument('--limit'  , true), Config::get('paging.limit', 50));
+                    self::$register['clean_debug'] = Scripts::argument('--clean-debug');
 
                     // Validate parameters and give some startup messages, if needed
                     if (Debug::enabled()) {
@@ -1290,7 +1289,7 @@ class Core {
                     case 'cli':
 //                        // Ensure that required defines are available
 //                        if (!defined('Debug::enabled()')) {
-//                            define('Debug::enabled()', (Cli::argument('-VV,--very-Debug::enabled()') ? 'Debug::enabled()' : null));
+//                            define('Debug::enabled()', (Scripts::argument('-VV,--very-Debug::enabled()') ? 'Debug::enabled()' : null));
 //                        }
 //
 //                        self::setTimeout(1);
@@ -1298,14 +1297,14 @@ class Core {
 //                        $defines = [
 //                            'ADMIN'    => '',
 //                            'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
-//                            'Debug::enabled()'  => ((Debug::enabled() or Cli::argument('-V,--Debug::enabled(),-V2,--very-Debug::enabled()')) ? 'Debug::enabled()' : null),
-//                            'QUIET'    => Cli::argument('-Q,--quiet'),
-//                            'FORCE'    => Cli::argument('-F,--force'),
-//                            'TEST'     => Cli::argument('-T,--test'),
-//                            'LIMIT'    => not_empty(Cli::argument('--limit'  , true), Config::get('paging.limit', 50)),
-//                            'ALL'      => Cli::argument('-A,--all'),
-//                            'DELETED'  => Cli::argument('--deleted'),
-//                            'STATUS'   => Cli::argument('-S,--status' , true),
+//                            'Debug::enabled()'  => ((Debug::enabled() or Scripts::argument('-V,--Debug::enabled(),-V2,--very-Debug::enabled()')) ? 'Debug::enabled()' : null),
+//                            'QUIET'    => Scripts::argument('-Q,--quiet'),
+//                            'FORCE'    => Scripts::argument('-F,--force'),
+//                            'TEST'     => Scripts::argument('-T,--test'),
+//                            'LIMIT'    => not_empty(Scripts::argument('--limit'  , true), Config::get('paging.limit', 50)),
+//                            'ALL'      => Scripts::argument('-A,--all'),
+//                            'DELETED'  => Scripts::argument('--deleted'),
+//                            'STATUS'   => Scripts::argument('-S,--status' , true),
 //                            'STARTDIR' => Strings::slash(getcwd())
 //                        ];
 //

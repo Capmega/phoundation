@@ -1,6 +1,8 @@
 <?php
 
-namespace Phoundation\Data\Exception;
+namespace Phoundation\Data\Validator\Exception;
+
+use Phoundation\Data\Exception\DataException;
 
 
 

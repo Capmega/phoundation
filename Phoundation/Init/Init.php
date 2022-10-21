@@ -397,7 +397,7 @@ Class Init
                 }
             }
 
-            if (PLATFORM_HTTP or !cli_argument('--no-version-check')) {
+            if (PLATFORM_HTTP or !Scripts::argument('--no-version-check')) {
                 throw new CoreException(tr('init_process_version_diff(): Please run script ROOT/scripts/base/init because ":error"', array(':error' => $versionerror)), 'warning/do-init');
             }
 

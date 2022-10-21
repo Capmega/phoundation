@@ -1,0 +1,48 @@
+#!/usr/bin/php
+<?php
+/**
+ * This is the init script for the project. Run this script to ensure that the
+ * database is running with the same version as the code
+ *
+ * Command line options:
+ *
+ * force                : Force a core database dump, and init from 0. This
+ *                        option does NOT work on production environments
+ *
+ * dump                 : Dump the core database (this DOES work in production)
+ *
+ * fromprojectversion   : Make init fake the current project version registered
+ *                        in the databaes to be the version number that follows
+ *                        this option
+ *
+ * fromframeworkversion : Make init fake the current project version registered
+ *                        in the databaes to be the version number that follows
+ *                        this option
+ *
+ * @author Sven Oostenbrink <support@capmega.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @category Function reference
+ * @package template
+ */
+
+use Phoundation\Core\Core;
+use Phoundation\Core\Log;
+use Phoundation\Exception\Exceptions;
+use Phoundation\Init\Init;
+use Phoundation\Processes\Processes;
+
+
+
+// Reset the database to the code version
+if (!Init::reset()) {
+    throw Exceptions::InitException(tr('WARNING: Database version has NOT been reset, it probably is already at or behind the framework and code versions. See ROOT/script/base/info for more information.'))->makeWarning();
+}
+
+Log::warning(tr('WARNING: All version table entries beyond framework code version ":framework" and project code version ":project" have been removed. Restarting init to ensure versions will be correct', [
+    ':framework' => Core::FRAMEWORKCODEVERSION,
+    ':project' => PROJECTCODEVERSION
+]));
+
+Processes::createCliScript('base init')->executePassthru();
+

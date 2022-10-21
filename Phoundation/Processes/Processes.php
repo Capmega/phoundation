@@ -4,6 +4,7 @@ namespace Phoundation\Processes;
 
 
 
+use Phoundation\Core\Arrays;
 use Phoundation\Servers\Server;
 
 /**
@@ -29,6 +30,24 @@ Class Processes
     public static function create(?string $command = null, ?Server $server = null, bool $which_command = false): Process
     {
         return new Process($command, $server, $which_command);
+    }
+
+
+
+    /**
+     * Create a new CLI script process factory
+     *
+     * @param string|null $command
+     * @param Server|null $server
+     * @param bool $which_command
+     * @return Process
+     */
+    public static function createCliScript(?string $command = null, ?Server $server = null, bool $which_command = false): Process
+    {
+        $process = self::create('cli', $server, $which_command);
+        $process->addArguments(Arrays::force($command, ' '));
+
+        return $process;
     }
 
 

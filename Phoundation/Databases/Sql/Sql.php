@@ -726,7 +726,7 @@ class Sql
     public function query(string|PDOStatement $query, ?array $execute = null): PDOStatement
     {
         try {
-            Log::notice(tr('Executing query ":query"', [':query' => $query]));
+            Log::action(tr('Executing query ":query"', [':query' => $query]), 4);
 
             // PDO statement can be specified instead of a query
             if (!is_string($query)) {
@@ -1915,6 +1915,18 @@ class Sql
         ]);
 
         $this->get('SELECT TRUE', true, null, $this->instance_name);
+    }
+
+
+
+    /**
+     * Drop the database for this connector
+     *
+     * @return void
+     */
+    public function drop(): void
+    {
+        $this->query('DROP DATABASE ' . $this->instance_configuration['db']);
     }
 
 

@@ -1,0 +1,6 @@
+./scripts/base/init.
+./scripts/base/init drop (WARNING: TIS WILL DROP YOUR DATABASE, NO QUESTIONS ASKED!)
+./scripts/base/init reset
+./scripts/base/init -f [VERSION]
+./scripts/base/init -p [VERSION]
+./scripts/base/init -s | --section SECTION [-v VERSION]';
