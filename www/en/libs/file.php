@@ -2729,27 +2729,6 @@ function file_tree_execute($params) {
 
 
 
-/*
- * If specified path is not absolute, then return a path that is sure to start
- * from the current working directory
- */
-function file_absolute($path, $root = null) {
-    try {
-        if (empty($root)) {
-            $root = Strings::slash(getcwd());
-        }
-
-        if (substr($path, 0, 1) !== '/') {
-            $path = $root.$path;
-        }
-
-        return $path;
-
-    }catch(Exception $e) {
-        throw new CoreException(tr('file_absolute(): Failed'), $e);
-    }
-}
-
 
 
 /*

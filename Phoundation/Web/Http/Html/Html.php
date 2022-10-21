@@ -2,9 +2,9 @@
 
 namespace Phoundation\Web\Http\Html;
 
-
-
 use Phoundation\Core\Arrays;
+
+
 
 /**
  * Class Html
@@ -14,7 +14,7 @@ use Phoundation\Core\Arrays;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Http
+ * @package Phoundation\Web
  */
 Class Html {
     /**
@@ -22,7 +22,7 @@ Class Html {
      *
      * @var int $tabindex
      */
-    protected int $tabindex = 0;
+    protected static int $tabindex = 0;
 
 
 
@@ -31,9 +31,33 @@ Class Html {
      *
      * @return int
      */
-    public function getTabIndex(): int
+    public static function getTabIndex(): int
     {
-        return $this->tabindex++;
+        return self::$tabindex++;
+    }
+
+
+
+    /**
+     * Returns a new HtmlSelect object to generate an <select> element
+     *
+     * @return Select
+     */
+    public static function select(): Select
+    {
+        return new Select();
+    }
+
+
+
+    /**
+     * Returns a new HtmlImg object to generate an <img> element
+     *
+     * @return Img
+     */
+    public static function img(): Img
+    {
+        return new Img();
     }
 
 
@@ -394,7 +418,7 @@ Class Html {
 
         if (!is_array($files)) {
             if (!is_string($files)) {
-                throw new CoreException('html_load_css(): Invalid files specification');
+                throw new HtmlException('html_load_css(): Invalid files specification');
             }
 
             $files = explode(',', $files);
@@ -500,7 +524,7 @@ Class Html {
      */
     function load_js($files, $list = 'page') {
         if (!isset($core->register['js_header'])) {
-            throw new CoreException(tr('html_load_js(): Cannot load javascript file(s) ":files", the files list have already been sent to the client by html_header()', array(':files' => $files)), 'invalid');
+            throw new HtmlException(tr('html_load_js(): Cannot load javascript file(s) ":files", the files list have already been sent to the client by html_header()', array(':files' => $files)), 'invalid');
         }
 
         $config = &$_CONFIG['cdn']['js'];
@@ -857,7 +881,7 @@ Class Html {
 
                     default:
                         if (!str_contains($font, 'fonts.googleapis.com')) {
-                            throw new CoreException(tr('html_header(): Unknown font type ":type" specified for font ":font"', array(':type' => $extension, ':font' => $font)), 'unknown');
+                            throw new HtmlException(tr('html_header(): Unknown font type ":type" specified for font ":font"', array(':type' => $extension, ':font' => $font)), 'unknown');
                         }
 
                         $retval .= '<link rel="preload" href="'.$font.'" as="font" type="text/css" crossorigin="anonymous">';
@@ -920,20 +944,20 @@ Class Html {
          */
         if (empty($meta['title'])) {
             $meta['title'] = domain(true);
-            notify(new CoreException(tr('html_meta(): No meta title specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
+            notify(new HtmlException(tr('html_meta(): No meta title specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
 
         } elseif (strlen($meta['title']) > 65) {
             $meta['title'] = str_truncate($meta['title'], 65);
-            notify(new CoreException(tr('html_meta(): Specified meta title ":title" is larger than 65 characters', array(':title' => $meta['title'])), 'warning/invalid'));
+            notify(new HtmlException(tr('html_meta(): Specified meta title ":title" is larger than 65 characters', array(':title' => $meta['title'])), 'warning/invalid'));
         }
 
         if (empty($meta['description'])) {
             $meta['description'] = domain(true);
-            notify(new CoreException(tr('html_meta(): No meta description specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
+            notify(new HtmlException(tr('html_meta(): No meta description specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
 
         } elseif (strlen($meta['description']) > 155) {
             $meta['description'] = str_truncate($meta['description'], 155);
-            notify(new CoreException(tr('html_meta(): Specified meta description ":description" is larger than 155 characters', array(':description' => $meta['description'])), 'warning/invalid'));
+            notify(new HtmlException(tr('html_meta(): Specified meta description ":description" is larger than 155 characters', array(':description' => $meta['description'])), 'warning/invalid'));
         }
 
         /*
@@ -954,7 +978,7 @@ Class Html {
         }
 
         if (!$meta['viewport']) {
-            notify(new CoreException(tr('html_header(): Meta viewport tag is not specified'), 'warning/not-specified'));
+            notify(new HtmlException(tr('html_header(): Meta viewport tag is not specified'), 'warning/not-specified'));
         }
 
         /*
@@ -969,7 +993,7 @@ Class Html {
 
             } elseif (substr($key, 0, 3) === 'og:') {
 // :COMPATIBILITY: Remove this section @ 2.10
-                notify(new CoreException(tr('html_meta(): Found $meta[:key], this should be $meta[og][:ogkey], ignoring', array(':key' => $key, ':ogkey' => Strings::from($key, 'og:'))), 'warning/invalid'));
+                notify(new HtmlException(tr('html_meta(): Found $meta[:key], this should be $meta[og][:ogkey], ignoring', array(':key' => $key, ':ogkey' => Strings::from($key, 'og:'))), 'warning/invalid'));
 
             } else {
                 $retval .= '<meta name="'.$key.'" content="'.$value.'">';
@@ -1015,19 +1039,19 @@ Class Html {
 
         if (strlen($og['description']) > 65) {
             $og['description'] = str_truncate($og['description'], 65);
-            notify(new CoreException(tr('html_og(): Specified OG description ":description" is larger than 65 characters, truncating to correct size', array(':description' => $og['description'])), 'warning/invalid'));
+            notify(new HtmlException(tr('html_og(): Specified OG description ":description" is larger than 65 characters, truncating to correct size', array(':description' => $og['description'])), 'warning/invalid'));
         }
 
         if (strlen($og['title']) > 35) {
             $og['title'] = str_truncate($og['title'], 35);
-            notify(new CoreException(tr('html_og(): Specified OG title ":title" is larger than 35 characters, truncating to correct size', array(':title' => $og['title'])), 'warning/invalid'));
+            notify(new HtmlException(tr('html_og(): Specified OG title ":title" is larger than 35 characters, truncating to correct size', array(':title' => $og['title'])), 'warning/invalid'));
         }
 
         $og['locale'] = Strings::until($og['locale'], '.');
 
         foreach ($og as $property => $content) {
             if (empty($content)) {
-                notify(new CoreException(tr('html_og(): Missing property content for meta og key ":property". Please add this data for SEO!', array(':property' => $property)), 'warning/not-specified'));
+                notify(new HtmlException(tr('html_og(): Missing property content for meta og key ":property". Please add this data for SEO!', array(':property' => $property)), 'warning/not-specified'));
             }
 
             $retval .= '<meta property="og:'.$property.'" content="'.$content.'">';
@@ -1119,7 +1143,7 @@ Class Html {
      */
     function flash($class = null) {
         if (!PLATFORM_HTTP) {
-            throw new CoreException('html_flash(): This function can only be executed on a webserver!');
+            throw new HtmlException('html_flash(): This function can only be executed on a webserver!');
         }
 
         if (!isset($_SESSION['flash'])) {
@@ -1227,7 +1251,7 @@ Class Html {
                     break;
 
                 default:
-                    throw new CoreException(tr('html_flash(): Unknown html flash type ":type" specified. Please check your $_CONFIG[flash][type] configuration', array(':type' => $_CONFIG['flash']['type'])), 'unknown');
+                    throw new HtmlException(tr('html_flash(): Unknown html flash type ":type" specified. Please check your $_CONFIG[flash][type] configuration', array(':type' => $_CONFIG['flash']['type'])), 'unknown');
             }
 
             $core->register['flash'] = true;
@@ -1297,14 +1321,14 @@ Class Html {
     function flash_set($params, $type = 'info', $class = null) {
         try {
             if (!PLATFORM_HTTP) {
-                throw new CoreException(tr('html_flash_set(): This function can only be executed on a webserver!'), 'invalid');
+                throw new HtmlException(tr('html_flash_set(): This function can only be executed on a webserver!'), 'invalid');
             }
 
             if (!$params) {
                 /*
                  * Wut? no message?
                  */
-                throw new CoreException(tr('html_flash_set(): No messages specified'), 'not-specified');
+                throw new HtmlException(tr('html_flash_set(): No messages specified'), 'not-specified');
             }
 
             /*
@@ -1342,7 +1366,7 @@ Class Html {
                     return html_flash_set(implode(',', $params), $type, $class);
                 }
 
-                throw new CoreException(tr('html_flash_set(): Invalid call data ":data", should contain at least "text" or "html" or "title"!', array(':data' => $params)), 'invalid');
+                throw new HtmlException(tr('html_flash_set(): Invalid call data ":data", should contain at least "text" or "html" or "title"!', array(':data' => $params)), 'invalid');
             }
 
             switch (strtolower($params['type'])) {
@@ -1382,7 +1406,7 @@ Class Html {
             /*
              * Here, something actually went wrong within html_flash_set()
              */
-            throw new CoreException('html_flash_set(): Failed', $e);
+            throw new HtmlException('html_flash_set(): Failed', $e);
         }
     }
 
@@ -1404,7 +1428,7 @@ Class Html {
 //        return false;
 //
 //    }catch(Exception $e) {
-//        throw new CoreException('html_flash_class(): Failed', $e);
+//        throw new HtmlException('html_flash_class(): Failed', $e);
 //    }
 //}
 
@@ -1434,7 +1458,7 @@ Class Html {
         }
 
         if (empty($params['href'])) {
-            throw new CoreException('html_a(): No href specified', 'not-specified');
+            throw new HtmlException('html_a(): No href specified', 'not-specified');
         }
 
         if ($params['name']) {
@@ -1540,7 +1564,7 @@ Class Html {
                 $type .= tr(' of class :class', array(':class' => get_class($params['buttons'])));
             }
 
-            throw new CoreException(tr('html_select_submit(): Invalid data type specified for params "buttons", it should be an array or PDO statement object, but it is an ":type"', array(':type' => $type)), 'invalid');
+            throw new HtmlException(tr('html_select_submit(): Invalid data type specified for params "buttons", it should be an array or PDO statement object, but it is an ":type"', array(':type' => $type)), 'invalid');
         }
 
         return html_select($params);
@@ -1626,7 +1650,7 @@ Class Html {
 
         if (!$params['name']) {
             if (!$params['id']) {
-                throw new CoreException(tr('html_select(): No name specified'), 'not-specified');
+                throw new HtmlException(tr('html_select(): No name specified'), 'not-specified');
             }
 
             $params['name'] = $params['id'];
@@ -1663,7 +1687,7 @@ Class Html {
             //        $params['disabled'] = true;
             //
             //    } else {
-            //        throw new CoreException(tr('html_select(): Invalid resource of type "%type%" specified, should be either null, an array, or a PDOStatement object', array('%type%' => gettype($params['resource']))), 'invalid');
+            //        throw new HtmlException(tr('html_select(): Invalid resource of type "%type%" specified, should be either null, an array, or a PDOStatement object', array('%type%' => gettype($params['resource']))), 'invalid');
             //    }
             //}
         }
@@ -1774,7 +1798,7 @@ Class Html {
         }
 
         if ($params['data_resource'] and !is_array($params['data_resource'])) {
-            throw new CoreException(tr('html_select_body(): Invalid data_resource specified, should be an array, but received a ":gettype"', array(':gettype' => gettype($params['data_resource']))), 'invalid');
+            throw new HtmlException(tr('html_select_body(): Invalid data_resource specified, should be an array, but received a ":gettype"', array(':gettype' => gettype($params['data_resource']))), 'invalid');
         }
 
         if ($params['resource']) {
@@ -1807,7 +1831,7 @@ Class Html {
 
             } elseif (is_object($params['resource'])) {
                 if (!($params['resource'] instanceof PDOStatement)) {
-                    throw new CoreException(tr('html_select_body(): Specified resource object is not an instance of PDOStatement'), 'invalidresource');
+                    throw new HtmlException(tr('html_select_body(): Specified resource object is not an instance of PDOStatement'), 'invalidresource');
                 }
 
                 if ($params['auto_select'] and ($params['resource']->rowCount() == 1)) {
@@ -1846,7 +1870,7 @@ Class Html {
                 }
 
             } else {
-                throw new CoreException(tr('html_select_body(): Specified resource ":resource" is neither an array nor a PDO statement', array(':resource' => $params['resource'])), 'invalid');
+                throw new HtmlException(tr('html_select_body(): Specified resource ":resource" is neither an array nor a PDO statement', array(':resource' => $params['resource'])), 'invalid');
             }
         }
 
@@ -1912,7 +1936,7 @@ Class Html {
             /*
              * No javascript was specified, notify developers
              */
-            notify(new CoreException(tr('html_script(): No javascript code specified'), 'not-specified'));
+            notify(new HtmlException(tr('html_script(): No javascript code specified'), 'not-specified'));
             return '';
         }
 
@@ -1966,7 +1990,7 @@ Class Html {
                             break;
 
                         default:
-                            throw new CoreException(tr('html_script(): Unknown event value ":value" specified', array(':value' => $script['event'])), 'unknown');
+                            throw new HtmlException(tr('html_script(): Unknown event value ":value" specified', array(':value' => $script['event'])), 'unknown');
                     }
 
                 } else {
@@ -2157,11 +2181,11 @@ Class Html {
      */
     function list($params, $selected = '') {
         if (!is_array($params)) {
-            throw new CoreException('html_list(): Specified params is not an array', 'invalid');
+            throw new HtmlException('html_list(): Specified params is not an array', 'invalid');
         }
 
         if (empty($params['steps']) or !is_array($params['steps'])) {
-            throw new CoreException('html_list(): params[steps] is not specified or not an array', 'invalid');
+            throw new HtmlException('html_list(): params[steps] is not specified or not an array', 'invalid');
         }
 
         Arrays::default($params, 'selected'    , $selected);
@@ -2316,7 +2340,7 @@ Class Html {
                 $file_src  = ROOT.'data/content'.$file_part;
                 $external  = false;
 
-                notify(new CoreException(tr('html_img(): The main domain ":domain" was specified for CDN data, please correct this issue', array(':domain' => domain(''))), 'warning/invalid'));
+                notify(new HtmlException(tr('html_img(): The main domain ":domain" was specified for CDN data, please correct this issue', array(':domain' => domain(''))), 'warning/invalid'));
 
             } else {
                 $file_src  = $src;
@@ -2450,16 +2474,16 @@ Class Html {
                 return '';
             }
 
-            throw new CoreException(tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $params['alt'])), 'no-image');
+            throw new HtmlException(tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $params['alt'])), 'no-image');
         }
 
         if (!Debug::production()) {
             if (!$params['src']) {
-                throw new CoreException(tr('html_img(): No image src specified'), 'not-specified');
+                throw new HtmlException(tr('html_img(): No image src specified'), 'not-specified');
             }
 
             if (!$params['alt']) {
-                throw new CoreException(tr('html_img(): No image alt text specified for src ":src"', array(':src' => $params['src'])), 'not-specified');
+                throw new HtmlException(tr('html_img(): No image alt text specified for src ":src"', array(':src' => $params['src'])), 'not-specified');
             }
 
         } else {
@@ -2669,22 +2693,22 @@ Class Html {
              */
             if (!is_numeric($params['width']) and ($params['width'] > 0)) {
                 if (!$image['width']) {
-                    notify(new CoreException(tr('Detected invalid "width" parameter specification for image ":src", and failed to get real image width too, ignoring "width" attribute', array(':width' => $params['width'], ':src' => $params['src'])), 'warning/invalid'));
+                    notify(new HtmlException(tr('Detected invalid "width" parameter specification for image ":src", and failed to get real image width too, ignoring "width" attribute', array(':width' => $params['width'], ':src' => $params['src'])), 'warning/invalid'));
                     $params['width'] = null;
 
                 } else {
-                    notify(new CoreException(tr('Detected invalid "width" parameter specification for image ":src", forcing real image width ":real" instead', array(':width' => $params['width'], ':real' => $image['width'], ':src' => $params['src'])), 'warning/invalid'));
+                    notify(new HtmlException(tr('Detected invalid "width" parameter specification for image ":src", forcing real image width ":real" instead', array(':width' => $params['width'], ':real' => $image['width'], ':src' => $params['src'])), 'warning/invalid'));
                     $params['width'] = $image['width'];
                 }
             }
 
             if (!is_numeric($params['height']) and ($params['height'] > 0)) {
                 if (!$image['height']) {
-                    notify(new CoreException(tr('Detected invalid "height" parameter specification for image ":src", and failed to get real image height too, ignoring "height" attribute', array(':height' => $params['height'], ':src' => $params['src'])), 'warning/invalid'));
+                    notify(new HtmlException(tr('Detected invalid "height" parameter specification for image ":src", and failed to get real image height too, ignoring "height" attribute', array(':height' => $params['height'], ':src' => $params['src'])), 'warning/invalid'));
                     $params['height'] = null;
 
                 } else {
-                    notify(new CoreException(tr('Detected invalid "height" parameter specification for image ":src", forcing real image height ":real" instead', array(':height' => $params['height'], ':real' => $image['height'], ':src' => $params['src'])), 'warning/invalid'));
+                    notify(new HtmlException(tr('Detected invalid "height" parameter specification for image ":src", forcing real image height ":real" instead', array(':height' => $params['height'], ':real' => $image['height'], ':src' => $params['src'])), 'warning/invalid'));
                     $params['height'] = $image['height'];
                 }
             }
@@ -2924,7 +2948,7 @@ Class Html {
                                 break;
 
                             default:
-                                throw new CoreException(tr('html_img(): Unknown lazy_img option ":key" specified. Please check the $_CONFIG[lazy_img] configuration!', array(':key' => $key)), 'unknown');
+                                throw new HtmlException(tr('html_img(): Unknown lazy_img option ":key" specified. Please check the $_CONFIG[lazy_img] configuration!', array(':key' => $key)), 'unknown');
                         }
                     }
 
@@ -2937,7 +2961,7 @@ Class Html {
                      * Oops, jquery.lazy failed to install or load. Notify, and
                      * ignore, we will just continue without lazy loading.
                      */
-                    notify(new CoreException(tr('html_img(): Failed to install or load jquery.lazy'), $e));
+                    notify(new HtmlException(tr('html_img(): Failed to install or load jquery.lazy'), $e));
                 }
             }
 
@@ -2960,7 +2984,7 @@ Class Html {
 
         if (!Debug::production()) {
             if (!$params['src']) {
-                throw new CoreException(tr('html_video(): No video src specified'), 'not-specified');
+                throw new HtmlException(tr('html_video(): No video src specified'), 'not-specified');
             }
         }
 
@@ -2968,19 +2992,19 @@ Class Html {
 // But in this case, we have to use a external "library" to get this done
 // Investigate the best option for this!
         if (!$params['width']) {
-            throw new CoreException(tr('html_video(): No width specified'), 'not-specified');
+            throw new HtmlException(tr('html_video(): No width specified'), 'not-specified');
         }
 
         if (!is_natural($params['width'])) {
-            throw new CoreException(tr('html_video(): Invalid width ":width" specified', array(':width' => $params['width'])), 'invalid');
+            throw new HtmlException(tr('html_video(): Invalid width ":width" specified', array(':width' => $params['width'])), 'invalid');
         }
 
         if (!$params['height']) {
-            throw new CoreException(tr('html_video(): No height specified'), 'not-specified');
+            throw new HtmlException(tr('html_video(): No height specified'), 'not-specified');
         }
 
         if (!is_natural($params['height'])) {
-            throw new CoreException(tr('html_video(): Invalid height ":height" specified', array(':height' => $params['height'])), 'invalid');
+            throw new HtmlException(tr('html_video(): Invalid height ":height" specified', array(':height' => $params['height'])), 'invalid');
         }
 
         /*
@@ -3019,11 +3043,11 @@ Class Html {
                  * Remote videos MUST have height and width specified!
                  */
                 if (!$params['height']) {
-                    throw new CoreException(tr('html_video(): No height specified for remote video'), 'not-specified');
+                    throw new HtmlException(tr('html_video(): No height specified for remote video'), 'not-specified');
                 }
 
                 if (!$params['width']) {
-                    throw new CoreException(tr('html_video(): No width specified for remote video'), 'not-specified');
+                    throw new HtmlException(tr('html_video(): No width specified for remote video'), 'not-specified');
                 }
 
                 switch ($params['type']) {
@@ -3043,7 +3067,7 @@ Class Html {
                         break;
 
                     default:
-                        throw new CoreException(tr('html_video(): Unknown type ":type" specified for remote video', array(':type' => $params['type'])), 'unknown');
+                        throw new HtmlException(tr('html_video(): Unknown type ":type" specified for remote video', array(':type' => $params['type'])), 'unknown');
                 }
             }
         }
@@ -3305,7 +3329,7 @@ Class Html {
 
         if ($list) {
             if ($exception) {
-                throw new CoreException('html_filter_tags(): Found HTML tags ":tags" which are forbidden', array(':tags', implode(', ', $list)), 'forbidden');
+                throw new HtmlException('html_filter_tags(): Found HTML tags ":tags" which are forbidden', array(':tags', implode(', ', $list)), 'forbidden');
             }
 
             foreach ($list as $item) {
@@ -3452,7 +3476,7 @@ Class Html {
                     break;
 
                 default:
-                    throw new CoreException(tr('html_loader_screen(): Unknown screen transition value ":value" specified', array(':value' => $params['test_loader_screen'])), 'unknown');
+                    throw new HtmlException(tr('html_loader_screen(): Unknown screen transition value ":value" specified', array(':value' => $params['test_loader_screen'])), 'unknown');
             }
         }
 
