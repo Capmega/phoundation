@@ -574,7 +574,6 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
  *
  * @param string|null $instance_name
  * @return Sql
- * @throws Exception|\Exception
  */
 function sql(?string $instance_name = null): Sql
 {
@@ -588,7 +587,6 @@ function sql(?string $instance_name = null): Sql
  *
  * @param string|null $instance_name
  * @return Mc
- * @throws Exception|\Exception
  */
 function mc(?string $instance_name = null): Mc
 {
@@ -602,7 +600,6 @@ function mc(?string $instance_name = null): Mc
  *
  * @param string|null $instance_name
  * @return Mongo
- * @throws Exception|\Exception
  */
 function mongo(?string $instance_name = null): Mongo
 {
@@ -616,7 +613,6 @@ function mongo(?string $instance_name = null): Mongo
  *
  * @param string|null $instance_name
  * @return Redis
- * @throws Exception|\Exception
  */
 function redis(?string $instance_name = null): Redis
 {

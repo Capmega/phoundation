@@ -3,6 +3,9 @@
 
 use Phoundation\Web\Http\Html\Html;
 
+sql()->get('');
+
+
 $html = Html::select()
     ->setSource()
     ->setSourceQuery()

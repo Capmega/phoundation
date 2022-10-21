@@ -25,6 +25,10 @@
  * @category Function reference
  * @package template
  */
+
+use Phoundation\Cli\Cli;
+use Phoundation\Web\Http\Html\Script;
+
 $usage = './scripts/base/init.
 ./scripts/base/init drop (WARNING: TIS WILL DROP YOUR DATABASE, NO QUESTIONS ASKED!)
 ./scripts/base/init reset
@@ -85,20 +89,14 @@ reset                           - Reset the database version back to the current
                                   the specified VERSION';
 
 
-/*
- * Setup database connection with core database so that FRAMEWORKDBVERSION and
- * PROJECTDBVERSION are available
- */
-cli_only(true);
-load_libs('init');
-sql_query('SELECT true;');
+// Setup database connection with core database so that FRAMEWORKDBVERSION and PROJECTDBVERSION are available
+Script::only(true);
+sql()->query('SELECT true;');
 
 
 
-/*
- * Get method, but be sure to ignore version numbers
- */
-$method = cli_method();
+// Get method, but be sure to ignore version numbers
+$method = Cli::method();
 
 if (is_version($method)) {
     /*

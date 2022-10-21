@@ -3,7 +3,6 @@
 namespace Phoundation\Web;
 
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
@@ -11,7 +10,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notify\Notification;
-use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 

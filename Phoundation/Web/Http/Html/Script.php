@@ -4,6 +4,8 @@ namespace Phoundation\Web\Http\Html;
 
 
 
+use Phoundation\Notify\Notification;
+
 /**
  * Class Script
  *
@@ -225,7 +227,9 @@ class Script extends Element
                      * Moving internal javascript to external files failed, notify
                      * developers
                      */
-                    notify($e);
+                    Notification::getInstance()
+                        ->setException($e)
+                        ->send();
 
                     /*
                      * Add a <script> element because now we'll include it into the
@@ -262,4 +266,25 @@ class Script extends Element
             $count++;
             return '';
     }
+
+
+
+    /**
+     * Only allow execution on shell scripts
+     */
+    function cli_only($exclusive = false) {
+        try {
+            if (!PLATFORM_CLI) {
+                throw new CoreException('cli_only(): This can only be done from command line', 'clionly');
+            }
+
+            if ($exclusive) {
+                cli_run_once_local();
+            }
+
+        }catch(Exception $e) {
+            throw new CoreException('cli_only(): Failed', $e);
+        }
+    }
+
 }
