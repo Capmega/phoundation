@@ -564,9 +564,9 @@ class Sql
                     // Dump database, and recreate it
                     Sql::connect();
 
-                    $this->query('DROP   DATABASE IF EXISTS `' . $_CONFIG['db']['core']['db'].'`');
-                    $this->query('CREATE DATABASE           `' . $_CONFIG['db']['core']['db'].'` DEFAULT CHARSET="' . $_CONFIG['db']['core']['charset'].'" COLLATE="' . $_CONFIG['db']['core']['collate'].'";');
-                    $this->query('USE                       `' . $_CONFIG['db']['core']['db'].'`');
+                    $this->query('DROP   DATABASE IF EXISTS `' . Config::get('databases.sql.instances.system.name').'`');
+                    $this->query('CREATE DATABASE           `' . Config::get('databases.sql.instances.system.name').'` DEFAULT CHARSET="' . $_CONFIG['db']['core']['charset'].'" COLLATE="' . $_CONFIG['db']['core']['collate'].'";');
+                    $this->query('USE                       `' . Config::get('databases.sql.instances.system.name').'`');
                 }
             }
 
