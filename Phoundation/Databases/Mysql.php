@@ -4,6 +4,7 @@ namespace Phoundation\Databases;
 
 use Phoundation\Core\Strings;
 use Phoundation\Databases\Exception\MysqlException;
+use Phoundation\Processes\Processes;
 use Phoundation\Servers\Server;
 use Phoundation\Servers\Servers;
 
@@ -23,6 +24,39 @@ use Phoundation\Servers\Servers;
 class Mysql
 {
     /**
+     * The server object to execute commands on different servers if needed
+     *
+     * @var Server|null
+     */
+    protected ?Server $server = null;
+
+
+    /**
+     * Mysql class constructor
+     *
+     * @param Server|null $server
+     */
+    public function __construct(?Server $server = null)
+    {
+        $this->server = $server;
+    }
+
+
+
+    /**
+     * Get a new instance of the Mysql class
+     *
+     * @param Server|null $server
+     * @return Mysql
+     */
+    public static function getInstance(?Server $server = null): Mysql
+    {
+        return new Mysql($server)
+    }
+
+
+
+    /**
      * Execute a query on a remote SSH server in a bash command
      *
      * @note: This does NOT support bound variables!
@@ -34,21 +68,17 @@ class Mysql
      * @param bool $simple_quotes
      * @return array
      */
-    public function exec(string|Server $server, string $query, bool $root = false, bool $simple_quotes = false): array
+    public function exec(string $query, bool $root = false, bool $simple_quotes = false): array
     {
         try {
             $query = addslashes($query);
 
-            if (!is_array($server)) {
-                $server = Servers::get($server, true);
-            }
-
             // Are we going to execute as root?
             if ($root) {
-                My$this->createPasswordFile('root', $server['db_root_password'], $server);
+                $this->createPasswordFile('root', $server['db_root_password'], $server);
 
             } else {
-                My$this->createPasswordFile($server['db_username'], $server['db_password'], $server);
+                $this->createPasswordFile($server['db_username'], $server['db_password'], $server);
             }
 
             if ($simple_quotes) {
@@ -58,13 +88,34 @@ class Mysql
                 $results = Servers::exec($server, 'mysql -e \"' . Strings::ends($query, ';') . '\"');
             }
 
-            My$this->deletePasswordFile($server);
+            $this->deletePasswordFile($server);
 
             return $results;
         } catch (MysqlException $e) {
             // Ensure that the password file will be removed
-            My$this->deletePasswordFile($server);
+            $this->deletePasswordFile($server);
         }
     }
 
+
+
+    /**
+     * Import all timezones in MySQL
+     *
+     * @note: This was designed for Ubuntu Linux and currently any support for other operating systems is NON-EXISTENT
+     *        I'll gladly add support later if I ever have time
+     * @return void
+     */
+    public function importTimezones(): void
+    {
+        $mysql = Processes::create('mysql')
+            ->setTimeout(10)
+            ->addArguments(['-p', '-u', 'root', 'mysql']);
+
+        Processes::create('mysql_tzinfo_to_sql')
+            ->setTimeout(10)
+            ->addArgument('/usr/share/zoneinfo')
+            ->setPipe($mysql)
+            ->executePassthru();
+    }
 }

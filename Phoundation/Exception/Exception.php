@@ -116,7 +116,7 @@ class Exception extends RuntimeException
      */
     public function getMessages(): array
     {
-echo 'GET MESSAGE FROM EXCEPTION '.PHP_EOL;
+// TODO 'GET MESSAGE FROM EXCEPTION
         return $this->messages;
     }
 
@@ -153,9 +153,10 @@ echo 'GET MESSAGE FROM EXCEPTION '.PHP_EOL;
      *
      * @param mixed $code
      */
-    public function setCode(?string $code = null): void
+    public function setCode(?string $code = null): Exception
     {
         $this->code = $code;
+        return $this;
     }
 
 

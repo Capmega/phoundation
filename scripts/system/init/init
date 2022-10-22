@@ -1,5 +1,14 @@
 #!/usr/bin/php
 <?php
+
+use Phoundation\Cli\Scripts;
+use Phoundation\Core\Log;
+use Phoundation\Core\Strings;
+use Phoundation\Init\Exception\InitException;
+use Phoundation\Init\Init;
+
+
+
 /**
  * This is the init script for the project. Run this script to ensure that the database is running with the same version
  * as the code
@@ -11,17 +20,9 @@
  * @package Core
  */
 
-use Phoundation\Cli\Scripts;
-use Phoundation\Core\Log;
-use Phoundation\Core\Strings;
-use Phoundation\Init\Exception\InitException;
-use Phoundation\Init\Init;
-
-die('aaaaaaaaaaaaaa');
-
 // Get command line arguments
-$fromprojectversion   = not_empty(Scripts::argument('-p', 'optional'));
-$fromframeworkversion = not_empty(Scripts::argument('-f', 'optional'));
+$fromprojectversion   = Scripts::argument('-p', 'optional');
+$fromframeworkversion = Scripts::argument('-f', 'optional');
 $section              = Scripts::argument('-s,--section', true);
 $reset                = Scripts::argument('-s,--section', true);
 
@@ -45,7 +46,7 @@ if ($section) {
     Scripts::noArgumentsLeft();
 
     try {
-        init_section($section, $version);
+        Init::section($section, $version);
 
     }catch(Exception $e) {
         if ($e->getCode() == 'not-exists') {
@@ -58,53 +59,31 @@ if ($section) {
 } else {
     Scripts::noArgumentsLeft();
 
-    try {
-        $pfrom = $fromprojectversion;
-        $ffrom = $fromframeworkversion;
+    $pfrom = $fromprojectversion;
+    $ffrom = $fromframeworkversion;
 
-        if ($pfrom) {
-            if (!Strings::isVersion($pfrom)) {
-                throw new InitException(tr('The specified fromprojectversion ":version" is not a valid version format. Please supply a version in format "n.n.n"', [':version' => $pfrom]));
-            }
+    if ($pfrom) {
+        if (!Strings::isVersion($pfrom)) {
+            throw new InitException(tr('The specified fromprojectversion ":version" is not a valid version format. Please supply a version in format "n.n.n"', [':version' => $pfrom]));
         }
-
-        if ($ffrom) {
-            if (!Strings::isVersion($ffrom)) {
-                throw new InitException(tr('The specified fromframeworkversion ":version" is not a valid version format. Please supply a version in format "n.n.n"', [':version' => $ffrom]));
-            }
-        }
-
-        // During init, force EMULATE_PREPARES because loads of init stuff will NOT work without Thanks PHP, for giving
-        // us the option between a shitty driver, or half a driver!
-        foreach ($_CONFIG['db'] as $name => &$connector) {
-            if ($name == 'default') continue;
-
-            if (!empty($connector['init'])) {
-                $connector['pdo_attributes'] = array(PDO::ATTR_EMULATE_PREPARES  => true,
-                                                     PDO::ATTR_STRINGIFY_FETCHES => true);
-            }
-        }
-
-        init($pfrom, $ffrom);
-
-    }catch(Exception $e) {
-        switch ($e->getCode()) {
-            case 'noinit':
-                Log::warning(tr('Core database init system has been disabled in db configuration'));
-                throw $e;
-
-            case 'old-framework-code':
-                // FALLTHROUGH
-            case 'invalid-framework-code':
-                // FALLTHROUGH
-            case 'old-project-code':
-                // FALLTHROUGH
-            case 'invalid-project-code':
-                throw $e->makeWarning(true);
-
-            default:
-                throw new CoreException('scripts/base/init: Failed', $e);
-        }
-
     }
+
+    if ($ffrom) {
+        if (!Strings::isVersion($ffrom)) {
+            throw new InitException(tr('The specified fromframeworkversion ":version" is not a valid version format. Please supply a version in format "n.n.n"', [':version' => $ffrom]));
+        }
+    }
+
+    // During init, force EMULATE_PREPARES because loads of init stuff will NOT work without Thanks PHP, for giving
+    // us the option between a shitty driver, or half a driver!
+    foreach ($_CONFIG['db'] as $name => &$connector) {
+        if ($name == 'default') continue;
+
+        if (!empty($connector['init'])) {
+            $connector['pdo_attributes'] = array(PDO::ATTR_EMULATE_PREPARES => true,
+                PDO::ATTR_STRINGIFY_FETCHES => true);
+        }
+    }
+
+    init($pfrom, $ffrom);
 }

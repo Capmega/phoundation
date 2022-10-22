@@ -42,7 +42,7 @@ class Core {
      * Framework version and minimum required PHP version
      */
     public const FRAMEWORKCODEVERSION = '4.0.0';
-    public const PHP_MINIMUM_VERSION = '8.1.0';
+    public const PHP_MINIMUM_VERSION  = '8.1.0';
 
     /**
      * Singleton variable

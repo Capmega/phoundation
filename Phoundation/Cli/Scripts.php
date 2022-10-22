@@ -539,7 +539,9 @@ class Scripts
 
                 default:
                     //Multiple command line options were specified, this is not allowed!
-                    throw new CliException('Multiple command line arguments ":results" for the same option specified. Please specify only one', [':results' => $results]);
+                    throw new CliException('Multiple command line arguments ":results" for the same option specified. Please specify only one', [
+                        ':results' => $results
+                    ]);
             }
         }
 
@@ -593,7 +595,10 @@ class Scripts
             }
 
             if (str_starts_with($value, '-')) {
-                throw new OutOfBoundsException(tr('Argument ":keys" has no assigned value. It is immediately followed by argument ":value"', [':keys' => $keys, ':value' => $value]), ['keys' => $keys]);
+                throw new OutOfBoundsException(tr('Argument ":keys" has no assigned value. It is immediately followed by argument ":value"', [
+                    ':keys' => $keys,
+                    ':value' => $value
+                ]), ['keys' => $keys]);
             }
 
             return $value;

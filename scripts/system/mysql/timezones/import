@@ -3,7 +3,7 @@
 
 use Phoundation\Cli\Color;
 use Phoundation\Core\Log;
-use Phoundation\Processes\Processes;
+use Phoundation\Databases\Mysql;
 
 
 
@@ -25,12 +25,4 @@ Log::cli(Color::apply(tr('Importing timezone data files in MySQL, this may take 
 Log::cli(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'));
 Log::cli(tr('Please fill in MySQL root password in the following "Enter password:" request'));
 
-$mysql = Processes::create('mysql')
-    ->setTimeout(10)
-    ->addArguments(['-p', '-u', 'root', 'mysql']);
-
-Processes::create('mysql_tzinfo_to_sql')
-    ->setTimeout(10)
-    ->addArgument('/usr/share/zoneinfo')
-    ->setPipe($mysql)
-    ->executePassthru();
+Mysql::getInstance()->importTimezones();
