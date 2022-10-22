@@ -1,21 +1,21 @@
 <?php
 
-namespace Phoundation\Databases\Exception;
+namespace Phoundation\Debug\Exception;
 
 use Phoundation\Exception\Exception;
 
 
 
 /**
- * Class DatabaseException
+ * Class DebugException
  *
- * This is the standard exception for all Phoundation Database classes
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package Phoundation\Debug
  */
-class DatabasesException extends Exception
+class DebugException extends Exception
 {
 }

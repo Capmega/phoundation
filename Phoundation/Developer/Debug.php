@@ -9,6 +9,9 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Debug\Exception\DebugException;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\File;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
 use Phoundation\Notify\Notification;
@@ -1153,5 +1156,48 @@ class Debug {
 
         self::$counter->select($counter);
         return self::$counter;
+    }
+
+
+
+    /**
+     * Get the class path from the specified .php file
+     *
+     * @param string $file
+     * @return Object
+     */
+    public function getClassPath(string $file): string
+    {
+        if (!File::isPhp($file)) {
+            throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
+        }
+
+        // Scan for namespace and class lines
+        $results = File::grep($file, ['namespace ', 'class '], 20);
+
+        // Get the namespace
+        foreach ($results['namespace '] as $line) {
+            if (preg_match_all('/namespace (.+?\.+?);/', $line, $matches)) {
+                $namespace = $matches[1][0];
+            }
+        }
+
+        if (!$namespace) {
+            throw new DebugException(tr('Failed to find a namespace for file ":file"', [':file' => $file]));
+        }
+
+        // Get the class name
+        foreach ($results['class '] as $line) {
+            if (preg_match_all('/class [a-z0-9_]+ \{/i', $line, $matches)) {
+                $class = $matches[1][0];
+            }
+        }
+
+        if (!$class) {
+            throw new DebugException(tr('Failed to find a class for file ":file"', [':file' => $file]));
+        }
+
+        // Now we can return the class path
+        return str_ends_with($namespace, '\\') . $class;
     }
 }

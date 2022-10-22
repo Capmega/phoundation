@@ -9,9 +9,11 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Core\Tmp;
 use Phoundation\Databases\Mysql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exceptions;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
@@ -34,16 +36,347 @@ use Throwable;
 Class Init
 {
     /**
+     * The constant indicating the path for Phoundation classes
+     */
+    const CLASS_PATH_SYSTEM  = ROOT . 'Phoundation';
+
+    /**
+     * The constant indicating the path for PLugin classes
+     */
+    const CLASS_PATH_PLUGINS = ROOT . 'PLugins';
+
+
+
+    /**
      * Execute a complete systems initialization
      *
      * @return void
      */
     public static function execute(): void
     {
+        // Wipe all temporary data
+        Tmp::clear();
 
+        // Wipe all cache data
+        Cache::clear();
+
+        // Go over all system classes and initialize them, then do the same for the plugins
+        self::executeClasses(true, false);
+        self::executeClasses(true, false);
+    }
+
+
+
+    /**
+     * Returns a list with all classes
+     *
+     * @param bool $system
+     * @param bool $plugins
+     * @return array
+     */
+    public static function listClasses(bool $system = true, bool $plugins = true): array
+    {
+        if (!$system and !$plugins) {
+            throw new OutOfBoundsException(tr('Both system and plugin class paths are filtered out'));
+        }
+
+        $return = [];
+
+        // List plugin classes
+        if ($plugins) {
+            $return = array_merge($return, self::listClassPaths(self::CLASS_PATH_PLUGINS));
+        }
+
+        // List system classes
+        if ($system) {
+            $return = array_merge($return, self::listClassPaths(self::CLASS_PATH_SYSTEM));
+        }
+
+        return $return;
+    }
+
+
+
+    /**
+     * Returns a list with all classes and their version information
+     *
+     * @param bool $system
+     * @param bool $plugins
+     * @return array
+     */
+    public static function listClassVersions(bool $system = true, bool $plugins = true): array
+    {
+        $return  = [];
+        $classes = self::listClasses($system, $plugins);
+
+        foreach ($classes as $path => $class_name) {
+            $return[$path] = self::getClassVersion($path);
+        }
+
+        return $return;
     }
 
     
+
+    /**
+     * Attempts to get the version for the specified class path.
+     *
+     * Version data is obtained by CLASSPATH::getVersion(). If the specified class does not have that method, NULL will
+     * be returned instead
+     *
+     * @param string $path
+     * @return string|null
+     */
+    protected function getClassVersion(string $path): ?string
+    {
+        $class_path = Debug::getClassPath($path);
+        $class_methods = get_class_methods($class_path);
+
+        if (in_array('getVersion', $class_methods)) {
+            return $class_path::getVersion();
+        }
+
+        return null;
+    }
+
+
+
+    /**
+     * Returns a list with all classes for the specified path
+     *
+     * @param string $path
+     * @return array
+     */
+    protected static function listClassPaths(string $path): array
+    {
+        $return  = [];
+        $path    = str_ends_with($path, '/');
+        $classes = scandir($path);
+
+        foreach ($classes as $class) {
+            // Skip hidden files, current and parent directory
+            if ($class[0] === '.') {
+                continue;
+            }
+
+            $return[$path] = $class;
+        }
+
+        return $return;
+    }
+
+
+
+    /**
+     * Initialize all classes for system and plugins
+     *
+     * @param bool $system
+     * @param bool $plugins
+     * @return void
+     */
+    protected static function executeClasses(bool $system = true, bool $plugins = true): void
+    {
+        // Get a list of all available classes and initialize each one
+        $classes = self::listClasses($system, $plugins);
+
+        foreach ($classes as $path => $class) {
+            self::executeClass($path, $class);
+        }
+    }
+
+
+
+    /**
+     * Initialize the specified class
+     *
+     * @param string $path
+     * @param string $class
+     * @return bool
+     */
+    protected static function executeClass(string $path, string $class): bool
+    {
+        $init_path = $path . $class . 'Init/';
+
+        if (!file_exists($init_path)) {
+            Log::warning(tr('No init available for class ":class"', [':class' => $class]));
+            return false;
+        }
+
+        $count = 0;
+        $files = scandir($init_path);
+
+        if (count($files) <= 2) {
+            // ALL directories always at least have 2 files, current and parent.
+            Log::warning(tr('No init available for class ":class"', [':class' => $class]));
+            return false;
+        }
+
+        Log::action(tr('Initializing class ":class"', [':class' => $class]));
+
+        foreach ($files as $file) {
+            // Skip hidden files, current and parent directory
+            if ($class[0] === '.') {
+                continue;
+            }
+
+            // Skip non PHP files
+            if (strtolower(substr($class, -3, 3)) !== 'php') {
+                continue;
+            }
+
+            if (self::executeFile($path, $class, $file)) {
+                $count++;
+            }
+        }
+
+        // Did we initialize anything at all?
+        return (bool) $count;
+    }
+
+
+
+    /**
+     * Execute the specified init file
+     *
+     * @param string $path
+     * @param string $class
+     * @param string $file
+     * @return bool
+     */
+    protected static function executeFile(string $path, string $class, string $file): bool
+    {
+        if (!self::isInitFile($path, $class, $file)) {
+            Log::warning(tr('Skipping file ":file" for class ":class" because it is not an init file', [
+                ':class' => $class,
+                ':file' => $file
+            ]));
+
+            return false;
+        }
+
+        if (self::hasBeenExecuted($path, $class, $file)) {
+            Log::warning(tr('Skipping init file ":file" for class ":class" because it already has been executed', [
+                ':class' => $class,
+                ':file' => $file
+            ]), 2);
+
+            return false;
+        }
+
+        if (self::isFuture($path, $class, $file)) {
+            Log::warning(tr('Skipping init file ":file" for class ":class" because it already has been executed', [
+                ':class' => $class,
+                ':file' => $file
+            ]), 2);
+
+            return false;
+        }
+
+        Log::warning(tr('Initializing ":class" class init file ":file"', [':class' => $class, ':file' => $file]));
+// TODO IMPLEMENT
+        return true;
+    }
+
+
+
+    /**
+     * Returns true if this is a valid init file
+     *
+     * @param string $file
+     * @return bool
+     */
+    protected static function isInitFile(string $file): bool
+    {
+        return Strings::isVersion(substr($file, 0,-4));
+    }
+
+
+
+    /**
+     * Returns true if this init file has already been executed before (and should not be executed again)
+     *
+     * @param string $class
+     * @param string $file
+     * @return bool
+     */
+    protected static function hasBeenExecuted(string $class, string $file): bool
+    {
+
+    }
+
+
+
+    /**
+     * Returns true if this init file has a version above the current version (and should not yet be executed)
+     *
+     * @param string $class
+     * @param string $file
+     * @return bool
+     */
+    protected static function isFuture(string $class, string $file): bool
+    {
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Execute database initialization
@@ -732,7 +1065,7 @@ Class Init
             case 'framework':
                 // no-break
             case 'project':
-                / These are the default sections, these are okay
+                // These are the default sections, these are okay
                 break;
 
             default:

@@ -640,10 +640,79 @@ class File
      */
     public static function isText(string $file): bool
     {
-        if (Strings::until(file_mimetype($file), '/') == 'text') return true;
-        if (Strings::from(file_mimetype($file), '/') == 'xml' ) return true;
+        $mimetype = file_mimetype($file);
 
+        if (Strings::until($mimetype, '/') == 'text') {
+            return true;
+        }
+
+        if (Strings::from($mimetype, '/') == 'xml' ) {
+            return true;
+        }
+
+// TODO There is more to this
         return false;
+    }
+
+
+
+    /**
+     * Return true if the specified mimetype is for a binary file or false if it is for a text file
+     *
+     * @version 2.5.90: Added function and documentation
+     * @param string $primary        The primary mimetype section to check. If the mimetype is "text/plain", this
+     *                               variable would receive "text". You can also leave $secondary empty and specify the
+     *                               complete mimetype "text/plain" here, both will work
+     * @param string|null $secondary The secondary mimetype section to check. If the mimetype is "text/plain", this
+     *                               variable would receive "plain". If the complete mimetype is specified in $primary,
+    you can leave this one empty
+     * @return boolean True if the specified mimetype is for a binary file, false if it is a text file
+     */
+    public static function isBinary(string $primary, ?string $secondary = null): bool
+    {
+// TODO So isText() works on a file and this works on mimetype strings? Fix this!
+// TODO There is more to this
+// :TODO: IMPROVE THIS! Loads of files that are not text/ are still not binary
+        // Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
+        if (!$secondary) {
+            if (!str_contains($primary, '/')) {
+                throw new FilesystemException(tr('Invalid primary mimetype data ":primary" specified. Either specify the complete mimetype in $primary, or specify the independent primary and secondary sections in $primary and $secondary', [':primary' => $primary]));
+            }
+
+            $secondary = Strings::from($primary , '/');
+            $primary   = Strings::until($primary, '/');
+        }
+
+        // Check the mimetype data
+        switch ($primary) {
+            case 'text':
+                // Plain text
+                return false;
+
+            default:
+                switch ($secondary) {
+                    case 'json':
+                        // no-break
+                    case 'ld+json':
+                        // no-break
+                    case 'svg+xml':
+                        // no-break
+                    case 'x-csh':
+                        // no-break
+                    case 'x-sh':
+                        // no-break
+                    case 'xhtml+xml':
+                        // no-break
+                    case 'xml':
+                        // no-break
+                    case 'vnd.mozilla.xul+xml':
+                        // This is all text
+                        return false;
+                }
+        }
+
+        // This is binary
+        return true;
     }
 
 
@@ -1336,65 +1405,6 @@ class File
 
             throw new FilesystemException(tr('file_get_local(): Failed for file ":file"', array(':file' => $url)), $e);
         }
-    }
-
-
-
-    /**
-     * Return true if the specified mimetype is for a binary file or false if it is for a text file
-     *
-     * @version 2.5.90: Added function and documentation
-     * @param string $primary        The primary mimetype section to check. If the mimetype is "text/plain", this
-     *                               variable would receive "text". You can also leave $secondary empty and specify the
-     *                               complete mimetype "text/plain" here, both will work
-     * @param string|null $secondary The secondary mimetype section to check. If the mimetype is "text/plain", this
-     *                               variable would receive "plain". If the complete mimetype is specified in $primary,
-                                     you can leave this one empty
-     * @return boolean True if the specified mimetype is for a binary file, false if it is a text file
-     */
-    public static function isBinary(string $primary, ?string $secondary = null): bool
-    {
-// :TODO: IMPROVE THIS! Loads of files that are not text/ are still not binary
-        // Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
-        if (!$secondary) {
-            if (!str_contains($primary, '/')) {
-                throw new FilesystemException(tr('Invalid primary mimetype data ":primary" specified. Either specify the complete mimetype in $primary, or specify the independent primary and secondary sections in $primary and $secondary', [':primary' => $primary]));
-            }
-
-            $secondary = Strings::from($primary , '/');
-            $primary   = Strings::until($primary, '/');
-        }
-
-        // Check the mimetype data
-        switch ($primary) {
-            case 'text':
-                // Plain text
-                return false;
-
-            default:
-                switch ($secondary) {
-                    case 'json':
-                        // no-break
-                    case 'ld+json':
-                        // no-break
-                    case 'svg+xml':
-                        // no-break
-                    case 'x-csh':
-                        // no-break
-                    case 'x-sh':
-                        // no-break
-                    case 'xhtml+xml':
-                        // no-break
-                    case 'xml':
-                        // no-break
-                    case 'vnd.mozilla.xul+xml':
-                        // This is all text
-                        return false;
-                }
-        }
-
-        // This is binary
-        return true;
     }
 
 
@@ -2993,4 +3003,67 @@ class File
         }
     }
 
+
+
+    /**
+     * Filter out the lines that contain the specified filters
+     *
+     * @note Only supports line of up to 8KB which should be WAY more than enough, but still important to know
+     * @param string $path
+     * @param array $filters
+     * @param int|null $until_line
+     * @return array
+     */
+    public static function grep(string $path, array $filters, ?int $until_line = null): array
+    {
+        $return = [];
+
+        // Validate filters
+        foreach ($filters as $filter) {
+            if (!is_scalar($filter)) {
+                throw new OutOfBoundsException(tr('The filter ":filter" is invalid, only string filters are allowed', [':filter' => $filter]));
+            }
+
+            // Initialize the return array
+            $return[$filter] = [];
+        }
+
+        // Open the file and start scanning each line
+        $handle = File::open($path, 'r');
+
+        while (($line = fgets($handle, 8096)) !== false) {
+            foreach ($filters as $filter) {
+                if (str_contains($filter, $line)) {
+                    $return[$filter][] = $line;
+                }
+            }
+
+            if ($until_line and (++$line >= $until_line)) {
+                // We're done, get out
+                break;
+            }
+        }
+
+        fclose($handle);
+        return $return;
+    }
+
+
+
+    /**
+     * Returns true if the specified file is a PHP file
+     *
+     * @param string $file
+     * @return bool
+     */
+    public static function isPhp(string $file): bool
+    {
+        if (str_ends_with($file, '.php')) {
+            if (self::isText($file)) {
+                return true;
+        }
+        }
+
+        return false;
+    }
 }
