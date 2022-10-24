@@ -3,6 +3,7 @@
 namespace Phoundation\Core;
 
 use DateTimeZone;
+use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Scripts;
@@ -974,10 +975,10 @@ class Core {
      * Allows to change the Core class state
      *
      * @note This method only allows a change to the states "error" or "phperror"
-     * @param string $state
+     * @param string|null $state
      * @return void
      */
-    public static function setState(string $state): void
+    public static function setState(#[ExpectedValues(values: ["error", "phperror", "init", "startup", "script", "shutdow"])] ?string $state): void
     {
         switch ($state) {
             case 'error':
@@ -994,11 +995,15 @@ class Core {
                 // no-break
             case 'shutdown':
                 // These are not allowed
-                throw new OutOfBoundsException(tr('Core state update to ":state" is not allowed. Core state can only be updated to "error" or "phperror"', [':state' => $state]));
+                throw new OutOfBoundsException(tr('Core state update to ":state" is not allowed. Core state can only be updated to "error" or "phperror"', [
+                    ':state' => $state
+                ]));
 
             default:
                 // Wut?
-                throw new OutOfBoundsException(tr('Unknown core state ":state" specified. Core state can only be updated to "error" or "phperror"', [':state' => $state]));
+                throw new OutOfBoundsException(tr('Unknown core state ":state" specified. Core state can only be updated to "error" or "phperror"', [
+                    ':state' => $state
+                ]));
         }
     }
 

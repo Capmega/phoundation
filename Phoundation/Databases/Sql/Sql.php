@@ -117,6 +117,18 @@ class Sql
 
 
     /**
+     * Returns an SQL schema object
+     *
+     * @return Schema
+     */
+    public function schema(): Schema
+    {
+        return new Schema();
+    }
+
+
+
+    /**
      * Quick access to Mc instances. Defaults to "system" instance
      *
      * @param string|null $instance_name

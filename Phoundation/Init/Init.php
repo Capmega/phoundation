@@ -48,6 +48,18 @@ Class Init
 
 
     /**
+     * Returns the version of this class
+     *
+     * @return string
+     */
+    public static function getVersion(): string
+    {
+        return '0.0.1';
+    }
+
+
+
+    /**
      * Execute a complete systems initialization
      *
      * @return void
@@ -116,7 +128,7 @@ Class Init
         return $return;
     }
 
-    
+
 
     /**
      * Attempts to get the version for the specified class path.
@@ -177,10 +189,10 @@ Class Init
     protected static function executeClasses(bool $system = true, bool $plugins = true): void
     {
         // Get a list of all available classes and initialize each one
-        $classes = self::listClasses($system, $plugins);
+        $classes = self::listClassVersions($system, $plugins);
 
-        foreach ($classes as $path => $class) {
-            self::executeClass($path, $class);
+        foreach ($classes as $path => $version) {
+            self::executeClass($path, $version);
         }
     }
 
@@ -190,12 +202,19 @@ Class Init
      * Initialize the specified class
      *
      * @param string $path
-     * @param string $class
+     * @param string|null $version
      * @return bool
      */
-    protected static function executeClass(string $path, string $class): bool
+    protected static function executeClass(string $path, ?string $version): bool
     {
-        $init_path = $path . $class . 'Init/';
+        $class     = Strings::from($path, '/');
+        $init_path = $path . 'Init/';
+
+        // Ensure this class has versioning control. If not, skip it.
+        if ($version === null) {
+            Log::warning(tr('Not processing class ":class", it has no versioning control available', [':class' => $class]));
+            return false;
+        }
 
         if (!file_exists($init_path)) {
             Log::warning(tr('No init available for class ":class"', [':class' => $class]));
@@ -224,7 +243,7 @@ Class Init
                 continue;
             }
 
-            if (self::executeFile($path, $class, $file)) {
+            if (self::executeFile($version, $path, $class, $file)) {
                 $count++;
             }
         }
@@ -234,16 +253,16 @@ Class Init
     }
 
 
-
     /**
      * Execute the specified init file
      *
+     * @param string $version
      * @param string $path
      * @param string $class
      * @param string $file
      * @return bool
      */
-    protected static function executeFile(string $path, string $class, string $file): bool
+    protected static function executeFile(string $version, string $path, string $class, string $file): bool
     {
         if (!self::isInitFile($path, $class, $file)) {
             Log::warning(tr('Skipping file ":file" for class ":class" because it is not an init file', [
@@ -254,7 +273,7 @@ Class Init
             return false;
         }
 
-        if (self::hasBeenExecuted($path, $class, $file)) {
+        if (self::hasBeenExecuted($version, $file)) {
             Log::warning(tr('Skipping init file ":file" for class ":class" because it already has been executed', [
                 ':class' => $class,
                 ':file' => $file
@@ -263,7 +282,7 @@ Class Init
             return false;
         }
 
-        if (self::isFuture($path, $class, $file)) {
+        if (self::isFuture($version, $file)) {
             Log::warning(tr('Skipping init file ":file" for class ":class" because it already has been executed', [
                 ':class' => $class,
                 ':file' => $file
@@ -295,13 +314,22 @@ Class Init
     /**
      * Returns true if this init file has already been executed before (and should not be executed again)
      *
-     * @param string $class
+     * @param string $version
      * @param string $file
      * @return bool
      */
-    protected static function hasBeenExecuted(string $class, string $file): bool
+    protected static function hasBeenExecuted(string $version, string $file): bool
     {
+        $file_version = Strings::until($file, '.php');
 
+        switch (version_compare($version  , $file_version)) {
+            case -1:
+                // The file version is newer than the
+            case 0:
+            // The file version is the same as the current version, it has  been executed
+            case 1:
+            // The file version is later than the
+        }
     }
 
 
@@ -309,11 +337,11 @@ Class Init
     /**
      * Returns true if this init file has a version above the current version (and should not yet be executed)
      *
-     * @param string $class
+     * @param string $version
      * @param string $file
      * @return bool
      */
-    protected static function isFuture(string $class, string $file): bool
+    protected static function isFuture(string $version, string $file): bool
     {
 
     }

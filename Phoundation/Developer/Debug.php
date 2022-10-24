@@ -1166,7 +1166,7 @@ class Debug {
      * @param string $file
      * @return Object
      */
-    public function getClassPath(string $file): string
+    public static function getClassPath(string $file): string
     {
         if (!File::isPhp($file)) {
             throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
