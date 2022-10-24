@@ -2,6 +2,8 @@
 
 namespace Phoundation\Exception;
 
+
+
 /**
  * Class OutOfBoundsException
  *

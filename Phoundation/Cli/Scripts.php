@@ -63,6 +63,8 @@ class Scripts
      */
     public static function execute(array $argv): void
     {
+        global $argv;
+
         // Backup the command line arguments
         self::$argv      = $GLOBALS['argv'];
         self::$arguments = $GLOBALS['argv'];
@@ -84,6 +86,10 @@ class Scripts
 
         Core::writeRegister($file, 'system', 'script');
         Core::writeRegister(Strings::fromReverse($file, '/'), 'script');
+
+        // Copy argv arguments back
+        // TODO This should be done later AFTER all ddata has been validated!
+        $GLOBALS['argv'] = self::$arguments;
 
         // Execute the script
         execute_script($file, self::$arguments);
@@ -194,16 +200,17 @@ class Scripts
      *
      * If arguments were still found, an appropriate exceptoin will be thrown
      *
-     * @param array $arguments
      * @return void
      */
-    public static function noArgumentsLeft(array $arguments): void
+    public static function noArgumentsLeft(): void
     {
-        if (!$arguments) {
+        global $argv;
+
+        if (empty($argv)) {
             return;
         }
 
-        throw Exceptions::CliInvalidArgumentsException(tr('Invalid arguments ":arguments" encountered', [':arguments' => Strings::force($arguments, ', ')]))->makeWarning();
+        throw Exceptions::CliInvalidArgumentsException(tr('Invalid arguments ":arguments" encountered', [':arguments' => Strings::force($argv, ', ')]))->makeWarning();
     }
 
 
@@ -215,7 +222,8 @@ class Scripts
      */
     protected static function findScript(): string
     {
-        $file = ROOT . 'scripts/';
+        $file     = ROOT . 'scripts/';
+        $argument = null;
 
         foreach (self::$arguments as $position => $argument) {
             if (!$position) {
@@ -248,7 +256,7 @@ class Scripts
                 return $file;
             }
 
-            // THis is a directory, continue scanning
+            // This is a directory, continue scanning
             $file .= '/';
         }
 

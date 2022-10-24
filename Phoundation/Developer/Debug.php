@@ -1198,6 +1198,6 @@ class Debug {
         }
 
         // Now we can return the class path
-        return str_ends_with($namespace, '\\') . $class;
+        return Strings::endsWith($namespace, '\\') . $class;
     }
 }

@@ -514,8 +514,10 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
  */
 function execute_script(string $file, array $argv): void
 {
+    global $argv;
+
     if ($argv) {
-        Log::information(tr('Executing script ":script" with arguments ""', [
+        Log::information(tr('Executing script ":script" with arguments ":arguments"', [
             ':script' => $file,
             ':arguments' => $argv
         ]));

@@ -21,69 +21,18 @@ use Phoundation\Init\Init;
  */
 
 // Get command line arguments
-$fromprojectversion   = Scripts::argument('-p', 'optional');
-$fromframeworkversion = Scripts::argument('-f', 'optional');
-$section              = Scripts::argument('-s,--section', true);
-$reset                = Scripts::argument('-s,--section', true);
+$class = Scripts::argument('-c,--class', true);
 
-// Init from specific versions?
-if ($fromframeworkversion === false) {
-    // Default -f to current framework database version
-    $fromframeworkversion = Init::getHighestFileVersion('framework');
-}
+Scripts::noArgumentsLeft();
+Init::execute($class);
 
-if ($fromprojectversion === false) {
-    // Default -p to current project database version
-    $fromprojectversion = Init::GetHighestFileVersion('project');
-}
+//    // During init, force EMULATE_PREPARES because loads of init stuff will NOT work without
+//    foreach ($_CONFIG['db'] as $name => &$connector) {
+//        if ($name == 'default') continue;
+//
+//        if (!empty($connector['init'])) {
+//            $connector['pdo_attributes'] = array(PDO::ATTR_EMULATE_PREPARES => true,
+//                PDO::ATTR_STRINGIFY_FETCHES => true);
+//        }
+//    }
 
-
-
-// Do init of a specific section?
-if ($section) {
-    // Section initialization
-    $version = Scripts::argument('-v,--section-version', true);
-    Scripts::noArgumentsLeft();
-
-    try {
-        Init::section($section, $version);
-
-    }catch(Exception $e) {
-        if ($e->getCode() == 'not-exists') {
-            $e->makeWarning(true);
-        }
-
-        throw $e;
-    }
-
-} else {
-    Scripts::noArgumentsLeft();
-
-    $pfrom = $fromprojectversion;
-    $ffrom = $fromframeworkversion;
-
-    if ($pfrom) {
-        if (!Strings::isVersion($pfrom)) {
-            throw new InitException(tr('The specified fromprojectversion ":version" is not a valid version format. Please supply a version in format "n.n.n"', [':version' => $pfrom]));
-        }
-    }
-
-    if ($ffrom) {
-        if (!Strings::isVersion($ffrom)) {
-            throw new InitException(tr('The specified fromframeworkversion ":version" is not a valid version format. Please supply a version in format "n.n.n"', [':version' => $ffrom]));
-        }
-    }
-
-    // During init, force EMULATE_PREPARES because loads of init stuff will NOT work without Thanks PHP, for giving
-    // us the option between a shitty driver, or half a driver!
-    foreach ($_CONFIG['db'] as $name => &$connector) {
-        if ($name == 'default') continue;
-
-        if (!empty($connector['init'])) {
-            $connector['pdo_attributes'] = array(PDO::ATTR_EMULATE_PREPARES => true,
-                PDO::ATTR_STRINGIFY_FETCHES => true);
-        }
-    }
-
-    init($pfrom, $ffrom);
-}
