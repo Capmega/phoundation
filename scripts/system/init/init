@@ -2,10 +2,7 @@
 <?php
 
 use Phoundation\Cli\Scripts;
-use Phoundation\Core\Log;
-use Phoundation\Core\Strings;
-use Phoundation\Init\Exception\InitException;
-use Phoundation\Init\Init;
+use Phoundation\Initialize\Initialize;
 
 
 
@@ -24,7 +21,7 @@ use Phoundation\Init\Init;
 $class = Scripts::argument('-c,--class', true);
 
 Scripts::noArgumentsLeft();
-Init::execute($class);
+Initialize::execute($class);
 
 //    // During init, force EMULATE_PREPARES because loads of init stuff will NOT work without
 //    foreach ($_CONFIG['db'] as $name => &$connector) {

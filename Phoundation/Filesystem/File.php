@@ -608,9 +608,7 @@ class File
     {
         static $finfo = false;
 
-        /*
-         * Check the specified file
-         */
+        // Check the specified file
         if (!$file) {
             throw new OutOfBoundsException(tr('No file specified'));
         }
@@ -623,7 +621,9 @@ class File
 
         if (!$mimetype) {
             // We failed to get mimetype data. Find out why and throw exception
-            self::checkReadable($file, '', true, new FilesystemException(tr('Failed to get mimetype information for file ":file"', [':file' => $file])));
+            self::checkReadable($file, '', true, new FilesystemException(tr('Failed to get mimetype information for file ":file"', [
+                ':file' => $file
+            ])));
         }
 
         return $mimetype;
@@ -640,7 +640,7 @@ class File
      */
     public static function isText(string $file): bool
     {
-        $mimetype = file_mimetype($file);
+        $mimetype = self::mimetype($file);
 
         if (Strings::until($mimetype, '/') == 'text') {
             return true;
@@ -3029,16 +3029,17 @@ class File
         }
 
         // Open the file and start scanning each line
+        $count  = 0;
         $handle = File::open($path, 'r');
 
         while (($line = fgets($handle, 8096)) !== false) {
             foreach ($filters as $filter) {
-                if (str_contains($filter, $line)) {
+                if (str_contains($line, $filter)) {
                     $return[$filter][] = $line;
                 }
             }
 
-            if ($until_line and (++$line >= $until_line)) {
+            if ($until_line and (++$count >= $until_line)) {
                 // We're done, get out
                 break;
             }
@@ -3061,7 +3062,7 @@ class File
         if (str_ends_with($file, '.php')) {
             if (self::isText($file)) {
                 return true;
-        }
+            }
         }
 
         return false;

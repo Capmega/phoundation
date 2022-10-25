@@ -1,63 +1,59 @@
 <?php
 
-namespace Phoundation\Init;
+namespace Phoundation\Initialize;
 
 use Phoundation\Cache\Cache;
+use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Core\Tmp;
 use Phoundation\Developer\Debug;
+use Phoundation\Exception\Exceptions;
+use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\UnexpectedValueException;
 
 
 
 /**
- * Init library
+ * Initialize library
  *
- * This library file contains the init function
+ * This library can initialize all other libraries
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Init
+ * @package Phoundation\Initialize
  */
-Class Init
+class Initialize
 {
     /**
-     * The constant indicating the path for Phoundation classes
+     * The constant indicating the path for Phoundation libraries
      */
     const CLASS_PATH_SYSTEM  = ROOT . 'Phoundation';
 
     /**
-     * The constant indicating the path for PLugin classes
+     * The constant indicating the path for PLugin libraries
      */
-    const CLASS_PATH_PLUGINS = ROOT . 'PLugins';
-
-
-
-    /**
-     * Returns the version of this class
-     *
-     * @return string
-     */
-    public static function getVersion(): string
-    {
-        return '0.0.1';
-    }
+    const CLASS_PATH_PLUGINS = ROOT . 'Plugins';
 
 
 
     /**
      * Execute a complete systems initialization
      *
+     * @param string|null $library
+     * @param bool $system
+     * @param bool $plugins
      * @return void
      */
-    public static function execute(?string $class = null): void
+    public static function execute(?string $library = null, bool $system = true, bool $plugins = true): void
     {
-        if ($class) {
-            // Init only the specified class
-            self::executeClass($class);
+        if ($library) {
+            // Init only the specified library
+            $library = strtolower($library);
+            $path    = self::findLibraryPath($library, $system, $plugins);
+
+            self::executeLibrary($library, $path);
 
         } else {
             // Wipe all temporary data
@@ -66,37 +62,42 @@ Class Init
             // Wipe all cache data
             Cache::clear();
 
-            // Go over all system classes and initialize them, then do the same for the plugins
-            self::executeClasses(true, false);
-            self::executeClasses(true, false);
+            // Go over all system libraries and initialize them, then do the same for the plugins
+            self::executeLibraries($system, $plugins);
         }
     }
 
 
 
     /**
-     * Returns a list with all classes
+     * Returns a list with all libraries
      *
      * @param bool $system
      * @param bool $plugins
      * @return array
      */
-    public static function listClasses(bool $system = true, bool $plugins = true): array
+    public static function listLibraries(bool $system = true, bool $plugins = true): array
     {
         if (!$system and !$plugins) {
-            throw new OutOfBoundsException(tr('Both system and plugin class paths are filtered out'));
+            throw new OutOfBoundsException(tr('Both system and plugin library paths are filtered out'));
         }
 
         $return = [];
 
-        // List system classes
+        // List system libraries
         if ($system) {
-            $return = array_merge($return, self::listClassPaths(self::CLASS_PATH_SYSTEM));
+            $return = array_merge($return, self::listLibraryPaths(self::CLASS_PATH_SYSTEM));
         }
 
-        // List plugin classes
+        // List plugin libraries
         if ($plugins) {
-            $return = array_merge($return, self::listClassPaths(self::CLASS_PATH_PLUGINS));
+            try {
+                $return = array_merge($return, self::listLibraryPaths(self::CLASS_PATH_PLUGINS));
+
+            } catch (NotExistsException $e) {
+                // The plugins path does not exist. No biggie, note it in the logs and create it for next time.
+                mkdir(self::CLASS_PATH_PLUGINS, Config::get('filesystem.mode.default.directory', 0750));
+            }
         }
 
         return $return;
@@ -105,19 +106,22 @@ Class Init
 
 
     /**
-     * Returns a list with all classes and their version information
+     * Returns a list with all libraries and their version information
      *
      * @param bool $system
      * @param bool $plugins
      * @return array
      */
-    public static function listClassVersions(bool $system = true, bool $plugins = true): array
+    public static function listLibraryVersions(bool $system = true, bool $plugins = true): array
     {
         $return  = [];
-        $classes = self::listClasses($system, $plugins);
+        $libraries = self::listLibraries($system, $plugins);
 
-        foreach ($classes as $path => $class_name) {
-            $return[$path] = self::getClassVersion($path);
+        foreach ($libraries as $path => $library) {
+            $return[$path] = [
+                'name'    => $library,
+                'version' => self::getLibraryVersion($path)
+            ];
         }
 
         return $return;
@@ -126,48 +130,36 @@ Class Init
 
 
     /**
-     * Attempts to get the version for the specified class path.
-     *
-     * Version data is obtained by CLASSPATH::getVersion(). If the specified class does not have that method, NULL will
-     * be returned instead
-     *
-     * @param string $path
-     * @return string|null
-     */
-    protected static function getClassVersion(string $path): ?string
-    {
-        $class_path = Debug::getClassPath($path);
-        showdie($class_path);
-        $class_methods = get_class_methods($class_path);
-
-        if (in_array('getVersion', $class_methods)) {
-            return $class_path::getVersion();
-        }
-
-        return null;
-    }
-
-
-
-    /**
-     * Returns a list with all classes for the specified path
+     * Returns a list with all libraries for the specified path
      *
      * @param string $path
      * @return array
      */
-    protected static function listClassPaths(string $path): array
+    protected static function listLibraryPaths(string $path): array
     {
         $return  = [];
         $path    = Strings::endsWith($path, '/');
-        $classes = scandir($path);
 
-        foreach ($classes as $class) {
+        if (!file_exists($path)) {
+            throw new NotExistsException(tr('The specified libraray base path ":path" does not exist', [
+                ':path' => $path
+            ]));
+        }
+
+        $libraries = scandir($path);
+
+        foreach ($libraries as $library) {
             // Skip hidden files, current and parent directory
-            if ($class[0] === '.') {
+            if ($library[0] === '.') {
                 continue;
             }
 
-            $return[$path . $class] = $class;
+            $file = $path . $library . '/';
+
+            // Library paths MUST be directories
+            if (is_dir($file)) {
+                $return[$file] = strtolower($library);
+            }
         }
 
         return $return;
@@ -176,200 +168,156 @@ Class Init
 
 
     /**
-     * Initialize all classes for system and plugins
+     * Initialize all libraries for system and plugins
      *
      * @param bool $system
      * @param bool $plugins
      * @return void
      */
-    protected static function executeClasses(bool $system = true, bool $plugins = true): void
+    protected static function executeLibraries(bool $system = true, bool $plugins = true): void
     {
-        // Get a list of all available classes and initialize each one
-        $classes = self::listClassVersions($system, $plugins);
+        // Get a list of all available libraries and initialize each one
+        $libraries = self::listLibraries($system, $plugins);
 
-        foreach ($classes as $path => $version) {
-            self::executeClass($path, $version);
+        foreach ($libraries as $path => $library) {
+            self::executeLibrary($library, $path);
         }
     }
 
 
 
     /**
-     * Initialize the specified class
+     * Returns the version for the specified library
      *
      * @param string $path
-     * @param string|null $version
-     * @return bool
+     * @return string
      */
-    protected static function executeClass(string $path, ?string $version): bool
+    public static function getLibraryVersion(string $path): string
     {
-        $class     = Strings::from($path, '/');
-        $init_path = $path . 'Init/';
-
-        // Ensure this class has versioning control. If not, skip it.
-        if ($version === null) {
-            Log::warning(tr('Not processing class ":class", it has no versioning control available', [':class' => $class]));
-            return false;
-        }
-
-        if (!file_exists($init_path)) {
-            Log::warning(tr('No init available for class ":class"', [':class' => $class]));
-            return false;
-        }
-
-        $count = 0;
-        $files = scandir($init_path);
-
-        if (count($files) <= 2) {
-            // ALL directories always at least have 2 files, current and parent.
-            Log::warning(tr('No init available for class ":class"', [':class' => $class]));
-            return false;
-        }
-
-        Log::action(tr('Initializing class ":class"', [':class' => $class]));
-
-        foreach ($files as $file) {
-            // Skip hidden files, current and parent directory
-            if ($class[0] === '.') {
-                continue;
-            }
-
-            // Skip non PHP files
-            if (strtolower(substr($class, -3, 3)) !== 'php') {
-                continue;
-            }
-
-            if (self::executeFile($version, $path, $class, $file)) {
-                $count++;
-            }
-        }
-
-        // Did we initialize anything at all?
-        return (bool) $count;
+        return self::getlibraryInit($path)->getVersion();
     }
 
 
+
     /**
-     * Execute the specified init file
+     * Initialize the specified library
      *
-     * @param string $version
+     * @param string $library
      * @param string $path
-     * @param string $class
-     * @param string $file
-     * @return bool
+     * @return int The amount of executed versions
      */
-    protected static function executeFile(string $version, string $path, string $class, string $file): bool
+    protected static function executeLibrary(string $library, string $path): int
     {
-        if (!self::isInitFile($path, $class, $file)) {
-            Log::warning(tr('Skipping file ":file" for class ":class" because it is not an init file', [
-                ':class' => $class,
-                ':file' => $file
+        // TODO Check later if we shoudl be able to let init initialize itself
+        if ($library === 'initialize') {
+            // Never initialize the Init library itself!
+            Log::warning(tr('Not processing library ":library", it has no versioning control available', [
+                ':library' => $library
             ]));
 
             return false;
         }
 
-        if (self::hasBeenExecuted($version, $file)) {
-            Log::warning(tr('Skipping init file ":file" for class ":class" because it already has been executed', [
-                ':class' => $class,
-                ':file' => $file
-            ]), 2);
+        // Get the init object (may return NULL if not exist!)
+        $init = self::getlibraryInit($path);
 
+        if (!$init){
+            // This library has no Init available, skip!
+            Log::warning(tr('Not processing library ":library", it has no versioning control available', [
+                ':library' => $library
+            ]));
             return false;
         }
 
-        if (self::isFuture($version, $file)) {
-            Log::warning(tr('Skipping init file ":file" for class ":class" because it already has been executed', [
-                ':class' => $class,
-                ':file' => $file
-            ]), 2);
-
-            return false;
-        }
-
-        Log::warning(tr('Initializing ":class" class init file ":file"', [':class' => $class, ':file' => $file]));
-// TODO IMPLEMENT
-        return true;
+        return $init->update();
     }
 
 
 
     /**
-     * Returns true if this is a valid init file
+     * Returns the Init object for the specified library path
      *
-     * @param string $file
-     * @return bool
+     * @param string $path
+     * @return Init|null
      */
-    protected static function isInitFile(string $file): bool
+    protected static function getlibraryInit(string $path): ?Init
     {
-        return Strings::isVersion(substr($file, 0,-4));
+        $file = Strings::slash($path) . 'Init.php';
+
+        if (!file_exists($file)) {
+            // There is no init class available
+            return null;
+        }
+
+        include($file);
+        $init_class_path = Debug::getClassPath($file);
+        $init = new $init_class_path();
+
+        if (!($init instanceof Init)) {
+            Log::Warning(tr('The Init.php file for the library ":library" is invalid, it should be an instance of the class Phoundation\Init\Init. This Init.php file will be ignored', [
+                ':library' => Strings::from($path, ROOT)
+            ]));
+            return null;
+        }
+
+        return $init;
     }
 
 
 
     /**
-     * Returns true if this init file has already been executed before (and should not be executed again)
+     * Returns the path for the specified library
      *
-     * @param string $version
-     * @param string $file
-     * @return bool
+     * @note If the specified library exists both as a system library and a plugin, an OutOfBoundsException exception
+     *       will be thrown
+     * @throws OutOfBoundsException|NotExistsException
+     * @param string $library
+     * @param bool $system
+     * @param bool $plugin
+     * @return string
      */
-    protected static function hasBeenExecuted(string $version, string $file): bool
+    protected static function findLibraryPath(string $library, bool $system = true, bool $plugin = true): string
     {
-        $file_version = Strings::until($file, '.php');
-        $result       = version_compare($version, $file_version);
+        $return = null;
+        $paths  = [];
 
-        switch (version_compare($version  , $file_version)) {
-            case -1:
-                // The file version is newer than the specified version
-                return true;
-
-            case 0:
-                // The file version is the same as the current version, it has  been executed
-                return true;
-
-            case 1:
-                // The file version is later than the specified version
-                return false;
+        if ($system) {
+            $paths[] = self::CLASS_PATH_SYSTEM;
         }
 
-        throw new UnexpectedValueException(tr('Php version_compare() gave the unexpected output ":output"', [
-            ':output' => $result
-        ]));
-    }
-
-
-
-    /**
-     * Returns true if this init file has a version above the current version (and should not yet be executed)
-     *
-     * @param string $version
-     * @param string $file
-     * @return bool
-     */
-    protected static function isFuture(string $version, string $file): bool
-    {
-        $file_version = Strings::until($file, '.php');
-        $result       = version_compare($version, $file_version);
-
-        switch ($result) {
-            case -1:
-                // The file version is newer than the specified version
-                return true;
-
-            case 0:
-                // The file version is the same as the current version, it has  been executed
-                return false;
-
-            case 1:
-                // The file version is later than the specified version
-                return false;
+        if ($plugin) {
+            $paths[] = self::CLASS_PATH_PLUGINS;
         }
 
-        throw new UnexpectedValueException(tr('Php version_compare() gave the unexpected output ":output"', [
-            ':output' => $result
-        ]));
+        if (empty($paths)) {
+            throw new OutOfBoundsException(tr('Neither system not plugin paths specified to search'));
+        }
+
+        $directory = Strings::capitalize($library);
+
+        // Library must exist in either SYSTEM or PLUGINS paths
+        foreach($paths as $path) {
+            // Library must exist and be a directory
+            if (file_exists($path . $directory)) {
+                if (is_dir($path . $directory)) {
+                    if ($return) {
+                        throw new OutOfBoundsException(tr('The specified library ":library" is both a system library and a plugin', [
+                            ':library' => $library
+                        ]));
+                    }
+
+                    $return = $path . $directory . '/';
+                }
+            }
+        }
+
+        if ($return) {
+            return $return;
+        }
+
+        throw Exceptions::NotExistsException(tr('The specified library does not exist'))->makeWarning();
     }
+
 
 
 

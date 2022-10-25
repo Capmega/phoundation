@@ -23,7 +23,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Filesystem\File;
-use Phoundation\Init\Init;
+use Phoundation\Init\Initialize;
 use Phoundation\Processes\Commands;
 use Phoundation\Servers\Server;
 use Phoundation\Servers\Servers;
@@ -642,7 +642,7 @@ class Sql
                              * and versions table does not exist (yes, that makes a query fail). Just to be sure that
                              * it did not fail due to other reasons, check why the lookup failed.
                              */
-                            Init::processVersionFail($e);
+                            Initialize::processVersionFail($e);
                         }
 
                         /*
@@ -659,7 +659,7 @@ class Sql
                          * then check exactly what is the version difference
                          */
                         if ((Core::FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)) {
-                            Init::processVersionDiff();
+                            Initialize::processVersionDiff();
                         }
                     }
                 }

@@ -270,4 +270,20 @@ class Exceptions
     {
         return new InitException($messages, $data, $code, $previous);
     }
+
+
+
+    /**
+     * Exceptions factory for NotExistsException
+     *
+     * @param string|array $messages
+     * @param mixed|null $data
+     * @param string|null $code
+     * @param Throwable|null $previous
+     * @return NotExistsException
+     */
+    public static function NotExistsException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): NotExistsException
+    {
+        return new NotExistsException($messages, $data, $code, $previous);
+    }
 }

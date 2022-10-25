@@ -9,7 +9,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Debug\Exception\DebugException;
+use Phoundation\Developer\Exception\DebugException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Web\Http\Html\Html;
@@ -1173,11 +1173,13 @@ class Debug {
         }
 
         // Scan for namespace and class lines
-        $results = File::grep($file, ['namespace ', 'class '], 20);
+        $namespace = null;
+        $class     = null;
+        $results   = File::grep($file, ['namespace ', 'class '], 100);
 
         // Get the namespace
         foreach ($results['namespace '] as $line) {
-            if (preg_match_all('/namespace (.+?\.+?);/', $line, $matches)) {
+            if (preg_match_all('/^namespace\s+(.+?);$/i', $line, $matches)) {
                 $namespace = $matches[1][0];
             }
         }
@@ -1188,7 +1190,7 @@ class Debug {
 
         // Get the class name
         foreach ($results['class '] as $line) {
-            if (preg_match_all('/class [a-z0-9_]+ \{/i', $line, $matches)) {
+            if (preg_match_all('/^class ([a-z0-9_]+)\s+(?:extends .+?)?\s+\{?$/i', $line, $matches)) {
                 $class = $matches[1][0];
             }
         }

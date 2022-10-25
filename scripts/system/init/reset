@@ -29,13 +29,13 @@
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Exception\Exceptions;
-use Phoundation\Init\Init;
+use Phoundation\Init\Initialize;
 use Phoundation\Processes\Processes;
 
 
 
 // Reset the database to the code version
-if (!Init::reset()) {
+if (!Initialize::reset()) {
     throw Exceptions::InitException(tr('WARNING: Database version has NOT been reset, it probably is already at or behind the framework and code versions. See ROOT/script/base/info for more information.'))->makeWarning();
 }
 
