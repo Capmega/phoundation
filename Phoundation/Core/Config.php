@@ -4,6 +4,7 @@ namespace Phoundation\Core;
 
 use ErrorException;
 use Phoundation\Core\Exception\ConfigException;
+use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -143,7 +144,10 @@ class Config{
                 // The requested key does not exist
                 if ($default === null) {
                     // We have no default configuration either
-                    throw new ConfigException(tr('The configuration section ":section" from key path ":path" does not exist', [':section' => $section, ':path' => $path]));
+                    throw new ConfigNotExistsException(tr('The configuration section ":section" from key path ":path" does not exist', [
+                        ':section' => $section,
+                        ':path'    => $path
+                    ]));
                 }
 
                 // The requested key does not exist in configuration, return the default value instead

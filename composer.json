@@ -9,8 +9,7 @@
     "ext-mbstring": "*",
     "ext-posix": "*",
     "ext-fileinfo": "*",
-    "mongodb/mongodb":"^1.6",
-    "ext-apache": "*",
+    "mongodb/mongodb":"^1.6"
   },
   "suggest": {
     "ext-redis": "*",

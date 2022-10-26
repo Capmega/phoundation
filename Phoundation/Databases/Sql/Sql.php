@@ -12,6 +12,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigException;
+use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
@@ -19,11 +20,12 @@ use Phoundation\Core\Timers;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
+use Phoundation\Databases\Sql\Schema\Schema;
+use Phoundation\Databases\Sql\Schema\Table;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Filesystem\File;
-use Phoundation\Init\Initialize;
 use Phoundation\Processes\Commands;
 use Phoundation\Servers\Server;
 use Phoundation\Servers\Servers;
@@ -59,25 +61,11 @@ class Sql
     protected static array $configuration = [];
 
     /**
-     * Database configuration for this instance
-     *
-     * @var array $instance_configuration
-     */
-    protected array $instance_configuration = [];
-
-    /**
      * Identifier of this instance
      *
      * @var string|null $instance_name
      */
     protected ?string $instance_name = null;
-
-    /**
-     * The actual database interface
-     *
-     * @var PDO|null $interface
-     */
-    protected ?PDO $interface = null;
 
     /**
      * True if a database is in use
@@ -87,7 +75,7 @@ class Sql
     protected bool $using_database = false;
 
     /**
-     * The database interface
+     * The PDO database interface
      *
      * @var PDO|null $pdo
      */
@@ -102,7 +90,7 @@ class Sql
      * @return void
      * @throws Exception
      */
-    public function __construct(?string $instance_name = null)
+    public function __construct(?string $instance_name = null, bool $connect = true)
     {
         if ($instance_name === null) {
             $instance_name = 'system';
@@ -111,84 +99,9 @@ class Sql
         // Clean connector name, get connector configuration and ensure all required config data is there
         $this->instance_name = $instance_name;
         $this->instance_configuration = self::getInstanceConfiguration($instance_name);
-        $this->init();
-    }
 
-
-
-    /**
-     * Returns an SQL schema object
-     *
-     * @return Schema
-     */
-    public function schema(): Schema
-    {
-        return new Schema();
-    }
-
-
-
-    /**
-     * Quick access to Mc instances. Defaults to "system" instance
-     *
-     * @param string|null $instance_name
-     * @return Sql
-     * @throws SqlException
-     */
-    public static function db(?string $instance_name = null): Sql
-    {
-        if (!self::$init) {
-            if (!class_exists('PDO')) {
-                /*
-                 * Wulp, PDO class not available, PDO driver is not loaded somehow
-                 */
-                throw new SqlException('Could not find the "PDO" class, does this PHP have PDO available?');
-            }
-
-            // Read the configuration and we're done
-            self::readConfiguration();
-            self::$init = true;
-        }
-
-
-        if (!$instance_name) {
-            // Always default to system instance
-            $instance_name = 'system';
-        }
-
-        if (empty(self::$instances[$instance_name])) {
-            self::$instances[$instance_name] = new Sql($instance_name);
-        }
-
-        return self::$instances[$instance_name];
-    }
-
-
-
-    /**
-     * Reads and validates the SQL database configuration
-     *
-     * @note Not all configuration will be verified immediately. Instances configuration will be verified only when
-     *       that instance will be used
-     * @return void
-     */
-    protected static function readConfiguration(): void
-    {
-        self::$configuration = Config::get('databases.sql');
-
-        Arrays::default(self::$configuration, 'enabled', true);
-
-        if (!self::$configuration['enabled']) {
-            // SQL database access has been disabled, no need to read configuration
-            return;
-        }
-
-        if (empty(self::$configuration['instances'])) {
-            throw new ConfigException(tr('No SQL database instances configured'));
-        }
-
-        if (!is_array(self::$configuration['instances'])) {
-            throw new ConfigException(tr('Invalid SQL database instances configuration, it should be an array with multiple instances'));
+        if ($connect) {
+            $this->connect();
         }
     }
 
@@ -197,27 +110,27 @@ class Sql
     /**
      * Reads, validates structure and returns the configuration for the specified instance
      *
-     * @param string $instance_name
+     * @param string $instance
      * @return array
      */
-    protected static function getInstanceConfiguration(string $instance_name): array
+    protected static function getInstanceConfiguration(string $instance): array
     {
-        if (!array_key_exists($instance_name, self::$configuration['instances'])) {
-            throw new ConfigException(tr('The specified instance ":instance" is not configured', [':instance' => $instance_name]));
+        try {
+            $configuration = Config::get('databases.sql.instances.' . $instance);
+        } catch (ConfigNotExistsException $e) {
+            throw new SqlException(tr('The specified instance ":instance" is not configured', [
+                ':instance' => $instance
+            ]));
         }
 
-        if (!is_array(self::$configuration['instances'][$instance_name])) {
-            throw new ConfigException(tr('The configuration for the specified instance ":instance" is invalid, it should be an array', [':instance' => $instance_name]));
+        // Validate configuration
+        if (!is_array($configuration)) {
+            throw new ConfigException(tr('The configuration for the specified SQL database instance ":instance" is invalid, it should be an array', [
+                ':instance' => $instance
+            ]));
         }
 
-        // Get the configuration and validate it
-        $instance_configuration = self::$configuration['instances'][$instance_name];
-
-
-        if (!defined('PDO::MYSQL_ATTR_USE_BUFFERED_QUERY')) {
-            // Whelp, MySQL library is not available
-            throw new SqlException('Could not find the "MySQL" library for PDO. To install this on Ubuntu derivatives, please type "sudo apt install php-mysql');
-        }
+        self::$configuration = $configuration;
 
 // TODO Add support for instace configuration stored in database
 //        self::$configuration = $this->get('SELECT `id`,
@@ -277,16 +190,29 @@ class Sql
             'timezone'         => 'UTC'
         ];
 
-        $instance_configuration = Sql::merge($template, $instance_configuration);
+        // Copy the configuration options over the template
+        $configuration = Sql::merge($template, $configuration);
 
-        if ($instance_configuration['driver'] === 'mysql') {
-            // Apply MySQL specific
-            $instance_configuration['pdo_attributes'][PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
-            $instance_configuration['pdo_attributes'][PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = !$instance_configuration['buffered'];
-            $instance_configuration['pdo_attributes'][PDO::MYSQL_ATTR_INIT_COMMAND] = 'SET NAMES ' . strtoupper($instance_configuration['charset']);
+        switch ($configuration['driver']) {
+            case 'mysql':
+                // Do we have a MySQL driver available?
+                if (!defined('PDO::MYSQL_ATTR_USE_BUFFERED_QUERY')) {
+                    // Whelp, MySQL library is not available
+                    throw new SqlException('Could not find the "MySQL" library for PDO. To install this on Ubuntu derivatives, please type "sudo apt install php-mysql');
+                }
+
+                // Apply MySQL specific requirements that always apply
+                $configuration['pdo_attributes'][PDO::ATTR_ERRMODE]                  = PDO::ERRMODE_EXCEPTION;
+                $configuration['pdo_attributes'][PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = !$configuration['buffered'];
+                $configuration['pdo_attributes'][PDO::MYSQL_ATTR_INIT_COMMAND]       = 'SET NAMES ' . strtoupper($configuration['charset']);
+                break;
+
+            default:
+                // Here be dragons!
+                Log::warning(tr('WARNING: ":driver" DRIVER MAY WORK BUT IS NOT SUPPORTED!', [':driver' => $configuration['driver']]));
         }
 
-        return $instance_configuration;
+        return $configuration;
     }
 
 
@@ -334,6 +260,11 @@ class Sql
     protected function connect(): void
     {
         try {
+            if (!empty($this->pdo)) {
+                // Already connected to requested DB
+                return;
+            }
+
             // Does this connector require an SSH tunnel?
             if (isset_get($this->instance_configuration['ssh_tunnel']['required'])) {
                 $this->sshTunnel();
@@ -347,11 +278,17 @@ class Sql
                     $connect_string = $this->instance_configuration['driver'] . ':host=' . $this->instance_configuration['host'] . (empty($this->instance_configuration['port']) ? '' : ';port=' . $this->instance_configuration['port']) . (empty($this->instance_configuration['db']) ? '' : ';dbname=' . $this->instance_configuration['db']);
                     $this->pdo = new PDO($connect_string, $this->instance_configuration['user'], $this->instance_configuration['pass'], $this->instance_configuration['pdo_attributes']);
 
-                    Log::success(tr('Connected with PDO connect string ":string"', [':string' => $connect_string]), 3);
+                    Log::success(tr('Connected to instance ":instance" with PDO connect string ":string"', [
+                        ':instance' => $this->instance_name,
+                        ':string' => $connect_string
+                    ]), 3);
                     break;
 
                 } catch (Exception $e) {
-                    Log::error(tr('Failed to connect with PDO connect string ":string"', [':string' => $connect_string]));
+                    Log::error(tr('Failed to connect to instance ":instance" with PDO connect string ":string", error follows below', [
+                        ':instance' => $this->instance_name,
+                        ':string' => $connect_string
+                    ]));
                     Log::error($e);
 
                     $message = $e->getMessage();
@@ -404,7 +341,7 @@ class Sql
             }
 
             if (!empty($this->instance_configuration['mode'])) {
-                $this->pdo->query('SET $this->mode="' . $this->instance_configuration['mode'] . '";');
+                $this->pdo->query('SET sql_mode="' . $this->instance_configuration['mode'] . '";');
             }
 
         } catch (Throwable $e) {
@@ -428,11 +365,11 @@ class Sql
                     // We're running the init script, so go ahead and create the DB already!
                     $db  = $this->instance_configuration['db'];
                     unset($this->instance_configuration['db']);
-                    $pdo = sql_connect(self::$configuration);
+                    $this->pdo = sql_connect(self::$configuration);
 
                     Log::warning(tr('Successfully connected to database server. Attempting to create database ":db"', [':db' => $db]));
 
-                    $pdo->query('CREATE DATABASE `' . $db.'`');
+                    $this->pdo->query('CREATE DATABASE `' . $db.'`');
 
                     Log::warning(tr('Reconnecting to database server with database ":db"', [':db' => $db]));
 
@@ -531,6 +468,18 @@ class Sql
 
 
     /**
+     * Returns an SQL schema object
+     *
+     * @return Schema
+     */
+    public function schema(): Schema
+    {
+        return new Schema();
+    }
+
+
+
+    /**
      * Connect with the main database
      *
      * @return void
@@ -538,23 +487,15 @@ class Sql
      */
     public function init(): void
     {
-        global $_CONFIG, $core;
-
         try {
-            if (!empty($this->interface)) {
-                // Already connected to requested DB
-                return;
-            }
+            $this->connect();
 
-            /*
-             * Set the MySQL rand() seed for this session
-             */
+            // Set the MySQL rand() seed for this session
             // :TODO: On PHP7, update to random_int() for better cryptographic numbers
             $_SESSION['$this->random_seed'] = mt_rand();
 
             // Connect to database
-            Log::notice(tr('Connecting to SQL instance ":name"', [':name' => $this->instance_name]));
-            $this->connect();
+            Log::action(tr('Connecting to SQL instance ":name"', [':name' => $this->instance_name]), 2);
 
             // This is only required for the system connection
             if (PLATFORM_CLI and (Core::readRegister('system', 'script') === 'init') and FORCE and !empty($this->instance_configuration['init'])) {
@@ -592,12 +533,12 @@ class Sql
                      */
                     if (!empty($_CONFIG['db'][$this->instance_name]['init'])) {
                         try {
-                            $r = $this->interface->query('SELECT `project`, `framework`, `offline_until` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
+                            $r = $this->pdo->query('SELECT `project`, `framework`, `offline_until` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
 
                         } catch (Exception $e) {
                             if ($e->getCode() !== '42S02') {
                                 if ($e->getMessage() === 'SQLSTATE[42S22]: Column not found: 1054 Unknown column \'offline_until\' in \'field list\'') {
-                                    $r = $this->interface->query('SELECT `project`, `framework` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
+                                    $r = $this->pdo->query('SELECT `project`, `framework` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
 
                                 } else {
                                     /*
@@ -766,11 +707,11 @@ class Sql
 
             if (!$execute) {
                 // Just execute plain SQL query string.
-                $pdo_statement = $this->interface->query($query);
+                $pdo_statement = $this->pdo->query($query);
 
             } else {
                 // Execute the query with the specified $execute variables
-                $pdo_statement = $this->interface->prepare($query);
+                $pdo_statement = $this->pdo->prepare($query);
 
                 try {
                     $pdo_statement->execute($execute);
@@ -1064,7 +1005,7 @@ class Sql
      */
     public function prepare(string $query): PDOStatement
     {
-        return $this->interface->prepare($query);
+        return $this->pdo->prepare($query);
     }
 
 
@@ -1255,7 +1196,7 @@ class Sql
             $buffer = trim($buffer);
 
             if (!empty($buffer)) {
-                $this->interface->query($buffer);
+                $this->pdo->query($buffer);
 
                 $tel++;
                 // :TODO:SVEN:20130717: Right now it updates the display for each record. This may actually slow down import. Make display update only every 10 records or so
@@ -1334,7 +1275,7 @@ class Sql
      */
     public function insertId(): ?int
     {
-        $insert_id = $this->interface->lastInsertId();
+        $insert_id = $this->pdo->lastInsertId();
 
         if ($insert_id) {
             return (int) $insert_id;

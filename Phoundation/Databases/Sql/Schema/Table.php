@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Databases\Sql;
+namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
