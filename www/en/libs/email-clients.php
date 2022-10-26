@@ -260,9 +260,9 @@ function email_servers_select($params = null) {
 
         $query              = 'SELECT `seodomain`, `domain` FROM `email_servers` '.$where.' ORDER BY '.$params['orderby'];
         $params['resource'] = sql_query($query, $execute, 'core');
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('email_servers_select(): Failed', $e);
@@ -305,10 +305,10 @@ function email_servers_get($email_server, $column = null, $status = null) {
         $where   = ' WHERE '.implode(' AND ', $where).' ';
 
         if ($column) {
-            $retval = sql_get('SELECT `'.$column.'` FROM `email_servers` '.$where, true, $execute, 'core');
+            $return = sql_get('SELECT `'.$column.'` FROM `email_servers` '.$where, true, $execute, 'core');
 
         } else {
-            $retval = sql_get('SELECT    `email_servers`.`id`,
+            $return = sql_get('SELECT    `email_servers`.`id`,
                                          `email_servers`.`createdon`,
                                          `email_servers`.`createdby`,
                                          `email_servers`.`meta_id`,
@@ -333,7 +333,7 @@ function email_servers_get($email_server, $column = null, $status = null) {
                                ON        `servers`.`id` = `email_servers`.`servers_id` '.$where, null, $execute, 'core');
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('email_servers_get(): Failed', $e);

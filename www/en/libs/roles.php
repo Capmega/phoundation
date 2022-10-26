@@ -37,7 +37,7 @@ function roles_get($role = null) {
                 throw new CoreException(tr('roles_get(): Specified role name ":name" is not a string', array(':name' => $role)), 'invalid');
             }
 
-            $retval = sql_get($query.'
+            $return = sql_get($query.'
 
                               WHERE      `roles`.`name`   = :name
                               AND        `roles`.`status` IS NULL',
@@ -48,7 +48,7 @@ function roles_get($role = null) {
             /*
              * Pre-create a new role
              */
-            $retval = sql_get($query.'
+            $return = sql_get($query.'
 
                               WHERE  `roles`.`createdby` = :createdby
 
@@ -56,7 +56,7 @@ function roles_get($role = null) {
 
                               array(':createdby' => $_SESSION['user']['id']));
 
-            if (!$retval) {
+            if (!$return) {
                 sql_query('INSERT INTO `roles` (`createdby`, `meta_id`, `status`, `name`)
                            VALUES              (:createdby , :meta_id , :status , :name )',
 
@@ -69,7 +69,7 @@ function roles_get($role = null) {
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('roles_get(): Failed', $e);

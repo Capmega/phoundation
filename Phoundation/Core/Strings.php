@@ -316,13 +316,13 @@ class Strings
         }
 
         $begin  = mb_str_split($begin, $chunk_size);
-        $retval = '';
+        $return = '';
 
         foreach ($begin as $chunk) {
-            $retval .= $chunk.$interleave;
+            $return .= $chunk.$interleave;
         }
 
-        return mb_substr($retval, 0, -1) . $end;
+        return mb_substr($return, 0, -1) . $end;
     }
 
 
@@ -592,7 +592,7 @@ class Strings
      */
     public static function capsGuess(string $string): string
     {
-        $retval = '';
+        $return = '';
         $posibilities = array('lowercase'             ,
                               'uppercase'             ,
                               'capitalize'            ,
@@ -617,7 +617,7 @@ class Strings
         foreach ($words as $word) {
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -725,13 +725,13 @@ class Strings
     public static function xor(string $first, string $second): string
     {
         $diff   = $first ^ $second;
-        $retval = '';
+        $return = '';
 
         for ($i = 0, $len = mb_strlen($diff); $i != $len; ++$i) {
-            $retval[$i] === "\0" ? ' ' : '#';
+            $return[$i] === "\0" ? ' ' : '#';
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -1336,29 +1336,29 @@ class Strings
 
         switch ($method) {
             case 'right':
-                $retval = mb_substr($source, 0, $length);
+                $return = mb_substr($source, 0, $length);
 
                 if ($on_word and (!str_contains(substr($source, $length, 2), ' '))) {
-                    if ($pos = strrpos($retval, ' ')) {
-                        $retval = substr($retval, 0, $pos);
+                    if ($pos = strrpos($return, ' ')) {
+                        $return = substr($return, 0, $pos);
                     }
                 }
 
-                return trim($retval) . $fill;
+                return trim($return) . $fill;
 
             case 'center':
                 return mb_substr($source, 0, floor($length / 2)) . $fill.mb_substr($source, -ceil($length / 2));
 
             case 'left':
-                $retval = mb_substr($source, -$length, $length);
+                $return = mb_substr($source, -$length, $length);
 
                 if ($on_word and (!str_contains(substr($source, $length, 2), ' '))) {
-                    if ($pos = strpos($retval, ' ')) {
-                        $retval = substr($retval, $pos);
+                    if ($pos = strpos($return, ' ')) {
+                        $return = substr($return, $pos);
                     }
                 }
 
-                return $fill.trim($retval);
+                return $fill.trim($return);
 
             default:
                 throw new CoreException(tr('Unknown method ":method" specified, please use "left", "center", or "right" or undefined which will default to "right"', [':method' => $method]), 'unknown');

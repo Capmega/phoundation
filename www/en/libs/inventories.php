@@ -356,9 +356,9 @@ function inventories_select($params) {
 
         $query              = 'SELECT `seoname`, `name` FROM `inventories` '.$where.' ORDER BY `name`';
         $params['resource'] = sql_query($query, $execute);
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('inventories_select(): Failed', $e);
@@ -454,10 +454,10 @@ function inventories_get($entry, $column = null, $status = null) {
         $where   = ' WHERE '.implode(' AND ', $where).' ';
 
         if ($column) {
-            $retval = sql_get('SELECT `'.$column.'` FROM `inventories` '.$where, true, $execute);
+            $return = sql_get('SELECT `'.$column.'` FROM `inventories` '.$where, true, $execute);
 
         } else {
-            $retval = sql_get('SELECT    `inventories`.`id`,
+            $return = sql_get('SELECT    `inventories`.`id`,
                                          `inventories`.`createdon`,
                                          `inventories`.`createdby`,
                                          `inventories`.`meta_id`,
@@ -537,7 +537,7 @@ function inventories_get($entry, $column = null, $status = null) {
                                ON        `employees`.`id`         = `inventories`.`employees_id` '.$where, $execute);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('inventories_get(): Failed', $e);
@@ -751,9 +751,9 @@ function inventories_select_item($params = null) {
             $params['resource'] = sql_query($query, $execute);
         }
 
-        $retval = html_select($params);
+        $return = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('inventories_select_item(): Failed', $e);
@@ -815,12 +815,12 @@ function inventories_get_item($items_id, $category = null, $column = null, $stat
         $where   = ' WHERE '.implode(' AND ', $where).' ';
 
         if ($column) {
-            $retval = sql_get('SELECT `inventories_items`.`'.$column.'`
+            $return = sql_get('SELECT `inventories_items`.`'.$column.'`
 
                                FROM   `inventories_items` '.$where, true, $execute);
 
         } else {
-            $retval = sql_get('SELECT    `inventories_items`.`id`,
+            $return = sql_get('SELECT    `inventories_items`.`id`,
                                          `inventories_items`.`createdon`,
                                          `inventories_items`.`createdby`,
                                          `inventories_items`.`meta_id`,
@@ -849,7 +849,7 @@ function inventories_get_item($items_id, $category = null, $column = null, $stat
                                ON        `providers`.`id` = `inventories_items`.`providers_id` '.$where, $execute);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('inventories_get_item(): Failed', $e);

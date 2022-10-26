@@ -151,7 +151,7 @@ function email_poll($params) {
 
         $imap     = email_connect($userdata, $params['mail_box']);
         $mails    = imap_search($imap, $params['criteria'], SE_FREE, $params['character_set']);
-        $retval   = array();
+        $return   = array();
 
         /*
          * Post IMAP Fetch
@@ -315,7 +315,7 @@ function email_poll($params) {
                     }
 
                     if ($params['return']) {
-                        $retval[$mails_id] = $data;
+                        $return[$mails_id] = $data;
                     }
 
                 }
@@ -342,7 +342,7 @@ function email_poll($params) {
             sql_query('UPDATE `email_client_accounts` SET `last_poll` = NOW() WHERE `id` = :id', array(':id' => $userdata['id']));
         }
 
-        return $retval;
+        return $return;
 
     }catch(\Exception $e) {
         log_console(tr('Failed to poll email data for account ":account" because ":e"', array(':account' => $params['account'], ':e' => $e->getMessages())), 'yellow');
@@ -1393,7 +1393,7 @@ function email_get_account($email, $columns = null) {
                         `email_domains`.`imap`';
         }
 
-        $retval = sql_get('SELECT    '.$columns.'
+        $return = sql_get('SELECT    '.$columns.'
 
                            FROM      `email_client_accounts`
 
@@ -1404,11 +1404,11 @@ function email_get_account($email, $columns = null) {
 
                            array(':email' => $email));
 
-        if (!$retval) {
+        if (!$return) {
             throw new CoreException(tr('email_get_account(): Specified email ":email" does not exist', array(':email' => $email)), 'not-exists');
         }
 
-        return $retval;
+        return $return;
 
     }catch(\Exception $e) {
         throw new CoreException(tr('email_get_account(): Failed'), $e);
@@ -1460,7 +1460,7 @@ function email_get_client_account($email, $columns = null) {
                         `email_client_domains`.`imap`';
         }
 
-        $retval = sql_get('SELECT    '.$columns.'
+        $return = sql_get('SELECT    '.$columns.'
 
                            FROM      `email_client_accounts`
 
@@ -1473,11 +1473,11 @@ function email_get_client_account($email, $columns = null) {
                            array(':email'    => $email,
                                  ':seoemail' => $email));
 
-        if (!$retval) {
+        if (!$return) {
             throw new CoreException(tr('email_get_client_account(): Specified email ":email" does not exist', array(':email' => $email)), 'not-exists');
         }
 
-        return $retval;
+        return $return;
 
     }catch(\Exception $e) {
         throw new CoreException(tr('email_get_client_account(): Failed'), $e);
@@ -1519,7 +1519,7 @@ function email_get_domain($email_or_domain, $columns = null, $table = 'email_dom
 
         $domain = Strings::from($email_or_domain, '@');
 
-        $retval = sql_get('SELECT '.$columns.'
+        $return = sql_get('SELECT '.$columns.'
 
                            FROM   `'.$table.'`
 
@@ -1527,7 +1527,7 @@ function email_get_domain($email_or_domain, $columns = null, $table = 'email_dom
 
                            array(':seoname' => $domain));
 
-        return $retval;
+        return $return;
 
     }catch(\Exception $e) {
         throw new CoreException(tr('email_get_domain(): Failed'), $e);
@@ -1860,7 +1860,7 @@ function email_delete($params) {
         $userdata = email_get_client_account($params['account']);
         $imap     = email_connect($userdata, $params['mail_box']);
         $mails    = imap_search($imap, $params['criteria']);
-        $retval   = array();
+        $return   = array();
 
         if (!$mails) {
             if (PLATFORM_CLI) {

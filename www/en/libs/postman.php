@@ -101,10 +101,10 @@ function postman_get_headers($headers) {
         }
 
         foreach ($headers as $header) {
-            $retval[] = $header['key'].': '.$header['value'];
+            $return[] = $header['key'].': '.$header['value'];
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('postman_get_headers(): Failed', $e);

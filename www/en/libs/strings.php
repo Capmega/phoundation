@@ -336,13 +336,13 @@ function str_interleave($source, $interleave, $end = 0, $chunksize = 1) {
         }
 
         $begin  = mb_str_split($begin, $chunksize);
-        $retval = '';
+        $return = '';
 
         foreach ($begin as $chunk) {
-            $retval .= $chunk.$interleave;
+            $return .= $chunk.$interleave;
         }
 
-        return mb_substr($retval, 0, -1).$end;
+        return mb_substr($return, 0, -1).$end;
 
     }catch(Exception $e) {
         throw new OutOfBoundsException(tr('str_interleave(): Failed'), $e);
@@ -479,14 +479,14 @@ function mb_trim($string) {
 //function mb_str_split($source, $l = 0) {
 //    try {
 //        if ($l > 0) {
-//            $retval = array();
+//            $return = array();
 //            $length = mb_strlen($source, 'UTF-8');
 //
 //            for ($i = 0; $i < $length; $i += $l) {
-//                $retval[] = mb_substr($source, $i, $l, 'UTF-8');
+//                $return[] = mb_substr($source, $i, $l, 'UTF-8');
 //            }
 //
-//            return $retval;
+//            return $return;
 //        }
 //
 //        return preg_split("//u", $source, -1, PREG_SPLIT_NO_EMPTY);
@@ -833,13 +833,13 @@ function str_escape($string, $escape = '"') {
 function str_xor($a, $b) {
     try {
         $diff   = $a ^ $b;
-        $retval = '';
+        $return = '';
 
         for ($i = 0, $len = mb_strlen($diff); $i != $len; ++$i) {
-            $retval[$i] === "\0" ? ' ' : '#';
+            $return[$i] === "\0" ? ' ' : '#';
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new OutOfBoundsException('str_xor(): Failed', $e);

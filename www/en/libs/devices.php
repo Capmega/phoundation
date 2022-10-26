@@ -745,11 +745,11 @@ function devices_validate_options($option) {
 function devices_list_options($devices_id, $inactive = false) {
     try {
         if ($inactive) {
-            $retval  = array();
+            $return  = array();
             $options = sql_query('SELECT `key`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id', array(':devices_id' => $devices_id));
 
         } else {
-            $retval  = array();
+            $return  = array();
             $options = sql_query('SELECT `key`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id AND `status` IS NULL', array(':devices_id' => $devices_id));
         }
 
@@ -758,18 +758,18 @@ function devices_list_options($devices_id, $inactive = false) {
         }
 
         foreach ($options as $option) {
-            if (empty($retval[$option['key']])) {
-                $retval[$option['key']] = array();
+            if (empty($return[$option['key']])) {
+                $return[$option['key']] = array();
             }
 
-            $retval[$option['key']][$option['value']] = $option['value'];
+            $return[$option['key']][$option['value']] = $option['value'];
 
             if ($option['default']) {
-                $retval[$option['key']]['default'] = $option['default'];
+                $return[$option['key']]['default'] = $option['default'];
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('devices_list_options(): Failed', $e);
@@ -795,11 +795,11 @@ function devices_list_options($devices_id, $inactive = false) {
 function devices_list_option_keys($devices_id, $inactive = false) {
     try {
         if ($inactive) {
-            $retval  = array();
+            $return  = array();
             $options = sql_query('SELECT `key`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id', array(':devices_id' => $devices_id));
 
         } else {
-            $retval  = array();
+            $return  = array();
             $options = sql_query('SELECT `key`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id AND `status` IS NULL', array(':devices_id' => $devices_id));
         }
 
@@ -819,18 +819,18 @@ function devices_list_option_keys($devices_id, $inactive = false) {
         }
 
         foreach ($options as $option) {
-            if (empty($retval[$option['key']])) {
-                $retval[$option['key']] = array();
+            if (empty($return[$option['key']])) {
+                $return[$option['key']] = array();
             }
 
-            $retval[$option['key']][$option['value']] = $option['value'];
+            $return[$option['key']][$option['value']] = $option['value'];
 
             if ($option['default']) {
-                $retval[$option['key']]['default'] = $option['default'];
+                $return[$option['key']]['default'] = $option['default'];
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('devices_list_option_keys(): Failed', $e);
@@ -864,9 +864,9 @@ function devices_list_option_values($devices_id, $key) {
             throw new CoreException(tr('devices_list_options(): No key specified for devices id ":id"', array(':id' => $devices_id)), 'not-specified');
         }
 
-        $retval = sql_query('SELECT `value`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id AND `key` = :key', array(':devices_id' => $devices_id, ':key' => $key));
+        $return = sql_query('SELECT `value`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id AND `key` = :key', array(':devices_id' => $devices_id, ':key' => $key));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('devices_list_option_values(): Failed', $e);
@@ -938,7 +938,7 @@ function devices_get_option_html_element($params) {
                 return html_select($params);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('devices_get_option_html_element(): Failed', $e);
@@ -1197,9 +1197,9 @@ function devices_select($product, $category = null) {
 
         $query              = 'SELECT `seostring`, `string` FROM `devices` '.$where.' ORDER BY '.$params['orderby'];
         $params['resource'] = sql_query($query, $execute, 'core');
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('devices_select(): Failed', $e);
@@ -1269,7 +1269,7 @@ function devices_scan($types, $server = null, $sudo = false) {
             /*
              * Scan all registered servers
              */
-            $retval  = array();
+            $return  = array();
             $servers = servers_list(true);
 
             while ($server = sql_fetch($servers)) {
@@ -1278,7 +1278,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                     $devices = devices_scan($types, $server['id'], $sudo);
 
                     if ($devices) {
-                        $retval[$server['id']] = $devices[$server['id']];
+                        $return[$server['id']] = $devices[$server['id']];
                     }
 
                 }catch(Exception $e) {
@@ -1286,7 +1286,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                 }
             }
 
-            return $retval;
+            return $return;
         }
 
         if (str_contains($server, ',')) {
@@ -1294,18 +1294,18 @@ function devices_scan($types, $server = null, $sudo = false) {
              * A specific list of servers was specified
              */
             $servers = Arrays::force($server);
-            $retval  = array();
+            $return  = array();
 
             foreach ($servers as $server) {
                 log_console(tr('Scanning server ":server" for devices', array(':server' => $server['domain'])), 'VERBOSE/cyan');
                 $devices = devices_scan($types, $server['id'], $sudo);
 
                 if ($devices) {
-                    $retval[$server['id']] = $devices[$server['id']];
+                    $return[$server['id']] = $devices[$server['id']];
                 }
             }
 
-            return $retval;
+            return $return;
         }
 
         /*
@@ -1315,7 +1315,7 @@ function devices_scan($types, $server = null, $sudo = false) {
         $server            = servers_get($server);
         $server['persist'] = true;
         $servers_id        = $server['id'];
-        $retval            = array();
+        $return            = array();
         $types             = Arrays::force($types);
         $types             = devices_validate_types($types, true);
 
@@ -1380,7 +1380,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                     }
 
                     if ($entries) {
-                        $retval[$servers_id] = array_merge(isset_get($retval[$servers_id], array()), $entries);
+                        $return[$servers_id] = array_merge(isset_get($return[$servers_id], array()), $entries);
                     }
 
                     break;
@@ -1401,7 +1401,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                         }
 
                         if ($devices) {
-                            $retval[$servers_id] = array_merge(isset_get($retval[$servers_id], array()), $devices);
+                            $return[$servers_id] = array_merge(isset_get($return[$servers_id], array()), $devices);
                         }
                     }
 
@@ -1412,7 +1412,7 @@ function devices_scan($types, $server = null, $sudo = false) {
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('devices_scan(): Failed', $e);
@@ -1468,11 +1468,11 @@ function devices_validate_types($types = null, $return_filters = false) {
                         throw new CoreException(tr('devices_validate_types(): Specified device type list is invalid. Key ":key" should be a string but is an ":type" instead', array(':key' => $key, ':type' => gettype($type))), 'invalid');
                     }
 
-                    $retval[devices_validate_types($type)] = devices_validate_types($type, $return_filters);
+                    $return[devices_validate_types($type)] = devices_validate_types($type, $return_filters);
                 }
 
                 unset($type);
-                return $retval;
+                return $return;
             }
 
             /*

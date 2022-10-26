@@ -508,7 +508,7 @@ function json_decode_custom($json, $as_array = true) {
         /*
          * Decode the JSON data
          */
-        $retval = json_decode($json, $as_array);
+        $return = json_decode($json, $as_array);
 
         /*
          * Switch and check possible JSON errors
@@ -536,7 +536,7 @@ function json_decode_custom($json, $as_array = true) {
                 throw new OutOfBoundsException('json_decode_custom(): Unknown JSON error occured', 'error');
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         $e->setData($json);

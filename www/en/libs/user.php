@@ -1579,7 +1579,7 @@ function user_get($user = null, $status = null) {
             }
 
             if (is_numeric($user)) {
-                $retval = sql_get('SELECT    `users`.*,
+                $return = sql_get('SELECT    `users`.*,
                                              `users`.`password`      AS `password2`,
 
                                              `createdby`.`name`      AS `createdby_name`,
@@ -1604,7 +1604,7 @@ function user_get($user = null, $status = null) {
                                    array(':id' => $user));
 
             } else {
-                $retval = sql_get('SELECT    `users`.*,
+                $return = sql_get('SELECT    `users`.*,
                                              `users`.`password`      AS `password2`,
 
                                              `createdby`.`name`      AS `createdby_name`,
@@ -1635,7 +1635,7 @@ function user_get($user = null, $status = null) {
             /*
              * Pre-create a new user
              */
-            $retval = sql_get('SELECT    `users`.*,
+            $return = sql_get('SELECT    `users`.*,
                                          `users`.`password`      AS `password2`,
 
                                          `createdby`.`name`      AS `createdby_name`,
@@ -1659,13 +1659,13 @@ function user_get($user = null, $status = null) {
 
                                array(':createdby' => $_SESSION['user']['id']));
 
-            if (!$retval) {
+            if (!$return) {
                 $id = user_signup(array('status' => '_new'), array('no_validation' => true));
                 return user_get(null);
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('user_get(): Failed', $e);
@@ -2304,10 +2304,10 @@ function users_get($user, $column = null, $status = null, $parent = false) {
         $where = ' WHERE '.implode(' AND ', $where).' ';
 
         if ($column) {
-            $retval = sql_get('SELECT `'.$column.'` FROM `users` '.$where, true, $execute);
+            $return = sql_get('SELECT `'.$column.'` FROM `users` '.$where, true, $execute);
 
         } else {
-            $retval = sql_get('SELECT `id`,
+            $return = sql_get('SELECT `id`,
                                       `createdby`,
                                       `meta_id`,
                                       `createdon`,
@@ -2365,7 +2365,7 @@ function users_get($user, $column = null, $status = null, $parent = false) {
                                FROM   `users` '.$where, $execute);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('users_get(): Failed', $e);
@@ -2498,11 +2498,11 @@ function user_key_form_fields($user = null, $prefix = '') {
 
         $key    = user_get_key($user);
 
-        $retval = ' <input type="hidden" class="'.$prefix.'timestamp" name="'.$prefix.'timestamp" value="'.$key['timestamp'].'">
+        $return = ' <input type="hidden" class="'.$prefix.'timestamp" name="'.$prefix.'timestamp" value="'.$key['timestamp'].'">
                     <input type="hidden" class="'.$prefix.'user" name="'.$prefix.'user" value="'.$key['user'].'">
                     <input type="hidden" class="'.$prefix.'key" name="'.$prefix.'key" value="'.$key['key'].'">';
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('user_key_form_fields(): Failed'), $e);

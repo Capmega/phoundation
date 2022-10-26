@@ -635,18 +635,18 @@ function code_get_branch_lines($path = ROOT) {
 function code_get_available_lines($path = ROOT) {
     try {
         $tags   = git_list_tags($path);
-        $retval = array();
+        $return = array();
 
         foreach ($tags as $tag) {
             $version = Strings::from($tag, 'v');
 
             if (str_is_version($version)) {
                 $version  = code_get_version_line($version);
-                $retval[] = $version;
+                $return[] = $version;
             }
         }
 
-        return array_unique($retval);
+        return array_unique($return);
 
     }catch(Exception $e) {
         throw new CoreException('code_get_available_lines(): Failed', $e);
@@ -674,7 +674,7 @@ function code_get_available_lines($path = ROOT) {
 function code_get_available_versions($path = ROOT, $version_lines = null) {
     try {
         $tags   = git_list_tags($path);
-        $retval = array();
+        $return = array();
 
         if ($version_lines) {
             $version_lines = Arrays::force($version_lines);
@@ -688,12 +688,12 @@ function code_get_available_versions($path = ROOT, $version_lines = null) {
                 $line = code_get_version_line($version);
 
                 if (empty($version_lines) or in_array($line, $version_lines)) {
-                    $retval[] = $version;
+                    $return[] = $version;
                 }
             }
         }
 
-        return array_unique($retval);
+        return array_unique($return);
 
     }catch(Exception $e) {
         throw new CoreException('code_get_available_versions(): Failed', $e);

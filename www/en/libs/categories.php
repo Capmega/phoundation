@@ -255,9 +255,9 @@ function categories_select($params = null) {
 
         $query              = 'SELECT `seoname`, `name` FROM `categories` '.$where.' ORDER BY `name`';
         $params['resource'] = sql_query($query, $execute);
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('categories_select(): Failed', $e);
@@ -332,10 +332,10 @@ function categories_get($category, $column = null, $status = null, $parent = fal
         $where = ' WHERE '.implode(' AND ', $where).' ';
 
         if ($column) {
-            $retval = sql_get('SELECT `'.$column.'` FROM `categories` '.$where, true, $execute);
+            $return = sql_get('SELECT `'.$column.'` FROM `categories` '.$where, true, $execute);
 
         } else {
-            $retval = sql_get('SELECT    `categories`.`id`,
+            $return = sql_get('SELECT    `categories`.`id`,
                                          `categories`.`createdon`,
                                          `categories`.`createdby`,
                                          `categories`.`meta_id`,
@@ -354,7 +354,7 @@ function categories_get($category, $column = null, $status = null, $parent = fal
                                ON        `parents`.`id` = `categories`.`parents_id` '.$where, $execute);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('categories_get(): Failed', $e);
@@ -388,7 +388,7 @@ function categories_get_children($category) {
             $categories_id = $category;
         }
 
-        $retval = sql_list('SELECT `categories`.`id`,
+        $return = sql_list('SELECT `categories`.`id`,
                                    `categories`.`name`,
                                    `categories`.`seoname`
 
@@ -398,7 +398,7 @@ function categories_get_children($category) {
 
                             array(':parents_id' => $categories_id));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('categories_get_children(): Failed', $e);

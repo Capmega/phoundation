@@ -72,14 +72,14 @@ class Script extends Element
             case '>':
                 // Keep this script internal! This is required when script contents contain session sensitive data, or
                 // may even change per page
-                $retval            = '<script type="'.$type.'" src="'.cdn_domain('js/'.substr($script['script'], 1)).'"'.($extra ? ' '.$extra : '').'></script>';
+                $return            = '<script type="'.$type.'" src="'.cdn_domain('js/'.substr($script['script'], 1)).'"'.($extra ? ' '.$extra : '').'></script>';
                 $script['to_file'] = false;
                 break;
 
             case '!':
                 // Keep this script internal! This is required when script contents contain session sensitive data, or
                 // may even change per page
-                $retval            = substr($script['script'], 1);
+                $return            = substr($script['script'], 1);
                 $script['to_file'] = false;
 
                 // no-break
@@ -96,19 +96,19 @@ class Script extends Element
                 if ($script['event']) {
                     switch ($script['event']) {
                         case 'dom_content':
-                            $retval = 'document.addEventListener("DOMContentLoaded", function(e) {
+                            $return = 'document.addEventListener("DOMContentLoaded", function(e) {
                                   '.$script['script'].'
                                });';
                             break;
 
                         case 'window':
-                            $retval = 'window.addEventListener("load", function(e) {
+                            $return = 'window.addEventListener("load", function(e) {
                                   '.$script['script'].'
                                });';
                             break;
 
                         case 'function':
-                            $retval = '$(function() {
+                            $return = '$(function() {
                                   '.$script['script'].'
                                });';
                             break;
@@ -119,15 +119,15 @@ class Script extends Element
 
                 } else {
                     // Don't wrap the specified script in an event wrapper
-                    $retval = $script['script'];
+                    $return = $script['script'];
                 }
 
                 if ($script['to_file']) {
-                    $retval .= ';';
+                    $return .= ';';
 
                 } else {
-                    $retval  = ' <script type="'.$type.'"'.($extra ? ' '.$extra : '').'>
-                             '.$retval.'
+                    $return  = ' <script type="'.$type.'"'.($extra ? ' '.$extra : '').'>
+                             '.$return.'
                          </script>';
                 }
         }
@@ -173,9 +173,9 @@ class Script extends Element
                 // If file does not exist, create it now. Check again if it exist, because the previous function may
                 // have possibly deleted it
                 if (!file_exists($file.'.js')) {
-                    File::executeMode(dirname($file), 0770, function() use ($file, $retval) {
+                    File::executeMode(dirname($file), 0770, function() use ($file, $return) {
                         Log::action(tr('Writing internal javascript to externally cached file ":file"', [':file' => $file.'.js']));
-                        file_put_contents($file.'.js', $retval);
+                        file_put_contents($file.'.js', $return);
                     });
                 }
 
@@ -209,8 +209,8 @@ class Script extends Element
                     ->send();
 
                 // Add a <script> element because now we'll include it into the HTML anyway
-                $retval = ' <script type="'.$type.'"'.($extra ? ' '.$extra : '').'>
-                        '.$retval.'
+                $return = ' <script type="'.$type.'"'.($extra ? ' '.$extra : '').'>
+                        '.$return.'
                     </script>';
             }
         }
@@ -218,16 +218,16 @@ class Script extends Element
         // Javascript is included into the webpage directly
         // Core::register[script] tags are added all at the end of the page for faster loading
         if (!$script['delayed']) {
-            return $retval;
+            return $return;
         }
 
         // If delayed, add it to the footer, else return it directly for inclusion at the point where the
         // Html::script() function wascalled
         if (isset($core->register['script_delayed'])) {
-            $core->register['script_delayed'] .= $retval;
+            $core->register['script_delayed'] .= $return;
 
         } else {
-            $core->register['script_delayed']  = $retval;
+            $core->register['script_delayed']  = $return;
         }
 
         $count++;

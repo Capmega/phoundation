@@ -16,17 +16,17 @@
 function session_list() {
     try {
         $path   = ini_get( 'session.save_path');
-        $retval = array();
+        $return = array();
 
         foreach (scandir($path) as $file) {
             if (($file == '.') or ($file == '..') or ($file == 'modules')) {
                 continue;
             }
 
-            $retval[] = substr($file, 5);
+            $return[] = substr($file, 5);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('session_list(): Failed', $e);

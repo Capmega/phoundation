@@ -128,13 +128,13 @@ class Date
                 return $date;
             }
 
-            $retval = $date->format($format);
+            $return = $date->format($format);
 
             if (LANGUAGE === 'en') {
-                return $retval;
+                return $return;
             }
 
-            return Date::translate($retval);
+            return Date::translate($return);
 
         }catch(Throwable $e) {
             throw new DateException(tr('Failed to convert to format ":format" because ":e"', [':format' => $format, ':e' => $e]));

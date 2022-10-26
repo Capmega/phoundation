@@ -9,7 +9,7 @@ try {
     if (empty($style)) {
         $style  = true;
 
-        $retval = '<style type="text/css">
+        $return = '<style type="text/css">
                     table.debug{
                         font-family: sans-serif;
                         width:99%;
@@ -32,10 +32,10 @@ try {
                     }
                    </style>';
     } else {
-        $retval = '';
+        $return = '';
     }
 
-    return $retval.'<table class="debug">
+    return $return.'<table class="debug">
                         <thead class="debug-header"><td colspan="4">'.current_file(1 + $trace_offset).'@'.current_line(1 + $trace_offset).'</td></thead>
                         <thead class="debug-columns"><td>'.tr('Key').'</td><td>'.tr('Type').'</td><td>'.tr('Size').'</td><td>'.tr('Value').'</td></thead>'.debug_html_row($value, $key).'
                     </table>';

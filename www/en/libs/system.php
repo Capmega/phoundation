@@ -1311,13 +1311,13 @@
 //            /*
 //             * File exists, we're okay, get and return contents.
 //             */
-//            $retval = file_get_contents($realfile);
-//            $retval = str_replace(array_keys($replace), array_values($replace), $retval);
+//            $return = file_get_contents($realfile);
+//            $return = str_replace(array_keys($replace), array_values($replace), $return);
 //
 //            /*
 //             * Make sure no replace markers are left
 //             */
-//            if ($validate and preg_match('/###[a-z]+?###/i', $retval, $matches)) {
+//            if ($validate and preg_match('/###[a-z]+?###/i', $return, $matches)) {
 //                /*
 //                 * Oops, specified $from array does not contain all replace markers
 //                 */
@@ -1326,7 +1326,7 @@
 //                }
 //            }
 //
-//            return $retval;
+//            return $return;
 //        }
 //
 //        $realfile = ROOT.'data/content/'.cfm($language).'/'.cfm($file).'.html';
@@ -1480,28 +1480,28 @@
 //            /*
 //             * No accept language headers were specified
 //             */
-//            $retval  = array('1.0' => array('language' => isset_get($_CONFIG['language']['default'], 'en'),
+//            $return  = array('1.0' => array('language' => isset_get($_CONFIG['language']['default'], 'en'),
 //                                            'locale'   => Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
 //
 //        } else {
 //            $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 //            $headers = Arrays::force($headers, ',');
 //            $default = array_shift($headers);
-//            $retval  = array('1.0' => array('language' => Strings::until($default, '-'),
+//            $return  = array('1.0' => array('language' => Strings::until($default, '-'),
 //                                            'locale'   => (str_contains($default, '-') ? Strings::from($default, '-') : null)));
 //
-//            if (empty($retval['1.0']['language'])) {
+//            if (empty($return['1.0']['language'])) {
 //                /*
 //                 * Specified accept language headers contain no language
 //                 */
-//                $retval['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
+//                $return['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
 //            }
 //
-//            if (empty($retval['1.0']['locale'])) {
+//            if (empty($return['1.0']['locale'])) {
 //                /*
 //                 * Specified accept language headers contain no locale
 //                 */
-//                $retval['1.0']['locale'] = Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
+//                $return['1.0']['locale'] = Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
 //            }
 //
 //            foreach ($headers as $header) {
@@ -1513,12 +1513,12 @@
 //                    continue;
 //                }
 //
-//                $retval[Strings::from(Strings::from($header, ';'), 'q=')] = $requested;
+//                $return[Strings::from(Strings::from($header, ';'), 'q=')] = $requested;
 //            }
 //        }
 //
-//        krsort($retval);
-//        return $retval;
+//        krsort($return);
+//        return $return;
 //
 //    }catch(Exception $e) {
 //        throw new CoreException(tr('accepts_languages(): Failed'), $e);
@@ -2232,13 +2232,13 @@
 //         * Build up the URL part
 //         */
 //        if (!$url_params['url']) {
-//            $retval = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '').$url_params['prefix'];
+//            $return = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '').$url_params['prefix'];
 //
 //        } elseif ($url_params['url'] === true) {
-//            $retval = PROTOCOL.$url_params['domain'].Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
+//            $return = PROTOCOL.$url_params['domain'].Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
 //
 //        } else {
-//            $retval = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '').$url_params['prefix'].Strings::startsNotWith($url_params['url'], '/');
+//            $return = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '').$url_params['prefix'].Strings::startsNotWith($url_params['url'], '/');
 //        }
 //
 //        /*
@@ -2253,16 +2253,16 @@
 //                 * up with Spanish. So translate always
 //                 * FOREIGN1 > English > Foreign2.
 //                 *
-//                 * Also add a / in front of $retval before replacing to ensure
+//                 * Also add a / in front of $return before replacing to ensure
 //                 * we don't accidentally replace sections like "services/" with
 //                 * "servicen/" with Spanish URL's
 //                 */
-//                $retval = str_replace('/'.$url_params['from_language'].'/', '/en/', '/'.$retval);
-//                $retval = substr($retval, 1);
+//                $return = str_replace('/'.$url_params['from_language'].'/', '/en/', '/'.$return);
+//                $return = substr($return, 1);
 //
 //                if (!empty($core->register['route_map'])) {
 //                    foreach ($core->register['route_map'][$url_params['from_language']] as $foreign => $english) {
-//                        $retval = str_replace($foreign, $english, $retval);
+//                        $return = str_replace($foreign, $english, $return);
 //                    }
 //                }
 //            }
@@ -2281,17 +2281,17 @@
 //                    /*
 //                     * No route_map was set, only translate language selector
 //                     */
-//                    $retval = str_replace('en/', $url_params['language'].'/', $retval);
+//                    $return = str_replace('en/', $url_params['language'].'/', $return);
 //
 //                } else {
 //                    if (empty($core->register['route_map'][$url_params['language']])) {
-//                        notify(new CoreException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $retval, ':language' => $url_params['language'])), 'not-specified'));
+//                        notify(new CoreException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $return, ':language' => $url_params['language'])), 'not-specified'));
 //
 //                    } else {
-//                        $retval = str_replace('en/', $url_params['language'].'/', $retval);
+//                        $return = str_replace('en/', $url_params['language'].'/', $return);
 //
 //                        foreach ($core->register['route_map'][$url_params['language']] as $foreign => $english) {
-//                            $retval = str_replace($english, $foreign, $retval);
+//                            $return = str_replace($english, $foreign, $return);
 //                        }
 //                    }
 //                }
@@ -2300,20 +2300,20 @@
 //
 //        if ($url_params['query']) {
 //            load_libs('inet');
-//            $retval = url_add_query($retval, $url_params['query']);
+//            $return = url_add_query($return, $url_params['query']);
 //
 //        } elseif ($url_params['query'] === false) {
-//            $retval = Strings::until($retval, '?');
+//            $return = Strings::until($return, '?');
 //        }
 //
 //        if ($url_params['allow_cloak'] and $_CONFIG['security']['url_cloaking']['enabled']) {
 //            /*
 //             * Cloak the URL before returning it
 //             */
-//            $retval = url_cloak($retval);
+//            $return = url_cloak($return);
 //        }
 //
-//        return $retval;
+//        return $return;
 //
 //    }catch(Exception $e) {
 //        throw new CoreException('domain(): Failed', $e);
@@ -2437,14 +2437,14 @@
 //             * When doing this, automatically delete the temporary file in
 //             * question, since the caller will not know the exact file name used
 //             */
-//            $retval = file_get_contents($file);
+//            $return = file_get_contents($file);
 //            file_delete($file);
 //
 //            if ($callback) {
-//                $callback($retval);
+//                $callback($return);
 //            }
 //
-//            return $retval;
+//            return $return;
 //        }
 //
 //        /*
@@ -2888,14 +2888,14 @@
 //            return array($args[array_rand($args, $count)]);
 //
 //        } else {
-//            $retval = array();
+//            $return = array();
 //
 //            for($i = 0; $i < $count; $i++) {
-//                $retval[] = $args[$key = array_rand($args)];
+//                $return[] = $args[$key = array_rand($args)];
 //                unset($args[$key]);
 //            }
 //
-//            return $retval;
+//            return $return;
 //        }
 //
 //    }catch(Exception $e) {
@@ -4463,28 +4463,28 @@
 //
 //        switch ($method) {
 //            case 'right':
-//                $retval = mb_substr($source, 0, $length);
+//                $return = mb_substr($source, 0, $length);
 //                if ($on_word and (strpos(substr($source, $length, 2), ' ') === false)) {
-//                    if ($pos = strrpos($retval, ' ')) {
-//                        $retval = substr($retval, 0, $pos);
+//                    if ($pos = strrpos($return, ' ')) {
+//                        $return = substr($return, 0, $pos);
 //                    }
 //                }
 //
-//                return trim($retval).$fill;
+//                return trim($return).$fill;
 //
 //            case 'center':
 //                return mb_substr($source, 0, floor($length / 2)).$fill.mb_substr($source, -ceil($length / 2));
 //
 //            case 'left':
-//                $retval = mb_substr($source, -$length, $length);
+//                $return = mb_substr($source, -$length, $length);
 //
-//                if ($on_word and substr($retval)) {
-//                    if ($pos = strpos($retval, ' ')) {
-//                        $retval = substr($retval, $pos);
+//                if ($on_word and substr($return)) {
+//                    if ($pos = strpos($return, ' ')) {
+//                        $return = substr($return, $pos);
 //                    }
 //                }
 //
-//                return $fill.trim($retval);
+//                return $fill.trim($return);
 //
 //            default:
 //                throw new CoreException(tr('str_truncate(): Unknown method ":method" specified, please use "left", "center", or "right" or undefined which will default to "right"', array(':method' => $method)), 'unknown');
@@ -5136,14 +5136,14 @@
 //                return $date;
 //            }
 //
-//            $retval = $date->format($format);
+//            $return = $date->format($format);
 //
 //            if (LANGUAGE === 'en') {
-//                return $retval;
+//                return $return;
 //            }
 //
 //            load_libs('date');
-//            return date_translate($retval);
+//            return date_translate($return);
 //
 //        }catch(Exception $e) {
 //            throw new CoreException(tr('date_convert(): Failed to convert to format ":format" because ":e"', array(':format' => $format, ':e' => $e)), 'invalid');
@@ -6010,7 +6010,7 @@
 //    global $_CONFIG;
 //
 //    try {
-//        $retval = '';
+//        $return = '';
 //
 //        if (!$data) {
 //            $data = $_CONFIG['locale'];
@@ -6045,7 +6045,7 @@
 //            $data[LC_ALL] = str_replace(':COUNTRY' , $country , $data[LC_ALL]);
 //
 //            setlocale(LC_ALL, $data[LC_ALL]);
-//            $retval = $data[LC_ALL];
+//            $return = $data[LC_ALL];
 //            unset($data[LC_ALL]);
 //        }
 //
@@ -6073,7 +6073,7 @@
 //            setlocale($key, $value);
 //        }
 //
-//        return $retval;
+//        return $return;
 //
 //    }catch(Exception $e) {
 //        throw new CoreException(tr('set_locale(): Failed'), $e);

@@ -136,13 +136,13 @@ function sweetalert($params, $html = '', $type = '', $options = array()) {
             $options[$key] = $value;
         }
 
-        $retval = 'swal('.json_encode_custom($options).')';
+        $return = 'swal('.json_encode_custom($options).')';
 
         if (!empty($then)) {
-            $retval .= '.then('.isset_get($then['confirm'], 'undefined').', '.isset_get($then['cancel'], 'undefined').')';
+            $return .= '.then('.isset_get($then['confirm'], 'undefined').', '.isset_get($then['cancel'], 'undefined').')';
         }
 
-        return $retval.';';
+        return $return.';';
 
     }catch(Exception $e) {
         throw new CoreException('sweetalert(): Failed', $e);

@@ -265,30 +265,30 @@ function paging_data($page, $limit, $rows) {
     global $_CONFIG;
 
     try {
-        $retval['default_limit'] = $_CONFIG['paging']['limit'];
-        $retval['limit']         = paging_limit($limit, $retval['default_limit']);
-        $retval['display_limit'] = (($_CONFIG['paging']['limit'] == $retval['limit']) ? '' : $retval['limit']);
-        $retval['pages']         = ($retval['limit'] ? ceil($rows / $retval['limit']) : 1);
-        $retval['page']          = paging_check_page($page, $retval['pages']);
-        $retval['count']         = $rows;
-        $retval['start']         = (force_natural($retval['page']) - 1) * $retval['limit'] + 1;
-        $retval['stop']          = $retval['start'] + $retval['limit'] - 1;
+        $return['default_limit'] = $_CONFIG['paging']['limit'];
+        $return['limit']         = paging_limit($limit, $return['default_limit']);
+        $return['display_limit'] = (($_CONFIG['paging']['limit'] == $return['limit']) ? '' : $return['limit']);
+        $return['pages']         = ($return['limit'] ? ceil($rows / $return['limit']) : 1);
+        $return['page']          = paging_check_page($page, $return['pages']);
+        $return['count']         = $rows;
+        $return['start']         = (force_natural($return['page']) - 1) * $return['limit'] + 1;
+        $return['stop']          = $return['start'] + $return['limit'] - 1;
 
-        if ($retval['stop'] > $retval['count']) {
+        if ($return['stop'] > $return['count']) {
             /*
              * The stop value overpassed the count by a bit, so we might show "showing entry 305 of 301 entries".. Fix this here
              */
-            $retval['stop'] = $retval['count'];
+            $return['stop'] = $return['count'];
         }
 
-        if ($retval['limit']) {
-            $retval['query'] = ' LIMIT '.($retval['start'] - 1).', '.$retval['limit'];
+        if ($return['limit']) {
+            $return['query'] = ' LIMIT '.($return['start'] - 1).', '.$return['limit'];
 
         } else {
-            $retval['query'] = '';
+            $return['query'] = '';
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         if ($e->getCode() == 'range') {

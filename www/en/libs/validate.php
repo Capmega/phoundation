@@ -1890,13 +1890,13 @@ class ValidateForm {
                     }
                 }
 
-                $retval = '';
+                $return = '';
 
                 foreach ($this->errors as $key => $value) {
-                    $retval .= $value.$separator;
+                    $return .= $value.$separator;
                 }
 
-                return $retval;
+                return $return;
             }
 
             return $this->errors;

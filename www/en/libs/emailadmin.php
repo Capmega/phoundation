@@ -104,29 +104,29 @@ function emailadmin_list($query, $column = null, $execute = null, $sql = 'sql') 
         }
 
         $r      = emailadmin_query($query, $execute, true, $sql);
-        $retval = array();
+        $return = array();
 
         while ($row = sql_fetch($r, $column)) {
             if (is_scalar($row)) {
-                $retval[] = $row;
+                $return[] = $row;
 
             } else {
                 switch (count($row)) {
                     case 1:
-                        $retval[] = array_shift($row);
+                        $return[] = array_shift($row);
                         break;
 
                     case 2:
-                        $retval[array_shift($row)] = array_shift($row);
+                        $return[array_shift($row)] = array_shift($row);
                         break;
 
                     default:
-                        $retval[array_shift($row)] = $row;
+                        $return[array_shift($row)] = $row;
                 }
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         if (strtolower(substr(trim($query), 0, 6)) != 'select') {

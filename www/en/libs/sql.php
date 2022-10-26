@@ -350,11 +350,11 @@ function sql_list($query, $execute = null, $numerical_array = false, $connector_
             $r = sql_query($query, $execute, $connector_name);
         }
 
-        $retval = array();
+        $return = array();
 
         while ($row = sql_fetch($r)) {
             if (is_scalar($row)) {
-                $retval[] = $row;
+                $return[] = $row;
 
             } else {
                 switch ($numerical_array ? 0 : count($row)) {
@@ -362,24 +362,24 @@ function sql_list($query, $execute = null, $numerical_array = false, $connector_
                         /*
                          * Force numerical array
                          */
-                        $retval[] = $row;
+                        $return[] = $row;
                         break;
 
                     case 1:
-                        $retval[] = array_shift($row);
+                        $return[] = array_shift($row);
                         break;
 
                     case 2:
-                        $retval[array_shift($row)] = array_shift($row);
+                        $return[array_shift($row)] = array_shift($row);
                         break;
 
                     default:
-                        $retval[array_shift($row)] = $row;
+                        $return[array_shift($row)] = $row;
                 }
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('sql_list(): Failed', $e);
@@ -756,19 +756,19 @@ function sql_columns($source, $columns) {
         }
 
         $columns = Arrays::force($columns);
-        $retval  = array();
+        $return  = array();
 
         foreach ($source as $key => $value) {
             if (in_array($key, $columns)) {
-                $retval[] = '`'.$key.'`';
+                $return[] = '`'.$key.'`';
             }
         }
 
-        if (!count($retval)) {
+        if (!count($return)) {
             throw new CoreException('sql_columns(): Specified source contains non of the specified columns "'.Strings::Log(implode(',', $columns)).'"');
         }
 
-        return implode(', ', $retval);
+        return implode(', ', $return);
 
     }catch(Exception $e) {
         throw new CoreException('sql_columns(): Failed', $e);
@@ -789,14 +789,14 @@ function sql_columns($source, $columns) {
 //
 //        $columns = Arrays::force($columns);
 //        $filter  = Arrays::force($filter);
-//        $retval  = array();
+//        $return  = array();
 //
 //        foreach ($source as $key => $value) {
 //            /*
 //             * Add all in columns, but not in filter (usually to skip the id column)
 //             */
 //            if (in_array($key, $columns) and !in_array($key, $filter)) {
-//                $retval[] = '`'.$key.'` = :'.$key;
+//                $return[] = '`'.$key.'` = :'.$key;
 //            }
 //        }
 //
@@ -806,11 +806,11 @@ function sql_columns($source, $columns) {
 //            }
 //        }
 //
-//        if (!count($retval)) {
+//        if (!count($return)) {
 //            throw new CoreException('sql_set(): Specified source contains non of the specified columns "'.Strings::Log(implode(',', $columns)).'"', 'empty');
 //        }
 //
-//        return implode(', ', $retval);
+//        return implode(', ', $return);
 //
 //    }catch(Exception $e) {
 //        throw new CoreException('sql_set(): Failed', $e);
@@ -837,15 +837,15 @@ function sql_values($source, $columns, $prefix = ':') {
         }
 
         $columns = Arrays::force($columns);
-        $retval  = array();
+        $return  = array();
 
         foreach ($source as $key => $value) {
             if (in_array($key, $columns) or ($key == 'id')) {
-                $retval[$prefix.$key] = $value;
+                $return[$prefix.$key] = $value;
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('sql_values(): Failed', $e);
@@ -911,32 +911,32 @@ function sql_get_id_or_name($entry, $seo = true, $code = false) {
         }
 
         if (is_numeric($entry)) {
-            $retval['where']   = '`id` = :id';
-            $retval['execute'] = array(':id'   => $entry);
+            $return['where']   = '`id` = :id';
+            $return['execute'] = array(':id'   => $entry);
 
         } elseif (is_string($entry)) {
             if ($seo) {
                 if ($code) {
-                    $retval['where']   = '`name` = :name OR `seoname` = :seoname OR `code` = :code';
-                    $retval['execute'] = array(':code'    => $entry,
+                    $return['where']   = '`name` = :name OR `seoname` = :seoname OR `code` = :code';
+                    $return['execute'] = array(':code'    => $entry,
                                                ':name'    => $entry,
                                                ':seoname' => $entry);
 
                 } else {
-                    $retval['where']   = '`name` = :name OR `seoname` = :seoname';
-                    $retval['execute'] = array(':name'    => $entry,
+                    $return['where']   = '`name` = :name OR `seoname` = :seoname';
+                    $return['execute'] = array(':name'    => $entry,
                                                ':seoname' => $entry);
                 }
 
             } else {
                 if ($code) {
-                    $retval['where']   = '`name` = :name OR `code` = :code';
-                    $retval['execute'] = array(':code' => $entry,
+                    $return['where']   = '`name` = :name OR `code` = :code';
+                    $return['execute'] = array(':code' => $entry,
                                                ':name' => $entry);
 
                 } else {
-                    $retval['where']   = '`name` = :name';
-                    $retval['execute'] = array(':name' => $entry);
+                    $return['where']   = '`name` = :name';
+                    $return['execute'] = array(':name' => $entry);
                 }
             }
 
@@ -944,7 +944,7 @@ function sql_get_id_or_name($entry, $seo = true, $code = false) {
             throw new CoreException('sql_get_id_or_name(): Invalid entry with type "'.gettype($entry).'" specified', 'invalid');
         }
 
-        return $retval;
+        return $return;
 
     }catch(CoreException $e) {
         throw new CoreException('sql_get_id_or_name(): Failed (use either numeric id, name sting, or entry array with id or name)', $e);
@@ -1001,7 +1001,7 @@ function sql_unique_id($table, $column = 'id', $max = 10000000, $connector = nul
  */
 function sql_filters($params, $columns, $table = '') {
     try {
-        $retval  = array('filters' => array(),
+        $return  = array('filters' => array(),
                          'execute' => array());
 
         $filters = Arrays::keep($params, $columns);
@@ -1010,15 +1010,15 @@ function sql_filters($params, $columns, $table = '') {
             $safe_key = str_replace('`.`', '_', $key);
 
             if ($value === null) {
-                $retval['filters'][] = ($table ? '`'.$table.'`.' : '').'`'.$key.'` IS NULL';
+                $return['filters'][] = ($table ? '`'.$table.'`.' : '').'`'.$key.'` IS NULL';
 
             } else {
-                $retval['filters'][]              = ($table ? '`'.$table.'`.' : '').'`'.$key.'` = :'.$safe_key;
-                $retval['execute'][':'.$safe_key] = $value;
+                $return['filters'][]              = ($table ? '`'.$table.'`.' : '').'`'.$key.'` = :'.$safe_key;
+                $return['execute'][':'.$safe_key] = $value;
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(CoreException $e) {
         throw new CoreException('sql_filters(): Failed', $e);
@@ -2439,12 +2439,12 @@ function sql_get_orderby_string($orderby) {
                     throw new CoreException(tr('sql_get_orderby_string(): Specified orderby direction ":direction" for column ":column" is invalid, it should be either "ASC" or "DESC"', array(':direction' => $direction, ':column' => $column)), 'invalid');
             }
 
-            $retval[] = '`'.$column.'` '.$direction;
+            $return[] = '`'.$column.'` '.$direction;
         }
 
-        $retval = implode(', ', $retval);
+        $return = implode(', ', $return);
 
-        return ' ORDER BY '.$retval.' ';
+        return ' ORDER BY '.$return.' ';
 
     }catch(Exception $e) {
         throw new CoreException('sql_get_orderby_string(): Failed', $e);
@@ -2610,24 +2610,24 @@ function sql_simple_get($params) {
         $columns = sql_get_columns_string($params['columns'], $params['table']);
         $joins   = Strings::force($params['joins'], ' ');
         $where   = sql_get_where_string($params['filters'], $execute, $params['table'], $params['combine']);
-        $retval  = sql_get(($params['debug'] ? ' ' : '').'SELECT '.$columns.' FROM  `'.$params['table'].'` '.$joins.$where, $execute, $params['single'], $params['connector']);
+        $return  = sql_get(($params['debug'] ? ' ' : '').'SELECT '.$columns.' FROM  `'.$params['table'].'` '.$joins.$where, $execute, $params['single'], $params['connector']);
 
-        if ($retval) {
-            return $retval;
+        if ($return) {
+            return $return;
         }
 
         if ($params['template']) {
             /*
              * Return a "template" result
              */
-            $retval = array();
+            $return = array();
 
             foreach ($params['columns'] as $column) {
-                $retval[$column] = null;
+                $return[$column] = null;
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('sql_simple_get(): Failed'), $e);

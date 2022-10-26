@@ -284,7 +284,7 @@ function upload_get_html($type, $target = null, $params = null) {
                 html_load_js($js);
                 html_load_css('jfu/jquery.fileupload-ui');
 
-                $retval = '<form id="'.$params['id'].'" action="'.$target.'" method="POST" enctype="multipart/form-data">'.
+                $return = '<form id="'.$params['id'].'" action="'.$target.'" method="POST" enctype="multipart/form-data">'.
 
                             '<div class="row fileupload-buttonbar">
                                 <div class="span7">
@@ -333,10 +333,10 @@ function upload_get_html($type, $target = null, $params = null) {
         }
 
         if ($params['lister']) {
-            $retval .= '<table role="presentation" class="table table-striped" id="'.$params['lister'].'"><tbody class="files"></tbody></table>';
+            $return .= '<table role="presentation" class="table table-striped" id="'.$params['lister'].'"><tbody class="files"></tbody></table>';
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('upload_get_html(): Failed', $e);

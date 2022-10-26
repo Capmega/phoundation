@@ -30,7 +30,7 @@ function pages_list($params) {
     try {
         Arrays::ensure($params, 'filters');
 
-        $retval = array();
+        $return = array();
         $pages  = scandir(ROOT.'www/en/');
 
         $params['filters'] = Arrays::force($params['filters']);
@@ -51,14 +51,14 @@ function pages_list($params) {
                     continue;
                 }
 
-                $retval[$page] = array('name'        => Strings::untilReverse(basename($page), '.php'),
+                $return[$page] = array('name'        => Strings::untilReverse(basename($page), '.php'),
                                        'package'     => '',
                                        'description' => '');
             }
         }
 
-        ksort($retval);
-        return $retval;
+        ksort($return);
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('pages_list(): Failed'), $e);
@@ -148,9 +148,9 @@ function pages_select($params = null) {
 
         $query              = 'SELECT `seoname`, `name` FROM `pages` '.$where.' ORDER BY `name`';
         $params['resource'] = sql_query($query, $execute);
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('pages_select(): Failed'), $e);

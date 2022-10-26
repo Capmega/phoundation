@@ -51,9 +51,9 @@ function groups_get($group, $createdby = null) {
             $execute[':createdby'] = $createdby;
         }
 
-        $retval = sql_get($query, $execute);
+        $return = sql_get($query, $execute);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('groups_get(): Failed', $e);
@@ -122,7 +122,7 @@ function groups_validate($group, $old_group = null) {
  */
 function groups_get_users($group) {
     try {
-        $retval = sql_get('SELECT    `groups`.`id`,
+        $return = sql_get('SELECT    `groups`.`id`,
                                      `groups`.`name`,
                                      `groups`.`status`,
                                      `groups`.`description`,
@@ -143,7 +143,7 @@ function groups_get_users($group) {
                            WHERE    (`groups`.`id`      = :group
                            OR        `groups`.`seoname` = :group)', array(':group' => $group));
 
-        if (empty($retval)) {
+        if (empty($return)) {
             throw new CoreException(tr('groups_get_users(): Specified group ":group" does not exist', array(':group' => $group)), 'invalid');
         }
 
@@ -156,15 +156,15 @@ function groups_get_users($group) {
                             LEFT JOIN `users_groups`
                             ON        `users_groups`.`users_id` = `users`.`id`
 
-                            WHERE     `users_groups`.`groups_id` = :groups_id', array(':groups_id' => $retval['id']));
+                            WHERE     `users_groups`.`groups_id` = :groups_id', array(':groups_id' => $return['id']));
 
-        $retval['users'] = array();
+        $return['users'] = array();
 
         while ($user = sql_fetch($users)) {
-            array_push($retval['users'], $user);
+            array_push($return['users'], $user);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('groups_get_users(): Failed'), $e);

@@ -117,7 +117,7 @@ function usb_scan($regex_filter, $server = null) {
     try {
         $results = safe_exec(array('commands' => array('lsusb', array('-v'))));
         $devices = array();
-        $retval  = array();
+        $return  = array();
         $device  = '';
 
         /*
@@ -149,11 +149,11 @@ function usb_scan($regex_filter, $server = null) {
             $found = preg_match($regex_filter, $devices, $matches);
 
             if ($found) {
-                $retval[] = $device;
+                $return[] = $device;
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('usb_scan(): Failed', $e);

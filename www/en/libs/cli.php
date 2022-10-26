@@ -84,6 +84,26 @@ function cli_strip_color($string) {
 
 
 
+/*
+ * Only allow execution on shell scripts
+ */
+function cli_only($exclusive = false) {
+    try {
+        if (!PLATFORM_CLI) {
+            throw new CoreException('cli_only(): This can only be done from command line', 'clionly');
+        }
+
+        if ($exclusive) {
+            cli_run_once_local();
+        }
+
+    }catch(Exception $e) {
+        throw new CoreException('cli_only(): Failed', $e);
+    }
+}
+
+
+
 // :OBSOLETE: Now use cli_done();
 /*
  * Die correctly on commandline
@@ -124,13 +144,13 @@ function cli_die($exitcode, $message = '', $color = '') {
  */
 function cli_code_back($count) {
     try {
-        $retval = '';
+        $return = '';
 
         for($i = 1; $i <= $count; $i++) {
-            $retval .= "\033[D";
+            $return .= "\033[D";
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('cli_code_back(): Failed', $e);
@@ -206,20 +226,138 @@ function cli_readline($prompt = '', $hidden = false, $question_fore_color = null
         }
 
         echo Color::apply('', $answer_fore_color, $answer_back_color, false, false);
-        $retval = rtrim(fgets(STDIN), "\n");
+        $return = rtrim(fgets(STDIN), "\n");
         echo cli_reset_color();
 
         if ($hidden) {
             echo cli_restore();
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('cli_readline(): Failed', $e);
     }
 }
 
+
+
+/*
+ * Ensure that the current script file cannot be run twice
+ *
+ * This function will ensure that the current script file cannot be run twice. In order to do this, it will create a run file in data/run/SCRIPTNAME with the current process id. If, upon starting, the script file already exists, it will check if the specified process id is available, and if its process name matches the current script name. If so, then the system can be sure that this script is already running, and the function will throw an exception
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 1.27.1: Added documentation
+ * @example Have a script run itself recursively, which will be stopped by cli_run_once_local()
+ * code
+ * log_console('Started test');
+ * cli_run_once_local();
+ * safe_exec(Core::readRegister('system', 'script'));
+ * cli_run_once_local(true);
+ * /code
+ *
+ * This would return
+ * Started test
+ * cli_run_once_local(): The script ":script" for this project is already running
+ * /code
+ *
+ * @param boolean $close If set true, the function will stop ensuring that the script won't be run again
+ * @return void
+ */
+function cli_run_once_local($close = false) {
+    global $core;
+    static $executed = false;
+
+    try {
+        $run_dir = ROOT.'data/run/';
+        $script  = $core->register['script'];
+
+        Path::ensure(dirname($run_dir.$script));
+
+        if ($close) {
+            if (!$executed) {
+                /*
+                 * Hey, this script is being closed but was never opened?
+                 */
+                log_console(tr('The cli_run_once_local() function has been called with close option, but it was already closed or never opened.'), 'warning');
+            }
+
+            file_delete(array('patterns'     => $run_dir.$script,
+                              'restrictions' => ROOT.'data/run/',
+                              'clean_path'   => false));
+            $executed = false;
+            return;
+        }
+
+        if ($executed) {
+            /*
+             * Hey, script has already been run before, and its run again
+             * without the close option, this should never happen!
+             */
+            throw new CoreException(tr('cli_run_once_local(): The function has been called twice by script ":script" without $close set to true! This function should be called twice, once without argument, and once with boolean "true"', array(':script' => $script)), 'invalid');
+        }
+
+        $executed = true;
+
+        if (file_exists($run_dir.$script)) {
+            /*
+             * Run file exists, so either a process is running, or a process was
+             * running but crashed before it could delete the run file. Check if
+             * the registered PID exists, and if the process name matches this
+             * one
+             */
+            $pid = file_get_contents($run_dir.$script);
+            $pid = trim($pid);
+
+            if (!is_numeric($pid) or !is_natural($pid) or ($pid > 65536)) {
+                log_console(tr('cli_run_once_local(): The run file ":file" contains invalid information, ignoring', array(':file' => $run_dir.$script)), 'yellow');
+
+            } else {
+                $name = safe_exec(array('commands' => array('ps'  , array('-p', $pid, 'connector' => '|'),
+                                                            'tail', array('-n', 1))));
+                $name = array_pop($name);
+
+                if ($name) {
+                    preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+('.str_replace('/', '\/', $script).')/', $name, $matches);
+
+                    if (!empty($matches[1][0])) {
+                        throw new CoreException(tr('cli_run_once_local(): The script ":script" for this project is already running', array(':script' => $script)), 'already-running');
+                    }
+                }
+            }
+
+            /*
+             * File exists, or contains invalid data, but PID either doesn't
+             * exist, or is used by a different process. Remove the PID file
+             */
+            log_console(tr('cli_run_once_local(): Cleaning up stale run file ":file"', array(':file' => $run_dir.$script)), 'VERBOSE/yellow');
+            file_delete(array('patterns'     => $run_dir.$script,
+                              'restrictions' => ROOT.'data/run/',
+                              'clean_path'   => false));
+        }
+
+        /*
+         * No run file exists yet, create one now
+         */
+        file_put_contents($run_dir.$script, getmypid());
+        Core::readRegister('shutdown_cli_run_once_local', array(true));
+
+    }catch(Exception $e) {
+        if ($e->getCode() == 'already-running') {
+            /*
+            * Just keep throwing this one
+            */
+            throw($e);
+        }
+
+        throw new CoreException('cli_run_once_local(): Failed', $e);
+    }
+}
 
 
 
@@ -403,6 +541,65 @@ function cli_run_once($action = 'exception', $force = false) {
 
 
 /*
+ * Find the specified method, basically any argument without - or --
+ *
+ * The result will be removed from $argv, but will remain stored in a static
+ * variable which will return the same result every subsequent function call
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @see cli_argument()
+ * @see cli_arguments()
+ *
+ * @param natural $index The method number that is requested. 0 (default) is the first method, 1 the second, etc.
+ * @param mixed $default The value to be returned if no method was found
+ * @return array The results of the executed SSH commands in an array, each entry containing one line of the output
+ */
+function cli_method($index = null, $default = null) {
+    global $argv;
+    static $method = array();
+
+    try {
+        if ($default === false) {
+            $method[$index] = null;
+        }
+
+        if (isset($method[$index])) {
+            $reappeared = array_search($method[$index], $argv);
+
+            if (is_numeric($reappeared)) {
+                /*
+                 * The argument has been readded to $argv. This is very likely
+                 * happened by safe_exec() that included the specified script
+                 * into itself, and had to reset the arguments array
+                 */
+                unset($argv[$reappeared]);
+            }
+
+            return $method[$index];
+        }
+
+        foreach ($argv as $key => $value) {
+            if (substr($value, 0, 1) !== '-') {
+                unset($argv[$key]);
+                $method[$index] = $value;
+                return $value;
+            }
+        }
+
+        return $default;
+
+    }catch(Exception $e) {
+        throw new CoreException('cli_method(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Safe and simple way to get arguments
  *
  * This function will REMOVE and then return the argument when its found
@@ -448,11 +645,11 @@ function cli_argument($keys = null, $next = null, $default = null) {
                     /*
                      * Add this argument to the list
                      */
-                    $retval[] = $argv_value;
+                    $return[] = $argv_value;
                     unset($argv[$argv_key]);
                 }
 
-                return isset_get($retval);
+                return isset_get($return);
             }
 
             if (isset($argv[$keys++])) {
@@ -468,9 +665,9 @@ function cli_argument($keys = null, $next = null, $default = null) {
         }
 
         if ($keys === null) {
-            $retval = array_shift($argv);
-            $retval = Strings::startsNotWith($retval, '-');
-            return $retval;
+            $return = array_shift($argv);
+            $return = Strings::startsNotWith($return, '-');
+            return $return;
         }
 
         /*
@@ -536,7 +733,7 @@ function cli_argument($keys = null, $next = null, $default = null) {
                 /*
                  * Return all following arguments, if available, until the next option
                  */
-                $retval = array();
+                $return = array();
 
                 foreach ($argv as $argv_key => $argv_value) {
                     if (empty($start)) {
@@ -558,18 +755,18 @@ function cli_argument($keys = null, $next = null, $default = null) {
                     /*
                      * Add this argument to the list
                      */
-                    $retval[] = $argv_value;
+                    $return[] = $argv_value;
                     unset($argv[$argv_key]);
                 }
 
-                return $retval;
+                return $return;
             }
 
             /*
              * Return next argument, if available
              */
             try {
-                $retval = array_next_value($argv, $keys, true);
+                $return = array_next_value($argv, $keys, true);
 
             }catch(Exception $e) {
                 if ($e->getCode() == 'invalid') {
@@ -580,15 +777,15 @@ function cli_argument($keys = null, $next = null, $default = null) {
                         throw $e->setCode('missing-arguments');
                     }
 
-                    $retval = false;
+                    $return = false;
                 }
             }
 
-            if (substr($retval, 0, 1) == '-') {
-                throw new CoreException(tr('cli_argument(): Argument ":argument1" has no assigned value, it is immediately followed by argument ":argument2"', array(':argument1' => $keys, ':argument2' => $retval)), 'invalid');
+            if (substr($return, 0, 1) == '-') {
+                throw new CoreException(tr('cli_argument(): Argument ":argument1" has no assigned value, it is immediately followed by argument ":argument2"', array(':argument1' => $keys, ':argument2' => $return)), 'invalid');
             }
 
-            return $retval;
+            return $return;
         }
 
         unset($argv[$key]);
@@ -609,12 +806,12 @@ function cli_arguments($arguments = null) {
 
     try {
         if (!$arguments) {
-            $retval = $argv;
+            $return = $argv;
             $argv   = array();
-            return $retval;
+            return $return;
         }
 
-        $retval = array();
+        $return = array();
 
         foreach (Arrays::force($arguments) as $argument) {
             if (is_numeric($argument)) {
@@ -625,11 +822,11 @@ function cli_arguments($arguments = null) {
             }
 
             if ($value = cli_argument($argument, true)) {
-                $retval[str_replace('-', '', $argument)] = $value;
+                $return[str_replace('-', '', $argument)] = $value;
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('cli_arguments(): Failed'), $e);
@@ -1425,17 +1622,17 @@ function cli_list_processes($filters) {
         $commands[] = 'grep';
         $commands[] = array('--color=never', '-v', 'grep --color=never');
 
-        $retval  = array();
+        $return  = array();
         $results = safe_exec(array('ok_exitcodes' => '0,1',
                                    'commands'     => $commands));
 
         foreach ($results as $key => $result) {
             $result       = trim($result);
             $pid          = Strings::until($result, ' ');
-            $retval[$pid] = substr($result, 27);
+            $return[$pid] = substr($result, 27);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('cli_list_processes(): Failed', $e);
@@ -1569,7 +1766,7 @@ function cli_build_commands_string(&$params) {
     global $_CONFIG, $core;
 
     try {
-        $retval = '';
+        $return = '';
 
         array_default($params, 'timeout'     , isset_get($core->register['timeout'], $_CONFIG['cli']['timeout']));
         array_default($params, 'route_errors', true);
@@ -1840,7 +2037,7 @@ function cli_build_commands_string(&$params) {
             $command  = $nice.$command;
             $command  = $sudo.$command;
             $command .= $redirect;
-            $retval  .= $command.' '.$connector.' ';
+            $return  .= $command.' '.$connector.' ';
 
             unset($command);
         }
@@ -1850,10 +2047,10 @@ function cli_build_commands_string(&$params) {
              * Put the entire command in the background
              */
             $params['background'] = $background;
-            $retval = '{ '.$retval.' } > '.$params['output_log'].' 2>&1 3>&1 & echo $!';
+            $return = '{ '.$return.' } > '.$params['output_log'].' 2>&1 3>&1 & echo $!';
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('cli_build_commands_string(): Failed', $e);

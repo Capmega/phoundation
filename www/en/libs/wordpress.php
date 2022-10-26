@@ -178,7 +178,7 @@ function wp_admin_post($params, $force_new = false) {
                     $params[$lower] = Strings::until(Strings::from($params['curl']["data"], 'input type="hidden" id="'.$keyword.'" name="'.$keyword.'" value="'), '" />');
                 }
 
-                $retval[$lower] = $params[$lower];
+                $return[$lower] = $params[$lower];
             }
 
             if (empty($params['post_id']) or !is_numeric($params['post_id'])) {
@@ -191,12 +191,12 @@ function wp_admin_post($params, $force_new = false) {
         }
 
         $date   = new DateTime();
-        $retval = $params;
+        $return = $params;
 
         /*
          * Post the page
          */
-        $retval['curl'] = curl_get(array('url'      => Strings::slash($params['curl']['baseurl']).'wp-admin/post.php',
+        $return['curl'] = curl_get(array('url'      => Strings::slash($params['curl']['baseurl']).'wp-admin/post.php',
                                          'redirect' => Strings::slash($params['curl']['baseurl']).'wp-admin/post-new.php?post_type='.$params['type'],
                                          'curl'     => $params['curl'],
                                          'post'     => array('_wpnonce'                  => $params['_wpnonce'],
@@ -257,24 +257,24 @@ function wp_admin_post($params, $force_new = false) {
         /*
          * Get the new page URL
          */
-        if (!$retval['post_url'] = Strings::cut($retval['curl']['data'], '<div id="message" class="updated">', '</div>')) {
+        if (!$return['post_url'] = Strings::cut($return['curl']['data'], '<div id="message" class="updated">', '</div>')) {
             /*
              * Looks like the page was not updated successfully
              */
-            if (empty($retval['curl']['simulation'])) {
-show($retval['curl']['data']);
+            if (empty($return['curl']['simulation'])) {
+show($return['curl']['data']);
                throw new CoreException('wp_admin_post(): Failed to find post URL', 'posturl');
             }
 
-            $retval['post_url'] = 'simulation_'.uniqid();
+            $return['post_url'] = 'simulation_'.uniqid();
 
         } else {
-            $retval['post_url'] = Strings::cut($retval['post_url'], '<a href="', '">');
-            unset($retval['curl']['data']);
+            $return['post_url'] = Strings::cut($return['post_url'], '<a href="', '">');
+            unset($return['curl']['data']);
         }
 
         $retry = 0;
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         if ((($e->getCode() == 'postid') or ($e->getCode() == 'posturl')) and (++$retry <= $params['retries'])) {
@@ -339,10 +339,10 @@ function wp_admin_trash($params) {
          * Delete the document
          * Example: http://server.com/wp-admin/edit.php?s=&post_status=all&post_type=page&_wpnonce=60f1e909a9&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_type%3Dpage&action=trash&m=0&paged=1&post%5B%5D=4630&action2=-1
          */
-        $retval['curl'] = curl_get(array('url'  => $url.'&action2=-1',
+        $return['curl'] = curl_get(array('url'  => $url.'&action2=-1',
                                          'curl' => $params['curl']));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('wp_admin_trash(): Failed', $e);
@@ -392,10 +392,10 @@ function wp_admin_restore($params) {
          * Remove the document permanently
          * Example: http://server.com/wp-admin/edit.php?s=&post_status=trash&post_type=page&_wpnonce=61f24a93f9&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_status%3Dtrash%26post_type%3Dpage&action=delete&m=0&paged=1&post%5B%5D=4633&post%5B%5D=4635&post%5B%5D=4630&action2=-1
          */
-        $retval['curl'] = curl_get(array('url'  => $url.'&action2=-1',
+        $return['curl'] = curl_get(array('url'  => $url.'&action2=-1',
                                          'curl' => $params['curl']));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('wp_admin_restore(): Failed', $e);
@@ -445,10 +445,10 @@ function wp_admin_remove_permanently($params) {
          * Remove the document permanently
          * Example: http://server.com/wp-admin/edit.php?s=&post_status=trash&post_type=page&_wpnonce=61f24a93f9&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_status%3Dtrash%26post_type%3Dpage&action=untrash&m=0&paged=1&post%5B%5D=4637&post%5B%5D=4639&post%5B%5D=4641&action2=-1
          */
-        $retval['curl'] = curl_get(array('url'  => $url.'&action2=-1',
+        $return['curl'] = curl_get(array('url'  => $url.'&action2=-1',
                                          'curl' => $params['curl']));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('wp_admin_remove_permanently(): Failed', $e);
@@ -481,13 +481,13 @@ function wp_admin_get($post_id, $curl) {
         /*
          * New document? or update existing document?
          */
-        $retval                     = curl_get(array('url'  => Strings::slash($curl['baseurl']).'wp-admin/post.php?post='.$post_id.'&action=edit',
+        $return                     = curl_get(array('url'  => Strings::slash($curl['baseurl']).'wp-admin/post.php?post='.$post_id.'&action=edit',
                                                      'curl' => $curl));
 
-        $retval['data']             = array('raw' => $retval['data']);
-        $retval['data']['content']  = html_entity_decode(Strings::until(Strings::from(Strings::from($retval['data']['raw'], 'textarea class="wp-editor-area"'), '>'), '</textarea>'));
-        $retval['data']['title']    = Strings::fromReverse(Strings::until($retval['data']['raw'], '" id="title"'), 'value="');
-        $retval['data']['curl']     = $curl;
+        $return['data']             = array('raw' => $return['data']);
+        $return['data']['content']  = html_entity_decode(Strings::until(Strings::from(Strings::from($return['data']['raw'], 'textarea class="wp-editor-area"'), '>'), '</textarea>'));
+        $return['data']['title']    = Strings::fromReverse(Strings::until($return['data']['raw'], '" id="title"'), 'value="');
+        $return['data']['curl']     = $curl;
 
         $keywords = array('post_ID',
                           'post_type',
@@ -502,22 +502,22 @@ function wp_admin_get($post_id, $curl) {
         foreach ($keywords as $keyword) {
             $lower = strtolower($keyword);
 
-            if (!$retval['data'][$lower] = Strings::until(Strings::from($retval['data']['raw'], "input type='hidden' id='".$keyword."' name='".$keyword."' value='"), "' />")) {
-                $retval['data'][$lower] = Strings::until(Strings::from($retval['data']['raw'], 'input type="hidden" id="'.$keyword.'" name="'.$keyword.'" value="'), '" />');
+            if (!$return['data'][$lower] = Strings::until(Strings::from($return['data']['raw'], "input type='hidden' id='".$keyword."' name='".$keyword."' value='"), "' />")) {
+                $return['data'][$lower] = Strings::until(Strings::from($return['data']['raw'], 'input type="hidden" id="'.$keyword.'" name="'.$keyword.'" value="'), '" />');
             }
 
-            $retval['data'][$lower] = $retval['data'][$lower];
+            $return['data'][$lower] = $return['data'][$lower];
         }
 
-        if (empty($retval['data']['post_id']) or !is_numeric($retval['data']['post_id'])) {
-            if (empty($retval['curl']['simulation'])) {
+        if (empty($return['data']['post_id']) or !is_numeric($return['data']['post_id'])) {
+            if (empty($return['curl']['simulation'])) {
                 throw new CoreException('wp_admin_post(): Unable to find a valid post id from the wordpress post-new.php page', 'postid');
             }
 
-            $retval['data']['post_id'] = -1;
+            $return['data']['post_id'] = -1;
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('wp_admin_get(): Failed', $e);

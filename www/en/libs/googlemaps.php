@@ -440,16 +440,16 @@ function googlemaps_markers($locations, $longitude = null) {
                                      'longitude' => $longitude));
         }
 
-        $retval = array();
+        $return = array();
 
          foreach ($locations as $location) {
-            $retval[] = array('lat'  => $location['latitude'],
+            $return[] = array('lat'  => $location['latitude'],
                               'lng'  => $location['longitude'],
                               'html' => '',
                               'icon' => $_CONFIG['google_maps']['markers']['icon']);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('googlemaps_markers(): Failed', $e);

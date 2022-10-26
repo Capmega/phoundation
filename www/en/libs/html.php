@@ -472,7 +472,7 @@ function html_generate_css() {
                                                    'media' => (is_string($_CONFIG['cdn']['css']['post']) ? $_CONFIG['cdn']['css']['post'] : ''));
         }
 
-        $retval = '';
+        $return = '';
         $min    = $_CONFIG['cdn']['min'];
 
         html_bundler('css');
@@ -493,15 +493,15 @@ function html_generate_css() {
             /*
              * Hurray, normal stylesheets!
              */
-            $retval .= $html."\n";
+            $return .= $html."\n";
         }
 
         if ($_CONFIG['cdn']['css']['load_delayed']) {
-            $core->register['footer'] .= $retval;
+            $core->register['footer'] .= $return;
             return null;
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('html_generate_css(): Failed', $e);
@@ -652,7 +652,7 @@ function html_generate_js($lists = null) {
         $count  = 0;
         $js     = &$_CONFIG['cdn']['js'];
         $min    = ($_CONFIG['cdn']['min'] ? '.min' : '');
-        $retval = '';
+        $return = '';
         $footer = '';
         $lists  = array('js_header', 'js_header_page', 'js_footer', 'js_footer_page', 'js_footer_scripts');
 
@@ -728,7 +728,7 @@ function html_generate_js($lists = null) {
                     /*
                      * Add this script in the header
                      */
-                    $retval .= $html;
+                    $return .= $html;
 
                 } else {
                     /*
@@ -753,7 +753,7 @@ function html_generate_js($lists = null) {
         unset($core->register['js_header']);
         unset($core->register['js_footer']);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('html_generate_js(): Failed', $e);
@@ -845,17 +845,17 @@ function html_header($params, $meta, &$html) {
             $params['links'] .= '<link rel="canonical" href="'.$params['canonical'].'">';
         }
 
-        $retval =  $params['doctype'].
+        $return =  $params['doctype'].
                    $params['html'].'
                    <head>';
 
         if ($params['style']) {
-            $retval .= '<style>'.$params['style'].'</style>';
+            $return .= '<style>'.$params['style'].'</style>';
         }
 
         if ($params['links']) {
             if (is_string($params['links'])) {
-                $retval .= $params['links'];
+                $return .= $params['links'];
 
             } else {
 // :OBSOLETE: Links specified as an array only adds more complexity, we're going to send it as plain HTML, and be done with the crap. This is still here for backward compatibility
@@ -866,26 +866,26 @@ function html_header($params, $meta, &$html) {
                         $sections[] = $key.'="'.$value.'"';
                     }
 
-                    $retval .= '<link '.implode(' ', $sections).'>';
+                    $return .= '<link '.implode(' ', $sections).'>';
                 }
             }
         }
 
         foreach ($params['prefetch_dns'] as $prefetch) {
-            $retval .= '<link rel="dns-prefetch" href="//'.$prefetch.'">';
+            $return .= '<link rel="dns-prefetch" href="//'.$prefetch.'">';
         }
 
         foreach ($params['prefetch_files'] as $prefetch) {
-            $retval .= '<link rel="prefetch" href="'.$prefetch.'">';
+            $return .= '<link rel="prefetch" href="'.$prefetch.'">';
         }
 
         unset($prefetch);
 
         if (!empty($core->register['header'])) {
-            $retval .= $core->register['header'];
+            $return .= $core->register['header'];
         }
 
-        $retval .= html_generate_css().
+        $return .= html_generate_css().
                    html_generate_js();
 
         /*
@@ -906,7 +906,7 @@ function html_header($params, $meta, &$html) {
                     case 'woff':
                         // no-break
                     case 'woff2':
-                        $retval .= '<link rel="preload" href="'.$font.'" as="font" type="font/'.$extension.'" crossorigin="anonymous">';
+                        $return .= '<link rel="preload" href="'.$font.'" as="font" type="font/'.$extension.'" crossorigin="anonymous">';
                         break;
 
                     default:
@@ -914,7 +914,7 @@ function html_header($params, $meta, &$html) {
                             throw new CoreException(tr('html_header(): Unknown font type ":type" specified for font ":font"', array(':type' => $extension, ':font' => $font)), 'unknown');
                         }
 
-                        $retval .= '<link rel="preload" href="'.$font.'" as="font" type="text/css" crossorigin="anonymous">';
+                        $return .= '<link rel="preload" href="'.$font.'" as="font" type="text/css" crossorigin="anonymous">';
                 }
             }
         }
@@ -922,11 +922,11 @@ function html_header($params, $meta, &$html) {
         /*
          * Add meta data, favicon, and <body> tag
          */
-        $retval .= html_meta($meta);
-        $retval .= html_favicon($params['favicon']).$params['extra'];
-        $retval .= '</head>'.$params['body'];
+        $return .= html_meta($meta);
+        $return .= html_favicon($params['favicon']).$params['extra'];
+        $return .= '</head>'.$params['body'];
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('html_header(): Failed', $e);
@@ -1021,23 +1021,23 @@ function html_meta($meta) {
         /*
          * Start building meta data
          */
-        $retval = '<meta http-equiv="Content-Type" content="text/html;charset="'.$_CONFIG['encoding']['charset'].'">'.
+        $return = '<meta http-equiv="Content-Type" content="text/html;charset="'.$_CONFIG['encoding']['charset'].'">'.
                   '<title>'.$meta['title'].'</title>';
 
         foreach ($meta as $key => $value) {
             if ($key === 'og') {
-                $retval .= html_og($value, $meta);
+                $return .= html_og($value, $meta);
 
             } elseif (substr($key, 0, 3) === 'og:') {
 // :COMPATIBILITY: Remove this section @ 2.10
                 notify(new CoreException(tr('html_meta(): Found $meta[:key], this should be $meta[og][:ogkey], ignoring', array(':key' => $key, ':ogkey' => Strings::from($key, 'og:'))), 'warning/invalid'));
 
             } else {
-                $retval .= '<meta name="'.$key.'" content="'.$value.'">';
+                $return .= '<meta name="'.$key.'" content="'.$value.'">';
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         /*
@@ -1082,7 +1082,7 @@ function html_og($og, $meta) {
         array_default($og, 'locale'     , $core->register['locale']);
         array_default($og, 'type'       , 'website');
 
-        $retval = '';
+        $return = '';
 
         if (strlen($og['description']) > 65) {
             $og['description'] = str_truncate($og['description'], 65);
@@ -1101,10 +1101,10 @@ function html_og($og, $meta) {
                 notify(new CoreException(tr('html_og(): Missing property content for meta og key ":property". Please add this data for SEO!', array(':property' => $property)), 'warning/not-specified'));
             }
 
-            $retval .= '<meta property="og:'.$property.'" content="'.$content.'">';
+            $return .= '<meta property="og:'.$property.'" content="'.$content.'">';
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         /*
@@ -1236,7 +1236,7 @@ function html_flash($class = null) {
                          'message' => tr('html_flash(): Invalid flash structure in $_SESSION array, it should always be an array but it is a ":type". Be sure to always use html_flash_set() to add new flash messages', array(':type' => gettype($_SESSION['flash'])))));
         }
 
-        $retval = '';
+        $return = '';
 
         foreach ($_SESSION['flash'] as $id => $flash) {
             array_default($flash, 'class', null);
@@ -1298,7 +1298,7 @@ function html_flash($class = null) {
                      */
                     foreach (array('html', 'text') as $type) {
                         if ($flash[$type]) {
-                            $retval .= tr($_CONFIG['flash']['html'], array(':message' => $flash[$type], ':type' => $flash['type'], ':hidden' => ''), false);
+                            $return .= tr($_CONFIG['flash']['html'], array(':message' => $flash[$type], ':type' => $flash['type'], ':hidden' => ''), false);
                         }
                     }
 
@@ -1335,7 +1335,7 @@ function html_flash($class = null) {
                 /*
                  * Add an extra hidden flash text box that can respond for jsFlashMessages
                  */
-                return $retval.tr($_CONFIG['flash']['html'], array(':message' => '', ':type' => '', ':hidden' => ' hidden'), false);
+                return $return.tr($_CONFIG['flash']['html'], array(':message' => '', ':type' => '', ':hidden' => ' hidden'), false);
 
             case 'sweetalert':
                 load_libs('sweetalert');
@@ -1547,9 +1547,9 @@ function html_a($params) {
             $params['class'] = ' class="'.$params['class'].'"';
         }
 
-        $retval = '<a href="'.$params['href'].'"'.$params['name'].$params['class'].$params['rel'].'">';
+        $return = '<a href="'.$params['href'].'"'.$params['name'].$params['class'].$params['rel'].'">';
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('html_a(): Failed', $e);
@@ -1589,9 +1589,9 @@ function html_submit($params, $class = '') {
             $params['value'] = ' value="'.$params['value'].'"';
         }
 
-        $retval = '<input type="submit" id="'.$params['name'].'" name="'.$params['name'].'"'.$params['class'].$params['value'].'>';
+        $return = '<input type="submit" id="'.$params['name'].'" name="'.$params['name'].'"'.$params['class'].$params['value'].'>';
 
-        return $retval.isset_get($script);
+        return $return.isset_get($script);
 
     }catch(Exception $e) {
         throw new CoreException('html_submit(): Failed', $e);
@@ -1672,10 +1672,10 @@ function html_list($params, $selected = '') {
         }
 
         if ($params['use_list']) {
-            $retval = '<ul'.($params['class'] ? ' class="'.$params['class'].'"' : '').'>';
+            $return = '<ul'.($params['class'] ? ' class="'.$params['class'].'"' : '').'>';
 
         } else {
-            $retval = '<div'.($params['class'] ? ' class="'.$params['class'].'"' : '').'>';
+            $return = '<div'.($params['class'] ? ' class="'.$params['class'].'"' : '').'>';
         }
 
         /*
@@ -1713,28 +1713,28 @@ function html_list($params, $selected = '') {
 
             if ($params['use_list']) {
                 if ($params['disabled']) {
-                    $retval .= '<li'.($class ? ' class="'.$class.'"' : '').'><a href="" class="nolink">'.$counter.$data['name'].'</a></li>';
+                    $return .= '<li'.($class ? ' class="'.$class.'"' : '').'><a href="" class="nolink">'.$counter.$data['name'].'</a></li>';
 
                 } else {
-                    $retval .= '<li'.($class ? ' class="'.$class.'"' : '').'><a href="'.$data['url'].'">'.$counter.$data['name'].'</a></li>';
+                    $return .= '<li'.($class ? ' class="'.$class.'"' : '').'><a href="'.$data['url'].'">'.$counter.$data['name'].'</a></li>';
                 }
 
             } else {
                 if ($params['disabled']) {
-                    $retval .= '<a'.($class ? ' class="nolink'.($class ? ' '.$class : '').'"' : '').'>'.$counter.$data['name'].'</a>';
+                    $return .= '<a'.($class ? ' class="nolink'.($class ? ' '.$class : '').'"' : '').'>'.$counter.$data['name'].'</a>';
 
                 } else {
-                    $retval .= '<a'.($class ? ' class="'.$class.'"' : '').' href="'.$data['url'].'">'.$counter.$data['name'].'</a>';
+                    $return .= '<a'.($class ? ' class="'.$class.'"' : '').' href="'.$data['url'].'">'.$counter.$data['name'].'</a>';
                 }
 
             }
         }
 
         if ($params['use_list']) {
-            return $retval.'</ul>';
+            return $return.'</ul>';
         }
 
-        return $retval.'</div>';
+        return $return.'</div>';
 
     }catch(Exception $e) {
         throw new CoreException('html_list(): Failed', $e);
@@ -2627,7 +2627,7 @@ function html_autosuggest($params) {
         array_default($params, 'filter_selector', '');
         array_default($params, 'selector'       , 'form.autosuggest');
 
-        $retval = ' <div class="autosuggest'.($params['class'] ? ' '.$params['class'] : '').'">
+        $return = ' <div class="autosuggest'.($params['class'] ? ' '.$params['class'] : '').'">
                         <input autocomplete="new_password" spellcheck="false" role="combobox" dir="ltr" tabindex="'.$params['tabindex'].'" '.($params['input_class'] ? 'class="'.$params['input_class'].'" ' : '').'type="text" name="'.$params['name'].'" id="'.$params['id'].'" placeholder="'.$params['placeholder'].'" data-source="'.$params['source'].'" value="'.$params['value'].'"'.($params['filter_selector'] ? ' data-filter-selector="'.$params['filter_selector'].'"' : '').($params['maxlength'] ? ' maxlength="'.$params['maxlength'].'"' : '').($params['extra'] ? ' '.$params['extra'] : '').($params['required'] ? ' required' : '').'>
                         <ul>
                         </ul>
@@ -2638,12 +2638,12 @@ function html_autosuggest($params) {
              * Add only one autosuggest start per selector
              */
             $sent[$params['selector']] = true;
-            $retval                   .= html_script('$("'.$params['selector'].'").autosuggest();');
+            $return                   .= html_script('$("'.$params['selector'].'").autosuggest();');
         }
 
         html_load_js('base/autosuggest');
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('html_autosuggest(): Failed'), $e);

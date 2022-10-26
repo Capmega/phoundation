@@ -517,9 +517,9 @@ function servers_select($params = null) {
 
         $query              = 'SELECT `seodomain`, CONCAT(`domain`, " (", `ipv4`, ")") AS `name` FROM `servers` '.$where.' ORDER BY '.$params['orderby'];
         $params['resource'] = sql_query($query, $execute, 'core');
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('servers_select(): Failed', $e);
@@ -896,11 +896,11 @@ function servers_register_host($server) {
             $entries = ssh_add_known_host($server['domain'], $server['port']);
 
             if ($entries) {
-                $retval = array_merge($entries, $entries);
+                $return = array_merge($entries, $entries);
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('servers_register_host(): Failed', $e);
@@ -923,7 +923,7 @@ function servers_register_host($server) {
  */
 function servers_unregister_host($server) {
     try {
-        $retval  = array();
+        $return  = array();
         $server  = servers_get($server);
         $domains = servers_list_domains($server);
 
@@ -932,11 +932,11 @@ function servers_unregister_host($server) {
             $entries = ssh_add_known_host($server['domain'], $server['port']);
 
             if ($entries) {
-                $retval = array_merge($entries, $entries);
+                $return = array_merge($entries, $entries);
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('servers_unregister_host(): Failed', $e);
@@ -972,13 +972,13 @@ function servers_list($as_resource = false) {
                            `createdon`   ASC';
 
         if ($as_resource) {
-            $retval = sql_query($query, null, 'core');
+            $return = sql_query($query, null, 'core');
 
         } else {
-            $retval = sql_list($query, null, 'core');
+            $return = sql_list($query, null, 'core');
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('servers_list(): Failed', $e);

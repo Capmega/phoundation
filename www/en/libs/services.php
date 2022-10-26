@@ -326,10 +326,10 @@ function services_get($service, $column = null, $status = null) {
         $where   = ' WHERE '.implode(' AND ', $where).' ';
 
         if ($column) {
-            $retval = sql_get('SELECT `'.$column.'` FROM `services` '.$where, true, $execute, 'core');
+            $return = sql_get('SELECT `'.$column.'` FROM `services` '.$where, true, $execute, 'core');
 
         } else {
-            $retval = sql_get('SELECT    `services`.`id`,
+            $return = sql_get('SELECT    `services`.`id`,
                                          `services`.`createdon`,
                                          `services`.`createdby`,
                                          `services`.`meta_id`,
@@ -345,7 +345,7 @@ function services_get($service, $column = null, $status = null) {
                                $execute, null, 'core');
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('services_get(): Failed', $e);
@@ -438,9 +438,9 @@ function services_select($params = null) {
 
         $query              = 'SELECT `seoname`, `name` FROM `services` '.$where.' ORDER BY '.$params['orderby'];
         $params['resource'] = sql_query($query, $execute, 'core');
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('services_select(): Failed', $e);
@@ -478,7 +478,7 @@ function services_list_servers($service, $domain = null, $return_array = false) 
                              ':domain'  => $domain);
         }
 
-        $retval = sql_query('SELECT   `servers`.`seodomain`,
+        $return = sql_query('SELECT   `servers`.`seodomain`,
                                       `servers`.`domain`
 
                              FROM     `services`
@@ -496,10 +496,10 @@ function services_list_servers($service, $domain = null, $return_array = false) 
                              $execute);
 
         if ($return_array) {
-            return sql_list($retval);
+            return sql_list($return);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('services_list_servers(): Failed', $e);

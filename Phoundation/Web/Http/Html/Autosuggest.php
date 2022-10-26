@@ -118,19 +118,19 @@ class Autosuggest extends Element
             return '<select'.$params['multiple'].($params['tabindex'] ? ' tabindex="'.$params['tabindex'].'"' : '').($params['id'] ? ' id="'.$params['id'].'_disabled"' : '').' name="'.$params['name'].'" '.($class ? ' class="'.$class.'"' : '').($params['extra'] ? ' '.$params['extra'] : '').' readonly disabled>'.
                 $body.'</select><input type="hidden" name="'.$params['name'].'" >';
         } else {
-            $retval = '<select'.$params['multiple'].($params['id'] ? ' id="'.$params['id'].'"' : '').' name="'.$params['name'].'" '.($class ? ' class="'.$class.'"' : '').($params['disabled'] ? ' disabled' : '').($params['autofocus'] ? ' autofocus' : '').($params['extra'] ? ' '.$params['extra'] : '').'>'.
+            $return = '<select'.$params['multiple'].($params['id'] ? ' id="'.$params['id'].'"' : '').' name="'.$params['name'].'" '.($class ? ' class="'.$class.'"' : '').($params['disabled'] ? ' disabled' : '').($params['autofocus'] ? ' autofocus' : '').($params['extra'] ? ' '.$params['extra'] : '').'>'.
                 $body.'</select>';
         }
 
         if ($params['onchange']) {
             // Execute the JS code for an onchange
-            $retval .= html_script('$("#'.$params['id'].'").change(function() { '.$params['onchange'].' });');
+            $return .= html_script('$("#'.$params['id'].'").change(function() { '.$params['onchange'].' });');
 
         }
 
         if (!$params['autosubmit']) {
             // There is no onchange and no autosubmit
-            return $retval;
+            return $return;
 
         } elseif ($params['autosubmit'] === true) {
             // By default autosubmit on the id
@@ -141,7 +141,7 @@ class Autosuggest extends Element
         $params['autosubmit'] = str_replace('[', '\\\\[', $params['autosubmit']);
         $params['autosubmit'] = str_replace(']', '\\\\]', $params['autosubmit']);
 
-        return $retval.Html::script('$("[name=\''.$params['autosubmit'].'\']").change(function() { $(this).closest("form").find("input,textarea,select").addClass("ignore"); $(this).closest("form").submit(); });');
+        return $return.Html::script('$("[name=\''.$params['autosubmit'].'\']").change(function() { $(this).closest("form").find("input,textarea,select").addClass("ignore"); $(this).closest("form").submit(); });');
     }
 
 
@@ -190,10 +190,10 @@ class Autosuggest extends Element
             array_default($params, 'data_resource', null);
 
             if ($params['none']) {
-                $retval = '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.(($params['selected'] === null) ? ' selected' : '').' value="">'.$params['none'].'</option>';
+                $return = '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.(($params['selected'] === null) ? ' selected' : '').' value="">'.$params['none'].'</option>';
 
             } else {
-                $retval = '';
+                $return = '';
             }
 
             if ($params['data_resource'] and !is_array($params['data_resource'])) {
@@ -225,7 +225,7 @@ class Autosuggest extends Element
                             }
                         }
 
-                        $retval  .= '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.((($params['selected'] !== null) and ($key === $params['selected'])) ? ' selected' : '').' value="'.html_safe($key).'"'.$option_data.'>'.html_safe($value).'</option>';
+                        $return  .= '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.((($params['selected'] !== null) and ($key === $params['selected'])) ? ' selected' : '').' value="'.html_safe($key).'"'.$option_data.'>'.html_safe($value).'</option>';
                     }
 
                 } elseif (is_object($params['resource'])) {
@@ -265,7 +265,7 @@ class Autosuggest extends Element
                             }
                         }
 
-                        $retval  .= '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.(($row[0] === $params['selected']) ? ' selected' : '').' value="'.html_safe($row[0]).'"'.$option_data.'>'.html_safe($row[1]).'</option>';
+                        $return  .= '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.(($row[0] === $params['selected']) ? ' selected' : '').' value="'.html_safe($row[0]).'"'.$option_data.'>'.html_safe($row[1]).'</option>';
                     }
 
                 } else {
@@ -279,15 +279,15 @@ class Autosuggest extends Element
                  * No conent (other than maybe the "none available" entry) was added
                  */
                 if ($params['empty']) {
-                    $retval = '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').' selected value="">'.$params['empty'].'</option>';
+                    $return = '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').' selected value="">'.$params['empty'].'</option>';
                 }
 
                 /*
                  * Return empty body (though possibly with "none" element) so that the html_select() function can ensure the select box will be disabled
                  */
-                return $retval;
+                return $return;
             }
 
-            return $retval;
+            return $return;
     }
 }

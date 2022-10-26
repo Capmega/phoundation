@@ -294,10 +294,10 @@ function nextcloud_exec($server, $params) {
  */
 function nextcloud_users_add($user, $server = null) {
     try {
-        $retval = nextcloud_exec($server, array('commands' => array('export', array('')),
+        $return = nextcloud_exec($server, array('commands' => array('export', array('')),
                                                                     'php'   , array('occ', 'user:add', '--password-from-env', '--display-name' => $user['nickname'], $user['id'])));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('nextcloud_users_add(): Failed', $e);
@@ -321,9 +321,9 @@ function nextcloud_users_add($user, $server = null) {
  */
 function nextcloud_users_delete($server, $user) {
     try {
-        $retval = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:delete', $user['username']))));
+        $return = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:delete', $user['username']))));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('nextcloud_delete(): Failed', $e);
@@ -347,9 +347,9 @@ function nextcloud_users_delete($server, $user) {
  */
 function nextcloud_users_disable($server, $user) {
     try {
-        $retval = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:disable', $user['username']))));
+        $return = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:disable', $user['username']))));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('nextcloud_users_disable(): Failed', $e);
@@ -373,9 +373,9 @@ function nextcloud_users_disable($server, $user) {
  */
 function nextcloud_users_enable($server, $user) {
     try {
-        $retval = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:enable', $user['username']))));
+        $return = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:enable', $user['username']))));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('nextcloud_users_enable(): Failed', $e);
@@ -399,9 +399,9 @@ function nextcloud_users_enable($server, $user) {
  */
 function nextcloud_users_info($server, $user) {
     try {
-        $retval = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:info', $user['username']))));
+        $return = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:info', $user['username']))));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('nextcloud_users_info(): Failed', $e);
@@ -425,10 +425,10 @@ function nextcloud_users_info($server, $user) {
  */
 function nextcloud_users_last_seen($server, $user) {
     try {
-        $retval = nextcloud_exec($server, array('commands' => array('export', array('')),
+        $return = nextcloud_exec($server, array('commands' => array('export', array('')),
                                                                     'php'   , array('occ', 'user:disable', '--password-from-env', $user['username'])));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('nextcloud_users_last_seen(): Failed', $e);
@@ -451,9 +451,9 @@ function nextcloud_users_last_seen($server, $user) {
  */
 function nextcloud_users_list($server) {
     try {
-        $retval = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:list'))));
+        $return = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:list'))));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('nextcloud_users_list(): Failed', $e);
@@ -476,9 +476,9 @@ function nextcloud_users_list($server) {
  */
 function nextcloud_users_report($server) {
     try {
-        $retval = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:report'))));
+        $return = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:report'))));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('nextcloud_users_report(): Failed', $e);
@@ -503,10 +503,10 @@ function nextcloud_users_report($server) {
  */
 function nextcloud_users_reset_password($server, $user, $password) {
     try {
-        $retval = nextcloud_exec($server, array('commands' => array('export', array('')),
+        $return = nextcloud_exec($server, array('commands' => array('export', array('')),
                                                                     'php'   , array('occ', 'user:resetpassword', '--password-from-env', $user['username'])));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('nextcloud_users_reset_password(): Failed', $e);
@@ -531,9 +531,9 @@ function nextcloud_users_reset_password($server, $user, $password) {
  */
 function nextcloud_users_setting($server, $user, $settings = null) {
     try {
-        $retval = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:setting', $user['username']))));
+        $return = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:setting', $user['username']))));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('nextcloud_users_setting(): Failed', $e);

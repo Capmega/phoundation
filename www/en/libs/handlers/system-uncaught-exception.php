@@ -378,7 +378,7 @@ try {
                             showdie($e);
                     }
 
-                    $retval = ' <style type="text/css">
+                    $return = ' <style type="text/css">
                                 table.exception{
                                     font-family: sans-serif;
                                     width:99%;
@@ -444,7 +444,7 @@ try {
                                     </tbody>
                                 </table>';
 
-                    echo $retval;
+                    echo $return;
 
                     if ($e instanceof CoreException) {
                         /*

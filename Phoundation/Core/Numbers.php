@@ -297,7 +297,7 @@ class Numbers
     {
         // Remove the $count argument from the list Get default value from the list
         $args   = func_get_args();
-        $retval = 0;
+        $return = 0;
 
         foreach ($args as $key => $value) {
             // Validate we have numeric values
@@ -325,14 +325,14 @@ class Numbers
             $decimals = strlen($decimals);
 
             // Remember the highest amount of decimals
-            if ($decimals > $retval) {
-                $retval = $decimals;
+            if ($decimals > $return) {
+                $return = $decimals;
             }
         }
 
         // Return the found step
-        if ($retval) {
-            return '0.' . str_repeat('0', $retval - 1) . '1';
+        if ($return) {
+            return '0.' . str_repeat('0', $return - 1) . '1';
         }
 
         return '1';

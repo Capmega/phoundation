@@ -45,7 +45,7 @@ function social_links($params = false, $returnas = 'string', $separator = ' | ')
     global $_CONFIG;
 
     try {
-        $retval = array();
+        $return = array();
 
         if (!$params) {
             $params = $_CONFIG['social']['links'];
@@ -55,37 +55,37 @@ function social_links($params = false, $returnas = 'string', $separator = ' | ')
             switch ($key) {
                 case 'youtube';
                     if ($value) {
-                        $retval[] = '<a href="http://www.youtube.com/user/'.$value.'" class="social youtube"'.(empty($params['target']) ? '' : ' target="'.$params['target'].'"').'>Youtube</a>';
+                        $return[] = '<a href="http://www.youtube.com/user/'.$value.'" class="social youtube"'.(empty($params['target']) ? '' : ' target="'.$params['target'].'"').'>Youtube</a>';
                     }
 
                     break;
 
                 case 'facebook';
                     if ($value) {
-                        $retval[] = '<a href="https://www.facebook.com/'.$value.'" class="social facebook"'.(empty($params['target']) ? '' : ' target="'.$params['target'].'"').'>Facebook</a>';
+                        $return[] = '<a href="https://www.facebook.com/'.$value.'" class="social facebook"'.(empty($params['target']) ? '' : ' target="'.$params['target'].'"').'>Facebook</a>';
                     }
 
                     break;
 
                 case 'twitter';
                     if ($value) {
-                        $retval[] = '<a href="https://twitter.com/'.$value.'" class="social twitter"'.(empty($params['target']) ? '' : ' target="'.$params['target'].'"').'>Twitter</a>';
+                        $return[] = '<a href="https://twitter.com/'.$value.'" class="social twitter"'.(empty($params['target']) ? '' : ' target="'.$params['target'].'"').'>Twitter</a>';
                     }
 
                     break;
             }
         }
 
-        if ($retval) {
+        if ($return) {
             html_load_css('social');
         }
 
         switch ($returnas) {
             case 'array':
-                return $retval;
+                return $return;
 
             case 'string':
-                return implode($separator, $retval);
+                return implode($separator, $return);
 
             default:
                 throw new CoreException('social_links(): Unknown returnas "'.Strings::Log($returnas).'" specified', 'unknown');

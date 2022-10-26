@@ -292,10 +292,10 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
          *
          */
         if ($column) {
-            $retval = sql_get('SELECT `'.$column.'` FROM `coupons` '.$where, true, $execute);
+            $return = sql_get('SELECT `'.$column.'` FROM `coupons` '.$where, true, $execute);
 
         } else {
-            $retval = sql_get('SELECT    `coupons`.`id`,
+            $return = sql_get('SELECT    `coupons`.`id`,
                                          `coupons`.`createdon`,
                                          `coupons`.`createdby`,
                                          `coupons`.`meta_id`,
@@ -314,7 +314,7 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
         /*
          *
          */
-        if (!$retval) {
+        if (!$return) {
             return array('status' => '_new');
         }
 
@@ -328,7 +328,7 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
                          WHERE  `coupons_id` = :coupons_id
                          AND    `createdby`  = :createdby',
 
-                         array(':coupons_id' => $retval['id'],
+                         array(':coupons_id' => $return['id'],
                                ':createdby'  => $_SESSION['user']['id']));
         /*
          *
@@ -340,7 +340,7 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
         /*
          *
          */
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('coupons_get(): Failed', $e);

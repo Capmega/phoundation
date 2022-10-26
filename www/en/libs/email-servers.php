@@ -351,9 +351,9 @@ function email_servers_select($params = null) {
 
         $query              = 'SELECT `seodomain`, `domain` FROM `email_servers` '.$where.' ORDER BY '.$params['orderby'];
         $params['resource'] = sql_query($query, $execute, 'core');
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('email_servers_select(): Failed', $e);
@@ -613,7 +613,7 @@ function email_servers_scan_domains($params = null) {
         Arrays::ensure($params);
         array_default($params, 'seocustomer', $_SESSION['user']['customer']['seoname']);
 
-        $retval      = array();
+        $return      = array();
         $mailservers = email_servers_list(array('columns' => 'seodomain,domain,servers_id'));
 
         while ($mailserver = sql_fetch($mailservers)) {
@@ -638,20 +638,20 @@ function email_servers_scan_domains($params = null) {
              * it to the list
              */
             if ($domains->rowCount()) {
-                $retval[$mailserver['seodomain']] = array();
+                $return[$mailserver['seodomain']] = array();
             }
 
             /*
              * Add the domains where this customer has access to
              */
             while ($domain = sql_fetch($domains)) {
-                $retval[$mailserver['seodomain']][$domain['seoname']] = $domain['name'];
+                $return[$mailserver['seodomain']][$domain['seoname']] = $domain['name'];
             }
         }
 
-        $_SESSION['cache']['mail_servers'] = $retval;
+        $_SESSION['cache']['mail_servers'] = $return;
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('email_servers_scan_domains(): Failed'), $e);
@@ -722,9 +722,9 @@ function email_servers_select_domain($params = null) {
 
         array_default($params, 'empty', tr('No mail domains available'));
 
-        $retval = html_select($params);
+        $return = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('email_servers_select_domain(): Failed', $e);
@@ -1020,7 +1020,7 @@ function email_servers_list_mailbox_sizes($server, $domain) {
         }
 
         $total   = 0;
-        $retval  = array();
+        $return  = array();
         $results = linux_find($server, array('path'     => '/var/mail/vhosts/'.$domain,
                                              'sudo'     => true,
                                              'maxdepth' => 1,
@@ -1032,13 +1032,13 @@ function email_servers_list_mailbox_sizes($server, $domain) {
             $size   = (Strings::until($result, "\t") * 1024);
             $total += $size;
 
-            $retval[Strings::fromReverse($result, '/')] = $size;
+            $return[Strings::fromReverse($result, '/')] = $size;
         }
 
-        ksort($retval);
-        $retval['--total--'] = $total;
+        ksort($return);
+        $return['--total--'] = $total;
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         if (!linux_file_exists($server, '/var/mail/vhosts/'.$domain, true)) {
@@ -1216,7 +1216,7 @@ function email_servers_check_orphans($server, $add = true) {
     try {
         log_console(tr('Checking for orphaned email account data'), 'cyan');
 
-        $retval  = array();
+        $return  = array();
         $domains = linux_ls($server, '/var/mail/vhosts', true);
 
         foreach ($domains as $domain) {
@@ -1235,7 +1235,7 @@ function email_servers_check_orphans($server, $add = true) {
 
                         if ($add) {
                             log_console(tr('Adding email account ":account" for orphaned data path ":path"', array(':account' => $account.'@'.$domain, ':path' => '/var/mail/vhosts/'.$domain.'/'.$account)), 'warning');
-                            $retval[] = $account.'@'.$domain;
+                            $return[] = $account.'@'.$domain;
 
                             email_servers_insert_account(array('server'      => $server,
                                                                'domain'      => $domain,
@@ -1252,7 +1252,7 @@ function email_servers_check_orphans($server, $add = true) {
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('email_servers_check_orphans(): Failed', $e);

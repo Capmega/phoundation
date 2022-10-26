@@ -257,17 +257,17 @@ function array_from_object($object, $recurse = true) {
             throw new CoreException(tr('array_from_object(): Specified variable is not an object'));
         }
 
-        $retval = array();
+        $return = array();
 
         foreach ($object as $key => $value) {
             if (is_object($value) and $recurse) {
                 $value = array_from_object($value, true);
             }
 
-            $retval[$key] = $value;
+            $return[$key] = $value;
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_from_object(): Failed', $e);
@@ -336,7 +336,7 @@ function array_implode_with_keys($source, $row_separator, $key_separator, $auto_
             throw new CoreException(tr('array_implode_with_keys(): Specified source is not an array but an ":type"', array(':type' => gettype($source))));
         }
 
-        $retval = array();
+        $return = array();
 
         foreach ($source as $key => $value) {
             if (is_array($value)) {
@@ -347,19 +347,19 @@ function array_implode_with_keys($source, $row_separator, $key_separator, $auto_
                     throw new CoreException(tr('array_implode_with_keys(): Specified source contains sub arrays and recurse is not enabled'));
                 }
 
-                $retval[] .= $key.$key_separator.$row_separator.array_implode_with_keys($value, $row_separator, $key_separator, $auto_quote, $recurse);
+                $return[] .= $key.$key_separator.$row_separator.array_implode_with_keys($value, $row_separator, $key_separator, $auto_quote, $recurse);
 
             } else {
                 if ($auto_quote) {
-                    $retval[] .= $key.$key_separator.str_auto_quote($value);
+                    $return[] .= $key.$key_separator.str_auto_quote($value);
 
                 } else {
-                    $retval[] .= $key.$key_separator.$value;
+                    $return[] .= $key.$key_separator.$value;
                 }
             }
         }
 
-        return implode($row_separator, $retval);
+        return implode($row_separator, $return);
 
     }catch(Exception $e) {
         throw new CoreException('array_implode_with_keys(): Failed', $e);
@@ -379,7 +379,7 @@ function array_merge_complete() {
             throw new CoreException('array_merge_complete(): Specify at least 2 arrays');
         }
 
-        $retval = array();
+        $return = array();
         $count  = 0;
 
         foreach ($arguments as $argk => $argv) {
@@ -390,16 +390,16 @@ function array_merge_complete() {
             }
 
             foreach ($argv as $key => $value) {
-                if (is_array($value) and array_key_exists($key, $retval) and is_array($retval[$key])) {
-                    $retval[$key] = array_merge_complete($retval[$key], $value);
+                if (is_array($value) and array_key_exists($key, $return) and is_array($return[$key])) {
+                    $return[$key] = array_merge_complete($return[$key], $value);
 
                 } else {
-                    $retval[$key] = $value;
+                    $return[$key] = $value;
                 }
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_merge_complete(): Failed', $e);
@@ -421,17 +421,17 @@ function array_limit($source, $count, $return_source = true) {
             throw new CoreException(tr('array_limit(): Specified count is not valid'));
         }
 
-        $retval = array();
+        $return = array();
 
         while (count($source) > $count) {
-            $retval[] = array_pop($source);
+            $return[] = array_pop($source);
         }
 
         if ($return_source) {
             return $source;
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_limit(): Failed', $e);
@@ -474,10 +474,10 @@ function array_sequential_values($count, $base_valuename) {
         }
 
         for($i = 0; $i < $count; $i++) {
-            $retval[] = $base_valuename.$i;
+            $return[] = $base_valuename.$i;
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_sequential_values(): Failed', $e);
@@ -496,7 +496,7 @@ function array_sequential_keys($source, $base_keyname, $filter_null = false, $nu
         }
 
         $i      = 0;
-        $retval = array();
+        $return = array();
 
         foreach ($source as $value) {
             /*
@@ -517,10 +517,10 @@ function array_sequential_keys($source, $base_keyname, $filter_null = false, $nu
                 }
             }
 
-            $retval[$base_keyname.$i++] = $value;
+            $return[$base_keyname.$i++] = $value;
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_sequential_keys(): Failed', $e);
@@ -534,15 +534,15 @@ function array_sequential_keys($source, $base_keyname, $filter_null = false, $nu
  */
 function Arrays::keep($source, $keys) {
     try {
-        $retval = array();
+        $return = array();
 
         foreach (Arrays::force($keys) as $key) {
             if (array_key_exists($key, $source)) {
-                $retval[$key] = $source[$key];
+                $return[$key] = $source[$key];
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('Arrays::keep(): Failed', $e);
@@ -578,7 +578,7 @@ function array_from(&$source, $from_key, $delete = false, $skip = true) {
             throw new CoreException(tr('array_from(): Specified source is an ":type", but it should be an array', array(':type' => gettype($source))), 'invalid');
         }
 
-        $retval = array();
+        $return = array();
         $add    = false;
 
         foreach ($source as $key => $value) {
@@ -602,14 +602,14 @@ function array_from(&$source, $from_key, $delete = false, $skip = true) {
                 }
             }
 
-            $retval[$key] = $value;
+            $return[$key] = $value;
 
             if ($delete) {
                 unset($source[$key]);
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_from(): Failed', $e);
@@ -627,21 +627,21 @@ function array_until($source, $until_key, $delete = false) {
             throw new CoreException(tr('array_until(): Specified source is an ":type", but it should be an array', array(':type' => gettype($source))), 'invalid');
         }
 
-        $retval = array();
+        $return = array();
 
         foreach ($source as $key => $value) {
             if ($key == $until_key) {
                 break;
             }
 
-            $retval[$key] = $value;
+            $return[$key] = $value;
 
             if ($delete) {
                 unset($source[$key]);
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_until(): Failed', $e);
@@ -663,19 +663,19 @@ function array_merge_keys_values($keys, $values) {
             throw new CoreException(tr('array_merge_keys_values(): Specified values variable is an ":type", but it should be an array', array(':type' => gettype($values))), 'invalid');
         }
 
-        $retval = array();
+        $return = array();
 
         foreach ($keys as $key) {
             if (!isset($next)) {
                 $next = true;
-                $retval[$key] = reset($values);
+                $return[$key] = reset($values);
 
             } else {
-                $retval[$key] = next($values);
+                $return[$key] = next($values);
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_merge_keys_values(): Failed', $e);
@@ -694,18 +694,18 @@ function array_prefix($source, $prefix, $auto = false) {
         }
 
         $count  = 0;
-        $retval = array();
+        $return = array();
 
         foreach ($source as $key => $value) {
             if ($auto) {
-                $retval[$prefix.$count++] = $value;
+                $return[$prefix.$count++] = $value;
 
             } else {
-                $retval[$prefix.$key] = $value;
+                $return[$prefix.$key] = $value;
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_prefix(): Failed', $e);
@@ -721,17 +721,17 @@ function array_prefix($source, $prefix, $auto = false) {
  */
 function array_find($array, $keyword) {
     try {
-        $retval = array();
+        $return = array();
 
         foreach ($array as $key => $value) {
             if (is_string($value)) {
                 if (strpos($value, $keyword) !== false) {
-                    $retval[$key] = $value;
+                    $return[$key] = $value;
                 }
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_find(): Failed', $e);
@@ -772,15 +772,15 @@ function array_copy_clean($target, $source, $skip = 'id') {
  */
 function array_get_column($source, $column) {
     try {
-        $retval = array();
+        $return = array();
 
         foreach ($source as $id => $value) {
             if (array_key_exists($column, $value)) {
-                $retval[] = $value[$column];
+                $return[] = $value[$column];
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_get_column(): Failed', $e);
@@ -833,17 +833,17 @@ function array_value_to_keys($source) {
             throw new CoreException(tr('array_value_to_keys(): Specified source is not an array'));
         }
 
-        $retval = array();
+        $return = array();
 
         foreach ($source as $value) {
             if (!is_scalar($value)) {
                 throw new CoreException(tr('array_value_to_keys(): Specified source array contains non scalar values, cannot use non scalar values for the keys'));
             }
 
-            $retval[$value] = $value;
+            $return[$value] = $value;
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_value_to_keys(): Failed', $e);
@@ -937,13 +937,13 @@ function array_range($min, $max) {
             throw new CoreException(tr('array_range(): Specified $min is equal or larger than $max. Please ensure that $min is smaller'), 'invalid');
         }
 
-        $retval = array();
+        $return = array();
 
         for($i = $min; $i <= $max; $i++) {
-            $retval[$i] = $i;
+            $return[$i] = $i;
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_range(): Failed', $e);
@@ -1100,17 +1100,17 @@ function array_has_duplicates($source) {
  */
 function array_pluck($source, $regex) {
     try {
-        $retval = array();
+        $return = array();
 
         foreach ($source as $key => $value) {
             if (is_string($value)) {
                 if (preg_match($regex, $value)) {
-                    $retval[$key] = $value;
+                    $return[$key] = $value;
                 }
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_pluck(): Failed', $e);
@@ -1140,17 +1140,17 @@ function array_pluck($source, $regex) {
 function array_merge_null() {
     try {
         $args   = func_get_args();
-        $retval = array();
+        $return = array();
 
         foreach ($args as $array) {
             foreach ($array as $key => $value) {
-                if (!isset($retval[$key]) or ($value !== null)) {
-                    $retval[$key] = $value;
+                if (!isset($return[$key]) or ($value !== null)) {
+                    $return[$key] = $value;
                 }
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('array_merge_null(): Failed', $e);

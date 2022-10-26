@@ -208,7 +208,7 @@ function rights_get($right) {
             throw new CoreException(tr('rights_get(): Specified right ":right" is not scalar', array(':right' => $right)), 'invalid');
         }
 
-        $retval = sql_get('SELECT    `rights`.`id`,
+        $return = sql_get('SELECT    `rights`.`id`,
                                      `rights`.`meta_id`,
                                      `rights`.`name`,
                                      `rights`.`status`,
@@ -227,7 +227,7 @@ function rights_get($right) {
 
                            array(':right' => $right));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('rights_get(): Failed', $e);
@@ -244,21 +244,21 @@ function rights_select($select = '', $name = 'rights_id', $god = true) {
     global $pdo;
 
     try {
-        if ($retval = cache_read('rights_'.$name.'_'.$select.($god ? '_all' : ''))) {
-            return $retval;
+        if ($return = cache_read('rights_'.$name.'_'.$select.($god ? '_all' : ''))) {
+            return $return;
         }
 
-        $retval = '<select class="categories" name="'.$name.'">';
+        $return = '<select class="categories" name="'.$name.'">';
 
         if ($god) {
-            $retval .= '<option value="0"'.(!$select ? ' selected' : '').'>All categories</option>';
+            $return .= '<option value="0"'.(!$select ? ' selected' : '').'>All categories</option>';
         }
 
         foreach (rights_list() as $right) {
-            $retval .= '<option value="'.$right['id'].'"'.(($right['id'] == $select) ? ' selected' : '').'>'.str_replace('_', ' ', str_camelcase($right['name'])).'</option>';
+            $return .= '<option value="'.$right['id'].'"'.(($right['id'] == $select) ? ' selected' : '').'>'.str_replace('_', ' ', str_camelcase($right['name'])).'</option>';
         }
 
-        return cache_write('rights_'.$name.'_'.$select.($god ? '_all' : ''), $retval.'</select>');
+        return cache_write('rights_'.$name.'_'.$select.($god ? '_all' : ''), $return.'</select>');
 
     }catch(Exception $e) {
         throw new CoreException('rights_select(): Failed', $e);

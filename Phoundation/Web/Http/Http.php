@@ -358,7 +358,7 @@ class Http
     {
         if (empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             // No accept language headers were specified
-           $retval  = [
+           $return  = [
                '1.0' => [
                    'language' => Config::get('languages.default', 'en'),
                    'locale'   => Strings::cut(Config::get('locale.LC_ALL', 'US'), '_', '.')
@@ -369,21 +369,21 @@ class Http
             $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
             $headers = Arrays::force($headers, ',');
             $default = array_shift($headers);
-            $retval  = [
+            $return  = [
                 '1.0' => [
                     'language' => Strings::until($default, '-'),
                     'locale'   => (str_contains($default, '-') ? Strings::from($default, '-') : null)
                 ]
             ];
 
-            if (empty($retval['1.0']['language'])) {
+            if (empty($return['1.0']['language'])) {
                 // Specified accepts language headers contain no language
-                $retval['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
+                $return['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
             }
 
-            if (empty($retval['1.0']['locale'])) {
+            if (empty($return['1.0']['locale'])) {
                 // Specified accept language headers contain no locale
-                $retval['1.0']['locale'] = Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
+                $return['1.0']['locale'] = Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
             }
 
             foreach ($headers as $header) {
@@ -397,12 +397,12 @@ class Http
                     continue;
                 }
 
-                $retval[Strings::from(Strings::from($header, ';'), 'q=')] = $requested;
+                $return[Strings::from(Strings::from($header, ';'), 'q=')] = $requested;
             }
         }
 
-        krsort($retval);
-        return $retval;
+        krsort($return);
+        return $return;
     }
 
 
@@ -1001,28 +1001,28 @@ class Http
 //                /*
 //                 * No accept language headers were specified
 //                 */
-//                $retval = array('1.0' => array('language' => isset_get($_CONFIG['language']['default'], 'en'),
+//                $return = array('1.0' => array('language' => isset_get($_CONFIG['language']['default'], 'en'),
 //                    'locale' => Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
 //
 //            } else {
 //                $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 //                $headers = Arrays::force($headers, ',');
 //                $default = array_shift($headers);
-//                $retval = array('1.0' => array('language' => Strings::until($default, '-'),
+//                $return = array('1.0' => array('language' => Strings::until($default, '-'),
 //                    'locale' => (str_contains($default, '-') ? Strings::from($default, '-') : null)));
 //
-//                if (empty($retval['1.0']['language'])) {
+//                if (empty($return['1.0']['language'])) {
 //                    /*
 //                     * Specified accept language headers contain no language
 //                     */
-//                    $retval['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
+//                    $return['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
 //                }
 //
-//                if (empty($retval['1.0']['locale'])) {
+//                if (empty($return['1.0']['locale'])) {
 //                    /*
 //                     * Specified accept language headers contain no locale
 //                     */
-//                    $retval['1.0']['locale'] = Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
+//                    $return['1.0']['locale'] = Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
 //                }
 //
 //                foreach ($headers as $header) {
@@ -1034,12 +1034,12 @@ class Http
 //                        continue;
 //                    }
 //
-//                    $retval[Strings::from(Strings::from($header, ';'), 'q=')] = $requested;
+//                    $return[Strings::from(Strings::from($header, ';'), 'q=')] = $requested;
 //                }
 //            }
 //
-//            krsort($retval);
-//            return $retval;
+//            krsort($return);
+//            return $return;
 //
 //        } catch (Exception $e) {
 //            throw new OutOfBoundsException(tr('accepts_languages(): Failed'), $e);
@@ -1081,14 +1081,14 @@ class Http
              * When doing this, automatically delete the temporary file in
              * question, since the caller will not know the exact file name used
              */
-            $retval = file_get_contents($file);
+            $return = file_get_contents($file);
             file_delete($file);
 
             if ($callback) {
-                $callback($retval);
+                $callback($return);
             }
 
-            return $retval;
+            return $return;
         }
 
         /*

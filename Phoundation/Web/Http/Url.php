@@ -134,13 +134,13 @@ class Url {
          * Build up the URL part
          */
         if (!$url_params['url']) {
-            $retval = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '') . $url_params['prefix'];
+            $return = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '') . $url_params['prefix'];
 
         } elseif ($url_params['url'] === true) {
-            $retval = PROTOCOL.$url_params['domain'].Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
+            $return = PROTOCOL.$url_params['domain'].Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
 
         } else {
-            $retval = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '') . $url_params['prefix'].Strings::startsNotWith($url_params['url'], '/');
+            $return = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '') . $url_params['prefix'].Strings::startsNotWith($url_params['url'], '/');
         }
 
         /*
@@ -155,16 +155,16 @@ class Url {
                  * up with Spanish. So translate always
                  * FOREIGN1 > English > Foreign2.
                  *
-                 * Also add a / in front of $retval before replacing to ensure
+                 * Also add a / in front of $return before replacing to ensure
                  * we don't accidentally replace sections like "services/" with
                  * "servicen/" with Spanish URL's
                  */
-                $retval = str_replace('/' . $url_params['from_language'].'/', '/en/', '/' . $retval);
-                $retval = substr($retval, 1);
+                $return = str_replace('/' . $url_params['from_language'].'/', '/en/', '/' . $return);
+                $return = substr($return, 1);
 
                 if (!empty($core->register['route_map'])) {
                     foreach ($core->register['route_map'][$url_params['from_language']] as $foreign => $english) {
-                        $retval = str_replace($foreign, $english, $retval);
+                        $return = str_replace($foreign, $english, $return);
                     }
                 }
             }
@@ -183,17 +183,17 @@ class Url {
                     /*
                      * No route_map was set, only translate language selector
                      */
-                    $retval = str_replace('en/', $url_params['language'].'/', $retval);
+                    $return = str_replace('en/', $url_params['language'].'/', $return);
 
                 } else {
                     if (empty($core->register['route_map'][$url_params['language']])) {
-                        notify(new CoreException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $retval, ':language' => $url_params['language'])), 'not-specified'));
+                        notify(new CoreException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $return, ':language' => $url_params['language'])), 'not-specified'));
 
                     } else {
-                        $retval = str_replace('en/', $url_params['language'].'/', $retval);
+                        $return = str_replace('en/', $url_params['language'].'/', $return);
 
                         foreach ($core->register['route_map'][$url_params['language']] as $foreign => $english) {
-                            $retval = str_replace($english, $foreign, $retval);
+                            $return = str_replace($english, $foreign, $return);
                         }
                     }
                 }
@@ -201,20 +201,20 @@ class Url {
         }
 
         if ($url_params['query']) {
-            $retval = Url::addQuery($retval, $url_params['query']);
+            $return = Url::addQuery($return, $url_params['query']);
 
         } elseif ($url_params['query'] === false) {
-            $retval = Strings::until($retval, '?');
+            $return = Strings::until($return, '?');
         }
 
         if ($url_params['allow_cloak'] and Config::get('web.url.cloaking.enabled', false)) {
             /*
              * Cloak the URL before returning it
              */
-            $retval = url_cloak($retval);
+            $return = url_cloak($return);
         }
 
-        return $retval;
+        return $return;
     }
 
 

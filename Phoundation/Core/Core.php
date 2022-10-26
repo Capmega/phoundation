@@ -1528,7 +1528,7 @@ class Core {
                                     showdie($e);
                             }
 
-                            $retval = ' <style type="text/css">
+                            $return = ' <style type="text/css">
                                 table.exception{
                                     font-family: sans-serif;
                                     width:99%;
@@ -1594,7 +1594,7 @@ class Core {
                                     </tbody>
                                 </table>';
 
-                            echo $retval;
+                            echo $return;
 
                             if ($e instanceof CoreException) {
                                 // Clean data
@@ -1716,7 +1716,7 @@ class Core {
      */
     public static function setLocale(array $locale = null): string
     {
-        $retval = '';
+        $return = '';
 
         if (!$locale) {
             $locale = Config::get('locale', [
@@ -1757,7 +1757,7 @@ class Core {
             $locale[LC_ALL] = str_replace(':COUNTRY' , $country , $locale[LC_ALL]);
 
             setlocale(LC_ALL, $locale[LC_ALL]);
-            $retval = $locale[LC_ALL];
+            $return = $locale[LC_ALL];
             unset($locale[LC_ALL]);
         }
 
@@ -1779,7 +1779,7 @@ class Core {
             setlocale($key, $value);
         }
 
-        return $retval;
+        return $return;
     }
 
 

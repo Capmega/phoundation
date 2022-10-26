@@ -457,7 +457,7 @@ function twilio_get_group($group) {
             throw new CoreException(tr('twilio_get_group(): Specified twilio ":group" is not scalar', array(':group' => $group)), 'invalid');
         }
 
-        $retval = sql_get('SELECT    `twilio_groups`.`id`,
+        $return = sql_get('SELECT    `twilio_groups`.`id`,
                                      `twilio_groups`.`meta_id`,
                                      `twilio_groups`.`status`,
                                      `twilio_groups`.`name`,
@@ -477,7 +477,7 @@ function twilio_get_group($group) {
 
                            array(':twilio' => $group));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('twilio_get_group(): Failed', $e);
@@ -581,7 +581,7 @@ function twilio_get_account($account) {
             $execute = array(':account_id' => $account);
         }
 
-        $retval = sql_get('SELECT    `twilio_accounts`.`id`,
+        $return = sql_get('SELECT    `twilio_accounts`.`id`,
                                      `twilio_accounts`.`meta_id`,
                                      `twilio_accounts`.`status`,
                                      `twilio_accounts`.`email`,
@@ -601,7 +601,7 @@ function twilio_get_account($account) {
 
                            $execute);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('twilio_get_account(): Failed', $e);
@@ -635,7 +635,7 @@ function twilio_get_account_by_phone_number($number) {
             throw new CoreException(tr('twilio_get_account_by_phone_number(): Specified twilio number ":number" is not scalar', array(':numbers' => $numbers)), 'invalid');
         }
 
-        $retval = sql_get('SELECT    `twilio_accounts`.`id`,
+        $return = sql_get('SELECT    `twilio_accounts`.`id`,
                                      `twilio_accounts`.`meta_id`,
                                      `twilio_accounts`.`status`,
                                      `twilio_accounts`.`email`,
@@ -657,7 +657,7 @@ function twilio_get_account_by_phone_number($number) {
 
                            array(':number' => $number));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('twilio_get_account_by_phone_number(): Failed', $e);
@@ -775,7 +775,7 @@ function twilio_get_number($number) {
             throw new CoreException(tr('twilio_get_number(): Specified twilio number ":number" is not scalar', array(':number' => $number)), 'invalid');
         }
 
-        $retval = sql_get('SELECT   `twilio_numbers`.`id`,
+        $return = sql_get('SELECT   `twilio_numbers`.`id`,
                                     `twilio_numbers`.`createdon`,
                                     `twilio_numbers`.`createdby`,
                                     `twilio_numbers`.`name`,
@@ -807,7 +807,7 @@ function twilio_get_number($number) {
                            array(':name'   => $number,
                                  ':number' => $number));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('twilio_get_number(): Failed', $e);
@@ -913,14 +913,14 @@ function twilio_api_list_numbers($account, $array = true) {
 
         foreach ($numbers as $number) {
             if ($array) {
-                $retval[$number->phoneNumber] = twilio_number_to_array($number);
+                $return[$number->phoneNumber] = twilio_number_to_array($number);
 
             } else {
-                $retval[$number->phoneNumber] = $number;
+                $return[$number->phoneNumber] = $number;
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('twilio_api_list_numbers(): Failed', $e);
@@ -946,38 +946,38 @@ function twilio_api_list_numbers($account, $array = true) {
  */
 function twilio_number_to_array($number) {
     try {
-        $retval['accounts_sid']           = $number->accountSid;
-        $retval['address_sid']            = $number->addressSid;
-        $retval['address_requirements']   = $number->addressRequirements;
-        $retval['api_version']            = $number->apiVersion;
-        $retval['beta']                   = $number->beta;
-        $retval['capabilities']           = $number->capabilities;
-        $retval['date_created']           = $number->dateCreated;
-        $retval['date_updated']           = $number->dateUpdated;
-        $retval['friendly_name']          = $number->friendlyName;
-        $retval['identity_sid']           = $number->identitySid;
-        $retval['phone_number']           = $number->phoneNumber;
-        $retval['origin']                 = $number->origin;
-        $retval['sid']                    = $number->sid;
-        $retval['sms_application_sid']    = $number->smsApplicationSid;
-        $retval['sms_fallback_method']    = $number->smsFallbackMethod;
-        $retval['sms_fallback_url']       = $number->smsFallbackUrl;
-        $retval['sms_method']             = $number->smsMethod;
-        $retval['sms_url']                = $number->smsUrl;
-        $retval['status_callback']        = $number->statusCallback;
-        $retval['status_callback_method'] = $number->statusCallbackMethod;
-        $retval['trunk_sid']              = $number->trunkSid;
-        $retval['uri']                    = $number->uri;
-        $retval['voice_application_sid']  = $number->voiceApplicationSid;
-        $retval['voice_callerid_lookup']  = $number->voiceCallerIdLookup;
-        $retval['voice_fallback_method']  = $number->voiceFallbackMethod;
-        $retval['voice_fallback_url']     = $number->voiceFallbackUrl;
-        $retval['voice_method']           = $number->voiceMethod;
-        $retval['voice_url']              = $number->voiceUrl;
-        $retval['emergency_status']       = $number->emergencyStatus;
-        $retval['emergency_address_sid']  = $number->emergencyAddressSid;
+        $return['accounts_sid']           = $number->accountSid;
+        $return['address_sid']            = $number->addressSid;
+        $return['address_requirements']   = $number->addressRequirements;
+        $return['api_version']            = $number->apiVersion;
+        $return['beta']                   = $number->beta;
+        $return['capabilities']           = $number->capabilities;
+        $return['date_created']           = $number->dateCreated;
+        $return['date_updated']           = $number->dateUpdated;
+        $return['friendly_name']          = $number->friendlyName;
+        $return['identity_sid']           = $number->identitySid;
+        $return['phone_number']           = $number->phoneNumber;
+        $return['origin']                 = $number->origin;
+        $return['sid']                    = $number->sid;
+        $return['sms_application_sid']    = $number->smsApplicationSid;
+        $return['sms_fallback_method']    = $number->smsFallbackMethod;
+        $return['sms_fallback_url']       = $number->smsFallbackUrl;
+        $return['sms_method']             = $number->smsMethod;
+        $return['sms_url']                = $number->smsUrl;
+        $return['status_callback']        = $number->statusCallback;
+        $return['status_callback_method'] = $number->statusCallbackMethod;
+        $return['trunk_sid']              = $number->trunkSid;
+        $return['uri']                    = $number->uri;
+        $return['voice_application_sid']  = $number->voiceApplicationSid;
+        $return['voice_callerid_lookup']  = $number->voiceCallerIdLookup;
+        $return['voice_fallback_method']  = $number->voiceFallbackMethod;
+        $return['voice_fallback_url']     = $number->voiceFallbackUrl;
+        $return['voice_method']           = $number->voiceMethod;
+        $return['voice_url']              = $number->voiceUrl;
+        $return['emergency_status']       = $number->emergencyStatus;
+        $return['emergency_address_sid']  = $number->emergencyAddressSid;
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('twilio_number_to_array(): Failed', $e);

@@ -54,10 +54,10 @@ function video_library_init() {
  */
 function video_get_thumbnail($file, $size = '50x50') {
     try {
-        $retval = file_temp(false);
-        safe_exec(array('commands' => array('ffmpeg', array('-i', '{'.$file.'}', '-deinterlace', '-an', '-ss', '00:00:01', '-t', '00:00:02', '-s', '{'.$size.'}', '-r', '1', '-y', '-vcodec', 'mjpeg', '-f', 'mjpeg', '{'.$retval.'}'))));
+        $return = file_temp(false);
+        safe_exec(array('commands' => array('ffmpeg', array('-i', '{'.$file.'}', '-deinterlace', '-an', '-ss', '00:00:01', '-t', '00:00:02', '-s', '{'.$size.'}', '-r', '1', '-y', '-vcodec', 'mjpeg', '-f', 'mjpeg', '{'.$return.'}'))));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('video_get_thumbnail(): Failed', $e);

@@ -30,7 +30,7 @@ class SqlExists
      */
     public static function databaseExists($database, $query = null, $connector = null) {
         try {
-            $retval = sql_query('SHOW DATABASES LIKE "'.cfm($database).'"', null, $connector);
+            $return = sql_query('SHOW DATABASES LIKE "'.cfm($database).'"', null, $connector);
 
             if (substr($query, 0, 1) == '!') {
                 $not   = true;
@@ -40,7 +40,7 @@ class SqlExists
                 $not = false;
             }
 
-            if (empty($retval) xor $not) {
+            if (empty($return) xor $not) {
                 return false;
             }
 
@@ -48,7 +48,7 @@ class SqlExists
                 sql_query($query, null, $connector);
             }
 
-            return array_shift($retval);
+            return array_shift($return);
 
         }catch(Exception $e) {
             throw new OutOfBoundsException('sql_database_exists(): Failed', $e);
@@ -79,7 +79,7 @@ class SqlExists
         global $pdo;
 
         try {
-            $retval = sql_list('SHOW TABLES LIKE "'.cfm($table).'"', null, null, $connector);
+            $return = sql_list('SHOW TABLES LIKE "'.cfm($table).'"', null, null, $connector);
 
             if (substr($query, 0, 1) == '!') {
                 $not   = true;
@@ -89,7 +89,7 @@ class SqlExists
                 $not = false;
             }
 
-            if (empty($retval) xor $not) {
+            if (empty($return) xor $not) {
                 return false;
             }
 
@@ -97,7 +97,7 @@ class SqlExists
                 sql_query($query, null, $connector);
             }
 
-            return $retval;
+            return $return;
 
         }catch(Exception $e) {
             throw new OutOfBoundsException('sql_table_exists(): Failed', $e);
@@ -128,7 +128,7 @@ class SqlExists
         global $pdo;
 
         try {
-            $retval = sql_list('SHOW INDEX FROM `'.cfm($table).'` WHERE `Key_name` = "'.cfm($index).'"', null, null, $connector);
+            $return = sql_list('SHOW INDEX FROM `'.cfm($table).'` WHERE `Key_name` = "'.cfm($index).'"', null, null, $connector);
 
             if (substr($query, 0, 1) == '!') {
                 $not   = true;
@@ -138,7 +138,7 @@ class SqlExists
                 $not = false;
             }
 
-            if (empty($retval) xor $not) {
+            if (empty($return) xor $not) {
                 return false;
             }
 
@@ -146,7 +146,7 @@ class SqlExists
                 sql_query($query, null, $connector);
             }
 
-            return array_shift($retval);
+            return array_shift($return);
 
         }catch(Exception $e) {
             throw new OutOfBoundsException('sql_index_exists(): Failed', $e);
@@ -177,7 +177,7 @@ class SqlExists
         global $pdo;
 
         try {
-            $retval = sql_get('SHOW COLUMNS FROM `'.cfm($table).'` WHERE `Field` = "'.cfm($column).'"', null, null, $connector);
+            $return = sql_get('SHOW COLUMNS FROM `'.cfm($table).'` WHERE `Field` = "'.cfm($column).'"', null, null, $connector);
 
             if (substr($query, 0, 1) == '!') {
                 $not   = true;
@@ -187,7 +187,7 @@ class SqlExists
                 $not = false;
             }
 
-            if (empty($retval) xor $not) {
+            if (empty($return) xor $not) {
                 return false;
             }
 
@@ -195,7 +195,7 @@ class SqlExists
                 sql_query($query, null, $connector);
             }
 
-            return $retval;
+            return $return;
 
         }catch(Exception $e) {
             throw new OutOfBoundsException('sql_column_exists(): Failed', $e);
@@ -229,7 +229,7 @@ class SqlExists
             $connector = sql_connector_name($connector);
             $database  = $_CONFIG['db'][$connector]['db'];
 
-            $retval    = sql_get('SELECT *
+            $return    = sql_get('SELECT *
 
                               FROM   `information_schema`.`TABLE_CONSTRAINTS`
 
@@ -246,7 +246,7 @@ class SqlExists
                 $not = false;
             }
 
-            if (empty($retval) xor $not) {
+            if (empty($return) xor $not) {
                 return false;
             }
 
@@ -254,7 +254,7 @@ class SqlExists
                 sql_query($query, null, $connector);
             }
 
-            return $retval;
+            return $return;
 
         }catch(Exception $e) {
             throw new OutOfBoundsException('sql_foreignkey_exists(): Failed', $e);
@@ -291,7 +291,7 @@ class SqlExists
                 $database = $_CONFIG['db'][$connector]['db'];
             }
 
-            $retval = sql_get('SELECT `ROUTINE_NAME`
+            $return = sql_get('SELECT `ROUTINE_NAME`
 
                            FROM   `INFORMATION_SCHEMA`.`ROUTINES`
 
@@ -307,7 +307,7 @@ class SqlExists
                 $not = false;
             }
 
-            if (empty($retval) xor $not) {
+            if (empty($return) xor $not) {
                 return false;
             }
 
@@ -315,7 +315,7 @@ class SqlExists
                 sql_query($query, null, $connector);
             }
 
-            return $retval;
+            return $return;
 
         }catch(Exception $e) {
             throw new OutOfBoundsException('sql_function_exists(): Failed', $e);

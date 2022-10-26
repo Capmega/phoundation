@@ -681,7 +681,7 @@ function notifications_get($notifications_id) {
             throw new CoreException(tr('notifications_get(): Invalid notifications id ":id" specified', array(':id' => $notifications_id)), 'invalid');
         }
 
-        $retval = sql_get('SELECT `id`,
+        $return = sql_get('SELECT `id`,
                                   `createdby`,
                                   `createdon`,
                                   `meta_id`,
@@ -700,7 +700,7 @@ function notifications_get($notifications_id) {
 
                            array(':id' => $notifications_id), 'core');
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('notifications_get(): Failed', $e);
@@ -757,7 +757,7 @@ function notifications_get_group($group, $column = null) {
                         `status`, ';
         }
 
-        $retval = sql_get('SELECT '.$columns.'
+        $return = sql_get('SELECT '.$columns.'
 
                            FROM   `notifications_groups`'.
 
@@ -765,7 +765,7 @@ function notifications_get_group($group, $column = null) {
 
                            $single, $execute, 'core');
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('notifications_get_group(): Failed', $e);
@@ -822,7 +822,7 @@ function notifications_get_method($method, $column = null) {
                         `status`, ';
         }
 
-        $retval = sql_get('SELECT '.$columns.'
+        $return = sql_get('SELECT '.$columns.'
 
                            FROM   `notifications_methods`'.
 
@@ -830,7 +830,7 @@ function notifications_get_method($method, $column = null) {
 
                            $single, $execute, 'core');
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('notifications_get_method(): Failed', $e);
@@ -887,7 +887,7 @@ function notifications_get_member($member, $column = null) {
                         `status`, ';
         }
 
-        $retval = sql_get('SELECT '.$columns.'
+        $return = sql_get('SELECT '.$columns.'
 
                            FROM   `notifications_members`'.
 
@@ -895,7 +895,7 @@ function notifications_get_member($member, $column = null) {
 
                            $single, $execute, 'core');
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('notifications_get_member(): Failed', $e);
@@ -929,7 +929,7 @@ function notifications_list_groups($members_id) {
             throw new CoreException(tr('notifications_list_groups(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
         }
 
-        $retval = sql_query('SELECT `id`
+        $return = sql_query('SELECT `id`
 
                              FROM   `notifications_groups`
 
@@ -937,7 +937,7 @@ function notifications_list_groups($members_id) {
 
                              $execute, 'core');
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('notifications_list_groups(): Failed', $e);
@@ -971,7 +971,7 @@ function notifications_list_methods($members_id) {
             throw new CoreException(tr('notifications_list_methods(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
         }
 
-        $retval = sql_query('SELECT `id`
+        $return = sql_query('SELECT `id`
 
                              FROM   `notifications_methods`
 
@@ -979,7 +979,7 @@ function notifications_list_methods($members_id) {
 
                              $execute, 'core');
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('notifications_list_methods(): Failed', $e);
@@ -1013,7 +1013,7 @@ function notifications_list_members($members_id) {
             throw new CoreException(tr('notifications_list_members(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
         }
 
-        $retval = sql_query('SELECT `id`
+        $return = sql_query('SELECT `id`
 
                              FROM   `notifications_members`
 
@@ -1021,7 +1021,7 @@ function notifications_list_members($members_id) {
 
                              $execute, 'core');
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('notifications_list_members(): Failed', $e);

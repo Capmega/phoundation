@@ -206,7 +206,7 @@ function domains_get($domain = null) {
                 throw new CoreException(tr('domains_get(): Specified domain name ":name" is not a string', array(':name' => $domain)), 'invalid');
             }
 
-            $retval = sql_get($query.'
+            $return = sql_get($query.'
 
                               WHERE     (`domains`.`seodomain` = :seodomain OR `domains`.`domain` = :domain)
                               AND       (`domains`.`status` IS NULL OR (`domains`.`type` = "scan" AND `domains`.`status` IN ("exists", "available")))',
@@ -218,14 +218,14 @@ function domains_get($domain = null) {
             /*
              * Pre-create a new domain
              */
-            $retval = sql_get($query.'
+            $return = sql_get($query.'
 
                               WHERE  `domains`.`createdby` = :createdby
                               AND    `domains`.`status`    = "_new"',
 
                               array(':createdby' => $_SESSION['user']['id']), false, 'core');
 
-            if (!$retval) {
+            if (!$return) {
                 sql_query('INSERT INTO `domains` (`createdby`, `meta_id`, `status`)
                            VALUES                (:createdby , :meta_id , :status )',
 
@@ -237,7 +237,7 @@ function domains_get($domain = null) {
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('domains_get(): Failed', $e);

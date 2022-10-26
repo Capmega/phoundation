@@ -391,9 +391,9 @@ function calendars_select($params = null) {
 
         $query              = 'SELECT `seoname`, `name` FROM `calendars` '.$where.' ORDER BY `name`';
         $params['resource'] = sql_query($query, $execute);
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('calendars_select(): Failed', $e);
@@ -727,9 +727,9 @@ function calendars_select_event($params = null) {
 
         $query              = 'SELECT `seoname`, `name` FROM `calendars_events` '.$where.' ORDER BY `name`';
         $params['resource'] = sql_query($query, $execute);
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('calendars_select_event(): Failed', $e);

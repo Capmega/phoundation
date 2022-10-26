@@ -410,9 +410,9 @@ function projects_select($params = null) {
 
         $query              = 'SELECT `seoname`, `name` FROM `projects` '.$where.' ORDER BY `name`';
         $params['resource'] = sql_query($query, $execute);
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('projects_select(): Failed', $e);

@@ -181,24 +181,24 @@ class SqlSimple
         $columns = Sql::getColumnsString($params['columns'], $params['table']);
         $joins = Strings::force($params['joins'], ' ');
         $where = Sql::getWhereString($params['filters'], $execute, $params['table'], $params['combine']);
-        $retval = Sql::get(($params['debug'] ? ' ' : '') . 'SELECT ' . $columns . ' FROM  `' . $params['table'] . '` ' . $joins . $where, $execute, $params['single'], $params['connector']);
+        $return = Sql::get(($params['debug'] ? ' ' : '') . 'SELECT ' . $columns . ' FROM  `' . $params['table'] . '` ' . $joins . $where, $execute, $params['single'], $params['connector']);
 
-        if ($retval) {
-            return $retval;
+        if ($return) {
+            return $return;
         }
 
         if ($params['template']) {
             /*
              * Return a "template" result
              */
-            $retval = array();
+            $return = array();
 
             foreach ($params['columns'] as $column) {
-                $retval[$column] = null;
+                $return[$column] = null;
             }
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -669,11 +669,11 @@ class SqlSimple
                     throw new SqlException(tr('Specified orderby direction ":direction" for column ":column" is invalid, it should be either "ASC" or "DESC"', [':direction' => $direction, ':column' => $column]));
             }
 
-            $retval[] = '`' . $column . '` ' . $direction;
+            $return[] = '`' . $column . '` ' . $direction;
         }
 
-        $retval = implode(', ', $retval);
+        $return = implode(', ', $return);
 
-        return ' ORDER BY ' . $retval . ' ';
+        return ' ORDER BY ' . $return . ' ';
     }
 }

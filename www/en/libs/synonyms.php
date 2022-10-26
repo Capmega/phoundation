@@ -57,7 +57,7 @@ function synonym($source, $params = array()) {
              * Replace all words in the text by synonyms
              */
             $minlength = 4;
-            $retval    = '';
+            $return    = '';
 
             if (preg_match_all('/(\W*)(\w+)(\W*)/imus', $source, $matches)) {
                 foreach ($matches[2] as $id => $match) {
@@ -69,11 +69,11 @@ function synonym($source, $params = array()) {
                         }
                     }
 
-                    $retval .= $matches[1][$id].$match.$matches[3][$id];
+                    $return .= $matches[1][$id].$match.$matches[3][$id];
                 }
             }
 
-            return $retval;
+            return $return;
         }
 
     }catch(Exception $e) {

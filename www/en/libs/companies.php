@@ -253,9 +253,9 @@ function companies_select($params = null) {
 
         $query              = 'SELECT `seoname`, `name` FROM `companies` '.$where.' ORDER BY `name`';
         $params['resource'] = sql_query($query, $execute);
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('companies_select(): Failed', $e);
@@ -580,9 +580,9 @@ function companies_select_branch($params = null) {
             $params['resource'] = sql_query($query, $execute);
         }
 
-        $retval = html_select($params);
+        $return = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('companies_select_branch(): Failed', $e);
@@ -926,9 +926,9 @@ function companies_select_department($params = null) {
 
         $query              = 'SELECT `seoname`, `name` FROM `departments` '.$where.' ORDER BY `name`';
         $params['resource'] = sql_query($query, $execute);
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('companies_select_department(): Failed', $e);
@@ -1274,9 +1274,9 @@ function companies_select_employee($params = null) {
 
         $query              = 'SELECT `seoname`, `name` FROM `employees` '.$where.' ORDER BY `name`';
         $params['resource'] = sql_query($query, $execute);
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('companies_select_employee(): Failed', $e);

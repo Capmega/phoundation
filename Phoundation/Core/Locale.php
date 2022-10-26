@@ -97,7 +97,7 @@ class Locale
         global $_CONFIG;
 
         try {
-            $retval = '';
+            $return = '';
 
             if (!$data) {
                 $data = $_CONFIG['locale'];
@@ -132,7 +132,7 @@ class Locale
                 $data[LC_ALL] = str_replace(':COUNTRY', $country, $data[LC_ALL]);
 
                 setlocale(LC_ALL, $data[LC_ALL]);
-                $retval = $data[LC_ALL];
+                $return = $data[LC_ALL];
                 unset($data[LC_ALL]);
             }
 
@@ -160,7 +160,7 @@ class Locale
                 setlocale($key, $value);
             }
 
-            return $retval;
+            return $return;
 
         } catch (Exception $e) {
             throw new OutOfBoundsException(tr('set_locale(): Failed'), $e);

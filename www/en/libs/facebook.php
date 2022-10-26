@@ -349,14 +349,14 @@ function facebook_get_avatar($user) {
          * Create the avatars, and store the base avatar location
          */
         $file   = TMP.file_move_to_target('http://graph.facebook.com/'.$user.'/picture?type=large', TMP, '.jpg');
-        $retval = image_create_avatars($file);
+        $return = image_create_avatars($file);
 
         /*
          * Clear the temporary file and cleanup paths
          * Update the user avatar
          */
         file_clear_path($file);
-        return user_update_avatar($user, $retval);
+        return user_update_avatar($user, $return);
 
     }catch(Exception $e) {
         throw new CoreException('facebook_get_avatar(): Failed', $e);

@@ -25,7 +25,7 @@ try {
         $data = array_hide($data, 'GLOBALS,%pass,ssh_key');
     }
 
-    $retval = '';
+    $return = '';
 
     if (PLATFORM_HTTP) {
         http_headers(null, 0);
@@ -81,13 +81,13 @@ try {
             flush();
         }
 
-        echo $retval;
+        echo $return;
         ob_flush();
         flush();
 
     } else {
         if (is_scalar($data)) {
-            $retval .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) ', array(':file' => current_file($trace_offset), ':line' => current_line($trace_offset)))).$data."\n";
+            $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) ', array(':file' => current_file($trace_offset), ':line' => current_line($trace_offset)))).$data."\n";
 
         } else {
             /*
@@ -98,14 +98,14 @@ try {
             }
 
             if (!$quiet) {
-                $retval .= tr('DEBUG SHOW (:file@:line) ', array(':file' => current_file($trace_offset), ':line' => current_line($trace_offset)))."\n";
+                $return .= tr('DEBUG SHOW (:file@:line) ', array(':file' => current_file($trace_offset), ':line' => current_line($trace_offset)))."\n";
             }
 
-            $retval .= print_r(variable_zts_safe($data), true);
-            $retval .= "\n";
+            $return .= print_r(variable_zts_safe($data), true);
+            $return .= "\n";
         }
 
-        echo $retval;
+        echo $return;
     }
 
     return $data;

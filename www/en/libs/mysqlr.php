@@ -1353,33 +1353,33 @@ function mysqlr_monitor_database($database) {
  */
 function mysqlr_log_type_human($type) {
     try {
-        $retval = '';
+        $return = '';
         switch ($type) {
             case 'mysql_issue':
-                $retval = 'MySQL Issue';
+                $return = 'MySQL Issue';
                 break;
 
             case 'ssh_tunnel':
-                $retval = 'SSH Tunnel Issue';
+                $return = 'SSH Tunnel Issue';
                 break;
 
             case 'table_issue':
-                $retval = 'Database Table Issue';
+                $return = 'Database Table Issue';
                 break;
 
             case 'misconfiguration':
-                $retval = 'Misconfiguration';
+                $return = 'Misconfiguration';
                 break;
 
             case 'other':
-                $retval = 'Other';
+                $return = 'Other';
                 break;
 
             default:
                 throw new CoreException(tr('Specified type is not valid'), 'not-valid');
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('mysqlr_log_html_tag_type(): Failed'), $e);

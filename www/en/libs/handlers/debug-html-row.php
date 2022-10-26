@@ -77,12 +77,12 @@ try {
                     </tr>';
 
         case 'array':
-            $retval = '';
+            $return = '';
 
             ksort($value);
 
             foreach ($value as $subkey => $subvalue) {
-                $retval .= debug_html_row($subvalue, $subkey);
+                $return .= debug_html_row($subvalue, $subkey);
             }
 
             return '<tr>
@@ -91,7 +91,7 @@ try {
                         <td>'.count($value).'</td>
                         <td style="padding:0">
                             <table class="debug">
-                                <thead><td>'.tr('Key').'</td><td>'.tr('Type').'</td><td>'.tr('Size').'</td><td>'.tr('Value').'</td></thead>'.$retval.'
+                                <thead><td>'.tr('Key').'</td><td>'.tr('Type').'</td><td>'.tr('Size').'</td><td>'.tr('Value').'</td></thead>'.$return.'
                             </table>
                         </td>
                     </tr>';
@@ -103,13 +103,13 @@ try {
             $value  = print_r($value, true);
             $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
             $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
-            $retval = '<pre>'.$value.'</pre>';
+            $return = '<pre>'.$value.'</pre>';
 
             return '<tr>
                         <td>'.$key.'</td>
                         <td>'.$type.'</td>
                         <td>?</td>
-                        <td>'.$retval.'</td>
+                        <td>'.$return.'</td>
                     </tr>';
 
         default:

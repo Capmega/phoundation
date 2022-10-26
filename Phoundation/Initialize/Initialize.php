@@ -241,11 +241,12 @@ class Initialize
         // Get a list of all available libraries and initialize each one
         $libraries = self::listLibraries($system, $plugins);
 
+        // Get the highest
+
         foreach ($libraries as $path => $library) {
-            self::executeLibrary($library, $path);
+            $version = self::executeLibrary($library, $path);
         }
     }
-
 
 
     /**
@@ -253,11 +254,12 @@ class Initialize
      *
      * @param string $library
      * @param string $path
-     * @return int The amount of executed versions
+     * @param string $version
+     * @return string The version to which it has been updated
      */
-    protected static function executeLibrary(string $library, string $path): int
+    protected static function executeLibrary(string $library, string $path): string
     {
-        // TODO Check later if we shoudl be able to let init initialize itself
+        // TODO Check later if we should be able to let init initialize itself
         if ($library === 'initialize') {
             // Never initialize the Init library itself!
             Log::warning(tr('Not processing library ":library", it has no versioning control available', [

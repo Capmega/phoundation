@@ -57,8 +57,8 @@ function geo_countries_select($params) {
 
         $cache_key = sha1(json_encode_custom($params));
 
-        if ($retval = cache_read($cache_key)) {
-            return $retval;
+        if ($return = cache_read($cache_key)) {
+            return $return;
         }
 
         /*
@@ -102,8 +102,8 @@ function geo_states_select($params) {
 
         $cache_key = sha1(json_encode_custom($params));
 
-        if ($retval = cache_read($cache_key)) {
-            return $retval;
+        if ($return = cache_read($cache_key)) {
+            return $return;
         }
 
         /*
@@ -158,8 +158,8 @@ function geo_cities_select($params) {
 
         $cache_key = sha1(json_encode_custom($params));
 
-        if ($retval = cache_read($cache_key)) {
-            return $retval;
+        if ($return = cache_read($cache_key)) {
+            return $return;
         }
 
         /*

@@ -90,7 +90,7 @@ class Color
             return $source;
         }
 
-        $retval = '';
+        $return = '';
 
         // Validate the specified foreground and background colors
         if (!array_key_exists($foreground_color, self::$available_foreground_colors)) {
@@ -102,18 +102,18 @@ class Color
         }
 
         // Apply colors
-        $retval .= "\033[" . self::$available_foreground_colors[$foreground_color] . "m";
-        $retval .= "\033[" . self::$available_background_colors[$background_color] . "m";
+        $return .= "\033[" . self::$available_foreground_colors[$foreground_color] . "m";
+        $return .= "\033[" . self::$available_background_colors[$background_color] . "m";
 
         // Add the specified string that should be colored and the coloring reset tag
-        $retval .= $source;
+        $return .= $source;
 
         if ($reset) {
-            $retval .= self::getColorReset();
+            $return .= self::getColorReset();
         }
 
 
-        return $retval;
+        return $return;
     }
 
 

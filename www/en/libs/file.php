@@ -901,7 +901,7 @@ function file_list_tree($path, $pattern = null, $recursive = true) {
             return array($path);
         }
 
-        $retval = array();
+        $return = array();
         $fh    = opendir($path);
 
         /*
@@ -938,16 +938,16 @@ function file_list_tree($path, $pattern = null, $recursive = true) {
              * Do NOT add the directory itself, only files!
              */
             if (is_dir($file) and $recursive) {
-                $retval = array_merge($retval, file_list_tree($file));
+                $return = array_merge($return, file_list_tree($file));
 
             } else {
-                $retval[] = $file;
+                $return[] = $file;
             }
         }
 
         closedir($fh);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('file_list_tree(): Failed for ":path"', array(':path' => $path)), $e);
@@ -2077,37 +2077,37 @@ function file_copy_progress($source, $target, $callback) {
  */
 function file_mode_readable($mode) {
     try {
-        $retval = '';
+        $return = '';
         $mode   = substr((string) decoct($mode), -3, 3);
 
         for($i = 0; $i < 3; $i++) {
             $number = (integer) substr($mode, $i, 1);
 
             if (($number - 4) >= 0) {
-                $retval .= 'r';
+                $return .= 'r';
                 $number -= 4;
 
             } else {
-                $retval .= '-';
+                $return .= '-';
             }
 
             if (($number - 2) >= 0) {
-                $retval .= 'w';
+                $return .= 'w';
                 $number -= 2;
 
             } else {
-                $retval .= '-';
+                $return .= '-';
             }
 
             if (($number - 1) >= 0) {
-                $retval .= 'x';
+                $return .= 'x';
 
             } else {
-                $retval .= '-';
+                $return .= '-';
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('file_mode_readable(): Failed'), $e);
@@ -2136,29 +2136,29 @@ function file_tree($path, $method) {
                 throw new CoreException(tr('file_tree(): Unknown method ":method" specified', array(':method' => $method)), 'unknown');
         }
 
-        $retval = 0;
+        $return = 0;
         $path   = Strings::slash($path);
 
         foreach (scandir($path) as $file) {
             if (($file == '.') or ($file == '..')) continue;
 
             if (is_dir($path.$file)) {
-                $retval += file_tree($path.$file, $method);
+                $return += file_tree($path.$file, $method);
 
             } else {
                 switch ($method) {
                     case 'size':
-                        $retval += filesize($path.$file);
+                        $return += filesize($path.$file);
                         break;
 
                     case 'count':
-                        $retval++;
+                        $return++;
                         break;
                 }
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('file_tree(): Failed'), $e);
@@ -2279,89 +2279,89 @@ function file_type($file) {
 function file_get_permissions($file) {
     try {
         $perms  = fileperms($file);
-        $retval = array();
+        $return = array();
 
-        $retval['socket']    = (($perms & 0xC000) == 0xC000);
-        $retval['symlink']   = (($perms & 0xA000) == 0xA000);
-        $retval['regular']   = (($perms & 0x8000) == 0x8000);
-        $retval['bdevice']   = (($perms & 0x6000) == 0x6000);
-        $retval['cdevice']   = (($perms & 0x2000) == 0x2000);
-        $retval['directory'] = (($perms & 0x4000) == 0x4000);
-        $retval['fifopipe']  = (($perms & 0x1000) == 0x1000);
-        $retval['perms']     = $perms;
-        $retval['unknown']   = false;
+        $return['socket']    = (($perms & 0xC000) == 0xC000);
+        $return['symlink']   = (($perms & 0xA000) == 0xA000);
+        $return['regular']   = (($perms & 0x8000) == 0x8000);
+        $return['bdevice']   = (($perms & 0x6000) == 0x6000);
+        $return['cdevice']   = (($perms & 0x2000) == 0x2000);
+        $return['directory'] = (($perms & 0x4000) == 0x4000);
+        $return['fifopipe']  = (($perms & 0x1000) == 0x1000);
+        $return['perms']     = $perms;
+        $return['unknown']   = false;
 
-        if ($retval['socket']) {
+        if ($return['socket']) {
             /*
              * This file is a socket
              */
-            $retval['mode'] = 's';
-            $retval['type'] = 'socket';
+            $return['mode'] = 's';
+            $return['type'] = 'socket';
 
-        } elseif ($retval['symlink']) {
+        } elseif ($return['symlink']) {
             /*
              * This file is a symbolic link
              */
-            $retval['mode'] = 'l';
-            $retval['type'] = 'symbolic link';
+            $return['mode'] = 'l';
+            $return['type'] = 'symbolic link';
 
-        } elseif ($retval['regular']) {
+        } elseif ($return['regular']) {
             /*
              * This file is a regular file
              */
-            $retval['mode'] = '-';
-            $retval['type'] = 'regular file';
+            $return['mode'] = '-';
+            $return['type'] = 'regular file';
 
-        } elseif ($retval['bdevice']) {
+        } elseif ($return['bdevice']) {
             /*
              * This file is a block device
              */
-            $retval['mode'] = 'b';
-            $retval['type'] = 'block device';
+            $return['mode'] = 'b';
+            $return['type'] = 'block device';
 
-        } elseif ($retval['directory']) {
+        } elseif ($return['directory']) {
             /*
              * This file is a directory
              */
-            $retval['mode'] = 'd';
-            $retval['type'] = 'directory';
+            $return['mode'] = 'd';
+            $return['type'] = 'directory';
 
-        } elseif ($retval['cdevice']) {
+        } elseif ($return['cdevice']) {
             /*
              * This file is a character device
              */
-            $retval['mode'] = 'c';
-            $retval['type'] = 'character device';
+            $return['mode'] = 'c';
+            $return['type'] = 'character device';
 
-        } elseif ($retval['fifopipe']) {
+        } elseif ($return['fifopipe']) {
             /*
              * This file is a FIFO pipe
              */
-            $retval['mode'] = 'p';
-            $retval['type'] = 'fifo pipe';
+            $return['mode'] = 'p';
+            $return['type'] = 'fifo pipe';
 
         } else {
             /*
              * This file is an unknown type
              */
-            $retval['mode']    = 'u';
-            $retval['type']    = 'unknown';
-            $retval['unknown'] = true;
+            $return['mode']    = 'u';
+            $return['type']    = 'unknown';
+            $return['unknown'] = true;
         }
 
-        $retval['owner'] = array('r' =>  ($perms & 0x0100),
+        $return['owner'] = array('r' =>  ($perms & 0x0100),
                                  'w' =>  ($perms & 0x0080),
                                  'x' => (($perms & 0x0040) and !($perms & 0x0800)),
                                  's' => (($perms & 0x0040) and  ($perms & 0x0800)),
                                  'S' =>  ($perms & 0x0800));
 
-        $retval['group'] = array('r' =>  ($perms & 0x0020),
+        $return['group'] = array('r' =>  ($perms & 0x0020),
                                  'w' =>  ($perms & 0x0010),
                                  'x' => (($perms & 0x0008) and !($perms & 0x0400)),
                                  's' => (($perms & 0x0008) and  ($perms & 0x0400)),
                                  'S' =>  ($perms & 0x0400));
 
-        $retval['other'] = array('r' =>  ($perms & 0x0004),
+        $return['other'] = array('r' =>  ($perms & 0x0004),
                                  'w' =>  ($perms & 0x0002),
                                  'x' => (($perms & 0x0001) and !($perms & 0x0200)),
                                  't' => (($perms & 0x0001) and  ($perms & 0x0200)),
@@ -2370,31 +2370,31 @@ function file_get_permissions($file) {
         /*
          * Owner
          */
-        $retval['mode'] .= (($perms & 0x0100) ? 'r' : '-');
-        $retval['mode'] .= (($perms & 0x0080) ? 'w' : '-');
-        $retval['mode'] .= (($perms & 0x0040) ?
+        $return['mode'] .= (($perms & 0x0100) ? 'r' : '-');
+        $return['mode'] .= (($perms & 0x0080) ? 'w' : '-');
+        $return['mode'] .= (($perms & 0x0040) ?
                            (($perms & 0x0800) ? 's' : 'x' ) :
                            (($perms & 0x0800) ? 'S' : '-'));
 
         /*
          * Group
          */
-        $retval['mode'] .= (($perms & 0x0020) ? 'r' : '-');
-        $retval['mode'] .= (($perms & 0x0010) ? 'w' : '-');
-        $retval['mode'] .= (($perms & 0x0008) ?
+        $return['mode'] .= (($perms & 0x0020) ? 'r' : '-');
+        $return['mode'] .= (($perms & 0x0010) ? 'w' : '-');
+        $return['mode'] .= (($perms & 0x0008) ?
                            (($perms & 0x0400) ? 's' : 'x' ) :
                            (($perms & 0x0400) ? 'S' : '-'));
 
         /*
          * World
          */
-        $retval['mode'] .= (($perms & 0x0004) ? 'r' : '-');
-        $retval['mode'] .= (($perms & 0x0002) ? 'w' : '-');
-        $retval['mode'] .= (($perms & 0x0001) ?
+        $return['mode'] .= (($perms & 0x0004) ? 'r' : '-');
+        $return['mode'] .= (($perms & 0x0002) ? 'w' : '-');
+        $return['mode'] .= (($perms & 0x0001) ?
                            (($perms & 0x0200) ? 't' : 'x' ) :
                            (($perms & 0x0200) ? 'T' : '-'));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('file_get_permissions(): Failed'), $e);
@@ -2715,7 +2715,7 @@ function File::executeMode($path, $mode, $callback, $params = null) {
             throw $e;
         }
 
-        $retval = $callback($path, $params, $mode);
+        $return = $callback($path, $params, $mode);
 
         /*
          * Return the original mode
@@ -2745,7 +2745,7 @@ function File::executeMode($path, $mode, $callback, $params = null) {
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('File::executeMode(): Failed for path(s) ":path"', array(':path' => $path)), $e);

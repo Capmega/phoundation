@@ -208,7 +208,7 @@ function analytics_google($sites_id) {
             });
         }
 
-        $retval = ' <script>
+        $return = ' <script>
                         (function(i,s,o,g,r,a,m) {i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function() {
                         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
                         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -218,7 +218,7 @@ function analytics_google($sites_id) {
                     </script>';
 
 // :TODO: Determine if this should be implemented at all
-//        $retval = '<script async src="https://www.googletagmanager.com/gtag/js?id='.$sites_id.'"></script>
+//        $return = '<script async src="https://www.googletagmanager.com/gtag/js?id='.$sites_id.'"></script>
 //                   <script>
 //                       window.dataLayer = window.dataLayer || [];
 //                       function gtag() {dataLayer.push(arguments);}
@@ -227,7 +227,7 @@ function analytics_google($sites_id) {
 //                       gtag("config", "'.$sites_id.'");
 //                   </script>';
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('analytics_google(): Failed', $e);

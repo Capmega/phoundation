@@ -14,7 +14,7 @@
  */
 function persons_names_get($gender, $name_count, $lastname_count) {
     try {
-        $retval = '';
+        $return = '';
 
         switch (strtolower($gender)) {
             case 'man':
@@ -40,7 +40,7 @@ function persons_names_get($gender, $name_count, $lastname_count) {
         $names     = sql_list('SELECT `'.$column.'` FROM `persons_names` LIMIT '.$lastname_count, $column);
         $lastnames = sql_list('SELECT `'.$column.'` FROM `persons_names` LIMIT '.$lastname_count, $column);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('persons_names_get(): Failed', $e);

@@ -377,14 +377,14 @@ function pick_random_multiple(?int $count = null): string|array
     }
 
     // Return multiple arguments in an array
-    $retval = [];
+    $return = [];
 
     for ($i = 0; $i < $count; $i++) {
-        $retval[] = $args[$key = array_rand($args)];
+        $return[] = $args[$key = array_rand($args)];
         unset($args[$key]);
     }
 
-    return $retval;
+    return $return;
 }
 
 

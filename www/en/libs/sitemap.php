@@ -373,25 +373,25 @@ function sitemap_get_entry_xml($entry) {
             if (!empty($entry[$key])) {
                 switch ($key) {
                     case 'url':
-                        $retval[] = "    <loc>".$entry[$key]."</loc>\n";
+                        $return[] = "    <loc>".$entry[$key]."</loc>\n";
                         break;
 
                     case 'page_modifiedon':
-                        $retval[] = "    <lastmod>".date_convert($entry[$key], 'c')."</lastmod>\n";
+                        $return[] = "    <lastmod>".date_convert($entry[$key], 'c')."</lastmod>\n";
                         break;
 
                     case 'change_frequency':
-                        $retval[] = "    <changefreq>".$entry[$key]."</changefreq>\n";
+                        $return[] = "    <changefreq>".$entry[$key]."</changefreq>\n";
                         break;
 
                     case 'priority':
-                        $retval[] = "    <priority>".number_format($entry[$key], 2)."</priority>\n";
+                        $return[] = "    <priority>".number_format($entry[$key], 2)."</priority>\n";
                         break;
                 }
             }
         }
 
-        return "<url>\n".implode($retval)."</url>\n";
+        return "<url>\n".implode($return)."</url>\n";
 
     }catch(Exception $e) {
         throw new CoreException('sitemap_get_entry_xml(): Failed', $e);
@@ -458,15 +458,15 @@ function sitemap_get_index_xml($file, $lastmod = null) {
  * @return array The files that are used for this website
  */
 function sitemap_list_files() {
-    static $retval = null;
+    static $return = null;
     global $_CONFIG;
 
     try {
-        if ($retval) {
-            return $retval;
+        if ($return) {
+            return $return;
         }
 
-        $retval = array();
+        $return = array();
 
         if (empty($_CONFIG['language']['supported'])) {
             /*
@@ -499,11 +499,11 @@ function sitemap_list_files() {
                 }
 
                 $file['language'] = $code;
-                $retval[] = $file;
+                $return[] = $file;
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('sitemap_list_files(): Failed', $e);

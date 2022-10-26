@@ -2,6 +2,7 @@
 
 namespace Phoundation\Initialize;
 
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
@@ -24,9 +25,9 @@ class Init
     /**
      * The name for this library
      *
-     * @var string|null $name
+     * @var string|null $library
      */
-    protected ?string $name = null;
+    protected ?string $library = null;
 
     /**
      * The version for this library
@@ -46,33 +47,51 @@ class Init
 
     /**
      * Init constructor
+     *
+     * @param string $version The code version of this library
      */
     protected function __construct(string $version)
     {
+        // Detect the library name
+        $library = Strings::untilReverse(get_class($this), '\\');
+        $library = Strings::fromReverse($library, '\\');
+        $library = strtolower($library);
+
         if (!$version) {
-            throw new OutOfBoundsException(tr('No version specified'));
+            throw new OutOfBoundsException(tr('No code version specified for library ":library" init file', [':library' => $library]));
         }
 
+        $this->library = $library;
         $this->version = $version;
-
-        // Detect the library name
-        $name = Strings::untilReverse(get_class($this), '\\');
-        $name = Strings::fromReverse($name, '\\');
-        $name = strtolower($name);
-
-        $this->name = $name;
     }
 
 
 
     /**
-     * Returns the current version for this library
+     * Returns the current code version for this library
      *
      * @return string
      */
     public function getVersion(): string
     {
         return $this->version;
+    }
+
+
+
+    /**
+     * Returns the current database version for this library
+     *
+     * @return string
+     */
+    public function getDatabaseVersion(): string
+    {
+        return sql()->getColumn('
+                                SELECT `version` 
+                                FROM   `versions` 
+                                WHERE  `library` = :library', [
+                                    ':library' => $this->library
+        ]);
     }
 
 
@@ -94,7 +113,7 @@ class Init
 
 
     /**
-     * Execute the specified init file
+     * Execute all updates for this library
      *
      * @return int The amount of inits that were executed
      */
@@ -102,38 +121,62 @@ class Init
     {
         $count = 0;
 
-        Log::action(tr('Initializing library ":library"', [':library' => $this->name]));
+        Log::action(tr('Initializing library ":library"', [':library' => $this->library]));
 
         foreach ($this->updates as $version => $execute) {
-            if ($this->hasBeenExecuted($version)) {
-                Log::warning(tr('Skipping init version ":version" for library ":library" because it already has been executed', [
-                    ':library' => $this->name,
-                    ':file'    => $version
-                ]), 2);
-
-                return false;
-            }
-
-            if ($this->isFuture($version)) {
-                Log::warning(tr('Skipping init version ":version" for library ":library" because it is a future init', [
-                    ':library' => $this->name,
-                    ':file'    => $version
-                ]), 2);
-
-                return false;
-            }
-
-            // Execute this init
-            Log::action(tr('Executing ":library" library init version ":version"', [
-                ':library' => $this->name,
-                ':version' => $version
-            ]));
-
+            $this->updateOne($version);
             $count++;
-            $execute();
         }
 
         return $count;
+    }
+
+
+
+    /**
+     * Update to the specified version
+     *
+     * @param string $version
+     * @return string The next version available for this init
+     */
+    public function updateOne(string $version): string
+    {
+        $execute = $this->updates[$version];
+
+        if ($this->hasBeenExecuted($version)) {
+            Log::warning(tr('Skipping init version ":version" for library ":library" because it already has been executed', [
+                ':library' => $this->library,
+                ':file'    => $version
+            ]), 2);
+
+            return false;
+        }
+
+        if ($this->isFuture($version)) {
+            Log::warning(tr('Skipping init version ":version" for library ":library" because it is a future update', [
+                ':library' => $this->library,
+                ':file'    => $version
+            ]), 2);
+
+            return false;
+        }
+
+        // Execute this init
+        Log::action(tr('Updating ":library" library with init version ":version"', [
+            ':library' => $this->library,
+            ':version' => $version
+        ]));
+
+        // Execute this init and return the next version
+        $execute();
+        return Arrays::nextKey($this->updates, $version);
+    }
+
+
+
+    protected function addVersion(): void
+    {
+        sql()->query();
     }
 
 

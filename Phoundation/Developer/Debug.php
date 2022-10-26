@@ -265,7 +265,7 @@ class Debug {
             $value = Arrays::hide($value, 'GLOBALS,%pass,ssh_key');
         }
 
-        $retval = '';
+        $return = '';
 
         if (Core::readyState() and PLATFORM_HTTP) {
             // Show output on web
@@ -307,7 +307,7 @@ class Debug {
                 flush();
             }
 
-            echo $retval;
+            echo $return;
             ob_flush();
             flush();
 
@@ -319,7 +319,7 @@ class Debug {
 
             // Show output on CLI console
             if (is_scalar($value)) {
-                $retval .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:size] ', [':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset), ':size' => strlen((string) $value)])) . $value . "\n";
+                $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:size] ', [':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset), ':size' => strlen((string) $value)])) . $value . "\n";
 
             } else {
                 // Sort if is array for easier reading
@@ -328,14 +328,14 @@ class Debug {
                 }
 
                 if (!$quiet) {
-                    $retval .= tr('DEBUG SHOW (:file@:line) [:size]', [':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset), ':size' => count((array) $value)])."\n";
+                    $return .= tr('DEBUG SHOW (:file@:line) [:size]', [':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset), ':size' => count((array) $value)])."\n";
                 }
 
-                $retval .= print_r($value, true);
-                $retval .= "\n";
+                $return .= print_r($value, true);
+                $return .= "\n";
             }
 
-            echo $retval;
+            echo $return;
         }
 
         return $value;
@@ -395,7 +395,7 @@ class Debug {
         if (empty($style)) {
             $style  = true;
 
-            $retval = '<style type="text/css">
+            $return = '<style type="text/css">
                 table.debug{
                     font-family: sans-serif;
                     width:99%;
@@ -418,10 +418,10 @@ class Debug {
                 }
                </style>';
         } else {
-            $retval = '';
+            $return = '';
         }
 
-        return $retval . '<table class="debug">
+        return $return . '<table class="debug">
                     <thead class="debug-header"><td colspan="4">'.self::currentFile(1 + $trace_offset) . '@'.self::currentLine(1 + $trace_offset) . '</td></thead>
                     <thead class="debug-columns"><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>'.self::showHtmlRow($value, $key) . '
                 </table>';
@@ -513,12 +513,12 @@ class Debug {
                 </tr>';
 
             case 'array':
-                $retval = '';
+                $return = '';
 
                 ksort($value);
 
                 foreach ($value as $subkey => $subvalue) {
-                    $retval .= self::showHtmlRow($subvalue, $subkey);
+                    $return .= self::showHtmlRow($subvalue, $subkey);
                 }
 
                 return '<tr>
@@ -527,7 +527,7 @@ class Debug {
                     <td>'.count($value) . '</td>
                     <td style="padding:0">
                         <table class="debug">
-                            <thead><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>' . $retval.'
+                            <thead><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>' . $return.'
                         </table>
                     </td>
                 </tr>';
@@ -539,13 +539,13 @@ class Debug {
                 $value  = print_r($value, true);
                 $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
                 $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
-                $retval = '<pre>' . $value.'</pre>';
+                $return = '<pre>' . $value.'</pre>';
 
                 return '<tr>
                     <td>' . $key . '</td>
                     <td>' . $type.'</td>
                     <td>?</td>
-                    <td>' . $retval.'</td>
+                    <td>' . $return.'</td>
                 </tr>';
 
             default:
@@ -669,7 +669,7 @@ class Debug {
         if (empty($style)) {
             $style  = true;
 
-            $retval = '<style type="text/css">
+            $return = '<style type="text/css">
                 table.debug{
                     font-family: sans-serif;
                     width:99%;
@@ -692,10 +692,10 @@ class Debug {
                 }
                </style>';
         } else {
-            $retval = '';
+            $return = '';
         }
 
-        return $retval.'<table class="debug">
+        return $return.'<table class="debug">
                     <thead class="debug-header"><td colspan="4">'.current_file(1 + $trace_offset).'@'.current_line(1 + $trace_offset).'</td></thead>
                     <thead class="debug-columns"><td>'.tr('Key').'</td><td>'.tr('Type').'</td><td>'.tr('Size').'</td><td>'.tr('Value').'</td></thead>'.self::htmlRow($value, $key).'
                 </table>';
@@ -791,12 +791,12 @@ class Debug {
                     </tr>';
 
             case 'array':
-                $retval = '';
+                $return = '';
 
                 ksort($value);
 
                 foreach ($value as $subkey => $subvalue) {
-                    $retval .= debug_html_row($subvalue, $subkey);
+                    $return .= debug_html_row($subvalue, $subkey);
                 }
 
                 return '<tr>
@@ -805,7 +805,7 @@ class Debug {
                         <td>'.count($value).'</td>
                         <td style="padding:0">
                             <table class="debug">
-                                <thead><td>'.tr('Key').'</td><td>'.tr('Type').'</td><td>'.tr('Size').'</td><td>'.tr('Value').'</td></thead>' . $retval.'
+                                <thead><td>'.tr('Key').'</td><td>'.tr('Type').'</td><td>'.tr('Size').'</td><td>'.tr('Value').'</td></thead>' . $return.'
                             </table>
                         </td>
                     </tr>';
@@ -815,13 +815,13 @@ class Debug {
                 $value  = print_r($value, true);
                 $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
                 $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
-                $retval = '<pre>' . $value.'</pre>';
+                $return = '<pre>' . $value.'</pre>';
 
                 return '<tr>
                         <td>' . $key.'</td>
                         <td>' . $type.'</td>
                         <td>?</td>
-                        <td>' . $retval.'</td>
+                        <td>' . $return.'</td>
                     </tr>';
 
             default:

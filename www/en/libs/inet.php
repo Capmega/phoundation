@@ -442,7 +442,7 @@ function inet_dig($domain, $section = false) {
         }
 
         $data   = Strings::cut($data, "ANSWER SECTION:\n", "\n;;");
-        $retval = array();
+        $return = array();
 
         if ($section) {
             /*
@@ -459,7 +459,7 @@ function inet_dig($domain, $section = false) {
         if (!$section or isset($section['a'])) {
             preg_match_all('/'.cfm($domain).'.\s+\d+\s+IN\s+A\s+(\d+\.\d+\.\d+\.\d+)/imsu', $data, $matches);
             if (!empty($matches[1])) {
-                $retval['A'] = $matches[1];
+                $return['A'] = $matches[1];
             }
         }
 
@@ -469,7 +469,7 @@ function inet_dig($domain, $section = false) {
         if (!$section or isset($section['mx'])) {
             preg_match_all('/'.cfm($domain).'.\s+\d+\s+IN\s+MX\s+(.+?)\n/imsu', $data, $matches);
             if (!empty($matches[1])) {
-                $retval['MX'] = $matches[1];
+                $return['MX'] = $matches[1];
             }
         }
 
@@ -479,7 +479,7 @@ function inet_dig($domain, $section = false) {
         if (!$section or isset($section['txt'])) {
             preg_match_all('/'.cfm($domain).'.\s+\d+\s+IN\s+TXT\s+(.+?)\n/imsu', $data, $matches);
             if (!empty($matches[1])) {
-                $retval['TXT'] = $matches[1];
+                $return['TXT'] = $matches[1];
             }
         }
 
@@ -489,7 +489,7 @@ function inet_dig($domain, $section = false) {
         if (!$section or isset($section['soa'])) {
             preg_match_all('/'.cfm($domain).'.\s+\d+\s+IN\s+SOA\s+(.+?)\n/imsu', $data, $matches);
             if (!empty($matches[1])) {
-                $retval['SOA'] = $matches[1];
+                $return['SOA'] = $matches[1];
             }
         }
 
@@ -499,7 +499,7 @@ function inet_dig($domain, $section = false) {
         if (!$section or isset($section['cname'])) {
             preg_match_all('/'.cfm($domain).'.\s+\d+\s+IN\s+CNAME\s+(\d+\.\d+\.\d+\.\d+)\n/imsu', $data, $matches);
             if (!empty($matches[1])) {
-                $retval['CNAME'] = $matches[1];
+                $return['CNAME'] = $matches[1];
             }
         }
 
@@ -509,11 +509,11 @@ function inet_dig($domain, $section = false) {
         if (!$section or isset($section['ns'])) {
             preg_match_all('/'.cfm($domain).'.\s+\d+\s+IN\s+NS\s+(.+?)\n/imsu', $data, $matches);
             if (!empty($matches[1])) {
-                $retval['NS'] = $matches[1];
+                $return['NS'] = $matches[1];
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new OutOfBoundsException('inet_dig(): Failed', $e);

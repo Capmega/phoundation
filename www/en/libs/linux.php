@@ -535,7 +535,7 @@ function linux_list_processes($server, $filters) {
                                    'commands'     => array('ps'  , array('ax', 'connector' => '|'),
                                                            'grep', array_merge(array('--color=never', 'connector' => '|'), $filters),
                                                            'grep', array('--color=never', '-v', 'grep --color=never'))));
-        $retval  = array();
+        $return  = array();
 
         foreach ($results as $key => $result) {
             if (strstr($result, $command)) {
@@ -545,10 +545,10 @@ function linux_list_processes($server, $filters) {
 
             $result       = trim($result);
             $pid          = Strings::until($result, ' ');
-            $retval[$pid] = substr($result, 27);
+            $return[$pid] = substr($result, 27);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('linux_list_processes(): Failed', $e);
@@ -936,14 +936,14 @@ function linux_download($server, $url, $section = false, $callback = null) {
          * When doing this, automatically delete the file in question, since
          * the caller will not know the exact file name used
          */
-        $retval = file_get_contents($file);
+        $return = file_get_contents($file);
         file_delete($file);
 
         if ($callback) {
-            $callback($retval);
+            $callback($return);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('linux_download(): Failed', $e);

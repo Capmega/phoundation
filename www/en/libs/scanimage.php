@@ -825,7 +825,7 @@ function scanimage_detect_devices($server = null, $sudo = false) {
 function scanimage_get_options($device, $server = null, $sudo = false) {
     try {
         $results = servers_exec($server, array('commands' => array('scanimage', array('sudo' => $sudo, '-A', '-d', $device))));
-        $retval  = array();
+        $return  = array();
 
         foreach ($results as $result) {
             if (strstr($result, 'failed:')) {
@@ -997,12 +997,12 @@ function scanimage_get_options($device, $server = null, $sudo = false) {
                 }
             }
 
-            $retval[$key] = array('data'    => $data,
+            $return[$key] = array('data'    => $data,
                                   'status'  => $status,
                                   'default' => $default);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('scanimage_get_options(): Failed for device ":device"', array(':device' => $device)), $e);

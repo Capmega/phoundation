@@ -42,8 +42,8 @@ function environments_select($params = null) {
             $params['resource'][$key] = $key;
         }
 
-        $retval = html_select($params);
-        return $retval;
+        $return = html_select($params);
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('environments_select(): Failed', $e);

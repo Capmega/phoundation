@@ -463,7 +463,7 @@ Class Html {
                 'media' => (is_string($_CONFIG['cdn']['css']['post']) ? $_CONFIG['cdn']['css']['post'] : ''));
         }
 
-        $retval = '';
+        $return = '';
         $min    = $_CONFIG['cdn']['min'];
 
         html_bundler('css');
@@ -484,15 +484,15 @@ Class Html {
             /*
              * Hurray, normal stylesheets!
              */
-            $retval .= $html."\n";
+            $return .= $html."\n";
         }
 
         if ($_CONFIG['cdn']['css']['load_delayed']) {
-            $core->register['footer'] .= $retval;
+            $core->register['footer'] .= $return;
             return null;
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -629,7 +629,7 @@ Class Html {
         $count  = 0;
         $js     = &$_CONFIG['cdn']['js'];
         $min    = ($_CONFIG['cdn']['min'] ? '.min' : '');
-        $retval = '';
+        $return = '';
         $footer = '';
         $lists  = array('js_header', 'js_header_page', 'js_footer', 'js_footer_page', 'js_footer_scripts');
 
@@ -705,7 +705,7 @@ Class Html {
                     /*
                      * Add this script in the header
                      */
-                    $retval .= $html;
+                    $return .= $html;
 
                 } else {
                     /*
@@ -730,7 +730,7 @@ Class Html {
         unset($core->register['js_header']);
         unset($core->register['js_footer']);
 
-        return $retval;
+        return $return;
     }
 
 
@@ -815,17 +815,17 @@ Class Html {
             $params['links'] .= '<link rel="canonical" href="'.$params['canonical'].'">';
         }
 
-        $retval =  $params['doctype'].
+        $return =  $params['doctype'].
             $params['html'].'
                <head>';
 
         if ($params['style']) {
-            $retval .= '<style>'.$params['style'].'</style>';
+            $return .= '<style>'.$params['style'].'</style>';
         }
 
         if ($params['links']) {
             if (is_string($params['links'])) {
-                $retval .= $params['links'];
+                $return .= $params['links'];
 
             } else {
 // :OBSOLETE: Links specified as an array only adds more complexity, we're going to send it as plain HTML, and be done with the crap. This is still here for backward compatibility
@@ -836,26 +836,26 @@ Class Html {
                         $sections[] = $key.'="'.$value.'"';
                     }
 
-                    $retval .= '<link '.implode(' ', $sections).'>';
+                    $return .= '<link '.implode(' ', $sections).'>';
                 }
             }
         }
 
         foreach ($params['prefetch_dns'] as $prefetch) {
-            $retval .= '<link rel="dns-prefetch" href="//'.$prefetch.'">';
+            $return .= '<link rel="dns-prefetch" href="//'.$prefetch.'">';
         }
 
         foreach ($params['prefetch_files'] as $prefetch) {
-            $retval .= '<link rel="prefetch" href="'.$prefetch.'">';
+            $return .= '<link rel="prefetch" href="'.$prefetch.'">';
         }
 
         unset($prefetch);
 
         if (!empty($core->register['header'])) {
-            $retval .= $core->register['header'];
+            $return .= $core->register['header'];
         }
 
-        $retval .= html_generate_css().
+        $return .= html_generate_css().
             html_generate_js();
 
         /*
@@ -876,7 +876,7 @@ Class Html {
                     case 'woff':
                         // no-break
                     case 'woff2':
-                        $retval .= '<link rel="preload" href="'.$font.'" as="font" type="font/'.$extension.'" crossorigin="anonymous">';
+                        $return .= '<link rel="preload" href="'.$font.'" as="font" type="font/'.$extension.'" crossorigin="anonymous">';
                         break;
 
                     default:
@@ -884,7 +884,7 @@ Class Html {
                             throw new HtmlException(tr('html_header(): Unknown font type ":type" specified for font ":font"', array(':type' => $extension, ':font' => $font)), 'unknown');
                         }
 
-                        $retval .= '<link rel="preload" href="'.$font.'" as="font" type="text/css" crossorigin="anonymous">';
+                        $return .= '<link rel="preload" href="'.$font.'" as="font" type="text/css" crossorigin="anonymous">';
                 }
             }
         }
@@ -892,11 +892,11 @@ Class Html {
         /*
          * Add meta data, favicon, and <body> tag
          */
-        $retval .= html_meta($meta);
-        $retval .= html_favicon($params['favicon']).$params['extra'];
-        $retval .= '</head>'.$params['body'];
+        $return .= html_meta($meta);
+        $return .= html_favicon($params['favicon']).$params['extra'];
+        $return .= '</head>'.$params['body'];
 
-        return $retval;
+        return $return;
     }
 
 
@@ -984,23 +984,23 @@ Class Html {
         /*
          * Start building meta data
          */
-        $retval = '<meta http-equiv="Content-Type" content="text/html;charset="'.$_CONFIG['encoding']['charset'].'">'.
+        $return = '<meta http-equiv="Content-Type" content="text/html;charset="'.$_CONFIG['encoding']['charset'].'">'.
             '<title>'.$meta['title'].'</title>';
 
         foreach ($meta as $key => $value) {
             if ($key === 'og') {
-                $retval .= html_og($value, $meta);
+                $return .= html_og($value, $meta);
 
             } elseif (substr($key, 0, 3) === 'og:') {
 // :COMPATIBILITY: Remove this section @ 2.10
                 notify(new HtmlException(tr('html_meta(): Found $meta[:key], this should be $meta[og][:ogkey], ignoring', array(':key' => $key, ':ogkey' => Strings::from($key, 'og:'))), 'warning/invalid'));
 
             } else {
-                $retval .= '<meta name="'.$key.'" content="'.$value.'">';
+                $return .= '<meta name="'.$key.'" content="'.$value.'">';
             }
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -1035,7 +1035,7 @@ Class Html {
         Arrays::default($og, 'locale'     , $core->register['locale']);
         Arrays::default($og, 'type'       , 'website');
 
-        $retval = '';
+        $return = '';
 
         if (strlen($og['description']) > 65) {
             $og['description'] = str_truncate($og['description'], 65);
@@ -1054,10 +1054,10 @@ Class Html {
                 notify(new HtmlException(tr('html_og(): Missing property content for meta og key ":property". Please add this data for SEO!', array(':property' => $property)), 'warning/not-specified'));
             }
 
-            $retval .= '<meta property="og:'.$property.'" content="'.$content.'">';
+            $return .= '<meta property="og:'.$property.'" content="'.$content.'">';
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -1165,7 +1165,7 @@ Class Html {
                 'message' => tr('html_flash(): Invalid flash structure in $_SESSION array, it should always be an array but it is a ":type". Be sure to always use html_flash_set() to add new flash messages', array(':type' => gettype($_SESSION['flash'])))));
         }
 
-        $retval = '';
+        $return = '';
 
         foreach ($_SESSION['flash'] as $id => $flash) {
             Arrays::default($flash, 'class', null);
@@ -1227,7 +1227,7 @@ Class Html {
                      */
                     foreach (array('html', 'text') as $type) {
                         if ($flash[$type]) {
-                            $retval .= tr($_CONFIG['flash']['html'], array(':message' => $flash[$type], ':type' => $flash['type'], ':hidden' => ''), false);
+                            $return .= tr($_CONFIG['flash']['html'], array(':message' => $flash[$type], ':type' => $flash['type'], ':hidden' => ''), false);
                         }
                     }
 
@@ -1264,7 +1264,7 @@ Class Html {
                 /*
                  * Add an extra hidden flash text box that can respond for jsFlashMessages
                  */
-                return $retval.tr($_CONFIG['flash']['html'], array(':message' => '', ':type' => '', ':hidden' => ' hidden'), false);
+                return $return.tr($_CONFIG['flash']['html'], array(':message' => '', ':type' => '', ':hidden' => ' hidden'), false);
 
             case 'sweetalert':
                 load_libs('sweetalert');
@@ -1469,9 +1469,9 @@ Class Html {
             $params['class'] = ' class="'.$params['class'].'"';
         }
 
-        $retval = '<a href="'.$params['href'].'"'.$params['name'].$params['class'].$params['rel'].'">';
+        $return = '<a href="'.$params['href'].'"'.$params['name'].$params['class'].$params['rel'].'">';
 
-        return $retval;
+        return $return;
     }
 
 
@@ -1506,9 +1506,9 @@ Class Html {
             $params['value'] = ' value="'.$params['value'].'"';
         }
 
-        $retval = '<input type="submit" id="'.$params['name'].'" name="'.$params['name'].'"'.$params['class'].$params['value'].'>';
+        $return = '<input type="submit" id="'.$params['name'].'" name="'.$params['name'].'"'.$params['class'].$params['value'].'>';
 
-        return $retval.isset_get($script);
+        return $return.isset_get($script);
     }
 
 
@@ -1722,7 +1722,7 @@ Class Html {
             return '<select'.$params['multiple'].($params['tabindex'] ? ' tabindex="'.$params['tabindex'].'"' : '').($params['id'] ? ' id="'.$params['id'].'_disabled"' : '').' name="'.$params['name'].'" '.($class ? ' class="'.$class.'"' : '').($params['extra'] ? ' '.$params['extra'] : '').' readonly disabled>'.
                 $body.'</select><input type="hidden" name="'.$params['name'].'" >';
         } else {
-            $retval = '<select'.$params['multiple'].($params['id'] ? ' id="'.$params['id'].'"' : '').' name="'.$params['name'].'" '.($class ? ' class="'.$class.'"' : '').($params['disabled'] ? ' disabled' : '').($params['autofocus'] ? ' autofocus' : '').($params['extra'] ? ' '.$params['extra'] : '').'>'.
+            $return = '<select'.$params['multiple'].($params['id'] ? ' id="'.$params['id'].'"' : '').' name="'.$params['name'].'" '.($class ? ' class="'.$class.'"' : '').($params['disabled'] ? ' disabled' : '').($params['autofocus'] ? ' autofocus' : '').($params['extra'] ? ' '.$params['extra'] : '').'>'.
                 $body.'</select>';
         }
 
@@ -1730,7 +1730,7 @@ Class Html {
             /*
              * Execute the JS code for an onchange
              */
-            $retval .= html_script('$("#'.$params['id'].'").change(function() { '.$params['onchange'].' });');
+            $return .= html_script('$("#'.$params['id'].'").change(function() { '.$params['onchange'].' });');
 
         }
 
@@ -1738,7 +1738,7 @@ Class Html {
             /*
              * There is no onchange and no autosubmit
              */
-            return $retval;
+            return $return;
 
         } elseif ($params['autosubmit'] === true) {
             /*
@@ -1753,7 +1753,7 @@ Class Html {
         $params['autosubmit'] = str_replace('[', '\\\\[', $params['autosubmit']);
         $params['autosubmit'] = str_replace(']', '\\\\]', $params['autosubmit']);
 
-        return $retval.html_script('$("[name=\''.$params['autosubmit'].'\']").change(function() { $(this).closest("form").find("input,textarea,select").addClass("ignore"); $(this).closest("form").submit(); });');
+        return $return.html_script('$("[name=\''.$params['autosubmit'].'\']").change(function() { $(this).closest("form").find("input,textarea,select").addClass("ignore"); $(this).closest("form").submit(); });');
     }
 
 
@@ -1791,10 +1791,10 @@ Class Html {
         Arrays::default($params, 'data_resource', null);
 
         if ($params['none']) {
-            $retval = '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.(($params['selected'] === null) ? ' selected' : '').' value="">'.$params['none'].'</option>';
+            $return = '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.(($params['selected'] === null) ? ' selected' : '').' value="">'.$params['none'].'</option>';
 
         } else {
-            $retval = '';
+            $return = '';
         }
 
         if ($params['data_resource'] and !is_array($params['data_resource'])) {
@@ -1826,7 +1826,7 @@ Class Html {
                         }
                     }
 
-                    $retval  .= '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.((($params['selected'] !== null) and ($key === $params['selected'])) ? ' selected' : '').' value="'.html_safe($key).'"'.$option_data.'>'.html_safe($value).'</option>';
+                    $return  .= '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.((($params['selected'] !== null) and ($key === $params['selected'])) ? ' selected' : '').' value="'.html_safe($key).'"'.$option_data.'>'.html_safe($value).'</option>';
                 }
 
             } elseif (is_object($params['resource'])) {
@@ -1866,7 +1866,7 @@ Class Html {
                         }
                     }
 
-                    $retval  .= '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.(($row[0] === $params['selected']) ? ' selected' : '').' value="'.html_safe($row[0]).'"'.$option_data.'>'.html_safe($row[1]).'</option>';
+                    $return  .= '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.(($row[0] === $params['selected']) ? ' selected' : '').' value="'.html_safe($row[0]).'"'.$option_data.'>'.html_safe($row[1]).'</option>';
                 }
 
             } else {
@@ -1880,16 +1880,16 @@ Class Html {
              * No conent (other than maybe the "none available" entry) was added
              */
             if ($params['empty']) {
-                $retval = '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').' selected value="">'.$params['empty'].'</option>';
+                $return = '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').' selected value="">'.$params['empty'].'</option>';
             }
 
             /*
              * Return empty body (though possibly with "none" element) so that the html_select() function can ensure the select box will be disabled
              */
-            return $retval;
+            return $return;
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -1946,7 +1946,7 @@ Class Html {
                  * Keep this script internal! This is required when script contents
                  * contain session sensitive data, or may even change per page
                  */
-                $retval            = '<script type="'.$type.'" src="'.cdn_domain('js/'.substr($script['script'], 1)).'"'.($extra ? ' '.$extra : '').'></script>';
+                $return            = '<script type="'.$type.'" src="'.cdn_domain('js/'.substr($script['script'], 1)).'"'.($extra ? ' '.$extra : '').'></script>';
                 $script['to_file'] = false;
                 break;
 
@@ -1955,7 +1955,7 @@ Class Html {
                  * Keep this script internal! This is required when script contents
                  * contain session sensitive data, or may even change per page
                  */
-                $retval            = substr($script['script'], 1);
+                $return            = substr($script['script'], 1);
                 $script['to_file'] = false;
 
             // no-break
@@ -1972,19 +1972,19 @@ Class Html {
                 if ($script['event']) {
                     switch ($script['event']) {
                         case 'dom_content':
-                            $retval = 'document.addEventListener("DOMContentLoaded", function(e) {
+                            $return = 'document.addEventListener("DOMContentLoaded", function(e) {
                                       '.$script['script'].'
                                    });';
                             break;
 
                         case 'window':
-                            $retval = 'window.addEventListener("load", function(e) {
+                            $return = 'window.addEventListener("load", function(e) {
                                       '.$script['script'].'
                                    });';
                             break;
 
                         case 'function':
-                            $retval = '$(function() {
+                            $return = '$(function() {
                                       '.$script['script'].'
                                    });';
                             break;
@@ -1997,15 +1997,15 @@ Class Html {
                     /*
                      * Don't wrap the specified script in an event wrapper
                      */
-                    $retval = $script['script'];
+                    $return = $script['script'];
                 }
 
                 if ($script['to_file']) {
-                    $retval .= ';';
+                    $return .= ';';
 
                 } else {
-                    $retval  = ' <script type="'.$type.'"'.($extra ? ' '.$extra : '').'>
-                                 '.$retval.'
+                    $return  = ' <script type="'.$type.'"'.($extra ? ' '.$extra : '').'>
+                                 '.$return.'
                              </script>';
                 }
         }
@@ -2060,9 +2060,9 @@ Class Html {
                  * deleted it
                  */
                 if (!file_exists($file.'.js')) {
-                    File::executeMode(dirname($file), 0770, function() use ($file, $retval) {
+                    File::executeMode(dirname($file), 0770, function() use ($file, $return) {
                         log_file(tr('Writing internal javascript to externally cached file ":file"', array(':file' => $file.'.js')), 'html-script', 'cyan');
-                        file_put_contents($file.'.js', $retval);
+                        file_put_contents($file.'.js', $return);
                     });
                 }
 
@@ -2106,8 +2106,8 @@ Class Html {
                  * Add a <script> element because now we'll include it into the
                  * HTML anyway
                  */
-                $retval = ' <script type="'.$type.'"'.($extra ? ' '.$extra : '').'>
-                            '.$retval.'
+                $return = ' <script type="'.$type.'"'.($extra ? ' '.$extra : '').'>
+                            '.$return.'
                         </script>';
             }
         }
@@ -2119,7 +2119,7 @@ Class Html {
          * for faster loading
          */
         if (!$script['delayed']) {
-            return $retval;
+            return $return;
         }
 
         /*
@@ -2128,10 +2128,10 @@ Class Html {
          * called
          */
         if (isset($core->register['script_delayed'])) {
-            $core->register['script_delayed'] .= $retval;
+            $core->register['script_delayed'] .= $return;
 
         } else {
-            $core->register['script_delayed']  = $retval;
+            $core->register['script_delayed']  = $return;
         }
 
         $count++;
@@ -2203,10 +2203,10 @@ Class Html {
         }
 
         if ($params['use_list']) {
-            $retval = '<ul'.($params['class'] ? ' class="'.$params['class'].'"' : '').'>';
+            $return = '<ul'.($params['class'] ? ' class="'.$params['class'].'"' : '').'>';
 
         } else {
-            $retval = '<div'.($params['class'] ? ' class="'.$params['class'].'"' : '').'>';
+            $return = '<div'.($params['class'] ? ' class="'.$params['class'].'"' : '').'>';
         }
 
         /*
@@ -2244,28 +2244,28 @@ Class Html {
 
             if ($params['use_list']) {
                 if ($params['disabled']) {
-                    $retval .= '<li'.($class ? ' class="'.$class.'"' : '').'><a href="" class="nolink">'.$counter.$data['name'].'</a></li>';
+                    $return .= '<li'.($class ? ' class="'.$class.'"' : '').'><a href="" class="nolink">'.$counter.$data['name'].'</a></li>';
 
                 } else {
-                    $retval .= '<li'.($class ? ' class="'.$class.'"' : '').'><a href="'.$data['url'].'">'.$counter.$data['name'].'</a></li>';
+                    $return .= '<li'.($class ? ' class="'.$class.'"' : '').'><a href="'.$data['url'].'">'.$counter.$data['name'].'</a></li>';
                 }
 
             } else {
                 if ($params['disabled']) {
-                    $retval .= '<a'.($class ? ' class="nolink'.($class ? ' '.$class : '').'"' : '').'>'.$counter.$data['name'].'</a>';
+                    $return .= '<a'.($class ? ' class="nolink'.($class ? ' '.$class : '').'"' : '').'>'.$counter.$data['name'].'</a>';
 
                 } else {
-                    $retval .= '<a'.($class ? ' class="'.$class.'"' : '').' href="'.$data['url'].'">'.$counter.$data['name'].'</a>';
+                    $return .= '<a'.($class ? ' class="'.$class.'"' : '').' href="'.$data['url'].'">'.$counter.$data['name'].'</a>';
                 }
 
             }
         }
 
         if ($params['use_list']) {
-            return $retval.'</ul>';
+            return $return.'</ul>';
         }
 
-        return $retval.'</div>';
+        return $return.'</div>';
     }
 
 
@@ -3105,7 +3105,7 @@ Class Html {
         Arrays::default($params, 'filter_selector', '');
         Arrays::default($params, 'selector'       , 'form.autosuggest');
 
-        $retval = ' <div class="autosuggest'.($params['class'] ? ' '.$params['class'] : '').'">
+        $return = ' <div class="autosuggest'.($params['class'] ? ' '.$params['class'] : '').'">
                     <input autocomplete="new_password" spellcheck="false" role="combobox" dir="ltr" tabindex="'.$params['tabindex'].'" '.($params['input_class'] ? 'class="'.$params['input_class'].'" ' : '').'type="text" name="'.$params['name'].'" id="'.$params['id'].'" placeholder="'.$params['placeholder'].'" data-source="'.$params['source'].'" value="'.$params['value'].'"'.($params['filter_selector'] ? ' data-filter-selector="'.$params['filter_selector'].'"' : '').($params['maxlength'] ? ' maxlength="'.$params['maxlength'].'"' : '').($params['extra'] ? ' '.$params['extra'] : '').($params['required'] ? ' required' : '').'>
                     <ul>
                     </ul>
@@ -3116,12 +3116,12 @@ Class Html {
              * Add only one autosuggest start per selector
              */
             $sent[$params['selector']] = true;
-            $retval                   .= html_script('$("'.$params['selector'].'").autosuggest();');
+            $return                   .= html_script('$("'.$params['selector'].'").autosuggest();');
         }
 
         html_load_js('base/autosuggest');
 
-        return $retval;
+        return $return;
     }
 
 

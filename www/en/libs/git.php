@@ -370,7 +370,7 @@ function git_list_branches($path = ROOT, $all = false) {
         /*
          * Get and return the branch
          */
-        $retval  = array();
+        $return  = array();
         $results = git_exec($path, array('branch', '-a', '-q'));
 
         foreach ($results as $branch) {
@@ -378,12 +378,12 @@ function git_list_branches($path = ROOT, $all = false) {
             $branch = trim($branch);
             $branch = Strings::fromReverse($branch, '/');
 
-            $retval[] = $branch;
+            $return[] = $branch;
         }
 
-        $retval = array_unique($retval);
+        $return = array_unique($return);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('git_list_branches(): Failed', $e);
@@ -792,7 +792,7 @@ function git_status($path = ROOT, $filters = null) {
         /*
          * Check if we dont have any changes that should be committed first
          */
-        $retval  = array();
+        $return  = array();
         $results = git_exec($path, array('status', '--porcelain'));
 
         foreach ($results as $line) {
@@ -868,10 +868,10 @@ function git_status($path = ROOT, $filters = null) {
                     throw new CoreException(tr('git_status(): Unknown git status ":status" encountered for file ":file"', array(':status' => $status, ':file' => substr($line, 3))), 'unknown');
             }
 
-            $retval[substr($line, 3)] = $status;
+            $return[substr($line, 3)] = $status;
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('git_status(): Failed', $e);

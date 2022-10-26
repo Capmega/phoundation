@@ -454,15 +454,15 @@ function jqueryui_fancybox($params) {
                 throw new CoreException(tr('jqueryui_fancybox(): Parameter $params["gallery_template"] contains a template, but does not contain :item_template to add the items in there'), 'not-specified');
             }
 
-            $retval = str_replace(':item_template', $items, $params['gallery_template']);
+            $return = str_replace(':item_template', $items, $params['gallery_template']);
 
         } else {
-            $retval = $items;
+            $return = $items;
         }
 
         unset($items);
 
-        $retval .= html_script('
+        $return .= html_script('
             $("'.$params['selector'].'").fancybox({
                 openEffect  : "'.$params['open_effect'].'",
                 closeEffect : "'.$params['close_effect'].'",
@@ -486,7 +486,7 @@ function jqueryui_fancybox($params) {
         array_default($params, 'close_button'    , true);
 
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('jqueryui_fancybox(): Failed', $e);

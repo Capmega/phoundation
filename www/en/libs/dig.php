@@ -107,7 +107,7 @@ function dig($hostname, $command, $dns_server = null) {
         $results = safe_exec(array('commands' => array('dig', array($command, ($dns_server ? '@'.$dns_server : ''), $hostname))));
         $start   = false;
         $stop    = false;
-        $retval  = array();
+        $return  = array();
 
         foreach ($results as $result) {
             if (strstr($result, 'ANSWER SECTION:')) {
@@ -127,11 +127,11 @@ function dig($hostname, $command, $dns_server = null) {
             $ttl    = (integer) Strings::until($result, ' ');
             $ip     = Strings::fromReverse($result, ' ');
 
-            $retval[] = array('ttl' => $ttl,
+            $return[] = array('ttl' => $ttl,
                               'ip'  => $ip);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('dig(): Failed', $e);

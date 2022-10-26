@@ -42,13 +42,13 @@ function google_get_avatar($user) {
         $file   = TMP.file_move_to_target('http://graph.facebook.com/'.$user.'/picture?type=large', TMP, '.jpg');
 
         // Create the avatars, and store the base avatar location
-        $retval = image_create_avatars($file);
+        $return = image_create_avatars($file);
 
         // Clear the temporary file and cleanup paths
         file_clear_path($file);
 
         // Update the user avatar
-        return user_update_avatar($user, $retval);
+        return user_update_avatar($user, $return);
 
     }catch(Exception $e) {
         throw new CoreException('facebook_get_avatar(): Failed', $e);

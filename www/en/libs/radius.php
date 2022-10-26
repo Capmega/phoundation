@@ -436,13 +436,13 @@ function radius_get_device($id) {
 function radius_list_devices($id_list) {
     try {
         $in     = sql_in($id_list);
-        $retval = sql_list('SELECT *
+        $return = sql_list('SELECT *
 
                             FROM `radius_devices`
 
                             WHERE `id` IN ('.sql_in_columns($in).')', $in);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('radius_list_devices(): Failed', $e);

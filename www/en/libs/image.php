@@ -60,11 +60,11 @@ function image_get_text($image) {
             ]
         ]);
 
-        $retval = file_get_contents($tmpfile);
+        $return = file_get_contents($tmpfile);
 
         file_delete($tmpfile);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         if (!file_which('tesseract')) {
@@ -793,13 +793,13 @@ function image_info($file, $no_exif = false) {
 
         $size = getimagesize($file);
 
-        $retval['filename'] = basename($file);
-        $retval['size']     = filesize($file);
-        $retval['path']     = Strings::slash(dirname($file));
-        $retval['mime']     = $mime;
-        $retval['bits']     = $size['bits'];
-        $retval['x']        = $size[0];
-        $retval['y']        = $size[1];
+        $return['filename'] = basename($file);
+        $return['size']     = filesize($file);
+        $return['path']     = Strings::slash(dirname($file));
+        $return['mime']     = $mime;
+        $return['bits']     = $size['bits'];
+        $return['x']        = $size[0];
+        $return['y']        = $size[1];
 
         /*
          * Get EXIF information from JPG or TIFF image files
@@ -807,8 +807,8 @@ function image_info($file, $no_exif = false) {
         switch (Strings::from($mime, '/')) {
             case 'jpeg':
                 try {
-                    $retval['compression'] = safe_exec(array('commands' => array($_CONFIG['images']['imagemagick']['identify'], array('-format', '%Q', $file))));
-                    $retval['compression'] = array_shift($retval['compression']);
+                    $return['compression'] = safe_exec(array('commands' => array($_CONFIG['images']['imagemagick']['identify'], array('-format', '%Q', $file))));
+                    $return['compression'] = array_shift($return['compression']);
 
                 }catch(Exception $e) {
                     log_console(tr('Failed to get compression information for file ":file" because ":e"', array(':e' => $e->getMessage(), ':file' => $file)), 'red');
@@ -816,10 +816,10 @@ function image_info($file, $no_exif = false) {
 
                 if (!$no_exif) {
                     try {
-                        $retval['exif'] = exif_read_data($file, null, true, true);
+                        $return['exif'] = exif_read_data($file, null, true, true);
 
                     }catch(Exception $e) {
-                        $retval['exif'] = array(tr('Failed to get EXIF information because ":error"', array(':error' => $e->getMessage())));
+                        $return['exif'] = array(tr('Failed to get EXIF information because ":error"', array(':error' => $e->getMessage())));
                     }
                 }
 
@@ -828,17 +828,17 @@ function image_info($file, $no_exif = false) {
             case 'tiff':
                 if (!$no_exif) {
                     try {
-                        $retval['exif'] = exif_read_data($file, null, true, true);
+                        $return['exif'] = exif_read_data($file, null, true, true);
 
                     }catch(Exception $e) {
-                        $retval['exif'] = array(tr('Failed to get EXIF information because ":error"', array(':error' => $e->getMessage())));
+                        $return['exif'] = array(tr('Failed to get EXIF information because ":error"', array(':error' => $e->getMessage())));
                     }
                 }
 
                 break;
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('image_info(): Failed', $e);
@@ -1248,7 +1248,7 @@ function image_picker($params) {
 
         $params['data_resources']['img-src'] = $params['resource'];
 
-        $retval = html_select($params).
+        $return = html_select($params).
             html_script('$("#'.$params['id'].'").imagepicker(
                     { show_label : '.Strings::boolean($params['show_label']).'}
                   );');
@@ -1256,7 +1256,7 @@ function image_picker($params) {
         if ($params['masonry']) {
             if ($params['loaded']) {
                 html_load_js('imagesloaded');
-                $retval .= html_script('
+                $return .= html_script('
                     var $grid = $("#'.$params['id'].'").masonry({
                         itemSelector: "li",
                         columnWidth: 200
@@ -1270,7 +1270,7 @@ console.log("imagesloaded");
                     });');
 
             } else {
-                $retval .= html_script('
+                $return .= html_script('
                     $("'.$params['masonry'].'").masonry({
                         // options
                         itemSelector: "li",
@@ -1279,7 +1279,7 @@ console.log("imagesloaded");
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('image_picker(): Failed', $e);

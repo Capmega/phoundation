@@ -477,23 +477,23 @@ switch (cli_method()) {
                 throw new CoreException(tr('Error trying to connect with server'), $response['status']);
             }
 
-            $retval = json_decode_custom($response['data']);
+            $return = json_decode_custom($response['data']);
 
             if (TEST) {
-                show($retval);
+                show($return);
             }
 
-            if (!is_array($retval) or (isset_get($retval['status']) != 'success') or (!is_array(isset_get($retval['translations'])))) {
+            if (!is_array($return) or (isset_get($return['status']) != 'success') or (!is_array(isset_get($return['translations'])))) {
                 throw new CoreException(tr('Failed to receive translations', 'error'));
             }
 
             $count = 0;
 
-            foreach ($retval['translations'] as $translations) {
+            foreach ($return['translations'] as $translations) {
                 $count += count($translations);
             }
 
-            log_console(tr('Received ":count" translations for ":files" files from translation server', array(':count' => $count, ':files' => count($retval['translations']))), 'green');
+            log_console(tr('Received ":count" translations for ":files" files from translation server', array(':count' => $count, ':files' => count($return['translations']))), 'green');
 
 
 
@@ -517,7 +517,7 @@ switch (cli_method()) {
 
                 log_console(tr('Applying translations'), '', true);
 
-                foreach ($retval['translations'] as $short_file => $data) {
+                foreach ($return['translations'] as $short_file => $data) {
                     log_console(tr('Translating ":file"', array(':file' => $short_file)), 'VERBOSEDOT/cyan');
 
                     if (!empty($forcedutf8[$short_file])) {
@@ -553,11 +553,11 @@ switch (cli_method()) {
 
                 cli_dot(false);
 
-                if ($retval['stats']['translations_missing'] > 0) {
-                    log_console(tr('Missing ":count" translations', array(':count' => number_format($retval['stats']['translations_missing']))), 'yellow');
+                if ($return['stats']['translations_missing'] > 0) {
+                    log_console(tr('Missing ":count" translations', array(':count' => number_format($return['stats']['translations_missing']))), 'yellow');
                 }
 
-                log_console(tr('Successfully translated ":count" sections', array(':count' => number_format($retval['stats']['translations_done']))), 'green');
+                log_console(tr('Successfully translated ":count" sections', array(':count' => number_format($return['stats']['translations_done']))), 'green');
 
             }catch(Exception $e) {
                 throw new CoreException(tr('Error applying ":lang" translations', array(':lang' => $language)), $e);

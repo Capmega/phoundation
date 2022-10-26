@@ -240,17 +240,17 @@ class Arrays {
      */
     public static function fromObject(object $object, bool $recurse = true): array
     {
-        $retval = [];
+        $return = [];
 
         foreach ($object as $key => $value) {
             if (is_object($value) and $recurse) {
                 $value = Arrays::fromObject($value, true);
             }
 
-            $retval[$key] = $value;
+            $return[$key] = $value;
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -312,21 +312,21 @@ class Arrays {
      */
     public static function implodeWithKeys(array $source, string $row_separator, string $key_separator, bool $auto_quote = false): string
     {
-        $retval = [];
+        $return = [];
 
         foreach ($source as $key => $value) {
             if (is_array($value)) {
-                $retval[] .= $key.$key_separator.$row_separator.self::implodeWithKeys($value, $row_separator, $key_separator, $auto_quote);
+                $return[] .= $key.$key_separator.$row_separator.self::implodeWithKeys($value, $row_separator, $key_separator, $auto_quote);
 
             } elseif ($auto_quote) {
-                $retval[] .= $key.$key_separator.Strings::quote($value);
+                $return[] .= $key.$key_separator.Strings::quote($value);
 
             } else {
-                $retval[] .= $key.$key_separator.$value;
+                $return[] .= $key.$key_separator.$value;
             }
         }
 
-        return implode($row_separator, $retval);
+        return implode($row_separator, $return);
     }
 
 
@@ -347,7 +347,7 @@ class Arrays {
             throw new CoreException('array_merge_complete(): Specify at least 2 arrays');
         }
 
-        $retval = [];
+        $return = [];
         $count  = 0;
 
         foreach ($arguments as $argk => $argv) {
@@ -358,16 +358,16 @@ class Arrays {
             }
 
             foreach ($argv as $key => $value) {
-                if (is_array($value) and array_key_exists($key, $retval) and is_array($retval[$key])) {
-                    $retval[$key] = Arrays::mergeComplete($retval[$key], $value);
+                if (is_array($value) and array_key_exists($key, $return) and is_array($return[$key])) {
+                    $return[$key] = Arrays::mergeComplete($return[$key], $value);
 
                 } else {
-                    $retval[$key] = $value;
+                    $return[$key] = $value;
                 }
             }
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -386,17 +386,17 @@ class Arrays {
             throw new CoreException(tr('Specified count is not valid'));
         }
 
-        $retval = [];
+        $return = [];
 
         while (count($source) > $count) {
-            $retval[] = array_pop($source);
+            $return[] = array_pop($source);
         }
 
         if ($return_source) {
             return $source;
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -438,10 +438,10 @@ class Arrays {
         }
 
         for($i = 0; $i < $count; $i++) {
-            $retval[] = $base_valuename.$i;
+            $return[] = $base_valuename.$i;
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -462,7 +462,7 @@ class Arrays {
         }
 
         $i      = 0;
-        $retval = [];
+        $return = [];
 
         foreach ($source as $value) {
             /*
@@ -483,10 +483,10 @@ class Arrays {
                 }
             }
 
-            $retval[$base_keyname.$i++] = $value;
+            $return[$base_keyname.$i++] = $value;
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -500,15 +500,15 @@ class Arrays {
      */
     public static function keep(array $source, string|array $keys): array
     {
-        $retval = [];
+        $return = [];
 
         foreach (Arrays::force($keys) as $key) {
             if (array_key_exists($key, $source)) {
-                $retval[$key] = $source[$key];
+                $return[$key] = $source[$key];
             }
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -542,7 +542,7 @@ class Arrays {
      */
     public static function from(array &$source, int|string $from_key, bool $delete = false, bool $skip = true): array
     {
-        $retval = [];
+        $return = [];
         $add    = false;
 
         foreach ($source as $key => $value) {
@@ -566,14 +566,14 @@ class Arrays {
                 }
             }
 
-            $retval[$key] = $value;
+            $return[$key] = $value;
 
             if ($delete) {
                 unset($source[$key]);
             }
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -588,21 +588,21 @@ class Arrays {
      */
     public static function until(array $source, int|string $until_key, bool $delete = false): array
     {
-        $retval = [];
+        $return = [];
 
         foreach ($source as $key => $value) {
             if ($key == $until_key) {
                 break;
             }
 
-            $retval[$key] = $value;
+            $return[$key] = $value;
 
             if ($delete) {
                 unset($source[$key]);
             }
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -616,19 +616,19 @@ class Arrays {
      */
     public static function mergeKeysValues(array $keys, array $values): array
     {
-        $retval = [];
+        $return = [];
 
         foreach ($keys as $key) {
             if (!isset($next)) {
                 $next = true;
-                $retval[$key] = reset($values);
+                $return[$key] = reset($values);
 
             } else {
-                $retval[$key] = next($values);
+                $return[$key] = next($values);
             }
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -644,18 +644,18 @@ class Arrays {
     public static function prefix(array $source, int|string $prefix, bool $auto = false): array
     {
         $count  = 0;
-        $retval = [];
+        $return = [];
 
         foreach ($source as $key => $value) {
             if ($auto) {
-                $retval[$prefix.$count++] = $value;
+                $return[$prefix.$count++] = $value;
 
             } else {
-                $retval[$prefix.$key] = $value;
+                $return[$prefix.$key] = $value;
             }
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -671,17 +671,17 @@ class Arrays {
      */
     public static function find(array $array, int|string $keyword): array
     {
-        $retval = [];
+        $return = [];
 
         foreach ($array as $key => $value) {
             if (is_string($value)) {
                 if (str_contains($value, $keyword)) {
-                    $retval[$key] = $value;
+                    $return[$key] = $value;
                 }
             }
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -721,15 +721,15 @@ class Arrays {
      */
     public static function getColumn(array $source, int|string $column): array
     {
-        $retval = [];
+        $return = [];
 
         foreach ($source as $id => $value) {
             if (array_key_exists($column, $value)) {
-                $retval[] = $value[$column];
+                $return[] = $value[$column];
             }
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -781,17 +781,17 @@ class Arrays {
      */
     public static function valueToKeys(array $source): array
     {
-        $retval = [];
+        $return = [];
 
         foreach ($source as $value) {
             if (!is_scalar($value)) {
                 throw new CoreException(tr('Specified source array contains non scalar values, cannot use non scalar values for the keys'));
             }
 
-            $retval[$value] = $value;
+            $return[$value] = $value;
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -891,13 +891,13 @@ class Arrays {
             throw new CoreException(tr('array_range(): Specified $min is equal or larger than $max. Please ensure that $min is smaller'), 'invalid');
         }
 
-        $retval = [];
+        $return = [];
 
         for($i = $min; $i <= $max; $i++) {
-            $retval[$i] = $i;
+            $return[$i] = $i;
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -1030,17 +1030,17 @@ class Arrays {
      */
     public static function pluck(array $source, string $regex): array
     {
-        $retval = [];
+        $return = [];
 
         foreach ($source as $key => $value) {
             if (is_string($value)) {
                 if (preg_match($regex, $value)) {
-                    $retval[$key] = $value;
+                    $return[$key] = $value;
                 }
             }
         }
 
-        return $retval;
+        return $return;
     }
 
 
@@ -1054,17 +1054,17 @@ class Arrays {
     public static function mergeNull(): array
     {
         $args   = func_get_args();
-        $retval = [];
+        $return = [];
 
         foreach ($args as $array) {
             foreach ($array as $key => $value) {
-                if (!isset($retval[$key]) or ($value !== null)) {
-                    $retval[$key] = $value;
+                if (!isset($return[$key]) or ($value !== null)) {
+                    $return[$key] = $value;
                 }
             }
         }
 
-        return $retval;
+        return $return;
     }
 
 

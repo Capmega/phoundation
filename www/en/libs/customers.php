@@ -499,9 +499,9 @@ function customers_select($params = null) {
 
         $query              = 'SELECT `seoname`, `name` FROM `customers` '.$where.' ORDER BY '.$params['orderby'];
         $params['resource'] = sql_query($query, $execute, 'core');
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('customers_select(): Failed', $e);

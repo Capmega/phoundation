@@ -155,15 +155,15 @@ class IPTC
     function iptc_maketag($rec, $data, $value)
     {
         $length = strlen($value);
-        $retval = chr(0x1C) . chr($rec) . chr($data);
+        $return = chr(0x1C) . chr($rec) . chr($data);
 
         if ($length < 0x8000)
         {
-            $retval .= chr($length >> 8) .  chr($length & 0xFF);
+            $return .= chr($length >> 8) .  chr($length & 0xFF);
         }
         else
         {
-            $retval .= chr(0x80) .
+            $return .= chr(0x80) .
                        chr(0x04) .
                        chr(($length >> 24) & 0xFF) .
                        chr(($length >> 16) & 0xFF) .
@@ -171,7 +171,7 @@ class IPTC
                        chr($length & 0xFF);
         }
 
-        return $retval . $value;
+        return $return . $value;
     }
 
     function dump()

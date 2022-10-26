@@ -79,7 +79,7 @@ function blogs_get($blog = null, $column = null) {
                 throw new CoreException(tr('blogs_get(): Specified blog name ":name" is not a string', array(':name' => $blog)), 'invalid');
             }
 
-            $retval = sql_get($query.'
+            $return = sql_get($query.'
 
                               WHERE      `blogs`.`seoname` = :seoname
                               AND        `blogs`.`status` IS NULL',
@@ -90,7 +90,7 @@ function blogs_get($blog = null, $column = null) {
             /*
              * Pre-create a new blog
              */
-            $retval = sql_get($query.'
+            $return = sql_get($query.'
 
                               WHERE  `blogs`.`createdby` = :createdby
 
@@ -98,7 +98,7 @@ function blogs_get($blog = null, $column = null) {
 
                               array(':createdby' => $_SESSION['user']['id']));
 
-            if (!$retval) {
+            if (!$return) {
                 sql_query('INSERT INTO `blogs` (`createdby`, `status`, `name`)
                            VALUES              (:createdby , :status , :name )',
 
@@ -111,10 +111,10 @@ function blogs_get($blog = null, $column = null) {
         }
 
         if ($column) {
-            return $retval[$column];
+            return $return[$column];
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('blogs_get(): Failed', $e);
@@ -218,7 +218,7 @@ function blogs_post_get($blog = null, $post = null, $language = null, $alternati
                 }
             }
 
-            $retval = sql_get('SELECT    `blogs_posts`.`id`,
+            $return = sql_get('SELECT    `blogs_posts`.`id`,
                                          `blogs_posts`.`createdon`,
                                          `blogs_posts`.`createdby`,
                                          `blogs_posts`.`modifiedby`,
@@ -259,16 +259,16 @@ function blogs_post_get($blog = null, $post = null, $language = null, $alternati
                                LEFT JOIN `users`
                                ON        `users`.`id` = `blogs_posts`.`assigned_to_id`'.$where, $execute);
 
-            if ($retval) {
-                if ($language and ($language !== $retval['language'])) {
+            if ($return) {
+                if ($language and ($language !== $return['language'])) {
                     /*
                      * Found the blog page, but its the wrong language
                      * Fetch the right language from the
                      */
-                    return blogs_post_get($blog, $retval['masters_id'], $language);
+                    return blogs_post_get($blog, $return['masters_id'], $language);
                 }
 
-                return $retval;
+                return $return;
             }
         }
 
@@ -1135,21 +1135,21 @@ function blogs_clean_keywords($keywords, $allow_empty = false) {
             return '';
         }
 
-        $retval = array();
+        $return = array();
 
         foreach (Arrays::force($keywords) as $keyword) {
-            $retval[] = mb_trim($keyword);
+            $return[] = mb_trim($keyword);
         }
 
-        $retval = array_unique($retval);
+        $return = array_unique($return);
 
-        if (count($retval) > 15) {
+        if (count($return) > 15) {
             throw new CoreException('blogs_clean_keywords(): Too many keywords. Do not use more than 15 keywords', 'invalid');
         }
 
-        $retval = implode(',', $retval);
+        $return = implode(',', $return);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('blogs_clean_keywords(): Failed', $e);
@@ -1163,13 +1163,13 @@ function blogs_clean_keywords($keywords, $allow_empty = false) {
  */
 function blogs_seo_keywords($keywords) {
     try {
-        $retval = array();
+        $return = array();
 
         foreach (Arrays::force($keywords) as $keyword) {
-            $retval[] = seo_create_string($keyword);
+            $return[] = seo_create_string($keyword);
         }
 
-        return implode(',', $retval);
+        return implode(',', $return);
 
     }catch(Exception $e) {
         throw new CoreException('blogs_generate_seokeywords(): Failed', $e);
@@ -2175,7 +2175,7 @@ function blogblogs_validate_category($category, $blogs_id) {
             throw new CoreException(tr('blogblogs_validate_category(): No category specified'), 'not-exists');
         }
 
-        if (!$retval = sql_get('SELECT `id`, `blogs_id`, `name`, `seoname` FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `seoname` = :seoname', array(':blogs_id' => $blogs_id, ':seoname' => $category))) {
+        if (!$return = sql_get('SELECT `id`, `blogs_id`, `name`, `seoname` FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `seoname` = :seoname', array(':blogs_id' => $blogs_id, ':seoname' => $category))) {
 // :DELETE: Delete following 2 debug code lines
 //show(current_file(1).current_line(1));
 //showdie(tr('The specified category ":category" does not exists', ':category', $category)));
@@ -2186,14 +2186,14 @@ function blogblogs_validate_category($category, $blogs_id) {
         }
 
 // :DELETE: This check is no longer needed since the query now filters on blogs_id
-        //if ($retval['blogs_id'] != $blogs_id) {
+        //if ($return['blogs_id'] != $blogs_id) {
         //    /*
         //     * The specified category is not of this blog
         //     */
         //    throw new CoreException(tr('blogblogs_validate_category(): The specified category ":category" is not of this blog', array(':category' => $category)), 'invalid');
         //}
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('blogblogs_validate_category(): Failed', $e);

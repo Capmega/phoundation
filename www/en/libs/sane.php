@@ -58,7 +58,7 @@ function sane_find_scanners($libusb = false) {
                                    'commands'     => array('sane-find-scanner', array('sudo' => true, '-q', 'connector' => '|'),
                                                            'grep'             , array('-v', '"Could not find"', 'connector' => '|'),
                                                             'grep'            , array('-v', '"Pipe error"'))));
-        $retval  = array('count'     => 0,
+        $return  = array('count'     => 0,
                          'usb'       => array(),
                          'scsi'      => array(),
                          'parrallel' => array(),
@@ -91,11 +91,11 @@ function sane_find_scanners($libusb = false) {
                         continue;
                     }
 
-                    $retval['count']++;
-                    $retval['usb'][] = $device;
+                    $return['count']++;
+                    $return['usb'][] = $device;
 
                 } else {
-                    $retval['unknown'][] = $result;
+                    $return['unknown'][] = $result;
                 }
 
             } elseif (substr($result, 0, 18) == 'found SCSI scanner') {
@@ -105,14 +105,14 @@ under_construction();
                  * Found a SCSI scanner
                  */
                 if (preg_match_all('/found SCSI scanner (vendor=0x([0-9a-f]{4}) \[([A-Z0-9-_])\], product=0x([0-9a-f]{4}) \[([A-Z0-9-_])\]) at libusb:([0-9{3}]:[0-9]{3})/i', $result, $matches)) {
-                    $retval['count']++;
-                    $retval['scsi'][] = array('vendor'       => $matches[0][0],
+                    $return['count']++;
+                    $return['scsi'][] = array('vendor'       => $matches[0][0],
                                               'product'      => $matches[2][0],
                                               'manufacturer' => $matches[1][0],
                                               'libusb'       => $matches[4][0]);
 
                 } else {
-                    $retval['unknown'][] = $result;
+                    $return['unknown'][] = $result;
                 }
 
             } elseif (substr($result, 0, 23) == 'found parrallel scanner') {
@@ -122,14 +122,14 @@ under_construction();
                  * Found a parrallel scanner
                  */
                 if (preg_match_all('/found parrallel scanner (vendor=0x([0-9a-f]{4}) \[([A-Z0-9-_])\], product=0x([0-9a-f]{4}) \[([A-Z0-9-_])\]) at libusb:([0-9{3}]:[0-9]{3})/i', $result, $matches)) {
-                    $retval['count']++;
-                    $retval['parrallel'][] = array('vendor'       => $matches[0][0],
+                    $return['count']++;
+                    $return['parrallel'][] = array('vendor'       => $matches[0][0],
                                                    'product'      => $matches[2][0],
                                                    'manufacturer' => $matches[1][0],
                                                    'libusb'       => $matches[4][0]);
 
                 } else {
-                    $retval['unknown'][] = $result;
+                    $return['unknown'][] = $result;
                 }
 
             } elseif (substr($result, 0, 25) == 'could not open USB device') {
@@ -138,12 +138,12 @@ under_construction();
                  */
 
             } else {
-                $retval['unknown'][] = $result;
+                $return['unknown'][] = $result;
             }
 
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('sane_find_scanners(): Failed', $e);

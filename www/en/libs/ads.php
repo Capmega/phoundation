@@ -227,7 +227,7 @@ function ads_campaign_get($campaign = null, $columns = null) {
 
         $execute = array(':campaign' => $campaign);
 
-        $retval  = sql_get('SELECT    '.$columns.'
+        $return  = sql_get('SELECT    '.$columns.'
 
                             FROM      `ads_campaigns`
 
@@ -240,7 +240,7 @@ function ads_campaign_get($campaign = null, $columns = null) {
                             LEFT JOIN `users`
                             ON        `users`.`id` = `ads_campaigns`.`createdby`'.$where, $execute);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('ads_post_get(): Failed', $e);
@@ -262,7 +262,7 @@ function ads_image_get($image) {
             throw new CoreException(tr('ads_image_get(): Specified image ":image" is not scalar', array(':image' => $image)), 'invalid');
         }
 
-        $retval = sql_get('SELECT    `ads_images`.`id`,
+        $return = sql_get('SELECT    `ads_images`.`id`,
                                      `ads_images`.`campaigns_id`,
                                      `ads_images`.`file`,
                                      `ads_images`.`description`,
@@ -281,7 +281,7 @@ function ads_image_get($image) {
 
                            array(':image' => $image));
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('ads_image_get(): Failed', $e);

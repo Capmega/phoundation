@@ -406,9 +406,9 @@ function templates_select($params = null) {
 
         $query              = 'SELECT `seoname`, `name` FROM `templates` '.$where.' ORDER BY `name`';
         $params['resource'] = sql_query($query, $execute);
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException(tr('templates_select(): Failed'), $e);

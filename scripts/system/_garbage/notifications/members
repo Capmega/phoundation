@@ -21,21 +21,21 @@ load_libs('notifications');
 if (!function_exists('s_get_user_class')) {
     function s_get_user_class($class, $user) {
         try {
-            $retval['user']       = $user;
-            $retval['class']      = $class;
+            $return['user']       = $user;
+            $return['class']      = $class;
 
-            $retval['users_id']   = sql_get('SELECT `id` FROM `users`                 WHERE `id` = :id    OR `username` = :user' , 'id', array(':id' => $user , ':user'  => $user));
-            $retval['classes_id'] = sql_get('SELECT `id` FROM `notifications_classes` WHERE `id` = :id    OR `name`     = :class', 'id', array(':id' => $class, ':class' => $class));
+            $return['users_id']   = sql_get('SELECT `id` FROM `users`                 WHERE `id` = :id    OR `username` = :user' , 'id', array(':id' => $user , ':user'  => $user));
+            $return['classes_id'] = sql_get('SELECT `id` FROM `notifications_classes` WHERE `id` = :id    OR `name`     = :class', 'id', array(':id' => $class, ':class' => $class));
 
-            if (!$retval['classes_id']) {
+            if (!$return['classes_id']) {
                 throw new CoreException(tr('s_get_user_class(): Specified class "%name%" does not exist', array('%name%' => $class)));
             }
 
-            if (!$retval['users_id']) {
+            if (!$return['users_id']) {
                 throw new CoreException(tr('s_get_user_class(): Specified user "%name%" does not exist', array('%name%' => $user)));
             }
 
-            return $retval;
+            return $return;
 
         }catch(Exception $e) {
             throw new CoreException('s_get_user_class(): Failed', $e);

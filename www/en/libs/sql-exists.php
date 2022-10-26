@@ -28,7 +28,7 @@
  */
 function sql_database_exists($database, $query = null, $connector = null) {
     try {
-        $retval = sql_query('SHOW DATABASES LIKE "'.cfm($database).'"', null, $connector);
+        $return = sql_query('SHOW DATABASES LIKE "'.cfm($database).'"', null, $connector);
 
         if (substr($query, 0, 1) == '!') {
             $not   = true;
@@ -38,7 +38,7 @@ function sql_database_exists($database, $query = null, $connector = null) {
             $not = false;
         }
 
-        if (empty($retval) xor $not) {
+        if (empty($return) xor $not) {
             return false;
         }
 
@@ -46,7 +46,7 @@ function sql_database_exists($database, $query = null, $connector = null) {
             sql_query($query, null, $connector);
         }
 
-        return array_shift($retval);
+        return array_shift($return);
 
     }catch(Exception $e) {
         throw new CoreException('sql_database_exists(): Failed', $e);
@@ -77,7 +77,7 @@ function sql_table_exists($table, $query = null, $connector = null) {
     global $pdo;
 
     try {
-        $retval = sql_list('SHOW TABLES LIKE "'.cfm($table).'"', null, null, $connector);
+        $return = sql_list('SHOW TABLES LIKE "'.cfm($table).'"', null, null, $connector);
 
         if (substr($query, 0, 1) == '!') {
             $not   = true;
@@ -87,7 +87,7 @@ function sql_table_exists($table, $query = null, $connector = null) {
             $not = false;
         }
 
-        if (empty($retval) xor $not) {
+        if (empty($return) xor $not) {
             return false;
         }
 
@@ -95,7 +95,7 @@ function sql_table_exists($table, $query = null, $connector = null) {
             sql_query($query, null, $connector);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('sql_table_exists(): Failed', $e);
@@ -126,7 +126,7 @@ function sql_index_exists($table, $index, $query = null, $connector = null) {
     global $pdo;
 
     try {
-        $retval = sql_list('SHOW INDEX FROM `'.cfm($table).'` WHERE `Key_name` = "'.cfm($index).'"', null, null, $connector);
+        $return = sql_list('SHOW INDEX FROM `'.cfm($table).'` WHERE `Key_name` = "'.cfm($index).'"', null, null, $connector);
 
         if (substr($query, 0, 1) == '!') {
             $not   = true;
@@ -136,7 +136,7 @@ function sql_index_exists($table, $index, $query = null, $connector = null) {
             $not = false;
         }
 
-        if (empty($retval) xor $not) {
+        if (empty($return) xor $not) {
             return false;
         }
 
@@ -144,7 +144,7 @@ function sql_index_exists($table, $index, $query = null, $connector = null) {
             sql_query($query, null, $connector);
         }
 
-        return array_shift($retval);
+        return array_shift($return);
 
     }catch(Exception $e) {
         throw new CoreException('sql_index_exists(): Failed', $e);
@@ -175,7 +175,7 @@ function sql_column_exists($table, $column, $query = null, $connector = null) {
     global $pdo;
 
     try {
-        $retval = sql_get('SHOW COLUMNS FROM `'.cfm($table).'` WHERE `Field` = "'.cfm($column).'"', null, null, $connector);
+        $return = sql_get('SHOW COLUMNS FROM `'.cfm($table).'` WHERE `Field` = "'.cfm($column).'"', null, null, $connector);
 
         if (substr($query, 0, 1) == '!') {
             $not   = true;
@@ -185,7 +185,7 @@ function sql_column_exists($table, $column, $query = null, $connector = null) {
             $not = false;
         }
 
-        if (empty($retval) xor $not) {
+        if (empty($return) xor $not) {
             return false;
         }
 
@@ -193,7 +193,7 @@ function sql_column_exists($table, $column, $query = null, $connector = null) {
             sql_query($query, null, $connector);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('sql_column_exists(): Failed', $e);
@@ -227,7 +227,7 @@ function sql_foreignkey_exists($table, $foreign_key, $query = null, $connector =
         $connector = sql_connector_name($connector);
         $database  = $_CONFIG['db'][$connector]['db'];
 
-        $retval    = sql_get('SELECT *
+        $return    = sql_get('SELECT *
 
                               FROM   `information_schema`.`TABLE_CONSTRAINTS`
 
@@ -244,7 +244,7 @@ function sql_foreignkey_exists($table, $foreign_key, $query = null, $connector =
             $not = false;
         }
 
-        if (empty($retval) xor $not) {
+        if (empty($return) xor $not) {
             return false;
         }
 
@@ -252,7 +252,7 @@ function sql_foreignkey_exists($table, $foreign_key, $query = null, $connector =
             sql_query($query, null, $connector);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('sql_foreignkey_exists(): Failed', $e);
@@ -289,7 +289,7 @@ function sql_function_exists($name, $query = null, $database = null, $connector 
             $database = $_CONFIG['db'][$connector]['db'];
         }
 
-        $retval = sql_get('SELECT `ROUTINE_NAME`
+        $return = sql_get('SELECT `ROUTINE_NAME`
 
                            FROM   `INFORMATION_SCHEMA`.`ROUTINES`
 
@@ -305,7 +305,7 @@ function sql_function_exists($name, $query = null, $database = null, $connector 
             $not = false;
         }
 
-        if (empty($retval) xor $not) {
+        if (empty($return) xor $not) {
             return false;
         }
 
@@ -313,7 +313,7 @@ function sql_function_exists($name, $query = null, $database = null, $connector 
             sql_query($query, null, $connector);
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('sql_function_exists(): Failed', $e);

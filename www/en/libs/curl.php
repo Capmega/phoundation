@@ -339,10 +339,10 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
          * Use the already existing cURL data array
          */
         if (empty($params['curl'])) {
-            $retval = array('simulation' => $params['simulation']);
+            $return = array('simulation' => $params['simulation']);
 
         } else {
-            $retval               = $params['curl'];
+            $return               = $params['curl'];
             $params['ch']         = $params['curl']['ch'];
             $params['simulation'] = $params['curl']['simulation'];
             $params['close']      = false;
@@ -433,7 +433,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
                     $params['cookie_file'] = file_temp();
                 }
 
-                $retval['cookie_file'] = $params['cookie_file'];
+                $return['cookie_file'] = $params['cookie_file'];
 
                 /*
                  * Make sure the specified cookie path exists
@@ -521,22 +521,22 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
         }
 
         if ($params['cache']) {
-            if ($retval = sql_get('SELECT `data` FROM `curl_cache` WHERE `url` = :url', true, array(':url' => $params['url']))) {
+            if ($return = sql_get('SELECT `data` FROM `curl_cache` WHERE `url` = :url', true, array(':url' => $params['url']))) {
                 $retry = 0;
-                return json_decode_custom($retval);
+                return json_decode_custom($return);
             }
         }
 
         if ($params['getdata']) {
             if ($params['simulation'] === false) {
-                $retval['data'] = curl_exec($ch);
+                $return['data'] = curl_exec($ch);
 
                 if (curl_errno($ch)) {
                     throw new CoreException(tr('curl_get(): CURL failed with ":e"', array(':e' => curl_strerror(curl_errno($ch)))), 'CURL'.curl_errno($ch));
                 }
 
             } elseif (($params['simulation'] === 'full') or ($params['simulation'] === 'partial')) {
-                $retval['data'] = $params['simulation'];
+                $return['data'] = $params['simulation'];
 
             } else {
                 throw new CoreException(tr('curl_get(): Unknown simulation type ":simulation" specified. Please use either false, "partial" or "full"', array(':simulation' => $params['simulation'])), 'unknown');
@@ -546,20 +546,20 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
         if (VERYVERBOSE) {
             log_console(tr('cURL result status:'));
 
-            $retval['status'] = curl_getinfo($ch);
+            $return['status'] = curl_getinfo($ch);
 
-            foreach ($retval['status'] as $key => $value) {
+            foreach ($return['status'] as $key => $value) {
                 log_console(Color::apply($key.' : ', 'white').Strings::force($value));
             }
         }
 
         if ($params['getstatus']) {
             if ($params['simulation']) {
-                $retval['status'] = array('http_code'  => 200,
+                $return['status'] = array('http_code'  => 200,
                                           'simulation' => true);
 
             } else {
-                $retval['status'] = curl_getinfo($ch);
+                $return['status'] = curl_getinfo($ch);
             }
         }
 
@@ -567,13 +567,13 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
             /*
              * get cookies
              */
-            preg_match('/^Set-Cookie:\s*([^;]*)/mi', $retval['data'], $matches);
+            preg_match('/^Set-Cookie:\s*([^;]*)/mi', $return['data'], $matches);
 
             if (empty($matches[1])) {
-                $retval['cookies'] = array();
+                $return['cookies'] = array();
 
             } else {
-                parse_str($matches[1], $retval['cookies']);
+                parse_str($matches[1], $return['cookies']);
             }
         }
 
@@ -581,20 +581,20 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
             /*
              * Close this cURL session
              */
-            if (!empty($retval['cookie_file'])) {
-                file_delete($retval['cookie_file']);
+            if (!empty($return['cookie_file'])) {
+                file_delete($return['cookie_file']);
             }
 
-            unset($retval['cookie_file']);
+            unset($return['cookie_file']);
             curl_close($ch);
 
         } else {
-            $retval['ch']  = $ch;
-            $retval['url'] = $params['url'];
+            $return['ch']  = $ch;
+            $return['url'] = $params['url'];
         }
 
         if ($params['cache']) {
-            unset($retval['ch']);
+            unset($return['ch']);
 
             sql_query('INSERT INTO `curl_cache` (`users_id`, `url`, `data`)
                        VALUES                   (:users_id , :url , :data )
@@ -603,34 +603,34 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
 
                       array(':users_id'    => (empty($_SESSION['user']['id']) ? null : $_SESSION['user']['id']),
                             ':url'         => $params['url'],
-                            ':data'        => json_encode_custom($retval),
-                            ':data_update' => json_encode_custom($retval)));
+                            ':data'        => json_encode_custom($return),
+                            ':data_update' => json_encode_custom($return)));
         }
 
-        switch ($retval['status']['http_code']) {
+        switch ($return['status']['http_code']) {
             case 200:
                 break;
 
             case 403:
                 try {
-                    $data = json_decode_custom($retval['data']);
+                    $data = json_decode_custom($return['data']);
 
                 }catch(Exception $e) {
-                    $data = array('message' => tr('Failed to decode URL data ":data"', array(':data' => $retval['data'])));
+                    $data = array('message' => tr('Failed to decode URL data ":data"', array(':data' => $return['data'])));
                 }
 
-                throw new CoreException(tr('curl_get(): URL ":url" gave HTTP "403" ACCESS DENIED because ":data"', array(':url' => $params['url'], ':data' => $data)), 'HTTP'.$retval['status']['http_code'], $retval);
+                throw new CoreException(tr('curl_get(): URL ":url" gave HTTP "403" ACCESS DENIED because ":data"', array(':url' => $params['url'], ':data' => $data)), 'HTTP'.$return['status']['http_code'], $return);
 
             default:
-                throw new CoreException(tr('curl_get(): URL ":url" gave HTTP ":httpcode"', array(':url' => $params['url'], ':httpcode' => $retval['status']['http_code'])), 'HTTP'.$retval['status']['http_code'], $retval);
+                throw new CoreException(tr('curl_get(): URL ":url" gave HTTP ":httpcode"', array(':url' => $params['url'], ':httpcode' => $return['status']['http_code'])), 'HTTP'.$return['status']['http_code'], $return);
         }
 
         if ($params['file']) {
-            file_put_contents($params['file'], $retval['data']);
+            file_put_contents($params['file'], $return['data']);
         }
 
         $retry = 0;
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         if ((($e->getCode() == 'HTTP0') or ($e->getCode() == 'CURL28')) and (++$retry <= $params['retries'])) {

@@ -75,16 +75,16 @@ function js_zclip_copy($click_selector, $copy, $add_script_tag = false, $params 
         load_libs('html');
         html_load_js('base/jquery.zclip');
 
-        $retval = '$("'.cfm($click_selector).'").zclip({
+        $return = '$("'.cfm($click_selector).'").zclip({
     path : "/pub/js/base/ZeroClipboard.swf",
     copy : '.$copy.",\n".$params.'
 });';
 
         if (!$add_script_tag) {
-            return $retval;
+            return $return;
         }
 
-        return html_script($retval);
+        return html_script($return);
 
     }catch(Exception $e) {
         throw new CoreException('js_zclip_copy(): Failed', $e);

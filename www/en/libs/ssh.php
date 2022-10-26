@@ -1021,7 +1021,7 @@ function ssh_get_account($account) {
             $execute = array(':id' => $account);
         }
 
-        $retval = sql_get('SELECT    `ssh_accounts`.`id`,
+        $return = sql_get('SELECT    `ssh_accounts`.`id`,
                                      `ssh_accounts`.`createdon`,
                                      `ssh_accounts`.`meta_id`,
                                      `ssh_accounts`.`name`,
@@ -1040,7 +1040,7 @@ function ssh_get_account($account) {
 
                            $execute);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('ssh_get_account(): Failed', $e);
@@ -1311,7 +1311,7 @@ function ssh_get_fingerprints($domain, $port) {
         load_libs('servers,seo');
 
         $port    = ssh_get_port($port);
-        $retval  = array();
+        $return  = array();
         $results = safe_exec(array('commands' => array('ssh-keyscan', array('-p', $port, $domain))));
 
         foreach ($results as $result) {
@@ -1333,10 +1333,10 @@ function ssh_get_fingerprints($domain, $port) {
                 }
             }
 
-            $retval[] = $entry;
+            $return[] = $entry;
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('ssh_get_fingerprints(): Failed', $e);
@@ -1803,18 +1803,18 @@ function ssh_persistent_pid($socket) {
  */
 function ssh_list_persistent($close = false) {
     try {
-        $retval = array();
+        $return = array();
 
         foreach (scandir(ROOT.'data/ssh/control') as $socket) {
             $pid          = ssh_persistent_pid($socket);
-            $retval[$pid] = $socket;
+            $return[$pid] = $socket;
 
             if ($close) {
                 cli_kill($pid);
             }
         }
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('ssh_list_persistent(): Failed', $e);

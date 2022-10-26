@@ -506,9 +506,9 @@ function progress_processes_select($params = null) {
 
         $query              = 'SELECT `seoname`, `name` FROM `progress_processes` '.$where.' ORDER BY `name`';
         $params['resource'] = sql_query($query, $execute);
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('progress_processes_select(): Failed', $e);
@@ -556,9 +556,9 @@ function progress_steps_select($params = null) {
         array_default($params, 'extra'       , 'tabindex="'.$params['tabindex'].'"');
 
         $params['resource'] = progress_get_steps($params['processes_id'], '`progress_steps`.`id`, `progress_steps`.`name`');
-        $retval             = html_select($params);
+        $return             = html_select($params);
 
-        return $retval;
+        return $return;
 
     }catch(Exception $e) {
         throw new CoreException('progress_steps_select(): Failed', $e);
