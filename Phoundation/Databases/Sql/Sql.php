@@ -21,11 +21,11 @@ use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Schema\Schema;
-use Phoundation\Databases\Sql\Schema\Table;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Filesystem\File;
+use Phoundation\Initialize\Initialize;
 use Phoundation\Processes\Commands;
 use Phoundation\Servers\Server;
 use Phoundation\Servers\Servers;
@@ -54,13 +54,6 @@ class Sql
     protected static bool $init = false;
 
     /**
-     * All SQL database configuration
-     *
-     * @var array $configuration
-     */
-    protected static array $configuration = [];
-
-    /**
      * Identifier of this instance
      *
      * @var string|null $instance_name
@@ -68,11 +61,18 @@ class Sql
     protected ?string $instance_name = null;
 
     /**
-     * True if a database is in use
+     * All SQL database configuration
      *
-     * @var bool $using_database
+     * @var array $configuration
      */
-    protected bool $using_database = false;
+    protected array $configuration = [];
+
+    /**
+     * Registers what database is in use
+     *
+     * @var string|null $using_database
+     */
+    protected ?string $using_database = null;
 
     /**
      * The PDO database interface
@@ -98,7 +98,7 @@ class Sql
 
         // Clean connector name, get connector configuration and ensure all required config data is there
         $this->instance_name = $instance_name;
-        $this->instance_configuration = self::getInstanceConfiguration($instance_name);
+        $this->configuration = self::getConfiguration($instance_name);
 
         if ($connect) {
             $this->connect();
@@ -113,7 +113,7 @@ class Sql
      * @param string $instance
      * @return array
      */
-    protected static function getInstanceConfiguration(string $instance): array
+    protected function getConfiguration(string $instance): array
     {
         try {
             $configuration = Config::get('databases.sql.instances.' . $instance);
@@ -130,10 +130,10 @@ class Sql
             ]));
         }
 
-        self::$configuration = $configuration;
+        $this->configuration = $configuration;
 
 // TODO Add support for instace configuration stored in database
-//        self::$configuration = $this->get('SELECT `id`,
+//        $this->configuration = $this->get('SELECT `id`,
 //                                     `createdon`,
 //                                     `createdby`,
 //                                     `meta_id`,
@@ -266,7 +266,7 @@ class Sql
             }
 
             // Does this connector require an SSH tunnel?
-            if (isset_get($this->instance_configuration['ssh_tunnel']['required'])) {
+            if (isset_get($this->configuration['ssh_tunnel']['required'])) {
                 $this->sshTunnel();
             }
 
@@ -275,8 +275,8 @@ class Sql
 
             while (--$retries >= 0) {
                 try {
-                    $connect_string = $this->instance_configuration['driver'] . ':host=' . $this->instance_configuration['host'] . (empty($this->instance_configuration['port']) ? '' : ';port=' . $this->instance_configuration['port']) . (empty($this->instance_configuration['db']) ? '' : ';dbname=' . $this->instance_configuration['db']);
-                    $this->pdo = new PDO($connect_string, $this->instance_configuration['user'], $this->instance_configuration['pass'], $this->instance_configuration['pdo_attributes']);
+                    $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['host'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (empty($this->configuration['db']) ? '' : ';dbname=' . $this->configuration['db']);
+                    $this->pdo = new PDO($connect_string, $this->configuration['user'], $this->configuration['pass'], $this->configuration['pdo_attributes']);
 
                     Log::success(tr('Connected to instance ":instance" with PDO connect string ":string"', [
                         ':instance' => $this->instance_name,
@@ -295,10 +295,10 @@ class Sql
 
                     if (!str_contains($message, 'errno=32')) {
                         if ($e->getMessage() == 'ERROR 2013 (HY000): Lost connection to MySQL server at \'reading initial communication packet\', system error: 0') {
-                            if (isset_get($this->instance_configuration['ssh_tunnel']['required'])) {
+                            if (isset_get($this->configuration['ssh_tunnel']['required'])) {
                                 // The tunneling server has "AllowTcpForwarding" set to "no" in the sshd_config, attempt
                                 // auto fix
-                                Commands::server($this->instance_configuration['server'])->enableTcpForwarding($this->instance_configuration['ssh_tunnel']['server']);
+                                Commands::server($this->configuration['server'])->enableTcpForwarding($this->configuration['ssh_tunnel']['server']);
                                 continue;
                             }
                         }
@@ -325,7 +325,7 @@ class Sql
             }
 
             try {
-                $this->pdo->query('SET time_zone = "' . $this->instance_configuration['timezone'] . '";');
+                $this->pdo->query('SET time_zone = "' . $this->configuration['timezone'] . '";');
 
             } catch (Throwable $e) {
                 Log::warning(tr('Failed to set timezone for database instance ":instance" with error ":e"', [':instance' => $this->instance_name, ':e' => $e->getMessage()]));
@@ -340,13 +340,15 @@ class Sql
                 Core::writeRegister(true, 'system', 'time_zone_fail');
             }
 
-            if (!empty($this->instance_configuration['mode'])) {
-                $this->pdo->query('SET sql_mode="' . $this->instance_configuration['mode'] . '";');
+            if (!empty($this->configuration['mode'])) {
+                $this->pdo->query('SET sql_mode="' . $this->configuration['mode'] . '";');
             }
+
+            $this->init();
 
         } catch (Throwable $e) {
             if ($e->getMessage() == 'could not find driver') {
-                throw new PhpModuleNotAvailableException(tr('Failed to connect with ":driver" driver, it looks like its not available', [':driver' => $this->instance_configuration['driver']]));
+                throw new PhpModuleNotAvailableException(tr('Failed to connect with ":driver" driver, it looks like its not available', [':driver' => $this->configuration['driver']]));
             }
 
             Log::Warning(tr('Encountered exception ":e" while connecting to database server, attempting to resolve', array(':e' => $e->getMessage())));
@@ -360,12 +362,12 @@ class Sql
                         throw $e;
                     }
 
-                    Log::warning(tr('Database base server conntection failed because database ":db" does not exist. Attempting to connect without using a database to correct issue', [':db' => $this->instance_configuration['db']]));
+                    Log::warning(tr('Database base server conntection failed because database ":db" does not exist. Attempting to connect without using a database to correct issue', [':db' => $this->configuration['db']]));
 
                     // We're running the init script, so go ahead and create the DB already!
-                    $db  = $this->instance_configuration['db'];
-                    unset($this->instance_configuration['db']);
-                    $this->pdo = sql_connect(self::$configuration);
+                    $db  = $this->configuration['db'];
+                    unset($this->configuration['db']);
+                    $this->pdo = sql_connect($this->configuration);
 
                     Log::warning(tr('Successfully connected to database server. Attempting to create database ":db"', [':db' => $db]));
 
@@ -373,26 +375,26 @@ class Sql
 
                     Log::warning(tr('Reconnecting to database server with database ":db"', [':db' => $db]));
 
-                    $this->instance_configuration['db'] = $db;
+                    $this->configuration['db'] = $db;
                     $this->connect();
 
                 case 2002:
                     // Connection refused
-                    if (empty($this->instance_configuration['ssh_tunnel']['required'])) {
-                        throw new SqlException(tr('sql_connect(): Connection refused for host ":hostname::port"', array(':hostname' => $this->instance_configuration['host'], ':port' => $this->instance_configuration['port'])), $e);
+                    if (empty($this->configuration['ssh_tunnel']['required'])) {
+                        throw new SqlException(tr('sql_connect(): Connection refused for host ":hostname::port"', array(':hostname' => $this->configuration['host'], ':port' => $this->configuration['port'])), $e);
                     }
 
                     // This connection requires an SSH tunnel. Check if the tunnel process still exists
                     if (!Cli::PidGrep($tunnel['pid'])) {
-                        $server     = servers_get($this->instance_configuration['ssh_tunnel']['domain']);
+                        $server     = servers_get($this->configuration['ssh_tunnel']['domain']);
                         $registered = ssh_host_is_known($server['hostname'], $server['port']);
 
                         if ($registered === false) {
-                            throw new SqlException(tr('sql_connect(): Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', array(':hostname' => $this->instance_configuration['ssh_tunnel']['domain'])), $e);
+                            throw new SqlException(tr('sql_connect(): Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', array(':hostname' => $this->configuration['ssh_tunnel']['domain'])), $e);
                         }
 
                         if ($registered === true) {
-                            throw new SqlException(tr('sql_connect(): Connection refused for host ":hostname" on local port ":port" because the tunnel process either started too late or already died. The server has its SSH fingerprints registered in the ROOT/data/ssh/known_hosts file.', array(':hostname' => $this->instance_configuration['ssh_tunnel']['domain'], ':port' => $this->instance_configuration['port'])), $e);
+                            throw new SqlException(tr('sql_connect(): Connection refused for host ":hostname" on local port ":port" because the tunnel process either started too late or already died. The server has its SSH fingerprints registered in the ROOT/data/ssh/known_hosts file.', array(':hostname' => $this->configuration['ssh_tunnel']['domain'], ':port' => $this->configuration['port'])), $e);
                         }
 
                         // The server was not registerd in the ROOT/data/ssh/known_hosts file, but was registered in the
@@ -401,7 +403,7 @@ class Sql
                     }
 
 //:TODO: SSH to the server and check if the msyql process is up!
-                    throw new SqlException(tr('sql_connect(): Connection refused for SSH tunnel requiring host ":hostname::port". The tunnel process is available, maybe the MySQL on the target server is down?', array(':hostname' => $this->instance_configuration['host'], ':port' => $this->instance_configuration['port'])), $e);
+                    throw new SqlException(tr('sql_connect(): Connection refused for SSH tunnel requiring host ":hostname::port". The tunnel process is available, maybe the MySQL on the target server is down?', array(':hostname' => $this->configuration['host'], ':port' => $this->configuration['port'])), $e);
 
                 case 2006:
                     /*
@@ -411,14 +413,14 @@ class Sql
                      * Check if target server supports TCP forwarding.
                      * Check if the tunnel is still responding to TCP requests
                      */
-                    if (empty($this->instance_configuration['ssh_tunnel']['required'])) {
+                    if (empty($this->configuration['ssh_tunnel']['required'])) {
                         /*
                          * No SSH tunnel was required for this connector
                          */
                         throw $e;
                     }
 
-                    $server  = Servers::get($this->instance_configuration['ssh_tunnel']['domain']);
+                    $server  = Servers::get($this->configuration['ssh_tunnel']['domain']);
                     $allowed = Cli::getSshTcpForwarding($server);
 
                     if (!$allowed) {
@@ -427,34 +429,34 @@ class Sql
                          * is not allowed. Allow it and retry
                          */
                         if (!$server['allow_sshd_modification']) {
-                            throw new SqlException(tr('Connector ":connector" requires SSH tunnel to server, but that server does not allow TCP fowarding, nor does it allow auto modification of its SSH server configuration', [':connector' => self::$configuration]));
+                            throw new SqlException(tr('Connector ":connector" requires SSH tunnel to server, but that server does not allow TCP fowarding, nor does it allow auto modification of its SSH server configuration', [':connector' => $this->configuration]));
                         }
 
-                        Log::warning(tr('Connector ":connector" requires SSH tunnel to server ":server", but that server does not allow TCP fowarding. Server allows SSH server configuration modification, attempting to resolve issue', [':server' => $this->instance_configuration['ssh_tunnel']['domain']]));
+                        Log::warning(tr('Connector ":connector" requires SSH tunnel to server ":server", but that server does not allow TCP fowarding. Server allows SSH server configuration modification, attempting to resolve issue', [':server' => $this->configuration['ssh_tunnel']['domain']]));
 
                         /*
                          * Now enable TCP forwarding on the server, and retry connection
                          */
                         linux_set_ssh_tcp_forwarding($server, true);
-                        Log::warning(tr('Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', [':server' => $this->instance_configuration['ssh_tunnel']['domain']]));
+                        Log::warning(tr('Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', [':server' => $this->configuration['ssh_tunnel']['domain']]));
 
-                        if ($this->instance_configuration['ssh_tunnel']['pid']) {
-                            Log::warning(tr('Closing previously opened SSH tunnel to server ":server"', [':server' => $this->instance_configuration['ssh_tunnel']['domain']]));
-                            Ssh::closeTunnel($this->instance_configuration['ssh_tunnel']['pid']);
+                        if ($this->configuration['ssh_tunnel']['pid']) {
+                            Log::warning(tr('Closing previously opened SSH tunnel to server ":server"', [':server' => $this->configuration['ssh_tunnel']['domain']]));
+                            Ssh::closeTunnel($this->configuration['ssh_tunnel']['pid']);
                         }
 
                         $this->connect();
                     }
 
                     // Check if the tunnel process is still up and about
-                    if (!Cli::Pid($this->instance_configuration['ssh_tunnel']['pid'])) {
-                        throw new SqlException(tr('SSH tunnel process ":pid" is gone', [':pid' => $this->instance_configuration['ssh_tunnel']['pid']]));
+                    if (!Cli::Pid($this->configuration['ssh_tunnel']['pid'])) {
+                        throw new SqlException(tr('SSH tunnel process ":pid" is gone', [':pid' => $this->configuration['ssh_tunnel']['pid']]));
                     }
 
                     // Check if we can connect over the tunnel to the remote SSH
                     $results = Inet::telnet([
                         'host' => '127.0.0.1',
-                        'port' => $this->instance_configuration['ssh_tunnel']['source_port']
+                        'port' => $this->configuration['ssh_tunnel']['source_port']
                     ]);
 
 // :TODO: Implement further error handling.. From here on, appearently inet_telnet() did NOT cause an exception, so we have a result.. We can check the result for mysql server data and with that confirm that it is working, but what would.. well, cause a problem, because if everything worked we would not be here...
@@ -474,7 +476,7 @@ class Sql
      */
     public function schema(): Schema
     {
-        return new Schema();
+        return new Schema($this->instance_name);
     }
 
 
@@ -491,36 +493,14 @@ class Sql
             $this->connect();
 
             // Set the MySQL rand() seed for this session
-            // :TODO: On PHP7, update to random_int() for better cryptographic numbers
-            $_SESSION['$this->random_seed'] = mt_rand();
+            $_SESSION['sql_random_seed'] = random_int(PHP_INT_MIN, PHP_INT_MAX);
 
             // Connect to database
             Log::action(tr('Connecting to SQL instance ":name"', [':name' => $this->instance_name]), 2);
 
             // This is only required for the system connection
-            if (PLATFORM_CLI and (Core::readRegister('system', 'script') === 'init') and FORCE and !empty($this->instance_configuration['init'])) {
-                /*
-                 * We're doing a forced init from shell. Forced init will basically set database version to 0 BY
-                 * DROPPING THE FUCKER SO BE CAREFUL!
-                 *
-                 * Forced init is NOT allowed on production (for obvious safety reasons, doh!)
-                 */
-                if (Debug::production()) {
-                    throw new SqlException(tr('For safety reasons, init force is NOT allowed on production environment! Please drop the database using "./scripts/base/init drop" or in the mysql console with "DROP DATABASE :name" and continue with a standard init', [':name' => $this->instance_configuration['name']]));
-                }
-
-                if (!str_is_version(FORCE)) {
-                    if (!is_bool(FORCE)) {
-                        throw new SqlException(tr('Invalid "force" sub parameter ":force" specified. "force" can only be followed by a valid init version number', [':force' => FORCE]));
-                    }
-
-                    // Dump database, and recreate it
-                    Sql::connect();
-
-                    $this->query('DROP   DATABASE IF EXISTS `' . Config::get('databases.sql.instances.system.name').'`');
-                    $this->query('CREATE DATABASE           `' . Config::get('databases.sql.instances.system.name').'` DEFAULT CHARSET="' . $_CONFIG['db']['core']['charset'].'" COLLATE="' . $_CONFIG['db']['core']['collate'].'";');
-                    $this->query('USE                       `' . Config::get('databases.sql.instances.system.name').'`');
-                }
+            if (Initialize::isInitializing()) {
+                // We're doing an init. Check if we have a database, and if we don't, create one
             }
 
             // Check current init data?
@@ -553,7 +533,7 @@ class Sql
 
                         try {
                             if (empty($r) or !$r->rowCount()) {
-                                Log::warning(tr('No versions table found or no versions in versions table found, assumed empty database ":db"', [':db' => $this->instance_configuration['name']]));
+                                Log::warning(tr('No versions table found or no versions in versions table found, assumed empty database ":db"', [':db' => $this->configuration['name']]));
 
                                 define('FRAMEWORKDBVERSION', 0);
                                 define('PROJECTDBVERSION', 0);
@@ -618,7 +598,7 @@ class Sql
             //
             switch ($e->getCode()) {
                 case 1049:
-                    if (empty($connector)) {
+                    if (empty($this->configuration)) {
                         throw new SqlException(tr('Database reported that database does not exist, but no connector data is available'));
                     }
 
@@ -627,9 +607,10 @@ class Sql
                         global $_CONFIG;
 
                         try {
-                            $this->query('DROP DATABASE IF EXISTS `' . $connector['db'].'`;');
-                            $this->query('CREATE DATABASE         `' . $connector['db'].'` DEFAULT CHARSET="' . $connector['charset'].'" COLLATE="' . $connector['collate'].'";');
-                            $this->query('USE                     `' . $connector['db'].'`');
+                            $this->query('DROP DATABASE IF EXISTS `' . $this->configuration['db'].'`;');
+                            $this->query('CREATE DATABASE         `' . $this->configuration['db'].'` DEFAULT CHARSET="' . $this->configuration['charset'].'" COLLATE="' . $this->configuration['collate'].'";');
+                            $this->use($this->configuration['db']);
+
                             return;
 
                         }catch(Exception $e) {
@@ -655,6 +636,21 @@ class Sql
                 throw new SqlException('Init failed', $e);
             }
         }
+    }
+
+
+
+    /**
+     * Use the specified database
+     *
+     * @param string $database
+     * @return void
+     * @throws Throwable
+     */
+    public function use(string $database): void
+    {
+        $this->using_database = $database;
+        $this->query('USE :database', [':database' => $database]);
     }
 
 
@@ -695,7 +691,7 @@ class Sql
             }
 
             // Log all queries?
-            if (Debug::enabled() and Config::get('debug.queries')) {
+            if (Debug::enabled() and Config::get('debug.queries', false)) {
                 $query = ' ' . $query;
             }
 
@@ -844,7 +840,7 @@ class Sql
                                 $retry = true;
                                 Log::warning('Database "' . $query['db'].'" does not exist, attempting to create it automatically');
 
-                                $this->query('CREATE DATABASE `:db` DEFAULT CHARSET=":charset" COLLATE=":collate";', [':db' => $query['db'], ':charset' => $this->instance_configuration['charset'], ':collate' => $this->instance_configuration['collate']]);
+                                $this->query('CREATE DATABASE `:db` DEFAULT CHARSET=":charset" COLLATE=":collate";', [':db' => $query['db'], ':charset' => $this->configuration['charset'], ':collate' => $this->configuration['collate']]);
                                 $this->connect();
                             }
 
@@ -1505,7 +1501,7 @@ class Sql
                 unset($tmp);
             }
 
-            $value = $this->get($query, $column, $execute, self::$configuration);
+            $value = $this->get($query, $column, $execute, $this->configuration);
 
             Mc::db($this->getDatabase())->set($value, $key, '$this->', $expiration_time);
         }
@@ -1533,7 +1529,7 @@ class Sql
              * Keyword data not found in cache, get it from MySQL with
              * specified query and store it in cache for next read
              */
-            $list = $this->list($query, $execute, $numerical_array, self::$configuration);
+            $list = $this->list($query, $execute, $numerical_array, $this->configuration);
 
             Mc::db($this->getDatabase())->set($list, $key, '$this->', $expiration_time);
         }
@@ -1879,7 +1875,7 @@ class Sql
      */
     public function drop(): void
     {
-        $this->query('DROP DATABASE ' . $this->instance_configuration['db']);
+        $this->query('DROP DATABASE ' . $this->configuration['db']);
     }
 
 
@@ -1894,8 +1890,8 @@ class Sql
     {
         $limit = force_natural($limit);
 
-        if ($limit > $this->instance_configuration['limit_max']) {
-            return $this->instance_configuration['limit_max'];
+        if ($limit > $this->configuration['limit_max']) {
+            return $this->configuration['limit_max'];
         }
 
         return $limit;

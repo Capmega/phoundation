@@ -7,7 +7,9 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Core\Tmp;
+use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Developer\Debug;
+use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -36,6 +38,13 @@ class Initialize
      */
     const CLASS_PATH_PLUGINS = ROOT . 'Plugins';
 
+    /**
+     * If true, this system is in initialization mode
+     *
+     * @var bool
+     */
+    protected static bool $initializing = false;
+
 
 
     /**
@@ -48,6 +57,12 @@ class Initialize
      */
     public static function execute(?string $library = null, bool $system = true, bool $plugins = true): void
     {
+        self::$initializing = true;
+
+        if (FORCE) {
+            self::force();
+        }
+
         if ($library) {
             // Init only the specified library
             $library = strtolower($library);
@@ -65,6 +80,9 @@ class Initialize
             // Go over all system libraries and initialize them, then do the same for the plugins
             self::executeLibraries($system, $plugins);
         }
+
+        // Initialization done!
+        self::$initializing = false;
     }
 
 
@@ -125,6 +143,18 @@ class Initialize
         }
 
         return $return;
+    }
+
+
+
+    /**
+     * Returns true if the system is initializing
+     *
+     * @return bool
+     */
+    public static function isInitializing(): bool
+    {
+        return self::$initializing;
     }
 
 
@@ -318,6 +348,31 @@ class Initialize
         throw Exceptions::NotExistsException(tr('The specified library does not exist'))->makeWarning();
     }
 
+
+    /**
+     * Execute a forced initialization.
+     *
+     * This will drop the system database and initialize the sytem from scratch
+     *
+     * @return void
+     * @throws \Throwable
+     */
+    protected static function force(): void
+    {
+        if (Debug::production()) {
+            throw new AccessDeniedException(tr('For safety reasons, init force is NOT allowed on production environment!'));
+        }
+
+        if (!str_is_version(FORCE)) {
+            if (!is_bool(FORCE)) {
+                throw new SqlException(tr('Invalid "force" sub parameter ":force" specified. "force" can only be followed by a valid init version number', [':force' => FORCE]));
+            }
+
+            sql()->schema()->database()->drop();
+            sql()->schema()->database()->create();
+            sql()->use();
+        }
+    }
 
 
 

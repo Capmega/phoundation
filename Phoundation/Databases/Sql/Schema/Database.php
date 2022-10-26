@@ -18,10 +18,10 @@ use Phoundation\Databases\Sql\Sql;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-class Table
+class Database
 {
     /**
-     * The table name
+     * The database name
      *
      * @var string|null $name
      */
@@ -35,23 +35,30 @@ class Table
     protected Sql $sql;
 
     /**
-     * The columns for this table
+     * The columns for this database
      *
      * @var array $columns
      */
     protected array $columns = [];
 
     /**
-     * The indices for this table
+     * The indices for this database
      *
      * @var array $indices
      */
     protected array $indices = [];
 
+    /**
+     * The tables for this schema
+     *
+     * @var array $tables
+     */
+    protected array $tables = [];
+
 
 
     /**
-     * Table constructor
+     * Database constructor
      *
      * @param Sql $sql
      * @param string|null $name
@@ -61,8 +68,8 @@ class Table
         $this->sql = $sql;
 
         if ($name) {
-            // Load this table
-            $this->load($name);
+            // Use the specified database.
+            $this->sql->use($name);
         }
 
     }
@@ -70,13 +77,13 @@ class Table
 
 
     /**
-     * Returns if the table exists in the database or not
+     * Returns if the database exists in the database or not
      *
      * @return bool
      */
     public function exists(): bool
     {
-        // If this query returns nothing, the table does not exist. If it returns anything, it does exist.
+        // If this query returns nothing, the database does not exist. If it returns anything, it does exist.
         sql()->query('SHOW TABLES LIKE :name', [':name' => $this->name]);
         die('aaaaaaaaaaa');
         return (bool) sql()->query('SHOW TABLES LIKE :name', [':name' => $this->name]);
@@ -85,7 +92,7 @@ class Table
 
 
     /**
-     * Returns the table name
+     * Returns the database name
      *
      * @return string|null
      */
@@ -97,12 +104,12 @@ class Table
 
 
     /**
-     * Sets the table name
+     * Sets the database name
      *
      * @param string $name
-     * @return Table
+     * @return Database
      */
-    public function setName(string $name): Table
+    public function setName(string $name): Database
     {
         $this->name = $name;
         return $this;
@@ -111,7 +118,7 @@ class Table
 
 
     /**
-     * Returns the table columns
+     * Returns the database columns
      *
      * @return array
      */
@@ -123,13 +130,13 @@ class Table
 
 
     /**
-     * Sets the table columns
+     * Sets the database columns
      *
      * @note This will clear the current columns array
      * @param string|array $columns
-     * @return Table
+     * @return Database
      */
-    public function setColumns(string|array $columns): Table
+    public function setColumns(string|array $columns): Database
     {
         $this->columns = [];
         return $this->addColumns($columns);
@@ -138,13 +145,13 @@ class Table
 
 
     /**
-     * Add the array of columns to the table
+     * Add the array of columns to the database
      *
      * @note This will clear the current columns array
      * @param string|array $columns
-     * @return Table
+     * @return Database
      */
-    public function addColumns(string|array $columns): Table
+    public function addColumns(string|array $columns): Database
     {
         foreach (Arrays::force($columns) as $column) {
             $this->addColumn($column);
@@ -156,13 +163,13 @@ class Table
 
 
     /**
-     * Add a single column to the table
+     * Add a single column to the database
      *
      * @note This will clear the current columns array
      * @param string $column
-     * @return Table
+     * @return Database
      */
-    public function addColumn(string $column): Table
+    public function addColumn(string $column): Database
     {
         $this->columns[] = $column;
         return $this;
@@ -171,7 +178,7 @@ class Table
 
 
     /**
-     * Returns the table indices
+     * Returns the database indices
      *
      * @return array
      */
@@ -183,13 +190,13 @@ class Table
 
 
     /**
-     * Sets the table indices
+     * Sets the database indices
      *
      * @note This will clear the current indices array
      * @param string|array $indices
-     * @return Table
+     * @return Database
      */
-    public function setIndices(string|array $indices): Table
+    public function setIndices(string|array $indices): Database
     {
         $this->indices = [];
         return $this->addIndices($indices);
@@ -198,13 +205,13 @@ class Table
 
 
     /**
-     * Add the array of indices to the table
+     * Add the array of indices to the database
      *
      * @note This will clear the current indices array
      * @param string|array $indices
-     * @return Table
+     * @return Database
      */
-    public function addIndices(string|array $indices): Table
+    public function addIndices(string|array $indices): Database
     {
         foreach (Arrays::force($indices) as $index) {
             $this->addIndex($index);
@@ -216,13 +223,13 @@ class Table
 
 
     /**
-     * Add a single index to the table
+     * Add a single index to the database
      *
      * @note This will clear the current indices array
      * @param string $index
-     * @return Table
+     * @return Database
      */
-    public function addIndex(string $index): Table
+    public function addIndex(string $index): Database
     {
         $this->indices[] = $index;
         return $this;
@@ -231,14 +238,14 @@ class Table
 
 
     /**
-     * Create the specified table
+     * Create the specified database
      *
      * @return void
      */
     public function create(): void
     {
         if ($this->exists()) {
-            throw new SqlException(tr('Cannot create table ":name", it already exists', [':name' => $this->name]));
+            throw new SqlException(tr('Cannot create database ":name", it already exists', [':name' => $this->name]));
         }
 
         sql()->query($this->getCreateQuery());
@@ -247,12 +254,17 @@ class Table
 
 
     /**
-     * Create the SQL query to create the table in the database
+     * Create the SQL query to create the database in the database
      *
      * @return string
      */
     protected function getCreateQuery(): string
     {
+        sql()->query('DROP   DATABASE IF EXISTS `' . Config::get('databases.sql.instances.system.name').'`');
+        sql()->query('CREATE DATABASE           `' . Config::get('databases.sql.instances.system.name').'` DEFAULT CHARSET="' . $_CONFIG['db']['core']['charset'].'" COLLATE="' . $_CONFIG['db']['core']['collate'].'";');
+        sql()->query('USE                       `' . Config::get('databases.sql.instances.system.name').'`');
+
+
         $query   = 'CREATE TABLE `' . $this->name . '` (';
         $query  .= implode(",\n", $this->columns);
         $query  .= implode("\n", $this->columns);
@@ -267,11 +279,29 @@ class Table
      * @param string $name
      * @return void
      */
-    protected function load(string $name): void
+    protected function use(string $name): void
     {
         $this->name = $name;
 
         // Load columns & indices data
         // TODO Implement
+    }
+
+
+
+    /**
+     * Access a new Table object for the currently selected database
+     *
+     * @param string $name
+     * @return Table
+     */
+    public function table(string $name): Table
+    {
+        // If we don't have this table yet, create it now
+        if (!array_key_exists($name, $this->tables)) {
+            $this->tables[$name] = new Table($this->sql, $name);
+        }
+
+        return $this->tables[$name];
     }
 }

@@ -27,11 +27,25 @@ class Schema
     protected ?string $instance_name = null;
 
     /**
-     * The database for this schema
+     * The database interface for this schema
      *
      * @var Sql $sql
      */
     protected Sql $sql;
+
+    /**
+     * The databases for this schema
+     *
+     * @var array $databases
+     */
+    protected array $databases = [];
+
+    /**
+     * The current database used
+     *
+     * @var string|null $current_database
+     */
+    protected ?string $current_database = null;
 
 
 
@@ -52,13 +66,49 @@ class Schema
 
 
     /**
-     * Access a new table object
+     * Access a new Database object
      *
-     * @param String|null $name
+     * @param string|null $name
+     * @return Database
+     */
+    public function database(?string $name = null): Database
+    {
+        if (!$name) {
+            // Default to system database
+            $name = 'system';
+        }
+
+        // If we don't have this database yet, create it now
+        if (!array_key_exists($name, $this->databases)) {
+            $this->databases[$name] = new Database($this->sql, $name);
+        }
+
+        $this->current_database = $name;
+        return new $this->databases[$name];
+    }
+
+
+
+    /**
+     * Access a new Table object for the currently selected database
+     *
+     * @param string $name
      * @return Table
      */
-    public function table(?String $name): Table
+    public function table(string $name): Table
     {
-        return new Table($name);
+        return $this->database()->table($name);
+    }
+
+
+
+    /**
+     * Returns the current database
+     *
+     * @return string|null
+     */
+    public function getCurrent(): ?string
+    {
+        return $this->current_database;
     }
 }
