@@ -240,8 +240,8 @@ class Table
         }
 
         $query   = 'CREATE TABLE `' . $this->name . '` (';
-        $query  .= implode(",\n", $this->columns);
-        $query  .= implode("\n", $this->columns);
+        $query  .= implode(",\n", $this->columns) . ",\n";
+        $query  .= implode(",\n", $this->indices) . "\n";
         $query  .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . Config::get('databases.sql.instances.system.auto-increment', 1) . ' DEFAULT CHARSET="' . Config::get('databases.sql.instances.system.charset', 'utf8mb4') . '" COLLATE="' . Config::get('databases.sql.instances.system.collate', 'utf8mb4_general_ci') . '";';
 
         sql()->query($query);
