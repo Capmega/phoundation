@@ -49,15 +49,15 @@ class Databases
     protected static array $mongo = [];
 
 
-
     /**
      * Access SQL database instances
      *
      * @param string|null $interface
+     * @param bool $use_database
      * @return Sql
      * @throws Exception
      */
-    public static function Sql(?string $interface): Sql
+    public static function Sql(?string $interface, bool $use_database = true): Sql
     {
         if (!$interface) {
             // Default to system instance
@@ -67,7 +67,7 @@ class Databases
         if (!array_key_exists($interface, self::$sql)) {
             // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
-            self::$sql[$interface] = new Sql($interface);
+            self::$sql[$interface] = new Sql($interface, $use_database);
         }
 
         return self::$sql[$interface];

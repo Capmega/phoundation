@@ -29,11 +29,11 @@ class Timer
     protected ?float $start = null;
 
     /**
-     * Record laps
+     * Record lap
      *
-     * @var array $laps
+     * @var float|null $lap
      */
-    protected array $laps = [];
+    protected ?float $lap = null;
 
     /**
      *
@@ -114,13 +114,12 @@ class Timer
     /**
      * Records a passed lap and returns the time for that lap
      *
-     * @param string $key
      * @return float
      */
-    public function startLap(string $key): float
+    public function startLap(): float
     {
         $time = microtime(true);
-        $this->laps[$key] = $time;
+        $this->lap = $time;
         return $time;
     }
 
@@ -129,15 +128,14 @@ class Timer
     /**
      * Stop the specified stopwatch and returns the passed time
      *
-     * @param string $key
      * @return float
      */
-    public function stopLap(string $key): float
+    public function stopLap(): float
     {
         // Get the passed time for this lap and calculate the passed time
-        $passed = microtime(true) - $this->laps[$key];
+        $passed = microtime(true) - $this->lap;
 
-        $this->laps[$key] = $passed;
+        $this->lap = $passed;
         return $passed;
     }
 }

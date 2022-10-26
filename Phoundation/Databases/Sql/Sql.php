@@ -26,6 +26,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Filesystem\File;
 use Phoundation\Initialize\Initialize;
+use Phoundation\Notify\Notification;
 use Phoundation\Processes\Commands;
 use Phoundation\Servers\Server;
 use Phoundation\Servers\Servers;
@@ -81,16 +82,23 @@ class Sql
      */
     protected ?PDO $pdo = null;
 
+    /**
+     * Schema object to access SQL database schema
+     *
+     * @var Schema
+     */
+    protected Schema $schema;
+
 
 
     /**
      * Sql constructor
      *
      * @param string|null $instance_name
-     * @return void
-     * @throws Exception
+     * @param bool $use_database
+     * @throws Throwable
      */
-    public function __construct(?string $instance_name = null, bool $connect = true)
+    public function __construct(?string $instance_name = null, bool $use_database = true)
     {
         if ($instance_name === null) {
             $instance_name = 'system';
@@ -98,11 +106,20 @@ class Sql
 
         // Clean connector name, get connector configuration and ensure all required config data is there
         $this->instance_name = $instance_name;
-        $this->configuration = self::getConfiguration($instance_name);
+        $this->configuration = self::readConfiguration($instance_name);
+        $this->connect($use_database);
+    }
 
-        if ($connect) {
-            $this->connect();
-        }
+
+
+    /**
+     * Returns the configuration for this SQL object
+     *
+     * @return array
+     */
+    public function getConfiguration(): array
+    {
+        return $this->configuration;
     }
 
 
@@ -113,7 +130,7 @@ class Sql
      * @param string $instance
      * @return array
      */
-    protected function getConfiguration(string $instance): array
+    protected function readConfiguration(string $instance): array
     {
         try {
             $configuration = Config::get('databases.sql.instances.' . $instance);
@@ -169,7 +186,7 @@ class Sql
             'driver'           => 'mysql',
             'host'             => '127.0.0.1',
             'port'             => null,
-            'db'               => '',
+            'name'             => '',
             'user'             => '',
             'pass'             => '',
             'autoincrement'    => 1,
@@ -198,7 +215,7 @@ class Sql
                 // Do we have a MySQL driver available?
                 if (!defined('PDO::MYSQL_ATTR_USE_BUFFERED_QUERY')) {
                     // Whelp, MySQL library is not available
-                    throw new SqlException('Could not find the "MySQL" library for PDO. To install this on Ubuntu derivatives, please type "sudo apt install php-mysql');
+                    throw new PhpModuleNotAvailableException('Could not find the "MySQL" library for PDO. To install this on Ubuntu derivatives, please type "sudo apt install php-mysql');
                 }
 
                 // Apply MySQL specific requirements that always apply
@@ -209,7 +226,9 @@ class Sql
 
             default:
                 // Here be dragons!
-                Log::warning(tr('WARNING: ":driver" DRIVER MAY WORK BUT IS NOT SUPPORTED!', [':driver' => $configuration['driver']]));
+                Log::warning(tr('WARNING: ":driver" DRIVER MAY WORK BUT IS NOT SUPPORTED!', [
+                    ':driver' => $configuration['driver']
+                ]));
         }
 
         return $configuration;
@@ -247,17 +266,16 @@ class Sql
 //    }
 
 
-
-
     /**
      * Connect to database and do a DB version check.
      * If the database was already connected, then just ignore and continue.
      * If the database version check fails, then exception
      *
+     * @param bool $use_database
      * @return void
-     * @throws SqlException|Throwable
+     * @throws Throwable
      */
-    protected function connect(): void
+    protected function connect(bool $use_database = true): void
     {
         try {
             if (!empty($this->pdo)) {
@@ -275,7 +293,7 @@ class Sql
 
             while (--$retries >= 0) {
                 try {
-                    $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['host'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (empty($this->configuration['db']) ? '' : ';dbname=' . $this->configuration['db']);
+                    $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['host'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . ($use_database and $this->configuration['name'] ? ';dbname=' . $this->configuration['name'] : '');
                     $this->pdo = new PDO($connect_string, $this->configuration['user'], $this->configuration['pass'], $this->configuration['pdo_attributes']);
 
                     Log::success(tr('Connected to instance ":instance" with PDO connect string ":string"', [
@@ -303,7 +321,7 @@ class Sql
                             }
                         }
 
-                        // This is a different error. Continue throwing the exception as normal
+                        // Continue throwing the exception as normal, we'll retry to connect!
                         throw $e;
                     }
 
@@ -324,6 +342,9 @@ class Sql
                 }
             }
 
+            // Yay, we're using the database!
+            $this->using_database = $this->configuration['name'];
+
             try {
                 $this->pdo->query('SET time_zone = "' . $this->configuration['timezone'] . '";');
 
@@ -336,6 +357,7 @@ class Sql
 
                 // Indicate that time_zone settings failed (this will subsequently be used by the init system to
                 // automatically initialize that as well)
+                // TODO Write somewhere else than Core "system" register as that will be readonly
                 Core::deleteRegister('system', 'no_time_zone');
                 Core::writeRegister(true, 'system', 'time_zone_fail');
             }
@@ -344,8 +366,6 @@ class Sql
                 $this->pdo->query('SET sql_mode="' . $this->configuration['mode'] . '";');
             }
 
-            $this->init();
-
         } catch (Throwable $e) {
             if ($e->getMessage() == 'could not find driver') {
                 throw new PhpModuleNotAvailableException(tr('Failed to connect with ":driver" driver, it looks like its not available', [':driver' => $this->configuration['driver']]));
@@ -353,35 +373,26 @@ class Sql
 
             Log::Warning(tr('Encountered exception ":e" while connecting to database server, attempting to resolve', array(':e' => $e->getMessage())));
 
+            // We failed to use the specified database, oh noes!
             switch ($e->getCode()) {
+                case 1044:
+                    // Access to database denied
+                    throw new SqlException(tr('Cannot access database ":db", this user has no access to it', [
+                        ':db' => $this->configuration['name']
+                    ]), $e);
+
                 case 1049:
-                    // Database not found!
-                    $this->using_database = true;
-
-                    if (!(PLATFORM_CLI and ((Core::readRegister('system', 'script') == 'init') or (Core::readRegister('system', 'script') == 'sync')))) {
-                        throw $e;
-                    }
-
-                    Log::warning(tr('Database base server conntection failed because database ":db" does not exist. Attempting to connect without using a database to correct issue', [':db' => $this->configuration['db']]));
-
-                    // We're running the init script, so go ahead and create the DB already!
-                    $db  = $this->configuration['db'];
-                    unset($this->configuration['db']);
-                    $this->pdo = sql_connect($this->configuration);
-
-                    Log::warning(tr('Successfully connected to database server. Attempting to create database ":db"', [':db' => $db]));
-
-                    $this->pdo->query('CREATE DATABASE `' . $db.'`');
-
-                    Log::warning(tr('Reconnecting to database server with database ":db"', [':db' => $db]));
-
-                    $this->configuration['db'] = $db;
-                    $this->connect();
+                    throw new SqlException(tr('Cannot use database ":db", it does not exist', [
+                        ':db' => $this->configuration['name']
+                    ]), $e);
 
                 case 2002:
                     // Connection refused
                     if (empty($this->configuration['ssh_tunnel']['required'])) {
-                        throw new SqlException(tr('sql_connect(): Connection refused for host ":hostname::port"', array(':hostname' => $this->configuration['host'], ':port' => $this->configuration['port'])), $e);
+                        throw new SqlException(tr('Connection refused for host ":hostname::port"', [
+                            ':hostname' => $this->configuration['host'],
+                            ':port' => $this->configuration['port']
+                        ]), $e);
                     }
 
                     // This connection requires an SSH tunnel. Check if the tunnel process still exists
@@ -400,6 +411,7 @@ class Sql
                         // The server was not registerd in the ROOT/data/ssh/known_hosts file, but was registered in the
                         // ssh_fingerprints table, and automatically updated. Retry to connect
                         $this->connect();
+                        return;
                     }
 
 //:TODO: SSH to the server and check if the msyql process is up!
@@ -462,7 +474,7 @@ class Sql
 // :TODO: Implement further error handling.. From here on, appearently inet_telnet() did NOT cause an exception, so we have a result.. We can check the result for mysql server data and with that confirm that it is working, but what would.. well, cause a problem, because if everything worked we would not be here...
 
                 default:
-                    throw new SqlException('Failed to create PDO SQL object', previous: $e);
+                    throw new SqlException(tr('Failed to connect to the SQL connector ":instance"', [':instance' => $this->instance_name]), previous: $e);
             }
         }
     }
@@ -470,13 +482,29 @@ class Sql
 
 
     /**
-     * Returns an SQL schema object
+     * Returns the name of the database that currently is in use by this database object
+     *
+     * @return string|null
+     */
+    public function getDatabase(): ?string
+    {
+        return $this->using_database;
+    }
+
+
+
+    /**
+     * Returns an SQL schema object for this instance
      *
      * @return Schema
      */
     public function schema(): Schema
     {
-        return new Schema($this->instance_name);
+        if (empty($this->schema)) {
+            $this->schema = new Schema($this->instance_name);
+        }
+
+        return $this->schema;
     }
 
 
@@ -538,7 +566,7 @@ class Sql
                                 define('FRAMEWORKDBVERSION', 0);
                                 define('PROJECTDBVERSION', 0);
 
-                                $this->using_database = true;
+                                $this->using_database = $this->configuration['name'];
 
                             } else {
                                 $versions = $r->fetch(PDO::FETCH_ASSOC);
@@ -595,37 +623,6 @@ class Sql
             return;
 
         } catch (Exception $e) {
-            //
-            switch ($e->getCode()) {
-                case 1049:
-                    if (empty($this->configuration)) {
-                        throw new SqlException(tr('Database reported that database does not exist, but no connector data is available'));
-                    }
-
-                    if (!empty($retry)) {
-                        static $retry = true;
-                        global $_CONFIG;
-
-                        try {
-                            $this->query('DROP DATABASE IF EXISTS `' . $this->configuration['db'].'`;');
-                            $this->query('CREATE DATABASE         `' . $this->configuration['db'].'` DEFAULT CHARSET="' . $this->configuration['charset'].'" COLLATE="' . $this->configuration['collate'].'";');
-                            $this->use($this->configuration['db']);
-
-                            return;
-
-                        }catch(Exception $e) {
-                            throw new SqlException('Init failed', $e);
-                        }
-
-                        throw $e;
-                    }
-
-                    break;
-
-                case 'not-specified':
-                    throw new SqlException('Init failed', $e);
-            }
-
             // From here it is probably connector issues
             $e = new SqlException('Init failed', $e);
 
@@ -643,14 +640,50 @@ class Sql
     /**
      * Use the specified database
      *
-     * @param string $database
+     * @param string|null $database The database to use. If none was specifed, the configured system database will be
+     *                              used
      * @return void
      * @throws Throwable
      */
-    public function use(string $database): void
+    public function use(?string $database = null): void
     {
+        $database = $this->getDatabaseName($database);
         $this->using_database = $database;
-        $this->query('USE :database', [':database' => $database]);
+
+        try {
+            $this->pdo->query('USE `' . $database . '`');
+        } catch (Throwable $e) {
+            // We failed to use the specified database, oh noes!
+            switch ($e->getCode()) {
+                case 1044:
+                    // Access to database denied
+                    throw new SqlException(tr('Cannot access database ":db", this user has no access to it', [
+                        ':db' => $database
+                    ]), $e);
+
+                case 1049:
+                    throw new SqlException(tr('Cannot use database ":db", it does not exist', [':db' => $this->configuration['name']]), $e);
+            }
+
+            throw $e;
+        }
+    }
+
+
+
+    /**
+     * Returns the specified database name or the configured system database name
+     *
+     * @param string|null $database
+     * @return string
+     */
+    protected function getDatabaseName(?string $database): string
+    {
+        if ($database) {
+            return $database;
+        }
+
+        return Config::get('databases.sql.instances.system.name');
     }
 
 
@@ -674,9 +707,9 @@ class Sql
      */
     public function query(string|PDOStatement $query, ?array $execute = null): PDOStatement
     {
-        try {
-            Log::action(tr('Executing query ":query"', [':query' => $query]), 4);
+        static $retry = 0;
 
+        try {
             // PDO statement can be specified instead of a query
             if (!is_string($query)) {
                 if (Config::get('databases.sql.debug', false) or ($query->queryString[0] == ' ')) {
@@ -699,7 +732,7 @@ class Sql
                 Log::sql($query, $execute);
             }
 
-            Timers::get('query')->startLap($query);
+            Timers::get('query')->startLap();
 
             if (!$execute) {
                 // Just execute plain SQL query string.
@@ -735,9 +768,10 @@ class Sql
                  // actual script that was executed by route()
                 Debug::addStatistic()
                     ->setQuery($this->show($query, $execute, true))
-                    ->setTime(Timers::get('queries')->stopLap($query));
+                    ->setTime(Timers::get('queries')->stopLap());
             }
 
+            $retry = 0;
             return $pdo_statement;
 
         } catch (Throwable $e) {
@@ -793,13 +827,22 @@ class Sql
                 case 'HY093':
                     // Invalid parameter number: number of bound variables does not match number of tokens
                     // Get tokens from query
+// TODO Check here what tokens do not match to make debugging easier
                     preg_match_all('/:\w+/imus', $query, $matches);
 
                     if (count($matches[0]) != count($execute)) {
-                        throw new SqlException(tr('Query ":query" failed with error HY093, the number of query tokens does not match the number of bound variables. The query contains tokens ":tokens", where the bound variables are ":variables"', [':query' => $query, ':tokens' => implode(',', $matches['0']), ':variables' => implode(',', array_keys($execute))]), $e);
+                        throw new SqlException(tr('Query ":query" failed with error HY093, the number of query tokens does not match the number of bound variables. The query contains tokens ":tokens", where the bound variables are ":variables"', [
+                            ':query' => $query,
+                            ':tokens' => implode(',', $matches['0']),
+                            ':variables' => implode(',', array_keys($execute))
+                        ]), $e);
                     }
 
-                    throw new SqlException(tr('Query ":query" failed with error HY093, One or more query tokens does not match the bound variables keys. The query contains tokens ":tokens", where the bound variables are ":variables"', [':query' => $query, ':tokens' => implode(',', $matches['0']), ':variables' => implode(',', array_keys($execute))]), $e);
+                    throw new SqlException(tr('Query ":query" failed with error HY093, One or more query tokens does not match the bound variables keys. The query contains tokens ":tokens", where the bound variables are ":variables"', [
+                        ':query' => $query,
+                        ':tokens' => implode(',', $matches['0']),
+                        ':variables' => implode(',', array_keys($execute))
+                    ]), $e);
 
                 case '23000':
                     // 23000 is used for many types of errors!
@@ -811,60 +854,37 @@ class Sql
 
                 default:
                     switch (isset_get($error[1])) {
-                        case 1044:
-                            // Access to database denied
-                            if (!is_array($query)) {
-                                if (empty($query['db'])) {
-                                    throw new SqlException(tr('Query ":query" failed, access to database denied', [':query' => $query]), $e);
-                                }
-
-                                throw new SqlException(tr('Cannot use database ":db", this user has no access to it', [':db' => $query['db']]), $e);
-                            }
-
-                            throw new SqlException(tr('Cannot use database with query ":query", this user has no access to it', [':query' => $this->buildQueryString($query, $execute, true)]), $e);
-
-                        case 1049:
-                            // Specified database does not exist
-                            $retry++;
-
-                            if ((Core::readRegister('system', 'script') == 'init')) {
-                                if ($retry) {
-                                    $e = new SqlException(tr('Cannot use database ":db", it does not exist and cannot be created automatically with the current user ":user"', [':db' => isset_get($query['db']), ':user' => isset_get($query['user'])]), $e);
-                                    $e->addMessages(tr('Possible reason can be that the configured user does not have the required GRANT to create database'));
-                                    $e->addMessages(tr('Possible reason can be that MySQL cannot create the database because the filesystem permissions of the mysql data files has been borked up (on linux, usually this is /var/lib/mysql, and this should have the user:group mysql:mysql)'));
-
-                                    throw $e;
-                                }
-
-                                // We're doing an init, try to automatically create the database
-                                $retry = true;
-                                Log::warning('Database "' . $query['db'].'" does not exist, attempting to create it automatically');
-
-                                $this->query('CREATE DATABASE `:db` DEFAULT CHARSET=":charset" COLLATE=":collate";', [':db' => $query['db'], ':charset' => $this->configuration['charset'], ':collate' => $this->configuration['collate']]);
-                                $this->connect();
-                            }
-
-                            throw new SqlException(tr('Cannot use database ":db", it does not exist', [':db' => $query['db']]), $e);
-
                         case 1052:
                             // Integrity constraint violation
-                            throw new SqlException(tr('Query ":query" contains an abiguous column', [':query' => $this->buildQueryString($query, $execute, true)]), $e);
+                            throw new SqlException(tr('Query ":query" contains an abiguous column', [
+                                ':query' => $this->buildQueryString($query, $execute, true)
+                            ]), $e);
 
                         case 1054:
                             // Column not found
-                            throw new SqlException(tr('Query ":query" refers to a column that does not exist', [':query' => $this->buildQueryString($query, $execute, true)]), $e);
+                            throw new SqlException(tr('Query ":query" refers to a column that does not exist', [
+                                ':query' => $this->buildQueryString($query, $execute, true)
+                            ]), $e);
 
                         case 1064:
                             // Syntax error or access violation
                             if (str_contains(strtoupper($query), 'DELIMITER')) {
-                                throw new SqlException(tr('Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', array(':query' => $this->buildQueryString($query, $execute, true))), $e);
+                                throw new SqlException(tr('Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', [
+                                    ':query' => $this->buildQueryString($query, $execute, true)
+                                ]), $e);
                             }
 
-                            throw new SqlException(tr('Query ":query" has a syntax error', [':query' => $this->buildQueryString($query, $execute, true)]), $e);
+                            throw new SqlException(tr('Query ":query" has a syntax error: ":error"', [
+                                ':query' => $this->buildQueryString($query, $execute),
+                                ':error' => Strings::from($error[2], 'syntax; ')
+                            ], false), $e);
 
                         case 1072:
                             // Adding index error, index probably does not exist
-                            throw new SqlException(tr('Query ":query" failed with error 1072 with the message ":message"', [':query' => $this->buildQueryString($query, $execute, true), ':message' => isset_get($error[2])]), $e);
+                            throw new SqlException(tr('Query ":query" failed with error 1072 with the message ":message"', [
+                                ':query'   => $this->buildQueryString($query, $execute, true),
+                                ':message' => isset_get($error[2])
+                            ]), $e);
 
                         case 1005:
                             // no-break
@@ -880,51 +900,52 @@ class Sql
                                 $fk = str_replace("\n", ' ', $fk);
 
                             }catch(Exception $e) {
-                                throw new SqlException(tr('Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', [':query' => $this->buildQueryString($query, $execute, true)]), $e);
+                                throw new SqlException(tr('Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', [
+                                    ':query' => $this->buildQueryString($query, $execute, true)
+                                ]), $e);
                             }
 
-                            throw new SqlException(tr('Query ":query" failed with error 1005 with the message ":message"', [':query' => $this->buildQueryString($query, $execute, true), ':message' => $fk]), $e);
+                            throw new SqlException(tr('Query ":query" failed with error 1005 with the message ":message"', [
+                                ':query'   => $this->buildQueryString($query, $execute, true),
+                                ':message' => $fk
+                            ]), $e);
 
                         case 1146:
                             // Base table or view not found
-                            throw new SqlException(tr('Query ":query" refers to a base table or view that does not exist', [':query' => $this->buildQueryString($query, $execute, true)]), $e);
-
-                        default:
-                            if (!is_string($query)) {
-                                if (!is_object($query) or !($query instanceof PDOStatement)) {
-                                    throw new SqlException('Specified query is neither a SQL string or a PDOStatement it seems to be a ":type"', [':type' => gettype($query)], 'invalid');
-                                }
-
-                                $query = $query->queryString;
-                            }
-
-                            throw new SqlException(tr('Query ":query" failed', array(':query' => $this->buildQueryString(preg_replace('!\s+!', ' ', $query), $execute, true))), $e);
-
-                            $body = "SQL STATE ERROR : \"".$error[0]."\"\n".
-                                "DRIVER ERROR    : \"".$error[1]."\"\n".
-                                "ERROR MESSAGE   : \"".$error[2]."\"\n".
-                                "query           : \"".(PLATFORM_HTTP ? "<b>".Strings::Log($this->buildQueryString($query, $execute, true), 4096)."</b>" : Strings::Log($this->buildQueryString($query, $execute, true), 4096))."\"\n".
-                                "date            : \"".date('d m y h:i:s')."\"\n";
-
-                            if (isset($_SESSION)) {
-                                $body .= "Session : ".print_r(isset_get($_SESSION), true)."\n";
-                            }
-
-                            $body .= "POST   : ".print_r($_POST  , true)."
-                          GET    : ".print_r($_GET   , true)."
-                          SERVER : ".print_r($_SERVER, true)."\n";
-
-                            error_log('PHP SQL_ERROR: '.Strings::Log($error[2]).' on '.Strings::Log($this->buildQueryString($query, $execute, true), 4096));
-
-                            if (!Debug::production()) {
-                                throw new SqlException(nl2br($body), $e);
-                            }
-
-                            throw new SqlException(tr('An error has been detected, our staff has been notified about this problem.'), $e);
+                            throw new SqlException(tr('Query ":query" refers to a base table or view that does not exist', [
+                                ':query' => $this->buildQueryString($query, $execute, true)
+                            ]), $e);
                     }
             }
 
-            throw new SqlException(tr('Query failed'), previous: $e);
+            // Okay wut? Something went badly wrong
+            global $argv;
+
+            Notification::create()
+                ->setCode('SQL_QUERY_ERROR')
+                ->setGroups('developers')
+                ->setTitle('SQL Query error')
+                ->setMessage('
+                SQL STATE ERROR : "' . $error[0] . '"
+                DRIVER ERROR    : "' . $error[1] . '"
+                ERROR MESSAGE   : "' . $error[2] . '"
+                query           : "' . Strings::Log($this->buildQueryString($query, $execute, true)) . '"
+                date            : "' . date('d m y h:i:s'))
+                ->setData([
+                    '$argv'     => $argv,
+                    '$_GET'     => $_GET,
+                    '$_POST'    => $_POST,
+                    '$_SERVER'  => $_SERVER,
+                    '$query'    => $query,
+                    '$_SESSION' => $_SESSION
+                ])
+                ->log()
+                ->send();
+
+            throw new SqlException(tr('Query ":query" failed', [
+                ':query' => $this->buildQueryString($query, $execute)
+            ]), $e);
+
         }
     }
 
@@ -938,7 +959,7 @@ class Sql
      * @param bool $clean
      * @return string
      */
-    public function buildQueryString(string|PDOStatement $query, ?array $execute = null, bool $clean = true): string
+    public function buildQueryString(string|PDOStatement $query, ?array $execute = null, bool $clean = false): string
     {
         if (is_object($query)) {
             if (!($query instanceof PDOStatement)) {
@@ -948,6 +969,8 @@ class Sql
             // Query to be logged is a PDO statement, extract the query
             $query = $query->queryString;
         }
+
+        $query = trim($query);
 
         if ($clean) {
             $query = Strings::cleanWhiteSpace($query);
@@ -1043,9 +1066,9 @@ class Sql
 
         switch ($result->rowCount()) {
             case 0:
-                // No results. This is probably okay, but do check if the query was a select or show query, jsut to
+                // No results. This is probably okay, but do check if the query was a select or show query, just to
                 // be sure
-                $this->ensureShowSelect($query);
+                $this->ensureShowSelect($query, $execute);
                 return null;
 
             case 1:
@@ -1053,7 +1076,7 @@ class Sql
 
             default:
                 // Multiple results, this is always bad for a function that should only return one result!
-                $this->ensureShowSelect($query);
+                $this->ensureShowSelect($query, $execute);
                 throw new SqlMultipleResultsException(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [':count' => $result->rowCount(), ':query' => $this->buildQueryString($result->queryString, $execute)]));
         }
     }
@@ -1794,45 +1817,45 @@ class Sql
     /**
      * Returns information about the specified database
      *
-     * @param string $db_name
+     * @param string $database
      * @return array
      */
-    public function getDatabase(string $db_name): array
+    public function getDatabaseInformation(string $database): array
     {
-        $database = $this->get('SELECT  `databases`.`id`,
-                                              `databases`.`servers_id`,
-                                              `databases`.`status`,
-                                              `databases`.`replication_status`,
-                                              `databases`.`name` AS `database`,
-                                              `databases`.`error`,
+        $return = $this->get('SELECT  `databases`.`id`,
+                                            `databases`.`servers_id`,
+                                            `databases`.`status`,
+                                            `databases`.`replication_status`,
+                                            `databases`.`name` AS `database`,
+                                            `databases`.`error`,
        
-                                              `servers`.`id` AS `servers_id`,
-                                              `servers`.`hostname`,
-                                              `servers`.`port`,
-                                              `servers`.`replication_status` AS `servers_replication_status`,
+                                            `servers`.`id` AS `servers_id`,
+                                            `servers`.`hostname`,
+                                            `servers`.`port`,
+                                            `servers`.`replication_status` AS `servers_replication_status`,
        
-                                              `database_accounts`.`username`      AS `replication_db_user`,
-                                              `database_accounts`.`password`      AS `replication_db_password`,
-                                              `database_accounts`.`root_password` AS `root_db_password`
+                                            `database_accounts`.`username`      AS `replication_db_user`,
+                                            `database_accounts`.`password`      AS `replication_db_password`,
+                                            `database_accounts`.`root_password` AS `root_db_password`
        
-                                    FROM      `databases`
+                                  FROM      `databases`
        
-                                    LEFT JOIN `servers`
-                                    ON        `servers`.`id`           = `databases`.`servers_id`
+                                  LEFT JOIN `servers`
+                                  ON        `servers`.`id`           = `databases`.`servers_id`
        
-                                    LEFT JOIN `database_accounts`
-                                    ON        `database_accounts`.`id` = `servers`.`database_accounts_id`
+                                  LEFT JOIN `database_accounts`
+                                  ON        `database_accounts`.`id` = `servers`.`database_accounts_id`
        
-                                    WHERE     `databases`.`id`         = :name
-                                    OR        `databases`.`name`       = :name',
+                                  WHERE     `databases`.`id`         = :name
+                                  OR        `databases`.`name`       = :name',
 
-                                    [':name' => $db_name]);
+                                  [':name' => $database]);
 
-        if (!$database) {
-            throw new SqlException(tr('Specified database ":database" does not exist', [':database' => $_GET['database']]));
+        if (!$return) {
+            throw new SqlException(tr('Specified database ":database" does not exist', [':database' => $database]));
         }
 
-        return $database;
+        return $return;
     }
 
 
@@ -1875,7 +1898,7 @@ class Sql
      */
     public function drop(): void
     {
-        $this->query('DROP DATABASE ' . $this->configuration['db']);
+        $this->query('DROP DATABASE ' . $this->configuration['name']);
     }
 
 
@@ -2003,13 +2026,13 @@ class Sql
      * @param string|PDOStatement $query
      * @return void
      */
-    protected function ensureShowSelect(string|PDOStatement $query): void
+    protected function ensureShowSelect(string|PDOStatement $query, ?array $execute): void
     {
         if (is_object($query)) {
             $query = $query->queryString;
         }
 
-        $query = strtolower(substr(trim($query), 10));
+        $query = strtolower(substr(trim($query), 0, 10));
 
         if (!str_starts_with($query, 'select') and !str_starts_with($query, 'show')) {
             throw new SqlException('Query "' . Strings::log(Log::sql($query, $execute, true), 4096) . '" is not a SELECT or SHOW query and as such cannot return results');

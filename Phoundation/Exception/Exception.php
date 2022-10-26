@@ -67,7 +67,10 @@ class Exception extends RuntimeException
      */
     public function __construct(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null)
     {
-        $messages = Arrays::force($messages, "\n");
+        if (!is_array($messages)) {
+            $messages = [$messages];
+        }
+
         $message = reset($messages);
         $message = Strings::force($message);
 
@@ -113,10 +116,11 @@ class Exception extends RuntimeException
 
     /**
      * Returns the exception messages
+     *
+     * @return array
      */
     public function getMessages(): array
     {
-// TODO 'GET MESSAGE FROM EXCEPTION
         return $this->messages;
     }
 
@@ -124,8 +128,11 @@ class Exception extends RuntimeException
 
     /**
      * Returns the exception messages
+     *
+     * @param array $messages
+     * @return Exception
      */
-    public function addMessages(array|string $messages): Exception
+    public function addMessages(array $messages): Exception
     {
         foreach ($messages as $message) {
             $this->messages[] = $message;

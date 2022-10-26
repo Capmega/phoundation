@@ -44,15 +44,17 @@ use Phoundation\Exception\Exception;
  *
  * @param string $text
  * @param array|null $replace
- * @param boolean $verify
+ * @param bool $clean
  * @return string
  */
-function tr(string $text, ?array $replace = null, bool $verify = true): string
+function tr(string $text, ?array $replace = null, bool $clean = true): string
 {
     try {
         if ($replace) {
-            foreach ($replace as &$value) {
-                $value = Strings::log($value);
+            if ($clean) {
+                foreach ($replace as &$value) {
+                    $value = Strings::log($value);
+                }
             }
 
             unset($value);
@@ -60,7 +62,7 @@ function tr(string $text, ?array $replace = null, bool $verify = true): string
             $text = str_replace(array_keys($replace), array_values($replace), $text, $count);
 
             // Only on non production machines, crash when not all entries were replaced as an extra check.
-            if (Debug::production() and $verify) {
+            if (!Debug::production()) {
                 if ($count != count($replace)) {
                     foreach ($replace as $value) {
                         if (str_contains($value, ':')) {
@@ -573,16 +575,15 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
 }
 
 
-
 /**
  * Returns the system SQL database object
  *
  * @param string|null $instance_name
  * @return Sql
  */
-function sql(?string $instance_name = null): Sql
+function sql(?string $instance_name = null, bool $use_database = true): Sql
 {
-    return Databases::Sql($instance_name);
+    return Databases::Sql($instance_name, $use_database);
 }
 
 

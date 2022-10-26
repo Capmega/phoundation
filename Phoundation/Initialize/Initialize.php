@@ -77,6 +77,9 @@ class Initialize
             // Wipe all cache data
             Cache::clear();
 
+            // Ensure the system database exists
+            self::ensureSystemsDatabase();
+
             // Go over all system libraries and initialize them, then do the same for the plugins
             self::executeLibraries($system, $plugins);
         }
@@ -160,6 +163,35 @@ class Initialize
 
 
     /**
+     * Returns the version for the specified library
+     *
+     * @param string $path
+     * @return string
+     */
+    public static function getLibraryVersion(string $path): string
+    {
+        return self::getlibraryInit($path)->getVersion();
+    }
+
+
+
+    /**
+     * Ensure that the systems database exists
+     *
+     * @return void
+     */
+    protected static function ensureSystemsDatabase(): void
+    {
+        if (!sql('system', false)->schema()->database()->exists()) {
+            sql('system', false)->schema()->database()->create();
+        }
+
+        sql('system', false)->use();
+    }
+
+
+
+    /**
      * Returns a list with all libraries for the specified path
      *
      * @param string $path
@@ -212,19 +244,6 @@ class Initialize
         foreach ($libraries as $path => $library) {
             self::executeLibrary($library, $path);
         }
-    }
-
-
-
-    /**
-     * Returns the version for the specified library
-     *
-     * @param string $path
-     * @return string
-     */
-    public static function getLibraryVersion(string $path): string
-    {
-        return self::getlibraryInit($path)->getVersion();
     }
 
 

@@ -1549,7 +1549,6 @@ class Strings
     {
         $source = str_replace("\n", ' ', $source);
         $source = Strings::noDouble($source, ' ', '\s');
-
         return $source;
     }
 

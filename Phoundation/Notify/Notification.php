@@ -2,9 +2,11 @@
 
 namespace Phoundation\Notify;
 
+use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Processes\ProcessCommands;
 use Throwable;
 
 
@@ -27,6 +29,13 @@ class Notification
      * @var array $groups
      */
     protected array $groups = [];
+
+    /**
+     * The type of notification, either "INFORMATION", "NOTICE", "WARNING", or "ERROR"
+     *
+     * @var string $type
+     */
+    #[ExpectedValues(values: ["INFORMATION", "NOTICE", "WARNING", "ERROR"])]  protected string $type = 'ERROR';
 
     /**
      * The code for this notification
@@ -124,6 +133,51 @@ class Notification
     public function getCode(): string
     {
         return $this->code;
+    }
+
+
+
+    /**
+     * Sets the type for this notification
+     *
+     * @param string $type
+     * @return Notification
+     */
+    public function setType(#[ExpectedValues(values: ["INFORMATION", "NOTICE", "WARNING", "ERROR"])] string $type): Notification
+    {
+        $clean_type = strtoupper(trim($type));
+
+        switch ($clean_type) {
+            case 'INFORMATION':
+                // no-break
+            case 'NOTICE':
+                // no-break
+            case 'WARNING':
+                // no-break
+            case 'ERROR':
+                break;
+
+            case '':
+                throw new OutOfBoundsException(tr('No type specified for this notification'));
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown type ":type" specified for this notification, please ensure it is one of "WARNING", "ERROR", "NOTICE", or "INFORMATION"', [':type' => $type]));
+        }
+
+        $this->type = $clean_type;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the type for this notification
+     *
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
     }
 
 
@@ -320,14 +374,14 @@ class Notification
      * Send the notification
      *
      * @todo Implement!
-     * @return void
+     * @return Notification
      */
-    public function send(): void
+    public function send(): Notification
     {
         Log::warning('Notifications::send() not yet implemented! Not sending subsequent message');
         Log::warning($this->title);
         Log::warning($this->message);
-return;
+return $this;
 
         if (!$this->code) {
             throw new OutOfBoundsException('Cannot send notification, no notification code specified');
@@ -351,6 +405,44 @@ return;
             $this->file = $this->e->getFile();
             $this->line = $this->e->getLine();
             $this->trace = $this->e->getTrace();
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Log this notification to the system logs as well
+     *
+     * @return Notification
+     */
+    public function log(): Notification
+    {
+        switch ($this->type) {
+            case 'ERROR':
+                Log::error($this->title);
+                Log::error($this->message);
+                Log::error($this->data);
+                break;
+
+            case 'WARNING':
+                Log::warning($this->title);
+                Log::warning($this->message);
+                Log::warning($this->data);
+                break;
+
+            case 'NOTICE':
+                Log::notice($this->title);
+                Log::notice($this->message);
+                Log::notice($this->data);
+                break;
+
+            case 'INFORMATION':
+                Log::information($this->title);
+                Log::information($this->message);
+                Log::information($this->data);
+                break;
         }
     }
 }

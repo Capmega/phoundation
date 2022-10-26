@@ -2,6 +2,7 @@
 
 namespace Phoundation\Databases\Sql\Schema;
 
+use Phoundation\Core\Config;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 
@@ -52,7 +53,7 @@ class Schema
     /**
      * Schema constructor
      */
-    public function __construct(?string $instance_name = null)
+    public function __construct(?string $instance_name = null, bool $use_database = false)
     {
         // Check if the specified database exists
         if (!$instance_name) {
@@ -60,7 +61,7 @@ class Schema
         }
 
         $this->instance_name = $instance_name;
-        $this->sql = new Sql($instance_name);
+        $this->sql = new Sql($instance_name, $use_database);
     }
 
 
@@ -75,16 +76,17 @@ class Schema
     {
         if (!$name) {
             // Default to system database
-            $name = 'system';
+            $name = Config::get('databases.sql.instances.system.name', 'phoundation');
         }
 
         // If we don't have this database yet, create it now
         if (!array_key_exists($name, $this->databases)) {
-            $this->databases[$name] = new Database($this->sql, $name);
+            $this->databases[$name] = new Database($this->sql);
         }
 
+        // Set current database and return a database object
         $this->current_database = $name;
-        return new $this->databases[$name];
+        return $this->databases[$name];
     }
 
 

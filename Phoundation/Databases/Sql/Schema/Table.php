@@ -77,9 +77,7 @@ class Table
     public function exists(): bool
     {
         // If this query returns nothing, the table does not exist. If it returns anything, it does exist.
-        sql()->query('SHOW TABLES LIKE :name', [':name' => $this->name]);
-        die('aaaaaaaaaaa');
-        return (bool) sql()->query('SHOW TABLES LIKE :name', [':name' => $this->name]);
+        return (bool) sql()->get('SHOW TABLES LIKE :name', [':name' => $this->name]);
     }
 
 
@@ -241,24 +239,12 @@ class Table
             throw new SqlException(tr('Cannot create table ":name", it already exists', [':name' => $this->name]));
         }
 
-        sql()->query($this->getCreateQuery());
-    }
-
-
-
-    /**
-     * Create the SQL query to create the table in the database
-     *
-     * @return string
-     */
-    protected function getCreateQuery(): string
-    {
         $query   = 'CREATE TABLE `' . $this->name . '` (';
         $query  .= implode(",\n", $this->columns);
         $query  .= implode("\n", $this->columns);
         $query  .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . Config::get('databases.sql.instances.system.auto-increment', 1) . ' DEFAULT CHARSET="' . Config::get('databases.sql.instances.system.charset', 'utf8mb4') . '" COLLATE="' . Config::get('databases.sql.instances.system.collate', 'utf8mb4_general_ci') . '";';
 
-        return $query;
+        sql()->query($query);
     }
 
 

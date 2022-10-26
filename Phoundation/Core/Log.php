@@ -452,7 +452,7 @@ Class Log {
      */
     public static function error(mixed $messages, int $level = 10): bool
     {
-        return self::write($messages, 'error', $level);
+        return self::write($messages, 'error', $level, false);
     }
 
 
@@ -708,11 +708,11 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public static function sql(string|PDOStatement $query, ?array $execute = null, int $level = 3): bool
+    public static function sql(string|PDOStatement $query, ?array $execute = null, int $level = 10): bool
     {
         $query = sql()->buildQueryString($query, $execute, false);
         $query = Strings::endsWith($query, ';');
-        return Log::printr($query, $level);
+        return self::write('SQL QUERY: ' . $query, 'debug', $level);
     }
 
 
@@ -804,7 +804,7 @@ Class Log {
 
                 // Log the initial exception message
                 self::write('Encountered "' . get_class($messages) . '" class exception in "' . $messages->getFile() . '@' . $messages->getLine() . '" (Main script "' . basename(isset_get($_SERVER['SCRIPT_FILENAME'])) . '")', $class, $level);
-                self::write('"' . get_class($messages) . '" Exception message: [' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $class, $level);
+                self::write('"' . get_class($messages) . '" Exception message: [' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $class, $level, false);
 
                 // Warning exceptions do not need to show the extra messages, trace, or data or previous exception
                 if ($class == 'error') {
