@@ -18,10 +18,13 @@ use Phoundation\Initialize\Initialize;
  */
 
 // Get command line arguments
-$class = Scripts::argument('-c,--class', true);
+$system   = Scripts::argument('-s,--system');
+$plugins  = Scripts::argument('-p,--plugins');
+$library  = Scripts::argument('-l,--library');
+$comments = Scripts::argument('-c,--comments', true);
 
 Scripts::noArgumentsLeft();
-Initialize::execute($class);
+Initialize::execute($system, $plugins, $comments, $library);
 
 //    // During init, force EMULATE_PREPARES because loads of init stuff will NOT work without
 //    foreach ($_CONFIG['db'] as $name => &$connector) {

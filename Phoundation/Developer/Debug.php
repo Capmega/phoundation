@@ -1190,7 +1190,7 @@ class Debug {
 
         // Get the class name
         foreach ($results['class '] as $line) {
-            if (preg_match_all('/^class ([a-z0-9_]+)\s+(?:extends .+?)?\s+\{?$/i', $line, $matches)) {
+            if (preg_match_all('/^class\s+([a-z0-9_]+)(?:(?:\s+extends\s+.+?)?\s+\{)?/i', $line, $matches)) {
                 $class = $matches[1][0];
             }
         }

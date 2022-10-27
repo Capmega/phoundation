@@ -5,6 +5,7 @@ namespace Phoundation\Initialize;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnexpectedValueException;
 
@@ -42,6 +43,13 @@ class Init
      * @var array $updates
      */
     protected array $updates = [];
+
+    /**
+     * Cache on if versions table exists or not
+     *
+     * @var bool $versions_exists
+     */
+    protected bool $versions_exists;
 
 
 
@@ -82,16 +90,44 @@ class Init
     /**
      * Returns the current database version for this library
      *
-     * @return string
+     * @return string|null
      */
-    public function getDatabaseVersion(): string
+    public function getDatabaseVersion(): ?string
     {
+        if (!$this->versionsTableExists()) {
+            return null;
+        }
+
         return sql()->getColumn('
-                                SELECT `version` 
-                                FROM   `versions` 
-                                WHERE  `library` = :library', [
-                                    ':library' => $this->library
+                            SELECT `version` 
+                            FROM   `versions` 
+                            WHERE  `library` = :library', [
+            ':library' => $this->library
         ]);
+    }
+
+
+
+    /**
+     * Returns the next version available for execution, if any
+     *
+     * @return string|null The next version available for init execution, or NULL if none.
+     */
+    public function getNextExecutionVersion(): ?string
+    {
+        $version = $this->getDatabaseVersion();
+
+        if ($version === null) {
+            // There is no version registered in the database at all, so the first available init is it!
+            return array_key_first($this->updates);
+        }
+
+        try {
+            return Arrays::nextKey($this->updates, $version);
+        } catch (OutOfBoundsException $e) {
+            // There is no next available!
+            return null;
+        }
     }
 
 
@@ -137,11 +173,18 @@ class Init
      * Update to the specified version
      *
      * @param string $version
-     * @return string The next version available for this init
+     * @param string $comments
+     * @return string|null The next version available for this init, or NULL if none are available
      */
-    public function updateOne(string $version): string
+    public function updateOne(string $version, string $comments): ?string
     {
-        $execute = $this->updates[$version];
+        // Ensure that the specified version exists
+        if (!array_key_exists($version, $this->updates)) {
+            throw new NotExistsException(tr('The specified version ":version" does not exist for the library ":library"', [
+                'version'  => $version,
+                ':library' => $this->library
+            ]));
+        }
 
         if ($this->hasBeenExecuted($version)) {
             Log::warning(tr('Skipping init version ":version" for library ":library" because it already has been executed', [
@@ -161,22 +204,33 @@ class Init
             return false;
         }
 
-        // Execute this init
+        // Execute this init, register the version as executed, and return the next version
         Log::action(tr('Updating ":library" library with init version ":version"', [
             ':library' => $this->library,
             ':version' => $version
         ]));
 
-        // Execute this init and return the next version
-        $execute();
-        return Arrays::nextKey($this->updates, $version);
+        $this->updates[$version]();
+        $this->addVersion($version, $comments);
+        return $this->getNextExecutionVersion();
     }
 
 
 
-    protected function addVersion(): void
+    /**
+     * Add a new version data row in the versions table
+     *
+     * @param string $version
+     * @param string $comments
+     * @return void
+     */
+    protected function addVersion(string $version, string $comments): void
     {
-        sql()->query();
+        sql()->insert('versions', [
+            'library'  => $this->library,
+            'version'  => $version,
+            'comments' => $comments
+        ]);
     }
 
 
@@ -239,5 +293,21 @@ class Init
         throw new UnexpectedValueException(tr('Php version_compare() gave the unexpected output ":output"', [
             ':output' => $result
         ]));
+    }
+
+
+
+    /**
+     * Returns true if the versions table exists, false otherwise
+     *
+     * @return bool
+     */
+    protected function versionsTableExists(): bool
+    {
+        if (!isset($this->versions_exists)) {
+            $this->versions_exists = (bool) sql()->get('SHOW TABLES LIKE "versions"');
+        }
+
+        return $this->versions_exists;
     }
 }

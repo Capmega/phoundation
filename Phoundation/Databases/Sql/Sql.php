@@ -959,9 +959,18 @@ class Sql
      */
     public function insert(string $table, array $row): PDOStatement
     {
-        $keys = array_keys($row);
-        $values = $this->values($row);
-        $this->query('INSERT INTO `' . $table . '` (' . implode(', ', $keys) . ') VALUES (' . $values . ')', $row);
+        $columns = array_keys($row);
+        $columns = implode(', ', $columns);
+
+        $values  = $this->values($row);
+
+        $keys    = array_keys($values);
+        $keys    = implode(', ', $keys);
+show($columns);
+show($values);
+show($keys);
+showdie('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $values . ')');
+        $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $values . ')', $row);
     }
 
 
@@ -1278,22 +1287,18 @@ class Sql
 
 
     /**
-     *
+     * Converts the specified row data into a PDO bound variables compatible key > values array
      *
      * @param array|string $source
-     * @param array|Strings $columns
      * @param string $prefix
      * @return array
      */
-    public function values(array|string $source, array|strings $columns, string $prefix = ':'): array
+    public function values(array|string $source, string $prefix = ':'): array
     {
-        $columns = Arrays::force($columns);
         $return  = [];
 
         foreach ($source as $key => $value) {
-            if (in_array($key, $columns) or ($key == 'id')) {
-                $return[$prefix . $key] = $value;
-            }
+            $return[$prefix . $key] = $value;
         }
 
         return $return;

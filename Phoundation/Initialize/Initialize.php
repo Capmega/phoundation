@@ -50,12 +50,13 @@ class Initialize
     /**
      * Execute a complete systems initialization
      *
-     * @param string|null $library
      * @param bool $system
      * @param bool $plugins
+     * @param string|null $comments
+     * @param string|null $library
      * @return void
      */
-    public static function execute(?string $library = null, bool $system = true, bool $plugins = true): void
+    public static function execute(bool $system = true, bool $plugins = true, ?string $comments = null, ?string $library = null): void
     {
         self::$initializing = true;
 
@@ -68,7 +69,7 @@ class Initialize
             $library = strtolower($library);
             $path    = self::findLibraryPath($library, $system, $plugins);
 
-            self::executeLibrary($library, $path);
+            self::executeLibrary($library, $path, $comments);
 
         } else {
             // Wipe all temporary data
@@ -139,9 +140,17 @@ class Initialize
         $libraries = self::listLibraries($system, $plugins);
 
         foreach ($libraries as $path => $library) {
+            $version = self::getLibraryVersion($library, $path);
+
+            if ($version === null) {
+                // This library has no version control
+                continue;
+            }
+
             $return[$path] = [
-                'name'    => $library,
-                'version' => self::getLibraryVersion($path)
+                'name'         => $library,
+                'version'      => $version,
+                'next_version' => self::getLibraryNextVersion($library, $path)
             ];
         }
 
@@ -165,12 +174,37 @@ class Initialize
     /**
      * Returns the version for the specified library
      *
+     * @param string $library
      * @param string $path
-     * @return string
+     * @return string|null
      */
-    public static function getLibraryVersion(string $path): string
+    public static function getLibraryVersion(string $library, string $path): ?string
     {
-        return self::getlibraryInit($path)->getVersion();
+        if ($library === 'initialize') {
+            // The init library does not have init support itself
+            return null;
+        }
+
+        return self::getlibraryInit($path)?->getVersion();
+    }
+
+
+
+    /**
+     * Returns the version for the specified library
+     *
+     * @param string $library
+     * @param string $path
+     * @return string|null
+     */
+    public static function getLibraryNextVersion(string $library, string $path): ?string
+    {
+        if ($library === 'initialize') {
+            // The init library does not have init support itself
+            return null;
+        }
+
+        return self::getlibraryInit($path)?->getNextExecutionVersion();
     }
 
 
@@ -236,15 +270,22 @@ class Initialize
      * @param bool $plugins
      * @return void
      */
-    protected static function executeLibraries(bool $system = true, bool $plugins = true): void
+    protected static function executeLibraries(bool $system = true, bool $plugins = true, ?string $comments = null): void
     {
-        // Get a list of all available libraries and initialize each one
-        $libraries = self::listLibraries($system, $plugins);
+        // Get a list of all available libraries and their versions
+        $libraries = self::listLibraryVersions($system, $plugins);
 
-        // Get the highest
+        // Keep initializing libraries until none of them have inits available anymore
+        while ($libraries) {
+            foreach ($libraries as $path => &$library) {
+                $library['next_version'] = self::executeLibrary($library['name'], $path, $library['next_version'], $comments);
 
-        foreach ($libraries as $path => $library) {
-            $version = self::executeLibrary($library, $path);
+                if (!$library['next_version']) {
+                    // This library has nothing more to initialize, remove it from the list
+                    Log::success(tr('Finished updates for library ":library"', [':library' => $library['name']]));
+                    unset($libraries[$path]);
+                }
+            }
         }
     }
 
@@ -255,9 +296,10 @@ class Initialize
      * @param string $library
      * @param string $path
      * @param string $version
+     * @param string|null $comments
      * @return string The version to which it has been updated
      */
-    protected static function executeLibrary(string $library, string $path): string
+    protected static function executeLibrary(string $library, string $path, string $version, ?string $comments = null): string
     {
         // TODO Check later if we should be able to let init initialize itself
         if ($library === 'initialize') {
@@ -280,7 +322,7 @@ class Initialize
             return false;
         }
 
-        return $init->update();
+        return $init->updateOne($version, $comments);
     }
 
 
@@ -300,7 +342,7 @@ class Initialize
             return null;
         }
 
-        include($file);
+        include_once($file);
         $init_class_path = Debug::getClassPath($file);
         $init = new $init_class_path();
 
