@@ -35,11 +35,11 @@ class Library
     protected string $path;
 
     /**
-     * The Init object for this library
+     * The Updates object for this library
      *
      * @var Updates|null
      */
-    protected ?Updates $init = null;
+    protected ?Updates $updates = null;
 
 
 
@@ -59,7 +59,7 @@ class Library
         }
 
         // Get the Init object
-        $this->loadInitObject();
+        $this->loadUpdatesObject();
     }
 
 
@@ -73,13 +73,13 @@ class Library
     public function init(?string $comments = null): bool
     {
         // TODO Check later if we should be able to let init initialize itself
-        if ($this->library === 'library') {
+        if ($this->library === 'libraries') {
             // Never initialize the Init library itself!
             Log::warning(tr('Not initializing library "library", it has no versioning control available'));
             return false;
         }
 
-        if ($this->init === null) {
+        if ($this->updates === null) {
             // This library has no Init available, skip!
             Log::warning(tr('Not processing library ":library", it has no versioning control available', [
                 ':library' => $this->library
@@ -87,7 +87,7 @@ class Library
             return false;
         }
 
-        return $this->init->init($comments);
+        return $this->updates->init($comments);
     }
 
 
@@ -147,11 +147,11 @@ showdie($this->path);
      */
     public function getCodeVersion(): ?string
     {
-        if ($this->init) {
+        if ($this->updates) {
             return null;
         }
 
-        return $this->init->getCodeVersion();
+        return $this->updates->getCodeVersion();
     }
 
 
@@ -163,11 +163,11 @@ showdie($this->path);
      */
     public function getDatabaseVersion(): ?string
     {
-        if ($this->init) {
+        if ($this->updates) {
             return null;
         }
 
-        return $this->init->getDatabaseVersion();
+        return $this->updates->getDatabaseVersion();
     }
 
 
@@ -179,11 +179,11 @@ showdie($this->path);
      */
     public function getNextInitVersion(): ?string
     {
-        if ($this->init) {
+        if ($this->updates) {
             return null;
         }
 
-        return $this->init->getNextInitVersion();
+        return $this->updates->getNextInitVersion();
     }
 
 
@@ -191,7 +191,7 @@ showdie($this->path);
     /**
      * Load the Init object for this library
      */
-    protected function loadInitObject(): void
+    protected function loadUpdatesObject(): void
     {
         $file = Strings::slash($this->path) . 'Updates.php';
 
@@ -203,16 +203,16 @@ showdie($this->path);
         // Load the PHP file
         include_once($file);
 
-        $init_class_path = Debug::getClassPath($file);
-        $init            = new $init_class_path();
+        $updates_class_path = Debug::getClassPath($file);
+        $updates            = new $updates_class_path();
 
-        if (!($this->init instanceof Updates)) {
-            Log::Warning(tr('The Init.php file for the library ":library" in ":path" is invalid, it should be an instance of the class \Phoundation\Libraries\Init. This Init.php file will be ignored', [
+        if (!($this->updates instanceof Updates)) {
+            Log::Warning(tr('The Updates.php file for the library ":library" in ":path" is invalid, it should be an instance of the class \Phoundation\Libraries\Updates. This updates file will be ignored', [
                 ':path'    => $this->path,
                 ':library' => $this->library
             ]));
         }
 
-        $this->init = $init;
+        $this->updates = $updates;
     }
 }
