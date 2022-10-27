@@ -82,7 +82,7 @@ class Exception extends RuntimeException
 
         if (Debug::enabled() or Core::startupState()) {
             // Always log all Phoundation Exceptions in debug mode or at system startup
-            Log::error($this);
+//            Log::error($this);
         }
     }
 
