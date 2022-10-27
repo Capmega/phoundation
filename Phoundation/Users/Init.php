@@ -52,8 +52,6 @@ class Init extends \Phoundation\Initialize\Init
                     `address` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
                     `verify_code` varchar(128) DEFAULT NULL,
                     `verifiedon` datetime DEFAULT NULL,
-                    `role` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
-                    `roles_id` int DEFAULT NULL,
                     `priority` int DEFAULT NULL,
                     `is_leader` int DEFAULT NULL,
                     `leaders_id` int DEFAULT NULL,
@@ -71,12 +69,10 @@ class Init extends \Phoundation\Initialize\Init
                     `gender` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `birthday` date DEFAULT NULL,
                     `country` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
-                    `commentary` varchar(2047) DEFAULT NULL,
-                    `description` mediumtext,
+                    `description` text DEFAULT NULL,
+                    `commentary` mediumtext DEFAULT NULL,
                     `website` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
-                    `credits` double(7,2) DEFAULT NULL,
-                    `timezone` varchar(32) DEFAULT NULL,
-                    `webpush` varchar(511) DEFAULT NULL')
+                    `timezone` varchar(32) DEFAULT NULL')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `verify_code` (`verify_code`),
@@ -115,8 +111,8 @@ class Init extends \Phoundation\Initialize\Init
                     CONSTRAINT `fk_users_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT')
                 ->create();
 
-            // Create the rights table.
-            sql()->schema()->table('rights')
+            // Create the users_rights table.
+            sql()->schema()->table('users_rights')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -126,7 +122,7 @@ class Init extends \Phoundation\Initialize\Init
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(32) NOT NULL,
-                    `description` varchar(2048) CHARACTER SET latin1 NOT NULL')
+                    `description` varchar(2047) NOT NULL')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `name` (`name`),
@@ -137,13 +133,13 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`)')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_rights_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_rights_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,')
+                    CONSTRAINT `fk_users_rights_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_rights_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,')
                 ->create();
 
-            // Create the roles table.
-            sql()->schema()->table('roles')
+            // Create the users_roles table.
+            sql()->schema()->table('users_roles')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -153,22 +149,51 @@ class Init extends \Phoundation\Initialize\Init
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
-                    `description` varchar(2047) CHARACTER SET latin1 DEFAULT NULL,')
+                    `description` varchar(2047) DEFAULT NULL,')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
+                    KEY `modified_on` (`modified_on`),
+                    KEY `modified_by` (`modified_by`),
                     KEY `status` (`status`),
                     KEY `name` (`name`),
                     KEY `meta_id` (`meta_id`),')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_roles_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_roles_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_roles_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT')
+                    CONSTRAINT `fk_users_roles_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_roles_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_roles_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT')
                 ->create();
 
-            // Create the users_rights table.
-            sql()->schema()->table('users_rights')
+            // Create the users_groups table.
+            sql()->schema()->table('users_groups')
+                ->setColumns('
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
+                    `modified_by` int DEFAULT NULL,
+                    `modified_on` datetime DEFAULT NULL,
+                    `meta_id` int DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+                    `description` varchar(2047) DEFAULT NULL,')
+                ->setIndices('                
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `modified_on` (`modified_on`),
+                    KEY `modified_by` (`modified_by`),
+                    KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `name` (`name`),')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_users_groups_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_groups_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_groups_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT')
+                ->create();
+
+            // Create the users_rights_links table.
+            sql()->schema()->table('users_rights_links')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_by` int DEFAULT NULL,
@@ -178,20 +203,41 @@ class Init extends \Phoundation\Initialize\Init
                     `name` varchar(32) NOT NULL,')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `users_id_2` (`users_id`,`rights_id`),
+                    UNIQUE KEY `users_rights` (`users_id`,`rights_id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
                     KEY `users_id` (`users_id`),
                     KEY `rights_id` (`rights_id`),
                     KEY `name` (`name`),')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_users_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_users_rights_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `rights` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_users_rights_users_id` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE CASCADE')
+                    CONSTRAINT `fk_users_rights_links_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_rights_links_users_id` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_users_rights_links_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `users_rights` (`id`) ON DELETE CASCADE,')
                 ->create();
 
-            // Create the roles_rights table.
-            sql()->schema()->table('roles_rights')
+            // Create the users_roles_links table.
+            sql()->schema()->table('users_roles_links')
+                ->setColumns('
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `created_by` int DEFAULT NULL,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `users_id` int NOT NULL,
+                    `roles_id` int NOT NULL,')
+                ->setIndices('                
+                    PRIMARY KEY (`id`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
+                    UNIQUE KEY `users_roles` (`users_id`,`roles_id`),
+                    KEY `roles_id` (`roles_id`),
+                    KEY `users_id` (`users_id`),')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_users_roles_links_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_roles_links_users_id` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_users_roles_links_roles_id` FOREIGN KEY (`roles_id`) REFERENCES `users_roles` (`id`) ON DELETE CASCADE')
+                ->create();
+
+            // Create the users_roles_rights_links table.
+            sql()->schema()->table('users_roles_rights_links')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_by` int DEFAULT NULL,
@@ -206,9 +252,9 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `roles_id` (`roles_id`),
                     KEY `rights_id` (`rights_id`),')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_roles_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_roles_rights_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `rights` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_roles_rights_roles_id` FOREIGN KEY (`roles_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE')
+                    CONSTRAINT `fk_users_roles_rights_links_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_roles_rights_links_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `users_rights` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_users_roles_right_links_roles_id` FOREIGN KEY (`roles_id`) REFERENCES `users_roles` (`id`) ON DELETE CASCADE')
                 ->create();
         })->addUpdate('0.0.5', function () {
             // Create additional user tables.

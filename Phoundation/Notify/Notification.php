@@ -6,7 +6,6 @@ use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Processes\ProcessCommands;
 use Throwable;
 
 
@@ -24,6 +23,13 @@ use Throwable;
 class Notification
 {
     /**
+     * The identifier for this notification
+     *
+     * @var int|null
+     */
+    protected ?int $id = null;
+
+    /**
      * The group that will receive  this notification
      *
      * @var array $groups
@@ -38,11 +44,25 @@ class Notification
     #[ExpectedValues(values: ["INFORMATION", "NOTICE", "WARNING", "ERROR"])]  protected string $type = 'ERROR';
 
     /**
+     * The status for this notification
+     *
+     * @var string|null $status
+     */
+    protected ?string $status = 'new';
+
+    /**
      * The code for this notification
      *
      * @var string|null $code
      */
     protected ?string $code = null;
+
+    /**
+     * The priority level, lowest 10, highest 1
+     *
+     * @var int $priority
+     */
+    protected int $priority = 10;
 
     /**
      * The title for this notification
@@ -119,6 +139,10 @@ class Notification
             throw new OutOfBoundsException('No code specified for this notification');
         }
 
+        if (strlen($code) > 16) {
+            throw new OutOfBoundsException('Invalid code specified for this notification, it should be less than or equal to 16 characters');
+        }
+
         $this->code = $code;
         return $this;
     }
@@ -133,6 +157,64 @@ class Notification
     public function getCode(): string
     {
         return $this->code;
+    }
+
+
+
+    /**
+     * Sets the status for this notification
+     *
+     * @param string|null $status
+     * @return Notification
+     */
+    public function setStatus(?string $status): Notification
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the status for this notification
+     *
+     * @return string|null
+     */
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+
+
+    /**
+     * Sets the priority level for this notification
+     *
+     * @param int $priority
+     * @return Notification
+     */
+    public function setPriority(int $priority): Notification
+    {
+        if (($priority < 1) or ($priority > 10)) {
+            throw new OutOfBoundsException('Invalid priority level ":priority" specified. It should be an integer between 1 and 10', [
+                ':priority' => $priority
+            ]);
+        }
+
+        $this->priority = $priority;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the priority level for this notification
+     *
+     * @return int
+     */
+    public function getPriority(): int
+    {
+        return $this->priority;
     }
 
 
@@ -446,5 +528,42 @@ return $this;
         }
 
         return $this;
+    }
+
+
+
+    /**
+     * Save this notification to the database
+     *
+     * @return void
+     */
+    protected function save(): void
+    {
+//        if ($this->id) {
+//            sql()->update('notifications', [
+//                '' => $this->,
+//                '' => $this->,
+//                'status' => $this->status,
+//            ]);
+//
+//        } else {
+//            sql()->insert('notifications', [
+//                '' => $this->,
+//                '' => $this->,
+//                'status' => $this->status,
+//                '' => $this->,
+//                '' => $this->,
+//                '' => $this->,
+//                '' => $this->,
+//                '' => $this->,
+//                '' => $this->,
+//                '' => $this->,
+//                '' => $this->,
+//                '' => $this->,
+//                '' => $this->,
+//                '' => $this->,
+//                '' => $this->,
+//            ]);
+//        }
     }
 }
