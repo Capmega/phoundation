@@ -106,13 +106,13 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `countries_id` (`countries_id`),
                     KEY `status` (`status`)')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_users_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
-                    CONSTRAINT `fk_users_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`),
-                    CONSTRAINT `fk_users_leaders_id` FOREIGN KEY (`leaders_id`) REFERENCES `users` (`id`),
-                    CONSTRAINT `fk_users_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
-                    CONSTRAINT `fk_users_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`),
-                    CONSTRAINT `fk_users_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`),
-                    CONSTRAINT `fk_users_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`)')
+                    CONSTRAINT `fk_users_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_leaders_id` FOREIGN KEY (`leaders_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_users_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT')
                 ->create();
 
             // Create the rights table.
@@ -137,9 +137,9 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`)')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_rights_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
-                    CONSTRAINT `fk_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
-                    CONSTRAINT `fk_rights_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`),')
+                    CONSTRAINT `fk_rights_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_rights_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,')
                 ->create();
 
             // Create the roles table.
@@ -162,9 +162,9 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `name` (`name`),
                     KEY `meta_id` (`meta_id`),')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_roles_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
-                    CONSTRAINT `fk_roles_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
-                    CONSTRAINT `fk_roles_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`),')
+                    CONSTRAINT `fk_roles_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_roles_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_roles_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT')
                 ->create();
 
             // Create the users_rights table.
@@ -185,7 +185,7 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `rights_id` (`rights_id`),
                     KEY `name` (`name`),')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_users_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                    CONSTRAINT `fk_users_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_users_rights_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `rights` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_users_rights_users_id` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE CASCADE')
                 ->create();
@@ -206,13 +206,13 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `roles_id` (`roles_id`),
                     KEY `rights_id` (`rights_id`),')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_roles_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                    CONSTRAINT `fk_roles_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_roles_rights_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `rights` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_roles_rights_roles_id` FOREIGN KEY (`roles_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE')
                 ->create();
         })->addUpdate('0.0.5', function () {
-            // Create the authentications table.
-            sql()->schema()->table('authentications')
+            // Create additional user tables.
+            sql()->schema()->table('users_authentications')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -222,7 +222,8 @@ class Init extends \Phoundation\Initialize\Init
                     `failed_reason` varchar(127) DEFAULT NULL,
                     `users_id` int DEFAULT NULL,
                     `username` varchar(64) NOT NULL,
-                    `ip` varchar(46) DEFAULT NULL,')
+                    `ip` varchar(46) DEFAULT NULL,
+                    `method` enum("authentication", "signin") CHARACTER SET latin1 NOT NULL DEFAULT "authentication",')
                 ->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
@@ -231,8 +232,39 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `users_id` (`users_id`),
                     KEY `ip` (`ip`),')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_authentications_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
-                    CONSTRAINT `fk_authentications_users_id` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`)')
+                    CONSTRAINT `fk_authentications_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_authentications_users_id` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE CASCADE')
+                ->create();
+
+            sql()->schema()->table('users_password_resets')
+                ->setColumns('
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
+                    `code` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+                    `date_requested` int DEFAULT "0",
+                    `date_used` int DEFAULT "0",
+                    `ip` varchar(32) CHARACTER SET latin1 DEFAULT NULL,')
+                ->setIndices('
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_users_password_resets_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE')
+                ->create();
+
+            sql()->schema()->table('users_old_passwords')
+                ->setColumns('
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `created_by` int NOT NULL,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `password` varchar(255) NOT NULL,')
+                ->setIndices('
+                    PRIMARY KEY (`id`),
+                    KEY `created_by` (`created_by`),
+                    KEY `password` (`password`),')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_users_old_passwords_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE')
                 ->create();
         });
     }
