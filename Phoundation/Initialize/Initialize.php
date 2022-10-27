@@ -140,18 +140,16 @@ class Initialize
         $libraries = self::listLibraries($system, $plugins);
 
         foreach ($libraries as $path => $library) {
-            $version = self::getLibraryVersion($library, $path);
+            // Get version information for this library
+            $version = self::listLibraryVersion($path, $library);
 
             if ($version === null) {
                 // This library has no version control
+                unset($libraries[$path]);
                 continue;
             }
 
-            $return[$path] = [
-                'name'         => $library,
-                'version'      => $version,
-                'next_version' => self::getLibraryNextVersion($library, $path)
-            ];
+            $return[$path] = $version;
         }
 
         return $return;
@@ -172,7 +170,26 @@ class Initialize
 
 
     /**
-     * Returns the version for the specified library
+     * Returns the database version for the specified library
+     *
+     * @param string $library
+     * @param string $path
+     * @return string|null
+     */
+    public static function getDatabaseVersion(string $library, string $path): ?string
+    {
+        if ($library === 'initialize') {
+            // The init library does not have init support itself
+            return null;
+        }
+
+        return self::getlibraryInit($path)?->getDatabaseVersion();
+    }
+
+
+
+    /**
+     * Returns the code version for the specified library
      *
      * @param string $library
      * @param string $path
@@ -191,7 +208,7 @@ class Initialize
 
 
     /**
-     * Returns the version for the specified library
+     * Returns the next available init version for the specified library
      *
      * @param string $library
      * @param string $path
@@ -205,6 +222,31 @@ class Initialize
         }
 
         return self::getlibraryInit($path)?->getNextExecutionVersion();
+    }
+
+
+    /**
+     * Returns a list with all libraries and their version information
+     *
+     * @param string $path
+     * @param string $library
+     * @return array|null
+     */
+    public static function listLibraryVersion(string $path, string $library): ?array
+    {
+        $version = self::getLibraryVersion($library, $path);
+
+        if ($version === null) {
+            // This library has no version control
+            return null;
+        }
+
+        return [
+            'name'              => $library,
+            'code_version'      => $version,
+            'database_version'  => self::getDatabaseVersion($library, $path),
+            'next_init_version' => self::getLibraryNextVersion($library, $path)
+        ];
     }
 
 
@@ -277,17 +319,48 @@ class Initialize
 
         // Keep initializing libraries until none of them have inits available anymore
         while ($libraries) {
+            // Order to have the nearest next init version first
+            self::orderLibraries($libraries);
+print_r($libraries);
             foreach ($libraries as $path => &$library) {
-                $library['next_version'] = self::executeLibrary($library['name'], $path, $library['next_version'], $comments);
-
-                if (!$library['next_version']) {
+                if (!$library['next_init_version']) {
                     // This library has nothing more to initialize, remove it from the list
                     Log::success(tr('Finished updates for library ":library"', [':library' => $library['name']]));
                     unset($libraries[$path]);
+                    break;
                 }
+
+                // Execute the update inits for this library and update the library information and start over
+                self::executeLibrary($library['name'], $path, $library['next_init_version'], $comments);
+                $library = self::listLibraryVersion($path, $library['name']);
+                break;
             }
         }
     }
+
+
+
+    /**
+     * Order the libraries by next_init_version first
+     *
+     * @param array $libraries
+     * @return void
+     */
+    protected static function orderLibraries(array &$libraries): void
+    {
+        // Remove libraries that have nothing to execute anymore
+        foreach ($libraries as $path => $library) {
+            if ($library['next_init_version'] === null) {
+                unset($libraries[$path]);
+            }
+        }
+
+        // Order
+        uasort($libraries, function ($a, $b) {
+            return version_compare($a['next_init_version'], $b['next_init_version']);
+        });
+    }
+
 
 
     /**
@@ -314,7 +387,7 @@ class Initialize
         // Get the init object (may return NULL if not exist!)
         $init = self::getlibraryInit($path);
 
-        if (!$init) {
+        if ($init === null) {
             // This library has no Init available, skip!
             Log::warning(tr('Not processing library ":library", it has no versioning control available', [
                 ':library' => $library

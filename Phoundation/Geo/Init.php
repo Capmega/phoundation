@@ -19,23 +19,22 @@ class Init extends \Phoundation\Initialize\Init
 {
     public function __construct()
     {
-        parent::__construct('0.0.2');
+        parent::__construct('0.0.3');
 
-        $this->addUpdate('0.0.2', function () {
+        $this->addUpdate('0.0.3', function () {
             // Create the geo_timezones table.
             sql()->schema()->table('geo_timezones')
                 ->setColumns('  
                     `id` int NOT NULL AUTO_INCREMENT,                   
-                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `code` varchar(2) CHARACTER SET latin1 DEFAULT NULL,
+                    `code` varchar(2) DEFAULT NULL,
                     `coordinates` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `utc_offset` varchar(6) CHARACTER SET latin1 NOT NULL,
                     `utc_dst_offset` varchar(6) CHARACTER SET latin1 NOT NULL,
-                    `name` varchar(64) CHARACTER SET latin1 NOT NULL,
-                    `seoname` varchar(64) CHARACTER SET latin1 NOT NULL,
-                    `comments` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
-                    `notes` varchar(255) CHARACTER SET latin1 DEFAULT NULL,')
+                    `name` varchar(64) NOT NULL,
+                    `seoname` varchar(64) NOT NULL,
+                    `comments` varchar(255) DEFAULT NULL,
+                    `notes` varchar(255) DEFAULT NULL,')
                 ->setIndices('  
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `name` (`name`),
@@ -51,18 +50,15 @@ class Init extends \Phoundation\Initialize\Init
             sql()->schema()->table('geo_continents')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,                   
-                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `modified_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `geonames_id` int NOT NULL,
-                    `code` varchar(2) CHARACTER SET latin1 NOT NULL,
-                    `name` varchar(32) CHARACTER SET latin1 NOT NULL,
-                    `seoname` varchar(32) CHARACTER SET latin1 NOT NULL,
-                    `alternate_names` varchar(4000) CHARACTER SET latin1 NOT NULL,
+                    `code` varchar(2) NOT NULL,
+                    `name` varchar(32) NOT NULL,
+                    `seoname` varchar(32) NOT NULL,
+                    `alternate_names` varchar(4000) NOT NULL,
                     `latitude` decimal(10,7) NOT NULL,
                     `longitude` decimal(10,7) NOT NULL,
-                    `timezones_id` int DEFAULT NULL,
-                    `moddate` datetime DEFAULT NULL,')
+                    `timezones_id` int DEFAULT NULL,')
                 ->setIndices('  PRIMARY KEY (`id`),
                     UNIQUE KEY `name` (`name`),
                     UNIQUE KEY `seoname` (`seoname`),
@@ -71,7 +67,6 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `latitude` (`latitude`),
                     KEY `longitude` (`longitude`),
                     KEY `timezones_id` (`timezones_id`),
-                    KEY `moddate` (`moddate`),
                     KEY `status` (`status`),')
                 ->setForeignKeys('
                     CONSTRAINT `fk_geo_continents_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE CASCADE')
@@ -81,25 +76,24 @@ class Init extends \Phoundation\Initialize\Init
             sql()->schema()->table('geo_countries')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `geonames_id` int DEFAULT NULL,
                     `continents_id` int DEFAULT NULL,
                     `timezones_id` int DEFAULT NULL,
-                    `code` varchar(2) CHARACTER SET latin1 DEFAULT NULL,
-                    `iso_alpha2` char(2) CHARACTER SET latin1 DEFAULT NULL,
-                    `iso_alpha3` char(3) CHARACTER SET latin1 DEFAULT NULL,
-                    `iso_numeric` char(3) CHARACTER SET latin1 DEFAULT NULL,
-                    `fips_code` varchar(3) CHARACTER SET latin1 DEFAULT NULL,
-                    `tld` varchar(2) CHARACTER SET latin1 DEFAULT NULL,
-                    `currency` varchar(3) CHARACTER SET latin1 DEFAULT NULL,
-                    `currency_name` varchar(20) CHARACTER SET latin1 DEFAULT NULL,
+                    `code` varchar(2) DEFAULT NULL,
+                    `iso_alpha2` char(2) DEFAULT NULL,
+                    `iso_alpha3` char(3) DEFAULT NULL,
+                    `iso_numeric` char(3) DEFAULT NULL,
+                    `fips_code` varchar(3) DEFAULT NULL,
+                    `tld` varchar(2) DEFAULT NULL,
+                    `currency` varchar(3) DEFAULT NULL,
+                    `currency_name` varchar(20) DEFAULT NULL,
                     `phone` varchar(10) CHARACTER SET latin1 DEFAULT NULL,
-                    `postal_code_format` varchar(100) CHARACTER SET latin1 DEFAULT NULL,
-                    `postal_code_regex` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+                    `postal_code_format` varchar(100) DEFAULT NULL,
+                    `postal_code_regex` varchar(255) DEFAULT NULL,
                     `languages` varchar(200) DEFAULT NULL,
                     `neighbours` varchar(100) DEFAULT NULL,
-                    `equivalent_fips_code` varchar(10) CHARACTER SET latin1 DEFAULT NULL,
+                    `equivalent_fips_code` varchar(10) DEFAULT NULL,
                     `latitude` decimal(10,7) DEFAULT NULL,
                     `longitude` decimal(10,7) DEFAULT NULL,
                     `alternate_names` varchar(4000) DEFAULT NULL,
@@ -107,8 +101,7 @@ class Init extends \Phoundation\Initialize\Init
                     `seoname` varchar(200) NOT NULL,
                     `capital` varchar(200) DEFAULT NULL,
                     `areainsqkm` double DEFAULT NULL,
-                    `population` int DEFAULT NULL,
-                    `moddate` datetime DEFAULT NULL,')
+                    `population` int DEFAULT NULL,')
                 ->setIndices('
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `name` (`name`),
@@ -135,7 +128,6 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `equivalent_fips_code` (`equivalent_fips_code`),
                     KEY `latitude` (`latitude`),
                     KEY `longitude` (`longitude`),
-                    KEY `moddate` (`moddate`),
                     KEY `status` (`status`),')
                 ->setForeignKeys('
                     CONSTRAINT `fk_geo_countries_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE CASCADE,
@@ -146,11 +138,10 @@ class Init extends \Phoundation\Initialize\Init
             sql()->schema()->table('geo_states')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `geonames_id` int DEFAULT NULL,
                     `countries_id` int NOT NULL,
-                    `country_code` varchar(2) CHARACTER SET latin1 NOT NULL,
+                    `country_code` varchar(2) NOT NULL,
                     `timezones_id` int DEFAULT NULL,
                     `code` varchar(2) NOT NULL,
                     `name` varchar(200) NOT NULL,
@@ -162,7 +153,6 @@ class Init extends \Phoundation\Initialize\Init
                     `elevation` int DEFAULT NULL,
                     `admin1` varchar(20) DEFAULT NULL,
                     `admin2` varchar(20) DEFAULT NULL,
-                    `moddate` datetime DEFAULT NULL,
                     `filter` enum("default", "selective") CHARACTER SET latin1 NOT NULL DEFAULT "default",')
                 ->setIndices('
                     PRIMARY KEY (`id`),
@@ -177,7 +167,6 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `timezones_id` (`timezones_id`),
                     KEY `admin1` (`admin1`),
                     KEY `admin2` (`admin2`),
-                    KEY `moddate` (`moddate`),
                     KEY `name` (`name`),
                     KEY `country_code` (`country_code`),
                     KEY `status` (`status`),')
@@ -187,18 +176,72 @@ class Init extends \Phoundation\Initialize\Init
                     CONSTRAINT `fk_geo_states_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE CASCADE')
                 ->create();
 
+            // Create the geo_counties table.
+            sql()->schema()->table('geo_counties')
+                ->setColumns('
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `geonames_id` int DEFAULT NULL,
+                    `states_id` int NOT NULL,
+                    `countries_id` int NOT NULL,
+                    `timezones_id` int DEFAULT NULL,
+                    `code` varchar(2),
+                    `name` varchar(64),
+                    `seoname` varchar(64),
+                    `alternate_names` text,
+                    `latitude` decimal(10,7) DEFAULT NULL,
+                    `longitude` decimal(10,7) DEFAULT NULL,
+                    `population` int DEFAULT NULL,
+                    `elevation` int DEFAULT NULL,
+                    `admin1` varchar(20) DEFAULT NULL,
+                    `admin2` varchar(20) DEFAULT NULL')
+                ->setIndices('
+                    PRIMARY KEY (`id`),
+                    UNIQUE KEY `seoname` (`seoname`),
+                    UNIQUE KEY `name_2` (`name`,`latitude`,`longitude`,`countries_id`),
+                    KEY `status` (`status`),
+                    KEY `states_id` (`states_id`),
+                    KEY `countries_id` (`countries_id`),
+                    KEY `code` (`code`),
+                    KEY `population` (`population`),
+                    KEY `elevation` (`elevation`),
+                    KEY `timezones_id` (`timezones_id`),
+                    KEY `admin1` (`admin1`),
+                    KEY `admin2` (`admin2`),
+                    KEY `name` (`name`),')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_geo_counties_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_geo_counties_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_geo_provences_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE CASCADE')
+                ->create();
+
+
+            // Create the geo_features table.
+            sql()->schema()->table('geo_features')
+                ->setColumns('
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `code` varchar(10) NOT NULL,
+                    `name` varchar(32) NOT NULL,
+                    `description` varchar(255) DEFAULT NULL,')
+                ->setIndices('
+                    PRIMARY KEY (`id`),
+                    UNIQUE KEY `code` (`code`),
+                    KEY `status` (`status`),
+                    KEY `name` (`name`)')
+                ->create();
+
             // Create the geo_cities table.
             sql()->schema()->table('geo_cities')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `is_city` int DEFAULT NULL,
                     `geonames_id` int DEFAULT NULL,
                     `counties_id` int DEFAULT NULL,
                     `states_id` int NOT NULL,
                     `countries_id` int NOT NULL,
-                    `country_code` varchar(2) CHARACTER SET latin1 DEFAULT NULL,
+                    `country_code` varchar(2) DEFAULT NULL,
                     `name` varchar(200) NOT NULL,
                     `seoname` varchar(200) NOT NULL,
                     `alternate_names` text,
@@ -210,9 +253,8 @@ class Init extends \Phoundation\Initialize\Init
                     `admin2` varchar(20) DEFAULT NULL,
                     `population` int DEFAULT NULL,
                     `timezones_id` int DEFAULT NULL,
-                    `timezone` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
-                    `feature_code` varchar(10) CHARACTER SET latin1 DEFAULT NULL,
-                    `moddate` datetime DEFAULT NULL,')
+                    `timezone` varchar(64) DEFAULT NULL,
+                    `feature_code` varchar(10) DEFAULT NULL,')
                 ->setIndices('
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `seoname` (`states_id`,`seoname`),
@@ -232,8 +274,6 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `counties_id` (`counties_id`),
                     KEY `admin1` (`admin1`),
                     KEY `admin2` (`admin2`),
-                    KEY `modified_on` (`modified_on`),
-                    KEY `moddate` (`moddate`),
                     KEY `name` (`name`),
                     KEY `status` (`status`),')
                 ->setForeignKeys('

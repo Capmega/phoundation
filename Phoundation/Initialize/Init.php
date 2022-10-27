@@ -66,7 +66,23 @@ class Init
         $library = strtolower($library);
 
         if (!$version) {
-            throw new OutOfBoundsException(tr('No code version specified for library ":library" init file', [':library' => $library]));
+            throw new OutOfBoundsException(tr('No code version specified for library ":library" init file', [
+                ':library' => $library
+            ]));
+        }
+
+        if (!strings::isVersion($version)) {
+            throw new OutOfBoundsException(tr('Invalid code version ":version" specified for library ":library" init file', [
+                ':version' => $version,
+                ':library' => $library
+            ]));
+        }
+
+        if ($version === '0.0.0') {
+            throw new OutOfBoundsException(tr('Invalid code version ":version" specified for library ":library" init file. The minimum version is "0.0.1"', [
+                ':version' => $version,
+                ':library' => $library
+            ]));
         }
 
         $this->library = $library;
@@ -99,11 +115,9 @@ class Init
         }
 
         return sql()->getColumn('
-                            SELECT `version` 
+                            SELECT MAX(`version`) 
                             FROM   `versions` 
-                            WHERE  `library` = :library', [
-            ':library' => $this->library
-        ]);
+                            WHERE  `library` = :library', [':library' => $this->library]);
     }
 
 
@@ -115,6 +129,12 @@ class Init
      */
     public function getNextExecutionVersion(): ?string
     {
+        if ($this->isFuture(array_key_first($this->updates))) {
+            // The first available init version is already future version and will not be executed!
+            return null;
+        }
+
+        // Get the current version for the database
         $version = $this->getDatabaseVersion();
 
         if ($version === null) {
@@ -123,7 +143,16 @@ class Init
         }
 
         try {
-            return Arrays::nextKey($this->updates, $version);
+            // Get the next available version
+            $version = Arrays::nextKey($this->updates, $version);
+
+            if ($this->isFuture($version)) {
+                // The next available version is a future version and will not be executed
+                return null;
+            }
+
+            return $version;
+
         } catch (OutOfBoundsException $e) {
             // There is no next available!
             return null;
@@ -143,6 +172,12 @@ class Init
     public function addUpdate(string $version, callable $function): Init
     {
         $this->updates[$version] = $function;
+
+        // Make sure the updates table is ordered by versions
+        uksort($this->updates, function($a, $b) {
+            return version_compare($a, $b);
+        });
+
         return $this;
     }
 
@@ -187,21 +222,11 @@ class Init
         }
 
         if ($this->hasBeenExecuted($version)) {
-            Log::warning(tr('Skipping init version ":version" for library ":library" because it already has been executed', [
-                ':library' => $this->library,
-                ':version' => $version
-            ]), 2);
-
-            return false;
+            return null;
         }
 
         if ($this->isFuture($version)) {
-            Log::warning(tr('Skipping init version ":version" for library ":library" because it is a future update', [
-                ':library' => $this->library,
-                ':file'    => $version
-            ]), 2);
-
-            return false;
+            return null;
         }
 
         // Execute this init, register the version as executed, and return the next version
@@ -248,11 +273,16 @@ class Init
         switch ($result) {
             case -1:
                 // The file version is newer than the specified version
+                Log::warning(tr('Skipping init version ":version" for library ":library" because it already has been executed', [
+                    ':library' => $this->library,
+                    ':version' => $version
+                ]), 5);
+
                 return true;
 
             case 0:
                 // The file version is the same as the current version, it has  been executed
-                return true;
+                return false;
 
             case 1:
                 // The file version is later than the specified version
@@ -279,7 +309,7 @@ class Init
         switch ($result) {
             case -1:
                 // The file version is newer than the specified version
-                return true;
+                return false;
 
             case 0:
                 // The file version is the same as the current version, it has  been executed
@@ -287,7 +317,12 @@ class Init
 
             case 1:
                 // The file version is later than the specified version
-                return false;
+                Log::warning(tr('Skipping init version ":version" for library ":library" because it is a future update', [
+                    ':library' => $this->library,
+                    ':version' => $version
+                ]));
+
+                return true;
         }
 
         throw new UnexpectedValueException(tr('Php version_compare() gave the unexpected output ":output"', [

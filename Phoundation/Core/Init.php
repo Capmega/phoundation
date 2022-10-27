@@ -19,24 +19,25 @@ class Init extends \Phoundation\Initialize\Init
 {
     public function __construct()
     {
-        parent::__construct('0.0.0');
+        parent::__construct('0.0.1');
 
         $this->addUpdate('0.0.1', function () {
-            // Create the versions registration table.
+            // Add table for version control itself
             sql()->schema()->table('versions')
                 ->setColumns(
-                 '`id`        INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                    '`id`        INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
                           `createdon` TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
                           `library`   VARCHAR(64)   NOT NULL,
                           `version`   VARCHAR(64)   NOT NULL,
                           `comments`  VARCHAR(2048)     NULL')
                 ->setIndices(
-                  'INDEX `createdon`       (`createdon`),
+                    'INDEX `createdon`       (`createdon`),
                           INDEX `library`         (`library`),
                           INDEX `version`         (`version`),
                           INDEX `library_version` (`library`, `version`)')
                 ->create();
-
+        })->addUpdate('0.0.2', function () {
+            // Add tables for the meta library
             sql()->schema()->table('meta')
                 ->setColumns('`id` int NOT NULL AUTO_INCREMENT')
                 ->setIndices('PRIMARY KEY (`id`)')
