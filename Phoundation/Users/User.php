@@ -4,7 +4,11 @@ namespace Phoundation\Users;
 
 use Phoundation\Data\DataEntry;
 use Phoundation\Date\DateTime;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\City;
+use Phoundation\Geo\Country;
+use Phoundation\Geo\State;
+use Phoundation\Geo\Timezone;
 
 
 /**
@@ -24,7 +28,7 @@ class User
 
 
     /**
-     * Sets the nickname for this user
+     * Returns the nickname for this user
      *
      * @return string|null
      */
@@ -36,7 +40,7 @@ class User
     
 
     /**
-     * Returns the nickname for this user
+     * Sets the nickname for this user
      *
      * @param string $nickname
      * @return User
@@ -49,7 +53,7 @@ class User
 
 
     /**
-     * Sets the name for this user
+     * Returns the name for this user
      *
      * @return string|null
      */
@@ -61,7 +65,7 @@ class User
 
 
     /**
-     * Returns the name for this user
+     * Sets the name for this user
      *
      * @param string $name
      * @return User
@@ -74,7 +78,7 @@ class User
 
 
     /**
-     * Sets the email for this user
+     * Returns the email for this user
      *
      * @return string|null
      */
@@ -86,7 +90,7 @@ class User
 
 
     /**
-     * Returns the email for this user
+     * Sets the email for this user
      *
      * @param string $email
      * @return User
@@ -99,7 +103,7 @@ class User
 
 
     /**
-     * Sets the username for this user
+     * Returns the username for this user
      *
      * @return string|null
      */
@@ -111,7 +115,7 @@ class User
 
 
     /**
-     * Returns the username for this user
+     * Sets the username for this user
      *
      * @param string $username
      * @return User
@@ -124,7 +128,7 @@ class User
 
 
     /**
-     * Sets the last_signin for this user
+     * Returns the last_signin for this user
      *
      * @return string|null
      */
@@ -136,7 +140,7 @@ class User
 
 
     /**
-     * Returns the last_signin for this user
+     * Sets the last_signin for this user
      *
      * @param string $last_signin
      * @return User
@@ -149,7 +153,7 @@ class User
 
 
     /**
-     * Sets the auth_fails for this user
+     * Returns the auth_fails for this user
      *
      * @return string|null
      */
@@ -161,7 +165,7 @@ class User
 
 
     /**
-     * Returns the auth_fails for this user
+     * Sets the auth_fails for this user
      *
      * @param string $auth_fails
      * @return User
@@ -174,7 +178,7 @@ class User
 
 
     /**
-     * Sets the locked_until for this user
+     * Returns the locked_until for this user
      *
      * @return string|null
      */
@@ -186,7 +190,7 @@ class User
 
 
     /**
-     * Returns the locked_until for this user
+     * Sets the locked_until for this user
      *
      * @param string $locked_until
      * @return User
@@ -199,7 +203,7 @@ class User
 
 
     /**
-     * Sets the signin_count for this user
+     * Returns the signin_count for this user
      *
      * @return string|null
      */
@@ -211,7 +215,7 @@ class User
 
 
     /**
-     * Returns the signin_count for this user
+     * Sets the signin_count for this user
      *
      * @param string $signin_count
      * @return User
@@ -224,7 +228,7 @@ class User
 
 
     /**
-     * Sets the fingerprint datetime for this user
+     * Returns the fingerprint datetime for this user
      *
      * @return DateTime|null
      */
@@ -237,7 +241,7 @@ class User
 
 
     /**
-     * Returns the fingerprint datetime for this user
+     * Sets the fingerprint datetime for this user
      *
      * @param \DateTime|int $fingerprint
      * @return User
@@ -254,7 +258,7 @@ class User
 
 
     /**
-     * Sets the domain for this user
+     * Returns the domain for this user
      *
      * @return string|null
      */
@@ -266,7 +270,7 @@ class User
 
 
     /**
-     * Returns the domain for this user
+     * Sets the domain for this user
      *
      * @param string $domain
      * @return User
@@ -279,7 +283,7 @@ class User
 
 
     /**
-     * Sets the title for this user
+     * Returns the title for this user
      *
      * @return string|null
      */
@@ -291,7 +295,7 @@ class User
 
 
     /**
-     * Returns the title for this user
+     * Sets the title for this user
      *
      * @param string $title
      * @return User
@@ -304,7 +308,7 @@ class User
 
 
     /**
-     * Sets the avatar for this user
+     * Returns the avatar for this user
      *
      * @return string|null
      */
@@ -316,7 +320,7 @@ class User
 
 
     /**
-     * Returns the avatar for this user
+     * Sets the avatar for this user
      *
      * @param string $avatar
      * @return User
@@ -329,7 +333,7 @@ class User
 
 
     /**
-     * Sets the code for this user
+     * Returns the code for this user
      *
      * @return string|null
      */
@@ -341,7 +345,7 @@ class User
 
 
     /**
-     * Returns the code for this user
+     * Sets the code for this user
      *
      * @param string $code
      * @return User
@@ -354,7 +358,7 @@ class User
 
 
     /**
-     * Sets the type for this user
+     * Returns the type for this user
      *
      * @return string|null
      */
@@ -366,7 +370,7 @@ class User
 
 
     /**
-     * Returns the type for this user
+     * Sets the type for this user
      *
      * @param string $type
      * @return User
@@ -379,7 +383,7 @@ class User
 
 
     /**
-     * Sets the keywords for this user
+     * Returns the keywords for this user
      *
      * @return string|null
      */
@@ -391,7 +395,7 @@ class User
 
 
     /**
-     * Returns the keywords for this user
+     * Sets the keywords for this user
      *
      * @param string $keywords
      * @return User
@@ -404,7 +408,7 @@ class User
 
 
     /**
-     * Sets the phones for this user
+     * Returns the phones for this user
      *
      * @return string|null
      */
@@ -416,7 +420,7 @@ class User
 
 
     /**
-     * Returns the phones for this user
+     * Sets the phones for this user
      *
      * @param string $phones
      * @return User
@@ -429,7 +433,7 @@ class User
 
 
     /**
-     * Sets the address for this user
+     * Returns the address for this user
      *
      * @return string|null
      */
@@ -441,7 +445,7 @@ class User
 
 
     /**
-     * Returns the address for this user
+     * Sets the address for this user
      *
      * @param string $address
      * @return User
@@ -454,7 +458,7 @@ class User
 
 
     /**
-     * Sets the verification_code for this user
+     * Returns the verification_code for this user
      *
      * @return string|null
      */
@@ -466,7 +470,7 @@ class User
 
 
     /**
-     * Returns the verification_code for this user
+     * Sets the verification_code for this user
      *
      * @param string $verification_code
      * @return User
@@ -479,7 +483,7 @@ class User
 
 
     /**
-     * Sets the verified_on for this user
+     * Returns the verified_on for this user
      *
      * @return string|null
      */
@@ -491,7 +495,7 @@ class User
 
 
     /**
-     * Returns the verified_on for this user
+     * Sets the verified_on for this user
      *
      * @param string $verified_on
      * @return User
@@ -504,7 +508,7 @@ class User
 
 
     /**
-     * Sets the priority for this user
+     * Returns the priority for this user
      *
      * @return string|null
      */
@@ -516,7 +520,7 @@ class User
 
 
     /**
-     * Returns the priority for this user
+     * Sets the priority for this user
      *
      * @param string $priority
      * @return User
@@ -529,7 +533,7 @@ class User
 
 
     /**
-     * Sets the is_leader for this user
+     * Returns the is_leader for this user
      *
      * @return string|null
      */
@@ -541,7 +545,7 @@ class User
 
 
     /**
-     * Returns the is_leader for this user
+     * Sets the is_leader for this user
      *
      * @param string $is_leader
      * @return User
@@ -554,7 +558,7 @@ class User
 
 
     /**
-     * Sets the leaders_id for this user
+     * Returns the leaders_id for this user
      *
      * @return User|null
      */
@@ -572,7 +576,7 @@ class User
 
 
     /**
-     * Returns the leaders_id for this user
+     * Sets the leaders_id for this user
      *
      * @param int|User $leader
      * @return User
@@ -589,7 +593,7 @@ class User
 
 
     /**
-     * Sets the latitude for this user
+     * Returns the latitude for this user
      *
      * @return float|null
      */
@@ -601,7 +605,7 @@ class User
 
 
     /**
-     * Returns the latitude for this user
+     * Sets the latitude for this user
      *
      * @param float|null $latitude
      * @return User
@@ -614,7 +618,7 @@ class User
 
 
     /**
-     * Sets the longitude for this user
+     * Returns the longitude for this user
      *
      * @return float|null
      */
@@ -626,7 +630,7 @@ class User
 
 
     /**
-     * Returns the longitude for this user
+     * Sets the longitude for this user
      *
      * @param float|null $longitude
      * @return User
@@ -639,7 +643,7 @@ class User
 
 
     /**
-     * Sets the accuracy for this user
+     * Returns the accuracy for this user
      *
      * @return int|null
      */
@@ -651,7 +655,7 @@ class User
 
 
     /**
-     * Returns the accuracy for this user
+     * Sets the accuracy for this user
      *
      * @param int|null $accuracy
      * @return User
@@ -664,7 +668,7 @@ class User
 
 
     /**
-     * Sets the offset_latitude for this user
+     * Returns the offset_latitude for this user
      *
      * @return float|null
      */
@@ -676,7 +680,7 @@ class User
 
 
     /**
-     * Returns the offset_latitude for this user
+     * Sets the offset_latitude for this user
      *
      * @param float|null $offset_latitude
      * @return User
@@ -689,7 +693,7 @@ class User
 
 
     /**
-     * Sets the offset_longitude for this user
+     * Returns the offset_longitude for this user
      *
      * @return float|null
      */
@@ -701,7 +705,7 @@ class User
 
 
     /**
-     * Returns the offset_longitude for this user
+     * Sets the offset_longitude for this user
      *
      * @param float|null $offset_longitude
      * @return User
@@ -714,7 +718,7 @@ class User
 
 
     /**
-     * Sets the cities_id for this user
+     * Returns the cities_id for this user
      *
      * @return City|null
      */
@@ -726,7 +730,7 @@ class User
 
 
     /**
-     * Returns the cities_id for this user
+     * Sets the cities_id for this user
      *
      * @param City|null $city
      * @return User
@@ -743,25 +747,283 @@ class User
 
 
     /**
-     * Returns true if the user has ALL the specified rights
+     * Returns the states_id for this user
      *
-     * @param array|string $rights
-     * @return bool
+     * @return State|null
      */
-    public function hasAllRights(array|string $rights): bool
+    public function getState(): ?State
     {
+        return $this->getDataValue('states_id');
     }
 
 
 
     /**
-     * Returns true if the user has SOME of the specified rights
+     * Sets the states_id for this user
      *
-     * @param array|string $rights
-     * @return bool
+     * @param State|null $state
+     * @return User
      */
-    public function hasSomeRights(array|string $rights): bool
+    public function setState(?State $state): User
     {
+        if (is_object($state)) {
+            $state = $state->getId();
+        }
+
+        return $this->setDataValue('states_id', $state);
+    }
+
+
+
+    /**
+     * Returns the countries_id for this user
+     *
+     * @return Country|null
+     */
+    public function getCountry(): ?Country
+    {
+        return $this->getDataValue('countries_id');
+    }
+
+
+
+    /**
+     * Sets the countries_id for this user
+     *
+     * @param Country|null $country
+     * @return User
+     */
+    public function setCountry(?Country $country): User
+    {
+        if (is_object($country)) {
+            $country = $country->getId();
+        }
+
+        return $this->setDataValue('countries_id', $country);
+    }
+
+
+
+    /**
+     * Returns the redirect for this user
+     *
+     * @return string|null
+     */
+    public function getRedirect(): ?string
+    {
+        return $this->getDataValue('redirect');
+    }
+
+
+
+    /**
+     * Sets the redirect for this user
+     *
+     * @param string $redirect
+     * @return User
+     */
+    public function setRedirect(string $redirect): User
+    {
+        if (!filter_var($redirect, FILTER_VALIDATE_URL)) {
+            throw new OutOfBoundsException(tr('Invalid redirect URL ":redirect" specified', [
+                ':redirect' => $redirect
+            ]));
+        }
+
+        return $this->setDataValue('redirect', $redirect);
+    }
+
+
+
+    /**
+     * Returns the language for this user
+     *
+     * @return string|null
+     */
+    public function getLanguage(): ?string
+    {
+        return $this->getDataValue('language');
+    }
+
+
+
+    /**
+     * Sets the language for this user
+     *
+     * @param string $language
+     * @return User
+     */
+    public function setLanguage(string $language): User
+    {
+        if (strlen($language) != 2) {
+            throw new OutOfBoundsException(tr('Invalid language ":language" specified', [
+                ':language' => $language
+            ]));
+        }
+
+        return $this->setDataValue('language', $language);
+    }
+
+
+
+    /**
+     * Returns the gender for this user
+     *
+     * @return string|null
+     */
+    public function getGender(): ?string
+    {
+        return $this->getDataValue('gender');
+    }
+
+
+
+    /**
+     * Sets the gender for this user
+     *
+     * @param string $gender
+     * @return User
+     */
+    public function setGender(string $gender): User
+    {
+        return $this->setDataValue('gender', $gender);
+    }
+
+
+
+    /**
+     * Returns the birthday for this user
+     *
+     * @return DateTime|null
+     */
+    public function getBirthday(): ?DateTime
+    {
+        $birthday = $this->getDataValue('birthday');
+
+        if ($birthday === null) {
+            return null;
+        }
+
+        return new DateTime($birthday);
+    }
+
+
+
+    /**
+     * Sets the birthday for this user
+     *
+     * @param string $gender
+     * @return User
+     */
+    public function setBirthday(string $gender): User
+    {
+        return $this->setDataValue('birthday', $gender);
+    }
+
+
+
+    /**
+     * Returns the description for this user
+     *
+     * @return string|null
+     */
+    public function getDescription(): ?string
+    {
+        return $this->getDataValue('description');
+    }
+
+
+
+    /**
+     * Sets the description for this user
+     *
+     * @param string $gender
+     * @return User
+     */
+    public function setDescription(string $gender): User
+    {
+        return $this->setDataValue('description', $gender);
+    }
+
+
+
+    /**
+     * Returns the comments for this user
+     *
+     * @return string|null
+     */
+    public function getComments(): ?string
+    {
+        return $this->getDataValue('comments');
+    }
+
+
+
+    /**
+     * Sets the comments for this user
+     *
+     * @param string $gender
+     * @return User
+     */
+    public function setComments(string $gender): User
+    {
+        return $this->setDataValue('comments', $gender);
+    }
+
+
+
+    /**
+     * Returns the website for this user
+     *
+     * @return string|null
+     */
+    public function getWebsite(): ?string
+    {
+        return $this->getDataValue('website');
+    }
+
+
+
+    /**
+     * Sets the website for this user
+     *
+     * @param string $gender
+     * @return User
+     */
+    public function setWebsite(string $gender): User
+    {
+        return $this->setDataValue('website', $gender);
+    }
+
+
+
+    /**
+     * Returns the timezone for this user
+     *
+     * @return Timezone|null
+     */
+    public function getTimezone(): ?Timezone
+    {
+        $timezone = $this->getDataValue('timezone');
+
+        if ($timezone === null) {
+            return null;
+        }
+
+        return new Timezone($timezone);
+    }
+
+
+
+    /**
+     * Sets the timezone for this user
+     *
+     * @param string $gender
+     * @return User
+     */
+    public function setTimezone(string $gender): User
+    {
+        return $this->setDataValue('timezone', $gender);
     }
 
 
@@ -800,6 +1062,30 @@ class User
 
 
     /**
+     * Returns true if the user has ALL the specified rights
+     *
+     * @param array|string $rights
+     * @return bool
+     */
+    public function hasAllRights(array|string $rights): bool
+    {
+    }
+
+
+
+    /**
+     * Returns true if the user has SOME of the specified rights
+     *
+     * @param array|string $rights
+     * @return bool
+     */
+    public function hasSomeRights(array|string $rights): bool
+    {
+    }
+
+
+
+    /**
      * Load all user data from database
      *
      * @param int $id
@@ -807,6 +1093,85 @@ class User
      */
     protected function load(int $id): void
     {
-        $this->data = sql()->get('SELECT * FROM `users` WHERE `id` = :id', [':id' => $id]);
+        $data = sql()->get('SELECT * FROM `users` WHERE `id` = :id', [':id' => $id]);
+
+        if ($data === null) {
+
+        }
+
+        // Store all data
+        $this->setData($data);
+        $this->setMetaData($data);
+    }
+
+
+
+    /**
+     * Save all user data to database
+     *
+     * @return void
+     */
+    protected function save(): void
+    {
+        sql()->insert('users', $this->getInsertColumns(), $this->getUpdateColumns());
+    }
+
+
+
+    /**
+     * Sets the available data keys for the User class
+     *
+     * @return void
+     */
+    protected function setKeys(): void
+    {
+        $this->keys = [
+            'id',
+            'created_by',
+            'created_on',
+            'modified_by',
+            'modified_on',
+            'meta_id',
+            'status',
+            'last_signin',
+            'auth_fails',
+            'locked_until',
+            'signin_count',
+            'username',
+            'password',
+            'fingerprint',
+            'domain',
+            'title',
+            'name',
+            'nickname',
+            'avatar',
+            'email',
+            'code',
+            'type',
+            'keywords',
+            'phones',
+            'address',
+            'verification_code',
+            'verified_on',
+            'priority',
+            'is_leader',
+            'leaders_id',
+            'latitude',
+            'longitude',
+            'accuracy',
+            'offset_latitude',
+            'offset_longitude',
+            'cities_id',
+            'states_id',
+            'countries_id',
+            'redirect',
+            'language',
+            'gender',
+            'birthday',
+            'description',
+            'comments',
+            'website',
+            'timezone'
+        ];
     }
 }

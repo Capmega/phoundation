@@ -3,7 +3,10 @@
 namespace Phoundation\Data;
 
 use DateTime;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Meta;
+use Phoundation\Core\Strings;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Users\User;
 
 
@@ -76,6 +79,13 @@ trait DataEntry
      */
     protected array $data = [];
 
+    /**
+     * Key definitions for the data for this entry
+     *
+     * @var array $keys
+     */
+    protected array $keys = [];
+
 
 
     /**
@@ -83,8 +93,10 @@ trait DataEntry
      *
      * @param int|null $id
      */
-    public function __construct(?int $id)
+    public function __construct(?int $id = null)
     {
+        $this->construct();
+
         if ($id) {
             $this->id = $id;
             $this->load($id);
@@ -135,7 +147,7 @@ trait DataEntry
      * @param string|null $status
      * @return DataEntry
      */
-    public function setStatus(?String $status): DataEntry
+    public function setStatus(?String $status): self
     {
         $this->status = $status;
         return $this;
@@ -157,20 +169,6 @@ trait DataEntry
 
 
     /**
-     * Returns the user that created this data entry
-     *
-     * @param User|null $user
-     * @return DataEntry
-     */
-    public function setCreatedBy(?User $user): DataEntry
-    {
-        $this->created_by = $user->getid();
-        return $this;
-    }
-
-
-
-    /**
      * Returns the user that modified this data entry
      *
      * @note Returns NULL if this class was not modified yet, or has no support for modified_by information
@@ -179,20 +177,6 @@ trait DataEntry
     public function getModifiedBy(): ?User
     {
         return new User($this->modified_by);
-    }
-
-
-
-    /**
-     * Returns the user that modified this data entry
-     *
-     * @param User|null $user
-     * @return DataEntry
-     */
-    public function setModifiedBy(?User $user): DataEntry
-    {
-        $this->modified_by = $user->getid();
-        return $this;
     }
 
 
@@ -220,9 +204,41 @@ trait DataEntry
      *
      * @param array $data
      * @return DataEntry
+     * @throws OutOfBoundsException
      */
-    public function setData(array $data): DataEntry
+    public function setData(array $data): self
     {
+        if (empty($this->keys)) {
+            throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
+                ':class' => gettype($this)
+            ]));
+        }
+
+        foreach ($data as $key => $value) {
+            // These keys cannot be set through setData()
+            switch ($key) {
+                case 'id':
+                    // no-break
+                case 'created_by':
+                // no-break
+                case 'created_on':
+                // no-break
+                case 'modified_by':
+                // no-break
+                case 'modified_on':
+                // no-break
+                case 'status':
+                // no-break
+                case 'meta_id':
+                    // Go to next key
+                    continue 2;
+            }
+
+            // Store this data through the methods to ensure datatype and filtering is done correctly
+            $method = $this->convertVariableToSetMethod($key);
+            $this->$method($value);
+        }
+
         $this->data = $data;
         return $this;
     }
@@ -241,13 +257,59 @@ trait DataEntry
 
 
     /**
+     * Sets all metadata for this data entry at once with an array of information
+     *
+     * @param array $data
+     * @return DataEntry
+     * @throws OutOfBoundsException
+     */
+    protected function setMetaData(array $data): self
+    {
+        if (empty($this->keys)) {
+            throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
+                ':class' => gettype($this)
+            ]));
+        }
+
+        foreach ($data as $key => $value) {
+            // Only these keys will be set through setMetaData()
+            switch ($key) {
+                case 'id':
+                    // no-break
+                case 'created_by':
+                    // no-break
+                case 'created_on':
+                    // no-break
+                case 'modified_by':
+                    // no-break
+                case 'modified_on':
+                    // no-break
+                case 'status':
+                    // no-break
+                case 'meta_id':
+                    // Store the meta data
+                    $this->$key = $value;
+
+                default:
+                    // Go to next key
+                    continue 2;
+            }
+        }
+
+        $this->data = $data;
+        return $this;
+    }
+
+
+
+    /**
      * Sets the value for the specified data key
      *
      * @param string $key
      * @param mixed $value
      * @return DataEntry
      */
-    protected function setDataValue(string $key, mixed $value): DataEntry
+    protected function setDataValue(string $key, mixed $value): self
     {
         $this->data[$key] = $value;
         return $this;
@@ -264,6 +326,61 @@ trait DataEntry
     {
         return isset_get($this->data[$key]);
     }
+
+
+
+    /**
+     * Rewrite the specified variable into the set method for that variable
+     *
+     * @param string $variable
+     * @return string
+     */
+    protected function convertVariableToSetMethod(string $variable): string
+    {
+        $return = explode('_', $variable);
+        $return = array_map('ucfirst', $return);
+        $return = implode('', $return);
+        $return = ucfirst($return);
+
+        return $return;
+    }
+
+
+
+    /**
+     * Returns the data to add for an SQL insert
+     *
+     * @return array
+     */
+    protected function getInsertColumns(): array
+    {
+        return Arrays::remove($this->data, [
+            'id', 'modified_by', 'modified_on'
+        ]);
+    }
+
+
+
+    /**
+     * Returns the data to add for an SQL update
+     *
+     * @return array
+     */
+    protected function getUpdateColumns(): array
+    {
+        return Arrays::remove($this->data, [
+            'meta_id', 'created_by', 'created_on', 'modified_by', 'modified_on'
+        ]);
+    }
+
+
+
+    /**
+     * Will set the available data keys for this data entry
+     *
+     * @return void
+     */
+    abstract function setKeys(): void;
 
 
 

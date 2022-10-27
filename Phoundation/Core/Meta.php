@@ -38,29 +38,35 @@ class Meta
 
 
     /**
-     * Returns a Meta object with the specified id (or a new one if no id has been specified)
+     * Creates a new meta entry and returns the database id for it
      *
-     * @param int|null $id
-     * @return Meta
+     * @return int
      */
-    public static function create(?int $id = null): Meta
+    public static function init(): int
     {
-        return new Meta($id);
+        $meta = new Meta();
+        $meta->addAction('created');
+        return $meta->id;
     }
-
+    
 
 
     /**
-     * Returns the id for a new meta entry
+     * Adds the specified action to the meta history
      *
      * @param string $action
-     * @return int
+     * @return void
+     * @throws \Throwable
      */
-    public static function action(string $action): int
+    public function addAction(string $action, ?array $data = null): void
     {
-        $meta = new Meta();
-        $meta->addAction($action);
-        return $meta->getId();
+        // Insert the action in the meta_history table
+        sql()->insert('meta_history', [
+            'meta_id'    => $this->id,
+            'created_by' => Session::currentUser()->getId(),
+            'action'     => $action,
+            'data'       => $data
+        ]);
     }
 
 
@@ -74,20 +80,5 @@ class Meta
     protected function load(int $id): void
     {
 
-    }
-
-
-
-    /**
-     * Add an action for this meta object
-     *
-     * @param string $action
-     * @return void
-     */
-    public function addAction(string $action): void
-    {
-        sql()->insert('meta_history', [
-            ''
-        ]);
     }
 }

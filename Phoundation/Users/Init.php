@@ -64,13 +64,11 @@ class Init extends \Phoundation\Initialize\Init
                     `states_id` int DEFAULT NULL,
                     `countries_id` int DEFAULT NULL,
                     `redirect` varchar(255) DEFAULT NULL,
-                    `location` varchar(64) DEFAULT NULL,
                     `language` char(2) CHARACTER SET latin1 DEFAULT NULL,
                     `gender` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `birthday` date DEFAULT NULL,
-                    `country` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
                     `description` text DEFAULT NULL,
-                    `commentary` mediumtext DEFAULT NULL,
+                    `comments` mediumtext DEFAULT NULL,
                     `website` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
                     `timezone` varchar(32) DEFAULT NULL')
                 ->setIndices('                

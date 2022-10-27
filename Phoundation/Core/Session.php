@@ -2,6 +2,8 @@
 
 namespace Phoundation\Core;
 
+use Phoundation\Users\User;
+
 /**
  * Class Session
  *
@@ -14,33 +16,55 @@ namespace Phoundation\Core;
  */
 class Session
 {
-    /*
-     * Read value for specified key from $_SESSION[cache][$key]
+    /**
+     * The current user for this session
      *
-     * If $_SESSION[cache][$key] does not exist, then execute the callback and
-     * store the resulting value in $_SESSION[cache][$key]
+     * @var User|null $user
      */
-    function session_cache($key, $callback)
+    protected ?User $user = null;
+
+
+
+    /**
+     * @return User
+     */
+    public static function currentUser(): User
     {
-        try {
-            if (empty($_SESSION)) {
-                return null;
-            }
-
-            if (!isset($_SESSION['cache'])) {
-                $_SESSION['cache'] = array();
-            }
-
-            if (!isset($_SESSION['cache'][$key])) {
-                $_SESSION['cache'][$key] = $callback();
-            }
-
-            return $_SESSION['cache'][$key];
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException(tr('session_cache(): Failed'), $e);
+        if ($this->user === null) {
+            // There is no user, this is a guest session
+            return new User();
         }
+
+        return $this->user;
     }
 
 
+
+//    /*
+//     * Read value for specified key from $_SESSION[cache][$key]
+//     *
+//     * If $_SESSION[cache][$key] does not exist, then execute the callback and
+//     * store the resulting value in $_SESSION[cache][$key]
+//     */
+//    function session_cache($key, $callback)
+//    {
+//        try {
+//            if (empty($_SESSION)) {
+//                return null;
+//            }
+//
+//            if (!isset($_SESSION['cache'])) {
+//                $_SESSION['cache'] = array();
+//            }
+//
+//            if (!isset($_SESSION['cache'][$key])) {
+//                $_SESSION['cache'][$key] = $callback();
+//            }
+//
+//            return $_SESSION['cache'][$key];
+//
+//        } catch (Exception $e) {
+//            throw new OutOfBoundsException(tr('session_cache(): Failed'), $e);
+//        }
+//    }
 }

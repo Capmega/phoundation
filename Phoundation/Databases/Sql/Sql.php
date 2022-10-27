@@ -15,6 +15,7 @@ use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log;
+use Phoundation\Core\Meta;
 use Phoundation\Core\Strings;
 use Phoundation\Core\Timers;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
@@ -958,15 +959,22 @@ class Sql
      *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
      * @param array $row
-     * @return PDOStatement
+     * @return int
+     * @throws Throwable
      */
-    public function insert(string $table, array $row): PDOStatement
+    public function insert(string $table, array $row): int
     {
+        if ($row['meta_id']) {
+            $row['meta_id'] = Meta::init();
+        }
+
         $columns = $this->columns($row);
         $values  = $this->values($row);
         $keys    = $this->keys($row);
 
-        return $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
+        $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
+
+        return $this->pdo->lastInsertId();
     }
 
 
@@ -1261,12 +1269,12 @@ class Sql
      * @param array $source
      * @return string
      */
-    public function columns(array $source): string
+    public function columns(array $source, ?string $prefix = null): string
     {
         $return = [];
 
         foreach ($source as $key => $value) {
-            $return[] = '`' . $key . '`';
+            $return[] = '`' . $prefix . $key . '`';
         }
 
         return implode(', ', $return);
@@ -1278,15 +1286,15 @@ class Sql
      * Converts the specified row data into a PDO bound variables compatible key > values array
      *
      * @param array|string $source
-     * @param string $prefix
+     * @param string|null $prefix
      * @return string
      */
-    public function keys(array|string $source, string $prefix = ':'): string
+    public function keys(array|string $source, ?string $prefix = null): string
     {
         $return  = [];
 
         foreach ($source as $key => $value) {
-            $return[$prefix . $key] = $value;
+            $return[':' . $prefix . $key] = $value;
         }
 
         $return = array_keys($return);
@@ -1301,15 +1309,15 @@ class Sql
      * Converts the specified row data into a PDO bound variables compatible key > values array
      *
      * @param array|string $source
-     * @param string $prefix
+     * @param string|null $prefix
      * @return array
      */
-    public function values(array|string $source, string $prefix = ':'): array
+    public function values(array|string $source, ?string $prefix = null): array
     {
         $return  = [];
 
         foreach ($source as $key => $value) {
-            $return[$prefix . $key] = $value;
+            $return[':' . $prefix . $key] = $value;
         }
 
         return $return;
