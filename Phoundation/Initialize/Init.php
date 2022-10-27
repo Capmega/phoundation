@@ -189,7 +189,7 @@ class Init
         if ($this->hasBeenExecuted($version)) {
             Log::warning(tr('Skipping init version ":version" for library ":library" because it already has been executed', [
                 ':library' => $this->library,
-                ':file'    => $version
+                ':version' => $version
             ]), 2);
 
             return false;

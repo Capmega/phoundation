@@ -297,9 +297,9 @@ class Initialize
      * @param string $path
      * @param string $version
      * @param string|null $comments
-     * @return string The version to which it has been updated
+     * @return string|null The next init version available for this library, if any. NULL if none are availabe anymore
      */
-    protected static function executeLibrary(string $library, string $path, string $version, ?string $comments = null): string
+    protected static function executeLibrary(string $library, string $path, string $version, ?string $comments = null): ?string
     {
         // TODO Check later if we should be able to let init initialize itself
         if ($library === 'initialize') {
