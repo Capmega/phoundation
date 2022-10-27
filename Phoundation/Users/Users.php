@@ -18,6 +18,23 @@ use Iterator;
  */
 class Users implements Iterator
 {
+    /**
+     * Authenticate a user with the specified password
+     *
+     * @param string $user
+     * @param string $password
+     * @return User|null
+     */
+    public static function authenticate(string $user, string $password): ?User
+    {
+
+    }
+
+
+
+    /**
+     * @return mixed
+     */
     public function current(): mixed
     {
         // TODO: Implement current() method.

@@ -5,7 +5,6 @@ namespace Phoundation\Data;
 use DateTime;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Meta;
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Users\User;
 
@@ -93,9 +92,9 @@ trait DataEntry
      *
      * @param int|null $id
      */
-    public function __construct(?int $id = null)
+    final public function __construct(?int $id = null)
     {
-        $this->construct();
+        $this->setKeys();
 
         if ($id) {
             $this->id = $id;
@@ -202,19 +201,24 @@ trait DataEntry
     /**
      * Sets all data for this data entry at once with an array of information
      *
-     * @param array $data
+     * @param array $details
      * @return DataEntry
      * @throws OutOfBoundsException
      */
-    public function setData(array $data): self
+    public function setData(?array $details): self
     {
+        if ($details === null) {
+            // No data set
+            return $this;
+        }
+
         if (empty($this->keys)) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
                 ':class' => gettype($this)
             ]));
         }
 
-        foreach ($data as $key => $value) {
+        foreach ($details as $key => $value) {
             // These keys cannot be set through setData()
             switch ($key) {
                 case 'id':
@@ -239,7 +243,7 @@ trait DataEntry
             $this->$method($value);
         }
 
-        $this->data = $data;
+        $this->data = $details;
         return $this;
     }
 
@@ -263,8 +267,13 @@ trait DataEntry
      * @return DataEntry
      * @throws OutOfBoundsException
      */
-    protected function setMetaData(array $data): self
+    protected function setMetaData(?array $data): self
     {
+        if ($data === null) {
+            // No data set
+            return $this;
+        }
+
         if (empty($this->keys)) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
                 ':class' => gettype($this)

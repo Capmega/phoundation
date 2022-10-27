@@ -16,12 +16,14 @@ use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Meta;
+use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Core\Timers;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Schema\Schema;
+use Phoundation\Date\DateTime;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
@@ -932,7 +934,7 @@ class Sql
                 ERROR MESSAGE   : "' . $error[2] . '"
                 query           : "' . Strings::Log($this->buildQueryString($query, $execute, true)) . '"
                 date            : "' . date('d m y h:i:s'))
-                ->setData([
+                ->setDetails([
                     '$argv'     => $argv,
                     '$_GET'     => $_GET,
                     '$_POST'    => $_POST,
@@ -952,6 +954,67 @@ class Sql
 
 
     /**
+     * Write the specified data row in the specified table
+     *
+     * This is a simplified insert / update method to speed up writing basic insert or update queries. If the
+     * $update_row[id] contains a value, the method will try to update instead of insert
+     *
+     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
+     *       to this table are in the $row value, the query will automatically fail with an exception!
+     * @param string $table
+     * @param array $insert_row
+     * @param array $update_row
+     * @return int|null
+     * @throws Throwable
+     */
+    public function write(string $table, array $insert_row, array $update_row): ?int
+    {
+        if (isset_get($update_row['id'])) {
+            $this->update($table, $update_row);
+            return $update_row['id'];
+        }
+
+        return $this->insert($table, $insert_row);
+    }
+
+
+
+    /**
+     * Insert the specified data row in the specified table
+     *
+     * This is a simplified insert method to speed up writing basic insert queries
+     *
+     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
+     *       to this table are in the $row value, the query will automatically fail with an exception!
+     * @param string $table
+     * @param array $row
+     * @return int
+     * @throws Throwable
+     */
+    public function insert(string $table, array $row): int
+    {
+        // Set meta fields
+        if (array_key_exists('meta_id', $row)) {
+            $row['meta_id'] = Meta::init();
+        }
+
+        if (array_key_exists('createdon_by', $row)) {
+            $row['createdon_by'] = Session::currentUser()->getId();
+        }
+
+        // Build bound variables for query
+        $columns = $this->columns($row);
+        $values  = $this->values($row);
+        $keys    = $this->keys($row);
+
+        $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
+
+        return $this->pdo->lastInsertId();
+    }
+
+
+
+    /**
      * Insert the specified data row in the specified table
      *
      * This is a simplified insert method to speed up writing basic insert queries
@@ -962,20 +1025,26 @@ class Sql
      * @return int
      * @throws Throwable
      */
-    public function insert(string $table, array $row): int
+    public function update(string $table, array $row): int
     {
-        if ($row['meta_id']) {
-            $row['meta_id'] = Meta::init();
+        // Set meta fields
+        if (array_key_exists('modified_on', $row)) {
+            $row['modified_on'] = time();
         }
 
-        $columns = $this->columns($row);
-        $values  = $this->values($row);
-        $keys    = $this->keys($row);
+        if (array_key_exists('modified_by', $row)) {
+            $row['modified_by'] = Session::currentUser()->getId();
+        }
 
-        $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
+        // Build bound variables for query
+        $keys   = $this->updateColumns($row);
+        $values = $this->values($row);
+
+        $this->query('UPDATE `' . $table . '` SET (' . $keys . ')', $values);
 
         return $this->pdo->lastInsertId();
     }
+
 
 
     /**
@@ -1267,6 +1336,27 @@ class Sql
      * Return a list of the specified $columns from the specified source
      *
      * @param array $source
+     * @param string|null $prefix
+     * @return string
+     */
+    public function updateColumns(array $source, ?string $prefix = null): string
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            $return[] = '`' . $prefix . $key . '` = :' . $key;
+        }
+
+        return implode(', ', $return);
+    }
+
+
+
+    /**
+     * Return a list of the specified $columns from the specified source
+     *
+     * @param array $source
+     * @param string|null $prefix
      * @return string
      */
     public function columns(array $source, ?string $prefix = null): string

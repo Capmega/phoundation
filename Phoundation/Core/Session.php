@@ -3,6 +3,7 @@
 namespace Phoundation\Core;
 
 use Phoundation\Users\User;
+use Phoundation\Users\Users;
 
 /**
  * Class Session
@@ -21,7 +22,7 @@ class Session
      *
      * @var User|null $user
      */
-    protected ?User $user = null;
+    protected static ?User $user = null;
 
 
 
@@ -30,12 +31,12 @@ class Session
      */
     public static function currentUser(): User
     {
-        if ($this->user === null) {
+        if (self::$user === null) {
             // There is no user, this is a guest session
             return new User();
         }
 
-        return $this->user;
+        return self::$user;
     }
 
 
@@ -67,4 +68,58 @@ class Session
 //            throw new OutOfBoundsException(tr('session_cache(): Failed'), $e);
 //        }
 //    }
+
+
+
+    /**
+     * Authenticate a user with the specified password
+     *
+     * @param string $user
+     * @param string $password
+     * @return User
+     */
+    public static function signIn(string $user, string $password): User
+    {
+        self::$user = Users::authenticate($user, $password);
+    }
+
+
+
+    /**
+     * Checks if an extended session is available for this user
+     *
+     * @return bool
+     */
+    public function checkExtended(): bool
+    {
+        if (empty($_CONFIG['sessions']['extended']['enabled'])) {
+            return false;
+        }
+
+        if (isset($_COOKIE['extsession']) and !isset($_SESSION['user'])) {
+            // Pull  extsession data
+            $ext = sql_get('SELECT `users_id` 
+                            FROM `extended_sessions` WHERE `session_key` = ":session_key" AND DATE(`addedon`) < DATE(NOW());', array(':session_key' => cfm($_COOKIE['extsession'])));
+
+            if ($ext['users_id']) {
+                $user = sql_get('SELECT * FROM `users` WHERE `users`.`id` = :id', array(':id' => cfi($ext['users_id'])));
+
+                if ($user['id']) {
+                    // Auto sign in user
+                    self::$user = Users::signin($user, true);
+                    return true;
+
+                } else {
+                    // Remove cookie
+                    setcookie('extsession', 'stub', 1);
+                }
+
+            } else {
+                // Remove cookie
+                setcookie('extsession', 'stub', 1);
+            }
+        }
+
+        return false;
+    }
 }

@@ -1095,10 +1095,6 @@ class User
     {
         $data = sql()->get('SELECT * FROM `users` WHERE `id` = :id', [':id' => $id]);
 
-        if ($data === null) {
-
-        }
-
         // Store all data
         $this->setData($data);
         $this->setMetaData($data);
@@ -1113,7 +1109,7 @@ class User
      */
     protected function save(): void
     {
-        sql()->insert('users', $this->getInsertColumns(), $this->getUpdateColumns());
+        $this->id = sql()->write('users', $this->getInsertColumns(), $this->getUpdateColumns());
     }
 
 

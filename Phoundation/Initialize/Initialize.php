@@ -94,7 +94,7 @@ class Initialize
                 ->setGroups('developers')
                 ->setTitle(tr('System initialization'))
                 ->setMessage(tr('The system ran an initialization'))
-                ->setData([
+                ->setDetails([
                     'system'  => $system,
                     'plugins' => $plugins,
                     'library' => $library,

@@ -40,7 +40,7 @@ class Init extends \Phoundation\Initialize\Init
                     `file` varchar(255) NOT NULL,
                     `line` int(11) NOT NULL,
                     `trace` text NOT NULL,
-                    `data` text DEFAULT NULL,')
+                    `details` text DEFAULT NULL,')
                 ->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),

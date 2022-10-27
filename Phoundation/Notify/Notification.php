@@ -5,7 +5,7 @@ namespace Phoundation\Notify;
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
-use Phoundation\Core\Meta;
+use Phoundation\Data\DataEntry;
 use Phoundation\Exception\OutOfBoundsException;
 use Throwable;
 
@@ -23,96 +23,86 @@ use Throwable;
  */
 class Notification
 {
-    /**
-     * The identifier for this notification
-     *
-     * @var int|null
-     */
-    protected ?int $id = null;
+    use DataEntry;
 
-    /**
-     * The group that will receive  this notification
-     *
-     * @var array $groups
-     */
-    protected array $groups = [];
 
-    /**
-     * The type of notification, either "INFORMATION", "NOTICE", "WARNING", or "ERROR"
-     *
-     * @var string $type
-     */
-    #[ExpectedValues(values: ["INFORMATION", "NOTICE", "WARNING", "ERROR"])]  protected string $type = 'ERROR';
 
-    /**
-     * The status for this notification
-     *
-     * @var string|null $status
-     */
-    protected ?string $status = 'new';
-
-    /**
-     * The code for this notification
-     *
-     * @var string|null $code
-     */
-    protected ?string $code = null;
-
-    /**
-     * The priority level, lowest 10, highest 1
-     *
-     * @var int $priority
-     */
-    protected int $priority = 10;
-
-    /**
-     * The title for this notification
-     *
-     * @var string|null $title
-     */
-    protected ?string $title = null;
-
-    /**
-     * The message for this notification
-     *
-     * @var string|null $message
-     */
-    protected ?string $message = null;
-
-    /**
-     * The file that generated this notification
-     *
-     * @var string|null $file
-     */
-    protected ?string $file = null;
-
-    /**
-     * The line that generated this notification
-     *
-     * @var int|null $line
-     */
-    protected ?int $line = null;
-
-    /**
-     * The trace for this notification
-     *
-     * @var array|null $trace
-     */
-    protected ?array $trace = null;
-
-    /**
-     * The data for this notification
-     *
-     * @var mixed $data
-     */
-    protected mixed $data = null;
-
-    /**
-     * The exception for this notification
-     *
-     * @var Throwable|null $e
-     */
-    protected ?Throwable $e = null;
+//    /**
+//     * The group that will receive  this notification
+//     *
+//     * @var array $groups
+//     */
+//    protected array $groups = [];
+//
+//    /**
+//     * The type of notification, either "INFORMATION", "NOTICE", "WARNING", or "ERROR"
+//     *
+//     * @var string $type
+//     */
+//    #[ExpectedValues(values: ["INFORMATION", "NOTICE", "WARNING", "ERROR"])]  protected string $type = 'ERROR';
+//
+//    /**
+//     * The code for this notification
+//     *
+//     * @var string|null $code
+//     */
+//    protected ?string $code = null;
+//
+//    /**
+//     * The priority level, lowest 10, highest 1
+//     *
+//     * @var int $priority
+//     */
+//    protected int $priority = 10;
+//
+//    /**
+//     * The title for this notification
+//     *
+//     * @var string|null $title
+//     */
+//    protected ?string $title = null;
+//
+//    /**
+//     * The message for this notification
+//     *
+//     * @var string|null $message
+//     */
+//    protected ?string $message = null;
+//
+//    /**
+//     * The file that generated this notification
+//     *
+//     * @var string|null $file
+//     */
+//    protected ?string $file = null;
+//
+//    /**
+//     * The line that generated this notification
+//     *
+//     * @var int|null $line
+//     */
+//    protected ?int $line = null;
+//
+//    /**
+//     * The trace for this notification
+//     *
+//     * @var array|null $trace
+//     */
+//    protected ?array $trace = null;
+//
+//    /**
+//     * The details for this notification
+//     *
+//     * @var mixed $details
+//     */
+//    protected mixed $details = null;
+//
+//    /**
+//     * The exception for this notification
+//     *
+//     * @var Throwable|null $e
+//     */
+//    protected ?Throwable $e = null;
 
 
 
@@ -144,7 +134,7 @@ class Notification
             throw new OutOfBoundsException('Invalid code specified for this notification, it should be less than or equal to 16 characters');
         }
 
-        $this->code = $code;
+        $this->setDataValue('code', $code);
         return $this;
     }
 
@@ -170,7 +160,7 @@ class Notification
      */
     public function setStatus(?string $status): Notification
     {
-        $this->status = $status;
+        $this->setDataValue('status', $status);
         return $this;
     }
 
@@ -202,7 +192,7 @@ class Notification
             ]);
         }
 
-        $this->priority = $priority;
+        $this->setDataValue('priority', $priority);
         return $this;
     }
 
@@ -247,7 +237,7 @@ class Notification
                 throw new OutOfBoundsException(tr('Unknown type ":type" specified for this notification, please ensure it is one of "WARNING", "ERROR", "NOTICE", or "INFORMATION"', [':type' => $type]));
         }
 
-        $this->type = $clean_type;
+        $this->setDataValue('type', $clean_type);
         return $this;
     }
 
@@ -289,7 +279,7 @@ class Notification
             throw new OutOfBoundsException('No title specified for this notification');
         }
 
-        $this->title = $title;
+        $this->setDataValue('title', $title);
         return $this;
     }
 
@@ -319,20 +309,8 @@ class Notification
             throw new OutOfBoundsException('No message specified for this notification');
         }
 
-        $this->message = $message;
+        $this->setDataValue('message', $message);
         return $this;
-    }
-
-
-
-    /**
-     * Returns the data for this notification
-     *
-     * @return mixed
-     */
-    public function getData(): mixed
-    {
-        return $this->data;
     }
 
 
@@ -345,10 +323,12 @@ class Notification
      */
     public function setException(Throwable $e): Notification
     {
-        $this->e = $e;
-        $this->code = $e->getCode();
-        $this->message = $e->getMessage();
-        $this->previous_e = $e->getPrevious();
+        $this->setCode($e->getCode());
+        $this->setCode($e->getMessage());
+        $this->setPreviousException($e->getPrevious());
+        $this->setCode();
+
+        $this->setDataValue('e', $e);
         return $this;
     }
 
@@ -367,15 +347,27 @@ class Notification
 
 
     /**
-     * Sets the data for this notification
+     * Sets the details for this notification
      *
-     * @param mixed $data
+     * @param mixed $details
      * @return Notification
      */
-    public function setData(mixed $data): Notification
+    public function setDetails(mixed $details): Notification
     {
-        $this->data = $data;
+        $this->setDataValue('details', $details);
         return $this;
+    }
+
+
+
+    /**
+     * Returns the details for this notification
+     *
+     * @return mixed
+     */
+    public function getDetails(): mixed
+    {
+        return $this->details;
     }
 
 
@@ -405,7 +397,7 @@ class Notification
             throw new OutOfBoundsException('No groups specified for this notification');
         }
 
-        $this->groups = [];
+        $this->setDataValue('groups', []);
         $this->addGroups($groups);
         return $this;
     }
@@ -447,7 +439,7 @@ class Notification
             throw new OutOfBoundsException('Empty or no group specified for this notification');
         }
 
-        $this->groups[] = $group;
+        $this->addDataValue('groups', $group);
         return $this;
     }
 
@@ -502,33 +494,50 @@ return $this;
      */
     public function log(): Notification
     {
-        switch ($this->type) {
+        switch ($this->getType()) {
             case 'ERROR':
-                Log::error($this->title);
-                Log::error($this->message);
-                Log::error($this->data);
+                Log::error($this->getTitle());
+                Log::error($this->getMessage());
+                Log::error($this->getDetails());
                 break;
 
             case 'WARNING':
-                Log::warning($this->title);
-                Log::warning($this->message);
-                Log::warning($this->data);
+                Log::warning($this->getTitle());
+                Log::warning($this->getMessage());
+                Log::warning($this->getDetails());
                 break;
 
             case 'NOTICE':
-                Log::notice($this->title);
-                Log::notice($this->message);
-                Log::notice($this->data);
+                Log::notice($this->getTitle());
+                Log::notice($this->getMessage());
+                Log::notice($this->getDetails());
                 break;
 
             case 'INFORMATION':
-                Log::information($this->title);
-                Log::information($this->message);
-                Log::information($this->data);
+                Log::information($this->getTitle());
+                Log::information($this->getMessage());
+                Log::information($this->getDetails());
                 break;
         }
 
         return $this;
+    }
+
+
+
+    /**
+     * Load the specified notification from the database
+     *
+     * @param int $id
+     * @return void
+     */
+    protected function load(int $id): void
+    {
+        $data = sql()->get('SELECT * FROM `notifications` WHERE `id` = :id', [
+            ':id' => $id
+        ]);
+
+        $this->setData($data);
     }
 
 
@@ -540,31 +549,35 @@ return $this;
      */
     protected function save(): void
     {
-        if ($this->id) {
-            sql()->update('notifications', [
-                'created_by' => $this->,
-                'meta_id' => Meta::action(),
-                'status' => $this->status,
-            ]);
+        sql()->write('notifications', $this->getInsertColumns(), $this->getUpdateColumns());
+    }
 
-        } else {
-            sql()->insert('notifications', [
-                '' => $this->,
-                '' => $this->,
-                'status' => $this->status,
-                '' => $this->,
-                '' => $this->,
-                '' => $this->,
-                '' => $this->,
-                '' => $this->,
-                '' => $this->,
-                '' => $this->,
-                '' => $this->,
-                '' => $this->,
-                '' => $this->,
-                '' => $this->,
-                '' => $this->,
-            ]);
-        }
+
+
+    /**
+     * Sets the available data keys for the Notification class
+     *
+     * @return void
+     */
+    protected function setKeys(): void
+    {
+        $this->keys = [
+            'id',
+            'created_by',
+            'created_on',
+            'modified_by',
+            'modified_on',
+            'meta_id',
+            'status',
+            'code',
+            'type',
+            'priority',
+            'title',
+            'message',
+            'file',
+            'line',
+            'trace',
+            'details'
+       ];
     }
 }

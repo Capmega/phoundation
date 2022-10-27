@@ -1210,12 +1210,12 @@ class Core {
             ->addGroup('developers')
             ->setTitle('PHP ERROR "' . $errno . '"')
             ->setMessage(tr('PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline .'"'))
-            ->setData([
-                'errno' => $errno,
-                'errstr' => $errstr,
+            ->setDetails([
+                'errno'   => $errno,
+                'errstr'  => $errstr,
                 'errfile' => $errfile,
                 'errline' => $errline,
-                'trace' => $trace
+                'trace'   => $trace
             ])->send();
 
         throw new \Exception('PHP ERROR [' .$errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"', $errno);

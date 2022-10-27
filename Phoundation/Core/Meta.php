@@ -24,6 +24,13 @@ class Meta
     protected ?int $id = null;
 
     /**
+     * The history of this meta entry
+     *
+     * @var array $history
+     */
+    protected array $history = [];
+
+    /**
      * Meta constructor
      *
      * @param int|null $id
@@ -48,15 +55,15 @@ class Meta
         $meta->addAction('created');
         return $meta->id;
     }
-    
+
 
 
     /**
      * Adds the specified action to the meta history
      *
      * @param string $action
+     * @param array|null $data
      * @return void
-     * @throws \Throwable
      */
     public function addAction(string $action, ?array $data = null): void
     {
@@ -79,6 +86,7 @@ class Meta
      */
     protected function load(int $id): void
     {
-
+        $this->id = $id;
+        $this->history = sql()->list('SELECT * FROM `meta_history` WHERE `meta_id` = :meta_id', [':meta_id' => $id]);
     }
 }
