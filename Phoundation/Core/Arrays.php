@@ -127,17 +127,17 @@ class Arrays {
      */
     public static function params(mixed &$params, string $string_key = null, $numeric_key = null, ?bool $default = false): void
     {
-        if(!$params){
+        if(!$params) {
             // The specified value is empty (probably null, "", etc). Convert it into an array containing the numeric and string keys with null values
             $params = [];
         }
 
-        if(is_array($params)){
+        if(is_array($params)) {
             Arrays::ensure($params, array($string_key, $numeric_key), $default);
             return;
         }
 
-        if(is_numeric($params)){
+        if(is_numeric($params)) {
             // The specified value is numeric, convert it to an array with the specified numeric key set having the value $params
             $params = [
                 $numeric_key => $params,
@@ -147,7 +147,7 @@ class Arrays {
             return;
         }
 
-        if(is_string($params)){
+        if(is_string($params)) {
             // The specified value is string, convert it to an array with the specified string key set having the value $params
             $params = [
                 $numeric_key => $default,

@@ -19,9 +19,9 @@ class Init extends \Phoundation\Initialize\Init
 {
     public function __construct()
     {
-        parent::__construct('0.0.1');
+        parent::__construct('0.0.2');
 
-        $this->addUpdate('0.0.1', function (){
+        $this->addUpdate('0.0.2', function () {
             // Create the geo_timezones table.
             sql()->schema()->table('geo_timezones')
                 ->setColumns('  

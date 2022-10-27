@@ -67,7 +67,7 @@ class Server
      *
      * @param Restrictions|null $restrictions
      */
-    public function __construct(?Restrictions $restrictions){
+    public function __construct(?Restrictions $restrictions) {
         $this->restrictions = $restrictions;
     }
 

@@ -1033,7 +1033,7 @@ Class Log {
             }
 
             // format and write the lines
-            foreach ($lines as $line){
+            foreach ($lines as $line) {
                 $count++;
 
                 if (isset($line['call'])) {

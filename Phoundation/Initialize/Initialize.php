@@ -314,7 +314,7 @@ class Initialize
         // Get the init object (may return NULL if not exist!)
         $init = self::getlibraryInit($path);
 
-        if (!$init){
+        if (!$init) {
             // This library has no Init available, skip!
             Log::warning(tr('Not processing library ":library", it has no versioning control available', [
                 ':library' => $library

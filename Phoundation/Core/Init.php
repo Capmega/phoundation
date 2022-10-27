@@ -21,7 +21,7 @@ class Init extends \Phoundation\Initialize\Init
     {
         parent::__construct('0.0.0');
 
-        $this->addUpdate('0.0.1', function (){
+        $this->addUpdate('0.0.1', function () {
             // Create the versions registration table.
             sql()->schema()->table('versions')
                 ->setColumns(

@@ -542,7 +542,7 @@ trait ValidatorBasics
         }
 
         // Generate key to store this failure
-        if (!$field){
+        if (!$field) {
             if ($this->parent_field) {
                 $field = $this->parent_field . ':' . $this->selected_field;
             } else {
