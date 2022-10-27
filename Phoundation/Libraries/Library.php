@@ -37,9 +37,9 @@ class Library
     /**
      * The Init object for this library
      *
-     * @var Init|null
+     * @var Updates|null
      */
-    protected ?Init $init = null;
+    protected ?Updates $init = null;
 
 
 
@@ -193,7 +193,7 @@ showdie($this->path);
      */
     protected function loadInitObject(): void
     {
-        $file = Strings::slash($this->path) . 'Init.php';
+        $file = Strings::slash($this->path) . 'Updates.php';
 
         if (!file_exists($file)) {
             // There is no init class available
@@ -206,7 +206,7 @@ showdie($this->path);
         $init_class_path = Debug::getClassPath($file);
         $init            = new $init_class_path();
 
-        if (!($this->init instanceof Init)) {
+        if (!($this->init instanceof Updates)) {
             Log::Warning(tr('The Init.php file for the library ":library" in ":path" is invalid, it should be an instance of the class \Phoundation\Libraries\Init. This Init.php file will be ignored', [
                 ':path'    => $this->path,
                 ':library' => $this->library

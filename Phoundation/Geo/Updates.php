@@ -9,13 +9,13 @@ namespace Phoundation\Geo;
  *
  * This is the Init class for the Geo library
  *
- * @see \Phoundation\Libraries\Init
+ * @see \Phoundation\Libraries\Updates
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Geo
  */
-class Init extends \Phoundation\Libraries\Init
+class Updates extends \Phoundation\Libraries\Updates
 {
     public function __construct()
     {

@@ -5,7 +5,6 @@ namespace Phoundation\Libraries;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnexpectedValueException;
 use Phoundation\Libraries\Exception\DoubleVersionException;
@@ -22,7 +21,7 @@ use Phoundation\Libraries\Exception\DoubleVersionException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Libraries
  */
-class Init
+class Updates
 {
     /**
      * The name for this library
@@ -188,9 +187,9 @@ class Init
      *
      * @param string $version
      * @param callable $function
-     * @return Init
+     * @return Updates
      */
-    public function addUpdate(string $version, callable $function): Init
+    public function addUpdate(string $version, callable $function): Updates
     {
         if (array_key_exists($version, $this->updates)) {
             throw new DoubleVersionException(tr('The version ":version" is specified twice in the init file ":file"', [
