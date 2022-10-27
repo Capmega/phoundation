@@ -14,7 +14,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
-use Phoundation\Notify\Notification;
+use Phoundation\Notifications\Notification;
 use Phoundation\Users\User;
 
 

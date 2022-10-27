@@ -10,7 +10,7 @@ use Phoundation\Core\Exception\CoreException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Developer\Debug;
 use Phoundation\Init\Exception\InitException;
-use Phoundation\Notify\Notification;
+use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\WebException;
 use Throwable;
 

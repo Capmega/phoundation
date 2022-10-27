@@ -13,7 +13,7 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Notify\Notification;
+use Phoundation\Notifications\Notification;
 
 
 /**
@@ -89,7 +89,7 @@ class Initialize
         self::$initializing = false;
 
         if (Debug::production()) {
-            // Notify developers
+            // Notification developers
             Notification::create()
                 ->setGroups('developers')
                 ->setTitle(tr('System initialization'))

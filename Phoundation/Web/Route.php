@@ -10,7 +10,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Notify\Notification;
+use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Exception\RouteException;

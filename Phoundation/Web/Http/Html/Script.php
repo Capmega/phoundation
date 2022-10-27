@@ -5,7 +5,7 @@ namespace Phoundation\Web\Http\Html;
 use Phoundation\Core\Log;
 use Phoundation\Filesystem\File;
 use Phoundation\Http\Html\Exception\HtmlException;
-use Phoundation\Notify\Notification;
+use Phoundation\Notifications\Notification;
 use Phoundation\Web\Uglify;
 use Throwable;
 
@@ -61,7 +61,7 @@ class Script extends Element
         }
 
         if (!$script['script']) {
-            // No javascript was specified, notify developers
+            // No javascript was specified, Notification developers
             Notification::create()
                 ->setException(new HtmlException(tr('No javascript code specified')))
                 ->send();
@@ -187,7 +187,7 @@ class Script extends Element
                         Uglify::js($file.'.js');
 
                     }catch(Throwable $e) {
-                        // Minify process failed. Notify and fall back on a plain copy
+                        // Minify process failed. Notification and fall back on a plain copy
                         Notification::create()
                             ->setException($e)
                             ->send();
@@ -203,7 +203,7 @@ class Script extends Element
                 return '';
 
             }catch(Throwable $e) {
-                // Moving internal javascript to external files failed, notify developers
+                // Moving internal javascript to external files failed, Notification developers
                 Notification::create()
                     ->setException($e)
                     ->send();

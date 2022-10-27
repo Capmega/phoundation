@@ -1,11 +1,12 @@
 <?php
 
-namespace Phoundation\Notify;
+namespace Phoundation\Notifications;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Data\DataEntry;
+use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Throwable;
 
@@ -19,7 +20,7 @@ use Throwable;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Notify
+ * @package Phoundation\Notification
  */
 class Notification
 {
@@ -126,10 +127,6 @@ class Notification
      */
     public function setCode(string $code): Notification
     {
-        if (!$code) {
-            throw new OutOfBoundsException('No code specified for this notification');
-        }
-
         if (strlen($code) > 16) {
             throw new OutOfBoundsException('Invalid code specified for this notification, it should be less than or equal to 16 characters');
         }
@@ -143,11 +140,11 @@ class Notification
     /**
      * Returns the code for this notification
      *
-     * @return string
+     * @return string|null
      */
-    public function getCode(): string
+    public function getCode(): ?string
     {
-        return $this->code;
+        return $this->getDataValue('code');
     }
 
 
@@ -173,7 +170,7 @@ class Notification
      */
     public function getStatus(): ?string
     {
-        return $this->status;
+        return $this->getDataValue('status');
     }
 
 
@@ -205,7 +202,7 @@ class Notification
      */
     public function getPriority(): int
     {
-        return $this->priority;
+        return (int) $this->getDataValue('priority');
     }
 
 
@@ -246,11 +243,11 @@ class Notification
     /**
      * Returns the type for this notification
      *
-     * @return string
+     * @return string|null
      */
-    public function getType(): string
+    public function getType(): ?string
     {
-        return $this->type;
+        return $this->getDataValue('type');
     }
 
 
@@ -258,11 +255,11 @@ class Notification
     /**
      * Returns the title for this notification
      *
-     * @return string
+     * @return string|null
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
-        return $this->title;
+        return $this->getDataValue('title');
     }
 
 
@@ -288,11 +285,11 @@ class Notification
     /**
      * Returns the message for this notification
      *
-     * @return string
+     * @return string|null
      */
-    public function getMessage(): string
+    public function getMessage(): ?string
     {
-        return $this->message;
+        return $this->getDataValue('message');
     }
 
 
@@ -324,9 +321,11 @@ class Notification
     public function setException(Throwable $e): Notification
     {
         $this->setCode($e->getCode());
-        $this->setCode($e->getMessage());
-        $this->setPreviousException($e->getPrevious());
-        $this->setCode();
+        $this->setMessage($e->getMessage());
+        $this->setDetails([
+            'trace' => $e->getTrace(),
+            'data' => (($e instanceof Exception) ? $e->getData() : 'No a Phoundation exception, no data available')
+        ]);
 
         $this->setDataValue('e', $e);
         return $this;
@@ -337,11 +336,11 @@ class Notification
     /**
      * Returns the exception for this notification
      *
-     * @return Throwable
+     * @return Throwable|null
      */
-    public function getException(): Throwable
+    public function getException(): ?Throwable
     {
-        return $this->e;
+        return $this->getDataValue('e');
     }
 
 
@@ -367,7 +366,7 @@ class Notification
      */
     public function getDetails(): mixed
     {
-        return $this->details;
+        return $this->getDataValue('details');
     }
 
 
@@ -379,7 +378,7 @@ class Notification
      */
     public function getGroups(): array
     {
-        return $this->groups;
+        return $this->getDataValue('groups');
     }
 
 
@@ -454,8 +453,8 @@ class Notification
     public function send(): Notification
     {
         Log::warning('Notifications::send() not yet implemented! Not sending subsequent message');
-        Log::warning($this->title);
-        Log::warning($this->message);
+        Log::warning($this->getTitle());
+        Log::warning($this->getMessage());
 return $this;
 
         if (!$this->code) {
@@ -561,6 +560,11 @@ return $this;
      */
     protected function setKeys(): void
     {
+        $this->data = [
+            'groups' => [],
+            'priority' => 10
+        ];
+
         $this->keys = [
             'id',
             'created_by',

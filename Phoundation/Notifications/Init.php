@@ -1,19 +1,19 @@
 <?php
 
-namespace Phoundation\Notify;
+namespace Phoundation\Notifications;
 
 
 
 /**
  * Init class
  *
- * This is the Init class for the Notify library
+ * This is the Init class for the Notification library
  *
  * @see \Phoundation\Initialize\Init
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Notify
+ * @package Phoundation\Notification
  */
 class Init extends \Phoundation\Initialize\Init
 {
@@ -22,7 +22,7 @@ class Init extends \Phoundation\Initialize\Init
         parent::__construct('0.0.6');
 
         $this->addUpdate('0.0.6', function () {
-            // Add initial tables for the Notify library
+            // Add initial tables for the Notification library
             sql()->schema()->table('notifications')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,

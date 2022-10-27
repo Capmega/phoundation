@@ -73,12 +73,11 @@ class Init extends \Phoundation\Initialize\Init
                     `timezone` varchar(32) DEFAULT NULL')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `verify_code` (`verify_code`),
+                    UNIQUE KEY `verification_code` (`verification_code`),
                     UNIQUE KEY `domain-email` (`domain`, `email`),
                     KEY `email` (`email`),
-                    KEY `validated` (`verify_code`),
+                    KEY `verified_on` (`verified_on`),
                     KEY `language` (`language`),
-                    KEY `country` (`country`),
                     KEY `latitude` (`latitude`),
                     KEY `longitude` (`longitude`),
                     KEY `birthday` (`birthday`),

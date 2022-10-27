@@ -187,7 +187,7 @@ class Url {
 
                 } else {
                     if (empty($core->register['route_map'][$url_params['language']])) {
-                        notify(new CoreException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $return, ':language' => $url_params['language'])), 'not-specified'));
+                        Notification(new CoreException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $return, ':language' => $url_params['language'])), 'not-specified'));
 
                     } else {
                         $return = str_replace('en/', $url_params['language'].'/', $return);

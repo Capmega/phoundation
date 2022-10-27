@@ -21,7 +21,7 @@ use Phoundation\Processes\Processes;
 use Phoundation\Web\Client;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
-use Phoundation\Notify\Notification;
+use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Web;
 use Throwable;
@@ -1662,8 +1662,8 @@ class Core {
                         }
 
                         if (!Debug::enabled()) {
-                            notify($f, false, false);
-                            notify($e, false, false);
+                            Notification($f, false, false);
+                            Notification($e, false, false);
                             page_show(500);
                         }
 
@@ -2372,7 +2372,7 @@ class Core {
 
                                     session_start();
 
-                                    if (Config::get('web.sessions.cookies.notify-expired', false)) {
+                                    if (Config::get('web.sessions.cookies.Notification-expired', false)) {
                                         Html::flash()->add(tr('Your browser cookie was expired, or does not exist. You may have to sign in again'), 'warning');
                                     }
 
@@ -2473,7 +2473,7 @@ class Core {
                                 $check = new DateTimeZone($_SESSION['user']['timezone']);
 
                             }catch(Exception $e) {
-                                // Timezone invalid for this user. Notify developers, and fix timezone for user
+                                // Timezone invalid for this user. Notification developers, and fix timezone for user
                                 $_SESSION['user']['timezone'] = Config::get('timezone.display', 0);
 
                                 user_update($_SESSION['user']);

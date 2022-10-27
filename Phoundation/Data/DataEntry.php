@@ -327,6 +327,31 @@ trait DataEntry
 
 
     /**
+     * Sets the value for the specified data key
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return DataEntry
+     */
+    public function addDataValue(string $key, mixed $value): self
+    {
+        if (!array_key_exists($key, $this->data)) {
+            $this->data[$key] = [];
+        }
+
+        if (!is_array($this->data[$key])) {
+            throw new OutOfBoundsException(tr('Cannot *add* data value to key ":key", the key is not an array', [
+                ':key' => $key
+            ]));
+        }
+
+        $this->data[$key][] = $value;
+        return $this;
+    }
+
+
+
+    /**
      * Returns the value for the specified data key
      *
      * @return mixed

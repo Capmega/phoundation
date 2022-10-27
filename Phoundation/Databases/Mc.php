@@ -8,7 +8,7 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
-use Phoundation\Notify\Notification;
+use Phoundation\Notifications\Notification;
 use Throwable;
 
 

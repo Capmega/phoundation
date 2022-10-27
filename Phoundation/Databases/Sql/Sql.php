@@ -29,7 +29,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Filesystem\File;
 use Phoundation\Initialize\Initialize;
-use Phoundation\Notify\Notification;
+use Phoundation\Notifications\Notification;
 use Phoundation\Processes\Commands;
 use Phoundation\Servers\Server;
 use Phoundation\Servers\Servers;

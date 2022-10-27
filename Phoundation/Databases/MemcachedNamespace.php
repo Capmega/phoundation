@@ -87,9 +87,9 @@ class MemcachedNamespace
 //                     */
 //                    switch ($e->getCode()) {
 //                        case '':
-//                            // :TODO: Implement correctly. For now, just notify
+//                            // :TODO: Implement correctly. For now, just Notification
 //                        default:
-//                            notify($e);
+//                            Notification($e);
 //                    }
 //                }
 //            }

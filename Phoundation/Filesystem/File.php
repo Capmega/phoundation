@@ -1492,7 +1492,7 @@ class File
      *
      * @example:
      * function stream_notification_callback($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
-     *     if ($notification_code == STREAM_NOTIFY_PROGRESS) {
+     *     if ($notification_code == STREAM_Notification_PROGRESS) {
      *         // save $bytes_transferred and $bytes_max to file or database
      *     }
      * }

@@ -209,7 +209,7 @@ Class Html {
                         log_file(tr('Adding file ":file" to bundle file ":bundle"', array(':file' => $file, ':bundle' => $bundle_file)), 'bundler', 'VERYVERBOSE/cyan');
 
                         if (!file_exists($file)) {
-                            notify(array('code'    => 'not-exists',
+                            Notification(array('code'    => 'not-exists',
                                 'groups'  => 'developers',
                                 'title'   => tr('Bundler file does not exist'),
                                 'message' => tr('html_bundler(): The requested ":extension" type file ":file" should be bundled but does not exist', array(':extension' => $extension, ':file' => $file))));
@@ -236,7 +236,7 @@ Class Html {
                                         $import = Strings::cut($match, '"', '"');
 
                                         if (!file_exists($path.$import)) {
-                                            notify(array('code'    => 'not-exists',
+                                            Notification(array('code'    => 'not-exists',
                                                 'groups'  => 'developers',
                                                 'title'   => tr('Bundler file does not exist'),
                                                 'message' => tr('html_bundler(): The bundler ":extension" file ":import" @imported by file ":file" does not exist', array(':extension' => $extension, ':import' => $import, ':file' => $file))));
@@ -257,7 +257,7 @@ Class Html {
                                         $import = Strings::slash(dirname($file)).Strings::unslash($import);
 
                                         if (!file_exists($import)) {
-                                            notify(array('code'    => 'not-exists',
+                                            Notification(array('code'    => 'not-exists',
                                                 'groups'  => 'developers',
                                                 'title'   => tr('Bundler file does not exist'),
                                                 'message' => tr('html_bundler(): The bundler ":extension" file ":import" @imported by file ":file" does not exist', array(':extension' => $extension, ':import' => $import, ':file' => $file))));
@@ -367,7 +367,7 @@ Class Html {
                              * The CSS purge failed
                              */
                             file_delete($html);
-                            notify($e->makeWarning(true));
+                            Notification($e->makeWarning(true));
                         }
                     }
                 }
@@ -538,7 +538,7 @@ Class Html {
                 if (substr($file, -3, 3) == '.js') {
                     $file = substr($file, 0, -3);
 
-                    notify(array('code'    => 'not-exists',
+                    Notification(array('code'    => 'not-exists',
                         'groups'  => 'developers',
                         'title'   => tr('html_load_js() issue detected'),
                         'message' => tr('html_load_js(): File ":file" was specified with ".js"', array(':file' => $file))));
@@ -546,7 +546,7 @@ Class Html {
                 } elseif (substr($file, -7, 7) == '.min.js') {
                     $file = substr($file, 0, -7);
 
-                    notify(array('code'    => 'not-exists',
+                    Notification(array('code'    => 'not-exists',
                         'groups'  => 'developers',
                         'title'   => tr('html_load_js() issue detected'),
                         'message' => tr('html_load_js(): File ":file" was specified with ".min.js"', array(':file' => $file))));
@@ -681,7 +681,7 @@ Class Html {
                     /*
                      * We should never have empty files
                      */
-                    notify(array('code'    => 'empty',
+                    Notification(array('code'    => 'empty',
                         'groups'  => 'developers',
                         'title'   => tr('Empty file specified'),
                         'message' => tr('html_generate_js(): Found empty string file specified in html_load_js()')));
@@ -944,20 +944,20 @@ Class Html {
          */
         if (empty($meta['title'])) {
             $meta['title'] = domain(true);
-            notify(new HtmlException(tr('html_meta(): No meta title specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
+            Notification(new HtmlException(tr('html_meta(): No meta title specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
 
         } elseif (strlen($meta['title']) > 65) {
             $meta['title'] = str_truncate($meta['title'], 65);
-            notify(new HtmlException(tr('html_meta(): Specified meta title ":title" is larger than 65 characters', array(':title' => $meta['title'])), 'warning/invalid'));
+            Notification(new HtmlException(tr('html_meta(): Specified meta title ":title" is larger than 65 characters', array(':title' => $meta['title'])), 'warning/invalid'));
         }
 
         if (empty($meta['description'])) {
             $meta['description'] = domain(true);
-            notify(new HtmlException(tr('html_meta(): No meta description specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
+            Notification(new HtmlException(tr('html_meta(): No meta description specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
 
         } elseif (strlen($meta['description']) > 155) {
             $meta['description'] = str_truncate($meta['description'], 155);
-            notify(new HtmlException(tr('html_meta(): Specified meta description ":description" is larger than 155 characters', array(':description' => $meta['description'])), 'warning/invalid'));
+            Notification(new HtmlException(tr('html_meta(): Specified meta description ":description" is larger than 155 characters', array(':description' => $meta['description'])), 'warning/invalid'));
         }
 
         /*
@@ -978,7 +978,7 @@ Class Html {
         }
 
         if (!$meta['viewport']) {
-            notify(new HtmlException(tr('html_header(): Meta viewport tag is not specified'), 'warning/not-specified'));
+            Notification(new HtmlException(tr('html_header(): Meta viewport tag is not specified'), 'warning/not-specified'));
         }
 
         /*
@@ -993,7 +993,7 @@ Class Html {
 
             } elseif (substr($key, 0, 3) === 'og:') {
 // :COMPATIBILITY: Remove this section @ 2.10
-                notify(new HtmlException(tr('html_meta(): Found $meta[:key], this should be $meta[og][:ogkey], ignoring', array(':key' => $key, ':ogkey' => Strings::from($key, 'og:'))), 'warning/invalid'));
+                Notification(new HtmlException(tr('html_meta(): Found $meta[:key], this should be $meta[og][:ogkey], ignoring', array(':key' => $key, ':ogkey' => Strings::from($key, 'og:'))), 'warning/invalid'));
 
             } else {
                 $return .= '<meta name="'.$key.'" content="'.$value.'">';
@@ -1039,19 +1039,19 @@ Class Html {
 
         if (strlen($og['description']) > 65) {
             $og['description'] = str_truncate($og['description'], 65);
-            notify(new HtmlException(tr('html_og(): Specified OG description ":description" is larger than 65 characters, truncating to correct size', array(':description' => $og['description'])), 'warning/invalid'));
+            Notification(new HtmlException(tr('html_og(): Specified OG description ":description" is larger than 65 characters, truncating to correct size', array(':description' => $og['description'])), 'warning/invalid'));
         }
 
         if (strlen($og['title']) > 35) {
             $og['title'] = str_truncate($og['title'], 35);
-            notify(new HtmlException(tr('html_og(): Specified OG title ":title" is larger than 35 characters, truncating to correct size', array(':title' => $og['title'])), 'warning/invalid'));
+            Notification(new HtmlException(tr('html_og(): Specified OG title ":title" is larger than 35 characters, truncating to correct size', array(':title' => $og['title'])), 'warning/invalid'));
         }
 
         $og['locale'] = Strings::until($og['locale'], '.');
 
         foreach ($og as $property => $content) {
             if (empty($content)) {
-                notify(new HtmlException(tr('html_og(): Missing property content for meta og key ":property". Please add this data for SEO!', array(':property' => $property)), 'warning/not-specified'));
+                Notification(new HtmlException(tr('html_og(): Missing property content for meta og key ":property". Please add this data for SEO!', array(':property' => $property)), 'warning/not-specified'));
             }
 
             $return .= '<meta property="og:'.$property.'" content="'.$content.'">';
@@ -1159,7 +1159,7 @@ Class Html {
              */
             $_SESSION['flash'] = array();
 
-            notify(array('code'    => 'invalid',
+            Notification(array('code'    => 'invalid',
                 'groups'  => 'developers',
                 'title'   => tr('Invalid flash structure specified'),
                 'message' => tr('html_flash(): Invalid flash structure in $_SESSION array, it should always be an array but it is a ":type". Be sure to always use html_flash_set() to add new flash messages', array(':type' => gettype($_SESSION['flash'])))));
@@ -1205,7 +1205,7 @@ Class Html {
 
                 default:
                     $type = 'error';
-// :TODO: NOTIFY OF UNKNOWN HTML FLASH TYPE
+// :TODO: Notification OF UNKNOWN HTML FLASH TYPE
             }
 
             if (!Debug::enabled()) {
@@ -1357,7 +1357,7 @@ Class Html {
              */
             if (empty($params['html']) and empty($params['text']) and empty($params['title'])) {
                 if (Debug::production()) {
-                    notify(array('code'    => 'invalid',
+                    Notification(array('code'    => 'invalid',
                         'groups'  => 'developers',
                         'title'   => tr('Invalid flash structure specified'),
                         'message' => tr('html_flash_set(): Invalid html flash structure specified'),
@@ -1934,9 +1934,9 @@ Class Html {
 
         if (!$script['script']) {
             /*
-             * No javascript was specified, notify developers
+             * No javascript was specified, Notification developers
              */
-            notify(new HtmlException(tr('html_script(): No javascript code specified'), 'not-specified'));
+            Notification(new HtmlException(tr('html_script(): No javascript code specified'), 'not-specified'));
             return '';
         }
 
@@ -2079,10 +2079,10 @@ Class Html {
 
                     }catch(Exception $e) {
                         /*
-                         * Minify process failed. Notify and fall back on a plain
+                         * Minify process failed. Notification and fall back on a plain
                          * copy
                          */
-                        notify($e);
+                        Notification($e);
                         copy($file.'.js', $file.'.min.js');
                     }
                 }
@@ -2097,10 +2097,10 @@ Class Html {
 
             }catch(Exception $e) {
                 /*
-                 * Moving internal javascript to external files failed, notify
+                 * Moving internal javascript to external files failed, Notification
                  * developers
                  */
-                notify($e);
+                Notification($e);
 
                 /*
                  * Add a <script> element because now we'll include it into the
@@ -2340,7 +2340,7 @@ Class Html {
                 $file_src  = ROOT.'data/content'.$file_part;
                 $external  = false;
 
-                notify(new HtmlException(tr('html_img(): The main domain ":domain" was specified for CDN data, please correct this issue', array(':domain' => domain(''))), 'warning/invalid'));
+                Notification(new HtmlException(tr('html_img(): The main domain ":domain" was specified for CDN data, please correct this issue', array(':domain' => domain(''))), 'warning/invalid'));
 
             } else {
                 $file_src  = $src;
@@ -2425,7 +2425,7 @@ Class Html {
              */
             $e->makeWarning(true);
             $e->addMessages(tr('html_img_src(): Failed to auto convert image ":src" to format ":format". Leaving image as-is', array(':src' => $src, ':format' => $_CONFIG['cdn']['img']['auto_convert'][$format])));
-            notify($e);
+            Notification($e);
         }
 
         return $src;
@@ -2465,9 +2465,9 @@ Class Html {
              */
             if (Debug::production()) {
                 /*
-                 * On production, just notify and ignore
+                 * On production, just Notification and ignore
                  */
-                notify(array('code'    => 'not-specified',
+                Notification(array('code'    => 'not-specified',
                     'groups'  => 'developers',
                     'title'   => tr('No image src specified'),
                     'message' => tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $params['alt']))));
@@ -2488,13 +2488,13 @@ Class Html {
 
         } else {
             if (!$params['src']) {
-                notify(array('code'   => 'not-specified',
+                Notification(array('code'   => 'not-specified',
                     'groups' => 'developers',
                     'title'  => tr('html_img(): No image src specified')));
             }
 
             if (!$params['alt']) {
-                notify(array('code'    => 'not-specified',
+                Notification(array('code'    => 'not-specified',
                     'groups'  => 'developers',
                     'title'   => tr('No image alt specified'),
                     'message' => tr('html_img(): No image alt text specified for src ":src"', array(':src' => $params['src']))));
@@ -2542,7 +2542,7 @@ Class Html {
             }
 
         }catch(Exception $e) {
-            notify($e);
+            Notification($e);
             $image = null;
         }
 
@@ -2580,7 +2580,7 @@ Class Html {
                         /*
                          * Image doesnt exist
                          */
-                        notify(array('code'    => 'not-exists',
+                        Notification(array('code'    => 'not-exists',
                             'groups'  => 'developers',
                             'title'   => tr('Image does not exist'),
                             'message' => tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src))));
@@ -2619,7 +2619,7 @@ Class Html {
                             /*
                              * Image doesnt exist
                              */
-                            notify(array('code'    => 'not-exists',
+                            Notification(array('code'    => 'not-exists',
                                 'groups'  => 'developers',
                                 'title'   => tr('Image does not exist'),
                                 'message' => tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src))));
@@ -2643,7 +2643,7 @@ Class Html {
                 $status          = null;
 
             }catch(Exception $e) {
-                notify($e);
+                Notification($e);
 
                 $image['width']  = 0;
                 $image['height'] = 0;
@@ -2674,7 +2674,7 @@ Class Html {
                             ':status' => $status));
 
                 }catch(Exception $e) {
-                    notify($e);
+                    Notification($e);
                 }
             }
         }
@@ -2693,22 +2693,22 @@ Class Html {
              */
             if (!is_numeric($params['width']) and ($params['width'] > 0)) {
                 if (!$image['width']) {
-                    notify(new HtmlException(tr('Detected invalid "width" parameter specification for image ":src", and failed to get real image width too, ignoring "width" attribute', array(':width' => $params['width'], ':src' => $params['src'])), 'warning/invalid'));
+                    Notification(new HtmlException(tr('Detected invalid "width" parameter specification for image ":src", and failed to get real image width too, ignoring "width" attribute', array(':width' => $params['width'], ':src' => $params['src'])), 'warning/invalid'));
                     $params['width'] = null;
 
                 } else {
-                    notify(new HtmlException(tr('Detected invalid "width" parameter specification for image ":src", forcing real image width ":real" instead', array(':width' => $params['width'], ':real' => $image['width'], ':src' => $params['src'])), 'warning/invalid'));
+                    Notification(new HtmlException(tr('Detected invalid "width" parameter specification for image ":src", forcing real image width ":real" instead', array(':width' => $params['width'], ':real' => $image['width'], ':src' => $params['src'])), 'warning/invalid'));
                     $params['width'] = $image['width'];
                 }
             }
 
             if (!is_numeric($params['height']) and ($params['height'] > 0)) {
                 if (!$image['height']) {
-                    notify(new HtmlException(tr('Detected invalid "height" parameter specification for image ":src", and failed to get real image height too, ignoring "height" attribute', array(':height' => $params['height'], ':src' => $params['src'])), 'warning/invalid'));
+                    Notification(new HtmlException(tr('Detected invalid "height" parameter specification for image ":src", and failed to get real image height too, ignoring "height" attribute', array(':height' => $params['height'], ':src' => $params['src'])), 'warning/invalid'));
                     $params['height'] = null;
 
                 } else {
-                    notify(new HtmlException(tr('Detected invalid "height" parameter specification for image ":src", forcing real image height ":real" instead', array(':height' => $params['height'], ':real' => $image['height'], ':src' => $params['src'])), 'warning/invalid'));
+                    Notification(new HtmlException(tr('Detected invalid "height" parameter specification for image ":src", forcing real image height ":real" instead', array(':height' => $params['height'], ':real' => $image['height'], ':src' => $params['src'])), 'warning/invalid'));
                     $params['height'] = $image['height'];
                 }
             }
@@ -2783,11 +2783,11 @@ Class Html {
 
                     }catch(Exception $e) {
                         /*
-                         * Failed to auto resize the image. Notify and stay with
+                         * Failed to auto resize the image. Notification and stay with
                          * the current version meanwhile.
                          */
                         $e->addMessages(tr('html_img(): Failed to auto resize image ":image", using non resized image with incorrect width / height instead', array(':image' => $file_src)));
-                        notify($e->makeWarning(true));
+                        Notification($e->makeWarning(true));
                     }
                 }
             }
@@ -2958,10 +2958,10 @@ Class Html {
 
                 }catch(Exception $e) {
                     /*
-                     * Oops, jquery.lazy failed to install or load. Notify, and
+                     * Oops, jquery.lazy failed to install or load. Notification, and
                      * ignore, we will just continue without lazy loading.
                      */
-                    notify(new HtmlException(tr('html_img(): Failed to install or load jquery.lazy'), $e));
+                    Notification(new HtmlException(tr('html_img(): Failed to install or load jquery.lazy'), $e));
                 }
             }
 

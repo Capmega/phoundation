@@ -173,8 +173,8 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `country_code` (`country_code`),
                     KEY `status` (`status`),')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_geo_states_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE CASCADE
-                    CONSTRAINT `fk_geo_states_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE CASCADE
+                    CONSTRAINT `fk_geo_states_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_geo_states_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_geo_states_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_geo_states_country_code` FOREIGN KEY (`country_code`) REFERENCES `geo_countries` (`code`) ON DELETE CASCADE,')
                 ->create();
@@ -216,7 +216,7 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `name` (`name`),')
                 ->setForeignKeys('
                     CONSTRAINT `fk_geo_counties_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_counties_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE CASCADE
+                    CONSTRAINT `fk_geo_counties_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_geo_counties_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_geo_counties_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE CASCADE,')
                 ->create();
@@ -259,7 +259,6 @@ class Init extends \Phoundation\Initialize\Init
                     `admin1` varchar(20) DEFAULT NULL,
                     `admin2` varchar(20) DEFAULT NULL,
                     `population` int DEFAULT NULL,
-                    `timezones_id` int DEFAULT NULL,
                     `timezone` varchar(64) DEFAULT NULL,
                     `feature_code` varchar(10) DEFAULT NULL,')
                 ->setIndices('
@@ -277,7 +276,6 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `latitude` (`latitude`),
                     KEY `population` (`population`),
                     KEY `elevation` (`elevation`),
-                    KEY `timezones_id` (`timezones_id`),
                     KEY `timezone` (`timezone`),
                     KEY `feature_code` (`feature_code`),
                     KEY `is_city` (`is_city`),
@@ -287,7 +285,7 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `status` (`status`),')
                 ->setForeignKeys('
                     CONSTRAINT `fk_geo_cities_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_cities_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE CASCADE
+                    CONSTRAINT `fk_geo_cities_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_geo_cities_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_geo_cities_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_geo_cities_counties_id` FOREIGN KEY (`counties_id`) REFERENCES `geo_counties` (`id`) ON DELETE CASCADE,

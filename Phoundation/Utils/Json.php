@@ -10,7 +10,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Http;
-use Phoundation\Notify\Notification;
+use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Exception\JsonException;
 use Throwable;
 

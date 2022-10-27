@@ -9,7 +9,7 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Notify\Notification;
+use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 
