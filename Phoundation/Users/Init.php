@@ -137,7 +137,7 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`)')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_rights_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)
+                    CONSTRAINT `fk_rights_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
                     CONSTRAINT `fk_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
                     CONSTRAINT `fk_rights_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`),')
                 ->create();
@@ -210,7 +210,7 @@ class Init extends \Phoundation\Initialize\Init
                     CONSTRAINT `fk_roles_rights_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `rights` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_roles_rights_roles_id` FOREIGN KEY (`roles_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE')
                 ->create();
-        })->addUpdate('0.0.4', function () {
+        })->addUpdate('0.0.5', function () {
             // Create the authentications table.
             sql()->schema()->table('authentications')
                 ->setColumns('
