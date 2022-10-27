@@ -953,24 +953,20 @@ class Sql
     /**
      * Insert the specified data row in the specified table
      *
+     * This is a simplified insert method to speed up writing basic insert queries
+     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
+     *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
      * @param array $row
      * @return PDOStatement
      */
     public function insert(string $table, array $row): PDOStatement
     {
-        $columns = array_keys($row);
-        $columns = implode(', ', $columns);
-
+        $columns = $this->columns($row);
         $values  = $this->values($row);
+        $keys    = $this->keys($row);
 
-        $keys    = array_keys($values);
-        $keys    = implode(', ', $keys);
-show($columns);
-show($values);
-show($keys);
-showdie('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $values . ')');
-        $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $values . ')', $row);
+        $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
     }
 
 
@@ -1263,25 +1259,40 @@ showdie('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $values . '
      * Return a list of the specified $columns from the specified source
      *
      * @param array $source
-     * @param array|string $columns
      * @return string
      */
-    public function columns(array $source, array|string $columns): string
+    public function columns(array $source): string
     {
-        $columns = Arrays::force($columns);
         $return = [];
 
         foreach ($source as $key => $value) {
-            if (in_array($key, $columns)) {
-                $return[] = '`' . $key . '`';
-            }
-        }
-
-        if (!count($return)) {
-            throw new SqlException(tr('Specified source contains non of the specified columns ":columns"', [':columns' => $columns]));
+            $return[] = '`' . $key . '`';
         }
 
         return implode(', ', $return);
+    }
+
+
+
+    /**
+     * Converts the specified row data into a PDO bound variables compatible key > values array
+     *
+     * @param array|string $source
+     * @param string $prefix
+     * @return string
+     */
+    public function keys(array|string $source, string $prefix = ':'): string
+    {
+        $return  = [];
+
+        foreach ($source as $key => $value) {
+            $return[$prefix . $key] = $value;
+        }
+
+        $return = array_keys($return);
+        $return = implode(', ', $return);
+
+        return $return;
     }
 
 

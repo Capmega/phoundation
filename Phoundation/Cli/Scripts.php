@@ -619,6 +619,20 @@ class Scripts
 
 
     /**
+     * Returns true if the specified key exists
+     *
+     * @param int|string|null $keys
+     * @param bool $default
+     * @return bool
+     */
+    public static function boolArgument(int|string|null $keys = null, bool $default = false): bool
+    {
+        return (bool) self::argument($keys, false, $default);
+    }
+
+
+
+    /**
      * Show a dot on the console each $each call if $each is false, "DONE" will be printed, with next line. Internal counter will reset if a different $each is received.
      *
      * @note While log_console() will log towards the ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown

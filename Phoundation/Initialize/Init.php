@@ -173,10 +173,10 @@ class Init
      * Update to the specified version
      *
      * @param string $version
-     * @param string $comments
+     * @param string|null $comments
      * @return string|null The next version available for this init, or NULL if none are available
      */
-    public function updateOne(string $version, string $comments): ?string
+    public function updateOne(string $version, ?string $comments = null): ?string
     {
         // Ensure that the specified version exists
         if (!array_key_exists($version, $this->updates)) {
@@ -221,10 +221,10 @@ class Init
      * Add a new version data row in the versions table
      *
      * @param string $version
-     * @param string $comments
+     * @param string|null $comments
      * @return void
      */
-    protected function addVersion(string $version, string $comments): void
+    protected function addVersion(string $version, ?string $comments = null): void
     {
         sql()->insert('versions', [
             'library'  => $this->library,

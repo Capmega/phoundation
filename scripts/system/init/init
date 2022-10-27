@@ -18,9 +18,9 @@ use Phoundation\Initialize\Initialize;
  */
 
 // Get command line arguments
-$system   = Scripts::argument('-s,--system');
-$plugins  = Scripts::argument('-p,--plugins');
-$library  = Scripts::argument('-l,--library');
+$system   = Scripts::boolArgument('-s,--system', true);
+$plugins  = Scripts::boolArgument('-p,--plugins', true);
+$library  = Scripts::boolArgument('-l,--library');
 $comments = Scripts::argument('-c,--comments', true);
 
 Scripts::noArgumentsLeft();
