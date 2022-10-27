@@ -5,6 +5,7 @@ namespace Phoundation\Notify;
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
+use Phoundation\Core\Meta;
 use Phoundation\Exception\OutOfBoundsException;
 use Throwable;
 
@@ -539,31 +540,31 @@ return $this;
      */
     protected function save(): void
     {
-//        if ($this->id) {
-//            sql()->update('notifications', [
-//                '' => $this->,
-//                '' => $this->,
-//                'status' => $this->status,
-//            ]);
-//
-//        } else {
-//            sql()->insert('notifications', [
-//                '' => $this->,
-//                '' => $this->,
-//                'status' => $this->status,
-//                '' => $this->,
-//                '' => $this->,
-//                '' => $this->,
-//                '' => $this->,
-//                '' => $this->,
-//                '' => $this->,
-//                '' => $this->,
-//                '' => $this->,
-//                '' => $this->,
-//                '' => $this->,
-//                '' => $this->,
-//                '' => $this->,
-//            ]);
-//        }
+        if ($this->id) {
+            sql()->update('notifications', [
+                'created_by' => $this->,
+                'meta_id' => Meta::action(),
+                'status' => $this->status,
+            ]);
+
+        } else {
+            sql()->insert('notifications', [
+                '' => $this->,
+                '' => $this->,
+                'status' => $this->status,
+                '' => $this->,
+                '' => $this->,
+                '' => $this->,
+                '' => $this->,
+                '' => $this->,
+                '' => $this->,
+                '' => $this->,
+                '' => $this->,
+                '' => $this->,
+                '' => $this->,
+                '' => $this->,
+                '' => $this->,
+            ]);
+        }
     }
 }

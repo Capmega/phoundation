@@ -5,7 +5,7 @@
  */
 $usage = './scripts/base/twilio/conversations rebuild [--repliedon-now]';
 
-$help  = 'This script is an interface to the twilio API and local twilio databse
+$help  = 'This script is an interface to the twilio API and local twilio database
 
 METHODS
 

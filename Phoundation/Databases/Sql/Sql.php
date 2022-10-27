@@ -724,7 +724,7 @@ class Sql
             }
 
             // Log all queries?
-            if (Debug::enabled() and Config::get('debug.queries', false)) {
+            if (Config::get('databases.sql.debug', false)) {
                 $query = ' ' . $query;
             }
 

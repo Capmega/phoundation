@@ -248,7 +248,7 @@ function proxies_insert_front($prev, $insert, $protocols, $apply) {
         /*
          * Updating proxy chain
          */
-        log_console(tr('Updating databse with new proxy chain'));
+        log_console(tr('Updating database with new proxy chain'));
         load_libs('servers');
         servers_add_ssh_proxy($prev['id'], $insert['id']);
 

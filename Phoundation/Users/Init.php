@@ -50,8 +50,8 @@ class Init extends \Phoundation\Initialize\Init
                     `keywords` varchar(255) DEFAULT NULL,
                     `phones` varchar(64) CHARACTER SET latin1 NOT NULL,
                     `address` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
-                    `verify_code` varchar(128) DEFAULT NULL,
-                    `verifiedon` datetime DEFAULT NULL,
+                    `verification_code` varchar(128) DEFAULT NULL,
+                    `verified_on` datetime DEFAULT NULL,
                     `priority` int DEFAULT NULL,
                     `is_leader` int DEFAULT NULL,
                     `leaders_id` int DEFAULT NULL,
@@ -269,14 +269,17 @@ class Init extends \Phoundation\Initialize\Init
                     `users_id` int DEFAULT NULL,
                     `username` varchar(64) NOT NULL,
                     `ip` varchar(46) DEFAULT NULL,
-                    `method` enum("authentication", "signin") CHARACTER SET latin1 NOT NULL DEFAULT "authentication",')
+                    `action` enum("authentication", "signin") CHARACTER SET latin1 NOT NULL DEFAULT "authentication",
+                    `method` enum("password", "google", "facebook") CHARACTER SET latin1 NOT NULL DEFAULT "password",')
                 ->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
                     KEY `users_id` (`users_id`),
-                    KEY `ip` (`ip`),')
+                    KEY `ip` (`ip`),
+                    KEY `action` (`action`),
+                    KEY `method` (`method`),')
                 ->setForeignKeys('
                     CONSTRAINT `fk_authentications_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_authentications_users_id` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE CASCADE')

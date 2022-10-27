@@ -38,7 +38,7 @@ class Meta
 
 
     /**
-     * Returns a new Meta object
+     * Returns a Meta object with the specified id (or a new one if no id has been specified)
      *
      * @param int|null $id
      * @return Meta
@@ -46,6 +46,21 @@ class Meta
     public static function create(?int $id = null): Meta
     {
         return new Meta($id);
+    }
+
+
+
+    /**
+     * Returns the id for a new meta entry
+     *
+     * @param string $action
+     * @return int
+     */
+    public static function action(string $action): int
+    {
+        $meta = new Meta();
+        $meta->addAction($action);
+        return $meta->getId();
     }
 
 
@@ -59,5 +74,20 @@ class Meta
     protected function load(int $id): void
     {
 
+    }
+
+
+
+    /**
+     * Add an action for this meta object
+     *
+     * @param string $action
+     * @return void
+     */
+    public function addAction(string $action): void
+    {
+        sql()->insert('meta_history', [
+            ''
+        ]);
     }
 }
