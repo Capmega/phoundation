@@ -262,7 +262,7 @@ class Route
                                                     WHERE    `ip` = :ip 
                                                       AND    `status` IS NULL 
                                                       AND    `expiredon` >= NOW() 
-                                                    ORDER BY `createdon` DESC 
+                                                    ORDER BY `created_on` DESC 
                                                     LIMIT 1', [':ip' => $ip]);
 
                     if ($exists) {

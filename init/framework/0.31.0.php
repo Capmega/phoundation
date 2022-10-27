@@ -18,7 +18,7 @@ sql_query('DROP TABLE IF EXISTS `email_domains`');
  */
 sql_query('CREATE TABLE `email_domains` (`id`          INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                          `createdon`   TIMESTAMP    NOT NULL,
-                                         `createdby`   INT(11)          NULL,
+                                         `created_by`   INT(11)          NULL,
                                          `modifiedon`  DATETIME         NULL,
                                          `modifiedby`  INT(11)          NULL,
                                          `status`      VARCHAR(16)      NULL,
@@ -31,13 +31,13 @@ sql_query('CREATE TABLE `email_domains` (`id`          INT(11)      NOT NULL AUT
                                          `description` TEXT             NULL,
 
                                          INDEX (`createdon`),
-                                         INDEX (`createdby`),
+                                         INDEX (`created_by`),
                                          INDEX (`modifiedon`),
                                          INDEX (`modifiedby`),
                                          INDEX (`status`),
                                          INDEX (`domain`),
 
-                                         CONSTRAINT `fk_email_domains_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                                         CONSTRAINT `fk_email_domains_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
                                          CONSTRAINT `fk_email_domains_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users` (`id`) ON DELETE RESTRICT
 
                                         ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
@@ -49,7 +49,7 @@ sql_query('CREATE TABLE `email_domains` (`id`          INT(11)      NOT NULL AUT
  */
 sql_query('CREATE TABLE `email_users` (`id`          INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                        `createdon`   TIMESTAMP    NOT NULL,
-                                       `createdby`   INT(11)          NULL,
+                                       `created_by`   INT(11)          NULL,
                                        `modifiedon`  DATETIME         NULL,
                                        `modifiedby`  INT(11)          NULL,
                                        `status`      VARCHAR(16)      NULL,
@@ -64,14 +64,14 @@ sql_query('CREATE TABLE `email_users` (`id`          INT(11)      NOT NULL AUTO_
                                        `description` TEXT             NULL,
 
                                        INDEX (`createdon`),
-                                       INDEX (`createdby`),
+                                       INDEX (`created_by`),
                                        INDEX (`modifiedon`),
                                        INDEX (`modifiedby`),
                                        INDEX (`status`),
                                        INDEX (`seoname`),
                                        INDEX (`name`),
 
-                                       CONSTRAINT `fk_email_users_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`         (`id`) ON DELETE RESTRICT,
+                                       CONSTRAINT `fk_email_users_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users`         (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_email_users_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users`         (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_email_users_domains_id` FOREIGN KEY (`domains_id`) REFERENCES `email_domains` (`id`) ON DELETE RESTRICT
 
@@ -84,7 +84,7 @@ sql_query('CREATE TABLE `email_users` (`id`          INT(11)      NOT NULL AUTO_
  */
 sql_query('CREATE TABLE `email_aliases` (`id`              INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                          `createdon`       TIMESTAMP    NOT NULL,
-                                         `createdby`       INT(11)          NULL,
+                                         `created_by`       INT(11)          NULL,
                                          `modifiedon`      DATETIME         NULL,
                                          `modifiedby`      INT(11)          NULL,
                                          `status`          VARCHAR(16)      NULL,
@@ -95,7 +95,7 @@ sql_query('CREATE TABLE `email_aliases` (`id`              INT(11)      NOT NULL
                                          `description`     TEXT             NULL,
 
                                          INDEX (`createdon`) ,
-                                         INDEX (`createdby`),
+                                         INDEX (`created_by`),
                                          INDEX (`modifiedon`),
                                          INDEX (`modifiedby`),
                                          INDEX (`status`),
@@ -105,7 +105,7 @@ sql_query('CREATE TABLE `email_aliases` (`id`              INT(11)      NOT NULL
                                          INDEX (`to`),
                                          UNIQUE(`from`,`to`),
 
-                                         CONSTRAINT `fk_email_aliases_createdby`       FOREIGN KEY (`createdby`)       REFERENCES `users`         (`id`) ON DELETE RESTRICT,
+                                         CONSTRAINT `fk_email_aliases_created_by`       FOREIGN KEY (`created_by`)       REFERENCES `users`         (`id`) ON DELETE RESTRICT,
                                          CONSTRAINT `fk_email_aliases_modifiedby`      FOREIGN KEY (`modifiedby`)      REFERENCES `users`         (`id`) ON DELETE RESTRICT,
                                          CONSTRAINT `fk_email_aliases_from_domains_id` FOREIGN KEY (`from_domains_id`) REFERENCES `email_domains` (`id`) ON DELETE RESTRICT,
                                          CONSTRAINT `fk_email_aliases_to_domains_id`   FOREIGN KEY (`to_domains_id`)   REFERENCES `email_domains` (`id`) ON DELETE RESTRICT
@@ -119,7 +119,7 @@ sql_query('CREATE TABLE `email_aliases` (`id`              INT(11)      NOT NULL
  */
 sql_query('CREATE TABLE `email_templates` (`id`         INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                            `createdon`  TIMESTAMP    NOT NULL,
-                                           `createdby`  INT(11)          NULL,
+                                           `created_by`  INT(11)          NULL,
                                            `modifiedon` DATETIME         NULL,
                                            `modifiedby` INT(11)          NULL,
                                            `status`     VARCHAR(16)      NULL,
@@ -129,7 +129,7 @@ sql_query('CREATE TABLE `email_templates` (`id`         INT(11)      NOT NULL AU
                                            `template`   TEXT         NOT NULL,
 
                                            INDEX (`createdon`) ,
-                                           INDEX (`createdby`),
+                                           INDEX (`created_by`),
                                            INDEX (`modifiedon`),
                                            INDEX (`modifiedby`),
                                            INDEX (`status`),
@@ -137,7 +137,7 @@ sql_query('CREATE TABLE `email_templates` (`id`         INT(11)      NOT NULL AU
                                            UNIQUE(`name`),
                                            UNIQUE(`seoname`),
 
-                                           CONSTRAINT `fk_email_templates_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`         (`id`) ON DELETE RESTRICT,
+                                           CONSTRAINT `fk_email_templates_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users`         (`id`) ON DELETE RESTRICT,
                                            CONSTRAINT `fk_email_templates_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users`         (`id`) ON DELETE RESTRICT,
                                            CONSTRAINT `fk_email_templates_domains_id` FOREIGN KEY (`domains_id`) REFERENCES `email_domains` (`id`) ON DELETE RESTRICT
 
@@ -150,7 +150,7 @@ sql_query('CREATE TABLE `email_templates` (`id`         INT(11)      NOT NULL AU
  */
 sql_query('CREATE TABLE `email_keywords` (`id`           INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                           `createdon`    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                          `createdby`    INT(11)     NOT NULL,
+                                          `created_by`    INT(11)     NOT NULL,
                                           `modifiedon`   DATETIME        NULL,
                                           `modifiedby`   INT(11)         NULL,
                                           `status`       VARCHAR(16)     NULL,
@@ -159,7 +159,7 @@ sql_query('CREATE TABLE `email_keywords` (`id`           INT(11)     NOT NULL AU
                                           `value`        VARCHAR(255)    NULL,
 
                                           INDEX (`createdon`),
-                                          INDEX (`createdby`),
+                                          INDEX (`created_by`),
                                           INDEX (`modifiedon`),
                                           INDEX (`modifiedby`),
                                           INDEX (`templates_id`),
@@ -167,7 +167,7 @@ sql_query('CREATE TABLE `email_keywords` (`id`           INT(11)     NOT NULL AU
                                           UNIQUE(`name`),
 
                                           CONSTRAINT `fk_email_keywords_templates_id`  FOREIGN KEY (`templates_id`) REFERENCES `email_templates` (`id`) ON DELETE CASCADE,
-                                          CONSTRAINT `fk_email_keywords_createdby`     FOREIGN KEY (`createdby`)    REFERENCES `users`           (`id`) ON DELETE RESTRICT,
+                                          CONSTRAINT `fk_email_keywords_created_by`     FOREIGN KEY (`created_by`)    REFERENCES `users`           (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_email_keywords_modifiedby`    FOREIGN KEY (`modifiedby`)   REFERENCES `users`           (`id`) ON DELETE RESTRICT
 
                                          ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
@@ -179,7 +179,7 @@ sql_query('CREATE TABLE `email_keywords` (`id`           INT(11)     NOT NULL AU
  */
 sql_query('CREATE TABLE `email_saved` (`id`           INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                        `createdon`    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                       `createdby`    INT(11)     NOT NULL,
+                                       `created_by`    INT(11)     NOT NULL,
                                        `modifiedon`   DATETIME        NULL,
                                        `modifiedby`   INT(11)         NULL,
                                        `status`       VARCHAR(16)     NULL,
@@ -188,7 +188,7 @@ sql_query('CREATE TABLE `email_saved` (`id`           INT(11)     NOT NULL AUTO_
                                        `html`         TEXT            NULL,
 
                                        INDEX (`createdon`),
-                                       INDEX (`createdby`),
+                                       INDEX (`created_by`),
                                        INDEX (`modifiedon`),
                                        INDEX (`modifiedby`),
                                        INDEX (`templates_id`),
@@ -196,7 +196,7 @@ sql_query('CREATE TABLE `email_saved` (`id`           INT(11)     NOT NULL AUTO_
                                        UNIQUE(`name`),
 
                                        CONSTRAINT `fk_email_saved_templates_id`  FOREIGN KEY (`templates_id`) REFERENCES `email_templates` (`id`) ON DELETE RESTRICT,
-                                       CONSTRAINT `fk_email_saved_createdby`     FOREIGN KEY (`createdby`)    REFERENCES `users`           (`id`) ON DELETE RESTRICT,
+                                       CONSTRAINT `fk_email_saved_created_by`     FOREIGN KEY (`created_by`)    REFERENCES `users`           (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_email_saved_modifiedby`    FOREIGN KEY (`modifiedby`)   REFERENCES `users`           (`id`) ON DELETE RESTRICT
 
                                       ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');

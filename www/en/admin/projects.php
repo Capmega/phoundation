@@ -16,7 +16,7 @@ $params['columns']         = array('id'        => 'id',
                                    'category'  => tr('Project'),
                                    'priority'  => tr('Priority'),
                                    'status'    => tr('Status'),
-                                   'createdby' => tr('Created by'),
+                                   'created_by' => tr('Created by'),
                                    'createdon' => tr('Created on'));
 
 $params['filter_category'] = true;

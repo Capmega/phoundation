@@ -21,12 +21,12 @@ if (empty($_GET['blog'])) {
     redirect($params['redirects']['blogs']);
 }
 
-if (!$blog = sql_get('SELECT `id`, `name`, `createdby`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
+if (!$blog = sql_get('SELECT `id`, `name`, `created_by`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
     html_flash_set(tr($params['noblog'], array('%object%' => $params['object'])), 'error');
     redirect($params['redirects']['blogs']);
 }
 
-if (($blog['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+if (($blog['created_by'] != $_SESSION['user']['id']) and !has_rights('god')) {
     html_flash_set(tr('You do not have access to the %object% "'.$blog['name'].'"', array('%object%' => $params['object'])), 'error');
     redirect($params['redirects']['blogs_posts']);
 }
@@ -42,7 +42,7 @@ array_default($params, 'columns'        , array('id'        => 'id',
                                                 'name'      => tr('Name'),
                                                 'category'  => tr('Category'),
                                                 'status'    => tr('Status'),
-                                                'createdby' => tr('Created by'),
+                                                'created_by' => tr('Created by'),
                                                 'createdon' => tr('Created on'),
                                                 'views'     => tr('Views')));
 
@@ -76,7 +76,7 @@ array_default($params, 'title'          , tr('Blog posts'));
  * Do we have a category to filter on?
  */
 if (!empty($_POST['category'])) {
-    if (!$category = sql_get('SELECT `id`, `createdby`, `name`, `seoname` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $_POST['category']))) {
+    if (!$category = sql_get('SELECT `id`, `created_by`, `name`, `seoname` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $_POST['category']))) {
         $category = array('id'      => null,
                           'seoname' => '');
     }
@@ -92,7 +92,7 @@ if (!empty($_POST['category'])) {
  * Do we have a group to filter on?
  */
 if (!empty($_POST['group'])) {
-    if (!$group = sql_get('SELECT `id`, `createdby`, `name`, `seoname` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $_POST['group']))) {
+    if (!$group = sql_get('SELECT `id`, `created_by`, `name`, `seoname` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $_POST['group']))) {
         $group = array('id'      => null,
                        'seoname' => '');
     }
@@ -108,7 +108,7 @@ if (!empty($_POST['group'])) {
  * Do we have a group to filter on?
  */
 if (!empty($_POST['group'])) {
-    if (!$group = sql_get('SELECT `id`, `createdby`, `name`, `seoname` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $_POST['category']))) {
+    if (!$group = sql_get('SELECT `id`, `created_by`, `name`, `seoname` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $_POST['category']))) {
         $group = array('id'      => null,
                        'seoname' => '');
     }
@@ -392,7 +392,7 @@ $query = 'SELECT `blogs_posts`.`id`        AS post_id,
           ON     `blogs`.`id` = `blogs_posts`.`blogs_id`
 
           JOIN   `users`
-          ON     `users`.`id` = `blogs_posts`.`createdby`
+          ON     `users`.`id` = `blogs_posts`.`created_by`
 
           WHERE  `blogs_id` = :blogs_id';
 
@@ -549,7 +549,7 @@ if (!$r->rowCount()) {
                     $html .= '<td><a href="'.domain('/admin/'.$params['blogs_post'].'post='.$post['post_seoname']).'">'.$post['post_createdon'].'</a></td>';
                     break;
 
-                case 'createdby':
+                case 'created_by':
                     $html .= '<td><a href="'.domain('/admin/'.$params['blogs_post'].'post='.$post['post_seoname']).'">'.user_name($post).'</a></td>';
                     break;
 

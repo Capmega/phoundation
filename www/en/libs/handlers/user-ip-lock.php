@@ -39,10 +39,10 @@
                 /*
                  * This user can reset the iplock by simply logging in
                  */
-                sql_query('INSERT INTO `ip_locks` (`createdby`, `ip`)
-                           VALUES                 (:createdby , :ip )',
+                sql_query('INSERT INTO `ip_locks` (`created_by`, `ip`)
+                           VALUES                 (:created_by , :ip )',
 
-                           array(':createdby' => $user['id'],
+                           array(':created_by' => $user['id'],
                                  ':ip'        => $_SERVER['REMOTE_ADDR']));
 
                 html_flash_set(log_database('Updated IP lock to "'.Strings::Log($_SERVER['REMOTE_ADDR']).'"', 'ip_locks_updated'), 'info');

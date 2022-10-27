@@ -10,7 +10,7 @@ sql_query('DROP TABLE IF EXISTS `sitemaps_generated`');
 
 sql_query('CREATE TABLE `sitemaps_data` (`id`               INT(11)      NOT NULL AUTO_INCREMENT,
                                          `createdon`        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                         `createdby`        INT(11)          NULL DEFAULT NULL,
+                                         `created_by`        INT(11)          NULL DEFAULT NULL,
                                          `modifiedon`       DATETIME         NULL DEFAULT NULL,
                                          `modifiedby`       INT(11)          NULL DEFAULT NULL,
                                          `status`           VARCHAR(16)      NULL DEFAULT NULL,
@@ -24,29 +24,29 @@ sql_query('CREATE TABLE `sitemaps_data` (`id`               INT(11)      NOT NUL
 
                                          PRIMARY KEY `id`           (`id`),
                                                  KEY `createdon`    (`createdon`),
-                                                 KEY `createdby`    (`createdby`),
+                                                 KEY `created_by`    (`created_by`),
                                                  KEY `modifiedon`   (`modifiedon`),
                                                  KEY `status`       (`status`),
                                                  KEY `priority`     (`priority`),
 
-                                         CONSTRAINT `fk_sitemaps_data_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users` (`id`),
+                                         CONSTRAINT `fk_sitemaps_data_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users` (`id`),
                                          CONSTRAINT `fk_sitemaps_data_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users` (`id`)
 
                                         ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
 sql_query('CREATE TABLE `sitemaps_generated` (`id`        INT(11)      NOT NULL AUTO_INCREMENT,
                                               `createdon` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                              `createdby` INT(11)          NULL DEFAULT NULL,
+                                              `created_by` INT(11)          NULL DEFAULT NULL,
                                               `language`  VARCHAR(255)     NULL DEFAULT NULL,
                                               `file`      VARCHAR(255)     NULL DEFAULT NULL,
 
                                               PRIMARY KEY `id`        (`id`),
                                                       KEY `createdon` (`createdon`),
-                                                      KEY `createdby` (`createdby`),
+                                                      KEY `created_by` (`created_by`),
                                                       KEY `language`  (`language`),
                                                       KEY `file`      (`file`),
 
-                                              CONSTRAINT `fk_sitemaps_generated_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`)
+                                              CONSTRAINT `fk_sitemaps_generated_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)
 
                                              ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 

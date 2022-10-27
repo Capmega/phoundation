@@ -12,12 +12,12 @@ if (empty($_GET['blog'])) {
     redirect($params['redirects']['blogs']);
 }
 
-if (!$blog = sql_get('SELECT `id`, `name`, `createdby`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
+if (!$blog = sql_get('SELECT `id`, `name`, `created_by`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
     html_flash_set(tr($params['noblog'], array('%object%' => $params['object'])), 'error');
     redirect($params['redirects']['blogs']);
 }
 
-if (($blog['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+if (($blog['created_by'] != $_SESSION['user']['id']) and !has_rights('god')) {
     html_flash_set(tr('You do not have access to the %object% "'.$blog['name'].'"', array('%object%' => $params['object'])), 'error');
     redirect($params['redirects']['blogs_posts']);
 }

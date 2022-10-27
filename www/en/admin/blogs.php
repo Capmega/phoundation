@@ -204,7 +204,7 @@ $query = 'SELECT    `blogs`.`id`           AS blog_id,
           FROM      `blogs`
 
           LEFT JOIN `users`
-          ON        `users`.`id` = `blogs`.`createdby`';
+          ON        `users`.`id` = `blogs`.`created_by`';
 
 
 
@@ -373,7 +373,7 @@ if ($selected) {
                                                 <div class="form-group">
                                                     <label class=" col-md-3 control-label">'.tr('Created by').'</label>
                                                     <div class="col-lg-6">
-                                                        <p class="form-control-static">'.user_name($selected_blog['createdby']).'</p>
+                                                        <p class="form-control-static">'.user_name($selected_blog['created_by']).'</p>
                                                     </div>
                                                 </div>
                                                 <div class="form-group">

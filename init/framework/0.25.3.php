@@ -10,7 +10,7 @@ sql_query('DROP TABLE IF EXISTS `groups`');
  */
 sql_query('CREATE TABLE `groups` (`id`          INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                   `createdon`   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                  `createdby`   INT(11)     NOT NULL,
+                                  `created_by`   INT(11)     NOT NULL,
                                   `modifiedon`  DATETIME        NULL,
                                   `modifiedby`  INT(11)         NULL,
                                   `status`      VARCHAR(16)     NULL,
@@ -19,14 +19,14 @@ sql_query('CREATE TABLE `groups` (`id`          INT(11)     NOT NULL AUTO_INCREM
                                   `description` VARCHAR(255)    NULL,
 
                                   INDEX (`createdon`),
-                                  INDEX (`createdby`),
+                                  INDEX (`created_by`),
                                   INDEX (`modifiedon`),
                                   INDEX (`modifiedby`),
                                   INDEX (`status`),
                                   UNIQUE(`name`),
                                   UNIQUE(`seoname`),
 
-                                  CONSTRAINT `fk_groups_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                                  CONSTRAINT `fk_groups_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
                                   CONSTRAINT `fk_groups_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users` (`id`) ON DELETE RESTRICT
 
                                 ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');

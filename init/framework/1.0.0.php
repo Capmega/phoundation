@@ -9,7 +9,7 @@ sql_query('DROP TABLE IF EXISTS `tasks`');
 sql_query('CREATE TABLE `tasks` (`id`          INT(11)                                              NOT NULL AUTO_INCREMENT,
                                  `createdon`   TIMESTAMP                                            NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                  `executedon`  DATETIME                                                 NULL,
-                                 `createdby`   INT(11)                                                  NULL,
+                                 `created_by`   INT(11)                                                  NULL,
                                  `meta_id`     INT(11)                                                  NULL,
                                  `after`       DATETIME                                                 NULL,
                                  `method`      ENUM("background", "internal", "normal", "function")     NULL,
@@ -27,7 +27,7 @@ sql_query('CREATE TABLE `tasks` (`id`          INT(11)                          
                                          KEY `createdon`  (`createdon`),
                                          KEY `executedon` (`executedon`),
                                          KEY `meta_id`    (`meta_id`),
-                                         KEY `createdby`  (`createdby`),
+                                         KEY `created_by`  (`created_by`),
                                          KEY `status`     (`status`),
                                          KEY `command`    (`command`),
                                          KEY `method`     (`method`),
@@ -35,10 +35,10 @@ sql_query('CREATE TABLE `tasks` (`id`          INT(11)                          
                                          KEY `parents_id` (`parents_id`),
 
                                  CONSTRAINT `fk_tasks_meta_id`    FOREIGN KEY (`meta_id`)    REFERENCES `meta`  (`id`) ON DELETE RESTRICT,
-                                 CONSTRAINT `fk_tasks_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                                 CONSTRAINT `fk_tasks_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
                                  CONSTRAINT `fk_tasks_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `tasks` (`id`) ON DELETE CASCADE
 
                                 ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
-sql_query('ALTER TABLE `passwords` MODIFY COLUMN `createdby` INT(11) NULL');
+sql_query('ALTER TABLE `passwords` MODIFY COLUMN `created_by` INT(11) NULL');
 ?>

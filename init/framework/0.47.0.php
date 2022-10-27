@@ -8,7 +8,7 @@ sql_query('DROP TABLE IF EXISTS `api_accounts`');
 
 sql_query('CREATE TABLE `api_accounts` (`id`           INT(11)       NOT NULL AUTO_INCREMENT,
                                         `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                        `createdby`    INT(11)           NULL,
+                                        `created_by`    INT(11)           NULL,
                                         `modifiedon`   DATETIME          NULL DEFAULT NULL,
                                         `modifiedby`   INT(11)           NULL DEFAULT NULL,
                                         `status`       VARCHAR(16)       NULL DEFAULT NULL,
@@ -23,7 +23,7 @@ sql_query('CREATE TABLE `api_accounts` (`id`           INT(11)       NOT NULL AU
 
                                         PRIMARY KEY `id`           (`id`),
                                                 KEY `createdon`    (`createdon`),
-                                                KEY `createdby`    (`createdby`),
+                                                KEY `created_by`    (`created_by`),
                                                 KEY `modifiedon`   (`modifiedon`),
                                                 KEY `status`       (`status`),
                                                 KEY `customers_id` (`customers_id`),
@@ -31,7 +31,7 @@ sql_query('CREATE TABLE `api_accounts` (`id`           INT(11)       NOT NULL AU
                                         UNIQUE  KEY `seoname`      (`seoname`),
                                         UNIQUE  KEY `baseurl`      (`baseurl`),
 
-                                        CONSTRAINT `fk_api_accounts_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT,
+                                        CONSTRAINT `fk_api_accounts_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT,
                                         CONSTRAINT `fk_api_accounts_modifiedby`   FOREIGN KEY (`modifiedby`)   REFERENCES `users`     (`id`) ON DELETE RESTRICT,
                                         CONSTRAINT `fk_api_accounts_customers_id` FOREIGN KEY (`customers_id`) REFERENCES `customers` (`id`) ON DELETE RESTRICT,
                                         CONSTRAINT `fk_api_accounts_servers_id`   FOREIGN KEY (`servers_id`)   REFERENCES `servers`   (`id`) ON DELETE RESTRICT

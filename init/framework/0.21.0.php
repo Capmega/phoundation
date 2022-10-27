@@ -10,19 +10,19 @@ sql_query('DROP TABLE IF EXISTS `email_users`');
 
 sql_query('CREATE TABLE `email_users` (`id`             INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                        `createdon`      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                       `createdby`      INT(11)       NOT NULL,
+                                       `created_by`      INT(11)       NOT NULL,
                                        `status`         VARCHAR(16)       NULL,
                                        `users_id`       INT(11)       NOT NULL,
                                        `email`          VARCHAR(64)   NOT NULL,
                                        `password`       VARCHAR(64)   NOT NULL,
 
                                        INDEX (`createdon`),
-                                       INDEX (`createdby`),
+                                       INDEX (`created_by`),
                                        INDEX (`email`),
                                        INDEX (`users_id`),
 
                                        CONSTRAINT `fk_email_users_users_id`  FOREIGN KEY (`users_id`)  REFERENCES `users` (`id`) ON DELETE CASCADE,
-                                       CONSTRAINT `fk_email_users_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE RESTRICT
+                                       CONSTRAINT `fk_email_users_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT
 
                                       ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 

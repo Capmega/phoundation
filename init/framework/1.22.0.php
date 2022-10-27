@@ -9,7 +9,7 @@ sql_query('DROP TABLE IF EXISTS `services`');
 
 sql_query('CREATE TABLE `services` (`id`          INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                     `createdon`   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                    `createdby`   INT(11)           NULL DEFAULT NULL,
+                                    `created_by`   INT(11)           NULL DEFAULT NULL,
                                     `meta_id`     INT(11)       NOT NULL,
                                     `status`      VARCHAR(16)       NULL DEFAULT NULL,
                                     `name`        VARCHAR(32)   NOT NULL,
@@ -17,13 +17,13 @@ sql_query('CREATE TABLE `services` (`id`          INT(11)       NOT NULL AUTO_IN
                                     `description` VARCHAR(2040) NOT NULL,
 
                                            KEY `createdon` (`createdon`),
-                                           KEY `createdby` (`createdby`),
+                                           KEY `created_by` (`created_by`),
                                            KEY `meta_id`   (`meta_id`),
                                            KEY `status`    (`status`),
                                            KEY `name`      (`name`),
                                     UNIQUE KEY `seoname`   (`seoname`),
 
-                                    CONSTRAINT `fk_services_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`   (`id`) ON DELETE RESTRICT,
+                                    CONSTRAINT `fk_services_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users`   (`id`) ON DELETE RESTRICT,
                                     CONSTRAINT `fk_services_meta_id`    FOREIGN KEY (`meta_id`)    REFERENCES `meta`    (`id`) ON DELETE RESTRICT
 
                                    ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
@@ -32,7 +32,7 @@ sql_query('CREATE TABLE `services` (`id`          INT(11)       NOT NULL AUTO_IN
 
 sql_query('CREATE TABLE `services_servers` (`id`          INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                             `createdon`   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                            `createdby`   INT(11)         NULL DEFAULT NULL,
+                                            `created_by`   INT(11)         NULL DEFAULT NULL,
                                             `meta_id`     INT(11)     NOT NULL,
                                             `status`      VARCHAR(16)     NULL DEFAULT NULL,
                                             `services_id` INT(11)     NOT NULL,
@@ -42,13 +42,13 @@ sql_query('CREATE TABLE `services_servers` (`id`          INT(11)     NOT NULL A
                                             `public`      TINYINT(1)  NOT NULL,
 
                                                    KEY `createdon` (`createdon`),
-                                                   KEY `createdby` (`createdby`),
+                                                   KEY `created_by` (`created_by`),
                                                    KEY `meta_id`   (`meta_id`),
                                                    KEY `status`    (`status`),
                                                    KEY `name`      (`name`),
                                             UNIQUE KEY `seoname`   (`seoname`),
 
-                                            CONSTRAINT `services_servers_createdby`   FOREIGN KEY (`createdby`)   REFERENCES `users`    (`id`) ON DELETE RESTRICT,
+                                            CONSTRAINT `services_servers_created_by`   FOREIGN KEY (`created_by`)   REFERENCES `users`    (`id`) ON DELETE RESTRICT,
                                             CONSTRAINT `services_servers_meta_id`     FOREIGN KEY (`meta_id`)     REFERENCES `meta`     (`id`) ON DELETE RESTRICT,
                                             CONSTRAINT `services_servers_services_id` FOREIGN KEY (`services_id`) REFERENCES `services` (`id`) ON DELETE RESTRICT,
                                             CONSTRAINT `services_servers_servers_id`  FOREIGN KEY (`servers_id`)  REFERENCES `servers`  (`id`) ON DELETE RESTRICT
@@ -71,7 +71,7 @@ sql_column_exists('domains', 'ssh_port'    , 'ALTER TABLE `domains` DROP COLUMN 
 sql_column_exists('domains', 'ssh_user'    , 'ALTER TABLE `domains` DROP COLUMN `ssh_user`');
 sql_column_exists('domains', 'ssh_path'    , 'ALTER TABLE `domains` DROP COLUMN `ssh_path`');
 
-sql_query('ALTER TABLE `domains` MODIFY `createdby` INT(11) NULL DEFAULT NULL');
+sql_query('ALTER TABLE `domains` MODIFY `created_by` INT(11) NULL DEFAULT NULL');
 
 sql_foreignkey_exists('domains', 'fk_domains_mx_domains_id' , '!ALTER TABLE `domains` ADD CONSTRAINT `fk_domains_mx_domains_id` FOREIGN KEY (`mx_domains_id`) REFERENCES `email_servers` (`id`) ON DELETE RESTRICT;');
 
@@ -120,7 +120,7 @@ sql_index_exists('email_servers', 'domain', '!ALTER TABLE `email_servers` ADD IN
 sql_index_exists('email_servers', 'domain', '!ALTER TABLE `email_servers` ADD INDEX `seodomain` (`seodomain`)');
 
 sql_query('ALTER TABLE `email_servers` MODIFY `description` VARCHAR(2040) NULL DEFAULT NULL');
-sql_query('ALTER TABLE `email_servers` MODIFY `createdby` INT(11) NULL DEFAULT NULL');
+sql_query('ALTER TABLE `email_servers` MODIFY `created_by` INT(11) NULL DEFAULT NULL');
 
 /*
  * Add missing required columns to domains_servers
@@ -131,14 +131,14 @@ sql_index_exists ('domains_servers', 'domains_id_servers_id', '!ALTER TABLE `dom
 
 sql_column_exists('domains_servers', 'id'       , '!ALTER TABLE `domains_servers` ADD COLUMN `id`        INT(11)   NOT NULL PRIMARY KEY FIRST');
 sql_column_exists('domains_servers', 'createdon', '!ALTER TABLE `domains_servers` ADD COLUMN `createdon` TIMESTAMP     NULL AFTER `id`');
-sql_column_exists('domains_servers', 'createdby', '!ALTER TABLE `domains_servers` ADD COLUMN `createdby` INT(11)       NULL AFTER `createdon`');
-sql_column_exists('domains_servers', 'meta_id'  , '!ALTER TABLE `domains_servers` ADD COLUMN `meta_id`   INT(11)   NOT NULL AFTER `createdby`');
+sql_column_exists('domains_servers', 'created_by', '!ALTER TABLE `domains_servers` ADD COLUMN `created_by` INT(11)       NULL AFTER `createdon`');
+sql_column_exists('domains_servers', 'meta_id'  , '!ALTER TABLE `domains_servers` ADD COLUMN `meta_id`   INT(11)   NOT NULL AFTER `created_by`');
 
-sql_index_exists('domains_servers', 'createdby', '!ALTER TABLE `domains_servers` ADD INDEX `createdby` (`createdby`)');
+sql_index_exists('domains_servers', 'created_by', '!ALTER TABLE `domains_servers` ADD INDEX `created_by` (`created_by`)');
 sql_index_exists('domains_servers', 'createdon', '!ALTER TABLE `domains_servers` ADD INDEX `createdon` (`createdon`)');
 sql_index_exists('domains_servers', 'meta_id'  , '!ALTER TABLE `domains_servers` ADD INDEX `meta_id`   (`meta_id`)');
 
-sql_foreignkey_exists('domains_servers', 'fk_domains_servers_createdby' , '!ALTER TABLE `domains_servers` ADD CONSTRAINT `fk_domains_servers_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE RESTRICT;');
+sql_foreignkey_exists('domains_servers', 'fk_domains_servers_created_by' , '!ALTER TABLE `domains_servers` ADD CONSTRAINT `fk_domains_servers_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT;');
 sql_foreignkey_exists('domains_servers', 'fk_domains_servers_meta_id'   , '!ALTER TABLE `domains_servers` ADD CONSTRAINT `fk_domains_servers_meta_id`   FOREIGN KEY (`meta_id`)   REFERENCES `meta`  (`id`) ON DELETE RESTRICT;');
 
 /*
@@ -147,10 +147,10 @@ sql_foreignkey_exists('domains_servers', 'fk_domains_servers_meta_id'   , '!ALTE
 sql_column_exists('users', 'employees_id', 'ALTER TABLE `users` ADD COLUMN `customers_id` INT(11) NULL DEFAULT NULL AFTER `roles_id`');
 sql_index_exists ('users', 'employees_id', 'ALTER TABLE `users` ADD KEY    `customers_id` (`customers_id`)');
 
-sql_column_exists('users', 'meta_id', '!ALTER TABLE `users` ADD COLUMN `meta_id` INT(11) NULL AFTER `createdby`');
+sql_column_exists('users', 'meta_id', '!ALTER TABLE `users` ADD COLUMN `meta_id` INT(11) NULL AFTER `created_by`');
 sql_index_exists ('users', 'meta_id', '!ALTER TABLE `users` ADD KEY    `meta_id` (`meta_id`)');
 
-sql_foreignkey_exists('users', 'fk_users_createdby', '!ALTER TABLE `users` ADD CONSTRAINT `fk_users_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE RESTRICT;');
+sql_foreignkey_exists('users', 'fk_users_created_by', '!ALTER TABLE `users` ADD CONSTRAINT `fk_users_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT;');
 sql_foreignkey_exists('users', 'fk_users_meta_id'  , '!ALTER TABLE `users` ADD CONSTRAINT `fk_users_meta_id`   FOREIGN KEY (`meta_id`)   REFERENCES `meta`  (`id`) ON DELETE RESTRICT;');
 
 sql_query('TRUNCATE `domains_servers`');

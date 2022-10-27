@@ -69,10 +69,10 @@ if (empty($_CONFIG['security']['signin']['ip_lock'])) {
                 /*
                  * This user can reset the iplock by simply logging in
                  */
-                sql_query('INSERT INTO `ip_locks` (`createdby`, `ip`)
-                           VALUES                 (:createdby , :ip )',
+                sql_query('INSERT INTO `ip_locks` (`created_by`, `ip`)
+                           VALUES                 (:created_by , :ip )',
 
-                           array(':createdby' => $_SESSION['user']['id'],
+                           array(':created_by' => $_SESSION['user']['id'],
                                  ':ip'        => $_POST['ip']));
 
                 html_flash_set(log_database('Updated IP lock to specified IP "'.Strings::Log($_POST['ip']).'"', 'ip_locks_updated'), 'success');
@@ -82,10 +82,10 @@ if (empty($_CONFIG['security']['signin']['ip_lock'])) {
                 /*
                  * Set the current IP
                  */
-                sql_query('INSERT INTO `ip_locks` (`createdby`, `ip`)
-                           VALUES                 (:createdby , :ip )',
+                sql_query('INSERT INTO `ip_locks` (`created_by`, `ip`)
+                           VALUES                 (:created_by , :ip )',
 
-                           array(':createdby' => $_SESSION['user']['id'],
+                           array(':created_by' => $_SESSION['user']['id'],
                                  ':ip'        => $_SERVER['REMOTE_ADDR']));
 
                 html_flash_set(log_database('Updated IP lock to current IP "'.Strings::Log($_SERVER['REMOTE_ADDR']).'"', 'ip_locks_updated'), 'success');
@@ -169,12 +169,12 @@ if (empty($_CONFIG['security']['signin']['ip_lock'])) {
                        `ip_locks`.`createdon`,
                        `ip_locks`.`ip`,
                        `users`.`username`,
-                       `users`.`name` AS `createdby`
+                       `users`.`name` AS `created_by`
 
                 FROM   `ip_locks`
 
                 JOIN   `users`
-                ON     `users`.`id`   = `ip_locks`.`createdby`';
+                ON     `users`.`id`   = `ip_locks`.`created_by`';
 
     if (!empty($_GET['user'])) {
         $query  .= ' AND `users`.`username` = :user';
@@ -252,7 +252,7 @@ if (empty($_CONFIG['security']['signin']['ip_lock'])) {
 
             $html .= '  <tr'.$class.'>
                             <td class="select"><input type="checkbox" name="id[]" value="'.$ip['id'].'"></td>
-                            <td>'.$a.$ip['createdby'].'</a></td>
+                            <td>'.$a.$ip['created_by'].'</a></td>
                             <td>'.$a.$ip['createdon'].'</a></td>
                             <td>'.$a.$ip['ip'].'</a></td>
                         </tr>';

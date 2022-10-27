@@ -16,7 +16,7 @@ sql_index_exists ('domains', 'modifiedby', 'ALTER TABLE `domains` DROP KEY `modi
 sql_column_exists('domains', 'modifiedon', 'ALTER TABLE `domains` DROP COLUMN `modifiedon`');
 sql_column_exists('domains', 'modifiedby', 'ALTER TABLE `domains` DROP COLUMN `modifiedby`');
 
-sql_column_exists('domains', 'meta_id', '!ALTER TABLE `domains` ADD COLUMN `meta_id` INT(11) NULL DEFAULT NULL AFTER `createdby`');
+sql_column_exists('domains', 'meta_id', '!ALTER TABLE `domains` ADD COLUMN `meta_id` INT(11) NULL DEFAULT NULL AFTER `created_by`');
 sql_index_exists ('domains', 'meta_id', '!ALTER TABLE `domains` ADD KEY    `meta_id` (`meta_id`)');
 
 sql_foreignkey_exists('domains', 'fk_domains_meta_id', '!ALTER TABLE `domains` ADD CONSTRAINT `fk_domains_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT;');

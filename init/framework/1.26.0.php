@@ -14,7 +14,7 @@ sql_query('DROP TABLE IF EXISTS `doc_projects`');
  */
 sql_query('CREATE TABLE `doc_projects` (`id`        INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                         `createdon` TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                        `createdby` INT(11)         NULL DEFAULT NULL,
+                                        `created_by` INT(11)         NULL DEFAULT NULL,
                                         `meta_id`   INT(11)     NOT NULL,
                                         `status`    VARCHAR(16)     NULL DEFAULT NULL,
                                         `name`      VARCHAR(32) NOT NULL,
@@ -22,14 +22,14 @@ sql_query('CREATE TABLE `doc_projects` (`id`        INT(11)     NOT NULL AUTO_IN
                                         `language`  VARCHAR(2)  NOT NULL,
 
                                                KEY `createdon` (`createdon`),
-                                               KEY `createdby` (`createdby`),
+                                               KEY `created_by` (`created_by`),
                                                KEY `meta_id`   (`meta_id`),
                                                KEY `status`    (`status`),
                                                KEY `name`      (`name`),
                                                KEY `language`  (`language`),
                                         UNIQUE KEY `seoname`   (`seoname`),
 
-                                        CONSTRAINT `fk_doc_projects_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                                        CONSTRAINT `fk_doc_projects_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
                                         CONSTRAINT `fk_doc_projects_meta_id`   FOREIGN KEY (`meta_id`)   REFERENCES `meta`  (`id`) ON DELETE RESTRICT
 
                                        ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
@@ -41,7 +41,7 @@ sql_query('CREATE TABLE `doc_projects` (`id`        INT(11)     NOT NULL AUTO_IN
  */
 sql_query('CREATE TABLE `doc_pages` (`id`          INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                      `createdon`   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                     `createdby`   INT(11)         NULL DEFAULT NULL,
+                                     `created_by`   INT(11)         NULL DEFAULT NULL,
                                      `meta_id`     INT(11)     NOT NULL,
                                      `status`      VARCHAR(16)     NULL DEFAULT NULL,
                                      `projects_id` INT(11)         NULL,
@@ -52,7 +52,7 @@ sql_query('CREATE TABLE `doc_pages` (`id`          INT(11)     NOT NULL AUTO_INC
                                      `type`        ENUM("function", "class", "library", "chapter", "page", "webpage", "script", "configuration", "init", "api", "ajax") NOT NULL,
 
                                             KEY `createdon`  (`createdon`),
-                                            KEY `createdby`  (`createdby`),
+                                            KEY `created_by`  (`created_by`),
                                             KEY `meta_id`    (`meta_id`),
                                             KEY `status`     (`status`),
                                             KEY `parents_id` (`parents_id`),
@@ -60,7 +60,7 @@ sql_query('CREATE TABLE `doc_pages` (`id`          INT(11)     NOT NULL AUTO_INC
                                             KEY `package`    (`package`),
                                      UNIQUE KEY `seoname`    (`seoname`),
 
-                                     CONSTRAINT `fk_doc_pages_createdby`   FOREIGN KEY (`createdby`)   REFERENCES `users`        (`id`) ON DELETE RESTRICT,
+                                     CONSTRAINT `fk_doc_pages_created_by`   FOREIGN KEY (`created_by`)   REFERENCES `users`        (`id`) ON DELETE RESTRICT,
                                      CONSTRAINT `fk_doc_pages_meta_id`     FOREIGN KEY (`meta_id`)     REFERENCES `meta`         (`id`) ON DELETE RESTRICT,
                                      CONSTRAINT `fk_doc_pages_parents_id`  FOREIGN KEY (`parents_id`)  REFERENCES `doc_pages`    (`id`) ON DELETE CASCADE,
                                      CONSTRAINT `fk_doc_pages_projects_id` FOREIGN KEY (`projects_id`) REFERENCES `doc_projects` (`id`) ON DELETE CASCADE
@@ -74,7 +74,7 @@ sql_query('CREATE TABLE `doc_pages` (`id`          INT(11)     NOT NULL AUTO_INC
  */
 sql_query('CREATE TABLE `doc_values` (`id`        INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                       `createdon` TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                      `createdby` INT(11)         NULL DEFAULT NULL,
+                                      `created_by` INT(11)         NULL DEFAULT NULL,
                                       `meta_id`   INT(11)     NOT NULL,
                                       `status`    VARCHAR(16)     NULL DEFAULT NULL,
                                       `pages_id`  INT(11)     NOT NULL,
@@ -82,13 +82,13 @@ sql_query('CREATE TABLE `doc_values` (`id`        INT(11)     NOT NULL AUTO_INCR
                                       `value`     TEXT            NULL DEFAULT NULL,
 
                                              KEY `createdon` (`createdon`),
-                                             KEY `createdby` (`createdby`),
+                                             KEY `created_by` (`created_by`),
                                              KEY `meta_id`   (`meta_id`),
                                              KEY `status`    (`status`),
                                              KEY `pages_id`  (`pages_id`),
                                              KEY `key`       (`key`),
 
-                                      CONSTRAINT `fk_doc_values_createdby` FOREIGN KEY (`createdby`) REFERENCES `users`     (`id`) ON DELETE RESTRICT,
+                                      CONSTRAINT `fk_doc_values_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`     (`id`) ON DELETE RESTRICT,
                                       CONSTRAINT `fk_doc_values_meta_id`   FOREIGN KEY (`meta_id`)   REFERENCES `meta`      (`id`) ON DELETE RESTRICT,
                                       CONSTRAINT `fk_doc_values_pages_id`  FOREIGN KEY (`pages_id`)  REFERENCES `doc_pages` (`id`) ON DELETE CASCADE
 

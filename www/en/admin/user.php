@@ -25,13 +25,13 @@ if (!empty($_GET['user'])) {
                              `users`.`phones`,
                              `users`.`roles_id`,
                              `users`.`commentary`,
-                             `createdby`.`name`  AS `createdby`,
+                             `created_by`.`name`  AS `created_by`,
                              `modifiedby`.`name` AS `modifiedby`
 
                    FROM      `users`
 
-                   LEFT JOIN `users` as `createdby`
-                   ON        `users`.`createdby`     = `createdby`.`id`
+                   LEFT JOIN `users` as `created_by`
+                   ON        `users`.`created_by`     = `created_by`.`id`
 
                    LEFT JOIN `users` as `modifiedby`
                    ON        `users`.`modifiedby`    = `modifiedby`.`id`
@@ -335,9 +335,9 @@ if (!empty($user['id'])) {
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-md-3 control-label" for="createdby">'.tr('Created by').'</label>
+                                    <label class="col-md-3 control-label" for="created_by">'.tr('Created by').'</label>
                                     <div class="col-md-6">
-                                        <input type="text" name="createdby" id="createdby" class="form-control" value="'.isset_get($user['createdby']).'" disabled>
+                                        <input type="text" name="created_by" id="created_by" class="form-control" value="'.isset_get($user['created_by']).'" disabled>
                                     </div>
                                 </div>
                                 <div class="form-group">

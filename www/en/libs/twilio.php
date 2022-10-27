@@ -464,13 +464,13 @@ function twilio_get_group($group) {
                                      `twilio_groups`.`seoname`,
                                      `twilio_groups`.`description`,
 
-                                     `createdby`.`name`  AS `createdby_name`,
-                                     `createdby`.`email` AS `createdby_email`
+                                     `created_by`.`name`  AS `created_by_name`,
+                                     `created_by`.`email` AS `created_by_email`
 
                            FROM      `twilio_groups`
 
-                           LEFT JOIN `users` AS `createdby`
-                           ON        `twilio_groups`.`createdby` = `createdby`.`id`
+                           LEFT JOIN `users` AS `created_by`
+                           ON        `twilio_groups`.`created_by` = `created_by`.`id`
 
                            WHERE     `twilio_groups`.`id`        = :twilio
                            OR        `twilio_groups`.`name`      = :twilio',
@@ -589,13 +589,13 @@ function twilio_get_account($account) {
                                      `twilio_accounts`.`account_id`,
                                      `twilio_accounts`.`account_token`,
 
-                                     `createdby`.`name`  AS `createdby_name`,
-                                     `createdby`.`email` AS `createdby_email`
+                                     `created_by`.`name`  AS `created_by_name`,
+                                     `created_by`.`email` AS `created_by_email`
 
                            FROM      `twilio_accounts`
 
-                           LEFT JOIN `users`             AS `createdby`
-                           ON        `twilio_accounts`.`createdby` = `createdby`.`id`
+                           LEFT JOIN `users`             AS `created_by`
+                           ON        `twilio_accounts`.`created_by` = `created_by`.`id`
 
                            '.$where,
 
@@ -643,13 +643,13 @@ function twilio_get_account_by_phone_number($number) {
                                      `twilio_accounts`.`account_id`,
                                      `twilio_accounts`.`account_token`,
 
-                                     `createdby`.`name`  AS `createdby_name`,
-                                     `createdby`.`email` AS `createdby_email`
+                                     `created_by`.`name`  AS `created_by_name`,
+                                     `created_by`.`email` AS `created_by_email`
 
                            FROM      `twilio_accounts`
 
-                           LEFT JOIN `users` AS `createdby`
-                           ON        `twilio_accounts`.`createdby` = `createdby`.`id`
+                           LEFT JOIN `users` AS `created_by`
+                           ON        `twilio_accounts`.`created_by` = `created_by`.`id`
 
                            JOIN      `twilio_numbers`
                            ON        `twilio_numbers`.`accounts_id` = `twilio_accounts`.`id`
@@ -777,7 +777,7 @@ function twilio_get_number($number) {
 
         $return = sql_get('SELECT   `twilio_numbers`.`id`,
                                     `twilio_numbers`.`createdon`,
-                                    `twilio_numbers`.`createdby`,
+                                    `twilio_numbers`.`created_by`,
                                     `twilio_numbers`.`name`,
                                     `twilio_numbers`.`seoname`,
                                     `twilio_numbers`.`number`,

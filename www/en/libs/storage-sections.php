@@ -36,13 +36,13 @@ function storage_sections_get($section = null, $auto_create = false) {
              */
             if (empty($_SESSION['user']['id'])) {
                 $where   = ' WHERE  `status` = "_new"
-                             AND    `createdby` IS NULL LIMIT 1';
+                             AND    `created_by` IS NULL LIMIT 1';
                 $execute = null;
 
             } else {
                 $where   = ' WHERE  `status`    = "_new"
-                             AND    `createdby` = :createdby LIMIT 1';
-                $execute = array(':createdby' => $_SESSION['user']['id']);
+                             AND    `created_by` = :created_by LIMIT 1';
+                $execute = array(':created_by' => $_SESSION['user']['id']);
             }
 
         } elseif (is_numeric($section)) {
@@ -104,7 +104,7 @@ function storage_sections_get($section = null, $auto_create = false) {
 function storage_sections_list($status = null, $pdo_statement = true) {
     try {
         $sections = sql_query('SELECT `id`,
-                                      `createdby`,
+                                      `created_by`,
                                       `createdon`,
                                       `meta_id`,
                                       `status`,
@@ -131,11 +131,11 @@ function storage_sections_add($section, $new = false) {
     try {
         $section = storage_sections_validate($section, $new);
 
-        sql_query('INSERT INTO `storage_sections` (`id`, `createdby`, `meta_id`, `status`, `name`, `seoname`, `random_ids`, `restrict_file_types`, `slogan`, `description`)
-                   VALUES                         (:id , :createdby , :meta_id , :status , :name , :seoname , :random_ids , :restrict_file_types , :slogan , :description )',
+        sql_query('INSERT INTO `storage_sections` (`id`, `created_by`, `meta_id`, `status`, `name`, `seoname`, `random_ids`, `restrict_file_types`, `slogan`, `description`)
+                   VALUES                         (:id , :created_by , :meta_id , :status , :name , :seoname , :random_ids , :restrict_file_types , :slogan , :description )',
 
                    array(':id'                  => sql_random_id('storage_sections'),
-                         ':createdby'           => $_SESSION['user']['id'],
+                         ':created_by'           => $_SESSION['user']['id'],
                          ':meta_id'             => meta_action(),
                          ':status'              => $section['status'],
                          ':name'                => $section['name'],

@@ -39,7 +39,7 @@ sql_foreignkey_exists('messages_users', 'fk_messages_users_servers_id', 'ALTER T
 
 sql_foreignkey_exists('forwardings', 'fk_forwardings_servers_id', 'ALTER TABLE `forwardings` DROP FOREIGN KEY `fk_forwardings_servers_id`');
 
-sql_foreignkey_exists('forwardings', 'fk_forwards_createdby' , 'ALTER TABLE `forwardings` DROP FOREIGN KEY `fk_forwards_createdby`');
+sql_foreignkey_exists('forwardings', 'fk_forwards_created_by' , 'ALTER TABLE `forwardings` DROP FOREIGN KEY `fk_forwards_created_by`');
 sql_foreignkey_exists('forwardings', 'fk_forwards_meta_id'   , 'ALTER TABLE `forwardings` DROP FOREIGN KEY `fk_forwards_meta_id`');
 sql_foreignkey_exists('forwardings', 'fk_forwards_servers_id', 'ALTER TABLE `forwardings` DROP FOREIGN KEY `fk_forwards_servers_id`');
 sql_foreignkey_exists('forwardings', 'fk_forwards_source_id' , 'ALTER TABLE `forwardings` DROP FOREIGN KEY `fk_forwards_source_id`');
@@ -61,7 +61,7 @@ sql_query('DROP TABLE IF EXISTS `database_accounts`');
 
 sql_query('CREATE TABLE `database_accounts` (`id`            INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                              `createdon`     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                             `createdby`     INT(11)       NOT NULL,
+                                             `created_by`     INT(11)       NOT NULL,
                                              `meta_id`       INT(11)           NULL DEFAULT NULL,
                                              `status`        VARCHAR(16)       NULL DEFAULT NULL,
                                              `name`          VARCHAR(32)   NOT NULL,
@@ -71,12 +71,12 @@ sql_query('CREATE TABLE `database_accounts` (`id`            INT(11)       NOT N
                                              `description`   VARCHAR(2047) NOT NULL,
 
                                              INDEX  `createdon` (`createdon`),
-                                             INDEX  `createdby` (`createdby`),
+                                             INDEX  `created_by` (`created_by`),
                                              INDEX  `meta_id`   (`meta_id`),
                                              INDEX  `status`    (`status`),
                                              UNIQUE `name`      (`name`),
 
-                                             CONSTRAINT `fk_database_accounts_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                                             CONSTRAINT `fk_database_accounts_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
                                              CONSTRAINT `fk_database_accounts_meta_id`   FOREIGN KEY (`meta_id`)   REFERENCES `meta`  (`id`) ON DELETE RESTRICT
 
                                             ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
@@ -85,7 +85,7 @@ sql_query('CREATE TABLE `database_accounts` (`id`            INT(11)       NOT N
 
 sql_query('CREATE TABLE `categories` (`id`          INT(11)       NOT NULL AUTO_INCREMENT,
                                       `createdon`   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                      `createdby`   INT(11)           NULL,
+                                      `created_by`   INT(11)           NULL,
                                       `meta_id`     INT(11)       NOT NULL,
                                       `status`      VARCHAR(16)       NULL,
                                       `parents_id`  INT(11)           NULL,
@@ -97,14 +97,14 @@ sql_query('CREATE TABLE `categories` (`id`          INT(11)       NOT NULL AUTO_
                                               KEY `meta_id`     (`meta_id`),
                                               KEY `parents_id`  (`parents_id`),
                                               KEY `createdon`   (`createdon`),
-                                              KEY `createdby`   (`createdby`),
+                                              KEY `created_by`   (`created_by`),
                                               KEY `status`      (`status`),
                                       UNIQUE  KEY `seoname`     (`seoname`),
                                       UNIQUE  KEY `parent_name` (`parents_id`, `name`),
 
                                       CONSTRAINT `fk_categories_meta_id`    FOREIGN KEY (`meta_id`)    REFERENCES `meta`       (`id`) ON DELETE RESTRICT,
                                       CONSTRAINT `fk_categories_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT,
-                                      CONSTRAINT `fk_categories_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`      (`id`) ON DELETE RESTRICT
+                                      CONSTRAINT `fk_categories_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users`      (`id`) ON DELETE RESTRICT
 
                                     ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
@@ -112,7 +112,7 @@ sql_query('CREATE TABLE `categories` (`id`          INT(11)       NOT NULL AUTO_
 
 sql_query('CREATE TABLE `progress_processes` (`id`            INT(11)       NOT NULL AUTO_INCREMENT,
                                               `createdon`     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                              `createdby`     INT(11)           NULL,
+                                              `created_by`     INT(11)           NULL,
                                               `meta_id`       INT(11)       NOT NULL,
                                               `status`        VARCHAR(16)       NULL,
                                               `categories_id` INT(11)           NULL,
@@ -124,13 +124,13 @@ sql_query('CREATE TABLE `progress_processes` (`id`            INT(11)       NOT 
                                                       KEY `meta_id`          (`meta_id`),
                                                       KEY `categories_id`    (`categories_id`),
                                                       KEY `createdon`        (`createdon`),
-                                                      KEY `createdby`        (`createdby`),
+                                                      KEY `created_by`        (`created_by`),
                                                       KEY `status`           (`status`),
                                               UNIQUE  KEY `category_seoname` (`categories_id`, `seoname`),
 
                                               CONSTRAINT `fk_progress_processes_meta_id`       FOREIGN KEY (`meta_id`)       REFERENCES `meta`       (`id`) ON DELETE RESTRICT,
                                               CONSTRAINT `fk_progress_processes_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT,
-                                              CONSTRAINT `fk_progress_processes_createdby`     FOREIGN KEY (`createdby`)     REFERENCES `users`      (`id`) ON DELETE RESTRICT
+                                              CONSTRAINT `fk_progress_processes_created_by`     FOREIGN KEY (`created_by`)     REFERENCES `users`      (`id`) ON DELETE RESTRICT
 
                                             ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
@@ -138,7 +138,7 @@ sql_query('CREATE TABLE `progress_processes` (`id`            INT(11)       NOT 
 
 sql_query('CREATE TABLE `progress_steps` (`id`           INT(11)       NOT NULL AUTO_INCREMENT,
                                           `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                          `createdby`    INT(11)           NULL,
+                                          `created_by`    INT(11)           NULL,
                                           `meta_id`      INT(11)       NOT NULL,
                                           `status`       VARCHAR(16)       NULL,
                                           `processes_id` INT(11)       NOT NULL,
@@ -151,14 +151,14 @@ sql_query('CREATE TABLE `progress_steps` (`id`           INT(11)       NOT NULL 
                                           PRIMARY KEY `id`              (`id`),
                                                   KEY `meta_id`         (`meta_id`),
                                                   KEY `createdon`       (`createdon`),
-                                                  KEY `createdby`       (`createdby`),
+                                                  KEY `created_by`       (`created_by`),
                                                   KEY `status`          (`status`),
                                                   KEY `processes_id`    (`processes_id`),
                                                   KEY `parents_id`      (`parents_id`),
                                           UNIQUE  KEY `process_seoname` (`processes_id`, `seoname`),
 
                                           CONSTRAINT `fk_progress_steps_meta_id`      FOREIGN KEY (`meta_id`)      REFERENCES `meta`               (`id`) ON DELETE RESTRICT,
-                                          CONSTRAINT `fk_progress_steps_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`              (`id`) ON DELETE RESTRICT,
+                                          CONSTRAINT `fk_progress_steps_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`              (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_progress_steps_processes_id` FOREIGN KEY (`processes_id`) REFERENCES `progress_processes` (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_progress_steps_parents_id`   FOREIGN KEY (`parents_id`)   REFERENCES `progress_steps`     (`id`) ON DELETE CASCADE
 
@@ -171,7 +171,7 @@ sql_query('CREATE TABLE `progress_steps` (`id`           INT(11)       NOT NULL 
  */
 sql_query('CREATE TABLE `servers` (`id`                   INT(11)       NOT NULL AUTO_INCREMENT,
                                    `createdon`            TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                   `createdby`            INT(11)       NOT NULL,
+                                   `created_by`            INT(11)       NOT NULL,
                                    `modifiedon`           DATETIME          NULL DEFAULT NULL,
                                    `modifiedby`           INT(11)           NULL DEFAULT NULL,
                                    `status`               VARCHAR(16)       NULL DEFAULT NULL,
@@ -203,7 +203,7 @@ sql_query('CREATE TABLE `servers` (`id`                   INT(11)       NOT NULL
                                    UNIQUE  KEY `hostname`             (`hostname`),
                                    UNIQUE  KEY `seohostname`          (`seohostname`),
                                            KEY `createdon`            (`createdon`),
-                                           KEY `createdby`            (`createdby`),
+                                           KEY `created_by`            (`created_by`),
                                            KEY `modifiedon`           (`modifiedon`),
                                            KEY `modifiedby`           (`modifiedby`),
                                            KEY `status`               (`status`),
@@ -217,7 +217,7 @@ sql_query('CREATE TABLE `servers` (`id`                   INT(11)       NOT NULL
                                            KEY `database_accounts_id` (`database_accounts_id`),
                                            KEY `ssh_proxy_id`         (`ssh_proxy_id`),
 
-                                   CONSTRAINT `fk_servers_createdby`            FOREIGN KEY (`createdby`)            REFERENCES `users`             (`id`),
+                                   CONSTRAINT `fk_servers_created_by`            FOREIGN KEY (`created_by`)            REFERENCES `users`             (`id`),
                                    CONSTRAINT `fk_servers_customers_id`         FOREIGN KEY (`customers_id`)         REFERENCES `customers`         (`id`),
                                    CONSTRAINT `fk_servers_database_accounts_id` FOREIGN KEY (`database_accounts_id`) REFERENCES `database_accounts` (`id`),
                                    CONSTRAINT `fk_servers_modifiedby`           FOREIGN KEY (`modifiedby`)           REFERENCES `users`             (`id`),
@@ -231,7 +231,7 @@ sql_query('CREATE TABLE `servers` (`id`                   INT(11)       NOT NULL
 
 sql_query('CREATE TABLE `projects` (`id`            INT(11)       NOT NULL AUTO_INCREMENT,
                                     `createdon`     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                    `createdby`     INT(11)           NULL DEFAULT NULL,
+                                    `created_by`     INT(11)           NULL DEFAULT NULL,
                                     `meta_id`       INT(11)       NOT NULL,
                                     `status`        VARCHAR(16)       NULL DEFAULT NULL,
                                     `parents_id`    INT(11)           NULL DEFAULT NULL,
@@ -256,7 +256,7 @@ sql_query('CREATE TABLE `projects` (`id`            INT(11)       NOT NULL AUTO_
                                     UNIQUE  KEY `api_key`       (`api_key`),
                                             KEY `meta_id`       (`meta_id`),
                                             KEY `createdon`     (`createdon`),
-                                            KEY `createdby`     (`createdby`),
+                                            KEY `created_by`     (`created_by`),
                                             KEY `status`        (`status`),
                                             KEY `categories_id` (`categories_id`),
                                             KEY `customers_id`  (`customers_id`),
@@ -268,7 +268,7 @@ sql_query('CREATE TABLE `projects` (`id`            INT(11)       NOT NULL AUTO_
                                             KEY `parents_id`    (`parents_id`),
 
                                     CONSTRAINT `fk_projects_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories`         (`id`) ON DELETE RESTRICT,
-                                    CONSTRAINT `fk_projects_createdby`     FOREIGN KEY (`createdby`)     REFERENCES `users`              (`id`) ON DELETE RESTRICT,
+                                    CONSTRAINT `fk_projects_created_by`     FOREIGN KEY (`created_by`)     REFERENCES `users`              (`id`) ON DELETE RESTRICT,
                                     CONSTRAINT `fk_projects_customers_id`  FOREIGN KEY (`customers_id`)  REFERENCES `customers`          (`id`) ON DELETE RESTRICT,
                                     CONSTRAINT `fk_projects_documents_id`  FOREIGN KEY (`documents_id`)  REFERENCES `storage_documents`  (`id`) ON DELETE RESTRICT,
                                     CONSTRAINT `fk_projects_meta_id`       FOREIGN KEY (`meta_id`)       REFERENCES `meta`               (`id`) ON DELETE RESTRICT,
@@ -282,7 +282,7 @@ sql_query('CREATE TABLE `projects` (`id`            INT(11)       NOT NULL AUTO_
 
 sql_query('CREATE TABLE `databases` (`id`                 INT(11)       NOT NULL AUTO_INCREMENT,
                                      `createdon`          TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                     `createdby`          INT(11)       NOT NULL,
+                                     `created_by`          INT(11)       NOT NULL,
                                      `meta_id`            INT(11)           NULL DEFAULT NULL,
                                      `status`             VARCHAR(16)       NULL DEFAULT NULL,
                                      `servers_id`         INT(11)       NOT NULL,
@@ -295,7 +295,7 @@ sql_query('CREATE TABLE `databases` (`id`                 INT(11)       NOT NULL
                                      PRIMARY KEY                      (`id`),
                                      UNIQUE  KEY `servers_id_name`    (`servers_id`,`name`),
                                              KEY `createdon`          (`createdon`),
-                                             KEY `createdby`          (`createdby`),
+                                             KEY `created_by`          (`created_by`),
                                              KEY `meta_id`            (`meta_id`),
                                              KEY `status`             (`status`),
                                              KEY `servers_id`         (`servers_id`),
@@ -303,7 +303,7 @@ sql_query('CREATE TABLE `databases` (`id`                 INT(11)       NOT NULL
                                              KEY `replication_status` (`replication_status`),
                                              KEY `name`               (`name`),
 
-                                     CONSTRAINT `fk_databases_createdby`   FOREIGN KEY (`createdby`)   REFERENCES `users`    (`id`) ON DELETE RESTRICT,
+                                     CONSTRAINT `fk_databases_created_by`   FOREIGN KEY (`created_by`)   REFERENCES `users`    (`id`) ON DELETE RESTRICT,
                                      CONSTRAINT `fk_databases_meta_id`     FOREIGN KEY (`meta_id`)     REFERENCES `meta`     (`id`) ON DELETE RESTRICT,
                                      CONSTRAINT `fk_databases_projects_id` FOREIGN KEY (`projects_id`) REFERENCES `projects` (`id`) ON DELETE RESTRICT,
                                      CONSTRAINT `fk_databases_servers_id`  FOREIGN KEY (`servers_id`)  REFERENCES `servers`  (`id`) ON DELETE RESTRICT
@@ -315,7 +315,7 @@ sql_query('CREATE TABLE `databases` (`id`                 INT(11)       NOT NULL
 sql_query('ALTER TABLE `customers` MODIFY `name`    VARCHAR(64) NULL DEFAULT NULL');
 sql_query('ALTER TABLE `customers` MODIFY `seoname` VARCHAR(64) NULL DEFAULT NULL');
 
-sql_column_exists    ('customers', 'meta_id'             , '!ALTER TABLE `customers` ADD COLUMN     `meta_id` INT(11) NULL DEFAULT NULL AFTER `createdby`');
+sql_column_exists    ('customers', 'meta_id'             , '!ALTER TABLE `customers` ADD COLUMN     `meta_id` INT(11) NULL DEFAULT NULL AFTER `created_by`');
 sql_index_exists     ('customers', 'meta_id'             , '!ALTER TABLE `customers` ADD KEY        `meta_id` (`meta_id`)');
 sql_foreignkey_exists('customers', 'fk_customers_meta_id', '!ALTER TABLE `customers` ADD CONSTRAINT `fk_customers_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT;');
 
@@ -368,7 +368,7 @@ sql_foreignkey_exists('email_domains', 'fk_email_domains_servers_id', '!ALTER TA
 
 sql_foreignkey_exists('email_servers', 'fk_email_servers_servers_id', '!ALTER TABLE `email_servers` ADD CONSTRAINT `fk_email_servers_servers_id` FOREIGN KEY (`servers_id`) REFERENCES `servers` (`id`) ON DELETE RESTRICT;');
 
-sql_foreignkey_exists('forwardings', 'fk_forwardings_createdby' , '!ALTER TABLE `forwardings` ADD CONSTRAINT `fk_forwardings_createdby`  FOREIGN KEY (`servers_id`) REFERENCES `users`   (`id`) ON DELETE RESTRICT;');
+sql_foreignkey_exists('forwardings', 'fk_forwardings_created_by' , '!ALTER TABLE `forwardings` ADD CONSTRAINT `fk_forwardings_created_by`  FOREIGN KEY (`servers_id`) REFERENCES `users`   (`id`) ON DELETE RESTRICT;');
 sql_foreignkey_exists('forwardings', 'fk_forwardings_meta_id'   , '!ALTER TABLE `forwardings` ADD CONSTRAINT `fk_forwardings_meta_id`    FOREIGN KEY (`servers_id`) REFERENCES `meta`    (`id`) ON DELETE RESTRICT;');
 sql_foreignkey_exists('forwardings', 'fk_forwardings_servers_id', '!ALTER TABLE `forwardings` ADD CONSTRAINT `fk_forwardings_servers_id` FOREIGN KEY (`servers_id`) REFERENCES `servers` (`id`) ON DELETE RESTRICT;');
 sql_foreignkey_exists('forwardings', 'fk_forwardings_source_id' , '!ALTER TABLE `forwardings` ADD CONSTRAINT `fk_forwardings_source_id`  FOREIGN KEY (`servers_id`) REFERENCES `servers` (`id`) ON DELETE RESTRICT;');

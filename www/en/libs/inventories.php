@@ -459,7 +459,7 @@ function inventories_get($entry, $column = null, $status = null) {
         } else {
             $return = sql_get('SELECT    `inventories`.`id`,
                                          `inventories`.`createdon`,
-                                         `inventories`.`createdby`,
+                                         `inventories`.`created_by`,
                                          `inventories`.`meta_id`,
                                          `inventories`.`status`,
                                          `inventories`.`categories_id`,
@@ -822,7 +822,7 @@ function inventories_get_item($items_id, $category = null, $column = null, $stat
         } else {
             $return = sql_get('SELECT    `inventories_items`.`id`,
                                          `inventories_items`.`createdon`,
-                                         `inventories_items`.`createdby`,
+                                         `inventories_items`.`created_by`,
                                          `inventories_items`.`meta_id`,
                                          `inventories_items`.`status`,
                                          `inventories_items`.`categories_id`,

@@ -46,17 +46,17 @@ function storage_pages_get($section, $page = null, $auto_create = false) {
             if (empty($_SESSION['user']['id'])) {
                 $where   = ' WHERE  `storage_pages`.`sections_id` = :sections_id
                              AND    `storage_documents`.`status`  = "_new"
-                             AND    `storage_pages`.`createdby`   IS NULL LIMIT 1';
+                             AND    `storage_pages`.`created_by`   IS NULL LIMIT 1';
 
                 $execute = array(':sections_id' => $section['id']);
 
             } else {
                 $where   = ' WHERE  `storage_pages`.`sections_id` = :sections_id
                              AND    `storage_documents`.`status`  = "_new"
-                             AND    `storage_pages`.`createdby`   = :createdby LIMIT 1';
+                             AND    `storage_pages`.`created_by`   = :created_by LIMIT 1';
 
                 $execute = array(':sections_id' => $section['id'],
-                                 ':createdby'   => $_SESSION['user']['id']);
+                                 ':created_by'   => $_SESSION['user']['id']);
             }
 
         } elseif (is_numeric($page)) {
@@ -109,7 +109,7 @@ function storage_pages_get($section, $page = null, $auto_create = false) {
 
                                   `storage_pages`.`id`,
                                   `storage_pages`.`createdon`,
-                                  `storage_pages`.`createdby`,
+                                  `storage_pages`.`created_by`,
                                   `storage_pages`.`meta_id`,
                                   `storage_pages`.`language`,
                                   `storage_pages`.`name`,
@@ -186,11 +186,11 @@ function storage_pages_add($page, $section = null) {
         $page['documents_id'] = $document['id'];
         $page['sections_id']  = $document['sections_id'];
 
-        sql_query('INSERT INTO `storage_pages` (`id`, `createdby`, `meta_id`, `sections_id`, `documents_id`, `language`)
-                   VALUES                      (:id , :createdby , :meta_id , :sections_id , :documents_id , :language )',
+        sql_query('INSERT INTO `storage_pages` (`id`, `created_by`, `meta_id`, `sections_id`, `documents_id`, `language`)
+                   VALUES                      (:id , :created_by , :meta_id , :sections_id , :documents_id , :language )',
 
                    array(':id'           => $page['id'],
-                         ':createdby'    => $_SESSION['user']['id'],
+                         ':created_by'    => $_SESSION['user']['id'],
                          ':meta_id'      => meta_action(),
                          ':sections_id'  => $page['sections_id'],
                          ':documents_id' => $page['documents_id'],
@@ -278,10 +278,10 @@ function storage_pages_validate($page, $params = false) {
         array_default($params['errors'], 'body_16mb'               , tr('Please specify a body of less than 16 MegaByte'));
         array_default($params['errors'], 'body_16'                 , tr('Please specify a body of at least 16 characters'));
 
-        $v = new ValidateForm($page, '_new,id,createdby,meta_id,sections_id,documents_id,assigned_to_id,category1,category2,category3,language,name,seoname,description,body');
+        $v = new ValidateForm($page, '_new,id,created_by,meta_id,sections_id,documents_id,assigned_to_id,category1,category2,category3,language,name,seoname,description,body');
 
         $v->isNatural($page['id'], 1, $params['errors']['valid_pageid'], VALIDATE_ALLOW_EMPTY_NULL);
-        $v->isNatural($page['createdby'], 1, $params['errors']['valid_id'], VALIDATE_ALLOW_EMPTY_NULL);
+        $v->isNatural($page['created_by'], 1, $params['errors']['valid_id'], VALIDATE_ALLOW_EMPTY_NULL);
         $v->isNatural($page['meta_id'], 1, $params['errors']['valid_meta_id'], VALIDATE_ALLOW_EMPTY_NULL);
         $v->isNatural($page['sections_id'], 1, $params['errors']['valid_sections_id'], VALIDATE_ALLOW_EMPTY_NULL);
         $v->isNatural($page['documents_id'], 1, $params['errors']['valid_documents_id'], VALIDATE_ALLOW_EMPTY_NULL);

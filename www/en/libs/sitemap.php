@@ -617,8 +617,8 @@ function sitemap_insert_entry($entry) {
         $entry = sitemap_validate_entry($entry);
 
         if ($entry['page_modifiedon']) {
-            sql_query('INSERT INTO `sitemaps_data` (`createdby`, `url`, `priority`, `page_modifiedon`, `change_frequency`, `language`, `group`, `file`)
-                       VALUES                      (:createdby , :url , :priority , :page_modifiedon , :change_frequency , :language , :group , :file )
+            sql_query('INSERT INTO `sitemaps_data` (`created_by`, `url`, `priority`, `page_modifiedon`, `change_frequency`, `language`, `group`, `file`)
+                       VALUES                      (:created_by , :url , :priority , :page_modifiedon , :change_frequency , :language , :group , :file )
 
                        ON DUPLICATE KEY UPDATE `url`              = :url_update,
                                                `modifiedon`       = UTC_TIMESTAMP(),
@@ -630,7 +630,7 @@ function sitemap_insert_entry($entry) {
                                                `file`             = :file_update,
                                                `group`            = :group_update',
 
-                       array(':createdby'               => isset_get($_SESSION['user']['id']),
+                       array(':created_by'               => isset_get($_SESSION['user']['id']),
                              ':url'                     => $entry['url'],
                              ':priority'                => $entry['priority'],
                              ':page_modifiedon'         => date_convert($entry['page_modifiedon'], 'c'),
@@ -648,8 +648,8 @@ function sitemap_insert_entry($entry) {
                              ':group_update'            => $entry['group']));
 
         } else {
-            sql_query('INSERT INTO `sitemaps_data` (`createdby`, `url`, `priority`, `page_modifiedon`, `change_frequency`, `language`, `group`, `file`)
-                       VALUES                      (:createdby , :url , :priority , NOW()            , :change_frequency , :language , :group , :file )
+            sql_query('INSERT INTO `sitemaps_data` (`created_by`, `url`, `priority`, `page_modifiedon`, `change_frequency`, `language`, `group`, `file`)
+                       VALUES                      (:created_by , :url , :priority , NOW()            , :change_frequency , :language , :group , :file )
 
                        ON DUPLICATE KEY UPDATE `url`              = :url_update,
                                                `modifiedon`       = UTC_TIMESTAMP(),
@@ -661,7 +661,7 @@ function sitemap_insert_entry($entry) {
                                                `file`             = :file_update,
                                                `group`            = :group_update',
 
-                       array(':createdby'               => isset_get($_SESSION['user']['id']),
+                       array(':created_by'               => isset_get($_SESSION['user']['id']),
                              ':url'                     => $entry['url'],
                              ':priority'                => $entry['priority'],
                              ':change_frequency'        => $entry['change_frequency'],
@@ -762,7 +762,7 @@ function sitemap_make_backup() {
  * @version 1.22.0: Added documentation
  *
  * @param params $entry
- * @params natural $entry[createdby]
+ * @params natural $entry[created_by]
  * @params natural $entry[status]
  * @params natural $entry[url]
  * @params natural $entry[priority]
@@ -779,7 +779,7 @@ function sitemap_validate_entry($entry) {
     try {
         load_libs('validate');
 
-        $v = new ValidateForm($entry, 'createdby,status,url,priority,page_modifiedon,change_frequency,language,group,file');
+        $v = new ValidateForm($entry, 'created_by,status,url,priority,page_modifiedon,change_frequency,language,group,file');
 
         $entry['page_modifiedon'] = date_convert($entry['page_modifiedon'], 'mysql');
         $entry['file']            = get_null($entry['file']);

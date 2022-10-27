@@ -151,8 +151,8 @@ class Sql
 
 // TODO Add support for instace configuration stored in database
 //        $this->configuration = $this->get('SELECT `id`,
-//                                     `createdon`,
-//                                     `createdby`,
+//                                     `created_on`,
+//                                     `created_by`,
 //                                     `meta_id`,
 //                                     `status`,
 //                                     `name`,
@@ -1765,21 +1765,21 @@ class Sql
         $count = $this->get('SELECT COUNT(' . $column . ') AS `count` FROM `' . $table . '` ' . $where, 'count', $execute);
 
         // TODO Use a query cache class
-        $this->query('INSERT INTO `counts` (`createdby`, `count`, `hash`, `until`)
-                            VALUES               (:createdby , :count , :hash , NOW() + INTERVAL :expires SECOND)
+        $this->query('INSERT INTO `counts` (`created_by`, `count`, `hash`, `until`)
+                            VALUES               (:created_by , :count , :hash , NOW() + INTERVAL :expires SECOND)
          
                             ON DUPLICATE KEY UPDATE `count`      = :update_count,
-                                                    `modifiedon` = NOW(),
-                                                    `modifiedby` = :update_modifiedby,
+                                                    `modified_on` = NOW(),
+                                                    `modified_by` = :update_modified_by,
                                                     `until`      = NOW() + INTERVAL :update_expires SECOND',
 
                             [
-                                ':createdby' => isset_get($_SESSION['user']['id']),
+                                ':created_by' => isset_get($_SESSION['user']['id']),
                                 ':hash' => $hash,
                                 ':count' => $count,
                                 ':expires' => $expires,
                                 ':update_expires' => $expires,
-                                ':update_modifiedby' => isset_get($_SESSION['user']['id']),
+                                ':update_modified_by' => isset_get($_SESSION['user']['id']),
                                 ':update_count' => $count
                             ]);
 

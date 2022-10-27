@@ -806,11 +806,11 @@ function user_log_authentication($username, $users_id, $captcha_required, $e = n
             $status = null;
         }
 
-        sql_query('INSERT INTO `authentications` (`createdby`, `status`, `captcha_required`, `failed_reason`, `users_id`, `username`, `ip`)
-                   VALUES                        (:createdby , :status , :captcha_required , :failed_reason , :users_id , :username , :ip )',
+        sql_query('INSERT INTO `authentications` (`created_by`, `status`, `captcha_required`, `failed_reason`, `users_id`, `username`, `ip`)
+                   VALUES                        (:created_by , :status , :captcha_required , :failed_reason , :users_id , :username , :ip )',
 
                    array(':status'           => $status,
-                         ':createdby'        => isset_get($_SESSION['user']['id']),
+                         ':created_by'        => isset_get($_SESSION['user']['id']),
                          ':users_id'         => $users_id,
                          ':username'         => $username,
                          ':failed_reason'    => str_truncate(trim(Strings::from(isset_get($failed_reason), '():')), 127),
@@ -1283,11 +1283,11 @@ function user_signup($user, $options = null) {
         $user       = user_validate($user, $options);
         $user['id'] = sql_random_id('users');
 
-        sql_query('INSERT INTO `users` (`id`, `meta_id`, `status`, `createdby`, `username`, `password`, `name`, `email`, `roles_id`, `role`, `timezone`)
-                   VALUES              (:id , :meta_id , :status , :createdby , :username , :password , :name , :email , :roles_id , :role , :timezone )',
+        sql_query('INSERT INTO `users` (`id`, `meta_id`, `status`, `created_by`, `username`, `password`, `name`, `email`, `roles_id`, `role`, `timezone`)
+                   VALUES              (:id , :meta_id , :status , :created_by , :username , :password , :name , :email , :roles_id , :role , :timezone )',
 
                    array(':id'        => $user['id'],
-                         ':createdby' => isset_get($_SESSION['user']['id']),
+                         ':created_by' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => meta_action(),
                          ':username'  => $user['username'],
                          ':status'    => $user['status'],
@@ -1546,10 +1546,10 @@ function user_update_password($params, $current = true) {
         /*
          * Add the new password to the password storage
          */
-        sql_query('INSERT INTO `passwords` (`createdby`, `users_id`, `password`)
-                   VALUES                  (:createdby , :users_id , :password )',
+        sql_query('INSERT INTO `passwords` (`created_by`, `users_id`, `password`)
+                   VALUES                  (:created_by , :users_id , :password )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':users_id'  => $params['id'],
                          ':password'  => $password));
 
@@ -1582,9 +1582,9 @@ function user_get($user = null, $status = null) {
                 $return = sql_get('SELECT    `users`.*,
                                              `users`.`password`      AS `password2`,
 
-                                             `createdby`.`name`      AS `createdby_name`,
-                                             `createdby`.`email`     AS `createdby_email`,
-                                             `createdby`.`username`  AS `createdby_username`,
+                                             `created_by`.`name`      AS `created_by_name`,
+                                             `created_by`.`email`     AS `created_by_email`,
+                                             `created_by`.`username`  AS `created_by_username`,
 
                                              `modifiedby`.`name`     AS `modifiedby_name`,
                                              `modifiedby`.`email`    AS `modifiedby_email`,
@@ -1592,8 +1592,8 @@ function user_get($user = null, $status = null) {
 
                                    FROM      `users`
 
-                                   LEFT JOIN `users` AS `createdby`
-                                   ON        `createdby`.`id`  = `users`.`createdby`
+                                   LEFT JOIN `users` AS `created_by`
+                                   ON        `created_by`.`id`  = `users`.`created_by`
 
                                    LEFT JOIN `users` AS `modifiedby`
                                    ON        `modifiedby`.`id` = `users`.`modifiedby`
@@ -1607,9 +1607,9 @@ function user_get($user = null, $status = null) {
                 $return = sql_get('SELECT    `users`.*,
                                              `users`.`password`      AS `password2`,
 
-                                             `createdby`.`name`      AS `createdby_name`,
-                                             `createdby`.`email`     AS `createdby_email`,
-                                             `createdby`.`username`  AS `createdby_username`,
+                                             `created_by`.`name`      AS `created_by_name`,
+                                             `created_by`.`email`     AS `created_by_email`,
+                                             `created_by`.`username`  AS `created_by_username`,
 
                                              `modifiedby`.`name`     AS `modifiedby_name`,
                                              `modifiedby`.`email`    AS `modifiedby_email`,
@@ -1617,8 +1617,8 @@ function user_get($user = null, $status = null) {
 
                                    FROM      `users`
 
-                                   LEFT JOIN `users` AS `createdby`
-                                   ON        `createdby`.`id` = `users`.`createdby`
+                                   LEFT JOIN `users` AS `created_by`
+                                   ON        `created_by`.`id` = `users`.`created_by`
 
                                    LEFT JOIN `users` AS `modifiedby`
                                    ON        `modifiedby`.`id` = `users`.`modifiedby`
@@ -1638,9 +1638,9 @@ function user_get($user = null, $status = null) {
             $return = sql_get('SELECT    `users`.*,
                                          `users`.`password`      AS `password2`,
 
-                                         `createdby`.`name`      AS `createdby_name`,
-                                         `createdby`.`email`     AS `createdby_email`,
-                                         `createdby`.`username`  AS `createdby_username`,
+                                         `created_by`.`name`      AS `created_by_name`,
+                                         `created_by`.`email`     AS `created_by_email`,
+                                         `created_by`.`username`  AS `created_by_username`,
 
                                          `modifiedby`.`name`     AS `modifiedby_name`,
                                          `modifiedby`.`email`    AS `modifiedby_email`,
@@ -1648,16 +1648,16 @@ function user_get($user = null, $status = null) {
 
                                FROM      `users`
 
-                               LEFT JOIN `users` AS `createdby`
-                               ON        `createdby`.`id` = `users`.`createdby`
+                               LEFT JOIN `users` AS `created_by`
+                               ON        `created_by`.`id` = `users`.`created_by`
 
                                LEFT JOIN `users` AS `modifiedby`
                                ON        `modifiedby`.`id` = `users`.`modifiedby`
 
-                               WHERE     `users`.`createdby` = :createdby
+                               WHERE     `users`.`created_by` = :created_by
                                AND       `users`.`status`    = "_new"',
 
-                               array(':createdby' => $_SESSION['user']['id']));
+                               array(':created_by' => $_SESSION['user']['id']));
 
             if (!$return) {
                 $id = user_signup(array('status' => '_new'), array('no_validation' => true));
@@ -2308,7 +2308,7 @@ function users_get($user, $column = null, $status = null, $parent = false) {
 
         } else {
             $return = sql_get('SELECT `id`,
-                                      `createdby`,
+                                      `created_by`,
                                       `meta_id`,
                                       `createdon`,
                                       `modifiedby`,

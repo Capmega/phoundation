@@ -257,10 +257,10 @@ function projects_insert($project) {
     try {
         $project = projects_validate($project);
 
-        sql_query('INSERT INTO `projects` (`createdby`, `meta_id`, `categories_id`, `customers_id`, `processes_id`, `steps_id`, `code`, `name`, `seoname`, `api_key`, `fcm_api_key`, `description`)
-                   VALUES                 (:createdby , :meta_id , :categories_id , :customers_id , :processes_id , :steps_id , :code , :name , :seoname , :api_key , :fcm_api_key , :description )',
+        sql_query('INSERT INTO `projects` (`created_by`, `meta_id`, `categories_id`, `customers_id`, `processes_id`, `steps_id`, `code`, `name`, `seoname`, `api_key`, `fcm_api_key`, `description`)
+                   VALUES                 (:created_by , :meta_id , :categories_id , :customers_id , :processes_id , :steps_id , :code , :name , :seoname , :api_key , :fcm_api_key , :description )',
 
-                   array(':createdby'     =>  isset_get($_SESSION['project']['id']),
+                   array(':created_by'     =>  isset_get($_SESSION['project']['id']),
                          ':meta_id'       =>  meta_action(),
                          ':categories_id' =>  $project['categories_id'],
                          ':customers_id'  =>  $project['customers_id'],
@@ -454,7 +454,7 @@ function projects_get($params) {
 
         array_default($params, 'columns', 'projects.id,
                                            projects.createdon,
-                                           projects.createdby,
+                                           projects.created_by,
                                            projects.meta_id,
                                            projects.status,
                                            projects.categories_id,

@@ -45,10 +45,10 @@ function meta_action($meta_id = null, $action = null, $data = null) {
  */
 function meta_add_history($meta_id, $action, $data = null) {
     try {
-        sql_query('INSERT INTO `meta_history` (`createdby`, `meta_id`, `action`, `data`)
-                   VALUES                     (:createdby , :meta_id , :action , :data )',
+        sql_query('INSERT INTO `meta_history` (`created_by`, `meta_id`, `action`, `data`)
+                   VALUES                     (:created_by , :meta_id , :action , :data )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => $meta_id,
                          ':action'    => not_empty($action, tr('unknown')),
                          ':data'      => json_encode($data)), 'core');
@@ -63,7 +63,7 @@ function meta_add_history($meta_id, $action, $data = null) {
         /*
          * SQLSTATE[23000]: Integrity constraint violation
          *
-         * This could (in theory) only happen when the `createdby` has a
+         * This could (in theory) only happen when the `created_by` has a
          * users_id (which points to the `users`.`id`) that no longer exists
          *
          * In other words, this user no longer exists. Signout, and reload the
@@ -83,7 +83,7 @@ function meta_add_history($meta_id, $action, $data = null) {
 function meta_history($meta_id) {
     try {
         $history = sql_list('SELECT    `meta_history`.`id`,
-                                       `meta_history`.`createdby`,
+                                       `meta_history`.`created_by`,
                                        `meta_history`.`createdon`,
                                        `meta_history`.`action`,
                                        `meta_history`.`data`,
@@ -96,7 +96,7 @@ function meta_history($meta_id) {
                              FROM      `meta_history`
 
                              LEFT JOIN `users`
-                             ON        `users`.`id` = `meta_history`.`createdby`
+                             ON        `users`.`id` = `meta_history`.`created_by`
 
                              WHERE     `meta_history`.`meta_id` = :meta_id
 

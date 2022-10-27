@@ -251,10 +251,10 @@ switch (cli_method()) {
 
         cli_no_arguments_left();
 
-        sql_query('INSERT INTO `users` (`createdby`, `name`, `roles_id`, `role`, `email`, `username`, `nickname`, `password`, `latitude`, `longitude`, `status`, `type`, `verifiedon`, `redirect`, `domain`)
-                   VALUES              (:createdby , :name , :roles_id , :role , :email , :username , :nickname , :password , :latitude , :longitude , :status , :type , :verifiedon , :redirect , :domain )',
+        sql_query('INSERT INTO `users` (`created_by`, `name`, `roles_id`, `role`, `email`, `username`, `nickname`, `password`, `latitude`, `longitude`, `status`, `type`, `verifiedon`, `redirect`, `domain`)
+                   VALUES              (:created_by , :name , :roles_id , :role , :email , :username , :nickname , :password , :latitude , :longitude , :status , :type , :verifiedon , :redirect , :domain )',
 
-                   array(':createdby'  => isset_get($_SESSION['user']['id']),
+                   array(':created_by'  => isset_get($_SESSION['user']['id']),
                          ':roles_id'   => $user['roles_id'],
                          ':role'       => $user['role'],
                          ':name'       => $user['name'],

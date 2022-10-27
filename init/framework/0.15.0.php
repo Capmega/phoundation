@@ -14,14 +14,14 @@ sql_column_exists('users', 'admin'   ,  'ALTER TABLE `users` DROP COLUMN `admin`
 sql_index_exists ('rights', 'addedby'   ,  'ALTER TABLE `rights` DROP INDEX `addedby`');
 sql_index_exists ('rights', 'addedon'   ,  'ALTER TABLE `rights` DROP INDEX `addedon`');
 
-sql_column_exists('rights', 'createdby' , '!ALTER TABLE `rights` CHANGE COLUMN `addedby` `createdby` INT(11)');
+sql_column_exists('rights', 'created_by' , '!ALTER TABLE `rights` CHANGE COLUMN `addedby` `created_by` INT(11)');
 sql_column_exists('rights', 'createdon' , '!ALTER TABLE `rights` CHANGE COLUMN `addedon` `createdon` TIMESTAMP DEFAULT CURRENT_TIMESTAMP');
 
 sql_column_exists('rights', 'modifiedby', '!ALTER TABLE `rights` ADD COLUMN `modifiedby` INT(11)   AFTER `createdon`');
 sql_column_exists('rights', 'modifiedon', '!ALTER TABLE `rights` ADD COLUMN `modifiedon` DATETIME  AFTER `modifiedby`');
 sql_column_exists('rights', 'status'    , '!ALTER TABLE `rights` ADD COLUMN `status` VARCHAR(16)   AFTER `modifiedon`');
 
-sql_index_exists ('rights', 'createdby' , '!ALTER TABLE `rights` ADD  INDEX (`createdby`)');
+sql_index_exists ('rights', 'created_by' , '!ALTER TABLE `rights` ADD  INDEX (`created_by`)');
 sql_index_exists ('rights', 'createdon' , '!ALTER TABLE `rights` ADD  INDEX (`createdon`)');
 sql_index_exists ('rights', 'modifiedby', '!ALTER TABLE `rights` ADD  INDEX (`modifiedby`)');
 sql_index_exists ('rights', 'modifiedon', '!ALTER TABLE `rights` ADD  INDEX (`modifiedon`)');
@@ -30,18 +30,18 @@ sql_index_exists ('rights', 'status'    , '!ALTER TABLE `rights` ADD  INDEX (`st
 
 
 /*
- * Update rights table to use "createdon", "createdby", "modifiedby" and "modifiedon"
+ * Update rights table to use "createdon", "created_by", "modifiedby" and "modifiedon"
  */
-sql_column_exists('users', 'createdby' , '!ALTER TABLE `users` ADD COLUMN `createdby`  INT(11)       NULL AFTER `id`'); // HAS TO BE NULL SINCE ITS SELF REFERENCING AND HAS A FOREIGN KEY CONSTRAINT!
+sql_column_exists('users', 'created_by' , '!ALTER TABLE `users` ADD COLUMN `created_by`  INT(11)       NULL AFTER `id`'); // HAS TO BE NULL SINCE ITS SELF REFERENCING AND HAS A FOREIGN KEY CONSTRAINT!
 
-sql_column_exists('users', 'date_added',  'ALTER TABLE `users` CHANGE COLUMN `date_added` `createdon` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `createdby`');
+sql_column_exists('users', 'date_added',  'ALTER TABLE `users` CHANGE COLUMN `date_added` `createdon` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`');
 
 sql_column_exists('users', 'modifiedby', '!ALTER TABLE `users` ADD COLUMN `modifiedby` INT(11)       NULL AFTER `createdon`');
 sql_column_exists('users', 'modifiedon', '!ALTER TABLE `users` ADD COLUMN `modifiedon` DATETIME      NULL AFTER `modifiedby`');
 
 sql_index_exists ('users', 'date_added',  'ALTER TABLE `users` DROP INDEX  `date_added`');
 
-sql_index_exists ('users', 'createdby' , '!ALTER TABLE `users` ADD  INDEX (`createdby`)');
+sql_index_exists ('users', 'created_by' , '!ALTER TABLE `users` ADD  INDEX (`created_by`)');
 sql_index_exists ('users', 'createdon' , '!ALTER TABLE `users` ADD  INDEX (`createdon`)');
 sql_index_exists ('users', 'modifiedby', '!ALTER TABLE `users` ADD  INDEX (`modifiedby`)');
 sql_index_exists ('users', 'modifiedon', '!ALTER TABLE `users` ADD  INDEX (`modifiedon`)');
@@ -66,7 +66,7 @@ sql_query('DROP TABLE IF EXISTS `roles`');
 
 sql_query('CREATE TABLE `roles` (`id`          INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                  `createdon`   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                 `createdby`   INT(11)          NULL,
+                                 `created_by`   INT(11)          NULL,
                                  `modifiedon`  DATETIME         NULL,
                                  `modifiedby`  INT(11)          NULL,
                                  `status`      VARCHAR(16)      NULL,
@@ -74,13 +74,13 @@ sql_query('CREATE TABLE `roles` (`id`          INT(11)      NOT NULL AUTO_INCREM
                                  `description` VARCHAR(2047)    NULL,
 
                                  INDEX (`createdon`),
-                                 INDEX (`createdby`),
+                                 INDEX (`created_by`),
                                  INDEX (`modifiedon`),
                                  INDEX (`modifiedby`),
                                  INDEX (`status`),
                                  INDEX (`name`),
 
-                                 CONSTRAINT `fk_roles_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                                 CONSTRAINT `fk_roles_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
                                  CONSTRAINT `fk_roles_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users` (`id`) ON DELETE RESTRICT
 
                                 ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');

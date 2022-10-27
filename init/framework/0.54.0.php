@@ -49,18 +49,18 @@ sql_query('CREATE TABLE `meta` (`id` INT(11) NOT NULL AUTO_INCREMENT,
 
 sql_query('CREATE TABLE `meta_history` (`id`         INT(11)       NOT NULL AUTO_INCREMENT,
                                         `createdon`  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                        `createdby`  INT(11)           NULL,
+                                        `created_by`  INT(11)           NULL,
                                         `meta_id`    INT(11)           NULL,
                                         `action`     VARCHAR(16)       NULL,
                                         `data`       VARCHAR(1023) NOT NULL,
 
                                         PRIMARY KEY `id`        (`id`),
                                                 KEY `createdon` (`createdon`),
-                                                KEY `createdby` (`createdby`),
+                                                KEY `created_by` (`created_by`),
                                                 KEY `action`    (`action`),
 
                                         CONSTRAINT `fk_meta_history_id`        FOREIGN KEY (`meta_id`)   REFERENCES `meta`  (`id`) ON DELETE CASCADE,
-                                        CONSTRAINT `fk_meta_history_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE CASCADE
+                                        CONSTRAINT `fk_meta_history_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE
 
                                        ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 

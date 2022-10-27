@@ -483,10 +483,10 @@ function notifications_insert($notification, $log) {
     try {
         $notification = notifications_validate($notification, $log);
 
-        sql_query('INSERT INTO `notifications` (`createdby`, `meta_id`, `users_id`, `code`, `url`, `priority`, `data`, `title`, `message`)
-                   VALUES                      (:createdby , :meta_id , :users_id , :code , :url , :priority , :data , :title , :message )',
+        sql_query('INSERT INTO `notifications` (`created_by`, `meta_id`, `users_id`, `code`, `url`, `priority`, `data`, `title`, `message`)
+                   VALUES                      (:created_by , :meta_id , :users_id , :code , :url , :priority , :data , :title , :message )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => meta_action(),
                          ':users_id'  => $notification['users_id'],
                          ':code'      => $notification['code'],
@@ -533,10 +533,10 @@ function notifications_insert_group($group) {
     try {
         $group = notifications_validate_group($group);
 
-        sql_query('INSERT INTO `notifications_groups` (`createdby`, `meta_id`, )
-                   VALUES                             (:createdby , :meta_id , )',
+        sql_query('INSERT INTO `notifications_groups` (`created_by`, `meta_id`, )
+                   VALUES                             (:created_by , :meta_id , )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => meta_action(),
                          ), 'core');
 
@@ -571,10 +571,10 @@ function notifications_insert_member($member) {
     try {
         $member = notifications_validate_member($member);
 
-        sql_query('INSERT INTO `notifications_members` (`createdby`, `meta_id`, )
-                   VALUES                              (:createdby , :meta_id , )',
+        sql_query('INSERT INTO `notifications_members` (`created_by`, `meta_id`, )
+                   VALUES                              (:created_by , :meta_id , )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => meta_action(),
                          ), 'core');
 
@@ -609,10 +609,10 @@ function notifications_insert_method($method) {
     try {
         $method = notifications_validate_method($method);
 
-        sql_query('INSERT INTO `notifications_methods` (`createdby`, `meta_id`, )
-                   VALUES                              (:createdby , :meta_id , )',
+        sql_query('INSERT INTO `notifications_methods` (`created_by`, `meta_id`, )
+                   VALUES                              (:created_by , :meta_id , )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => meta_action(),
                          ), 'core');
 
@@ -682,7 +682,7 @@ function notifications_get($notifications_id) {
         }
 
         $return = sql_get('SELECT `id`,
-                                  `createdby`,
+                                  `created_by`,
                                   `createdon`,
                                   `meta_id`,
                                   `status`,
@@ -751,7 +751,7 @@ function notifications_get_group($group, $column = null) {
         } else {
             $single  = false;
             $columns = '`id`,
-                        `createdby`,
+                        `created_by`,
                         `createdon`,
                         `meta_id`,
                         `status`, ';
@@ -816,7 +816,7 @@ function notifications_get_method($method, $column = null) {
         } else {
             $single  = false;
             $columns = '`id`,
-                        `createdby`,
+                        `created_by`,
                         `createdon`,
                         `meta_id`,
                         `status`, ';
@@ -881,7 +881,7 @@ function notifications_get_member($member, $column = null) {
         } else {
             $single  = false;
             $columns = '`id`,
-                        `createdby`,
+                        `created_by`,
                         `createdon`,
                         `meta_id`,
                         `status`, ';

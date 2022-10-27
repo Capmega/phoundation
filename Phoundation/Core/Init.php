@@ -26,12 +26,12 @@ class Init extends \Phoundation\Initialize\Init
             sql()->schema()->table('versions')
                 ->setColumns(
                     '`id`        INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                          `createdon` TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                          `created_on` TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
                           `library`   VARCHAR(64)   NOT NULL,
                           `version`   VARCHAR(64)   NOT NULL,
                           `comments`  VARCHAR(2048)     NULL')
                 ->setIndices(
-                    'INDEX `createdon`       (`createdon`),
+                    'INDEX `created_on`       (`created_on`),
                           INDEX `library`         (`library`),
                           INDEX `version`         (`version`),
                           INDEX `library_version` (`library`, `version`)')
@@ -46,15 +46,15 @@ class Init extends \Phoundation\Initialize\Init
             sql()->schema()->table('meta_history')
                 ->setColumns('
                   `id` int NOT NULL AUTO_INCREMENT,
-                  `createdon` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                  `createdby` int DEFAULT NULL,
+                  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  `created_by` int DEFAULT NULL,
                   `meta_id` int DEFAULT NULL,
                   `action` varchar(16) DEFAULT NULL,
                   `data` varchar(64) DEFAULT NULL')
                 ->setIndices('
                   PRIMARY KEY (`id`),
-                  KEY `createdon` (`createdon`),
-                  KEY `createdby` (`createdby`),
+                  KEY `created_on` (`created_on`),
+                  KEY `created_by` (`created_by`),
                   KEY `action` (`action`),
                   KEY `fk_meta_history_id` (`meta_id`)')
                 ->setForeignKeys('

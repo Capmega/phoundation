@@ -6,7 +6,7 @@ sql_query('DROP TABLE IF EXISTS `domains`;');
 
 sql_query('CREATE TABLE `domains` (`id`          INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                    `createdon`   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                   `createdby`   INT(11)          NULL,
+                                   `created_by`   INT(11)          NULL,
                                    `modifiedon`  DATETIME         NULL,
                                    `modifiedby`  INT(11)          NULL,
                                    `status`      VARCHAR(16)      NULL,
@@ -15,7 +15,7 @@ sql_query('CREATE TABLE `domains` (`id`          INT(11)      NOT NULL AUTO_INCR
                                    `domain`      VARCHAR(128) NOT NULL,
 
                                    INDEX (`createdon`),
-                                   INDEX (`createdby`),
+                                   INDEX (`created_by`),
                                    INDEX (`modifiedon`),
                                    INDEX (`modifiedby`),
                                    INDEX (`status`),
@@ -23,7 +23,7 @@ sql_query('CREATE TABLE `domains` (`id`          INT(11)      NOT NULL AUTO_INCR
                                    UNIQUE(`domain`),
                                    UNIQUE(`users_id`),
 
-                                   CONSTRAINT `fk_domains_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                                   CONSTRAINT `fk_domains_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
                                    CONSTRAINT `fk_domains_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
                                    CONSTRAINT `fk_domains_users_id`   FOREIGN KEY (`users_id`)   REFERENCES `users` (`id`) ON DELETE RESTRICT
 

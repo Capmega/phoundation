@@ -310,7 +310,7 @@ function email_servers_get($email_server, $column = null, $status = null) {
         } else {
             $return = sql_get('SELECT    `email_servers`.`id`,
                                          `email_servers`.`createdon`,
-                                         `email_servers`.`createdby`,
+                                         `email_servers`.`created_by`,
                                          `email_servers`.`meta_id`,
                                          `email_servers`.`status`,
                                          `email_servers`.`servers_id`,

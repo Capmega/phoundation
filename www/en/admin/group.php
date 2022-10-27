@@ -95,10 +95,10 @@ try {
         /*
          * Insert new group
          */
-        sql_query('INSERT INTO `groups` (`createdby`, `name`, `seoname`, `description`)
-                   VALUES               (:createdby , :name , :seoname , :description )',
+        sql_query('INSERT INTO `groups` (`created_by`, `name`, `seoname`, `description`)
+                   VALUES               (:created_by , :name , :seoname , :description )',
 
-                   array(':createdby'   => $_SESSION['user']['id'],
+                   array(':created_by'   => $_SESSION['user']['id'],
                          ':name'        => $group['name'],
                          ':seoname'     => seo_string($group['name']),
                          ':description' => $group['description']));

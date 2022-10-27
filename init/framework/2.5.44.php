@@ -23,7 +23,7 @@ sql_query('DROP TABLE IF EXISTS `calendars`');
  */
 sql_query('CREATE TABLE `calendars` (`id`          INT(11)       NOT NULL AUTO_INCREMENT,
                                      `createdon`   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                     `createdby`   INT(11)           NULL,
+                                     `created_by`   INT(11)           NULL,
                                      `meta_id`     INT(11)       NOT NULL,
                                      `status`      VARCHAR(16)       NULL,
                                      `name`        VARCHAR(32)       NULL,
@@ -33,11 +33,11 @@ sql_query('CREATE TABLE `calendars` (`id`          INT(11)       NOT NULL AUTO_I
                                      PRIMARY KEY `id`        (`id`),
                                              KEY `meta_id`   (`meta_id`),
                                              KEY `createdon` (`createdon`),
-                                             KEY `createdby` (`createdby`),
+                                             KEY `created_by` (`created_by`),
                                              KEY `status`    (`status`),
 
                                      CONSTRAINT `fk_calendars_meta_id`   FOREIGN KEY (`meta_id`)   REFERENCES `meta`       (`id`) ON DELETE RESTRICT,
-                                     CONSTRAINT `fk_calendars_createdby` FOREIGN KEY (`createdby`) REFERENCES `users`      (`id`) ON DELETE RESTRICT
+                                     CONSTRAINT `fk_calendars_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`      (`id`) ON DELETE RESTRICT
 
                                    ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
@@ -48,7 +48,7 @@ sql_query('CREATE TABLE `calendars` (`id`          INT(11)       NOT NULL AUTO_I
  */
 sql_query('CREATE TABLE `calendars_events` (`id`              INT(11)       NOT NULL AUTO_INCREMENT,
                                             `createdon`       TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                            `createdby`       INT(11)           NULL,
+                                            `created_by`       INT(11)           NULL,
                                             `meta_id`         INT(11)       NOT NULL,
                                             `status`          VARCHAR(16)       NULL,
                                             `calendars_id`    INT(11)           NULL,
@@ -62,7 +62,7 @@ sql_query('CREATE TABLE `calendars_events` (`id`              INT(11)       NOT 
                                             PRIMARY KEY `id`              (`id`),
                                                     KEY `meta_id`         (`meta_id`),
                                                     KEY `createdon`       (`createdon`),
-                                                    KEY `createdby`       (`createdby`),
+                                                    KEY `created_by`       (`created_by`),
                                                     KEY `status`          (`status`),
                                                     KEY `calendars_id`    (`calendars_id`),
                                                     KEY `documents_id`    (`documents_id`),
@@ -70,7 +70,7 @@ sql_query('CREATE TABLE `calendars_events` (`id`              INT(11)       NOT 
                                                     KEY `sub_projects_id` (`sub_projects_id`),
 
                                             CONSTRAINT `fk_calendars_events_meta_id`         FOREIGN KEY (`meta_id`)         REFERENCES `meta`              (`id`) ON DELETE RESTRICT,
-                                            CONSTRAINT `fk_calendars_events_createdby`       FOREIGN KEY (`createdby`)       REFERENCES `users`             (`id`) ON DELETE RESTRICT,
+                                            CONSTRAINT `fk_calendars_events_created_by`       FOREIGN KEY (`created_by`)       REFERENCES `users`             (`id`) ON DELETE RESTRICT,
                                             CONSTRAINT `fk_calendars_events_calendars_id`    FOREIGN KEY (`calendars_id`)    REFERENCES `calendars`         (`id`) ON DELETE RESTRICT,
                                             CONSTRAINT `fk_calendars_events_documents_id`    FOREIGN KEY (`documents_id`)    REFERENCES `storage_documents` (`id`) ON DELETE RESTRICT,
                                             CONSTRAINT `fk_calendars_events_projects_id`     FOREIGN KEY (`projects_id`)     REFERENCES `projects`          (`id`) ON DELETE RESTRICT,
@@ -85,7 +85,7 @@ sql_query('CREATE TABLE `calendars_events` (`id`              INT(11)       NOT 
  */
 sql_query('CREATE TABLE `calendars_events_participants` (`id`              INT(11)       NOT NULL AUTO_INCREMENT,
                                                          `createdon`       TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                                         `createdby`       INT(11)           NULL,
+                                                         `created_by`       INT(11)           NULL,
                                                          `meta_id`         INT(11)       NOT NULL,
                                                          `status`          VARCHAR(16)       NULL,
                                                          `events_id`       INT(11)       NOT NULL,
@@ -97,14 +97,14 @@ sql_query('CREATE TABLE `calendars_events_participants` (`id`              INT(1
                                                          PRIMARY KEY `id`              (`id`),
                                                                  KEY `meta_id`         (`meta_id`),
                                                                  KEY `createdon`       (`createdon`),
-                                                                 KEY `createdby`       (`createdby`),
+                                                                 KEY `created_by`       (`created_by`),
                                                                  KEY `status`          (`status`),
                                                                  KEY `events_id`       (`events_id`),
                                                                  KEY `participants_id` (`participants_id`),
                                                                  KEY `calendars_id`    (`calendars_id`),
 
                                                          CONSTRAINT `fk_calendars_events_participants_meta_id`         FOREIGN KEY (`meta_id`)         REFERENCES `meta`             (`id`) ON DELETE RESTRICT,
-                                                         CONSTRAINT `fk_calendars_events_participants_createdby`       FOREIGN KEY (`createdby`)       REFERENCES `users`            (`id`) ON DELETE RESTRICT,
+                                                         CONSTRAINT `fk_calendars_events_participants_created_by`       FOREIGN KEY (`created_by`)       REFERENCES `users`            (`id`) ON DELETE RESTRICT,
                                                          CONSTRAINT `fk_calendars_events_participants_events_id`       FOREIGN KEY (`events_id`)       REFERENCES `calendars_events` (`id`) ON DELETE RESTRICT,
                                                          CONSTRAINT `fk_calendars_events_participants_calendars_id`    FOREIGN KEY (`calendars_id`)    REFERENCES `calendars`        (`id`) ON DELETE RESTRICT,
                                                          CONSTRAINT `fk_calendars_events_participants_participants_id` FOREIGN KEY (`participants_id`) REFERENCES `users`            (`id`) ON DELETE RESTRICT
@@ -118,7 +118,7 @@ sql_query('CREATE TABLE `calendars_events_participants` (`id`              INT(1
  */
 sql_query('CREATE TABLE `calendars_events_notifications` (`id`        INT(11)       NOT NULL AUTO_INCREMENT,
                                                           `createdon` TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                                          `createdby` INT(11)           NULL,
+                                                          `created_by` INT(11)           NULL,
                                                           `meta_id`   INT(11)       NOT NULL,
                                                           `status`    VARCHAR(16)       NULL,
                                                           `events_id` INT(11)       NOT NULL,
@@ -128,14 +128,14 @@ sql_query('CREATE TABLE `calendars_events_notifications` (`id`        INT(11)   
                                                           PRIMARY KEY `id`        (`id`),
                                                                   KEY `meta_id`   (`meta_id`),
                                                                   KEY `createdon` (`createdon`),
-                                                                  KEY `createdby` (`createdby`),
+                                                                  KEY `created_by` (`created_by`),
                                                                   KEY `status`    (`status`),
                                                                   KEY `events_id` (`events_id`),
                                                                   KEY `method`    (`method`),
                                                                   KEY `before`    (`before`),
 
                                                           CONSTRAINT `fk_calendars_events_notifications_meta_id`   FOREIGN KEY (`meta_id`)   REFERENCES `meta`             (`id`) ON DELETE RESTRICT,
-                                                          CONSTRAINT `fk_calendars_events_notifications_createdby` FOREIGN KEY (`createdby`) REFERENCES `users`            (`id`) ON DELETE RESTRICT,
+                                                          CONSTRAINT `fk_calendars_events_notifications_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`            (`id`) ON DELETE RESTRICT,
                                                           CONSTRAINT `fk_calendars_events_notifications_events_id` FOREIGN KEY (`events_id`) REFERENCES `calendars_events` (`id`) ON DELETE RESTRICT
 
                                                          ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');

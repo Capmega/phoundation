@@ -14,12 +14,12 @@ if (empty($_GET['blog'])) {
     redirect('/admin/blogs.php');
 }
 
-if (!$blog = sql_get('SELECT `id`, `name`, `createdby`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
+if (!$blog = sql_get('SELECT `id`, `name`, `created_by`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
     html_flash_set(tr('The specified blog "'.$_GET['blog'].'" does not exist'), 'error');
     redirect('/admin/blogs.php');
 }
 
-if (($blog['createdby'] != $_SESSION['user']['id']) and !has_rights($blog['seoname'])) {
+if (($blog['created_by'] != $_SESSION['user']['id']) and !has_rights($blog['seoname'])) {
     html_flash_set(tr('You do not have access to the %object% "%blog%"', array('%object%' => $params['object'], '%blog%' => $blog['name'])), 'error');
     redirect('/admin/blogs_posts.php?blog='.$blog['seoname']);
 }
@@ -116,13 +116,13 @@ if (empty($_GET['post'])) {
 
 // :TODO: seo_generate_unique_name() only works on "seoname" column, but seoname is NOT unique, blogs_id, seoname is unique!
 
-            $r = sql_query('INSERT INTO `blogs_posts` (`blogs_id`, `status`, `createdby`, `category`, `assigned_to_id`, `seocategory`, `priority`, `seogroup`, `group`, `keywords`, `seokeywords`, `description`, `url`, `urlref`, `language`, `name`, `seoname`, `body`)
-                            VALUES                    (:blogs_id , :status , :createdby , :category , :assigned_to_id , :seocategory , :priority , :seogroup , :group , :keywords , :seokeywords , :description , :url , :urlref , :language , :name , :seoname , :body )',
+            $r = sql_query('INSERT INTO `blogs_posts` (`blogs_id`, `status`, `created_by`, `category`, `assigned_to_id`, `seocategory`, `priority`, `seogroup`, `group`, `keywords`, `seokeywords`, `description`, `url`, `urlref`, `language`, `name`, `seoname`, `body`)
+                            VALUES                    (:blogs_id , :status , :created_by , :category , :assigned_to_id , :seocategory , :priority , :seogroup , :group , :keywords , :seokeywords , :description , :url , :urlref , :language , :name , :seoname , :body )',
 
                             array(':blogs_id'       => $post['blogs_id'],
                                   ':assigned_to_id' => $post['assigned_to_id'],
                                   ':status'         => $post['status'],
-                                  ':createdby'      => $_SESSION['user']['id'],
+                                  ':created_by'      => $_SESSION['user']['id'],
                                   ':category'       => $post['category'],
                                   ':seocategory'    => $post['seocategory'],
                                   ':priority'       => $post['priority'],

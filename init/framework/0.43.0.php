@@ -13,17 +13,17 @@ sql_query('DROP TABLE IF EXISTS `email_client_domains`');
 
 sql_query('CREATE TABLE `api_sessions` (`id`        INT(11)     NOT NULL AUTO_INCREMENT,
                                         `createdon` TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                        `createdby` INT(11)         NULL DEFAULT NULL,
+                                        `created_by` INT(11)         NULL DEFAULT NULL,
                                         `closedon`  DATETIME        NULL DEFAULT NULL,
                                         `ip`        INT(11)         NULL DEFAULT NULL,
                                         `apikey`    VARCHAR(64)     NULL DEFAULT NULL,
 
                                         PRIMARY KEY `id`           (`id`),
                                                 KEY `createdon`    (`createdon`),
-                                                KEY `createdby`    (`createdby`),
+                                                KEY `created_by`    (`created_by`),
                                                 KEY `ip`           (`ip`),
 
-                                        CONSTRAINT `fk_api_sessions_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`)
+                                        CONSTRAINT `fk_api_sessions_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)
 
                                        ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
@@ -52,7 +52,7 @@ sql_query('CREATE TABLE `api_calls` (`id`          INT(11)     NOT NULL AUTO_INC
  */
 sql_query('CREATE TABLE `email_client_domains` (`id`                INT(11)      NOT NULL AUTO_INCREMENT,
                                                 `createdon`         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                                `createdby`         INT(11)          NULL DEFAULT NULL,
+                                                `created_by`         INT(11)          NULL DEFAULT NULL,
                                                 `modifiedon`        DATETIME         NULL DEFAULT NULL,
                                                 `modifiedby`        INT(11)          NULL DEFAULT NULL,
                                                 `status`            VARCHAR(16)      NULL DEFAULT NULL,
@@ -69,7 +69,7 @@ sql_query('CREATE TABLE `email_client_domains` (`id`                INT(11)     
 
                                                 PRIMARY KEY                     (`id`),
                                                         KEY `createdon`         (`createdon`),
-                                                        KEY `createdby`         (`createdby`),
+                                                        KEY `created_by`         (`created_by`),
                                                         KEY `modifiedon`        (`modifiedon`),
                                                         KEY `modifiedby`        (`modifiedby`),
                                                         KEY `status`            (`status`),
@@ -78,14 +78,14 @@ sql_query('CREATE TABLE `email_client_domains` (`id`                INT(11)     
 
 
                                                 CONSTRAINT `fk_email_client_domains_server_domains_id` FOREIGN KEY (`server_domains_id`) REFERENCES `email_domains` (`id`),
-                                                CONSTRAINT `fk_email_client_domains_createdby`         FOREIGN KEY (`createdby`)         REFERENCES `users`         (`id`),
+                                                CONSTRAINT `fk_email_client_domains_created_by`         FOREIGN KEY (`created_by`)         REFERENCES `users`         (`id`),
                                                 CONSTRAINT `fk_email_client_domains_modifiedby`        FOREIGN KEY (`modifiedby`)        REFERENCES `users`         (`id`)
 
                                                ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
 sql_query('CREATE TABLE `email_client_accounts` (`id`            INT(11)      NOT NULL AUTO_INCREMENT,
                                                  `createdon`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                                 `createdby`     INT(11)          NULL DEFAULT NULL,
+                                                 `created_by`     INT(11)          NULL DEFAULT NULL,
                                                  `modifiedon`    DATETIME         NULL DEFAULT NULL,
                                                  `modifiedby`    INT(11)          NULL DEFAULT NULL,
                                                  `status`        VARCHAR(16)      NULL DEFAULT NULL,
@@ -103,7 +103,7 @@ sql_query('CREATE TABLE `email_client_accounts` (`id`            INT(11)      NO
 
                                                  PRIMARY KEY `id`            (`id`),
                                                          KEY `createdon`     (`createdon`),
-                                                         KEY `createdby`     (`createdby`),
+                                                         KEY `created_by`     (`created_by`),
                                                          KEY `modifiedon`    (`modifiedon`),
                                                          KEY `modifiedby`    (`modifiedby`),
                                                          KEY `status`        (`status`),
@@ -114,7 +114,7 @@ sql_query('CREATE TABLE `email_client_accounts` (`id`            INT(11)      NO
                                                          KEY `poll_interval` (`poll_interval`),
                                                          KEY `last_poll`     (`last_poll`),
 
-                                                 CONSTRAINT `fk_email_client_accounts_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`                (`id`),
+                                                 CONSTRAINT `fk_email_client_accounts_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users`                (`id`),
                                                  CONSTRAINT `fk_email_client_accounts_domains_id` FOREIGN KEY (`domains_id`) REFERENCES `email_client_domains` (`id`),
                                                  CONSTRAINT `fk_email_client_accounts_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users`                (`id`)
 
@@ -128,7 +128,7 @@ load_libs('seo');
 
 $domains = sql_query('SELECT `id`,
                              `createdon`,
-                             `createdby`,
+                             `created_by`,
                              `modifiedon`,
                              `modifiedby`,
                              `status`,
@@ -144,8 +144,8 @@ $domains = sql_query('SELECT `id`,
 
                       FROM   `email_domains`');
 
-$insert = sql_prepare('INSERT INTO `email_client_domains` (`id`, `createdon`, `createdby`, `modifiedon`, `modifiedby`, `status`, `name`, `seoname`, `smtp_host`, `smtp_port`, `imap`, `poll_interval`, `header`, `footer`, `description`)
-                       VALUES                             (:id , :createdon , :createdby , :modifiedon , :modifiedby , :status , :name , :seoname , :smtp_host , :smtp_port , :imap , :poll_interval , :header , :footer , :description )');
+$insert = sql_prepare('INSERT INTO `email_client_domains` (`id`, `createdon`, `created_by`, `modifiedon`, `modifiedby`, `status`, `name`, `seoname`, `smtp_host`, `smtp_port`, `imap`, `poll_interval`, `header`, `footer`, `description`)
+                       VALUES                             (:id , :createdon , :created_by , :modifiedon , :modifiedby , :status , :name , :seoname , :smtp_host , :smtp_port , :imap , :poll_interval , :header , :footer , :description )');
 
 while ($domain = sql_fetch($domains)) {
     $domain['name']    = $domain['domain'];
@@ -153,7 +153,7 @@ while ($domain = sql_fetch($domains)) {
 
     $insert->execute(array(':id'            => $domain['id'],
                            ':createdon'     => $domain['createdon'],
-                           ':createdby'     => $domain['createdby'],
+                           ':created_by'     => $domain['created_by'],
                            ':modifiedon'    => $domain['modifiedon'],
                            ':modifiedby'    => $domain['modifiedby'],
                            ':status'        => $domain['status'],
@@ -170,7 +170,7 @@ while ($domain = sql_fetch($domains)) {
 
 $accounts = sql_query('SELECT `id`,
                               `createdon`,
-                              `createdby`,
+                              `created_by`,
                               `modifiedon`,
                               `modifiedby`,
                               `status`,
@@ -187,15 +187,15 @@ $accounts = sql_query('SELECT `id`,
 
                        FROM   `email_accounts`');
 
-$insert = sql_prepare('INSERT INTO `email_client_accounts` (`id`, `createdon`, `createdby`, `modifiedon`, `modifiedby`, `status`, `domains_id`, `users_id`, `poll_interval`, `last_poll`, `email`, `seoemail`, `name`, `password`, `header`, `footer`, `description`)
-                       VALUES                              (:id , :createdon , :createdby , :modifiedon , :modifiedby , :status , :domains_id , :users_id , :poll_interval , :last_poll , :email , :seoemail , :name , :password , :header , :footer , :description )');
+$insert = sql_prepare('INSERT INTO `email_client_accounts` (`id`, `createdon`, `created_by`, `modifiedon`, `modifiedby`, `status`, `domains_id`, `users_id`, `poll_interval`, `last_poll`, `email`, `seoemail`, `name`, `password`, `header`, `footer`, `description`)
+                       VALUES                              (:id , :createdon , :created_by , :modifiedon , :modifiedby , :status , :domains_id , :users_id , :poll_interval , :last_poll , :email , :seoemail , :name , :password , :header , :footer , :description )');
 
 while ($account = sql_fetch($accounts)) {
     $account['seoemail'] = seo_unique($account['email'], 'email_client_accounts', null, 'seoemail');
 
     $insert->execute(array(':id'            => $account['id'],
                            ':createdon'     => $account['createdon'],
-                           ':createdby'     => $account['createdby'],
+                           ':created_by'     => $account['created_by'],
                            ':modifiedon'    => $account['modifiedon'],
                            ':modifiedby'    => $account['modifiedby'],
                            ':status'        => $account['status'],

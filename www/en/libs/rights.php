@@ -214,13 +214,13 @@ function rights_get($right) {
                                      `rights`.`status`,
                                      `rights`.`description`,
 
-                                     `createdby`.`name`   AS `createdby_name`,
-                                     `createdby`.`email`  AS `createdby_email`
+                                     `created_by`.`name`   AS `created_by_name`,
+                                     `created_by`.`email`  AS `created_by_email`
 
                            FROM      `rights`
 
-                           LEFT JOIN `users` AS `createdby`
-                           ON        `rights`.`createdby`  = `createdby`.`id`
+                           LEFT JOIN `users` AS `created_by`
+                           ON        `rights`.`created_by`  = `created_by`.`id`
 
                            WHERE     `rights`.`id`   = :right
                            OR        `rights`.`name` = :right',

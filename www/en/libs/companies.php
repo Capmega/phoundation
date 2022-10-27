@@ -298,7 +298,7 @@ function companies_get($params, $column = null, $status = null) {
 
         array_default($params, 'columns', 'companies.id,
                                            companies.createdon,
-                                           companies.createdby,
+                                           companies.created_by,
                                            companies.meta_id,
                                            companies.status,
                                            companies.categories_id,
@@ -623,7 +623,7 @@ function companies_get_branch($params, $branch, $column = null, $status = null) 
 
         array_default($params, 'columns', 'branches.id,
                                            branches.createdon,
-                                           branches.createdby,
+                                           branches.created_by,
                                            branches.meta_id,
                                            branches.status,
                                            branches.companies_id,
@@ -973,7 +973,7 @@ function companies_get_department($params, $branch, $department, $column = null,
 
         array_default($params, 'columns', 'departments.id,
                                            departments.createdon,
-                                           departments.createdby,
+                                           departments.created_by,
                                            departments.meta_id,
                                            departments.status,
                                            departments.companies_id,
@@ -1335,7 +1335,7 @@ function companies_get_employee($params) {
 
         array_default($params, 'columns', 'employees.id,
                                            employees.createdon,
-                                           employees.createdby,
+                                           employees.created_by,
                                            employees.meta_id,
                                            employees.status,
                                            employees.companies_id,

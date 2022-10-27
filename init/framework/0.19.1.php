@@ -4,8 +4,8 @@
 ///*
 // * Create the default error and developers
 // */
-//sql_query('ALTER TABLE `notifications_classes` CHANGE COLUMN `createdby` `createdby` INT(11) NULL');
-//sql_query('ALTER TABLE `notifications_members` CHANGE COLUMN `createdby` `createdby` INT(11) NULL');
+//sql_query('ALTER TABLE `notifications_classes` CHANGE COLUMN `created_by` `created_by` INT(11) NULL');
+//sql_query('ALTER TABLE `notifications_members` CHANGE COLUMN `created_by` `created_by` INT(11) NULL');
 //
 //if (!sql_get('SELECT `id` FROM `notifications_classes` WHERE `name` = "error"', 'id')) {
 //    script_exec('base/notifications/classes', 'create name error methods email,sms description "All error messages will go to this class"');

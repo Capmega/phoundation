@@ -13,7 +13,7 @@
 /*
  * Return requested data for specified groups
  */
-function groups_get($group, $createdby = null) {
+function groups_get($group, $created_by = null) {
     try {
         if (!$group) {
             throw new CoreException(tr('groups_get(): No group specified'), 'not-specified');
@@ -28,15 +28,15 @@ function groups_get($group, $createdby = null) {
                             `groups`.`status`,
                             `groups`.`description`,
 
-                            `createdby`.`name`   AS `createdby_name`,
-                            `createdby`.`email`  AS `createdby_email`,
+                            `created_by`.`name`   AS `created_by_name`,
+                            `created_by`.`email`  AS `created_by_email`,
                             `modifiedby`.`name`  AS `modifiedby_name`,
                             `modifiedby`.`email` AS `modifiedby_email`
 
                   FROM      `groups`
 
-                  LEFT JOIN `users` AS `createdby`
-                  ON        `groups`.`createdby`  = `createdby`.`id`
+                  LEFT JOIN `users` AS `created_by`
+                  ON        `groups`.`created_by`  = `created_by`.`id`
 
                   LEFT JOIN `users` AS `modifiedby`
                   ON        `groups`.`modifiedby` = `modifiedby`.`id`
@@ -46,9 +46,9 @@ function groups_get($group, $createdby = null) {
 
         $execute = array(':group' => $group);
 
-        if ($createdby) {
-            $query .= 'AND `groups`.`createdby` = :createdby';
-            $execute[':createdby'] = $createdby;
+        if ($created_by) {
+            $query .= 'AND `groups`.`created_by` = :created_by';
+            $execute[':created_by'] = $created_by;
         }
 
         $return = sql_get($query, $execute);
@@ -127,15 +127,15 @@ function groups_get_users($group) {
                                      `groups`.`status`,
                                      `groups`.`description`,
 
-                                     `createdby`.`name`   AS `createdby_name`,
-                                     `createdby`.`email`  AS `createdby_email`,
+                                     `created_by`.`name`   AS `created_by_name`,
+                                     `created_by`.`email`  AS `created_by_email`,
                                      `modifiedby`.`name`  AS `modifiedby_name`,
                                      `modifiedby`.`email` AS `modifiedby_email`
 
                            FROM      `groups`
 
-                           LEFT JOIN `users` AS `createdby`
-                           ON        `groups`.`createdby`  = `createdby`.`id`
+                           LEFT JOIN `users` AS `created_by`
+                           ON        `groups`.`created_by`  = `created_by`.`id`
 
                            LEFT JOIN `users` AS `modifiedby`
                            ON        `groups`.`modifiedby` = `modifiedby`.`id`

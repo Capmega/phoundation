@@ -18,7 +18,7 @@ sql_query('CREATE TABLE `ratings` (`id`         INT(11)   NOT NULL AUTO_INCREMEN
 
 sql_query('CREATE TABLE `ratings_votes` (`id`         INT(11)   NOT NULL AUTO_INCREMENT,
                                          `createdon`  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                         `createdby`  INT(11)   NOT NULL,
+                                         `created_by`  INT(11)   NOT NULL,
                                          `modifiedon` DATETIME      NULL DEFAULT NULL,
                                          `modifiedby` INT(11)       NULL DEFAULT NULL,
                                          `ratings_id` INT(11)   NOT NULL,
@@ -26,11 +26,11 @@ sql_query('CREATE TABLE `ratings_votes` (`id`         INT(11)   NOT NULL AUTO_IN
 
                                          PRIMARY KEY `id`         (`id`),
                                                  KEY `ratings_id` (`ratings_id`),
-                                                 KEY `createdby`  (`createdby`),
+                                                 KEY `created_by`  (`created_by`),
                                                  KEY `modifiedby` (`modifiedby`),
 
                                          CONSTRAINT `fk_ratings_votes_ratings_id` FOREIGN KEY (`ratings_id`) REFERENCES `ratings` (`id`) ON DELETE CASCADE,
-                                         CONSTRAINT `fk_ratings_votes_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`   (`id`) ON DELETE RESTRICT,
+                                         CONSTRAINT `fk_ratings_votes_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users`   (`id`) ON DELETE RESTRICT,
                                          CONSTRAINT `fk_ratings_votes_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users`   (`id`) ON DELETE RESTRICT
 
                                         ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');

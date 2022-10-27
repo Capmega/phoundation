@@ -136,7 +136,7 @@ switch (cli_method()) {
                  */
                 $entries = sql_query('SELECT `id`,
                                              `createdon`,
-                                             `createdby`,
+                                             `created_by`,
                                              `url`,
                                              `priority`,
                                              `page_modifiedon`,
@@ -156,7 +156,7 @@ switch (cli_method()) {
                     log_console(Strings::size(tr('#id'), 6).' '.Strings::size(tr('Created on'), 10).' '.Strings::size(tr('Created by'), 24).' '.Strings::size(tr('URL'), 80).' '.Strings::size(tr('Priority'), 8).' '.Strings::size(tr('Page modifiedon'), 16).' '.Strings::size(tr('Change frequency'), 16).' '.Strings::size(tr('Language'), 8).' '.Strings::size(tr('Group'), 12).' '.Strings::size(tr('File'), 12), 'QUIET/cyan');
 
                     while ($entry = sql_fetch($entries)) {
-                        log_console(Strings::size($entry['id'], 6).' '.Strings::size($entry['createdon'], 10).' '.Strings::size(name($entry['createdby']), 24).' '.Strings::size($entry['url'], 80).' '.Strings::size($entry['priority'], 8).' '.Strings::size($entry['page_modifiedon'], 16).' '.Strings::size($entry['change_frequency'], 16).' '.Strings::size($entry['language'], 8).' '.Strings::size($entry['group'], 12).' '.Strings::size($entry['file'], 12));
+                        log_console(Strings::size($entry['id'], 6).' '.Strings::size($entry['createdon'], 10).' '.Strings::size(name($entry['created_by']), 24).' '.Strings::size($entry['url'], 80).' '.Strings::size($entry['priority'], 8).' '.Strings::size($entry['page_modifiedon'], 16).' '.Strings::size($entry['change_frequency'], 16).' '.Strings::size($entry['language'], 8).' '.Strings::size($entry['group'], 12).' '.Strings::size($entry['file'], 12));
                     }
                 }
 

@@ -16,9 +16,9 @@ sql_column_exists     ('notifications_members', 'status'                        
 
 sql_foreignkey_exists ('notifications_members', 'fk_notifications_members_addedby'      ,  'ALTER TABLE `notifications_members` DROP FOREIGN KEY `fk_notifications_members_addedby`');
 sql_index_exists      ('notifications_members', 'addedby'                               ,  'ALTER TABLE `notifications_members` DROP INDEX `addedby`');
-sql_column_exists     ('notifications_members', 'addedby'                               ,  'ALTER TABLE `notifications_members` CHANGE COLUMN `addedby` `createdby` INT(11) NOT NULL');
-sql_index_exists      ('notifications_members', 'createdby'                             , '!ALTER TABLE `notifications_members` ADD  INDEX (`createdby`)');
-sql_foreignkey_exists ('notifications_members', 'fk_notifications_members_createdby'    , '!ALTER TABLE `notifications_members` ADD CONSTRAINT `fk_notifications_members_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE CASCADE;');
+sql_column_exists     ('notifications_members', 'addedby'                               ,  'ALTER TABLE `notifications_members` CHANGE COLUMN `addedby` `created_by` INT(11) NOT NULL');
+sql_index_exists      ('notifications_members', 'created_by'                             , '!ALTER TABLE `notifications_members` ADD  INDEX (`created_by`)');
+sql_foreignkey_exists ('notifications_members', 'fk_notifications_members_created_by'    , '!ALTER TABLE `notifications_members` ADD CONSTRAINT `fk_notifications_members_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE;');
 
 sql_index_exists      ('notifications_members', 'addedon'                               ,  'ALTER TABLE `notifications_members` DROP INDEX  `addedon`');
 sql_column_exists     ('notifications_members', 'addedon'                               ,  'ALTER TABLE `notifications_members` CHANGE COLUMN `addedon` `createdon` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP');
@@ -31,9 +31,9 @@ sql_index_exists      ('notifications_members', 'createdon'                     
  */
 sql_foreignkey_exists ('notifications_classes', 'fk_notifications_classes_addedby'      ,  'ALTER TABLE `notifications_classes` DROP FOREIGN KEY `fk_notifications_classes_addedby`');
 sql_index_exists      ('notifications_classes', 'addedby'                               ,  'ALTER TABLE `notifications_classes` DROP INDEX `addedby`');
-sql_column_exists     ('notifications_classes', 'addedby'                               ,  'ALTER TABLE `notifications_classes` CHANGE COLUMN `addedby` `createdby` INT(11) NOT NULL');
-sql_index_exists      ('notifications_classes', 'createdby'                             , '!ALTER TABLE `notifications_classes` ADD INDEX (`createdby`)');
-sql_foreignkey_exists ('notifications_classes', 'fk_notifications_classes_createdby'    , '!ALTER TABLE `notifications_classes` ADD CONSTRAINT `fk_notifications_classes_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE CASCADE;');
+sql_column_exists     ('notifications_classes', 'addedby'                               ,  'ALTER TABLE `notifications_classes` CHANGE COLUMN `addedby` `created_by` INT(11) NOT NULL');
+sql_index_exists      ('notifications_classes', 'created_by'                             , '!ALTER TABLE `notifications_classes` ADD INDEX (`created_by`)');
+sql_foreignkey_exists ('notifications_classes', 'fk_notifications_classes_created_by'    , '!ALTER TABLE `notifications_classes` ADD CONSTRAINT `fk_notifications_classes_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE;');
 
 sql_foreignkey_exists ('notifications_classes', 'fk_notifications_classes_updatedby'    ,  'ALTER TABLE `notifications_classes` DROP FOREIGN KEY `fk_notifications_classes_updatedby`');
 sql_index_exists      ('notifications_classes', 'updatedby'                             ,  'ALTER TABLE `notifications_classes` DROP INDEX `updatedby`');
@@ -62,9 +62,9 @@ sql_index_exists      ('notifications_classes', 'name'                          
  */
 sql_foreignkey_exists ('notifications', 'fk_notifications_addedby'              ,  'ALTER TABLE `notifications` DROP FOREIGN KEY `fk_notifications_addedby`');
 sql_index_exists      ('notifications', 'addedby'                               ,  'ALTER TABLE `notifications` DROP INDEX `addedby`');
-sql_column_exists     ('notifications', 'addedby'                               ,  'ALTER TABLE `notifications` CHANGE COLUMN `addedby` `createdby` INT(11) NOT NULL');
-sql_index_exists      ('notifications', 'createdby'                             , '!ALTER TABLE `notifications` ADD  INDEX (`createdby`)');
-sql_foreignkey_exists ('notifications', 'fk_notifications_createdby'            , '!ALTER TABLE `notifications` ADD CONSTRAINT `fk_notifications_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE CASCADE;');
+sql_column_exists     ('notifications', 'addedby'                               ,  'ALTER TABLE `notifications` CHANGE COLUMN `addedby` `created_by` INT(11) NOT NULL');
+sql_index_exists      ('notifications', 'created_by'                             , '!ALTER TABLE `notifications` ADD  INDEX (`created_by`)');
+sql_foreignkey_exists ('notifications', 'fk_notifications_created_by'            , '!ALTER TABLE `notifications` ADD CONSTRAINT `fk_notifications_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE;');
 
 sql_foreignkey_exists ('notifications', 'fk_notifications_updatedby'            ,  'ALTER TABLE `notifications` DROP FOREIGN KEY `fk_notifications_updatedby`');
 sql_index_exists      ('notifications', 'updatedby'                             ,  'ALTER TABLE `notifications` DROP INDEX `updatedby`');

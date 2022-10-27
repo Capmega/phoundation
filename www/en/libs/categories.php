@@ -337,7 +337,7 @@ function categories_get($category, $column = null, $status = null, $parent = fal
         } else {
             $return = sql_get('SELECT    `categories`.`id`,
                                          `categories`.`createdon`,
-                                         `categories`.`createdby`,
+                                         `categories`.`created_by`,
                                          `categories`.`meta_id`,
                                          `categories`.`status`,
                                          `categories`.`parents_id`,

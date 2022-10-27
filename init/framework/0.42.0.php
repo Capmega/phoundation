@@ -20,7 +20,7 @@ sql_query('DROP TABLE IF EXISTS `forwarder_clusters`');
   */
 sql_query('CREATE TABLE `forwarder_clusters` (`id`          INT(11) NOT NULL AUTO_INCREMENT,
                                               `createdon`   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                              `createdby`   INT(11) DEFAULT NULL,
+                                              `created_by`   INT(11) DEFAULT NULL,
                                               `modifiedon`  DATETIME DEFAULT NULL,
                                               `modifiedby`  INT(11) DEFAULT NULL,
                                               `status`      VARCHAR(16) DEFAULT NULL,
@@ -34,20 +34,20 @@ sql_query('CREATE TABLE `forwarder_clusters` (`id`          INT(11) NOT NULL AUT
                                               UNIQUE KEY `name` (`name`),
                                               UNIQUE KEY `keyword` (`keyword`),
                                               KEY `createdon` (`createdon`),
-                                              KEY `createdby` (`createdby`),
+                                              KEY `created_by` (`created_by`),
                                               KEY `modifiedon` (`modifiedon`),
                                               KEY `modifiedby` (`modifiedby`),
                                               KEY `assigned_to` (`assigned_to`),
 
                                               CONSTRAINT `fk_forwarder_clusters_assigned_to` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`id`),
-                                              CONSTRAINT `fk_forwarder_clusters_createdby`   FOREIGN KEY (`createdby`) REFERENCES `users` (`id`),
+                                              CONSTRAINT `fk_forwarder_clusters_created_by`   FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
                                               CONSTRAINT `fk_forwarder_clusters_modifiedby`  FOREIGN KEY (`modifiedby`) REFERENCES `users` (`id`)
 
                                             ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
 sql_query('CREATE TABLE `forwarder_links` (`id`                     INT(11) NOT NULL AUTO_INCREMENT,
                                               `createdon`           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                              `createdby`           INT(11) DEFAULT NULL,
+                                              `created_by`           INT(11) DEFAULT NULL,
                                               `modifiedon`          DATETIME DEFAULT NULL,
                                               `modifiedby`          INT(11) DEFAULT NULL,
                                               `status`              VARCHAR(16) DEFAULT NULL,
@@ -64,7 +64,7 @@ sql_query('CREATE TABLE `forwarder_links` (`id`                     INT(11) NOT 
 
                                               PRIMARY KEY (`id`),
                                               KEY `createdon`        (`createdon`),
-                                              KEY `createdby`        (`createdby`),
+                                              KEY `created_by`        (`created_by`),
                                               KEY `modifiedon`       (`modifiedon`),
                                               KEY `modifiedby`       (`modifiedby`),
                                               KEY `status`           (`status`),
@@ -77,14 +77,14 @@ sql_query('CREATE TABLE `forwarder_links` (`id`                     INT(11) NOT 
                                               KEY `seoname`          (`clusters_id`,`seoname`),
 
                                               CONSTRAINT `fk_forwarder_links_clusters_id` FOREIGN KEY (`clusters_id`) REFERENCES `forwarder_clusters` (`id`),
-                                              CONSTRAINT `fk_forwarder_links_createdby`   FOREIGN KEY (`createdby`)   REFERENCES `users`              (`id`),
+                                              CONSTRAINT `fk_forwarder_links_created_by`   FOREIGN KEY (`created_by`)   REFERENCES `users`              (`id`),
                                               CONSTRAINT `fk_forwarder_links_modifiedby`  FOREIGN KEY (`modifiedby`)  REFERENCES `users`              (`id`)
 
                                             ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
 sql_query('CREATE TABLE `forwarder_clicks` (`id`           INT(11)       NOT NULL AUTO_INCREMENT,
                                             `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                            `createdby`    INT(11)           NULL,
+                                            `created_by`    INT(11)           NULL,
                                             `emails_id`    INT(11)           NULL DEFAULT NULL,
                                             `clusters_id`  INT(11)           NULL DEFAULT NULL,
                                             `links_id`     INT(11)           NULL DEFAULT NULL,
@@ -107,7 +107,7 @@ sql_query('CREATE TABLE `forwarder_clicks` (`id`           INT(11)       NOT NUL
 
                                             CONSTRAINT `fk_forwarder_clicks_clusters_id` FOREIGN KEY (`clusters_id`) REFERENCES `forwarder_clusters` (`id`),
                                             CONSTRAINT `fk_forwarder_clicks_links_id`    FOREIGN KEY (`links_id`)    REFERENCES `forwarder_links`    (`id`),
-                                            CONSTRAINT `fk_forwarder_clicks_createdby`   FOREIGN KEY (`createdby`)   REFERENCES `users`              (`id`)
+                                            CONSTRAINT `fk_forwarder_clicks_created_by`   FOREIGN KEY (`created_by`)   REFERENCES `users`              (`id`)
 
                                           ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
@@ -118,7 +118,7 @@ sql_query('CREATE TABLE `forwarder_clicks` (`id`           INT(11)       NOT NUL
  */
 sql_query('CREATE TABLE `ads_campaigns` (`id`          INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY ,
                                          `createdon`   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                         `createdby`   INT(11)       NOT NULL,
+                                         `created_by`   INT(11)       NOT NULL,
                                          `modifiedon`  DATETIME          NULL DEFAULT NULL,
                                          `modifiedby`  INT(11)           NULL DEFAULT NULL,
                                          `status`      VARCHAR(16)       NULL DEFAULT NULL,
@@ -130,7 +130,7 @@ sql_query('CREATE TABLE `ads_campaigns` (`id`          INT(11)       NOT NULL AU
                                          `description` VARCHAR(2047)     NULL DEFAULT NULL,
 
                                          KEY        `createdon`   (`createdon`),
-                                         KEY        `createdby`   (`createdby`),
+                                         KEY        `created_by`   (`created_by`),
                                          KEY        `modifiedon`  (`modifiedon`),
                                          KEY        `modifiedby`  (`modifiedby`),
                                          KEY        `status`      (`status`),
@@ -139,7 +139,7 @@ sql_query('CREATE TABLE `ads_campaigns` (`id`          INT(11)       NOT NULL AU
                                          KEY        `clusters_id` (`clusters_id`),
                                          UNIQUE KEY `seoname`     (`seoname`),
 
-                                         CONSTRAINT `fk_ads_campaigns_createdby`   FOREIGN KEY (`createdby`)   REFERENCES `users`              (`id`),
+                                         CONSTRAINT `fk_ads_campaigns_created_by`   FOREIGN KEY (`created_by`)   REFERENCES `users`              (`id`),
                                          CONSTRAINT `fk_ads_campaigns_modifiedby`  FOREIGN KEY (`modifiedby`)  REFERENCES `users`              (`id`),
                                          CONSTRAINT `fk_ads_campaigns_clusters_id` FOREIGN KEY (`clusters_id`) REFERENCES `forwarder_clusters` (`id`)
 
@@ -147,24 +147,24 @@ sql_query('CREATE TABLE `ads_campaigns` (`id`          INT(11)       NOT NULL AU
 
 sql_query('CREATE TABLE `ads_images` (`id`           INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY ,
                                       `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                      `createdby`    INT(11)       NOT NULL,
+                                      `created_by`    INT(11)       NOT NULL,
                                       `campaigns_id` INT(11)       NOT NULL,
                                       `file`         VARCHAR(128)  NOT NULL,
                                       `description`  VARCHAR(2047)     NULL DEFAULT NULL,
 
                                       KEY        `createdon`    (`createdon`),
-                                      KEY        `createdby`    (`createdby`),
+                                      KEY        `created_by`    (`created_by`),
                                       UNIQUE KEY `file`         (`file`),
                                       KEY        `campaigns_id` (`campaigns_id`),
 
-                                      CONSTRAINT `fk_ads_images_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`         (`id`),
+                                      CONSTRAINT `fk_ads_images_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`         (`id`),
                                       CONSTRAINT `fk_ads_images_campaigns_id` FOREIGN KEY (`campaigns_id`) REFERENCES `ads_campaigns` (`id`)
 
                                      ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
 sql_query('CREATE TABLE `ads_views` (`id`           INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY ,
                                      `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                     `createdby`    INT(11)           NULL,
+                                     `created_by`    INT(11)           NULL,
                                      `campaigns_id` INT(11)           NULL DEFAULT NULL,
                                      `images_id`    INT(11)           NULL DEFAULT NULL,
                                      `ip`           VARCHAR(64)   NOT NULL,
@@ -176,12 +176,12 @@ sql_query('CREATE TABLE `ads_views` (`id`           INT(11)       NOT NULL AUTO_
                                      `browser`      VARCHAR(12)   NOT NULL,
 
                                      KEY `createdon`    (`createdon`),
-                                     KEY `createdby`    (`createdby`),
+                                     KEY `created_by`    (`created_by`),
                                      KEY `campaigns_id` (`campaigns_id`),
                                      KEY `images_id`    (`images_id`),
                                      KEY `ip`           (`ip`),
 
-                                     CONSTRAINT `fk_ads_views_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`         (`id`),
+                                     CONSTRAINT `fk_ads_views_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`         (`id`),
                                      CONSTRAINT `fk_ads_views_campaigns_id` FOREIGN KEY (`campaigns_id`) REFERENCES `ads_campaigns` (`id`),
                                      CONSTRAINT `fk_ads_views_images_id`    FOREIGN KEY (`images_id`)    REFERENCES `ads_images`    (`id`)
 

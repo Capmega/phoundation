@@ -24,13 +24,13 @@ function roles_get($role = null) {
                             `roles`.`createdon`,
                             `roles`.`description`,
 
-                            `createdby`.`name`   AS `createdby_name`,
-                            `createdby`.`email`  AS `createdby_email`
+                            `created_by`.`name`   AS `created_by_name`,
+                            `created_by`.`email`  AS `created_by_email`
 
                   FROM      `roles`
 
-                  LEFT JOIN `users` as `createdby`
-                  ON        `roles`.`createdby`     = `createdby`.`id`';
+                  LEFT JOIN `users` as `created_by`
+                  ON        `roles`.`created_by`     = `created_by`.`id`';
 
         if ($role) {
             if (!is_string($role)) {
@@ -50,20 +50,20 @@ function roles_get($role = null) {
              */
             $return = sql_get($query.'
 
-                              WHERE  `roles`.`createdby` = :createdby
+                              WHERE  `roles`.`created_by` = :created_by
 
                               AND    `roles`.`status`    = "_new"',
 
-                              array(':createdby' => $_SESSION['user']['id']));
+                              array(':created_by' => $_SESSION['user']['id']));
 
             if (!$return) {
-                sql_query('INSERT INTO `roles` (`createdby`, `meta_id`, `status`, `name`)
-                           VALUES              (:createdby , :meta_id , :status , :name )',
+                sql_query('INSERT INTO `roles` (`created_by`, `meta_id`, `status`, `name`)
+                           VALUES              (:created_by , :meta_id , :status , :name )',
 
                            array(':name'      => $role,
                                  ':meta_id'   => meta_action(),
                                  ':status'    => '_new',
-                                 ':createdby' => isset_get($_SESSION['user']['id'])));
+                                 ':created_by' => isset_get($_SESSION['user']['id'])));
 
                 return roles_get($role);
             }

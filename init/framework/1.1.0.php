@@ -10,17 +10,17 @@
  *
  * Fix missing columns and indices in storage tables
  */
-sql_foreignkey_exists ('notifications', 'fk_notifications_createdby' , 'ALTER TABLE `notifications` DROP FOREIGN KEY `fk_notifications_createdby`');
+sql_foreignkey_exists ('notifications', 'fk_notifications_created_by' , 'ALTER TABLE `notifications` DROP FOREIGN KEY `fk_notifications_created_by`');
 sql_foreignkey_exists ('notifications', 'fk_notifications_classes_id', 'ALTER TABLE `notifications` DROP FOREIGN KEY `fk_notifications_classes_id`');
 
 sql_index_exists('notifications', 'createdon' , 'ALTER TABLE `notifications` DROP INDEX `createdon`');
-sql_index_exists('notifications', 'createdby' , 'ALTER TABLE `notifications` DROP INDEX `createdby`');
+sql_index_exists('notifications', 'created_by' , 'ALTER TABLE `notifications` DROP INDEX `created_by`');
 sql_index_exists('notifications', 'classes_id', 'ALTER TABLE `notifications` DROP INDEX `classes_id`');
 sql_index_exists('notifications', 'classes_id', 'ALTER TABLE `notifications` DROP INDEX `classes_id`');
 
 sql_column_exists('notifications', 'classes_id',  'ALTER TABLE `notifications` DROP COLUMN `classes_id`');
 sql_column_exists('notifications', 'createdon' ,  'ALTER TABLE `notifications` DROP COLUMN `createdon`');
-sql_column_exists('notifications', 'createdby' ,  'ALTER TABLE `notifications` CHANGE COLUMN `createdby` `meta_id` INT(11)      NOT NULL');
+sql_column_exists('notifications', 'created_by' ,  'ALTER TABLE `notifications` CHANGE COLUMN `created_by` `meta_id` INT(11)      NOT NULL');
 sql_column_exists('notifications', 'event'     ,  'ALTER TABLE `notifications` CHANGE COLUMN `event`     `title`   VARCHAR(255) NOT NULL');
 sql_column_exists('notifications', 'url'       , '!ALTER TABLE `notifications` ADD COLUMN  `url`    VARCHAR(255) NULL AFTER `title`');
 sql_column_exists('notifications', 'status'    , '!ALTER TABLE `notifications` ADD COLUMN  `status` VARCHAR(16)  NULL AFTER `meta_id`');

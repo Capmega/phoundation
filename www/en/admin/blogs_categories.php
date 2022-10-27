@@ -12,12 +12,12 @@ if (empty($_GET['blog'])) {
     redirect('/admin/blogs.php');
 }
 
-if (!$blog = sql_get('SELECT `id`, `name`, `createdby`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
+if (!$blog = sql_get('SELECT `id`, `name`, `created_by`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
     html_flash_set(tr('The specified blog "'.$_GET['blog'].'" does not exist'), 'error');
     redirect('/admin/blogs.php');
 }
 
-if (($blog['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+if (($blog['created_by'] != $_SESSION['user']['id']) and !has_rights('god')) {
     html_flash_set(tr('You do not have access to the blog "'.$blog['name'].'"'), 'error');
     redirect('/admin/blogs_posts.php?blog='.$blog['seoname']);
 }
@@ -116,10 +116,10 @@ switch (strtolower(isset_get($_POST['doaction']))) {
             $category['keywords']    = blogs_clean_keywords($category['keywords']);
             $category['seokeywords'] = blogs_seo_keywords($category['keywords']);
 
-            sql_query('INSERT INTO `blogs_categories` (`createdby`, `blogs_id`, `parents_id`, `name`, `seoname`, `keywords`, `seokeywords`, `description`)
-                       VALUES                         (:createdby , :blogs_id , :parents_id , :name , :seoname , :keywords , :seokeywords , :description )',
+            sql_query('INSERT INTO `blogs_categories` (`created_by`, `blogs_id`, `parents_id`, `name`, `seoname`, `keywords`, `seokeywords`, `description`)
+                       VALUES                         (:created_by , :blogs_id , :parents_id , :name , :seoname , :keywords , :seokeywords , :description )',
 
-                       array(':createdby'   => $_SESSION['user']['id'],
+                       array(':created_by'   => $_SESSION['user']['id'],
                              ':blogs_id'    => $blog['id'],
                              ':parents_id'  => $category['parents_id'],
                              ':name'        => $category['name'],
@@ -192,7 +192,7 @@ switch (strtolower(isset_get($_POST['doaction']))) {
                 throw new CoreException(tr('The specified categories id does not exist in the blog "'.$blog['name'].'"'), 'notexists');
             }
 
-            if (($dbcategory['createdby'] != $_SESSION['user']['id']) and !has_rights('admin')) {
+            if (($dbcategory['created_by'] != $_SESSION['user']['id']) and !has_rights('admin')) {
                 /*
                  * This category is not from this user and this user is also not an admin!
                  */

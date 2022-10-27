@@ -22,10 +22,10 @@ sql_query('UPDATE `blogs_posts` SET `seoname` = NULL WHERE `seoname` = ""');
 
 
 /*
- * Since blogs posts can be created by command line and command line no longer supports sessions, createdby may be NULL
+ * Since blogs posts can be created by command line and command line no longer supports sessions, created_by may be NULL
  */
-sql_query('ALTER TABLE `blogs_posts` CHANGE COLUMN `createdby` `createdby` INT(11) NULL');
-sql_query('ALTER TABLE `blogs_media` CHANGE COLUMN `createdby` `createdby` INT(11) NULL');
+sql_query('ALTER TABLE `blogs_posts` CHANGE COLUMN `created_by` `created_by` INT(11) NULL');
+sql_query('ALTER TABLE `blogs_media` CHANGE COLUMN `created_by` `created_by` INT(11) NULL');
 
 /*
  * Since we're using 4 byte UTF8, mb4_utf8, we cannot have full sized UNIQUE index (too large).
@@ -40,16 +40,16 @@ sql_query('ALTER TABLE `blogs_key_values` CHANGE COLUMN `key`    `key`    VARCHA
 sql_query('ALTER TABLE `blogs_key_values` CHANGE COLUMN `seokey` `seokey` VARCHAR(32) NULL');
 
 /*
- * Since keywords are always updated upon each blog post update, it doesn't make much sense that it has its own "createdby", it can share it with the blog post.
+ * Since keywords are always updated upon each blog post update, it doesn't make much sense that it has its own "created_by", it can share it with the blog post.
  */
-sql_foreignkey_exists('blogs_keywords', 'fk_blogs_keywords_createdby', 'ALTER TABLE `blogs_keywords` DROP FOREIGN KEY `fk_blogs_keywords_createdby`');
-sql_index_exists     ('blogs_keywords', 'createdby'                  , 'ALTER TABLE `blogs_keywords` DROP INDEX  `createdby`');
-sql_column_exists    ('blogs_keywords', 'createdby'                  , 'ALTER TABLE `blogs_keywords` DROP COLUMN `createdby`');
+sql_foreignkey_exists('blogs_keywords', 'fk_blogs_keywords_created_by', 'ALTER TABLE `blogs_keywords` DROP FOREIGN KEY `fk_blogs_keywords_created_by`');
+sql_index_exists     ('blogs_keywords', 'created_by'                  , 'ALTER TABLE `blogs_keywords` DROP INDEX  `created_by`');
+sql_column_exists    ('blogs_keywords', 'created_by'                  , 'ALTER TABLE `blogs_keywords` DROP COLUMN `created_by`');
 
 /*
  * Add blogs_id to all these tables so its easy (more like possible) to process keyworkds, key_value store and media for entire blogs
  */
-sql_column_exists('blogs_media'     , 'blogs_id', '!ALTER TABLE `blogs_media`      ADD COLUMN `blogs_id` INT(11) NOT NULL AFTER `createdby`');
+sql_column_exists('blogs_media'     , 'blogs_id', '!ALTER TABLE `blogs_media`      ADD COLUMN `blogs_id` INT(11) NOT NULL AFTER `created_by`');
 sql_column_exists('blogs_keywords'  , 'blogs_id', '!ALTER TABLE `blogs_keywords`   ADD COLUMN `blogs_id` INT(11) NOT NULL AFTER `createdon`');
 sql_column_exists('blogs_key_values', 'blogs_id', '!ALTER TABLE `blogs_key_values` ADD COLUMN `blogs_id` INT(11) NOT NULL AFTER `createdon`');
 

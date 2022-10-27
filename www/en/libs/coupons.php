@@ -140,10 +140,10 @@ function coupons_insert($coupon) {
     try {
         $coupon = coupons_validate($coupon);
 
-        sql_query('INSERT INTO `coupons` (`createdby`, `meta_id`, `categories_id`, `code`, `seocode`, `reward`, `description`, `count`, `expires`)
-                   VALUES                (:createdby , :meta_id , :categories_id , :code , :seocode , :reward , :description , :count , :expires )',
+        sql_query('INSERT INTO `coupons` (`created_by`, `meta_id`, `categories_id`, `code`, `seocode`, `reward`, `description`, `count`, `expires`)
+                   VALUES                (:created_by , :meta_id , :categories_id , :code , :seocode , :reward , :description , :count , :expires )',
 
-                   array(':createdby'     => isset_get($_SESSION['user']['id']),
+                   array(':created_by'     => isset_get($_SESSION['user']['id']),
                          ':meta_id'       => meta_action(),
                          ':categories_id' => $coupon['categories_id'],
                          ':code'          => $coupon['code'],
@@ -297,7 +297,7 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
         } else {
             $return = sql_get('SELECT    `coupons`.`id`,
                                          `coupons`.`createdon`,
-                                         `coupons`.`createdby`,
+                                         `coupons`.`created_by`,
                                          `coupons`.`meta_id`,
                                          `coupons`.`status`,
                                          `coupons`.`categories_id`,
@@ -326,10 +326,10 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
                          FROM   `coupons_used`
 
                          WHERE  `coupons_id` = :coupons_id
-                         AND    `createdby`  = :createdby',
+                         AND    `created_by`  = :created_by',
 
                          array(':coupons_id' => $return['id'],
-                               ':createdby'  => $_SESSION['user']['id']));
+                               ':created_by'  => $_SESSION['user']['id']));
         /*
          *
          */
@@ -372,10 +372,10 @@ function coupons_use($code) {
             throw new CoreException(tr('coupon_use(): Specified coupon code ":code" is not available or does not exist', array(':code' => $code)), 'not-exists');
         }
 
-        sql_query('INSERT INTO `coupons_used` (`createdby`, `coupons_id`, `meta_id`)
-                   VALUES                     (:createdby , :coupons_id , :meta_id )',
+        sql_query('INSERT INTO `coupons_used` (`created_by`, `coupons_id`, `meta_id`)
+                   VALUES                     (:created_by , :coupons_id , :meta_id )',
 
-                   array(':createdby'  => isset_get($_SESSION['user']['id']),
+                   array(':created_by'  => isset_get($_SESSION['user']['id']),
                          ':coupons_id' => $coupon['id'],
                          ':meta_id'    => meta_action()));
 

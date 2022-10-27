@@ -260,7 +260,7 @@ function api_authenticate($api_key = null) {
         }
 
         $session_id = api_generate_key();
-        $session    = api_insert_session(array('createdby'   => $user['id'],
+        $session    = api_insert_session(array('created_by'   => $user['id'],
                                                'ip'          => $_SERVER['REMOTE_ADDR'],
                                                'sessions_id' => $session_id,
                                                'apikey'      => $api_key));
@@ -325,10 +325,10 @@ function api_start_session($session_id) {
          */
         sql_query('UPDATE `api_sessions` SET `last` = NOW() WHERE `id` = :id', array(':id' => $_SESSION['id']));
 
-        $_SESSION['user'] = user_get($_SESSION['createdby']);
+        $_SESSION['user'] = user_get($_SESSION['created_by']);
 
         if (!$_SESSION['user']) {
-            throw new CoreException(tr('api_start_session(): Session ":sessions_id" was created by users_id ":users_id" but that apparently does not exist', array(':sessions_id' => $session_id, ':users_id' => $_SESSION['createdby'])), 'not-exists');
+            throw new CoreException(tr('api_start_session(): Session ":sessions_id" was created by users_id ":users_id" but that apparently does not exist', array(':sessions_id' => $session_id, ':users_id' => $_SESSION['created_by'])), 'not-exists');
         }
 
         return $_SESSION;
@@ -351,7 +351,7 @@ function api_start_session($session_id) {
  * @version 2.7.99: Added function and documentation
  *
  * @param params $session The session params
- * @param params $session[createdby]
+ * @param params $session[created_by]
  * @param params $session[key]
  * @param params $session[ip]
  * @param params $session[apikey]
@@ -670,7 +670,7 @@ function api_get_session($sessions_id) {
     try {
         $session = sql_get('SELECT `id`,
                                    `createdon`,
-                                   `createdby`,
+                                   `created_by`,
                                    `closedon`,
                                    `last`,
                                    `ip`,
@@ -703,7 +703,7 @@ function api_get_session($sessions_id) {
  * @version 2.7.99: Added function and documentation
  *
  * @param params $session The session params
- * @param params $session[createdby]
+ * @param params $session[created_by]
  * @param params $session[key]
  * @param params $session[ip]
  * @param params $session[apikey]
@@ -711,10 +711,10 @@ function api_get_session($sessions_id) {
  */
 function api_insert_session($session) {
     try {
-        sql_query('INSERT INTO `api_sessions` (`createdby`, `sessions_id`, `ip`, `apikey`)
-                   VALUES                     (:createdby , :sessions_id , :ip , :apikey )',
+        sql_query('INSERT INTO `api_sessions` (`created_by`, `sessions_id`, `ip`, `apikey`)
+                   VALUES                     (:created_by , :sessions_id , :ip , :apikey )',
 
-                   array(':createdby'   => $session['createdby'],
+                   array(':created_by'   => $session['created_by'],
                          ':ip'          => $session['ip'],
                          ':sessions_id' => $session['sessions_id'],
                          ':apikey'      => $session['apikey']));
@@ -745,7 +745,7 @@ function api_insert_session($session) {
  */
 function api_close_all($users_id) {
     try {
-        sql_query('UPDATE `api_sessions` SET `closedon` = NOW WHERE `createdby` = :createdby AND `closedon` IS NULL', array(':createdby' => $users_id));
+        sql_query('UPDATE `api_sessions` SET `closedon` = NOW WHERE `created_by` = :created_by AND `closedon` IS NULL', array(':created_by' => $users_id));
 
     }catch(Exception $e) {
         throw new CoreException(tr('api_close_all(): Failed'), $e);

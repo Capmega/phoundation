@@ -8,19 +8,19 @@ sql_query('DROP TABLE IF EXISTS `contactus`');
 
 sql_query('CREATE TABLE `contactus` (`id`          INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                      `createdon`   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                     `createdby`   INT(11)          NULL,
+                                     `created_by`   INT(11)          NULL,
                                      `status`      VARCHAR(16)      NULL,
                                      `name`        VARCHAR(64)      NULL,
                                      `email`       VARCHAR(255)     NULL,
                                      `message`     TEXT             NULL,
 
                                      INDEX (`createdon`),
-                                     INDEX (`createdby`),
+                                     INDEX (`created_by`),
                                      INDEX (`status`),
                                      INDEX (`name`),
                                      INDEX (`email`),
 
-                                     CONSTRAINT `fk_contactus_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`  (`id`) ON DELETE CASCADE
+                                     CONSTRAINT `fk_contactus_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users`  (`id`) ON DELETE CASCADE
 
                                     ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 

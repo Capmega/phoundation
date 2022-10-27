@@ -8,7 +8,7 @@ sql_query('DROP TABLE IF EXISTS `blogs_key_value_descriptions`');
 
 sql_query('CREATE TABLE `blogs_key_value_descriptions` (`id`           INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                                         `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                                        `createdby`    INT(11)       NOT NULL,
+                                                        `created_by`    INT(11)       NOT NULL,
                                                         `blogs_id`     INT(11)       NOT NULL,
                                                         `language`     VARCHAR(2)        NULL,
                                                         `key`          VARCHAR(16)       NULL,

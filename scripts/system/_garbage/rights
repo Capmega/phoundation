@@ -102,10 +102,10 @@ switch (cli_method()) {
 
             cli_no_arguments_left();
 
-            sql_query('INSERT INTO `rights` (`createdby`, `name`, `description`)
-                       VALUES               (:createdby , :name , :description)',
+            sql_query('INSERT INTO `rights` (`created_by`, `name`, `description`)
+                       VALUES               (:created_by , :name , :description)',
 
-                       array(':createdby'   => isset_get($_SESSION['user']['id']),
+                       array(':created_by'   => isset_get($_SESSION['user']['id']),
                              ':name'        => $right['name'],
                              ':description' => $right['description']));
 

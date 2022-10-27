@@ -14,7 +14,7 @@ sql_query('DROP TABLE IF EXISTS `questionaries`');
  */
 sql_query('CREATE TABLE `questionaries` (`id`        INT(11)      NOT NULL AUTO_INCREMENT,
                                          `createdon` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                         `createdby` INT(11)          NULL,
+                                         `created_by` INT(11)          NULL,
                                          `meta_id`   INT(11)      NOT NULL,
                                          `status`    VARCHAR(16)      NULL,
                                          `name`      VARCHAR(255)     NULL,
@@ -22,11 +22,11 @@ sql_query('CREATE TABLE `questionaries` (`id`        INT(11)      NOT NULL AUTO_
                                          PRIMARY KEY `id`        (`id`),
                                                  KEY `meta_id`   (`meta_id`),
                                                  KEY `createdon` (`createdon`),
-                                                 KEY `createdby` (`createdby`),
+                                                 KEY `created_by` (`created_by`),
                                                  KEY `status`    (`status`),
 
                                          CONSTRAINT `fk_questionaries_meta_id`   FOREIGN KEY (`meta_id`)   REFERENCES `meta`       (`id`) ON DELETE RESTRICT,
-                                         CONSTRAINT `fk_questionaries_createdby` FOREIGN KEY (`createdby`) REFERENCES `users`      (`id`) ON DELETE RESTRICT
+                                         CONSTRAINT `fk_questionaries_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`      (`id`) ON DELETE RESTRICT
 
                                        ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
@@ -35,7 +35,7 @@ sql_query('CREATE TABLE `questionaries` (`id`        INT(11)      NOT NULL AUTO_
  */
 sql_query('CREATE TABLE `questionaries_questions` (`id`        INT(11)     NOT NULL AUTO_INCREMENT,
                                                    `createdon` TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                                   `createdby` INT(11)         NULL,
+                                                   `created_by` INT(11)         NULL,
                                                    `meta_id`   INT(11)     NOT NULL,
                                                    `status`    VARCHAR(16)     NULL,
                                                    `type`      ENUM("multiplechoice", "open")              NOT NULL,
@@ -45,11 +45,11 @@ sql_query('CREATE TABLE `questionaries_questions` (`id`        INT(11)     NOT N
                                                    PRIMARY KEY `id`        (`id`),
                                                            KEY `meta_id`   (`meta_id`),
                                                            KEY `createdon` (`createdon`),
-                                                           KEY `createdby` (`createdby`),
+                                                           KEY `created_by` (`created_by`),
                                                            KEY `status`    (`status`),
 
                                                    CONSTRAINT `fk_questionaries_questions_meta_id`   FOREIGN KEY (`meta_id`)   REFERENCES `meta`  (`id`) ON DELETE RESTRICT,
-                                                   CONSTRAINT `fk_questionaries_questions_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE RESTRICT
+                                                   CONSTRAINT `fk_questionaries_questions_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT
 
                                                   ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
@@ -59,7 +59,7 @@ sql_query('CREATE TABLE `questionaries_questions` (`id`        INT(11)     NOT N
  */
 sql_query('CREATE TABLE `questionaries_related_questions` (`id`               INT(11)        NOT NULL AUTO_INCREMENT,
                                                            `createdon`        TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                                           `createdby`        INT(11)            NULL,
+                                                           `created_by`        INT(11)            NULL,
                                                            `meta_id`          INT(11)        NOT NULL,
                                                            `status`           VARCHAR(16)        NULL,
                                                            `title`            VARCHAR(255)       NULL,
@@ -69,11 +69,11 @@ sql_query('CREATE TABLE `questionaries_related_questions` (`id`               IN
                                                            PRIMARY KEY `id`        (`id`),
                                                                    KEY `meta_id`   (`meta_id`),
                                                                    KEY `createdon` (`createdon`),
-                                                                   KEY `createdby` (`createdby`),
+                                                                   KEY `created_by` (`created_by`),
                                                                    KEY `status`    (`status`),
 
                                                            CONSTRAINT `fk_questionaries_related_questions_meta_id`          FOREIGN KEY (`meta_id`)          REFERENCES `meta`                    (`id`) ON DELETE RESTRICT,
-                                                           CONSTRAINT `fk_questionaries_related_questions_createdby`        FOREIGN KEY (`createdby`)        REFERENCES `users`                   (`id`) ON DELETE RESTRICT,
+                                                           CONSTRAINT `fk_questionaries_related_questions_created_by`        FOREIGN KEY (`created_by`)        REFERENCES `users`                   (`id`) ON DELETE RESTRICT,
                                                            CONSTRAINT `fk_questionaries_related_questions_questions_id`     FOREIGN KEY (`questions_id`)     REFERENCES `questionaries_questions` (`id`) ON DELETE RESTRICT,
                                                            CONSTRAINT `fk_questionaries_related_questions_questionaries_id` FOREIGN KEY (`questionaries_id`) REFERENCES `questionaries`           (`id`) ON DELETE RESTRICT
 
@@ -84,7 +84,7 @@ sql_query('CREATE TABLE `questionaries_related_questions` (`id`               IN
  */
 sql_query('CREATE TABLE `questionaries_options` (`id`           INT(11)      NOT NULL AUTO_INCREMENT,
                                                  `createdon`    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                                 `createdby`    INT(11)          NULL,
+                                                 `created_by`    INT(11)          NULL,
                                                  `meta_id`      INT(11)      NOT NULL,
                                                  `status`       VARCHAR(16)      NULL,
                                                  `title`        VARCHAR(255)     NULL,
@@ -93,11 +93,11 @@ sql_query('CREATE TABLE `questionaries_options` (`id`           INT(11)      NOT
                                                  PRIMARY KEY `id`        (`id`),
                                                          KEY `meta_id`   (`meta_id`),
                                                          KEY `createdon` (`createdon`),
-                                                         KEY `createdby` (`createdby`),
+                                                         KEY `created_by` (`created_by`),
                                                          KEY `status`    (`status`),
 
                                                  CONSTRAINT `fk_questionaries_options_meta_id`      FOREIGN KEY (`meta_id`)      REFERENCES `meta`                    (`id`) ON DELETE RESTRICT,
-                                                 CONSTRAINT `fk_questionaries_options_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`                   (`id`) ON DELETE RESTRICT,
+                                                 CONSTRAINT `fk_questionaries_options_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`                   (`id`) ON DELETE RESTRICT,
                                                  CONSTRAINT `fk_questionaries_options_questions_id` FOREIGN KEY (`questions_id`) REFERENCES `questionaries_questions` (`id`) ON DELETE RESTRICT
 
                                                 ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
@@ -107,7 +107,7 @@ sql_query('CREATE TABLE `questionaries_options` (`id`           INT(11)      NOT
  */
 sql_query('CREATE TABLE `questionaries_answers` (`id`               INT(11)      NOT NULL AUTO_INCREMENT,
                                                  `createdon`        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                                 `createdby`        INT(11)          NULL,
+                                                 `created_by`        INT(11)          NULL,
                                                  `meta_id`          INT(11)      NOT NULL,
                                                  `status`           VARCHAR(16)      NULL,
                                                  `answer`           VARCHAR(255)     NULL,
@@ -118,11 +118,11 @@ sql_query('CREATE TABLE `questionaries_answers` (`id`               INT(11)     
                                                  PRIMARY KEY `id`        (`id`),
                                                          KEY `meta_id`   (`meta_id`),
                                                          KEY `createdon` (`createdon`),
-                                                         KEY `createdby` (`createdby`),
+                                                         KEY `created_by` (`created_by`),
                                                          KEY `status`    (`status`),
 
                                                  CONSTRAINT `fk_questionaries_answers_meta_id`          FOREIGN KEY (`meta_id`)          REFERENCES `meta`                    (`id`) ON DELETE RESTRICT,
-                                                 CONSTRAINT `fk_questionaries_answers_createdby`        FOREIGN KEY (`createdby`)        REFERENCES `users`                   (`id`) ON DELETE RESTRICT,
+                                                 CONSTRAINT `fk_questionaries_answers_created_by`        FOREIGN KEY (`created_by`)        REFERENCES `users`                   (`id`) ON DELETE RESTRICT,
                                                  CONSTRAINT `fk_questionaries_answers_options_id`       FOREIGN KEY (`options_id`)       REFERENCES `questionaries_options`   (`id`) ON DELETE RESTRICT,
                                                  CONSTRAINT `fk_questionaries_answers_questions_id`     FOREIGN KEY (`questions_id`)     REFERENCES `questionaries_questions` (`id`) ON DELETE RESTRICT,
                                                  CONSTRAINT `fk_questionaries_answers_questionaries_id` FOREIGN KEY (`questionaries_id`) REFERENCES `questionaries`           (`id`) ON DELETE RESTRICT

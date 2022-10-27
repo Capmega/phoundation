@@ -217,7 +217,7 @@ function progress_get_process($process, $column = null, $status = null) {
         } else {
             $process = sql_get('SELECT    `progress_processes`.`id`,
                                           `progress_processes`.`createdon`,
-                                          `progress_processes`.`createdby`,
+                                          `progress_processes`.`created_by`,
                                           `progress_processes`.`meta_id`,
                                           `progress_processes`.`status`,
                                           `progress_processes`.`categories_id`,
@@ -293,7 +293,7 @@ function progress_get_step($processes_id, $step, $column = null, $status = null)
         } else {
             $process = sql_get('SELECT `id`,
                                        `createdon`,
-                                       `createdby`,
+                                       `created_by`,
                                        `meta_id`,
                                        `status`,
                                        `url`,
@@ -365,7 +365,7 @@ function progress_get_steps($processes_id, $columns = null, $status = null) {
                            FROM      `progress_steps`
 
                            LEFT JOIN `users`
-                           ON        `users`.`id` = `progress_steps`.`createdby`
+                           ON        `users`.`id` = `progress_steps`.`created_by`
 
                            '.$where.'
 
@@ -399,13 +399,13 @@ function progress_get_steps($processes_id, $columns = null, $status = null) {
  */
 function progress_update_steps($processes_id, $steps) {
     try {
-        $insert = sql_prepare('INSERT INTO `progress_steps` (`createdby`, `meta_id`, `processes_id`, `parents_id`, `name`, `seoname`, `url`, `description`)
-                               VALUES                       (:createdby , :meta_id , :processes_id , :parents_id , :name , :seoname , :url , :description )');
+        $insert = sql_prepare('INSERT INTO `progress_steps` (`created_by`, `meta_id`, `processes_id`, `parents_id`, `name`, `seoname`, `url`, `description`)
+                               VALUES                       (:created_by , :meta_id , :processes_id , :parents_id , :name , :seoname , :url , :description )');
 
         sql_query('DELETE FROM `progress_steps`WHERE `processes_id` = :processes_id', array(':processes_id' => $processes_id));
 
         foreach ($steps as $id => $step) {
-            $insert ->execute(array(':createdby'    => isset_get($_SESSION['user']['id']),
+            $insert ->execute(array(':created_by'    => isset_get($_SESSION['user']['id']),
                                     ':meta_id'      => meta_action(),
                                     ':processes_id' => $processes_id,
                                     ':parents_id'   => isset_get($prev_id),

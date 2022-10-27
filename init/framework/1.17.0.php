@@ -20,7 +20,7 @@ sql_query('DROP TABLE IF EXISTS `companies`');
 
 sql_query('CREATE TABLE `companies` (`id`            INT(11)       NOT NULL AUTO_INCREMENT,
                                      `createdon`     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                     `createdby`     INT(11)           NULL DEFAULT NULL,
+                                     `created_by`     INT(11)           NULL DEFAULT NULL,
                                      `meta_id`       INT(11)       NOT NULL,
                                      `status`        VARCHAR(16)       NULL DEFAULT NULL,
                                      `categories_id` INT(11)           NULL DEFAULT NULL,
@@ -32,14 +32,14 @@ sql_query('CREATE TABLE `companies` (`id`            INT(11)       NOT NULL AUTO
                                              KEY `meta_id`         (`meta_id`),
                                              KEY `categories_id`   (`categories_id`),
                                              KEY `createdon`       (`createdon`),
-                                             KEY `createdby`       (`createdby`),
+                                             KEY `created_by`       (`created_by`),
                                              KEY `status`          (`status`),
                                      UNIQUE  KEY `seoname`         (`seoname`),
                                      UNIQUE  KEY `categories_name` (`categories_id`, `name`),
 
                                      CONSTRAINT `fk_companies_meta_id`       FOREIGN KEY (`meta_id`)       REFERENCES `meta`       (`id`) ON DELETE RESTRICT,
                                      CONSTRAINT `fk_companies_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT,
-                                     CONSTRAINT `fk_companies_createdby`     FOREIGN KEY (`createdby`)     REFERENCES `users`      (`id`) ON DELETE RESTRICT
+                                     CONSTRAINT `fk_companies_created_by`     FOREIGN KEY (`created_by`)     REFERENCES `users`      (`id`) ON DELETE RESTRICT
 
                                     ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
@@ -47,7 +47,7 @@ sql_query('CREATE TABLE `companies` (`id`            INT(11)       NOT NULL AUTO
 
 sql_query('CREATE TABLE `branches` (`id`           INT(11)       NOT NULL AUTO_INCREMENT,
                                     `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                    `createdby`    INT(11)           NULL DEFAULT NULL,
+                                    `created_by`    INT(11)           NULL DEFAULT NULL,
                                     `meta_id`      INT(11)       NOT NULL,
                                     `status`       VARCHAR(16)       NULL DEFAULT NULL,
                                     `companies_id` INT(11)       NOT NULL,
@@ -59,14 +59,14 @@ sql_query('CREATE TABLE `branches` (`id`           INT(11)       NOT NULL AUTO_I
                                             KEY `meta_id`      (`meta_id`),
                                             KEY `companies_id` (`companies_id`),
                                             KEY `createdon`    (`createdon`),
-                                            KEY `createdby`    (`createdby`),
+                                            KEY `created_by`    (`created_by`),
                                             KEY `status`       (`status`),
                                     UNIQUE  KEY `seoname`      (`seoname`),
                                     UNIQUE  KEY `company_name` (`companies_id`, `name`),
 
                                     CONSTRAINT `fk_branches_meta_id`      FOREIGN KEY (`meta_id`)      REFERENCES `meta`      (`id`) ON DELETE RESTRICT,
                                     CONSTRAINT `fk_branches_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `companies` (`id`) ON DELETE RESTRICT,
-                                    CONSTRAINT `fk_branches_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT
+                                    CONSTRAINT `fk_branches_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT
 
                                    ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
@@ -74,7 +74,7 @@ sql_query('CREATE TABLE `branches` (`id`           INT(11)       NOT NULL AUTO_I
 
 sql_query('CREATE TABLE `departments` (`id`           INT(11)       NOT NULL AUTO_INCREMENT,
                                        `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                       `createdby`    INT(11)           NULL DEFAULT NULL,
+                                       `created_by`    INT(11)           NULL DEFAULT NULL,
                                        `meta_id`      INT(11)       NOT NULL,
                                        `status`       VARCHAR(16)       NULL DEFAULT NULL,
                                        `companies_id` INT(11)       NOT NULL,
@@ -87,7 +87,7 @@ sql_query('CREATE TABLE `departments` (`id`           INT(11)       NOT NULL AUT
                                                KEY `meta_id`             (`meta_id`),
                                                KEY `companies_id`        (`companies_id`),
                                                KEY `createdon`           (`createdon`),
-                                               KEY `createdby`           (`createdby`),
+                                               KEY `created_by`           (`created_by`),
                                                KEY `status`              (`status`),
                                        UNIQUE  KEY `seoname`             (`seoname`),
                                        UNIQUE  KEY `company_branch_name` (`companies_id`, `branches_id`, `name`),
@@ -95,7 +95,7 @@ sql_query('CREATE TABLE `departments` (`id`           INT(11)       NOT NULL AUT
                                        CONSTRAINT `fk_departments_meta_id`      FOREIGN KEY (`meta_id`)      REFERENCES `meta`      (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_departments_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `companies` (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_departments_branches_id`  FOREIGN KEY (`branches_id`)  REFERENCES `branches`  (`id`) ON DELETE RESTRICT,
-                                       CONSTRAINT `fk_departments_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT
+                                       CONSTRAINT `fk_departments_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT
 
                                       ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
@@ -103,7 +103,7 @@ sql_query('CREATE TABLE `departments` (`id`           INT(11)       NOT NULL AUT
 
 sql_query('CREATE TABLE `employees` (`id`             INT(11)       NOT NULL AUTO_INCREMENT,
                                      `createdon`      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                     `createdby`      INT(11)           NULL DEFAULT NULL,
+                                     `created_by`      INT(11)           NULL DEFAULT NULL,
                                      `meta_id`        INT(11)       NOT NULL,
                                      `status`         VARCHAR(16)       NULL DEFAULT NULL,
                                      `companies_id`   INT(11)       NOT NULL,
@@ -120,7 +120,7 @@ sql_query('CREATE TABLE `employees` (`id`             INT(11)       NOT NULL AUT
                                              KEY `branches_id`    (`branches_id`),
                                              KEY `departments_id` (`departments_id`),
                                              KEY `createdon`      (`createdon`),
-                                             KEY `createdby`      (`createdby`),
+                                             KEY `created_by`      (`created_by`),
                                              KEY `status`         (`status`),
                                      UNIQUE  KEY `seoname`        (`seoname`),
 
@@ -128,7 +128,7 @@ sql_query('CREATE TABLE `employees` (`id`             INT(11)       NOT NULL AUT
                                      CONSTRAINT `fk_employees_companies_id`   FOREIGN KEY (`companies_id`)   REFERENCES `companies`   (`id`) ON DELETE RESTRICT,
                                      CONSTRAINT `fk_employees_branches_id`    FOREIGN KEY (`branches_id`)    REFERENCES `branches`    (`id`) ON DELETE RESTRICT,
                                      CONSTRAINT `fk_employees_departments_id` FOREIGN KEY (`departments_id`) REFERENCES `departments` (`id`) ON DELETE RESTRICT,
-                                     CONSTRAINT `fk_employees_createdby`      FOREIGN KEY (`createdby`)      REFERENCES `users`       (`id`) ON DELETE RESTRICT
+                                     CONSTRAINT `fk_employees_created_by`      FOREIGN KEY (`created_by`)      REFERENCES `users`       (`id`) ON DELETE RESTRICT
 
                                     ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
@@ -136,7 +136,7 @@ sql_query('CREATE TABLE `employees` (`id`             INT(11)       NOT NULL AUT
 
 sql_query('CREATE TABLE `inventories_items` (`id`            INT(11)       NOT NULL AUTO_INCREMENT,
                                              `createdon`     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                             `createdby`     INT(11)           NULL DEFAULT NULL,
+                                             `created_by`     INT(11)           NULL DEFAULT NULL,
                                              `meta_id`       INT(11)       NOT NULL,
                                              `categories_id` INT(11)           NULL DEFAULT NULL,
                                              `providers_id`  INT(11)           NULL DEFAULT NULL,
@@ -154,7 +154,7 @@ sql_query('CREATE TABLE `inventories_items` (`id`            INT(11)       NOT N
                                                       KEY `categories_id` (`categories_id`),
                                                       KEY `providers_id`  (`providers_id`),
                                                       KEY `createdon`     (`createdon`),
-                                                      KEY `createdby`     (`createdby`),
+                                                      KEY `created_by`     (`created_by`),
                                                       KEY `status`        (`status`),
                                                       KEY `brand`         (`brand`),
                                                       KEY `model`         (`model`),
@@ -165,7 +165,7 @@ sql_query('CREATE TABLE `inventories_items` (`id`            INT(11)       NOT N
                                              CONSTRAINT `fk_inventories_items_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories`        (`id`) ON DELETE RESTRICT,
                                              CONSTRAINT `fk_inventories_items_providers_id`  FOREIGN KEY (`providers_id`)  REFERENCES `providers`         (`id`) ON DELETE RESTRICT,
                                              CONSTRAINT `fk_inventories_items_documents_id`  FOREIGN KEY (`documents_id`)  REFERENCES `storage_documents` (`id`) ON DELETE RESTRICT,
-                                             CONSTRAINT `fk_inventories_items_createdby`     FOREIGN KEY (`createdby`)     REFERENCES `users`             (`id`) ON DELETE RESTRICT
+                                             CONSTRAINT `fk_inventories_items_created_by`     FOREIGN KEY (`created_by`)     REFERENCES `users`             (`id`) ON DELETE RESTRICT
 
                                             ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
@@ -173,7 +173,7 @@ sql_query('CREATE TABLE `inventories_items` (`id`            INT(11)       NOT N
 
 sql_query('CREATE TABLE `inventories` (`id`             INT(11)       NOT NULL AUTO_INCREMENT,
                                        `createdon`      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                       `createdby`      INT(11)           NULL DEFAULT NULL,
+                                       `created_by`      INT(11)           NULL DEFAULT NULL,
                                        `meta_id`        INT(11)       NOT NULL,
                                        `status`         VARCHAR(16)       NULL DEFAULT NULL,
                                        `companies_id`   INT(11)       NOT NULL,
@@ -198,7 +198,7 @@ sql_query('CREATE TABLE `inventories` (`id`             INT(11)       NOT NULL A
                                                KEY `customers_id`   (`customers_id`),
                                                KEY `projects_id`    (`projects_id`),
                                                KEY `createdon`      (`createdon`),
-                                               KEY `createdby`      (`createdby`),
+                                               KEY `created_by`      (`created_by`),
                                                KEY `status`         (`status`),
                                        UNIQUE  KEY `companies_code` (`companies_id`, `code`),
 
@@ -211,11 +211,11 @@ sql_query('CREATE TABLE `inventories` (`id`             INT(11)       NOT NULL A
                                        CONSTRAINT `fk_inventories_items_id`       FOREIGN KEY (`items_id`)       REFERENCES `inventories_items` (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_inventories_customers_id`   FOREIGN KEY (`customers_id`)   REFERENCES `customers`         (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_inventories_projects_id`    FOREIGN KEY (`projects_id`)    REFERENCES `projects`          (`id`) ON DELETE RESTRICT,
-                                       CONSTRAINT `fk_inventories_createdby`      FOREIGN KEY (`createdby`)      REFERENCES `users`             (`id`) ON DELETE RESTRICT
+                                       CONSTRAINT `fk_inventories_created_by`      FOREIGN KEY (`created_by`)      REFERENCES `users`             (`id`) ON DELETE RESTRICT
 
                                       ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
-sql_column_exists    ('providers', 'meta_id'             , '!ALTER TABLE `providers` ADD COLUMN     `meta_id` INT(11) NULL DEFAULT NULL AFTER `createdby`');
+sql_column_exists    ('providers', 'meta_id'             , '!ALTER TABLE `providers` ADD COLUMN     `meta_id` INT(11) NULL DEFAULT NULL AFTER `created_by`');
 sql_index_exists     ('providers', 'meta_id'             , '!ALTER TABLE `providers` ADD KEY        `meta_id` (`meta_id`)');
 sql_foreignkey_exists('providers', 'fk_providers_meta_id', '!ALTER TABLE `providers` ADD CONSTRAINT `fk_providers_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT;');
 

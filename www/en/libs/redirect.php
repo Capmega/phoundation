@@ -39,10 +39,10 @@ function redirect_add_code($url, $code = null) {
             $code = uniqid('', true);
         }
 
-        sql_query('INSERT INTO `redirects` (`createdby`, `ip`, `code`, `url`)
-                   VALUES                  (:createdby , :ip , :code , :url )',
+        sql_query('INSERT INTO `redirects` (`created_by`, `ip`, `code`, `url`)
+                   VALUES                  (:created_by , :ip , :code , :url )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':ip'        => $_SERVER['REMOTE_ADDR'],
                          ':code'      => $code,
                          ':url'       => $url));

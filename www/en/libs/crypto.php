@@ -507,10 +507,10 @@ function crypto_get_deposit_address($currency, $callback_url = null, $force = fa
                 break;
         }
 
-        sql_query('INSERT INTO `crypto_addresses` (`createdby`, `users_id`, `currency`, `provider`, `address`)
-                   VALUES                         (:createdby , :users_id , :currency , :provider , :address )',
+        sql_query('INSERT INTO `crypto_addresses` (`created_by`, `users_id`, `currency`, `provider`, `address`)
+                   VALUES                         (:created_by , :users_id , :currency , :provider , :address )',
 
-                   array(':createdby' => $_SESSION['user']['id'],
+                   array(':created_by' => $_SESSION['user']['id'],
                          ':users_id'  => $_SESSION['user']['id'],
                          ':currency'  => $currency,
                          ':provider'  => $_CONFIG['crypto']['backend'],

@@ -21,7 +21,7 @@ $execute   = array();
  * Process filters
  */
 if (!empty($_GET['user'])) {
-    $where[]              = ' `log`.`createdby` = :users_id ';
+    $where[]              = ' `log`.`created_by` = :users_id ';
     $execute[':users_id'] = cfi($_GET['user']);
 }
 
@@ -49,7 +49,7 @@ $query  = 'SELECT    `log`.`createdon`,
            FROM      `log`
 
            LEFT JOIN `users`
-           ON        `users`.`id` = `log`.`createdby` '.
+           ON        `users`.`id` = `log`.`created_by` '.
 
            isset_get($where, '').
 

@@ -159,12 +159,12 @@ $query   = 'SELECT    `rights`.`id`,
                       `rights`.`name`,
                       `rights`.`description`,
                       `rights`.`createdon`,
-                      `users`.`name` AS `createdby`
+                      `users`.`name` AS `created_by`
 
             FROM      `rights`
 
             LEFT JOIN `users`
-            ON        `users`.`id`   = `rights`.`createdby`';
+            ON        `users`.`id`   = `rights`.`created_by`';
 
 if (!empty($_GET['right'])) {
     $query  .= ' AND `rights`.`name` = :right';
@@ -264,7 +264,7 @@ if (!$r->rowCount()) {
         $html .= '  <tr>
                         <td class="select"><input type="checkbox" name="id[]" value="'.$right['id'].'"></td>
                         <td>'.$a.$right['name'].'</a></td>
-                        <td>'.$a.$right['createdby'].'</a></td>
+                        <td>'.$a.$right['created_by'].'</a></td>
                         <td>'.$a.$right['createdon'].'</a></td>
                         <td>'.$a.$right['description'].'</a></td>
                     </tr>';

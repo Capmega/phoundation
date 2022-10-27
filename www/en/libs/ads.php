@@ -184,10 +184,10 @@ function ads_campaign_get($campaign = null, $columns = null) {
              * Is there already a post available for this user?
              * If so, use that one
              */
-            sql_query('INSERT INTO `ads_campaigns` (`status`, `createdby`)
-                       VALUES                      ("_new"  , :createdby )',
+            sql_query('INSERT INTO `ads_campaigns` (`status`, `created_by`)
+                       VALUES                      ("_new"  , :created_by )',
 
-                       array(':createdby' => isset_get($_SESSION['user']['id'])));
+                       array(':created_by' => isset_get($_SESSION['user']['id'])));
 
             $campaign = sql_insert_id();
 
@@ -199,7 +199,7 @@ function ads_campaign_get($campaign = null, $columns = null) {
              */
             $columns = '`ads_campaigns`.`id`,
                         `ads_campaigns`.`createdon`,
-                        `ads_campaigns`.`createdby`,
+                        `ads_campaigns`.`created_by`,
                         `ads_campaigns`.`modifiedon`,
                         `ads_campaigns`.`modifiedby`,
                         `ads_campaigns`.`status`,
@@ -212,8 +212,8 @@ function ads_campaign_get($campaign = null, $columns = null) {
                         `ads_campaigns`.`class`,
                         `ads_campaigns`.`animation`,
 
-                        `createdby`.`name`   AS `createdby_name`,
-                        `createdby`.`email`  AS `createdby_email`,
+                        `created_by`.`name`   AS `created_by_name`,
+                        `created_by`.`email`  AS `created_by_email`,
                         `modifiedby`.`name`  AS `modifiedby_name`,
                         `modifiedby`.`email` AS `modifiedby_email`';
         }
@@ -231,14 +231,14 @@ function ads_campaign_get($campaign = null, $columns = null) {
 
                             FROM      `ads_campaigns`
 
-                            LEFT JOIN `users` AS `createdby`
-                            ON        `ads_campaigns`.`createdby`  = `createdby`.`id`
+                            LEFT JOIN `users` AS `created_by`
+                            ON        `ads_campaigns`.`created_by`  = `created_by`.`id`
 
                             LEFT JOIN `users` AS `modifiedby`
                             ON        `ads_campaigns`.`modifiedby` = `modifiedby`.`id`
 
                             LEFT JOIN `users`
-                            ON        `users`.`id` = `ads_campaigns`.`createdby`'.$where, $execute);
+                            ON        `users`.`id` = `ads_campaigns`.`created_by`'.$where, $execute);
 
         return $return;
 
@@ -268,13 +268,13 @@ function ads_image_get($image) {
                                      `ads_images`.`description`,
                                      `ads_images`.`clusters_id`,
 
-                                     `createdby`.`name`  AS `createdby_name`,
-                                     `createdby`.`email` AS `createdby_email`
+                                     `created_by`.`name`  AS `created_by_name`,
+                                     `created_by`.`email` AS `created_by_email`
 
                            FROM      `ads_images`
 
-                           LEFT JOIN `users` AS `createdby`
-                           ON        `ads_images`.`createdby`  = `createdby`.`id`
+                           LEFT JOIN `users` AS `created_by`
+                           ON        `ads_images`.`created_by`  = `created_by`.`id`
 
                            WHERE     `ads_images`.`id`   = :image
                            OR        `ads_images`.`file` = :image',
@@ -332,7 +332,7 @@ function ads_image_process($ad, $file, $original = null) {
         }
 
         $campaign = sql_get('SELECT `ads_campaigns`.`id`,
-                                    `ads_campaigns`.`createdby`
+                                    `ads_campaigns`.`created_by`
 
                              FROM   `ads_campaigns`
 
@@ -342,7 +342,7 @@ function ads_image_process($ad, $file, $original = null) {
             throw new CoreException(tr('ads_image_process(): Unknown ad campaign ":campaign" specified', array(':campaign' => $ad['campaign'])), 'unknown');
         }
 
-        if ((PLATFORM_HTTP) and ($campaign['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+        if ((PLATFORM_HTTP) and ($campaign['created_by'] != $_SESSION['user']['id']) and !has_rights('god')) {
             throw new CoreException('ads_image_process(): Cannot upload images, this campaign is not yours', 'access-denied');
         }
 
@@ -372,10 +372,10 @@ function ads_image_process($ad, $file, $original = null) {
         /*
          * Store blog post photo in database
          */
-        $res  = sql_query('INSERT INTO `ads_images` (`createdby`, `campaigns_id`, `file`, `platform`, `priority`)
-                           VALUES                   (:createdby , :campaigns_id , :file , :platform , :priority )',
+        $res  = sql_query('INSERT INTO `ads_images` (`created_by`, `campaigns_id`, `file`, `platform`, `priority`)
+                           VALUES                   (:created_by , :campaigns_id , :file , :platform , :priority )',
 
-                          array(':createdby'      => isset_get($_SESSION['user']['id']),
+                          array(':created_by'      => isset_get($_SESSION['user']['id']),
                                 ':campaigns_id'   => $campaign['id'],
                                 ':file'           => $media,
                                 ':platform'       => $ad['platform'],
@@ -411,7 +411,7 @@ function ads_update_image_description($user, $image_id, $description) {
         }
 
         $image = sql_get('SELECT `ads_images`.`id`,
-                                 `ads_images`.`createdby`
+                                 `ads_images`.`created_by`
 
                           FROM   `ads_images`
 
@@ -424,7 +424,7 @@ function ads_update_image_description($user, $image_id, $description) {
             throw new CoreException('ads_update_image_description(): Unknown image specified', 'unknown');
         }
 
-        if (($image['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+        if (($image['created_by'] != $_SESSION['user']['id']) and !has_rights('god')) {
             throw new CoreException('ads_update_image_description(): Cannot upload images, this campaign is not yours', 'access-denied');
         }
 
@@ -454,7 +454,7 @@ function ads_update_image_cluster($user, $cluster, $image) {
         }
 
         $clusters = sql_get('SELECT `forwarder_clusters`.`id`,
-                                    `forwarder_clusters`.`createdby`
+                                    `forwarder_clusters`.`created_by`
 
                              FROM   `forwarder_clusters`
 
@@ -464,7 +464,7 @@ function ads_update_image_cluster($user, $cluster, $image) {
             throw new CoreException('ads_update_image_cluster(): Unknown cluster specified', 'unknown');
         }
 
-        if (($clusters['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+        if (($clusters['created_by'] != $_SESSION['user']['id']) and !has_rights('god')) {
             throw new CoreException('ads_update_image_cluster(): Cannot upload images, this cluster is not yours', 'access-denied');
         }
 
@@ -796,15 +796,15 @@ function ads_insert_view($campaigns_id, $images_list, $userdata) {
             throw new CoreException('ads_insert_view(): No userdata specified', 'not-specified');
         }
 
-        $insert = sql_prepare('INSERT INTO `ads_views` (`createdby`, `campaigns_id`, `images_id`, `ip`, `platform`, `reverse_host`, `latitude`, `longitude`, `referrer`, `user_agent`, `browser`)
-                               VALUES                  (:createdby , :campaigns_id , :images_id , :ip , :platform , :reverse_host , :latitude , :longitude , :referrer , :user_agent , :browser )');
+        $insert = sql_prepare('INSERT INTO `ads_views` (`created_by`, `campaigns_id`, `images_id`, `ip`, `platform`, `reverse_host`, `latitude`, `longitude`, `referrer`, `user_agent`, `browser`)
+                               VALUES                  (:created_by , :campaigns_id , :images_id , :ip , :platform , :reverse_host , :latitude , :longitude , :referrer , :user_agent , :browser )');
 
         foreach ($images_list as $images_id) {
             if (!is_numeric($images_id)) {
                 throw new CoreException(tr('ads_insert_view(): Specified image ":image" is not numeric', array(':image' => $images_id)), 'invalid');
             }
 
-            $insert->execute(array(':createdby'    => isset_get($_SESSION['user']['id']),
+            $insert->execute(array(':created_by'    => isset_get($_SESSION['user']['id']),
                                    ':campaigns_id' => $campaigns_id,
                                    ':images_id'    => $images_id,
                                    ':ip'           => $userdata['ip'],

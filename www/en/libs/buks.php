@@ -86,10 +86,10 @@ function buks_add_key($section, $password, $users_id, $existing_password = null,
 
         $key = openssl_simple_encrypt($key, $password);
 
-        sql_query('INSERT INTO `buks` (`createdby`, `users_id`, `section`, `key`)
-                   VALUES             (:createdby , :users_id , :section , :key )',
+        sql_query('INSERT INTO `buks` (`created_by`, `users_id`, `section`, `key`)
+                   VALUES             (:created_by , :users_id , :section , :key )',
 
-                   array(':createdby'   => isset_get($_SESSION['user']['id']),
+                   array(':created_by'   => isset_get($_SESSION['user']['id']),
                          ':users_id'    => $users_id,
                          ':section'     => $section,
                          ':key'         => $key));

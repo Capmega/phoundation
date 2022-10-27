@@ -31,10 +31,10 @@ try {
                     $blog['keywords']    = blogs_clean_keywords($blog['keywords']);
                     $blog['seokeywords'] = blogs_seo_keywords($blog['keywords']);
 
-                    sql_query('INSERT INTO `blogs` (`createdby`, `name`, `seoname`, `slogan`, `url_template`, `thumbs_x`, `thumbs_y`, `medium_x`, `medium_y`, `images_x`, `images_y`, `keywords`, `seokeywords`, `description`)
-                               VALUES              (:createdby , :name , :seoname , :slogan , :url_template , :thumbs_x , :thumbs_y , :medium_x , :medium_y , :images_x , :images_y , :keywords , :seokeywords , :description )',
+                    sql_query('INSERT INTO `blogs` (`created_by`, `name`, `seoname`, `slogan`, `url_template`, `thumbs_x`, `thumbs_y`, `medium_x`, `medium_y`, `images_x`, `images_y`, `keywords`, `seokeywords`, `description`)
+                               VALUES              (:created_by , :name , :seoname , :slogan , :url_template , :thumbs_x , :thumbs_y , :medium_x , :medium_y , :images_x , :images_y , :keywords , :seokeywords , :description )',
 
-                               array(':createdby'   => $_SESSION['user']['id'],
+                               array(':created_by'   => $_SESSION['user']['id'],
                                      ':name'        => $blog['name'],
                                      ':seoname'     => $blog['seoname'],
                                      ':url_template'=> $blog['url_template'],
@@ -85,7 +85,7 @@ try {
                     throw new CoreException(tr('The specified blogs id "'.Strings::Log($blog['id']).'" does not exist'), 'notexists');
                 }
 
-                if (($dbblog['createdby'] != $_SESSION['user']['id']) and !has_rights('admin')) {
+                if (($dbblog['created_by'] != $_SESSION['user']['id']) and !has_rights('admin')) {
                     /*
                      * This blog is not from this user and this user is also not an admin!
                      */

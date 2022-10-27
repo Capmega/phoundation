@@ -63,14 +63,14 @@ function storage_documents_get($section, $document = null, $auto_create = false,
                 if ($status === false) {
                     $where   = ' WHERE `sections_id` = :sections_id
                                  AND   `status`      = "_new"
-                                 AND   `createdby`   IS NULL LIMIT 1';
+                                 AND   `created_by`   IS NULL LIMIT 1';
 
                     $execute = array(':sections_id' => $section['id']);
 
                 } else {
                     $where   = ' WHERE `sections_id` = :sections_id
                                  AND   `status`      = "_new"
-                                 AND   `createdby`   IS NULL LIMIT 1';
+                                 AND   `created_by`   IS NULL LIMIT 1';
 
                     $execute = array(':status'      => $status,
                                      ':sections_id' => $section['id']);
@@ -80,19 +80,19 @@ function storage_documents_get($section, $document = null, $auto_create = false,
                 if ($status === false) {
                     $where   = ' WHERE `sections_id` = :sections_id
                                  AND   `status`      = "_new"
-                                 AND   `createdby`   = :createdby LIMIT 1';
+                                 AND   `created_by`   = :created_by LIMIT 1';
 
                     $execute = array(':sections_id' => $section['id'],
-                                     ':createdby'   => $_SESSION['user']['id']);
+                                     ':created_by'   => $_SESSION['user']['id']);
 
                 } else {
                     $where   = ' WHERE `sections_id` = :sections_id
                                  AND   `status`      = "_new"
-                                 AND   `createdby`   = :createdby LIMIT 1';
+                                 AND   `created_by`   = :created_by LIMIT 1';
 
                     $execute = array(':status'      => $status,
                                      ':sections_id' => $section['id'],
-                                     ':createdby'   => $_SESSION['user']['id']);
+                                     ':created_by'   => $_SESSION['user']['id']);
                 }
             }
 
@@ -134,7 +134,7 @@ function storage_documents_get($section, $document = null, $auto_create = false,
         } else {
             $document = sql_get('SELECT `id`,
                                         `meta_id`,
-                                        `createdby`,
+                                        `created_by`,
                                         `sections_id`,
                                         `masters_id`,
                                         `parents_id`,
@@ -256,12 +256,12 @@ function storage_documents_add($document, $section = null) {
             $document['id'] = sql_random_id('storage_documents');
         }
 
-        sql_query('INSERT INTO `storage_documents` (`id`, `createdby`, `meta_id`, `status`, `sections_id`, `masters_id`, `parents_id`, `rights_id`, `assigned_to_id`, `customers_id`, `providers_id`, `featured_until`, `category1`, `category2`, `category3`, `upvotes`, `downvotes`, `priority`, `level`, `views`, `rating`, `comments`)
-                   VALUES                          (:id , :createdby , :meta_id , :status , :sections_id , :masters_id , :parents_id , :rights_id , :assigned_to_id , :customers_id , :providers_id , :featured_until , :category1 , :category2 , :category3 , :upvotes , :downvotes , :priority , :level , :views , :rating , :comments )',
+        sql_query('INSERT INTO `storage_documents` (`id`, `created_by`, `meta_id`, `status`, `sections_id`, `masters_id`, `parents_id`, `rights_id`, `assigned_to_id`, `customers_id`, `providers_id`, `featured_until`, `category1`, `category2`, `category3`, `upvotes`, `downvotes`, `priority`, `level`, `views`, `rating`, `comments`)
+                   VALUES                          (:id , :created_by , :meta_id , :status , :sections_id , :masters_id , :parents_id , :rights_id , :assigned_to_id , :customers_id , :providers_id , :featured_until , :category1 , :category2 , :category3 , :upvotes , :downvotes , :priority , :level , :views , :rating , :comments )',
 
                    array(':id'             => $document['id'],
                          ':meta_id'        => meta_action(),
-                         ':createdby'      => $_SESSION['user']['id'],
+                         ':created_by'      => $_SESSION['user']['id'],
                          ':status'         => $document['status'],
                          ':sections_id'    => $document['sections_id'],
                          ':masters_id'     => $document['masters_id'],

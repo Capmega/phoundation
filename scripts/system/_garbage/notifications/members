@@ -57,10 +57,10 @@ try {
                     throw new CoreException(tr('User "%user%" is already a member of the notifications class "%class%"', array('%user%' => $data['user'], '%class%' => $data['class'])), 'alreadyexists');
                 }
 
-                sql_query('INSERT INTO `notifications_members` (`createdby`, `classes_id`, `users_id`)
-                           VALUES                              (:createdby , :classes_id , :users_id)',
+                sql_query('INSERT INTO `notifications_members` (`created_by`, `classes_id`, `users_id`)
+                           VALUES                              (:created_by , :classes_id , :users_id)',
 
-                           array(':createdby'  => isset_get($_SESSION['user']['id']),
+                           array(':created_by'  => isset_get($_SESSION['user']['id']),
                                  ':classes_id' => $data['classes_id'],
                                  ':users_id'   => $data['users_id']));
 

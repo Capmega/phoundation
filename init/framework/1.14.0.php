@@ -6,7 +6,7 @@ sql_query('DROP TABLE IF EXISTS `servers_ssh_proxies`');
 
 sql_query('CREATE TABLE `servers_ssh_proxies` (`id`         INT(11)     NOT NULL AUTO_INCREMENT,
                                                `createdon`  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                               `createdby`  INT(11)         NULL,
+                                               `created_by`  INT(11)         NULL,
                                                `meta_id`    INT(11)         NULL,
                                                `status`     VARCHAR(16)     NULL,
                                                `servers_id` INT(11)     NOT NULL,
@@ -21,7 +21,7 @@ sql_query('CREATE TABLE `servers_ssh_proxies` (`id`         INT(11)     NOT NULL
                                                CONSTRAINT `fk_servers_ssh_proxies_meta_id`    FOREIGN KEY (`meta_id`)    REFERENCES `meta`    (`id`) ON DELETE RESTRICT,
                                                CONSTRAINT `fk_servers_ssh_proxies_servers_id` FOREIGN KEY (`servers_id`) REFERENCES `servers` (`id`) ON DELETE RESTRICT,
                                                CONSTRAINT `fk_servers_ssh_proxies_proxies_id` FOREIGN KEY (`proxies_id`) REFERENCES `servers` (`id`) ON DELETE RESTRICT,
-                                               CONSTRAINT `fk_servers_ssh_proxies_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`   (`id`) ON DELETE RESTRICT
+                                               CONSTRAINT `fk_servers_ssh_proxies_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users`   (`id`) ON DELETE RESTRICT
 
                                              ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 

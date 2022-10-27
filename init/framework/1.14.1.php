@@ -11,7 +11,7 @@ if (sql_table_exists('forwards')) {
     sql_query('RENAME TABLE `forwards` TO `forwardings`');
 }
 
-sql_column_exists('forwardings', 'meta_id', '!ALTER TABLE `forwardings` ADD COLUMN `meta_id` INT(11) NULL AFTER `createdby`');
+sql_column_exists('forwardings', 'meta_id', '!ALTER TABLE `forwardings` ADD COLUMN `meta_id` INT(11) NULL AFTER `created_by`');
 sql_index_exists ('forwardings', 'meta_id', '!ALTER TABLE `forwardings` ADD KEY    `meta_id` (`meta_id`)');
 sql_foreignkey_exists('forwardings', 'fk_forwardings_meta_id', '!ALTER TABLE `forwardings` ADD CONSTRAINT `fk_forwardings_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE;');
 

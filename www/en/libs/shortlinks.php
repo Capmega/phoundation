@@ -125,10 +125,10 @@ function shortlink_create($link) {
          */
         $link['code'] = shortlink_get_code();
 
-        sql_query('INSERT INTO `shortlinks` (`createdby`, `meta_id`, `name`, `seoname`, `code`, `url`, `description`)
-                   VALUES                   (:createdby , :meta_id , :name , :seoname , :code , :url ,  description )',
+        sql_query('INSERT INTO `shortlinks` (`created_by`, `meta_id`, `name`, `seoname`, `code`, `url`, `description`)
+                   VALUES                   (:created_by , :meta_id , :name , :seoname , :code , :url ,  description )',
 
-                   array(':createdby'   => isset_get($_SESSION['user']['id']),
+                   array(':created_by'   => isset_get($_SESSION['user']['id']),
                          ':meta_id'     => meta_action(),
                          ':name'        => $link['name'],
                          ':seoname'     => $link['seoname'],

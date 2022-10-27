@@ -17,7 +17,7 @@ sql_query('DROP TABLE IF EXISTS `customers`');
 
 sql_query('CREATE TABLE `customers` (`id`           INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                      `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                     `createdby`    INT(11)       NOT NULL,
+                                     `created_by`    INT(11)       NOT NULL,
                                      `modifiedon`   DATETIME          NULL DEFAULT NULL,
                                      `modifiedby`   INT(11)           NULL DEFAULT NULL,
                                      `status`       VARCHAR(16)       NULL DEFAULT NULL,
@@ -27,21 +27,21 @@ sql_query('CREATE TABLE `customers` (`id`           INT(11)       NOT NULL AUTO_
                                      `description`  VARCHAR(2047) NOT NULL,
 
                                      KEY        `createdon`  (`createdon`),
-                                     KEY        `createdby`  (`createdby`),
+                                     KEY        `created_by`  (`created_by`),
                                      KEY        `modifiedon` (`modifiedon`),
                                      KEY        `modifiedby` (`modifiedby`),
                                      KEY        `status`     (`status`),
                                      UNIQUE KEY `seoname`    (`seoname`),
                                      KEY        `name`       (`name`),
 
-                                     CONSTRAINT `fk_customers_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users` (`id`),
+                                     CONSTRAINT `fk_customers_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users` (`id`),
                                      CONSTRAINT `fk_customers_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users` (`id`)
 
                                     ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
 sql_query('CREATE TABLE `providers` (`id`           INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                      `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                     `createdby`    INT(11)       NOT NULL,
+                                     `created_by`    INT(11)       NOT NULL,
                                      `modifiedon`   DATETIME          NULL DEFAULT NULL,
                                      `modifiedby`   INT(11)           NULL DEFAULT NULL,
                                      `status`       VARCHAR(16)       NULL DEFAULT NULL,
@@ -51,21 +51,21 @@ sql_query('CREATE TABLE `providers` (`id`           INT(11)       NOT NULL AUTO_
                                      `description`  VARCHAR(2047) NOT NULL,
 
                                      KEY        `createdon`    (`createdon`),
-                                     KEY        `createdby`    (`createdby`),
+                                     KEY        `created_by`    (`created_by`),
                                      KEY        `modifiedon`   (`modifiedon`),
                                      KEY        `modifiedby`   (`modifiedby`),
                                      KEY        `status`       (`status`),
                                      UNIQUE KEY `seoname`      (`seoname`),
                                      KEY        `name`         (`name`),
 
-                                     CONSTRAINT `fk_providers_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users` (`id`),
+                                     CONSTRAINT `fk_providers_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users` (`id`),
                                      CONSTRAINT `fk_providers_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users` (`id`)
 
                                     ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
 sql_query('CREATE TABLE `servers` (`id`           INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                    `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                   `createdby`    INT(11)       NOT NULL,
+                                   `created_by`    INT(11)       NOT NULL,
                                    `modifiedon`   DATETIME          NULL DEFAULT NULL,
                                    `modifiedby`   INT(11)           NULL DEFAULT NULL,
                                    `status`       VARCHAR(16)       NULL DEFAULT NULL,
@@ -86,7 +86,7 @@ sql_query('CREATE TABLE `servers` (`id`           INT(11)       NOT NULL AUTO_IN
                                    UNIQUE KEY `hostname`     (`hostname`),
                                    UNIQUE KEY `seohostname`  (`seohostname`),
                                    KEY        `createdon`    (`createdon`),
-                                   KEY        `createdby`    (`createdby`),
+                                   KEY        `created_by`    (`created_by`),
                                    KEY        `modifiedon`   (`modifiedon`),
                                    KEY        `modifiedby`   (`modifiedby`),
                                    KEY        `status`       (`status`),
@@ -97,7 +97,7 @@ sql_query('CREATE TABLE `servers` (`id`           INT(11)       NOT NULL AUTO_IN
                                    KEY        `mail`         (`mail`),
                                    KEY        `database`     (`database`),
 
-                                   CONSTRAINT `fk_servers_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`     (`id`),
+                                   CONSTRAINT `fk_servers_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`     (`id`),
                                    CONSTRAINT `fk_servers_modifiedby`   FOREIGN KEY (`modifiedby`)   REFERENCES `users`     (`id`),
                                    CONSTRAINT `fk_servers_providers_id` FOREIGN KEY (`providers_id`) REFERENCES `providers` (`id`),
                                    CONSTRAINT `fk_servers_customers_id` FOREIGN KEY (`customers_id`) REFERENCES `customers` (`id`)
@@ -106,7 +106,7 @@ sql_query('CREATE TABLE `servers` (`id`           INT(11)       NOT NULL AUTO_IN
 
 sql_query('CREATE TABLE `domains` (`id`            INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY ,
                                    `createdon`     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                   `createdby`     INT(11)       NOT NULL,
+                                   `created_by`     INT(11)       NOT NULL,
                                    `modifiedon`    DATETIME          NULL DEFAULT NULL,
                                    `modifiedby`    INT(11)           NULL DEFAULT NULL,
                                    `status`        VARCHAR(16)       NULL DEFAULT NULL,
@@ -123,7 +123,7 @@ sql_query('CREATE TABLE `domains` (`id`            INT(11)       NOT NULL AUTO_I
                                    `mail`          TINYINT       NOT NULL,
 
                                    KEY `createdon`    (`createdon`),
-                                   KEY `createdby`    (`createdby`),
+                                   KEY `created_by`    (`created_by`),
                                    KEY `modifiedon`   (`modifiedon`),
                                    KEY `modifiedby`   (`modifiedby`),
                                    KEY `status`       (`status`),
@@ -131,7 +131,7 @@ sql_query('CREATE TABLE `domains` (`id`            INT(11)       NOT NULL AUTO_I
                                    KEY `web`          (`web`),
                                    KEY `mail`         (`mail`),
 
-                                   CONSTRAINT `fk_domains_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`     (`id`),
+                                   CONSTRAINT `fk_domains_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`     (`id`),
                                    CONSTRAINT `fk_domains_modifiedby`   FOREIGN KEY (`modifiedby`)   REFERENCES `users`     (`id`),
                                    CONSTRAINT `fk_domains_customers_id` FOREIGN KEY (`customers_id`) REFERENCES `customers` (`id`)
 
@@ -152,7 +152,7 @@ sql_query('CREATE TABLE `domains_servers_links` (`servers_id`   INT(11) NOT NULL
 
 sql_query('CREATE TABLE `domains_groups` (`id`         INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                           `createdon`  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                          `createdby`  INT(11)     NOT NULL,
+                                          `created_by`  INT(11)     NOT NULL,
                                           `modifiedon` DATETIME        NULL DEFAULT NULL,
                                           `modifiedby` INT(11)         NULL DEFAULT NULL,
                                           `name`       VARCHAR(64) NOT NULL,
@@ -161,15 +161,15 @@ sql_query('CREATE TABLE `domains_groups` (`id`         INT(11)     NOT NULL AUTO
 
                                           UNIQUE KEY `seoname`   (`seoname`),
                                           KEY        `createdon` (`createdon`),
-                                          KEY        `createdby` (`createdby`),
+                                          KEY        `created_by` (`created_by`),
 
-                                          CONSTRAINT `fk_domains_groups_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`)
+                                          CONSTRAINT `fk_domains_groups_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)
 
                                          ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
 sql_query('CREATE TABLE `email_servers` (`id`            INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                          `createdon`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                         `createdby`     INT(11)          NULL DEFAULT NULL,
+                                         `created_by`     INT(11)          NULL DEFAULT NULL,
                                          `modifiedon`    DATETIME         NULL DEFAULT NULL,
                                          `modifiedby`    INT(11)          NULL DEFAULT NULL,
                                          `status`        VARCHAR(16)      NULL DEFAULT NULL,
@@ -184,14 +184,14 @@ sql_query('CREATE TABLE `email_servers` (`id`            INT(11)      NOT NULL A
                                          `description`   TEXT         NOT NULL,
 
                                          KEY `createdon`  (`createdon`),
-                                         KEY `createdby`  (`createdby`),
+                                         KEY `created_by`  (`created_by`),
                                          KEY `modifiedon` (`modifiedon`),
                                          KEY `modifiedby` (`modifiedby`),
                                          KEY `status`     (`status`),
                                          KEY `domain`     (`domain`),
                                          KEY `servers_id` (`servers_id`),
 
-                                         CONSTRAINT `fk_email_servers_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`   (`id`),
+                                         CONSTRAINT `fk_email_servers_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users`   (`id`),
                                          CONSTRAINT `fk_email_servers_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users`   (`id`),
                                          CONSTRAINT `fk_email_servers_servers_id` FOREIGN KEY (`servers_id`) REFERENCES `servers` (`id`)
 

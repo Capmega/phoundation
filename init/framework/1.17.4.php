@@ -26,13 +26,13 @@ sql_column_exists('twilio_numbers', 'modifiedby', 'ALTER TABLE `twilio_numbers` 
 sql_index_exists ('twilio_numbers', 'modifiedon', 'ALTER TABLE `twilio_numbers` DROP KEY    `modifiedon`');
 sql_column_exists('twilio_numbers', 'modifiedon', 'ALTER TABLE `twilio_numbers` DROP COLUMN `modifiedon`');
 
-sql_column_exists('twilio_numbers', 'meta_id', '!ALTER TABLE `twilio_numbers` ADD COLUMN `meta_id` INT(11) NULL DEFAULT NULL AFTER `createdby`');
+sql_column_exists('twilio_numbers', 'meta_id', '!ALTER TABLE `twilio_numbers` ADD COLUMN `meta_id` INT(11) NULL DEFAULT NULL AFTER `created_by`');
 sql_index_exists ('twilio_numbers', 'meta_id', '!ALTER TABLE `twilio_numbers` ADD KEY    `meta_id` (`meta_id`)');
 
-sql_column_exists('twilio_accounts', 'meta_id', '!ALTER TABLE `twilio_accounts` ADD COLUMN `meta_id` INT(11) NULL DEFAULT NULL AFTER `createdby`');
+sql_column_exists('twilio_accounts', 'meta_id', '!ALTER TABLE `twilio_accounts` ADD COLUMN `meta_id` INT(11) NULL DEFAULT NULL AFTER `created_by`');
 sql_index_exists ('twilio_accounts', 'meta_id', '!ALTER TABLE `twilio_accounts` ADD KEY    `meta_id` (`meta_id`)');
 
-sql_column_exists('twilio_groups', 'meta_id', '!ALTER TABLE `twilio_groups` ADD COLUMN `meta_id` INT(11) NULL DEFAULT NULL AFTER `createdby`');
+sql_column_exists('twilio_groups', 'meta_id', '!ALTER TABLE `twilio_groups` ADD COLUMN `meta_id` INT(11) NULL DEFAULT NULL AFTER `created_by`');
 sql_index_exists ('twilio_groups', 'meta_id', '!ALTER TABLE `twilio_groups` ADD KEY    `meta_id` (`meta_id`)');
 
 sql_foreignkey_exists('twilio_groups'  , 'fk_twilio_groups_meta_id'  , '!ALTER TABLE `twilio_groups`   ADD CONSTRAINT `fk_twilio_groups_meta_id`   FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT;');

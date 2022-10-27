@@ -11,7 +11,7 @@ if (sql_table_exists('drivers_options')) {
 }
 
 if (sql_table_exists('drivers_devices')) {
-    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_createdby'     , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_createdby`');
+    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_created_by'     , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_created_by`');
     sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_meta_id'       , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_meta_id`');
     sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_servers_id'    , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_servers_id`');
     sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_categories_id' , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_categories_id`');
@@ -26,9 +26,9 @@ if (sql_table_exists('drivers_devices')) {
  * Clean up some garbage from a specific project
  */
 if (sql_table_exists('push_devices')) {
-    sql_foreignkey_exists('push_devices', 'fk_devices_createdby'     ,  'ALTER TABLE `push_devices` DROP FOREIGN KEY `fk_devices_createdby`');
+    sql_foreignkey_exists('push_devices', 'fk_devices_created_by'     ,  'ALTER TABLE `push_devices` DROP FOREIGN KEY `fk_devices_created_by`');
     sql_foreignkey_exists('push_devices', 'fk_devices_meta_id'       ,  'ALTER TABLE `push_devices` DROP FOREIGN KEY `fk_devices_meta_id`');
-    sql_foreignkey_exists('push_devices', 'fk_push_devices_createdby', '!ALTER TABLE `push_devices` ADD CONSTRAINT `fk_push_devices_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE RESTRICT');
+    sql_foreignkey_exists('push_devices', 'fk_push_devices_created_by', '!ALTER TABLE `push_devices` ADD CONSTRAINT `fk_push_devices_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT');
     sql_foreignkey_exists('push_devices', 'fk_push_devices_meta_id'  , '!ALTER TABLE `push_devices` ADD CONSTRAINT `fk_push_devices_meta_id`   FOREIGN KEY (`meta_id`)   REFERENCES `meta`  (`id`) ON DELETE RESTRICT');
 }
 
@@ -64,6 +64,6 @@ sql_column_exists('devices', 'type'              ,  'ALTER TABLE `devices` DROP 
 /*
  * Add default foreign keys for devices table
  */
-sql_foreignkey_exists('devices', 'fk_devices_createdby', '!ALTER TABLE `devices` ADD CONSTRAINT `fk_devices_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE RESTRICT');
+sql_foreignkey_exists('devices', 'fk_devices_created_by', '!ALTER TABLE `devices` ADD CONSTRAINT `fk_devices_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT');
 sql_foreignkey_exists('devices', 'fk_devices_meta_id'  , '!ALTER TABLE `devices` ADD CONSTRAINT `fk_devices_meta_id`   FOREIGN KEY (`meta_id`)   REFERENCES `meta`  (`id`) ON DELETE RESTRICT');
 ?>

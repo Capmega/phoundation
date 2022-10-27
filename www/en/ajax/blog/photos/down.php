@@ -13,7 +13,7 @@ try {
         throw new CoreException('ajax/blog/photos/delete: No photo specified', 'notspecified');
     }
 
-    $photo   = sql_get('SELECT `blogs_photos`.`id`, `blogs_photos`.`blogs_posts_id`, `blogs_posts`.`createdby`, `blogs_photos`.`priority`
+    $photo   = sql_get('SELECT `blogs_photos`.`id`, `blogs_photos`.`blogs_posts_id`, `blogs_posts`.`created_by`, `blogs_photos`.`priority`
 
                         FROM   `blogs_photos`
 
@@ -26,7 +26,7 @@ try {
         throw new CoreException('ajax/blog/photos/delete: Unknown photo_id "'.Strings::Log($_POST['id']).'" specified', 'unknown');
     }
 
-    if (($photo['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+    if (($photo['created_by'] != $_SESSION['user']['id']) and !has_rights('god')) {
         throw new CoreException('ajax/blog/photos/delete: This photo does not belong to you.', 'accessdenied');
     }
 

@@ -10,18 +10,18 @@ sql_query('DROP TABLE IF EXISTS `sitemap_builds`');
 
 sql_query('CREATE TABLE `sitemap_builds` (`id`          INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                           `createdon`   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                          `createdby`   INT(11)          NULL,
+                                          `created_by`   INT(11)          NULL,
                                           `status`      VARCHAR(16)      NULL,
                                           `build_time`  INT(11)          NULL,
                                           `language`    VARCHAR(2)   NOT NULL,
 
                                           INDEX (`createdon`),
-                                          INDEX (`createdby`),
+                                          INDEX (`created_by`),
                                           INDEX (`status`),
                                           INDEX (`build_time`),
                                           INDEX (`language`),
 
-                                          CONSTRAINT `fk_sitemap_builds_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users` (`id`) ON DELETE RESTRICT
+                                          CONSTRAINT `fk_sitemap_builds_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users` (`id`) ON DELETE RESTRICT
 
                                          ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 

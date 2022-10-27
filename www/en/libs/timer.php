@@ -19,10 +19,10 @@ $core->register['timers'] = array();
  */
 function timer_start($process) {
     try {
-        sql_query('INSERT INTO `timers` (`createdby`, `process`, `start`)
-                   VALUES               (:createdby , :process , NOW())',
+        sql_query('INSERT INTO `timers` (`created_by`, `process`, `start`)
+                   VALUES               (:created_by , :process , NOW())',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':process'   => $process));
 
         $id = sql_insert_id();

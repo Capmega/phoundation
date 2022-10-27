@@ -209,10 +209,10 @@ function services_insert($service) {
     try {
         $service = services_validate($service);
 
-        sql_query('INSERT INTO `services` (`createdby`, `meta_id`, `name`, `seoname`, `description`)
-                   VALUES                 (:createdby , :meta_id , :name , :seoname , :description )',
+        sql_query('INSERT INTO `services` (`created_by`, `meta_id`, `name`, `seoname`, `description`)
+                   VALUES                 (:created_by , :meta_id , :name , :seoname , :description )',
 
-                   array('createdby'   => isset_get($_SESSION['user']['id']),
+                   array('created_by'   => isset_get($_SESSION['user']['id']),
                          'meta_id'     => meta_action(),
                          'name'        => $service['name'],
                          'seoname'     => $service['seoname'],
@@ -331,7 +331,7 @@ function services_get($service, $column = null, $status = null) {
         } else {
             $return = sql_get('SELECT    `services`.`id`,
                                          `services`.`createdon`,
-                                         `services`.`createdby`,
+                                         `services`.`created_by`,
                                          `services`.`meta_id`,
                                          `services`.`status`,
                                          `services`.`name`,

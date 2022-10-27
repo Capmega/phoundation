@@ -82,10 +82,10 @@ function radius_insert_device($device) {
     try {
         $device = radius_validate_device($device);
 
-        sql_query('INSERT INTO `radius_devices` (`createdby`, `users_id`, `meta_id`, `type`, `brand`, `model`, `mac_address`,`description`)
-                   VALUES                       (:createdby , :users_id , :meta_id , :type , :brand , :model , :mac_address ,:description )',
+        sql_query('INSERT INTO `radius_devices` (`created_by`, `users_id`, `meta_id`, `type`, `brand`, `model`, `mac_address`,`description`)
+                   VALUES                       (:created_by , :users_id , :meta_id , :type , :brand , :model , :mac_address ,:description )',
 
-                   array(':createdby'   => isset_get($_SESSION['user']['id']),
+                   array(':created_by'   => isset_get($_SESSION['user']['id']),
                          ':users_id'    => $device['users_id'],
                          ':meta_id'     => meta_action(),
                          ':type'        => $device['type'],

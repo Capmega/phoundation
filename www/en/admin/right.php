@@ -18,13 +18,13 @@ if (!empty($_GET['right'])) {
                              `rights`.`modifiedon`,
                              `rights`.`name`,
                              `rights`.`description`,
-                             `createdby`.`name`  AS `createdby`,
+                             `created_by`.`name`  AS `created_by`,
                              `modifiedby`.`name` AS `modifiedby`
 
                    FROM      `rights`
 
-                   LEFT JOIN `users` as `createdby`
-                   ON        `rights`.`createdby`    = `createdby`.`id`
+                   LEFT JOIN `users` as `created_by`
+                   ON        `rights`.`created_by`    = `created_by`.`id`
 
                    LEFT JOIN `users` as `modifiedby`
                    ON        `rights`.`modifiedby`   = `modifiedby`.`id`
@@ -84,10 +84,10 @@ try {
             throw new CoreException(tr('The right "%name%" already exists', '%name%', Strings::Log($right['name'])), 'exists');
         }
 
-        sql_query('INSERT INTO `rights` (`createdby`, `name`, `description`)
-                   VALUES               (:createdby , :name , :description )',
+        sql_query('INSERT INTO `rights` (`created_by`, `name`, `description`)
+                   VALUES               (:created_by , :name , :description )',
 
-                   array(':createdby'   => $_SESSION['user']['id'],
+                   array(':created_by'   => $_SESSION['user']['id'],
                          ':name'        => $right['name'],
                          ':description' => $right['description']));
 
@@ -158,9 +158,9 @@ if (!empty($right['id'])) {
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-md-3 control-label" for="createdby">'.tr('Created by').'</label>
+                                    <label class="col-md-3 control-label" for="created_by">'.tr('Created by').'</label>
                                     <div class="col-md-6">
-                                        <input type="text" name="createdby" id="createdby" class="form-control" value="'.isset_get($right['createdby']).'" disabled>
+                                        <input type="text" name="created_by" id="created_by" class="form-control" value="'.isset_get($right['created_by']).'" disabled>
                                     </div>
                                 </div>
                                 <div class="form-group">

@@ -36,10 +36,10 @@ function url_cloak($url) {
                           FROM   `url_cloaks`
 
                           WHERE  `url`       = :url
-                          AND    `createdby` = :createdby',
+                          AND    `created_by` = :created_by',
 
                           true, array(':url'       => $url,
-                                      ':createdby' => isset_get($_SESSION['user']['id'])));
+                                      ':created_by' => isset_get($_SESSION['user']['id'])));
 
         if ($cloak) {
             /*
@@ -52,10 +52,10 @@ function url_cloak($url) {
 
         $cloak = str_random(32);
 
-        sql_query('INSERT INTO `url_cloaks` (`createdby`, `url`, `cloak`)
-                   VALUES                   (:createdby , :url , :cloak )',
+        sql_query('INSERT INTO `url_cloaks` (`created_by`, `url`, `cloak`)
+                   VALUES                   (:created_by , :url , :cloak )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':cloak'     => $cloak,
                          ':url'       => $url));
 
@@ -88,14 +88,14 @@ function url_decloak($cloak) {
     global $_CONFIG, $core;
 
     try {
-        $data = sql_get('SELECT `createdby`, `url` FROM `url_cloaks` WHERE `cloak` = :cloak', array(':cloak' => $cloak));
+        $data = sql_get('SELECT `created_by`, `url` FROM `url_cloaks` WHERE `cloak` = :cloak', array(':cloak' => $cloak));
 
         if (mt_rand(0, 100) <= $_CONFIG['security']['url_cloaking']['interval']) {
             url_cloak_cleanup();
         }
 
         if ($data) {
-            $core->register['url_cloak_users_id'] = $data['createdby'];
+            $core->register['url_cloak_users_id'] = $data['created_by'];
             return $data['url'];
         }
 

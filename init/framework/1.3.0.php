@@ -52,7 +52,7 @@ sql_query('DROP TABLE IF EXISTS `libraries`');
 
 sql_query('CREATE TABLE `libraries` (`id`                  INT(11)     NOT NULL AUTO_INCREMENT,
                                      `createdon`           TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                     `createdby`           INT(11)         NULL,
+                                     `created_by`           INT(11)         NULL,
                                      `meta_id`             INT(11)     NOT NULL,
                                      `status`              VARCHAR(16)     NULL,
                                      `restrict_file_types` TINYINT(1)  NOT NULL,
@@ -60,11 +60,11 @@ sql_query('CREATE TABLE `libraries` (`id`                  INT(11)     NOT NULL 
                                      PRIMARY KEY `id`        (`id`),
                                              KEY `meta_id`   (`meta_id`),
                                              KEY `createdon` (`createdon`),
-                                             KEY `createdby` (`createdby`),
+                                             KEY `created_by` (`created_by`),
                                              KEY `status`    (`status`),
 
                                      CONSTRAINT `fk_libraries_meta_id`   FOREIGN KEY (`meta_id`)   REFERENCES `meta`  (`id`) ON DELETE RESTRICT,
-                                     CONSTRAINT `fk_libraries_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE RESTRICT
+                                     CONSTRAINT `fk_libraries_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT
 
                                     ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
@@ -72,7 +72,7 @@ sql_query('CREATE TABLE `libraries` (`id`                  INT(11)     NOT NULL 
 
 sql_query('CREATE TABLE `libraries_categories` (`id`           INT(11)     NOT NULL AUTO_INCREMENT,
                                                 `createdon`    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                                `createdby`    INT(11)         NULL,
+                                                `created_by`    INT(11)         NULL,
                                                 `meta_id`      INT(11)     NOT NULL,
                                                 `libraries_id` INT(11)     NOT NULL,
                                                 `status`       VARCHAR(16)     NULL,
@@ -80,12 +80,12 @@ sql_query('CREATE TABLE `libraries_categories` (`id`           INT(11)     NOT N
                                                 PRIMARY KEY `id`           (`id`),
                                                         KEY `meta_id`      (`meta_id`),
                                                         KEY `createdon`    (`createdon`),
-                                                        KEY `createdby`    (`createdby`),
+                                                        KEY `created_by`    (`created_by`),
                                                         KEY `status`       (`status`),
                                                         KEY `libraries_id` (`libraries_id`),
 
                                                 CONSTRAINT `fk_libraries_categories_meta_id`      FOREIGN KEY (`meta_id`)      REFERENCES `meta`      (`id`) ON DELETE RESTRICT,
-                                                CONSTRAINT `fk_libraries_categories_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT,
+                                                CONSTRAINT `fk_libraries_categories_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT,
                                                 CONSTRAINT `fk_libraries_categories_libraries_id` FOREIGN KEY (`libraries_id`) REFERENCES `libraries` (`id`) ON DELETE CASCADE
 
                                                ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
@@ -94,7 +94,7 @@ sql_query('CREATE TABLE `libraries_categories` (`id`           INT(11)     NOT N
 
 sql_query('CREATE TABLE `libraries_documents` (`id`             INT(11)     NOT NULL AUTO_INCREMENT,
                                                `createdon`      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                               `createdby`      INT(11)         NULL,
+                                               `created_by`      INT(11)         NULL,
                                                `meta_id`        INT(11)     NOT NULL,
                                                `libraries_id`   INT(11)     NOT NULL,
                                                `masters_id`     INT(11)         NULL,
@@ -120,7 +120,7 @@ sql_query('CREATE TABLE `libraries_documents` (`id`             INT(11)     NOT 
                                                        KEY `parents_id`     (`parents_id`),
                                                        KEY `assigned_to_id` (`assigned_to_id`),
                                                        KEY `createdon`      (`createdon`),
-                                                       KEY `createdby`      (`createdby`),
+                                                       KEY `created_by`      (`created_by`),
                                                        KEY `status`         (`status`),
                                                        KEY `featured_until` (`featured_until`),
                                                        KEY `category1`      (`category1`),
@@ -131,7 +131,7 @@ sql_query('CREATE TABLE `libraries_documents` (`id`             INT(11)     NOT 
                                                        KEY `rating`         (`rating`),
 
                                                CONSTRAINT `fk_libraries_documents_meta_id`        FOREIGN KEY (`meta_id`)        REFERENCES `meta`                (`id`) ON DELETE RESTRICT,
-                                               CONSTRAINT `fk_libraries_documents_createdby`      FOREIGN KEY (`createdby`)      REFERENCES `users`               (`id`) ON DELETE RESTRICT,
+                                               CONSTRAINT `fk_libraries_documents_created_by`      FOREIGN KEY (`created_by`)      REFERENCES `users`               (`id`) ON DELETE RESTRICT,
                                                CONSTRAINT `fk_libraries_documents_libraries_id`   FOREIGN KEY (`libraries_id`)   REFERENCES `libraries`           (`id`) ON DELETE RESTRICT,
                                                CONSTRAINT `fk_libraries_documents_masters_id`     FOREIGN KEY (`masters_id`)     REFERENCES `libraries_documents` (`id`) ON DELETE RESTRICT,
                                                CONSTRAINT `fk_libraries_documents_parents_id`     FOREIGN KEY (`parents_id`)     REFERENCES `libraries_documents` (`id`) ON DELETE RESTRICT,
@@ -143,7 +143,7 @@ sql_query('CREATE TABLE `libraries_documents` (`id`             INT(11)     NOT 
 
 sql_query('CREATE TABLE `libraries_pages` (`id`           INT(11)      NOT NULL AUTO_INCREMENT,
                                            `createdon`    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                           `createdby`    INT(11)         NULL,
+                                           `created_by`    INT(11)         NULL,
                                            `meta_id`      INT(11)      NOT NULL,
                                            `libraries_id` INT(11)      NOT NULL,
                                            `documents_id` INT(11)      NOT NULL,
@@ -157,13 +157,13 @@ sql_query('CREATE TABLE `libraries_pages` (`id`           INT(11)      NOT NULL 
                                             PRIMARY KEY `id`           (`id`),
                                                     KEY `meta_id`      (`meta_id`),
                                                     KEY `createdon`    (`createdon`),
-                                                    KEY `createdby`    (`createdby`),
+                                                    KEY `created_by`    (`created_by`),
                                                     KEY `status`       (`status`),
                                                     KEY `libraries_id` (`libraries_id`),
                                                     KEY `documents_id` (`documents_id`),
 
                                             CONSTRAINT `fk_libraries_pages_meta_id`      FOREIGN KEY (`meta_id`)      REFERENCES `meta`                (`id`) ON DELETE RESTRICT,
-                                            CONSTRAINT `fk_libraries_pages_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`               (`id`) ON DELETE RESTRICT,
+                                            CONSTRAINT `fk_libraries_pages_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`               (`id`) ON DELETE RESTRICT,
                                             CONSTRAINT `fk_libraries_pages_libraries_id` FOREIGN KEY (`libraries_id`) REFERENCES `libraries`           (`id`) ON DELETE CASCADE,
                                             CONSTRAINT `fk_libraries_pages_documents_id` FOREIGN KEY (`documents_id`) REFERENCES `libraries_documents` (`id`) ON DELETE CASCADE
 
@@ -173,7 +173,7 @@ sql_query('CREATE TABLE `libraries_pages` (`id`           INT(11)      NOT NULL 
 
 sql_query('CREATE TABLE `libraries_comments` (`id`           INT(11)       NOT NULL AUTO_INCREMENT,
                                               `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                              `createdby`    INT(11)           NULL,
+                                              `created_by`    INT(11)           NULL,
                                               `meta_id`      INT(11)       NOT NULL,
                                               `libraries_id` INT(11)       NOT NULL,
                                               `documents_id` INT(11)       NOT NULL,
@@ -185,13 +185,13 @@ sql_query('CREATE TABLE `libraries_comments` (`id`           INT(11)       NOT N
                                                        KEY `meta_id`      (`meta_id`),
                                                        KEY `status`       (`status`),
                                                        KEY `createdon`    (`createdon`),
-                                                       KEY `createdby`    (`createdby`),
+                                                       KEY `created_by`    (`created_by`),
                                                        KEY `libraries_id` (`libraries_id`),
                                                        KEY `documents_id` (`documents_id`),
                                                        KEY `pages_id`     (`pages_id`),
 
                                                CONSTRAINT `fk_libraries_comments_meta_id`      FOREIGN KEY (`meta_id`)      REFERENCES `meta`                (`id`) ON DELETE RESTRICT,
-                                               CONSTRAINT `fk_libraries_comments_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`               (`id`) ON DELETE RESTRICT,
+                                               CONSTRAINT `fk_libraries_comments_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`               (`id`) ON DELETE RESTRICT,
                                                CONSTRAINT `fk_libraries_comments_libraries_id` FOREIGN KEY (`libraries_id`) REFERENCES `libraries`           (`id`) ON DELETE CASCADE,
                                                CONSTRAINT `fk_libraries_comments_documents_id` FOREIGN KEY (`documents_id`) REFERENCES `libraries_documents` (`id`) ON DELETE CASCADE,
                                                CONSTRAINT `fk_libraries_comments_pages_id`     FOREIGN KEY (`pages_id`)     REFERENCES `libraries_pages`     (`id`) ON DELETE CASCADE
@@ -277,7 +277,7 @@ sql_query('CREATE TABLE `libraries_file_types` (`id`           INT(11)     NOT N
 
 sql_query('CREATE TABLE `libraries_files` (`id`           INT(11)      NOT NULL AUTO_INCREMENT,
                                            `createdon`    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                           `createdby`    INT(11)         NULL,
+                                           `created_by`    INT(11)         NULL,
                                            `meta_id`      INT(11)      NOT NULL,
                                            `libraries_id` INT(11)      NOT NULL,
                                            `documents_id` INT(11)      NOT NULL,
@@ -300,7 +300,7 @@ sql_query('CREATE TABLE `libraries_files` (`id`           INT(11)      NOT NULL 
                                                    KEY `pages_id`     (`pages_id`),
                                                    KEY `status`       (`status`),
                                                    KEY `createdon`    (`createdon`),
-                                                   KEY `createdby`    (`createdby`),
+                                                   KEY `created_by`    (`created_by`),
                                                    KEY `type`         (`type`),
                                                    KEY `mime1`        (`mime1`),
                                                    KEY `mime2`        (`mime2`),
@@ -308,7 +308,7 @@ sql_query('CREATE TABLE `libraries_files` (`id`           INT(11)      NOT NULL 
                                                    KEY `priority`     (`priority`),
 
                                            CONSTRAINT `fk_libraries_file_meta_id`      FOREIGN KEY (`meta_id`)      REFERENCES `meta`                (`id`) ON DELETE RESTRICT,
-                                           CONSTRAINT `fk_libraries_file_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`               (`id`) ON DELETE RESTRICT,
+                                           CONSTRAINT `fk_libraries_file_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`               (`id`) ON DELETE RESTRICT,
                                            CONSTRAINT `fk_libraries_file_libraries_id` FOREIGN KEY (`libraries_id`) REFERENCES `libraries`           (`id`) ON DELETE CASCADE,
                                            CONSTRAINT `fk_libraries_file_documents_id` FOREIGN KEY (`documents_id`) REFERENCES `libraries_documents` (`id`) ON DELETE CASCADE,
                                            CONSTRAINT `fk_libraries_file_pages_id`     FOREIGN KEY (`pages_id`)     REFERENCES `libraries_pages`     (`id`) ON DELETE CASCADE
@@ -319,7 +319,7 @@ sql_query('CREATE TABLE `libraries_files` (`id`           INT(11)      NOT NULL 
 
 sql_query('CREATE TABLE `libraries_resources` (`id`           INT(11)       NOT NULL AUTO_INCREMENT,
                                                `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                               `createdby`    INT(11)           NULL,
+                                               `created_by`    INT(11)           NULL,
                                                `meta_id`      INT(11)       NOT NULL,
                                                `libraries_id` INT(11)       NOT NULL,
                                                `status`       VARCHAR(16)       NULL,
@@ -330,12 +330,12 @@ sql_query('CREATE TABLE `libraries_resources` (`id`           INT(11)       NOT 
                                                        KEY `meta_id`      (`meta_id`),
                                                        KEY `libraries_id` (`libraries_id`),
                                                        KEY `createdon`    (`createdon`),
-                                                       KEY `createdby`    (`createdby`),
+                                                       KEY `created_by`    (`created_by`),
                                                        KEY `status`       (`status`),
                                                        KEY `language`     (`language`),
 
                                                CONSTRAINT `fk_libraries_resources_meta_id`      FOREIGN KEY (`meta_id`)      REFERENCES `meta`      (`id`) ON DELETE RESTRICT,
-                                               CONSTRAINT `fk_libraries_resources_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT,
+                                               CONSTRAINT `fk_libraries_resources_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT,
                                                CONSTRAINT `fk_libraries_resources_libraries_id` FOREIGN KEY (`libraries_id`) REFERENCES `libraries` (`id`) ON DELETE CASCADE
 
                                                ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
@@ -344,7 +344,7 @@ sql_query('CREATE TABLE `libraries_resources` (`id`           INT(11)       NOT 
 
 sql_query('CREATE TABLE `libraries_page_resources` (`id`           INT(11)     NOT NULL AUTO_INCREMENT,
                                                     `createdon`    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                                    `createdby`    INT(11)         NULL,
+                                                    `created_by`    INT(11)         NULL,
                                                     `meta_id`      INT(11)     NOT NULL,
                                                     `libraries_id` INT(11)     NOT NULL,
                                                     `documents_id` INT(11)     NOT NULL,
@@ -359,11 +359,11 @@ sql_query('CREATE TABLE `libraries_page_resources` (`id`           INT(11)     N
                                                             KEY `pages_id`     (`pages_id`),
                                                             KEY `status`       (`status`),
                                                             KEY `createdon`    (`createdon`),
-                                                            KEY `createdby`    (`createdby`),
+                                                            KEY `created_by`    (`created_by`),
                                                             KEY `language`     (`language`),
 
                                                     CONSTRAINT `fk_libraries_page_resources_meta_id`      FOREIGN KEY (`meta_id`)      REFERENCES `meta`                (`id`) ON DELETE RESTRICT,
-                                                    CONSTRAINT `fk_libraries_page_resources_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`               (`id`) ON DELETE RESTRICT,
+                                                    CONSTRAINT `fk_libraries_page_resources_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`               (`id`) ON DELETE RESTRICT,
                                                     CONSTRAINT `fk_libraries_page_resources_libraries_id` FOREIGN KEY (`libraries_id`) REFERENCES `libraries`           (`id`) ON DELETE CASCADE,
                                                     CONSTRAINT `fk_libraries_page_resources_documents_id` FOREIGN KEY (`documents_id`) REFERENCES `libraries_documents` (`id`) ON DELETE CASCADE,
                                                     CONSTRAINT `fk_libraries_page_resources_pages_id`     FOREIGN KEY (`pages_id`)     REFERENCES `libraries_pages`     (`id`) ON DELETE CASCADE
@@ -374,7 +374,7 @@ sql_query('CREATE TABLE `libraries_page_resources` (`id`           INT(11)     N
 
 sql_query('CREATE TABLE `libraries_access` (`id`           INT(11)     NOT NULL AUTO_INCREMENT,
                                             `createdon`    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                            `createdby`    INT(11)         NULL,
+                                            `created_by`    INT(11)         NULL,
                                             `meta_id`      INT(11)     NOT NULL,
                                             `status`       VARCHAR(16)     NULL,
                                             `libraries_id` INT(11)     NOT NULL,
@@ -385,7 +385,7 @@ sql_query('CREATE TABLE `libraries_access` (`id`           INT(11)     NOT NULL 
                                             PRIMARY KEY `id`           (`id`),
                                                     KEY `meta_id`      (`meta_id`),
                                                     KEY `createdon`    (`createdon`),
-                                                    KEY `createdby`    (`createdby`),
+                                                    KEY `created_by`    (`created_by`),
                                                     KEY `status`       (`status`),
                                                     KEY `libraries_id` (`libraries_id`),
                                                     KEY `documents_id` (`documents_id`),
@@ -393,7 +393,7 @@ sql_query('CREATE TABLE `libraries_access` (`id`           INT(11)     NOT NULL 
                                                     KEY `users_id`     (`users_id`),
 
                                             CONSTRAINT `fk_libraries_access_meta_id`      FOREIGN KEY (`meta_id`)      REFERENCES `meta`                (`id`) ON DELETE RESTRICT,
-                                            CONSTRAINT `fk_libraries_access_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`               (`id`) ON DELETE RESTRICT,
+                                            CONSTRAINT `fk_libraries_access_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`               (`id`) ON DELETE RESTRICT,
                                             CONSTRAINT `fk_libraries_access_libraries_id` FOREIGN KEY (`libraries_id`) REFERENCES `libraries`           (`id`) ON DELETE CASCADE,
                                             CONSTRAINT `fk_libraries_access_documents_id` FOREIGN KEY (`documents_id`) REFERENCES `libraries_documents` (`id`) ON DELETE CASCADE,
                                             CONSTRAINT `fk_libraries_access_pages_id`     FOREIGN KEY (`pages_id`)     REFERENCES `libraries_pages`     (`id`) ON DELETE CASCADE,
@@ -405,7 +405,7 @@ sql_query('CREATE TABLE `libraries_access` (`id`           INT(11)     NOT NULL 
 
 sql_query('CREATE TABLE `libraries_ratings` (`id`           INT(11)     NOT NULL AUTO_INCREMENT,
                                              `createdon`    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                             `createdby`    INT(11)         NULL,
+                                             `created_by`    INT(11)         NULL,
                                              `meta_id`      INT(11)     NOT NULL,
                                              `libraries_id` INT(11)     NOT NULL,
                                              `documents_id` INT(11)     NOT NULL,
@@ -419,11 +419,11 @@ sql_query('CREATE TABLE `libraries_ratings` (`id`           INT(11)     NOT NULL
                                                      KEY `documents_id` (`documents_id`),
                                                      KEY `pages_id`     (`pages_id`),
                                                      KEY `createdon`    (`createdon`),
-                                                     KEY `createdby`    (`createdby`),
+                                                     KEY `created_by`    (`created_by`),
                                                      KEY `status`       (`status`),
 
                                              CONSTRAINT `fk_libraries_ratings_meta_id`      FOREIGN KEY (`meta_id`)      REFERENCES `meta`                (`id`) ON DELETE RESTRICT,
-                                             CONSTRAINT `fk_libraries_ratings_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`               (`id`) ON DELETE RESTRICT,
+                                             CONSTRAINT `fk_libraries_ratings_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`               (`id`) ON DELETE RESTRICT,
                                              CONSTRAINT `fk_libraries_ratings_libraries_id` FOREIGN KEY (`libraries_id`) REFERENCES `libraries`           (`id`) ON DELETE CASCADE,
                                              CONSTRAINT `fk_libraries_ratings_documents_id` FOREIGN KEY (`documents_id`) REFERENCES `libraries_documents` (`id`) ON DELETE CASCADE,
                                              CONSTRAINT `fk_libraries_ratings_pages_id`     FOREIGN KEY (`pages_id`)     REFERENCES `libraries_pages`     (`id`) ON DELETE CASCADE

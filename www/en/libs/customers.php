@@ -316,10 +316,10 @@ function customers_insert($customer) {
     try {
         $customer = customers_validate($customer);
 
-        sql_query('INSERT INTO `customers` (`createdby`, `meta_id`, `name`, `seoname`, `code`, `email`, `phones`, `company`, `documents_id`, `categories_id`, `address1`, `address2`, `address3`, `zipcode`, `countries_id`, `states_id`, `cities_id`, `url`, `description`)
-                   VALUES                  (:createdby , :meta_id , :name , :seoname , :code , :email , :phones,  :company , :documents_id , :categories_id , :address1 , :address2 , :address3 , :zipcode , :countries_id , :states_id , :cities_id , :url , :description )',
+        sql_query('INSERT INTO `customers` (`created_by`, `meta_id`, `name`, `seoname`, `code`, `email`, `phones`, `company`, `documents_id`, `categories_id`, `address1`, `address2`, `address3`, `zipcode`, `countries_id`, `states_id`, `cities_id`, `url`, `description`)
+                   VALUES                  (:created_by , :meta_id , :name , :seoname , :code , :email , :phones,  :company , :documents_id , :categories_id , :address1 , :address2 , :address3 , :zipcode , :countries_id , :states_id , :cities_id , :url , :description )',
 
-                   array(':createdby'     => $_SESSION['user']['id'],
+                   array(':created_by'     => $_SESSION['user']['id'],
                          ':meta_id'       => meta_action(),
                          ':name'          => $customer['name'],
                          ':seoname'       => $customer['seoname'],
@@ -549,7 +549,7 @@ function customers_get($params) {
 
         array_default($params, 'columns', 'customers.id,
                                            customers.createdon,
-                                           customers.createdby,
+                                           customers.created_by,
                                            customers.meta_id,
                                            customers.status,
                                            customers.name,

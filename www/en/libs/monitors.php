@@ -160,7 +160,7 @@ function monitors_get_host($host) {
         }
 
         $result = sql_get('SELECT `id`,
-                          `createdby`,
+                          `created_by`,
                           `createdon`,
                           `meta_id`,
                           `ip`,

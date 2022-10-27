@@ -1443,15 +1443,15 @@ function sql_count($table, $where = '', $execute = null, $column = '`id`') {
          */
         $count = sql_get('SELECT COUNT('.$column.') AS `count` FROM `'.$table.'` '.$where, 'count', $execute);
 
-        sql_query('INSERT INTO `counts` (`createdby`, `count`, `hash`, `until`)
-                   VALUES               (:createdby , :count , :hash , NOW() + INTERVAL :expires SECOND)
+        sql_query('INSERT INTO `counts` (`created_by`, `count`, `hash`, `until`)
+                   VALUES               (:created_by , :count , :hash , NOW() + INTERVAL :expires SECOND)
 
                    ON DUPLICATE KEY UPDATE `count`      = :update_count,
                                            `modifiedon` = NOW(),
                                            `modifiedby` = :update_modifiedby,
                                            `until`      = NOW() + INTERVAL :update_expires SECOND',
 
-                   array(':createdby'         => isset_get($_SESSION['user']['id']),
+                   array(':created_by'         => isset_get($_SESSION['user']['id']),
                          ':hash'              => $hash,
                          ':count'             => $count,
                          ':expires'           => $expires,
@@ -1694,7 +1694,7 @@ function sql_get_connector($connector_name) {
 
         $connector = sql_get('SELECT `id`,
                                      `createdon`,
-                                     `createdby`,
+                                     `created_by`,
                                      `meta_id`,
                                      `status`,
                                      `name`,

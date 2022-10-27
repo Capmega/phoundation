@@ -55,20 +55,20 @@ function blogs_get($blog = null, $column = null) {
                                 `blogs`.`seoname`,
                                 `blogs`.`keywords`,
                                 `blogs`.`createdon`,
-                                `blogs`.`createdby`,
+                                `blogs`.`created_by`,
                                 `blogs`.`modifiedon`,
                                 `blogs`.`description`,
                                 `blogs`.`url_template`,
 
-                                `createdby`.`name`   AS `createdby_name`,
-                                `createdby`.`email`  AS `createdby_email`,
+                                `created_by`.`name`   AS `created_by_name`,
+                                `created_by`.`email`  AS `created_by_email`,
                                 `modifiedby`.`name`  AS `modifiedby_name`,
                                 `modifiedby`.`email` AS `modifiedby_email`
 
                       FROM      `blogs`
 
-                      LEFT JOIN `users` as `createdby`
-                      ON        `blogs`.`createdby`     = `createdby`.`id`
+                      LEFT JOIN `users` as `created_by`
+                      ON        `blogs`.`created_by`     = `created_by`.`id`
 
                       LEFT JOIN `users` as `modifiedby`
                       ON        `blogs`.`modifiedby`    = `modifiedby`.`id`';
@@ -92,19 +92,19 @@ function blogs_get($blog = null, $column = null) {
              */
             $return = sql_get($query.'
 
-                              WHERE  `blogs`.`createdby` = :createdby
+                              WHERE  `blogs`.`created_by` = :created_by
 
                               AND    `blogs`.`status`    = "_new"',
 
-                              array(':createdby' => $_SESSION['user']['id']));
+                              array(':created_by' => $_SESSION['user']['id']));
 
             if (!$return) {
-                sql_query('INSERT INTO `blogs` (`createdby`, `status`, `name`)
-                           VALUES              (:createdby , :status , :name )',
+                sql_query('INSERT INTO `blogs` (`created_by`, `status`, `name`)
+                           VALUES              (:created_by , :status , :name )',
 
                            array(':name'      => $blog,
                                  ':status'    => '_new',
-                                 ':createdby' => isset_get($_SESSION['user']['id'])));
+                                 ':created_by' => isset_get($_SESSION['user']['id'])));
 
                 return blogs_get($blog);
             }
@@ -166,13 +166,13 @@ function blogs_post_get($blog = null, $post = null, $language = null, $alternati
 
                              FROM   `blogs_posts`
 
-                             WHERE  `createdby` = :createdby
+                             WHERE  `created_by` = :created_by
                              AND    `blogs_id`  = :blogs_id
                              AND    `language`  = :language
                              AND    `status`    = "_new"
                              LIMIT  1',
 
-                             'id', array(':createdby' => isset_get($_SESSION['user']['id']),
+                             'id', array(':created_by' => isset_get($_SESSION['user']['id']),
                                          ':language'  => $language,
                                          ':blogs_id'  => $blogs_id));
         }
@@ -220,7 +220,7 @@ function blogs_post_get($blog = null, $post = null, $language = null, $alternati
 
             $return = sql_get('SELECT    `blogs_posts`.`id`,
                                          `blogs_posts`.`createdon`,
-                                         `blogs_posts`.`createdby`,
+                                         `blogs_posts`.`created_by`,
                                          `blogs_posts`.`modifiedby`,
                                          `blogs_posts`.`modifiedon`,
                                          `blogs_posts`.`status`,
@@ -288,10 +288,10 @@ function blogs_post_get($blog = null, $post = null, $language = null, $alternati
 
         $priority = blogs_post_get_new_priority($blogs_id);
 
-        sql_query('INSERT INTO `blogs_posts` (`status`, `blogs_id`, `createdby`, `language`, `priority`)
-                   VALUES                    ("_new"  , :blogs_id , :createdby , :language , :priority )',
+        sql_query('INSERT INTO `blogs_posts` (`status`, `blogs_id`, `created_by`, `language`, `priority`)
+                   VALUES                    ("_new"  , :blogs_id , :created_by , :language , :priority )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':language'  => $language,
                          ':priority'  => $priority,
                          ':blogs_id'  => $blogs_id));
@@ -658,8 +658,8 @@ function blogs_list($user, $from = null, $until = null, $limit = null) {
                     WHERE  `status`  = "posted"';
 
         if ($user) {
-            $query    .= ' AND `createdby` = :createdby';
-            $execute[] = array(':createdby' => $user);
+            $query    .= ' AND `created_by` = :created_by';
+            $execute[] = array(':created_by' => $user);
         }
 
         if ($from) {
@@ -715,8 +715,8 @@ function blogs_post($blog) {
             /*
              * Only the user itself can post this
              */
-            $query               .= ' AND `createdby` = :createdby';
-            $execute[':createdby']  = $_SESSION['user']['id'];
+            $query               .= ' AND `created_by` = :created_by';
+            $execute[':created_by']  = $_SESSION['user']['id'];
         }
 
         return sql_query($query, $execute);
@@ -1749,7 +1749,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null) {
 
         $post = sql_get('SELECT `blogs_posts`.`id`,
                                 `blogs_posts`.`blogs_id`,
-                                `blogs_posts`.`createdby`,
+                                `blogs_posts`.`created_by`,
                                 `blogs_posts`.`assigned_to_id`,
                                 `blogs_posts`.`name`,
                                 `blogs_posts`.`seoname`,
@@ -1780,7 +1780,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null) {
             throw new CoreException('blogs_media_process(): Unknown blog post specified', 'unknown');
         }
 
-        if ((PLATFORM_HTTP) and ($post['createdby'] != $_SESSION['user']['id']) and ($post['assigned_to_id'] != $_SESSION['user']['id']) and !has_rights('god')) {
+        if ((PLATFORM_HTTP) and ($post['created_by'] != $_SESSION['user']['id']) and ($post['assigned_to_id'] != $_SESSION['user']['id']) and !has_rights('god')) {
             /*
              * User is not post creator, is not assigned. Check if the user has group access (ie, has a group with the posts seoname)
              */
@@ -1870,10 +1870,10 @@ function blogs_media_process($file, $post, $priority = null, $original = null) {
         /*
          * Store blog post photo in database
          */
-        $res  = sql_query('INSERT INTO `blogs_media` (`createdby`, `blogs_posts_id`, `blogs_id`, `file`, `hash`, `original`, `priority`, `type`, `seotype`)
-                           VALUES                    (:createdby , :blogs_posts_id , :blogs_id , :file , :hash , :original , :priority , :type , :seotype )',
+        $res  = sql_query('INSERT INTO `blogs_media` (`created_by`, `blogs_posts_id`, `blogs_id`, `file`, `hash`, `original`, `priority`, `type`, `seotype`)
+                           VALUES                    (:created_by , :blogs_posts_id , :blogs_id , :file , :hash , :original , :priority , :type , :seotype )',
 
-                           array(':createdby'      => isset_get($_SESSION['user']['id']),
+                           array(':created_by'      => isset_get($_SESSION['user']['id']),
                                  ':blogs_posts_id' => $post['id'],
                                  ':blogs_id'       => $post['blogs_id'],
                                  ':file'           => $media,
@@ -2004,7 +2004,7 @@ function blogs_photo_description($user, $media_id, $description) {
         }
 
         $media    = sql_get('SELECT `blogs_media`.`id`,
-                                    `blogs_media`.`createdby`
+                                    `blogs_media`.`created_by`
 
                              FROM   `blogs_media`
 
@@ -2017,7 +2017,7 @@ function blogs_photo_description($user, $media_id, $description) {
             throw new CoreException('blogs_photo_description(): Unknown blog post photo specified', 'unknown');
         }
 
-        if (($media['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+        if (($media['created_by'] != $_SESSION['user']['id']) and !has_rights('god')) {
             throw new CoreException('blogs_photo_description(): Cannot upload media, this post is not yours', 'access-denied');
         }
 
@@ -2047,7 +2047,7 @@ function blogs_photo_type($user, $media_id, $type) {
         }
 
         $media    = sql_get('SELECT `blogs_media`.`id`,
-                                    `blogs_media`.`createdby`
+                                    `blogs_media`.`created_by`
 
                              FROM   `blogs_media`
 
@@ -2060,7 +2060,7 @@ function blogs_photo_type($user, $media_id, $type) {
             throw new CoreException('blogs_photo_type(): Unknown blog post photo specified', 'unknown');
         }
 
-        if (($media['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+        if (($media['created_by'] != $_SESSION['user']['id']) and !has_rights('god')) {
             throw new CoreException('blogs_photo_type(): Cannot upload media, this post is not yours', 'access-denied');
         }
 
@@ -2456,7 +2456,7 @@ function blogs_update_urls($blogs = null, $category = null) {
                                    `language`,
                                    `createdon`,
                                    `modifiedon`,
-                                   `createdby`,
+                                   `created_by`,
                                    `category1`,
                                    `seocategory1`,
                                    `category2`,
@@ -2715,7 +2715,7 @@ function blogs_post_up($id, $object, $view) {
         sql_query('START TRANSACTION');
 
         $post = sql_get('SELECT    `blogs_posts`.`id`,
-                                   `blogs_posts`.`createdby`,
+                                   `blogs_posts`.`created_by`,
                                    `blogs_posts`.`priority`,
                                    `higher`.`id`       AS `higher_id`,
                                    `higher`.`priority` AS `higher_priority`
@@ -2740,7 +2740,7 @@ function blogs_post_up($id, $object, $view) {
             throw new CoreException(tr('blogs_post_up(): Unknown :object ":id" specified', array(':object' => $object, ':id' => $id)), 'unknown');
         }
 
-        if (($post['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+        if (($post['created_by'] != $_SESSION['user']['id']) and !has_rights('god')) {
             throw new CoreException(tr('blogs_post_up(): The :object ":id" does not belong to you', array(':object' => $object, ':id' => $id)), 'access-denied');
         }
 
@@ -2816,7 +2816,7 @@ function blogs_post_down($id, $object, $view) {
         sql_query('START TRANSACTION');
 
         $post = sql_get('SELECT    `blogs_posts`.`id`,
-                                   `blogs_posts`.`createdby`,
+                                   `blogs_posts`.`created_by`,
                                    `blogs_posts`.`priority`,
                                    `lower`.`id`       AS `lower_id`,
                                    `lower`.`priority` AS `lower_priority`
@@ -2840,7 +2840,7 @@ function blogs_post_down($id, $object, $view) {
             throw new CoreException(tr('blogs_post_up(): Unknown :object id ":id" specified', array(':object' => $object, ':id' => $id)), 'unknown');
         }
 
-        if (($post['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+        if (($post['created_by'] != $_SESSION['user']['id']) and !has_rights('god')) {
             throw new CoreException(tr('blogs_post_up(): The :object ":id" does not belong to you', array(':object' => $object, ':id' => $id)), 'access-denied');
         }
 

@@ -6,7 +6,7 @@ sql_query('DROP TABLE IF EXISTS `ssh_keys`');
 
 sql_query('CREATE TABLE `ssh_keys` (`id`          INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                     `createdon`   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                    `createdby`   INT(11)           NULL,
+                                    `created_by`   INT(11)           NULL,
                                     `modifiedon`  DATETIME          NULL,
                                     `modifiedby`  INT(11)           NULL,
                                     `status`      VARCHAR(16)       NULL,
@@ -17,7 +17,7 @@ sql_query('CREATE TABLE `ssh_keys` (`id`          INT(11)       NOT NULL AUTO_IN
                                     `description` VARCHAR(2047)     NULL,
 
                                      INDEX (`createdon`),
-                                     INDEX (`createdby`),
+                                     INDEX (`created_by`),
                                      INDEX (`modifiedon`),
                                      INDEX (`modifiedby`),
                                      INDEX (`status`),

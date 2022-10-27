@@ -130,20 +130,20 @@ function forwards_exists($forward) {
  * Inserts a new forwarding rule
  *
  * @param array $forward
- * @param integer $createdby
+ * @param integer $created_by
  * @return integer, id for the new created record
  */
-function forwards_insert($forward, $createdby = null) {
+function forwards_insert($forward, $created_by = null) {
     try {
         Arrays::ensure($forward, '');
         array_default($forward, 'apply', false);
 
         $forward = forwards_validate($forward);
 
-        sql_query('INSERT INTO `forwardings` (`createdby`, `servers_id`, `source_ip`, `source_port`, `source_id`, `target_ip`, `target_port`, `target_id`, `protocol`, `description`)
-                   VALUES                 (:createdby ,  :servers_id, :source_ip , :source_port , :source_id , :target_ip , :target_port , :target_id , :protocol , :description )',
+        sql_query('INSERT INTO `forwardings` (`created_by`, `servers_id`, `source_ip`, `source_port`, `source_id`, `target_ip`, `target_port`, `target_id`, `protocol`, `description`)
+                   VALUES                 (:created_by ,  :servers_id, :source_ip , :source_port , :source_id , :target_ip , :target_port , :target_id , :protocol , :description )',
 
-                       array(':createdby'   => $createdby,
+                       array(':created_by'   => $created_by,
                              ':servers_id'  => $forward['servers_id'],
                              ':source_ip'   => $forward['source_ip'],
                              ':source_port' => $forward['source_port'],
@@ -244,7 +244,7 @@ function forwards_delete_apply($forward) {
  * Updates forwarding rule
  *
  * @param array $forward
- * @param integer $createdby
+ * @param integer $created_by
  * @return void
  */
 function forwards_update($forward, $modifiedby = null) {
@@ -461,7 +461,7 @@ function forwards_get($forwards_id) {
         $forward = sql_get('SELECT    `forwardings`.`id`,
                                       `forwardings`.`servers_id`,
                                       `forwardings`.`createdon`,
-                                      `forwardings`.`createdby`,
+                                      `forwardings`.`created_by`,
                                       `forwardings`.`source_ip`,
                                       `forwardings`.`source_port`,
                                       `forwardings`.`target_ip`,
@@ -471,7 +471,7 @@ function forwards_get($forwards_id) {
 
                                       `source_servers`.`seohostname` AS `source_id`,
                                       `target_servers`.`seohostname` AS `target_id`,
-                                      `createdby`.`name`             AS `createdby_name`
+                                      `created_by`.`name`             AS `created_by_name`
 
                             FROM      `forwardings`
 
@@ -481,8 +481,8 @@ function forwards_get($forwards_id) {
                             LEFT JOIN `servers` AS `target_servers`
                             ON        `forwardings`.`target_id`  = `target_servers`.`id`
 
-                            LEFT JOIN `users` AS `createdby`
-                            ON        `forwardings`.`createdby`  = `createdby`.`id`
+                            LEFT JOIN `users` AS `created_by`
+                            ON        `forwardings`.`created_by`  = `created_by`.`id`
 
                             WHERE     `forwardings`.`id`         = :id',
 

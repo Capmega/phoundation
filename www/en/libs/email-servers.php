@@ -125,10 +125,10 @@ function email_servers_insert($server) {
     try {
         $server = email_servers_validate($server);
 
-        sql_query('INSERT INTO `email_servers` (`createdby`, `meta_id`, `domains_id`, `servers_id`, `domain`, `seodomain`, `description`)
-                   VALUES                      (:createdby , :meta_id , :domains_id , :servers_id , :domain , :seodomain , :description )',
+        sql_query('INSERT INTO `email_servers` (`created_by`, `meta_id`, `domains_id`, `servers_id`, `domain`, `seodomain`, `description`)
+                   VALUES                      (:created_by , :meta_id , :domains_id , :servers_id , :domain , :seodomain , :description )',
 
-                   array(':createdby'     => $_SESSION['user']['id'],
+                   array(':created_by'     => $_SESSION['user']['id'],
                          ':meta_id'       => meta_action(),
                          ':domains_id'    => $server['domains_id'],
                          ':servers_id'    => $server['servers_id'],
@@ -237,7 +237,7 @@ function email_servers_get($params) {
 
         array_default($params, 'columns', 'email_servers.id,
                                            email_servers.createdon,
-                                           email_servers.createdby,
+                                           email_servers.created_by,
                                            email_servers.meta_id,
                                            email_servers.status,
                                            email_servers.servers_id,

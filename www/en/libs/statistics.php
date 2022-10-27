@@ -26,10 +26,10 @@ function statistics_add($params) {
     try {
         $params = statistics_validate($params);
 
-        sql_query('INSERT INTO `statistics` (`createdby`, `remote`, `event`, `details`, `resource1`, `resource2`)
-                   VALUES                   (:createdby , :remote , :event , :details , :resource1 , :resource2 )',
+        sql_query('INSERT INTO `statistics` (`created_by`, `remote`, `event`, `details`, `resource1`, `resource2`)
+                   VALUES                   (:created_by , :remote , :event , :details , :resource1 , :resource2 )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':remote'    => (PLATFORM_HTTP ? $_SERVER['REMOTE_ADDR'] : 'CLI'),
                          ':event'     => $params['event'],
                          ':subevent'  => $params['event'],

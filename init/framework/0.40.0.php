@@ -6,7 +6,7 @@ sql_query('DROP TABLE IF EXISTS `whitelabels`;');
 
 sql_query('CREATE TABLE `whitelabels` (`id`          INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                        `createdon`   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                       `createdby`   INT(11)          NULL,
+                                       `created_by`   INT(11)          NULL,
                                        `modifiedon`  DATETIME         NULL,
                                        `modifiedby`  INT(11)          NULL,
                                        `status`      VARCHAR(16)      NULL,
@@ -16,7 +16,7 @@ sql_query('CREATE TABLE `whitelabels` (`id`          INT(11)      NOT NULL AUTO_
                                        `domain`      VARCHAR(128) NOT NULL,
 
                                        INDEX (`createdon`),
-                                       INDEX (`createdby`),
+                                       INDEX (`created_by`),
                                        INDEX (`modifiedon`),
                                        INDEX (`modifiedby`),
                                        INDEX (`status`),
@@ -24,7 +24,7 @@ sql_query('CREATE TABLE `whitelabels` (`id`          INT(11)      NOT NULL AUTO_
                                        UNIQUE(`domain`),
                                        UNIQUE(`users_id`),
 
-                                       CONSTRAINT `fk_whitelabels_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                                       CONSTRAINT `fk_whitelabels_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_whitelabels_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_whitelabels_users_id`   FOREIGN KEY (`users_id`)   REFERENCES `users` (`id`) ON DELETE RESTRICT
 

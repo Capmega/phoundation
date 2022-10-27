@@ -357,7 +357,7 @@ function mysql_validate_database($database, $structure_only = false) {
     try {
         load_libs('validate,seo,projects,servers');
 
-        $v = new ValidateForm($database, 'createdby,status,servers_id,projects_id,replication_status,name,description,error');
+        $v = new ValidateForm($database, 'created_by,status,servers_id,projects_id,replication_status,name,description,error');
 
         if ($structure_only) {
             return $database;
@@ -504,10 +504,10 @@ function mysql_insert_database($database) {
     try {
         $database = mysql_validate_database($database);
 
-        sql_query('INSERT INTO `databases` (`createdby`, `meta_id`, `status`, `servers_id`, `projects_id`, `replication_status`, `name`, `description`, `error`)
-                   VALUES                  (:createdby , :meta_id , :status , :servers_id , :projects_id , :replication_status , :name , :description , :error )',
+        sql_query('INSERT INTO `databases` (`created_by`, `meta_id`, `status`, `servers_id`, `projects_id`, `replication_status`, `name`, `description`, `error`)
+                   VALUES                  (:created_by , :meta_id , :status , :servers_id , :projects_id , :replication_status , :name , :description , :error )',
 
-                   array(':createdby'          => isset_get($_SESSION['user']['id']),
+                   array(':created_by'          => isset_get($_SESSION['user']['id']),
                          ':meta_id'            => meta_action(),
                          ':status'             => $database['status'],
                          ':servers_id'         => $database['servers_id'],

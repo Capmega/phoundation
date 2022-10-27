@@ -25,7 +25,7 @@ sql_query('DROP TABLE IF EXISTS `invoices`');
  */
 sql_query('CREATE TABLE `invoices` (`id`           INT(11)       NOT NULL AUTO_INCREMENT,
                                     `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                    `createdby`    INT(11)           NULL,
+                                    `created_by`    INT(11)           NULL,
                                     `meta_id`      INT(11)       NOT NULL,
                                     `status`       VARCHAR(16)       NULL,
                                     `providers_id` INT(11)           NULL,
@@ -43,7 +43,7 @@ sql_query('CREATE TABLE `invoices` (`id`           INT(11)       NOT NULL AUTO_I
                                     PRIMARY KEY `id`           (`id`),
                                             KEY `meta_id`      (`meta_id`),
                                             KEY `createdon`    (`createdon`),
-                                            KEY `createdby`    (`createdby`),
+                                            KEY `created_by`    (`created_by`),
                                             KEY `status`       (`status`),
                                             KEY `customers_id` (`customers_id`),
                                             KEY `providers_id` (`providers_id`),
@@ -53,7 +53,7 @@ sql_query('CREATE TABLE `invoices` (`id`           INT(11)       NOT NULL AUTO_I
                                             KEY `due_date`     (`due_date`),
 
                                     CONSTRAINT `fk_invoices_meta_id`      FOREIGN KEY (`meta_id`)      REFERENCES `meta`      (`id`) ON DELETE RESTRICT,
-                                    CONSTRAINT `fk_invoices_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT,
+                                    CONSTRAINT `fk_invoices_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT,
                                     CONSTRAINT `fk_invoices_customers_id` FOREIGN KEY (`customers_id`) REFERENCES `customers` (`id`) ON DELETE RESTRICT,
                                     CONSTRAINT `fk_invoices_providers_id` FOREIGN KEY (`providers_id`) REFERENCES `providers` (`id`) ON DELETE RESTRICT
 
@@ -66,7 +66,7 @@ sql_query('CREATE TABLE `invoices` (`id`           INT(11)       NOT NULL AUTO_I
  */
 sql_query('CREATE TABLE `invoices_items` (`id`                 INT(11)       NOT NULL AUTO_INCREMENT,
                                          `createdon`           TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                         `createdby`           INT(11)           NULL,
+                                         `created_by`           INT(11)           NULL,
                                          `meta_id`             INT(11)       NOT NULL,
                                          `status`              VARCHAR(16)       NULL,
                                          `invoices_id`         INT(11)       NOT NULL,
@@ -87,7 +87,7 @@ sql_query('CREATE TABLE `invoices_items` (`id`                 INT(11)       NOT
                                          PRIMARY KEY `id`              (`id`),
                                                  KEY `meta_id`         (`meta_id`),
                                                  KEY `createdon`       (`createdon`),
-                                                 KEY `createdby`       (`createdby`),
+                                                 KEY `created_by`       (`created_by`),
                                                  KEY `status`          (`status`),
                                                  KEY `invoices_id`     (`invoices_id`),
                                                  KEY `projects_id`     (`projects_id`),
@@ -96,7 +96,7 @@ sql_query('CREATE TABLE `invoices_items` (`id`                 INT(11)       NOT
                                                  KEY `inventories_id`  (`inventories_id`),
 
                                           CONSTRAINT `fk_invoices_items_meta_id`         FOREIGN KEY (`meta_id`)         REFERENCES `meta`              (`id`) ON DELETE RESTRICT,
-                                          CONSTRAINT `fk_invoices_items_createdby`       FOREIGN KEY (`createdby`)       REFERENCES `users`             (`id`) ON DELETE RESTRICT,
+                                          CONSTRAINT `fk_invoices_items_created_by`       FOREIGN KEY (`created_by`)       REFERENCES `users`             (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_invoices_items_invoices_id`     FOREIGN KEY (`invoices_id`)     REFERENCES `invoices`          (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_invoices_items_projects_id`     FOREIGN KEY (`projects_id`)     REFERENCES `projects`          (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_invoices_items_sub_projects_id` FOREIGN KEY (`sub_projects_id`) REFERENCES `projects`          (`id`) ON DELETE RESTRICT,
@@ -113,7 +113,7 @@ sql_query('CREATE TABLE `invoices_items` (`id`                 INT(11)       NOT
  */
 sql_query('CREATE TABLE `payments` (`id`          INT(11)       NOT NULL AUTO_INCREMENT,
                                     `createdon`   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                    `createdby`   INT(11)           NULL,
+                                    `created_by`   INT(11)           NULL,
                                     `meta_id`     INT(11)       NOT NULL,
                                     `status`      VARCHAR(16)       NULL,
                                     `items_id`    INT(11)           NULL,
@@ -126,13 +126,13 @@ sql_query('CREATE TABLE `payments` (`id`          INT(11)       NOT NULL AUTO_IN
                                     PRIMARY KEY `id`          (`id`),
                                             KEY `meta_id`     (`meta_id`),
                                             KEY `createdon`   (`createdon`),
-                                            KEY `createdby`   (`createdby`),
+                                            KEY `created_by`   (`created_by`),
                                             KEY `status`      (`status`),
                                             KEY `items_id`    (`items_id`),
                                             KEY `invoices_id` (`invoices_id`),
 
                                     CONSTRAINT `fk_payments_meta_id`     FOREIGN KEY (`meta_id`)     REFERENCES `meta`           (`id`) ON DELETE RESTRICT,
-                                    CONSTRAINT `fk_payments_createdby`   FOREIGN KEY (`createdby`)   REFERENCES `users`          (`id`) ON DELETE RESTRICT,
+                                    CONSTRAINT `fk_payments_created_by`   FOREIGN KEY (`created_by`)   REFERENCES `users`          (`id`) ON DELETE RESTRICT,
                                     CONSTRAINT `fk_payments_items_id`    FOREIGN KEY (`items_id`)    REFERENCES `invoices_items` (`id`) ON DELETE RESTRICT,
                                     CONSTRAINT `fk_payments_invoices_id` FOREIGN KEY (`invoices_id`) REFERENCES `invoices`       (`id`) ON DELETE RESTRICT
 

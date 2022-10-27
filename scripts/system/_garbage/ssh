@@ -76,7 +76,7 @@ try {
             $where    = array();
             $query    = 'SELECT    `ssh_accounts`.`id`,
                                    `ssh_accounts`.`createdon`,
-                                   `ssh_accounts`.`createdby`,
+                                   `ssh_accounts`.`created_by`,
                                    `ssh_accounts`.`status`,
                                    `ssh_accounts`.`name`,
                                    `ssh_accounts`.`seoname`,
@@ -90,7 +90,7 @@ try {
                          FROM      `ssh_accounts`
 
                          LEFT JOIN `users`
-                         ON        `users`.`id` = `ssh_accounts`.`createdby`';
+                         ON        `users`.`id` = `ssh_accounts`.`created_by`';
 
             if (DELETED) {
                 $where[] = ' `ssh_accounts`.`status` = "deleted" ';

@@ -114,10 +114,10 @@ function devices_insert($device, $server = null) {
             }
         }
 
-        sql_query('INSERT INTO `devices` (`createdby`, `meta_id`, `servers_id`, `categories_id`, `companies_id`, `branches_id`, `departments_id`, `employees_id`, `customers_id`, `providers_id`, `inventories_id`, `type`, `manufacturer`, `model`, `vendor`, `vendor_string`, `product`, `product_string`, `seo_product_string`, `libusb`, `bus`, `device`, `string`, `seostring`, `default`, `name`, `seoname`, `description`)
-                   VALUES                (:createdby , :meta_id , :servers_id , :categories_id , :companies_id , :branches_id , :departments_id , :employees_id , :customers_id , :providers_id , :inventories_id , :type , :manufacturer , :model , :vendor , :vendor_string , :product , :product_string , :seo_product_string , :libusb , :bus , :device , :string , :seostring , :default , :name , :seoname , :description )',
+        sql_query('INSERT INTO `devices` (`created_by`, `meta_id`, `servers_id`, `categories_id`, `companies_id`, `branches_id`, `departments_id`, `employees_id`, `customers_id`, `providers_id`, `inventories_id`, `type`, `manufacturer`, `model`, `vendor`, `vendor_string`, `product`, `product_string`, `seo_product_string`, `libusb`, `bus`, `device`, `string`, `seostring`, `default`, `name`, `seoname`, `description`)
+                   VALUES                (:created_by , :meta_id , :servers_id , :categories_id , :companies_id , :branches_id , :departments_id , :employees_id , :customers_id , :providers_id , :inventories_id , :type , :manufacturer , :model , :vendor , :vendor_string , :product , :product_string , :seo_product_string , :libusb , :bus , :device , :string , :seostring , :default , :name , :seoname , :description )',
 
-                   array(':createdby'          => isset_get($_SESSION['user']['id']),
+                   array(':created_by'          => isset_get($_SESSION['user']['id']),
                          ':meta_id'            => meta_action(),
                          ':servers_id'         => $device['servers_id'],
                          ':categories_id'      => $device['categories_id'],

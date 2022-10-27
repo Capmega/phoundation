@@ -167,12 +167,12 @@ $query   = 'SELECT    `roles`.`id`,
                       `roles`.`name`,
                       `roles`.`description`,
                       `roles`.`createdon`,
-                      `users`.`name` AS `createdby`
+                      `users`.`name` AS `created_by`
 
             FROM      `roles`
 
             LEFT JOIN `users`
-            ON        `users`.`id`   = `roles`.`createdby`';
+            ON        `users`.`id`   = `roles`.`created_by`';
 
 
 /*
@@ -299,7 +299,7 @@ if (!$r->rowCount()) {
         $html .= '  <tr>
                         <td class="select"><input type="checkbox" name="id[]" value="'.$role['id'].'"></td>
                         <td>'.$a.$role['name'].'</a></td>
-                        <td>'.$a.$role['createdby'].'</a></td>
+                        <td>'.$a.$role['created_by'].'</a></td>
                         <td>'.$a.$role['createdon'].'</a></td>
                         <td>'.$a.$role['description'].'</a></td>
                         <td>'.$a.Strings::force($role['rights'], ', ').'</a></td>

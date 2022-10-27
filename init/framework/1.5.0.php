@@ -9,7 +9,7 @@ sql_query('DROP TABLE IF EXISTS `drivers_devices`');
 
 sql_query('CREATE TABLE `drivers_devices` (`id`           INT(11)      NOT NULL AUTO_INCREMENT,
                                            `createdon`    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                           `createdby`    INT(11)          NULL,
+                                           `created_by`    INT(11)          NULL,
                                            `meta_id`      INT(11)          NULL,
                                            `status`       VARCHAR(16)      NULL,
                                            `type`         VARCHAR(32)      NULL,
@@ -26,7 +26,7 @@ sql_query('CREATE TABLE `drivers_devices` (`id`           INT(11)      NOT NULL 
 
                                            PRIMARY KEY `id`           (`id`),
                                                    KEY `createdon`    (`createdon`),
-                                                   KEY `createdby`    (`createdby`),
+                                                   KEY `created_by`    (`created_by`),
                                                    KEY `type`         (`type`),
                                                    KEY `meta_id`      (`meta_id`),
                                                    KEY `manufacturer` (`manufacturer`),
@@ -41,7 +41,7 @@ sql_query('CREATE TABLE `drivers_devices` (`id`           INT(11)      NOT NULL 
                                            UNIQUE  KEY `default_type` (`default`, `type`),
 
                                            CONSTRAINT `fk_drivers_devices_meta_id`   FOREIGN KEY (`meta_id`)   REFERENCES `meta`  (`id`) ON DELETE RESTRICT,
-                                           CONSTRAINT `fk_drivers_devices_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE RESTRICT
+                                           CONSTRAINT `fk_drivers_devices_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT
 
                                           ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 

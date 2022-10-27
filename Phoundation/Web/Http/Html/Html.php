@@ -2526,7 +2526,7 @@ Class Html {
                               FROM   `html_img_cache`
 
                               WHERE  `url`       = :url
-                              AND    `createdon` > NOW() - INTERVAL 1 DAY
+                              AND    `created_on` > NOW() - INTERVAL 1 DAY
                               AND    `status`    IS NULL',
 
                     array(':url' => $params['src']));
@@ -2666,7 +2666,7 @@ Class Html {
                            VALUES                       (:status , :url , :width , :height )
 
                            ON DUPLICATE KEY UPDATE `status`    = NULL,
-                                                   `createdon` = NOW()',
+                                                   `created_on` = NOW()',
 
                         array(':url'    => $params['src'],
                             ':width'  => $image['width'],

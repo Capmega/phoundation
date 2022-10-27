@@ -68,11 +68,11 @@ try {
         $from   = $user;
     }
 
-    sql_query('INSERT INTO `users_switch` (`createdby`, `users_id`, `status`)
-               VALUES                     (:createdby , :users_id , :status )',
+    sql_query('INSERT INTO `users_switch` (`created_by`, `users_id`, `status`)
+               VALUES                     (:created_by , :users_id , :status )',
 
                array(':users_id'  => cfi($user['id']),
-                     ':createdby' => cfi($from['id']),
+                     ':created_by' => cfi($from['id']),
                      ':status'    => isset_get($status)));
 
 

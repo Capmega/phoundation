@@ -319,7 +319,7 @@ try {
                         ON        `providers`.`id` = `domains`.`providers_id`
 
                         LEFT JOIN `users`
-                        ON        `users`.`id` = `domains`.`createdby`';
+                        ON        `users`.`id` = `domains`.`created_by`';
 
             if (empty($where)) {
                 $where = '';

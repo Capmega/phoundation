@@ -173,10 +173,10 @@ function providers_insert($provider) {
     try {
         $provider = providers_validate($provider);
 
-        sql_query('INSERT INTO `providers` (`createdby`, `categories_id`, `name`, `seoname`, `code`, `url`, `email`, `phones`, `description`)
-                   VALUES                  (:createdby , :categories_id , :name , :seoname , :code , :url , :email , :phones , :description )',
+        sql_query('INSERT INTO `providers` (`created_by`, `categories_id`, `name`, `seoname`, `code`, `url`, `email`, `phones`, `description`)
+                   VALUES                  (:created_by , :categories_id , :name , :seoname , :code , :url , :email , :phones , :description )',
 
-                   array(':createdby'     => $_SESSION['user']['id'],
+                   array(':created_by'     => $_SESSION['user']['id'],
                          ':categories_id' => $provider['categories_id'],
                          ':name'          => $provider['name'],
                          ':seoname'       => $provider['seoname'],
@@ -354,7 +354,7 @@ function providers_get($params) {
 
         array_default($params, 'columns', 'providers.id,
                                            providers.createdon,
-                                           providers.createdby,
+                                           providers.created_by,
                                            providers.meta_id,
                                            providers.status,
                                            providers.name,

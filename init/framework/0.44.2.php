@@ -46,5 +46,5 @@ sql_index_exists ('sitemaps_generated', 'file', 'ALTER TABLE `sitemaps_generated
 sql_column_exists('sitemaps_generated', 'file', 'ALTER TABLE `sitemaps_generated` DROP COLUMN `file`');
 
 sql_query('ALTER TABLE `sitemaps_data` CHANGE COLUMN `language` `language` VARCHAR(2) NULL');
-sql_query('ALTER TABLE `sitemaps_generated` CHANGE COLUMN `createdby` `createdby` INT(11) NULL');
+sql_query('ALTER TABLE `sitemaps_generated` CHANGE COLUMN `created_by` `created_by` INT(11) NULL');
 ?>

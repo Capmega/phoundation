@@ -374,13 +374,13 @@ function sms_block($phone_numbers, $status = null) {
          */
         $count         = 0;
         $phone_numbers = sms_full_phones($phone_numbers);
-        $insert        = sql_prepare('INSERT INTO `sms_blocks` (`createdby`, `meta_id`, `status`, `number`)
-                                      VALUES                   (:createdby , :meta_id , :status , :number )
+        $insert        = sql_prepare('INSERT INTO `sms_blocks` (`created_by`, `meta_id`, `status`, `number`)
+                                      VALUES                   (:created_by , :meta_id , :status , :number )
 
                                       ON DUPLICATE KEY UPDATE `id` = `id`');
 
         foreach (Arrays::force($phone_numbers) as $phone_number) {
-            $insert->execute(array(':createdby' => isset_get($_SESSION['user']['id']),
+            $insert->execute(array(':created_by' => isset_get($_SESSION['user']['id']),
                                    ':meta_id'   => meta_action(),
                                    ':status'    => $status,
                                    ':number'    => $phone_number));

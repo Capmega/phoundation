@@ -859,10 +859,10 @@ function ssh_insert_account($account) {
 
         $account['seoname'] = seo_string($account['name']);
 
-        sql_query('INSERT INTO `ssh_accounts` (`createdby`, `meta_id`, `name`, `seoname`, `ssh_key`, `description`, `username`)
-                   VALUES                     (:createdby , :meta_id , :name , :seoname , :ssh_key , :description , :username )',
+        sql_query('INSERT INTO `ssh_accounts` (`created_by`, `meta_id`, `name`, `seoname`, `ssh_key`, `description`, `username`)
+                   VALUES                     (:created_by , :meta_id , :name , :seoname , :ssh_key , :description , :username )',
 
-                   array(':createdby'   => $_SESSION['user']['id'],
+                   array(':created_by'   => $_SESSION['user']['id'],
                          ':meta_id'     => meta_action(),
                          ':name'        => $account['name'],
                          ':seoname'     => $account['seoname'],
@@ -1030,13 +1030,13 @@ function ssh_get_account($account) {
                                      `ssh_accounts`.`status`,
                                      `ssh_accounts`.`description`,
 
-                                     `createdby`.`name`   AS `createdby_name`,
-                                     `createdby`.`email`  AS `createdby_email`
+                                     `created_by`.`name`   AS `created_by_name`,
+                                     `created_by`.`email`  AS `created_by_email`
 
                            FROM      `ssh_accounts`
 
-                           LEFT JOIN `users` AS `createdby`
-                           ON        `ssh_accounts`.`createdby`  = `createdby`.`id`'.$where,
+                           LEFT JOIN `users` AS `created_by`
+                           ON        `ssh_accounts`.`created_by`  = `created_by`.`id`'.$where,
 
                            $execute);
 
@@ -1110,12 +1110,12 @@ function ssh_add_known_host($domain, $port) {
              * This host is not yet registered in the ssh_fingerprints table.
              * Regiser its fingerprints now.
              */
-            $insert = sql_prepare('INSERT INTO `ssh_fingerprints` (`createdby`, `meta_id`, `servers_id`, `domain`, `seodomain`, `port`, `fingerprint`, `algorithm`)
-                                   VALUES                         (:createdby , :meta_id , :servers_id , :domain , :seodomain , :port , :fingerprint , :algorithm )');
+            $insert = sql_prepare('INSERT INTO `ssh_fingerprints` (`created_by`, `meta_id`, `servers_id`, `domain`, `seodomain`, `port`, `fingerprint`, `algorithm`)
+                                   VALUES                         (:created_by , :meta_id , :servers_id , :domain , :seodomain , :port , :fingerprint , :algorithm )');
 
 
             foreach ($fingerprints as $fingerprint) {
-                $insert->execute(array(':createdby'   => isset_get($_SESSION['user']['id']),
+                $insert->execute(array(':created_by'   => isset_get($_SESSION['user']['id']),
                                        ':meta_id'     => meta_action(),
                                        'servers_id'   => $server['id'],
                                        ':domain'      => $fingerprint['domain'],

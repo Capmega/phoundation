@@ -252,11 +252,11 @@ function servers_insert($server) {
     try {
         $server = servers_validate($server);
 
-        sql_query('INSERT INTO `servers` (`createdby`, `meta_id`, `status`, `domain`, `seodomain`, `port`, `database_accounts_id`, `bill_duedate`, `cost`, `interval`, `providers_id`, `customers_id`, `ssh_accounts_id`, `allow_sshd_modification`, `description`, `ipv4`)
-                   VALUES                (:createdby , :meta_id , :status , :domain , :seodomain , :port , :database_accounts_id , :bill_duedate , :cost , :interval , :providers_id , :customers_id , :ssh_accounts_id , :allow_sshd_modification , :description , :ipv4)',
+        sql_query('INSERT INTO `servers` (`created_by`, `meta_id`, `status`, `domain`, `seodomain`, `port`, `database_accounts_id`, `bill_duedate`, `cost`, `interval`, `providers_id`, `customers_id`, `ssh_accounts_id`, `allow_sshd_modification`, `description`, `ipv4`)
+                   VALUES                (:created_by , :meta_id , :status , :domain , :seodomain , :port , :database_accounts_id , :bill_duedate , :cost , :interval , :providers_id , :customers_id , :ssh_accounts_id , :allow_sshd_modification , :description , :ipv4)',
 
                    array(':status'                  => ($server['ssh_accounts_id'] ? 'testing' : null),
-                         ':createdby'               => isset_get($_SESSION['user']['id']),
+                         ':created_by'               => isset_get($_SESSION['user']['id']),
                          ':meta_id'                 => meta_action(),
                          ':domain'                  => $server['domain'],
                          ':seodomain'               => $server['seodomain'],
@@ -551,8 +551,8 @@ function servers_update_domains($server, $domains = null) {
             return false;
         }
 
-        $insert = sql_prepare('INSERT INTO `domains_servers` (`createdby`, `meta_id`, `domains_id`, `servers_id`)
-                               VALUES                        (:createdby , :meta_id , :domains_id , :servers_id )', 'core');
+        $insert = sql_prepare('INSERT INTO `domains_servers` (`created_by`, `meta_id`, `domains_id`, `servers_id`)
+                               VALUES                        (:created_by , :meta_id , :domains_id , :servers_id )', 'core');
 
         foreach ($domains as $domain) {
             /*
@@ -570,7 +570,7 @@ function servers_update_domains($server, $domains = null) {
             }
 
             $insert->execute(array(':meta_id'    => meta_action(),
-                                   ':createdby'  => isset_get($_SESSION['user']['id']),
+                                   ':created_by'  => isset_get($_SESSION['user']['id']),
                                    ':servers_id' => $servers_id,
                                    ':domains_id' => $domains_id));
         }
@@ -608,10 +608,10 @@ function servers_add_domain($server, $domain) {
             return false;
         }
 
-        sql_query('INSERT INTO `domains_servers` (`createdby`, `meta_id`, `servers_id`, `domains_id`)
-                   VALUES                        (:createdby , :meta_id , :servers_id , :domains_id )',
+        sql_query('INSERT INTO `domains_servers` (`created_by`, `meta_id`, `servers_id`, `domains_id`)
+                   VALUES                        (:created_by , :meta_id , :servers_id , :domains_id )',
 
-                   array('createdby'   => isset_get($_SESSION['user']['id']),
+                   array('created_by'   => isset_get($_SESSION['user']['id']),
                          'meta_id'     => meta_action(),
                          'servers_id'  => $server,
                          'domains_id'  => $domain), 'core');
@@ -834,8 +834,8 @@ function servers_exec_on_all($params) {
                                     `ssh_accounts`.`username`,
                                     `ssh_accounts`.`ssh_key`,
 
-                                    `createdby`.`name`  AS `createdby_name`,
-                                    `createdby`.`email` AS `createdby_email`,
+                                    `created_by`.`name`  AS `created_by_name`,
+                                    `created_by`.`email` AS `created_by_email`,
 
                                     `providers`.`name`       AS `provider`,
                                     `customers`.`name`       AS `customer`,
@@ -845,8 +845,8 @@ function servers_exec_on_all($params) {
 
                           FROM      `servers`
 
-                          LEFT JOIN `users` AS `createdby`
-                          ON        `servers`.`createdby`            = `createdby`.`id`
+                          LEFT JOIN `users` AS `created_by`
+                          ON        `servers`.`created_by`            = `created_by`.`id`
 
                           LEFT JOIN `providers`
                           ON        `providers`.`id`                 = `servers`.`providers_id`
@@ -1070,8 +1070,8 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
                              `ssh_accounts`.`username`,
                              `ssh_accounts`.`ssh_key`,
 
-                             `createdby`.`name`  AS `createdby_name`,
-                             `createdby`.`email` AS `createdby_email`,
+                             `created_by`.`name`  AS `created_by_name`,
+                             `created_by`.`email` AS `created_by_email`,
 
                              `providers`.`name`       AS `provider`,
                              `customers`.`name`       AS `customer`,
@@ -1082,8 +1082,8 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
 
         $from  = ' FROM      `servers`
 
-                   LEFT JOIN `users` AS `createdby`
-                   ON        `servers`.`createdby`            = `createdby`.`id`
+                   LEFT JOIN `users` AS `created_by`
+                   ON        `servers`.`created_by`            = `created_by`.`id`
 
                    LEFT JOIN `providers`
                    ON        `providers`.`id`                 = `servers`.`providers_id`

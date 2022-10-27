@@ -154,10 +154,10 @@ function templates_insert($template) {
     try {
         $template = templates_validate($template);
 
-        sql_query('INSERT INTO `templates` (`createdby`, `meta_id`, `status`, )
-                   VALUES                  (:createdby , :meta_id , :status , )',
+        sql_query('INSERT INTO `templates` (`created_by`, `meta_id`, `status`, )
+                   VALUES                  (:created_by , :meta_id , :status , )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => meta_action(),
                          ':status'    => $template['status']));
 
@@ -263,7 +263,7 @@ function templates_get($params) {
 
         array_default($params, 'columns', 'templates.id,
                                            templates.createdon,
-                                           templates.createdby,
+                                           templates.created_by,
                                            templates.meta_id,
                                            templates.status,
                                            templates.name,

@@ -154,10 +154,10 @@ function invoices_insert($invoice) {
     try {
         $invoice = invoices_validate($invoice);
 
-        sql_query('INSERT INTO `invoices` (`createdby`, `meta_id`, `status`, )
-                   VALUES                  (:createdby , :meta_id , :status , )',
+        sql_query('INSERT INTO `invoices` (`created_by`, `meta_id`, `status`, )
+                   VALUES                  (:created_by , :meta_id , :status , )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => meta_action(),
                          ':status'    => $invoice['status']));
 
@@ -259,7 +259,7 @@ function invoices_get($invoice, $column = null, $status = null, $parent = false)
 
         array_default($params, 'columns', 'invoices.id,
                                            invoices.createdon,
-                                           invoices.createdby,
+                                           invoices.created_by,
                                            invoices.meta_id,
                                            invoices.status,
                                            invoices.name,

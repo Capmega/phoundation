@@ -1366,7 +1366,7 @@ function email_get_account($email, $columns = null) {
 
         if (!$columns) {
             $columns = '`email_client_accounts`.`id`,
-                        `email_client_accounts`.`createdby`,
+                        `email_client_accounts`.`created_by`,
                         `email_client_accounts`.`createdon`,
                         `email_client_accounts`.`modifiedby`,
                         `email_client_accounts`.`modifiedon`,
@@ -1432,7 +1432,7 @@ function email_get_client_account($email, $columns = null) {
 
         if (!$columns) {
             $columns = '`email_client_accounts`.`id`,
-                        `email_client_accounts`.`createdby`,
+                        `email_client_accounts`.`created_by`,
                         `email_client_accounts`.`createdon`,
                         `email_client_accounts`.`modifiedby`,
                         `email_client_accounts`.`modifiedon`,
@@ -1493,7 +1493,7 @@ function email_get_domain($email_or_domain, $columns = null, $table = 'email_dom
     try {
         if (!$columns) {
             $columns = '`id`,
-                        `createdby`,
+                        `created_by`,
                         `createdon`,
                         `modifiedby`,
                         `modifiedon`,
@@ -1565,10 +1565,10 @@ function email_delay($email) {
         /*
          * Store the email on DB with the `status` = "new"
          */
-        sql_query('INSERT INTO `emails` (`createdby`, `users_id`, `status`, `subject`, `from`, `to`, `html`, `text`, `format`)
-                   VALUES               (:createdby , :users_id , "new"   , :subject , :from , :to , :html , :text , :format )',
+        sql_query('INSERT INTO `emails` (`created_by`, `users_id`, `status`, `subject`, `from`, `to`, `html`, `text`, `format`)
+                   VALUES               (:created_by , :users_id , "new"   , :subject , :from , :to , :html , :text , :format )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':users_id'  => isset_get($email['users_id']),
                          ':subject'   => $email['subject'],
                          ':from'      => $email['from'],

@@ -780,10 +780,10 @@ function doc_insert_project($project, $language = null) {
     try {
         $project = doc_validate_project($project, $language);
 
-        sql_query('INSERT INTO `doc_projects` (`createdby`, `meta_id`, `name`, `seoname`, `language`)
-                   VALUES                     (:createdby , :meta_id , :name , :seoname , :language )',
+        sql_query('INSERT INTO `doc_projects` (`created_by`, `meta_id`, `name`, `seoname`, `language`)
+                   VALUES                     (:created_by , :meta_id , :name , :seoname , :language )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => meta_action(),
                          ':name'      => $project['name'],
                          ':seoname'   => $project['seoname'],
@@ -859,10 +859,10 @@ function doc_insert_page($page) {
     try {
         $page = doc_validate_page($page);
 
-        sql_query('INSERT INTO `doc_pages` (`createdby`, `meta_id`, `projects_id`, `parents_id`, `name`, `seoname`, `package`, `type`)
-                   VALUES                  (:createdby , :meta_id , :projects_id , :parents_id , :name , :seoname , :package , :type )',
+        sql_query('INSERT INTO `doc_pages` (`created_by`, `meta_id`, `projects_id`, `parents_id`, `name`, `seoname`, `package`, `type`)
+                   VALUES                  (:created_by , :meta_id , :projects_id , :parents_id , :name , :seoname , :package , :type )',
 
-                   array(':createdby'   => isset_get($_SESSION['user']['id']),
+                   array(':created_by'   => isset_get($_SESSION['user']['id']),
                          ':meta_id'     => meta_action(),
                          ':projects_id' => $page['projects_id'],
                          ':parents_id'  => $page['parents_id'],
@@ -999,10 +999,10 @@ function doc_insert_value($value) {
     try {
         $value = doc_validate_value($value);
 
-        sql_query('INSERT INTO `doc_values` (`createdby`, `meta_id`, `pages_id`, `key`, `value`)
-                   VALUES                   (:createdby , :meta_id , :pages_id , :key , :value )',
+        sql_query('INSERT INTO `doc_values` (`created_by`, `meta_id`, `pages_id`, `key`, `value`)
+                   VALUES                   (:created_by , :meta_id , :pages_id , :key , :value )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => meta_action(),
                          ':pages_id'  => $value['pages_id'],
                          ':key'       => $value['key'],

@@ -57,10 +57,10 @@ function tasks_insert($task) {
 
         $task = tasks_validate($task);
 
-        sql_query('INSERT INTO `tasks` (`createdby`, `meta_id`, `after`, `status`, `command`, `method`, `timeout`, `verbose`, `parents_id`, `parrallel`, `data`, `description`)
-                   VALUES              (:createdby , :meta_id , :after , :status , :command , :method , :timeout , :verbose , :parents_id , :parrallel , :data , :description )',
+        sql_query('INSERT INTO `tasks` (`created_by`, `meta_id`, `after`, `status`, `command`, `method`, `timeout`, `verbose`, `parents_id`, `parrallel`, `data`, `description`)
+                   VALUES              (:created_by , :meta_id , :after , :status , :command , :method , :timeout , :verbose , :parents_id , :parrallel , :data , :description )',
 
-                   array(':createdby'   => isset_get($_SESSION['user']['id']),
+                   array(':created_by'   => isset_get($_SESSION['user']['id']),
                          ':meta_id'     => meta_action(),
                          ':status'      => $task['status'],
                          ':command'     => $task['command'],
@@ -305,7 +305,7 @@ function tasks_get($filters, $set_status = false, $min_id = null) {
 
         $task = sql_get('SELECT    `tasks`.`id`,
                                    `tasks`.`meta_id`,
-                                   `tasks`.`createdby`,
+                                   `tasks`.`created_by`,
                                    `tasks`.`parents_id`,
                                    `tasks`.`parrallel`,
                                    `tasks`.`pid`,
@@ -321,15 +321,15 @@ function tasks_get($filters, $set_status = false, $min_id = null) {
                                    `tasks`.`description`,
                                    `tasks`.`method`,
 
-                                   `users`.`name`     AS `createdby_name`,
-                                   `users`.`email`    AS `createdby_email`,
-                                   `users`.`username` AS `createdby_username`,
-                                   `users`.`nickname` AS `createdby_nickname`
+                                   `users`.`name`     AS `created_by_name`,
+                                   `users`.`email`    AS `created_by_email`,
+                                   `users`.`username` AS `created_by_username`,
+                                   `users`.`nickname` AS `created_by_nickname`
 
                          FROM      `tasks`
 
                          LEFT JOIN `users`
-                         ON        `users`.`id` = `tasks`.`createdby`
+                         ON        `users`.`id` = `tasks`.`created_by`
 
                         '.$where.'
 
@@ -406,7 +406,7 @@ function tasks_list($status) {
                            FROM      `tasks`
 
                            LEFT JOIN `users`
-                           ON        `users`.`id` = `tasks`.`createdby`
+                           ON        `users`.`id` = `tasks`.`created_by`
 
                            '.$where.'
 

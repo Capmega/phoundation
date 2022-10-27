@@ -9,7 +9,7 @@ sql_query('DROP TABLE IF EXISTS `coupons`');
 
 sql_query('CREATE TABLE `coupons` (`id`            INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                    `createdon`     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                   `createdby`     INT(11)           NULL DEFAULT NULL,
+                                   `created_by`     INT(11)           NULL DEFAULT NULL,
                                    `meta_id`       INT(11)       NOT NULL,
                                    `status`        VARCHAR(16)       NULL DEFAULT NULL,
                                    `categories_id` INT(11)       NOT NULL,
@@ -21,14 +21,14 @@ sql_query('CREATE TABLE `coupons` (`id`            INT(11)       NOT NULL AUTO_I
                                    `description`   VARCHAR(2040) NOT NULL,
 
                                           KEY `createdon`     (`createdon`),
-                                          KEY `createdby`     (`createdby`),
+                                          KEY `created_by`     (`created_by`),
                                           KEY `meta_id`       (`meta_id`),
                                           KEY `status`        (`status`),
                                           KEY `categories_id` (`categories_id`),
                                           KEY `code`          (`code`),
                                    UNIQUE KEY `seocode`       (`seocode`),
 
-                                   CONSTRAINT `fk_coupons_createdby`     FOREIGN KEY (`createdby`) REFERENCES `users`      (`id`) ON DELETE RESTRICT,
+                                   CONSTRAINT `fk_coupons_created_by`     FOREIGN KEY (`created_by`) REFERENCES `users`      (`id`) ON DELETE RESTRICT,
                                    CONSTRAINT `fk_coupons_meta_id`       FOREIGN KEY (`meta_id`)   REFERENCES `meta`       (`id`) ON DELETE RESTRICT,
                                    CONSTRAINT `fk_coupons_categories_id` FOREIGN KEY (`meta_id`)   REFERENCES `categories` (`id`) ON DELETE RESTRICT
 
@@ -36,19 +36,19 @@ sql_query('CREATE TABLE `coupons` (`id`            INT(11)       NOT NULL AUTO_I
 
 sql_query('CREATE TABLE `coupons_used` (`id`         INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                         `createdon`  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                        `createdby`  INT(11)         NULL DEFAULT NULL,
+                                        `created_by`  INT(11)         NULL DEFAULT NULL,
                                         `meta_id`    INT(11)     NOT NULL,
                                         `status`     VARCHAR(16)     NULL DEFAULT NULL,
                                         `coupons_id` INT(11)     NOT NULL,
 
                                                KEY `createdon`            (`createdon`),
-                                               KEY `createdby`            (`createdby`),
+                                               KEY `created_by`            (`created_by`),
                                                KEY `meta_id`              (`meta_id`),
                                                KEY `status`               (`status`),
                                                KEY `coupons_id`           (`coupons_id`),
-                                        UNIQUE KEY `coupons_id_createdby` (`coupons_id`, `createdby`),
+                                        UNIQUE KEY `coupons_id_created_by` (`coupons_id`, `created_by`),
 
-                                        CONSTRAINT `fk_coupons_used_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`   (`id`) ON DELETE RESTRICT,
+                                        CONSTRAINT `fk_coupons_used_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users`   (`id`) ON DELETE RESTRICT,
                                         CONSTRAINT `fk_coupons_used_meta_id`    FOREIGN KEY (`meta_id`)    REFERENCES `meta`    (`id`) ON DELETE RESTRICT,
                                         CONSTRAINT `fk_coupons_used_coupons_id` FOREIGN KEY (`coupons_id`) REFERENCES `coupons` (`id`) ON DELETE RESTRICT
 

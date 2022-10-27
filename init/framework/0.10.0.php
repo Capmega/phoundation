@@ -68,7 +68,7 @@ sql_query('DROP TABLE IF EXISTS `blogs`');
  */
 sql_query('CREATE TABLE `blogs` (`id`          INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                  `createdon`   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                 `createdby`   INT(11)      NOT NULL,
+                                 `created_by`   INT(11)      NOT NULL,
                                  `modifiedon`  DATETIME         NULL,
                                  `modifiedby`  INT(11)          NULL,
                                  `status`      VARCHAR(16)      NULL,
@@ -79,7 +79,7 @@ sql_query('CREATE TABLE `blogs` (`id`          INT(11)      NOT NULL AUTO_INCREM
                                  `description` TEXT             NULL,
 
                                  INDEX (`createdon`),
-                                 INDEX (`createdby`),
+                                 INDEX (`created_by`),
                                  INDEX (`modifiedon`),
                                  INDEX (`modifiedby`),
                                  INDEX (`rights_id`),
@@ -87,7 +87,7 @@ sql_query('CREATE TABLE `blogs` (`id`          INT(11)      NOT NULL AUTO_INCREM
                                  UNIQUE(`name`),
                                  UNIQUE(`seoname`),
 
-                                 CONSTRAINT `fk_blogs_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`  (`id`) ON DELETE RESTRICT,
+                                 CONSTRAINT `fk_blogs_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users`  (`id`) ON DELETE RESTRICT,
                                  CONSTRAINT `fk_blogs_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users`  (`id`) ON DELETE RESTRICT,
                                  CONSTRAINT `fk_blogs_rights_id`  FOREIGN KEY (`rights_id`)  REFERENCES `rights` (`id`) ON DELETE RESTRICT
 
@@ -100,7 +100,7 @@ sql_query('CREATE TABLE `blogs` (`id`          INT(11)      NOT NULL AUTO_INCREM
  */
 sql_query('CREATE TABLE `blogs_categories` (`id`            INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                             `createdon`     TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                            `createdby`     INT(11)     NOT NULL,
+                                            `created_by`     INT(11)     NOT NULL,
                                             `modifiedon`    DATETIME        NULL,
                                             `modifiedby`    INT(11)         NULL,
                                             `status`        VARCHAR(16)     NULL,
@@ -110,7 +110,7 @@ sql_query('CREATE TABLE `blogs_categories` (`id`            INT(11)     NOT NULL
                                             `seoname`       VARCHAR(64)     NULL,
 
                                             INDEX (`createdon`),
-                                            INDEX (`createdby`),
+                                            INDEX (`created_by`),
                                             INDEX (`modifiedon`),
                                             INDEX (`modifiedby`),
                                             INDEX (`blogs_id`),
@@ -119,7 +119,7 @@ sql_query('CREATE TABLE `blogs_categories` (`id`            INT(11)     NOT NULL
                                             UNIQUE(`name`),
                                             UNIQUE(`seoname`),
 
-                                            CONSTRAINT `fk_blogs_categories_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`            (`id`) ON DELETE RESTRICT,
+                                            CONSTRAINT `fk_blogs_categories_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users`            (`id`) ON DELETE RESTRICT,
                                             CONSTRAINT `fk_blogs_categories_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users`            (`id`) ON DELETE RESTRICT,
                                             CONSTRAINT `fk_blogs_categories_blogs_id`   FOREIGN KEY (`blogs_id`)   REFERENCES `blogs`            (`id`) ON DELETE CASCADE,
                                             CONSTRAINT `fk_blogs_categories_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `blogs_categories` (`id`) ON DELETE RESTRICT
@@ -133,7 +133,7 @@ sql_query('CREATE TABLE `blogs_categories` (`id`            INT(11)     NOT NULL
  */
 sql_query('CREATE TABLE `blogs_posts` (`id`            INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                        `createdon`     TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                       `createdby`     INT(11)     NOT NULL,
+                                       `created_by`     INT(11)     NOT NULL,
                                        `modifiedon`    DATETIME        NULL,
                                        `modifiedby`    INT(11)         NULL,
                                        `status`        VARCHAR(16)     NULL,
@@ -147,7 +147,7 @@ sql_query('CREATE TABLE `blogs_posts` (`id`            INT(11)     NOT NULL AUTO
                                        `body`          MEDIUMTEXT      NULL,
 
                                        INDEX (`createdon`),
-                                       INDEX (`createdby`),
+                                       INDEX (`created_by`),
                                        INDEX (`modifiedon`),
                                        INDEX (`modifiedby`),
                                        INDEX (`blogs_id`),
@@ -159,7 +159,7 @@ sql_query('CREATE TABLE `blogs_posts` (`id`            INT(11)     NOT NULL AUTO
                                        UNIQUE(`name`(32)),
                                        UNIQUE(`seoname`(32)),
 
-                                       CONSTRAINT `fk_blogs_posts_createdby`     FOREIGN KEY (`createdby`)     REFERENCES `users`            (`id`) ON DELETE RESTRICT,
+                                       CONSTRAINT `fk_blogs_posts_created_by`     FOREIGN KEY (`created_by`)     REFERENCES `users`            (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_blogs_posts_modifiedby`    FOREIGN KEY (`modifiedby`)    REFERENCES `users`            (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_blogs_posts_blogs_id`      FOREIGN KEY (`blogs_id`)      REFERENCES `blogs`            (`id`) ON DELETE CASCADE,
                                        CONSTRAINT `fk_blogs_posts_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `blogs_categories` (`id`) ON DELETE RESTRICT
@@ -173,20 +173,20 @@ sql_query('CREATE TABLE `blogs_posts` (`id`            INT(11)     NOT NULL AUTO
  */
 sql_query('CREATE TABLE `blogs_keywords` (`id`             INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                           `createdon`      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                          `createdby`      INT(11)     NOT NULL,
+                                          `created_by`      INT(11)     NOT NULL,
                                           `blogs_posts_id` INT(11)     NOT NULL,
                                           `name`           VARCHAR(64)     NULL,
                                           `seoname`        VARCHAR(64)     NULL,
 
                                           INDEX (`createdon`),
-                                          INDEX (`createdby`),
+                                          INDEX (`created_by`),
                                           INDEX (`blogs_posts_id`),
                                           INDEX (`name`),
                                           INDEX (`seoname`),
                                           UNIQUE(`blogs_posts_id`, `seoname`),
                                           UNIQUE(`blogs_posts_id`, `name`),
 
-                                          CONSTRAINT `fk_blogs_keywords_createdby`      FOREIGN KEY (`createdby`)      REFERENCES `users`       (`id`) ON DELETE RESTRICT,
+                                          CONSTRAINT `fk_blogs_keywords_created_by`      FOREIGN KEY (`created_by`)      REFERENCES `users`       (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_blogs_keywords_blogs_posts_id` FOREIGN KEY (`blogs_posts_id`) REFERENCES `blogs_posts` (`id`) ON DELETE CASCADE
 
                                          ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');

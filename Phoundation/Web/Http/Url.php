@@ -333,26 +333,26 @@ class Url {
                       FROM   `url_cloaks`
 
                       WHERE  `url`       = :url
-                      AND    `createdby` = :createdby',
+                      AND    `created_by` = :created_by',
 
             true, array(':url'       => $url,
-                ':createdby' => isset_get($_SESSION['user']['id'])));
+                ':created_by' => isset_get($_SESSION['user']['id'])));
 
         if ($cloak) {
             /*
-             * Found cloaking URL, update the createdon time so that it won't
+             * Found cloaking URL, update the created_on time so that it won't
              * exipre too soon
              */
-            Sql::query('UPDATE `url_cloaks` SET `createdon` = NOW() WHERE `url` = :url', array(':url' => $url));
+            Sql::query('UPDATE `url_cloaks` SET `created_on` = NOW() WHERE `url` = :url', array(':url' => $url));
             return $cloak;
         }
 
         $cloak = Strings::random(32);
 
-        Sql::query('INSERT INTO `url_cloaks` (`createdby`, `url`, `cloak`)
-               VALUES                   (:createdby , :url , :cloak )',
+        Sql::query('INSERT INTO `url_cloaks` (`created_by`, `url`, `cloak`)
+               VALUES                   (:created_by , :url , :cloak )',
 
-            array(':createdby' => isset_get($_SESSION['user']['id']),
+            array(':created_by' => isset_get($_SESSION['user']['id']),
                 ':cloak'     => $cloak,
                 ':url'       => $url));
 
@@ -373,7 +373,7 @@ class Url {
      */
     public static function decloak(string $cloak): ?string
     {
-        $data = Sql::get('SELECT `createdby`, `url` FROM `url_cloaks` WHERE `cloak` = :cloak', array(':cloak' => $cloak));
+        $data = Sql::get('SELECT `created_by`, `url` FROM `url_cloaks` WHERE `cloak` = :cloak', array(':cloak' => $cloak));
 
         if (!$data) {
         }
@@ -387,7 +387,7 @@ class Url {
 //            self::cleanupCloak();
 //        }
 
-        Core::writeRegister($data['createdby'], 'http', 'url_cloak_users_id');
+        Core::writeRegister($data['created_by'], 'http', 'url_cloak_users_id');
         return $data['url'];
     }
 
@@ -415,7 +415,7 @@ class Url {
         Log::notice(tr('Cleaning up `url_cloaks` table'));
 
         $r = Sql::query('DELETE FROM `url_cloaks` 
-                         WHERE `createdon` < DATE_SUB(NOW(), INTERVAL ' . Config::get('web.url.cloaking.expires', 86400).' SECOND);');
+                         WHERE `created_on` < DATE_SUB(NOW(), INTERVAL ' . Config::get('web.url.cloaking.expires', 86400).' SECOND);');
 
         log_console(tr('Removed ":count" expired entries from the `url_cloaks` table', array(':count' => $r->rowCount())), 'green');
 

@@ -67,7 +67,7 @@ function databases_get_account($params) {
 
         array_default($params, 'columns', 'id,
                                            createdon,
-                                           createdby,
+                                           created_by,
                                            meta_id,
                                            status,
                                            name,

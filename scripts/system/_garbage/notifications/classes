@@ -64,10 +64,10 @@ try {
                                                             'methods'     => cli_argument('methods'    , true),
                                                             'description' => cli_argument('description', true)));
 
-                sql_query('INSERT INTO `notifications_classes` (`createdby`, `name`, `methods`, `description`)
-                           VALUES                              (:createdby , :name , :methods , :description )',
+                sql_query('INSERT INTO `notifications_classes` (`created_by`, `name`, `methods`, `description`)
+                           VALUES                              (:created_by , :name , :methods , :description )',
 
-                           array(':createdby'   => isset_get($_SESSION['user']['id']),
+                           array(':created_by'   => isset_get($_SESSION['user']['id']),
                                  ':name'        => $class['name'],
                                  ':methods'     => $class['methods'],
                                  ':description' => $class['description']));

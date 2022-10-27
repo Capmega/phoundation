@@ -10,7 +10,7 @@ sql_query('DROP TABLE IF EXISTS `twilio_accounts`');
 
 sql_query('CREATE TABLE `twilio_accounts` (`id`             INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                            `createdon`      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                           `createdby`      INT(11)          NULL,
+                                           `created_by`      INT(11)          NULL,
                                            `modifiedon`     DATETIME         NULL,
                                            `modifiedby`     INT(11)          NULL,
                                            `status`         VARCHAR(16)      NULL,
@@ -19,21 +19,21 @@ sql_query('CREATE TABLE `twilio_accounts` (`id`             INT(11)      NOT NUL
                                            `accounts_token` VARCHAR(40)      NULL,
 
                                            INDEX (`createdon`),
-                                           INDEX (`createdby`),
+                                           INDEX (`created_by`),
                                            INDEX (`modifiedon`),
                                            INDEX (`modifiedby`),
                                            INDEX (`status`),
                                            INDEX (`email`),
                                            INDEX (`accounts_id`),
 
-                                           CONSTRAINT `fk_twilio_accounts_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                                           CONSTRAINT `fk_twilio_accounts_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
                                            CONSTRAINT `fk_twilio_accounts_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users` (`id`) ON DELETE RESTRICT
 
                                            ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
 sql_query('CREATE TABLE `twilio_groups` (`id`          INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                          `createdon`   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                         `createdby`   INT(11)          NULL,
+                                         `created_by`   INT(11)          NULL,
                                          `modifiedon`  DATETIME         NULL,
                                          `modifiedby`  INT(11)          NULL,
                                          `status`      VARCHAR(16)      NULL,
@@ -41,19 +41,19 @@ sql_query('CREATE TABLE `twilio_groups` (`id`          INT(11)      NOT NULL AUT
                                          `description` VARCHAR(128) NOT NULL,
 
                                           INDEX (`createdon`),
-                                          INDEX (`createdby`),
+                                          INDEX (`created_by`),
                                           INDEX (`modifiedon`),
                                           INDEX (`modifiedby`),
                                           UNIQUE(`name`),
 
-                                          CONSTRAINT `fk_twilio_groups_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                                          CONSTRAINT `fk_twilio_groups_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_twilio_groups_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users` (`id`) ON DELETE RESTRICT
 
                                         ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
 sql_query('CREATE TABLE `twilio_numbers` (`id`          INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                           `createdon`   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                          `createdby`   INT(11)          NULL,
+                                          `created_by`   INT(11)          NULL,
                                           `modifiedon`  DATETIME         NULL,
                                           `modifiedby`  INT(11)          NULL,
                                           `status`      VARCHAR(16)      NULL,
@@ -63,7 +63,7 @@ sql_query('CREATE TABLE `twilio_numbers` (`id`          INT(11)      NOT NULL AU
                                           `number`      VARCHAR(12)  NOT NULL,
 
                                           INDEX (`createdon`),
-                                          INDEX (`createdby`),
+                                          INDEX (`created_by`),
                                           INDEX (`modifiedon`),
                                           INDEX (`modifiedby`),
                                           INDEX (`status`),
@@ -71,7 +71,7 @@ sql_query('CREATE TABLE `twilio_numbers` (`id`          INT(11)      NOT NULL AU
                                           INDEX (`groups_id`),
                                           INDEX (`number`),
 
-                                          CONSTRAINT `fk_twilio_numbers_createdby`   FOREIGN KEY (`createdby`)   REFERENCES `users`           (`id`) ON DELETE RESTRICT,
+                                          CONSTRAINT `fk_twilio_numbers_created_by`   FOREIGN KEY (`created_by`)   REFERENCES `users`           (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_twilio_numbers_modifiedby`  FOREIGN KEY (`modifiedby`)  REFERENCES `users`           (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_twilio_numbers_accounts_id` FOREIGN KEY (`accounts_id`) REFERENCES `twilio_accounts` (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_twilio_numbers_groups_id`   FOREIGN KEY (`groups_id`)   REFERENCES `twilio_groups`   (`id`) ON DELETE RESTRICT

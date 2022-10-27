@@ -171,7 +171,7 @@ function domains_get($domain = null) {
     try {
         $query = 'SELECT    `domains`.`id`,
                             `domains`.`createdon`,
-                            `domains`.`createdby`,
+                            `domains`.`created_by`,
                             `domains`.`meta_id`,
                             `domains`.`status`,
                             `domains`.`type`,
@@ -179,8 +179,8 @@ function domains_get($domain = null) {
                             `domains`.`seodomain`,
                             `domains`.`description`,
 
-                            `createdby`.`name`   AS `createdby_name`,
-                            `createdby`.`email`  AS `createdby_email`,
+                            `created_by`.`name`   AS `created_by_name`,
+                            `created_by`.`email`  AS `created_by_email`,
 
                             `providers`.`seoname`    AS `provider`,
                             `customers`.`seoname`    AS `customer`,
@@ -189,8 +189,8 @@ function domains_get($domain = null) {
 
                   FROM      `domains`
 
-                  LEFT JOIN `users` AS `createdby`
-                  ON        `domains`.`createdby`  = `createdby`.`id`
+                  LEFT JOIN `users` AS `created_by`
+                  ON        `domains`.`created_by`  = `created_by`.`id`
 
                   LEFT JOIN `providers`
                   ON        `providers`.`id`       = `domains`.`providers_id`
@@ -220,18 +220,18 @@ function domains_get($domain = null) {
              */
             $return = sql_get($query.'
 
-                              WHERE  `domains`.`createdby` = :createdby
+                              WHERE  `domains`.`created_by` = :created_by
                               AND    `domains`.`status`    = "_new"',
 
-                              array(':createdby' => $_SESSION['user']['id']), false, 'core');
+                              array(':created_by' => $_SESSION['user']['id']), false, 'core');
 
             if (!$return) {
-                sql_query('INSERT INTO `domains` (`createdby`, `meta_id`, `status`)
-                           VALUES                (:createdby , :meta_id , :status )',
+                sql_query('INSERT INTO `domains` (`created_by`, `meta_id`, `status`)
+                           VALUES                (:created_by , :meta_id , :status )',
 
                            array(':status'    => '_new',
                                  ':meta_id'   => meta_action(),
-                                 ':createdby' => isset_get($_SESSION['user']['id'])), 'core');
+                                 ':created_by' => isset_get($_SESSION['user']['id'])), 'core');
 
                 return domains_get($domain);
             }
@@ -347,10 +347,10 @@ function domains_add_keyword($keyword) {
     try {
         $keyword = domains_validate_keyword($keyword);
 
-        sql_query('INSERT INTO `domains_keywords` (`createdby`, `meta_id`, `keyword`, `seokeyword`)
-                   VALUES                         (:createdby , :meta_id , :keyword , :seokeyword )',
+        sql_query('INSERT INTO `domains_keywords` (`created_by`, `meta_id`, `keyword`, `seokeyword`)
+                   VALUES                         (:created_by , :meta_id , :keyword , :seokeyword )',
 
-                   array(':createdby'  => isset_get($_SESSION['user']['id']),
+                   array(':created_by'  => isset_get($_SESSION['user']['id']),
                          ':meta_id'    => meta_action(),
                          ':keyword'    => $keyword['keyword'],
                          ':seokeyword' => $keyword['seokeyword']), 'core');
@@ -368,8 +368,8 @@ function domains_add_keyword($keyword) {
                                        FROM   `domains_keywords`
 
                                        WHERE  `status` IS NULL', null, 'core');
-        $insert           = sql_prepare('INSERT INTO `domains` (`createdby`, `meta_id`, `domain`, `type`)
-                                         VALUES                (:createdby , :meta_id , :domain , "scan")', 'core');
+        $insert           = sql_prepare('INSERT INTO `domains` (`created_by`, `meta_id`, `domain`, `type`)
+                                         VALUES                (:created_by , :meta_id , :domain , "scan")', 'core');
 
         while ($combination = sql_fetch($combination_list, true)) {
             if ($combination === '1') {
@@ -402,7 +402,7 @@ function domains_add_keyword($keyword) {
 
                         if (!$exists) {
                             $count++;
-                            $insert->execute(array(':createdby' => isset_get($_SESSION['user']['id']),
+                            $insert->execute(array(':created_by' => isset_get($_SESSION['user']['id']),
                                                    ':meta_id'   => meta_action(),
                                                    ':domain'    => $domain));
                         }
@@ -508,11 +508,11 @@ function domains_insert($domain) {
     try {
             $domain = domains_validate($domain);
 
-            sql_query('INSERT INTO `domains` (`createdby`, `meta_id`, `status`, `mx_domains_id`, `customers_id`, `providers_id`, `domain`, `seodomain`, `description`)
-                       VALUES                (:createdby , :meta_id , :status , :mx_domains_id , :customers_id , :providers_id , :domain , :seodomain , :description )',
+            sql_query('INSERT INTO `domains` (`created_by`, `meta_id`, `status`, `mx_domains_id`, `customers_id`, `providers_id`, `domain`, `seodomain`, `description`)
+                       VALUES                (:created_by , :meta_id , :status , :mx_domains_id , :customers_id , :providers_id , :domain , :seodomain , :description )',
 
                        array(':status'        => null,
-                             ':createdby'     => $_SESSION['user']['id'],
+                             ':created_by'     => $_SESSION['user']['id'],
                              ':meta_id'       => meta_action(),
                              ':customers_id'  => $domain['customers_id'],
                              ':providers_id'  => $domain['providers_id'],

@@ -16,7 +16,7 @@ sql_query('DROP TABLE IF EXISTS `cdn_projects`');
  */
 sql_query('CREATE TABLE `cdn_projects` (`id`          INT(11)       NOT NULL AUTO_INCREMENT,
                                        `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                       `createdby`    INT(11)           NULL,
+                                       `created_by`    INT(11)           NULL,
                                        `modifiedon`   DATETIME          NULL DEFAULT NULL,
                                        `modifiedby`   INT(11)           NULL DEFAULT NULL,
                                        `status`       VARCHAR(16)       NULL DEFAULT NULL,
@@ -28,14 +28,14 @@ sql_query('CREATE TABLE `cdn_projects` (`id`          INT(11)       NOT NULL AUT
 
                                        PRIMARY KEY `id`           (`id`),
                                                KEY `createdon`    (`createdon`),
-                                               KEY `createdby`    (`createdby`),
+                                               KEY `created_by`    (`created_by`),
                                                KEY `modifiedon`   (`modifiedon`),
                                                KEY `status`       (`status`),
                                                KEY `customers_id` (`customers_id`),
                                                KEY `users_id`     (`users_id`),
                                        UNIQUE  KEY `seoname`      (`seoname`),
 
-                                       CONSTRAINT `fk_cdn_projects_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT,
+                                       CONSTRAINT `fk_cdn_projects_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_cdn_projects_modifiedby`   FOREIGN KEY (`modifiedby`)   REFERENCES `users`     (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_cdn_projects_users_id`     FOREIGN KEY (`users_id`)     REFERENCES `users`     (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_cdn_projects_customers_id` FOREIGN KEY (`customers_id`) REFERENCES `customers` (`id`) ON DELETE RESTRICT
@@ -44,7 +44,7 @@ sql_query('CREATE TABLE `cdn_projects` (`id`          INT(11)       NOT NULL AUT
 
 sql_query('CREATE TABLE `cdn_servers` (`id`           INT(11)       NOT NULL AUTO_INCREMENT,
                                        `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                       `createdby`    INT(11)           NULL,
+                                       `created_by`    INT(11)           NULL,
                                        `modifiedon`   DATETIME          NULL DEFAULT NULL,
                                        `modifiedby`   INT(11)           NULL DEFAULT NULL,
                                        `status`       VARCHAR(16)       NULL DEFAULT NULL,
@@ -54,12 +54,12 @@ sql_query('CREATE TABLE `cdn_servers` (`id`           INT(11)       NOT NULL AUT
 
                                        PRIMARY KEY `id`         (`id`),
                                                KEY `createdon`  (`createdon`),
-                                               KEY `createdby`  (`createdby`),
+                                               KEY `created_by`  (`created_by`),
                                                KEY `modifiedon` (`modifiedon`),
                                                KEY `status`     (`status`),
                                        UNIQUE  KEY `domain`     (`domain`),
 
-                                       CONSTRAINT `fk_cdn_servers_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
+                                       CONSTRAINT `fk_cdn_servers_created_by`  FOREIGN KEY (`created_by`)  REFERENCES `users` (`id`) ON DELETE RESTRICT,
                                        CONSTRAINT `fk_cdn_servers_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users` (`id`) ON DELETE RESTRICT
 
                                       ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');

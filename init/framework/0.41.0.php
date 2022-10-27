@@ -6,7 +6,7 @@ sql_query('DROP TABLE IF EXISTS `domains`;');
 
 sql_query('CREATE TABLE `domains` (`id`            INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY ,
                                    `createdon`     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                   `createdby`     INT(11)       NOT NULL,
+                                   `created_by`     INT(11)       NOT NULL,
                                    `modifiedon`    DATETIME          NULL DEFAULT NULL,
                                    `modifiedby`    INT(11)           NULL DEFAULT NULL,
                                    `status`        VARCHAR(16)       NULL DEFAULT NULL,
@@ -23,7 +23,7 @@ sql_query('CREATE TABLE `domains` (`id`            INT(11)       NOT NULL AUTO_I
                                    `mail`          TINYINT       NOT NULL,
 
                                    KEY `createdon`    (`createdon`),
-                                   KEY `createdby`    (`createdby`),
+                                   KEY `created_by`    (`created_by`),
                                    KEY `modifiedon`   (`modifiedon`),
                                    KEY `modifiedby`   (`modifiedby`),
                                    KEY `status`       (`status`),
@@ -31,7 +31,7 @@ sql_query('CREATE TABLE `domains` (`id`            INT(11)       NOT NULL AUTO_I
                                    KEY `web`          (`web`),
                                    KEY `mail`         (`mail`),
 
-                                   CONSTRAINT `fk_domains_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`     (`id`),
+                                   CONSTRAINT `fk_domains_created_by`    FOREIGN KEY (`created_by`)    REFERENCES `users`     (`id`),
                                    CONSTRAINT `fk_domains_modifiedby`   FOREIGN KEY (`modifiedby`)   REFERENCES `users`     (`id`),
                                    CONSTRAINT `fk_domains_customers_id` FOREIGN KEY (`customers_id`) REFERENCES `customers` (`id`)
 

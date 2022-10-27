@@ -83,7 +83,7 @@ try {
                         FROM      `radius_devices`
 
                         LEFT JOIN `users`
-                        ON        `users`.`id` = `radius_devices`.`createdby`
+                        ON        `users`.`id` = `radius_devices`.`created_by`
 
                         LEFT JOIN `users` AS `users_id`
                         ON        `users_id`.`id` = `radius_devices`.`users_id`';

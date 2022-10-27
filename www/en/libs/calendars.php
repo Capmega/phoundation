@@ -154,10 +154,10 @@ function calendars_insert($calendar) {
     try {
         $calendar = calendars_validate($calendar);
 
-        sql_query('INSERT INTO `calendars` (`createdby`, `meta_id`, `status`, )
-                   VALUES                  (:createdby , :meta_id , :status , )',
+        sql_query('INSERT INTO `calendars` (`created_by`, `meta_id`, `status`, )
+                   VALUES                  (:created_by , :meta_id , :status , )',
 
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                   array(':created_by' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => meta_action(),
                          ':status'    => $calendar['status']));
 
@@ -259,7 +259,7 @@ function calendars_get($calendar, $column = null, $status = null, $parent = fals
 
         array_default($params, 'columns', 'calendars.id,
                                            calendars.createdon,
-                                           calendars.createdby,
+                                           calendars.created_by,
                                            calendars.meta_id,
                                            calendars.status,
                                            calendars.name,
@@ -489,10 +489,10 @@ function calendars_insert_event($event) {
     try {
         $event = calendars_validate_event($event);
 
-        sql_query('INSERT INTO `calendars_events` (`createdby`, `meta_id`, `status`, `calendars_id`)
-                   VALUES                         (:createdby , :meta_id , :status , :calendars_id )',
+        sql_query('INSERT INTO `calendars_events` (`created_by`, `meta_id`, `status`, `calendars_id`)
+                   VALUES                         (:created_by , :meta_id , :status , :calendars_id )',
 
-                   array(':createdby'    => isset_get($_SESSION['user']['id']),
+                   array(':created_by'    => isset_get($_SESSION['user']['id']),
                          ':meta_id'      => meta_action(),
                          ':status'       => $event['status'],
                          ':calendars_id' => $event['calendars_id']));
@@ -595,7 +595,7 @@ function calendars_get_event($event, $column = null, $status = null, $parent = f
 
         array_default($params, 'columns', 'calendars.id,
                                            calendars.createdon,
-                                           calendars.createdby,
+                                           calendars.created_by,
                                            calendars.meta_id,
                                            calendars.status,
                                            calendars.name,
