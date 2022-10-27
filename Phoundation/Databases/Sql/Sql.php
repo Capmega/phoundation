@@ -966,7 +966,7 @@ class Sql
         $values  = $this->values($row);
         $keys    = $this->keys($row);
 
-        $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
+        return $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
     }
 
 

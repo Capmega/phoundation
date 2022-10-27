@@ -444,5 +444,7 @@ return $this;
                 Log::information($this->data);
                 break;
         }
+
+        return $this;
     }
 }

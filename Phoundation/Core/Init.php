@@ -27,14 +27,14 @@ class Init extends \Phoundation\Initialize\Init
                 ->setColumns(
                  '`id`        INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
                           `createdon` TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                          `class`     VARCHAR(64)   NOT NULL,
+                          `library`   VARCHAR(64)   NOT NULL,
                           `version`   VARCHAR(64)   NOT NULL,
-                          `comments`  VARCHAR(2048) NOT NULL')
+                          `comments`  VARCHAR(2048)     NULL')
                 ->setIndices(
-                  'INDEX `createdon`     (`createdon`),
-                          INDEX `class`         (`class`),
-                          INDEX `version`       (`version`),
-                          INDEX `class_version` (`class`, `version`)')
+                  'INDEX `createdon`       (`createdon`),
+                          INDEX `library`         (`library`),
+                          INDEX `version`         (`version`),
+                          INDEX `library_version` (`library`, `version`)')
                 ->create();
 
             sql()->schema()->table('meta')
