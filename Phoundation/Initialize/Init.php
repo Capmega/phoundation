@@ -8,7 +8,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnexpectedValueException;
-
+use Phoundation\Initialize\Exception\DoubleVersionException;
 
 
 /**
@@ -29,6 +29,13 @@ class Init
      * @var string|null $library
      */
     protected ?string $library = null;
+
+    /**
+     * The $file for this library
+     *
+     * @var string|null $file
+     */
+    protected ?string $file = null;
 
     /**
      * The version for this library
@@ -85,8 +92,21 @@ class Init
             ]));
         }
 
+        $this->file    = ROOT . str_replace('\\', '/', get_class($this)) . '.php';
         $this->library = $library;
         $this->version = $version;
+    }
+
+
+
+    /**
+     * Returns the file for this library
+     *
+     * @return string
+     */
+    public function getFile(): string
+    {
+        return $this->file;
     }
 
 
@@ -171,6 +191,13 @@ class Init
      */
     public function addUpdate(string $version, callable $function): Init
     {
+        if (array_key_exists($version, $this->updates)) {
+            throw new DoubleVersionException(tr('The version ":version" is specified twice in the init file ":file"', [
+                ':version' => $version,
+                ':file' => $this->file
+            ]));
+        }
+
         $this->updates[$version] = $function;
 
         // Make sure the updates table is ordered by versions

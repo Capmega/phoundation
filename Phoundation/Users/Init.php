@@ -19,25 +19,25 @@ class Init extends \Phoundation\Initialize\Init
 {
     public function __construct()
     {
-        parent::__construct('0.0.4');
+        parent::__construct('0.0.5');
 
         $this->addUpdate('0.0.4', function () {
             // Create the users table.
             sql()->schema()->table('users')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `createdby` int DEFAULT NULL,
+                    `created_by` int DEFAULT NULL,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `modified_by` int DEFAULT NULL,
+                    `modified_on` datetime DEFAULT NULL,
                     `meta_id` int DEFAULT NULL,
-                    `createdon` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `modifiedby` int DEFAULT NULL,
-                    `modifiedon` datetime DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `last_signin` datetime DEFAULT NULL,
                     `auth_fails` int NOT NULL,
                     `locked_until` datetime DEFAULT NULL,
                     `signin_count` int NOT NULL,
                     `username` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
-                    `password` varchar(140) NOT NULL,
+                    `password` varchar(255) NOT NULL,
                     `fingerprint` datetime DEFAULT NULL,
                     `domain` varchar(128) DEFAULT NULL,
                     `title` varchar(24) DEFAULT NULL,
@@ -93,10 +93,10 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `phones` (`phones`),
                     KEY `is_leader` (`is_leader`),
                     KEY `leaders_id` (`leaders_id`),
-                    KEY `createdby` (`createdby`),
-                    KEY `createdon` (`createdon`),
-                    KEY `modifiedby` (`modifiedby`),
-                    KEY `modifiedon` (`modifiedon`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
+                    KEY `modified_by` (`modified_by`),
+                    KEY `modified_on` (`modified_on`),
                     KEY `nickname` (`nickname`),
                     KEY `priority` (`priority`),
                     KEY `fingerprint` (`fingerprint`),
@@ -106,7 +106,8 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `countries_id` (`countries_id`),
                     KEY `status` (`status`)')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_users_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`),
+                    CONSTRAINT `fk_users_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                    CONSTRAINT `fk_users_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`),
                     CONSTRAINT `fk_users_leaders_id` FOREIGN KEY (`leaders_id`) REFERENCES `users` (`id`),
                     CONSTRAINT `fk_users_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
                     CONSTRAINT `fk_users_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`),
@@ -118,59 +119,73 @@ class Init extends \Phoundation\Initialize\Init
             sql()->schema()->table('rights')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `createdby` int DEFAULT NULL,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
+                    `modified_by` int DEFAULT NULL,
+                    `modified_on` datetime DEFAULT NULL,
                     `meta_id` int DEFAULT NULL,
-                    `createdon` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `status` varchar(16) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(32) NOT NULL,
-                    `description` varchar(2048) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL')
+                    `description` varchar(2048) CHARACTER SET latin1 NOT NULL')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `name` (`name`),
-                    KEY `createdby` (`createdby`),
-                    KEY `createdon` (`createdon`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
+                    KEY `modified_by` (`modified_by`),
+                    KEY `modified_on` (`modified_on`),
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`)')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_rights_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)')
+                    CONSTRAINT `fk_rights_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)
+                    CONSTRAINT `fk_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                    CONSTRAINT `fk_rights_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`),')
                 ->create();
 
             // Create the roles table.
             sql()->schema()->table('roles')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `createdon` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `createdby` int DEFAULT NULL,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
+                    `modified_by` int DEFAULT NULL,
+                    `modified_on` datetime DEFAULT NULL,
                     `meta_id` int DEFAULT NULL,
-                    `status` varchar(16) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-                    `name` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-                    `description` varchar(2047) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,')
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+                    `description` varchar(2047) CHARACTER SET latin1 DEFAULT NULL,')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
-                    KEY `createdon` (`createdon`),
-                    KEY `createdby` (`createdby`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
                     KEY `name` (`name`),
                     KEY `meta_id` (`meta_id`),')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_roles_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`),
-                    CONSTRAINT `fk_roles_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)')
+                    CONSTRAINT `fk_roles_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
+                    CONSTRAINT `fk_roles_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                    CONSTRAINT `fk_roles_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`),')
                 ->create();
 
             // Create the users_rights table.
             sql()->schema()->table('users_rights')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
+                    `created_by` int DEFAULT NULL,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `users_id` int NOT NULL,
                     `rights_id` int NOT NULL,
                     `name` varchar(32) NOT NULL,')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `users_id_2` (`users_id`,`rights_id`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
                     KEY `users_id` (`users_id`),
                     KEY `rights_id` (`rights_id`),
                     KEY `name` (`name`),')
                 ->setForeignKeys('
+                    CONSTRAINT `fk_users_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
                     CONSTRAINT `fk_users_rights_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `rights` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_users_rights_users_id` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE CASCADE')
                 ->create();
@@ -179,16 +194,45 @@ class Init extends \Phoundation\Initialize\Init
             sql()->schema()->table('roles_rights')
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
+                    `created_by` int DEFAULT NULL,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `roles_id` int NOT NULL,
                     `rights_id` int NOT NULL,')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
                     UNIQUE KEY `roles_id_2` (`roles_id`,`rights_id`),
                     KEY `roles_id` (`roles_id`),
                     KEY `rights_id` (`rights_id`),')
                 ->setForeignKeys('
+                    CONSTRAINT `fk_roles_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
                     CONSTRAINT `fk_roles_rights_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `rights` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_roles_rights_roles_id` FOREIGN KEY (`roles_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE')
+                ->create();
+        })->addUpdate('0.0.4', function () {
+            // Create the authentications table.
+            sql()->schema()->table('authentications')
+                ->setColumns('
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
+                    `status` varchar(16) DEFAULT NULL,
+                    `captcha_required` tinyint(1) NOT NULL,
+                    `failed_reason` varchar(127) DEFAULT NULL,
+                    `users_id` int DEFAULT NULL,
+                    `username` varchar(64) NOT NULL,
+                    `ip` varchar(46) DEFAULT NULL,')
+                ->setIndices('
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    KEY `users_id` (`users_id`),
+                    KEY `ip` (`ip`),')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_authentications_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                    CONSTRAINT `fk_authentications_users_id` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`)')
                 ->create();
         });
     }
