@@ -2,7 +2,7 @@
 <?php
 
 use Phoundation\Cli\Scripts;
-use Phoundation\Initialize\Initialize;
+use Phoundation\Libraries\Libraries;
 
 
 
@@ -24,7 +24,7 @@ $library  = Scripts::boolArgument('-l,--library');
 $comments = Scripts::argument('-c,--comments', true);
 
 Scripts::noArgumentsLeft();
-Initialize::execute($system, $plugins, $comments, $library);
+Libraries::initialize($system, $plugins, $comments, $library);
 
 //    // During init, force EMULATE_PREPARES because loads of init stuff will NOT work without
 //    foreach ($_CONFIG['db'] as $name => &$connector) {

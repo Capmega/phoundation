@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Initialize\Exception;
+namespace Phoundation\Libraries\Exception;
 
 
 
@@ -12,7 +12,7 @@ namespace Phoundation\Initialize\Exception;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Initialize
+ * @package Phoundation\Libraries
  */
 class DoubleVersionException extends InitException
 {

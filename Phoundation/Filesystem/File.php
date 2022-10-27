@@ -3024,7 +3024,7 @@ class File
                 throw new OutOfBoundsException(tr('The filter ":filter" is invalid, only string filters are allowed', [':filter' => $filter]));
             }
 
-            // Initialize the return array
+            // Libraries the return array
             $return[$filter] = [];
         }
 

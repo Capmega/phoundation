@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Initialize;
+namespace Phoundation\Libraries;
 
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Config;
@@ -16,17 +16,18 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 
 
+
 /**
- * Initialize library
+ * Libraries class
  *
  * This library can initialize all other libraries
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Initialize
+ * @package Phoundation\Libraries
  */
-class Initialize
+class Libraries
 {
     /**
      * The constant indicating the path for Phoundation libraries
@@ -56,7 +57,7 @@ class Initialize
      * @param string|null $library
      * @return void
      */
-    public static function execute(bool $system = true, bool $plugins = true, ?string $comments = null, ?string $library = null): void
+    public static function initialize(bool $system = true, bool $plugins = true, ?string $comments = null, ?string $library = null): void
     {
         self::$initializing = true;
 
@@ -66,10 +67,8 @@ class Initialize
 
         if ($library) {
             // Init only the specified library
-            $library = strtolower($library);
-            $path    = self::findLibraryPath($library, $system, $plugins);
-
-            self::executeLibrary($library, $path, $comments);
+            $library = self::findLibrary($library);
+            $library->init();
 
         } else {
             // Wipe all temporary data
@@ -82,7 +81,7 @@ class Initialize
             self::ensureSystemsDatabase();
 
             // Go over all system libraries and initialize them, then do the same for the plugins
-            self::executeLibraries($system, $plugins);
+            self::initializeLibraries($system, $plugins);
         }
 
         // Initialization done!
@@ -143,36 +142,6 @@ class Initialize
 
 
     /**
-     * Returns a list with all libraries and their version information
-     *
-     * @param bool $system
-     * @param bool $plugins
-     * @return array
-     */
-    public static function listLibraryVersions(bool $system = true, bool $plugins = true): array
-    {
-        $return  = [];
-        $libraries = self::listLibraries($system, $plugins);
-
-        foreach ($libraries as $path => $library) {
-            // Get version information for this library
-            $version = self::listLibraryVersion($path, $library);
-
-            if ($version === null) {
-                // This library has no version control
-                unset($libraries[$path]);
-                continue;
-            }
-
-            $return[$path] = $version;
-        }
-
-        return $return;
-    }
-
-
-
-    /**
      * Returns true if the system is initializing
      *
      * @return bool
@@ -180,88 +149,6 @@ class Initialize
     public static function isInitializing(): bool
     {
         return self::$initializing;
-    }
-
-
-
-    /**
-     * Returns the database version for the specified library
-     *
-     * @param string $library
-     * @param string $path
-     * @return string|null
-     */
-    public static function getDatabaseVersion(string $library, string $path): ?string
-    {
-        if ($library === 'initialize') {
-            // The init library does not have init support itself
-            return null;
-        }
-
-        return self::getlibraryInit($path)?->getDatabaseVersion();
-    }
-
-
-
-    /**
-     * Returns the code version for the specified library
-     *
-     * @param string $library
-     * @param string $path
-     * @return string|null
-     */
-    public static function getLibraryVersion(string $library, string $path): ?string
-    {
-        if ($library === 'initialize') {
-            // The init library does not have init support itself
-            return null;
-        }
-
-        return self::getlibraryInit($path)?->getVersion();
-    }
-
-
-
-    /**
-     * Returns the next available init version for the specified library
-     *
-     * @param string $library
-     * @param string $path
-     * @return string|null
-     */
-    public static function getLibraryNextVersion(string $library, string $path): ?string
-    {
-        if ($library === 'initialize') {
-            // The init library does not have init support itself
-            return null;
-        }
-
-        return self::getlibraryInit($path)?->getNextExecutionVersion();
-    }
-
-
-    /**
-     * Returns a list with all libraries and their version information
-     *
-     * @param string $path
-     * @param string $library
-     * @return array|null
-     */
-    public static function listLibraryVersion(string $path, string $library): ?array
-    {
-        $version = self::getLibraryVersion($library, $path);
-
-        if ($version === null) {
-            // This library has no version control
-            return null;
-        }
-
-        return [
-            'name'              => $library,
-            'code_version'      => $version,
-            'database_version'  => self::getDatabaseVersion($library, $path),
-            'next_init_version' => self::getLibraryNextVersion($library, $path)
-        ];
     }
 
 
@@ -311,7 +198,7 @@ class Initialize
 
             // Library paths MUST be directories
             if (is_dir($file)) {
-                $return[$file] = strtolower($library);
+                $return[$file] = new Library($file);
             }
         }
 
@@ -321,16 +208,16 @@ class Initialize
 
 
     /**
-     * Initialize all libraries for system and plugins
+     * Libraries all libraries for system and plugins
      *
      * @param bool $system
      * @param bool $plugins
      * @return int
      */
-    protected static function executeLibraries(bool $system = true, bool $plugins = true, ?string $comments = null): int
+    protected static function initializeLibraries(bool $system = true, bool $plugins = true, ?string $comments = null): int
     {
         // Get a list of all available libraries and their versions
-        $libraries     = self::listLibraryVersions($system, $plugins);
+        $libraries     = self::listLibraries($system, $plugins);
         $library_count = count($libraries);
         $update_count  = 0;
 
@@ -340,17 +227,16 @@ class Initialize
             self::orderLibraries($libraries);
 
             // Go over the libraries list and try to update each one
-            foreach ($libraries as $path => &$library) {
-                if (!$library['next_init_version']) {
+            foreach ($libraries as $path => $library) {
+                if (!$library->getNextInitVersion()) {
                     // This library has nothing more to initialize, remove it from the list
-                    Log::success(tr('Finished updates for library ":library"', [':library' => $library['name']]));
+                    Log::success(tr('Finished updates for library ":library"', [':library' => $library->getName()]));
                     unset($libraries[$path]);
                     break;
                 }
 
                 // Execute the update inits for this library and update the library information and start over
-                self::executeLibrary($library['name'], $path, $library['next_init_version'], $comments);
-                $library = self::listLibraryVersion($path, $library['name']);
+                $library->init($comments);
                 $update_count++;
                 break;
             }
@@ -395,74 +281,6 @@ class Initialize
 
 
     /**
-     * Initialize the specified library
-     *
-     * @param string $library
-     * @param string $path
-     * @param string $version
-     * @param string|null $comments
-     * @return string|null The next init version available for this library, if any. NULL if none are availabe anymore
-     */
-    protected static function executeLibrary(string $library, string $path, string $version, ?string $comments = null): ?string
-    {
-        // TODO Check later if we should be able to let init initialize itself
-        if ($library === 'initialize') {
-            // Never initialize the Init library itself!
-            Log::warning(tr('Not processing library ":library", it has no versioning control available', [
-                ':library' => $library
-            ]));
-
-            return false;
-        }
-
-        // Get the init object (may return NULL if not exist!)
-        $init = self::getlibraryInit($path);
-
-        if ($init === null) {
-            // This library has no Init available, skip!
-            Log::warning(tr('Not processing library ":library", it has no versioning control available', [
-                ':library' => $library
-            ]));
-            return false;
-        }
-
-        return $init->updateOne($version, $comments);
-    }
-
-
-
-    /**
-     * Returns the Init object for the specified library path
-     *
-     * @param string $path
-     * @return Init|null
-     */
-    protected static function getlibraryInit(string $path): ?Init
-    {
-        $file = Strings::slash($path) . 'Init.php';
-
-        if (!file_exists($file)) {
-            // There is no init class available
-            return null;
-        }
-
-        include_once($file);
-        $init_class_path = Debug::getClassPath($file);
-        $init = new $init_class_path();
-
-        if (!($init instanceof Init)) {
-            Log::Warning(tr('The Init.php file for the library ":library" is invalid, it should be an instance of the class Phoundation\Init\Init. This Init.php file will be ignored', [
-                ':library' => Strings::from($path, ROOT)
-            ]));
-            return null;
-        }
-
-        return $init;
-    }
-
-
-
-    /**
      * Returns the path for the specified library
      *
      * @note If the specified library exists both as a system library and a plugin, an OutOfBoundsException exception
@@ -471,9 +289,9 @@ class Initialize
      * @param string $library
      * @param bool $system
      * @param bool $plugin
-     * @return string
+     * @return Library
      */
-    protected static function findLibraryPath(string $library, bool $system = true, bool $plugin = true): string
+    protected static function findLibrary(string $library, bool $system = true, bool $plugin = true): Library
     {
         $return = null;
         $paths  = [];

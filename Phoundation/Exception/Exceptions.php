@@ -9,7 +9,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Developer\Debug;
-use Phoundation\Init\Exception\InitException;
+use \Phoundation\Libraries\Exception\InitException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\WebException;
 use Throwable;

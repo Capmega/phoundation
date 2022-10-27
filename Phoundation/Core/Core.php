@@ -881,7 +881,7 @@ class Core {
                     throw new CoreException('Cannot write to register key ":key.:subkey" as register key ":key" already exist as a value instead of an array', [':key' => $key, 'subkey' => $subkey]);
                 }
             } else {
-                // Initialize the register sub array
+                // Libraries the register sub array
                 self::$register[$key] = [];
             }
 
@@ -1891,7 +1891,7 @@ class Core {
     public static function registerShutdown(array|string $function_name): void
     {
         if (!is_array(self::readRegister('system', 'shutdown'))) {
-            // Initialize shutdown list
+            // Libraries shutdown list
             self::$register['system']['shutdown'] = [];
         }
 
@@ -1922,7 +1922,7 @@ class Core {
         $key = Strings::force($function_name);
 
         if (!is_array(self::readRegister('system', 'shutdown'))) {
-            // Initialize shutdown list
+            // Libraries shutdown list
             self::$register['system']['shutdown'] = [];
         }
 
@@ -1961,7 +1961,7 @@ class Core {
         Log::notice(tr('Starting shutdown procedure for script ":script"', [':script' => self::$register['system']['script']]), 2);
 
         if (!is_array(self::readRegister('system', 'shutdown'))) {
-            // Initialize shutdown list
+            // Libraries shutdown list
             self::$register['system']['shutdown'] = [];
         }
 
@@ -2489,7 +2489,7 @@ class Core {
                     }
 
                     if (empty($_SESSION['init'])) {
-                        // Initialize the session
+                        // Libraries the session
                         $_SESSION['init']         = time();
                         $_SESSION['first_domain'] = $domain;
 // :TODO: Make a permanent fix for this isset_get() use. These client, location, and language indices should be set, but sometimes location is NOT set for unknown reasons. Find out why it is not set, and fix that instead!

@@ -1,5 +1,14 @@
 #!/usr/bin/php
 <?php
+
+use Phoundation\Core\Core;
+use Phoundation\Core\Log;
+use Phoundation\Exception\Exceptions;
+use Phoundation\Libraries\Libraries;
+use Phoundation\Processes\Processes;
+
+
+
 /**
  * This is the init script for the project. Run this script to ensure that the
  * database is running with the same version as the code
@@ -26,16 +35,8 @@
  * @package template
  */
 
-use Phoundation\Core\Core;
-use Phoundation\Core\Log;
-use Phoundation\Exception\Exceptions;
-use Phoundation\Init\Initialize;
-use Phoundation\Processes\Processes;
-
-
-
 // Reset the database to the code version
-if (!Initialize::reset()) {
+if (!Libraries::reset()) {
     throw Exceptions::InitException(tr('WARNING: Database version has NOT been reset, it probably is already at or behind the framework and code versions. See ROOT/script/base/info for more information.'))->makeWarning();
 }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Initialize;
+namespace Phoundation\Libraries;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
@@ -8,7 +8,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnexpectedValueException;
-use Phoundation\Initialize\Exception\DoubleVersionException;
+use Phoundation\Libraries\Exception\DoubleVersionException;
 
 
 
@@ -20,7 +20,7 @@ use Phoundation\Initialize\Exception\DoubleVersionException;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Init
+ * @package \Phoundation\Libraries
  */
 class Init
 {
@@ -39,11 +39,11 @@ class Init
     protected ?string $file = null;
 
     /**
-     * The version for this library
+     * The code version for this library
      *
-     * @var string|null $version
+     * @var string|null $code_version
      */
-    protected ?string $version = null;
+    protected ?string $code_version = null;
 
     /**
      * The available updates to apply
@@ -64,38 +64,38 @@ class Init
     /**
      * Init constructor
      *
-     * @param string $version The code version of this library
+     * @param string $code_version The code version of this library
      */
-    protected function __construct(string $version)
+    protected function __construct(string $code_version)
     {
         // Detect the library name
         $library = Strings::untilReverse(get_class($this), '\\');
         $library = Strings::fromReverse($library, '\\');
         $library = strtolower($library);
 
-        if (!$version) {
+        if (!$code_version) {
             throw new OutOfBoundsException(tr('No code version specified for library ":library" init file', [
                 ':library' => $library
             ]));
         }
 
-        if (!strings::isVersion($version)) {
+        if (!strings::isVersion($code_version)) {
             throw new OutOfBoundsException(tr('Invalid code version ":version" specified for library ":library" init file', [
-                ':version' => $version,
+                ':version' => $code_version,
                 ':library' => $library
             ]));
         }
 
-        if ($version === '0.0.0') {
+        if ($code_version === '0.0.0') {
             throw new OutOfBoundsException(tr('Invalid code version ":version" specified for library ":library" init file. The minimum version is "0.0.1"', [
-                ':version' => $version,
+                ':version' => $code_version,
                 ':library' => $library
             ]));
         }
 
-        $this->file    = ROOT . str_replace('\\', '/', get_class($this)) . '.php';
-        $this->library = $library;
-        $this->version = $version;
+        $this->file         = ROOT . str_replace('\\', '/', get_class($this)) . '.php';
+        $this->library      = $library;
+        $this->code_version = $code_version;
     }
 
 
@@ -117,9 +117,9 @@ class Init
      *
      * @return string
      */
-    public function getVersion(): string
+    public function getCodeVersion(): string
     {
-        return $this->version;
+        return $this->code_version;
     }
 
 
@@ -148,7 +148,7 @@ class Init
      *
      * @return string|null The next version available for init execution, or NULL if none.
      */
-    public function getNextExecutionVersion(): ?string
+    public function getNextInitVersion(): ?string
     {
         if ($this->isFuture(array_key_first($this->updates))) {
             // The first available init version is already future version and will not be executed!
@@ -212,50 +212,14 @@ class Init
 
 
     /**
-     * Execute all updates for this library
-     *
-     * @return int The amount of inits that were executed
-     */
-    public function update(): int
-    {
-        $count = 0;
-
-        Log::action(tr('Initializing library ":library"', [':library' => $this->library]));
-
-        foreach ($this->updates as $version => $execute) {
-            $this->updateOne($version);
-            $count++;
-        }
-
-        return $count;
-    }
-
-
-
-    /**
      * Update to the specified version
      *
-     * @param string $version
      * @param string|null $comments
      * @return string|null The next version available for this init, or NULL if none are available
      */
-    public function updateOne(string $version, ?string $comments = null): ?string
+    public function init(?string $comments = null): ?string
     {
-        // Ensure that the specified version exists
-        if (!array_key_exists($version, $this->updates)) {
-            throw new NotExistsException(tr('The specified version ":version" does not exist for the library ":library"', [
-                'version'  => $version,
-                ':library' => $this->library
-            ]));
-        }
-
-        if ($this->hasBeenExecuted($version)) {
-            return null;
-        }
-
-        if ($this->isFuture($version)) {
-            return null;
-        }
+        $version = $this->getNextInitVersion();
 
         // Execute this init, register the version as executed, and return the next version
         Log::action(tr('Updating ":library" library with init version ":version"', [
@@ -265,7 +229,7 @@ class Init
 
         $this->updates[$version]();
         $this->addVersion($version, $comments);
-        return $this->getNextExecutionVersion();
+        return $this->getNextInitVersion();
     }
 
 
@@ -338,7 +302,7 @@ class Init
      */
     protected function isFuture(string $version): bool
     {
-        $result = version_compare($version, $this->version);
+        $result = version_compare($version, $this->code_version);
 
         switch ($result) {
             case -1:

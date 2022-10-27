@@ -28,7 +28,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Filesystem\File;
-use Phoundation\Initialize\Initialize;
+use Phoundation\Libraries\Libraries;
 use Phoundation\Notifications\Notification;
 use Phoundation\Processes\Commands;
 use Phoundation\Servers\Server;
@@ -530,7 +530,7 @@ class Sql
             Log::action(tr('Connecting to SQL instance ":name"', [':name' => $this->instance_name]), 2);
 
             // This is only required for the system connection
-            if (Initialize::isInitializing()) {
+            if (Libraries::isInitializing()) {
                 // We're doing an init. Check if we have a database, and if we don't, create one
             }
 
@@ -594,7 +594,7 @@ class Sql
                              * and versions table does not exist (yes, that makes a query fail). Just to be sure that
                              * it did not fail due to other reasons, check why the lookup failed.
                              */
-                            Initialize::processVersionFail($e);
+                            Libraries::processVersionFail($e);
                         }
 
                         /*
@@ -611,7 +611,7 @@ class Sql
                          * then check exactly what is the version difference
                          */
                         if ((Core::FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)) {
-                            Initialize::processVersionDiff();
+                            Libraries::processVersionDiff();
                         }
                     }
                 }
@@ -1909,7 +1909,7 @@ class Sql
     public function randomId(string $table, int $min = 1, int $max = 2147483648): int
     {
         $exists = true;
-        $id = -1; // Initialize id negatively to ensure
+        $id = -1; // Libraries id negatively to ensure
         $timeout = 50; // Don't do more than 50 tries on this!
 
         while ($exists and --$timeout > 0) {
