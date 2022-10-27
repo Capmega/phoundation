@@ -310,18 +310,21 @@ class Initialize
      *
      * @param bool $system
      * @param bool $plugins
-     * @return void
+     * @return int
      */
-    protected static function executeLibraries(bool $system = true, bool $plugins = true, ?string $comments = null): void
+    protected static function executeLibraries(bool $system = true, bool $plugins = true, ?string $comments = null): int
     {
         // Get a list of all available libraries and their versions
-        $libraries = self::listLibraryVersions($system, $plugins);
+        $libraries     = self::listLibraryVersions($system, $plugins);
+        $library_count = count($libraries);
+        $update_count  = 0;
 
         // Keep initializing libraries until none of them have inits available anymore
         while ($libraries) {
             // Order to have the nearest next init version first
             self::orderLibraries($libraries);
-print_r($libraries);
+
+            // Go over the libraries list and try to update each one
             foreach ($libraries as $path => &$library) {
                 if (!$library['next_init_version']) {
                     // This library has nothing more to initialize, remove it from the list
@@ -333,9 +336,22 @@ print_r($libraries);
                 // Execute the update inits for this library and update the library information and start over
                 self::executeLibrary($library['name'], $path, $library['next_init_version'], $comments);
                 $library = self::listLibraryVersion($path, $library['name']);
+                $update_count++;
                 break;
             }
         }
+
+        if (!$update_count) {
+            // No libraries were updated
+            Log::success(tr('Finished init, no libraries were updated'));
+        } else {
+            Log::success(tr('Finished init, executed ":count" updates in ":libraries" libraries', [
+                ':count' => $update_count,
+                ':libraries' => $library_count
+            ]));
+        }
+
+        return $update_count;
     }
 
 

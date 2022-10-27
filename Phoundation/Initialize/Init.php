@@ -268,9 +268,23 @@ class Init
      */
     protected function hasBeenExecuted(string $version): bool
     {
-        $result = version_compare($version, $this->version);
+        $database_version = $this->getDatabaseVersion();
+
+        if ($database_version === null) {
+            // This library has had no init executed whatsoever, so no, it had not been executed, whatever the version
+            return false;
+        }
+
+        $result = version_compare($version, $database_version);
 
         switch ($result) {
+            case 1:
+                // The init version is later than the specified version
+                return false;
+
+            case 0:
+                // The init version is the same as the current version, it has been executed
+                // no-break
             case -1:
                 // The file version is newer than the specified version
                 Log::warning(tr('Skipping init version ":version" for library ":library" because it already has been executed', [
@@ -279,14 +293,6 @@ class Init
                 ]), 5);
 
                 return true;
-
-            case 0:
-                // The file version is the same as the current version, it has  been executed
-                return false;
-
-            case 1:
-                // The file version is later than the specified version
-                return false;
         }
 
         throw new UnexpectedValueException(tr('Php version_compare() gave the unexpected output ":output"', [
@@ -308,11 +314,11 @@ class Init
 
         switch ($result) {
             case -1:
-                // The file version is newer than the specified version
+                // The init version is newer than the specified version and may be executed
                 return false;
 
             case 0:
-                // The file version is the same as the current version, it has  been executed
+                // The init version is the same as the current version and may be executed
                 return false;
 
             case 1:

@@ -97,7 +97,6 @@ class Init extends \Phoundation\Initialize\Init
                     KEY `createdon` (`createdon`),
                     KEY `modifiedby` (`modifiedby`),
                     KEY `modifiedon` (`modifiedon`),
-                    KEY `have1099` (`have1099`),
                     KEY `nickname` (`nickname`),
                     KEY `priority` (`priority`),
                     KEY `fingerprint` (`fingerprint`),

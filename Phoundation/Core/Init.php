@@ -19,7 +19,7 @@ class Init extends \Phoundation\Initialize\Init
 {
     public function __construct()
     {
-        parent::__construct('0.0.1');
+        parent::__construct('0.0.2');
 
         $this->addUpdate('0.0.1', function () {
             // Add table for version control itself
