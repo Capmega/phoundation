@@ -296,7 +296,7 @@ class Sql
 
             while (--$retries >= 0) {
                 try {
-                    $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['host'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . ($use_database and $this->configuration['name'] ? ';dbname=' . $this->configuration['name'] : '');
+                    $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['host'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (($use_database and $this->configuration['name']) ? ';dbname=' . $this->configuration['name'] : '');
                     $this->pdo = new PDO($connect_string, $this->configuration['user'], $this->configuration['pass'], $this->configuration['pdo_attributes']);
 
                     Log::success(tr('Connected to instance ":instance" with PDO connect string ":string"', [

@@ -29,7 +29,7 @@ $help  = 'The info script will show detailed information about the current frame
 Scripts::noArgumentsLeft();
 
 try {
-    Sql::db()->query('SELECT 1');
+    Sql()->query('SELECT 1');
 
 }catch(Exception $e) {
     if ($e->getCode() != '1049') {
