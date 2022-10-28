@@ -726,6 +726,10 @@ class Sql
                 return $query;
             }
 
+            if (!$query) {
+                throw new SqlException(tr('No query specified'));
+            }
+
             // Log all queries?
             if (Config::get('databases.sql.debug', false)) {
                 $query = ' ' . $query;
