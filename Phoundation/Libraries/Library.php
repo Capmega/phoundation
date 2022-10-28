@@ -70,15 +70,15 @@ class Library
      * Initialize this library
      *
      * @param string|null $comments
-     * @return bool
+     * @return string|null The next version available for this init, or NULL if none are available
      */
-    public function init(?string $comments = null): bool
+    public function init(?string $comments = null): ?string
     {
         // TODO Check later if we should be able to let init initialize itself
         if ($this->library === 'libraries') {
             // Never initialize the Init library itself!
             Log::warning(tr('Not initializing library "library", it has no versioning control available'));
-            return false;
+            return null;
         }
 
         if ($this->updates === null) {
@@ -86,10 +86,31 @@ class Library
             Log::warning(tr('Not processing library ":library", it has no versioning control available', [
                 ':library' => $this->library
             ]));
-            return false;
+            return null;
         }
 
         return $this->updates->init($comments);
+    }
+
+
+
+    /**
+     * Returns the type of library; system or plugin
+     *
+     * @return string
+     */
+    public function getType(): string
+    {
+        $path = Strings::unslash($this->path);
+        $path = Strings::untilReverse($path, '/');
+        $path = Strings::fromReverse($path, '/');
+        $path = strtolower($path);
+
+        if ($path === 'phoundation') {
+            return 'system';
+        }
+
+        return 'plugin';
     }
 
 
@@ -99,9 +120,9 @@ class Library
      *
      * @return bool
      */
-    public function isSytem(): bool
+    public function isSystem(): bool
     {
-showdie($this->path);
+        return $this->getType() === 'system';
     }
 
 
@@ -113,7 +134,7 @@ showdie($this->path);
      */
     public function isPlugin(): bool
     {
-showdie($this->path);
+        return $this->getType() === 'plugins';
     }
 
 
@@ -149,11 +170,7 @@ showdie($this->path);
      */
     public function getCodeVersion(): ?string
     {
-        if ($this->updates === null) {
-            return null;
-        }
-
-        return $this->updates->getCodeVersion();
+        return $this->updates?->getCodeVersion();
     }
 
 
@@ -165,11 +182,7 @@ showdie($this->path);
      */
     public function getDatabaseVersion(): ?string
     {
-        if ($this->updates === null) {
-            return null;
-        }
-
-        return $this->updates->getDatabaseVersion();
+        return $this->updates?->getDatabaseVersion();
     }
 
 
@@ -181,11 +194,7 @@ showdie($this->path);
      */
     public function getNextInitVersion(): ?string
     {
-        if ($this->updates === null) {
-            return null;
-        }
-
-        return $this->updates->getNextInitVersion();
+        return $this->updates?->getNextInitVersion();
     }
 
 

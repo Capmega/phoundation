@@ -134,10 +134,9 @@ class Updates
             return null;
         }
 
-        return sql()->getColumn('
-                            SELECT MAX(`version`) 
-                            FROM   `versions` 
-                            WHERE  `library` = :library', [':library' => $this->library]);
+        return sql()->getColumn('SELECT MAX(`version`) 
+                                       FROM   `versions` 
+                                       WHERE  `library` = :library', [':library' => $this->library]);
     }
 
 
@@ -226,7 +225,11 @@ class Updates
             ':version' => $version
         ]));
 
+        // Execute the update and clear the versions_exists as after any update, the versions table should exist
         $this->updates[$version]();
+        unset($this->versions_exists);
+
+        // Register the version update and return the next available init
         $this->addVersion($version, $comments);
         return $this->getNextInitVersion();
     }

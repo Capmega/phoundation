@@ -119,6 +119,13 @@ Class Log {
      */
     protected static bool $lock = false;
 
+    /**
+     * If true, double log messages will be filtered out (not recommended, this might hide issues)
+     *
+     * @var bool $filter_double
+     */
+    protected static bool $filter_double = false;
+
 
 
     /**
@@ -218,18 +225,45 @@ Class Log {
      *
      * @param int $threshold
      * @return int
-     * @throws LogException if the specified threshold is invalid.
+     * @throws OutOfBoundsException if the specified threshold is invalid.
      */
     public static function setThreshold(int $threshold): int
     {
         if ($threshold < 1 or $threshold > 10) {
-            throw new LogException(tr('The specified log threshold level ":level" is invalid. Please ensure the level is between 0 and 10', [':level' => $threshold]));
+            throw new OutOfBoundsException(tr('The specified log threshold level ":level" is invalid. Please ensure the level is between 0 and 10', [
+                ':level' => $threshold
+            ]));
         }
 
         $return = $threshold;
         self::$threshold = $threshold;
         return $return;
     }
+
+
+
+    /**
+     * Returns if double messages shoudl be filtered or not
+     *
+     * @return bool
+     */
+    public static function getFilterDouble(): bool
+    {
+        return self::$filter_double;
+    }
+
+
+
+    /**
+     * Sets if double messages shoudl be filtered or not
+     *
+     * @param bool $filter_double
+     */
+    public static function setFilterDouble(bool $filter_double): void
+    {
+        self::$filter_double = $filter_double;
+    }
+
 
 
     /**
@@ -379,7 +413,9 @@ Class Log {
                 break;
 
             default:
-                throw new OutOfBoundsException(tr('Invalid backtrace display value ":display" specified. Please ensure it is one of Log::BACKTRACE_DISPLAY_FUNCTION, Log::BACKTRACE_DISPLAY_FILE, or Log::BACKTRACE_DISPLAY_BOTH', [':display' => $display]));
+                throw new OutOfBoundsException(tr('Invalid backtrace display value ":display" specified. Please ensure it is one of Log::BACKTRACE_DISPLAY_FUNCTION, Log::BACKTRACE_DISPLAY_FILE, or Log::BACKTRACE_DISPLAY_BOTH', [
+                    ':display' => $display
+                ]));
         }
 
         $return = self::$display;
@@ -848,7 +884,7 @@ Class Log {
             }
 
             // Don't log the same message twice in a row
-            if (($level > 0) and (self::$last_message === $messages)) {
+            if (($level > 0) and (self::$last_message === $messages) and (self::$filter_double)) {
                 self::$lock = false;
                 return false;
             }
