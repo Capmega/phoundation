@@ -665,16 +665,22 @@ class Strings
     /**
      * Force the specified string to be the specified size.
      *
-     * @param string $source
+     * @param string|null $source
      * @param int $size
      * @param string $add
      * @param bool $prefix
      * @return string
      */
-    public static function size(string $source, int $size, string $add = ' ', bool $prefix = false): string
+    public static function size(?string $source, int $size, string $add = ' ', bool $prefix = false): string
     {
         if ($size < 0) {
-            throw new OutOfBoundsException(tr('Specified size ":size" is invalid, it must be 0 or higher', [':size' => $size]));
+            throw new OutOfBoundsException(tr('Specified size ":size" is invalid, it must be 0 or higher', [
+                ':size' => $size
+            ]));
+        }
+
+        if ($source === null) {
+            return '';
         }
 
         $strlen = mb_strlen(Color::strip($source));
@@ -684,14 +690,16 @@ class Strings
         }
 
         if ($strlen > $size) {
+            // The specified size is smaller than the source string, cut it
             return substr($source, 0, $size);
         }
 
+        // The specified size is larger than the source string, enlarge it
         if ($prefix) {
             return str_repeat($add, $size - $strlen) . $source;
         }
 
-        return $source.str_repeat($add, $size - $strlen);
+        return $source . str_repeat($add, $size - $strlen);
     }
 
 
