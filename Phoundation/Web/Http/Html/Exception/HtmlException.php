@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Http\Html\Exception;
+namespace Phoundation\Web\Http\Html\Exception;
 
 use Phoundation\Web\Http\Exception\HttpException;
 

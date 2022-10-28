@@ -19,18 +19,6 @@ use Phoundation\Core\Arrays;
 class Select extends Element
 {
     /**
-     * @var string|null $none
-     */
-    protected ?string $none = null;
-
-    /**
-     * @var string|null $empty
-     */
-    protected ?string $empty = null;
-
-
-
-    /**
      * Generates and returns the HTML string for a <select> control
      *
      * @return string
@@ -301,5 +289,17 @@ class Select extends Element
             }
 
             return $return;
+    }
+
+
+
+    /**
+     * Render the select body
+     *
+     * @return string
+     */
+    protected function renderHeaders(): string
+    {
+        return Element::element('select')->render();
     }
 }

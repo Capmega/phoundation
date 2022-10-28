@@ -2,8 +2,6 @@
 
 namespace Phoundation\Web\Http\Html;
 
-use Phoundation\Http\Html\Exception\HtmlException;
-
 
 
 /**
@@ -16,8 +14,15 @@ use Phoundation\Http\Html\Exception\HtmlException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class Element
+class Element
 {
+    /**
+     * The element type
+     *
+     * @var string $type
+     */
+    protected string $type;
+
     /**
      * The HTML id element attribute
      *
@@ -33,6 +38,13 @@ abstract class Element
     protected ?string $name = null;
 
     /**
+     * The HTML class element attribute
+     *
+     * @var string|null $class
+     */
+    protected ?string $class = null;
+
+    /**
      * The HTML tabindex element attribute
      *
      * @var int|null $tabindex
@@ -40,26 +52,20 @@ abstract class Element
     protected ?int $tabindex = null;
 
     /**
-     * The source data
+     * The attributes for this element
      *
-     * @var mixed $source
+     * @var array $attributes
      */
-    protected mixed $source = null;
-
-    /**
-     * The query that will generate the source data
-     *
-     * @var string|null $source_query
-     */
-    protected ?string $source_query = null;
+    protected array $attributes = [];
 
 
 
     /**
      * HtmlObject constructor
      */
-    public function __construct()
+    public function __construct(string $type)
     {
+        $this->type     = $type;
         $this->tabindex = Html::getTabIndex();
     }
 
@@ -118,53 +124,27 @@ abstract class Element
 
 
     /**
-     * Set the HTML none element attribute
+     * Sets the HTML class element attribute
      *
-     * @param string|null $none
+     * @param string|null $class
      * @return Element
      */
-    public function setNone(?string $none): Element
+    public function setClass(?string $class): Element
     {
-        $this->none = $none;
+        $this->class = $class;
         return $this;
     }
 
 
 
     /**
-     * Returns the HTML none element attribute
+     * Returns the HTML class element attribute
      *
      * @return string|null
      */
-    public function getNone(): ?string
+    public function getClass(): ?string
     {
-        return $this->none;
-    }
-
-
-
-    /**
-     * Set the HTML empty element attribute
-     *
-     * @param string|null $empty
-     * @return Element
-     */
-    public function setEmpty(?string $empty): Element
-    {
-        $this->empty = $empty;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the HTML empty element attribute
-     *
-     * @return string|null
-     */
-    public function getEmpty(): ?string
-    {
-        return $this->empty;
+        return $this->class;
     }
 
 
@@ -195,61 +175,59 @@ abstract class Element
 
 
     /**
-     * Set the HTML source element attribute
+     * Sets all HTML element attributes
      *
-     * @param mixed $source
+     * @param array $attributes
      * @return Element
      */
-    public function setSource(mixed $source): Element
+    public function setAttributes(array $attributes): Element
     {
-        if ($this->source) {
-            throw new HtmlException(tr('Cannot specify source, a source query was already specified'));
-        }
-
-        $this->source = $source;
+        $this->attributes = [];
         return $this;
     }
 
 
 
     /**
-     * Returns the HTML source element attribute
+     * Sets all HTML element attributes
      *
-     * @return mixed
-     */
-    public function getSource(): mixed
-    {
-        return $this->source;
-    }
-
-
-
-    /**
-     * Set the HTML source_query element attribute
-     *
-     * @param string|null $source_query
+     * @param array $attributes
      * @return Element
      */
-    public function setSourceQuery(?string $source_query): Element
+    public function addAttributes(array $attributes): Element
     {
-        if ($this->source) {
-            throw new HtmlException(tr('Cannot specify source query, a source was already specified'));
+        foreach ($attributes as $attribute => $value) {
+            $this->addAttribute($attribute, $value);
         }
 
-        $this->source_query = $source_query;
         return $this;
     }
 
 
 
     /**
-     * Returns the HTML source_query element attribute
+     * Sets all HTML element attributes
      *
-     * @return string|null
+     * @param string $attribute
+     * @param string $value
+     * @return Element
      */
-    public function getSourceQuery(): ?string
+    public function addAttribute(string $attribute, string $value): Element
     {
-        return $this->source_query;
+        $this->attributes[$attribute] = $value;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns all HTML element attributes
+     *
+     * @return array
+     */
+    public function getAttributes(): array
+    {
+        return $this->attributes;
     }
 
 
@@ -259,5 +237,24 @@ abstract class Element
      *
      * @return string
      */
-    public abstract function render(): string;
+    public function render(): string
+    {
+        return '<' . $this->type. ' ' . implode(' ', $this->buildAttributes()) . '>';
+    }
+
+
+
+    /**
+     * Add the system arguments to the arguments list
+     *
+     * @return array
+     */
+    protected function buildAttributes(): array
+    {
+        return array_merge($this->attributes, [
+            'id'       => $this->id,
+            'name'     => $this->name,
+            'tabindex' => $this->tabindex,
+        ]);
+    }
 }

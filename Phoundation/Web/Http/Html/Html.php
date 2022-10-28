@@ -35,33 +35,6 @@ Class Html {
     {
         return self::$tabindex++;
     }
-
-
-
-    /**
-     * Returns a new HtmlSelect object to generate an <select> element
-     *
-     * @return Select
-     */
-    public static function select(): Select
-    {
-        return new Select();
-    }
-
-
-
-    /**
-     * Returns a new HtmlImg object to generate an <img> element
-     *
-     * @return Img
-     */
-    public static function img(): Img
-    {
-        return new Img();
-    }
-
-
-
     /**
      * Wrapper for htmlentities()
      *

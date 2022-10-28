@@ -1,14 +1,25 @@
 <h1>SUCCESS<h1>
 <?php
 
-use Phoundation\Web\Http\Html\Html;
+use Phoundation\Web\Http\Html\Elements;
 
-sql()->get('');
-
-
-$html = Html::select()
-    ->setSource()
-    ->setSourceQuery()
+$img = Elements::img()
+    ->setName('test')
     ->render();
+echo $img;
 
-Page::addHtml($html);
+//$select = Elements::select()
+//    ->setName('test')
+//    ->render();
+//
+//$table = Elements::table()
+//    ->setName('test')
+//    ->render();
+//echo $table;
+
+//$html = Html::select()
+//    ->setSource()
+//    ->setSourceQuery()
+//    ->render();
+//
+//Page::addHtml($html);

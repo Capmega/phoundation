@@ -4,7 +4,7 @@ namespace Phoundation\Web\Http\Html;
 
 use Phoundation\Core\Log;
 use Phoundation\Filesystem\File;
-use Phoundation\Http\Html\Exception\HtmlException;
+use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Uglify;
 use Throwable;
