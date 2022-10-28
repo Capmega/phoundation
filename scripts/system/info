@@ -9,7 +9,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\ScriptException;
-
+use Phoundation\Libraries\Libraries;
 
 
 /**
@@ -44,30 +44,24 @@ try {
 //$framework_status = version_compare(Core::FRAMEWORKCODEVERSION, Core::getVersion('framework'));
 //$project_status   = version_compare(Config::get('project.version')  , Core::getVersion('project'));
 
-Log::cli(Color::apply(Strings::size(tr('Project name:') , 27), 'white') . ' ' . PROJECT);
-Log::cli(Color::apply(Strings::size(tr('Platform:')     , 27), 'white') . ' ' . PLATFORM);
-Log::cli(Color::apply(Strings::size(tr('Environment:')  , 27), 'white') . ' ' . ENVIRONMENT);
-Log::cli(Color::apply(Strings::size(tr('Production:')   , 27), 'white') . ' ' . Strings::boolean(Debug::production()));
-Log::cli(Color::apply(Strings::size(tr('Debug:')        , 27), 'white') . ' ' . Strings::boolean(Debug::enabled()));
-Log::cli(Color::apply(Strings::size(tr('Core database:'), 27), 'white') . ' ' . Config::get('databases.sql.instances.system.name', 'unknown'));
+Log::cli(Color::apply(Strings::size(tr('Project name:') , 28), 'white') . ' ' . PROJECT);
+Log::cli(Color::apply(Strings::size(tr('Platform:')     , 28), 'white') . ' ' . PLATFORM);
+Log::cli(Color::apply(Strings::size(tr('Environment:')  , 28), 'white') . ' ' . ENVIRONMENT);
+Log::cli(Color::apply(Strings::size(tr('Production:')   , 28), 'white') . ' ' . Strings::boolean(Debug::production()));
+Log::cli(Color::apply(Strings::size(tr('Debug:')        , 28), 'white') . ' ' . Strings::boolean(Debug::enabled()));
+Log::cli(Color::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . Config::get('databases.sql.instances.system.name', 'unknown'));
+Log::cli();
+Log::cli(Color::apply(Strings::size(tr('System libraries:'), 28), 'white') . ' ' . Strings::size(tr('Code version'), 14) . tr('Database version'));
 
-foreach (\Phoundation\Libraries\Libraries::listLibraryVersions(true) as $library) {
-
+foreach (Libraries::listLibraries(true, false) as $library) {
+    Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . ($library->getDatabaseVersion() ?? '-'));
 }
 
-//Log::cli(Color::apply(Strings::size(tr('Init required:')             , 27), 'white') . ' ' . Strings::boolean((Core::FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)));
-//
-//// Show the following lines only if the core database is available
-//if (empty($no_db)) {
-//    Log::cli(Color::apply(Strings::size(tr('Active users:')          , 27), 'white') . ' ' . sql_get('SELECT COUNT(`id`) AS `count` FROM `users` WHERE `status` IS NULL', true));
-//
-//    if (($framework_status < 0) or ($project_status < 0)) {
-//        Log::cli();
-//        throw new ScriptException(tr('One or both database versions are ahead of the code version. Fix this with running the init script with  "./scripts/base/init reset"'));
-//    }
-//
-//    if (($framework_status > 0) or ($project_status > 0)) {
-//        Log::cli();
-//        throw new ScriptException(tr('One or both database versions are behind the code version. Fix this with running the init script with "./scripts/base/init"'));
-//    }
-//}
+Log::cli();
+Log::cli(Color::apply(Strings::size(tr('Plugin libraries:'), 28), 'white') . ' ' . Strings::size(tr('Code version'), 14) . tr('Database version'));
+
+foreach (Libraries::listLibraries(false) as $library) {
+    Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . ($library->getDatabaseVersion() ?? '-'));
+}
+
+Log::cli();
