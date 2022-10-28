@@ -782,19 +782,6 @@ class Sql
             return $pdo_statement;
 
         } catch (Throwable $e) {
-            if (!$e instanceof PDOException) {
-                switch ($e->getCode()) {
-                    case 'forcedenied':
-                        throw $e;
-
-                    default:
-                        /*
-                         * This is likely not a PDO error, so it cannot be handled here
-                         */
-                        throw new SqlException('Not a PDO exception', $e);
-                }
-            }
-
             if ($query) {
                 if ($execute) {
                     if (!is_array($execute)) {
@@ -814,7 +801,9 @@ class Sql
             $error = $this->pdo->errorInfo();
 
             if (($error[0] == '00000') and !$error[1]) {
-                $error = $e->errorInfo;
+                if ($e instanceof PDOException) {
+                    $error = $e->errorInfo;
+                }
             }
 
             switch ($e->getCode()) {
@@ -949,10 +938,10 @@ class Sql
                 ->log()
                 ->send();
 
-            throw new SqlException(tr('Query ":query" failed', [
-                ':query' => $this->buildQueryString($query, $execute)
+            throw new SqlException(tr('Query ":query" failed with ":messages"', [
+                ':query'    => $this->buildQueryString($query, $execute),
+                ':messages' => $e->getMessages()
             ]), $e);
-
         }
     }
 
