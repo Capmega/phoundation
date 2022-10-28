@@ -2,14 +2,14 @@
 
 namespace Phoundation\Core;
 
-use ErrorException;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Developer\Debug;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Throwable;
+
 
 
 /**
@@ -232,20 +232,17 @@ class Config{
      * Reads the configuration file for the specified configuration environment
      *
      * @param string $environment
-     * @return bool True if any configuration files were read, false if the file already was read before, or if no
-     *      configuration files are available for the specified section
-     * @throws Throwable
+     * @return void
+     * @throws ConfigException
      * @throws OutOfBoundsException
      */
-    protected static function read(string $environment): bool
+    protected static function read(string $environment): void
     {
-        $read = false;
-
         // What environments should be read?
-        if (ENVIRONMENT === 'production') {
+        if ($environment === 'production') {
             $environments = ['production'];
         } else {
-            $environments = ['production', ENVIRONMENT];
+            $environments = ['production', $environment];
         }
 
         // Read the section for each environment
@@ -253,27 +250,26 @@ class Config{
             $file = ROOT . 'config/' . $environment . '.yaml';
 
             // Check if a configuration file exists for this environment
-            if (file_exists($file)) {
-                // Read the configuration data and merge it in the internal configuration data array
-                $read = true;
-
-                try {
-                    $data = yaml_parse_file($file);
-                } catch (Throwable $e) {
-                    // Failed to read YAML data from configuration file
-                    self::$fail = true;
-                    throw $e;
-                }
-
-                if (!is_array($data)) {
-                    throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [':file' => $file]));
-                }
-
-                self::$data = array_merge(self::$data, $data);
+            if (!file_exists($file)) {
+                // Do NOT use tr() here as it will cause endless loops!
+                throw Exceptions::ConfigException('Configuration file "' . Strings::from($file, ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist')->makeWarning();
             }
-        }
 
-        return $read;
+            try {
+                // Read the configuration data and merge it in the internal configuration data array
+                $data = yaml_parse_file($file);
+            } catch (Throwable $e) {
+                // Failed to read YAML data from configuration file
+                self::$fail = true;
+                throw $e;
+            }
+
+            if (!is_array($data)) {
+                throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [':file' => $file]));
+            }
+
+            self::$data = array_merge(self::$data, $data);
+        }
     }
 
 

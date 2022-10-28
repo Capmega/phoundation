@@ -6,6 +6,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
+use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
@@ -104,14 +105,19 @@ class Debug {
      */
     public static function production(?bool $production = null): bool
     {
-        if ($production === null) {
-            // Return the setting
-            return (bool) Config::get('debug.production', false);
-        }
+        try {
+            if ($production === null) {
+                // Return the setting
+                return (bool) Config::get('debug.production', false);
+            }
 
-        // Set the value
-        Config::set('debug.production', $production);
-        return $production;
+            // Set the value
+            Config::set('debug.production', $production);
+            return $production;
+        } catch (ConfigException) {
+            // Failed to get (or write) config. Assume production
+            return true;
+        }
     }
 
 

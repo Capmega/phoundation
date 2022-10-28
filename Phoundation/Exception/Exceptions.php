@@ -6,6 +6,7 @@ use Exception;
 use Phoundation\Cli\Exception\CliInvalidArgumentsException;
 use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Developer\Debug;
@@ -285,5 +286,21 @@ class Exceptions
     public static function NotExistsException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): NotExistsException
     {
         return new NotExistsException($messages, $data, $code, $previous);
+    }
+
+
+
+    /**
+     * Exceptions factory for ConfigException
+     *
+     * @param string|array $messages
+     * @param mixed|null $data
+     * @param string|null $code
+     * @param Throwable|null $previous
+     * @return ConfigException
+     */
+    public static function ConfigException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): ConfigException
+    {
+        return new ConfigException($messages, $data, $code, $previous);
     }
 }

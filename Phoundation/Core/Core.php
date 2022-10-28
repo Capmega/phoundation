@@ -715,9 +715,8 @@ class Core {
                         $_SESSION['language'] = $language;
 
                     }catch(Throwable $e) {
-                        /*
-                         * Language selection failed
-                         */
+
+                        // Language selection failed
                         if (!defined('LANGUAGE')) {
                             define('LANGUAGE', 'en');
                         }
