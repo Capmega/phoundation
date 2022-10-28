@@ -1653,10 +1653,12 @@ class File
      * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
      * previous exception attached to it
      *
-     * @param string $file
-     * @param string|null $type
-     * @param bool $no_directories
-     * @param Throwable|null $previous_e
+     * @param string $file               The file to be checked
+     * @param string|null $type          This is the label that will be added in the exception indicating what type of
+     *                                   file it is
+     * @param bool $no_directories       If true, the specified file cannot be a directory
+     * @param Throwable|null $previous_e If the file is okay, but this exception was specified, this exception will be
+     *                                   thrown
      * @return void
      */
     public static function checkReadable(string $file, ?string $type = null, bool $no_directories = false, ?Throwable $previous_e = null) : void
@@ -1666,23 +1668,41 @@ class File
         if (!file_exists($file)) {
             if (!file_exists(dirname($file))) {
                 // The file doesn't exist and neither does its parent directory
-                throw new FilesystemException(tr('The:type file ":file" cannot be read because it does not exist and neither does the parent path ":path"', [':type' => ($type ? '' : ' ' . $type), ':file' => $file, ':path' => dirname($file)]), previous: $previous_e);
+                throw new FilesystemException(tr('The:type file ":file" cannot be read because it does not exist and neither does the parent path ":path"', [
+                    ':type' => ($type ? '' : ' ' . $type),
+                    ':file' => $file,
+                    ':path' => dirname($file)
+                ]), previous: $previous_e);
             }
 
-            throw new FilesystemException(tr('The:type file ":file" cannot be read because it does not exist', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
+            throw new FilesystemException(tr('The:type file ":file" cannot be read because it does not exist', [
+                ':type' => ($type ? '' : ' ' . $type),
+                ':file' => $file
+            ]), previous: $previous_e);
         }
 
         if (!is_readable($file)) {
-            throw new FilesystemException(tr('The:type file ":file" cannot be read', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
+            throw new FilesystemException(tr('The:type file ":file" cannot be read', [
+                ':type' => ($type ? '' : ' ' . $type),
+                ':file' => $file
+            ]), previous: $previous_e);
         }
 
         if ($no_directories and is_dir($file)) {
-            throw new FilesystemException(tr('The:type file ":file" cannot be read because it is a directory', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
+            throw new FilesystemException(tr('The:type file ":file" cannot be read because it is a directory', [
+                ':type' => ($type ? '' : ' ' . $type),
+                ':file' => $file
+            ]), previous: $previous_e);
         }
 
         if ($previous_e) {
-            // This method was called because a read action failed, throw an exception for it
-            throw new FilesystemException(tr('The:type file ":file" cannot be read because of an unknown error', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
+            throw $previous_e;
+
+//            // This method was called because a read action failed, throw an exception for it
+//            throw new FilesystemException(tr('The:type file ":file" cannot be read because of an unknown error', [
+//                ':type' => ($type ? '' : ' ' . $type),
+//                ':file' => $file
+//            ]), previous: $previous_e);
         }
     }
 
@@ -1697,31 +1717,56 @@ class File
      * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
      * previous exception attached to it
      *
-     * @param string $file
-     * @param string|null $type
-     * @param Throwable|null $previous_e
+     * @param string $file               The file to be checked
+     * @param string|null $type          This is the label that will be added in the exception indicating what type of
+     *                                   file it is
+     * @param bool $no_directories       If true, the specified file cannot be a directory
+     * @param Throwable|null $previous_e If the file is okay, but this exception was specified, this exception will be
+     *                                   thrown
      * @return void
      */
-    public static function checkWritable(string $file, ?string $type = null, ?Throwable $previous_e = null) : void
+    public static function checkWritable(string $file, ?string $type = null, bool $no_directories = false, ?Throwable $previous_e = null) : void
     {
         self::validateFilename($file);
 
         if (!file_exists($file)) {
             if (!file_exists(dirname($file))) {
                 // The file doesn't exist and neither does its parent directory
-                throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist and neither does the parent path ":path"', [':type' => ($type ? '' : ' ' . $type), ':file' => $file, ':path' => dirname($file)]), previous: $previous_e);
+                throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist and neither does the parent path ":path"', [
+                    ':type' => ($type ? '' : ' ' . $type),
+                    ':file' => $file,
+                    ':path' => dirname($file)
+                ]), previous: $previous_e);
             }
 
-            throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
+            throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist', [
+                ':type' => ($type ? '' : ' ' . $type),
+                ':file' => $file
+            ]), previous: $previous_e);
         }
 
         if (!is_readable($file)) {
-            throw new FilesystemException(tr('The:type file ":file" cannot be written', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
+            throw new FilesystemException(tr('The:type file ":file" cannot be written', [
+                ':type' => ($type ? '' : ' ' . $type),
+                ':file' => $file
+            ]), previous: $previous_e);
+        }
+
+        if ($no_directories and is_dir($file)) {
+            throw new FilesystemException(tr('The:type file ":file" cannot be written because it is a directory', [
+                ':type' => ($type ? '' : ' ' . $type),
+                ':file' => $file
+            ]), previous: $previous_e);
         }
 
         if ($previous_e) {
-            // This method was called because a read action failed, throw an exception for it
-            throw new FilesystemException(tr('The:type file ":file" cannot be read because of an unknown error', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
+            throw $previous_e;
+
+//            // This method was called because a read action failed, throw an exception for it
+//            throw new FilesystemException(tr('The:type file ":file" cannot be written because of an unknown error', [
+//                ':type' => ($type ? '' : ' ' . $type),
+//                ':file' => $file
+//            ]), previous: $previous_e);
         }
     }
 

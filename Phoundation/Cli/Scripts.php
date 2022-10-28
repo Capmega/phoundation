@@ -225,6 +225,7 @@ class Scripts
         $file     = ROOT . 'scripts/';
         $argument = null;
 
+print_r(self::$arguments);
         foreach (self::$arguments as $position => $argument) {
             if (!$position) {
                 unset(self::$arguments[$position]);
@@ -239,7 +240,9 @@ class Scripts
 
             if (!ctype_alnum($argument)) {
                 // Methods can only have alphanumeric characters
-                throw Exceptions::OutOfBoundsException(tr('The specified method ":method" contains non alphanumeric characters which is not allowed', [':method' => $argument]))->makeWarning();
+                throw Exceptions::OutOfBoundsException(tr('The specified method ":method" contains non alphanumeric characters which is not allowed', [
+                    ':method' => $argument
+                ]))->makeWarning();
             }
 
             // Start processing arguments as methods here
@@ -248,7 +251,9 @@ class Scripts
 
             if (!file_exists($file)) {
                 // The specified path doesn't exist
-                throw Exceptions::MethodNotFoundException(tr('The specified method file ":file" was not found', [':file' => $file]))->makeWarning();
+                throw Exceptions::MethodNotFoundException(tr('The specified method file ":file" was not found', [
+                    ':file' => $file
+                ]))->makeWarning();
             }
 
             if (!is_dir($file)) {
@@ -256,8 +261,18 @@ class Scripts
                 return $file;
             }
 
-            // This is a directory, continue scanning
+            // This is a directory.
             $file .= '/';
+
+            // Does a file with the directory name exists inside?
+            if (file_exists($file . $argument)) {
+                if (!is_dir($file . $argument)) {
+                    // This is the file!
+                    return $file . $argument;
+                }
+            }
+
+            // Continue scanning
         }
 
         // Here we're still in a directory. If a file exists in that directory with the same name as the directory
@@ -271,7 +286,9 @@ class Scripts
         }
 
         // We're stuck in a directory still, no script to execute
-        throw Exceptions::MethodNotFoundException(tr('The specified method file ":file" was not found', [':file' => $file]))->makeWarning();
+        throw Exceptions::MethodNotFoundException(tr('The specified method file ":file" was not found', [
+            ':file' => $file
+        ]))->makeWarning();
     }
 
 

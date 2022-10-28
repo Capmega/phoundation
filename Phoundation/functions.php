@@ -22,6 +22,7 @@ use Phoundation\Databases\Redis;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
+use Phoundation\Filesystem\File;
 
 
 
@@ -452,7 +453,7 @@ function get_null(mixed $source): mixed
 
 
 /**
- * Return the value quoted if non numeric string
+ * Return the value quoted if non-numeric string
  *
  * @param int|string $value
  * @return int|string
@@ -510,26 +511,31 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
 /**
  * Execute the specified script file
  *
- * @param string $file
+ * @param string $__file
  * @param array $argv
  * @return void
  */
-function execute_script(string $file, array $argv): void
+function execute_script(string $__file, array $argv): void
 {
     global $argv;
 
     if ($argv) {
         Log::information(tr('Executing script ":script" with arguments ":arguments"', [
-            ':script' => $file,
+            ':script' => $__file,
             ':arguments' => $argv
         ]));
     } else {
         Log::information(tr('Executing script ":script" with no arguments', [
-            ':script' => $file
+            ':script' => $__file
         ]));
     }
 
-    include($file);
+    try {
+        include($__file);
+    } catch (Throwable $e) {
+        // Did this fail because the specified file does not exist?
+        File::checkReadable($__file, 'script', true, $e);
+    }
 }
 
 
