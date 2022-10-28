@@ -5,7 +5,7 @@ namespace Phoundation\Users;
 
 
 /**
- * Init class
+ * Updates class
  *
  * This is the Init class for the Users library
  *

@@ -5,7 +5,7 @@ namespace Phoundation\Core;
 
 
 /**
- * Init class
+ * Updates class
  *
  * This is the Init class for the Core library
  *

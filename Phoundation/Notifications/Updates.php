@@ -5,7 +5,7 @@ namespace Phoundation\Notifications;
 
 
 /**
- * Init class
+ * Updates class
  *
  * This is the Init class for the Notification library
  *

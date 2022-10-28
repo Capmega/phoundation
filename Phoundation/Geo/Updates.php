@@ -5,7 +5,7 @@ namespace Phoundation\Geo;
 
 
 /**
- * Init class
+ * Updates class
  *
  * This is the Init class for the Geo library
  *

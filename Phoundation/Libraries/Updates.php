@@ -12,7 +12,7 @@ use Phoundation\Libraries\Exception\DoubleVersionException;
 
 
 /**
- * Init class
+ * Updates class
  *
  * This is the prototype Init class that contains the basic methods for all other Init classes in all other libraries
  *

@@ -50,8 +50,10 @@ class Library
      */
     public function __construct(string $path)
     {
+        $path          = Strings::slash($path);
         $this->path    = $path;
-        $this->library = Strings::fromReverse($path, '/');
+        $this->library = Strings::fromReverse(Strings::unslash($path), '/');
+        $this->library = strtolower($this->library);
 
         if ($this->library === 'libraries') {
             // The libraries library does not have init support itself
@@ -147,7 +149,7 @@ showdie($this->path);
      */
     public function getCodeVersion(): ?string
     {
-        if ($this->updates) {
+        if ($this->updates === null) {
             return null;
         }
 
@@ -163,7 +165,7 @@ showdie($this->path);
      */
     public function getDatabaseVersion(): ?string
     {
-        if ($this->updates) {
+        if ($this->updates === null) {
             return null;
         }
 
@@ -179,7 +181,7 @@ showdie($this->path);
      */
     public function getNextInitVersion(): ?string
     {
-        if ($this->updates) {
+        if ($this->updates === null) {
             return null;
         }
 
@@ -206,8 +208,8 @@ showdie($this->path);
         $updates_class_path = Debug::getClassPath($file);
         $updates            = new $updates_class_path();
 
-        if (!($this->updates instanceof Updates)) {
-            Log::Warning(tr('The Updates.php file for the library ":library" in ":path" is invalid, it should be an instance of the class \Phoundation\Libraries\Updates. This updates file will be ignored', [
+        if (!($updates instanceof Updates)) {
+            Log::Warning(tr('The Updates.php file for the library ":library" in ":path" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Updates. This updates file will be ignored', [
                 ':path'    => $this->path,
                 ':library' => $this->library
             ]));

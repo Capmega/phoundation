@@ -244,9 +244,9 @@ class Libraries
 
         if (!$update_count) {
             // No libraries were updated
-            Log::success(tr('Finished init, no libraries were updated'));
+            Log::success(tr('Finished initialization, no libraries were updated'));
         } else {
-            Log::success(tr('Finished init, executed ":count" updates in ":libraries" libraries', [
+            Log::success(tr('Finished initialization, executed ":count" updates in ":libraries" libraries', [
                 ':count' => $update_count,
                 ':libraries' => $library_count
             ]));
@@ -267,14 +267,14 @@ class Libraries
     {
         // Remove libraries that have nothing to execute anymore
         foreach ($libraries as $path => $library) {
-            if ($library['next_init_version'] === null) {
+            if ($library->getNextInitVersion() === null) {
                 unset($libraries[$path]);
             }
         }
 
         // Order
         uasort($libraries, function ($a, $b) {
-            return version_compare($a['next_init_version'], $b['next_init_version']);
+            return version_compare($a->getNextInitVersion(), $b->getNextInitVersion());
         });
     }
 
@@ -321,7 +321,7 @@ class Libraries
                         ]));
                     }
 
-                    $return = $path . $directory . '/';
+                    $return = new Library($path . $directory);
                 }
             }
         }
