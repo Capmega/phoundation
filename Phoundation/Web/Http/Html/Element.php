@@ -42,9 +42,9 @@ class Element
     /**
      * The HTML class element attribute
      *
-     * @var string|null $class
+     * @var array $classes
      */
-    protected ?string $class = null;
+    protected array $classes = [];
 
     /**
      * The HTML tabindex element attribute
@@ -52,6 +52,27 @@ class Element
      * @var int|null $tabindex
      */
     protected ?int $tabindex = null;
+
+    /**
+     * The HTML readonly attribute
+     *
+     * @var string|null $readonly
+     */
+    protected ?string $readonly = null;
+
+    /**
+     * The HTML disabled attribute
+     *
+     * @var string|null $disabled
+     */
+    protected ?string $disabled = null;
+
+    /**
+     * The HTML autofocus attribute
+     *
+     * @var string|null $autofocus
+     */
+    protected ?string $autofocus = null;
 
     /**
      * The attributes for this element
@@ -82,6 +103,12 @@ class Element
     public function setId(?string $id): Element
     {
         $this->id = $id;
+
+        // By default, name and id should be equal
+        if (empty($this->name)) {
+            $this->name = $id;
+        }
+
         return $this;
     }
 
@@ -108,6 +135,12 @@ class Element
     public function setName(?string $name): Element
     {
         $this->name = $name;
+
+        // By default, name and id should be equal
+        if (empty($this->id)) {
+            $this->id = $name;
+        }
+
         return $this;
     }
 
@@ -128,12 +161,43 @@ class Element
     /**
      * Sets the HTML class element attribute
      *
-     * @param string|null $class
+     * @param array|string|null $classes
      * @return Element
      */
-    public function setClass(?string $class): Element
+    public function setClasses(array|string|null $classes): Element
     {
-        $this->class = $class;
+        $this->classes = [];
+        return $this->addClasses($classes);
+    }
+
+
+
+    /**
+     * Sets the HTML class element attribute
+     *
+     * @param string|null $classes
+     * @return Element
+     */
+    public function addClasses(?string $classes): Element
+    {
+        foreach (Arrays::force($classes, ' ') as $class) {
+            $this->addClass($class);
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Adds an class to the HTML class element attribute
+     *
+     * @param string $class
+     * @return Element
+     */
+    public function addClass(string $class): Element
+    {
+        $this->classes[] = $class;
         return $this;
     }
 
@@ -144,9 +208,35 @@ class Element
      *
      * @return string|null
      */
-    public function getClass(): ?string
+    public function getClasses(): ?string
     {
-        return $this->class;
+        return $this->classes;
+    }
+
+
+
+    /**
+     * Sets the HTML class element attribute
+     *
+     * @param bool $autofocus
+     * @return Element
+     */
+    public function setAutofocus(bool $autofocus): Element
+    {
+        $this->autofocus = ($autofocus ? 'autofocus' : null);
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the HTML class element attribute
+     *
+     * @return bool
+     */
+    public function getAutofocus(): bool
+    {
+        return (bool) $this->autofocus;
     }
 
 
@@ -177,6 +267,56 @@ class Element
 
 
     /**
+     * Set the HTML disabled element attribute
+     *
+     * @param bool $disabled
+     * @return Element
+     */
+    public function setDisabled(bool $disabled): Element
+    {
+        $this->tabindex = ($disabled ? 'disabled' : null);
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML disabled element attribute
+     *
+     * @return bool
+     */
+    public function getDisabled(): bool
+    {
+        return (bool) $this->disabled;
+    }
+
+
+
+    /**
+     * Set the HTML readonly element attribute
+     *
+     * @param bool $readonly
+     * @return Element
+     */
+    public function setReadonly(bool $readonly): Element
+    {
+        $this->readonly = ($readonly ? 'readonly' : null);
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML readonly element attribute
+     *
+     * @return bool
+     */
+    public function getReadonly(): bool
+    {
+        return $this->tabindex;
+    }
+
+
+
+    /**
      * Sets all HTML element attributes
      *
      * @param array $attributes
@@ -185,6 +325,7 @@ class Element
     public function setAttributes(array $attributes): Element
     {
         $this->attributes = [];
+        $this->addAttributes($attributes);
         return $this;
     }
 
@@ -252,14 +393,20 @@ class Element
     /**
      * Add the system arguments to the arguments list
      *
+     * @note The system attributes (id, name, class, tabindex, autofocus, readonly, disabled) will overwrite those same
+     *       values that were added as general attributes using Element::addAttribute()
      * @return array
      */
     protected function buildAttributes(): array
     {
         return array_merge($this->attributes, [
-            'id'       => $this->id,
-            'name'     => $this->name,
-            'tabindex' => $this->tabindex,
+            'id'        => $this->id,
+            'name'      => $this->name,
+            'class'     => implode(' ', $this->classes),
+            'tabindex'  => $this->tabindex,
+            'autofocus' => $this->autofocus,
+            'readonly'  => $this->readonly,
+            'disabled'  => $this->disabled,
         ]);
     }
 }

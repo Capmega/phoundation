@@ -18,6 +18,7 @@ use Phoundation\Core\Arrays;
  */
 class Select extends Element
 {
+    public function set
     /**
      * Generates and returns the HTML string for a <select> control
      *
@@ -27,19 +28,9 @@ class Select extends Element
     {
         static $count = 0;
 
-        array_params ($params);
-        Arrays::default($params, 'class'       , 'form-control');
         Arrays::default($params, 'option_class', '');
-        Arrays::default($params, 'disabled'    , false);
-        Arrays::default($params, 'name'        , '');
-        Arrays::default($params, 'id'          , $params['name']);
-        Arrays::default($params, 'none'        , tr('None selected'));
-        Arrays::default($params, 'empty'       , tr('None available'));
-        Arrays::default($params, 'extra'       , '');
         Arrays::default($params, 'selected'    , null);
-        Arrays::default($params, 'bodyonly'    , false);
-        Arrays::default($params, 'autosubmit'  , false);
-        Arrays::default($params, 'onchange'    , '');
+
         Arrays::default($params, 'hide_empty'  , false);
         Arrays::default($params, 'autofocus'   , false);
         Arrays::default($params, 'multiple'    , false);

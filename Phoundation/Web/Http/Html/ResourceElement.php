@@ -18,6 +18,10 @@ use Phoundation\Web\Http\Html\Exception\HtmlException;
  */
 abstract class ResourceElement extends Element
 {
+    use InputElement;
+
+
+
     /**
      * The text displayed for "none selected"
      *
@@ -31,6 +35,13 @@ abstract class ResourceElement extends Element
      * @var int|null $empty
      */
     protected ?int $empty = null;
+
+    /**
+     * The text displayed when the specified resource is empty
+     *
+     * @var int|null $empty
+     */
+    protected ?int $hide_empty = null;
 
     /**
      * The source data
@@ -167,7 +178,7 @@ abstract class ResourceElement extends Element
      */
     public function render(): string
     {
-        return self::renderHeaders() . renderBody();
+        return self::renderHeaders() . self::renderBody();
     }
 
 
