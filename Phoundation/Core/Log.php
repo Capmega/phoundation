@@ -81,7 +81,7 @@ Class Log {
      *
      * @var int $display
      */
-    protected static int $display = self::BACKTRACE_DISPLAY_BOTH;
+    protected static int $display = self::BACKTRACE_DISPLAY_FILE;
 
     /**
      * Keeps track of if the static object has been initialized or not
@@ -145,7 +145,7 @@ Class Log {
         // Apply configuration
         self::setThreshold(Config::get('log.threshold', Core::errorState() ? 1 : 3));
         self::setFile(Config::get('log.file', ROOT . 'data/log/syslog'));
-        self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
+        self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_FILE));
         self::setLocalId(substr(uniqid(true), -8, 8));
         self::setGlobalId($global_id);
 
@@ -398,18 +398,29 @@ Class Log {
      * 2 BACKTRACE_DISPLAY_FILE
      * 3 BACKTRACE_DISPLAY_BOTH
      *
-     * @param int $display The new display configuration
+     * @note This method also allows $display defined as their string names (for easy configuration purposes)
+     * @param string|int $display The new display configuration
      * @return int The previous value
      */
-    public function setBacktraceDisplay(int $display): int
+    public function setBacktraceDisplay(string|int $display): int
     {
         switch ($display) {
+            case 'BACKTRACE_DISPLAY_FUNCTION':
+                // no-break
             case self::BACKTRACE_DISPLAY_FUNCTION:
+                $display = self::BACKTRACE_DISPLAY_FUNCTION;
+                break;
+
+            case 'BACKTRACE_DISPLAY_FILE':
                 // no-break
             case self::BACKTRACE_DISPLAY_FILE:
-            // no-break
+                $display = self::BACKTRACE_DISPLAY_FILE;
+                break;
+
+            case 'BACKTRACE_DISPLAY_BOTH':
+                // no-break
             case self::BACKTRACE_DISPLAY_BOTH:
-                // All valid
+                $display = self::BACKTRACE_DISPLAY_BOTH;
                 break;
 
             default:
@@ -1047,7 +1058,7 @@ Class Log {
                 // Log the file@line information
                 if (isset($step['file'])) {
                     // Remove ROOT from the filenames for clarity
-                    $line['location'] = ' in ' . Strings::from($step['file'], ROOT) . '@' . $step['line'];
+                    $line['location'] = Strings::from($step['file'], ROOT) . '@' . $step['line'];
                 }
 
                 if (!$line) {
@@ -1055,11 +1066,11 @@ Class Log {
                     self::write(tr('Invalid backtrace data encountered, do not know how to process and display the following entry'), 'warning', $level);
                     self::printr($step, 10);
                     self::write(tr('Original backtrace data entry format below'), 'warning', $level);
-                    self::printr($backtrace[$id], 10);
+                    self::printr($step, 10);
                 }
 
                 // Determine the largest call line
-                $size = strlen(isset_get($line['call']));
+                $size = strlen(isset_get($line['call'], ''));
 
                 if ($size > $largest) {
                     $largest = $size;
@@ -1077,7 +1088,7 @@ Class Log {
                     $line['call'] = Strings::size($line['call'], $largest);
                 }
 
-                self::write(trim(($line['call'] ?? null) . ($line['location'] ?? null)), 'debug', $level, false);
+                self::write(trim(($line['call'] ?? null) . ($line['location'] ? (isset($line['call']) ? ' in ' : null) . $line['location'] : null)), 'debug', $level, false);
             }
 
             return $count;
