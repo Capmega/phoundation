@@ -4,6 +4,8 @@ namespace Phoundation\Web\Http\Html;
 
 
 
+use Phoundation\Core\Arrays;
+
 /**
  * Class Element
  *
@@ -239,7 +241,10 @@ class Element
      */
     public function render(): string
     {
-        return '<' . $this->type. ' ' . implode(' ', $this->buildAttributes()) . '>';
+        $attributes = $this->buildAttributes();
+        $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"');
+
+        return '<' . $this->type. ' ' . $attributes . '>';
     }
 
 

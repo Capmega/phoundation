@@ -48,7 +48,7 @@ class Img extends Element
      * @param string|null $alt
      * @return Element
      */
-    public function setAlt(?string $alt): Element
+    public function setAlt(?string $alt): self
     {
         $this->alt = $alt;
         return $this;
@@ -74,7 +74,7 @@ class Img extends Element
      * @param string|null $src
      * @return Element
      */
-    public function setSrc(?string $src): Element
+    public function setSrc(?string $src): self
     {
         $this->src = $src;
         return $this;
@@ -110,5 +110,20 @@ class Img extends Element
         }
 
         return parent::render();
+    }
+
+
+
+    /**
+     * Add the system arguments to the arguments list
+     *
+     * @return array
+     */
+    protected function buildAttributes(): array
+    {
+        return array_merge(parent::buildAttributes(), [
+            'src' => $this->src,
+            'alt' => $this->alt,
+        ]);
     }
 }
