@@ -57,17 +57,14 @@ class Scripts
     /**
      * Execute a command by the "cli" script
      *
-     * @param array $argv The PHP $argv
      * @return void
      * @throws Throwable
      */
-    public static function execute(array $argv): void
+    public static function execute(): void
     {
-        global $argv;
-
         // Backup the command line arguments
-        self::$argv      = $GLOBALS['argv'];
-        self::$arguments = $GLOBALS['argv'];
+        self::$argv      =  $GLOBALS['argv'];
+        self::$arguments = &$GLOBALS['argv'];
 
         // All scripts will execute the cli_done() call, register basic script information
         Core::startup();
@@ -225,13 +222,7 @@ class Scripts
         $file     = ROOT . 'scripts/';
         $argument = null;
 
-print_r(self::$arguments);
         foreach (self::$arguments as $position => $argument) {
-            if (!$position) {
-                unset(self::$arguments[$position]);
-                continue;
-            }
-
             if (str_ends_with($argument, '/cli')) {
                 // This is the cli command, ignore it
                 unset(self::$arguments[$position]);

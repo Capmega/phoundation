@@ -507,13 +507,13 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
 }
 
 
-
 /**
  * Execute the specified script file
  *
  * @param string $__file
  * @param array $argv
  * @return void
+ * @throws Throwable
  */
 function execute_script(string $__file, array $argv): void
 {
