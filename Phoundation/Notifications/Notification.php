@@ -122,12 +122,12 @@ class Notification
     /**
      * Sets the code for this notification
      *
-     * @param string $code
+     * @param string|null $code
      * @return Notification
      */
-    public function setCode(string $code): Notification
+    public function setCode(?string $code): Notification
     {
-        if (strlen($code) > 16) {
+        if (strlen((string) $code) > 16) {
             throw new OutOfBoundsException('Invalid code specified for this notification, it should be less than or equal to 16 characters');
         }
 
