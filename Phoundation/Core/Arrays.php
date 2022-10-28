@@ -307,22 +307,22 @@ class Arrays {
      * @param array $source
      * @param string $row_separator
      * @param string $key_separator
-     * @param bool $auto_quote
+     * @param string|null $auto_quote Quote string values with the specified quote
      * @return string
      */
-    public static function implodeWithKeys(array $source, string $row_separator, string $key_separator, bool $auto_quote = false): string
+    public static function implodeWithKeys(array $source, string $row_separator, string $key_separator, ?string $auto_quote = null): string
     {
         $return = [];
 
         foreach ($source as $key => $value) {
             if (is_array($value)) {
-                $return[] .= $key.$key_separator.$row_separator.self::implodeWithKeys($value, $row_separator, $key_separator, $auto_quote);
+                $return[] .= $key . $key_separator . $row_separator . self::implodeWithKeys($value, $row_separator, $key_separator, $auto_quote);
 
             } elseif ($auto_quote) {
-                $return[] .= $key.$key_separator.Strings::quote($value);
+                $return[] .= $key . $key_separator . Strings::quote($value, $auto_quote);
 
             } else {
-                $return[] .= $key.$key_separator.$value;
+                $return[] .= $key . $key_separator . $value;
             }
         }
 

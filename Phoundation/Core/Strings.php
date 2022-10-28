@@ -359,17 +359,17 @@ class Strings
     /**
      * Return the specified string quoted if not numeric, boolean,
      *
-     * @param string $source
+     * @param string|null $source
      * @param string $quote
      * @return string
      */
-    public static function quote(string $source, string $quote = "'"): string
+    public static function quote(?string $source, string $quote = "'"): string
     {
-        if (is_numeric($source) or is_bool(is_numeric($source))) {
+        if (is_numeric($source)) {
             return $source;
         }
 
-        return $quote.$source.$quote;
+        return $quote . $source . $quote;
     }
 
 
