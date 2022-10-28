@@ -472,7 +472,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public static function success(mixed $messages, int $level = 5): bool
+    public static function success(mixed $messages = null, int $level = 5): bool
     {
         return self::write($messages, 'success', $level);
     }
@@ -486,7 +486,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public static function error(mixed $messages, int $level = 10): bool
+    public static function error(mixed $messages = null, int $level = 10): bool
     {
         return self::write($messages, 'error', $level, false);
     }
@@ -500,7 +500,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public static function warning(mixed $messages, int $level = 7): bool
+    public static function warning(mixed $messages = null, int $level = 7): bool
     {
         return self::write($messages, 'warning', $level);
     }
@@ -514,7 +514,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public static function notice(mixed $messages, int $level = 3): bool
+    public static function notice(mixed $messages = null, int $level = 3): bool
     {
         return self::write($messages, 'notice', $level);
     }
@@ -528,7 +528,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public static function action(mixed $messages, int $level = 5): bool
+    public static function action(mixed $messages = null, int $level = 5): bool
     {
         return self::write($messages, 'action', $level);
     }
@@ -543,7 +543,7 @@ Class Log {
      * @param bool $newline
      * @return bool
      */
-    public static function cli(mixed $messages, int $level = 10, bool $newline = true): bool
+    public static function cli(mixed $messages = null, int $level = 10, bool $newline = true): bool
     {
         return self::write($messages, 'cli', $level, false, $newline);
     }
@@ -557,7 +557,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public static function information(mixed $messages, int $level = 7): bool
+    public static function information(mixed $messages = null, int $level = 7): bool
     {
         return self::write($messages, 'information', $level);
     }
@@ -571,7 +571,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public static function debug(mixed $messages, int $level = 10): bool
+    public static function debug(mixed $messages = null, int $level = 10): bool
     {
         $type = gettype($messages);
 
@@ -653,7 +653,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public static function hex(mixed $messages, int $level = 3): bool
+    public static function hex(mixed $messages = null, int $level = 3): bool
     {
         self::logDebugHeader('HEX', $level);
         return self::write(Strings::interleave(bin2hex(Strings::force($messages)), 10), 'debug', $level);
@@ -683,7 +683,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public static function printr(mixed $messages, int $level = 10): bool
+    public static function printr(mixed $messages = null, int $level = 10): bool
     {
         self::logDebugHeader('PRINTR', $level);
         return self::write(print_r($messages, true), 'debug', $level, false);
@@ -698,7 +698,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public static function vardump(mixed $messages, int $level = 10): bool
+    public static function vardump(mixed $messages = null, int $level = 10): bool
     {
         self::logDebugHeader('VARDUMP', $level);
         return self::write(var_export($messages, true), 'debug', $level, false);
@@ -766,7 +766,7 @@ Class Log {
      * @param bool $newline If true, a newline will be appended at the end of the log line
      * @return bool True if the line was written, false if it was dropped
      */
-    public static function write(mixed $messages, ?string $class = null, int $level = 10, bool $clean = true, bool $newline = true): bool
+    public static function write(mixed $messages = null, ?string $class = null, int $level = 10, bool $clean = true, bool $newline = true): bool
     {
         if (self::$init) {
             // Do not log anything while locked, initialising, or while dealing with a Log internal failure
