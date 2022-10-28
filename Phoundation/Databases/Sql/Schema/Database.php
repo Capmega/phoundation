@@ -116,6 +116,7 @@ class Database
 
         Log::action(tr('Creating database ":database"', [':database' => $this->sql->getDatabase()]));
 
+        // This query can only partially use bound variables!
         $this->sql->query('CREATE DATABASE `' . $this->sql->getDatabase() . '` DEFAULT CHARSET=:charset COLLATE=:collate', [
             ':charset' => $this->configuration['charset'],
             ':collate' => $this->configuration['collate']
@@ -131,7 +132,8 @@ class Database
      */
     public function drop(): void
     {
-        $this->sql->query('DROP DATABASE IF EXISTS :name', $this->sql->getDatabase());
+        // This query cannot use bound variables!
+        $this->sql->query('DROP DATABASE IF EXISTS `' . $this->sql->getDatabase() . '`');
     }
 
 

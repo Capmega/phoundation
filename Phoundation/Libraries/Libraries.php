@@ -347,14 +347,8 @@ class Libraries
             throw new AccessDeniedException(tr('For safety reasons, init force is NOT allowed on production environment!'));
         }
 
-        if (!str_is_version(FORCE)) {
-            if (!is_bool(FORCE)) {
-                throw new SqlException(tr('Invalid "force" sub parameter ":force" specified. "force" can only be followed by a valid init version number', [':force' => FORCE]));
-            }
-
-            sql()->schema()->database()->drop();
-            sql()->schema()->database()->create();
-            sql()->use();
-        }
+        sql()->schema()->database()->drop();
+        sql()->schema()->database()->create();
+        sql()->use();
     }
 }
