@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html;
 
+use PDOStatement;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 
 
@@ -39,7 +40,7 @@ abstract class ResourceElement extends Element
     /**
      * The text displayed when the specified resource is empty
      *
-     * @var int|null $empty
+     * @var int|null $hide_empty
      */
     protected ?int $hide_empty = null;
 
@@ -53,10 +54,23 @@ abstract class ResourceElement extends Element
     /**
      * The query that will generate the source data
      *
-     * @var string|null $source_query
+     * @var PDOStatement|null $source_query
      */
-    protected ?string $source_query = null;
+    protected ?PDOStatement $source_query = null;
 
+    /**
+     * The source for "data-*" attributes where the data key matches the source key
+     *
+     * @var array|null $source_data
+     */
+    protected ?array $source_data = null;
+
+    /**
+     * The amount of entries added to this element from the source data (query or array)
+     *
+     * @var int $count
+     */
+    protected int $count = 0;
 
 
     /**
@@ -65,7 +79,7 @@ abstract class ResourceElement extends Element
      * @param string|null $none
      * @return Element
      */
-    public function setNone(?string $none): Element
+    public function setNone(?string $none): self
     {
         $this->none = $none;
         return $this;
@@ -86,12 +100,12 @@ abstract class ResourceElement extends Element
 
 
     /**
-     * Set the HTML empty element attribute
+     * Sets the HTML empty element attribute
      *
      * @param string|null $empty
      * @return Element
      */
-    public function setEmpty(?string $empty): Element
+    public function setEmpty(?string $empty): self
     {
         $this->empty = $empty;
         return $this;
@@ -112,12 +126,38 @@ abstract class ResourceElement extends Element
 
 
     /**
+     * Sets if this element will be hidden (Element::render() will return an empty string) if the resource is empty
+     *
+     * @param bool $hide_empty
+     * @return Element
+     */
+    public function setHideEmpty(bool $hide_empty): self
+    {
+        $this->hide_empty = $hide_empty;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns if this element will be hidden (Element::render() will return an empty string) if the resource is empty
+     *
+     * @return bool
+     */
+    public function getHideEmpty(): bool
+    {
+        return $this->hide_empty;
+    }
+
+
+
+    /**
      * Set the HTML source element attribute
      *
      * @param mixed $source
      * @return Element
      */
-    public function setSource(mixed $source): Element
+    public function setSource(mixed $source): self
     {
         if ($this->source) {
             throw new HtmlException(tr('Cannot specify source, a source query was already specified'));
@@ -144,13 +184,18 @@ abstract class ResourceElement extends Element
     /**
      * Set the HTML source_query element attribute
      *
-     * @param string|null $source_query
+     * @param PDOStatement|string|null $source_query
      * @return Element
      */
-    public function setSourceQuery(?string $source_query): Element
+    public function setSourceQuery(PDOStatement|string|null $source_query): self
     {
         if ($this->source) {
             throw new HtmlException(tr('Cannot specify source query, a source was already specified'));
+        }
+
+        if (is_string($source_query)) {
+            // Get a PDOStatement instead by executing the query
+            $source_query = sql()->query($source_query);
         }
 
         $this->source_query = $source_query;
@@ -162,11 +207,37 @@ abstract class ResourceElement extends Element
     /**
      * Returns the HTML source_query element attribute
      *
-     * @return string|null
+     * @return PDOStatement|null
      */
-    public function getSourceQuery(): ?string
+    public function getSourceQuery(): ?PDOStatement
     {
         return $this->source_query;
+    }
+
+
+
+    /**
+     * Sets the source for "data-*" attributes where the data key matches the source key
+     *
+     * @param array|null $source_data
+     * @return Element
+     */
+    public function setSourceData(?array $source_data): self
+    {
+        $this->source_data = $source_data;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the source for "data-*" attributes where the data key matches the source key
+     *
+     * @return array|null
+     */
+    public function getSourceData(): ?array
+    {
+        return $this->source_data;
     }
 
 
@@ -179,6 +250,31 @@ abstract class ResourceElement extends Element
     public function render(): string
     {
         return self::renderHeaders() . self::renderBody();
+    }
+
+
+
+    /**
+     * Add the system arguments to the arguments list
+     *
+     * @note The system attributes (id, name, class, tabindex, autofocus, readonly, disabled) will overwrite those same
+     *       values that were added as general attributes using Element::addAttribute()
+     * @return array
+     */
+    protected function buildAttributes(): array
+    {
+        if ($this->auto_submit) {
+            $this->addClass('auto_submit');
+            // TODO Add auto submit script to the script loader, also check possibly relevant autosubmit lines below
+//            // Autosubmit on the specified selector
+//            $params['autosubmit'] = str_replace('[', '\\\\[', $params['autosubmit']);
+//            $params['autosubmit'] = str_replace(']', '\\\\]', $params['autosubmit']);
+//            return $return.Html::script('$("[name=\''.$params['autosubmit'].'\']").change(function() { $(this).closest("form").find("input,textarea,select").addClass("ignore"); $(this).closest("form").submit(); });');
+        }
+
+        return array_merge(parent::buildAttributes(), [
+            'on_change'  => ($this->on_change ? Elements::jQuery('$("#' . $this->id . '").change(function() { '.$this->on_change . ' });')->render() : null),
+        ]);
     }
 
 

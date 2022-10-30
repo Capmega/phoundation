@@ -24,7 +24,7 @@ trait InputElement
     protected bool $auto_submit = false;
 
     /**
-     * Add onchange functioanlity
+     * Add onchange functionality
      *
      * @var string|null $on_change
      */
@@ -81,4 +81,15 @@ trait InputElement
     {
         return $this->on_change;
     }
+
+
+
+    /**
+     * Add the system arguments to the arguments list
+     *
+     * @note The system attributes (id, name, class, tabindex, autofocus, readonly, disabled) will overwrite those same
+     *       values that were added as general attributes using Element::addAttribute()
+     * @return array
+     */
+    protected abstract function buildAttributes(): array;
 }

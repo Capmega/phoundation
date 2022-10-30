@@ -22,7 +22,7 @@ class Elements
      * @param string $type
      * @return Element
      */
-    public static function element(string $type): Element
+    public static function element(string $type): self
     {
         return new Element($type);
     }

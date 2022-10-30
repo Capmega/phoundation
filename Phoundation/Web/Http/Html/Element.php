@@ -5,6 +5,7 @@ namespace Phoundation\Web\Http\Html;
 
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Strings;
 
 /**
  * Class Element
@@ -33,6 +34,13 @@ class Element
     protected ?string $id = null;
 
     /**
+     * The real HTML id element attribute. If id contains "element[]", this will contain "element"
+     *
+     * @var string|null $real_id
+     */
+    protected ?string $real_id = null;
+
+    /**
      * The HTML name element attribute
      *
      * @var string|null $name
@@ -40,11 +48,25 @@ class Element
     protected ?string $name = null;
 
     /**
-     * The HTML class element attribute
+     * The real HTML name element attribute. If name contains "element[]", this will contain "element"
+     *
+     * @var string|null $real_name
+     */
+    protected ?string $real_name = null;
+
+    /**
+     * The HTML class element attribute store
      *
      * @var array $classes
      */
     protected array $classes = [];
+
+    /**
+     * The HTML class element attribute
+     *
+     * @var string|null $class
+     */
+    protected ?string $class = null;
 
     /**
      * The HTML tabindex element attribute
@@ -100,13 +122,14 @@ class Element
      * @param string|null $id
      * @return Element
      */
-    public function setId(?string $id): Element
+    public function setId(?string $id): self
     {
-        $this->id = $id;
+        $this->id      = $id;
+        $this->real_id = Strings::until($id, '[');
 
         // By default, name and id should be equal
         if (empty($this->name)) {
-            $this->name = $id;
+            $this->setName($id);
         }
 
         return $this;
@@ -132,13 +155,14 @@ class Element
      * @param string|null $name
      * @return Element
      */
-    public function setName(?string $name): Element
+    public function setName(?string $name): self
     {
-        $this->name = $name;
+        $this->name      = $name;
+        $this->real_name = Strings::until($name, '[');
 
         // By default, name and id should be equal
         if (empty($this->id)) {
-            $this->id = $name;
+            $this->setId($name);
         }
 
         return $this;
@@ -164,7 +188,7 @@ class Element
      * @param array|string|null $classes
      * @return Element
      */
-    public function setClasses(array|string|null $classes): Element
+    public function setClasses(array|string|null $classes): self
     {
         $this->classes = [];
         return $this->addClasses($classes);
@@ -178,7 +202,7 @@ class Element
      * @param string|null $classes
      * @return Element
      */
-    public function addClasses(?string $classes): Element
+    public function addClasses(?string $classes): self
     {
         foreach (Arrays::force($classes, ' ') as $class) {
             $this->addClass($class);
@@ -195,10 +219,23 @@ class Element
      * @param string $class
      * @return Element
      */
-    public function addClass(string $class): Element
+    public function addClass(string $class): self
     {
-        $this->classes[] = $class;
+        $this->classes[$class] = true;
+        $this->class = null;
         return $this;
+    }
+
+
+
+    /**
+     * Returns the HTML class element attribute store
+     *
+     * @return array
+     */
+    public function getClasses(): array
+    {
+        return $this->classes;
     }
 
 
@@ -208,9 +245,9 @@ class Element
      *
      * @return string|null
      */
-    public function getClasses(): ?string
+    public function getClass(): ?string
     {
-        return $this->classes;
+        return $this->buildClass();
     }
 
 
@@ -221,7 +258,7 @@ class Element
      * @param bool $autofocus
      * @return Element
      */
-    public function setAutofocus(bool $autofocus): Element
+    public function setAutofocus(bool $autofocus): self
     {
         $this->autofocus = ($autofocus ? 'autofocus' : null);
         return $this;
@@ -247,7 +284,7 @@ class Element
      * @param int|null $tabindex
      * @return Element
      */
-    public function setTabIndex(?int $tabindex): Element
+    public function setTabIndex(?int $tabindex): self
     {
         $this->tabindex = $tabindex;
         return $this;
@@ -272,7 +309,7 @@ class Element
      * @param bool $disabled
      * @return Element
      */
-    public function setDisabled(bool $disabled): Element
+    public function setDisabled(bool $disabled): self
     {
         $this->tabindex = ($disabled ? 'disabled' : null);
         return $this;
@@ -297,7 +334,7 @@ class Element
      * @param bool $readonly
      * @return Element
      */
-    public function setReadonly(bool $readonly): Element
+    public function setReadonly(bool $readonly): self
     {
         $this->readonly = ($readonly ? 'readonly' : null);
         return $this;
@@ -322,7 +359,7 @@ class Element
      * @param array $attributes
      * @return Element
      */
-    public function setAttributes(array $attributes): Element
+    public function setAttributes(array $attributes): self
     {
         $this->attributes = [];
         $this->addAttributes($attributes);
@@ -337,7 +374,7 @@ class Element
      * @param array $attributes
      * @return Element
      */
-    public function addAttributes(array $attributes): Element
+    public function addAttributes(array $attributes): self
     {
         foreach ($attributes as $attribute => $value) {
             $this->addAttribute($attribute, $value);
@@ -355,7 +392,7 @@ class Element
      * @param string $value
      * @return Element
      */
-    public function addAttribute(string $attribute, string $value): Element
+    public function addAttribute(string $attribute, string $value): self
     {
         $this->attributes[$attribute] = $value;
         return $this;
@@ -391,6 +428,22 @@ class Element
 
 
     /**
+     * Builds and returns the class string
+     *
+     * @return string
+     */
+    protected function buildClass(): string
+    {
+        if (!$this->class) {
+            $this->class = implode(' ', $this->classes);
+        }
+
+        return $this->class;
+    }
+
+
+
+    /**
      * Add the system arguments to the arguments list
      *
      * @note The system attributes (id, name, class, tabindex, autofocus, readonly, disabled) will overwrite those same
@@ -402,7 +455,7 @@ class Element
         return array_merge($this->attributes, [
             'id'        => $this->id,
             'name'      => $this->name,
-            'class'     => implode(' ', $this->classes),
+            'class'     => implode(' ', array_keys($this->classes)),
             'tabindex'  => $this->tabindex,
             'autofocus' => $this->autofocus,
             'readonly'  => $this->readonly,
