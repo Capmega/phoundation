@@ -219,6 +219,8 @@ abstract class ResourceElement extends Element
     /**
      * Sets the source for "data-*" attributes where the data key matches the source key
      *
+     * @note The format should be as follows: [id => [key => value, key => value], id => [...] ...] This format will
+     *       then add the specified keys to each option where the value matches the id
      * @param array|null $source_data
      * @return Element
      */
@@ -233,6 +235,8 @@ abstract class ResourceElement extends Element
     /**
      * Returns the source for "data-*" attributes where the data key matches the source key
      *
+     * @note The format should be as follows: [id => [key => value, key => value], id => [...] ...] This format will
+     *       then add the specified keys to each option where the value matches the id
      * @return array|null
      */
     public function getSourceData(): ?array

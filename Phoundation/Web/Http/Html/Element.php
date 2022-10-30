@@ -62,7 +62,7 @@ class Element
     protected array $classes = [];
 
     /**
-     * The HTML class element attribute
+     * The HTML class element attribute cache
      *
      * @var string|null $class
      */
@@ -247,7 +247,11 @@ class Element
      */
     public function getClass(): ?string
     {
-        return $this->buildClass();
+        if (!$this->class) {
+            $this->class = implode(' ', $this->classes);
+        }
+
+        return $this->class;
     }
 
 
@@ -430,15 +434,17 @@ class Element
     /**
      * Builds and returns the class string
      *
-     * @return string
+     * @return string|null
      */
-    protected function buildClass(): string
+    protected function buildClassString(): ?string
     {
-        if (!$this->class) {
-            $this->class = implode(' ', $this->classes);
+        $class = $this->getClass();
+
+        if ($class) {
+            return ' class="' . $class . '"';
         }
 
-        return $this->class;
+        return null;
     }
 
 

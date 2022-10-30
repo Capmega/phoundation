@@ -29,6 +29,13 @@ class Select extends ResourceElement
     protected array $option_classes = [];
 
     /**
+     * The HTML class element attribute cache for the <option> element
+     *
+     * @var string|null
+     */
+    protected ?string $option_class = null;
+
+    /**
      * The list of item(s) that are selected in this select element
      *
      * @var array|string|int|null $selected
@@ -134,17 +141,17 @@ class Select extends ResourceElement
     /**
      * Sets multiple selected options
      *
-     * @param array|string|int|null $selecteds
+     * @param array|string|int|null $multiple_selected
      * @return Select
      */
-    public function setSelecteds(array|string|int|null $selecteds): self
+    public function setMultipleSelecteds(array|string|int|null $multiple_selected): self
     {
         if (!$this->multiple) {
             throw new OutOfBoundsException(tr('Cannot add multiple selected values to this select, it is configured to not allow multiples'));
         }
 
         $this->selected = [];
-        return $this->addSelecteds($selecteds);
+        return $this->addMultipleSelecteds($multiple_selected);
     }
 
 
@@ -152,16 +159,16 @@ class Select extends ResourceElement
     /**
      * Adds multiple selected option to a list of options
      *
-     * @param string|null $selecteds
+     * @param array|string|int|null $multiple_selected
      * @return Select
      */
-    public function addSelecteds(array|string|int|null $selecteds): self
+    public function addMultipleSelecteds(array|string|int|null $multiple_selected): self
     {
         if (!$this->multiple) {
             throw new OutOfBoundsException(tr('Cannot add multiple selected values to this select, it is configured to not allow multiples'));
         }
 
-        foreach (Arrays::force($selecteds) as $selected) {
+        foreach (Arrays::force($multiple_selected) as $selected) {
             $this->addSelected($selected);
         }
 
@@ -262,11 +269,27 @@ class Select extends ResourceElement
     /**
      * Returns the HTML option_class element attribute
      *
-     * @return string|null
+     * @return array
      */
-    public function getOptionClasses(): ?string
+    public function getOptionClasses(): array
     {
         return $this->option_classes;
+    }
+
+
+
+    /**
+     * Returns the HTML class element attribute
+     *
+     * @return string|null
+     */
+    public function getOptionClass(): ?string
+    {
+        if (!$this->option_class) {
+            $this->option_class = implode(' ', $this->option_classes);
+        }
+
+        return $this->option_class;
     }
 
 
@@ -309,7 +332,7 @@ class Select extends ResourceElement
         $empty = true;
 
         if ($this->none) {
-            $return = '<option'.($this->buildClass() ? ' class="'.$this->buildClass().'"' : '').''.(($this->isSelected() === null) ? ' selected' : '').' value="">'.$this->none.'</option>';
+            $return = '<option' . $this->buildOptionClassString() . $this->buildSelectedString(null) . ' value="">' . $this->none . '</option>';
         }
 
         if ($this->source === null) {
@@ -339,40 +362,37 @@ class Select extends ResourceElement
                     }
 
                     // Add data- in this option?
-                    if ($this->source_data) {
-                        foreach ($this->source_data as $data_key => $resource) {
-                            if (!empty($resource[$key])) {
-                                $option_data = ' data-' . $data_key . '="' . $resource[$key] . '"';
-                            }
+                    if (array_key_exists($row[0], $this->source_data)) {
+                        foreach ($this->source_data as $key => $value) {
+                            $option_data = ' data-' . $key . '="' . $value . '"';
                         }
                     }
 
-                    $return .= '<option' . ($this->buildClass() ? ' class="' . $this->buildClass() . '"' : '') . '' . (($row[0] === $this->isSelected()) ? ' selected' : '') . ' value="' . html_safe($row[0]) . '"' . $option_data . '>' . html_safe($row[1]) . '</option>';
+                    $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($row[0]) . ' value="' . html_safe($row[0]) . '"' . $option_data . '>' . html_safe($row[1]) . '</option>';
                 }
             }
         } else {
+            // Get resource data from an array
             $empty = (bool) count($this->source);
 
-            // Get resource data from an array
             if ($this->auto_select and ((count($this->source) == 1) and !$this->none)) {
                 // Auto select the only available element
-                $this->isSelected() = array_keys($this->source);
-                $this->isSelected() = array_shift($this->isSelected());
+                // TODO implement
             }
 
             // Process array resource
             foreach ($this->source as $key => $value) {
+                $this->count++;
                 $option_data = '';
 
-                if ($this->source_data) {
-                    foreach ($this->source_data as $data_key => $resource) {
-                        if (!empty($resource[$key])) {
-                            $option_data .= ' data-' . $data_key . '="' . $resource[$key] . '"';
-                        }
+                // Add data- in this option?
+                if (array_key_exists($key, $this->source_data)) {
+                    foreach ($this->source_data as $data_key => $data_value) {
+                        $option_data = ' data-' . $data_key . '="' . $data_value . '"';
                     }
                 }
 
-                $return .= '<option' . ($this->buildClass() ? ' class="' . $this->buildClass() . '"' : '') . '' . ((($this->isSelected() !== null) and ($key === $this->isSelected())) ? ' selected' : '') . ' value="' . html_safe($key) . '"' . $option_data . '>' . html_safe($value) . '</option>';
+                $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . html_safe($key) . '"' . $option_data . '>' . html_safe($value) . '</option>';
             }
         }
 
@@ -380,7 +400,7 @@ class Select extends ResourceElement
         if ($empty) {
             // No conent (other than maybe the "none available" entry) was added
             if ($this->empty) {
-                $return = '<option'.($this->buildClass() ? ' class="'.$this->buildClass().'"' : '').' selected value="">'.$this->empty.'</option>';
+                $return = '<option' . $this->buildOptionClassString() . ' selected value="">' . $this->empty . '</option>';
             }
 
             // Return empty body (though possibly with "none" element) so that the Html::select() class can ensure the
@@ -406,24 +426,42 @@ class Select extends ResourceElement
 
 
     /**
-     * Returns true if the specified value is selected
+     * Builds and returns the class string
      *
-     * @param int|string $value
-     * @param bool $strict If true, a strict comparison will be done. NOTE: Does NOT work for multi_select!
-     * @return bool
+     * @return string|null
      */
-    protected function isSelected(int|string $value, bool $strict = true): bool
+    protected function buildOptionClassString(): ?string
+    {
+        $option_class = $this->getOptionClass();
+
+        if ($option_class) {
+            return ' class="' . $option_class. '"';
+        }
+
+        return null;
+    }
+
+
+
+    /**
+     * Returns the " selected" string that can be injected into <options> elements if the element value is selected
+     *
+     * @param string|int|null $value
+     * @param bool $strict If true, a strict comparison will be done. NOTE: Does NOT work for multi_select!
+     * @return string|null
+     */
+    protected function buildSelectedString(string|int|null $value, bool $strict = true): ?string
     {
         if (is_array($this->selected)) {
-            return array_key_exists($value, $this->selected);
-        }
-
-        if ($strict) {
+            $selected = array_key_exists($value, $this->selected);
+        } elseif ($strict) {
             // Strict comparison
-            return $this->selected === $value;
+            $selected = $this->selected === $value;
+        } else {
+            // Non-strict comparison
+            $selected = $this->selected == $value;
         }
 
-        // Non-strict comparison
-        return $this->selected == $value;
+        return ($selected ? ' selected' : null);
     }
 }
