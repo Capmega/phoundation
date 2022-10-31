@@ -495,10 +495,10 @@ class Debug {
 
             case 'NULL':
                 return '<tr>
-                    <td>'.htmlentities($key) . '</td>
+                    <td>'.$key . '</td>
                     <td>' . $type.'</td>
                     <td>0</td>
-                    <td class="value">'.htmlentities($value) . '</td>
+                    <td class="value">'.$value . '</td>
                 </tr>';
 
             case 'resource':

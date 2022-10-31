@@ -248,7 +248,11 @@ class Element
     public function getClass(): ?string
     {
         if (!$this->class) {
-            $this->class = implode(' ', $this->classes);
+            if ($this->classes) {
+                $this->class = implode(' ', $this->classes);
+            } else {
+                $this->class = null;
+            }
         }
 
         return $this->class;
@@ -424,7 +428,7 @@ class Element
     public function render(): string
     {
         $attributes = $this->buildAttributes();
-        $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"');
+        $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', true);
 
         return '<' . $this->type. ' ' . $attributes . '>';
     }
@@ -458,14 +462,25 @@ class Element
      */
     protected function buildAttributes(): array
     {
-        return array_merge($this->attributes, [
+        $return = [
             'id'        => $this->id,
             'name'      => $this->name,
-            'class'     => implode(' ', array_keys($this->classes)),
+            'class'     => $this->getClass(),
             'tabindex'  => $this->tabindex,
             'autofocus' => $this->autofocus,
             'readonly'  => $this->readonly,
             'disabled'  => $this->disabled,
-        ]);
+        ];
+
+        // Remove empty entries
+        foreach ($return as $key => $value) {
+            if ($value === null) {
+                unset($return[$key]);
+                continue;
+            }
+        }
+
+        // Merge the system values over the set attributes
+        return array_merge($this->attributes, $return);
     }
 }

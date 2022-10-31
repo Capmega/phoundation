@@ -61,9 +61,9 @@ abstract class ResourceElement extends Element
     /**
      * The source for "data-*" attributes where the data key matches the source key
      *
-     * @var array|null $source_data
+     * @var array $source_data
      */
-    protected ?array $source_data = null;
+    protected array $source_data = [];
 
     /**
      * The amount of entries added to this element from the source data (query or array)
@@ -221,10 +221,10 @@ abstract class ResourceElement extends Element
      *
      * @note The format should be as follows: [id => [key => value, key => value], id => [...] ...] This format will
      *       then add the specified keys to each option where the value matches the id
-     * @param array|null $source_data
+     * @param array $source_data
      * @return Element
      */
-    public function setSourceData(?array $source_data): self
+    public function setSourceData(array $source_data): self
     {
         $this->source_data = $source_data;
         return $this;
@@ -237,9 +237,9 @@ abstract class ResourceElement extends Element
      *
      * @note The format should be as follows: [id => [key => value, key => value], id => [...] ...] This format will
      *       then add the specified keys to each option where the value matches the id
-     * @return array|null
+     * @return array
      */
-    public function getSourceData(): ?array
+    public function getSourceData(): array
     {
         return $this->source_data;
     }
@@ -247,13 +247,21 @@ abstract class ResourceElement extends Element
 
 
     /**
-     * Generates and returns the HTML headers
+     * Generates and returns the HTML string for a <select> control
      *
      * @return string
      */
     public function render(): string
     {
-        return self::renderHeaders() . self::renderBody();
+        // Render the body
+        $body = $this->renderBody();
+
+        if (!$body and $this->hide_empty) {
+            return '';
+        }
+
+        // Render header and return
+        return $this->renderHeaders() . $body . $this->renderFooters();
     }
 
 
@@ -284,11 +292,26 @@ abstract class ResourceElement extends Element
 
 
     /**
-     * Generates and returns the HTML headers
+     * Generates and returns the HTML headers for this element
      *
      * @return string
      */
-    protected abstract function renderHeaders(): string;
+    protected function renderHeaders(): string
+    {
+        return parent::render();
+    }
+
+
+
+    /**
+     * Generates and returns the HTML footers for this element
+     *
+     * @return string
+     */
+    protected function renderFooters(): string
+    {
+        return '</' . $this->type . '>';
+    }
 
 
 

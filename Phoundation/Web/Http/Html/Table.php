@@ -17,6 +17,16 @@ namespace Phoundation\Web\Http\Html;
 Class Table extends ResourceElement
 {
     /**
+     * Table constructor
+     */
+    public function __construct()
+    {
+        parent::__construct('table');
+    }
+
+
+
+    /**
      * Render the table
      *
      * @return string
