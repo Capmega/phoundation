@@ -66,18 +66,18 @@ function captcha_html($class = null) {
         /*
          * Ensure we have a locally hosted copy of this file
          */
-        if (!file_exists(ROOT.'pub/js/recaptcha/api.js')) {
+        if (!file_exists(PATH_ROOT.'pub/js/recaptcha/api.js')) {
             $file = download('https://www.google.com/recaptcha/api.js');
 
-            File::executeMode(ROOT.'pub/js/', 0770, function() use ($file) {
-                Path::ensure(ROOT.'pub/js/recaptcha/', 0550);
+            File::executeMode(PATH_ROOT.'pub/js/', 0770, function() use ($file) {
+                Path::ensure(PATH_ROOT.'pub/js/recaptcha/', 0550);
 
-                File::executeMode(ROOT.'pub/js/recaptcha/', 0770, function() use ($file) {
-                    rename($file, ROOT.'pub/js/recaptcha/api.js');
+                File::executeMode(PATH_ROOT.'pub/js/recaptcha/', 0770, function() use ($file) {
+                    rename($file, PATH_ROOT.'pub/js/recaptcha/api.js');
                 });
             });
 
-            file_delete(TMP.'captcha');
+            file_delete(PATH_TMP.'captcha');
         }
 
         html_load_js('recaptcha/api');

@@ -309,7 +309,7 @@ switch (cli_method()) {
 
         if ($all) {
             foreach (array('jpg', 'png') as $extension) {
-                $files = safe_exec(array('commands' => array('find', array(ROOT, '-iname', '"*.'.$extension.'"'))));
+                $files = safe_exec(array('commands' => array('find', array(PATH_ROOT, '-iname', '"*.'.$extension.'"'))));
 
                 foreach ($files as $file) {
                     if (strtolower(substr($file, -7, 7)) == '@2x.'.$extension) {
@@ -442,7 +442,7 @@ switch (cli_method()) {
                 throw new CoreException(tr('Both --all and --recursive have been specified. These options are mutually exclusive, please specify one or the other'), 'warning/invalid');
             }
 
-            $source = ROOT;
+            $source = PATH_ROOT;
 
         } else {
             /*
@@ -548,7 +548,7 @@ switch (cli_method()) {
                 throw new CoreException(tr('Both --all and --recursive have been specified. These options are mutually exclusive (--all implies --recursive), please specify one or the other'), 'warning/invalid');
             }
 
-            $source    = ROOT;
+            $source    = PATH_ROOT;
             $recursive = true;
 
         } else {
@@ -679,7 +679,7 @@ switch (cli_method()) {
                                                              */
                                                             try {
                                                                 if (TEST and !$no_delete) {
-                                                                    file_delete($target, ROOT);
+                                                                    file_delete($target, PATH_ROOT);
                                                                 }
 
                                                             }catch(Exception $e) {

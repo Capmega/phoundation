@@ -39,7 +39,7 @@ function google_get_avatar($user) {
         }
 
         // Avatars are on http://graph.facebook.com/USERID/picture
-        $file   = TMP.file_move_to_target('http://graph.facebook.com/'.$user.'/picture?type=large', TMP, '.jpg');
+        $file   = PATH_TMP.file_move_to_target('http://graph.facebook.com/'.$user.'/picture?type=large', PATH_TMP, '.jpg');
 
         // Create the avatars, and store the base avatar location
         $return = image_create_avatars($file);

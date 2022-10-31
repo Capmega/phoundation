@@ -277,6 +277,6 @@ foreach ($config as $environment => $files) {
 /*
  * Add the setup to git and commit as INIT commit
  */
-git_add(ROOT.'config/');
+git_add(PATH_ROOT.'config/');
 git_commit(tr('INIT: setup project ":project"', array(':project' => $project)));
 ?>

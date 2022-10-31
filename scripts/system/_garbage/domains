@@ -57,7 +57,7 @@ unlink DOMAIN SERVER [SERVER...]- Unlink the specified domain from the specified
 delete ID | DOMAIN              - Set the status of the specified domain to
                                   "deleted" and remove the SSH fingerprints from
                                   both ssh_fingerprints and the
-                                  ROOT/data/ssh/known_hosts file. Linked servers
+                                  PATH_ROOT/data/ssh/known_hosts file. Linked servers
                                   will remain linked.
 
 erase ID | DOMAIN               - Erase the specified host from the database.
@@ -65,10 +65,10 @@ erase ID | DOMAIN               - Erase the specified host from the database.
 
 register HOSTNAME [SSH-PORT]    - Add the fingerprints for the specified
                                   domain / port to the ssh_fingerprints table
-                                  and the ROOT/data/ssh/known_host file
+                                  and the PATH_ROOT/data/ssh/known_host file
 
 unregister HOSTNAME [SSH-PORT]  - Remove the registered domain / port
-                                  fingerprints from the ROOT/data/ssh/known_host
+                                  fingerprints from the PATH_ROOT/data/ssh/known_host
                                   file and the ssh_fingerprints table';
 
 

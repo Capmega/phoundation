@@ -28,11 +28,11 @@ class Minifier
     public static function html(string $html): string
     {
 // TODO Remove the lines below, autoload should fix this for us
-//        include_once(ROOT.'libs/vendor/mrclay/minify/lib/Minify/HTML.php');
-//        include_once(ROOT.'libs/vendor/mrclay/minify/lib/Minify/CSS.php');
-//        include_once(ROOT.'libs/vendor/mrclay/jsmin-php/src/JSMin/JSMin.php');
-//        include_once(ROOT.'libs/vendor/mrclay/minify/lib/Minify/CSS/Compressor.php');
-//        include_once(ROOT.'libs/vendor/mrclay/minify/lib/Minify/CommentPreserver.php');
+//        include_once(PATH_ROOT.'libs/vendor/mrclay/minify/lib/Minify/HTML.php');
+//        include_once(PATH_ROOT.'libs/vendor/mrclay/minify/lib/Minify/CSS.php');
+//        include_once(PATH_ROOT.'libs/vendor/mrclay/jsmin-php/src/JSMin/JSMin.php');
+//        include_once(PATH_ROOT.'libs/vendor/mrclay/minify/lib/Minify/CSS/Compressor.php');
+//        include_once(PATH_ROOT.'libs/vendor/mrclay/minify/lib/Minify/CommentPreserver.php');
 
         $html = Minify_HTML::minify($html, ['cssMinifier' => ['Minify_CSS'  , 'minify'],
                                             'jsMinifier'  => ['\JSMin\JSMin', 'minify']]);

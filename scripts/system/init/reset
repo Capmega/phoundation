@@ -37,7 +37,7 @@ use Phoundation\Processes\Processes;
 
 // Reset the database to the code version
 if (!Libraries::reset()) {
-    throw Exceptions::InitException(tr('WARNING: Database version has NOT been reset, it probably is already at or behind the framework and code versions. See ROOT/script/base/info for more information.'))->makeWarning();
+    throw Exceptions::InitException(tr('WARNING: Database version has NOT been reset, it probably is already at or behind the framework and code versions. See PATH_ROOT/script/base/info for more information.'))->makeWarning();
 }
 
 Log::warning(tr('WARNING: All version table entries beyond framework code version ":framework" and project code version ":project" have been removed. Restarting init to ensure versions will be correct', [

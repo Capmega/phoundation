@@ -1043,7 +1043,7 @@ function fontawesome_update() {
         $file = download('https://github.com/FortAwesome/Font-Awesome/archive/master.zip', 'fontawesome');
         cli_unzip($file);
 
-        file_delete(TMP.'fontawesome');
+        file_delete(PATH_TMP.'fontawesome');
 
     }catch(Exception $e) {
         throw new CoreException('fontawesome_update(): Failed', $e);

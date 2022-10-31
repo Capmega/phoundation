@@ -685,7 +685,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false) {
         }
 
         /*
-         * Ensure this is not executed on ROOT or part of ROOT
+         * Ensure this is not executed on PATH_ROOT or part of PATH_ROOT
          */
         $server = servers_get($server);
 
@@ -694,8 +694,8 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false) {
                 // no-break
             case 'localhost':
                 try {
-                    if (str_contains(ROOT, linux_realpath($server, $path))) {
-                        throw new CoreException(tr('linux_ensure_path(): Specified path ":path" is ROOT or parent of ROOT', array(':path' => $path)), 'invalid');
+                    if (str_contains(PATH_ROOT, linux_realpath($server, $path))) {
+                        throw new CoreException(tr('linux_ensure_path(): Specified path ":path" is PATH_ROOT or parent of PATH_ROOT', array(':path' => $path)), 'invalid');
                     }
 
                 }catch(Exception $e) {
@@ -842,7 +842,7 @@ function linux_unzip($server, $file, $remove = true) {
 under_construction('Move this to compress_unzip()');
         $filename = filename($file);
         $filename = Strings::untilReverse($file, '.');
-        $path     = TMP.$filename.'/';
+        $path     = PATH_TMP.$filename.'/';
 
         linux_ensure_path($server, $path);
 
@@ -876,7 +876,7 @@ under_construction('Move this to compress_unzip()');
 /*
  * Download the specified single file to the specified path on the specified server
  *
- * If the path is not specified then by default the function will download to the TMP directory; ROOT/data/tmp
+ * If the path is not specified then by default the function will download to the PATH_TMP directory; PATH_ROOT/data/tmp
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -903,14 +903,14 @@ function linux_download($server, $url, $section = false, $callback = null) {
                 throw new CoreException(tr('linux_download(): Specified section should either be false or a string. However, it is not false, and is of type ":type"', array(':type' => gettype($section))), 'invalid');
             }
 
-            $file = TMP.$section.'/'.$file;
+            $file = PATH_TMP.$section.'/'.$file;
 
         } else {
-            $file = TMP.$file;
+            $file = PATH_TMP.$file;
         }
 
         load_libs('wget');
-        linux_ensure_path(TMP.$section, 0770, true);
+        linux_ensure_path(PATH_TMP.$section, 0770, true);
 
         wget(array('domain' => $server,
                    'url'    => $url,

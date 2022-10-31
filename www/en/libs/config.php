@@ -24,22 +24,22 @@
  */
 function config_get_for_environment($environment) {
     try {
-        include(ROOT.'config/base/default.php');
-        include(ROOT.'config/production.php');
-        include(ROOT.'config/deploy.php');
+        include(PATH_ROOT.'config/base/default.php');
+        include(PATH_ROOT.'config/production.php');
+        include(PATH_ROOT.'config/deploy.php');
 
         if ($environment !== 'production') {
-            if (!file_exists(ROOT.'config/'.$environment.'.php')) {
+            if (!file_exists(PATH_ROOT.'config/'.$environment.'.php')) {
                 throw new CoreException(tr('config_get_for_environment(): Specified environment ":environment" does not exist', array(':environment' => $environment)), 'not-exists');
             }
 
-            include(ROOT.'config/'.$environment.'.php');
+            include(PATH_ROOT.'config/'.$environment.'.php');
         }
 
         /*
          * Optionally load the platform specific configuration file, if it exists
          */
-        if (file_exists($file = ROOT.'config/'.$environment.'_'.PLATFORM.'.php')) {
+        if (file_exists($file = PATH_ROOT.'config/'.$environment.'_'.PLATFORM.'.php')) {
             include($file);
         }
 
@@ -63,7 +63,7 @@ function config_get_for_environment($environment) {
  *
  * @param string $environment The environment for the configuration file you wish to read.
  * @param string (optional) $section a non default configuration section.
- * @example config_read('production', 'email') will return the configuration contents for the file ROOT/config/production_email.php
+ * @example config_read('production', 'email') will return the configuration contents for the file PATH_ROOT/config/production_email.php
  */
 function config_read($environment, $section = null) {
     try {
@@ -76,8 +76,8 @@ function config_read($environment, $section = null) {
         /*
          * Optionally load the platform specific configuration file, if it exists
          */
-        if (!file_exists($file = ROOT.'config/'.$environment.$section.'.php')) {
-            throw new CoreException(tr('config_read(): The specified configuration file ":file" does not exist', array(':file' => 'ROOT/config/'.$environment.$section.'.php')), 'not-exists');
+        if (!file_exists($file = PATH_ROOT.'config/'.$environment.$section.'.php')) {
+            throw new CoreException(tr('config_read(): The specified configuration file ":file" does not exist', array(':file' => 'PATH_ROOT/config/'.$environment.$section.'.php')), 'not-exists');
         }
 
         $data   = file_get_contents($file);
@@ -151,7 +151,7 @@ function config_read($environment, $section = null) {
 
 /*
  * Write the specified configuration data to the specified environment / section
- * The configuration file will be ROOT/config/$environment_$section.php
+ * The configuration file will be PATH_ROOT/config/$environment_$section.php
  *
  * Recursive arrays will also be stored correclty. When $environment and
  * $section are not specified, then the function will not write the information
@@ -193,10 +193,10 @@ function config_write($data, $environment, $section = false) {
         }
 
         if ($section) {
-            $file = ROOT.'config/'.$environment.'_'.$section.'.php';
+            $file = PATH_ROOT.'config/'.$environment.'_'.$section.'.php';
 
         } else {
-            $file = ROOT.'config/'.$environment.'.php';
+            $file = PATH_ROOT.'config/'.$environment.'.php';
         }
 
         $lines = "<?php\n/* THIS CONFIGURATION FILE HAS BEEN GENERATED AUTOMATICALLY BY BASE */\n\n".implode("\n", $lines)."?>";
@@ -352,7 +352,7 @@ function config_lines($key, $value, $config_string = '$_CONFIG') {
 
 
 /*
- * Writes the ROOT/config/project.php file from the specified variables
+ * Writes the PATH_ROOT/config/project.php file from the specified variables
  *
  * @param $project
  * @param $project_code_version
@@ -388,12 +388,12 @@ function config_write_project($project, $project_code_version, $seed) {
  */
 ';
 
-        $data .= Strings::size('define(\'SEED\''              , 33).', \''.$seed.'\');'.CRLF;
-        $data .= Strings::size('define(\'PROJECT\''           , 33).', \''.$project.'\');'.CRLF;
-        $data .= Strings::size('define(\'PROJECTCODEVERSION\'', 33).', \''.$project_code_version.'\');'.CRLF;
-        $data .= '?>'.CRLF;
+        $data .= Strings::size('define(\'SEED\''              , 33).', \''.$seed.'\');'.PHP_EOL;
+        $data .= Strings::size('define(\'PROJECT\''           , 33).', \''.$project.'\');'.PHP_EOL;
+        $data .= Strings::size('define(\'PROJECTCODEVERSION\'', 33).', \''.$project_code_version.'\');'.PHP_EOL;
+        $data .= '?>'.PHP_EOL;
 
-        file_put_contents(ROOT.'config/project.php', $data);
+        file_put_contents(PATH_ROOT.'config/project.php', $data);
 
     }catch(Exception $e) {
         throw new CoreException(tr('config_write_project(): Failed'), $e);
@@ -413,9 +413,9 @@ function config_exists($file) {
 
     try {
         if (!$paths) {
-            $paths = array(ROOT.'config/base/',
-                           ROOT.'config/production',
-                           ROOT.'config/'.ENVIRONMENT.'');
+            $paths = array(PATH_ROOT.'config/base/',
+                           PATH_ROOT.'config/production',
+                           PATH_ROOT.'config/'.ENVIRONMENT.'');
         }
 
         $file = trim($file);

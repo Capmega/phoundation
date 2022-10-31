@@ -31,7 +31,7 @@ function invoices_library_init() {
     try {
         ensure_installed(array('name'      => 'invoice',
                                'callback'  => 'invoices_install',
-                               'checks'    => ROOT.'libs/external/invoice/invoice,'.ROOT.'libs/external/invoice/foobar',
+                               'checks'    => PATH_ROOT.'libs/external/invoice/invoice,'.PATH_ROOT.'libs/external/invoice/foobar',
                                'functions' => 'invoice,foobar',
                                'which'     => 'invoice,foobar'));
 

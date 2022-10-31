@@ -417,7 +417,7 @@ function email_get_attachments($imap, $email, $data, $flags) {
                 }
 
                 $data['img'.$i]['file'] = $file_name;
-                file_put_contents(TMP.$file_name, $img);
+                file_put_contents(PATH_TMP.$file_name, $img);
 
             }catch(\Exception $e) {
                 /*
@@ -793,7 +793,7 @@ function email_check_images($email) {
 
         while (!empty($email['img'.$i])) {
             if (empty($path)) {
-                $path = ROOT.'data/email/images/'.$domain.'/'.$name.'/'.$email['id'];
+                $path = PATH_ROOT.'data/email/images/'.$domain.'/'.$name.'/'.$email['id'];
                 Path::ensure($path);
             }
 
@@ -810,8 +810,8 @@ function email_check_images($email) {
             /*
              * Move the image to the correct location
              */
-            rename(TMP.$email['img'.$i]['file'], ROOT.'data/email/images/'.$domain.'/'.$name.'/'.$email['id'].'/'.$email['img'.$i]['file']);
-            $email['img'.$i]['file'] = ROOT.'data/email/images/'.$domain.'/'.$name.'/'.$email['id'].'/'.$email['img'.$i]['file'];
+            rename(PATH_TMP.$email['img'.$i]['file'], PATH_ROOT.'data/email/images/'.$domain.'/'.$name.'/'.$email['id'].'/'.$email['img'.$i]['file']);
+            $email['img'.$i]['file'] = PATH_ROOT.'data/email/images/'.$domain.'/'.$name.'/'.$email['id'].'/'.$email['img'.$i]['file'];
 
             $i++;
         }
@@ -1118,7 +1118,7 @@ function email_from_exists($email) {
  */
 function email_load_phpmailer() {
     try {
-        if (!file_exists(ROOT.'/libs/vendor/PHPMailer/PHPMailer.php')) {
+        if (!file_exists(PATH_ROOT.'/libs/vendor/PHPMailer/PHPMailer.php')) {
             /*
              * phpmailer is not installed yet, install it now
              */
@@ -1133,17 +1133,17 @@ function email_load_phpmailer() {
              *
              * Update parent directory file mode first to be sure its writable
              */
-            File::executeMode(ROOT.'libs/', 0750, function() use ($path) {
-                Path::ensure(ROOT.'libs/vendor/');
+            File::executeMode(PATH_ROOT.'libs/', 0750, function() use ($path) {
+                Path::ensure(PATH_ROOT.'libs/vendor/');
 
-                File::executeMode(ROOT.'libs/vendor/', 0750, function() use ($path) {
+                File::executeMode(PATH_ROOT.'libs/vendor/', 0750, function() use ($path) {
                     /*
                      * Ensure there is nothing with PHPMailer left there
                      */
-                    file_delete(array('patterns'       => ROOT.'libs/vendor/PHPMailer',
-                                      'restrictions'   => ROOT.'libs/vendor/',
+                    file_delete(array('patterns'       => PATH_ROOT.'libs/vendor/PHPMailer',
+                                      'restrictions'   => PATH_ROOT.'libs/vendor/',
                                       'force_writable' => true));
-                    rename($path.'PHPMailer-master/src', ROOT.'libs/vendor/PHPMailer');
+                    rename($path.'PHPMailer-master/src', PATH_ROOT.'libs/vendor/PHPMailer');
                 });
             });
 

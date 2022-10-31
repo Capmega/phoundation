@@ -182,7 +182,7 @@ function googlemaps_get_streetview_image($lat, $long, $x = 640, $y = 480) {
 function googlemaps_cache_streetmaps($lat, $long, $x = 640, $y = 480) {
     try {
         $cache_md5  = md5($lat.$long);
-        $cache_dir  = ROOT.'www/streetview_cache/';
+        $cache_dir  = PATH_ROOT.'www/streetview_cache/';
         $cache_file = str_interleave($cache_md5, '/', 4).'.jpg';
 
         if (!file_exists($cache_dir.$cache_file)) {

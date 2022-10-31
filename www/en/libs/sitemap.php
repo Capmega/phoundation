@@ -64,7 +64,7 @@ function sitemap_generate() {
         $files = sitemap_list_files();
 
         foreach ($files as &$file) {
-            if (!file_exists(ROOT.'www/'.$file['language'])) {
+            if (!file_exists(PATH_ROOT.'www/'.$file['language'])) {
                 log_console(tr('Skipped sitemap generation for language ":language1", the "www/:language2" directory does not exist. Check the $_CONFIG[language][supported] configuration', array(':language1' => $file['language'], ':language2' => $file['language'])), 'yellow');
                 continue;
             }
@@ -74,7 +74,7 @@ function sitemap_generate() {
 
         unset($file);
         $files['index'] = array('tmp'  => sitemap_generate_index_file($files),
-                                'path' => ROOT.'www/sitemap.xml');
+                                'path' => PATH_ROOT.'www/sitemap.xml');
 
         return sitemap_install_files($files);
 
@@ -138,8 +138,8 @@ function sitemap_install_files($files) {
                     continue;
                 }
 
-                File::executeMode(ROOT.'www/', 0770, function($path) use ($insert, $file) {
-                    File::executeMode(ROOT.'www/'.isset_get($file['language']), 0770, function($path) use ($insert, $file) {
+                File::executeMode(PATH_ROOT.'www/', 0770, function($path) use ($insert, $file) {
+                    File::executeMode(PATH_ROOT.'www/'.isset_get($file['language']), 0770, function($path) use ($insert, $file) {
                         /*
                          * Move sub sitemap files in place
                          */
@@ -153,7 +153,7 @@ function sitemap_install_files($files) {
 
                         } else {
                             if ($file['language']) {
-                                Path::ensure(ROOT.'www/'.$file['language'].'/sitemaps/');
+                                Path::ensure(PATH_ROOT.'www/'.$file['language'].'/sitemaps/');
                                 $filename = $file['language'].'/sitemaps/'.$file['file'].'.xml';
 
                             } else {
@@ -163,11 +163,11 @@ function sitemap_install_files($files) {
 
                         log_console(tr('Installing sitemap file ":file"', array(':file' => $file['path'])), 'VERBOSE/cyan');
 
-                        file_delete($file['path'], ROOT.'www/');
+                        file_delete($file['path'], PATH_ROOT.'www/');
                         Path::ensure(dirname($file['path']));
 
                         rename($file['tmp'], $file['path']);
-                        chmod(ROOT.'www/'.$filename, 0440);
+                        chmod(PATH_ROOT.'www/'.$filename, 0440);
 
                         $insert->execute(array(':language' => $file['language']));
                     });
@@ -214,13 +214,13 @@ function sitemap_generate_index_file($files) {
             $file = array_pop($files);
 
             if ($file['file']) {
-                rename(TMP.'sitemaps/'.$file['language'].'/sitemaps/'.$file['file'].'.xml', TMP.'sitemaps/sitemaps/'.$file['file'].'.xml');
+                rename(PATH_TMP.'sitemaps/'.$file['language'].'/sitemaps/'.$file['file'].'.xml', PATH_TMP.'sitemaps/sitemaps/'.$file['file'].'.xml');
 
             } else {
-                rename(TMP.'sitemaps/'.$file['language'].'/sitemap.xml', TMP.'sitemaps/sitemap.xml');
+                rename(PATH_TMP.'sitemaps/'.$file['language'].'/sitemap.xml', PATH_TMP.'sitemaps/sitemap.xml');
             }
 
-            file_delete(TMP.'sitemaps/'.$file['language']);
+            file_delete(PATH_TMP.'sitemaps/'.$file['language']);
 
         } else {
             foreach ($files as $file) {
@@ -294,7 +294,7 @@ function sitemap_generate_xml_file($language = null, $file = null) {
         $xml     = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".
                    "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\">\n";
 
-        log_console(tr('Generating sitemap ":file" for language ":language"', array(':file' => str_replace(ROOT, '', $file), ':language' => $language)), 'cyan');
+        log_console(tr('Generating sitemap ":file" for language ":language"', array(':file' => str_replace(PATH_ROOT, '', $file), ':language' => $language)), 'cyan');
 
         while ($entry = sql_fetch($entries)) {
             $count++;
@@ -304,7 +304,7 @@ function sitemap_generate_xml_file($language = null, $file = null) {
 
         $xml .= "</urlset>\n";
 
-        log_console(tr('Generated ":count" entries in file ":file"', array(':count' => $count, ':file' => str_replace(ROOT, '', $file))), 'green');
+        log_console(tr('Generated ":count" entries in file ":file"', array(':count' => $count, ':file' => str_replace(PATH_ROOT, '', $file))), 'green');
         file_put_contents($file, $xml);
 
         return $file;
@@ -491,11 +491,11 @@ function sitemap_list_files() {
 
             while ($file = sql_fetch($files)) {
                 if ($file['file']) {
-                    Path::ensure(ROOT.'www/'.$code.'/sitemaps');
-                    $file['path'] = ROOT.'www/'.$code.'/sitemaps/'.$file['file'].'.xml';
+                    Path::ensure(PATH_ROOT.'www/'.$code.'/sitemaps');
+                    $file['path'] = PATH_ROOT.'www/'.$code.'/sitemaps/'.$file['file'].'.xml';
 
                 } else {
-                    $file['path'] = ROOT.'www/'.$code.'/sitemap.xml';
+                    $file['path'] = PATH_ROOT.'www/'.$code.'/sitemap.xml';
                 }
 
                 $file['language'] = $code;
@@ -709,18 +709,18 @@ function sitemap_make_backup() {
 
     try {
         $count  = 0;
-        $target = ROOT.'data/backups/sitemaps/'.date_convert(null, 'Ymd-Hmi').'/';
+        $target = PATH_ROOT.'data/backups/sitemaps/'.date_convert(null, 'Ymd-Hmi').'/';
 
         Path::ensure($target);
         log_console(tr('Making backup of current sitemape files in ":path"', array(':path' => $target)), 'cyan');
 
-        if (file_exists(ROOT.'www/sitemap.xml')) {
-            copy(ROOT.'www/sitemap.xml', $target.'sitemap.xml');
+        if (file_exists(PATH_ROOT.'www/sitemap.xml')) {
+            copy(PATH_ROOT.'www/sitemap.xml', $target.'sitemap.xml');
             $count++;
         }
 
         foreach ($_CONFIG['language']['supported'] as $code => $language) {
-            $source = ROOT.'www/'.$code.'/';
+            $source = PATH_ROOT.'www/'.$code.'/';
             Path::ensure($target.$code.'/');
 
             foreach (scandir($source) as $file) {
@@ -740,7 +740,7 @@ function sitemap_make_backup() {
             /*
              * No backup was made, cleanup
              */
-            file_delete($target, ROOT.'data/backups/sitemaps');
+            file_delete($target, PATH_ROOT.'data/backups/sitemaps');
         }
 
     }catch(Exception $e) {

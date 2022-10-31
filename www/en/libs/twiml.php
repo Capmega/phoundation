@@ -51,7 +51,7 @@ function twiml_library_init() {
 function twiml_write($name, $data, $root = null) {
     try {
         if (empty($root)) {
-            $root = ROOT.'twiml/';
+            $root = PATH_ROOT.'twiml/';
         }
 
         if (!preg_match('/[a-z0-9-]+/', $name)) {

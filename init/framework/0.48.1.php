@@ -26,7 +26,7 @@ $files  = sql_query('SELECT `blogs_media`.`id`,
 if ($files->rowCount()) {
     while ($file = sql_fetch($files)) {
         cli_dot();
-        file_delete($file['file'], ROOT.'data/content');
+        file_delete($file['file'], PATH_ROOT.'data/content');
         $delete->execute(array(':id' => $file['id']));
     }
 

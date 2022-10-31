@@ -680,20 +680,20 @@ function mysqlr_slave_ssh_tunnel($server, $slave) {
         }
 
         if (!$server['hostkey_check']) {
-            $server['arguments'] .= ' -o StrictHostKeyChecking=no -o UserKnownHostsFile='.ROOT.'data/ssh/known_hosts ';
+            $server['arguments'] .= ' -o StrictHostKeyChecking=no -o UserKnownHostsFile='.PATH_ROOT.'data/ssh/known_hosts ';
         }
 
         /*
          * Ensure that ssh/keys directory exists and that its safe
          */
-        Path::ensure(ROOT.'data/ssh/keys');
-        chmod(ROOT.'data/ssh', 0770);
+        Path::ensure(PATH_ROOT.'data/ssh/keys');
+        chmod(PATH_ROOT.'data/ssh', 0770);
 
         /*
          * Safely create SSH key file
          */
         $keyname = str_random(8);
-        $keyfile = ROOT.'data/ssh/keys/'.$keyname;
+        $keyfile = PATH_ROOT.'data/ssh/keys/'.$keyname;
 
         touch($keyfile);
         chmod($keyfile, 0600);
@@ -711,7 +711,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave) {
          * Delete local file key
          */
         chmod($keyfile, 0600);
-        file_delete($keyfile, ROOT.'data/ssh/keys');
+        file_delete($keyfile, PATH_ROOT.'data/ssh/keys');
 
     }catch(Exception $e) {
         /*
@@ -720,7 +720,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave) {
         try {
             if (!empty($keyfile)) {
                 safe_exec(chmod($keyfile, 0600));
-                file_delete($keyfile, ROOT.'data/ssh/keys');
+                file_delete($keyfile, PATH_ROOT.'data/ssh/keys');
             }
 
         }catch(Exception $f) {
@@ -915,19 +915,19 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
         }
 
         if (!$server['hostkey_check']) {
-            $server['arguments'] .= ' -o StrictHostKeyChecking=no -o UserKnownHostsFile='.ROOT.'data/ssh/known_hosts ';
+            $server['arguments'] .= ' -o StrictHostKeyChecking=no -o UserKnownHostsFile='.PATH_ROOT.'data/ssh/known_hosts ';
         }
 
         /*
          * Ensure that ssh/keys directory exists and that its safe
          */
-        Path::ensure(ROOT.'data/ssh/keys');
-        chmod(ROOT.'data/ssh', 0770);
+        Path::ensure(PATH_ROOT.'data/ssh/keys');
+        chmod(PATH_ROOT.'data/ssh', 0770);
 
         /*
          * Safely create SSH key file
          */
-        $keyfile = ROOT.'data/ssh/keys/'.str_random(8);
+        $keyfile = PATH_ROOT.'data/ssh/keys/'.str_random(8);
 
         touch($keyfile);
         chmod($keyfile, 0600);
@@ -946,7 +946,7 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
          */
         $result = safe_exec(array('commands' => array('scp', array($server['arguments'], '-P', $server['port'], '-i', $keyfile, $command))));
         chmod($keyfile, 0600);
-        file_delete($keyfile, ROOT.'data/ssh/keys');
+        file_delete($keyfile, PATH_ROOT.'data/ssh/keys');
 
         return $result;
 
@@ -959,7 +959,7 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
         try {
             if (!empty($keyfile)) {
                 chmod($keyfile, 0600);
-                file_delete($keyfile, ROOT.'data/ssh/keys');
+                file_delete($keyfile, PATH_ROOT.'data/ssh/keys');
             }
 
         }catch(Exception $e) {

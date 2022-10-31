@@ -55,37 +55,37 @@
             drwxr-xr-x 6 user user 4.0K feb  7 16:21 scripts/
             drwxr-xr-x 3 user user 4.0K feb  7 13:21 www/
 
-        5.6. The location where you are now is commonly (also internally in the code) referred to as the ROOT directory of the project. When we refer to ROOT, we refer to this diretory
+        5.6. The location where you are now is commonly (also internally in the code) referred to as the PATH_ROOT directory of the project. When we refer to PATH_ROOT, we refer to this diretory
         5.7. git add .; git commit -m "INIT"
 
     6. (Optional) Explore the system
-        6.1 The only path that should be available to your webserver is ROOT/www. This is for security, the webserver simply won't be able to access anything beyond, unless its by symlinks which you can add as needed. Ensure to configure your webserver that either ROOT/www or ROOT/www/en is "mounted" as the root of your FQDN!
-        6.2. ROOT/config contains all configuration files for your project
-            6.2.1. The ROOT/config/project.php file contains basic project configuration.
-            6.2.1. ROOT/config/base contains default configurations that is the same for all projects. Do NOT modify this file as any subsequent updates will overwrite this file!
-            6.2.2. ROOT/config/server will contain all your webserver configuration files. If, for example, you are using Apache on Ubuntu, then /etc/apache/sites-available will contain symlinks to the files in this directory. This is done so that webserver configuration files are easily exchangeable.
-                6.2.2.1 Update all files in ROOT/config/server so that they reflect your FQDN, your project location, and your PROJECT_ENVIRONMENT.
-        6.3. ROOT/data contains all data files.
-            6.3.1. Typically, you would store a template you downloaded from themeforrest (or similar) in ROOT/data/templates, for exmaple.
-            6.3.2. ROOT/data/tmp will hold all temporary files
-            6.3.3. ROOT/data/tmp/pub will hold all temporary files that the webserver might be able to access through a symlink from the ROOT/www directory and below
-            6.3.4. ROOT/data/cache will contain cache in file format
-            6.3.5. ROOT/data/log will contain your log files. Typically, for ease of use, all log files are condensed into one large log file called syslog
-                6.3.5.1. For debugging, it is very useful to have a shell tab open with tail -F ROOT/data/log/syslog
-            6.3.6. ROOT/data/content will contain content data for your website, like dynamic pictures that were uploaded for a blog, etc.
-        6.4. The ROOT/init directory will contain system initialization files. These init files, upon updating your system, will make modifications to your database, or if needed, even your project files.
-        6.5. The ROOT/scripts directory contains all shell scripts with which you can manage your project. Please refer to the scripts documentation for more information
-        6.6. The ROOT/www directory contains all your files that your webserver will have access to.
+        6.1 The only path that should be available to your webserver is PATH_ROOT/www. This is for security, the webserver simply won't be able to access anything beyond, unless its by symlinks which you can add as needed. Ensure to configure your webserver that either PATH_ROOT/www or PATH_ROOT/www/en is "mounted" as the root of your FQDN!
+        6.2. PATH_ROOT/config contains all configuration files for your project
+            6.2.1. The PATH_ROOT/config/project.php file contains basic project configuration.
+            6.2.1. PATH_ROOT/config/base contains default configurations that is the same for all projects. Do NOT modify this file as any subsequent updates will overwrite this file!
+            6.2.2. PATH_ROOT/config/server will contain all your webserver configuration files. If, for example, you are using Apache on Ubuntu, then /etc/apache/sites-available will contain symlinks to the files in this directory. This is done so that webserver configuration files are easily exchangeable.
+                6.2.2.1 Update all files in PATH_ROOT/config/server so that they reflect your FQDN, your project location, and your PROJECT_ENVIRONMENT.
+        6.3. PATH_ROOT/data contains all data files.
+            6.3.1. Typically, you would store a template you downloaded from themeforrest (or similar) in PATH_ROOT/data/templates, for exmaple.
+            6.3.2. PATH_ROOT/data/tmp will hold all temporary files
+            6.3.3. PATH_ROOT/data/tmp/pub will hold all temporary files that the webserver might be able to access through a symlink from the PATH_ROOT/www directory and below
+            6.3.4. PATH_ROOT/data/cache will contain cache in file format
+            6.3.5. PATH_ROOT/data/log will contain your log files. Typically, for ease of use, all log files are condensed into one large log file called syslog
+                6.3.5.1. For debugging, it is very useful to have a shell tab open with tail -F PATH_ROOT/data/log/syslog
+            6.3.6. PATH_ROOT/data/content will contain content data for your website, like dynamic pictures that were uploaded for a blog, etc.
+        6.4. The PATH_ROOT/init directory will contain system initialization files. These init files, upon updating your system, will make modifications to your database, or if needed, even your project files.
+        6.5. The PATH_ROOT/scripts directory contains all shell scripts with which you can manage your project. Please refer to the scripts documentation for more information
+        6.6. The PATH_ROOT/www directory contains all your files that your webserver will have access to.
             6.6.1 There are two ways the system can be used.
-                6.6.1.1 Direct access: The webserver executes all files in ROOT/www directly in accordance to mod_rewrite or alike functionalities (Not recommended anymore)
-                    6.6.1 If your project is single language, please mount your FQDN to ROOT/www/LANGUAGE, where LANGUAGE is the 2 letter language code of the language you want to use on your website
-                    6.6.1 If your project is multilingual, please mount your FQDN to ROOT/www. The sytem will then use the FQDN/LANGUAGE_CODE to determine in which sub directory it will access your website files
-                6.6.1.2 Route access: All traffic will be sent to the script ROOT/www/route.php, which will then execute the appropriate website file in the appropriate language
+                6.6.1.1 Direct access: The webserver executes all files in PATH_ROOT/www directly in accordance to mod_rewrite or alike functionalities (Not recommended anymore)
+                    6.6.1 If your project is single language, please mount your FQDN to PATH_ROOT/www/LANGUAGE, where LANGUAGE is the 2 letter language code of the language you want to use on your website
+                    6.6.1 If your project is multilingual, please mount your FQDN to PATH_ROOT/www. The sytem will then use the FQDN/LANGUAGE_CODE to determine in which sub directory it will access your website files
+                6.6.1.2 Route access: All traffic will be sent to the script PATH_ROOT/www/route.php, which will then execute the appropriate website file in the appropriate language
 
     7. Setup & configure your project
         7.1 ./script/init/setup
             7.1.1. This script will ask you a number of basic questions about your project and do most of the setup automatically for you.
-            7.1.2. The script will modify ROOT/config/project.php, ROOT/config/production.php, and ROOT/config/local.php to have the configuration as you specified during setup
+            7.1.2. The script will modify PATH_ROOT/config/project.php, PATH_ROOT/config/production.php, and PATH_ROOT/config/local.php to have the configuration as you specified during setup
             7.1.3. In the future (soon!) it will also setup the basic custom libraries for you and update your webserver configuration files automatically as well
                 7.1.3.1. If your user has sudo access, it will even be able to completely setup your webserver for you automatically
             7.1.4. When the script is done it will automatically run the ./scripts/base/init script which will initialize your database
@@ -124,12 +124,12 @@
       Run a2ensite <project config file> to enable site on apache server
 
     SETUP BASIC CONFIGURATION
-    Edit ROOT/config/project.php
+    Edit PATH_ROOT/config/project.php
       Update define('PROJECT' to the name of your project (UPPER CASE)
       Update define('REQUIRE_SUBENVIRONMENTS' to true if this project requires subenvironments
       Update define('SEED' to some large random string
 
-    Edit ROOT/config/production.php
+    Edit PATH_ROOT/config/production.php
       Update $_CONFIG['cookie']['domain'], $_CONFIG['db']['db'], $_CONFIG['domain'], and $_CONFIG['name'] to correct values
       Update $_CONFIG['sso'] to correct values (if required, if not, set to false)
       Update $_CONFIG['deploy'] configuration

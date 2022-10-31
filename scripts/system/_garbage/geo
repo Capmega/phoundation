@@ -61,8 +61,8 @@ ip                              - GEO-IP management
         --no-unzip              - Don\'t download the new source file, try to
                                   use the already existing data files in the
                                   temp directy.NOTE: The files
-                                  TMP/geoip_blocks.csv and
-                                  TMP/geoip_location.csv must exist in order for
+                                  PATH_TMP/geoip_blocks.csv and
+                                  PATH_TMP/geoip_location.csv must exist in order for
                                   this to work
 
         --no-encoding           - Do not try to fix file encoding
@@ -123,7 +123,7 @@ switch (cli_method()) {
             case 'update':
                 log_console(tr('Updating GEOIP data'), 'white');
 
-                file_delete(TMP.'GeoLite2-City-CSV*');
+                file_delete(PATH_TMP.'GeoLite2-City-CSV*');
 
                 if (cli_argument('--no-download')) {
                     $path = get_global_data_path('geoip');
@@ -133,7 +133,7 @@ switch (cli_method()) {
                         throw new CoreException(tr('The global data path ":path" does not contain the required geoip file "GeoLite2-City-CSV.zip"', array(':path' => $path)), 'not-exists');
                     }
 
-                    copy($path.'GeoLite2-City-CSV.zip', TMP.'GeoLite2-City-CSV.zip');
+                    copy($path.'GeoLite2-City-CSV.zip', PATH_TMP.'GeoLite2-City-CSV.zip');
 
                 } else {
                     log_console(tr('Downloading "geolite2-city" file from "maxmind.com"'), 'white');
@@ -141,8 +141,8 @@ switch (cli_method()) {
                     rename($file, dirname($file).'/GeoLite2-City-CSV.zip');
                 }
 
-                if (!file_exists(TMP.'GeoLite2-City-CSV.zip')) {
-                    throw new CoreException(tr('The geoip file ":file" does not exist', array(':file' => TMP.'GeoLite2-City-CSV.zip')), 'not-exists');
+                if (!file_exists(PATH_TMP.'GeoLite2-City-CSV.zip')) {
+                    throw new CoreException(tr('The geoip file ":file" does not exist', array(':file' => PATH_TMP.'GeoLite2-City-CSV.zip')), 'not-exists');
                 }
 
                 if (cli_argument('--no-unzip')) {
@@ -153,17 +153,17 @@ switch (cli_method()) {
 
                     try {
                         load_libs('pack');
-                        $path = pack_unzip(TMP.'GeoLite2-City-CSV.zip');
+                        $path = pack_unzip(PATH_TMP.'GeoLite2-City-CSV.zip');
 
                         /*
                          * We don't know the exact name of the unzipped path,
                          * search for it
                          */
-                        file_delete(TMP.'GeoLite2-City-CSV.zip');
-                        $path = file_from_part(TMP.'GeoLite2-City-CSV');
+                        file_delete(PATH_TMP.'GeoLite2-City-CSV.zip');
+                        $path = file_from_part(PATH_TMP.'GeoLite2-City-CSV');
 
                         if (!$path) {
-                            throw new CoreException(tr('No geolite data path found in data/tmp after unzipping ":file"', array(':file' => TMP.'GeoLite2-City-CSV.zip')), 'not-exist');
+                            throw new CoreException(tr('No geolite data path found in data/tmp after unzipping ":file"', array(':file' => PATH_TMP.'GeoLite2-City-CSV.zip')), 'not-exist');
                         }
 
                     }catch(CoreException $e) {
@@ -185,10 +185,10 @@ switch (cli_method()) {
                     log_console(tr('Converting encoding of GEOIP'), 'white');
 
                     safe_exec(array('commands' => array('cd'   , array($path),
-                                                        'iconv', array('-t', 'UTF-8', '-f', 'ISO-8859-1', 'GeoLite2-City-Blocks-IPv4.csv', '-o', '../geoip_blocks-IPv4.csv', 'redirect' => '>> '.ROOT.'data/log/mysqlimport'))));
+                                                        'iconv', array('-t', 'UTF-8', '-f', 'ISO-8859-1', 'GeoLite2-City-Blocks-IPv4.csv', '-o', '../geoip_blocks-IPv4.csv', 'redirect' => '>> '.PATH_ROOT.'data/log/mysqlimport'))));
 
                     safe_exec(array('commands' => array('cd'   , array($path),
-                                                        'iconv', array('-t', 'UTF-8', '-f', 'ISO-8859-1', 'GeoLite2-City-Locations-en.csv', '-o', '../geoip_locations-en.csv', 'redirect' => ' >> '.ROOT.'data/log/mysqlimport'))));
+                                                        'iconv', array('-t', 'UTF-8', '-f', 'ISO-8859-1', 'GeoLite2-City-Locations-en.csv', '-o', '../geoip_locations-en.csv', 'redirect' => ' >> '.PATH_ROOT.'data/log/mysqlimport'))));
                 }
 
 
@@ -213,10 +213,10 @@ switch (cli_method()) {
                     $path   = '/var/lib/mysql/'.$uniqid.'/';
 
                     log_console(tr('Placing symlink for non local import'), 'yellow');
-                    symlink(TMP, $path);
+                    symlink(PATH_TMP, $path);
 
                 } else {
-                    $path = TMP;
+                    $path = PATH_TMP;
                 }
 
                 if (cli_argument('--no-import')) {
@@ -237,11 +237,11 @@ switch (cli_method()) {
 
                     log_console(tr('Importing GEOIP blocks'), 'white');
                     sql_query('TRUNCATE `geoip_blocks`');
-                    safe_exec(array('commands' => array('mysqlimport', array('--fields-terminated-by=","', '--fields-optionally-enclosed-by="\""', '--lines-terminated-by="\n"', '--local', '--user='.$_CONFIG['db']['core']['user'], '--password=\''.$_CONFIG['db']['core']['pass'].'\'', $_CONFIG['db']['core']['db'], $path.'geoip_blocks-IPv4.csv', 'redirect' => '>> '.ROOT.'data/log/mysqlimport'))));
+                    safe_exec(array('commands' => array('mysqlimport', array('--fields-terminated-by=","', '--fields-optionally-enclosed-by="\""', '--lines-terminated-by="\n"', '--local', '--user='.$_CONFIG['db']['core']['user'], '--password=\''.$_CONFIG['db']['core']['pass'].'\'', $_CONFIG['db']['core']['db'], $path.'geoip_blocks-IPv4.csv', 'redirect' => '>> '.PATH_ROOT.'data/log/mysqlimport'))));
 
                     log_console(tr('Importing GEOIP locations'));
                     sql_query('TRUNCATE `geoip_location`');
-                    safe_exec(array('commands' => array('mysqlimport', array('--fields-terminated-by=","', '--fields-optionally-enclosed-by="\""', '--lines-terminated-by="\n"', '--local', '--user='.$_CONFIG['db']['core']['user'], '--password=\''.$_CONFIG['db']['core']['pass'].'\'', $_CONFIG['db']['core']['db'], $path.'geoip_location-IPv4.csv', 'redirect' => '>> '.ROOT.'data/log/mysqlimport 2>&1'))));
+                    safe_exec(array('commands' => array('mysqlimport', array('--fields-terminated-by=","', '--fields-optionally-enclosed-by="\""', '--lines-terminated-by="\n"', '--local', '--user='.$_CONFIG['db']['core']['user'], '--password=\''.$_CONFIG['db']['core']['pass'].'\'', $_CONFIG['db']['core']['db'], $path.'geoip_location-IPv4.csv', 'redirect' => '>> '.PATH_ROOT.'data/log/mysqlimport 2>&1'))));
                 }
 
                 if (isset($uniqid)) {

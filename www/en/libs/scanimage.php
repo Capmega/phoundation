@@ -120,9 +120,9 @@ function scanimage($params) {
                  */
                 if ($params['domain'] === '') {
                     /*
-                     * This is the own machine. Scan to the TMP file
+                     * This is the own machine. Scan to the PATH_TMP file
                      */
-                    $file = TMP.str_random(16);
+                    $file = PATH_TMP.str_random(16);
                     Path::ensure(dirname($file));
 
                     $params['options']['redirect'] = ' > '.$file;
@@ -131,7 +131,7 @@ function scanimage($params) {
 
                 } else {
                     /*
-                     * This is a remote server. Scan and rsync the file to TMP
+                     * This is a remote server. Scan and rsync the file to PATH_TMP
                      */
                     $file   = file_temp(false);
                     $remote = '/tmp/'.str_random(16);
@@ -148,7 +148,7 @@ function scanimage($params) {
                 /*
                  * Change file format?
                  */
-                file_delete($params['file'], ROOT);
+                file_delete($params['file'], PATH_ROOT);
 
                 switch ($params['format']) {
                     case 'tiff':
@@ -395,7 +395,7 @@ function scanimage_validate($params) {
                     $v->setError(tr('Specified file ":file" already exists', array(':file' => $params['file'])));
 
                 } elseif (is_file($params['file'])) {
-                    file_delete($params['file'], ROOT);
+                    file_delete($params['file'], PATH_ROOT);
 
                 } else {
                     if (is_dir($params['file'])) {

@@ -92,7 +92,7 @@ function amp_page($params) {
             throw new CoreException(tr('amp_page(): No resource specified'), 'not-specified');
         }
 
-        $file = ROOT.'data/content/amp/'.$params['template'].'.amp';
+        $file = PATH_ROOT.'data/content/amp/'.$params['template'].'.amp';
 
         if (!file_exists($file)) {
             throw new CoreException(tr('amp_page(): Specified template ":template" does not exist', array(':template' => $params['template'])), 'not-exists');

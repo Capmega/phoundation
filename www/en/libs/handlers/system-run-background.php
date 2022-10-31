@@ -20,14 +20,14 @@ try {
     }
 
     if ($path == './') {
-        $path = ROOT.'scripts/';
+        $path = PATH_ROOT.'scripts/';
 
     } elseif (Strings::startsNotWith($path, '/') == 'base/') {
-        $path = ROOT.'scripts/base/';
+        $path = PATH_ROOT.'scripts/base/';
     }
 
     if ($single and process_runs($cmd)) {
-        log_file(tr('Specified command ":cmd" is already running and has "single" option specified, not running again', array(':cmd' => str_replace(ROOT, '', $path).$cmd)), 'run_background', 'warning');
+        log_file(tr('Specified command ":cmd" is already running and has "single" option specified, not running again', array(':cmd' => str_replace(PATH_ROOT, '', $path).$cmd)), 'run_background', 'warning');
         return false;
     }
 
@@ -47,7 +47,7 @@ try {
         $log = str_replace('/', '-', $cmd);
     }
 
-    Path::ensure(ROOT.'data/run-background');
+    Path::ensure(PATH_ROOT.'data/run-background');
 
     if (!strstr($args, '--env') and !strstr($args, '-E')) {
         /*
@@ -59,12 +59,12 @@ try {
     if ($log) {
         if (substr($log, 0, 3) === 'tmp') {
             /*
-             * Log output to the TMP directory instead of the normal log output
+             * Log output to the PATH_TMP directory instead of the normal log output
              */
-            $log = TMP.Strings::startsNotWith(substr($log, 3), '/');
+            $log = PATH_TMP.Strings::startsNotWith(substr($log, 3), '/');
 
         } else {
-            $log = ROOT.'data/log/'.$log;
+            $log = PATH_ROOT.'data/log/'.$log;
         }
 
         Path::ensure(dirname($log));
@@ -76,15 +76,15 @@ try {
              * together!
              */
             log_file(tr('Found specified log file ":path" to exist as a directory. Deleting the directory to avoid run_background() not working correctly', array(':path' => $log)), 'run_background');
-            file_delete($log, ROOT.'data/log');
+            file_delete($log, PATH_ROOT.'data/log');
         }
 
-        $command = sprintf('export TERM='.$term.'; (nohup %s >> %s 2>&1 & echo $! >&3) 3> %s', 'sleep '.$wait.';'.$path.$cmd.' '.$args, $log, ROOT.'data/run-background/'.$cmd);
+        $command = sprintf('export TERM='.$term.'; (nohup %s >> %s 2>&1 & echo $! >&3) 3> %s', 'sleep '.$wait.';'.$path.$cmd.' '.$args, $log, PATH_ROOT.'data/run-background/'.$cmd);
         log_console(tr('Executing background command ":command"', array(':command' => $command)), 'VERBOSE/cyan');
         exec($command);
 
     } else {
-        $command = sprintf('export TERM='.$term.'; (nohup %s > /dev/null 2>&1 & echo $! >&3) 3> %s', 'sleep '.$wait.';'.$path.$cmd.' '.$args, ROOT.'data/run-background/'.$cmd);
+        $command = sprintf('export TERM='.$term.'; (nohup %s > /dev/null 2>&1 & echo $! >&3) 3> %s', 'sleep '.$wait.';'.$path.$cmd.' '.$args, PATH_ROOT.'data/run-background/'.$cmd);
         log_console(tr('Executing background command ":command"', array(':command' => $command)), 'VERBOSE/cyan');
         exec($command);
     }
@@ -92,7 +92,7 @@ try {
 // :DEBUG: Leave the next line around, it will be useful..
 //showdie($command);
 
-    $pid = exec(sprintf('cat %s; rm %s', ROOT.'data/run-background/'.$cmd.' ', ROOT.'data/run-background/'.$cmd));
+    $pid = exec(sprintf('cat %s; rm %s', PATH_ROOT.'data/run-background/'.$cmd.' ', PATH_ROOT.'data/run-background/'.$cmd));
     log_file('PID:'.$pid.' '.$command, 'VERBOSE/run-background');
 
     return $pid;

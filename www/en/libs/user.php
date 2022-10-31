@@ -1065,7 +1065,7 @@ function user_signout() {
         setcookie('base', 'stub', 1, '/');
 
         if ($cookie) {
-            file_delete(ROOT.'data/cookies/sess_'.$cookie, ROOT.'data/cookies');
+            file_delete(PATH_ROOT.'data/cookies/sess_'.$cookie, PATH_ROOT.'data/cookies');
         }
 
     }catch(Exception $e) {

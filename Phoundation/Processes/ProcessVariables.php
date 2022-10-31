@@ -259,7 +259,7 @@ trait ProcessVariables
 //
 //        if (!$path) {
 //            // Set the default log path
-//            $path = ROOT . 'data/log/';
+//            $path = PATH_ROOT . 'data/log/';
 //        }
 //
 //        // Ensure the path ends with a slash and that it is writable
@@ -311,8 +311,8 @@ trait ProcessVariables
     {
         $identifier = $this->getIdentifier();
 
-        $this->log_file = ROOT . 'data/log/' . $identifier;
-        $this->run_file = ROOT . 'data/run/' . $identifier;
+        $this->log_file = PATH_ROOT . 'data/log/' . $identifier;
+        $this->run_file = PATH_ROOT . 'data/run/' . $identifier;
 
         Log::notice(tr('Set identifier ":identifier"', [':identifier' => $identifier]), 2);
 
@@ -328,7 +328,7 @@ trait ProcessVariables
      */
     protected function setRunFile(): static
     {
-        $this->run_file = ROOT . 'data/run/' . $this->getIdentifier();
+        $this->run_file = PATH_ROOT . 'data/run/' . $this->getIdentifier();
         return $this;
     }
 
@@ -346,7 +346,7 @@ trait ProcessVariables
 //
 //        if (!$path) {
 //            // Set the default log path
-//            $path = ROOT . 'data/run/';
+//            $path = PATH_ROOT . 'data/run/';
 //        }
 //
 //        // Ensure the path ends with a slash and that it is writable

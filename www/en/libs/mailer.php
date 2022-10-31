@@ -96,14 +96,14 @@ function mailer_insert($params) {
         /*
          * Validate content file
          */
-        if (!file_exists(ROOT.'data/content/'.LANGUAGE.'/mailer/template.html')) {
-            throw new CoreException('mailer_insert(): Template file "'.ROOT.'data/content/'.LANGUAGE.'/mailer/template.html" does not exist', 'not-exists');
+        if (!file_exists(PATH_ROOT.'data/content/'.LANGUAGE.'/mailer/template.html')) {
+            throw new CoreException('mailer_insert(): Template file "'.PATH_ROOT.'data/content/'.LANGUAGE.'/mailer/template.html" does not exist', 'not-exists');
         }
 
         $params['content'] = cfm($params['content']);
 
-        if (!file_exists($file = ROOT.'data/content/'.LANGUAGE.'/mailer/'.$params['content'].'.html')) {
-            throw new CoreException('mailer_insert(): Specified content file "'.$params['content'].'.html'.'" does not exist in email content path "'.ROOT.'data/content/'.LANGUAGE.'/mailer/'.'"', 'not-exists');
+        if (!file_exists($file = PATH_ROOT.'data/content/'.LANGUAGE.'/mailer/'.$params['content'].'.html')) {
+            throw new CoreException('mailer_insert(): Specified content file "'.$params['content'].'.html'.'" does not exist in email content path "'.PATH_ROOT.'data/content/'.LANGUAGE.'/mailer/'.'"', 'not-exists');
         }
 
         /*

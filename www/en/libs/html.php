@@ -983,10 +983,10 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
                 $external  = false;
 
                 if (substr($file_part, 0, 5) === '/pub/') {
-                    $file_src = ROOT.'www/'.LANGUAGE.$file_part;
+                    $file_src = PATH_ROOT.'www/'.LANGUAGE.$file_part;
 
                 } else {
-                    $file_src = ROOT.'data/content'.$file_part;
+                    $file_src = PATH_ROOT.'data/content'.$file_part;
                 }
 
             } elseif (str_contains($src, domain(''))) {
@@ -994,7 +994,7 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
                  * Here, mistakenly, the main domain was used for CDN data
                  */
                 $file_part = Strings::startsWith(Strings::from($src, domain('')), '/');
-                $file_src  = ROOT.'data/content'.$file_part;
+                $file_src  = PATH_ROOT.'data/content'.$file_part;
                 $external  = false;
 
                 notify(new CoreException(tr('html_img(): The main domain ":domain" was specified for CDN data, please correct this issue', array(':domain' => domain(''))), 'warning/invalid'));
@@ -1009,7 +1009,7 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
              * Assume all images are PUB images
              */
             $file_part = '/pub'.Strings::startsWith($src, '/');
-            $file_src  = ROOT.'www/'.LANGUAGE.$file_part;
+            $file_src  = PATH_ROOT.'www/'.LANGUAGE.$file_part;
             $src       = cdn_domain($src, $section);
         }
 
@@ -1222,8 +1222,8 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                      * Image comes from a domain, fetch to temp directory to analize
                      */
                     try {
-                        $file  = file_move_to_target($file_src, TMP, false, true);
-                        $image = getimagesize(TMP.$file);
+                        $file  = file_move_to_target($file_src, PATH_TMP, false, true);
+                        $image = getimagesize(PATH_TMP.$file);
 
                     }catch(Exception $e) {
                         switch ($e->getCode()) {
@@ -1253,7 +1253,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                     }
 
                     if (!empty($file)) {
-                        file_delete(TMP.$file);
+                        file_delete(PATH_TMP.$file);
                     }
 
                 } else {
@@ -1507,16 +1507,16 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                  * Use lazy image loading
                  */
                 try {
-                    if (!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/jquery.lazy.js')) {
+                    if (!file_exists(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/jquery.lazy.js')) {
                         /*
                          * jquery.lazy is not available, auto install it.
                          */
                         $file = download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
                         $path = cli_unzip($file);
 
-                        File::executeMode(ROOT.'www/en/pub/js', 0770, function() use ($path) {
-                            file_delete(ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', ROOT.'www/'.LANGUAGE.'/pub/js/');
-                            rename($path.'jquery.lazy-master/', ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
+                        File::executeMode(PATH_ROOT.'www/en/pub/js', 0770, function() use ($path) {
+                            file_delete(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/');
+                            rename($path.'jquery.lazy-master/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
                         });
 
                         file_delete($path);
@@ -1696,7 +1696,7 @@ function html_video($params) {
             /*
              * This is a local video
              */
-            $params['src']  = ROOT.'www/en'.Strings::startsWith($params['src'], '/');
+            $params['src']  = PATH_ROOT.'www/en'.Strings::startsWith($params['src'], '/');
             $params['type'] = mime_content_type($params['src']);
 
         } else {
@@ -1704,7 +1704,7 @@ function html_video($params) {
                 /*
                  * This is a local video with domain specification
                  */
-                $params['src']  = ROOT.'www/en'.Strings::startsWith(Strings::from($params['src'], domain()), '/');
+                $params['src']  = PATH_ROOT.'www/en'.Strings::startsWith(Strings::from($params['src'], domain()), '/');
                 $params['type'] = mime_content_type($params['src']);
 
             } elseif (!Debug::production()) {

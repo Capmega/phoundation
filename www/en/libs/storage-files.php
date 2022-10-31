@@ -57,7 +57,7 @@ function storage_files_insert($params) {
                                         'method' => 'custom',
                                         'format' => 'jpg'));
 
-                    file_delete($file['filename'], ROOT.'data/content');
+                    file_delete($file['filename'], PATH_ROOT.'data/content');
                     $file['filename'] = Strings::untilReverse($file['filename'], '.').'.jpg';
                     break;
 
@@ -116,7 +116,7 @@ function storage_files_delete($params) {
         array_default($params, 'documents_id', null);
         array_default($params, 'pages_id'    , null);
         array_default($params, 'file'        , null);
-        array_default($params, 'base_path'   , ROOT.'data/files/');
+        array_default($params, 'base_path'   , PATH_ROOT.'data/files/');
 
         load_libs('files');
 

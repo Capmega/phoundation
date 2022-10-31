@@ -1313,13 +1313,13 @@ function servers_create_identity_file($server) {
         /*
          * Ensure that ssh/keys directory exists and that its safe
          */
-        Path::ensure(ROOT.'data/ssh/keys', 0700);
-        chmod(ROOT.'data/ssh', 0700);
+        Path::ensure(PATH_ROOT.'data/ssh/keys', 0700);
+        chmod(PATH_ROOT.'data/ssh', 0700);
 
         /*
          * Safely create SSH key file
          */
-        $identity_file = ROOT.'data/ssh/keys/'.str_random(8);
+        $identity_file = PATH_ROOT.'data/ssh/keys/'.str_random(8);
 
         touch($identity_file);
         chmod($identity_file, 0600);
@@ -1329,7 +1329,7 @@ function servers_create_identity_file($server) {
 
         Core::readRegister('shutdown_servers_remove_identity_file', array($identity_file));
 
-        return ROOT.'data/ssh/keys/'.substr($identity_file, -8, 8);
+        return PATH_ROOT.'data/ssh/keys/'.substr($identity_file, -8, 8);
 
     }catch(Exception $e) {
         throw new CoreException('servers_create_identity_file(): Failed', $e);
@@ -1356,7 +1356,7 @@ function servers_remove_identity_file($identity_file, $background = false) {
             return false;
         }
 
-        $identity_file = ROOT.'data/ssh/keys/'.$identity_file;
+        $identity_file = PATH_ROOT.'data/ssh/keys/'.$identity_file;
 
         if (file_exists($identity_file)) {
             if ($background) {
@@ -1367,7 +1367,7 @@ function servers_remove_identity_file($identity_file, $background = false) {
 
             } else {
                 chmod($identity_file, 0600);
-                file_delete($identity_file, ROOT.'data/ssh/keys');
+                file_delete($identity_file, PATH_ROOT.'data/ssh/keys');
             }
         }
 

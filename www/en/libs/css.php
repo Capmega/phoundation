@@ -31,7 +31,7 @@ function css_library_init() {
     try {
         ensure_installed(array('name'     => 'css',
                                'callback' => 'css_setup',
-                               'checks'   => ROOT.'node_modules/.bin/purgecss'));
+                               'checks'   => PATH_ROOT.'node_modules/.bin/purgecss'));
 
         load_config('css');
 
@@ -60,34 +60,34 @@ function css_setup($params) {
         ///*
         // * Ensure all targets are clean
         // */
-        //file_delete(TMP.'Purge');
-        //file_delete(ROOT.'www/'.LANGUAGE.'/libs/vendor/purge-css', false, false, ROOT.'www/'.LANGUAGE.'/libs/vendor');
+        //file_delete(PATH_TMP.'Purge');
+        //file_delete(PATH_ROOT.'www/'.LANGUAGE.'/libs/vendor/purge-css', false, false, PATH_ROOT.'www/'.LANGUAGE.'/libs/vendor');
         //
         ///*
         // * Clone the library
         // */
         //load_libs('git,composer');
-        //git_clone('https://github.com/FrancisBaileyH/Purge.git', TMP);
+        //git_clone('https://github.com/FrancisBaileyH/Purge.git', PATH_TMP);
         //
         ///*
-        // * Move library to ROOT/libs/vendor directory and ensure its readonly
+        // * Move library to PATH_ROOT/libs/vendor directory and ensure its readonly
         // */
-        //Path::ensure(ROOT.'libs/vendor');
-        //File::executeMode(ROOT.'libs/vendor', 0770, function() {
-        //    rename(TMP.'Purge', ROOT.'libs/vendor/purge-css');
-        //    file_delete(TMP.'Purge');
+        //Path::ensure(PATH_ROOT.'libs/vendor');
+        //File::executeMode(PATH_ROOT.'libs/vendor', 0770, function() {
+        //    rename(PATH_TMP.'Purge', PATH_ROOT.'libs/vendor/purge-css');
+        //    file_delete(PATH_TMP.'Purge');
         //
         //    /*
         //     * Be sure to use version 7 and up of the php-css-parser, since
         //     * version 6 will crash on PHP 7
         //     */
-        //    file_replace('"sabberworm/php-css-parser" : "^6.', '"sabberworm/php-css-parser" : "^7.', ROOT.'libs/vendor/purge-css/composer.json');
+        //    file_replace('"sabberworm/php-css-parser" : "^6.', '"sabberworm/php-css-parser" : "^7.', PATH_ROOT.'libs/vendor/purge-css/composer.json');
         //
         //    /*
         //     * Install all depemdancies, make everything readonly
         //     */
-        //    composer_install(ROOT.'libs/vendor/purge-css');
-        //    file_chmod(ROOT.'libs/vendor/purge-css', 0440, 0550);
+        //    composer_install(PATH_ROOT.'libs/vendor/purge-css');
+        //    file_chmod(PATH_ROOT.'libs/vendor/purge-css', 0440, 0550);
         //});
 
         load_libs('node');
@@ -120,22 +120,22 @@ function css_purge($html, $css) {
 
     try {
         //$purged_css      = 'p-'.$css;
-        //$purged_css_file = ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
-        //$css_file        = ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+        //$purged_css_file = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+        //$css_file        = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
         //
-        //safe_exec(array('commands' => array('cd' , array(ROOT.'libs/vendor/purge-css/src/'),
-        //                                    'php', array(ROOT.'libs/vendor/purge-css/src/purge.php', 'purge:run', $css_file, $html, $purged_css_file))));
+        //safe_exec(array('commands' => array('cd' , array(PATH_ROOT.'libs/vendor/purge-css/src/'),
+        //                                    'php', array(PATH_ROOT.'libs/vendor/purge-css/src/purge.php', 'purge:run', $css_file, $html, $purged_css_file))));
         //return $purged_css;
 
         $purged_css      = 'p-'.$css;
-        $purged_css_file = ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
-        $css_file        = ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
-        $arguments       = array('--css', $css_file, '--content', $html, '--out', TMP);
+        $purged_css_file = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+        $css_file        = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+        $arguments       = array('--css', $css_file, '--content', $html, '--out', PATH_TMP);
 
         /*
          * Ensure that any previous version is deleted
          */
-        file_delete($purged_css_file, ROOT.'www/'.LANGUAGE.'/pub/css');
+        file_delete($purged_css_file, PATH_ROOT.'www/'.LANGUAGE.'/pub/css');
 
         /*
          * Add list of selectors that should be whitelisted
@@ -170,7 +170,7 @@ function css_purge($html, $css) {
          */
         load_libs('node');
         node_exec('./purgecss', $arguments);
-        rename(TMP.basename($css_file), $purged_css_file);
+        rename(PATH_TMP.basename($css_file), $purged_css_file);
 
         return $purged_css;
 

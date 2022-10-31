@@ -27,7 +27,7 @@ function ssh_library_init() {
     try {
         load_config('ssh');
         load_libs('cli');
-        Path::ensure(ROOT.'data/run/ssh');
+        Path::ensure(PATH_ROOT.'data/run/ssh');
 
     }catch(Exception $e) {
         throw new CoreException('ssh_library_init(): Failed', $e);
@@ -69,7 +69,7 @@ function ssh_exec($server, $params) {
         }
 
         Arrays::ensure($params, 'domain,port,commands');
-        array_default($params, 'output_log'        , (VERBOSE ? ROOT.'data/log/syslog' : '/dev/null'));
+        array_default($params, 'output_log'        , (VERBOSE ? PATH_ROOT.'data/log/syslog' : '/dev/null'));
         array_default($params, 'include_ssh_errors', true);
 
         /*
@@ -316,7 +316,7 @@ showdie($command);
         /*
          * Check if ControlMasters are already running for this connection
          */
-        if (file_exists(ROOT.'data/run/ssh/'.$server['username'].'@'.$server['domain'].':'.$server['port'].(isset_get($params['tunnel']) ? 'T' : ''))) {
+        if (file_exists(PATH_ROOT.'data/run/ssh/'.$server['username'].'@'.$server['domain'].':'.$server['port'].(isset_get($params['tunnel']) ? 'T' : ''))) {
             /*
              * A master is already  running, so this connection should NOT be a
              * master, just reuse the existing one
@@ -602,7 +602,7 @@ showdie($command);
         /*
          * Always check for persistent connections
          */
-        $command .= ' -o ControlPersist='.$_CONFIG['ssh']['persist']['timeout'].' -o ControlPath="'.ROOT.'data/run/ssh/'.$server['username'].'@'.$server['domain'].':'.$server['port'].(isset_get($params['tunnel']) ? 'T' : '').'" ';
+        $command .= ' -o ControlPersist='.$_CONFIG['ssh']['persist']['timeout'].' -o ControlPath="'.PATH_ROOT.'data/run/ssh/'.$server['username'].'@'.$server['domain'].':'.$server['port'].(isset_get($params['tunnel']) ? 'T' : '').'" ';
 
         /*
          * Add the user@server, if allowed
@@ -673,10 +673,10 @@ function ssh_build_options($options = null) {
         }
 
         /*
-         * The known_hosts file for this user defaults to ROOT/data/ss/known_hosts
+         * The known_hosts file for this user defaults to PATH_ROOT/data/ss/known_hosts
          */
         if (empty($options['user_known_hosts_file'])) {
-            $string .= ' -o UserKnownHostsFile="'.ROOT.'data/ssh/known_hosts"';
+            $string .= ' -o UserKnownHostsFile="'.PATH_ROOT.'data/ssh/known_hosts"';
 
         } else {
             if ($value) {
@@ -751,7 +751,7 @@ function ssh_build_options($options = null) {
 //    global $_CONFIG;
 //
 //    try {
-//        Path::ensure(TMP);
+//        Path::ensure(PATH_TMP);
 //
 //        if (!$socket) {
 //            $socket = file_temp();
@@ -765,7 +765,7 @@ function ssh_build_options($options = null) {
 //                                 'port'      => $_CONFIG['cdn']['port'],
 //                                 'username'  => $server['username'],
 //                                 'ssh_key'   => ssh_get_key($server['username']),
-//                                 'arguments' => '-nNf -o ControlMaster=yes -o ControlPath='.$socket), ' 2>&1 >'.ROOT.'data/log/ssh_master');
+//                                 'arguments' => '-nNf -o ControlMaster=yes -o ControlPath='.$socket), ' 2>&1 >'.PATH_ROOT.'data/log/ssh_master');
 //
 //        return $socket;
 //
@@ -1050,7 +1050,7 @@ function ssh_get_account($account) {
 
 
 /*
- * Add the fingerprints for the specified domain:port to the `ssh_fingerprints` table and the ROOT/data/ssh/known_hosts file
+ * Add the fingerprints for the specified domain:port to the `ssh_fingerprints` table and the PATH_ROOT/data/ssh/known_hosts file
  *
  * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -1154,7 +1154,7 @@ function ssh_add_known_host($domain, $port) {
 
 
 /*
- * Remove the registered fingerprints for the specified domain:port from the `ssh_fingerprints` table and the ROOT/data/ssh/known_hosts file
+ * Remove the registered fingerprints for the specified domain:port from the `ssh_fingerprints` table and the PATH_ROOT/data/ssh/known_hosts file
  *
  * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -1190,14 +1190,14 @@ function ssh_remove_known_host($domain, $port = null) {
             sql_query('DELETE FROM `ssh_fingerprints` WHERE `domain` = :domain', array(':domain' => $domain));
         }
 
-        file_ensure_file(ROOT.'data/ssh/known_hosts', 0640, 0750);
-        file_delete(ROOT.'data/ssh/known_hosts~update', false);
+        file_ensure_file(PATH_ROOT.'data/ssh/known_hosts', 0640, 0750);
+        file_delete(PATH_ROOT.'data/ssh/known_hosts~update', false);
 
         /*
          * Copy the lines that should not be deleted to the new file
          */
-        $f1 = fopen(ROOT.'data/ssh/known_hosts'       , 'r');
-        $f2 = fopen(ROOT.'data/ssh/known_hosts~update', 'w+');
+        $f1 = fopen(PATH_ROOT.'data/ssh/known_hosts'       , 'r');
+        $f2 = fopen(PATH_ROOT.'data/ssh/known_hosts~update', 'w+');
 
         while ($line = fgets($f1)) {
             if ($port) {
@@ -1221,8 +1221,8 @@ function ssh_remove_known_host($domain, $port = null) {
         /*
          * Move the new file in place of the old one
          */
-        file_delete(ROOT.'data/ssh/known_hosts', false);
-        rename(ROOT.'data/ssh/known_hosts~update', ROOT.'data/ssh/known_hosts');
+        file_delete(PATH_ROOT.'data/ssh/known_hosts', false);
+        rename(PATH_ROOT.'data/ssh/known_hosts~update', PATH_ROOT.'data/ssh/known_hosts');
 
         return $count;
 
@@ -1245,7 +1245,7 @@ function ssh_remove_known_host($domain, $port = null) {
 
 
 /*
- * Append the specified fingerprint data to the ROOT/data/ssh/known_hosts file
+ * Append the specified fingerprint data to the PATH_ROOT/data/ssh/known_hosts file
  *
  * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -1264,10 +1264,10 @@ function ssh_remove_known_host($domain, $port = null) {
  */
 function ssh_append_fingerprint($fingerprint) {
     try {
-        file_ensure_file(ROOT.'data/ssh/known_hosts', 0640, 0750);
+        file_ensure_file(PATH_ROOT.'data/ssh/known_hosts', 0640, 0750);
 
         $exists = safe_exec(array('ok_exitcodes' => '0,1',
-                                  'commands'     => array('grep', array('"\['.$fingerprint['domain'].'\]:'.$fingerprint['port'].' '.$fingerprint['algorithm'].' '.$fingerprint['fingerprint'].'"', ROOT.'data/ssh/known_hosts'))));
+                                  'commands'     => array('grep', array('"\['.$fingerprint['domain'].'\]:'.$fingerprint['port'].' '.$fingerprint['algorithm'].' '.$fingerprint['fingerprint'].'"', PATH_ROOT.'data/ssh/known_hosts'))));
 
         if ($exists) {
             log_console(tr('Skipping fingerprint ":fingerprint" for domain ":domain", it already exists in known_hosts', array(':fingerprint' => $fingerprint['fingerprint'], ':domain' => $fingerprint['domain'])), 'VERYVERBOSE');
@@ -1275,7 +1275,7 @@ function ssh_append_fingerprint($fingerprint) {
         }
 
         log_console(tr('Adding fingerprint ":fingerprint" for domain ":domain" to known_hosts', array(':fingerprint' => $fingerprint['fingerprint'], ':domain' => $fingerprint['domain'])), 'VERBOSE');
-        file_put_contents(ROOT.'data/ssh/known_hosts', '['.$fingerprint['domain'].']:'.$fingerprint['port'].' '.$fingerprint['algorithm'].' '.$fingerprint['fingerprint']."\n", FILE_APPEND);
+        file_put_contents(PATH_ROOT.'data/ssh/known_hosts', '['.$fingerprint['domain'].']:'.$fingerprint['port'].' '.$fingerprint['algorithm'].' '.$fingerprint['fingerprint']."\n", FILE_APPEND);
         return true;
 
     }catch(Exception $e) {
@@ -1346,7 +1346,7 @@ function ssh_get_fingerprints($domain, $port) {
 
 
 /*
- * Rebuild the ROOT/data/ssh/known_hosts file, adding all host key fingerprints
+ * Rebuild the PATH_ROOT/data/ssh/known_hosts file, adding all host key fingerprints
  * stored in the ssh_fingerprints table
  *
  * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -1365,8 +1365,8 @@ function ssh_rebuild_known_hosts($clear = false) {
             /*
              * Clear the SSH known hosts file
              */
-            log_console(tr('Deleting the known_hosts file "'.ROOT.'data/ssh/known_hosts"'), 'VERBOSE/yellow');
-            file_delete(ROOT.'data/ssh/known_hosts', false);
+            log_console(tr('Deleting the known_hosts file "'.PATH_ROOT.'data/ssh/known_hosts"'), 'VERBOSE/yellow');
+            file_delete(PATH_ROOT.'data/ssh/known_hosts', false);
         }
 
         log_console(tr('Rebuilding known_hosts file'), 'VERBOSE/cyan');
@@ -1390,7 +1390,7 @@ function ssh_rebuild_known_hosts($clear = false) {
 
 
 /*
- * Returns true if the specified domain:port is registered in the ROOT/data/ssh/known_hosts file
+ * Returns true if the specified domain:port is registered in the PATH_ROOT/data/ssh/known_hosts file
  *
  * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -1402,16 +1402,16 @@ function ssh_rebuild_known_hosts($clear = false) {
  *
  * @params string $domain
  * @params natural $port
- * @params boolean $auto_register If set to true, if the domain is not specified in the ROOT/data/ssh/known_hosts file but is available in the ssh_fingerprints table, then the function will automatically add the fingerprints to the ROOT/data/ssh/known_hosts file
- * @return boolean True if the specified domain:port is registered in the ROOT/data/ssh/known_hosts file
+ * @params boolean $auto_register If set to true, if the domain is not specified in the PATH_ROOT/data/ssh/known_hosts file but is available in the ssh_fingerprints table, then the function will automatically add the fingerprints to the PATH_ROOT/data/ssh/known_hosts file
+ * @return boolean True if the specified domain:port is registered in the PATH_ROOT/data/ssh/known_hosts file
  */
 function ssh_host_is_known($domain, $port, $auto_register = true) {
     try {
-        file_ensure_file(ROOT.'data/ssh/known_hosts', 0640, 0750);
+        file_ensure_file(PATH_ROOT.'data/ssh/known_hosts', 0640, 0750);
 
         $port       = ssh_get_port($port);
         $db_count   = sql_get('SELECT COUNT(`id`) FROM `ssh_fingerprints` WHERE `domain` = :domain AND `port` = :port', true, array('domain' => $domain, ':port' => $port), 'core');
-        $file_count = safe_exec(array('commands' => array('grep', array('"\['.$domain.'\]:'.$port.'"', ROOT.'data/ssh/known_hosts', 'connector' => '|'),
+        $file_count = safe_exec(array('commands' => array('grep', array('"\['.$domain.'\]:'.$port.'"', PATH_ROOT.'data/ssh/known_hosts', 'connector' => '|'),
                                                           'wc'  , array('-l'))));
         $file_count = array_shift($file_count);
 
@@ -1433,7 +1433,7 @@ function ssh_host_is_known($domain, $port, $auto_register = true) {
          * Fingerprints are in the ssh_fingerprints table, but not in the
          * known_hosts file, and we can auto register
          */
-        log_console(tr('The host ":domain::port" has no SSH key fingerprint in the ROOT/data/ssh/known_hosts file, but the keys were found in the ssh_fingerprints table. Adding fingerprints now.', array(':domain' => $domain, ':port' => $port)), 'yellow');
+        log_console(tr('The host ":domain::port" has no SSH key fingerprint in the PATH_ROOT/data/ssh/known_hosts file, but the keys were found in the ssh_fingerprints table. Adding fingerprints now.', array(':domain' => $domain, ':port' => $port)), 'yellow');
         return ssh_add_known_host($domain, $port);
 
     }catch(Exception $e) {
@@ -1805,7 +1805,7 @@ function ssh_list_persistent($close = false) {
     try {
         $return = array();
 
-        foreach (scandir(ROOT.'data/ssh/control') as $socket) {
+        foreach (scandir(PATH_ROOT.'data/ssh/control') as $socket) {
             $pid          = ssh_persistent_pid($socket);
             $return[$pid] = $socket;
 

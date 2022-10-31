@@ -8,8 +8,8 @@ try {
      */
     $paths = array('/var/lib/data/',
                    '/var/www/data/',
-                   ROOT.'../data/',
-                   ROOT.'../../data/'
+                   PATH_ROOT.'../data/',
+                   PATH_ROOT.'../../data/'
                    );
 
     if (!empty($_SERVER['HOME'])) {

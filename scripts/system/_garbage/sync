@@ -54,7 +54,7 @@ ARGUMENTS
 
 
 HOOK SCRIPTS: Below are shown (in order) the hook scripts that will be executed
-              If the hook scripts exist (in ROOT/scripts/hooks) they will be
+              If the hook scripts exist (in PATH_ROOT/scripts/hooks) they will be
               executed. If not, they will be ignored
 
 sync_badges_cached";
@@ -284,7 +284,7 @@ if ($nodelete) {
  */
 if ($cleardata) {
     log_console(tr('Clearing local content data due to "--clear-data" command line parameter'), 'white');
-    file_delete(ROOT.'data/content', false);
+    file_delete(PATH_ROOT.'data/content', false);
 }
 
 
@@ -308,7 +308,7 @@ if ($nofiles) {
      * Ensure write permissions to all files to avoid sync crashes on write protected files
      */
 // :TODO: Change this for file_chmod()
-    safe_exec(array('commands' => array('chmod', array('sudo' => $sudo, 'timeout' => 120, 'ug+w', ROOT, '-R'))));
+    safe_exec(array('commands' => array('chmod', array('sudo' => $sudo, 'timeout' => 120, 'ug+w', PATH_ROOT, '-R'))));
 
     foreach ($_CONFIG['sync'] as $path) {
         try {
@@ -318,12 +318,12 @@ if ($nofiles) {
 
             if ($deletesync) {
                 log_console(tr('Deleting local path ":path"', array(':path' => $path)), 'white');
-                file_delete(ROOT.$path, ROOT.$path);
+                file_delete(PATH_ROOT.$path, PATH_ROOT.$path);
             }
 
             try {
 // :TODO: Change this for rsync();
-                passthru($command = 'rsync -aczvAXHS '.$no_times.' --no-perms --progress -p '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].':'.Strings::slash($deploy_config['target_dir']).Strings::slash($path).' '.ROOT.Strings::slash($path).' --exclude="*.php" --exclude="*.css" --exclude="*.js" --exclude="/scripts/*" --exclude="/data/doc" --exclude="/data/system" --exclude="/data/mock*" --exclude="/data/sources" --exclude=".htaccess" --exclude=".git*" --exclude="/pub/*"', $exitcode);
+                passthru($command = 'rsync -aczvAXHS '.$no_times.' --no-perms --progress -p '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].':'.Strings::slash($deploy_config['target_dir']).Strings::slash($path).' '.PATH_ROOT.Strings::slash($path).' --exclude="*.php" --exclude="*.css" --exclude="*.js" --exclude="/scripts/*" --exclude="/data/doc" --exclude="/data/system" --exclude="/data/mock*" --exclude="/data/sources" --exclude=".htaccess" --exclude=".git*" --exclude="/pub/*"', $exitcode);
 
                 if ($exitcode) {
                     throw new CoreException(tr('Rsync of remote files with local server failed with exit code ":code"', array(':code' => $exitcode)), 'rsync');
@@ -379,7 +379,7 @@ if ($noinit) {
      */
     log_console(tr('Executing init script to ensure that database will be up to date'), 'white');
 // :TODO: Change this for init() call directly
-    passthru(ROOT.'scripts/base/init --env '.ENVIRONMENT, $exitcode);
+    passthru(PATH_ROOT.'scripts/base/init --env '.ENVIRONMENT, $exitcode);
 
     if ($exitcode) {
         throw new CoreException(tr('Local init failed with exit code ":code"', array(':code' => $exitcode)), 'init');
@@ -414,7 +414,7 @@ if ($noinit or $noblogupdateurl) {
      * ORIGINAL DATABASE!
      */
 // :TODO: USe script_exec();
-    passthru(ROOT.'scripts/base/blogs rebuild-post-urls --env '.ENVIRONMENT);
+    passthru(PATH_ROOT.'scripts/base/blogs rebuild-post-urls --env '.ENVIRONMENT);
 }
 
 

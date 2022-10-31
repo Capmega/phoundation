@@ -15,7 +15,7 @@ while ($media = sql_fetch($medias)) {
     cli_dot(1);
 
     $hash = '';
-    $file = ROOT.'data/content/photos/'.$media['file'].'-original.jpg';
+    $file = PATH_ROOT.'data/content/photos/'.$media['file'].'-original.jpg';
 
     if (file_exists($file)) {
         $hash = hash('sha256', $file);

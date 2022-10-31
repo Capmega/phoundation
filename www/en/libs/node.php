@@ -111,7 +111,7 @@ function node_setup_npm() {
  */
 function node_exec($command, $arguments) {
     try {
-        return safe_exec(array('commands' => array('cd'         , array(ROOT.'node_modules/.bin'),
+        return safe_exec(array('commands' => array('cd'         , array(PATH_ROOT.'node_modules/.bin'),
                                                    './'.$command, $arguments)));
 
     }catch(Exception $e) {
@@ -177,7 +177,7 @@ function node_find_modules() {
         /*
          * Search for node_modules path
          */
-        foreach (array(ROOT, getcwd(), $home) as $path) {
+        foreach (array(PATH_ROOT, getcwd(), $home) as $path) {
             if ($found) {
                 break;
             }
@@ -194,10 +194,10 @@ function node_find_modules() {
             /*
              * Initialize the node_modules path
              */
-            File::executeMode(ROOT, 0770, function() use (&$found) {
-                log_console(tr('node_find_modules(): node_modules path not found, initializing now with ROOT/node_modules'), 'yellow');
+            File::executeMode(PATH_ROOT, 0770, function() use (&$found) {
+                log_console(tr('node_find_modules(): node_modules path not found, initializing now with PATH_ROOT/node_modules'), 'yellow');
 
-                $found = ROOT.'node_modules/';
+                $found = PATH_ROOT.'node_modules/';
                 Path::ensure($found, 0550);
             });
         }
@@ -214,7 +214,7 @@ function node_find_modules() {
                 /*
                  * Delete the package-lock.json file. It's okay to use the
                  * variable dirname($found) here for restrictions as $found can
-                 * be only one of ROOT, CWD, or the users home directory, and we
+                 * be only one of PATH_ROOT, CWD, or the users home directory, and we
                  * are specifically deleting the package-lock.json file
                  */
                 file_chmod(array('path'         => Strings::slash(dirname($found)).'package-lock.json',
@@ -279,14 +279,14 @@ function node_install_npm($packages) {
 
         log_console(tr('node_install_npm(): Installing packages ":packages"', array(':packages' => $packages)), 'VERBOSE/cyan');
 
-        File::executeMode(ROOT, 0770, function() use ($packages) {
-            Path::ensure(ROOT.'node_modules');
+        File::executeMode(PATH_ROOT, 0770, function() use ($packages) {
+            Path::ensure(PATH_ROOT.'node_modules');
 
             /*
              * Force everything in the node_modules directory to be writable
              * for updates
              */
-            file_chmod(array('path'         => ROOT.'node_modules',
+            file_chmod(array('path'         => PATH_ROOT.'node_modules',
                              'mode'         => 'ug+w',
                              'recursive'    => true,
                              'restrictions' => false));
@@ -295,14 +295,14 @@ function node_install_npm($packages) {
                 log_console(tr('node_install_npm(): Installing packages ":packages"', array(':packages' => $packages)), 'VERYVERBOSE/cyan');
 
                 safe_exec(array('timeout'  => 45,
-                                'commands' => array('cd' , array(ROOT),
-                                                    'npm', array('install', '--prefix', ROOT, $package))));
+                                'commands' => array('cd' , array(PATH_ROOT),
+                                                    'npm', array('install', '--prefix', PATH_ROOT, $package))));
             }
 
             /*
              * Force everything in the node_modules directory to always be readonly
              */
-            file_chmod(array('path'         => ROOT.'node_modules',
+            file_chmod(array('path'         => PATH_ROOT.'node_modules',
                              'mode'         => 'ug-w',
                              'recursive'    => true,
                              'restrictions' => false));

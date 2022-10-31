@@ -276,10 +276,10 @@ function facebook_signin() {
             //                //generate target file/location
             //                if ($newfile = get_upload_location('avatars',5,'')) {
             //                    //create small avatar
-            //                    convert_image($tmp,ROOT.'/'.$newfile.'_small.png',50,50,'thumb-circle');
+            //                    convert_image($tmp,PATH_ROOT.'/'.$newfile.'_small.png',50,50,'thumb-circle');
             //
             //                    //create large avatar
-            //                    convert_image($tmp,ROOT.'/'.$newfile.'_big.png',200,200,'thumb-circle');
+            //                    convert_image($tmp,PATH_ROOT.'/'.$newfile.'_big.png',200,200,'thumb-circle');
             //                    sql_query("update users set avatar='".$newfile."' where uid=".cfi($uid).";");
             //                }
             //
@@ -348,7 +348,7 @@ function facebook_get_avatar($user) {
          * Avatars are on http://graph.facebook.com/USERID/picture
          * Create the avatars, and store the base avatar location
          */
-        $file   = TMP.file_move_to_target('http://graph.facebook.com/'.$user.'/picture?type=large', TMP, '.jpg');
+        $file   = PATH_TMP.file_move_to_target('http://graph.facebook.com/'.$user.'/picture?type=large', PATH_TMP, '.jpg');
         $return = image_create_avatars($file);
 
         /*

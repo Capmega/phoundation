@@ -92,7 +92,7 @@ class Updates
             ]));
         }
 
-        $this->file         = ROOT . str_replace('\\', '/', get_class($this)) . '.php';
+        $this->file         = PATH_ROOT . str_replace('\\', '/', get_class($this)) . '.php';
         $this->library      = $library;
         $this->code_version = $code_version;
     }

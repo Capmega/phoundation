@@ -31,7 +31,7 @@ use Phoundation\Web\Route;
  * R301             Redirect to the specified page argument using HTTP 301
  * R302             Redirect to the specified page argument using HTTP 302
  * S$SECONDS$       Store the specified rule for this IP and apply it for $SECONDS$ amount of seconds. $SECONDS$ is optional, and defaults to 86400 seconds (1 day). This works well to auto 404 IP's that are doing naughty things for at least a day
- * X$PATHS$         Restrict access to the specified dot-comma separated $PATHS$ list. $PATHS is optional and defaults to ROOT.'www,'.ROOT.'data/content/downloads'
+ * X$PATHS$         Restrict access to the specified dot-comma separated $PATHS$ list. $PATHS is optional and defaults to PATH_ROOT.'www,'.PATH_ROOT.'data/content/downloads'
  *
  * The translation map helps route() to detect URL's where the language is native. For example; http://phoundation.org/about.html and http://phoundation.org/nosotros.html should both route to about.php, and maybe you wish to add multiple languages for this. The routing table basically says what static words should be translated to their native language counterparts. The mapped_domain() function use this table as well when generating URL's. See mapped_domain() for more information
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -49,7 +49,7 @@ use Phoundation\Web\Route;
  * code
  * route('/\//'                                            , 'index'                                , '');     // This would NOT allow queries, and the match would fail
  * route('/\//'                                            , 'index'                                , 'Q');    // This would allow queries
- * route('/^([a-z]{2})\/page\/([a-z-]+)?(?:-(\d+))?.html$/', '$1/$2.php?page=$3'                    , 'Q');    // This would map a URL like en/page/users-4.html to ROOT/en/users.php?page=4 while also allowing queries to be passed as well.
+ * route('/^([a-z]{2})\/page\/([a-z-]+)?(?:-(\d+))?.html$/', '$1/$2.php?page=$3'                    , 'Q');    // This would map a URL like en/page/users-4.html to PATH_ROOT/en/users.php?page=4 while also allowing queries to be passed as well.
  * route(''                                                , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/', 'R301'); // This will HTTP 301 redirect the user to a page with the same protocol, same domain, but the language that their browser requested. So for example, http://domain.com with HTTP header "accept-language:en" would HTTP 301 redirect to http://domain.com/en/
  * /code
  *

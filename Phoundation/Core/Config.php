@@ -17,7 +17,7 @@ use Throwable;
  *
  * This class contains the methods to read, write and manage configuration options. Default configuration values are
  * specified in the classes themselves whereas users can add configuration sections in the YAML file
- * ROOT/config/ENVIRONMENT/CLASSNAME and this class will apply those values.
+ * PATH_ROOT/config/ENVIRONMENT/CLASSNAME and this class will apply those values.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -247,12 +247,12 @@ class Config{
 
         // Read the section for each environment
         foreach ($environments as $environment) {
-            $file = ROOT . 'config/' . $environment . '.yaml';
+            $file = PATH_ROOT . 'config/' . $environment . '.yaml';
 
             // Check if a configuration file exists for this environment
             if (!file_exists($file)) {
                 // Do NOT use tr() here as it will cause endless loops!
-                throw Exceptions::ConfigException('Configuration file "' . Strings::from($file, ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist')->makeWarning();
+                throw Exceptions::ConfigException('Configuration file "' . Strings::from($file, PATH_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist')->makeWarning();
             }
 
             try {
@@ -301,8 +301,8 @@ class Config{
 //
 //    /*
 //     * Load specified configuration files. All files must be specified by their section name only, no extension nor environment.
-//     * The function will then load the files ROOT/config/base/NAME.php, ROOT/config/base/production_NAME.php, and on non "production" environments, ROOT/config/base/ENVIRONMENT_NAME.php
-//     * For example, if you want to load the "fprint" configuration, use load_config('fprint'); The function will load ROOT/config/base/fprint.php, ROOT/config/base/production_fprint.php, and on (for example) the "local" environment, ROOT/config/base/local_fprint.php
+//     * The function will then load the files PATH_ROOT/config/base/NAME.php, PATH_ROOT/config/base/production_NAME.php, and on non "production" environments, PATH_ROOT/config/base/ENVIRONMENT_NAME.php
+//     * For example, if you want to load the "fprint" configuration, use load_config('fprint'); The function will load PATH_ROOT/config/base/fprint.php, PATH_ROOT/config/base/production_fprint.php, and on (for example) the "local" environment, PATH_ROOT/config/base/local_fprint.php
 //     *
 //     * Examples:
 //     * load_config('fprint');
@@ -325,9 +325,9 @@ class Config{
 //
 //        try {
 //            if (!$paths) {
-//                $paths = array(ROOT . 'config/base/',
-//                    ROOT . 'config/production',
-//                    ROOT . 'config/' . ENVIRONMENT);
+//                $paths = array(PATH_ROOT . 'config/base/',
+//                    PATH_ROOT . 'config/production',
+//                    PATH_ROOT . 'config/' . ENVIRONMENT);
 //            }
 //
 //            $files = Arrays::force($files);
@@ -408,31 +408,31 @@ class Config{
 //            }
 //
 //            if ($file === 'deploy') {
-//                include(ROOT . 'config/deploy.php');
+//                include(PATH_ROOT . 'config/deploy.php');
 //                return $_CONFIG;
 //            }
 //
 //            if ($file) {
-//                if (file_exists(ROOT . 'config/base/' . $file . '.php')) {
+//                if (file_exists(PATH_ROOT . 'config/base/' . $file . '.php')) {
 //                    $loaded = true;
-//                    include(ROOT . 'config/base/' . $file . '.php');
+//                    include(PATH_ROOT . 'config/base/' . $file . '.php');
 //                }
 //
 //                $file = '_' . $file;
 //
 //            } else {
 //                $loaded = true;
-//                include(ROOT . 'config/base/default.php');
+//                include(PATH_ROOT . 'config/base/default.php');
 //            }
 //
-//            if (file_exists(ROOT . 'config/production' . $file . '.php')) {
+//            if (file_exists(PATH_ROOT . 'config/production' . $file . '.php')) {
 //                $loaded = true;
-//                include(ROOT . 'config/production' . $file . '.php');
+//                include(PATH_ROOT . 'config/production' . $file . '.php');
 //            }
 //
-//            if (file_exists(ROOT . 'config/' . $environment . $file . '.php')) {
+//            if (file_exists(PATH_ROOT . 'config/' . $environment . $file . '.php')) {
 //                $loaded = true;
-//                include(ROOT . 'config/' . $environment . $file . '.php');
+//                include(PATH_ROOT . 'config/' . $environment . $file . '.php');
 //            }
 //
 //            if (empty($loaded)) {

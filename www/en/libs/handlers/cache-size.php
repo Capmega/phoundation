@@ -8,8 +8,8 @@ try {
     switch ($_CONFIG['cache']['method']) {
         case 'file':
             load_libs('numbers');
-            Path::ensure(ROOT.'data/cache');
-            return file_tree(ROOT.'data/cache', 'size');
+            Path::ensure(PATH_ROOT.'data/cache');
+            return file_tree(PATH_ROOT.'data/cache', 'size');
 
         case 'memcached':
 // :IMPLEMENT:

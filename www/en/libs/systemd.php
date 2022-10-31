@@ -31,7 +31,7 @@ function systemd_library_init() {
     try {
         ensure_installed(array('name'      => 'systemd',
                                'callback'  => 'systemd_install',
-                               'checks'    => ROOT.'libs/external/systemd/systemd,'.ROOT.'libs/external/systemd/foobar',
+                               'checks'    => PATH_ROOT.'libs/external/systemd/systemd,'.PATH_ROOT.'libs/external/systemd/foobar',
                                'functions' => 'systemd,foobar',
                                'which'     => 'systemd,foobar'));
 

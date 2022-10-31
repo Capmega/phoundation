@@ -16,7 +16,7 @@ $help  = 'The ensure-structure script will ensure that all required files and di
 /*
  * Load deployment configuration
  */
-include(ROOT.'config/deploy.php');
+include(PATH_ROOT.'config/deploy.php');
 
 $target = cli_argument('target', true, ENVIRONMENT);
 
@@ -30,8 +30,8 @@ if (empty($_CONFIG['deploy'][$target])) {
 $deploy_config = $_CONFIG['deploy'][$target];
 $target_dir    = cli_argument('target_dir', true, $deploy_config['target_dir']);
 
-$paths         = array('log'       => ROOT.'data/log',
-                       'temporary' => ROOT.'data/tmp');
+$paths         = array('log'       => PATH_ROOT.'data/log',
+                       'temporary' => PATH_ROOT.'data/tmp');
 
 foreach ($paths as $name => $path) {
     /*

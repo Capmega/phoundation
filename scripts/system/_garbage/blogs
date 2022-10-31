@@ -194,7 +194,7 @@ switch (cli_method()) {
         while ($blog = sql_fetch($blogs)) {
             log_console(tr('Processing photos for blog ":blog"', array(':blog' => $blog['name'])), 'white');
 
-            $path   = ROOT.'data/content/photos/';
+            $path   = PATH_ROOT.'data/content/photos/';
 
             $photos = sql_query('SELECT  `id`,
                                          `blogs_posts_id`,
@@ -245,7 +245,7 @@ switch (cli_method()) {
                      */
                     $photo_path = dirname($base_file);
 
-                    file_delete($photo_path, ROOT.'data/content/photos/');
+                    file_delete($photo_path, PATH_ROOT.'data/content/photos/');
 
                     sql_query('DELETE FROM `blogs_images` WHERE `id` = :id', array(':id' => $photo['id']));
                     log_console(tr('Failed to find source file (-origin or -large) for photo ":photo", removed all files and database references to cleanup', array(':photo' => $photo['file'])), 'yellow');
@@ -277,7 +277,7 @@ switch (cli_method()) {
                         $format_data['source'] = $source_file;
                         $format_data['target'] = $file;
 
-                        file_delete($file, ROOT.'data/content/photos/');
+                        file_delete($file, PATH_ROOT.'data/content/photos/');
                         image_convert($format_data);
                     }
 
@@ -288,7 +288,7 @@ switch (cli_method()) {
                         $format_data['source'] = $source_file;
                         $format_data['target'] = $filex2;
 
-                        file_delete($filex2, ROOT.'data/content/photos/');
+                        file_delete($filex2, PATH_ROOT.'data/content/photos/');
                         image_convert($format_data);
                     }
 

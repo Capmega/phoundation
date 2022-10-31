@@ -118,7 +118,7 @@ GLOBAL OPTIONS
 
 
 HOOK SCRIPTS: Below are shown (in order) the hook scripts that will be
-              executed If the hook scripts exist (in ROOT/scripts/hooks)
+              executed If the hook scripts exist (in PATH_ROOT/scripts/hooks)
               they will be executed. If not, they will be ignored
 
 deploy_post_content
@@ -148,15 +148,15 @@ load_libs('init,deploy,git');
 
 
 /*
- * Calculate the path difference between ROOT and ROOT.$_CONFIG[root]
+ * Calculate the path difference between PATH_ROOT and PATH_ROOT.$_CONFIG[root]
  */
-$root = realpath(ROOT.$_CONFIG['root']);
+$root = realpath(PATH_ROOT.$_CONFIG['root']);
 
-if (strlen($root) > strlen(ROOT)) {
-    $rootdiff = Strings::from($root, ROOT);
+if (strlen($root) > strlen(PATH_ROOT)) {
+    $rootdiff = Strings::from($root, PATH_ROOT);
 
 } else {
-    $rootdiff = Strings::from(ROOT, $root);
+    $rootdiff = Strings::from(PATH_ROOT, $root);
 }
 
 $rootdiff = Strings::endsNotWith($rootdiff, '/');
@@ -176,7 +176,7 @@ if (ENVIRONMENT == 'production') {
 /*
  * Load deployment configuration
  */
-include(ROOT.'config/deploy.php');
+include(PATH_ROOT.'config/deploy.php');
 
 if (empty($_CONFIG['deploy'])) {
     throw new CoreException(tr('No deploy configuration found'), 'warning/validation');
@@ -471,12 +471,12 @@ if ($nosyntax) {
     foreach ($output as $file) {
         if (substr($file, 0, 7) == './data/') {
             /*
-             * Do not check PHP files in ROOT/data
+             * Do not check PHP files in PATH_ROOT/data
              */
             continue;
         }
 
-        exec('php -l '.ROOT.$file.' > /dev/null', $syntaxoutput, $return);
+        exec('php -l '.PATH_ROOT.$file.' > /dev/null', $syntaxoutput, $return);
 
         if ($return) {
             throw new CoreException(tr('Content scan failed on file ":file" with ":error"', array(':file' => $file, ':error' => $syntaxoutput)), 'warning/validation');
@@ -510,12 +510,12 @@ if ($noversion) {
     /*
      * Update project configuration file
      */
-    $data = file_get_contents(ROOT.'config/project.php');
+    $data = file_get_contents(PATH_ROOT.'config/project.php');
     $data = preg_replace('/\''.$oldversion.'\'\);/', '\''.$newversion.'\');', $data);
 
-    file_put_contents(ROOT.'config/project.php', $data);
+    file_put_contents(PATH_ROOT.'config/project.php', $data);
 
-    git_add(ROOT.'config/project.php');
+    git_add(PATH_ROOT.'config/project.php');
     git_commit(tr('Upgraded project ":project" version to ":version"', array(':project' => PROJECT, ':version' => $newversion)));
 
     init_hook('deploy_post_version', $nohooks, array('oldversion' => $oldversion,
@@ -534,7 +534,7 @@ if ($noversion or $notag) {
 } else {
     log_console(tr('Executing git version tagging'), 'white');
 
-    passthru('cd '.ROOT.'; git tag -am "['.PROJECT.' / '.$newversion.'] '.$message.'" '.$newversion.';', $exitcode);
+    passthru('cd '.PATH_ROOT.'; git tag -am "['.PROJECT.' / '.$newversion.'] '.$message.'" '.$newversion.';', $exitcode);
 
     if ($exitcode) {
         throw new CoreException('Git tagging failed with exit code "'.Strings::Log($exitcode).'"', 'warning/git');
@@ -559,7 +559,7 @@ if ($nopush or $ignore_changes) {
      */
     $branch = git_branch();
 
-    passthru('cd '.ROOT.'; git push origin '.$branch.' && git push origin '.$branch.' --tags', $exitcode);
+    passthru('cd '.PATH_ROOT.'; git push origin '.$branch.' && git push origin '.$branch.' --tags', $exitcode);
 
     if ($exitcode) {
         throw new CoreException('Git push failed with exit code "'.Strings::Log($exitcode).'"', 'warning/git');
@@ -575,7 +575,7 @@ if ($nopush or $ignore_changes) {
  */
 if (!$noversion) {
     log_console(tr('Project version revision was updated, executing init script to update project database'), 'white');
-    passthru(ROOT.'script/base/init --env '.$target_environment, $exitcode);
+    passthru(PATH_ROOT.'script/base/init --env '.$target_environment, $exitcode);
 
     if ($exitcode) {
         throw new CoreException(tr('System init failed with exit code ":code"', array(':code' => $exitcode)), 'warning/init');
@@ -616,14 +616,14 @@ if ($nocompress) {
 
         } else {
             log_console(tr('Changes detected from the compression script script, committing to git'), 'white');
-            git_add(ROOT.'www/en/pub');
+            git_add(PATH_ROOT.'www/en/pub');
 
-            if (file_exists(ROOT.'www/en/admin/pub')) {
-                git_add(ROOT.'www/en/admin/pub');
+            if (file_exists(PATH_ROOT.'www/en/admin/pub')) {
+                git_add(PATH_ROOT.'www/en/admin/pub');
             }
 
-            if (file_exists(ROOT.'data/cdn/pub')) {
-                git_add(ROOT.'data/cdn/pub');
+            if (file_exists(PATH_ROOT.'data/cdn/pub')) {
+                git_add(PATH_ROOT.'data/cdn/pub');
             }
 
             git_commit('Deploy commit: compressed files changed');
@@ -676,9 +676,9 @@ if ($notouch) {
     log_console(tr('Skipping touch mtime update due to no "--no-touch" command line parameters'), 'yellow');
 
 } else {
-    log_console(tr('Executing touch on entire project tree updating all mtimes (Excluding ROOT/data/content/)'), 'white');
+    log_console(tr('Executing touch on entire project tree updating all mtimes (Excluding PATH_ROOT/data/content/)'), 'white');
 
-    passthru('cd '.ROOT.'; find . ! -path "./data/content/*" -exec touch {} \;', $exitcode);
+    passthru('cd '.PATH_ROOT.'; find . ! -path "./data/content/*" -exec touch {} \;', $exitcode);
 
     if ($exitcode) {
         throw new CoreException('Touch failed with exit code ":code"', array(':code' => $exitcode), 'warning/git');
@@ -701,7 +701,7 @@ foreach ($targets as $target_environment) {
     /*
      * Ensure that target environment configuration file is available.
      */
-    if (!file_exists(ROOT.'config/'.$target_environment.'.php')) {
+    if (!file_exists(PATH_ROOT.'config/'.$target_environment.'.php')) {
         throw new CoreException('Target environment "'.Strings::Log($target_environment).'" has no configuration file', 'warning/validation');
     }
 
@@ -1012,9 +1012,9 @@ foreach ($targets as $target_environment) {
         exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'chmod ug+w '.$deploy_config['target_dir'].' -R 2> /dev/null\'', $contentoutput, $return);
 
         log_console(tr('Deploying project to target server ":server" on path ":path"', array(':server' => $deploy_config['target_server'], ':path' => $deploy_config['target_dir'])), 'white');
-        passthru('rsync -rlpDczvAXHS'.($deploy_config['preserve_owner_group'] ? 'tog' : '').' --progress --force --delete '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.ROOT.$_CONFIG['root'].' '.$deploy_config['target_user'].$deploy_config['target_server'].':'.$deploy_config['target_dir'].' '.$include.' '.$exclude, $exitcode);
+        passthru('rsync -rlpDczvAXHS'.($deploy_config['preserve_owner_group'] ? 'tog' : '').' --progress --force --delete '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.PATH_ROOT.$_CONFIG['root'].' '.$deploy_config['target_user'].$deploy_config['target_server'].':'.$deploy_config['target_dir'].' '.$include.' '.$exclude, $exitcode);
 
-        log_console(tr('Setting ROOT/data/system/last-deploy'));
+        log_console(tr('Setting PATH_ROOT/data/system/last-deploy'));
         exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'mkdir -p '.$deploy_config['target_dir'].'/data/system 2> /dev/null; '.$sudo.'touch '.$deploy_config['target_dir'].'/data/system/last-deploy\'', $contentoutput, $return);
 
         if ($exitcode and !$ignore_rsync_errors) {

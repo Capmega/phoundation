@@ -32,8 +32,8 @@ function sweetalert_library_init() {
         ensure_installed(array('name'      => 'sweetalert',
                                'project'   => 'sweetalert',
                                'callback'  => 'sweetalert_install',
-                               'checks'    => array(ROOT.'pub/js/sweetalert/sweetalert.js',
-                                                    ROOT.'pub/css/sweetalert/sweetalert.css')));
+                               'checks'    => array(PATH_ROOT.'pub/js/sweetalert/sweetalert.js',
+                                                    PATH_ROOT.'pub/css/sweetalert/sweetalert.css')));
 
 //        load_config('sweetalert');
         html_load_js('sweetalert/sweetalert');
@@ -66,12 +66,12 @@ function sweetalert_install($params) {
         $css = download('https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.css');
         $js  = download('https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.js');
 
-        File::executeMode(ROOT.'pub/js/', 0770, function() {
-            Path::ensure(ROOT.'pub/js/sweetalert/', 0550);
+        File::executeMode(PATH_ROOT.'pub/js/', 0770, function() {
+            Path::ensure(PATH_ROOT.'pub/js/sweetalert/', 0550);
 
-            File::executeMode(ROOT.'pub/js/sweetalert/', 0770, function() {
-                rename($js , ROOT.'pub/js/sweetalert/sweetalert.js');
-                rename($css, ROOT.'pub/css/sweetalert/sweetalert.css');
+            File::executeMode(PATH_ROOT.'pub/js/sweetalert/', 0770, function() {
+                rename($js , PATH_ROOT.'pub/js/sweetalert/sweetalert.js');
+                rename($css, PATH_ROOT.'pub/css/sweetalert/sweetalert.css');
             });
         });
 

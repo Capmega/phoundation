@@ -21,7 +21,7 @@ use Throwable;
 /**
  * Class Route
  *
- * Core routing class that will route URL request queries to PHP scripts in the ROOT/www/LANGUAGE_CODE/ path
+ * Core routing class that will route URL request queries to PHP scripts in the PATH_ROOT/www/LANGUAGE_CODE/ path
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -92,7 +92,7 @@ class Route
      * R301             Redirect to the specified page argument using HTTP 301
      * R302             Redirect to the specified page argument using HTTP 302
      * S$SECONDS$       Store the specified rule for this IP and apply it for $SECONDS$ amount of seconds. $SECONDS$ is optional, and defaults to 86400 seconds (1 day). This works well to auto 404 IP's that are doing naughty things for at least a day
-     * X$PATHS$         Restrict access to the specified dot-comma separated $PATHS$ list. $PATHS is optional and defaults to ROOT.'www,'.ROOT.'data/content/downloads'
+     * X$PATHS$         Restrict access to the specified dot-comma separated $PATHS$ list. $PATHS is optional and defaults to PATH_ROOT.'www,'.PATH_ROOT.'data/content/downloads'
      *
      * The $Debug::enabled() and $Debug::enabled() variables here are to set the system in Debug::enabled() or Debug::enabled() mode, but ONLY if the system runs in debug mode. The former will add extra log output in the data/log files, the latter will add LOADS of extra log data in the data/log files, so please use with care and only if you cannot resolve the problem
      *
@@ -315,7 +315,7 @@ class Route
 
             $route        = $target;
             $attachment   = false;
-            $restrictions = new Restrictions([WWW_PATH , ROOT.'data/content/downloads']);
+            $restrictions = new Restrictions([PATH_WWW , PATH_ROOT.'data/content/downloads']);
 
             // Regex matched. Do variable substitution on the target.
             if (preg_match_all('/:([A-Z_]+)/', $target, $variables)) {
@@ -661,7 +661,7 @@ class Route
                 throw new RouteException(tr('Route regex ":url_regex" resolved to main index.php page which would cause an endless loop', [':url_regex' => $url_regex]));
             }
 
-            $page = WWW_PATH . $page;
+            $page = PATH_WWW . $page;
 
             if (!file_exists($page) and !$block) {
                 if (isset($dynamic_pagematch)) {
@@ -870,7 +870,7 @@ class Route
         self::getInstance();
 
         try {
-            Core::writeRegister(WWW_PATH . 'system/404', 'system', 'script_path');
+            Core::writeRegister(PATH_WWW . 'system/404', 'system', 'script_path');
             Core::writeRegister('404', 'system', 'script');
 
             Web::execute(404);

@@ -1310,7 +1310,7 @@ class Strings
      * @param string $method
      * @param bool $on_word
      * @return string The string, truncated if required, according to the specified truncating rules
-     * @note While log_console() will log towards the ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
+     * @note While log_console() will log towards the PATH_ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
      * @example
      * code
      * echo str_truncate('This is a long long long long test text!', 10);
@@ -1383,7 +1383,7 @@ class Strings
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
-     * @note While log_console() will log towards the ROOT/data/log/ log files, cli_dot() will only log one single dot
+     * @note While log_console() will log towards the PATH_ROOT/data/log/ log files, cli_dot() will only log one single dot
      *      even though on the command line multiple dots may be shown
      * @see Strings::truncate()
      * @see JSON::Encode()
@@ -1578,7 +1578,7 @@ class Strings
         }
 
         if (!$data = sql_list('SELECT `word` FROM `synonyms` ORDER BY RAND() LIMIT '.cfi($count))) {
-            throw new CoreException(tr('Synonyms table is empty. Please run ROOT/cli system strings init'));
+            throw new CoreException(tr('Synonyms table is empty. Please run PATH_ROOT/cli system strings init'));
         }
 
         if ($count == 1) {

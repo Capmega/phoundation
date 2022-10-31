@@ -31,7 +31,7 @@ function pages_list($params) {
         Arrays::ensure($params, 'filters');
 
         $return = array();
-        $pages  = scandir(ROOT.'www/en/');
+        $pages  = scandir(PATH_ROOT.'www/en/');
 
         $params['filters'] = Arrays::force($params['filters']);
 

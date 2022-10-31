@@ -143,7 +143,7 @@ function files_insert($file, $require_unique = false) {
 /*
  * Delete a file
  */
-function files_delete($file, $base_path = ROOT.'data/files/') {
+function files_delete($file, $base_path = PATH_ROOT.'data/files/') {
     try {
         $dbfile = files_get($file);
 
@@ -272,7 +272,7 @@ function files_list($params) {
  */
 function files_search_orphans() {
     try {
-        $root       = ROOT.'data/files/';
+        $root       = PATH_ROOT.'data/files/';
         $quarantine = $root.'quarantine/orphans/';
         $files      = files_list(array('columns' => 'filename,hash',
                                        'filters' => array('!status' => 'orphaned')));
@@ -303,7 +303,7 @@ function files_search_orphans() {
                                          * exist
                                          */
                                         Path::ensure(dirname($quarantine.$file));
-                                        file_delete($quarantine.$file, ROOT.'data/files/quarantine/orphans/');
+                                        file_delete($quarantine.$file, PATH_ROOT.'data/files/quarantine/orphans/');
 
                                         /*
                                          * Move the file to quarantine
@@ -335,7 +335,7 @@ function files_search_orphans() {
  */
 function files_clear_quarantine($section = null) {
     try {
-        $path = ROOT.'data/files';
+        $path = PATH_ROOT.'data/files';
 
         if ($section) {
             log_console(tr('Clearing all quarantined files in the ":section" section', array(':section' => $section)), 'yellow');
@@ -350,7 +350,7 @@ function files_clear_quarantine($section = null) {
             log_console(tr('Clearing all quarantined files'), 'yellow');
         }
 
-        return file_delete($path, ROOT.'data/files');
+        return file_delete($path, PATH_ROOT.'data/files');
 
     }catch(Exception $e) {
         throw new CoreException(tr('files_clear_quarantine(): Failed'), $e);

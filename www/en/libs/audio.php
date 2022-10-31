@@ -72,7 +72,7 @@ function audio_play($class = null) {
             throw new CoreException(tr('audio_play(): This audio class does not exist ":class"', array(':class' => $class)), 'not-exists');
         }
 
-        $file = ROOT.'data/audio/'.$_CONFIG['audio']['classes'][$class];
+        $file = PATH_ROOT.'data/audio/'.$_CONFIG['audio']['classes'][$class];
 
         /*
          * Check if audio file exists

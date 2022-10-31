@@ -47,7 +47,7 @@ define('HDOM_TYPE_ELEMENT', 1);
 define('HDOM_TYPE_COMMENT', 2);
 define('HDOM_TYPE_TEXT',    3);
 define('HDOM_TYPE_ENDTAG',  4);
-define('HDOM_TYPE_ROOT',    5);
+define('HDOM_TYPE_PATH_ROOT',    5);
 define('HDOM_TYPE_UNKNOWN', 6);
 define('HDOM_QUOTE_DOUBLE', 0);
 define('HDOM_QUOTE_SINGLE', 1);
@@ -1161,7 +1161,7 @@ class simple_html_dom
         $this->root = new simple_html_dom_node($this);
         $this->root->tag = 'root';
         $this->root->_[HDOM_INFO_BEGIN] = -1;
-        $this->root->nodetype = HDOM_TYPE_ROOT;
+        $this->root->nodetype = HDOM_TYPE_PATH_ROOT;
         $this->parent = $this->root;
         if ($this->size>0) $this->char = $this->doc[0];
     }

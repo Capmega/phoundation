@@ -59,10 +59,10 @@ function go_library_init() {
  */
 function go_exists($file, $server = null) {
     try {
-        $exists = linux_file_exists($server, ROOT.'data/go/'.$file, $server);
+        $exists = linux_file_exists($server, PATH_ROOT.'data/go/'.$file, $server);
 
         if (!$exists) {
-            linux_ensure_path($server, ROOT.'data/go/');
+            linux_ensure_path($server, PATH_ROOT.'data/go/');
         }
 
         return $exists;
@@ -119,7 +119,7 @@ function go_exec($params) {
         linux_ensure_package($params['server'], 'go', 'go');
 
         /*
-         * Ensure that all scripts are executed from ROOT/scripts/
+         * Ensure that all scripts are executed from PATH_ROOT/scripts/
          *
          * Ensure that all arguments contain the environment specification
          */
@@ -135,7 +135,7 @@ function go_exec($params) {
                 }
 
 // :TODO: Add support for remote server execution
-                $item = ROOT.'data/go/'.$item;
+                $item = PATH_ROOT.'data/go/'.$item;
 
             } else {
                 /*

@@ -43,7 +43,7 @@ function code_library_init() {
 /*
  * Locate the local Phoundation project and return its path
  *
- * This function will look for the Phoundation system path and return it. The script will first search in the current directory parrallel to ROOT, then one directory higher, then in /var/www/html, then in ~/projects/
+ * This function will look for the Phoundation system path and return it. The script will first search in the current directory parrallel to PATH_ROOT, then one directory higher, then in /var/www/html, then in ~/projects/
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -60,8 +60,8 @@ function code_locate_phoundation() {
 
     try {
         if (!$found) {
-            $paths = array(ROOT.'../phoundation/',
-                           ROOT.'../../phoundation/',
+            $paths = array(PATH_ROOT.'../phoundation/',
+                           PATH_ROOT.'../../phoundation/',
                            '/var/www/html/phoundation/');
 
             $home = getenv('HOME');
@@ -120,7 +120,7 @@ function code_locate_phoundation() {
 /*
  * Locate the local Toolkit project and return its path
  *
- * This function will look for the Toolkit system path and return it. The script will first search in the current directory parrallel to ROOT, then one directory higher, then in /var/www/html, then in ~/projects/
+ * This function will look for the Toolkit system path and return it. The script will first search in the current directory parrallel to PATH_ROOT, then one directory higher, then in /var/www/html, then in ~/projects/
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -136,8 +136,8 @@ function code_locate_toolkit() {
 
     try {
         if (!$found) {
-            $paths = array(ROOT.'../toolkit.capmega.com/',
-                           ROOT.'../../capmega/toolkit.capmega.com/',
+            $paths = array(PATH_ROOT.'../toolkit.capmega.com/',
+                           PATH_ROOT.'../../capmega/toolkit.capmega.com/',
                            '/var/www/html/capmega/toolkit.capmega.com/');
 
             $home = getenv('HOME');
@@ -597,7 +597,7 @@ function code_get_phoundation_project_version() {
  * @param string $path The root directory of the project where to find the version lines from
  * @return array Return the available branches for the git project
  */
-function code_get_branch_lines($path = ROOT) {
+function code_get_branch_lines($path = PATH_ROOT) {
     try {
         $branches = git_list_branches($path, true);
 
@@ -632,7 +632,7 @@ function code_get_branch_lines($path = ROOT) {
  * @param string $path The root directory of the project where to find the version lines from
  * @return array Return the available version lines for the git project
  */
-function code_get_available_lines($path = ROOT) {
+function code_get_available_lines($path = PATH_ROOT) {
     try {
         $tags   = git_list_tags($path);
         $return = array();
@@ -671,7 +671,7 @@ function code_get_available_lines($path = ROOT) {
  * @param string $path The root directory of the project where to find the versions from
  * @return array Return the available version for the git project
  */
-function code_get_available_versions($path = ROOT, $version_lines = null) {
+function code_get_available_versions($path = PATH_ROOT, $version_lines = null) {
     try {
         $tags   = git_list_tags($path);
         $return = array();
@@ -715,12 +715,12 @@ function code_get_available_versions($path = ROOT, $version_lines = null) {
  * @param string $path The root directory of the project where to get the framework version from
  * @return string The current version for the specified Phoundation type  project path
  */
-function code_get_framework_version($path = ROOT) {
+function code_get_framework_version($path = PATH_ROOT) {
     try {
         $file = Strings::slash($path).'libs/system.php';
 
         if (!file_exists($file)) {
-            throw new CoreException(tr('code_get_framework_version(): No system library file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
+            throw new CoreException(tr('code_get_framework_version(): No system library file found for the specified PATH_ROOT path ":path"', array(':path' => $path)), 'not-exists');
         }
 
         $data   = file_get_contents($file);
@@ -752,12 +752,12 @@ function code_get_framework_version($path = ROOT) {
  * @param string $path The root directory of the project where to get the framework version from
  * @return string The current version for the specified Phoundation type  project path
  */
-function code_update_framework_version($version, $path = ROOT) {
+function code_update_framework_version($version, $path = PATH_ROOT) {
     try {
         $file = Strings::slash($path).'libs/system.php';
 
         if (!file_exists($file)) {
-            throw new CoreException(tr('code_get_framework_version(): No system library file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
+            throw new CoreException(tr('code_get_framework_version(): No system library file found for the specified PATH_ROOT path ":path"', array(':path' => $path)), 'not-exists');
         }
 
         $data = file_get_contents($file);
@@ -785,12 +785,12 @@ function code_update_framework_version($version, $path = ROOT) {
  * @param string $path The root directory of the project where to get the project version from
  * @return string The current version for the specified Phoundation type  project path
  */
-function code_get_project_version($path = ROOT) {
+function code_get_project_version($path = PATH_ROOT) {
     try {
         $file = Strings::slash($path).'config/project.php';
 
         if (!file_exists($file)) {
-            throw new CoreException(tr('code_get_project_version(): No project configuration file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
+            throw new CoreException(tr('code_get_project_version(): No project configuration file found for the specified PATH_ROOT path ":path"', array(':path' => $path)), 'not-exists');
         }
 
         $data   = file_get_contents($file);
@@ -911,7 +911,7 @@ function code_diff($file, $file2) {
 function code_diff_phoundation($file) {
     try {
         $path = code_locate_phoundation();
-        return code_diff(ROOT.$file, $path.$file);
+        return code_diff(PATH_ROOT.$file, $path.$file);
 
     }catch(Exception $e) {
         throw new CoreException('code_diff_phoundation(): Failed', $e);
@@ -939,7 +939,7 @@ function code_diff_phoundation($file) {
 function code_diff_toolkit($file) {
     try {
         $path = code_locate_toolkit();
-        return code_diff(ROOT.$file, $path.$file);
+        return code_diff(PATH_ROOT.$file, $path.$file);
 
     }catch(Exception $e) {
         throw new CoreException('code_diff_toolkit(): Failed', $e);
@@ -973,7 +973,7 @@ function code_patch($params) {
     try {
         Arrays::ensure($params, 'file,source_path,target_path,replaces,clean,restrictions');
         array_default($params, 'method'     , 'apply');
-        array_default($params, 'source_path', ROOT);
+        array_default($params, 'source_path', PATH_ROOT);
         array_default($params, 'clean'      , true);
 
         Restrict::restrict($params);

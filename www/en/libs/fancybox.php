@@ -31,8 +31,8 @@ function fancybox_library_init() {
         ensure_installed(array('name'      => 'fancybox',
                                'project'   => '2019',
                                'callback'  => 'fancybox_install',
-                               'checks'    => array(ROOT.'pub/css/jquery.fancybox.css',
-                                                    ROOT.'pub/js/jquery.fancybox.js')));
+                               'checks'    => array(PATH_ROOT.'pub/css/jquery.fancybox.css',
+                                                    PATH_ROOT.'pub/js/jquery.fancybox.js')));
 
         // html_load_js('jquery-3.3.1,jquery.fancybox');
 
@@ -66,12 +66,12 @@ function fancybox_install($params) {
         $js  = download('https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js');
         $css = download('https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css');
 
-        File::executeMode(ROOT.'www/en/pub/js', 0770, function() {
-            file_delete(array(ROOT.'www/en/pub/js/jquery.fancybox.js',
-                              ROOT.'www/en/pub/css/jquery.fancybox.css'), ROOT.'www/en/pub');
+        File::executeMode(PATH_ROOT.'www/en/pub/js', 0770, function() {
+            file_delete(array(PATH_ROOT.'www/en/pub/js/jquery.fancybox.js',
+                              PATH_ROOT.'www/en/pub/css/jquery.fancybox.css'), PATH_ROOT.'www/en/pub');
 
-            rename($js , ROOT.'www/en/pub/js/jquery.fancybox.js');
-            rename($css, ROOT.'www/en/pub/css/jquery.fancybox.css');
+            rename($js , PATH_ROOT.'www/en/pub/js/jquery.fancybox.js');
+            rename($css, PATH_ROOT.'www/en/pub/css/jquery.fancybox.css');
         });
 
     }catch(Exception $e) {

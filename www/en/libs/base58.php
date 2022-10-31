@@ -32,7 +32,7 @@ function base58_library_init() {
     try {
         ensure_installed(array('name'      => 'base58',
                                'callback'  => 'base58_install',
-                               'checks'    => array(ROOT.'www/en/libs/external/base58php/Base58.php'),
+                               'checks'    => array(PATH_ROOT.'www/en/libs/external/base58php/Base58.php'),
                                'functions' => 'bcadd'));
 
         load_external(array('base58php/ServiceInterface.php',
@@ -69,9 +69,9 @@ function base58_install($params) {
          */
         load_libs('git,linux');
 
-        File::executeMode(ROOT.'www/'.LANGUAGE.'/libs/external/', 0770, function() {
-            $path = git_clone('https://github.com/stephen-hill/base58php.git', TMP, true);
-            rename($path, ROOT.'www/'.LANGUAGE.'/libs/external/base58php');
+        File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/libs/external/', 0770, function() {
+            $path = git_clone('https://github.com/stephen-hill/base58php.git', PATH_TMP, true);
+            rename($path, PATH_ROOT.'www/'.LANGUAGE.'/libs/external/base58php');
         });
 
         if (!function_exists('bcadd')) {

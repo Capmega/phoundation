@@ -23,7 +23,7 @@ $help  = "The fix-permissions script will ensure that all files and directories 
 /*
  * Load deployment configuration
  */
-include(ROOT.'config/deploy.php');
+include(PATH_ROOT.'config/deploy.php');
 
 $target = cli_argument('target', true, ENVIRONMENT);
 
@@ -36,11 +36,11 @@ if (empty($_CONFIG['deploy'][$target])) {
 }
 
 $deploy_config = $_CONFIG['deploy'][$target];
-$target_dir    = cli_argument('--target-dir', true, isset_get($deploy_config['target_dir'], ROOT));
+$target_dir    = cli_argument('--target-dir', true, isset_get($deploy_config['target_dir'], PATH_ROOT));
 
 try {
     if (empty($_CONFIG['deploy'][$target])) {
-        throw new CoreException(tr('Specified target environment ":target" has no deploy configuration $_CONFIG[deploy][:target] in ":ROOTconfig/deploy.php"', array(':target' => $target, ':ROOT' => ROOT)), 'missing-configuration');
+        throw new CoreException(tr('Specified target environment ":target" has no deploy configuration $_CONFIG[deploy][:target] in ":PATH_ROOTconfig/deploy.php"', array(':target' => $target, ':PATH_ROOT' => PATH_ROOT)), 'missing-configuration');
     }
 
     if (!empty($deploy_config['target_server'])) {
@@ -77,7 +77,7 @@ try {
     }
 
 }catch(Exception $e) {
-    throw new CoreException(tr('Check configuration in ":ROOTconfig/deploy.php"', array(':ROOT' => ROOT)), $e);
+    throw new CoreException(tr('Check configuration in ":PATH_ROOTconfig/deploy.php"', array(':PATH_ROOT' => PATH_ROOT)), $e);
 }
 
 
@@ -87,7 +87,7 @@ try {
  * using sudo, which is required for chown
  */
 if ($sudo and !empty($deploy_config['target_server'])) {
-    passthru($sudo.'chown '.$deploy_config['user'].':'.$deploy_config['group'].' '.ROOT.' -R;', $exitcode);
+    passthru($sudo.'chown '.$deploy_config['user'].':'.$deploy_config['group'].' '.PATH_ROOT.' -R;', $exitcode);
 
     if ($exitcode) {
         throw new CoreException('Failed to update target directory tree user/group ownership', 'update-ownership');
@@ -163,11 +163,11 @@ foreach ($deploy_config['modes'] as $type => $modes) {
                     log_console(tr('Updated directories mode for ":path"', array(':path' => $path)));
                 }
 
-                if (file_exists(Strings::unslash(ROOT).$path)) {
-                    passthru($sudo.'find '.Strings::unslash(ROOT).$path.' -type d -exec chmod '.$mode.' {} \;', $exitcode);
+                if (file_exists(Strings::unslash(PATH_ROOT).$path)) {
+                    passthru($sudo.'find '.Strings::unslash(PATH_ROOT).$path.' -type d -exec chmod '.$mode.' {} \;', $exitcode);
 
                     if ($exitcode) {
-                        throw new CoreException(tr('Failed to update mode for directories in path ":path"', array(':path' => Strings::unslash(ROOT).$path)), 'failed');
+                        throw new CoreException(tr('Failed to update mode for directories in path ":path"', array(':path' => Strings::unslash(PATH_ROOT).$path)), 'failed');
                     }
                 }
             }
@@ -188,11 +188,11 @@ foreach ($deploy_config['modes'] as $type => $modes) {
                     log_console(tr('Updated directories mode for ":path"', array(':path' => $path)));
                 }
 
-                if (file_exists(Strings::unslash(ROOT).$path)) {
-                    passthru($sudo.'find '.Strings::unslash(ROOT).$path.' -type f -exec chmod '.$mode.' {} \;', $exitcode);
+                if (file_exists(Strings::unslash(PATH_ROOT).$path)) {
+                    passthru($sudo.'find '.Strings::unslash(PATH_ROOT).$path.' -type f -exec chmod '.$mode.' {} \;', $exitcode);
 
                     if ($exitcode) {
-                        throw new CoreException(tr('Failed to update mode for files in path ":path"', array(':path' => Strings::unslash(ROOT).$path)), 'failed');
+                        throw new CoreException(tr('Failed to update mode for files in path ":path"', array(':path' => Strings::unslash(PATH_ROOT).$path)), 'failed');
                     }
                 }
             }
@@ -210,11 +210,11 @@ foreach ($deploy_config['modes'] as $type => $modes) {
 /*
  * Fix node_modules directory file access
  */
-if (file_exists(ROOT.'node_modules')) {
-    cli_find(array('start' => ROOT.'node_modules',
+if (file_exists(PATH_ROOT.'node_modules')) {
+    cli_find(array('start' => PATH_ROOT.'node_modules',
                    'exec'  => 'chmod ug-w,o-rwx {}'));
 
-    cli_find(array('start' => ROOT.'node_modules',
+    cli_find(array('start' => PATH_ROOT.'node_modules',
                    'path'  => '*/bin/*',
                    'exec'  => 'chmod ug+x {}'));
 }

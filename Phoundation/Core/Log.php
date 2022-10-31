@@ -144,7 +144,7 @@ Class Log {
 
         // Apply configuration
         self::setThreshold(Config::get('log.threshold', Core::errorState() ? 1 : 3));
-        self::setFile(Config::get('log.file', ROOT . 'data/log/syslog'));
+        self::setFile(Config::get('log.file', PATH_ROOT . 'data/log/syslog'));
         self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_FILE));
         self::setLocalId(substr(uniqid(true), -8, 8));
         self::setGlobalId($global_id);
@@ -293,7 +293,7 @@ Class Log {
 
             if ($file === null) {
                 // Default log file is always the syslog
-                $file = ROOT . 'data/log/syslog';
+                $file = PATH_ROOT . 'data/log/syslog';
             }
 
             // Open the specified log file
@@ -327,7 +327,7 @@ Class Log {
     {
         if ($file === null) {
             // Default log file is always the syslog
-            $file = ROOT . 'data/log/syslog';
+            $file = PATH_ROOT . 'data/log/syslog';
         }
 
         if (empty(self::$handles[$file])) {
@@ -967,7 +967,7 @@ Class Log {
         // Get the class, method, file and line data.
         $class    = Debug::currentClass(4);
         $function = Debug::currentFunction(4);
-        $file     = Strings::from(Debug::currentFile(4), ROOT);
+        $file     = Strings::from(Debug::currentFile(4), PATH_ROOT);
         $line     = Debug::currentLine(4);
 
         if ($class) {
@@ -1057,8 +1057,8 @@ Class Log {
 
                 // Log the file@line information
                 if (isset($step['file'])) {
-                    // Remove ROOT from the filenames for clarity
-                    $line['location'] = Strings::from($step['file'], ROOT) . '@' . $step['line'];
+                    // Remove PATH_ROOT from the filenames for clarity
+                    $line['location'] = Strings::from($step['file'], PATH_ROOT) . '@' . $step['line'];
                 }
 
                 if (!$line) {

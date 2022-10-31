@@ -1050,7 +1050,7 @@ class Http
     /**
      * Download the specified single file to the specified path
      *
-     * If the path is not specified then by default the function will download to the TMP directory; ROOT/data/tmp
+     * If the path is not specified then by default the function will download to the PATH_TMP directory; PATH_ROOT/data/tmp
      *
      * @param string $url             The URL of the file to be downloaded
      * @param bool $contents          If set to false, will return the contents of the downloaded file instead of the
@@ -1061,13 +1061,13 @@ class Http
      * @return string The path to the downloaded file
      * @example This shows how to download a single file
      * code
-     * $result = download('https://capmega.com', TMP);
+     * $result = download('https://capmega.com', PATH_TMP);
      * showdie($result);
      * /code
      *
      * This would display
      * code
-     * ROOT/data/tmp/capmega.com
+     * PATH_ROOT/data/tmp/capmega.com
      * /code
      *
      */

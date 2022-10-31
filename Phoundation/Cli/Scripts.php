@@ -219,7 +219,7 @@ class Scripts
      */
     protected static function findScript(): string
     {
-        $file     = ROOT . 'scripts/';
+        $file     = PATH_ROOT . 'scripts/';
         $argument = null;
 
         foreach (self::$arguments as $position => $argument) {
@@ -267,8 +267,8 @@ class Scripts
         }
 
         // Here we're still in a directory. If a file exists in that directory with the same name as the directory
-        // itself then that is the one that will be executed. For example, ROOT/cli system init will execute
-        // ROOT/scripts/system/init/init
+        // itself then that is the one that will be executed. For example, PATH_ROOT/cli system init will execute
+        // PATH_ROOT/scripts/system/init/init
         if (file_exists($file . $argument)) {
             if (!is_dir($file . $argument)) {
                 // Yup, this is it guys!
@@ -331,7 +331,7 @@ class Scripts
 
         throw new UnderConstructionException();
         try {
-            $run_dir = ROOT.'data/run/';
+            $run_dir = PATH_ROOT.'data/run/';
             $script  = $core->register['script'];
 
             Path::ensure(dirname($run_dir.$script));
@@ -343,7 +343,7 @@ class Scripts
                 }
 
                 file_delete(array('patterns'     => $run_dir.$script,
-                    'restrictions' => ROOT.'data/run/',
+                    'restrictions' => PATH_ROOT.'data/run/',
                     'clean_path'   => false));
                 $executed = false;
                 return;
@@ -386,7 +386,7 @@ class Scripts
                 // process. Remove the PID file
                 Log::warning(tr('cli_run_once_local(): Cleaning up stale run file ":file"', [':file' => $run_dir.$script]));
                 file_delete(array('patterns'     => $run_dir.$script,
-                    'restrictions' => ROOT.'data/run/',
+                    'restrictions' => PATH_ROOT.'data/run/',
                     'clean_path'   => false));
             }
 
@@ -643,7 +643,7 @@ class Scripts
     /**
      * Show a dot on the console each $each call if $each is false, "DONE" will be printed, with next line. Internal counter will reset if a different $each is received.
      *
-     * @note While log_console() will log towards the ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
+     * @note While log_console() will log towards the PATH_ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
      * @see log_console()
      * @example
      * code

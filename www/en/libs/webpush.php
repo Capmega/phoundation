@@ -36,8 +36,8 @@ function webpush_library_init() {
         //ensure_installed(array('name'      => 'sweetalert',
         //                       'project'   => 'sweetalert',
         //                       'callback'  => 'sweetalert_install',
-        //                       'checks'    => array(ROOT.'pub/js/sweetalert/sweetalert.js',
-        //                                            ROOT.'pub/css/sweetalert/sweetalert.css')));
+        //                       'checks'    => array(PATH_ROOT.'pub/js/sweetalert/sweetalert.js',
+        //                                            PATH_ROOT.'pub/css/sweetalert/sweetalert.css')));
 
         require_once(__DIR__.'/ext/webpush/vendor/autoload.php');
         require_once(__DIR__.'/ext/webpush/vendor/minishlink/web-push/src/WebPush.php');

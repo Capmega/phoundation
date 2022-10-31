@@ -3,9 +3,9 @@
 /*
  * Clear data store
  */
-file_delete(ROOT.'data/pub', false);
+file_delete(PATH_ROOT.'data/pub', false);
 
-mkdir(ROOT.'data/pub', $_CONFIG['file']['dir_mode'], true);
+mkdir(PATH_ROOT.'data/pub', $_CONFIG['file']['dir_mode'], true);
 
 
 

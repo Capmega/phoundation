@@ -383,7 +383,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
 
             if ($params['log']) {
                 if ($params['log'] === true) {
-                    $params['log'] = ROOT.'data/log/curl';
+                    $params['log'] = PATH_ROOT.'data/log/curl';
                 }
 
                 Path::ensure(dirname($params['log']));

@@ -18,7 +18,7 @@ try {
     array_default($params, 'log'             , true);
     array_default($params, 'debug'           , false);
     array_default($params, 'include_exitcode', false);
-    array_default($params, 'output_log'      , ((VERBOSE or $params['debug']) ? ROOT.'data/log/syslog' : '/dev/null'));
+    array_default($params, 'output_log'      , ((VERBOSE or $params['debug']) ? PATH_ROOT.'data/log/syslog' : '/dev/null'));
 
     if ($params['domain']) {
         /*

@@ -32,12 +32,12 @@ class Libraries
     /**
      * The constant indicating the path for Phoundation libraries
      */
-    const CLASS_PATH_SYSTEM  = ROOT . 'Phoundation';
+    const CLASS_PATH_SYSTEM  = PATH_ROOT . 'Phoundation';
 
     /**
      * The constant indicating the path for PLugin libraries
      */
-    const CLASS_PATH_PLUGINS = ROOT . 'Plugins';
+    const CLASS_PATH_PLUGINS = PATH_ROOT . 'Plugins';
 
     /**
      * If true, this system is in initialization mode

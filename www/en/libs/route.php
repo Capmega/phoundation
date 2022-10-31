@@ -53,7 +53,7 @@ route_map();
  * R301             Redirect to the specified page argument using HTTP 301
  * R302             Redirect to the specified page argument using HTTP 302
  * S$SECONDS$       Store the specified rule for this IP and apply it for $SECONDS$ amount of seconds. $SECONDS$ is optional, and defaults to 86400 seconds (1 day). This works well to auto 404 IP's that are doing naughty things for at least a day
- * X$PATHS$         Restrict access to the specified dot-comma separated $PATHS$ list. $PATHS is optional and defaults to ROOT.'www,'.ROOT.'data/content/downloads'
+ * X$PATHS$         Restrict access to the specified dot-comma separated $PATHS$ list. $PATHS is optional and defaults to PATH_ROOT.'www,'.PATH_ROOT.'data/content/downloads'
  *
  * The $verbose and $veryverbose variables here are to set the system in VERBOSE or VERYVERBOSE mode, but ONLY if the system runs in debug mode. The former will add extra log output in the data/log files, the latter will add LOADS of extra log data in the data/log files, so please use with care and only if you cannot resolve the problem
  *
@@ -269,7 +269,7 @@ function route($regex, $target, $flags = null) {
 
         $route        = $target;
         $attachment   = false;
-        $restrictions = ROOT.'www,'.ROOT.'data/content/downloads';
+        $restrictions = PATH_ROOT.'www,'.PATH_ROOT.'data/content/downloads';
 
         /*
          * Regex matched. Do variable substitution on the target.
@@ -822,7 +822,7 @@ function route_exec($target, $attachment, $restrictions) {
                 /*
                  * Upload the file to the client as an attachment
                  */
-                $target = file_absolute(Strings::unslash($target), ROOT.'www/');
+                $target = file_absolute(Strings::unslash($target), PATH_ROOT.'www/');
 
                 log_file(tr('Sending file ":target" as attachment', array(':target' => $target)), 'route', 'cyan');
                 file_http_download(array('restrictions' => $restrictions,

@@ -30,8 +30,8 @@ function rating_library_init() {
     try {
         ensure_installed(array('name'     => 'rating',
                                'callback' => 'rating_install',
-                               'checks'   => array(ROOT.'pub/js/rating/rating.js',
-                                                   ROOT.'pub/css/rating/rating.css')));
+                               'checks'   => array(PATH_ROOT.'pub/js/rating/rating.js',
+                                                   PATH_ROOT.'pub/css/rating/rating.css')));
 
 //        load_config('rating');
         html_load_js('rating/rating');
@@ -64,16 +64,16 @@ function rating_install($params) {
         $css = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.css', 'ratings');
         $js  = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.js' , 'ratings');
 
-        File::executeMode(ROOT.'pub/js/', 0770, function() {
-            Path::ensure(ROOT.'pub/js/rating/', 0550);
+        File::executeMode(PATH_ROOT.'pub/js/', 0770, function() {
+            Path::ensure(PATH_ROOT.'pub/js/rating/', 0550);
 
-            File::executeMode(ROOT.'pub/js/rating/', 0770, function() {
-                rename($js , ROOT.'pub/js/rating/rating.js');
-                rename($css, ROOT.'pub/css/rating/rating.css');
+            File::executeMode(PATH_ROOT.'pub/js/rating/', 0770, function() {
+                rename($js , PATH_ROOT.'pub/js/rating/rating.js');
+                rename($css, PATH_ROOT.'pub/css/rating/rating.css');
             });
         });
 
-        file_delete(TMP.'ratings');
+        file_delete(PATH_TMP.'ratings');
 
     }catch(Exception $e) {
         throw new CoreException('rating_install(): Failed', $e);

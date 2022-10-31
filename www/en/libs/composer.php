@@ -30,9 +30,9 @@ function composer_library_init() {
     try {
         ensure_installed(array('name'     => 'composer',
                                'callback' => 'composer_setup',
-                               'checks'   => array(ROOT.'www/en/libs/composer.phar')));
+                               'checks'   => array(PATH_ROOT.'www/en/libs/composer.phar')));
 
-        if (!file_exists(ROOT.'/libs/composer.json')) {
+        if (!file_exists(PATH_ROOT.'/libs/composer.json')) {
             composer_init_file();
         }
 
@@ -62,7 +62,7 @@ function composer_library_init() {
  */
 function composer_setup($params) {
     try {
-        Path::ensure(TMP.'composer');
+        Path::ensure(PATH_TMP.'composer');
 
         $file          = download('https://getcomposer.org/installer');
         $file_hash     = hash_file('SHA384', $file);
@@ -73,11 +73,11 @@ function composer_setup($params) {
             throw new CoreException(tr('composer_setup(): File hash check failed for composer-setup.php'), 'hash-fail');
         }
 
-        File::executeMode(ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($file) {
-            safe_exec(array('commands' => array('php', array($file, '--install-dir', ROOT.'www/en/libs/', (VERBOSE ? '' : '--quiet')))));
+        File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($file) {
+            safe_exec(array('commands' => array('php', array($file, '--install-dir', PATH_ROOT.'www/en/libs/', (VERBOSE ? '' : '--quiet')))));
         });
 
-        file_delete(TMP.'composer');
+        file_delete(PATH_TMP.'composer');
 
     }catch(Exception $e) {
         throw new CoreException('composer_setup(): Failed', $e);
@@ -91,15 +91,15 @@ function composer_setup($params) {
  */
 function composer_init_file() {
     try {
-        if (file_exists(ROOT.'composer.json')) {
+        if (file_exists(PATH_ROOT.'composer.json')) {
             if (!FORCE) {
                 throw new CoreException('Composer has already been initialized for this project', 'already-initialized');
             }
         }
 
-        File::executeMode(ROOT, 0770, function() {
-            file_put_contents(ROOT.'www/'.LANGUAGE.'/libs/composer.json', "{\n}");
-            chmod(ROOT.'libs/composer.json', 0660);
+        File::executeMode(PATH_ROOT, 0770, function() {
+            file_put_contents(PATH_ROOT.'www/'.LANGUAGE.'/libs/composer.json', "{\n}");
+            chmod(PATH_ROOT.'libs/composer.json', 0660);
         });
 
     }catch(Exception $e) {
@@ -135,34 +135,34 @@ function composer_exec($commands, $path = null) {
             throw new CoreException(tr('composer_exec(): No commands specified'), 'not-specified');
         }
 
-        File::executeMode(ROOT, 0770, function() use ($commands, $path) {
+        File::executeMode(PATH_ROOT, 0770, function() use ($commands, $path) {
             if ($path) {
                 File::executeMode($path, 0770, function() use ($commands, $path) {
                     safe_exec(array('function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                     'timeout'  => 30,
                                     'commands' => array('cd'                                      , array($path),
-                                                        ROOT.'www/'.LANGUAGE.'/libs/composer.phar', $commands)));
+                                                        PATH_ROOT.'www/'.LANGUAGE.'/libs/composer.phar', $commands)));
                 });
 
             } else {
-                File::executeMode(ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($commands) {
-                    Path::ensure(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0550);
+                File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($commands) {
+                    Path::ensure(PATH_ROOT.'www/'.LANGUAGE.'/libs/vendor', 0550);
 
-                    File::executeMode(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0770, function() use ($commands) {
-                        file_chmod(array('path'         => ROOT.'www/'.LANGUAGE.'/libs/vendor',
+                    File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/libs/vendor', 0770, function() use ($commands) {
+                        file_chmod(array('path'         => PATH_ROOT.'www/'.LANGUAGE.'/libs/vendor',
                                          'mode'         => 'ug+w',
                                          'recursive'    => true,
-                                         'restrictions' => ROOT.'www/'.LANGUAGE.'/libs/vendor'));
+                                         'restrictions' => PATH_ROOT.'www/'.LANGUAGE.'/libs/vendor'));
 
                         safe_exec(array('function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                         'timeout'  => 30,
-                                        'commands' => array('cd'                                      , array(ROOT.'libs'),
-                                                            ROOT.'www/'.LANGUAGE.'/libs/composer.phar', $commands)));
+                                        'commands' => array('cd'                                      , array(PATH_ROOT.'libs'),
+                                                            PATH_ROOT.'www/'.LANGUAGE.'/libs/composer.phar', $commands)));
 
-                        file_chmod(array('path'         => ROOT.'www/'.LANGUAGE.'/libs/vendor',
+                        file_chmod(array('path'         => PATH_ROOT.'www/'.LANGUAGE.'/libs/vendor',
                                          'mode'         => 'ug-w',
                                          'recursive'    => true,
-                                         'restrictions' => ROOT.'www/'.LANGUAGE.'/libs/vendor'));
+                                         'restrictions' => PATH_ROOT.'www/'.LANGUAGE.'/libs/vendor'));
                     });
                 });
             }

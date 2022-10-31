@@ -40,13 +40,13 @@ list [%DOMAIN%]                 - List all registerd servers, or by part of
 accounts                        - List the registered SSH accounts
 
 proxies
-    insert  ROOT-DOMAIN         - Inserts a new server on the proxies chain
+    insert  PATH_ROOT-DOMAIN         - Inserts a new server on the proxies chain
     NEW-DOMAIN LOCATION
     TARGET-DOMAIN
     [PROTOCOL[:PORT],
     PROTOCOL[:PORT]...]
 
-    remove  ROOT-DOMAIN         - Removes a server from the proxies chain
+    remove  PATH_ROOT-DOMAIN         - Removes a server from the proxies chain
     REMOVE-DOMAIN
 
 show SERVER                     - Show details about the specified server
@@ -74,16 +74,16 @@ modify DOMAIN                   - Update specified domain in the database
 delete ID | DOMAIN              - Set the status of the specified domain to
                                   "deleted" and remove the SSH fingerprints from
                                   both ssh_fingerprints and the
-                                  ROOT/data/ssh/known_hosts file
+                                  PATH_ROOT/data/ssh/known_hosts file
 
 erase ID | DOMAIN               - Erase the specified host from the database
 
 register DOMAIN [SSH-PORT]      - Add the fingerprints for the specified
                                   domain / port to the ssh_fingerprints table
-                                  and the ROOT/data/ssh/known_host file
+                                  and the PATH_ROOT/data/ssh/known_host file
 
 unregister DOMAIN [SSH-PORT]    - Remove the registered domain / port
-                                  fingerprints from the ROOT/data/ssh/known_host
+                                  fingerprints from the PATH_ROOT/data/ssh/known_host
                                   file and the ssh_fingerprints table';
 
 

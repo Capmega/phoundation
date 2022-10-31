@@ -121,8 +121,8 @@ $_CONFIG['encoding']           = array('charset'                            => '
                                        'normalize'                          => null);                                                   // Normalize UTF8 strings with the specified form. Possible values are Normalizer::FORM_C | Normalizer::FORM_D | Normalizer::FORMKC | Normalizer::FORMKD Normalizer::NONE | Normalizer::OPTION_DEFAULT | null for default FORM_C
 
 // Check disk configuration
-$_CONFIG['check_disk']         = array('percentage'                         => 20,                                                      // The default minimum required available disk space for the filesystem for ROOT in %
-                                       'bytes'                              => 0);                                                      // The default minimum required available disk space for the filesystem for ROOT in bytes
+$_CONFIG['check_disk']         = array('percentage'                         => 20,                                                      // The default minimum required available disk space for the filesystem for PATH_ROOT in %
+                                       'bytes'                              => 0);                                                      // The default minimum required available disk space for the filesystem for PATH_ROOT in bytes
 
 // CLI configuration
 $_CONFIG['cli']                = array('timeout'                            => '30');                                                   // Default timeout for programs running on the CLI
@@ -299,8 +299,8 @@ $_CONFIG['redirects']          = array('auto'                               => '
                                                                                'aftersignout'     => 'index.html');
 
 
-// Real ROOT path
-$_CONFIG['root']               = '';                                                                                                        // Real ROOT path of the entire project (in case phoundation is installed a sub directory of another framework). Used for deployment, code script, etc. Leave empty if Phoundation is the only framework used for your website
+// Real PATH_ROOT path
+$_CONFIG['root']               = '';                                                                                                        // Real PATH_ROOT path of the entire project (in case phoundation is installed a sub directory of another framework). Used for deployment, code script, etc. Leave empty if Phoundation is the only framework used for your website
 
 // Routing configuration
 $_CONFIG['route']             = array('static'                              => true,                                                        // If set to true, support for static routes for IPs is added. This is useful to auto block IP's with 404's, or block them completely after the routing table detected fishy actions

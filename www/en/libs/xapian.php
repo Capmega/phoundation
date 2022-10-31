@@ -33,9 +33,9 @@ function xapian_library_init() {
 
         ensure_installed(array('name'      => 'xapian',
                                'callback'  => 'xapian_install',
-                               'checks'    => ROOT.'libs/external/xapian/xapian.php'));
+                               'checks'    => PATH_ROOT.'libs/external/xapian/xapian.php'));
 
-        include_once(ROOT.'libs/external/xapian/xapian.php');
+        include_once(PATH_ROOT.'libs/external/xapian/xapian.php');
 
     }catch(Exception $e) {
         throw new CoreException('xapian_library_init(): Failed', $e);

@@ -45,7 +45,7 @@
  * automatically load the http and html libraries and process cookies, and the
  * "api" library will automatically load the "json" library.
  *
- * All call type handlers are located in ROOT/libs/handlers/system-CALLTYPE.php
+ * All call type handlers are located in PATH_ROOT/libs/handlers/system-CALLTYPE.php
  *
  * This library also defines the CoreException class which is the default exception
  * thrown by BASE functions.

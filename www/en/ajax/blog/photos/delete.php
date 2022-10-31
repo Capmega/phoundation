@@ -35,16 +35,16 @@ try {
     /*
      * Delete retina files
      */
-    file_clear_path(ROOT.'www/photos/'.$photo['file'].'_small@2x.jpg');
-    file_clear_path(ROOT.'www/photos/'.$photo['file'].'_medium@2x.jpg');
-    file_clear_path(ROOT.'www/photos/'.$photo['file'].'_big@2x.jpg');
+    file_clear_path(PATH_ROOT.'www/photos/'.$photo['file'].'_small@2x.jpg');
+    file_clear_path(PATH_ROOT.'www/photos/'.$photo['file'].'_medium@2x.jpg');
+    file_clear_path(PATH_ROOT.'www/photos/'.$photo['file'].'_big@2x.jpg');
 
     /*
      * Delete files
      */
-    file_clear_path(ROOT.'www/photos/'.$photo['file'].'_small.jpg');
-    file_clear_path(ROOT.'www/photos/'.$photo['file'].'_medium.jpg');
-    file_clear_path(ROOT.'www/photos/'.$photo['file'].'_big.jpg');
+    file_clear_path(PATH_ROOT.'www/photos/'.$photo['file'].'_small.jpg');
+    file_clear_path(PATH_ROOT.'www/photos/'.$photo['file'].'_medium.jpg');
+    file_clear_path(PATH_ROOT.'www/photos/'.$photo['file'].'_big.jpg');
 
     json_reply();
 

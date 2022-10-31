@@ -89,7 +89,7 @@ function mbox_convert_maildir($maildir_path, $box, $mail_path) {
     try {
         $path  = mbox_test_access($mail_path);
         $path .= $path.'vhosts/'.$domain.'/'.$user.'/mail/';
-        safe_exec(array('commands' => array(ROOT.'scripts/md2mb.py', array($path))));
+        safe_exec(array('commands' => array(PATH_ROOT.'scripts/md2mb.py', array($path))));
 
     }catch(Exception $e) {
         throw new CoreException('mbox_convert_maildir(): Failed', $e);

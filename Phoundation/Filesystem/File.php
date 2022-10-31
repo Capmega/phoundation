@@ -116,7 +116,7 @@ class File
      */
     public static function getUploaded(array|string $source): string
     {
-        $destination = ROOT.'data/uploads/';
+        $destination = PATH_ROOT.'data/uploads/';
 
         if (is_array($source)) {
             /*
@@ -508,9 +508,9 @@ class File
      * @param bool|string $create    If set to false, only the file path will be returned, the temporary file will NOT
      *                               be created. If set to true, the file will be created. If set to a string, the temp
      *                               file will be created with as contents the $create string
-     * @param bool $extension        If specified, use ROOT/data/tmp/$name instead of a randomly generated filename
+     * @param bool $extension        If specified, use PATH_ROOT/data/tmp/$name instead of a randomly generated filename
      * @param bool $limit_to_session
-     * @param string|null $path      If specified, make the temporary not in TMP but in $path instead
+     * @param string|null $path      If specified, make the temporary not in PATH_TMP but in $path instead
      * @return string The filename for the temp file
      * @version 2.5.90: Added documentation, expanded $create to be able to contain data for the temp file
      * @note: If the resolved temp file path already exist, it will be deleted!
@@ -528,7 +528,7 @@ class File
     public static function temp(bool|string $create = true, bool $extension = null, bool $limit_to_session = true, ?string $path = null) : string
     {
         if (!$path) {
-            $path = TMP;
+            $path = PATH_TMP;
         }
 
         $path = Path::ensure($path);
@@ -1312,7 +1312,7 @@ class File
     /*
      * Store a file temporarily with a label in $_SESSION['files'][label]
      */
-    public static function sessionStore($label, $file = null, $path = TMP)
+    public static function sessionStore($label, $file = null, $path = PATH_TMP)
     {
         try {
             if ($file === null) {
@@ -2275,12 +2275,12 @@ class File
 
     /*
      * If specified path is not absolute, then return a path that is sure to start
-     * within ROOT
+     * within PATH_ROOT
      */
     public static function root($path) {
         try {
             if (substr($path, 0, 1) !== '/') {
-                $path = ROOT.$path;
+                $path = PATH_ROOT.$path;
             }
 
             return $path;
@@ -2564,7 +2564,7 @@ class File
                  * as the backup was generated less than a second
                  * ago
                  */
-                file_delete($path, ROOT.'data/backups');
+                file_delete($path, PATH_ROOT.'data/backups');
                 return true;
             }
 
@@ -2599,8 +2599,8 @@ class File
                 throw new FilesystemException(tr('file_chown(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
             }
 
-            if (!strstr($file, ROOT)) {
-                throw new FilesystemException(tr('file_chown(): Specified file ":file" is not in the projects ROOT path ":path"', array(':path' => $path, ':file' => $file)), 'invalid');
+            if (!strstr($file, PATH_ROOT)) {
+                throw new FilesystemException(tr('file_chown(): Specified file ":file" is not in the projects PATH_ROOT path ":path"', array(':path' => $path, ':file' => $file)), 'invalid');
             }
 
             safe_exec(array('commands' => array('chown', array('sudo' => true, $user.':' . $group, $file))));
@@ -2795,7 +2795,7 @@ class File
      *
      * Authorized areas, by default, are the following paths. Any other path will be restricted
      *
-     * ROOT/data
+     * PATH_ROOT/data
      * /tmp/
      *
      * If $params is specified as a string, then the function will assume this is a single path and test it
@@ -2850,7 +2850,7 @@ class File
                     /*
                      * Apply default restrictions
                      */
-                    $restrictions = array(ROOT.'data/tmp', ROOT.'data/cache', '/tmp');
+                    $restrictions = array(PATH_ROOT.'data/tmp', PATH_ROOT.'data/cache', '/tmp');
                 }
 
             } else {

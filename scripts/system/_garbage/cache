@@ -76,7 +76,7 @@ switch (cli_method()) {
         switch ($method) {
             case 'file':
                 log_console(tr('The cache is using the filesystem for storage')                   , 'white');
-                log_console(tr('The cache directory is ":ROOTdata/cache"', array(':ROOT' => ROOT)), 'white');
+                log_console(tr('The cache directory is ":PATH_ROOTdata/cache"', array(':PATH_ROOT' => PATH_ROOT)), 'white');
                 break;
 
             case 'memcached':

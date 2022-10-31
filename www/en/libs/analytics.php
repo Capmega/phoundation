@@ -123,14 +123,14 @@ function analytics_matomo($sites_id) {
          * Ensure we have the analytics file available on our CDN system
          */
 // :TODO: Right now we're only testing this locally, we should test this on the CDN network system! This lookup may be heavy though, so maybe we should do that once every 100 page views or something
-        if (!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/matomo/piwik.js')) {
+        if (!file_exists(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/matomo/piwik.js')) {
             /*
              * Download the file from google analytics and install it in our
              * local CDN
              */
             $file = file_get_local($_CONFIG['analytics']['matomo_domain'].'/piwik.js');
 
-            File::executeMode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
+            File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
                 Path::ensure($path.'matomo', 0550);
 
                 File::executeMode($path.'matomo/', 0770, function($path) use ($file) {
@@ -191,14 +191,14 @@ function analytics_google($sites_id) {
         /*
          * Ensure we have the analytics file available on our CDN system
          */
-        if (!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/google/analytics.js')) {
+        if (!file_exists(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/google/analytics.js')) {
             /*
              * Download the file from google analytics and install it in our
              * local CDN
              */
             $file = file_get_local('https://www.google-analytics.com/analytics.js');
 
-            File::executeMode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
+            File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
                 Path::ensure($path.'google', 0550);
 
                 File::executeMode($path.'google/', 0770, function($path) use ($file) {

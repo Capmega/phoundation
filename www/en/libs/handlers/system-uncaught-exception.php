@@ -6,7 +6,7 @@
  * IMPORTANT! IF YOU ARE FACED WITH AN UNCAUGHT EXCEPTION, OR WEIRD EFFECTS LIKE
  * WHITE SCREEN, ALWAYS FOLLOW THESE STEPS:
  *
- *    Check the ROOT/data/log/syslog (or exception log if you have single_log
+ *    Check the PATH_ROOT/data/log/syslog (or exception log if you have single_log
  *    disabled). In here you can find 99% of the issues
  *
  *    If the syslog did not contain information, then check your apache / nginx
@@ -130,9 +130,9 @@ try {
                         error_log($e->getMessage());
                     }
 
-                    echo "\033[1;31mPre ready exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information\033[0m\n";
+                    echo "\033[1;31mPre ready exception. Please check your PATH_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information\033[0m\n";
                     print_r($e);
-                    die("\033[1;31mPre ready exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information\033[0m\n");
+                    die("\033[1;31mPre ready exception. Please check your PATH_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information\033[0m\n");
                 }
 
                 /*
@@ -345,7 +345,7 @@ try {
                         error_log($e->getMessage());
                     }
 
-                    die(tr('Pre ready exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
+                    die(tr('Pre ready exception. Please check your PATH_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
                 }
 
                 if ($e->getCode() === 'validation') {
@@ -491,7 +491,7 @@ try {
             error_log(tr('*** UNCAUGHT PRE READY EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])));
             error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
             error_log($f->getMessage());
-            die('Pre core ready exception with handling failure. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
+            die('Pre core ready exception with handling failure. Please check your PATH_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
         }
 
         log_file('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!', 'exception-handler', 'exception');
@@ -530,5 +530,5 @@ try {
     /*
      * Well, we tried. Here we just give up all together
      */
-    die("Fatal error. check ROOT/data/syslog, application server logs, or webserver logs for more information\n");
+    die("Fatal error. check PATH_ROOT/data/syslog, application server logs, or webserver logs for more information\n");
 }

@@ -61,7 +61,7 @@ cli_only();
 load_libs('git,code');
 
 $code_bump       = true;
-$path            = cli_argument('--path'  , true, ROOT);
+$path            = cli_argument('--path'  , true, PATH_ROOT);
 $filter          = cli_argument('--filter', true, '/.+\.(php|html)/');
 $follow_symlinks = cli_argument('--follow-symlinks');
 $follow_hidden   = cli_argument('--follow-hidden');
@@ -197,8 +197,8 @@ switch (cli_method()) {
                     /*
                      * Update failed. Auto cleanup everything and return the stashed changes, leaving everything as it was
                      */
-                    git_reset('', ROOT, array('hard' => true));
-                    git_clean(ROOT, true, true);
+                    git_reset('', PATH_ROOT, array('hard' => true));
+                    git_clean(PATH_ROOT, true, true);
                     git_stash_pop();
 
                     throw new CoreException(tr('Auto update failed, please check output to find out what went wrong. All update changes have been reset and cleaned, all previous code changes have been reinstated'), $e);
@@ -224,11 +224,11 @@ switch (cli_method()) {
         /*
          * Determine what type of project this is
          */
-        if (file_exists(ROOT.'www/en/role.php') and file_exists(ROOT.'www/en/roles.php')) {
+        if (file_exists(PATH_ROOT.'www/en/role.php') and file_exists(PATH_ROOT.'www/en/roles.php')) {
             $type = 'intranet';
             log_console(tr('Detected that this website is intranet site...'), 'VERBOSE');
 
-        } elseif (file_exists(ROOT.'www/en/admin/role.php') and file_exists(ROOT.'www/en/admin/roles.php')) {
+        } elseif (file_exists(PATH_ROOT.'www/en/admin/role.php') and file_exists(PATH_ROOT.'www/en/admin/roles.php')) {
             $type = 'normal';
             log_console(tr('Detected that this website is a normal site...'), 'VERBOSE');
 
@@ -260,7 +260,7 @@ switch (cli_method()) {
         /*
          * Get a list of all files that contain changes and separate them by phoundation and toolkit sections
          */
-        $files    = git_status(ROOT);
+        $files    = git_status(PATH_ROOT);
         $sections = array('phoundation' => array(),
                           'toolkit'     => array());
 
@@ -584,23 +584,23 @@ switch (cli_method()) {
                     } else {
                         if ($section == 'phoundation') {
                             $status = code_patch(array('file'          => $file,
-                                                       'source_path'   => ROOT,
+                                                       'source_path'   => PATH_ROOT,
                                                        'target_path'   => $paths[$section],
                                                        'method'        => (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()),
                                                        'clean'         => $no_clean,
-                                                       'restrictions'  => array(ROOT, $paths[$section])));
+                                                       'restrictions'  => array(PATH_ROOT, $paths[$section])));
 
                         } elseif (!$phoundation_only) {
                             /*
                              * Patch toolkit as well
                              */
                             $status = code_patch(array('file'          => $file,
-                                                       'source_path'   => ROOT,
+                                                       'source_path'   => PATH_ROOT,
                                                        'target_path'   => $paths[$section],
                                                        'method'        => (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()),
                                                        'replaces'      => array($file => str_replace('admin/', '', $file)),
                                                        'clean'         => $no_clean,
-                                                       'restrictions'  => array(ROOT, $paths[$section])));
+                                                       'restrictions'  => array(PATH_ROOT, $paths[$section])));
                         }
 
                         if (cli_method() == 'patch') {
@@ -634,7 +634,7 @@ switch (cli_method()) {
                             $patch_file = array_shift($patch_file);
 
                             if ($section == 'phoundation') {
-                                if (code_diff(ROOT.$file, $paths[$section].$file)) {
+                                if (code_diff(PATH_ROOT.$file, $paths[$section].$file)) {
                                     throw $e;
                                 }
 
@@ -643,11 +643,11 @@ switch (cli_method()) {
                                 break;
 
                             } else {
-                                if (code_diff(ROOT.$file, $paths[$section].str_replace('admin/', '', $file))) {
+                                if (code_diff(PATH_ROOT.$file, $paths[$section].str_replace('admin/', '', $file))) {
                                     throw $e;
                                 }
 
-                                log_console(tr('Patch of Toolkit file ":file" failed, because file already received patch before. Ignorning', array(':file' => ROOT.$file)), 'yellow');
+                                log_console(tr('Patch of Toolkit file ":file" failed, because file already received patch before. Ignorning', array(':file' => PATH_ROOT.$file)), 'yellow');
                                 $status = 'patched';
                                 break;
                             }
@@ -712,11 +712,11 @@ switch (cli_method()) {
 
                         switch ($status) {
                             case 'patched':
-                                git_checkout(null, ROOT.$file);
+                                git_checkout(null, PATH_ROOT.$file);
                                 break;
 
                             case 'created':
-                                file_delete(ROOT.$file, ROOT);
+                                file_delete(PATH_ROOT.$file, PATH_ROOT);
                                 break;
 
                             default:

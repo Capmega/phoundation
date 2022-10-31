@@ -85,7 +85,7 @@ function file_get_uploaded($source) {
     global $_CONFIG;
 
     try {
-        $destination = ROOT.'data/uploads/';
+        $destination = PATH_ROOT.'data/uploads/';
 
         if (is_array($source)) {
             /*
@@ -403,7 +403,7 @@ function file_ensure_file($file, $mode = null, $path_mode = null) {
  * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
  * @return string The specified file
  */
-function Path::ensure($path, $mode = null, $clear = false, $restrictions = ROOT) {
+function Path::ensure($path, $mode = null, $clear = false, $restrictions = PATH_ROOT) {
     global $_CONFIG;
 
     try {
@@ -676,12 +676,12 @@ function file_get_extension($filename) {
  * /code
  *
  * @param boolean string $create If set to false, only the file path will be returned, the temporary file will NOT be created. If set to true, the file will be created. If set to a string, the temp file will be created with as contents the $create string
- * @param null string $name If specified, use ROOT/data/tmp/$name instead of a randomly generated filename
+ * @param null string $name If specified, use PATH_ROOT/data/tmp/$name instead of a randomly generated filename
  * @return string The filename for the temp file
  */
 function file_temp($create = true, $extension = null, $limit_to_session = true) {
     try {
-        Path::ensure(TMP);
+        Path::ensure(PATH_TMP);
 
         /*
          * Temp file will contain the session ID
@@ -705,7 +705,7 @@ function file_temp($create = true, $extension = null, $limit_to_session = true) 
             $name .= '.'.$extension;
         }
 
-        $file = TMP.$name;
+        $file = PATH_TMP.$name;
 
         /*
          * Temp file can not exist
@@ -1433,7 +1433,7 @@ function file_temp_dir($prefix = '', $mode = null) {
             $mode = $_CONFIG['file']['dir_mode'];
         }
 
-        Path::ensure($path = TMP);
+        Path::ensure($path = PATH_TMP);
 
         while (true) {
             $unique = uniqid($prefix);
@@ -1644,7 +1644,7 @@ function file_random($path) {
 /*
  * Store a file temporarily with a label in $_SESSION['files'][label]
  */
-function file_session_store($label, $file = null, $path = TMP) {
+function file_session_store($label, $file = null, $path = PATH_TMP) {
     try {
         if ($file === null) {
             /*
@@ -1725,7 +1725,7 @@ function file_http_download($params) {
 
     try {
         Arrays::ensure($params, 'file,data,name');
-        array_default($params, 'restrictions', ROOT.'data/downloads');
+        array_default($params, 'restrictions', PATH_ROOT.'data/downloads');
         array_default($params, 'compression' , $_CONFIG['file']['download']['compression']);
         array_default($params, 'filename'    , basename($params['file']));
         array_default($params, 'attachment'  , false);
@@ -2615,12 +2615,12 @@ function file_tree_execute($params) {
 
 /*
  * If specified path is not absolute, then return a path that is sure to start
- * within ROOT
+ * within PATH_ROOT
  */
 function file_root($path) {
     try {
         if (substr($path, 0, 1) !== '/') {
-            $path = ROOT.$path;
+            $path = PATH_ROOT.$path;
         }
 
         return $path;
@@ -2910,7 +2910,7 @@ function file_move_to_backup($path) {
              * as the backup was generated less than a second
              * ago
              */
-            file_delete($path, ROOT.'data/backups');
+            file_delete($path, PATH_ROOT.'data/backups');
             return true;
         }
 
@@ -2945,8 +2945,8 @@ function file_chown($file, $user = null, $group = null) {
             throw new CoreException(tr('file_chown(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
-        if (!strstr($file, ROOT)) {
-            throw new CoreException(tr('file_chown(): Specified file ":file" is not in the projects ROOT path ":path"', array(':path' => $path, ':file' => $file)), 'invalid');
+        if (!strstr($file, PATH_ROOT)) {
+            throw new CoreException(tr('file_chown(): Specified file ":file" is not in the projects PATH_ROOT path ":path"', array(':path' => $path, ':file' => $file)), 'invalid');
         }
 
         safe_exec(array('commands' => array('chown', array('sudo' => true, $user.':'.$group, $file))));
@@ -3164,7 +3164,7 @@ function file_cat($params) {
  *
  * Authorized areas, by default, are the following paths. Any other path will be restricted
  *
- * ROOT/data
+ * PATH_ROOT/data
  * /tmp/
  *
  * If $params is specified as a string, then the function will assume this is a single path and test it
@@ -3225,7 +3225,7 @@ function Restrict::restrict($params, &$restrictions = null) {
                 /*
                  * Apply default restrictions
                  */
-                $restrictions = array(ROOT.'data/tmp', ROOT.'data/cache', '/tmp');
+                $restrictions = array(PATH_ROOT.'data/tmp', PATH_ROOT.'data/cache', '/tmp');
             }
 
         } else {

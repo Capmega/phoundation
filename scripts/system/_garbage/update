@@ -121,7 +121,7 @@ try {
     /*
      * Check if we are not on main phoundation repository
      */
-    if (trim(shell_exec('grep "/git/phoundation.git" '.ROOT.'.git/config'))) {
+    if (trim(shell_exec('grep "/git/phoundation.git" '.PATH_ROOT.'.git/config'))) {
         throw new CoreException(tr('Cannot be run on main phoundation repository'), 'warning/validation');
     }
 
@@ -297,7 +297,7 @@ try {
     /*
      * Should we use sudo? if so, what sudo command?
      */
-    include(ROOT.'config/deploy.php');
+    include(PATH_ROOT.'config/deploy.php');
 
     if ($no_times or !empty($_CONFIG['deploy'][ENVIRONMENT]['no_times'])) {
         $no_times = ' --no-times ';
@@ -323,19 +323,19 @@ try {
         $exitcodes = array();
 
         if (empty(TEST)) {
-            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/libs '.ROOT.'www/en/', $exitcodes['www/en/libs']);
-            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/tests '.ROOT.'www/en/', $exitcodes['www/en']);
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/libs '.PATH_ROOT.'www/en/', $exitcodes['www/en/libs']);
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/tests '.PATH_ROOT.'www/en/', $exitcodes['www/en']);
         }
 
         // Phoundation AJAX files
         log_console(tr('Copying ajax files'), 'cyan');
 
         if (empty(TEST)) {
-            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.ROOT.'www/en/ajax/', $exitcodes['www/en/ajax']);
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.PATH_ROOT.'www/en/ajax/', $exitcodes['www/en/ajax']);
 
             // Phoundation AJAX files for admin section
-            if (file_exists(ROOT.'www/en/admin/ajax/')) {
-                passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.ROOT.'www/en/admin/ajax/', $exitcodes['www/en/admin/ajax']);
+            if (file_exists(PATH_ROOT.'www/en/admin/ajax/')) {
+                passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.PATH_ROOT.'www/en/admin/ajax/', $exitcodes['www/en/admin/ajax']);
             }
         }
 
@@ -343,32 +343,32 @@ try {
         log_console(tr('Copying phoundation scripts'), 'cyan');
 
         if (empty(TEST)) {
-            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/base/* '.ROOT.'scripts/base/', $exitcodes['scripts/base']);
-            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/tests/* '.ROOT.'scripts/tests/', $exitcodes['libs']);
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/base/* '.PATH_ROOT.'scripts/base/', $exitcodes['scripts/base']);
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/tests/* '.PATH_ROOT.'scripts/tests/', $exitcodes['libs']);
         }
 
         // Framework init files
         log_console(tr('Copying framework init files'), 'cyan');
 
         if (empty(TEST)) {
-            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/init/framework/* '.ROOT.'init/framework/', $exitcodes['init/framework']);
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/init/framework/* '.PATH_ROOT.'init/framework/', $exitcodes['init/framework']);
         }
 
         // phoundation configuration
         log_console(tr('Copying phoundation configuration'), 'cyan');
 
         if (empty(TEST)) {
-            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/config/base/* '.ROOT.'config/base/', $exitcodes['config/base']);
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/config/base/* '.PATH_ROOT.'config/base/', $exitcodes['config/base']);
         }
 
         // Javascript
         log_console(tr('Copying javascript files'), 'cyan');
 
         if (empty(TEST)) {
-            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.ROOT.'www/en/pub/js/base/', $exitcodes['www/en/pub/js/base']);
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.PATH_ROOT.'www/en/pub/js/base/', $exitcodes['www/en/pub/js/base']);
 
-            if (file_exists(ROOT.'www/en/admin/pub/js/')) {
-                passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.ROOT.'www/en/admin/pub/js/base/', $exitcodes['www/en/admin/pub/js/base']);
+            if (file_exists(PATH_ROOT.'www/en/admin/pub/js/')) {
+                passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.PATH_ROOT.'www/en/admin/pub/js/base/', $exitcodes['www/en/admin/pub/js/base']);
             }
         }
 
@@ -376,14 +376,14 @@ try {
         log_console(tr('Copying documentation'), 'cyan');
 
         if (empty(TEST)) {
-            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/doc/* '.ROOT.'data/doc/', $exitcodes['data/doc']);
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/doc/* '.PATH_ROOT.'data/doc/', $exitcodes['data/doc']);
         }
 
         // Audio files
         log_console(tr('Copying audio files'), 'cyan');
 
         if (empty(TEST)) {
-            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/audio/* '.ROOT.'data/audio/', $exitcodes['data/audio']);
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/audio/* '.PATH_ROOT.'data/audio/', $exitcodes['data/audio']);
         }
 
         foreach ($exitcodes as $path => $exitcode) {

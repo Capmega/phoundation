@@ -56,20 +56,20 @@ function twilio_install() {
         log_console('twilio_install(): Installing Twilio library', 'cyan');
 
         /*
-         * Ensure the ROOT/libs/external path exists
+         * Ensure the PATH_ROOT/libs/external path exists
          */
-        File::executeMode(ROOT.'libs', 0770, function() {
-            Path::ensure(ROOT.'libs/external', 0550);
+        File::executeMode(PATH_ROOT.'libs', 0770, function() {
+            Path::ensure(PATH_ROOT.'libs/external', 0550);
 
             /*
              * Download the twilio PHP library and install it in
-             * ROOT/libs/external
+             * PATH_ROOT/libs/external
              */
-            File::executeMode(ROOT.'libs/external', 0770, function() {
-                Path::ensure(ROOT.'libs/external');
-                file_delete(TMP.'twilio_install.zip');
-                file_delete(ROOT.'libs/external/twilio-php-master', ROOT.'libs/external/');
-                file_delete(ROOT.'libs/external/twilio'           , ROOT.'libs/external/');
+            File::executeMode(PATH_ROOT.'libs/external', 0770, function() {
+                Path::ensure(PATH_ROOT.'libs/external');
+                file_delete(PATH_TMP.'twilio_install.zip');
+                file_delete(PATH_ROOT.'libs/external/twilio-php-master', PATH_ROOT.'libs/external/');
+                file_delete(PATH_ROOT.'libs/external/twilio'           , PATH_ROOT.'libs/external/');
 
                 /*
                  * Get library zip, unzip it to target, and cleanup
@@ -77,7 +77,7 @@ function twilio_install() {
                 $file = download('https://github.com/twilio/twilio-php/archive/master.zip');
                 $path = cli_unzip($file);
 
-                rename($path.'twilio-php-master', ROOT.'libs/external/twilio');
+                rename($path.'twilio-php-master', PATH_ROOT.'libs/external/twilio');
                 file_delete($path);
             });
         });
@@ -110,7 +110,7 @@ function twilio_load($source, $auto_install = true) {
          * Load Twilio library
          * If Twilio isnt available, then try auto install
          */
-        $file = ROOT.'libs/external/twilio/Twilio/autoload.php';
+        $file = PATH_ROOT.'libs/external/twilio/Twilio/autoload.php';
 
         if (!file_exists($file)) {
             log_console('twilio_load(): Twilio API library not found', 'warning');
@@ -330,7 +330,7 @@ function twilio_add_image($messages_id, $url, $mimetype) {
 /*
  * Download the specified URL from the specified messages_id and store it in the SMS images directory
  *
- * This function will download the image from the specified URL to the local SMS images directory (ROOT/data/sms/images) and return the file name under which it was stored
+ * This function will download the image from the specified URL to the local SMS images directory (PATH_ROOT/data/sms/images) and return the file name under which it was stored
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -346,7 +346,7 @@ function twilio_add_image($messages_id, $url, $mimetype) {
 function twilio_download_image($messages_id, $url) {
     try {
         $file = download($url);
-        $file = file_move_to_target($file, ROOT.'data/sms/images', 'jpg');
+        $file = file_move_to_target($file, PATH_ROOT.'data/sms/images', 'jpg');
 
         sql_query('UPDATE `sms_images`
 

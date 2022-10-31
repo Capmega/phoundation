@@ -36,7 +36,7 @@ function image_library_init() {
         }
 
         load_config('images');
-        Path::ensure(ROOT.'data/log');
+        Path::ensure(PATH_ROOT.'data/log');
 
     }catch(Exception $e) {
         throw new CoreException('image_library_init(): Failed', $e);
@@ -164,7 +164,7 @@ function image_convert($params) {
 
         if ($params['log']) {
             if ($params['log'] === true) {
-                $params['log'] = ROOT.'data/log/syslog';
+                $params['log'] = PATH_ROOT.'data/log/syslog';
             }
 
             $arguments['redirect'] = ' >> '.$params['log'];
@@ -240,17 +240,17 @@ function image_convert($params) {
          * Yeah, bullshit, with parrallel sessions, others sessions might
          * delete it while this is in process, etc.
          */
-        Path::ensure(ROOT.'data/log');
+        Path::ensure(PATH_ROOT.'data/log');
 
         if ($_CONFIG['log']['single']) {
-            array_default($params, 'log', ROOT.'data/log/syslog');
+            array_default($params, 'log', PATH_ROOT.'data/log/syslog');
 
         } else {
             /*
              * The imagemagic-convert log shows only the last entry
              */
-            array_default($params, 'log', ROOT.'data/log/imagemagic-convert');
-            file_delete(ROOT.'data/log/imagemagick-convert', false);
+            array_default($params, 'log', PATH_ROOT.'data/log/imagemagic-convert');
+            file_delete(PATH_ROOT.'data/log/imagemagick-convert', false);
         }
 
         if ($params['defaults']) {
@@ -611,12 +611,12 @@ function image_convert($params) {
          * Get error information from the imagemagic_convert log file
          */
         try {
-            if (file_exists(ROOT.'data/log/imagemagic_convert.log')) {
-                $contents = safe_exec(array('commands' => array('tail', array('-n', '3', ROOT.'data/log/imagemagic_convert.log'))));
+            if (file_exists(PATH_ROOT.'data/log/imagemagic_convert.log')) {
+                $contents = safe_exec(array('commands' => array('tail', array('-n', '3', PATH_ROOT.'data/log/imagemagic_convert.log'))));
             }
 
         }catch(Exception $e) {
-            $contents = tr('image_convert(): Failed to get contents of imagemagick log file ":file"', array(':file' => ROOT.'data/log/imagemagic_convert.log'));
+            $contents = tr('image_convert(): Failed to get contents of imagemagick log file ":file"', array(':file' => PATH_ROOT.'data/log/imagemagic_convert.log'));
         }
 
         if (empty($contents)) {
@@ -734,7 +734,7 @@ function image_create_avatars($file) {
     global $_CONFIG;
 
     try {
-        $destination = file_assign_target(ROOT.'www/avatars/');
+        $destination = file_assign_target(PATH_ROOT.'www/avatars/');
 
         foreach ($_CONFIG['avatars']['types'] as $name => $type) {
             if (count($type  = explode('x', $type)) != 3) {
@@ -742,7 +742,7 @@ function image_create_avatars($file) {
             }
 
             image_convert(array('source' => $file['tmp_name'][0],
-                'target' => ROOT.'www/avatars/'.$destination.'_'.$name.'.'.file_get_extension($file['name'][0]),
+                'target' => PATH_ROOT.'www/avatars/'.$destination.'_'.$name.'.'.file_get_extension($file['name'][0]),
                 'x'      => $type[0],
                 'y'      => $type[1],
                 'method' => $type[2]));
@@ -1309,8 +1309,8 @@ function image_slider($params = null) {
             case 'aslider':
                 ensure_installed(array('checks'    => 'aslider',
                     'checks'    => '',
-                    'locations' => array('js'  => ROOT.'pub/js/aslider',
-                        'css' => ROOT.'pub/css/aslider'),
+                    'locations' => array('js'  => PATH_ROOT.'pub/js/aslider',
+                        'css' => PATH_ROOT.'pub/css/aslider'),
                     'install'   => 'http://varunnaik.github.io/A-Slider/a-slider.zip'));
 // :TODO: Implement
                 break;
@@ -1322,10 +1322,10 @@ function image_slider($params = null) {
                  * GIT REPO: https://github.com/stevenwanderski/bxslider-4.git
                  */
                 ensure_installed(array('name'      => 'bxslider',
-                    'checks'    => ROOT.'pub/js/bxslider',
-                    'locations' => array('src/js'     => ROOT.'pub/js/bxslider',
-                        'src/css'    => ROOT.'pub/css/bxslider',
-                        'src/vendor' => ROOT.'pub/js'),
+                    'checks'    => PATH_ROOT.'pub/js/bxslider',
+                    'locations' => array('src/js'     => PATH_ROOT.'pub/js/bxslider',
+                        'src/css'    => PATH_ROOT.'pub/css/bxslider',
+                        'src/vendor' => PATH_ROOT.'pub/js'),
                     'url'       => 'https://github.com/stevenwanderski/bxslider-4.git'));
 
                 html_load_js('jquery,bxslider/bxslider');
@@ -1382,11 +1382,11 @@ function image_glitch($file, $server = null) {
             load_libs('git');
             log_console('Corrupter program not setup yet, creating now');
 
-            linux_file_delete($server, array('patterns'     => ROOT.'data/go/corrupter',
+            linux_file_delete($server, array('patterns'     => PATH_ROOT.'data/go/corrupter',
                 'restrictions' => false));
 
-            git_clone('https://github.com/r00tman/corrupter', ROOT.'data/go');
-            go_build(ROOT.'data/go/corrupter', $server);
+            git_clone('https://github.com/r00tman/corrupter', PATH_ROOT.'data/go');
+            go_build(PATH_ROOT.'data/go/corrupter', $server);
         }
 
         go_exec(array('commands' => array('corrupter/corrupter', array($file, $file_out))));

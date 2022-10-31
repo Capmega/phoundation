@@ -51,11 +51,11 @@ show [ACCOUNTNAME]              - Show all details of the specified registerd
 
 register HOSTNAME [SSH-PORT]    - Register the fingerprint for the specified
                                   domain and port in the ssh_fingerprints
-                                  table and ROOT/data/ssh/known_hosts file
+                                  table and PATH_ROOT/data/ssh/known_hosts file
 
 unregister HOSTNAME [SSH-PORT]  - Register the fingerprint for the specified
                                   domain and port in the ssh_fingerprints
-                                  table and ROOT/data/ssh/known_hosts file
+                                  table and PATH_ROOT/data/ssh/known_hosts file
 
 rebuild                         - Rebuild the known_host file from the
                                   `ssh_fingerprints` table by adding all entries

@@ -15,7 +15,7 @@ METHODS
 
 all                             - Clear all temporary data
 
-tmp                             - Clear only the TMP directory
+tmp                             - Clear only the PATH_TMP directory
 
 cache                           - Clear the cache directory';
 
@@ -32,12 +32,12 @@ switch (cli_method()) {
 
     case 'tmp':
         cli_no_arguments_left();
-        log_console(tr('Clearing tmp path ":tmp"', array(':tmp' => TMP)), 'white');
+        log_console(tr('Clearing tmp path ":tmp"', array(':tmp' => PATH_TMP)), 'white');
         $tmp = true;
         break;
 
     case 'all':
-        log_console(tr('Clearing botch cache and tmp path ":tmp"', array(':tmp' => TMP)), 'white');
+        log_console(tr('Clearing botch cache and tmp path ":tmp"', array(':tmp' => PATH_TMP)), 'white');
         cli_no_arguments_left();
         $tmp   = false;
         $cache = false;
@@ -53,16 +53,16 @@ switch (cli_method()) {
 
 
 /*
- * Clear the TMP directory
+ * Clear the PATH_TMP directory
  */
 if ($tmp) {
     /*
-     * Move TMP out of the way, then delete it
+     * Move PATH_TMP out of the way, then delete it
      */
-    $delete = Strings::unslash(TMP).'~delete';
+    $delete = Strings::unslash(PATH_TMP).'~delete';
 
-    rename(TMP, $delete);
-    mkdir(TMP, $_CONFIG['file']['dir_mode'], true);
+    rename(PATH_TMP, $delete);
+    mkdir(PATH_TMP, $_CONFIG['file']['dir_mode'], true);
 
     file_delete($delete, false);
     log_console(tr('Done!'), 'green');

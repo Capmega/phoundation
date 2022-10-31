@@ -44,7 +44,7 @@ ARGUMENTS
                                    systems
 
 [-s | --section SECTION]          - Initialize the specified section. This
-                                   requires that ROOT/init/SECTION exists, and
+                                   requires that PATH_ROOT/init/SECTION exists, and
                                    that a database connector called SECTION is
                                    configured. See $_CONFIG[db] or the
                                    `sql_connectors` database table for database

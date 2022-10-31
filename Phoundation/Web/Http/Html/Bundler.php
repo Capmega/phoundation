@@ -37,38 +37,41 @@ class Bundler
      *
      * @var string $path
      */
-    protected string $path = '';
+    protected static string $path = '';
 
     /**
      * The extension to be used for the bundle file
      *
      * @var string $extension
      */
-    protected string $extension = '';
+    protected static string $extension = '';
 
     /**
      * The name of the bundle file
      *
      * @var string $bundle_file
      */
-    protected string $bundle_file = '';
+    protected static string $bundle_file = '';
 
     /**
      * The number of files in this bundle
      *
      * @var int $count
      */
-    protected int $count = 0;
+    protected static int $count = 0;
 
 
 
+    /**
+     * Bundler constructor
+     */
     protected function __construct()
     {
-        $admin_path  = (Core::getCallType('admin') ? 'admin/' : '');
-        $ext         = (Config::get('web.minify', true)   ? '.min.'.$extension : '.'.$extension);
+        $admin_path      = (Core::getCallType('admin') ? 'admin/' : '');
+        self::$extension = (Config::get('web.minify', true)   ? '.min.'.$extension : '.'.$extension);
         $bundle      =  Strings::force(array_keys($core->register[$list]));
         $bundle      =  substr(sha1($bundle.Core::FRAMEWORKCODEVERSION.PROJECTCODEVERSION), 1, 16);
-        $path        =  ROOT.'www/'.LANGUAGE.'/'.$admin_path.'pub/'.$extension.'/';
+        $path        =  PATH_CDN . LANGUAGE.'/' . $admin_path . 'pub/' . $extension . '/';
         $bundle_file =  $path.'bundle-'.$bundle.$ext;
         $file_count  =  0;
     }
@@ -78,29 +81,18 @@ class Bundler
     /**
      * Singleton, ensure to always return the same Log object.
      *
-     * @param string $global_id
-     * @return Log
+     * @return Bundler
      */
-    public static function getInstance(string $global_id = ''): Log
+    public static function getInstance(): Bundler
     {
-        try {
-            if (!isset(self::$instance)) {
-                self::$instance = new Log($global_id);
+        if (!isset(self::$instance)) {
+            self::$instance = new Log($global_id);
 
-                // Log class startup message
-                if (Debug::enabled()) {
-                    self::information(tr('Logger started with debug enabled, log threshold set to ":threshold"', [':threshold' => self::$threshold]));
-                }
+            // Log class startup message
+            if (Debug::enabled()) {
+                self::information(tr('Logger started with debug enabled, log threshold set to ":threshold"', [':threshold' => self::$threshold]));
             }
-        } catch (Throwable $e) {
-            // Crap, we could not get a Log instance
-            self::$fail = true;
-
-            error_log('Log constructor failed with the following message. Until the following issue has been resolved, all log entries will be written to the PHP system log only');
-            error_log($e);
         }
-
-        return self::$instance;
     }
 
 
@@ -132,7 +124,7 @@ class Bundler
         $ext         = (Config::get('web.minify', true)   ? '.min.'.$extension : '.'.$extension);
         $bundle      =  Strings::force(array_keys($core->register[$list]));
         $bundle      =  substr(sha1($bundle.Core::FRAMEWORKCODEVERSION.PROJECTCODEVERSION), 1, 16);
-        $path        =  ROOT.'www/'.LANGUAGE.'/'.$admin_path.'pub/'.$extension.'/';
+        $path        =  PATH_ROOT.'www/'.LANGUAGE.'/'.$admin_path.'pub/'.$extension.'/';
         $bundle_file =  $path.'bundle-'.$bundle.$ext;
         $file_count  =  0;
 
@@ -144,7 +136,7 @@ class Bundler
                 Log::warning(tr('Deleting empty bundle file ":file"', [':file' => $bundle_file]));
 
                 File::executeMode(dirname($bundle_file), 0770, function() use ($bundle_file, $list) {
-                    File::delete($bundle_file, ROOT.'www/'.LANGUAGE.'/pub/');
+                    File::delete($bundle_file, PATH_ROOT.'www/'.LANGUAGE.'/pub/');
                 });
 
                 return Bundler::html($list);
@@ -157,7 +149,7 @@ class Bundler
                 ]));
 
                 File::executeMode(dirname($bundle_file), 0770, function() use ($bundle_file, $list) {
-                    File::delete($bundle_file, ROOT.'www/'.LANGUAGE.'/pub/');
+                    File::delete($bundle_file, PATH_ROOT.'www/'.LANGUAGE.'/pub/');
                 });
 
                 return Bundler::html($list);
@@ -405,7 +397,7 @@ class Bundler
         $ext         = (Config::get('web.minify', true)   ? '.min.'.$extension : '.'.$extension);
         $bundle      =  Strings::force(array_keys($core->register[$list]));
         $bundle      =  substr(sha1($bundle.Core::FRAMEWORKCODEVERSION.PROJECTCODEVERSION), 1, 16);
-        $path        =  ROOT.'www/'.LANGUAGE.'/'.$admin_path.'pub/'.$extension.'/';
+        $path        =  PATH_ROOT.'www/'.LANGUAGE.'/'.$admin_path.'pub/'.$extension.'/';
         $bundle_file =  $path.'bundle-'.$bundle.$ext;
         $file_count  =  0;
 
@@ -417,7 +409,7 @@ class Bundler
                 Log::warning(tr('Deleting empty bundle file ":file"', [':file' => $bundle_file]));
 
                 File::executeMode(dirname($bundle_file), 0770, function() use ($bundle_file, $list) {
-                    File::delete($bundle_file, ROOT.'www/'.LANGUAGE.'/pub/');
+                    File::delete($bundle_file, PATH_ROOT.'www/'.LANGUAGE.'/pub/');
                 });
 
                 return Bundler::html($list);
@@ -430,7 +422,7 @@ class Bundler
                 ]));
 
                 File::executeMode(dirname($bundle_file), 0770, function() use ($bundle_file, $list) {
-                    File::delete($bundle_file, ROOT.'www/'.LANGUAGE.'/pub/');
+                    File::delete($bundle_file, PATH_ROOT.'www/'.LANGUAGE.'/pub/');
                 });
 
                 return Bundler::html($list);

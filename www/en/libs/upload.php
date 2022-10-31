@@ -32,8 +32,8 @@ function upload_library_init() {
  */
 function upload_dropzone($selector = null, $url = '/ajax/upload.php', $params = array()) {
     try {
-        if (!file_exists(ROOT.'pub/js/dropzone.js')) {
-            file_copy_to_target('https://raw.github.com/enyo/dropzone/master/dist/dropzone.js', ROOT.'pub/js/', '.js', true, false);
+        if (!file_exists(PATH_ROOT.'pub/js/dropzone.js')) {
+            file_copy_to_target('https://raw.github.com/enyo/dropzone/master/dist/dropzone.js', PATH_ROOT.'pub/js/', '.js', true, false);
         }
 
         html_load_js('dropzone');
@@ -418,7 +418,7 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
                             UPLOAD_ERR_FORM_SIZE  => tr('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form'),
                             UPLOAD_ERR_PARTIAL    => tr('The uploaded file was only partially uploaded'),
                             UPLOAD_ERR_NO_FILE    => tr('No file was uploaded'),
-                            UPLOAD_ERR_NO_TMP_DIR => tr('Missing a temporary folder'),               // 6 This will give a notification to us!
+                            UPLOAD_ERR_NO_PATH_TMP_DIR => tr('Missing a temporary folder'),               // 6 This will give a notification to us!
                             UPLOAD_ERR_CANT_WRITE => tr('Failed to write file to disk'),             // 7 This will give a notification to us!
                             UPLOAD_ERR_EXTENSION  => tr('A PHP extension stopped the file upload')); // 8 This will give a notification to us!
 
@@ -428,7 +428,7 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
                             UPLOAD_ERR_FORM_SIZE  => tr('The uploaded file is too large'),
                             UPLOAD_ERR_PARTIAL    => tr('The file upload failed, please try again'),
                             UPLOAD_ERR_NO_FILE    => tr('The file upload failed, please try again'),
-                            UPLOAD_ERR_NO_TMP_DIR => tr('The server cannot accepts file uploads right now. Please try again later'),  // 6 This will give a notification to us!
+                            UPLOAD_ERR_NO_PATH_TMP_DIR => tr('The server cannot accepts file uploads right now. Please try again later'),  // 6 This will give a notification to us!
                             UPLOAD_ERR_CANT_WRITE => tr('The server cannot accepts file uploads right now. Please try again later'),  // 7 This will give a notification to us!
                             UPLOAD_ERR_EXTENSION  => tr('The server cannot accepts file uploads right now. Please try again later')); // 8 This will give a notification to us!
         }
@@ -504,7 +504,7 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
                     case 0:
                         continue 2;
 
-                    case 6: // UPLOAD_ERR_NO_TMP_DIR
+                    case 6: // UPLOAD_ERR_NO_PATH_TMP_DIR
                         // no-break
                     case 7: // UPLOAD_ERR_CANT_WRITE
                         // no-break

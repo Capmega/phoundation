@@ -40,7 +40,7 @@ Class Process
     public function __construct(?string $command = null, ?Server $server = null, bool $which_command = false)
     {
         // Ensure that the run files directory is available
-        Path::ensure(ROOT . 'data/run/');
+        Path::ensure(PATH_ROOT . 'data/run/');
 
         if ($server) {
             $this->setServer($server);

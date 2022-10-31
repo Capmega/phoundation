@@ -274,7 +274,7 @@ function cli_run_once_local($close = false) {
     static $executed = false;
 
     try {
-        $run_dir = ROOT.'data/run/';
+        $run_dir = PATH_ROOT.'data/run/';
         $script  = $core->register['script'];
 
         Path::ensure(dirname($run_dir.$script));
@@ -288,7 +288,7 @@ function cli_run_once_local($close = false) {
             }
 
             file_delete(array('patterns'     => $run_dir.$script,
-                              'restrictions' => ROOT.'data/run/',
+                              'restrictions' => PATH_ROOT.'data/run/',
                               'clean_path'   => false));
             $executed = false;
             return;
@@ -337,7 +337,7 @@ function cli_run_once_local($close = false) {
              */
             log_console(tr('cli_run_once_local(): Cleaning up stale run file ":file"', array(':file' => $run_dir.$script)), 'VERBOSE/yellow');
             file_delete(array('patterns'     => $run_dir.$script,
-                              'restrictions' => ROOT.'data/run/',
+                              'restrictions' => PATH_ROOT.'data/run/',
                               'clean_path'   => false));
         }
 
@@ -368,7 +368,7 @@ function cli_run_max_local($processes) {
     static $executed = false;
 under_construction();
     try {
-        $run_dir = ROOT.'data/run/';
+        $run_dir = PATH_ROOT.'data/run/';
         $script  = $core->register['script'];
 
         Path::ensure(dirmode($run_dir.$script));
@@ -382,7 +382,7 @@ under_construction();
             }
 
             file_delete(array('patterns'     => $run_dir.$script,
-                              'restrictions' => ROOT.'data/run/',
+                              'restrictions' => PATH_ROOT.'data/run/',
                               'clean_path'   => false));
 
             $executed = false;
@@ -432,7 +432,7 @@ under_construction();
              */
             log_console(tr('cli_run_max_local(): Cleaning up stale run file ":file"', array(':file' => $run_dir.$script)), 'yellow');
             file_delete(array('patterns'     => $run_dir.$script,
-                              'restrictions' => ROOT.'data/run/',
+                              'restrictions' => PATH_ROOT.'data/run/',
                               'clean_path'   => false));
         }
 
@@ -2142,7 +2142,7 @@ function cli_restart($delay = 1) {
  * @param string $params[start] The path where to search
  * @param string $params[name] File name to be matched. Is case sensitive. Supports wildcards * and ?
  * @param string $params[iname] Case insensitive version of $params[name]
- * @param string $params[path] Match for the entire path, instead of only the file name. NOTE: If only the last part of the directory is important, remember to start the path with a * to be able to make a match! Example: $params[path] = ROOT.'node_modules/*bin/*' to match all files that are in a bin directory within ROOT/node_modules
+ * @param string $params[path] Match for the entire path, instead of only the file name. NOTE: If only the last part of the directory is important, remember to start the path with a * to be able to make a match! Example: $params[path] = PATH_ROOT.'node_modules/*bin/*' to match all files that are in a bin directory within PATH_ROOT/node_modules
  * @param string $params[ipath] Case insensitive version of $params[path]
  * @param string $params[exec] Execute COMMAND on each found file. Use "{}" to reference the file. Example: $params[exec] = 'chmod ug+w {}';
  * @param string $params[type] Type of file to find. "b" for block (buffered) special, "c" for character (unbuffered) special, "d" for directory, "p" for named pipe (FIFO), "f" for regular file, "l" for symbolic link; this is never true if the -L option or the -follow option is in effect, unless the symbolic link is broken.  If you want to search for symbolic links when -L is in effect, use -xtype., "s" for socket

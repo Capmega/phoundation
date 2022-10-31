@@ -498,7 +498,7 @@ if (empty($post['id'])) {
              * Get photo dimensions
              */
             try {
-                $image = getimagesize(ROOT.'www/en/photos/'.$photo['file'].'_big.jpg');
+                $image = getimagesize(PATH_ROOT.'www/en/photos/'.$photo['file'].'_big.jpg');
 
             }catch(Exception $e) {
                 $image = false;

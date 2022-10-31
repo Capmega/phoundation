@@ -64,8 +64,8 @@ try {
     define('ENVIRONMENT', $env);
     load_config(' ');
 
-    if (!file_exists(ROOT.'config/'.$env.'.php')) {
-        echo "\033[0;31mstartup: Configuration file \"ROOT/config/".$env.".php\" for specified environment\"".$env."\" not found\033[0m\n";
+    if (!file_exists(PATH_ROOT.'config/'.$env.'.php')) {
+        echo "\033[0;31mstartup: Configuration file \"PATH_ROOT/config/".$env.".php\" for specified environment\"".$env."\" not found\033[0m\n";
         $core->register['exit_code'] = 5;
         die(5);
     }
@@ -352,7 +352,7 @@ try {
         $e = new CoreException('core::startup(): Language selection failed', $e);
     }
 
-    define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
+    define('LIBS', PATH_ROOT.'www/'.LANGUAGE.'/libs/');
 
 
 

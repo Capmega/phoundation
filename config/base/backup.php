@@ -1,6 +1,6 @@
 <?php
 $_CONFIG['backup'] = array('sync'        => array('server' => ''),
-                           'target'      => ROOT.'data/backups/',
+                           'target'      => PATH_ROOT.'data/backups/',
                            'compression' => 'gzip',
 
                            // See "man mysqldump" for more information on options that have comments prefixed (mysqldump)

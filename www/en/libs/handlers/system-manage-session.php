@@ -218,8 +218,8 @@ try {
                  */
                 switch ($_CONFIG['sessions']['handler']) {
                     case false:
-                        Path::ensure(ROOT.'data/cookies/');
-                        ini_set('session.save_path', ROOT.'data/cookies/');
+                        Path::ensure(PATH_ROOT.'data/cookies/');
+                        ini_set('session.save_path', PATH_ROOT.'data/cookies/');
                         break;
 
                     case 'sql':
@@ -282,7 +282,7 @@ try {
                                  */
                                 session_start();
 
-                            } elseif (!file_exists(ROOT.'data/cookies/sess_'.$_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
+                            } elseif (!file_exists(PATH_ROOT.'data/cookies/sess_'.$_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
                                 /*
                                  * Cookie code is valid, but it doesn't exist.
                                  *

@@ -15,7 +15,7 @@
  */
 function libs_list() {
     try {
-        return scandir(ROOT.'libs');
+        return scandir(PATH_ROOT.'libs');
 
     }catch(Exception $e) {
         throw new CoreException('libs_list(): Failed', $e);
@@ -43,7 +43,7 @@ function libs_count() {
  */
 function libs_exec($callback) {
     try {
-        return file_tree_execute(array('path' => ROOT.'libs'));
+        return file_tree_execute(array('path' => PATH_ROOT.'libs'));
 
     }catch(Exception $e) {
         throw new CoreException('libs_exec(): Failed', $e);

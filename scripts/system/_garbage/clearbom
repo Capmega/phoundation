@@ -13,7 +13,7 @@ $usage = "./scripts/base/clearbom PATH\n".
 
 $help  = "The clearbom script will clear the BOM (Byte Order Mark) from all PHP files found in the specified tree.
 
-The clearbom script uses the cache file ROOT/data/cache/system/clearbom to store the minimum file mtime for files to be checked. If files have an mtime older than the mtime of that cache file, they will not be scanned to speed up the BOM check. Use -n or --nomtime to skip this check. Use -c or --cachemtime to set the mtime of the cache file
+The clearbom script uses the cache file PATH_ROOT/data/cache/system/clearbom to store the minimum file mtime for files to be checked. If files have an mtime older than the mtime of that cache file, they will not be scanned to speed up the BOM check. Use -n or --nomtime to skip this check. Use -c or --cachemtime to set the mtime of the cache file
 
 -n --no-mtime                          Do not perform file minimum mtime check
                                        to speed up BOM scan
@@ -44,7 +44,7 @@ if ($setdate) {
 /*
  *
  */
-$cachefile  = ROOT.'data/cache/system/clearbom';
+$cachefile  = PATH_ROOT.'data/cache/system/clearbom';
 $cachemtime = null;
 
 if ($nomtime) {
@@ -77,7 +77,7 @@ if (!function_exists('clear_files')) {
 
                 $file = Strings::slash($path).$file;
 
-                if ($file === ROOT.'cdn') {
+                if ($file === PATH_ROOT.'cdn') {
                     /*
                      * Skip CDN
                      */
@@ -127,7 +127,7 @@ if (!function_exists('clear_files')) {
 /*
  *
  */
-$path = cli_argument('path', true, ROOT);
+$path = cli_argument('path', true, PATH_ROOT);
 
 log_console(tr('Searching ":path" for PHP files with BOM signatures', array(':path' => $path)), 'white');
 

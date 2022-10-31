@@ -38,8 +38,8 @@ function sso_library_init() {
         ensure_installed(array('name'      => 'hybridauth',
                                'project'   => 'hybridauth',
                                'callback'  => 'sso_install',
-                               'checks'    => array(ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php',
-                                                    ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php')));
+                               'checks'    => array(PATH_ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php',
+                                                    PATH_ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php')));
 
         load_config('sso');
 
@@ -84,18 +84,18 @@ function sso_install($params) {
 
         rename($facebook, $path);
 
-        file_delete(TMP.'hybridauth/hybridauth-2/hybridauth/Hybrid/thirdparty/Facebook/');
-        rename(TMP.'hybridauth/php-graph-sdk-5.5/src/Facebook/', TMP.'hybridauth/hybridauth-2/hybridauth/Hybrid/thirdparty/Facebook/');
+        file_delete(PATH_TMP.'hybridauth/hybridauth-2/hybridauth/Hybrid/thirdparty/Facebook/');
+        rename(PATH_TMP.'hybridauth/php-graph-sdk-5.5/src/Facebook/', PATH_TMP.'hybridauth/hybridauth-2/hybridauth/Hybrid/thirdparty/Facebook/');
 
         /*
          * Install library and clean up
          */
-        File::executeMode(ROOT.'www/en/libs/vendor', 0770, function() {
-            file_delete(ROOT.'www/en/libs/vendor/hybridauth', ROOT.'www/en/libs/vendor');
-            rename($path, ROOT.'www/en/libs/vendor/hybridauth');
+        File::executeMode(PATH_ROOT.'www/en/libs/vendor', 0770, function() {
+            file_delete(PATH_ROOT.'www/en/libs/vendor/hybridauth', PATH_ROOT.'www/en/libs/vendor');
+            rename($path, PATH_ROOT.'www/en/libs/vendor/hybridauth');
         });
 
-        file_delete(TMP.'hybridauth');
+        file_delete(PATH_TMP.'hybridauth');
 
     }catch(Exception $e) {
         throw new CoreException(tr('sso_install(): Failed'), $e);
@@ -128,8 +128,8 @@ function sso($provider, $method, $redirect, $role = 'user') {
 
         switch ($method) {
             case 'authorized':
-                include_once(ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php');
-                include_once(ROOT.'libs/vendor/hybridauth/Hybrid/Endpoint.php');
+                include_once(PATH_ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php');
+                include_once(PATH_ROOT.'libs/vendor/hybridauth/Hybrid/Endpoint.php');
 
                 if (isset($_REQUEST['hauth_start']) or isset($_REQUEST['hauth_done'])) {
                     Hybrid_Endpoint::process();
@@ -144,7 +144,7 @@ function sso($provider, $method, $redirect, $role = 'user') {
                 break;
 
             case 'signin':
-                include_once(ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php');
+                include_once(PATH_ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php');
 
                 $hybridauth = new Hybrid_Auth(sso_config($provider));
                 $result     = $hybridauth->authenticate(str_capitalize($provider));
@@ -342,7 +342,7 @@ function sso_config($provider) {
             throw new CoreException(tr('sso_config(): The specified provider ":provider" is not configured'), 'not-exist');
         }
 
-        $path = ROOT.'data/cache/sso/'.ENVIRONMENT.'/';
+        $path = PATH_ROOT.'data/cache/sso/'.ENVIRONMENT.'/';
         $file = $path.$provider.'.php';
 
         /*
@@ -351,7 +351,7 @@ function sso_config($provider) {
         if (file_exists($file) and ($_CONFIG['sso']['cache_config'] and ((time() - filemtime($file)) > $_CONFIG['sso']['cache_config']))) {
             chmod($path, 0700);
             chmod($file, 0660);
-            file_delete($file, ROOT.'data/cache/sso');
+            file_delete($file, PATH_ROOT.'data/cache/sso');
         }
 
         if (!file_exists($file)) {
@@ -388,7 +388,7 @@ function sso_config($provider) {
                                                   /*
                                                    * Path to file writable by the web server. Required if 'debug_mode' is not false
                                                    */
-                                                  'debug_file'             => ROOT.'data/log/sso-'.ENVIRONMENT.'-'.$provider));
+                                                  'debug_file'             => PATH_ROOT.'data/log/sso-'.ENVIRONMENT.'-'.$provider));
 
             /*
              * Add provider specific data

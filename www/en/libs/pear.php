@@ -31,7 +31,7 @@ function pear_library_init() {
     try {
         ensure_installed(array('name'     => 'pear',
                                'callback' => 'pear_install',
-                               'checks'   => array(ROOT.'libs/external/pear/')));
+                               'checks'   => array(PATH_ROOT.'libs/external/pear/')));
 
     }catch(Exception $e) {
         throw new CoreException('pear_library_init(): Failed', $e);

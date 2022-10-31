@@ -383,7 +383,7 @@ log_console('Done', '');
 ///*
 // * Import all countries
 // */
-//$h     = fopen(ROOT.'data/sources/geo/geodatasource/GEODATASOURCE-COUNTRY.TXT', 'r');
+//$h     = fopen(PATH_ROOT.'data/sources/geo/geodatasource/GEODATASOURCE-COUNTRY.TXT', 'r');
 //$count = 0;
 //
 //log_console('Populating geo_countries table', '', '', false);

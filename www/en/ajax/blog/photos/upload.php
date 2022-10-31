@@ -11,7 +11,7 @@ try {
      * Get image dimensions
      */
     try {
-        $image = getimagesize(ROOT.'www/en/photos/'.$photo['photo'].'_big.jpg');
+        $image = getimagesize(PATH_ROOT.'www/en/photos/'.$photo['photo'].'_big.jpg');
 
     }catch(Exception $e) {
         $image = false;
@@ -48,7 +48,7 @@ try {
 
         case UPLOAD_ERR_PARTIAL:
             // FALLTHROUGH
-        case UPLOAD_ERR_NO_TMP_DIR:
+        case UPLOAD_ERR_NO_PATH_TMP_DIR:
             // FALLTHROUGH
         case UPLOAD_ERR_CANT_WRITE:
             // FALLTHROUGH

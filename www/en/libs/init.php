@@ -34,7 +34,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
         }
 
         if (version_compare(PHP_VERSION, PHP_MINIMUM_VERSION) < 1) {
-            throw new CoreException(tr('init(): This version of base requires at minimum PHP version ":required", anything below is not supported. The current version of PHP installed is ":installed" If you wish to force to run this version of base on this version of PHP, lower the required version defined with the constant PHP_MINIMUM_VERSION in the top of ROOT/libs/startup.php', array(':required' => PHP_MINIMUM_VERSION, ':installed' => PHP_VERSION)), 'denied');
+            throw new CoreException(tr('init(): This version of base requires at minimum PHP version ":required", anything below is not supported. The current version of PHP installed is ":installed" If you wish to force to run this version of base on this version of PHP, lower the required version defined with the constant PHP_MINIMUM_VERSION in the top of PATH_ROOT/libs/startup.php', array(':required' => PHP_MINIMUM_VERSION, ':installed' => PHP_VERSION)), 'denied');
         }
 
         load_libs('sql-exists');
@@ -42,8 +42,8 @@ function init($projectfrom = null, $frameworkfrom = null) {
         /*
          * Check tmp dir configuration
          */
-        Path::ensure(TMP.'www');
-        touch(TMP.'www/.donotdelete');
+        Path::ensure(PATH_TMP.'www');
+        touch(PATH_TMP.'www/.donotdelete');
 
         /*
          * To do the init, we need the database version data. The database version check is ONLY executed on sql_connect(),
@@ -113,7 +113,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
 
         if (version_compare(Core::FRAMEWORKCODEVERSION, $codeversions['FRAMEWORK']) < 0) {
             if (!str_is_version(Core::FRAMEWORKCODEVERSION)) {
-                throw new CoreException('init(): Cannot continue, the FRAMEWORK code version "'.Strings::Log(Core::FRAMEWORKCODEVERSION).'" (Defined at the top of '.ROOT.'/libs/system.php) is invalid', 'invalid-framework-code');
+                throw new CoreException('init(): Cannot continue, the FRAMEWORK code version "'.Strings::Log(Core::FRAMEWORKCODEVERSION).'" (Defined at the top of '.PATH_ROOT.'/libs/system.php) is invalid', 'invalid-framework-code');
             }
 
             throw new CoreException(tr('init(): Cannot continue, the FRAMEWORK code version ":code" is OLDER (LOWER) than the database version ":db", the project is running with either old code or a too new database!', array(':code' => Core::FRAMEWORKCODEVERSION, ':db' => FRAMEWORKDBVERSION)), 'old-framework-code');
@@ -121,7 +121,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
 
         if (version_compare(PROJECTCODEVERSION, $codeversions['PROJECT']) < 0) {
             if (!str_is_version(PROJECTCODEVERSION)) {
-                throw new CoreException(tr('init(): Cannot continue, the PROJECT code version ":version" (Defined in ":file") is invalid', array(':version' => PROJECTCODEVERSION, ':file' => ROOT.'/config/project.php')), 'invalid-project-code');
+                throw new CoreException(tr('init(): Cannot continue, the PROJECT code version ":version" (Defined in ":file") is invalid', array(':version' => PROJECTCODEVERSION, ':file' => PATH_ROOT.'/config/project.php')), 'invalid-project-code');
             }
 
             throw new CoreException(tr('init(): Cannot continue, the PROJECT code version ":code" is OLDER (LOWER) than the database version ":db", the project is running with either old code or a too new database!', array(':code' => PROJECTCODEVERSION, ':db' => PROJECTDBVERSION)), 'old-project-code');
@@ -168,7 +168,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
                                 'commands' => array('mysql_tzinfo_to_sql', array('/usr/share/zoneinfo', 'connector' => '|'),
                                                     'mysql'              , array('-p', '-u', 'root', 'mysql'))));
             }
-            define('INITPATH', Strings::slash(realpath(ROOT.'init')));
+            define('INITPATH', Strings::slash(realpath(PATH_ROOT.'init')));
 
             $versions = array('framework' => $codeversions['FRAMEWORK'],
                               'project'   => $codeversions['PROJECT']);
@@ -310,7 +310,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
 
             if ($_CONFIG['language']['supported']) {
                 foreach ($_CONFIG['language']['supported'] as $language => $name) {
-                    file_delete(ROOT.'www/'.substr($language, 0, 2).'/data', ROOT.'www/'.substr($language, 0, 2));
+                    file_delete(PATH_ROOT.'www/'.substr($language, 0, 2).'/data', PATH_ROOT.'www/'.substr($language, 0, 2));
                 }
             }
 
@@ -395,7 +395,7 @@ function init_process_version_diff() {
         }
 
         if (PLATFORM_HTTP or !cli_argument('--no-version-check')) {
-            throw new CoreException(tr('init_process_version_diff(): Please run script ROOT/scripts/base/init because ":error"', array(':error' => $versionerror)), 'warning/do-init');
+            throw new CoreException(tr('init_process_version_diff(): Please run script PATH_ROOT/scripts/base/init because ":error"', array(':error' => $versionerror)), 'warning/do-init');
         }
 
     }catch(Exception $e) {
@@ -457,7 +457,7 @@ function init_hook($hook, $disabled = false, $params = null) {
             $disabled = $params;
         }
 
-        if (!$disabled and file_exists(ROOT.'scripts/hooks/'.$hook)) {
+        if (!$disabled and file_exists(PATH_ROOT.'scripts/hooks/'.$hook)) {
             return script_exec(array('commands' => array('hooks/'.$hook, $params)));
         }
 
@@ -525,7 +525,7 @@ function init_include($file, $section = null) {
 /*
  * Initialize the specified section.
  *
- * The section must be available as a directory with the name of the section in the ROOT/init path. If (for example) the section is called "mail", the init section in ROOT/init/mail will be executed. The section name will FORCE all sql_query() calls to use the connector with the $section name.
+ * The section must be available as a directory with the name of the section in the PATH_ROOT/init path. If (for example) the section is called "mail", the init section in PATH_ROOT/init/mail will be executed. The section name will FORCE all sql_query() calls to use the connector with the $section name.
  *
  * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -543,7 +543,7 @@ function init_section($section, $version) {
     try {
         load_libs('sql_exists');
 
-        $path = ROOT.'init/'.$section.'/';
+        $path = PATH_ROOT.'init/'.$section.'/';
 
         if (!file_exists($path)) {
             throw new CoreException(tr('init_section(): Specified section ":section" path ":path" does not exist', array(':section' => $section, ':path' => $path)), 'not-exists');
@@ -783,13 +783,13 @@ function init_get_highest_file_version($section) {
                 /*
                  * Custom section, check if it exists
                  */
-                if (!file_exists(ROOT.'init/'.$section)) {
+                if (!file_exists(PATH_ROOT.'init/'.$section)) {
                     throw new CoreException(tr('init_get_highest_file_version(): The specified custom init section ":section" does not exist', array(':section' => $section)), 'not-exist');
                 }
         }
 
         $version = '0.0.0';
-        $files   = scandir(ROOT.'init/'.$section);
+        $files   = scandir(PATH_ROOT.'init/'.$section);
 
         foreach ($files as $file) {
             if (($file === '.') or ($file === '..')) {

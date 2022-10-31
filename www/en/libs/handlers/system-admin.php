@@ -116,7 +116,7 @@ under_construction();
         $e = new OutOfBoundsException('core::startup(): Language selection failed', $e);
     }
 
-    define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
+    define('LIBS', PATH_ROOT.'www/'.LANGUAGE.'/libs/');
 
 
 
@@ -156,7 +156,7 @@ under_construction();
     /*
      * Set cookie, start session where needed, etc.
      */
-    include(ROOT.'libs/handlers/system-manage-session.php');
+    include(PATH_ROOT.'libs/handlers/system-manage-session.php');
 
 
 

@@ -137,7 +137,7 @@ class Script extends Element
             try {
                 // Create the cached file names
                 $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.($core->register['script_file'] ? $core->register['script_file'].'-' : '').$count;
-                $file = ROOT.'www/'.LANGUAGE.(Core::getCallType('admin') ? '/admin' : '').'/pub/js/'.$base;
+                $file = PATH_ROOT.'www/'.LANGUAGE.(Core::getCallType('admin') ? '/admin' : '').'/pub/js/'.$base;
 
                 Log::action(tr('Creating externally cached javascript file ":file"', [':file' => $file.'.js']));
 
@@ -147,12 +147,12 @@ class Script extends Element
                         // The javascript file is empty
                         Log::warning(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', [':file' => $file.'.js']));
 
-                        File::executeMode(ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
-                            file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', ROOT.'www/'.LANGUAGE.'/pub/js');
+                        File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
+                            file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', PATH_ROOT.'www/'.LANGUAGE.'/pub/js');
                             file_delete([
                                 'patterns'       => $file.'.js,'.$file.'.min.js',
                                 'force_writable' => true,
-                                'restrictions'   => ROOT.'www/'.LANGUAGE.'/pub/js'
+                                'restrictions'   => PATH_ROOT.'www/'.LANGUAGE.'/pub/js'
                             ]);
                         });
 
@@ -160,11 +160,11 @@ class Script extends Element
                         // External cached file is too old
                         Log::warning(tr('Deleting externally cached javascript file ":file" because the file cache time expired', [':file' => $file.'.js']));
 
-                        File::executeMode(ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
+                        File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
                             file_delete([
                                 'patterns'       => $file.'.js,'.$file.'.min.js',
                                 'force_writable' => true,
-                                'restrictions'   => ROOT.'www/'.LANGUAGE.'/pub/js'
+                                'restrictions'   => PATH_ROOT.'www/'.LANGUAGE.'/pub/js'
                             ]);
                         });
                     }

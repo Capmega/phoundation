@@ -39,7 +39,7 @@
  * @version 2.4.8: Moved function from system to check-disk library
  *
  * @param params $params The function parameters
- * @param $params[path] The directory to check. Defaults to ROOT
+ * @param $params[path] The directory to check. Defaults to PATH_ROOT
  * @param null string $params[bytes] =$_CONFIG[check_disk][bytes] The amount of minimal available bytes limit that should not be crossed. Must be an absolute number in bytes with or without a KMGTP suffix (e.g. 500000, 100K, 50M, 300G, etc)
  * @param null string $params[percentage] =$_CONFIG[check_disk][percentage] The percentage of minimal available bytes limit that should not be crossed. Must be in the form of N% (e.g. 10%)
  * @param function $params[callback] The callback function to execute if disk full limits have been crossed. Defaults to a default function that clears cache, tmp, and log directories
@@ -58,16 +58,16 @@ function check_disk($params = null) {
              * Perform default recovery actions
              */
             $params['callback'] = function($total, $available, $percentage, $bytes) {
-                file_delete(ROOT.'data/tmp'  , ROOT.'data/');
-                file_delete(ROOT.'data/cache', ROOT.'data/');
-                file_delete(ROOT.'data/log'  , ROOT.'data/');
+                file_delete(PATH_ROOT.'data/tmp'  , PATH_ROOT.'data/');
+                file_delete(PATH_ROOT.'data/cache', PATH_ROOT.'data/');
+                file_delete(PATH_ROOT.'data/log'  , PATH_ROOT.'data/');
 
                 /*
                  * Regenerate the paths to ensure that they are available
                  */
-                Path::ensure(ROOT.'data/tmp');
-                Path::ensure(ROOT.'data/cache');
-                Path::ensure(ROOT.'data/log');
+                Path::ensure(PATH_ROOT.'data/tmp');
+                Path::ensure(PATH_ROOT.'data/cache');
+                Path::ensure(PATH_ROOT.'data/log');
 
                 notify(array('code'    => 'low-disk',
                              'groups'  => 'developers',
@@ -77,7 +77,7 @@ function check_disk($params = null) {
         }
 
         if (empty($params['path'])) {
-            $params['path'] = ROOT;
+            $params['path'] = PATH_ROOT;
         }
 
         if (!file_exists($params['path'])) {

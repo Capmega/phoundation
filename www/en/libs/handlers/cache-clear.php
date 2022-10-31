@@ -22,16 +22,16 @@ try {
                     /*
                      * Delete only one cache file, and attempt to clear empty directories as possible
                      */
-                    file_delete(array('patterns'     => ROOT.'data/cache/'.Strings::slash($namespace).$key,
-                                      'restrictions' => ROOT.'data/cache/',
+                    file_delete(array('patterns'     => PATH_ROOT.'data/cache/'.Strings::slash($namespace).$key,
+                                      'restrictions' => PATH_ROOT.'data/cache/',
                                       'clean_path'   => false));
 
                 } else {
                     /*
                      * Delete specified group
                      */
-                    file_delete(array('patterns'     => ROOT.'data/cache/'.$namespace,
-                                      'restrictions' => ROOT.'data/cache/',
+                    file_delete(array('patterns'     => PATH_ROOT.'data/cache/'.$namespace,
+                                      'restrictions' => PATH_ROOT.'data/cache/',
                                       'clean_path'   => false));
                 }
 
@@ -39,19 +39,19 @@ try {
                 /*
                  * Delete only one cache file, and attempt to clear empty directories as possible
                  */
-                file_clear_path(ROOT.'data/cache/'.$key, ROOT.'data/cache/');
+                file_clear_path(PATH_ROOT.'data/cache/'.$key, PATH_ROOT.'data/cache/');
 
             } else {
                 /*
                  * Delete all cache
                  */
-                file_delete(array('patterns'     => ROOT.'data/cache/',
-                                  'restrictions' => ROOT.'data/',
+                file_delete(array('patterns'     => PATH_ROOT.'data/cache/',
+                                  'restrictions' => PATH_ROOT.'data/',
                                   'clean_path'   => false));
             }
 
-            Path::ensure(ROOT.'data/cache');
-            log_console(tr('Cleared file caches from path ":path"', array(':path' => ROOT.'data/cache')), 'green');
+            Path::ensure(PATH_ROOT.'data/cache');
+            log_console(tr('Cleared file caches from path ":path"', array(':path' => PATH_ROOT.'data/cache')), 'green');
             break;
 
         case 'memcached':
@@ -84,11 +84,11 @@ try {
     /*
      * Clear the tmp directory
      */
-    file_delete(array('patterns'    => ROOT.'data/tmp/',
-                      'restrictions' => ROOT.'data/',
+    file_delete(array('patterns'    => PATH_ROOT.'data/tmp/',
+                      'restrictions' => PATH_ROOT.'data/',
                       'clean_path'   => false));
 
-    Path::ensure(ROOT.'data/tmp');
+    Path::ensure(PATH_ROOT.'data/tmp');
     log_console(tr('Cleared data/tmp'), 'green');
 
     /*
@@ -110,7 +110,7 @@ try {
          * Delete all bundle files
          * Delete all purged bundle files
          */
-        if (!file_exists(ROOT.'www/'.$code)) {
+        if (!file_exists(PATH_ROOT.'www/'.$code)) {
             /*
              * This language doesn't have a web directory, ignore it
              */
@@ -118,64 +118,64 @@ try {
             continue;
         }
 
-        if (file_exists(ROOT.'www/'.$code.'/pub/js/')) {
-            File::executeMode(ROOT.'www/'.$code.'/pub/js/', 0770, function() use ($code) {
-                file_delete(array('patterns'       => ROOT.'www/'.$code.'/pub/js/cached-*,'.ROOT.'www/'.$code.'/pub/js/bundle-*' ,
-                                  'restrictions'   => ROOT.'www/'.$code.'/pub/js/',
+        if (file_exists(PATH_ROOT.'www/'.$code.'/pub/js/')) {
+            File::executeMode(PATH_ROOT.'www/'.$code.'/pub/js/', 0770, function() use ($code) {
+                file_delete(array('patterns'       => PATH_ROOT.'www/'.$code.'/pub/js/cached-*,'.PATH_ROOT.'www/'.$code.'/pub/js/bundle-*' ,
+                                  'restrictions'   => PATH_ROOT.'www/'.$code.'/pub/js/',
                                   'force_writable' => true));
             });
 
-            log_console(tr('Cleared javascript path ":path" from bundle and cache files', array(':path' => ROOT.'www/'.$code.'/pub/js/')), 'green');
+            log_console(tr('Cleared javascript path ":path" from bundle and cache files', array(':path' => PATH_ROOT.'www/'.$code.'/pub/js/')), 'green');
 
         } else {
-            log_console(tr('Skipping cache clearing path ":path", it does not exists or is not accessible', array(':path' => ROOT.'www/'.$code.'/pub/js/')), 'yellow');
+            log_console(tr('Skipping cache clearing path ":path", it does not exists or is not accessible', array(':path' => PATH_ROOT.'www/'.$code.'/pub/js/')), 'yellow');
         }
 
-        if (file_exists(ROOT.'www/'.$code.'/pub/css/')) {
-            File::executeMode(ROOT.'www/'.$code.'/pub/css/', 0770, function() use ($code) {
-                file_delete(array('patterns'       => ROOT.'www/'.$code.'/pub/css/bundle-*,'.ROOT.'www/'.$code.'/pub/css/p-bundle-*',
-                                  'restrictions'   => ROOT.'www/'.$code.'/pub/css/',
+        if (file_exists(PATH_ROOT.'www/'.$code.'/pub/css/')) {
+            File::executeMode(PATH_ROOT.'www/'.$code.'/pub/css/', 0770, function() use ($code) {
+                file_delete(array('patterns'       => PATH_ROOT.'www/'.$code.'/pub/css/bundle-*,'.PATH_ROOT.'www/'.$code.'/pub/css/p-bundle-*',
+                                  'restrictions'   => PATH_ROOT.'www/'.$code.'/pub/css/',
                                   'force_writable' => true));
             });
 
-            log_console(tr('Cleared CSS path ":path" from bundle files', array(':path' => ROOT.'www/'.$code.'/pub/css/')), 'green');
+            log_console(tr('Cleared CSS path ":path" from bundle files', array(':path' => PATH_ROOT.'www/'.$code.'/pub/css/')), 'green');
 
         } else {
-            log_console(tr('Skipping cache clearing path ":path", it does not exists or is not accessible', array(':path' => ROOT.'www/'.$code.'/pub/css/')), 'yellow');
+            log_console(tr('Skipping cache clearing path ":path", it does not exists or is not accessible', array(':path' => PATH_ROOT.'www/'.$code.'/pub/css/')), 'yellow');
         }
 
-        if (file_exists(ROOT.'www/'.$code.'/admin/pub/js/')) {
-            File::executeMode(ROOT.'www/'.$code.'/admin/pub/js/', 0770, function() use ($code) {
-                file_delete(array('patterns'       => ROOT.'www/'.$code.'/admin/pub/js/cached-*,'.ROOT.'www/'.$code.'/admin/pub/js/bundle-*',
-                                  'restrictions'   => ROOT.'www/'.$code.'/admin/pub/js/',
+        if (file_exists(PATH_ROOT.'www/'.$code.'/admin/pub/js/')) {
+            File::executeMode(PATH_ROOT.'www/'.$code.'/admin/pub/js/', 0770, function() use ($code) {
+                file_delete(array('patterns'       => PATH_ROOT.'www/'.$code.'/admin/pub/js/cached-*,'.PATH_ROOT.'www/'.$code.'/admin/pub/js/bundle-*',
+                                  'restrictions'   => PATH_ROOT.'www/'.$code.'/admin/pub/js/',
                                   'force_writable' => true));
             });
 
-            log_console(tr('Cleared admin javascript path ":path" from bundle and cache files', array(':path' => ROOT.'www/'.$code.'/admin/pub/js/')), 'green');
+            log_console(tr('Cleared admin javascript path ":path" from bundle and cache files', array(':path' => PATH_ROOT.'www/'.$code.'/admin/pub/js/')), 'green');
 
         } else {
-            log_console(tr('Skipping cache clearing path ":path", it does not exists or is not accessible', array(':path' => ROOT.'www/'.$code.'/admin/pub/js/')), 'yellow');
+            log_console(tr('Skipping cache clearing path ":path", it does not exists or is not accessible', array(':path' => PATH_ROOT.'www/'.$code.'/admin/pub/js/')), 'yellow');
         }
 
-        if (file_exists(ROOT.'www/'.$code.'/admin/pub/css/')) {
-            File::executeMode(ROOT.'www/'.$code.'/admin/pub/css/', 0770, function() use ($code) {
-                file_delete(array('patterns'       => ROOT.'www/'.$code.'/admin/pub/css/bundle-*,'.ROOT.'www/'.$code.'/admin/pub/css/p-bundle-*',
-                                  'restrictions'   => ROOT.'www/'.$code.'/admin/pub/css/',
+        if (file_exists(PATH_ROOT.'www/'.$code.'/admin/pub/css/')) {
+            File::executeMode(PATH_ROOT.'www/'.$code.'/admin/pub/css/', 0770, function() use ($code) {
+                file_delete(array('patterns'       => PATH_ROOT.'www/'.$code.'/admin/pub/css/bundle-*,'.PATH_ROOT.'www/'.$code.'/admin/pub/css/p-bundle-*',
+                                  'restrictions'   => PATH_ROOT.'www/'.$code.'/admin/pub/css/',
                                   'force_writable' => true));
             });
 
-            log_console(tr('Cleared admin CSS path ":path" from bundle files', array(':path' => ROOT.'www/'.$code.'/admin/pub/css/')), 'green');
+            log_console(tr('Cleared admin CSS path ":path" from bundle files', array(':path' => PATH_ROOT.'www/'.$code.'/admin/pub/css/')), 'green');
 
         } else {
-            log_console(tr('Skipping cache clearing path ":path", it does not exists or is not accessible', array(':path' => ROOT.'www/'.$code.'/admin/pub/css/')), 'yellow');
+            log_console(tr('Skipping cache clearing path ":path", it does not exists or is not accessible', array(':path' => PATH_ROOT.'www/'.$code.'/admin/pub/css/')), 'yellow');
         }
     }
 
     /*
      * Delete all auto converted webp images
      */
-    foreach (array(ROOT.'data/content/', ROOT.'www/') as $path) {
-        if (!file_exists(ROOT.'data/content/')) {
+    foreach (array(PATH_ROOT.'data/content/', PATH_ROOT.'www/') as $path) {
+        if (!file_exists(PATH_ROOT.'data/content/')) {
             continue;
         }
 
@@ -215,13 +215,13 @@ try {
      * Delete external / vendor libraries too
      */
     if (FORCE) {
-        if (file_exists(ROOT.'node_modules/')) {
-            File::executeMode('*'.ROOT.'node_modules/', 0770, function() use ($code) {
-                file_delete(ROOT.'node_modules/', ROOT);
+        if (file_exists(PATH_ROOT.'node_modules/')) {
+            File::executeMode('*'.PATH_ROOT.'node_modules/', 0770, function() use ($code) {
+                file_delete(PATH_ROOT.'node_modules/', PATH_ROOT);
             });
         }
 
-        log_console(tr('Cleared node_modules path ":path"', array(':path' => ROOT.'node_modules/')), 'green');
+        log_console(tr('Cleared node_modules path ":path"', array(':path' => PATH_ROOT.'node_modules/')), 'green');
     }
 
 }catch(Exception $e) {

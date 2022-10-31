@@ -65,7 +65,7 @@ try {
 // * Install geoname script
 // */
 //mkdir($path.'geonames', $_CONFIG['file']['dir_mode'], true);
-//file_copy_tree(ROOT.'data/sources/geonames', $path.'geonames');
+//file_copy_tree(PATH_ROOT.'data/sources/geonames', $path.'geonames');
 
 $return = $path;
 ?>

@@ -52,7 +52,7 @@ function doc_parse_this() {
         doc_clear(PROJECT);
 
         $project = doc_insert_project(PROJECT, LANGUAGE);
-        $count   = doc_parse_path($project, ROOT, ROOT);
+        $count   = doc_parse_path($project, PATH_ROOT, PATH_ROOT);
         $errors  = doc_errors();
 
         if ($errors) {
@@ -88,7 +88,7 @@ function doc_parse_this() {
  */
 function doc_parse_project($project) {
     try {
-        $path = ROOT.'../'.$project;
+        $path = PATH_ROOT.'../'.$project;
 
         if (!file_exists($path, $path)) {
             throw new CoreException(tr('doc_parse_project(): Specified project ":project" does not exist', array(':project' => $project)), 'not-exists');
@@ -1084,10 +1084,10 @@ function doc_generate($project = null) {
         log_console(tr('Generating documentation for project ":project"', array(':project' => $project)), 'white');
         log_console(tr('Deleting old documentation'));
 
-        file_delete(array(ROOT.'data/doc/pdf',
-                          ROOT.'data/doc/txt',
-                          ROOT.'data/doc/html',
-                          ROOT.'data/doc/include'), ROOT.'data/doc');
+        file_delete(array(PATH_ROOT.'data/doc/pdf',
+                          PATH_ROOT.'data/doc/txt',
+                          PATH_ROOT.'data/doc/html',
+                          PATH_ROOT.'data/doc/include'), PATH_ROOT.'data/doc');
 
         log_console(tr('Generating documentation in ":format" format', array(':format' => $format)), 'cyan');
 
@@ -1137,7 +1137,7 @@ function doc_generate($project = null) {
  */
 function doc_generate_page($format, $page) {
     try {
-        $path = ROOT.'data/doc/';
+        $path = PATH_ROOT.'data/doc/';
         $keys = array('category',
                       'package',
                       'title',

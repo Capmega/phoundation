@@ -17,7 +17,7 @@ function qr_check() {
     try {
         ensure_installed(array('name'      => 'qr',
                                'callback'  => 'qr_install',
-                               'checks'    => ROOT.'www/en/libs/external/php-qrcode-decoder/QrReader.php',
+                               'checks'    => PATH_ROOT.'www/en/libs/external/php-qrcode-decoder/QrReader.php',
                                'functions' => 'gd_info'));
 
     }catch(Exception $e) {
@@ -46,10 +46,10 @@ function qr_install() {
     try {
         load_libs('git');
 
-        $path = git_clone('https://github.com/khanamiryan/php-qrcode-detector-decoder.git', TMP, true);
+        $path = git_clone('https://github.com/khanamiryan/php-qrcode-detector-decoder.git', PATH_TMP, true);
 
-        File::executeMode(ROOT.'libs/external/', 0770, function() {
-            rename($path.'lib', ROOT.'www/'.LANGUAGE.'/libs/external/php-qrcode-decoder');
+        File::executeMode(PATH_ROOT.'libs/external/', 0770, function() {
+            rename($path.'lib', PATH_ROOT.'www/'.LANGUAGE.'/libs/external/php-qrcode-decoder');
         });
 
         file_delete($path);

@@ -40,9 +40,9 @@
  * @return void
  *
  * @example
- * rsync(array('source' => ROOT
+ * rsync(array('source' => PATH_ROOT
  *             'target' => server:/))
- * rsync -acz --progress -p --delete -e "ssh -p '.$_CONFIG['deploy']['target_port'].'" '.ROOT.' '.$_CONFIG['deploy']['target_user'].'@'.$_CONFIG['deploy']['target_server'].':'.$_CONFIG['deploy']['target_dir'].' '.$exclude
+ * rsync -acz --progress -p --delete -e "ssh -p '.$_CONFIG['deploy']['target_port'].'" '.PATH_ROOT.' '.$_CONFIG['deploy']['target_user'].'@'.$_CONFIG['deploy']['target_server'].':'.$_CONFIG['deploy']['target_dir'].' '.$exclude
  */
 function rsync($params) {
     load_libs('servers');
@@ -129,7 +129,7 @@ function rsync($params) {
                     }
 
                     /*
-                     * Ensure this is not executed on ROOT or part of ROOT
+                     * Ensure this is not executed on PATH_ROOT or part of PATH_ROOT
                      */
                     switch ($server['domain']) {
                         case '':
@@ -139,11 +139,11 @@ function rsync($params) {
                                 if (str_contains($params[$subitem], ':')) {
                                     /*
                                      * We're syncing to THIS server, are we not
-                                     * syncing to ROOT or its parents somehow?
+                                     * syncing to PATH_ROOT or its parents somehow?
                                      */
                                     try {
-                                        if (str_contains(ROOT, linux_realpath($server, Strings::from($params[$subitem], ':')))) {
-                                            throw new CoreException(tr('rsync(): Specified remote ":subitem" path ":path" is ROOT or parent of ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
+                                        if (str_contains(PATH_ROOT, linux_realpath($server, Strings::from($params[$subitem], ':')))) {
+                                            throw new CoreException(tr('rsync(): Specified remote ":subitem" path ":path" is PATH_ROOT or parent of PATH_ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
                                         }
 
                                     }catch(Exception $e) {
@@ -156,8 +156,8 @@ function rsync($params) {
                                     }
 
                                 } else {
-                                    if (str_contains(ROOT, realpath($params[$subitem]))) {
-                                        throw new CoreException(tr('rsync(): Specified local ":subitem" path ":path" is ROOT or parent of ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
+                                    if (str_contains(PATH_ROOT, realpath($params[$subitem]))) {
+                                        throw new CoreException(tr('rsync(): Specified local ":subitem" path ":path" is PATH_ROOT or parent of PATH_ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
                                     }
                                 }
                             }

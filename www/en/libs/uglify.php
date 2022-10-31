@@ -123,8 +123,8 @@ function uglify_css($paths = null, $force = false) {
             }
 
             foreach ($languages as $code => $language) {
-                $paths[] = ROOT.'www/'.$code.'/pub/css/';
-                $paths[] = ROOT.'www/'.$code.'/admin/pub/css/';
+                $paths[] = PATH_ROOT.'www/'.$code.'/pub/css/';
+                $paths[] = PATH_ROOT.'www/'.$code.'/admin/pub/css/';
             }
 
             $paths = implode(',', $paths);
@@ -483,7 +483,7 @@ function uglify_js($paths = null, $force = false) {
             /*
              * Start at the base js path
              */
-            $paths = ROOT.'www/'.LANGUAGE.'/pub/js/,'.ROOT.'www/'.LANGUAGE.'/admin/pub/js/';
+            $paths = PATH_ROOT.'www/'.LANGUAGE.'/pub/js/,'.PATH_ROOT.'www/'.LANGUAGE.'/admin/pub/js/';
         }
 
         foreach (Arrays::force($paths) as $path) {
@@ -708,7 +708,7 @@ function uglify_js($paths = null, $force = false) {
                         global $core;
 
                         log_console(tr('uglify_js(): Minifying javascript file ":file"', array(':file' => $file)), 'VERBOSEDOT');
-                        file_delete(substr($file, 0, -3).'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js,'.ROOT.'www/'.LANGUAGE.'/pub/css,'.ROOT.'www/'.LANGUAGE.'/admin/pub/js,'.ROOT.'www/'.LANGUAGE.'/admin/pub/css');
+                        file_delete(substr($file, 0, -3).'.min.js', PATH_ROOT.'www/'.LANGUAGE.'/pub/js,'.PATH_ROOT.'www/'.LANGUAGE.'/pub/css,'.PATH_ROOT.'www/'.LANGUAGE.'/admin/pub/js,'.PATH_ROOT.'www/'.LANGUAGE.'/admin/pub/css');
 
                         try {
                             if (filesize($file)) {

@@ -115,7 +115,7 @@ switch (cli_method()) {
                 $files = sitemap_list_files();
                 array_unshift($files, array('language' => '--',
                                             'file'     => 'sitemap (index)',
-                                            'path'     => ROOT.'www/sitemap.xml'));
+                                            'path'     => PATH_ROOT.'www/sitemap.xml'));
 
                 if (!count($files)) {
                     log_console(tr('There are currently no sitemap entries registered'), 'QUIET/yellow');
@@ -207,7 +207,7 @@ switch (cli_method()) {
                     log_console(tr('Sitemap data for language ":language" has been modified, regenerating all sitemap files', array(':language' => $language_name)), 'green');
 
                 } else {
-                    if (file_exists(ROOT.'www/en/sitemap.xml')) {
+                    if (file_exists(PATH_ROOT.'www/en/sitemap.xml')) {
                         log_console(tr('Sitemap files for language ":language" exists and sitemap data has not been modified, not regenerating sitemap files', array(':language' => $language_name)), 'green');
                         continue;
                     }

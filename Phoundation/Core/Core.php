@@ -136,16 +136,16 @@ class Core {
              * Define a unique process request ID
              * Define project paths.
              *
-             * ROOT   is the root directory of this project and should be used as the root for all other paths
-             * TMP    is a private temporary directory
-             * PUBTMP is a public (accessible by web server) temporary directory
+             * PATH_ROOT   is the root directory of this project and should be used as the root for all other paths
+             * PATH_TMP    is a private temporary directory
+             * PATH_PUBTMP is a public (accessible by web server) temporary directory
              */
-            define('REQUEST' , substr(uniqid(), 7));
-            define('ROOT'    , realpath(__DIR__ . '/../..') . '/');
-            define('WWW_PATH', ROOT . 'www/');
-            define('TMP'     , ROOT . 'data/tmp/');
-            define('PUBTMP'  , ROOT . 'data/content/tmp/');
-            define('CRLF'    , "\r\n");
+            define('REQUEST'    , substr(uniqid(), 7));
+            define('PATH_ROOT'  , realpath(__DIR__ . '/../..') . '/');
+            define('PATH_WWW'   , PATH_ROOT . 'www/');
+            define('PATH_CDN'   , PATH_ROOT . 'data/cdn/');
+            define('PATH_TMP'   , PATH_ROOT . 'data/tmp/');
+            define('PATH_PUBTMP', PATH_ROOT . 'data/content/tmp/');
 
             // Setup error handling, report ALL errors
             error_reporting(E_ALL);
@@ -153,18 +153,18 @@ class Core {
             set_exception_handler(['\Phoundation\Core\Core', 'uncaughtException']);
 
             // Load the functions and mb files
-            require(ROOT . 'Phoundation/functions.php');
-            require(ROOT . 'Phoundation/mb.php');
+            require(PATH_ROOT . 'Phoundation/functions.php');
+            require(PATH_ROOT . 'Phoundation/mb.php');
 
             // Ensure safe PHP configuration
             self::securePhpSettings();
 
             // Get the project name
             try {
-                define('PROJECT', strtoupper(trim(file_get_contents( ROOT . 'config/project'))));
+                define('PROJECT', strtoupper(trim(file_get_contents( PATH_ROOT . 'config/project'))));
 
                 if (!PROJECT) {
-                    throw new OutOfBoundsException('No project defined in ROOT/config/project file');
+                    throw new OutOfBoundsException('No project defined in PATH_ROOT/config/project file');
                 }
             } catch (Throwable $e) {
                 if ($e instanceof  OutOfBoundsException) {
@@ -172,7 +172,7 @@ class Core {
                 }
 
                 // Project file is not readable
-                File::checkReadable(ROOT . 'config/project');
+                File::checkReadable(PATH_ROOT . 'config/project');
             }
 
             // Check what platform we're in
@@ -486,8 +486,8 @@ class Core {
 
                     define('ENVIRONMENT', $env);
 
-                    if (!file_exists(ROOT.'config/' . $env.'.php')) {
-                        Scripts::die(5, 'startup: Configuration file "ROOT/config/' . $env . '.php" for specified environment "' . $env . '" not found');
+                    if (!file_exists(PATH_ROOT.'config/' . $env.'.php')) {
+                        Scripts::die(5, 'startup: Configuration file "PATH_ROOT/config/' . $env . '.php" for specified environment "' . $env . '" not found');
                     }
 
                     // Set protocol
@@ -1239,7 +1239,7 @@ class Core {
          * IMPORTANT! IF YOU ARE FACED WITH AN UNCAUGHT EXCEPTION, OR WEIRD EFFECTS LIKE
          * WHITE SCREEN, ALWAYS FOLLOW THESE STEPS:
          *
-         *    Check the ROOT/data/log/syslog (or exception log if you have single_log
+         *    Check the PATH_ROOT/data/log/syslog (or exception log if you have single_log
          *    disabled). In here you can find 99% of the issues
          *
          *    If the syslog did not contain information, then check your apache / nginx
@@ -1494,7 +1494,7 @@ class Core {
                                 Log::error($e->getMessage());
                             }
 
-                            Web::die(tr('System startup exception. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
+                            Web::die(tr('System startup exception. Please check your PATH_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
                         }
 
                         if ($e->getCode() === 'validation') {
@@ -1639,7 +1639,7 @@ class Core {
                     Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
                     Log::error($f->getMessage());
                     Log::error($f->getTrace());
-                    die('System startup exception with handling failure. Please check your ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
+                    die('System startup exception with handling failure. Please check your PATH_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
                 }
 
                 Log::error('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!');
@@ -1678,7 +1678,7 @@ class Core {
             /*
              * Well, we tried. Here we just give up all together
              */
-            die("Fatal error. check ROOT/data/syslog, application server logs, or webserver logs for more information\n");
+            die("Fatal error. check PATH_ROOT/data/syslog, application server logs, or webserver logs for more information\n");
         }
     }
 
@@ -1798,8 +1798,8 @@ class Core {
          */
         $paths = array('/var/lib/data/',
             '/var/www/data/',
-            ROOT.'../data/',
-            ROOT.'../../data/'
+            PATH_ROOT.'../data/',
+            PATH_ROOT.'../../data/'
         );
 
         if (!empty($_SERVER['HOME'])) {
@@ -2069,7 +2069,7 @@ class Core {
             }
 
             // Execute the process
-            Processes::create(ROOT . '/cli')
+            Processes::create(PATH_ROOT . '/cli')
                 ->setWait(1)
                 ->setTimeout(self::readRegister('system', 'timeout'))
                 ->setArguments($arguments)
@@ -2317,8 +2317,8 @@ class Core {
                     // TODO Implement alternative session handlers
                     switch (Config::get('web.sessions.handler', false)) {
                         case false:
-                            Path::ensure(ROOT.'data/cookies/');
-                            ini_set('session.save_path', ROOT.'data/cookies/');
+                            Path::ensure(PATH_ROOT.'data/cookies/');
+                            ini_set('session.save_path', PATH_ROOT.'data/cookies/');
                             break;
 
                         case 'sql':
@@ -2358,7 +2358,7 @@ class Core {
                                     // Received cookie but it didn't pass. Start a new session without a cookie
                                     session_start();
 
-                                } elseif (!file_exists(ROOT.'data/cookies/sess_'.$_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')])) {
+                                } elseif (!file_exists(PATH_ROOT.'data/cookies/sess_'.$_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')])) {
                                     /*
                                      * Cookie code is valid, but it doesn't exist.
                                      *

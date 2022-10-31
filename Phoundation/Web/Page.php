@@ -84,7 +84,7 @@ class Page
         } else {
             if ($attachment) {
                 // Upload the file to the client as an attachment
-                $target = File::absolutePath(Strings::unslash($target), ROOT.'www/');
+                $target = File::absolutePath(Strings::unslash($target), PATH_ROOT.'www/');
 
                 Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
 

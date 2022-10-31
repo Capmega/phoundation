@@ -64,11 +64,11 @@ function wget($params) {
         }
 
         if (empty($params['file'])) {
-            Path::ensure(TMP);
+            Path::ensure(PATH_TMP);
             $params['file'] = file_temp(false);
         }
 
-        safe_exec(array('commands' => array('wget', array('-O', $params['file'], $params['url'], 'redirect' => ' >> '.ROOT.'data/log/syslog'))));
+        safe_exec(array('commands' => array('wget', array('-O', $params['file'], $params['url'], 'redirect' => ' >> '.PATH_ROOT.'data/log/syslog'))));
     	return $params['file'];
 
     }catch(Exception $e) {

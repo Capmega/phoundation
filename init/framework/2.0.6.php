@@ -12,7 +12,7 @@ if (git_is_available() and git_is_repository()) {
 
 log_console(tr('Cleaning up garbage (Old library handler files)'), 'cyan', false);
 
-foreach (scandir(ROOT.'libs/handlers') as $file) {
+foreach (scandir(PATH_ROOT.'libs/handlers') as $file) {
     if (($file == '.') or ($file == '..')) {
         continue;
     }
@@ -22,7 +22,7 @@ foreach (scandir(ROOT.'libs/handlers') as $file) {
      * Remove files with _
      */
     if (preg_match('/^startup-.+/', $file) or preg_match('/.+_.+/', $file)) {
-        file_delete(ROOT.'libs/handlers/'.$file, ROOT.'libs/handlers');
+        file_delete(PATH_ROOT.'libs/handlers/'.$file, PATH_ROOT.'libs/handlers');
         cli_dot();
     }
 }

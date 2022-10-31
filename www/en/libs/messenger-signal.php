@@ -31,7 +31,7 @@ function template_library_init() {
     try {
         ensure_installed(array('name'      => 'template',
                                'callback'  => 'template_install',
-                               'checks'    => ROOT.'libs/external/template/template,'.ROOT.'libs/external/template/foobar',
+                               'checks'    => PATH_ROOT.'libs/external/template/template,'.PATH_ROOT.'libs/external/template/foobar',
                                'functions' => 'template,foobar',
                                'which'     => 'template,foobar'));
 

@@ -31,7 +31,7 @@ function calendars_library_init() {
     try {
         //ensure_installed(array('name'      => 'calendar',
         //                       'callback'  => 'calendars_install',
-        //                       'checks'    => ROOT.'libs/external/calendar/calendar,'.ROOT.'libs/external/calendar/foobar',
+        //                       'checks'    => PATH_ROOT.'libs/external/calendar/calendar,'.PATH_ROOT.'libs/external/calendar/foobar',
         //                       'functions' => 'calendar,foobar',
         //                       'which'     => 'calendar,foobar'));
 

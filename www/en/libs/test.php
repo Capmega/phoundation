@@ -32,9 +32,9 @@ function test_library_init() {
                                                              'test'    => array(),
                                                              'library' => array());
 
-        Path::ensure(ROOT.'data/tests/contents');
+        Path::ensure(PATH_ROOT.'data/tests/contents');
 
-        define('TESTPATH', ROOT.'data/tests/content/');
+        define('TESTPATH', PATH_ROOT.'data/tests/content/');
 
     }catch(Exception $e) {
         throw new CoreException('test_library_init(): Failed', $e);

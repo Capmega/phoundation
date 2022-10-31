@@ -25,7 +25,7 @@ try {
     }
 
     /*
-     * Ensure that all scripts are executed from ROOT/scripts/
+     * Ensure that all scripts are executed from PATH_ROOT/scripts/
      *
      * Ensure that all arguments contain the environment specification
      */
@@ -40,7 +40,7 @@ try {
                 throw new CoreException(tr('script_exec(): Invalid commands structure specified, entry ":id" is an ":datatype" while it should be a string. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
             }
 
-            $item = ROOT.'scripts/'.$item;
+            $item = PATH_ROOT.'scripts/'.$item;
 
         } else {
             /*

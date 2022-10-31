@@ -34,7 +34,7 @@ test('isset_get()', 'Function call should return alternative value if the specif
 
 // safe_exec() tests
 test('safe_exec()', 'Function call should return this file name', function() {
-    if (substr(safe_exec('ls '.ROOT.'scripts/tests/system')[0], -20, 20) != 'scripts/tests/system') {
+    if (substr(safe_exec('ls '.PATH_ROOT.'scripts/tests/system')[0], -20, 20) != 'scripts/tests/system') {
         throw new CoreException('Did not return filename "system"');
     }
 });
@@ -58,7 +58,7 @@ test('safe_exec()', 'Function call which causes error exit code should NOT cause
 test('load_content()', 'Function call should create content file in correct location', function() {
     load_content('html/test', array('###TEST###'), array("TEST"));
 
-    $file = ROOT.'data/content/en/html/test.html';
+    $file = PATH_ROOT.'data/content/en/html/test.html';
 
     if (!file_exists($file)) {
         throw new CoreException('Did not create file in correct location');
@@ -81,7 +81,7 @@ test('load_content()', 'Function call should detect missing markers', function()
         /*
          * W00T, correct!
          */
-        file_clear_path(ROOT.'data/content/en/html/test.html', ROOT.'data/content');
+        file_clear_path(PATH_ROOT.'data/content/en/html/test.html', PATH_ROOT.'data/content');
     }
 });
 ?>

@@ -32,14 +32,14 @@
 ///*
 // * Define project paths.
 // *
-// * ROOT   is the root directory of this project and should be used as the root for all other paths
-// * TMP    is a private temporary directory
-// * PUBTMP is a public (accessible by web server) temporary directory
+// * PATH_ROOT   is the root directory of this project and should be used as the root for all other paths
+// * PATH_TMP    is a private temporary directory
+// * PATH_PUBTMP is a public (accessible by web server) temporary directory
 // */
-//define('ROOT'  , realpath(__DIR__.'/../../..').'/');
-//define('TMP'   , ROOT.'data/tmp/');
-//define('PUBTMP', ROOT.'data/content/tmp/');
-//define('CRLF'  , "\r\n");
+//define('PATH_ROOT'  , realpath(__DIR__.'/../../..').'/');
+//define('PATH_TMP'   , PATH_ROOT.'data/tmp/');
+//define('PATH_PUBTMP', PATH_ROOT.'data/content/tmp/');
+//define('PHP_EOL'  , "\r\n");
 //
 //
 //
@@ -49,7 +49,7 @@
 // *
 // * Load system library and initialize core
 // */
-//include_once(ROOT.'config/project.php');
+//include_once(PATH_ROOT.'config/project.php');
 //
 //
 //
@@ -79,8 +79,8 @@
 //            define('PLATFORM_HTTP', false);
 //            define('PLATFORM_CLI' , true);
 //
-//            $file = realpath(ROOT.'scripts/'.Strings::from($argv[0], 'scripts/'));
-//            $file = Strings::from($file, ROOT.'scripts/');
+//            $file = realpath(PATH_ROOT.'scripts/'.Strings::from($argv[0], 'scripts/'));
+//            $file = Strings::from($file, PATH_ROOT.'scripts/');
 //
 //            $core->register['script_file'] = $file;
 //            $core->register['script']      = Strings::fromReverse($file, '/');
@@ -327,7 +327,7 @@
 //            if (!defined('SEED') or !SEED or (PROJECTCODEVERSION == '0.0.0')) {
 //                if ($core->register['script'] !== 'setup') {
 //                    if (!FORCE) {
-//                        throw new CoreException(tr('startup: Project data in "ROOT/config/project.php" has not been fully configured. Please ensure that PROJECT is not empty, SEED is not empty, and PROJECTCODEVERSION is valid and not "0.0.0"'), 'project-not-setup');
+//                        throw new CoreException(tr('startup: Project data in "PATH_ROOT/config/project.php" has not been fully configured. Please ensure that PROJECT is not empty, SEED is not empty, and PROJECTCODEVERSION is valid and not "0.0.0"'), 'project-not-setup');
 //                    }
 //                }
 //            }
@@ -925,7 +925,7 @@
 //
 //
 ///*
-// * Load external library files. All external files must be loaded in ROOT/www/en/libs/external/ and must be specified without that path, with their extension
+// * Load external library files. All external files must be loaded in PATH_ROOT/www/en/libs/external/ and must be specified without that path, with their extension
 // *
 // * Examples:
 // * load_external('Twilio/autoload.php');
@@ -945,7 +945,7 @@
 //function load_external($files) {
 //    try {
 //        foreach (Arrays::force($files) as $file) {
-//            include_once(ROOT.'www/en/libs/external/'.$files);
+//            include_once(PATH_ROOT.'www/en/libs/external/'.$files);
 //        }
 //
 //    }catch(Exception $e) {
@@ -1053,8 +1053,8 @@
 //
 ///*
 // * Load specified configuration files. All files must be specified by their section name only, no extension nor environment.
-// * The function will then load the files ROOT/config/base/NAME.php, ROOT/config/base/production_NAME.php, and on non "production" environments, ROOT/config/base/ENVIRONMENT_NAME.php
-// * For example, if you want to load the "fprint" configuration, use load_config('fprint'); The function will load ROOT/config/base/fprint.php, ROOT/config/base/production_fprint.php, and on (for example) the "local" environment, ROOT/config/base/local_fprint.php
+// * The function will then load the files PATH_ROOT/config/base/NAME.php, PATH_ROOT/config/base/production_NAME.php, and on non "production" environments, PATH_ROOT/config/base/ENVIRONMENT_NAME.php
+// * For example, if you want to load the "fprint" configuration, use load_config('fprint'); The function will load PATH_ROOT/config/base/fprint.php, PATH_ROOT/config/base/production_fprint.php, and on (for example) the "local" environment, PATH_ROOT/config/base/local_fprint.php
 // *
 // * Examples:
 // * load_config('fprint');
@@ -1076,9 +1076,9 @@
 //
 //    try {
 //        if (!$paths) {
-//            $paths = array(ROOT.'config/base/',
-//                           ROOT.'config/production',
-//                           ROOT.'config/'.ENVIRONMENT);
+//            $paths = array(PATH_ROOT.'config/base/',
+//                           PATH_ROOT.'config/production',
+//                           PATH_ROOT.'config/'.ENVIRONMENT);
 //        }
 //
 //        $files = Arrays::force($files);
@@ -1159,31 +1159,31 @@
 //        }
 //
 //        if ($file === 'deploy') {
-//            include(ROOT.'config/deploy.php');
+//            include(PATH_ROOT.'config/deploy.php');
 //            return $_CONFIG;
 //        }
 //
 //        if ($file) {
-//            if (file_exists(ROOT.'config/base/'.$file.'.php')) {
+//            if (file_exists(PATH_ROOT.'config/base/'.$file.'.php')) {
 //                $loaded = true;
-//                include(ROOT.'config/base/'.$file.'.php');
+//                include(PATH_ROOT.'config/base/'.$file.'.php');
 //            }
 //
 //            $file = '_'.$file;
 //
 //        } else {
 //            $loaded = true;
-//            include(ROOT.'config/base/default.php');
+//            include(PATH_ROOT.'config/base/default.php');
 //        }
 //
-//        if (file_exists(ROOT.'config/production'.$file.'.php')) {
+//        if (file_exists(PATH_ROOT.'config/production'.$file.'.php')) {
 //            $loaded = true;
-//            include(ROOT.'config/production'.$file.'.php');
+//            include(PATH_ROOT.'config/production'.$file.'.php');
 //        }
 //
-//        if (file_exists(ROOT.'config/'.$environment.$file.'.php')) {
+//        if (file_exists(PATH_ROOT.'config/'.$environment.$file.'.php')) {
 //            $loaded = true;
-//            include(ROOT.'config/'.$environment.$file.'.php');
+//            include(PATH_ROOT.'config/'.$environment.$file.'.php');
 //        }
 //
 //        if (empty($loaded)) {
@@ -1205,7 +1205,7 @@
 // * NOTE: This function as currently is, is actually NOT YET safe, its still a partial work in progress!
 // *
 // * Examples:
-// * safe_exec('rm '.ROOT.'data/log/test', '1,2')
+// * safe_exec('rm '.PATH_ROOT.'data/log/test', '1,2')
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 // * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -1305,7 +1305,7 @@
 //        /*
 //         * Check if content file exists
 //         */
-//        $realfile = realpath(ROOT.'data/content/'.$language.cfm($file).'.html');
+//        $realfile = realpath(PATH_ROOT.'data/content/'.$language.cfm($file).'.html');
 //
 //        if ($realfile) {
 //            /*
@@ -1329,7 +1329,7 @@
 //            return $return;
 //        }
 //
-//        $realfile = ROOT.'data/content/'.cfm($language).'/'.cfm($file).'.html';
+//        $realfile = PATH_ROOT.'data/content/'.cfm($language).'/'.cfm($file).'.html';
 //
 //        /*
 //         * From here, the file does not exist.
@@ -1935,10 +1935,10 @@
 //         * Write log entries
 //         */
 //        if (empty($h[$file])) {
-//            Path::ensure(ROOT.'data/log');
+//            Path::ensure(PATH_ROOT.'data/log');
 //
 //            try {
-//                $h[$file] = @fopen(ROOT.'data/log/'.$file, 'a+');
+//                $h[$file] = @fopen(PATH_ROOT.'data/log/'.$file, 'a+');
 //
 //            }catch(Exception $e) {
 //                throw new CoreException(tr('log_file(): Failed to open logfile ":file" to store messages ":messages"', array(':file' => $file, ':messages' => $messages)), $e);
@@ -2003,7 +2003,7 @@
 //            throw new CoreException('log_file(): Failed before $file was determined', $e, array('message' => $messages));
 //        }
 //
-//        if (!is_writable(Strings::slash(ROOT.'data/log').$file)) {
+//        if (!is_writable(Strings::slash(PATH_ROOT.'data/log').$file)) {
 //            if (PLATFORM_HTTP) {
 //                error_log(tr('log_file() failed because log file ":file" is not writable', array(':file' => $file)));
 //            }
@@ -2026,7 +2026,7 @@
 //            /*
 //             * We cannot write to the log file
 //             */
-//            throw new CoreException(tr('log_file(): Failed to write to log, permission denied to write to log file ":file". Please ensure the correct write permissions for this file and the ROOT/data/log directory in general', array(':file' => Strings::cut($message, 'fopen(', ')'))), 'warning');
+//            throw new CoreException(tr('log_file(): Failed to write to log, permission denied to write to log file ":file". Please ensure the correct write permissions for this file and the PATH_ROOT/data/log directory in general', array(':file' => Strings::cut($message, 'fopen(', ')'))), 'warning');
 //        }
 //
 //        throw new CoreException('log_file(): Failed', $e, array('message' => $messages));
@@ -2401,7 +2401,7 @@
 ///*
 // * Download the specified single file to the specified path
 // *
-// * If the path is not specified then by default the function will download to the TMP directory; ROOT/data/tmp
+// * If the path is not specified then by default the function will download to the PATH_TMP directory; PATH_ROOT/data/tmp
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 // * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -2412,13 +2412,13 @@
 // * @version 2.0.3: Added function and documentation
 // * @example This shows how to download a single file
 // * code
-// * $result = download('https://capmega.com', TMP);
+// * $result = download('https://capmega.com', PATH_TMP);
 // * showdie($result);
 // * /code
 // *
 // * This would display
 // * code
-// * ROOT/data/tmp/capmega.com
+// * PATH_ROOT/data/tmp/capmega.com
 // * /code
 // *
 // * @param string $url The URL of the file to be downloaded
@@ -3367,7 +3367,7 @@
 //
 //        switch (Core::getCallType()) {
 //            case 'ajax':
-//                $include = ROOT.'www/'.$language.'/ajax/'.$pagename.'.php';
+//                $include = PATH_ROOT.'www/'.$language.'/ajax/'.$pagename.'.php';
 //
 //                if (isset_get($params['exists'])) {
 //                    return file_exists($include);
@@ -3380,7 +3380,7 @@
 //                return include($include);
 //
 //            case 'api':
-//                $include = ROOT.'www/api/'.(is_numeric($pagename) ? 'system/' : '').$pagename.'.php';
+//                $include = PATH_ROOT.'www/api/'.(is_numeric($pagename) ? 'system/' : '').$pagename.'.php';
 //
 //                if (isset_get($params['exists'])) {
 //                    return file_exists($include);
@@ -3398,7 +3398,7 @@
 //
 //            default:
 //                if (is_numeric($pagename)) {
-//                    $include = ROOT.'www/'.$language.isset_get($admin).'/system/'.$pagename.'.php';
+//                    $include = PATH_ROOT.'www/'.$language.isset_get($admin).'/system/'.$pagename.'.php';
 //
 //                    if (isset_get($params['exists'])) {
 //                        return file_exists($include);
@@ -3413,7 +3413,7 @@
 //                    usleep(mt_rand(1, 250));
 //
 //                } else {
-//                    $include = ROOT.'www/'.$language.isset_get($admin).'/'.$pagename.'.php';
+//                    $include = PATH_ROOT.'www/'.$language.isset_get($admin).'/'.$pagename.'.php';
 //
 //                    if (isset_get($params['exists'])) {
 //                        return file_exists($include);
@@ -3897,7 +3897,7 @@
 //         */
 //        if ($delete) {
 //            foreach ($files as $url => $file) {
-//                file_delete($file, ROOT);
+//                file_delete($file, PATH_ROOT);
 //            }
 //        }
 //
@@ -4422,7 +4422,7 @@
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
-// * @note While log_console() will log towards the ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
+// * @note While log_console() will log towards the PATH_ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
 // * @see Strings::Log()
 // * @example
 // * code
@@ -4505,7 +4505,7 @@
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
-// * @note While log_console() will log towards the ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
+// * @note While log_console() will log towards the PATH_ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
 // * @see Strings::Log()
 // * @example
 // * code
@@ -4758,7 +4758,7 @@
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
-// * @note While log_console() will log towards the ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
+// * @note While log_console() will log towards the PATH_ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
 // * @see log_console()
 // * @example
 // * code

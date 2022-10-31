@@ -726,7 +726,7 @@ function http_done() {
         if (!isset($core)) {
             /*
              * We died very early in startup. For more information see either
-             * the ROOT/data/log/syslog file, or your webserver log file
+             * the PATH_ROOT/data/log/syslog file, or your webserver log file
              */
             die('Exception: See log files');
         }

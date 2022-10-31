@@ -541,7 +541,7 @@ under_construction('add');
                         $task['results'] = safe_exec(array('ok_exitcodes' => '0',
                                                            'function'     => null,
                                                            'timeout'      => $task['timeout'],
-                                                           'commands'     => array(ROOT.'scripts/'.$command, $arguments)));
+                                                           'commands'     => array(PATH_ROOT.'scripts/'.$command, $arguments)));
                         break;
 
                     case 'function':

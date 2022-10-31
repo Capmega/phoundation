@@ -10,7 +10,7 @@ load_libs('test');
 /*
  * Empty command line arguments so that
  */
-$path     = ROOT.'scripts/tests/';
+$path     = PATH_ROOT.'scripts/tests/';
 $argv     = array();
 $skiplist = array('.',
                   '..',

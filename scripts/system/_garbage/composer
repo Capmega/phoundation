@@ -41,7 +41,7 @@ switch (cli_method()) {
 
     case 'list':
         safe_exec(array('function' => 'passthru',
-                        'commands' => array('cd' , array(ROOT),
+                        'commands' => array('cd' , array(PATH_ROOT),
                                             'php', array($composer, 'list'))));
         break;
 
@@ -56,7 +56,7 @@ switch (cli_method()) {
         $arguments = array_merge($arguments, $query);
 
         safe_exec(array('function' => 'passthru',
-                        'commands' => array('cd' , array(ROOT),
+                        'commands' => array('cd' , array(PATH_ROOT),
                                             'php', $arguments)));
         break;
 
@@ -72,7 +72,7 @@ switch (cli_method()) {
         $arguments[] = '--all';
 
         safe_exec(array('function' => 'passthru',
-                        'commands' => array('cd' , array(ROOT),
+                        'commands' => array('cd' , array(PATH_ROOT),
                                             'php', $arguments)));
         break;
 

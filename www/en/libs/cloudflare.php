@@ -171,10 +171,10 @@ function cf_install_apache_module() {
         passthru('sudo apt-get update && sudo apt-get -y install libtool apache2-dev', $return);
 
         if ($return == 0) {
-            passthru('wget -O '.TMP.'mod_cloudflare.c https://www.cloudflare.com/static/misc/mod_cloudflare/mod_cloudflare.c', $return);
+            passthru('wget -O '.PATH_TMP.'mod_cloudflare.c https://www.cloudflare.com/static/misc/mod_cloudflare/mod_cloudflare.c', $return);
 
             if ($return == 0) {
-                passthru('sudo apxs -a -i -c '.TMP.'mod_cloudflare.c', $return);
+                passthru('sudo apxs -a -i -c '.PATH_TMP.'mod_cloudflare.c', $return);
 
                 if ($return == 0) {
                     passthru('sudo service apache2 restart');

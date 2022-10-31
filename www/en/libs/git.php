@@ -54,7 +54,7 @@ function git_library_init() {
  * @param string $path The path to be checked
  * @return boolean True if the specified path is part of a git repository, false if not
  */
-function git_is_repository($path = ROOT) {
+function git_is_repository($path = PATH_ROOT) {
     try {
         return (boolean) git_check_path($path, false);
 
@@ -110,7 +110,7 @@ function git_check_path($path, $exception = true) {
         }
 
         if (!$path) {
-            $path = ROOT;
+            $path = PATH_ROOT;
         }
 
         if (!file_exists($path)) {
@@ -319,7 +319,7 @@ function git_apply($file) {
  * @param string $path
  * @return
  */
-function git_branch($branch = null, $path = ROOT) {
+function git_branch($branch = null, $path = PATH_ROOT) {
     try {
         if ($branch) {
             /*
@@ -365,7 +365,7 @@ function git_branch($branch = null, $path = ROOT) {
  * @param boolean $all If set to true, list both remote-tracking branches and local branches.
  * @return array All available branches on the specified git project path
  */
-function git_list_branches($path = ROOT, $all = false) {
+function git_list_branches($path = PATH_ROOT, $all = false) {
     try {
         /*
          * Get and return the branch
@@ -406,7 +406,7 @@ function git_list_branches($path = ROOT, $all = false) {
  * @param boolean $create
  * @return
  */
-function git_checkout($branch = null, $path = ROOT, $create = false) {
+function git_checkout($branch = null, $path = PATH_ROOT, $create = false) {
     try {
         if ($branch) {
             $results = git_exec($path, array('checkout', ($create ? ' -B ' : ''), $branch));
@@ -445,7 +445,7 @@ function git_checkout($branch = null, $path = ROOT, $create = false) {
  * @param boolean $force
  * @return
  */
-function git_clean($path = ROOT, $directories = false, $force = false) {
+function git_clean($path = PATH_ROOT, $directories = false, $force = false) {
     try {
         $results = git_exec($path, array('clean', ($directories ? ' -d' : ''), ($force ? ' -f' : '')));
         return $results;
@@ -534,7 +534,7 @@ function git_diff($file, $color = false) {
  * @param string $path
  * @return
  */
-function git_show($commit, $path = ROOT, $params = null) {
+function git_show($commit, $path = PATH_ROOT, $params = null) {
     try {
         Arrays::ensure($params, 'check');
 
@@ -569,7 +569,7 @@ function git_show($commit, $path = ROOT, $params = null) {
  * @param params $params
  * @return
  */
-function git_fetch($path = ROOT, $params = null) {
+function git_fetch($path = PATH_ROOT, $params = null) {
     try {
         Arrays::ensure($params, 'tags,all');
 
@@ -636,7 +636,7 @@ under_construction();
  * @param string $branch
  * @return
  */
-function git_branch_is_tag($branch = null, $path = ROOT) {
+function git_branch_is_tag($branch = null, $path = PATH_ROOT) {
     try {
         $tags     = git_list_tags($path);
         $branches = git_list_branches($path);
@@ -685,7 +685,7 @@ function git_branch_is_tag($branch = null, $path = ROOT) {
  * @param string $branch
  * @return
  */
-function git_pull($path = ROOT, $remote, $branch) {
+function git_pull($path = PATH_ROOT, $remote, $branch) {
     try {
         $results = git_exec($path, array('pull', $remote, $branch));
 
@@ -713,7 +713,7 @@ function git_pull($path = ROOT, $remote, $branch) {
  * @param boolean $tags
  * @return
  */
-function git_push($path = ROOT, $remote = null, $branch = null, $tags = true) {
+function git_push($path = PATH_ROOT, $remote = null, $branch = null, $tags = true) {
     try {
         if ($branch and !$remote) {
             throw new CoreException(tr('git_push(): Branch ":branch" was specified without remote', array(':branch' => $branch)), 'invalid');
@@ -748,7 +748,7 @@ function git_push($path = ROOT, $remote = null, $branch = null, $tags = true) {
  * @param null string $commit
  * @return
  */
-function git_reset($commit = 'HEAD', $path = ROOT, $params = null) {
+function git_reset($commit = 'HEAD', $path = PATH_ROOT, $params = null) {
     try {
         $file = $path;
 
@@ -787,7 +787,7 @@ function git_reset($commit = 'HEAD', $path = ROOT, $params = null) {
  * @param null array $filters
  * @return
  */
-function git_status($path = ROOT, $filters = null) {
+function git_status($path = PATH_ROOT, $filters = null) {
     try {
         /*
          * Check if we dont have any changes that should be committed first
@@ -892,7 +892,7 @@ function git_status($path = ROOT, $filters = null) {
  * @param string $path
  * @return array The available tags for the specified git repository
  */
-function git_list_tags($path = ROOT) {
+function git_list_tags($path = PATH_ROOT) {
     try {
         /*
          * Check if we dont have any changes that should be committed first
@@ -920,7 +920,7 @@ function git_list_tags($path = ROOT) {
  * @param string $path
  * @return
  */
-function git_stash($path = ROOT) {
+function git_stash($path = PATH_ROOT) {
     try {
         $results_add   = git_exec($path, array('add', '.'));
         $results_stash = git_exec($path, array('stash'));
@@ -947,7 +947,7 @@ function git_stash($path = ROOT) {
  * @param string $path
  * @return
  */
-function git_stash_pop($path = ROOT) {
+function git_stash_pop($path = PATH_ROOT) {
     try {
         $results_pop   = git_exec($path, array('stash', 'pop'));
         $results_reset = git_exec($path, array('reset', 'HEAD'));
@@ -974,7 +974,7 @@ function git_stash_pop($path = ROOT) {
  * @param string $path
  * @return
  */
-function git_add($path = ROOT) {
+function git_add($path = PATH_ROOT) {
     try {
         if (is_dir($path)) {
             $results = git_exec($path, array('add', $path));
@@ -1004,7 +1004,7 @@ function git_add($path = ROOT) {
  * @param string $path
  * @return
  */
-function git_commit($message, $path = ROOT) {
+function git_commit($message, $path = PATH_ROOT) {
     try {
         $results = git_exec($path, array('commit', '-m', $message));
 

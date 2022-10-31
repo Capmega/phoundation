@@ -25,14 +25,14 @@ if (!$database) {
     throw new CoreException(tr('No database specified'), 'not-specified');
 }
 
-Path::ensure(TMP.'dropload');
-Path::ensure(ROOT.'data/backups/databases');
+Path::ensure(PATH_TMP.'dropload');
+Path::ensure(PATH_ROOT.'data/backups/databases');
 
 if ($table) {
     /*
      * Dump a temp from the table, and a complete backup of the entire database
      */
-    $file = TMP.'dropload/'.$database.'.'.$table.'.sql';
+    $file = PATH_TMP.'dropload/'.$database.'.'.$table.'.sql';
     file_delete($file);
 
     log_console('Dumping table ":table" from database ":database"', array(':table' => $table, ':database' => $database), 'cyan');
@@ -42,7 +42,7 @@ if ($table) {
     /*
      * Dump a temp from the table, and a complete backup of the entire database
      */
-    $file = TMP.'tables/'.$database.'.sql';
+    $file = PATH_TMP.'tables/'.$database.'.sql';
     file_delete($file);
 
     log_console(tr('Dumping database ":database"', array(':database' => $database)), 'cyan');
@@ -52,7 +52,7 @@ if ($table) {
 if ($backup) {
     log_console(tr('Creating extra backup of database ":database" in data/backups/databases', array(':database' => $database)), 'cyan');
     safe_exec(array('commands' => array('mysqldump', array('-u', $user, '-p'.$password, '--database', $database, 'connector' =>'|'),
-                                        'gzip'     , array('redirect' => ' > '.ROOT.'data/backups/databases/'.$database.'.'.$time.'.sql.gz'))));
+                                        'gzip'     , array('redirect' => ' > '.PATH_ROOT.'data/backups/databases/'.$database.'.'.$time.'.sql.gz'))));
 }
 
 if ($table) {

@@ -144,7 +144,7 @@ function cache_read_file($key, $namespace = null) {
             $namespace = Strings::slash($namespace);
         }
 
-        if (!file_exists($file = ROOT.'data/cache/'.$namespace.$key)) {
+        if (!file_exists($file = PATH_ROOT.'data/cache/'.$namespace.$key)) {
             return false;
         }
 
@@ -251,7 +251,7 @@ function cache_write_file($value, $key, $namespace = null) {
             $namespace = Strings::slash($namespace);
         }
 
-        $file = ROOT.'data/cache/'.$namespace.$key;
+        $file = PATH_ROOT.'data/cache/'.$namespace.$key;
 
         Path::ensure(dirname($file), 0770);
         file_put_contents($file, $value);

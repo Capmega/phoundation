@@ -10,7 +10,7 @@ load_libs('test');
 ///*
 // * Test script_exec()
 // */
-//test('script_exec()', 'Execute a Phoundation script confined to ROOT/scripts', function() {
+//test('script_exec()', 'Execute a Phoundation script confined to PATH_ROOT/scripts', function() {
 //    $results = script_exec('tests/echo');
 //    $results = array_shift($results);
 //

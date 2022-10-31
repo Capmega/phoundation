@@ -8,7 +8,7 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
- * @note Use the routing table in ROOT/www/route.php to route the redirect URL's to sso.php
+ * @note Use the routing table in PATH_ROOT/www/route.php to route the redirect URL's to sso.php
  * @package sso
  */
 $_CONFIG['sso']                                                                 = array('cache_config' => 86400,        // Default time for how long an SSO authorization can be cached and does not require to be done again

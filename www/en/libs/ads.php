@@ -351,7 +351,7 @@ function ads_image_process($ad, $file, $original = null) {
         /*
          *
          */
-        $prefix = ROOT.'data/content/photos/';
+        $prefix = PATH_ROOT.'data/content/photos/';
         $file   = $campaign['id'].'/'.file_move_to_target($file, $prefix.$campaign['id'].'/', '-original.jpg', false, 4);
         $media  = Strings::untilReverse($file, '-');
         //$types  = $_CONFIG['blogs']['images'];

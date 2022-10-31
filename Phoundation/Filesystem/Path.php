@@ -157,7 +157,7 @@ class Path
      */
     public static function temp(bool|string $create = true, bool $limit_to_session = true) : string
     {
-        Path::ensure(TMP);
+        Path::ensure(PATH_TMP);
 
         // Temp file will contain the session ID
         if ($limit_to_session) {
@@ -172,7 +172,7 @@ class Path
             $name = substr(hash('sha1', uniqid().microtime()), 0, 12);
         }
 
-        $file = TMP.$name;
+        $file = PATH_TMP.$name;
 
         // Temp file can not exist
         if (file_exists($file)) {

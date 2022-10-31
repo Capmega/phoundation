@@ -79,14 +79,14 @@ class Web
 
         switch (Core::getCallType()) {
             case 'ajax':
-                $include = ROOT.'www/' . $language.'/ajax/' . $page.'.php';
+                $include = PATH_ROOT.'www/' . $language.'/ajax/' . $page.'.php';
 
                 // Execute ajax page
                 Log::notice(tr('Showing ":language" language ajax page ":page"', [':page' => $page, ':language' => $language]));
                 return include($include);
 
             case 'api':
-                $include = ROOT.'www/api/'.(is_numeric($page) ? 'system/' : '').$page.'.php';
+                $include = PATH_ROOT.'www/api/'.(is_numeric($page) ? 'system/' : '').$page.'.php';
 
                 // Execute ajax page
                 Log::notice(tr('Showing ":language" language api page ":page"', [':page' => $page, ':language' => $language]));
@@ -98,7 +98,7 @@ class Web
 
             default:
                 if (is_numeric($page)) {
-                    $include = ROOT.'www/' . $language.isset_get($admin).'/system/' . $page.'.php';
+                    $include = PATH_ROOT.'www/' . $language.isset_get($admin).'/system/' . $page.'.php';
 
                     Log::notice(tr('Showing ":language" language system page ":page"', [':page' => $page, ':language' => $language]));
 
@@ -106,7 +106,7 @@ class Web
                     usleep(mt_rand(1, 250));
 
                 } else {
-                    $include = ROOT.'www/' . $language.isset_get($admin).'/' . $page.'.php';
+                    $include = PATH_ROOT.'www/' . $language.isset_get($admin).'/' . $page.'.php';
                     Log::notice(tr('Showing ":language" language http page ":page"', [':page' => $page, ':language' => $language]));
                 }
 
