@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
+use Phoundation\Web\Page;
 
 /**
  * Class Element
@@ -431,6 +432,18 @@ class Element
         $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', true);
 
         return '<' . $this->type. ' ' . $attributes . '>';
+    }
+
+
+
+    /**
+     * Render the element and place it directly into the page buffer
+     *
+     * @return void
+     */
+    public function buffer(): void
+    {
+        Page::buffer($this->render());
     }
 
 

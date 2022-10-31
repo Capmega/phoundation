@@ -3,18 +3,21 @@
 namespace Phoundation\Web;
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Cache\Cache;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Web\Exception\RouteException;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
+
 
 
 /**
  * Class Page
  *
- *
+ * This class contains methods to assist in building web pages
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -23,6 +26,29 @@ use Phoundation\Web\Http\Http;
  */
 class Page
 {
+    /**
+     * Information that goes into the HTML header
+     *
+     * @var array $headers
+     */
+    protected $headers = [];
+
+    /**
+     * Information that goes into the HTML footer
+     *
+     * @var array $footers
+     */
+    protected $footers = [];
+
+//    /**
+//     * Javascript files that will be loaded starting at the footer of the page
+//     *
+//     * @var array $footer_scripts
+//     */
+//    protected array $footer_scripts = [];
+
+
+
     /**
      * Process the routed target
      *
@@ -63,7 +89,7 @@ class Page
                 Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
 
                 Http::file($restrictions)
-                    ->setAttachment($attachment)
+                    ->setAttachment(true)
                     ->setFile($target)
                     ->setFilename(basename($target))
                     ->send();
@@ -90,11 +116,62 @@ class Page
 
 
     /**
+     * Place the specified data directly into the output buffer
+     *
+     * @param string $data
+     * @return int The length of the output buffer
+     */
+    public static function buffer(string $data): int
+    {
+        echo $data;
+        return ob_get_length();
+    }
+
+
+
+    /**
      * Send the current buffer to the client
      *
      * @return void
      */
     public static function send(): void
+    {
+
+        self::$html  = Html::buildHeaders();
+        self::$html .= Html::buildFooters();
+        self::$html .= self::buildHeaders();
+        self::$html .= self::buildFooters();
+
+        // Minify the output
+        self::$html = Html::minify(self::$html);
+
+        Http::sendHeaders();
+        Cache::writePage(self::$html, self::$unique_key);
+
+        // Send HTML to the client
+        echo self::$html;
+    }
+
+
+
+    /**
+     * Build and return the page headers
+     *
+     * @return string
+     */
+    protected static function buildHeaders(): string
+    {
+
+    }
+
+
+
+    /**
+     * Build and return the page footers
+     *
+     * @return string
+     */
+    protected static function buildFooters(): string
     {
 
     }

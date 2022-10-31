@@ -1307,4 +1307,42 @@ class Http
     {
         return new File($restrictions);
     }
+
+
+
+    /*
+     * Generate and return a randon name for the specified $name, and store the
+     * link between the two under "group"
+     */
+    public static function encodePostVariable(string $key)
+    {
+        static $translations = [];
+
+        if (!isset($translations[$name])) {
+            $translations[$name] = '__HT'.$name.'__'.substr(unique_code('sha256'), 0, 16);
+        }
+
+        return $translations[$name];
+    }
+
+
+
+    /*
+     * Return the $_POST value for the translated specified key
+     */
+    function untranslate() {
+        $count = 0;
+
+        foreach ($_POST as $key => $value) {
+            if (substr($key, 0, 4) == '__HT') {
+                $_POST[Strings::until(substr($key, 4), '__')] = $_POST[$key];
+                unset($_POST[$key]);
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+
 }

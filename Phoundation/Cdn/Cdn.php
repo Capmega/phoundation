@@ -1,5 +1,14 @@
 <?php
 
+namespace Phoundation\Cdn;
+
+
+
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Config;
+use Phoundation\Core\Log;
+use Phoundation\Exception\OutOfBoundsException;
+
 /**
  * Class Cdn
  *
@@ -12,70 +21,29 @@
  */
 class Cdn
 {
-    /*
+    /**
      * Adds the required amount of copies of the specified file to random CDN servers
+     *
+     * @param $files
+     * @param $section
+     * @param $group
+     * @param $delete
+     * @return false|int|null
      */
-    function cdn_add_files($files, $section = 'pub', $group = null, $delete = true)
+    function addFiles(string|array $files, string $section = 'pub', $group = null, bool $delete = true)
     {
-        global $_CONFIG;
+        if (!Config::get('cdn.enabled', true)) {
+            return false;
+        }
 
-        try {
-            if (!$_CONFIG['cdn']['enabled']) {
-                return false;
-            }
+        Log::action(tr('Adding files ":files" to CDN', [':files' => $files]));
 
-            log_file(tr('cdn_add_files(): Adding files ":files"', array(':files' => $files)), 'DEBUG/cdn');
+        if (!$section) {
+            throw new OutOfBoundsException(tr('No section specified'));
+        }
 
-            if (!$section) {
-                throw new OutOfBoundsException(tr('cdn_add_files(): No section specified'), 'not-specified');
-            }
-
-            if (!$files) {
-                throw new OutOfBoundsException(tr('cdn_add_files(): No files specified'), 'not-specified');
-            }
-
-            /*
-             * In what servers are we going to store these files?
-             */
-            $files = Arrays::force($files);
-            $servers = cdn_assign_servers();
-            $file_insert = sql_prepare('INSERT IGNORE INTO `cdn_files` (`servers_id`, `section`, `group`, `file`)
-                                    VALUES                         (:servers_id , :section , :group , :file )');
-
-            /*
-             * Register at what CDN servers the files will be uploaded, and send the
-             * files there
-             */
-            foreach ($servers as $servers_id => $server) {
-                foreach ($files as $url => $file) {
-                    log_file(tr('cdn_add_files(): Added file ":file" with url ":url" to CDN server ":server"', array(':file' => $file, ':url' => $url, ':server' => $server)), 'DEBUG/cdn');
-
-                    $file_insert->execute(array(':servers_id' => $servers_id,
-                        ':section' => $section,
-                        ':group' => $group,
-                        ':file' => Strings::startsWith($url, '/')));
-                }
-
-                /*
-                 * Send the files
-                 */
-                cdn_send_files($files, $server, $section, $group);
-            }
-
-            /*
-             * Now that the file has been sent to the CDN system delete the file
-             * locally
-             */
-            if ($delete) {
-                foreach ($files as $url => $file) {
-                    file_delete($file, ROOT);
-                }
-            }
-
-            return count($files);
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException('cdn_add_files(): Failed', $e);
+        if (!$files) {
+            throw new OutOfBoundsException(tr('No files specified'));
         }
     }
 

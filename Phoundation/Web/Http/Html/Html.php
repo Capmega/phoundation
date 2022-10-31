@@ -16,13 +16,28 @@ use Phoundation\Core\Arrays;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-Class Html {
+Class Html
+{
     /**
      * Keeps track of the tab index
      *
      * @var int $tabindex
      */
     protected static int $tabindex = 0;
+
+    /**
+     * Register for all HTML headers
+     *
+     * @var array $headers
+     */
+    protected static array $headers = [];
+
+    /**
+     * Register for all HTML footers
+     *
+     * @var array $footers
+     */
+    protected static array $footers = [];
 
 
 
@@ -35,6 +50,9 @@ Class Html {
     {
         return self::$tabindex++;
     }
+
+
+
     /**
      * Wrapper for htmlentities()
      *
@@ -49,6 +67,128 @@ Class Html {
 
 
 
+    /**
+     * Build and return the HTML headers
+     *
+     * @return string
+     */
+    public static function buildHeaders(): string
+    {
+        $return = '';
+
+        foreach (self::$headers as $header) {
+            $return .= $header;
+        }
+
+        return $return;
+    }
+
+
+
+    /**
+     * Build and return the HTML footers
+     *
+     * @return string
+     */
+    public static function buildFooters(): string
+    {
+        $return = '';
+
+        foreach (self::$footers as $footer) {
+            $return .= $footer;
+        }
+
+        return $return;
+    }
+
+
+
+    /**
+     * Minify and return the specified HTML
+     *
+     * @param string $html
+     * @return string
+     */
+    public static function minify(string $html): string
+    {
+        return Minifier::html($html);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * ???
+     *
+     * @param $html
+     * @param $filter
+     * @return mixed|string
+     */
     function iefilter($html, $filter) {
         if (!$filter) {
             return $html;
@@ -66,645 +206,6 @@ Class Html {
 
 
 
-    /*
-     * Bundles CSS or JS files together into one larger file with an md5 name
-     *
-     * This function will bundle the CSS and JS files required for the current page into one large file and have that one sent to the browser instead of all the individual files. This will improve transfer speeds to the client.
-     *
-     * The bundler file name will be a sha1() of the list of required files plus the current framework and project versions. This way, if two pages have two different lists of files, they will have two different bundle files. Also, as each deply causes at least a new project version, each deploy will also cause new bundle file names which simplifies caching for the client; we can simply set caching to a month or longer and never worry about it anymore.
-     *
-     * The bundler files themselves will also be cached (by default one day, see $_CONFIG[cdn][bundler][max_age]) in pub/css/bundler-* for CSS files and pub/js/bundler-* for javascript files. The cache script can clean these files when executed with the "clean" method
-     *
-     * This function is called automatically by the html_generate_css() and html_generate_js() calls and should not be used by the developer.
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     * @see html_generate_css()
-     * @see html_generate_js()
-     * @see html_minify()
-     * @version 1.27.0: Added documentation
-     * @version 2.6.16: Added CSS purge support
-     * @version 2.6.30: Fixed CSS purge temp files not being deleted
-     *
-     * @param string $list One of "css", "js_header", or "js_footer".  Specified what file list to bundle.  "css" bundles all CSS files, "js_header" bundles all files for the <script> tag in the <head> section, and "js_footer" bundles all files that go in the <script> tag of the footer of the HTML file
-     * @return boolean False if no bundling has been applied, true if bundling was applied
-     */
-    function bundler($list) {
-
-        if (!$_CONFIG['cdn']['bundler']) {
-            /*
-             * Bundler has been disabled
-             */
-            return false;
-        }
-
-        if ($list === 'css') {
-            $extension = 'css';
-
-        } else {
-            $extension = 'js';
-        }
-
-        /*
-         * Prepare bundle information. The bundle file name will be a hash of
-         * the bundle file names and the framework and project code versions.
-         * This way, if the framework version or code version get bumped up,
-         * the bundle filename will be different, avoiding caching issues. Since
-         * the deploy script will automatically bump the project version on
-         * deploy, each deploy will cause different bundle filenames. With this
-         * we can easily set caching to a year if needed, any updates to CSS or
-         * JS will cause the client browser to load the new bundle files.
-         */
-        $admin_path  = (Core::getCallType('admin') ? 'admin/'           : '');
-        $ext         = ($_CONFIG['cdn']['min']   ? '.min.'.$extension : '.'.$extension);
-        $bundle      =  Strings::force(array_keys($core->register[$list]));
-        $bundle      =  substr(sha1($bundle.Core::FRAMEWORKCODEVERSION.PROJECTCODEVERSION), 1, 16);
-        $path        =  ROOT.'www/'.LANGUAGE.'/'.$admin_path.'pub/'.$extension.'/';
-        $bundle_file =  $path.'bundle-'.$bundle.$ext;
-        $file_count  =  0;
-
-        /*
-         * If we don't find an existing bundle file, then procced with the
-         * concatination process
-         */
-        if (file_exists($bundle_file)) {
-            /*
-             * Ensure file is not 0 bytes. This might be caused due to a number
-             * of issues, but mainly due to disk full events. When this happens,
-             * the 0 bytes bundle files remain, leaving the site without CSS or
-             * JS
-             */
-            if (!filesize($bundle_file)) {
-                log_file(tr('Deleting empty bundle file ":file"', array(':file' => $bundle_file)), 'html-bundler', 'yellow');
-
-                File::executeMode(dirname($bundle_file), 0770, function() use ($bundle_file, $list) {
-                    file_delete($bundle_file, ROOT.'www/'.LANGUAGE.'/pub/');
-                });
-
-                return html_bundler($list);
-            }
-
-            /*
-             * Bundle files are essentially cached files. Ensure the cache is
-             * not too old
-             */
-            if (($_CONFIG['cdn']['cache_max_age'] > 60) and (filemtime($bundle_file) + $_CONFIG['cdn']['cache_max_age']) < time()) {
-                log_file(tr('Deleting expired cached bundle file ":file"', array(':file' => $bundle_file)), 'html-bundler', 'VERBOSE/yellow');
-
-                File::executeMode(dirname($bundle_file), 0770, function() use ($bundle_file, $list) {
-                    file_delete($bundle_file, ROOT.'www/'.LANGUAGE.'/pub/');
-                });
-
-                return html_bundler($list);
-            }
-
-            $core->register[$list] = array('bundle-'.$bundle => false);
-
-        } else {
-            /*
-             * Generate new bundle file. This requires the pub/$list path to be
-             * writable
-             */
-            File::executeMode(dirname($bundle_file), 0770, function() use ($list, &$file_count, $path, $ext, $extension, $bundle_file) {
-                global $core, $_CONFIG;
-
-                if (!empty($core->register[$list])) {
-                    foreach ($core->register[$list] as $file => $data) {
-                        /*
-                         * Check for @imports
-                         */
-                        $orgfile = $file;
-                        $file    = $path.$file.$ext;
-
-                        log_file(tr('Adding file ":file" to bundle file ":bundle"', array(':file' => $file, ':bundle' => $bundle_file)), 'bundler', 'VERYVERBOSE/cyan');
-
-                        if (!file_exists($file)) {
-                            Notification(array('code'    => 'not-exists',
-                                'groups'  => 'developers',
-                                'title'   => tr('Bundler file does not exist'),
-                                'message' => tr('html_bundler(): The requested ":extension" type file ":file" should be bundled but does not exist', array(':extension' => $extension, ':file' => $file))));
-                            continue;
-                        }
-
-                        $file_count++;
-
-                        $data = file_get_contents($file);
-                        unset($core->register[$list][$orgfile]);
-
-                        if ($extension === 'css') {
-// :TODO: ADD SUPPORT FOR RECURSIVE @IMPORT STATEMENTS!! What if the files that are imported with @import contain @import statements themselves!?!?!?
-                            if (preg_match_all('/@import.+?;/', $data, $matches)) {
-                                foreach ($matches[0] as $match) {
-                                    /*
-                                     * Inline replace each @import with the file
-                                     * contents
-                                     */
-// :CLEANUP:
-//                                if (preg_match('/@import\s?(?:url\()?((?:"?.+?"?)|(?:\'.+?\'))\)?/', $match)) {
-                                    if (preg_match('/@import\s"|\'.+?"|\'/', $match)) {
-// :TODO: What if specified URLs are absolute? WHat if start with either / or http(s):// ????
-                                        $import = Strings::cut($match, '"', '"');
-
-                                        if (!file_exists($path.$import)) {
-                                            Notification(array('code'    => 'not-exists',
-                                                'groups'  => 'developers',
-                                                'title'   => tr('Bundler file does not exist'),
-                                                'message' => tr('html_bundler(): The bundler ":extension" file ":import" @imported by file ":file" does not exist', array(':extension' => $extension, ':import' => $import, ':file' => $file))));
-
-                                            $import = '';
-
-                                        } else {
-                                            $import = file_get_contents($path.$import);
-                                        }
-
-                                    } elseif (preg_match('/@import\surl\(.+?\)/', $match)) {
-// :TODO: What if specified URLs are absolute? WHat if start with either / or http(s):// ????
-                                        /*
-                                         * This is an external URL. Get it locally
-                                         * as a temp file, then include
-                                         */
-                                        $import = Strings::cut($match, '(', ')');
-                                        $import = Strings::slash(dirname($file)).Strings::unslash($import);
-
-                                        if (!file_exists($import)) {
-                                            Notification(array('code'    => 'not-exists',
-                                                'groups'  => 'developers',
-                                                'title'   => tr('Bundler file does not exist'),
-                                                'message' => tr('html_bundler(): The bundler ":extension" file ":import" @imported by file ":file" does not exist', array(':extension' => $extension, ':import' => $import, ':file' => $file))));
-
-                                            $import = '';
-
-                                        } else {
-                                            $import = file_get_contents($import);
-                                        }
-                                    }
-
-                                    $data = str_replace($match, $import, $data);
-                                }
-                            }
-
-                            $count = substr_count($orgfile, '/');
-
-                            if ($count) {
-                                /*
-                                 * URL rewriting required, this file is not in
-                                 * /css or /js, and not in a sub dir
-                                 */
-                                if (preg_match_all('/url\((.+?)\)/', $data, $matches)) {
-                                    /*
-                                     * Rewrite all URL's to avoid relative URL's
-                                     * failing for files in sub directories
-                                     *
-                                     * e.g.:
-                                     *
-                                     * The bundle file is /pub/css/bundle-1.css,
-                                     * includes a css file /pub/css/foo/bar.css,
-                                     * bar.css includes an image 1.jpg that is
-                                     * in the same directory as bar.css with
-                                     * url("1.jpg")
-                                     *
-                                     * In the bundled file, this should become
-                                     * url("foo/1.jpg")
-                                     */
-                                    foreach ($matches[1] as $url) {
-                                        if (strtolower(substr($url, 0, 5)) == 'data:') {
-                                            /*
-                                             * This is inline data, nothing we can do so
-                                             * ignore
-                                             */
-                                            continue;
-                                        }
-
-                                        if (substr($url, 0, 1) == '/') {
-                                            /*
-                                             * Absolute URL, we can ignore these
-                                             * since they already point towards
-                                             * the correct path
-                                             */
-                                        }
-
-                                        if (preg_match('/https?:\/\//', $url)) {
-                                            /*
-                                             * Absolute domain, ignore because
-                                             * we cannot fix anything here
-                                             */
-                                            continue;
-                                        }
-
-                                        $data = str_replace($url, '"'.str_repeat('../', $count).$url.'"', $data);
-                                    }
-                                }
-                            }
-                        }
-
-                        if (Debug::enabled()) {
-                            file_append($bundle_file, "\n/* *** BUNDLER FILE \"".$orgfile."\" *** */\n".$data.($_CONFIG['cdn']['min'] ? '' : "\n"));
-
-                        } else {
-                            file_append($bundle_file, $data.($_CONFIG['cdn']['min'] ? '' : "\n"));
-                        }
-                    }
-
-                    if ($file_count) {
-                        chmod($bundle_file, $_CONFIG['file']['file_mode']);
-                    }
-                }
-            });
-
-            /*
-             * Only continue here if we actually added anything to the bundle
-             * (some bundles may not have anything, like js_header)
-             */
-            if ($file_count) {
-                $bundle = 'bundle-'.$bundle;
-
-                /*
-                 * Purge the file from duplicate content
-                 */
-                if ($list === 'css') {
-                    if ($_CONFIG['cdn']['css']['purge']) {
-                        try {
-                            load_libs('css');
-
-                            $html   = file_temp($core->register['html'], 'html');
-                            $bundle = css_purge($html, $bundle);
-
-                            log_file(tr('Purged not-used CSS rules from bundled file ":file"', array(':file' => $bundle)), 'bundler', 'green');
-                            file_delete($html);
-
-                        }catch(Exception $e) {
-                            /*
-                             * The CSS purge failed
-                             */
-                            file_delete($html);
-                            Notification($e->makeWarning(true));
-                        }
-                    }
-                }
-
-// :TODO: Add support for individual bundles that require async loading
-                $core->register[$list][$bundle] = false;
-
-                if ($_CONFIG['cdn']['enabled']) {
-                    load_libs('cdn');
-                    cdn_add_files($bundle_file);
-                }
-            }
-        }
-
-        return true;
-    }
-
-
-
-    /*
-     * Add specified CSS files to the $core->register[css] table
-     *
-     * This function will add the specified list of CSS files to the $core register "css" section. These files will later be added as <link> tags in the <head> and <body> tags
-     *
-     * When the page is generated, html_headers() will call html_generate_css() to get the required <link> tags
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     * @see html_generate_css()
-     * @see html_load_js()
-     * @see html_headers()
-     * @version 1.26.0: Added documentation
-     * @example
-     * code
-     * html_load_css('style,custom');
-     * /code
-     *
-     * @param list $files The CSS files that should be loaded by the client for this page
-     * @return void
-     */
-    function load_css($files = '', $media = null) {
-        if (!$files) {
-            $files = array();
-        }
-
-        if (!is_array($files)) {
-            if (!is_string($files)) {
-                throw new HtmlException('html_load_css(): Invalid files specification');
-            }
-
-            $files = explode(',', $files);
-        }
-
-        $min = $_CONFIG['cdn']['min'];
-
-        foreach ($files as $file) {
-            $core->register['css'][$file] = array('min'   => $min,
-                'media' => $media);
-        }
-    }
-
-
-
-    /*
-     * Generate <script> elements for inclusion at the end of <head> and <body> tags
-     *
-     * This function will go over the CSS files registered in the $core->register[css] table and generate <link rel="stylesheet" type="text/css" href="..."> elements for each of them. The HTML will be returned
-     *
-     * This function typically should never have to be called by developers as it is a sub function of html_headers()
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     * @see html_load_css()
-     * @see html_generate_js()
-     * @see http_headers()
-     * @version 1.26.0: Added documentation
-     * @example
-     * code
-     * $result = html_generate_css();
-     * /code
-     *
-     * @return string The HTML containing <link> tags that is to be included in the <head> tag
-     */
-    function generate_css() {
-        if (!empty($_CONFIG['cdn']['css']['post'])) {
-            $core->register['css']['post'] = array('min'   => $_CONFIG['cdn']['min'],
-                'media' => (is_string($_CONFIG['cdn']['css']['post']) ? $_CONFIG['cdn']['css']['post'] : ''));
-        }
-
-        $return = '';
-        $min    = $_CONFIG['cdn']['min'];
-
-        html_bundler('css');
-
-        foreach ($core->register['css'] as $file => $meta) {
-            if (!$file) continue;
-
-            if (!str_contains(substr($file, 0, 8), '//')) {
-                $file = cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'css/'.($min ? Strings::until($file, '.min').'.min.css' : $file.'.css'));
-            }
-
-            $html = '<link rel="stylesheet" type="text/css" href="'.$file.'">';
-
-            if (substr($file, 0, 2) == 'ie') {
-                $html = html_iefilter($html, Strings::until(Strings::from($file, 'ie'), '.'));
-            }
-
-            /*
-             * Hurray, normal stylesheets!
-             */
-            $return .= $html."\n";
-        }
-
-        if ($_CONFIG['cdn']['css']['load_delayed']) {
-            $core->register['footer'] .= $return;
-            return null;
-        }
-
-        return $return;
-    }
-
-
-
-    /*
-     * Add specified javascript files to the $core->register[js_header] or $core->register[js_footer] tables
-     *
-     * This function will add the specified list of javascript files to the $core register "js_header" and / or "js_footer" sections. These files will later be added as <script> tags in the <head> and <body> tags. For each file it is possible to specify independantly if it has to be loaded in the <head> tag (prefix it with "<") or "body" tag (prefix it with ">"). If the file has no prefix, the default will be used, configured in $_CONFIG[cdn][js][load_delayed]
-     *
-     * When the page is generated, html_headers() will call html_generate_js() for both the required <script> tags inside the <head> and <body> tags
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     * @see html_generate_js()
-     * @see html_load_css()
-     * @see html_headers()
-     * @version 1.26.0: Added documentation
-     * @example
-     * code
-     * html_load_js();
-     * /code
-     *
-     * @param list $files The javascript files that should be loaded by the client for this page
-     * @param string $list What javascript file list it should be added to. Typical valid options are "" and "page". The "" list will be loaded before the "page" list
-     * @return void
-     */
-    function load_js($files, $list = 'page') {
-        if (!isset($core->register['js_header'])) {
-            throw new HtmlException(tr('html_load_js(): Cannot load javascript file(s) ":files", the files list have already been sent to the client by html_header()', array(':files' => $files)), 'invalid');
-        }
-
-        $config = &$_CONFIG['cdn']['js'];
-
-        foreach (Arrays::force($files) as $file) {
-            if (strstr($file, '://')) {
-                /*
-                 * Compatibility code: ALL LOCAL JS FILES SHOULD ALWAYS BE
-                 * SPECIFIED WITHOUT .js OR .min.js!!
-                 */
-                if (substr($file, -3, 3) == '.js') {
-                    $file = substr($file, 0, -3);
-
-                    Notification(array('code'    => 'not-exists',
-                        'groups'  => 'developers',
-                        'title'   => tr('html_load_js() issue detected'),
-                        'message' => tr('html_load_js(): File ":file" was specified with ".js"', array(':file' => $file))));
-
-                } elseif (substr($file, -7, 7) == '.min.js') {
-                    $file = substr($file, 0, -7);
-
-                    Notification(array('code'    => 'not-exists',
-                        'groups'  => 'developers',
-                        'title'   => tr('html_load_js() issue detected'),
-                        'message' => tr('html_load_js(): File ":file" was specified with ".min.js"', array(':file' => $file))));
-                }
-            }
-
-            /*
-             * Determine if this file should be delayed loaded or not
-             */
-            switch (substr($file, 0, 1)) {
-                case '<':
-                    $file    = substr($file, 1);
-                    $delayed =  false;
-                    break;
-
-                case '>':
-                    $file    = substr($file, 1);
-                    $delayed =  true;
-                    break;
-
-                default:
-                    $delayed = $config['load_delayed'];
-            }
-
-            /*
-             * Determine if this file should be async or not
-             */
-            switch (substr($file, -1, 1)) {
-                case '&':
-                    $async = true;
-                    break;
-
-                default:
-                    $async = false;
-            }
-
-            /*
-             * Register the file to be loaded
-             */
-            if ($delayed) {
-                $core->register['js_footer'.($list ? '_'.$list : '')][$file] = $async;
-
-            } else {
-                $core->register['js_header'.($list ? '_'.$list : '')][$file] = $async;
-            }
-        }
-
-        unset($config);
-    }
-
-
-
-    /*
-     * Generate <script> elements for inclusion at the end of <head> and <body> tags
-     *
-     * This function will go over the javascript files registered in the $core->register[js_headers] and $core->register[js_headers] tables and generate <script> elements for each of them. The javascript files in the js_headers table will be returned while the javascript files in the js_footer table will be aded to the $core->register[footer] string
-     *
-     * This function typically should never have to be called by developers as it is a sub function of html_headers()
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     * @see html_load_js()
-     * @see html_generate_css()
-     * @see html_headers()
-     * @version 1.26.0: Added documentation
-     * @example
-     * code
-     * $result = html_generate_js();
-     * /code
-     *
-     * @return string The HTML containing <script> tags that is to be included in the <head> tag
-     */
-    function generate_js($lists = null) {
-        /*
-         * Shortcut to JS configuration
-         */
-        $count  = 0;
-        $js     = &$_CONFIG['cdn']['js'];
-        $min    = ($_CONFIG['cdn']['min'] ? '.min' : '');
-        $return = '';
-        $footer = '';
-        $lists  = array('js_header', 'js_header_page', 'js_footer', 'js_footer_page', 'js_footer_scripts');
-
-        /*
-         * Merge all body file lists into one
-         */
-        foreach ($lists as $key => $section) {
-            switch ($section) {
-                case 'js_header':
-                    // no-break
-                case 'js_footer':
-                    continue 2;
-
-                default:
-                    $main = Strings::untilReverse($section, '_');
-
-                    /*
-                     * If the sub list is empty then ignore it and continue
-                     */
-                    if (empty($core->register[$section])) {
-                        unset($lists[$key]);
-                        continue 2;
-                    }
-
-                    /*
-                     * Merge the sublist in the main list
-                     */
-                    $core->register[$main] = array_merge($core->register[$main], $core->register[$section]);
-                    unset($lists[$key]);
-                    unset($core->register[$section]);
-            }
-        }
-
-        /*
-         * Loop over header and body javascript file lists to generate the HTML
-         * that will load javascript files to client
-         */
-        foreach ($lists as $section) {
-            /*
-             * Bundle all files for this list into one?
-             */
-            html_bundler($section);
-
-            /*
-             * Generate HTML that will load javascript files to client
-             */
-            foreach ($core->register[$section] as $file => $async) {
-                if (!$file) {
-                    /*
-                     * We should never have empty files
-                     */
-                    Notification(array('code'    => 'empty',
-                        'groups'  => 'developers',
-                        'title'   => tr('Empty file specified'),
-                        'message' => tr('html_generate_js(): Found empty string file specified in html_load_js()')));
-                    continue;
-                }
-
-                if (strstr($file, '://')) {
-                    /*
-                     * These are external scripts, hosted by somebody else
-                     */
-                    $html = '<script id="script-'.$count++.'" '.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.$file.'"'.($async ? ' async' : '').'></script>';
-
-                } else {
-                    /*
-                     * These are local scripts, hosted by us
-                     */
-                    $html = '<script id="script-'.$count++.'" '.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'js/'.($min ? $file.$min : Strings::until($file, '.min').$min).'.js').'"'.($async ? ' async' : '').'></script>';
-                }
-
-                if ($section === 'js_header') {
-                    /*
-                     * Add this script in the header
-                     */
-                    $return .= $html;
-
-                } else {
-                    /*
-                     * Add this script in the footer of the body tag
-                     */
-                    $footer .= $html;
-                }
-            }
-
-            $core->register[$section] = array();
-        }
-
-        /*
-         * If we have footer data, add it to the footer register, which will
-         * automatically be added to the end of the <body> tag
-         */
-        if (!empty($footer)) {
-            $core->register['footer'] .= $footer.$core->register['footer'].Core::readRegister('system', 'script_delayed');
-            unset($core->register['script_delayed']);
-        }
-
-        unset($core->register['js_header']);
-        unset($core->register['js_footer']);
-
-        return $return;
-    }
 
 
 
@@ -3098,58 +2599,6 @@ Class Html {
     }
 
 
-
-    /*
-     * This function will minify the given HTML by removing double spaces, and strip white spaces before and after tags (except space)
-     * Found on http://stackoverflow.com/questions/6225351/how-to-minify-php-page-html-output, rewritten for use in base project
-     */
-    function minify($html) {
-        if ($_CONFIG['cdn']['min']) {
-            return Minify::html($html);
-        }
-
-        /*
-         * Don't do anything. This way, on non debug systems, where this is
-         * used to minify HTML output, we can still see normal HTML that is
-         * a bit more readable.
-         */
-        return $html;
-    }
-
-
-
-    /*
-     * Generate and return a randon name for the specified $name, and store the
-     * link between the two under "group"
-     */
-    function translate($name) {
-        static $translations = array();
-
-        if (!isset($translations[$name])) {
-            $translations[$name] = '__HT'.$name.'__'.substr(unique_code('sha256'), 0, 16);
-        }
-
-        return $translations[$name];
-    }
-
-
-
-    /*
-     * Return the $_POST value for the translated specified key
-     */
-    function untranslate() {
-        $count = 0;
-
-        foreach ($_POST as $key => $value) {
-            if (substr($key, 0, 4) == '__HT') {
-                $_POST[Strings::until(substr($key, 4), '__')] = $_POST[$key];
-                unset($_POST[$key]);
-                $count++;
-            }
-        }
-
-        return $count;
-    }
 
 
 

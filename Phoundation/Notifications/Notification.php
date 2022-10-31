@@ -4,6 +4,7 @@ namespace Phoundation\Notifications;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Data\DataEntry;
 use Phoundation\Exception\Exception;
@@ -25,6 +26,22 @@ use Throwable;
 class Notification
 {
     use DataEntry;
+
+
+
+    /**
+     * Keeps track of if this noticication was logged or not
+     *
+     * @var bool
+     */
+    protected static bool $logged = false;
+
+    /**
+     * Keeps track of if noticications should abe automatically logged or not
+     *
+     * @var bool
+     */
+    protected static bool $auto_log = false;
 
 
 
@@ -104,6 +121,16 @@ class Notification
 //     * @var Throwable|null $e
 //     */
 //    protected ?Throwable $e = null;
+
+
+
+    /**
+     * Notification constructor
+     */
+    protected function __construct()
+    {
+        self::$auto_log = Config::get('notifications.auto-log', true);
+    }
 
 
 
@@ -452,6 +479,11 @@ class Notification
      */
     public function send(): Notification
     {
+        if (!self::$logged and self::$auto_log) {
+            // Automatically log this notification
+            self::log();
+        }
+
         Log::warning('Notifications::send() not yet implemented! Not sending subsequent message');
         Log::warning($this->getTitle());
         Log::warning($this->getMessage());
@@ -518,6 +550,8 @@ return $this;
                 Log::information($this->getDetails());
                 break;
         }
+
+        $this->logged = true;
 
         return $this;
     }
