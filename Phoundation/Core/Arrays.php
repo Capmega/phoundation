@@ -310,7 +310,7 @@ class Arrays {
      * @param string|null $auto_quote Quote string values with the specified quote
      * @return string
      */
-    public static function implodeWithKeys(array $source, string $row_separator, string $key_separator, ?string $auto_quote = null, bool $empty_null = false): string
+    public static function implodeWithKeys(array $source, string $row_separator, string $key_separator, ?string $auto_quote = null, bool $empty_values = false): string
     {
         $return = [];
 
@@ -318,7 +318,7 @@ class Arrays {
             if (is_array($value)) {
                 $return[] .= $key . $key_separator . $row_separator . self::implodeWithKeys($value, $row_separator, $key_separator, $auto_quote);
 
-            }elseif ($empty_null and ($value === null)) {
+            }elseif ($empty_values and (!$value)) {
                 $return[] .= $key;
 
             } elseif ($auto_quote) {

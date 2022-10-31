@@ -196,7 +196,7 @@ class Select extends ResourceElement
 
 
     /**
-     * Sets the HTML option_class element attribute
+     * Adds all multiple class element attributes for option elements
      *
      * @param array|string|null $option_classes
      * @return Select
@@ -210,12 +210,12 @@ class Select extends ResourceElement
 
 
     /**
-     * Sets the HTML option_class element attribute
+     * Adds multiple class element attributes for option elements
      *
-     * @param string|null $option_classes
+     * @param array|string|null $option_classes
      * @return Select
      */
-    public function addOptionClasses(?string $option_classes): self
+    public function addOptionClasses(array|string|null $option_classes): self
     {
         foreach (Arrays::force($option_classes, ' ') as $option_class) {
             $this->addOptionClass($option_class);
@@ -227,7 +227,7 @@ class Select extends ResourceElement
 
 
     /**
-     * Adds an option_class to the HTML option_class element attribute
+     * Adds an class element attribute for option elements
      *
      * @param string $option_class
      * @return Select
@@ -241,7 +241,7 @@ class Select extends ResourceElement
 
 
     /**
-     * Returns the HTML option_class element attribute
+     * Returns the HTML class element attribute for option elements
      *
      * @return array
      */
@@ -286,12 +286,12 @@ class Select extends ResourceElement
         $return = '';
         $empty  = true;
 
-        if ($this->none) {
-            $return = '<option' . $this->buildOptionClassString() . $this->buildSelectedString(null) . ' value="">' . $this->none . '</option>';
-        }
-
         if (($this->source === null) and ($this->source_query === null)) {
             throw new HtmlException(tr('No source specified'));
+        }
+
+        if ($this->none) {
+            $return = '<option' . $this->buildOptionClassString() . $this->buildSelectedString(null) . ' value="">' . $this->none . '</option>';
         }
 
         $return .= $this->renderBodyQuery();
@@ -322,7 +322,6 @@ class Select extends ResourceElement
     protected function renderBodyArray(): string
     {
         $return = '';
-        $empty  = (bool) count($this->source);
 
         if ($this->auto_select and ((count($this->source) == 1) and !$this->none)) {
             // Auto select the only available element
@@ -339,6 +338,10 @@ class Select extends ResourceElement
                 foreach ($this->source_data as $data_key => $data_value) {
                     $option_data = ' data-' . $data_key . '="' . $data_value . '"';
                 }
+            }
+
+            if (!is_scalar($value)) {
+                throw new OutOfBoundsException(tr('The specified select source array is invalid. Format should be [key => value, key => value, ...]'));
             }
 
             $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlentities($key) . '"' . $option_data . '>' . htmlentities($value) . '</option>';
@@ -397,7 +400,7 @@ class Select extends ResourceElement
             // Add data- in this option?
             if (array_key_exists($row[0], $this->source_data)) {
                 foreach ($this->source_data as $key => $value) {
-                    $option_data = ' data-' . $key . '="' . $value . '"';
+                    $option_data .= ' data-' . $key . '="' . $value . '"';
                 }
             }
 
@@ -435,7 +438,7 @@ class Select extends ResourceElement
         $option_class = $this->getOptionClass();
 
         if ($option_class) {
-            return ' class="' . $option_class. '"';
+            return ' class="' . $option_class . '"';
         }
 
         return null;

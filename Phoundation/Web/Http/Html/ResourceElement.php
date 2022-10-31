@@ -284,9 +284,10 @@ abstract class ResourceElement extends Element
 //            return $return.Html::script('$("[name=\''.$params['autosubmit'].'\']").change(function() { $(this).closest("form").find("input,textarea,select").addClass("ignore"); $(this).closest("form").submit(); });');
         }
 
-        return array_merge(parent::buildAttributes(), [
-            'on_change'  => ($this->on_change ? Elements::jQuery('$("#' . $this->id . '").change(function() { '.$this->on_change . ' });')->render() : null),
-        ]);
+// TODO Implement autosubmit
+//        'on_change'  => ($this->on_change ? Elements::jQuery('$("#' . $this->id . '").change(function() { '.$this->on_change . ' });')->render() : null),
+
+        return array_merge(parent::buildAttributes(), []);
     }
 
 
