@@ -9,7 +9,8 @@
     "ext-mbstring": "*",
     "ext-posix": "*",
     "ext-fileinfo": "*",
-    "mongodb/mongodb":"^1.6"
+    "mongodb/mongodb":"^1.6",
+    "mrclay/minify": "*"
   },
   "suggest": {
     "ext-redis": "*",
