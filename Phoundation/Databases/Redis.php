@@ -3,26 +3,45 @@
 namespace Phoundation\Databases;
 
 use Phoundation\Core\Config;
+use Phoundation\Core\Exception\ConfigException;
+use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Databases\Exception\RedisException;
+use Phoundation\Databases\Sql\Sql;
+use Phoundation\Utils\Json;
+
 
 /**
  * Class Redis
  *
- * This is the default Redis object
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-class Redis
+class Redis extends \Redis
 {
     /**
-     * Connections store
+     * Configuration
      *
-     * @var array $connections
+     * @var array|null $configuration
      */
-    protected static array $connections = [];
+    protected ?array $configuration = null;
+
+    /**
+     * Identifier of this instance
+     *
+     * @var string|null
+     */
+    protected ?string $instance = null;
+
+    /**
+     * The database used by this instance
+     *
+     * @var int|null
+     */
+    protected ?int $database = null;
 
 
 
@@ -30,81 +49,119 @@ class Redis
      * Initialize the class object through the constructor.
      *
      * MC constructor.
+     *
+     * @param string|null $instance
      */
-    public function __construct()
+    public function __construct(?string $instance = null)
     {
-        $this->connections = Config::get('redis.connections');
+        if ($instance === null) {
+            $instance = 'system';
+        }
+
+        // Read configuration and connect
+        $this->readConfiguration($instance);
+        parent::__construct($this->configuration['host'], $this->configuration['options'], $this->configuration['driver_options']);
     }
 
 
 
     /**
-     * Return the configured Redis connections
+     * Returns the configuration for this Redis instance
      *
      * @return array
      */
-    public function getConnections(): array
+    public function getConfiguration(): array
     {
-        return self::$connections;
+        return $this->configuration;
     }
 
 
 
     /**
-     * Set the configured Redis connections
+     * Returns the value for the specified key
      *
-     * @note This method will reset the currently existing connections
-     * @param array $connections
-     * @return void
+     * @param string $key
+     * @return mixed
      */
-    public function setConnections(array $connections): void
+    public function get($key): mixed
     {
-        self::$connections = [];
-        self::addConnections($connections);
-    }
+        $value = parent::get($key);
 
-
-
-    /**
-     * Add the multiple specified connections
-     *
-     * @param array $connections
-     * @return void
-     */
-    public function addConnections(array $connections): void
-    {
-        foreach ($connections as $connection => $configuration) {
-            self::addConnection($connection, $configuration);
+        if ($value) {
+            return Json::decode($value);
         }
+
+        return null;
     }
 
 
 
     /**
-     * Add the specified connection
+     * Get the document for the specified key from the specified collection
      *
-     * @param string $connection_name
-     * @param array $configuration
-     * @return void
+     * @param string|array $value
+     * @param string $key
+     * @param int|null $timeout
+     * @return int The _id of the inserted document
      */
-    public function addConnection(string $connection_name, array $configuration): void
+    public function set(mixed $value, string $key, ?int $timeout = null): int
     {
-        self::$connections[$connection_name] = $configuration;
+        return parent::set($key, Json::encode($value), $timeout);
     }
 
 
 
     /**
-     * Remove the connection with the specified connection name
+     * Get the document for the specified key from the specified collection
      *
-     * @param string $connection_name
-     * @return void
+     * @param $key
+     * @return int The amount of documents deleted
      */
-    public function removeConnections(string $connection_name): void
+    public function delete($key): int
     {
-        unset(self::$connections[$connection_name]);
+        return parent::del($key);
     }
 
 
 
+    /**
+     * Read the redis configuration
+     *
+     * @param string $instance
+     * @return void
+     */
+    protected function readConfiguration(string $instance): void
+    {
+        // Read in the entire redis configuration for the specified instance
+        $this->instance = $instance;
+
+        try {
+            $configuration = Config::get('databases.redis.instances.' . $instance);
+        } catch (ConfigNotExistsException $e) {
+            throw new RedisException(tr('The specified redis instance ":instance" is not configured', [
+                ':instance' => $instance
+            ]));
+        }
+
+        // Validate configuration
+        if (!is_array($configuration)) {
+            throw new ConfigException(tr('The configuration for the specified Redis database instance ":instance" is invalid, it should be an array', [
+                ':instance' => $instance
+            ]));
+        }
+
+// TODO Add support for instace configuration stored in database
+
+        $template = [
+            'host'             => 'localhost',
+            'port'             => 6379,
+            'options'          => [],
+            'driver_options'   => [],
+            'database'         => null,
+        ];
+
+        // Copy the configuration options over the template
+        $this->configuration = Sql::merge($template, $configuration);
+        $this->database      = $this->configuration['database'];
+    }
 }

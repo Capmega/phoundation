@@ -49,28 +49,29 @@ class Databases
     protected static array $mongo = [];
 
 
+
     /**
      * Access SQL database instances
      *
-     * @param string|null $interface
+     * @param string|null $instance
      * @param bool $use_database
      * @return Sql
      * @throws Exception
      */
-    public static function Sql(?string $interface, bool $use_database = true): Sql
+    public static function Sql(?string $instance, bool $use_database = true): Sql
     {
-        if (!$interface) {
+        if (!$instance) {
             // Default to system instance
-            $interface = 'system';
+            $instance = 'system';
         }
 
-        if (!array_key_exists($interface, self::$sql)) {
+        if (!array_key_exists($instance, self::$sql)) {
             // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
-            self::$sql[$interface] = new Sql($interface, $use_database);
+            self::$sql[$instance] = new Sql($instance, $use_database);
         }
 
-        return self::$sql[$interface];
+        return self::$sql[$instance];
     }
 
 
@@ -78,24 +79,24 @@ class Databases
     /**
      * Access Memcached database instances
      *
-     * @param string|null $interface
+     * @param string|null $instance
      * @return Mc
      * @throws Exception
      */
-    public static function Mc(?string $interface): Mc
+    public static function Mc(?string $instance): Mc
     {
-        if (!$interface) {
+        if (!$instance) {
             // Default to system instance
-            $interface = 'system';
+            $instance = 'system';
         }
 
-        if (!array_key_exists($interface, self::$mc)) {
+        if (!array_key_exists($instance, self::$mc)) {
             // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
-            self::$mc[$interface] = new Mc($interface);
+            self::$mc[$instance] = new Mc($instance);
         }
 
-        return self::$mc[$interface];
+        return self::$mc[$instance];
     }
 
 
@@ -103,24 +104,24 @@ class Databases
     /**
      * Access Redis database instances
      *
-     * @param string|null $interface
+     * @param string|null $instance
      * @return Redis
      * @throws Exception
      */
-    public static function Redis(?string $interface): Redis
+    public static function Redis(?string $instance): Redis
     {
-        if (!$interface) {
+        if (!$instance) {
             // Default to system instance
-            $interface = 'system';
+            $instance = 'system';
         }
 
-        if (!array_key_exists($interface, self::$redis)) {
+        if (!array_key_exists($instance, self::$redis)) {
             // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
-            self::$redis[$interface] = new Redis($interface);
+            self::$redis[$instance] = new Redis($instance);
         }
 
-        return self::$redis[$interface];
+        return self::$redis[$instance];
     }
 
 
@@ -128,23 +129,23 @@ class Databases
     /**
      * Access Mongo database instances
      *
-     * @param string|null $interface
+     * @param string|null $instance
      * @return Mongo
      * @throws Exception
      */
-    public static function Mongo(?string $interface): Mongo
+    public static function Mongo(?string $instance): Mongo
     {
-        if (!$interface) {
+        if (!$instance) {
             // Default to system instance
-            $interface = 'system';
+            $instance = 'system';
         }
 
-        if (!array_key_exists($interface, self::$mongo)) {
+        if (!array_key_exists($instance, self::$mongo)) {
             // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
-            self::$mongo[$interface] = new Mongo($interface);
+            self::$mongo[$instance] = new Mongo($instance);
         }
 
-        return self::$mongo[$interface];
+        return self::$mongo[$instance];
     }
 }

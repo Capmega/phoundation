@@ -10,13 +10,10 @@
     "ext-posix": "*",
     "ext-fileinfo": "*",
     "mongodb/mongodb":"^1.6",
-    "mrclay/minify": "*"
-  },
-  "suggest": {
+    "mrclay/minify": "*",
     "ext-redis": "*",
-    "ext-mongo": "*",
     "ext-mongodb": "*",
-    "ext-memcached": "*"
+    "ext-memcached": "*",
   },
   "require-dev": {
     "phpmd/phpmd": "@stable",

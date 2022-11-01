@@ -60,9 +60,9 @@ class Sql
     /**
      * Identifier of this instance
      *
-     * @var string|null $instance_name
+     * @var string|null $instance
      */
-    protected ?string $instance_name = null;
+    protected ?string $instance = null;
 
     /**
      * All SQL database configuration
@@ -101,15 +101,16 @@ class Sql
      * @param bool $use_database
      * @throws Throwable
      */
-    public function __construct(?string $instance_name = null, bool $use_database = true)
+    public function __construct(?string $instance = null, bool $use_database = true)
     {
-        if ($instance_name === null) {
-            $instance_name = 'system';
+        if ($instance === null) {
+            $instance = 'system';
         }
 
-        // Clean connector name, get connector configuration and ensure all required config data is there
-        $this->instance_name = $instance_name;
-        $this->configuration = self::readConfiguration($instance_name);
+        $this->instance = $instance;
+
+        // Read configuration and connect
+        self::readConfiguration($instance);
         $this->connect($use_database);
     }
 
@@ -131,14 +132,17 @@ class Sql
      * Reads, validates structure and returns the configuration for the specified instance
      *
      * @param string $instance
-     * @return array
+     * @return void
      */
-    protected function readConfiguration(string $instance): array
+    protected function readConfiguration(string $instance): void
     {
+        // Read in the entire SQL configuration for the specified instance
+        $this->instance = $instance;
+
         try {
             $configuration = Config::get('databases.sql.instances.' . $instance);
         } catch (ConfigNotExistsException $e) {
-            throw new SqlException(tr('The specified instance ":instance" is not configured', [
+            throw new SqlException(tr('The specified SQL instance ":instance" is not configured', [
                 ':instance' => $instance
             ]));
         }
@@ -234,7 +238,7 @@ class Sql
                 ]));
         }
 
-        return $configuration;
+        $this->configuration = $configuration;
     }
 
 
@@ -300,14 +304,14 @@ class Sql
                     $this->pdo = new PDO($connect_string, $this->configuration['user'], $this->configuration['pass'], $this->configuration['pdo_attributes']);
 
                     Log::success(tr('Connected to instance ":instance" with PDO connect string ":string"', [
-                        ':instance' => $this->instance_name,
+                        ':instance' => $this->instance,
                         ':string' => $connect_string
                     ]), 3);
                     break;
 
                 } catch (Exception $e) {
                     Log::error(tr('Failed to connect to instance ":instance" with PDO connect string ":string", error follows below', [
-                        ':instance' => $this->instance_name,
+                        ':instance' => $this->instance,
                         ':string' => $connect_string
                     ]));
                     Log::error($e);
@@ -352,7 +356,7 @@ class Sql
                 $this->pdo->query('SET time_zone = "' . $this->configuration['timezone'] . '";');
 
             } catch (Throwable $e) {
-                Log::warning(tr('Failed to set timezone for database instance ":instance" with error ":e"', [':instance' => $this->instance_name, ':e' => $e->getMessage()]));
+                Log::warning(tr('Failed to set timezone for database instance ":instance" with error ":e"', [':instance' => $this->instance, ':e' => $e->getMessage()]));
 
                 if (!Core::readRegister('no_time_zone') and (Core::compareRegister('init', 'system', 'script'))) {
                     throw $e;
@@ -477,7 +481,7 @@ class Sql
 // :TODO: Implement further error handling.. From here on, appearently inet_telnet() did NOT cause an exception, so we have a result.. We can check the result for mysql server data and with that confirm that it is working, but what would.. well, cause a problem, because if everything worked we would not be here...
 
                 default:
-                    throw new SqlException(tr('Failed to connect to the SQL connector ":instance"', [':instance' => $this->instance_name]), previous: $e);
+                    throw new SqlException(tr('Failed to connect to the SQL connector ":instance"', [':instance' => $this->instance]), previous: $e);
             }
         }
     }
@@ -504,7 +508,7 @@ class Sql
     public function schema(): Schema
     {
         if (empty($this->schema)) {
-            $this->schema = new Schema($this->instance_name);
+            $this->schema = new Schema($this->instance);
         }
 
         return $this->schema;
@@ -527,7 +531,7 @@ class Sql
             $_SESSION['sql_random_seed'] = random_int(PHP_INT_MIN, PHP_INT_MAX);
 
             // Connect to database
-            Log::action(tr('Connecting to SQL instance ":name"', [':name' => $this->instance_name]), 2);
+            Log::action(tr('Connecting to SQL instance ":name"', [':name' => $this->instance]), 2);
 
             // This is only required for the system connection
             if (Libraries::isInitializing()) {
@@ -542,7 +546,7 @@ class Sql
                      *
                      * This can be disabled by setting $_CONFIG[db][CONNECTORNAME][init] to false
                      */
-                    if (!empty($_CONFIG['db'][$this->instance_name]['init'])) {
+                    if (!empty($_CONFIG['db'][$this->instance]['init'])) {
                         try {
                             $r = $this->pdo->query('SELECT `project`, `framework`, `offline_until` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
 
@@ -1989,7 +1993,7 @@ class Sql
      */
     public function testTunnel(string|Server $server): void
     {
-        $this->instance_name = 'test';
+        $this->instance = 'test';
         $port = 6000;
         $server = servers_get($server, true);
 
@@ -1997,7 +2001,7 @@ class Sql
             throw new SqlException(tr('Cannot test SQL over SSH tunnel, server ":server" has no database account linked', [':server' => $server['domain']]));
         }
 
-        $this->makeConnector($this->instance_name, [
+        $this->makeConnector($this->instance, [
             'port' => $port,
             'user' => $server['db_username'],
             'pass' => $server['db_password'],
@@ -2007,7 +2011,7 @@ class Sql
             ]
         ]);
 
-        $this->get('SELECT TRUE', true, null, $this->instance_name);
+        $this->get('SELECT TRUE', true, null, $this->instance);
     }
 
 

@@ -41,6 +41,20 @@ class Page
     protected static array $footers = [];
 
     /**
+     * The files that should be added in the header
+     *
+     * @var array
+     */
+    protected array $header_files = [];
+
+    /**
+     * The files that should be added in the footer
+     *
+     * @var array
+     */
+    protected array $footer_files = [];
+
+    /**
      * The HTML buffer for this page
      *
      * @var string $html
@@ -139,13 +153,26 @@ class Page
 
 
     /**
+     * Add the specified HTML to the output buffer
+     *
+     * @param string $html
+     * @return void
+     */
+    public static function addHtml(string $html): void
+    {
+        echo $html;
+    }
+
+
+
+    /**
      * Returns the HTML output buffer for this page
      *
      * @return string
      */
     public static function getHtml(): string
     {
-        return self::$html;
+        return ob_get_contents();
     }
 
 
@@ -157,7 +184,7 @@ class Page
      */
     public static function getContentLength(): int
     {
-        return strlen(self::$html);
+        return ob_get_length();
     }
 
 
