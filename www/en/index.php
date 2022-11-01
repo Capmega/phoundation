@@ -5,22 +5,38 @@ use Phoundation\Web\Http\Html\Elements;
 
 $img = Elements::img()
     ->setName('test')
-    ->setAlt('fuck off')
+    ->setAlt('This is a test')
     ->setSrc('https://i.redd.it/yb2hp7qudd151.png')
     ->render();
 echo $img;
 
 $select = Elements::select()
     ->setName('test')
+    ->setMultiple(true)
+    ->setSelected(['aaaaaaaaa', 'BBBBBBBBB'])
+    ->setSource([
+        'aaaaaaaaa' => 'Alpha',
+        'BBBBBBBBB' => 'Beta',
+        'ccccccccc' => 'Gamma'
+    ])
     ->render();
 
 echo $select;
-showdie($select);
 
-//$table = Elements::table()
-//    ->setName('test')
-//    ->render();
-//echo $table;
+$table = Elements::table()
+    ->setName('test2')
+    ->setHeaders(['Name'])
+    ->setSource([
+        'aaaaaaaaa' => ['Alpha'],
+        'BBBBBBBBB' => ['Beta'],
+        'ccccccccc' => ['Gamma']
+    ])
+    ->render();
+echo $table;
+
+show($select);
+show($table);
+showdie('Done!');
 
 //$html = Html::select()
 //    ->setSource()
