@@ -28,12 +28,12 @@ class Cdn
      * @param $section
      * @param $group
      * @param $delete
-     * @return false|int|null
+     * @return void
      */
-    function addFiles(string|array $files, string $section = 'pub', $group = null, bool $delete = true)
+    public static function addFiles(string|array $files, string $section = 'pub', $group = null, bool $delete = true): void
     {
-        if (!Config::get('cdn.enabled', true)) {
-            return false;
+        if (!Config::get('web.cdn.enabled', true)) {
+            return;
         }
 
         Log::action(tr('Adding files ":files" to CDN', [':files' => $files]));
@@ -45,28 +45,29 @@ class Cdn
         if (!$files) {
             throw new OutOfBoundsException(tr('No files specified'));
         }
+// TODO Implement
     }
 
 
 
-    /*
- * Return a correct URL for CDN objects like css, javascript, image, video, downloadable files and more.
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package system
- * @see domain()
- * @see mapped_domain()
- * @version 2.4.9: Added documentation
- *
- * @params string $file
- * @params string $section
- * @params string $default If specified, use this default image if the specified file has not been found
- * @params boolean $force_cdn
- * @return string The result
- */
+    /**
+     * Return a correct URL for CDN objects like css, javascript, image, video, downloadable files and more.
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     * @see domain()
+     * @see mapped_domain()
+     * @version 2.4.9: Added documentation
+     *
+     * @params string $file
+     * @params string $section
+     * @params string $default If specified, use this default image if the specified file has not been found
+     * @params boolean $force_cdn
+     * @return string The result
+     */
     function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = false)
     {
         global $_CONFIG;

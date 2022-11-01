@@ -19,6 +19,7 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Processes\Commands;
 use Phoundation\Web\Http\Html\Html;
+use Phoundation\Web\Page;
 use Throwable;
 
 
@@ -63,6 +64,27 @@ class Http
      */
     protected static ?array $accepts = null;
 
+    /**
+     * The HTTP headers store
+     *
+     * @var array $headers
+     */
+    protected static array $headers = [];
+
+    /**
+     * CORS headers
+     *
+     * @var array $cors
+     */
+    protected static array $cors = [];
+
+    /**
+     * Mimetype header
+     *
+     * @var string|null $mimetype
+     */
+    protected static ?string $mimetype = null;
+
 
 
     /**
@@ -76,7 +98,7 @@ class Http
             self::$instance = new Http();
         }
 
-        return self::$instance;
+        return self::getInstance();
     }
 
 
@@ -86,7 +108,7 @@ class Http
      *
      * @return int
      */
-    public static function getHttpCode(): int
+    public static function getHttpCode(): Http
     {
         return self::$http_code;
     }
@@ -97,11 +119,77 @@ class Http
      * Sets the status code that will be sent to the client
      *
      * @param int $code
+     * @return Http
      */
-    public static function setHttpCode(int $code)
+    public static function setHttpCode(int $code): Http
     {
-        self::validateStatusCode($code);
+        // Validate status code
+        // TODO implement
+
         self::$http_code = $code;
+        return self::getInstance();
+    }
+
+
+
+    /**
+     * Returns the mimetype that will be sent to the client
+     *
+     * @return string
+     */
+    public static function getMimetype(): string
+    {
+        return (string) self::$headers['mimetype'];
+    }
+
+
+
+    /**
+     * Sets the mimetype that will be sent to the client
+     *
+     * @param string $mimetype
+     * @return Http
+     */
+    public static function setMimetype(string $mimetype): Http
+    {
+        // Validate mimetype
+        // TODO implement
+
+        self::$headers['mimetype'] = $mimetype;
+        return self::getInstance();
+    }
+
+
+
+    /**
+     * Returns the CORS headers
+     *
+     * @return array
+     */
+    public static function getCors(): array
+    {
+        return self::$cors;
+    }
+
+
+    /**
+     * Sets the status code that will be sent to the client
+     *
+     * @param string $origin
+     * @param string $methods
+     * @param string $headers
+     * @return void
+     */
+    public static function setCors(string $origin, string $methods, string $headers): void
+    {
+        // Validate CORS data
+        // TODO implement validation
+
+        self::$cors = [
+            'origin'  => '*.',
+            'methods' => 'GET, POST',
+            'headers' => ''
+        ];
     }
 
 
@@ -109,27 +197,19 @@ class Http
     /**
      * Send all the HTTP headers
      *
-     * @param array|null $params
-     * @param int $content_length
-     * @return bool
+     * @return void
      * @throws Throwable
      * @todo Refactor and remove $_CONFIG dependancies
      * @todo Refactor and remove $core dependancies
      * @todo Refactor and remove $params dependancies
      */
-    public static function headers(?array $params, int $content_length): bool
+    public static function sendHeaders(): void
     {
-        static $sent = false;
-
-        if ($sent) return false;
-        $sent = true;
-
         /*
          * Ensure that from this point on we have a language configuration available
          *
-         * The startup systems already configures languages but if the startup
-         * itself fails, or if a show() or showdie() was issued before the startup
-         * finished, then this could leave the system without defined language
+         * The startup systems already configures languages but if the startup itself fails, or if a show() or showdie()
+         * was issued before the startup finished, then this could leave the system without defined language
          */
         if (!defined('LANGUAGE')) {
             define('LANGUAGE', Config::get('http.language.default', 'en'));
@@ -139,35 +219,28 @@ class Http
             // Create ETAG, possibly send out HTTP304 if client sent matching ETAG
             Http::cacheEtag();
 
-            Arrays::params($params, null, 'http_code', null);
-            Arrays::default($params, 'http_code', self::$http_code);
-            Arrays::default($params, 'cors', [
-                'origin'  => '*.',
-                'methods' => 'GET, POST',
-                'headers' => ''
-            ]);
-            Arrays::default($params, 'mimetype', self::$accepts);
-            Arrays::default($params, 'headers', []);
-            Arrays::default($params, 'cache', []);
-
-            $headers = $params['headers'];
-
+            // Add PHP signature?
             if (!Config::get('security.expose.php-signature', false)) {
                 header_remove('X-Powered-By');
 
             } else {
-                // Send custom expose header to fake X-Powered-By header
-                $headers[] = 'X-Powered-By: ' . Config::get('security.expose.php-signature', false);
+                // Just send the PHP signature, or send a custom fake one?
+                if (!Strings::isBoolean(Config::get('security.expose.php-signature', false))) {
+                    // Send custom expose header to fake X-Powered-By header
+                    $headers[] = 'X-Powered-By: ' . Config::get('security.expose.php-signature', false);
+                }
             }
 
-            $headers[] = 'Content-Type: ' . $params['mimetype'] . '; charset=' . Config::get('encoding.charset', 'UTF-8');
+            // Add Phoundation signature?
+            if (Config::get('security.expose.phoundation-signature', false)) {
+                header('X-Powered-By: Phoundation ' . Core::FRAMEWORKCODEVERSION);
+            }
+
+            $headers[] = 'Content-Type: ' . self::$mimetype . '; charset=' . Config::get('encoding.charset', 'UTF-8');
             $headers[] = 'Content-Language: ' . LANGUAGE;
+            $headers[] = 'Content-Length: ' . Page::getContentLength();
 
-            if ($content_length) {
-                $headers[] = 'Content-Length: ' . $content_length;
-            }
-
-            if ($params['http_code'] == 200) {
+            if (self::$http_code == 200) {
                 if (empty($params['last_modified'])) {
                     $headers[] = 'Last-Modified: ' . Date::convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT') . ' GMT';
 
@@ -183,12 +256,12 @@ class Http
             }
 
             // CORS headers
-            if (Config::get('web.security.cors', true) or $params['cors']) {
+            if (Config::get('web.security.cors', true) or self::$cors) {
                 // Add CORS / Access-Control-Allow-.... headers
                 // TODO This will cause issues if configured web.cors is not an array!
-                $params['cors'] = array_merge(Arrays::force(Config::get('web.cors', [])), Arrays::force($params['cors']));
+                self::$cors = array_merge(Arrays::force(Config::get('web.cors', [])), self::$cors);
 
-                foreach ($params['cors'] as $key => $value) {
+                foreach (self::$cors as $key => $value) {
                     switch ($key) {
                         case 'origin':
                             if ($value == '*.') {
@@ -225,21 +298,26 @@ class Http
                 }
             }
 
-            $headers = self::cache($params, $params['http_code'], $headers);
+            $headers = self::cache($params, self::$http_code, $headers);
 
             // Remove incorrect or insecure headers
-            header_remove('X-Powered-By');
             header_remove('Expires');
             header_remove('Pragma');
 
             // Set correct headers
-            http_response_code($params['http_code']);
+            http_response_code(self::$http_code);
 
-            if (($params['http_code'] != 200)) {
-                Log::warning(tr('Phoundation sent :http for URL ":url"', array(':http' => ($params['http_code'] ? 'HTTP' . $params['http_code'] : 'HTTP0'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'])));
+            if ((self::$http_code != 200)) {
+                Log::warning(tr('Phoundation sent "HTTP:http" for URL ":url"', [
+                    ':http' => (self::$http_code ? 'HTTP' . self::$http_code : 'HTTP0'),
+                    ':url'  => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
+                ]));
             }
 
-            Log::success(tr('Phoundation sent :http for URL ":url"', array(':http' => ($params['http_code'] ? 'HTTP' . $params['http_code'] : 'HTTP0'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'])));
+            Log::success(tr('Phoundation sent :http for URL ":url"', [
+                ':http' => (self::$http_code ? 'HTTP' . self::$http_code : 'HTTP0'),
+                ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
+            ]));
 
             if (Debug::enabled()) {
                 // TODO This is only sending headers, page is not completed its process!
@@ -250,32 +328,17 @@ class Http
                 ]));
             }
 
+            // Send all available headers
             foreach ($headers as $header) {
                 header($header);
             }
 
-            if (strtoupper($_SERVER['REQUEST_METHOD']) == 'HEAD') {
-                // HEAD request, do not return a body
-                die();
-            }
-
-            switch ($params['http_code']) {
-                case 304:
-                    // 304 requests indicate the browser to use it's local cache, send nothing
-                    // no-break
-
-                case 429:
-                    // 429 Tell the client that it made too many requests, send nothing
-                    die();
-            }
-
-            return true;
-
         } catch (Throwable $e) {
-            Log::error('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+            Log::error('Failed to send headers to client');
             Log::debug($e);
-            // Http::headers() itself crashed. Since Http::headers() would send out http 500, and since it crashed, it
-            // no longer can do this, send out the http 500 here.
+
+            // Http::sendHeaders() itself crashed. Since Http::sendHeaders() would send out http 500, and since it
+            // crashed, it no longer can do this, send out the http 500 here.
             http_response_code(500);
             throw new $e;
         }
@@ -1279,20 +1342,6 @@ class Http
         if ($_SERVER['REQUEST_METHOD'] !== $method) {
             throw new OutOfBoundsException(tr('limit_request_method(): This request was made with HTTP method ":server_method" but for this page or call only HTTP method ":method" is allowed', array(':method' => $method, ':server_method' => $_SERVER['REQUEST_METHOD'])), 'warning/method-not-allowed');
         }
-    }
-
-
-
-    /**
-     * Throws an exception if the specified status code is invalid
-     *
-     * @param int $code
-     */
-    protected static function validateStatusCode(int $code): void
-    {
-        return;
-        // TODO Implement
-        throw new OutOfBoundsException(tr('The specified status code ":code" is invalid', [':code' => $code]));
     }
 
 

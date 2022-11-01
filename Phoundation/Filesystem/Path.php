@@ -43,7 +43,7 @@ class Path
     {
         File::validateFilename($path);
 
-        $mode = Config::get('filesystem.mode.defaults.directories', 0750, $mode);
+        $mode = Config::get('filesystem.mode.directories', 0750, $mode);
 
         if ($clear) {
             // Delete the currently existing file so we can  be sure we have an

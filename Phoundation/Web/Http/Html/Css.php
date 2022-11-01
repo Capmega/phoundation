@@ -2,9 +2,10 @@
 
 namespace Phoundation\Web\Http\Html;
 
+use Phoundation\Cdn\Cdn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
-
+use Phoundation\Core\Strings;
 
 
 /**
@@ -20,6 +21,15 @@ use Phoundation\Core\Config;
 class Css
 {
     /**
+     * Register of files that will be sent to the client
+     *
+     * @var array
+     */
+    protected static array $files = [];
+
+
+
+    /**
      * Loads the specified CSS file(s) into the page payload
      *
      * @param string|array $files
@@ -28,13 +38,8 @@ class Css
      */
     public static function loadFiles(string|array $files, ?string $media = null): void
     {
-        $min = Config::get('web.minify', true);
-
         foreach (Arrays::force($files) as $file) {
-            $core->register['css'][$file] = [
-                'min'   => $min,
-                'media' => $media
-            ];
+            self::$files[$file] = $media;
         }
     }
 
@@ -57,45 +62,107 @@ class Css
      * $result = html_generate_css();
      * /code
      *
-     * @return string The HTML containing <link> tags that is to be included in the <head> tag
+     * @return string|null The HTML containing <link> tags that is to be included in the <head> tag
      */
-    public static function generateHtml(): string
+    public static function generateHtml(): ?string
     {
         if (!empty($_CONFIG['cdn']['css']['post'])) {
-            $core->register['css']['post'] = array('min'   => $_CONFIG['cdn']['min'],
+            self::$files['post'] = array('min'   => $_CONFIG['cdn']['min'],
                 'media' => (is_string($_CONFIG['cdn']['css']['post']) ? $_CONFIG['cdn']['css']['post'] : ''));
         }
 
         $return = '';
         $min    = $_CONFIG['cdn']['min'];
 
-        html_bundler('css');
+        Bundler::css(self::$files);
 
-        foreach ($core->register['css'] as $file => $meta) {
+        foreach (self::$files as $file => $meta) {
             if (!$file) continue;
 
             if (!str_contains(substr($file, 0, 8), '//')) {
-                $file = cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'css/'.($min ? Strings::until($file, '.min').'.min.css' : $file.'.css'));
+                $file = Cdn::domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'css/'.($min ? Strings::until($file, '.min').'.min.css' : $file.'.css'));
             }
 
             $html = '<link rel="stylesheet" type="text/css" href="'.$file.'">';
 
-            if (substr($file, 0, 2) == 'ie') {
+            if (str_starts_with($file, 'ie')) {
                 $html = html_iefilter($html, Strings::until(Strings::from($file, 'ie'), '.'));
             }
 
-            /*
-             * Hurray, normal stylesheets!
-             */
+            // Hurray, normal stylesheets!
             $return .= $html."\n";
         }
 
-        if ($_CONFIG['cdn']['css']['load_delayed']) {
-            $core->register['footer'] .= $return;
-            return null;
+        if (Config::get('cdn')) {
+            Html::addToFooter($return);
         }
 
         return $return;
     }
 
+
+
+    /**
+     *
+     *
+     * @param string $file
+     * @return void
+     */
+    public static function purge(string $html_file, string $c): string
+    {
+        //$purged_css      = 'p-'.$css;
+        //$purged_css_file = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+        //$css_file        = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+        //
+        //safe_exec(array('commands' => array('cd' , array(PATH_ROOT.'libs/vendor/purge-css/src/'),
+        //                                    'php', array(PATH_ROOT.'libs/vendor/purge-css/src/purge.php', 'purge:run', $css_file, $html, $purged_css_file))));
+        //return $purged_css;
+
+        $purged_css      = 'p-'.$css;
+        $purged_css_file = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+        $css_file        = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+        $arguments       = array('--css', $css_file, '--content', $html, '--out', PATH_TMP);
+
+        /*
+         * Ensure that any previous version is deleted
+         */
+        file_delete($purged_css_file, PATH_ROOT.'www/'.LANGUAGE.'/pub/css');
+
+        /*
+         * Add list of selectors that should be whitelisted
+         */
+        if (!empty($_CONFIG['css']['whitelist'][$core->register['script']])) {
+            /*
+             * Use the whitelist specifically for this page
+             */
+            $whitelist = &$_CONFIG['css']['whitelist'][$core->register['script']];
+
+        } else {
+            /*
+             * Use the default whitelist
+             */
+            $whitelist = &$_CONFIG['css']['whitelist']['default'];
+        }
+
+        if ($whitelist) {
+            $arguments[] = '--whitelist';
+
+            foreach (Arrays::force($whitelist) as $selector) {
+                if ($selector) {
+                    $arguments[] = $selector;
+                }
+            }
+        }
+
+        unset($whitelist);
+
+        /*
+         * Purge CSS
+         */
+        load_libs('node');
+        node_exec('./purgecss', $arguments);
+        rename(PATH_TMP.basename($css_file), $purged_css_file);
+
+        return $purged_css;
+    }
 }

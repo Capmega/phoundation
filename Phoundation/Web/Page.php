@@ -31,14 +31,23 @@ class Page
      *
      * @var array $headers
      */
-    protected $headers = [];
+    protected static array $headers = [];
 
     /**
      * Information that goes into the HTML footer
      *
      * @var array $footers
      */
-    protected $footers = [];
+    protected static array $footers = [];
+
+    /**
+     * The HTML buffer for this page
+     *
+     * @var string $html
+     */
+    protected static string $html = '';
+
+
 
 //    /**
 //     * Javascript files that will be loaded starting at the footer of the page
@@ -130,6 +139,30 @@ class Page
 
 
     /**
+     * Returns the HTML output buffer for this page
+     *
+     * @return string
+     */
+    public static function getHtml(): string
+    {
+        return self::$html;
+    }
+
+
+
+    /**
+     * Returns the length HTML output buffer for this page
+     *
+     * @return int
+     */
+    public static function getContentLength(): int
+    {
+        return strlen(self::$html);
+    }
+
+
+
+    /**
      * Send the current buffer to the client
      *
      * @return void
@@ -138,14 +171,30 @@ class Page
     {
 
         self::$html  = Html::buildHeaders();
-        self::$html .= Html::buildFooters();
         self::$html .= self::buildHeaders();
         self::$html .= self::buildFooters();
+        self::$html .= Html::buildFooters();
 
         // Minify the output
         self::$html = Html::minify(self::$html);
 
         Http::sendHeaders();
+
+        if (strtoupper($_SERVER['REQUEST_METHOD']) == 'HEAD') {
+            // HEAD request, do not send any HTML whatsoever
+            return;
+        }
+
+        switch (Http::getHttpCode()) {
+            case 304:
+                // 304 requests indicate the browser to use it's local cache, send nothing
+                // no-break
+
+            case 429:
+                // 429 Tell the client that it made too many requests, send nothing
+                return;
+        }
+
         Cache::writePage(self::$html, self::$unique_key);
 
         // Send HTML to the client
