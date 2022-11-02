@@ -2,6 +2,7 @@
 
 namespace Phoundation\Core;
 
+use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Exception\LogException;
@@ -347,7 +348,7 @@ Class Log {
      *
      * @return string
      */
-    public function getLocalId(): string
+    public static function getLocalId(): string
     {
         return self::$local_id;
     }
@@ -364,7 +365,7 @@ Class Log {
      * @param string $local_id
      * @return void
      */
-    public function setLocalId(string $local_id): void
+    public static function setLocalId(string $local_id): void
     {
         if (self::$local_id !== '-') {
             throw new LogException('Cannot set the local log id, it has already been set');
@@ -384,7 +385,7 @@ Class Log {
      *
      * @return int
      */
-    public function getBacktraceDisplay(): int
+    public static function getBacktraceDisplay(): int
     {
         return self::$display;
     }
@@ -402,7 +403,7 @@ Class Log {
      * @param string|int $display The new display configuration
      * @return int The previous value
      */
-    public function setBacktraceDisplay(string|int $display): int
+    public static function setBacktraceDisplay(#[ExpectedValues(values: ["BACKTRACE_DISPLAY_FUNCTION", "BACKTRACE_DISPLAY_FILE", "BACKTRACE_DISPLAY_BOTH", Log::BACKTRACE_DISPLAY_FUNCTION, Log::BACKTRACE_DISPLAY_FILE, Log::BACKTRACE_DISPLAY_BOTH])] string|int $display): int
     {
         switch ($display) {
             case 'BACKTRACE_DISPLAY_FUNCTION':
@@ -444,7 +445,7 @@ Class Log {
      *
      * @return string
      */
-    public function getGlobalId(): string
+    public static function getGlobalId(): string
     {
         return self::$global_id;
     }
@@ -461,7 +462,7 @@ Class Log {
      * @param string $global_id
      * @return void
      */
-    public function setGlobalId(string $global_id): void
+    public static function setGlobalId(string $global_id): void
     {
         if (!$global_id) {
             return;
@@ -1088,7 +1089,7 @@ Class Log {
                     $line['call'] = Strings::size($line['call'], $largest);
                 }
 
-                self::write(trim(($line['call'] ?? null) . ($line['location'] ? (isset($line['call']) ? ' in ' : null) . $line['location'] : null)), 'debug', $level, false);
+                self::write(trim(($line['call'] ?? null) . (isset($line['location']) ? (isset($line['call']) ? ' in ' : null) . $line['location'] : null)), 'debug', $level, false);
             }
 
             return $count;

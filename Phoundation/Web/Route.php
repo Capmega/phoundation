@@ -7,6 +7,7 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Restrictions;
@@ -39,7 +40,6 @@ class Route
 
 
 
-
     /**
      * Route constructor
      */
@@ -47,6 +47,7 @@ class Route
     {
         // Start the Core object
         Core::startup();
+        Validator::hideUserData();
     }
 
 
@@ -182,7 +183,7 @@ class Route
             if (!$init) {
                 $init = true;
                 Log::action(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', [':domain' => Config::get('web.domains.primary'), ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')')]));
-                Core::registerShutdown(['Route', 'shutdown']);
+                Core::registerShutdown(['\Phoundation\Web\Route', 'shutdown']);
             }
 
             if (!$url_regex) {
@@ -237,9 +238,7 @@ class Route
                         Log::notice(tr('Adding query to URI ":uri"', array(':uri' => $uri)));
 
                         if (!array_search('Q', $flags)) {
-                            /*
-                             * Auto imply Q
-                             */
+                            // Auto imply Q
                             $flags[] = 'Q';
                         }
 
@@ -835,7 +834,8 @@ class Route
      *
      * @return void
      */
-    protected static function shutdown() {
+    public static function shutdown(): void
+    {
         self::getInstance();
 
         // Test the URI for known hacks. If so, apply configured response
@@ -876,7 +876,7 @@ class Route
             Core::writeRegister(PATH_WWW . 'system/404', 'system', 'script_path');
             Core::writeRegister('404', 'system', 'script');
 
-            Web::execute(404);
+            Page::execute('system/404.php');
 
         } catch (Throwable $e) {
             if ($e->getCode() === 'not-exists') {
@@ -894,7 +894,9 @@ class Route
                 die();
             }
 
-            Log::warning(tr('The 404 page failed to show with ":e", showing basic 404 message instead', [':e' => $e->getMessages()]));
+            Log::warning(tr('The 404 page failed to show with an exception, showing basic 404 message instead and logging exception below'));
+            Log::setBacktraceDisplay('BACKTRACE_DISPLAY_BOTH');
+            Log::error($e);
 
             echo tr('404 - The requested page does not exist');
             die();

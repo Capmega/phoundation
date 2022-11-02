@@ -15,7 +15,6 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Processes;
 use Phoundation\Web\Client;
@@ -149,8 +148,8 @@ class Core {
 
             // Setup error handling, report ALL errors
             error_reporting(E_ALL);
-            set_error_handler(['\Phoundation\Core\Core', 'phpErrorHandler']);
-            set_exception_handler(['\Phoundation\Core\Core', 'uncaughtException']);
+            set_error_handler(['\Phoundation\Core\Core'         , 'phpErrorHandler']);
+            set_exception_handler(['\Phoundation\Core\Core'     , 'uncaughtException']);
             register_shutdown_function(['\Phoundation\Core\Core', 'shutdown']);
 
             // Load the functions and mb files
@@ -272,9 +271,9 @@ class Core {
     {
         try {
             if (self::$state !== 'init') {
-                echo "<pre>";
-                print_r(debug_backtrace());
-                die();
+                throw new CoreException(tr('Core::startup() was run in the ":state" state. Check backtrace to see what caused this', [
+                    ':state' => self::$state
+                ]));
             }
 
             self::$state = 'startup';
@@ -1887,16 +1886,17 @@ class Core {
      * Register a shutdown function
      *
      * @param array|string $function_name
+     * @param mixed $values
      * @return void
      */
-    public static function registerShutdown(array|string $function_name): void
+    public static function registerShutdown(array|string $function_name, mixed $values = null): void
     {
         if (!is_array(self::readRegister('system', 'shutdown'))) {
             // Libraries shutdown list
             self::$register['system']['shutdown'] = [];
         }
 
-        self::$register['system']['shutdown'][Strings::force($function_name)] = $function_name;
+        self::$register['system']['shutdown'][Strings::force($function_name)] = $values;
     }
 
 
@@ -1959,34 +1959,68 @@ class Core {
             return;
         }
 
-        Log::notice(tr('Starting shutdown procedure for script ":script"', [':script' => self::$register['system']['script']]), 2);
+        Log::notice(tr('Starting shutdown procedure for script ":script"', [
+            ':script' => self::$register['system']['script']
+        ]), 2);
 
         if (!is_array(self::readRegister('system', 'shutdown'))) {
             // Libraries shutdown list
             self::$register['system']['shutdown'] = [];
         }
 
-        foreach (self::$register['system']['shutdown'] as $key => $value) {
+        foreach (self::$register['system']['shutdown'] as $method => $value) {
             try {
-                $key = substr($key, 9);
+                if (str_contains($method, ',')) {
+                    // Execute the static class method with the specified value
+                    $method = explode(',', $method);
 
-                // Execute this shutdown function with the specified value
-                if (is_array($value)) {
-                    // Shutdown function value is an array. Execute it for each entry
-                    foreach ($value as $entry) {
-                        Log::notice(tr('Executing shutdown function ":function" with value ":value"', [':function' => $key . '()', ':value' => $entry]));
-                        $key($entry);
+                    // Execute this shutdown function with the specified value
+                    if (is_array($value)) {
+                        // Shutdown function value is an array. Execute it for each entry
+                        foreach ($value as $entry) {
+                            Log::notice(tr('Executing shutdown method ":method" with list value ":value"', [
+                                ':method' => $method[0] . '::' . $method[1] . '()',
+                                ':value' => $entry
+                            ]));
+
+                            $method[0]::{$method[1]}($entry);
+                        }
+
+                    } else {
+                        Log::notice(tr('Executing shutdown method ":method" with value ":value"', [
+                            ':method' => $method[0] . '::' . $method[1] . '()',
+                            ':value'  => $value
+                        ]));
+
+                        $method[0]::{$method[1]}($value);
                     }
-
                 } else {
-                    Log::notice(tr('Executing shutdown function ":function" with value ":value"', [':function' => $key . '()', ':value' => $value]));
-                    $key($value);
+                    // Execute this shutdown function with the specified value
+                    if (is_array($value)) {
+                        // Shutdown function value is an array. Execute it for each entry
+                        foreach ($value as $entry) {
+                            Log::notice(tr('Executing shutdown function ":function" with list value ":value"', [
+                                ':function' => $method . '()',
+                                ':value'    => $entry
+                            ]));
+
+                            $method($entry);
+                        }
+
+                    } else {
+                        Log::notice(tr('Executing shutdown function ":function" with value ":value"', [
+                            ':function' => $method . '()',
+                            ':value'    => $value
+                        ]));
+
+                        $method($value);
+                    }
                 }
 
             } catch (Throwable $e) {
                 Notification::new()
                     ->setException($e)
-                    ->send();
+                    ->send(true);
             }
         }
 

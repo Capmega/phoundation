@@ -5,8 +5,10 @@ namespace Phoundation\Web;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cache\Cache;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
@@ -97,58 +99,35 @@ class Page
     #[NoReturn] public static function execute(string $target, bool $attachment = false, ?Restrictions $restrictions = null): void
     {
         try {
-            $target = Path::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE);
+            Core::writeRegister($target, 'system', 'script_file');
 
-            if (str_ends_with($target, 'php')) {
-                if ($attachment) {
-                    // TODO Test this! Implement required HTTP headers!
-                    // Execute the PHP file and then send the output to the client as an attachment
-                    Log::action(tr('Executing file ":target" and sending output as attachment', [':target' => $target]));
+            switch (Core::getCallType()) {
+                case 'ajax':
+throw new UnderConstructionException();
+                    $include = PATH_ROOT . 'www/' . $language . '/ajax/' . $page . '.php';
 
-                    include($target);
+                    // Execute ajax page
+                    Log::notice(tr('Showing ":language" language ajax page ":page"', [':page' => $page, ':language' => $language]));
+                    include($include);
 
-                    Http::file(new Restrictions(PATH_WWW))
-                        ->setAttachment(true)
-                        ->setData(ob_get_clean())
-                        ->setFilename(basename($target))
-                        ->send();
+                case 'api':
+throw new UnderConstructionException();
+                    $include = PATH_ROOT . 'www/api/' . (is_numeric($page) ? 'system/' : '') . $page . '.php';
 
-                } else {
-                    // Execute the file and send the output HTML as a web page
-                    Log::action(tr('Executing page ":target" and sending output as HTML web page', [':target' => Strings::from($target, PATH_ROOT)]));
+                    // Execute ajax page
+                    Log::notice(tr('Showing ":language" language api page ":page"', [':page' => $page, ':language' => $language]));
+                    include($include);
 
-                    include($target);
-                }
+                case 'admin':
+throw new UnderConstructionException();
+                    $admin = '/admin';
+                // no-break
 
-            } else {
-                if ($attachment) {
-                    // TODO Test this! Implement required HTTP headers!
-                    // Upload the file to the client as an attachment
-                    Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
-
-                    Http::file(new Restrictions(PATH_WWW . ',data/attachments'))
-                        ->setAttachment(true)
-                        ->setFile($target)
-                        ->setFilename(basename($target))
-                        ->send();
-
-                } else {
-                    // TODO Test this! Implement required HTTP headers!
-                    // Send the file directly
-                    $mimetype = mime_content_type($target);
-                    $bytes    = filesize($target);
-
-                    Log::action(tr('Sending contents of file ":target" with mime-type ":type" directly to client', [
-                        ':target' => $target,
-                        ':type' => $mimetype
-                    ]));
-
-                    header('Content-Type: ' . $mimetype);
-                    header('Content-length: ' . $bytes);
-
-                    include($target);
-                }
+                default:
+                    // This is a normal web page
+                    self::executeWebPage($target, $attachment, $restrictions);
             }
+
         } catch (Exception $e) {
             Notification::new()
                 ->setTitle(tr('Failed to execute page ":page"', [':page' => $target]))
@@ -275,5 +254,77 @@ class Page
     protected static function buildFooters(): string
     {
 
+    }
+
+
+
+    /**
+     * Execute a standard web page
+     *
+     * @param string $target
+     * @param bool $attachment
+     * @param Restrictions|null $restrictions
+     * @return void
+     */
+    protected static function executeWebPage(string $target, bool $attachment = false, ?Restrictions $restrictions = null): void
+    {
+        if (Strings::fromReverse(dirname($target), '/') === 'system') {
+            // Wait a small random time to avoid timing attacks on system pages
+            usleep(mt_rand(1, 500));
+        }
+
+        // Find the correct target page
+        $target = Path::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE);
+
+        if (str_ends_with($target, 'php')) {
+            if ($attachment) {
+                // TODO Test this! Implement required HTTP headers!
+                // Execute the PHP file and then send the output to the client as an attachment
+                Log::action(tr('Executing file ":target" and sending output as attachment', [':target' => $target]));
+
+                include($target);
+
+                Http::file(new Restrictions(PATH_WWW))
+                    ->setAttachment(true)
+                    ->setData(ob_get_clean())
+                    ->setFilename(basename($target))
+                    ->send();
+
+            } else {
+                // Execute the file and send the output HTML as a web page
+                Log::action(tr('Executing page ":target" and sending output as HTML web page', [':target' => Strings::from($target, PATH_ROOT)]));
+
+                include($target);
+            }
+
+        } else {
+            if ($attachment) {
+                // TODO Test this! Implement required HTTP headers!
+                // Upload the file to the client as an attachment
+                Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
+
+                Http::file(new Restrictions(PATH_WWW . ',data/attachments'))
+                    ->setAttachment(true)
+                    ->setFile($target)
+                    ->setFilename(basename($target))
+                    ->send();
+
+            } else {
+                // TODO Test this! Implement required HTTP headers!
+                // Send the file directly
+                $mimetype = mime_content_type($target);
+                $bytes    = filesize($target);
+
+                Log::action(tr('Sending contents of file ":target" with mime-type ":type" directly to client', [
+                    ':target' => $target,
+                    ':type' => $mimetype
+                ]));
+
+                header('Content-Type: ' . $mimetype);
+                header('Content-length: ' . $bytes);
+
+                include($target);
+            }
+        }
     }
 }
