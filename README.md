@@ -1,5 +1,17 @@
 PHOUNDATION
 
+This project is a PHP website development framework.
+
+The 4.0 version is a new class based version that has been written from the ground up and is currently in heavy development. 
+
+This project will be intended for production use, but right now is not ready for that. 
+
+
+=========================================================================
+
+
+Below is the original README.md content for the 3.* and below versions 
+
 This project is a procedural PHP website development framework.
 
 It consists of hundreds of libraries covering near every needed functionality for websites, and then some. Its main design ideas were security, ease and speed of development, low resource usage, and just a large collection of functionalities.
