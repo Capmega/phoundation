@@ -172,7 +172,9 @@ class Core {
                 }
 
                 // Project file is not readable
-                File::checkReadable(PATH_ROOT . 'config/project');
+                if(!is_readable(PATH_ROOT . 'config/project')) {
+                    throw new CoreException('Project file "' . PATH_ROOT . 'config/project" cannot be read. Please ensure it exists');
+                }
             }
 
             // Check what platform we're in
@@ -219,9 +221,7 @@ class Core {
                 // Startup failed miserably. Don't use anything fancy here, we're dying!
                 if (defined('PLATFORM_HTTP')) {
                     if (PLATFORM_HTTP) {
-                        /*
-                         * Died in browser
-                         */
+                        // Died in browser
                         Log::error('startup: Failed with "' . $e->getMessage() . '"');
                         Web::die('startup: Failed, see web server error log');
                     }
@@ -236,8 +236,9 @@ class Core {
             }
 
             // Wowza things went to @#*$@( really fast! The standard defines aren't even available yet
-            @error_log('startup: Failed with "' . $e->getMessage() . '"');
-            die('startup: Failed, see error log');
+            @error_log('Startup failed with "' . $e->getMessage() . '", see exception below.                    ');
+            @error_log($e);
+            die('Startup: Failed, see error log');
         }
     }
 

@@ -1647,7 +1647,7 @@ class File
         if (!file_exists($file)) {
             if (!file_exists(dirname($file))) {
                 // The file doesn't exist and neither does its parent directory
-                throw new FilesystemException(tr('The:type file ":file" cannot be read because it does not exist and neither does the parent path ":path"', [
+                throw new FilesystemException(tr('The:type file ":file" cannot be read because the directory ":path" does not exist', [
                     ':type' => ($type ? '' : ' ' . $type),
                     ':file' => $file,
                     ':path' => dirname($file)
