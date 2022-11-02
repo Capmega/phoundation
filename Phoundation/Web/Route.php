@@ -114,10 +114,6 @@ class Route
      * @see https://www.php.net/manual/en/function.preg-match.php
      * @see https://regularexpressions.info/ NOTE: The site currently has broken SSL, but is one of the best resources out there to learn regular expressions
      * @table: `routes_static`
-     * @version 1.27.0: Added function and documentation
-     * @version 2.0.7: Now uses Route::execute404() to display 404 pages
-     * @version 2.5.63: Improved documentation
-     * @version 2.8.18: Now registers Route::shutdown() as a shutdown function instead of Route::execute404()
      * @example
      * code
      * // This will take phoundation.org/ and execute the index page, but not allow queries.
@@ -298,7 +294,14 @@ class Route
                 ':url' => $uri
             ]));
 
-            $match = preg_match_all($url_regex, $uri, $matches);
+            try {
+                $match = preg_match_all($url_regex, $uri, $matches);
+            } catch (Exception $e) {
+                throw new RouteException(tr('Failed to parse route ":route" with ":message"', [
+                    ':route'   => $url_regex,
+                    ':message' => Strings::until(Strings::from($e->getMessage(), 'preg_match_all(): '), ' in ')
+                ]));
+            }
 
             if (!$match) {
                 $count++;

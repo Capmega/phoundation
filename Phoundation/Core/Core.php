@@ -151,6 +151,7 @@ class Core {
             error_reporting(E_ALL);
             set_error_handler(['\Phoundation\Core\Core', 'phpErrorHandler']);
             set_exception_handler(['\Phoundation\Core\Core', 'uncaughtException']);
+            register_shutdown_function(['\Phoundation\Core\Core', 'shutdown']);
 
             // Load the functions and mb files
             require(PATH_ROOT . 'Phoundation/functions.php');
@@ -1843,10 +1844,10 @@ class Core {
             }
 
             try {
-                log_console('Warning: Global data path not found. Normally this path should exist either 1 directory up, 2 directories up, in /var/lib/data, /var/www/data, $USER_HOME/projects/data, or $USER_HOME/data', 'yellow');
-                log_console('Warning: If you are sure this simply does not exist yet, it can be created now automatically. If it should exist already, then abort this script and check the location!', 'yellow');
+                Log::warning(tr('Warning: Global data path not found. Normally this path should exist either 1 directory up, 2 directories up, in /var/lib/data, /var/www/data, $USER_HOME/projects/data, or $USER_HOME/data'));
+                Log::warning(tr('Warning: If you are sure this simply does not exist yet, it can be created now automatically. If it should exist already, then abort this script and check the location!'));
 
-                $path = script_exec(array('commands' => array('base/init_global_data_path')));
+                $path = Processes::create()(array('commands' => array('base/init_global_data_path')));
 
                 if (!file_exists($path)) {
                     /*
@@ -1855,10 +1856,7 @@ class Core {
                     throw new CoreException('get_global_data_path(): ./script/base/init_global_data_path reported path "'.Strings::Log($path).'" was created but it could not be found', 'failed');
                 }
 
-                /*
-                 * Its now created!
-                 * Strip "data/"
-                 */
+                // Its now created! Strip "data/"
                 $path = Strings::slash($path);
 
             }catch(Exception $e) {
@@ -1866,23 +1864,23 @@ class Core {
             }
         }
 
-        /*
-         * Now check if the specified section exists
-         */
-        if ($section and !file_exists($path.$section)) {
-            Path::ensure($path.$section);
+        // Now check if the specified section exists
+        if ($section and !file_exists($path . $section)) {
+            Path::ensure($path . $section);
         }
 
-        if ($writable and !is_writable($path.$section)) {
-            throw new CoreException(tr('The global path ":path" is not writable', array(':path' => $path.$section)), 'not-writable');
+        if ($writable and !is_writable($path . $section)) {
+            throw new CoreException(tr('The global path ":path" is not writable', [
+                ':path' => $path . $section
+            ]));
         }
 
-        if (!$global_path = realpath($path.$section)) {
-            /*
-             * Curious, the path exists, but realpath failed and returned false..
-             * This should never happen since we ensured the path above! This is just an extra check in case of.. weird problems :)
-             */
-            throw new CoreException('The found global data path "'.Strings::Log($path).'" is invalid (realpath returned false)');
+        if (!$global_path = realpath($path . $section)) {
+            // Curious, the path exists, but realpath failed and returned false. This should never happen since we
+            // ensured the path above! This is just an extra check in case of.. weird problems :)
+            throw new CoreException(tr('The found global data path ":path" is invalid (realpath returned false)', [
+                ':path' => $path
+            ]));
         }
 
         return Strings::slash($global_path);
@@ -2322,29 +2320,29 @@ class Core {
                     Log::information(tr('Crawler ":crawler" on URL ":url"', [':crawler' => self::readRegister('session', 'client'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']]));
 
                 } else {
-                    // Setup session handlers
-                    // TODO Implement alternative session handlers
-                    switch (Config::get('web.sessions.handler', false)) {
-                        case false:
-                            Path::ensure(PATH_ROOT.'data/cookies/');
-                            ini_set('session.save_path', PATH_ROOT.'data/cookies/');
-                            break;
-
-                        case 'sql':
-                            // Store session data in MySQL
-                            session_set_save_handler('sessions_sql_open', 'sessions_sql_close', 'sessions_sql_read', 'sessions_sql_write', 'sessions_sql_destroy', 'sessions_sql_gc', 'sessions_sql_create_sid');
-                            register_shutdown_function('session_write_close');
-
-                        case 'mc':
-                            // Store session data in memcached
-                            session_set_save_handler('sessions_memcached_open', 'sessions_memcached_close', 'sessions_memcached_read', 'sessions_memcached_write', 'sessions_memcached_destroy', 'sessions_memcached_gc', 'sessions_memcached_create_sid');
-                            register_shutdown_function('session_write_close');
-
-                        case 'mm':
-                            // Store session data in shared memory
-                            session_set_save_handler('sessions_mm_open', 'sessions_mm_close', 'sessions_mm_read', 'sessions_mm_write', 'sessions_mm_destroy', 'sessions_mm_gc', 'sessions_mm_create_sid');
-                            register_shutdown_function('session_write_close');
-                    }
+//                    // Setup session handlers
+//                    // TODO Implement alternative session handlers
+//                    switch (Config::get('web.sessions.handler', false)) {
+//                        case false:
+//                            Path::ensure(PATH_ROOT.'data/cookies/');
+//                            ini_set('session.save_path', PATH_ROOT.'data/cookies/');
+//                            break;
+//
+//                        case 'sql':
+//                            // Store session data in MySQL
+//                            session_set_save_handler('sessions_sql_open', 'sessions_sql_close', 'sessions_sql_read', 'sessions_sql_write', 'sessions_sql_destroy', 'sessions_sql_gc', 'sessions_sql_create_sid');
+//                            register_shutdown_function('session_write_close');
+//
+//                        case 'mc':
+//                            // Store session data in memcached
+//                            session_set_save_handler('sessions_memcached_open', 'sessions_memcached_close', 'sessions_memcached_read', 'sessions_memcached_write', 'sessions_memcached_destroy', 'sessions_memcached_gc', 'sessions_memcached_create_sid');
+//                            register_shutdown_function('session_write_close');
+//
+//                        case 'mm':
+//                            // Store session data in shared memory
+//                            session_set_save_handler('sessions_mm_open', 'sessions_mm_close', 'sessions_mm_read', 'sessions_mm_write', 'sessions_mm_destroy', 'sessions_mm_gc', 'sessions_mm_create_sid');
+//                            register_shutdown_function('session_write_close');
+//                    }
 
                     // Set cookie, but only if page is not API and domain has cookie configured
                     if (Config::get('web.sessions.cookies.europe', true) and !Config::get('web.sessions.cookies.name', 'phoundation')) {
