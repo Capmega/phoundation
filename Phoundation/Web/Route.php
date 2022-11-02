@@ -884,13 +884,18 @@ class Route
 
                 echo tr('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
                 <html><head>
-                <title>'.tr('404 Not Found') . '</title>
+                <title>:title</title>
                 </head><body>
-                <h1>'.tr('Not Found') . '</h1>
-                <p>'.tr('The requested URL /wer was not found on this server') . '.</p>
+                <h1>:h1</h1>
+                <p>:p</p>
                 <hr>
-                '.(!empty($_CONFIG['security']['signature']) ? '<address>Phoundation ' . Core::FRAMEWORKCODEVERSION . '</address>' : '') . '
-                </body></html>');
+                :body
+                </body></html>', [
+                    ':title' => tr('404 Not Found'),
+                    ':h1'    => tr('Not Found'),
+                    ':p'     => tr('The requested URL /wer was not found on this server'),
+                    ':body'  => ((Config::get('security.expose.phoundation-signature', false)) ? '<address>Phoundation ' . Core::FRAMEWORKCODEVERSION . '</address>' : '')
+                ]);
                 die();
             }
 
