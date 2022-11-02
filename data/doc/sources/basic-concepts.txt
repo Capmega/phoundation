@@ -1,7 +1,0 @@
-@title Phoundation Basics
-
-    As stated in the preface, The Phoundation Project is a procedural framework aiming to maximize ease and speed while developing, as well as minimizing resource usage.
-    To that purpose, The Phoundation Project lists hundreds of different libraries, each one comprising several functions. A key element of The Phoundation Project's
-    architecture is the minimal usage of objects, which makes a paramount to understand the library, script and page structure. All of the .php files are either libraries,
-    configuration files or specific pages that render HTML to serve clients. The "scripts" folder contains executable files to automate various system operations.
-
