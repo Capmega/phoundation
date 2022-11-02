@@ -5,8 +5,10 @@ namespace Phoundation\Core;
 use Phoundation\Users\User;
 use Phoundation\Users\Users;
 
+
+
 /**
- * Class Session
+ * Interface Session
  *
  *
  *
@@ -15,7 +17,7 @@ use Phoundation\Users\Users;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Session
+trait Session
 {
     /**
      * The current user for this session

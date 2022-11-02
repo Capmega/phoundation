@@ -139,7 +139,7 @@ class Notification
      *
      * @return Notification
      */
-    public static function create(): Notification
+    public static function new(): Notification
     {
         return new Notification();
     }
@@ -551,7 +551,7 @@ return $this;
                 break;
         }
 
-        $this->logged = true;
+        self::$logged = true;
 
         return $this;
     }

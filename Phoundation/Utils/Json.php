@@ -274,7 +274,7 @@ class Json
 
         if (str_contains($code, '_')) {
             // Codes should always use -, never _
-            Notification::create()
+            Notification::new()
                 ->setException(new JsonException(tr('Specified code ":code" contains an _ which should never be used, always use a -', [':code' => $code])))
                 ->send();
         }
@@ -377,7 +377,7 @@ class Json
                 Json::reply(null, 'RELOAD');
 
             default:
-                Notification::create()
+                Notification::new()
                     ->setCode('unknown')
                     ->setGroups('developers')
                     ->setTitle('Unknown message specified')

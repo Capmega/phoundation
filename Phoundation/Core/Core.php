@@ -813,6 +813,14 @@ class Core {
                     break;
             }
 
+            // Set session handler
+            //
+            // For Memcached support, configure the following in config/ENVIRONMENT.yaml
+            // sessions.handler = "memcached"                         # Note that this is memcacheD with a D!
+            // sessions.path = "localhost:11211:0, localhost:11211:1" # Where the last digit is weight to prioritize
+            ini_set('session.save_handler', Config::get('sessions.handler', 'files'));
+            ini_set('session.save_path'   , Config::get('sessions.path', '/var/lib/php/session'));
+
             self::$state = 'script';
 
         } catch (Throwable $e) {
@@ -1162,7 +1170,7 @@ class Core {
             if (empty(Config::get('language.default' . $language))) {
                 $language = Config::get('language.default', 'en');
 
-                Notification::create()
+                Notification::new()
                     ->setCode('unknown-language')
                     ->setGroups('developers')
                     ->setTitle(tr('Unknown language specified'))
@@ -1204,7 +1212,7 @@ class Core {
         unset($trace[0]);
         unset($trace[1]);
 
-        Notification::create()
+        Notification::new()
             ->setCode('PHP-ERROR-' . $errno)
             ->addGroup('developers')
             ->setTitle('PHP ERROR "' . $errno . '"')
@@ -1467,7 +1475,7 @@ class Core {
                             }
                         }
 
-                        Notification::create()
+                        Notification::new()
                             ->setException($e)
                             ->send();
 
@@ -1604,7 +1612,7 @@ class Core {
                         }
 
                         // We're not in debug mode.
-                        Notification::create()
+                        Notification::new()
                             ->setException($e)
                             ->send();
 
@@ -1982,7 +1990,7 @@ class Core {
                 }
 
             } catch (Throwable $e) {
-                Notification::create()
+                Notification::new()
                     ->setException($e)
                     ->send();
             }
@@ -2097,7 +2105,7 @@ class Core {
 
         }catch(Throwable $e) {
             // Users timezone failed, use the configured one
-            Notification::create()
+            Notification::new()
                 ->setException($e)
                 ->send();
         }
@@ -2264,7 +2272,7 @@ class Core {
                 }
 
                 if (!str_contains($domain, $test)) {
-                    Notification::create()
+                    Notification::new()
                         ->setCode('configuration')
                         ->setGroups('developers')
                         ->setTitle(tr('Invalid cookie domain'))
@@ -2480,7 +2488,7 @@ class Core {
                                 $e = new CoreException(tr('core::manage_session(): Reset timezone for user ":user" to ":timezone"', array(':user' => name($_SESSION['user']), ':timezone' => $_SESSION['user']['timezone'])), $e);
                                 $e->makeWarning(true);
 
-                                Notification::create()
+                                Notification::new()
                                     ->setException($e)
                                     ->send();
                             }

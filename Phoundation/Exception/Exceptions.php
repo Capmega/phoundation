@@ -39,7 +39,7 @@ class Exceptions
      */
     public static function underConstruction(?string $functionality = null): void
     {
-        Notification::create()
+        Notification::new()
             ->setCode('under-construction')
             ->setGroups('developers')
             ->setTitle(tr('Obsolete function used'))
@@ -69,7 +69,7 @@ class Exceptions
      */
     public static function obsolete(?string $functionality = null): void
     {
-        Notification::create()
+        Notification::new()
             ->setCode('obsolete')
             ->setGroups('developers')
             ->setTitle(tr('Obsolete function used'))
@@ -99,7 +99,7 @@ class Exceptions
      */
     public static function notSupported(?string $functionality = null): void
     {
-        Notification::create()
+        Notification::new()
             ->setCode('not-supported')
             ->setGroups('developers')
             ->setTitle(tr('Obsolete function used'))

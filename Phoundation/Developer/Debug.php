@@ -258,7 +258,7 @@ class Debug {
 
         if (Debug::production()) {
             // This is not usually something you want to happen!
-            Notification::create()
+            Notification::new()
                 ->setTitle('Debug mode enabled on production environment!')
                 ->setMessage('Debug mode enabled on production environment, with this all internal debug information can be visible to everybody!')
                 ->setGroups('developers')
@@ -275,7 +275,9 @@ class Debug {
 
         if (Core::readyState() and PLATFORM_HTTP) {
             // Show output on web
-            Http::headers(null, 0);
+            if (!headers_sent()) {
+                Http::sendHeaders();
+            }
 
             if (empty($core->register['debug_plain'])) {
                 switch (Core::getCallType()) {
@@ -283,7 +285,9 @@ class Debug {
                         // no-break
                     case 'ajax':
                         // If JSON, CORS requests require correct headers! Also force plain text content type
-                        Http::headers(null, 0);
+                        if (!headers_sent()) {
+                            Http::sendHeaders();
+                        }
 
                         if (!headers_sent()) {
                             header_remove('Content-Type');

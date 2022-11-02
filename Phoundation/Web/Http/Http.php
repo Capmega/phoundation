@@ -16,6 +16,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Processes\Commands;
 use Phoundation\Web\Http\Html\Html;
@@ -205,6 +206,15 @@ class Http
      */
     public static function sendHeaders(): void
     {
+        if (headers_sent($file, $line)) {
+            Log::warning(tr('Will not send headers again, output started at ":file@:line. Adding backtrace to debug this request', [
+                ':file' => $file,
+                ':line' => $line
+            ]));
+            Log::backtrace();
+            return;
+        }
+
         /*
          * Ensure that from this point on we have a language configuration available
          *
@@ -298,7 +308,7 @@ class Http
                 }
             }
 
-            $headers = self::cache($params, self::$http_code, $headers);
+            $headers = self::cache($headers);
 
             // Remove incorrect or insecure headers
             header_remove('Expires');
@@ -334,8 +344,10 @@ class Http
             }
 
         } catch (Throwable $e) {
-            Log::error('Failed to send headers to client');
-            Log::debug($e);
+            Notification::new()
+                ->setException($e)
+                ->setTitle(tr('Failed to send headers to client'))
+                ->send();
 
             // Http::sendHeaders() itself crashed. Since Http::sendHeaders() would send out http 500, and since it
             // crashed, it no longer can do this, send out the http 500 here.
@@ -566,25 +578,17 @@ class Http
      * @see https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
      * @version 2.5.92: Added function and documentation
 
-     * @param array $params The caching parameters
-     * @param int $http_code The HTTP code that will be sent to the client
      * @param array $headers Any extra headers that are required
      * @return array
-     *
-     * @todo Remove $params dependancy
-     * @todo Remove $core dependancy
-     * @todo Remove $_CONFIG dependancy
      */
-    protected static function cache(array $params, int $http_code, array $headers = []): array
+    protected static function cache(array $headers): array
     {
-        Arrays::ensure($params);
-
         if (Config::get('web.cache.enabled', 'auto') === 'auto') {
             // PHP will take care of the cache headers
 
         } elseif (Config::get('web.cache.enabled', 'auto') === true) {
             // Place headers using phoundation algorithms
-            if (!Config::get('web.cache.enabled', 'auto') or ($http_code != 200)) {
+            if (!Config::get('web.cache.enabled', 'auto') or (self::$http_code != 200)) {
                 // Non HTTP 200 / 304 pages should NOT have cache enabled! For example 404, 503 etc...
                 $headers[] = 'Cache-Control: no-store, max-age=0';
                 self::$etag = null;

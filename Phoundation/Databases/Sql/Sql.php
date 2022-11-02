@@ -921,7 +921,7 @@ class Sql
             // Okay wut? Something went badly wrong
             global $argv;
 
-            Notification::create()
+            Notification::new()
                 ->setCode('SQL_QUERY_ERROR')
                 ->setGroups('developers')
                 ->setTitle('SQL Query error')

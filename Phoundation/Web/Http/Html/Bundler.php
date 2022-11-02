@@ -224,7 +224,7 @@ class Bundler
                     $import = Strings::cut($match, '"', '"');
 
                     if (!file_exists(self::$path . $import)) {
-                        Notification::create()
+                        Notification::new()
                             ->setCode('not-exists')
                             ->setGroups('developers')
                             ->setTitle(tr('Bundler file does not exist'))
@@ -247,7 +247,7 @@ class Bundler
                     $import = Strings::slash(dirname($file)).Strings::unslash($import);
 
                     if (!file_exists($import)) {
-                        Notification::create()
+                        Notification::new()
                             ->setCode('not-exists')
                             ->setGroups('developers')
                             ->setTitle(tr('Bundler file does not exist'))
@@ -329,7 +329,7 @@ class Bundler
                 ]), 3);
 
                 if (!file_exists($file)) {
-                    Notification::create()
+                    Notification::new()
                         ->setCode('not-exists')
                         ->setGroups('developers')
                         ->setTitle(tr('Bundler file does not exist'))
@@ -391,7 +391,7 @@ class Bundler
                 File::delete($html_file);
             }
 
-            Notification::create()
+            Notification::new()
                 ->setException($e->makeWarning())
                 ->send();
         }

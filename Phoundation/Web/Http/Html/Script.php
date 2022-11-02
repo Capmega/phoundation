@@ -62,7 +62,7 @@ class Script extends Element
 
         if (!$script['script']) {
             // No javascript was specified, Notification developers
-            Notification::create()
+            Notification::new()
                 ->setException(new HtmlException(tr('No javascript code specified')))
                 ->send();
             return '';
@@ -188,7 +188,7 @@ class Script extends Element
 
                     }catch(Throwable $e) {
                         // Minify process failed. Notification and fall back on a plain copy
-                        Notification::create()
+                        Notification::new()
                             ->setException($e)
                             ->send();
 
@@ -204,7 +204,7 @@ class Script extends Element
 
             }catch(Throwable $e) {
                 // Moving internal javascript to external files failed, Notification developers
-                Notification::create()
+                Notification::new()
                     ->setException($e)
                     ->send();
 
