@@ -6,7 +6,9 @@ namespace Phoundation\Filesystem;
 
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Log;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Exception\RestrictionsException;
 
 /**
  * Restrictions class
@@ -80,12 +82,27 @@ class Restrictions
 
     /**
      * @param string|array $patterns
+     * @param bool $write
      * @return void
      */
-    public function check(string|array $patterns): void
+    public function check(string|array $patterns, bool $write = false): void
     {
-        foreach ($this->paths as $path => $write) {
-throw new UnderConstructionException();
+        foreach (Arrays::force($patterns) as $pattern) {
+            foreach ($this->paths as $path => $restrict_write) {
+                $path = Path::absolute($path);
+
+                if (str_starts_with($pattern, $path)) {
+                    if ($write and !$restrict_write) {
+                        throw new RestrictionsException(tr('Write access to path ":path" denied', [':path' => $pattern]));
+                    }
+
+                    // Access ok!
+                    return;
+                }
+            }
+
+            // The specified pattern(s) are not allwed by the specified restrictions
+            throw new RestrictionsException(tr('Access to path ":path" denied', [':path' => $pattern]));
         }
     }
 }

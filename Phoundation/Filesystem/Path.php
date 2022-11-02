@@ -258,4 +258,32 @@ class Path
         closedir($handle);
         return true;
     }
+
+
+
+    /**
+     * Return the absolute path for the specified path
+     *
+     * @param string $path
+     * @param string|null $prefix
+     * @return string The absolute path
+     */
+    public static function absolute(string $path, string $prefix = null): string
+    {
+        if (!$path) {
+            return getcwd();
+        }
+
+        $path = trim($path);
+
+        if ($path[0] === '/') {
+            return $path;
+        }
+
+        if (!$prefix) {
+            $prefix = getcwd();
+        }
+
+        return Strings::slash($prefix) . Strings::unslash($path);
+    }
 }

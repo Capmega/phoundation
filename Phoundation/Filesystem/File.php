@@ -577,27 +577,6 @@ class File
 
 
     /**
-     * Return the absolute path for the specified path
-     *
-     * @param string $path
-     * @return string The absolute path
-     */
-    public static function absolutePath(string $path): string
-    {
-        if (!$path) {
-            return getcwd();
-        }
-
-        if ($path[0] === '/') {
-            return $path;
-        }
-
-        return Strings::slash(getcwd()).Strings::unslash($path);
-    }
-
-
-
-    /**
      * Returns the mimetype data for the specified file
      *
      * @version 2.4: Added documentation

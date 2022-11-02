@@ -228,8 +228,8 @@ class File
 
         // Ensure the specified file is valid and readable
         \Phoundation\Filesystem\File::checkReadable($file);
-
         $this->restrictions->check($file);
+
         $this->file = $file;
         $this->size = filesize($file);
         return $this;
@@ -355,6 +355,7 @@ class File
      */
     public function send(): void
     {
+Log::checkpoint();
         // Send the specified file to the client
         Log::action(tr('HTTP sending ":bytes" bytes file ":file" to client as ":filename"', [
             ':bytes'    => $this->size,

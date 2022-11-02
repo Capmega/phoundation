@@ -470,16 +470,20 @@ class Notification
     }
 
 
-
     /**
      * Send the notification
      *
-     * @todo Implement!
+     * @param bool|null $log
      * @return Notification
+     * @todo Implement!
      */
-    public function send(): Notification
+    public function send(?bool $log = null): Notification
     {
-        if (!self::$logged and self::$auto_log) {
+        if ($log === null) {
+            $log = self::$auto_log;
+        }
+
+        if (!self::$logged and $log) {
             // Automatically log this notification
             self::log();
         }

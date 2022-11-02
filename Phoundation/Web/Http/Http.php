@@ -99,7 +99,7 @@ class Http
             self::$instance = new Http();
         }
 
-        return self::getInstance();
+        return self::$instance;
     }
 
 

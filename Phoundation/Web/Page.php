@@ -2,15 +2,17 @@
 
 namespace Phoundation\Web;
 
+use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Web\Exception\RouteException;
+use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
+use Throwable;
 
 
 
@@ -78,59 +80,82 @@ class Page
      * We have a target for the requested route. If the resource is a PHP page, then
      * execute it. Anything else, send it directly to the client
      *
-     * @param string $target             The target file that should be executed or sent to the client
-     * @param boolean $attachment        If specified as true, will send the file as a downloadable attachement, to be
-     *                                   written to disk instead of displayed on the browser. If set to false, the file
-     *                                   will be sent as a file to be displayed in the browser itself.
-     * @param Restrictions $restrictions If specified, apply the specified file system restrictions, which may block the
-     *                                   request if the requested file is outside these restrictions
+     * @param string $target                  The target file that should be executed or sent to the client
+     * @param boolean $attachment             If specified as true, will send the file as a downloadable attachement,
+     *                                        to be written to disk instead of displayed on the browser. If set to
+     *                                        false, the file will be sent as a file to be displayed in the browser
+     *                                        itself.
+     * @param Restrictions|null $restrictions If specified, apply the specified file system restrictions, which may
+     *                                        block the request if the requested file is outside these restrictions
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      * @package Web
      * @see route()
      * @note: This function will kill the process once it has finished executing / sending the target file to the client
      * @version 2.5.88: Added function and documentation
      */
-    #[NoReturn] public static function execute(string $target, bool $attachment, Restrictions $restrictions): void
+    #[NoReturn] public static function execute(string $target, bool $attachment = false, ?Restrictions $restrictions = null): void
     {
-        if (str_ends_with($target, 'php')) {
-            if ($attachment) {
-                throw new RouteException(tr('Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', [
-                    ':target' => $target
-                ]));
-            }
+        try {
+            $target = Path::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE);
 
-            Log::action(tr('Executing page ":target"', [':target' => $target]));
+            if (str_ends_with($target, 'php')) {
+                if ($attachment) {
+                    // TODO Test this! Implement required HTTP headers!
+                    // Execute the PHP file and then send the output to the client as an attachment
+                    Log::action(tr('Executing file ":target" and sending output as attachment', [':target' => $target]));
 
-            include($target);
+                    include($target);
 
-        } else {
-            if ($attachment) {
-                // Upload the file to the client as an attachment
-                $target = File::absolutePath(Strings::unslash($target), PATH_ROOT.'www/');
+                    Http::file(new Restrictions(PATH_WWW))
+                        ->setAttachment(true)
+                        ->setData(ob_get_clean())
+                        ->setFilename(basename($target))
+                        ->send();
 
-                Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
+                } else {
+                    // Execute the file and send the output HTML as a web page
+                    Log::action(tr('Executing page ":target" and sending output as HTML web page', [':target' => Strings::from($target, PATH_ROOT)]));
 
-                Http::file($restrictions)
-                    ->setAttachment(true)
-                    ->setFile($target)
-                    ->setFilename(basename($target))
-                    ->send();
+                    include($target);
+                }
 
             } else {
-                $mimetype = mime_content_type($target);
-                $bytes    = filesize($target);
+                if ($attachment) {
+                    // TODO Test this! Implement required HTTP headers!
+                    // Upload the file to the client as an attachment
+                    Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
 
-                Log::action(tr('Sending contents of file ":target" with mime-type ":type" directly to client', [
-                    ':target' => $target,
-                    ':type' => $mimetype
-                ]));
+                    Http::file(new Restrictions(PATH_WWW . ',data/attachments'))
+                        ->setAttachment(true)
+                        ->setFile($target)
+                        ->setFilename(basename($target))
+                        ->send();
 
-                header('Content-Type: ' . $mimetype);
-                header('Content-length: ' . $bytes);
+                } else {
+                    // TODO Test this! Implement required HTTP headers!
+                    // Send the file directly
+                    $mimetype = mime_content_type($target);
+                    $bytes    = filesize($target);
 
-                include($target);
+                    Log::action(tr('Sending contents of file ":target" with mime-type ":type" directly to client', [
+                        ':target' => $target,
+                        ':type' => $mimetype
+                    ]));
+
+                    header('Content-Type: ' . $mimetype);
+                    header('Content-length: ' . $bytes);
+
+                    include($target);
+                }
             }
+        } catch (Exception $e) {
+            Notification::new()
+                ->setTitle(tr('Failed to execute page ":page"', [':page' => $target]))
+                ->setException($e)
+                ->send(false);
+
+            throw $e;
         }
 
         die();
