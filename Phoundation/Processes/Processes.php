@@ -27,7 +27,7 @@ Class Processes
      * @param bool $which_command
      * @return Process
      */
-    public static function create(?string $command = null, ?Server $server = null, bool $which_command = false): Process
+    public static function new(?string $command = null, ?Server $server = null, bool $which_command = false): Process
     {
         return new Process($command, $server, $which_command);
     }
@@ -42,9 +42,9 @@ Class Processes
      * @param bool $which_command
      * @return Process
      */
-    public static function createCliScript(?string $command = null, ?Server $server = null, bool $which_command = false): Process
+    public static function newCliScript(?string $command = null, ?Server $server = null, bool $which_command = false): Process
     {
-        $process = self::create('cli', $server, $which_command);
+        $process = self::new('cli', $server, $which_command);
         $process->addArguments(Arrays::force($command, ' '));
 
         return $process;

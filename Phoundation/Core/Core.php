@@ -1802,20 +1802,16 @@ class Core {
      */
     public static function getGlobalDataPath(string $section = '', bool $writable = true): string
     {
-        /*
-         * First find the global data path. For now, either same height as this
-         * project, OR one up the filesystem tree
-         */
-        $paths = array('/var/lib/data/',
+        // First find the global data path. For now, either same height as this project, OR one up the filesystem tree
+        $paths = [
+            '/var/lib/data/',
             '/var/www/data/',
             PATH_ROOT.'../data/',
             PATH_ROOT.'../../data/'
-        );
+        ];
 
         if (!empty($_SERVER['HOME'])) {
-            /*
-             * Also check the users home directory
-             */
+            // Also check the users home directory
             $paths[] = $_SERVER['HOME'].'/projects/data/';
             $paths[] = $_SERVER['HOME'].'/data/';
         }
@@ -1830,11 +1826,9 @@ class Core {
         }
 
         if ($found) {
-            /*
-             * Cleanup path. If realpath fails, we know something is amiss
-             */
+            // Cleanup path. If realpath fails, we know something is amiss
             if (!$found = realpath($found)) {
-                throw new CoreException('get_global_data_path(): Found path "' . $path.'" failed realpath() check', 'path-failed');
+                throw new CoreException(tr('Found path ":path" failed realpath() check', [':path' => $path]));
             }
         }
 
@@ -1847,13 +1841,14 @@ class Core {
                 Log::warning(tr('Warning: Global data path not found. Normally this path should exist either 1 directory up, 2 directories up, in /var/lib/data, /var/www/data, $USER_HOME/projects/data, or $USER_HOME/data'));
                 Log::warning(tr('Warning: If you are sure this simply does not exist yet, it can be created now automatically. If it should exist already, then abort this script and check the location!'));
 
-                $path = Processes::create()(array('commands' => array('base/init_global_data_path')));
+                // TODO Do this better, this is crap
+                $path = Processes::newCliScript('base/init_global_data_path')->executeReturnArray();
 
                 if (!file_exists($path)) {
-                    /*
-                     * Something went wrong and it was not created anyway
-                     */
-                    throw new CoreException('get_global_data_path(): ./script/base/init_global_data_path reported path "'.Strings::Log($path).'" was created but it could not be found', 'failed');
+                    // Something went wrong and it was not created anyway
+                    throw new CoreException(tr('Configured path ":path" was created but it could not be found', [
+                        ':path' => $path
+                    ]));
                 }
 
                 // Its now created! Strip "data/"
@@ -2076,7 +2071,7 @@ class Core {
             }
 
             // Execute the process
-            Processes::create(PATH_ROOT . '/cli')
+            Processes::new(PATH_ROOT . '/cli')
                 ->setWait(1)
                 ->setTimeout(self::readRegister('system', 'timeout'))
                 ->setArguments($arguments)

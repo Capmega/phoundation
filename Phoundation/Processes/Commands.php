@@ -51,7 +51,7 @@ class Commands
      */
     public function which(string $command): string
     {
-        $process = Processes::create('which', $this->server)
+        $process = Processes::new('which', $this->server)
             ->addArgument($command)
             ->setRegisterRunfile(false)
             ->setTimeout(1);
@@ -94,7 +94,7 @@ class Commands
             throw new OutOfBoundsException(tr('Invalid section ":section" specified. This value can only be "u" or "g"', [':section' => $section]));
         }
 
-        $process = Processes::create('id', $this->server)
+        $process = Processes::new('id', $this->server)
             ->addArgument('-' . $section)
             ->setTimeout(1);
 

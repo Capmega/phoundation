@@ -28,7 +28,7 @@ class NetworkCommands extends Commands
     public function ping(string $server): ?float
     {
         try {
-            $output = Processes::create('pgrep', $this->server, true)
+            $output = Processes::new('pgrep', $this->server, true)
                 ->addArguments(['-c', 1, $server])
                 ->setTimeout(1)
                 ->executeReturnArray();

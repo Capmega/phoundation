@@ -45,5 +45,5 @@ Log::warning(tr('WARNING: All version table entries beyond framework code versio
     ':project' => PROJECTCODEVERSION
 ]));
 
-Processes::createCliScript('base init')->executePassthru();
+Processes::newCliScript('base init')->executePassthru();
 

@@ -108,11 +108,11 @@ class Mysql
      */
     public function importTimezones(): void
     {
-        $mysql = Processes::create('mysql')
+        $mysql = Processes::new('mysql')
             ->setTimeout(10)
             ->addArguments(['-p', '-u', 'root', 'mysql']);
 
-        Processes::create('mysql_tzinfo_to_sql')
+        Processes::new('mysql_tzinfo_to_sql')
             ->setTimeout(10)
             ->addArgument('/usr/share/zoneinfo')
             ->setPipe($mysql)
