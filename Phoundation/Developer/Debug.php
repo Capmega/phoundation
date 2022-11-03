@@ -3,12 +3,14 @@
 namespace Phoundation\Developer;
 
 use JetBrains\PhpStorm\NoReturn;
+use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
+use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Exception\DebugException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -599,8 +601,6 @@ class Debug {
 
 
         // Generate debug value
-        load_libs('synonyms');
-
         switch ($format) {
             case 'username':
                 // no-break
@@ -660,193 +660,6 @@ class Debug {
 
 
     /**
-     * Show nice HTML table with all debug data
-     *
-     * @param mixed $value
-     * @param string|null $key
-     * @param integer $trace_offset
-     * @return string
-     * @see show()
-     */
-    function debugHtml(string $value, ?string $key = null, int $trace_offset = 0): string
-    {
-        static $style;
-
-        if ($key === null) {
-            $key = tr('Unknown');
-        }
-
-        if (empty($style)) {
-            $style  = true;
-
-            $return = '<style type="text/css">
-                table.debug{
-                    font-family: sans-serif;
-                    width:99%;
-                    background:#AAAAAA;
-                    border-collapse:collapse;
-                    border-spacing:2px;
-                    margin: 5px auto 5px auto;
-                }
-
-                table.debug thead{
-                    background: #00A0CF;
-                }
-
-                table.debug td{
-                    border: 1px solid black;
-                    padding: 10px;
-                }
-                table.debug td.value{
-                    word-break: break-all;
-                }
-               </style>';
-        } else {
-            $return = '';
-        }
-
-        return $return.'<table class="debug">
-                    <thead class="debug-header"><td colspan="4">'.current_file(1 + $trace_offset).'@'.current_line(1 + $trace_offset).'</td></thead>
-                    <thead class="debug-columns"><td>'.tr('Key').'</td><td>'.tr('Type').'</td><td>'.tr('Size').'</td><td>'.tr('Value').'</td></thead>'.self::htmlRow($value, $key).'
-                </table>';
-    }
-
-
-
-    /**
-     * Show HTML <tr> for the specified debug data
-     *
-     * @param mixed $value
-     * @param string|null $key
-     * @param string|null $type
-     * @return string
-     * @see show()
-     */
-    protected function debugHtmlRow(mixed $value, ?string $key = null, ?string $type = null): string
-    {
-        if ($type === null) {
-            $type = gettype($value);
-        }
-
-        if ($key === null) {
-            $key = tr('Unknown');
-        }
-
-        switch ($type) {
-            case 'string':
-                if (is_numeric($value)) {
-                    $type = tr('numeric');
-
-                    if (is_integer($value)) {
-                        $type .= tr(' (integer)');
-
-                    } elseif (is_float($value)) {
-                        $type .= tr(' (float)');
-
-                    } elseif (is_string($value)) {
-                        $type .= tr(' (string)');
-
-                    } else {
-                        $type .= tr(' (unknown)');
-                    }
-
-                } else {
-                    $type = tr('string');
-                }
-
-            // no-break
-
-            case 'integer':
-                // no-break
-
-            case 'double':
-                return '<tr>
-                        <td>'.htmlentities($key).'</td>
-                        <td>' . $type.'</td>
-                        <td>'.strlen((string) $value).'</td>
-                        <td class="value">'.htmlentities($value).'</td>
-                    </tr>';
-
-            case 'boolean':
-                return '<tr>
-                        <td>'.htmlentities($key).'</td>
-                        <td>' . $type.'</td>
-                        <td>1</td>
-                        <td class="value">'.($value ? tr('true') : tr('false')).'</td>
-                    </tr>';
-
-            case 'NULL':
-                return '<tr>
-                        <td>'.htmlentities($key).'</td>
-                        <td>' . $type.'</td>
-                        <td>0</td>
-                        <td class="value">'.htmlentities($value).'</td>
-                    </tr>';
-
-            case 'resource':
-                return '<tr><td>'.htmlentities($key).'</td>
-                        <td>' . $type.'</td>
-                        <td>?</td>
-                        <td class="value">' . $value.'</td>
-                    </tr>';
-
-            case 'method':
-                // no-break
-
-            case 'property':
-                return '<tr><td>'.htmlentities($key).'</td>
-                        <td>' . $type.'</td>
-                        <td>'.strlen($value).'</td>
-                        <td class="value">' . $value.'</td>
-                    </tr>';
-
-            case 'array':
-                $return = '';
-
-                ksort($value);
-
-                foreach ($value as $subkey => $subvalue) {
-                    $return .= debug_html_row($subvalue, $subkey);
-                }
-
-                return '<tr>
-                        <td>'.htmlentities($key).'</td>
-                        <td>' . $type.'</td>
-                        <td>'.count($value).'</td>
-                        <td style="padding:0">
-                            <table class="debug">
-                                <thead><td>'.tr('Key').'</td><td>'.tr('Type').'</td><td>'.tr('Size').'</td><td>'.tr('Value').'</td></thead>' . $return.'
-                            </table>
-                        </td>
-                    </tr>';
-
-            case 'object':
-                // Clean contents!
-                $value  = print_r($value, true);
-                $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
-                $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
-                $return = '<pre>' . $value.'</pre>';
-
-                return '<tr>
-                        <td>' . $key.'</td>
-                        <td>' . $type.'</td>
-                        <td>?</td>
-                        <td>' . $return.'</td>
-                    </tr>';
-
-            default:
-                return '<tr>
-                        <td>' . $key.'</td>
-                        <td>'.tr('Unknown').'</td>
-                        <td>???</td>
-                        <td class="value">'.htmlentities($value).'</td>
-                    </tr>';
-        }
-    }
-
-
-
-    /**
      * Displays the specified query in a show() output
      *
      * @param string|\PDOStatement $query
@@ -858,22 +671,18 @@ class Debug {
     function debugSql(string|\PDOStatement $query, ?array $execute = null, bool $return_only = false)
     {
         if (is_array($execute)) {
-            /*
-             * Reverse key sort to ensure that there are keys that contain at least parts of other keys will not be used incorrectly
-             *
-             * example:
-             *
-             * array(category    => test,
-             *       category_id => 5)
-             *
-             * Would cause the query to look like `category` = "test", `category_id` = "test"_id
-             */
+            // Reverse key sort to ensure that there are keys that contain at least parts of other keys will not be used incorrectly
+            // example:
+            // [
+            //   category    => test,
+            //   category_id => 5
+            // ]
+            //
+            // Would cause the query to look like `category` = "test", `category_id` = "test"_id
             krsort($execute);
 
             if (is_object($query)) {
-                /*
-                 * Query to be debugged is a PDO statement, extract the query
-                 */
+                // Query to be debugged is a PDO statement, extract the query
                 if (!($query instanceof PDOStatement)) {
                     throw new CoreException(tr('debug_sql(): Object of unknown class ":class" specified where PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
                 }
@@ -975,14 +784,16 @@ class Debug {
         }
 
         if ($enabled === 'limited') {
-            if (empty($_SESSION['user']['id']) or !User::current()->hasAllRights("debug")) {
+            if (empty($_SESSION['user']['id']) or !Session::currentUser()->hasAllRights("debug")) {
                 /*
                  * Only show debug bar to authenticated users with "debug" right
                  */
                 return null;
             }
         } elseif ($enabled !== true) {
-            throw new CoreException(tr('debug_bar(): Unknown configuration option ":option" specified. Please specify true, false, or "limited"', array(':option' => $_CONFIG['debug']['bar'])), 'unknown');
+            throw new CoreException(tr('Unknown configuration option ":option" specified. Please specify true, false, or "limited"', [
+                ':option' => Config::get('debug.bar', false)
+            ]));
         }
 
         /*
@@ -1114,15 +925,14 @@ class Debug {
         if ($a['time'] > $b['time']) {
             return -1;
 
-        } elseif ($a['time'] < $b['time']) {
-            return 1;
-
-        } else {
-            /*
-             * They're the same, so ordering doesn't matter
-             */
-            return 0;
         }
+
+        if ($a['time'] < $b['time']) {
+            return 1;
+        }
+
+        // They're the same, so ordering doesn't matter
+        return 0;
     }
 
 
@@ -1211,5 +1021,30 @@ class Debug {
 
         // Now we can return the class path
         return Strings::endsWith($namespace, '\\') . $class;
+    }
+
+
+
+    /**
+     * Get the .php file for the specified class path
+     *
+     * @param string $class_path
+     * @return Object
+     */
+    public static function getClassFile(string $class_path): string
+    {
+        if (!$class_path) {
+            throw new OutOfBoundsException(tr('No class path specified'));
+        }
+
+        $file = str_replace('\\', '/', $class_path);
+        $file = Strings::startsNotWith($file, '/');
+        $file = PATH_ROOT . $file . '.php';
+
+        if (!File::isPhp($file)) {
+            throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
+        }
+
+        return $file;
     }
 }
