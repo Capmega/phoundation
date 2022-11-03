@@ -1269,6 +1269,11 @@ class Arrays {
                 return array($source);
             }
 
+            if (!$separator) {
+                // We cannot explode with an empty separator, assume that $source is a single item and return it as such
+                return [$source];
+            }
+
             return explode($separator, $source);
         }
 
