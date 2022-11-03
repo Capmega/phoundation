@@ -1960,7 +1960,7 @@ class Core {
         }
 
         Log::notice(tr('Starting shutdown procedure for script ":script"', [
-            ':script' => self::$register['system']['script']
+            ':script' => self::readRegister('system', 'script')
         ]), 2);
 
         if (!is_array(self::readRegister('system', 'shutdown'))) {
