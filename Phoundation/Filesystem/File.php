@@ -592,20 +592,19 @@ class File
             throw new OutOfBoundsException(tr('No file specified'));
         }
 
-        if (!$finfo) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
-        }
+        try {
+            if (!$finfo) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
+            }
 
-        $mimetype = finfo_file($finfo, $file);
-
-        if (!$mimetype) {
+            $mimetype = finfo_file($finfo, $file);
+            return $mimetype;
+        } catch (Exception $e) {
             // We failed to get mimetype data. Find out why and throw exception
             self::checkReadable($file, '', true, new FilesystemException(tr('Failed to get mimetype information for file ":file"', [
                 ':file' => $file
-            ])));
+            ]), previous: $e));
         }
-
-        return $mimetype;
     }
 
 
