@@ -13,7 +13,7 @@
     "mrclay/minify": "*",
     "ext-redis": "*",
     "ext-mongodb": "*",
-    "ext-memcached": "*",
+    "ext-memcached": "*"
   },
   "require-dev": {
     "phpmd/phpmd": "@stable",
@@ -23,7 +23,9 @@
     "phpunit/phpunit": "@stable"
   },"autoload": {
     "psr-4": {
-      "Phoundation\\": "Phoundation/"
+      "Phoundation\\": "Phoundation/",
+      "Plugins\\": "Plugins/",
+      "Templates\\": "Templates/"
     }
   }
 }

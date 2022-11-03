@@ -11,9 +11,11 @@ web:
   sessions:
     cookies:
   domains:
-    primary: localhost
+    primary: "localhost"
   route:
     known-hacks:
+  template:
+    class: "Phoundation"
 notifications:
   groups:
     developers:

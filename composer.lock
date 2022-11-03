@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "33b14dbbe114578cd53c1acaf1e75831",
+    "content-hash": "c235f204ce2a540e485fd2e9a006c2f7",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -5029,7 +5029,10 @@
         "ext-yaml": "*",
         "ext-mbstring": "*",
         "ext-posix": "*",
-        "ext-fileinfo": "*"
+        "ext-fileinfo": "*",
+        "ext-redis": "*",
+        "ext-mongodb": "*",
+        "ext-memcached": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"
