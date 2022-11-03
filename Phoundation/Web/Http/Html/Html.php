@@ -3,7 +3,7 @@
 namespace Phoundation\Web\Http\Html;
 
 use Phoundation\Core\Arrays;
-
+use Phoundation\Web\Page;
 
 
 /**
@@ -70,11 +70,11 @@ Class Html
     /**
      * Build and return the HTML headers
      *
-     * @return string
+     * @return string|null
      */
-    public static function buildHeaders(): string
+    public static function buildHeaders(): ?string
     {
-        $return = '';
+        $return = Page::template()->buildHtmlHeader();
 
         foreach (self::$headers as $header) {
             $return .= $header;
@@ -88,9 +88,9 @@ Class Html
     /**
      * Build and return the HTML footers
      *
-     * @return string
+     * @return string|null
      */
-    public static function buildFooters(): string
+    public static function buildFooters(): ?string
     {
         $return = '';
 

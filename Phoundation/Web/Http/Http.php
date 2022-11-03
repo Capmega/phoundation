@@ -109,7 +109,7 @@ class Http
      *
      * @return int
      */
-    public static function getHttpCode(): Http
+    public static function getHttpCode(): int
     {
         return self::$http_code;
     }

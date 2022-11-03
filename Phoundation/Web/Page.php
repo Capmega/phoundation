@@ -5,13 +5,18 @@ namespace Phoundation\Web;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cache\Cache;
+use Phoundation\Core\Config;
 use Phoundation\Core\Core;
+use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
+use Phoundation\Web\Exception\PageException;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
 use Throwable;
@@ -30,6 +35,20 @@ use Throwable;
  */
 class Page
 {
+    /**
+     * Singleton
+     *
+     * @var Page|null $instance
+     */
+    protected static ?Page $instance = null;
+
+    /**
+     * The template class that build the UI
+     *
+     * @var Template|null $template
+     */
+    protected static ?Template $template = null;
+
     /**
      * Information that goes into the HTML header
      *
@@ -65,14 +84,84 @@ class Page
      */
     protected static string $html = '';
 
+    /**
+     * The unique hash for this page
+     *
+     * @var string|null $hash
+     */
+    protected static ?string $hash = null;
 
 
-//    /**
-//     * Javascript files that will be loaded starting at the footer of the page
-//     *
-//     * @var array $footer_scripts
-//     */
-//    protected array $footer_scripts = [];
+
+    /**
+     * Page class constructor
+     */
+    protected function __construct()
+    {
+        // Set the page hash
+        self::$hash = sha1($_SERVER['REQUEST_URI']);
+
+        try {
+            $class = Config::get('web.template.class', 'test');
+
+            if (!ctype_alnum($class)) {
+                throw new PageException(tr('Configured page template ":class" is invalid; it should contain only letters and numbers', [
+                    ':class' => $class
+                ]));
+            }
+
+            $class = '\\Templates\\' . $class;
+
+            include(Debug::getClassFile($class));
+            self::$template = new $class($this);
+
+            if (!(self::$template instanceof Template)) {
+                throw new PageException(tr('Configured page template ":class" is invalid. The class should be implementing the interface Phoundation\Web\Template', [
+                    ':class' => $class
+                ]));
+            }
+
+        } catch (ConfigNotExistsException $e) {
+            throw new PageException(tr('No template specified, please ensure your configuration file contains "web.template.class"'), previous: $e);
+        } catch (FilesystemException $e) {
+            /*
+             * Issue loading the class file.
+             *
+             * Possible issues:
+             *
+             * No file could be determined for the specified class
+             * The file for the specified class is not readable
+             * The file for the specified class is not PHP
+             * The file for the specified class does not contain the specified class
+             */
+            throw new PageException(tr('Specified template class file could not be loaded because ":message"', [
+                ':message' => $e->getMessage()
+            ]));
+        } catch (Exception $e) {
+            if ($e->getMessage()) {
+                throw $e;
+            }
+
+            // The configured template does not exist
+            throw new PageException(tr('Invalid template specified, please check that the configuration "web.template" has a valid and existing template'));
+        }
+    }
+
+
+
+    /**
+     * Singleton, ensure to always return the same Page object.
+     *
+     * @return Page
+     */
+    public static function getInstance(): Page
+    {
+        if (!isset(self::$instance)) {
+            self::$instance = new Page();
+        }
+
+        return self::$instance;
+    }
 
 
 
@@ -99,7 +188,10 @@ class Page
     #[NoReturn] public static function execute(string $target, bool $attachment = false, ?Restrictions $restrictions = null): void
     {
         try {
+            self::getInstance();
+
             Core::writeRegister($target, 'system', 'script_file');
+            ob_start();
 
             switch (Core::getCallType()) {
                 case 'ajax':
@@ -127,6 +219,9 @@ throw new UnderConstructionException();
                     // This is a normal web page
                     self::executeWebPage($target, $attachment, $restrictions);
             }
+
+            // Send the page to the client
+            Page::send();
 
         } catch (Exception $e) {
             Notification::new()
@@ -170,6 +265,18 @@ throw new UnderConstructionException();
 
 
     /**
+     * Access to the page template class
+     *
+     * @return Template
+     */
+    public static function template(): Template
+    {
+        return self::$template;
+    }
+
+
+
+    /**
      * Returns the HTML output buffer for this page
      *
      * @return string
@@ -177,6 +284,18 @@ throw new UnderConstructionException();
     public static function getHtml(): string
     {
         return ob_get_contents();
+    }
+
+
+
+    /**
+     * Returns the HTML unique hash
+     *
+     * @return string
+     */
+    public static function getHash(): string
+    {
+        return self::$hash;
     }
 
 
@@ -200,10 +319,14 @@ throw new UnderConstructionException();
      */
     public static function send(): void
     {
+        $body = ob_get_clean();
 
-        self::$html  = Html::buildHeaders();
-        self::$html .= self::buildHeaders();
-        self::$html .= self::buildFooters();
+        self::$html  = '';
+        self::$html .= Html::buildHeaders();
+        self::$html .= self::$template->buildHtmlHeader();
+        self::$html .= self::$template->buildPageHeader();
+        self::$html .= $body;
+        self::$html .= self::$template->buildPageFooter();
         self::$html .= Html::buildFooters();
 
         // Minify the output
@@ -226,34 +349,10 @@ throw new UnderConstructionException();
                 return;
         }
 
-        Cache::writePage(self::$html, self::$unique_key);
+        Cache::writePage(self::$hash, self::$html);
 
         // Send HTML to the client
         echo self::$html;
-    }
-
-
-
-    /**
-     * Build and return the page headers
-     *
-     * @return string
-     */
-    protected static function buildHeaders(): string
-    {
-
-    }
-
-
-
-    /**
-     * Build and return the page footers
-     *
-     * @return string
-     */
-    protected static function buildFooters(): string
-    {
-
     }
 
 

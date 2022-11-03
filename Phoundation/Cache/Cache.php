@@ -29,4 +29,28 @@ class Cache
         // TODO Implement
         Log::success(tr('Cleared cache'));
     }
+
+
+
+    /**
+     * Write the specified page to cache
+     *
+     * @return string
+     */
+    public static function writePage(string $hash, string $data)
+    {
+    }
+
+
+
+    /**
+     * Read the specified page from cache.
+     *
+     * @note: NULL will be returned if the specified hash does not exist in cache
+     * @return string|null
+     */
+    public static function readPage(string $hash): ?string
+    {
+        return null;
+    }
 }

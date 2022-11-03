@@ -8,7 +8,7 @@ use Phoundation\Users\Users;
 
 
 /**
- * Interface Session
+ * class Session
  *
  *
  *
@@ -17,7 +17,7 @@ use Phoundation\Users\Users;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-trait Session
+class Session
 {
     /**
      * The current user for this session
