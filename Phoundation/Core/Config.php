@@ -7,6 +7,8 @@ use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\File;
+use Phoundation\Web\Exception\PageException;
 use Throwable;
 
 
@@ -226,6 +228,77 @@ class Config{
     }
 
 
+    /**
+     * Scan the entire project from ROOT for Config::get() and Config::set() and generate a config/default.yaml file
+     * with all default values
+     *
+     * @return void
+     */
+    public static function generateDefaultYaml(): void
+    {
+        $store = [];
+
+        // Scan all files for Config::get() and Config::set() calls
+        File::executeEach(PATH_ROOT, true, function(string $file) use (&$store) {
+            $lines = File::grep($file, ['Config::get', 'Config::set']);
+
+            foreach ($lines as $line) {
+                // Extract the configuration path and default value for each call
+                if (!preg_match_all('/Config::[gs]et\((.+?)(?:\s?,\s?(.+?))?\)/i', $line, $matches)) {
+                    Log::warning(tr('Failed to extract a Config::get() or Config::set() from line ":line"', [
+                        ':line' => $line
+                    ]));
+                    continue;
+                }
+
+                foreach ($matches as $match) {
+                    $path    = $match[1];
+                    $default = $match[2];
+
+                    // Log all Config::get() and Config::set() calls that have the same configuration path but different
+                    // default values
+                    if (array_key_exists($path, $store)) {
+                        if ($store[$path] !== $default) {
+                            Log::warning(tr('Configuration path ":path" has two different default values ":1" and ":2"', [
+                                ':path' => $path,
+                                ':1'    => $default,
+                                ':2'    => $store[$path],
+                            ]));
+                        }
+                    }
+
+                    // Store the configuration path
+                    $store[$path] = $default;
+                }
+            }
+        });
+
+        // Great, we have all used configuration paths and their default values! Now construct the config/default.yaml
+        // file
+        $data = [];
+
+        // Convert the store to an array map
+        foreach ($store as $path => $default) {
+            $path = explode('.', $path);
+            $section = &$data;
+
+            foreach ($path as $key) {
+                if (!array_key_exists($key, $section)) {
+                    // Initialize with sub array and jump in
+                    $section[$key] = [];
+                    $section = &$section[$key];
+                }
+            }
+
+            $section = $default;
+        }
+
+        // Convert the data into yaml and store the data in the default file
+        $data = yaml_emit($data);
+        file_put_contents('config/default.yaml', $data);
+    }
+
+
 
     /**
      * Reads the configuration file for the specified configuration environment
@@ -270,179 +343,4 @@ class Config{
             self::$data = Arrays::mergeFull(self::$data, $data);
         }
     }
-
-
-
-//    /**
-//     * Returns true if the specified configuration keys exist, false if not
-//     *
-//     * @param string $keys
-//     * @return bool
-//     */
-//    public static function exists(string $keys): bool
-//    {
-//        $keys = explode($keys, '.');
-//        $data = &static::$data;
-//
-//        foreach ($keys as $key) {
-//            if (!isset($data[$key])) {
-//                return false;
-//            }
-//
-//            $data = &$data[$key];
-//        }
-//
-//        return true;
-//    }
-//
-//
-//
-//
-//    /*
-//     * Load specified configuration files. All files must be specified by their section name only, no extension nor environment.
-//     * The function will then load the files PATH_ROOT/config/base/NAME.php, PATH_ROOT/config/base/production_NAME.php, and on non "production" environments, PATH_ROOT/config/base/ENVIRONMENT_NAME.php
-//     * For example, if you want to load the "fprint" configuration, use load_config('fprint'); The function will load PATH_ROOT/config/base/fprint.php, PATH_ROOT/config/base/production_fprint.php, and on (for example) the "local" environment, PATH_ROOT/config/base/local_fprint.php
-//     *
-//     * Examples:
-//     * load_config('fprint');
-//     * load_config('fprint,buks');
-//     * load_libs(array('fprint', 'buks'));
-//     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @package system
-//     *
-//     * @param mixed $files Either array or CSV string with the libraries to be loaded
-//     * @return void
-//     */
-//    function load_config($files = '')
-//    {
-//        global $_CONFIG, $core;
-//        static $paths;
-//
-//        try {
-//            if (!$paths) {
-//                $paths = array(PATH_ROOT . 'config/base/',
-//                    PATH_ROOT . 'config/production',
-//                    PATH_ROOT . 'config/' . ENVIRONMENT);
-//            }
-//
-//            $files = Arrays::force($files);
-//
-//            foreach ($files as $file) {
-//                $loaded = false;
-//                $file = trim($file);
-//
-//                /*
-//                 * Include first the default configuration file, if available, then
-//                 * production configuration file, if available, and then, if
-//                 * available, the environment file
-//                 */
-//                foreach ($paths as $id => $path) {
-//                    if (!$file) {
-//                        /*
-//                         * Trying to load default configuration files again
-//                         */
-//                        if (!$id) {
-//                            $path .= 'default.php';
-//
-//                        } else {
-//                            $path .= '.php';
-//                        }
-//
-//                    } else {
-//                        if ($id) {
-//                            $path .= '_' . $file . '.php';
-//
-//                        } else {
-//                            $path .= $file . '.php';
-//                        }
-//                    }
-//
-//                    if (file_exists($path)) {
-//                        include($path);
-//                        $loaded = true;
-//                    }
-//                }
-//
-//                if (!$loaded) {
-//                    throw new OutOfBoundsException(tr('load_config(): No configuration file was found for requested configuration ":file"', array(':file' => $file)), 'not-exists');
-//                }
-//            }
-//
-//            /*
-//             * Configuration has been loaded succesfully, from here all debug
-//             * functions will work correctly. This is
-//             */
-//            $core->register['ready'] = true;
-//
-//        } catch (Exception $e) {
-//            throw new OutOfBoundsException(tr('load_config(): Failed to load some or all of config file(s) ":file"', array(':file' => $files)), $e);
-//        }
-//    }
-//
-//
-//    /*
-//     * Returns the configuration array from the specified file and specified environment
-//     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @package system
-//     * @version 2.0.7: Fixed loading bugs, improved error handling
-//     * @version 2.4.62: Fixed bug with "deploy" config
-//     *
-//     * @param string $file
-//     * @param string $environment
-//     * @return array The requested configuration array
-//     */
-//    function read_config($file = null, $environment = null)
-//    {
-//        try {
-//            if (!$environment) {
-//                $environment = ENVIRONMENT;
-//            }
-//
-//            if ($file === 'deploy') {
-//                include(PATH_ROOT . 'config/deploy.php');
-//                return $_CONFIG;
-//            }
-//
-//            if ($file) {
-//                if (file_exists(PATH_ROOT . 'config/base/' . $file . '.php')) {
-//                    $loaded = true;
-//                    include(PATH_ROOT . 'config/base/' . $file . '.php');
-//                }
-//
-//                $file = '_' . $file;
-//
-//            } else {
-//                $loaded = true;
-//                include(PATH_ROOT . 'config/base/default.php');
-//            }
-//
-//            if (file_exists(PATH_ROOT . 'config/production' . $file . '.php')) {
-//                $loaded = true;
-//                include(PATH_ROOT . 'config/production' . $file . '.php');
-//            }
-//
-//            if (file_exists(PATH_ROOT . 'config/' . $environment . $file . '.php')) {
-//                $loaded = true;
-//                include(PATH_ROOT . 'config/' . $environment . $file . '.php');
-//            }
-//
-//            if (empty($loaded)) {
-//                throw new OutOfBoundsException(tr('The specified configuration ":config" does not exist', array(':config' => $file)), 'not-exists');
-//            }
-//
-//            return $_CONFIG;
-//
-//        } catch (Exception $e) {
-//            throw new OutOfBoundsException('read_config(): Failed', $e);
-//        }
-//    }
-//
 }
