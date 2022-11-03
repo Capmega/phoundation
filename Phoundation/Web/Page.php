@@ -17,6 +17,7 @@ use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\PageException;
+use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
 use Throwable;
@@ -48,6 +49,13 @@ class Page
      * @var Template|null $template
      */
     protected static ?Template $template = null;
+
+    /**
+     * The flash object for this user
+     *
+     * @var Flash|null
+     */
+    protected static ?Flash $flash = null;
 
     /**
      * Information that goes into the HTML header
@@ -353,6 +361,22 @@ throw new UnderConstructionException();
 
         // Send HTML to the client
         echo self::$html;
+    }
+
+
+
+    /**
+     * Access the Flash object
+     *
+     * @return Flash
+     */
+    public static function flash(): Flash
+    {
+        if (!self::$flash) {
+            self::$flash = new Flash();
+        }
+
+        return self::$flash;
     }
 
 

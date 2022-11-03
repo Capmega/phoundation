@@ -6,6 +6,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Web\Page;
 
 
+
 /**
  * Class Html
  *
@@ -26,6 +27,13 @@ Class Html
     protected static int $tabindex = 0;
 
     /**
+     * The Cross Site Request Forgery protection class
+     *
+     * @var Csrf|null $csrf
+     */
+    protected static ?Csrf $csrf = null;
+
+    /**
      * Register for all HTML headers
      *
      * @var array $headers
@@ -38,6 +46,22 @@ Class Html
      * @var array $footers
      */
     protected static array $footers = [];
+
+
+
+    /**
+     * Returns the Csrf protection class (Cross Site Request Forgery)
+     *
+     * @return Csrf
+     */
+    public static function csrf(): Csrf
+    {
+        if (!self::$csrf) {
+            self::$csrf = new Csrf();
+        }
+
+        return self::$csrf;
+    }
 
 
 
@@ -130,9 +154,6 @@ Class Html
             self::$footers[] = $footer;
         }
     }
-
-
-
 
 
 

@@ -22,6 +22,7 @@ use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Page;
 use Phoundation\Web\Web;
 use Throwable;
 
@@ -1951,7 +1952,9 @@ class Core {
         // Do we need to run other shutdown functions?
         if (self::startupState()) {
             if (!$error_code) {
-                Log::error(tr('Shutdown procedure started before self::$register[script] was ready, possibly on script ":script"', [':script' => $_SERVER['PHP_SELF']]));
+                Log::error(tr('Shutdown procedure started before self::$register[script] was ready, possibly on script ":script"', [
+                    ':script' => $_SERVER['PHP_SELF']
+                ]));
                 return;
             }
 
@@ -2035,7 +2038,10 @@ class Core {
 
                 foreach (Config::get('system.shutdown', false) as $name => $parameters) {
                     if ($parameters['interval'] and ($level < $parameters['interval'])) {
-                        Log::notice(tr('Executing periodical shutdown function ":function()"', [':function' => $name]));
+                        Log::notice(tr('Executing periodical shutdown function ":function()"', [
+                            ':function' => $name
+                        ]));
+
                         $parameters['function']();
                     }
                 }
@@ -2086,11 +2092,17 @@ class Core {
             }
 
             if (!$auto_switch) {
-                throw new CoreException(tr('The user ":puser" is not allowed to execute these scripts, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', array(':puser' => get_current_user(), ':fuser' => cli_get_process_user())), 'not-authorized');
+                throw new CoreException(tr('The user ":puser" is not allowed to execute these scripts, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', [
+                    ':puser' => get_current_user(),
+                    ':fuser' => cli_get_process_user()
+                ]));
             }
 
             // Re-execute this command as the specified user
-            Log::warning(tr('Current user ":user" is not authorized to execute this script, re-executing script as user ":reuser"', [':user' => Scripts::getProcessUid(), ':reuser' => getmyuid()]));
+            Log::warning(tr('Current user ":user" is not authorized to execute this script, re-executing script as user ":reuser"', [
+                ':user' => Scripts::getProcessUid(),
+                ':reuser' => getmyuid()
+            ]));
 
             $argv = $GLOBALS['argv'];
             array_shift($argv);
@@ -2188,7 +2200,9 @@ class Core {
                 break;
 
             default:
-                throw new OutOfBoundsException(tr('Invalid configuration value ":value" for "security.signature" Please use one of "none", "limited", or "full"'));
+                throw new OutOfBoundsException(tr('Invalid configuration value ":value" for "security.signature" Please use one of "none", "limited", or "full"', [
+                    ':value' => Config::get('security.expose.phoundation')
+                ]));
         }
 
         // :TODO: The next section may be included in the whitelabel domain check
@@ -2213,7 +2227,11 @@ class Core {
             switch (Config::get('web.domains.whitelabels', false)) {
                 case '':
                     // White label domains are disabled, so the requested domain MUST match the configured domain
-                    Log::warning(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::getDomain()]));
+                    Log::warning(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', [
+                        ':source' => $_SERVER['HTTP_HOST'],
+                        ':target' => Web::getDomain()
+                    ]));
+
                     Http::redirect(PROTOCOL . Web::getDomain());
                     break;
 
@@ -2224,7 +2242,11 @@ class Core {
                 case 'sub':
                     // White label domains are disabled, but subdomains from the primary domain are allowed
                     if (Strings::from($domain, '.') !== Web::getDomain()) {
-                        Log::warning(tr('Whitelabels are set to subdomains only, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::getDomain()]));
+                        Log::warning(tr('Whitelabels are set to subdomains only, redirecting domain ":source" to ":target"', [
+                            ':source' => $_SERVER['HTTP_HOST'],
+                            ':target' => Web::getDomain()
+                        ]));
+
                         redirect(PROTOCOL . Web::getDomain());
                     }
 
@@ -2239,7 +2261,11 @@ class Core {
                         [':domain' => $_SERVER['HTTP_HOST']]);
 
                     if (empty($domain)) {
-                        Log::warning(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::getDomain()]));
+                        Log::warning(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', [
+                            ':source' => $_SERVER['HTTP_HOST'],
+                            ':target' => Web::getDomain()
+                        ]));
+
                         redirect(PROTOCOL . Web::getDomain());
                     }
 
@@ -2249,7 +2275,11 @@ class Core {
                     if (is_array(Config::get('web.domains.whitelabels', false))) {
                         // Domain must be specified in one of the array entries
                         if (!in_array($domain, Config::get('web.domains.whitelabels', false))) {
-                            Log::warning(tr('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [':source' => $_SERVER['HTTP_HOST'], ':target' => Web::getDomain()]));
+                            Log::warning(tr('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [
+                                ':source' => $_SERVER['HTTP_HOST'],
+                                ':target' => Web::getDomain()
+                            ]));
+
                             redirect(PROTOCOL . Web::getDomain());
                         }
 
@@ -2307,8 +2337,8 @@ class Core {
                         ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
                             ':domain'         => Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'),
                             ':cookie_domain'  => Config::get('web.sessions.cookies.domain'),
-                            ':current_domain' => $domain]))
-                        ->send();
+                            ':current_domain' => $domain
+                        ]))->send();
 
                     redirect(PROTOCOL.Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'));
                 }
@@ -2346,7 +2376,10 @@ class Core {
 
                 // Do not send cookies to crawlers!
                 if (isset_get(self::readRegister('session', 'client')['type']) === 'crawler') {
-                    Log::information(tr('Crawler ":crawler" on URL ":url"', [':crawler' => self::readRegister('session', 'client'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']]));
+                    Log::information(tr('Crawler ":crawler" on URL ":url"', [
+                        ':crawler' => self::readRegister('session', 'client'),
+                        ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']
+                    ]));
 
                 } else {
 //                    // Setup session handlers
@@ -2387,7 +2420,10 @@ class Core {
                         try {
                             if (Config::get('web.sessions.cookies.name', 'phoundation')) {
                                 if (!is_string(Config::get('web.sessions.cookies.name', 'phoundation')) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')])) {
-                                    Log::warning(tr('Received invalid cookie ":cookie", dropping', [':cookie' => $_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')]]));
+                                    Log::warning(tr('Received invalid cookie ":cookie", dropping', [
+                                        ':cookie' => $_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')]
+                                    ]));
+
                                     unset($_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')]);
                                     $_POST = [];
 
@@ -2408,7 +2444,7 @@ class Core {
                                     session_start();
 
                                     if (Config::get('web.sessions.cookies.Notification-expired', false)) {
-                                        Html::flash()->add(tr('Your browser cookie was expired, or does not exist. You may have to sign in again'), 'warning');
+                                        Page::flash()->add(tr('Your browser cookie was expired, or does not exist. You may have to sign in again'), 'warning');
                                     }
 
                                     $_POST = [];

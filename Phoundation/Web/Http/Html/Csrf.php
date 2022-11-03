@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Web\Http;
+namespace Phoundation\Web\Http\Html;
 
 use DateTime;
 use Phoundation\Core\Config;
@@ -29,15 +29,13 @@ class Csrf
      * Generate a CSRF code and set it in the $_SESSION[csrf] array
      *
      * @param string|null $prefix
-     * @return string
+     * @return string|null
      */
-    function set_csrf(?string $prefix = null): string
+    function set(?string $prefix = null): ?string
     {
-        if (empty($_CONFIG['security']['csrf']['enabled'])) {
-            /*
-             * CSRF check system has been disabled
-             */
-            return false;
+        if (!Config::get('security.csrf.enabled', true)) {
+            // CSRF check system has been disabled
+            return null;
         }
 
         if (Core::readRegister('csrf')) {
@@ -47,15 +45,10 @@ class Csrf
         /*
          * Avoid people messing around
          */
-        if (isset($_SESSION['csrf']) and (count($_SESSION['csrf']) >= $_CONFIG['security']['csrf']['buffer_size'])) {
-            /*
-             * Too many csrf, so too many post requests open. Remove the oldest
-             * CSRF code and add a new one
-             */
-            if (count($_SESSION['csrf']) >= ($_CONFIG['security']['csrf']['buffer_size'] + 5)) {
-                /*
-                 * WTF? How did we get so many?? Throw it all away, start over
-                 */
+        if (isset($_SESSION['csrf']) and (count($_SESSION['csrf']) >= Config::get('security.csrf.buffer-size', 25))) {
+            // Too many csrf, so too many post requests open. Remove the oldest CSRF code and add a new one
+            if (count($_SESSION['csrf']) >= (Config::get('security.csrf.buffer-size', 25) + 5)) {
+                // WTF? How did we get WAY, WAY many?? Throw it all away and start over
                 unset($_SESSION['csrf']);
 
             } else {
