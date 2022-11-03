@@ -415,7 +415,9 @@ throw new UnderConstructionException();
 
             } else {
                 // Execute the file and send the output HTML as a web page
-                Log::action(tr('Executing page ":target" and sending output as HTML web page', [':target' => Strings::from($target, PATH_ROOT)]));
+                Log::action(tr('Executing page ":target" and sending output as HTML web page', [
+                    ':target' => Strings::from($target, PATH_ROOT)
+                ]));
 
                 include($target);
             }

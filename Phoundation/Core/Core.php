@@ -1445,6 +1445,9 @@ class Core {
                         Log::error(tr('Exception data:'));
                         Log::error($e);
 
+                        // Make sure the Router shutdown won't happen so it won't send a 404
+                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
+
                         // Remove all caching headers
                         if (!headers_sent()) {
                             header_remove('ETag');

@@ -415,7 +415,7 @@ class Route
                     case 'B':
                         // Block this request, send nothing
                         Log::warning(tr('Blocking request as per B flag'));
-                        Core::unregisterShutdown('Route::shutdown');
+                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
                         $block = true;
                         break;
 
@@ -518,7 +518,7 @@ class Route
 
                         // We are going to redirect so we no longer need to default to 404
                         Log::success(tr('Redirecting to ":route" with HTTP code ":code"', [':route' => $route, ':code' => $http_code]));
-                        Core::unregisterShutdown('Route::shutdown');
+                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
                         Http::redirect(Url::addToQuery($route, $_GET), $http_code);
                         break;
 
@@ -593,7 +593,7 @@ class Route
                                 ':key'   => $key
                             ]));
 
-                            Core::unregisterShutdown(['Route', 'shutdown']);
+                            Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
                             redirect($domain);
                     }
                 }
@@ -622,7 +622,7 @@ class Route
                     // Check if route map has the requested language
                     if (empty($core->register['Route::map'][$language])) {
                         Log::warning(tr('Requested language ":language" does not have a language map available', [':language' => $language]));
-                        Core::unregisterShutdown(['Route', 'shutdown']);
+                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
                         Route::execute404();
 
                     } else {
@@ -638,7 +638,7 @@ class Route
 
                         if (!file_exists($page)) {
                             Log::warning(tr('Language remapped page ":page" does not exist', [':page' => $page]));
-                            Core::unregisterShutdown(['Route', 'shutdown']);
+                            Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
                             Route::execute404();
                         }
 
@@ -652,7 +652,7 @@ class Route
                             ':page' => $page
                         ]));
 
-                        Core::unregisterShutdown(['Route', 'shutdown']);
+                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
                         Route::execute404();
                     }
                 }
@@ -663,7 +663,7 @@ class Route
                 throw new RouteException(tr('Route regex ":url_regex" resolved to main index.php page which would cause an endless loop', [':url_regex' => $url_regex]));
             }
 
-            $page = PATH_WWW . $page;
+            $page = PATH_WWW . Strings::startsNotWith($page, '/');
 
             if (!file_exists($page) and !$block) {
                 if (isset($dynamic_pagematch)) {
@@ -674,7 +674,7 @@ class Route
                 } else {
                     // The hardcoded file for the regex does not exist, oops!
                     Log::warning(tr('Matched hard coded page ":page" does not exist', [':page' => $page]));
-                    Core::unregisterShutdown(['Route', 'shutdown']);
+                    Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
                     Route::execute404();
                 }
             }
@@ -689,7 +689,7 @@ class Route
             }
 
             // We are going to show the matched page so we no longer need to default to 404
-            Core::unregisterShutdown(['Route', 'shutdown']);
+            Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
 
             /*
              * Execute the page specified in $target (from here, $route)
