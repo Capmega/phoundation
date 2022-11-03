@@ -342,27 +342,34 @@ class Arrays {
      * @param...
      * @return array
      */
-    public static function mergeComplete(): array
+    public static function mergeFull(): array
     {
         $arguments = func_get_args();
 
         if (count($arguments) < 2) {
-            throw new CoreException('array_merge_complete(): Specify at least 2 arrays');
+            throw new CoreException('Specify at least 2 arrays');
         }
 
         $return = [];
         $count  = 0;
 
-        foreach ($arguments as $argk => $argv) {
+        foreach ($arguments as $array) {
             $count++;
 
-            if (!is_array($argv)) {
-                throw new CoreException(tr('array_merge_complete(): Specified argument ":count" is not an array', array(':count' => Strings::log($count))));
+            if (!is_array($array)) {
+                if ($array === null) {
+                    // Quietly ignore NULL arguments
+                    continue;
+                }
+
+                throw new OutOfBoundsException(tr('Specified argument ":count" is not an array', [
+                    ':count' => $count
+                ]));
             }
 
-            foreach ($argv as $key => $value) {
+            foreach ($array as $key => $value) {
                 if (is_array($value) and array_key_exists($key, $return) and is_array($return[$key])) {
-                    $return[$key] = Arrays::mergeComplete($return[$key], $value);
+                    $return[$key] = Arrays::mergeFull($return[$key], $value);
 
                 } else {
                     $return[$key] = $value;

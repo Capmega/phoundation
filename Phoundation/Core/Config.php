@@ -7,7 +7,6 @@ use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\PhpException;
 use Throwable;
 
 
@@ -268,7 +267,7 @@ class Config{
                 throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [':file' => $file]));
             }
 
-            self::$data = array_merge(self::$data, $data);
+            self::$data = Arrays::mergeFull(self::$data, $data);
         }
     }
 

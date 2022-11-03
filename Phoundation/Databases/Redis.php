@@ -2,6 +2,7 @@
 
 namespace Phoundation\Databases;
 
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigNotExistsException;
@@ -161,7 +162,7 @@ class Redis extends \Redis
         ];
 
         // Copy the configuration options over the template
-        $this->configuration = Sql::merge($template, $configuration);
+        $this->configuration = Arrays::mergeFull($template, $configuration);
         $this->database      = $this->configuration['database'];
     }
 }
