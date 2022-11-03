@@ -6,6 +6,10 @@ The 4.0 version is a new class based version that has been written from the grou
 
 This project will be intended for production use, but right now is not ready for that. 
 
+The web pages included in this project are built with the open source version of MDB UI kit, see https://mdbootstrap.com/general/license/#license-free
+
+MIT license is compatible with GPL license:
+https://technical-qa.com/can-i-use-mit-licensed-code-in-my-gpl-licensed-project/
 
 =========================================================================
 

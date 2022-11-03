@@ -440,7 +440,7 @@ class Route
 
                         $count = 1;
                         unset($flags[$flags_id]);
-                        Page::execute(Debug::currentFile(1), $attachment, $restrictions);
+                        self::execute(Debug::currentFile(1), $attachment, $restrictions);
 
                     case 'G':
                         // MUST be a GET reqest, NO POST data allowed!
@@ -740,7 +740,7 @@ class Route
                 die();
             }
 
-            Page::execute($page, $attachment, $restrictions);
+            self::execute($page, $attachment, $restrictions);
 
         } catch (Exception $e) {
             if (str_starts_with($e->getMessage(), 'PHP ERROR [2] "preg_match_all():')) {
@@ -847,7 +847,25 @@ class Route
             }
         }
 
+        // This is not a hack, the page simply cannot be found. Show a 404 instead
         self::execute404();
+    }
+
+
+
+    /**
+     * Execute the specified target
+     *
+     * @param string $target
+     * @param bool $attachment
+     * @param Restrictions|null $restrictions
+     * @return void
+     */
+    protected static function execute(string $target, bool $attachment = false, ?Restrictions $restrictions = null): void
+    {
+        // Remove the 404 auto execution on shutdown
+        Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
+        Page::execute($target, $attachment, $restrictions);
     }
 
 
@@ -876,7 +894,7 @@ class Route
             Core::writeRegister(PATH_WWW . 'system/404', 'system', 'script_path');
             Core::writeRegister('404', 'system', 'script');
 
-            Page::execute('system/404.php');
+            self::execute('system/404.php');
 
         } catch (Throwable $e) {
             if ($e->getCode() === 'not-exists') {

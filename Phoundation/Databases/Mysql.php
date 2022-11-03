@@ -51,7 +51,7 @@ class Mysql
      */
     public static function getInstance(?Server $server = null): Mysql
     {
-        return new Mysql($server)
+        return new Mysql($server);
     }
 
 
