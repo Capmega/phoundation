@@ -7,6 +7,7 @@ use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
@@ -2151,6 +2152,58 @@ class File
     }
 
 
+    /**
+     * Execute the callback function on each file in the specified path
+     *
+     * @param string|array $paths
+     * @param bool $recurse
+     * @param callable $function
+     * @param Restrictions|null $restrictions
+     * @return int
+     */
+    public static function executeEach(string|array $paths, bool $recurse, callable $function, ?Restrictions $restrictions = null): int
+    {
+        $count = 0;
+        $files = [];
+
+        foreach (Arrays::force($paths, '') as $path) {
+            try {
+                Core::ensureRestrictions($restrictions)->check($path);
+
+                // Get al files in this directory
+                $path  = Path::absolute($path);
+                $files = scandir($path);
+            } catch (Exception $e) {
+                Path::checkReadable($path, previous_e:  $e);
+            }
+
+            foreach ($files as $file) {
+                if (($file == '.') or ($file == '..')) {
+                    // skip these
+                    continue;
+                }
+
+                if (is_dir($path . $file)) {
+                    // Directory! Recurse?
+                    if (!$recurse) {
+                        continue;
+                    }
+
+                    $count += self::executeEach($path, $recurse, $function);
+
+                } else {
+                    // Execute the callback
+                    $count++;
+                    Log::action(tr('Executing callback function on file ":file"', [':file' => $path . $file]), 2);
+                    $function($path . $file);
+                }
+            }
+        }
+
+        return $count;
+    }
+
+
 
     /**
      * Execute the specified callback after setting the specified mode on the specified path. Once the callback has
@@ -2630,7 +2683,7 @@ class File
         return $file;
     }
 
-    
+
 
     /**
      * Ensures that the specified file name is valid
@@ -2662,12 +2715,12 @@ class File
      * @param int|null $until_line
      * @return array
      */
-    public static function grep(string $path, array $filters, ?int $until_line = null): array
+    public static function grep(string $path, string|array $filters, ?int $until_line = null): array
     {
         $return = [];
 
         // Validate filters
-        foreach ($filters as $filter) {
+        foreach (Arrays::force($filters, '') as $filter) {
             if (!is_scalar($filter)) {
                 throw new OutOfBoundsException(tr('The filter ":filter" is invalid, only string filters are allowed', [':filter' => $filter]));
             }
