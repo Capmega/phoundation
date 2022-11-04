@@ -289,21 +289,21 @@ class Path
             }
 
             $return = Strings::slash($prefix) . Strings::unslash($path);
+        }
 
-            // If this is a directory, make sure it has a slash suffix
-            if (file_exists($return)) {
-                if (is_dir($return)) {
-                    $return = Strings::slash($return);
-                }
-            } else {
-                if ($must_exist) {
-                    throw new FilesystemException(tr('The specified path ":path" does not exist', [
-                        ':path' => $path
-                    ]));
-                }
-
-                // Path doesn't exist, but apparently that's okay! Continue!
+        // If this is a directory, make sure it has a slash suffix
+        if (file_exists($return)) {
+            if (is_dir($return)) {
+                $return = Strings::slash($return);
             }
+        } else {
+            if ($must_exist) {
+                throw new FilesystemException(tr('The specified path ":path" does not exist', [
+                    ':path' => $path
+                ]));
+            }
+
+            // Path doesn't exist, but apparently that's okay! Continue!
         }
 
         return $return;

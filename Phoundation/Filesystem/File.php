@@ -2157,11 +2157,11 @@ class File
      *
      * @param string|array $paths
      * @param bool $recurse
-     * @param callable $function
+     * @param callable $callback
      * @param Restrictions|null $restrictions
      * @return int
      */
-    public static function executeEach(string|array $paths, bool $recurse, callable $function, ?Restrictions $restrictions = null): int
+    public static function executeEach(string|array $paths, bool $recurse, ?Restrictions $restrictions, callable $callback): int
     {
         $count = 0;
         $files = [];
@@ -2189,13 +2189,21 @@ class File
                         continue;
                     }
 
-                    $count += self::executeEach($path, $recurse, $function);
+                    $count += self::executeEach($path . $file, $recurse, $restrictions, $callback);
 
-                } else {
+                } elseif (file_exists($path . $file)) {
                     // Execute the callback
                     $count++;
-                    Log::action(tr('Executing callback function on file ":file"', [':file' => $path . $file]), 2);
-                    $function($path . $file);
+
+                    Log::action(tr('Executing callback function on file ":file"', [
+                        ':file' => $path . $file
+                    ]), 3);
+
+                    $callback($path . $file);
+                } else {
+                    Log::warning(tr('Not executing callback function on file ":file", it does not exist (probably dead symlink)', [
+                        ':file' => $path . $file
+                    ]));
                 }
             }
         }
