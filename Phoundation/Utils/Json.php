@@ -12,6 +12,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Http;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Exception\JsonException;
+use Phoundation\Web\Web;
 use Throwable;
 
 
@@ -37,15 +38,13 @@ class Json
      * @param string $after
      * @return void
      */
-    static function reply(null|string|array $data = null, string $result = 'OK', ?int $http_code = null, string $after = 'die'): void
+    public static function reply(null|string|array $data = null, string $result = 'OK', ?int $http_code = null, string $after = 'die'): void
     {
         if (!$data) {
             $data = Arrays::force($data);
         }
 
-        /*
-         * Auto assume result = "OK" entry if not specified
-         */
+        // Auto assume result = "OK" entry if not specified
         if (empty($data['data'])) {
             $data = ['data' => $data];
         }
@@ -55,15 +54,11 @@ class Json
                 throw new JsonException(tr('Result was specified both in the data array as ":result1" as wel as the separate variable as ":result2"', [':result1' => $data['result'], ':result2' => $result]));
             }
 
-            /*
-             * Add result to the reply
-             */
+            // Add result to the reply
             $data['result'] = $result;
         }
 
-        /*
-         * Send a new CSRF code with this payload?
-         */
+        // Send a new CSRF code with this payload?
         if (!empty($core->register['csrf_ajax'])) {
             $data['csrf'] = $core->register['csrf_ajax'];
             unset($core->register['csrf_ajax']);
@@ -83,27 +78,23 @@ class Json
 
         switch ($after) {
             case 'die':
-                /*
-                 * We're done, kill the connection % process (default)
-                 */
-                die();
+                // We're done, kill the connection % process (default)
+                Core::die();
 
             case 'continue':
-                /*
-                 * Continue running
-                 */
+                // Continue running
                 return;
 
             case 'close_continue':
-                /*
-                 * Close the current HTTP connection but continue in the background
-                 */
+                // Close the current HTTP connection but continue in the background
                 session_write_close();
                 fastcgi_finish_request();
                 return;
 
             default:
-                throw new JsonException(tr('Unknown after ":after" specified. Use one of "die", "continue", or "close_continue"', [':after' => $after]));
+                throw new JsonException(tr('Unknown after ":after" specified. Use one of "die", "continue", or "close_continue"', [
+                    ':after' => $after
+                ]));
         }
     }
 
@@ -127,7 +118,7 @@ class Json
      * @note Uses Json::reply() to send the error to the client
      * @todo Fix $data and $result parameters. Are they used correctly? They are sometimes overwritten in the method
      */
-    static public function error(string|array $message, $data = null, $result = null, int $http_code = 500): void
+    public static function error(string|array $message, $data = null, $result = null, int $http_code = 500): void
     {
         if (!$message) {
             $message = '';
@@ -176,9 +167,7 @@ class Json
             $message = trim(Strings::from($message, '():'));
 
         } elseif (is_object($message)) {
-            /*
-             * Assume this is an CoreException object
-             */
+            // Assume this is an CoreException object
             if (!($message instanceof CoreException)) {
                 if (!($message instanceof Exception)) {
                     $type = gettype($message);
@@ -187,7 +176,9 @@ class Json
                         $type .= '/' . get_class($message);
                     }
 
-                    throw new JsonException(tr('Specified message must either be a string or an CoreException ojbect, or PHP Exception ojbect, but is a ":type"', [':type' => $type]));
+                    throw new JsonException(tr('Specified message must either be a string or an CoreException ojbect, or PHP Exception ojbect, but is a ":type"', [
+                        ':type' => $type
+                    ]));
                 }
 
                 $code = $message->getCode();
@@ -223,9 +214,7 @@ class Json
 
                 } else {
                     if (Debug::enabled()) {
-                        /*
-                         * This is a user visible message
-                         */
+                        // This is a user visible message
                         $messages = $message->getMessages();
 
                         foreach ($messages as $id => &$message) {
@@ -261,11 +250,13 @@ class Json
      * @param mixed $data
      * @return void
      */
-    static public function message(int|string|object $code, mixed $data = null): void
+    public static function message(int|string|object $code, mixed $data = null): void
     {
         if (is_object($code)) {
             if (!$code instanceof Throwable) {
-                throw new OutOfBoundsException(tr('Specified code is a ":code" object class. Code must be an numeric HTTP code, a key word string or an exception object', [':code' => $code]));
+                throw new OutOfBoundsException(tr('Specified code is a ":code" object class. Code must be an numeric HTTP code, a key word string or an exception object', [
+                    ':code' => $code
+                ]));
             }
 
             // This is (presumably) an exception
@@ -275,7 +266,9 @@ class Json
         if (str_contains($code, '_')) {
             // Codes should always use -, never _
             Notification::new()
-                ->setException(new JsonException(tr('Specified code ":code" contains an _ which should never be used, always use a -', [':code' => $code])))
+                ->setException(new JsonException(tr('Specified code ":code" contains an _ which should never be used, always use a -', [
+                    ':code' => $code
+                ])))
                 ->send();
         }
 
@@ -398,12 +391,12 @@ class Json
      * @return string
      * @throws JsonException If JSON encoding failed
      */
-    static public function encode(mixed $source, int $options = 0, int $depth = 512): string
+    public static function encode(mixed $source, int $options = 0, int $depth = 512): string
     {
         $return = json_encode($source, $options, $depth);
 
         if (json_last_error()) {
-            throw new JsonException(tr('JSON encoding failed with :error', [':error' => json_last_error_msg()]), 'error');
+            throw new JsonException(tr('JSON encoding failed with :error', [':error' => json_last_error_msg()]));
         }
 
         return $return;
@@ -423,7 +416,7 @@ class Json
      * @return mixed The decoded variable
      * @throws JsonException
      */
-    static public function decode(?string $source, int $options = 0, int $depth = 512, bool $as_array = true): mixed
+    public static function decode(?string $source, int $options = 0, int $depth = 512, bool $as_array = true): mixed
     {
         if ($source === null) {
             return null;
@@ -432,7 +425,7 @@ class Json
         $return = json_decode($source, $as_array, $depth, $options);
 
         if (json_last_error()) {
-            throw new JsonException(tr('JSON decoding failed with :error', [':error' => json_last_error_msg()]), 'error');
+            throw new JsonException(tr('JSON decoding failed with :error', [':error' => json_last_error_msg()]));
         }
 
         return $return;
