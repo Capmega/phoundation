@@ -344,6 +344,7 @@ class Config
         // Convert the data into yaml and store the data in the default file
         $data = yaml_emit($data);
         file_put_contents('config/default.yaml', $data);
+        return $count;
     }
 
 
