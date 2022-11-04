@@ -98,7 +98,7 @@ Class Html
      */
     public static function buildHeaders(): ?string
     {
-        $return = Page::template()->buildHtmlHeader();
+        $return = '';
 
         foreach (self::$headers as $header) {
             $return .= $header;

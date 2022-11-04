@@ -13,14 +13,12 @@ use Phoundation\Core\Strings;
 use Phoundation\Date\Date;
 use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
-use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Processes\Commands;
-use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Page;
 use Throwable;
 
@@ -81,11 +79,11 @@ class Http
     protected static array $cors = [];
 
     /**
-     * Mimetype header
+     * Content-type header
      *
-     * @var string|null $mimetype
+     * @var string|null $content_type
      */
-    protected static ?string $mimetype = null;
+    protected static ?string $content_type = null;
 
 
 
@@ -135,29 +133,29 @@ class Http
 
 
     /**
-     * Returns the mimetype that will be sent to the client
+     * Returns the mimetype / content type
      *
-     * @return string
+     * @return string|null
      */
-    public static function getMimetype(): string
+    public static function getContentType(): ?string
     {
-        return (string) self::$headers['mimetype'];
+        return self::$content_type;
     }
 
 
 
     /**
-     * Sets the mimetype that will be sent to the client
+     * Sets the mimetype / content type
      *
-     * @param string $mimetype
+     * @param string $content_type
      * @return Http
      */
-    public static function setMimetype(string $mimetype): Http
+    public static function setContentType(string $content_type): Http
     {
-        // Validate mimetype
+        // Validate status code
         // TODO implement
 
-        self::$headers['mimetype'] = $mimetype;
+        self::$content_type = $content_type;
         return self::getInstance();
     }
 
@@ -249,7 +247,7 @@ class Http
                 header('X-Powered-By: Phoundation ' . Core::FRAMEWORKCODEVERSION);
             }
 
-            $headers[] = 'Content-Type: ' . self::$mimetype . '; charset=' . Config::get('encoding.charset', 'UTF-8');
+            $headers[] = 'Content-Type: ' . self::$content_type . '; charset=' . Config::get('encoding.charset', 'UTF-8');
             $headers[] = 'Content-Language: ' . LANGUAGE;
             $headers[] = 'Content-Length: ' . Page::getContentLength();
 

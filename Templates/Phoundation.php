@@ -1,6 +1,8 @@
 <?php
 
 namespace Templates;
+use Phoundation\Web\Http\Html\Html;
+use Phoundation\Web\Http\Http;
 use Phoundation\Web\Template;
 
 
@@ -17,6 +19,12 @@ use Phoundation\Web\Template;
  */
 class Phoundation extends Template
 {
+    public function buildHttpHeaders(): int
+    {
+        Http::setContentType('text/html');
+        return Http::sendHeaders();
+    }
+
     /**
      * Build the HTML header for the page
      *
@@ -25,7 +33,7 @@ class Phoundation extends Template
     public function buildHtmlHeader(): ?string
     {
         // TODO: Implement buildHtmlHeader() method.
-        return null;
+        return Html::buildHeaders();
     }
 
 
@@ -51,6 +59,6 @@ class Phoundation extends Template
     public function buildPageFooter(): ?string
     {
         // TODO: Implement buildPageFooter() method.
-        return null;
+        return Html::buildFooters();
     }
 }

@@ -17,6 +17,13 @@ namespace Phoundation\Web;
 abstract class Template
 {
     /**
+     * Build and send HTTP headers
+     *
+     * @return int
+     */
+    public abstract function buildHttpHeaders(): int;
+
+    /**
      * Build the HTML header for the page
      *
      * @return string|null

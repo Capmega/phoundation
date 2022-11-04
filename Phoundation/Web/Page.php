@@ -327,22 +327,27 @@ throw new UnderConstructionException();
      */
     public static function send(): void
     {
-        $body = ob_get_clean();
-        ob_end_clean();
+        $body = '';
+
+        /// Get all output buffers
+        while(ob_get_level()) {
+            $body .= ob_get_contents();
+            ob_end_clean();
+        }
+
         ob_start(chunk_size: 4096);
 
+        // Build HTML and minify the output
         self::$html  = '';
-        self::$html .= Html::buildHeaders();
         self::$html .= self::$template->buildHtmlHeader();
         self::$html .= self::$template->buildPageHeader();
         self::$html .= $body;
         self::$html .= self::$template->buildPageFooter();
         self::$html .= Html::buildFooters();
+        self::$html  = Html::minify(self::$html);
 
-        // Minify the output
-        self::$html = Html::minify(self::$html);
-
-        $length = Http::sendHeaders();
+        // Send headers
+        $length = self::$template->buildHttpHeaders();
 
         Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
 
@@ -361,13 +366,15 @@ throw new UnderConstructionException();
                 return;
         }
 
+        // Write to cache and output
         Cache::writePage(self::$hash, self::$html);
 
         $length = strlen(self::$html);
 
         // Send HTML to the client
         echo self::$html;
-        ob_end_flush();
+        ob_flush();
+        flush();
 
         Log::success(tr('Sent ":length" bytes of HTML to client', [':length' => $length]), 4);
     }
