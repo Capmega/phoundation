@@ -317,7 +317,7 @@ class Route
 
             $route        = $target;
             $attachment   = false;
-            $restrictions = new Restrictions([PATH_WWW , PATH_ROOT.'data/content/downloads']);
+            $restrictions = new Restrictions([PATH_WWW , PATH_ROOT.'data/content/downloads'], false, 'Route');
 
             // Regex matched. Do variable substitution on the target.
             if (preg_match_all('/:([A-Z_]+)/', $target, $variables)) {

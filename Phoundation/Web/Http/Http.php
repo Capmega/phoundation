@@ -199,13 +199,13 @@ class Http
     /**
      * Send all the HTTP headers
      *
-     * @return void
+     * @return int The amount of bytes sent. -1 if Http::sendHeaders() was called for the second time.
      * @throws Throwable
      * @todo Refactor and remove $_CONFIG dependancies
      * @todo Refactor and remove $core dependancies
      * @todo Refactor and remove $params dependancies
      */
-    public static function sendHeaders(): void
+    public static function sendHeaders(): int
     {
         if (headers_sent($file, $line)) {
             Log::warning(tr('Will not send headers again, output started at ":file@:line. Adding backtrace to debug this request', [
@@ -213,8 +213,10 @@ class Http
                 ':line' => $line
             ]));
             Log::backtrace();
-            return;
+            return -1;
         }
+
+        $length = 0;
 
         /*
          * Ensure that from this point on we have a language configuration available
@@ -228,7 +230,7 @@ class Http
 
         try {
             // Create ETAG, possibly send out HTTP304 if client sent matching ETAG
-            Http::cacheEtag();
+            $length += Http::cacheEtag();
 
             // Add PHP signature?
             if (!Config::get('security.expose.php-signature', false)) {
@@ -341,8 +343,11 @@ class Http
 
             // Send all available headers
             foreach ($headers as $header) {
+                $length += strlen($header);
                 header($header);
             }
+
+            return $length;
 
         } catch (Throwable $e) {
             Notification::new()

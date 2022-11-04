@@ -328,6 +328,8 @@ throw new UnderConstructionException();
     public static function send(): void
     {
         $body = ob_get_clean();
+        ob_end_clean();
+        ob_start(chunk_size: 4096);
 
         self::$html  = '';
         self::$html .= Html::buildHeaders();
@@ -340,7 +342,9 @@ throw new UnderConstructionException();
         // Minify the output
         self::$html = Html::minify(self::$html);
 
-        Http::sendHeaders();
+        $length = Http::sendHeaders();
+
+        Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
 
         if (strtoupper($_SERVER['REQUEST_METHOD']) == 'HEAD') {
             // HEAD request, do not send any HTML whatsoever
@@ -359,8 +363,13 @@ throw new UnderConstructionException();
 
         Cache::writePage(self::$hash, self::$html);
 
+        $length = strlen(self::$html);
+
         // Send HTML to the client
         echo self::$html;
+        ob_end_flush();
+
+        Log::success(tr('Sent ":length" bytes of HTML to client', [':length' => $length]), 4);
     }
 
 
@@ -407,7 +416,7 @@ throw new UnderConstructionException();
 
                 include($target);
 
-                Http::file(new Restrictions(PATH_WWW))
+                Http::file(new Restrictions(PATH_WWW, false, 'Page dynamic attachment'))
                     ->setAttachment(true)
                     ->setData(ob_get_clean())
                     ->setFilename(basename($target))
@@ -428,7 +437,7 @@ throw new UnderConstructionException();
                 // Upload the file to the client as an attachment
                 Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
 
-                Http::file(new Restrictions(PATH_WWW . ',data/attachments'))
+                Http::file(new Restrictions(PATH_WWW . ',data/attachments', false, 'Page attachment'))
                     ->setAttachment(true)
                     ->setFile($target)
                     ->setFilename(basename($target))
