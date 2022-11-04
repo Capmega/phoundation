@@ -58,6 +58,13 @@ class Page
     protected static ?Flash $flash = null;
 
     /**
+     * !DOCTYPE variable
+     *
+     * @var string
+     */
+    protected static string $doctype = 'html';
+
+    /**
      * Information that goes into the HTML header
      *
      * @var array $headers
@@ -169,6 +176,31 @@ class Page
         }
 
         return self::$instance;
+    }
+
+
+
+    /**
+     * Returns the current tab index and automatically increments it
+     *
+     * @return string
+     */
+    public static function getDocType(): string
+    {
+        return self::$doctype;
+    }
+
+
+
+    /**
+     * Returns the current tab index and automatically increments it
+     *
+     * @return Page
+     */
+    public static function setDoctype(string $doctype): Page
+    {
+        self::$doctype = $doctype;
+        return self::getInstance();
     }
 
 
@@ -343,7 +375,7 @@ throw new UnderConstructionException();
         self::$html .= self::$template->buildPageHeader();
         self::$html .= $body;
         self::$html .= self::$template->buildPageFooter();
-        self::$html .= Html::buildFooters();
+        self::$html .= self::$template->buildHtmlFooter();
         self::$html  = Html::minify(self::$html);
 
         // Send headers
