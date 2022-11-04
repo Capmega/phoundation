@@ -118,12 +118,22 @@ class Element
 
 
     /**
+     * Return new HTML Element object
+     */
+    public static function new(): static
+    {
+        return new static();
+    }
+
+
+
+    /**
      * Sets the HTML id element attribute
      *
      * @param string|null $id
      * @return Element
      */
-    public function setId(?string $id): self
+    public function setId(?string $id): static
     {
         $this->id      = $id;
         $this->real_id = Strings::until($id, '[');
@@ -156,7 +166,7 @@ class Element
      * @param string|null $name
      * @return Element
      */
-    public function setName(?string $name): self
+    public function setName(?string $name): static
     {
         $this->name      = $name;
         $this->real_name = Strings::until($name, '[');
@@ -189,7 +199,7 @@ class Element
      * @param array|string|null $classes
      * @return Element
      */
-    public function setClasses(array|string|null $classes): self
+    public function setClasses(array|string|null $classes): static
     {
         $this->classes = [];
         return $this->addClasses($classes);
@@ -203,7 +213,7 @@ class Element
      * @param string|null $classes
      * @return Element
      */
-    public function addClasses(?string $classes): self
+    public function addClasses(?string $classes): static
     {
         foreach (Arrays::force($classes, ' ') as $class) {
             $this->addClass($class);
@@ -220,9 +230,24 @@ class Element
      * @param string $class
      * @return Element
      */
-    public function addClass(string $class): self
+    public function addClass(string $class): static
     {
         $this->classes[$class] = true;
+        $this->class = null;
+        return $this;
+    }
+
+
+
+    /**
+     * Adds an class to the HTML class element attribute
+     *
+     * @param string $class
+     * @return Element
+     */
+    public function setClass(string $class): static
+    {
+        $this->classes = [$class => true];
         $this->class = null;
         return $this;
     }
@@ -267,7 +292,7 @@ class Element
      * @param bool $autofocus
      * @return Element
      */
-    public function setAutofocus(bool $autofocus): self
+    public function setAutofocus(bool $autofocus): static
     {
         $this->autofocus = ($autofocus ? 'autofocus' : null);
         return $this;
@@ -293,7 +318,7 @@ class Element
      * @param int|null $tabindex
      * @return Element
      */
-    public function setTabIndex(?int $tabindex): self
+    public function setTabIndex(?int $tabindex): static
     {
         $this->tabindex = $tabindex;
         return $this;
@@ -318,7 +343,7 @@ class Element
      * @param bool $disabled
      * @return Element
      */
-    public function setDisabled(bool $disabled): self
+    public function setDisabled(bool $disabled): static
     {
         $this->tabindex = ($disabled ? 'disabled' : null);
         return $this;
@@ -343,7 +368,7 @@ class Element
      * @param bool $readonly
      * @return Element
      */
-    public function setReadonly(bool $readonly): self
+    public function setReadonly(bool $readonly): static
     {
         $this->readonly = ($readonly ? 'readonly' : null);
         return $this;
@@ -368,7 +393,7 @@ class Element
      * @param array $attributes
      * @return Element
      */
-    public function setAttributes(array $attributes): self
+    public function setAttributes(array $attributes): static
     {
         $this->attributes = [];
         $this->addAttributes($attributes);
@@ -383,7 +408,7 @@ class Element
      * @param array $attributes
      * @return Element
      */
-    public function addAttributes(array $attributes): self
+    public function addAttributes(array $attributes): static
     {
         foreach ($attributes as $attribute => $value) {
             $this->addAttribute($attribute, $value);
@@ -401,7 +426,7 @@ class Element
      * @param string $value
      * @return Element
      */
-    public function addAttribute(string $attribute, string $value): self
+    public function addAttribute(string $attribute, string $value): static
     {
         $this->attributes[$attribute] = $value;
         return $this;
