@@ -8,6 +8,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Restrictions;
 use Throwable;
 
 
@@ -232,47 +233,90 @@ class Config
      * Scan the entire project from ROOT for Config::get() and Config::set() and generate a config/default.yaml file
      * with all default values
      *
-     * @return void
+     * @return int The amount of configuration paths processed
      */
-    public static function generateDefaultYaml(): void
+    public static function generateDefaultYaml(): int
     {
+        $count = 0;
         $store = [];
 
         // Scan all files for Config::get() and Config::set() calls
-        File::executeEach(PATH_ROOT, true, function(string $file) use (&$store) {
-            $lines = File::grep($file, ['Config::get', 'Config::set']);
+        File::each()
+            ->setPath(PATH_ROOT)
+            ->addSkipPaths([PATH_DATA, PATH_ROOT . 'tests', PATH_ROOT . 'garbage'])
+            ->setRecurse(true)
+            ->setRestrictions(new Restrictions(PATH_ROOT))
+            ->execute(function(string $file) use (&$store) {
+            $results = File::grep($file, ['Config::get(\'', 'Config::set(\'']);
 
-            foreach ($lines as $line) {
-                // Extract the configuration path and default value for each call
-                if (!preg_match_all('/Config::[gs]et\((.+?)(?:\s?,\s?(.+?))?\)/i', $line, $matches)) {
-                    Log::warning(tr('Failed to extract a Config::get() or Config::set() from line ":line"', [
-                        ':line' => $line
-                    ]));
-                    continue;
-                }
-
-                foreach ($matches as $match) {
-                    showdie($matches);
-                    $path    = $match[1];
-                    $default = $match[2];
-
-                    // Log all Config::get() and Config::set() calls that have the same configuration path but different
-                    // default values
-                    if (array_key_exists($path, $store)) {
-                        if ($store[$path] !== $default) {
-                            Log::warning(tr('Configuration path ":path" has two different default values ":1" and ":2"', [
-                                ':path' => $path,
-                                ':1'    => $default,
-                                ':2'    => $store[$path],
+            foreach ($results as $lines){
+                foreach ($lines as $line) {
+                    // Extract the configuration path and default value for each call
+                    if (!preg_match_all('/Config::[gs]et\s?\([\'"](.+?)[\'"](?:.+?)?(?:,\s?(.+?))\)/i', $line, $matches)) {
+                        if (!preg_match_all('/Config::[gs]et\s?\([\'"](.+?)[\'"](?:.+?)?(?:,\s?(.+?))?\)/i', $line, $matches)) {
+                            Log::warning(tr('Failed to extract a Config::get() or Config::set() from line ":line" in file ":file"', [
+                                ':file' => $file,
+                                ':line' => $line
                             ]));
+
+                            continue;
                         }
                     }
 
-                    // Store the configuration path
-                    $store[$path] = $default;
+                    // Pass over all matches
+                    foreach ($matches[0] as $match => $value) {
+                        $path    = str_replace(['"', "'"], '', trim($matches[1][$match]));
+                        $default = str_replace(['"', "'"], '', trim($matches[2][$match]));
+
+                        // Log all Config::get() and Config::set() calls that have the same configuration path but different
+                        // default values
+                        if (array_key_exists($path, $store)) {
+                            if ($store[$path] !== $default) {
+                                Log::warning(tr('Configuration path ":path" has two different default values ":1" and ":2"', [
+                                    ':path' => $path,
+                                    ':1'    => $default,
+                                    ':2'    => $store[$path],
+                                ]));
+                            }
+                        }
+
+                        // Store the configuration path
+                        $store[$path] = $default;
+                    }
                 }
             }
         });
+
+        // Convert all entries ending in . to array values (these typically have variable subkeys following)
+        foreach ($store as $path => $default) {
+            if (str_ends_with($path, '.')) {
+                $store[substr($path, 0, -1)] = [];
+                unset($store[$path]);
+            }
+        }
+
+        // Fix all entries that have variables or weird values
+        foreach ($store as $path => $default) {
+            if (!is_scalar($default)) {
+                continue;
+            }
+
+            if (str_starts_with($default, '$')) {
+                $store[$path] = null;
+            }
+
+            if (str_contains($default, '::')) {
+                $store[$path] = null;
+            }
+
+            if (str_contains($default, ',')) {
+                $store[$path] = Strings::from($store[$path], ',');
+                $store[$path] = trim($store[$path]);
+            }
+        }
+
+        // Sort so that we have a nice alphabetically ordered list
+        asort($store);
 
         // Great, we have all used configuration paths and their default values! Now construct the config/default.yaml
         // file
@@ -280,18 +324,21 @@ class Config
 
         // Convert the store to an array map
         foreach ($store as $path => $default) {
-            $path = explode('.', $path);
+            $path    = explode('.', $path);
             $section = &$data;
+            $count++;
 
             foreach ($path as $key) {
                 if (!array_key_exists($key, $section)) {
                     // Initialize with sub array and jump in
                     $section[$key] = [];
-                    $section = &$section[$key];
                 }
+
+                $section = &$section[$key];
             }
 
             $section = $default;
+            unset($section);
         }
 
         // Convert the data into yaml and store the data in the default file
