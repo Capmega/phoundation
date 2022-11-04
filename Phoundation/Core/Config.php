@@ -252,6 +252,7 @@ class Config
                 }
 
                 foreach ($matches as $match) {
+                    showdie($matches);
                     $path    = $match[1];
                     $default = $match[2];
 

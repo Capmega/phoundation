@@ -2166,10 +2166,10 @@ class File
         $count = 0;
         $files = [];
 
+        Core::ensureRestrictions($restrictions)->check($paths);
+
         foreach (Arrays::force($paths, '') as $path) {
             try {
-                Core::ensureRestrictions($restrictions)->check($path);
-
                 // Get al files in this directory
                 $path  = Path::absolute($path);
                 $files = scandir($path);

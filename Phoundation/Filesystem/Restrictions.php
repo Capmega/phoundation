@@ -7,6 +7,7 @@ namespace Phoundation\Filesystem;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
+use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 
@@ -112,10 +113,10 @@ class Restrictions
 
                 if (str_starts_with($pattern, $path)) {
                     if ($write and !$restrict_write) {
-                        throw new RestrictionsException(tr('Write access to path ":path" denied by ":label" restrictions', [
+                        throw Exceptions::RestrictionsException(tr('Write access to path ":path" denied by ":label" restrictions', [
                             ':path'  => $pattern,
                             ':label' => $this->label
-                        ]));
+                        ]))->makeWarning();
                     }
 
                     // Access ok!
@@ -124,10 +125,10 @@ class Restrictions
             }
 
             // The specified pattern(s) are not allwed by the specified restrictions
-            throw new RestrictionsException(tr('Access to path ":path" denied by ":label" restrictions', [
+            throw Exceptions::RestrictionsException(tr('Access to path ":path" denied by ":label" restrictions', [
                 ':path'  => $pattern,
                 ':label' => $this->label
-            ]));
+            ]))->makeWarning();
         }
     }
 }

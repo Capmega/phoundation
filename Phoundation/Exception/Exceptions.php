@@ -10,6 +10,7 @@ use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Developer\Debug;
+use Phoundation\Filesystem\Exception\RestrictionsException;
 use \Phoundation\Libraries\Exception\InitException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\WebException;
@@ -302,5 +303,21 @@ class Exceptions
     public static function ConfigException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): ConfigException
     {
         return new ConfigException($messages, $data, $code, $previous);
+    }
+
+
+
+    /**
+     * Exceptions factory for RestrictionsException
+     *
+     * @param string|array $messages
+     * @param mixed|null $data
+     * @param string|null $code
+     * @param Throwable|null $previous
+     * @return RestrictionsException
+     */
+    public static function RestrictionsException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): RestrictionsException
+    {
+        return new RestrictionsException($messages, $data, $code, $previous);
     }
 }

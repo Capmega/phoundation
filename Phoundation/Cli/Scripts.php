@@ -115,7 +115,12 @@ class Scripts
                     }
 
                     // Script ended with warning
-                    Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [':script' => Core::readRegister('system', 'script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
+                    Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
+                        ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                        ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                        ':usage'    => Numbers::bytes(memory_get_peak_usage()),
+                        ':exitcode' => $exit_code
+                    ]));
 
                 } else {
                     if ($exit_message) {
@@ -123,7 +128,12 @@ class Scripts
                     }
 
                     // Script ended with error
-                    Log::error(tr('Script ":script" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [':script' => Core::readRegister('system', 'script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage()), ':exitcode' => $exit_code]));
+                    Log::error(tr('Script ":script" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
+                        ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                        ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                        ':usage'    => Numbers::bytes(memory_get_peak_usage()),
+                        ':exitcode' => $exit_code
+                    ]));
                 }
 
             } else {
@@ -132,7 +142,11 @@ class Scripts
                 }
 
                 // Script ended successfully
-                Log::success(tr('Finished ":script" script in ":time" with ":usage" peak memory usage', [':script' => Core::readRegister('system', 'script'), ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5), ':usage' => Numbers::bytes(memory_get_peak_usage())]));
+                Log::success(tr('Finished ":script" script in ":time" with ":usage" peak memory usage', [
+                    ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                    ':time'   => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':usage'  => Numbers::bytes(memory_get_peak_usage())
+                ]));
             }
         }
 
@@ -224,9 +238,16 @@ class Scripts
                 continue;
             }
 
-            if (!ctype_alnum($argument)) {
+            if (!preg_match('/[a-z0-9-]/i', $argument)) {
                 // Methods can only have alphanumeric characters
-                throw Exceptions::OutOfBoundsException(tr('The specified method ":method" contains non alphanumeric characters which is not allowed', [
+                throw Exceptions::OutOfBoundsException(tr('The specified method ":method" contains invalid characters. only a-z, 0-9 and - are allowed', [
+                    ':method' => $argument
+                ]))->makeWarning();
+            }
+
+            if (str_starts_with($argument, '-')) {
+                // Methods can only have alphanumeric characters
+                throw Exceptions::OutOfBoundsException(tr('The specified method ":method" starts with a - character which is not allowed', [
                     ':method' => $argument
                 ]))->makeWarning();
             }
