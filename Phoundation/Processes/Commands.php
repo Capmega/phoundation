@@ -44,6 +44,31 @@ class Commands
 
 
     /**
+     * Returns a commands object for the specified server so that we can execute commands there
+     *
+     * @param Server|null $server
+     * @return static
+     */
+    public static function server(?Server $server = null): static
+    {
+        return new static($server);
+    }
+
+
+
+    /**
+     * Returns a commands object for this local machine
+     *
+     * @return static
+     */
+    public static function local(): static
+    {
+        return new static();
+    }
+
+
+
+    /**
      * Returns the realpath for the specified command
      *
      * @param string $command The command for which the realpath must be known
@@ -113,31 +138,6 @@ class Commands
             // The command id failed
             Commands::handleException('rm', $e);
         }
-    }
-
-
-
-    /**
-     * Returns a commands object for the specified server so that we can execute commands there
-     *
-     * @param Server|null $server
-     * @return static
-     */
-    public static function server(?Server $server = null): static
-    {
-        return new static($server);
-    }
-
-
-
-    /**
-     * Returns a commands object for this local machine
-     *
-     * @return static
-     */
-    public static function local(): static
-    {
-        return new static();
     }
 
 
