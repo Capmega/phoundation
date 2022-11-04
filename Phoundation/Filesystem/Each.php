@@ -263,7 +263,7 @@ class Each
 
                     Log::action(tr('Executing callback function on file ":file"', [
                         ':file' => $path . $file
-                    ]), 3);
+                    ]), 2);
 
                     $callback($path . $file);
                 } else {
