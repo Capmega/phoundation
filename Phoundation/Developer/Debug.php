@@ -258,7 +258,7 @@ class Debug {
             return null;
         }
 
-        Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
+        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
 
         if (Debug::production()) {
             // This is not usually something you want to happen!
@@ -956,7 +956,7 @@ class Debug {
 
         if ($counter++ >= $count) {
             // Ensure that the shutdown function doesn't try to show the 404 page
-            Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
+            Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
 
             die(Strings::endsWith(str_replace('%count%', $count, $message), "\n"));
         }

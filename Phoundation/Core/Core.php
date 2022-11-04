@@ -1444,7 +1444,7 @@ class Core {
                         Log::error($e);
 
                         // Make sure the Router shutdown won't happen so it won't send a 404
-                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
+                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
 
                         // Remove all caching headers
                         if (!headers_sent()) {

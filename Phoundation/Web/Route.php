@@ -6,8 +6,10 @@ use Exception;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
+use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Validator;
+use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Restrictions;
@@ -179,11 +181,12 @@ class Route
             $type = ($_POST ?  'POST' : 'GET');
             $ip   = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
 
-            // Ensure the 404 shutdown function is registered
+            // Ensure the post processing function is registered
             if (!$init) {
                 $init = true;
                 Log::action(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', [':domain' => Config::get('web.domains.primary'), ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')')]));
                 Core::registerShutdown(['\Phoundation\Web\Route', 'shutdown']);
+                Core::registerShutdown(['\Phoundation\Web\Route', 'postProcess']);
             }
 
             if (!$url_regex) {
@@ -415,7 +418,8 @@ class Route
                     case 'B':
                         // Block this request, send nothing
                         Log::warning(tr('Blocking request as per B flag'));
-                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
+                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
                         $block = true;
                         break;
 
@@ -518,7 +522,7 @@ class Route
 
                         // We are going to redirect so we no longer need to default to 404
                         Log::success(tr('Redirecting to ":route" with HTTP code ":code"', [':route' => $route, ':code' => $http_code]));
-                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
+                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
                         Http::redirect(Url::addToQuery($route, $_GET), $http_code);
                         break;
 
@@ -593,7 +597,7 @@ class Route
                                 ':key'   => $key
                             ]));
 
-                            Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
+                            Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
                             redirect($domain);
                     }
                 }
@@ -622,7 +626,7 @@ class Route
                     // Check if route map has the requested language
                     if (empty($core->register['Route::map'][$language])) {
                         Log::warning(tr('Requested language ":language" does not have a language map available', [':language' => $language]));
-                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
+                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
                         Route::execute404();
 
                     } else {
@@ -638,7 +642,7 @@ class Route
 
                         if (!file_exists($page)) {
                             Log::warning(tr('Language remapped page ":page" does not exist', [':page' => $page]));
-                            Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
+                            Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
                             Route::execute404();
                         }
 
@@ -652,7 +656,7 @@ class Route
                             ':page' => $page
                         ]));
 
-                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
+                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
                         Route::execute404();
                     }
                 }
@@ -674,7 +678,7 @@ class Route
                 } else {
                     // The hardcoded file for the regex does not exist, oops!
                     Log::warning(tr('Matched hard coded page ":page" does not exist', [':page' => $page]));
-                    Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
+                    Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
                     Route::execute404();
                 }
             }
@@ -689,7 +693,7 @@ class Route
             }
 
             // We are going to show the matched page so we no longer need to default to 404
-            Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
+            Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
 
             /*
              * Execute the page specified in $target (from here, $route)
@@ -818,23 +822,45 @@ class Route
     }
 
 
+    /**
+     * Shutdown the URL routing
+     *
+     * @see Route::postProcess()
+     * @return void
+     */
+    public static function shutdown(?int $exit_code = null): void
+    {
+        if ($exit_code) {
+            Log::warning(tr('Routed script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
+                ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                ':usage'    => Numbers::bytes(memory_get_peak_usage()),
+                ':exitcode' => $exit_code
+            ]));
+
+        } else {
+            Log::success(tr('Routed script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
+                ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                ':usage'    => Numbers::bytes(memory_get_peak_usage()),
+                ':exitcode' => $exit_code
+            ]));
+        }
+    }
+
+
 
     /**
      * Shutdown the URL routing
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package Web
-     * @see route()
+     * @note: This function typically is called automatically
+     *
+     * @see Route::try()
      * @see Route::execute404()
-     * @note: This function typically would only need to be called by the route() function.
-     * @version 2.8.18: Added function and documentation
      *
      * @return void
      */
-    public static function shutdown(): void
+    public static function postProcess(): void
     {
         self::getInstance();
 
@@ -864,7 +890,7 @@ class Route
     protected static function execute(string $target, bool $attachment = false, ?Restrictions $restrictions = null): void
     {
         // Remove the 404 auto execution on shutdown
-        Core::unregisterShutdown(['\Phoundation\Web\Route', 'shutdown']);
+        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
         Page::execute($target, $attachment, $restrictions);
     }
 
