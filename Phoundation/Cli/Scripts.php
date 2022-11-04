@@ -724,4 +724,17 @@ class Scripts
 
         return false;
     }
-}
+
+
+
+    /**
+     * Kill this script process
+     *
+     * @todo Add required functionality
+     * @return void
+     */
+    #[NoReturn] public static function die(): void
+    {
+        // Do we need to run other shutdown functions?
+        die();
+    }}

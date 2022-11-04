@@ -44,15 +44,15 @@ class Web
 
 
     /**
+     * Kill this script process
      *
-     *
-     * @todo Remove $core dependancy
-     * @todo Remove $_CONFIG dependancy
+     * @todo Add required functionality
+     * @return void
      */
     #[NoReturn] public static function die(): void
     {
         // Do we need to run other shutdown functions?
-        Core::shutdown();
+        die();
     }
 
 

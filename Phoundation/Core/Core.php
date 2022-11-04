@@ -156,7 +156,7 @@ class Core {
             define('PATH_TMP'   , PATH_DATA . 'tmp/');
             define('PATH_PUBTMP', PATH_DATA . 'content/tmp/');
 
-            // Setup error handling, report ALL errors
+            // Setup error handling, report ALL errors,
             error_reporting(E_ALL);
             set_error_handler(['\Phoundation\Core\Core'         , 'phpErrorHandler']);
             set_exception_handler(['\Phoundation\Core\Core'     , 'uncaughtException']);
@@ -1938,6 +1938,25 @@ class Core {
     }
 
 
+
+    /**
+     * Kill this process
+     *
+     * @todo Add required functionality
+     * @return void
+     */
+    #[NoReturn] public static function die(): void
+    {
+        // Do we need to run other shutdown functions?
+        if (PLATFORM_HTTP) {
+            Core::die();
+        }
+
+        Core::die();
+    }
+
+
+
     /**
      * THIS METHOD SHOULD NOT BE RUN BY ANYBODY! IT IS EXECUTED AUTOMATICALLY ON SHUTDOWN
      *
@@ -1971,6 +1990,9 @@ class Core {
             // Libraries shutdown list
             self::$register['system']['shutdown'] = [];
         }
+
+        // Reverse the shutdown calls to execute them last added first, first added last
+        self::$register['system']['shutdown'] = array_reverse(self::$register['system']['shutdown']);
 
         foreach (self::$register['system']['shutdown'] as $method => $value) {
             try {

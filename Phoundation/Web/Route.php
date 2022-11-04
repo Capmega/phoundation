@@ -737,7 +737,7 @@ class Route
 
             if ($block) {
                 // Block the request by dying
-                die();
+                Core::die();
             }
 
             self::execute($page, $attachment, $restrictions);
