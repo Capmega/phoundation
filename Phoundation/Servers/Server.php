@@ -2,6 +2,7 @@
 
 namespace Phoundation\Servers;
 
+use Phoundation\Core\Core;
 use Phoundation\Filesystem\Restrictions;
 
 
@@ -80,11 +81,6 @@ class Server
      */
     public function restrictions(): Restrictions
     {
-        if (!$this->restrictions) {
-            // No restrictions were set for this server, return empty restrictions
-            $this->restrictions = new Restrictions();
-        }
-
-        return $this->restrictions;
+        return Core::ensureRestrictions($this->restrictions);
     }
 }

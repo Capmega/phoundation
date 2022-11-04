@@ -16,6 +16,7 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Processes;
 use Phoundation\Web\Client;
 use Phoundation\Web\Http\Html\Html;
@@ -51,6 +52,13 @@ class Core {
      * @var Core|null $instance
      */
     protected static ?Core $instance = null;
+
+    /**
+     * The Core restrictions object
+     *
+     * @var Restrictions|null
+     */
+    protected static ?Restrictions $restrictions = null;
 
     /**
      * The generic system register to store data
@@ -143,9 +151,10 @@ class Core {
             define('REQUEST'    , substr(uniqid(), 7));
             define('PATH_ROOT'  , realpath(__DIR__ . '/../..') . '/');
             define('PATH_WWW'   , PATH_ROOT . 'www/');
-            define('PATH_CDN'   , PATH_ROOT . 'data/cdn/');
-            define('PATH_TMP'   , PATH_ROOT . 'data/tmp/');
-            define('PATH_PUBTMP', PATH_ROOT . 'data/content/tmp/');
+            define('PATH_DATA'  , PATH_ROOT . 'data/');
+            define('PATH_CDN'   , PATH_DATA . 'cdn/');
+            define('PATH_TMP'   , PATH_DATA . 'tmp/');
+            define('PATH_PUBTMP', PATH_DATA . 'content/tmp/');
 
             // Setup error handling, report ALL errors
             error_reporting(E_ALL);
@@ -159,6 +168,9 @@ class Core {
 
             // Ensure safe PHP configuration
             self::securePhpSettings();
+
+            // Set up the Core restrictions object with default file access restrictions
+            self::$restrictions = new Restrictions(PATH_DATA, false, 'Core');
 
             // Get the project name
             try {
@@ -2064,6 +2076,26 @@ class Core {
     {
 // TODO implement
         return 'unknown';
+    }
+
+
+
+    /**
+     * Returns either the specified restrictions object or the Core restrictions object
+     *
+     * With this, availability of restrictions is guaranteed, even if a function did not receive restrictions. If Core
+     * restrictions are returned, these core restrictions are the ones that apply
+     *
+     * @param Restrictions|null $restrictions
+     * @return Restrictions
+     */
+    public static function ensureRestrictions(?Restrictions $restrictions = null): Restrictions
+    {
+        if ($restrictions) {
+            return $restrictions;
+        }
+
+        return self::$restrictions;
     }
 
 
