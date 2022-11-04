@@ -264,26 +264,48 @@ class Path
     /**
      * Return the absolute path for the specified path
      *
-     * @param string $path
+     * @note If the specified path exists, and it is a directory, this function will automatically add a trailing / to
+     *       the path name
+     * @param string|null $path
      * @param string|null $prefix
+     * @param bool $must_exist
      * @return string The absolute path
      */
-    public static function absolute(string $path, string $prefix = null): string
+    public static function absolute(?string $path = null, string $prefix = null, bool $must_exist = true): string
     {
         if (!$path) {
-            return getcwd();
+            return PATH_ROOT;
         }
 
         $path = trim($path);
 
         if ($path[0] === '/') {
-            return $path;
+            // This is already an absolute path
+            $return = $path;
+        } else {
+            // This is not an absolute path, make it an absolute path
+            if (!$prefix) {
+                $prefix = PATH_ROOT;
+            }
+
+            $return = Strings::slash($prefix) . Strings::unslash($path);
+
+            // If this is a directory, make sure it has a slash suffix
+            if (file_exists($return)) {
+                if (is_dir($return)) {
+                    $return = Strings::slash($return);
+                }
+            } else {
+                if ($must_exist) {
+                    throw new FilesystemException(tr('The specified path ":path" does not exist', [
+                        ':path' => $path
+                    ]));
+                }
+
+                // Path doesn't exist, but apparently that's okay! Continue!
+            }
         }
 
-        if (!$prefix) {
-            $prefix = getcwd();
-        }
-
-        return Strings::slash($prefix) . Strings::unslash($path);
+        return $return;
     }
 }
