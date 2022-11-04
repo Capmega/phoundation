@@ -2153,62 +2153,14 @@ class File
 
 
     /**
-     * Execute the callback function on each file in the specified path
+     * Returns an Each object to execute callbacks on each file in specified paths
      *
-     * @param string|array $paths
-     * @param bool $recurse
-     * @param callable $callback
      * @param Restrictions|null $restrictions
-     * @return int
+     * @return Each
      */
-    public static function executeEach(string|array $paths, bool $recurse, ?Restrictions $restrictions, callable $callback): int
+    public static function each(?Restrictions $restrictions = null): Each
     {
-        $count = 0;
-        $files = [];
-
-        Core::ensureRestrictions($restrictions)->check($paths);
-
-        foreach (Arrays::force($paths, '') as $path) {
-            try {
-                // Get al files in this directory
-                $path  = Path::absolute($path);
-                $files = scandir($path);
-            } catch (Exception $e) {
-                Path::checkReadable($path, previous_e:  $e);
-            }
-
-            foreach ($files as $file) {
-                if (($file == '.') or ($file == '..')) {
-                    // skip these
-                    continue;
-                }
-
-                if (is_dir($path . $file)) {
-                    // Directory! Recurse?
-                    if (!$recurse) {
-                        continue;
-                    }
-
-                    $count += self::executeEach($path . $file, $recurse, $restrictions, $callback);
-
-                } elseif (file_exists($path . $file)) {
-                    // Execute the callback
-                    $count++;
-
-                    Log::action(tr('Executing callback function on file ":file"', [
-                        ':file' => $path . $file
-                    ]), 3);
-
-                    $callback($path . $file);
-                } else {
-                    Log::warning(tr('Not executing callback function on file ":file", it does not exist (probably dead symlink)', [
-                        ':file' => $path . $file
-                    ]));
-                }
-            }
-        }
-
-        return $count;
+        return new Each($restrictions);
     }
 
 
