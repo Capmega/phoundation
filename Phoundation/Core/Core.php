@@ -2394,7 +2394,7 @@ class Core {
                 } else {
                     if (Config::get('cache.http.enabled', true) === 'auto') {
                         ini_set('session.cache_limiter', Config::get('cache.http.php-cache-limiter'    , true));
-                        ini_set('session.cache_expire' , Config::get('cache.http.php-cache-php_cache_expire', true));
+                        ini_set('session.cache_expire' , Config::get('cache.http.php-cache-php-cache-expire', true));
                     }
                 }
 
@@ -2467,7 +2467,7 @@ class Core {
 
                                     session_start();
 
-                                    if (Config::get('web.sessions.cookies.Notification-expired', false)) {
+                                    if (Config::get('web.sessions.cookies.notification-expired', false)) {
                                         Page::flash()->add(tr('Your browser cookie was expired, or does not exist. You may have to sign in again'), 'warning');
                                     }
 
