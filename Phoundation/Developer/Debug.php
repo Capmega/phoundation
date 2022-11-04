@@ -1031,7 +1031,7 @@ class Debug {
      * Get the .php file for the specified class path
      *
      * @param string $class_path
-     * @return Object
+     * @return string
      */
     public static function getClassFile(string $class_path): string
     {
@@ -1048,5 +1048,20 @@ class Debug {
         }
 
         return $file;
+    }
+
+
+
+    /**
+     * Get the .php file for the specified class path
+     *
+     * @param string $class_path
+     * @return void
+     */
+    public static function loadClassFile(string $class_path): void
+    {
+        $file = self::getClassFile($class_path);
+        Log::action(tr('Including class file ":file"', [':file' => $file]), 2);
+        include_once($file);
     }
 }

@@ -8,7 +8,6 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Web\Exception\PageException;
 use Throwable;
 
 
@@ -25,7 +24,8 @@ use Throwable;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Config{
+class Config
+{
     /**
      * Singleton variable
      *

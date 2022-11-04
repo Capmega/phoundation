@@ -68,7 +68,7 @@ class Scripts
 
         // All scripts will execute the cli_done() call, register basic script information
         Core::startup();
-        Core::registerShutdown(['Cli', 'done']);
+        Core::registerShutdown(['\Phoundation\Cli\Scripts', 'shutdown']);
 
         // Only allow this to be run by the cli script
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
@@ -90,8 +90,6 @@ class Scripts
 
         // Execute the script
         execute_script($file, self::$arguments);
-
-        self::die();
     }
 
 
@@ -103,14 +101,11 @@ class Scripts
      * @param string|null $exit_message
      * @return void
      */
-    #[NoReturn] public static function die(?int $exit_code = null, ?string $exit_message = null): void
+    #[NoReturn] public static function shutdown(?int $exit_code = null, ?string $exit_message = null): void
     {
         if ($exit_code) {
             Scripts::setExitCode($exit_code, true);
         }
-
-        // Execute all shutdown functions
-        Core::shutdown($exit_code);
 
         if (!QUIET) {
             if ($exit_code) {

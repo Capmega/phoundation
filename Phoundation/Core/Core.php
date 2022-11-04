@@ -240,7 +240,7 @@ class Core {
                     }
 
                     // Died in CLI
-                    Scripts::die(1, 'startup: Failed with "' . $e->getMessage() . '"');
+                    Scripts::shutdown(1, 'startup: Failed with "' . $e->getMessage() . '"');
                 }
 
             } catch (Throwable $e) {
@@ -434,7 +434,7 @@ class Core {
                     // Check for configured maintenance mode
                     if (Config::get('system.maintenance', false)) {
                         // We are in maintenance mode, have to show mainenance page.
-                        Web::execute(503);
+                        Page::execute(503);
                     }
 
                     // Set cookie, start session where needed, etc.
@@ -457,11 +457,13 @@ class Core {
 //                    Html::setJsCdnUrl();
                     Http::validateGet();
 
-                    // Did the startup sequence encounter reasons for us to actually show another page?
-                    if (isset(self::$register['web']['page_show'])) {
-                        Web::execute(self::$register['page_show']);
-                    }
-
+                    // Set session handler
+                    //
+                    // For Memcached support, configure the following in config/ENVIRONMENT.yaml
+                    // sessions.handler = "memcached"                         # Note that this is memcacheD with a D!
+                    // sessions.path = "localhost:11211:0, localhost:11211:1" # Where the last digit is weight to prioritize
+                    ini_set('session.save_handler', Config::get('sessions.handler', 'files'));
+                    ini_set('session.save_path'   , Config::get('sessions.path', '/var/lib/php/session'));
                     break;
 
                 case 'cli':
@@ -487,22 +489,14 @@ class Core {
                         $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
 
                         if (empty($env)) {
-                            Scripts::die(2, 'startup: No required environment specified for project "' . PROJECT . '"');
+                            Scripts::shutdown(2, 'startup: No required environment specified for project "' . PROJECT . '"');
                         }
 
                     } else {
                         $env = $environment;
                     }
 
-                    if (str_contains($env, '_')) {
-                        Scripts::die(4, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
-                    }
-
                     define('ENVIRONMENT', $env);
-
-                    if (!file_exists(PATH_ROOT.'config/' . $env.'.php')) {
-                        Scripts::die(5, 'startup: Configuration file "PATH_ROOT/config/' . $env . '.php" for specified environment "' . $env . '" not found');
-                    }
 
                     // Set protocol
                     define('PROTOCOL', Config::get('web.protocol', 'https://'));
@@ -684,7 +678,7 @@ class Core {
                     }
 
                     if (isset($die)) {
-                        Scripts::die($die);
+                        Scripts::shutdown($die);
                     }
 
                     // set terminal data
@@ -826,14 +820,6 @@ class Core {
 //                    Route::map();
                     break;
             }
-
-            // Set session handler
-            //
-            // For Memcached support, configure the following in config/ENVIRONMENT.yaml
-            // sessions.handler = "memcached"                         # Note that this is memcacheD with a D!
-            // sessions.path = "localhost:11211:0, localhost:11211:1" # Where the last digit is weight to prioritize
-            ini_set('session.save_handler', Config::get('sessions.handler', 'files'));
-            ini_set('session.save_path'   , Config::get('sessions.path', '/var/lib/php/session'));
 
             self::$state = 'script';
 
@@ -1381,7 +1367,7 @@ class Core {
                             // This is just a simple general warning, no backtrace and such needed, only show the
                             // principal message
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-                            Scripts::die(255);
+                            Scripts::shutdown(255);
                         }
 
 // TODO Remplement this with proper exception classes
@@ -1449,7 +1435,7 @@ class Core {
                         Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getCallType(), ':script' => self::readRegister('system', 'script')]));
                         Log::error(tr('Exception data:'));
                         Log::error($e);
-                        Scripts::die(1);
+                        Scripts::shutdown(1);
 
                     case 'http':
                         // Log exception data
@@ -1991,6 +1977,9 @@ class Core {
                 if (str_contains($method, ',')) {
                     // Execute the static class method with the specified value
                     $method = explode(',', $method);
+
+                    // Ensure the class file is loaded
+                    Debug::loadClassFile($method[0]);
 
                     // Execute this shutdown function with the specified value
                     if (is_array($value)) {
