@@ -5,6 +5,7 @@ namespace Phoundation\Web;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cache\Cache;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigNotExistsException;
@@ -105,6 +106,13 @@ class Page
      * @var string|null $hash
      */
     protected static ?string $hash = null;
+
+    /**
+     * Keeps track on if the HTML headers have been sent / generated or not
+     *
+     * @var bool $html_headers_sent
+     */
+    protected static bool $html_headers_sent = false;
 
 
 
@@ -341,6 +349,18 @@ throw new UnderConstructionException();
 
 
     /**
+     * Returns if the HTML headers have been sent
+     *
+     * @return bool
+     */
+    public static function getHtmlHeadersSent(): bool
+    {
+        return self::$html_headers_sent;
+    }
+
+
+
+    /**
      * Returns the length HTML output buffer for this page
      *
      * @return int
@@ -370,8 +390,9 @@ throw new UnderConstructionException();
         ob_start(chunk_size: 4096);
 
         // Build HTML and minify the output
-        self::$html  = '';
-        self::$html .= self::$template->buildHtmlHeader();
+        self::$html = self::$template->buildHtmlHeader();
+        self::$html_headers_sent = true;
+
         self::$html .= self::$template->buildPageHeader();
         self::$html .= $body;
         self::$html .= self::$template->buildPageFooter();
@@ -425,6 +446,51 @@ throw new UnderConstructionException();
         }
 
         return self::$flash;
+    }
+
+
+
+    /**
+     * Load the specified javascript file(s)
+     *
+     * @param string|array $files
+     * @param bool|null $header
+     * @return void
+     */
+    public static function loadJavascript(string|array $files, ?bool $header = null): void
+    {
+        if ($header === null) {
+            $header = Config::get('web.javascript.delay', true);
+        }
+
+        if ($header and self::$html_headers_sent) {
+            Log::warning(tr('Not adding files ":files" to HTML headers as the HTML headers have already been generated', [
+                ':files' => $files
+            ]));
+        }
+
+        foreach (Arrays::force($files, '') as $file) {
+            if ($header) {
+                self::$headers[$file] = 'script';
+            } else {
+                self::$footers[$file] = 'script';
+            }
+        }
+    }
+
+
+
+    /**
+     * Load the specified CSS file(s)
+     *
+     * @param string|array $files
+     * @return void
+     */
+    public static function loadCss(string|array $files): void
+    {
+        foreach (Arrays::force($files, '') as $file) {
+            self::$headers[$file] = 'css';
+        }
     }
 
 

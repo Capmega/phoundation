@@ -2,9 +2,10 @@
 
 namespace Phoundation\Core;
 
-use Exception;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Exception\OutOfBoundsException;
+
+
 
 /**
  * Class Arrays
@@ -17,6 +18,25 @@ use Phoundation\Exception\OutOfBoundsException;
  * @package Phoundation\Core
  */
 class Arrays {
+    /**
+     * If all the specified keys are not in the source array, an exception will be thrown
+     *
+     * @param array $source
+     * @param array|string $keys
+     * @param string $exception_class
+     * @return void
+     */
+    public static function requiredKeys(array $source, array|string $keys, string $exception_class = OutOfBoundsException::class): void
+    {
+        if (!self::hasAllKeys($source, $keys)) {
+            throw new $exception_class(tr('The specified array does not contain all required keys ":keys"', [
+                ':keys' => $keys
+            ]));
+        }
+    }
+
+
+
     /**
      * Returns the next key right after specified $key
      *
@@ -1023,6 +1043,26 @@ class Arrays {
     public static function hasDuplicates(array $source): bool
     {
         return (bool) Arrays::countDuplicates($source);
+    }
+
+
+
+    /**
+     * Returns true if the source has all specified keys
+     *
+     * @param array $source
+     * @param array|string $keys
+     * @return bool
+     */
+    public static function hasAllKeys(array $source, array|string $keys): bool
+    {
+        foreach (self::force($keys) as $key) {
+            if (!array_key_exists($key, $source)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 

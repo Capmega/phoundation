@@ -6,12 +6,31 @@ project:
   name: "Phoundation"
   version: "0.0.0"
 languages:
-  supported: null
+  supported: "en", "es"
+  default: "en"
 web:
   sessions:
     cookies:
   domains:
-    primary: "localhost"
+    primary:
+      www:
+        domain: www.phoundation.localhost
+        protocol: https://
+        path-prefix: /:LANGUAGE/
+        index: /
+      cdn: cdn.phoundation.localhost
+    test:
+      www:
+        domain: www.test.localhost
+        protocol: https://
+        path-prefix: /:LANGUAGE/
+      cdn: cdn.test.localhost
+    trial:
+      www:
+        domain: www.trial.localhost
+        protocol: https://
+        path-prefix: /:LANGUAGE/
+      cdn: cdn.trial.localhost
   route:
     known-hacks:
   template:

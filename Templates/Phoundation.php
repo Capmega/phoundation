@@ -35,6 +35,7 @@ class Phoundation extends Template
     public function buildHtmlHeader(): ?string
     {
         $html = Html::buildHeaders();
+        Page::loadJavascript('mdb/mdb.min.js');
 
         $html .= '<!DOCTYPE html>
             <html lang="en">
@@ -70,9 +71,7 @@ class Phoundation extends Template
      */
     public function buildPageHeader(): ?string
     {
-        $html = '<body>
-                <!-- Start your project here-->
-                <div class="container">';
+        $html = '<body>';
 
         return $html;
     }
@@ -86,7 +85,7 @@ class Phoundation extends Template
      */
     public function buildPageFooter(): ?string
     {
-        $html = '</div>';
+        $html = '';
 
         return $html;
     }

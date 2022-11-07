@@ -94,12 +94,12 @@ class Core {
      * General purpose data register
      */
     protected static array $register = [
-        'tabindex' => 0,
-        'js_header' => [],
-        'js_footer' => [],
-        'css' => [],
-        'quiet' => true,
-        'footer' => '',
+        'tabindex'      => 0,
+        'js_header'     => [],
+        'js_footer'     => [],
+        'css'           => [],
+        'quiet'         => true,
+        'footer'        => '',
         'debug_queries' => []
     ];
 
@@ -821,6 +821,8 @@ class Core {
                     break;
             }
 
+            // Start session
+            Session::startup();
             self::$state = 'script';
 
         } catch (Throwable $e) {

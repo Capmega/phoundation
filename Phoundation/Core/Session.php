@@ -4,11 +4,13 @@ namespace Phoundation\Core;
 
 use Phoundation\Users\User;
 use Phoundation\Users\Users;
-
+use Phoundation\Web\Exception\PageException;
+use Phoundation\Web\Http\Http;
+use Phoundation\Web\Http\Url;
 
 
 /**
- * class Session
+ * Class Session
  *
  *
  *
@@ -26,6 +28,41 @@ class Session
      */
     protected static ?User $user = null;
 
+    /**
+     * Tracks if the session has startup or not
+     *
+     * @var bool $startup
+     */
+    protected static bool $startup = false;
+
+    /**
+     * Language for this session
+     *
+     * @var string|null $language
+     */
+    protected static ?string $language = null;
+
+    /**
+     * Domain for this session
+     *
+     * @var string|null $domain
+     */
+    protected static ?string $domain = null;
+
+
+
+    /**
+     * @return void
+     */
+    public static function startup(): void
+    {
+        if (self::$startup) {
+            return;
+        }
+
+        self::setLanguage();
+    }
+
 
 
     /**
@@ -39,6 +76,90 @@ class Session
         }
 
         return self::$user;
+    }
+
+
+
+    /**
+     * Authenticate a user with the specified password
+     *
+     * @param string $user
+     * @param string $password
+     * @return User
+     */
+    public static function signIn(string $user, string $password): User
+    {
+        self::$user = Users::authenticate($user, $password);
+        return self::$user;
+    }
+
+
+
+    /**
+     * Returns the domain for this session
+     *
+     * @return string
+     */
+    public static function getDomain(): string
+    {
+        return self::$domain;
+    }
+
+
+
+    /**
+     * Sets the domain for this session
+     *
+     * @return string
+     */
+    protected static function setDomain(): string
+    {
+        // Check what domains are accepted by the client (in order of importance) and see if we support any of those
+        $supported_domains = Config::get('web.domains');
+
+        if (array_key_exists($_SERVER['HTTP_HOST'], $supported_domains)) {
+            self::$domain = $_SERVER['HTTP_HOST'];
+            return self::$domain;
+        }
+
+        // No supported domain found, redirect to the primary domain
+        Url::redirect(true);
+    }
+
+
+
+    /**
+     * Returns the language for this session
+     *
+     * @return string
+     */
+    public static function getLanguage(): string
+    {
+        return self::$language;
+    }
+
+
+
+    /**
+     * Returns the language for this session
+     *
+     * @return string
+     */
+    protected static function setLanguage(): string
+    {
+        // Check what languages are accepted by the client (in order of importance) and see if we support any of those
+        $supported_languages = Config::get('languages.supported', []);
+        $requested_languages = Http::acceptsLanguages();
+
+        foreach ($requested_languages as $requested_language) {
+            if (in_array($requested_language, $supported_languages)) {
+                self::$language = $requested_language;
+                return self::$language;
+            }
+        }
+
+        // No supported language found, set the default language
+        return Config::get('languages.default', 'en');
     }
 
 
@@ -70,20 +191,6 @@ class Session
 //            throw new OutOfBoundsException(tr('session_cache(): Failed'), $e);
 //        }
 //    }
-
-
-
-    /**
-     * Authenticate a user with the specified password
-     *
-     * @param string $user
-     * @param string $password
-     * @return User
-     */
-    public static function signIn(string $user, string $password): User
-    {
-        self::$user = Users::authenticate($user, $password);
-    }
 
 
 

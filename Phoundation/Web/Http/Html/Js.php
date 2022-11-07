@@ -2,6 +2,9 @@
 
 namespace Phoundation\Web\Http\Html;
 
+use Phoundation\Core\Arrays;
+use Phoundation\Notifications\Notification;
+use Phoundation\Web\Exception\WebException;
 
 
 /**
@@ -41,41 +44,42 @@ class Js
      * @param string $list What javascript file list it should be added to. Typical valid options are "" and "page". The "" list will be loaded before the "page" list
      * @return void
      */
-    function loadFiles(string|array $files, $list = 'page'): void
+    public static function loadFiles(string|array $files, $list = 'page'): void
     {
         if (!isset($core->register['js_header'])) {
-            throw new CoreException(tr('html_load_js(): Cannot load javascript file(s) ":files", the files list have already been sent to the client by html_header()', array(':files' => $files)), 'invalid');
+            throw new WebException(tr('Cannot load javascript file(s) ":files", the files list have already been sent to the client by html_header()', [
+                ':files' => $files
+            ]));
         }
 
         $config = &$_CONFIG['cdn']['js'];
 
         foreach (Arrays::force($files) as $file) {
-            if (strstr($file, '://')) {
-                /*
-                 * Compatibility code: ALL LOCAL JS FILES SHOULD ALWAYS BE
-                 * SPECIFIED WITHOUT .js OR .min.js!!
-                 */
-                if (substr($file, -3, 3) == '.js') {
+            if (str_contains($file, '://')) {
+                // Compatibility code: ALL LOCAL JS FILES SHOULD ALWAYS BE SPECIFIED WITHOUT .js OR .min.js!!
+                if (str_ends_with($file, '.js')) {
                     $file = substr($file, 0, -3);
 
-                    notify(array('code'    => 'not-exists',
-                        'groups'  => 'developers',
-                        'title'   => tr('html_load_js() issue detected'),
-                        'message' => tr('html_load_js(): File ":file" was specified with ".js"', array(':file' => $file))));
+                    Notification::new()
+                        ->setCode('not-exists')
+                        ->setGroups('developers')
+                        ->setTitle(tr('html_load_js() issue detected'))
+                        ->setMessage(tr('File ":file" was specified with ".js"', [':file' => $file]))
+                        ->send();
 
                 } elseif (substr($file, -7, 7) == '.min.js') {
                     $file = substr($file, 0, -7);
 
-                    notify(array('code'    => 'not-exists',
-                        'groups'  => 'developers',
-                        'title'   => tr('html_load_js() issue detected'),
-                        'message' => tr('html_load_js(): File ":file" was specified with ".min.js"', array(':file' => $file))));
+                    Notification::new()
+                        ->setCode('not-exists')
+                        ->setGroups('developers')
+                        ->setTitle(tr('html_load_js() issue detected'))
+                        ->setMessage(tr('File ":file" was specified with ".min.js', [':file' => $file]))
+                        ->send();
                 }
             }
 
-            /*
-             * Determine if this file should be delayed loaded or not
-             */
+            // Determine if this file should be delayed loaded or not
             switch (substr($file, 0, 1)) {
                 case '<':
                     $file    = substr($file, 1);
@@ -91,21 +95,13 @@ class Js
                     $delayed = $config['load_delayed'];
             }
 
-            /*
-             * Determine if this file should be async or not
-             */
-            switch (substr($file, -1, 1)) {
-                case '&':
-                    $async = true;
-                    break;
+            // Determine if this file should be async or not
+            $async = match (substr($file, -1, 1)) {
+                '&' => true,
+                default => false,
+            };
 
-                default:
-                    $async = false;
-            }
-
-            /*
-             * Register the file to be loaded
-             */
+            // Register the file to be loaded
             if ($delayed) {
                 $core->register['js_footer'.($list ? '_'.$list : '')][$file] = $async;
 

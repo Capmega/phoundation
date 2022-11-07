@@ -2,7 +2,12 @@
 
 namespace Phoundation\Web\Http\Html;
 
+use Phoundation\Core\Config;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
+use Phoundation\Web\Http\Url;
+
+
 
 /**
  * Class Img
@@ -17,6 +22,13 @@ use Phoundation\Web\Http\Html\Exception\HtmlException;
 class Img extends Element
 {
     /**
+     * Sets whether the image will be lazily loaded as-needed or directly
+     *
+     * @var bool $lazy_load
+     */
+    protected bool $lazy_load = true;
+
+    /**
      * The source URL for this image
      *
      * @var string|null $src
@@ -30,6 +42,20 @@ class Img extends Element
      */
     protected ?string $alt = null;
 
+    /**
+     * The image width
+     *
+     * @var int|null $width
+     */
+    protected ?int $width = null;
+
+    /**
+     * The image height
+     *
+     * @var int|null $height
+     */
+    protected ?int $height = null;
+
 
 
     /**
@@ -38,6 +64,37 @@ class Img extends Element
     public function __construct()
     {
         parent::__construct('img');
+        $this->lazy_load = Config::get('web.images.lazy-load', true);
+    }
+
+
+
+    /**
+     * Sets the HTML alt element attribute
+     *
+     * @param bool $lazy_load
+     * @return Img
+     */
+    public function setLazyLoad(?bool $lazy_load): static
+    {
+        if ($lazy_load === null) {
+            $lazy_load = Config::get('web.images.lazy-load', true);
+        }
+
+        $this->lazy_load = $lazy_load;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the HTML alt element attribute
+     *
+     * @return bool
+     */
+    public function getLazyLoad(): bool
+    {
+        return $this->lazy_load;
     }
 
 
@@ -46,9 +103,9 @@ class Img extends Element
      * Sets the HTML alt element attribute
      *
      * @param string|null $alt
-     * @return Element
+     * @return Img
      */
-    public function setAlt(?string $alt): self
+    public function setAlt(?string $alt): static
     {
         $this->alt = $alt;
         return $this;
@@ -69,13 +126,75 @@ class Img extends Element
 
 
     /**
+     * Sets the image width in pixels
+     *
+     * @param int|null $width
+     * @return Img
+     */
+    public function setWidth(?int $width): static
+    {
+        if ($width < 1) {
+            throw new OutOfBoundsException(tr('Invalid image width ":value" specified, it should be 1 or above', [':value' => $width]));
+        }
+
+        $this->width = $width;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the image width in pixels
+     *
+     * @return int|null
+     */
+    public function getWidth(): ?int
+    {
+        return $this->width;
+    }
+
+
+
+    /**
+     * Sets the image height in pixels
+     *
+     * @param int|null $height
+     * @return Img
+     */
+    public function setHeight(?int $height): static
+    {
+        if ($height < 1) {
+            throw new OutOfBoundsException(tr('Invalid image height ":value" specified, it should be 1 or above', [':value' => $height]));
+        }
+
+        $this->height = $height;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the image height in pixels
+     *
+     * @return int|null
+     */
+    public function getHeight(): ?int
+    {
+        return $this->height;
+    }
+
+
+
+    /**
      * Sets the HTML src element attribute
      *
      * @param string|null $src
-     * @return Element
+     * @return Img
      */
-    public function setSrc(?string $src): self
+    public function setSrc(?string $src): static
     {
+        $src = Url::build($src)->cdn();
+
         $this->src = $src;
         return $this;
     }

@@ -181,10 +181,16 @@ class Route
             $type = ($_POST ?  'POST' : 'GET');
             $ip   = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
 
-            // Ensure the post processing function is registered
+            // Ensure the post-processing function is registered
             if (!$init) {
                 $init = true;
-                Log::action(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', [':domain' => Config::get('web.domains.primary'), ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')')]));
+                Log::action(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', [
+                    ':domain' => Config::get('web.domain.www.domain'),
+                    ':type'   => $type,
+                    ':url'    => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+                    ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')')
+                ]));
+
                 Core::registerShutdown(['\Phoundation\Web\Route', 'shutdown']);
                 Core::registerShutdown(['\Phoundation\Web\Route', 'postProcess']);
             }
@@ -523,7 +529,7 @@ class Route
                         // We are going to redirect so we no longer need to default to 404
                         Log::success(tr('Redirecting to ":route" with HTTP code ":code"', [':route' => $route, ':code' => $http_code]));
                         Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
-                        Http::redirect(Url::addToQuery($route, $_GET), $http_code);
+                        Http::redirect(Url::addQueries($route, $_GET), $http_code);
                         break;
 
                     case 'S':
