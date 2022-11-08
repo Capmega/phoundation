@@ -276,8 +276,6 @@ class Debug {
             $value = Arrays::hide($value, 'GLOBALS,%pass,ssh_key');
         }
 
-        $return = '';
-
         if (Core::readyState() and PLATFORM_HTTP) {
             // Show output on web
             if (!headers_sent()) {
@@ -316,17 +314,18 @@ class Debug {
                 }
 
             } else {
-                echo "\n".tr('DEBUG SHOW (:file@:line) ', array(':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset)))."\n";
+                echo "\n".tr('DEBUG SHOW (:file@:line) ', [
+                    ':file' => self::currentFile($trace_offset),
+                        ':line' => self::currentLine($trace_offset)
+                    ])."\n";
                 print_r($value)."\n";
-                ob_flush();
                 flush();
+                ob_flush();
             }
 
-            echo $return;
-            ob_flush();
-            flush();
-
         } else {
+            $return = '';
+
             if (PLATFORM_HTTP) {
                 // We're displaying plain text to a browser platform. Send "<pre>" to force readable display
                 echo '<pre>';
@@ -687,7 +686,9 @@ class Debug {
             if (is_object($query)) {
                 // Query to be debugged is a PDO statement, extract the query
                 if (!($query instanceof PDOStatement)) {
-                    throw new CoreException(tr('debug_sql(): Object of unknown class ":class" specified where PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
+                    throw new CoreException(tr('Object of unknown class ":class" specified where PDOStatement was expected', [
+                        ':class' => get_class($query)
+                    ]));
                 }
 
                 $query = $query->queryString;
@@ -696,7 +697,7 @@ class Debug {
             foreach ($execute as $key => $value) {
                 if (is_string($value)) {
                     $value = addslashes($value);
-                    $query = str_replace($key, '"'.(!is_scalar($value) ? ' ['.tr('NOT SCALAR').'] ' : '').Strings::Log($value).'"', $query);
+                    $query = str_replace($key, '"'.(!is_scalar($value) ? ' ['.tr('NOT SCALAR').'] ' : '') . Strings::Log($value).'"', $query);
 
                 } elseif (is_null($value)) {
                     $query = str_replace($key, ' '.tr('NULL').' ', $query);
@@ -706,7 +707,10 @@ class Debug {
 
                 } else {
                     if (!is_scalar($value)) {
-                        throw new CoreException(tr('Specified key ":key" has non-scalar value ":value"', [':key' => $key, ':value' => $value]));
+                        throw new CoreException(tr('Specified key ":key" has non-scalar value ":value"', [
+                            ':key'   => $key,
+                            ':value' => $value
+                        ]));
                     }
 
                     $query = str_replace($key, $value, $query);

@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http;
 
+use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
@@ -33,9 +34,9 @@ class Url {
      * @param int $http_code
      * @param bool $clear_session_redirect
      * @param int|null $time_delay
-     * @return string The specified URL (if not specified, the current URL) with $core->register['redirect'] added to it (if set)
+     * @return void
      */
-    public static function redirect(string|bool|null $url = null, int $http_code = 301, bool $clear_session_redirect = true, ?int $time_delay = null): string
+    #[NoReturn] public static function redirect(string|bool|null $url = null, int $http_code = 301, bool $clear_session_redirect = true, ?int $time_delay = null): void
     {
         if (!PLATFORM_HTTP) {
             throw new WebException(tr('Url::redirect() can only be called on web sessions'));

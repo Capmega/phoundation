@@ -85,9 +85,9 @@ use Phoundation\Web\Route;
  */
 require('../vendor/autoload.php');
 
-Route::try('/^(.+?).html$/'  , '/en/$1.php'      , ''); // Show the requested page
+Route::try('/^(.+?).html$/'  , '/en/$1.php'      , 'Q'); // Show the requested page
+Route::try('/^$/'            , '/en/index.php'   , 'Q'); // Show index page
 Route::try('/^admin\/(.+?)$/', '/en/admin/$1.php', ''); // Show the requested admin page
-Route::try('/^$/'            , '/en/index.php'   , ''); // Show index page
 
 //// Setup URL translations map
 //Route::mapUrl('es', [

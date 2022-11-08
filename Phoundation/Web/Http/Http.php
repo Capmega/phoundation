@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Http;
 
-use DateTime;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
@@ -42,6 +41,22 @@ class Http
      * @var Http|null $instance
      */
     protected static ?Http $instance = null;
+
+    /**
+     * Tracks if Http::sendHeaders() sent headers already or not.
+     *
+     * @note IMPORTANT: Since flush() and ob_flush() will NOT lock headers until the buffers are actually flushed, and
+     *                  they will neither actually flush the buffers as long as the process is running AND the buffers
+     *                  are not full yet, weird things can happen. With a buffer of 4096 bytes (typically), echo 100
+     *                  characters, and then execute Http::sendHeaders(), then ob_flush() and flush() and headers_sent()
+     *                  will STILL be false, and REMAIN false until the buffer has reached 4096 characters OR the
+     *                  process ends. This variable just keeps track if Http::sendHeaders() has been executed (and it
+     *                  won't execute again), but headers might still be sent out manually. This is rather messed up,
+     *                  because it really shows as if information was sent, the buffers are flushed, yet nothing is
+     *                  actually flushed, so the headers are also not sent. This is just messed up PHP.
+     * @var bool $sent
+     */
+    protected static bool $sent = false;
 
     /**
      * The status code that will be returned to the client
@@ -211,9 +226,16 @@ class Http
                 ':line' => $line
             ]));
             Log::backtrace();
+            return -2;
+        }
+
+        if (self::$sent) {
+            // Since
+            Log::warning(tr('Headers already sent by Http::sendHeaders(). This can happen with PHP due to PHP ignoring output buffer flushes, causing this to be called over and over. just ignore this message.'), 2);
             return -1;
         }
 
+        self::$sent = true;
         $length = 0;
 
         /*
@@ -332,7 +354,7 @@ class Http
 
             if (Debug::enabled()) {
                 // TODO This is only sending headers, page is not completed its process!
-                Log::success(tr('Page ":script" was processed in :time with ":usage" peak memory usage', [
+                Log::success(tr('Page ":script" was processed in ":time" with ":usage" peak memory usage', [
                     ':script' => Core::readRegister('system', 'script'),
                     ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage' => Numbers::bytes(memory_get_peak_usage())

@@ -16,16 +16,16 @@ web:
       domain: "localhost"
       cloaked: false
       index: "/"
-      www: "https://localhost/:LANGUAGE/"
-      cdn: "https://cdn.localhost:/"
+      www: "https://phoundation/:LANGUAGE/"
+      cdn: "https://cdn.phoundation.localhost/:LANGUAGE/"
     test:
       domain: "test"
       www: "https://test/:LANGUAGE/"
-      cdn: "https://cdn.test.localhost:/"
+      cdn: "https://cdn.test.localhost/:LANGUAGE/"
     trial:
       domain: "trial"
       www: "https://trial/:LANGUAGE/"
-      cdn: "https://cdn.trial.localhost:/"
+      cdn: "https://cdn.trial.localhost/:LANGUAGE/"
   route:
     known-hacks:
   template:

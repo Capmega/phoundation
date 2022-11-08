@@ -19,7 +19,7 @@ class Updates extends \Phoundation\Libraries\Updates
 {
     public function __construct()
     {
-        parent::__construct('0.0.5');
+        parent::__construct('0.0.6');
 
         $this->addUpdate('0.0.1', function () {
             // Add table for version control itself
@@ -77,6 +77,24 @@ class Updates extends \Phoundation\Libraries\Updates
                     KEY `ip` (`ip`)')
                 ->setForeignKeys('
                     CONSTRAINT `fk_sessions_extended_users_id` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE CASCADE')
+                ->create();
+        })->addUpdate('0.0.6', function () {
+            // Add tables for the sessions management
+            sql()->schema()->table('url_cloaks')
+                ->setColumns('
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
+                    `url` varchar(140) NOT NULL,
+                    `cloak` varchar(32) NOT NULL,')
+                ->setIndices('
+                    PRIMARY KEY (`id`),
+                    UNIQUE KEY `cloak` (`cloak`),
+                    UNIQUE KEY `url_created_by` (`url`,`created_by`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_url_cloaks_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)')
                 ->create();
         });
     }

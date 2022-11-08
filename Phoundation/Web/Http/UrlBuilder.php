@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http;
 
+use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigNotExistsException;
@@ -33,6 +34,13 @@ class UrlBuilder
     protected string $domain;
 
     /**
+     * If true, the URL will be built, if false, the URL is a full external URL and will not be built
+     *
+     * @var bool $process
+     */
+    protected bool $process = true;
+
+    /**
      * The configuration for the domain to build the URL with
      *
      * @var array $configuration
@@ -54,32 +62,40 @@ class UrlBuilder
      * @param string|bool|null $url
      * @param bool|null $cloaked
      */
-    public function __construct(string|bool|null $url, ?bool $cloaked = null)
+    public function __construct(string|bool|null $url = null, ?bool $cloaked = null)
     {
-        // Apply URL presets
+        // Apply URL presets. Any of these presets will result in full URLs, and we will not have to build anything so
+        // $this->process will be set to false.
         if (($url === true) or ($url === 'self')) {
             // THIS URL.
-            $url = $_SERVER['REQUEST_URI'];
-
-        } elseif ($url === 'prev') {
-            // Previous page; Assume we came from the HTTP_REFERER page
-            $url = isset_get($_SERVER['HTTP_REFERER']);
-
-            if (!$url or ($url == $_SERVER['REQUEST_URI'])) {
-                // Don't redirect to the same page! If the referrer was this page, then drop back to the index page
-                $url = $this->getIndexUrl();
-            }
+            $this->useCurrentDomain();
+            $this->url = $_SERVER['REQUEST_URI'];
 
         } elseif ($url === false) {
             // Special redirect. Redirect to this very page, but without queries
-            $url = Strings::until($_SERVER['REQUEST_URI'], '?');
+            $this->useCurrentDomain();
+            $this->url     = Strings::until($_SERVER['REQUEST_URI'], '?');
+
+        } elseif ($url === 'prev') {
+            // Previous page; Assume we came from the HTTP_REFERER page
+            $this->url     = isset_get($_SERVER['HTTP_REFERER']);
+            $this->process = false;
+
+            if (!$this->url or ($this->url == $_SERVER['REQUEST_URI'])) {
+                // Don't redirect to the same page! If the referrer was this page, then drop back to the index page
+                $this->url     = $this->getIndexUrl();
+                $this->process = true;
+            }
 
         } elseif (!$url) {
             // No target specified, redirect to index page
-            $url = $this->getIndexUrl();
+            $this->url     = $this->getIndexUrl();
+            $this->process = false;
+        } else {
+            // This is a URL section
+            $this->url = $url;
         }
 
-        $this->url = $url;
         $this->setCloaked($cloaked);
     }
 
@@ -207,7 +223,7 @@ class UrlBuilder
      */
     public function www(): string
     {
-        if (!self::is()) {
+        if (self::is()) {
             return $this->url;
         }
 
@@ -221,9 +237,10 @@ class UrlBuilder
      *
      * @return string
      */
-    public function getIndex(): string
+    public function getIndexUrl(): string
     {
-        return $this->buildDomainPrefix('www', $this->configuration['www']['index']);
+        $this->useCurrentDomain();
+        return $this->buildDomainPrefix('www', $this->configuration['index']);
     }
 
 
@@ -291,14 +308,22 @@ class UrlBuilder
      * @param string $url
      * @return string
      */
-    protected function buildDomainPrefix(string $type, string $url): string
+    protected function buildDomainPrefix(#[ExpectedValues(values: ['www', 'cdn'])] string $type, string $url): string
     {
-        $url = $this->configuration[$type]['protocol'] . $this->configuration[$type]['domain'] . Strings::slash($this->configuration[$type]['path-prefix']) . $url;
+        $this->ensureDomain();
 
-        if ($this->configuration['cloaked']) {
-            return $this->cloak($url);
+        if ($this->process) {
+            $this->configuration[$type] = Strings::endsWith($this->configuration[$type], '/');
+
+            $url = Strings::startsNotWith($url, '/');
+            $url = str_replace(':LANGUAGE', Session::getLanguage(), $this->configuration[$type]) . $url;
         }
 
+        if ($this->configuration['cloaked']) {
+            $url = $this->cloak($url);
+        }
+
+        $this->url = $url;
         return $url;
     }
 
@@ -315,23 +340,29 @@ class UrlBuilder
         // Use current domain
         $domains = Config::get('web.domains');
 
-        if (!array_key_exists($domain, $domains)) {
-            throw Exceptions::ConfigNotExistsException(tr('No configuration available for domain ":domain"', [
-                ':domain' => $domain
-            ]));
+        if ($domains['primary']['domain'] === $domain) {
+            // Specified domain is the primary domain
+            $domain = 'primary';
+        } else {
+            // It's not the primary domain
+            if (!array_key_exists($domain, $domains)) {
+                // It's not a listed domain either, we don't know this domain, oh noes!
+                throw Exceptions::ConfigNotExistsException(tr('No configuration available for domain ":domain"', [
+                    ':domain' => $domain
+                ]));
+            }
         }
 
         $configuration = $domains[$domain];
+
         unset($domains);
 
         // Validate configuration
         // TODO implement
-        Arrays::requiredKeys($configuration, 'domain', ConfigNotExistsException::class);
-        Arrays::default($configuration, 'protocol', 'https://');
+        Arrays::requiredKeys($configuration, 'domain,www,cdn', ConfigNotExistsException::class);
+        Arrays::default($configuration, 'index'  , '/');
         Arrays::default($configuration, 'cloaked', false);
-        Arrays::default($configuration, 'path', '/');
 
-        str_replace(':LANGUAGE', Session::getLanguage(), $configuration['path-prefix']);
         $this->configuration = $configuration;
     }
 
@@ -342,7 +373,7 @@ class UrlBuilder
      */
     protected function ensureDomain(): void
     {
-        if ($this->domain === null) {
+        if (!isset($this->domain)) {
             // We have no domain selected yet! Assume current domain
             $this->useCurrentDomain();
         }
@@ -548,13 +579,12 @@ class UrlBuilder
             $cloak = Strings::random(32);
 
             sql()->insert('url_cloaks', [
-                ':created_by' => isset_get($_SESSION['user']['id']),
-                ':cloak'      => $cloak,
-                ':url'        => $url
+                'created_by' => isset_get($_SESSION['user']['id']),
+                'cloak'      => $cloak,
+                'url'        => $url
             ]);
         }
 
-        $this->url = $cloak;
         return $url;
     }
 }
