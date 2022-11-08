@@ -185,7 +185,7 @@ class Route
             if (!$init) {
                 $init = true;
                 Log::action(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', [
-                    ':domain' => Config::get('web.domain.www.domain'),
+                    ':domain' => Config::get('web.domains.primary.www'),
                     ':type'   => $type,
                     ':url'    => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
                     ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')')
