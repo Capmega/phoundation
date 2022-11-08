@@ -3,17 +3,6 @@
 use Phoundation\Web\Http\Html\Img;
 use Phoundation\Web\Http\Url;
 
-
-show(Url::build(true)->www());
-show(Url::build(false)->www());
-show(Url::build()->www());
-show(Url::build('/sign-in')->www());
-show(Url::build('/sign-in.html')->www());
-show(Url::build('/blergh/sign-in.html')->www());
-show(Url::build('file.css')->cdn());
-die();
-
-
 ?>
 <!-- Button trigger modal -->
 <button type="button" class="btn btn-primary" data-mdb-toggle="modal" data-mdb-target="#exampleModal">

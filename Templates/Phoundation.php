@@ -20,12 +20,20 @@ use Phoundation\Web\Template;
  */
 class Phoundation extends Template
 {
+    /**
+     * Build the HTTP headers for the page
+     *
+     * @return int
+     * @throws \Throwable
+     */
     public function buildHttpHeaders(): int
     {
         Http::setContentType('text/html');
         Page::setDoctype('html');
         return Http::sendHeaders();
     }
+
+
 
     /**
      * Build the HTML header for the page
@@ -34,8 +42,10 @@ class Phoundation extends Template
      */
     public function buildHtmlHeader(): ?string
     {
-        $html = Html::buildHeaders();
-        Page::loadJavascript('mdb/mdb.min.js');
+        Page::loadCss('mdb/mdb');
+        Page::loadJavascript('mdb/mdb');
+
+        $html = Page::buildHeaders();
 
         $html .= '<!DOCTYPE html>
             <html lang="en">
@@ -99,7 +109,7 @@ class Phoundation extends Template
      */
     public function buildHtmlFooter(): ?string
     {
-        $html = Html::buildFooters();
+        $html = Page::buildFooters();
 
         $html .= '  <!-- End your project here-->
                     <!-- MDB -->

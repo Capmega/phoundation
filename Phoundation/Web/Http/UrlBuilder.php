@@ -203,15 +203,19 @@ class UrlBuilder
     /**
      * Returns true if the specified string is a full URL
      *
+     * @param string|null $extension
      * @return string
      */
-    public function cdn(): string
+    public function cdn(?string $extension = null): string
     {
         if (self::is()) {
             return $this->url;
         }
 
-        return $this->buildDomainPrefix('cdn', $this->url);
+        $this->url = $this->buildDomainPrefix('cdn', $this->url);
+        $this->url = $this->buildExtension($extension);
+
+        return $this->url;
     }
 
 
@@ -227,7 +231,9 @@ class UrlBuilder
             return $this->url;
         }
 
-        return $this->buildDomainPrefix('www', $this->url);
+        $this->url = $this->buildDomainPrefix('www', $this->url);
+
+        return $this->url;
     }
 
 
@@ -325,6 +331,27 @@ class UrlBuilder
 
         $this->url = $url;
         return $url;
+    }
+
+
+
+    /**
+     * Build a URL with extension
+     *
+     * @param string|null $extension
+     * @return string
+     */
+    protected function buildExtension(?string $extension): string
+    {
+        if (!$extension) {
+            return $this->url;
+        }
+
+        if (Config::get('web.minify', true)) {
+            return $this->url . '.min.' . $extension;
+        }
+
+        return $this->url . $extension;
     }
 
 

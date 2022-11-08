@@ -92,42 +92,6 @@ Class Html
 
 
     /**
-     * Build and return the HTML headers
-     *
-     * @return string|null
-     */
-    public static function buildHeaders(): ?string
-    {
-        $return = '';
-
-        foreach (self::$headers as $header) {
-            $return .= $header;
-        }
-
-        return $return;
-    }
-
-
-
-    /**
-     * Build and return the HTML footers
-     *
-     * @return string|null
-     */
-    public static function buildFooters(): ?string
-    {
-        $return = '';
-
-        foreach (self::$footers as $footer) {
-            $return .= $footer;
-        }
-
-        return $return;
-    }
-
-
-
-    /**
      * Minify and return the specified HTML
      *
      * @param string $html

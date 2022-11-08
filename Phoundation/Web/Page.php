@@ -14,6 +14,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
@@ -21,6 +22,7 @@ use Phoundation\Web\Exception\PageException;
 use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
+use Phoundation\Web\Http\Url;
 use Throwable;
 
 
@@ -66,18 +68,31 @@ class Page
     protected static string $doctype = 'html';
 
     /**
+     * The page title
+     *
+     * @var string|null $title
+     */
+    protected static ?string $title = null;
+
+    /**
      * Information that goes into the HTML header
      *
      * @var array $headers
      */
-    protected static array $headers = [];
+    protected static array $headers = [
+        'link'       => [],
+        'meta'       => [],
+        'javascript' => []
+    ];
 
     /**
      * Information that goes into the HTML footer
      *
      * @var array $footers
      */
-    protected static array $footers = [];
+    protected static array $footers = [
+        'javascript' => []
+    ];
 
     /**
      * The files that should be added in the header
@@ -203,11 +218,37 @@ class Page
     /**
      * Returns the current tab index and automatically increments it
      *
+     * @param string $doctype
      * @return Page
      */
     public static function setDoctype(string $doctype): Page
     {
         self::$doctype = $doctype;
+        return self::getInstance();
+    }
+
+
+
+    /**
+     * Returns the page title
+     *
+     * @return string
+     */
+    public static function getTitle(): string
+    {
+        return self::$title;
+    }
+
+
+    /**
+     * Sets the page title
+     *
+     * @param string $title
+     * @return Page
+     */
+    public static function setTitle(string $title): Page
+    {
+        self::$title = $title;
         return self::getInstance();
     }
 
@@ -451,13 +492,45 @@ throw new UnderConstructionException();
 
 
     /**
-     * Load the specified javascript file(s)
+     * Add meta information
      *
-     * @param string|array $files
-     * @param bool|null $header
+     * @param array $meta
      * @return void
      */
-    public static function loadJavascript(string|array $files, ?bool $header = null): void
+    public static function addMeta(array $meta): void
+    {
+        self::$headers['meta'][] = $meta;
+    }
+
+
+
+    /**
+     * Set the favicon for this page
+     *
+     * @param string $url
+     * @return Page
+     */
+    public static function setFavIcon(string $url): Page
+    {
+        self::$headers['link'][$url] = [
+            'rel'  => 'icon',
+            'href' => $url,
+            'type' => File::mimetype($url)
+        ];
+
+        return self::getInstance();
+    }
+
+
+
+    /**
+     * Load the specified javascript file(s)
+     *
+     * @param string|array $urls
+     * @param bool|null $header
+     * @return Page
+     */
+    public static function loadJavascript(string|array $urls, ?bool $header = null): Page
     {
         if ($header === null) {
             $header = Config::get('web.javascript.delay', true);
@@ -465,17 +538,26 @@ throw new UnderConstructionException();
 
         if ($header and self::$html_headers_sent) {
             Log::warning(tr('Not adding files ":files" to HTML headers as the HTML headers have already been generated', [
-                ':files' => $files
+                ':files' => $urls
             ]));
         }
 
-        foreach (Arrays::force($files, '') as $file) {
+        foreach (Arrays::force($urls, '') as $url) {
             if ($header) {
-                self::$headers[$file] = 'script';
+                self::$headers['javascript'][$url] = [
+                    'type' => 'text/javascript',
+                    'src'  => Url::build($url)->cdn('js')
+                ];
+
             } else {
-                self::$footers[$file] = 'script';
+                self::$footers['javascript'][$url] = [
+                    'type' => 'text/javascript',
+                    'src'  => Url::build($url)->cdn('js')
+                ];
             }
         }
+
+        return self::getInstance();
     }
 
 
@@ -483,14 +565,71 @@ throw new UnderConstructionException();
     /**
      * Load the specified CSS file(s)
      *
-     * @param string|array $files
-     * @return void
+     * @param string|array $urls
+     * @return Page
      */
-    public static function loadCss(string|array $files): void
+    public static function loadCss(string|array $urls): Page
     {
-        foreach (Arrays::force($files, '') as $file) {
-            self::$headers[$file] = 'css';
+        foreach (Arrays::force($urls, '') as $url) {
+            self::$headers['link'][$url] = [
+                'rel'  => 'stylesheet',
+                'href' => Url::build($url)->cdn('css'),
+            ];
         }
+
+        return self::getInstance();
+    }
+
+
+
+    /**
+     * Build and return the HTML headers
+     *
+     * @return string|null
+     */
+    public static function buildHeaders(): ?string
+    {
+        $return = '';
+
+        if (self::$title) {
+            $return .= '<title>' . self::$title . '</title>' . PHP_EOL;
+        }
+
+        foreach (self::$headers['meta'] as $header) {
+            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
+            $return .= '<meta ' . $header . ' />' . PHP_EOL;
+        }
+
+        foreach (self::$headers['link'] as $header) {
+            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
+            $return .= '<link ' . $header . ' />' . PHP_EOL;
+        }
+
+        foreach (self::$headers['javascript'] as $header) {
+            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
+            $return .= '<script ' . $header . '></script>' . PHP_EOL;
+        }
+
+        return $return;
+    }
+
+
+
+    /**
+     * Build and return the HTML footers
+     *
+     * @return string|null
+     */
+    public static function buildFooters(): ?string
+    {
+        $return = '';
+
+        foreach (self::$footers['javascript'] as $header) {
+            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
+            $return .= '<script ' . $header . '></script>' . PHP_EOL;
+        }
+
+        return $return;
     }
 
 
