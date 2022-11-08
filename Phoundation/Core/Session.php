@@ -148,12 +148,12 @@ class Session
     protected static function setLanguage(): string
     {
         // Check what languages are accepted by the client (in order of importance) and see if we support any of those
-        $supported_languages = Config::get('languages.supported', []);
+        $supported_languages = Arrays::force(Config::get('languages.supported', []));
         $requested_languages = Http::acceptsLanguages();
 
         foreach ($requested_languages as $requested_language) {
-            if (in_array($requested_language, $supported_languages)) {
-                self::$language = $requested_language;
+            if (in_array($requested_language['language'], $supported_languages)) {
+                self::$language = $requested_language['language'];
                 return self::$language;
             }
         }
