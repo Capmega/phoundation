@@ -11,14 +11,14 @@ use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
-
+use Phoundation\Exception\UnderConstructionException;
 
 
 /**
  * Class Domain
  *
  *
- *
+ * @todo Add language mapping, see the protected method language_map() at the bottom of this class for more info
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -382,87 +382,6 @@ class UrlBuilder
 
 
     /**
-     * Return complete domain with HTTP and all
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @see cdn_domain()
-     * @see get_domain()
-     * @see mapped_domain()
-     * @package system
-     *
-     * @param null string $query
-     * @param null string $prefix
-     * @param null string $domain
-     * @param null string $language
-     * @param null boolean $allow_cloak
-     * @return string the URL
-     */
-    public function domain($url_params = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_cloak = true): string
-    {
-        /*
-         * Do language mapping, but only if routemap has been set
-         */
-    // :TODO: This will fail when using multiple CDN servers (WHY?)
-        if (!empty(Config::get('languages.supported', [])) and ($this->url_params['domain'] !== $_CONFIG['cdn']['domain'].'/')) {
-            if ($this->url_params['from_language'] !== 'en') {
-                /*
-                 * Translate the current non-English URL to English first
-                 * because the specified could be in dutch whilst we want to end
-                 * up with Spanish. So translate always
-                 * FOREIGN1 > English > Foreign2.
-                 *
-                 * Also add a / in front of $return before replacing to ensure
-                 * we don't accidentally replace sections like "services/" with
-                 * "servicen/" with Spanish URL's
-                 */
-                $return = str_replace('/' . $this->url_params['from_language'].'/', '/en/', '/' . $return);
-                $return = substr($return, 1);
-
-                if (!empty($core->register['route_map'])) {
-                    foreach ($core->register['route_map'][$this->url_params['from_language']] as $foreign => $english) {
-                        $return = str_replace($foreign, $english, $return);
-                    }
-                }
-            }
-
-            /*
-             * From here the URL *SHOULD* be in English. If the URL is not
-             * English here, then conversion from local language to English
-             * right above failed
-             */
-            if ($this->url_params['language'] !== 'en') {
-                /*
-                 * Map the english URL to the requested non-english URL
-                 * Only map if routemap has been set for the requested language
-                 */
-                if (empty($core->register['route_map'])) {
-                    /*
-                     * No route_map was set, only translate language selector
-                     */
-                    $return = str_replace('en/', $this->url_params['language'].'/', $return);
-
-                } else {
-                    if (empty($core->register['route_map'][$this->url_params['language']])) {
-                        Notification(new CoreException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $return, ':language' => $this->url_params['language'])), 'not-specified'));
-
-                    } else {
-                        $return = str_replace('en/', $this->url_params['language'].'/', $return);
-
-                        foreach ($core->register['route_map'][$this->url_params['language']] as $foreign => $english) {
-                            $return = str_replace($english, $foreign, $return);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
-
-    /**
      * Add specified query to the specified URL and return
      *
      * @param string $query [$query] ... All the queries to add to this URL
@@ -586,5 +505,73 @@ class UrlBuilder
         }
 
         return $url;
+    }
+
+
+
+    /**
+     * GARBAGE!
+     *
+     * Do not use this method, only use it as a reference to implement language mapping
+     */
+    protected function language_map($url_params = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_cloak = true): string
+    {
+        throw new UnderConstructionException('UrlBuilder::domain() is GARBAGE! DO NOT USE');
+        /*
+         * Do language mapping, but only if routemap has been set
+         */
+        // :TODO: This will fail when using multiple CDN servers (WHY?)
+        if (!empty(Config::get('languages.supported', [])) and ($this->url_params['domain'] !== $_CONFIG['cdn']['domain'].'/')) {
+            if ($this->url_params['from_language'] !== 'en') {
+                /*
+                 * Translate the current non-English URL to English first
+                 * because the specified could be in dutch whilst we want to end
+                 * up with Spanish. So translate always
+                 * FOREIGN1 > English > Foreign2.
+                 *
+                 * Also add a / in front of $return before replacing to ensure
+                 * we don't accidentally replace sections like "services/" with
+                 * "servicen/" with Spanish URL's
+                 */
+                $return = str_replace('/' . $this->url_params['from_language'].'/', '/en/', '/' . $return);
+                $return = substr($return, 1);
+
+                if (!empty($core->register['route_map'])) {
+                    foreach ($core->register['route_map'][$this->url_params['from_language']] as $foreign => $english) {
+                        $return = str_replace($foreign, $english, $return);
+                    }
+                }
+            }
+
+            /*
+             * From here the URL *SHOULD* be in English. If the URL is not
+             * English here, then conversion from local language to English
+             * right above failed
+             */
+            if ($this->url_params['language'] !== 'en') {
+                /*
+                 * Map the english URL to the requested non-english URL
+                 * Only map if routemap has been set for the requested language
+                 */
+                if (empty($core->register['route_map'])) {
+                    /*
+                     * No route_map was set, only translate language selector
+                     */
+                    $return = str_replace('en/', $this->url_params['language'].'/', $return);
+
+                } else {
+                    if (empty($core->register['route_map'][$this->url_params['language']])) {
+                        Notification(new CoreException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $return, ':language' => $this->url_params['language'])), 'not-specified'));
+
+                    } else {
+                        $return = str_replace('en/', $this->url_params['language'].'/', $return);
+
+                        foreach ($core->register['route_map'][$this->url_params['language']] as $foreign => $english) {
+                            $return = str_replace($english, $foreign, $return);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
