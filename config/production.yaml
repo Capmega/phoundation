@@ -6,31 +6,26 @@ project:
   name: "Phoundation"
   version: "0.0.0"
 languages:
-  supported: "en", "es"
+  supported: ["en", "es"]
   default: "en"
 web:
   sessions:
     cookies:
   domains:
     primary:
-      www:
-        domain: www.phoundation.localhost
-        protocol: https://
-        path-prefix: /:LANGUAGE/
-        index: /
-      cdn: cdn.phoundation.localhost
+      domain: "phoundation"
+      cloaked: true
+      index: "/"
+      www: "https://phoundation/:LANGUAGE/"
+      cdn: "https://cdn.phoundation.localhost:/"
     test:
-      www:
-        domain: www.test.localhost
-        protocol: https://
-        path-prefix: /:LANGUAGE/
-      cdn: cdn.test.localhost
+      domain: "test"
+      www: "https://test/:LANGUAGE/"
+      cdn: "https://cdn.test.localhost:/"
     trial:
-      www:
-        domain: www.trial.localhost
-        protocol: https://
-        path-prefix: /:LANGUAGE/
-      cdn: cdn.trial.localhost
+      domain: "trial"
+      www: "https://trial/:LANGUAGE/"
+      cdn: "https://cdn.trial.localhost:/"
   route:
     known-hacks:
   template:

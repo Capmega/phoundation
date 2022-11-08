@@ -6,14 +6,30 @@ project:
   name: "Phoundation"
   version: "0.0.0"
 languages:
-  supported: null
+  supported: ["en", "es"]
+  default: "en"
 web:
   sessions:
     cookies:
   domains:
-    primary: localhost
+    primary:
+      domain: "localhost"
+      cloaked: false
+      index: "/"
+      www: "https://localhost/:LANGUAGE/"
+      cdn: "https://cdn.localhost:/"
+    test:
+      domain: "test"
+      www: "https://test/:LANGUAGE/"
+      cdn: "https://cdn.test.localhost:/"
+    trial:
+      domain: "trial"
+      www: "https://trial/:LANGUAGE/"
+      cdn: "https://cdn.trial.localhost:/"
   route:
     known-hacks:
+  template:
+    class: "Phoundation"
 notifications:
   groups:
     developers:
@@ -28,3 +44,5 @@ databases:
         name: "phoundation"
         user: "base"
         pass: "base"
+  mongo:
+    instances:
