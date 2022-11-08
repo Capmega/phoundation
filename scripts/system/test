@@ -15,7 +15,6 @@ use Phoundation\Processes\FilesystemCommands;
 use Phoundation\Processes\ProcessCommands;
 use Phoundation\Processes\Processes;
 use Phoundation\Processes\Workers;
-use Phoundation\Web\Http\Url;
 
 
 
@@ -35,16 +34,6 @@ $help  = 'The info script will show detailed information about the current frame
 
 Scripts::noArgumentsLeft();
 
-
-
-show(Url::build(true)->www());
-show(Url::build(false)->www());
-show(Url::build()->www());
-show(Url::build('/sign-in')->www());
-show(Url::build('/sign-in.html')->www());
-show(Url::build('/blergh/sign-in.html')->www());
-show(Url::build('file.css')->cdn());
-die();
 
 
 
