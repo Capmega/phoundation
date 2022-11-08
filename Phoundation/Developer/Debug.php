@@ -127,16 +127,17 @@ class Debug {
     /**
      * Returns a backtrace
      *
+     * @param int $start
      * @param array|string[] $remove_sections
-     * @param bool $skip_own
      * @return array
      */
-    public static function backtrace(array $remove_sections = ['args'], bool $skip_own = true): array
+    public static function backtrace(int $start = 1, array $remove_sections = ['args']): array
     {
-        $trace = array();
+        $trace           = [];
+        $remove_sections = Arrays::force($remove_sections);
 
         foreach (debug_backtrace() as $key => $value) {
-            if ($skip_own and ($key <= 1)) {
+            if ($start and ($key < $start)) {
                 continue;
             }
 
