@@ -638,7 +638,7 @@ Class Log {
         $prefix = strtoupper($type) . ' [' . $size . '] ';
         $messages = $prefix . $messages;
 
-        self::logDebugHeader('PRINTR', $level);
+        self::logDebugHeader('PRINTR', 1, $level);
         return self::write($messages, 'debug', $level);
     }
 
@@ -652,7 +652,7 @@ Class Log {
      */
     public static function deprecated(int $level = 8): bool
     {
-        return self::logDebugHeader('DEPRECATED', $level);
+        return self::logDebugHeader('DEPRECATED', 1, $level);
     }
 
 
@@ -667,7 +667,7 @@ Class Log {
      */
     public static function hex(mixed $messages = null, int $level = 3): bool
     {
-        self::logDebugHeader('HEX', $level);
+        self::logDebugHeader('HEX', 1, $level);
         return self::write(Strings::interleave(bin2hex(Strings::force($messages)), 10), 'debug', $level);
     }
 
@@ -683,7 +683,7 @@ Class Log {
      */
     public static function checkpoint(int $level = 10): bool
     {
-        return self::logDebugHeader('CHECKPOINT', $level);
+        return self::logDebugHeader('CHECKPOINT', 1, $level);
     }
 
 
@@ -697,7 +697,7 @@ Class Log {
      */
     public static function printr(mixed $messages = null, int $level = 10): bool
     {
-        self::logDebugHeader('PRINTR', $level);
+        self::logDebugHeader('PRINTR', 1, $level);
         return self::write(print_r($messages, true), 'debug', $level, false);
     }
 
@@ -712,7 +712,7 @@ Class Log {
      */
     public static function vardump(mixed $messages = null, int $level = 10): bool
     {
-        self::logDebugHeader('VARDUMP', $level);
+        self::logDebugHeader('VARDUMP', 1, $level);
         return self::write(var_export($messages, true), 'debug', $level, false);
     }
 
@@ -727,8 +727,8 @@ Class Log {
      */
     public static function backtrace(?int $display = null, int $level = 10): bool
     {
-        $backtrace = Debug::backtrace();
-        self::logDebugHeader('BACKTRACE', $level);
+        $backtrace = Debug::backtrace(1);
+        self::logDebugHeader('BACKTRACE', 1, $level);
         self::dumpTrace($backtrace, $level, $display);
         return self::debug(basename($_SERVER['SCRIPT_FILENAME']), $level);
     }
@@ -955,21 +955,21 @@ Class Log {
     }
 
 
-
     /**
      * Write a debug header message in the log file
      *
      * @param string $keyword
+     * @param int $trace
      * @param int $level
      * @return bool
      */
-    protected static function logDebugHeader(string $keyword, int $level = 10): bool
+    protected static function logDebugHeader(string $keyword, int $trace = 4, int $level = 10): bool
     {
         // Get the class, method, file and line data.
-        $class    = Debug::currentClass(4);
-        $function = Debug::currentFunction(4);
-        $file     = Strings::from(Debug::currentFile(4), PATH_ROOT);
-        $line     = Debug::currentLine(4);
+        $class    = Debug::currentClass($trace);
+        $function = Debug::currentFunction($trace);
+        $file     = Strings::from(Debug::currentFile($trace), PATH_ROOT);
+        $line     = Debug::currentLine($trace);
 
         if ($class) {
             // Add class - method separator
