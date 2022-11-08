@@ -133,7 +133,7 @@ class Config
 
                 if ($data !== null) {
                     Log::warning(tr('Encountered invalid configuration structure whilst looking for ":path". Section ":section" should contain sub values but does not. Please check your configuration files that this structure exists correctly', [
-                        ':path' => $path,
+                        ':path'    => $path,
                         ':section' => $section
                     ]));
                 }
@@ -146,9 +146,10 @@ class Config
                 // The requested key does not exist
                 if ($default === null) {
                     // We have no default configuration either
-                    throw new ConfigNotExistsException(tr('The configuration section ":section" from key path ":path" does not exist', [
-                        ':section' => $section,
-                        ':path'    => $path
+                    throw new ConfigNotExistsException(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml" AND ":environment.yaml"', [
+                        ':environment' => ENVIRONMENT,
+                        ':section'     => $section,
+                        ':path'        => $path
                     ]));
                 }
 
