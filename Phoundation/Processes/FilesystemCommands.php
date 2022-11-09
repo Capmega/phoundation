@@ -36,7 +36,7 @@ class FilesystemCommands extends Commands
         try {
             $mode = Strings::fromOctal($mode);
 
-            Processes::new('chmod', $this->server, true)
+            Process::new('chmod', $this->server, true)
                 ->addArguments([$mode, $file, ($recurse ? '-R' : '')])
                 ->setTimeout(2)
                 ->executeReturnArray();
@@ -73,7 +73,7 @@ class FilesystemCommands extends Commands
     public function delete(string $file, bool $recurse_down = true, bool $recurse_up = false, int $timeout = 10): void
     {
         try {
-            Processes::new('rm', $this->server, true)
+            Process::new('rm', $this->server, true)
                 ->addArguments([$file, '-f', ($recurse_down ? '-r' : '')])
                 ->setTimeout($timeout)
                 ->setRegisterRunfile(false)
@@ -125,7 +125,7 @@ class FilesystemCommands extends Commands
             $mode = Config::get('filesystem.mode.default.directory', 0750, $mode);
             $mode = Strings::fromOctal($mode);
 
-            Processes::new('mkdir', $this->server, true)
+            Process::new('mkdir', $this->server, true)
                 ->addArguments([$file, '-p', '-m', $mode])
                 ->setTimeout(1)
                 ->executeReturnArray();

@@ -269,7 +269,7 @@ class Http
                 header('X-Powered-By: Phoundation ' . Core::FRAMEWORKCODEVERSION);
             }
 
-            $headers[] = 'Content-Type: ' . self::$content_type . '; charset=' . Config::get('encoding.charset', 'UTF-8');
+            $headers[] = 'Content-Type: ' . self::$content_type . '; charset=' . Config::get('languages.encoding.charset', 'UTF-8');
             $headers[] = 'Content-Language: ' . LANGUAGE;
             $headers[] = 'Content-Length: ' . Page::getContentLength();
 
@@ -387,14 +387,9 @@ class Http
     /**
      * Returns requested main mimetype, or if requested mimetype is accepted or not
      *
-     * If $mimetype is specified, the function will return true if the specified mimetype is supported, or false, if not
+     * The function will return true if the specified mimetype is supported, or false, if not
      *
-     * If $mimetype is not specified, the function will return the first mimetype that was specified in the HTTP ACCEPT header
-     *
-     * @see acceptsLanguages()
-     * @version 2.4.11: Added function and documentation
-     * @version 2.5.170: Added documentation, added support for $mimetype
-     * @example
+     * @see Http::acceptsLanguages()
      * code
      * // This will return true
      * $result = accepts('image/webp');
@@ -411,32 +406,28 @@ class Http
      * Foo...bar
      * /code
      *
-     * @param null string $mimetype If specified, the mimetype that must be tested if accepted by the client
-     * @return mixed If $mimetype was specified, true if the client accepts it, false if not. If $mimetype was not specified, a string will be returned containing the first requested mimetype
+     * @param string $mimetype The mimetype that hopefully is accepted by the client
+     * @return mixed True if the client accepts it, false if not
      */
-    public static function accepts($mimetype)
+    public static function accepts(string $mimetype): bool
     {
         static $headers = null;
 
+        if (!$mimetype) {
+            throw new OutOfBoundsException(tr('No mimetype specified'));
+        }
+
         if (!$headers) {
-            /*
-             * Cleanup the HTTP accept headers (opera aparently puts spaces in
-             * there, wtf?), then convert them to an array where the accepted
-             * headers are the keys so that they are faster to access
-             */
+            // Cleanup the HTTP accept headers (opera aparently puts spaces in there, wtf?), then convert them to an
+            // array where the accepted headers are the keys so that they are faster to access
             $headers = isset_get($_SERVER['HTTP_ACCEPT']);
             $headers = str_replace(', ', '', $headers);
             $headers = Arrays::force($headers);
             $headers = array_flip($headers);
         }
 
-        if ($mimetype) {
-            // Return if the browser supports the specified mimetype
-            return isset($headers[$mimetype]);
-        }
-
-        reset($headers);
-        return key($headers);
+        // Return if the client supports the specified mimetype
+        return isset($headers[$mimetype]);
     }
 
 
@@ -1139,67 +1130,6 @@ class Http
 //        }
 //    }
 //
-
-    /**
-     * Download the specified single file to the specified path
-     *
-     * If the path is not specified then by default the function will download to the PATH_TMP directory; PATH_ROOT/data/tmp
-     *
-     * @param string $url             The URL of the file to be downloaded
-     * @param bool $contents          If set to false, will return the contents of the downloaded file instead of the
-     *                                target filename. As the caller function will not know the exact filename used, the
-     *                                target file will be deleted automatically! If set to a string
-     * @param callable|null $callback If specified, download will execute this callback with either the filename or file
-     *                                contents (depending on $section)
-     * @return string The path to the downloaded file
-     * @example This shows how to download a single file
-     * code
-     * $result = download('https://capmega.com', PATH_TMP);
-     * showdie($result);
-     * /code
-     *
-     * This would display
-     * code
-     * PATH_ROOT/data/tmp/capmega.com
-     * /code
-     *
-     */
-    function download(string $url, bool $contents = false, callable $callback = null): string
-    {
-        $file = Commands::wget($url);
-
-        if ($contents) {
-            /*
-             * Do not return the filename but the file contents instead
-             * When doing this, automatically delete the temporary file in
-             * question, since the caller will not know the exact file name used
-             */
-            $return = file_get_contents($file);
-            file_delete($file);
-
-            if ($callback) {
-                $callback($return);
-            }
-
-            return $return;
-        }
-
-        /*
-         * No section was specified, return contents of file instead.
-         */
-        if ($callback) {
-            /*
-             * Execute the callbacks before returning the data, delete the
-             * temporary file after
-             */
-            $callback($file);
-            file_delete($file);
-        }
-
-        return $file;
-    }
-
-
 
     /**
      * Limit the HTTP request to the specified request type, typically GET or POST

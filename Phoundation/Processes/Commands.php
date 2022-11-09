@@ -76,7 +76,7 @@ class Commands
      */
     public function which(string $command): string
     {
-        $process = Processes::new('which', $this->server)
+        $process = Process::new('which', $this->server)
             ->addArgument($command)
             ->setRegisterRunfile(false)
             ->setTimeout(1);
@@ -119,7 +119,7 @@ class Commands
             throw new OutOfBoundsException(tr('Invalid section ":section" specified. This value can only be "u" or "g"', [':section' => $section]));
         }
 
-        $process = Processes::new('id', $this->server)
+        $process = Process::new('id', $this->server)
             ->addArgument('-' . $section)
             ->setTimeout(1);
 
@@ -136,6 +136,40 @@ class Commands
 
         } catch (ProcessFailedException $e) {
             // The command id failed
+            Commands::handleException('rm', $e);
+        }
+    }
+
+
+
+    /**
+     * Remove the specified patterns
+     *
+     * @param string $patterns
+     * @param bool $recursive
+     * @return void
+     */
+    public function rm(string $patterns, bool $recursive = false): void
+    {
+        if (!$patterns) {
+            throw new OutOfBoundsException(tr('No patterns specified'));
+        }
+
+        $process = Process::new('rm', $this->server)
+            ->addArgument($patterns)
+            ->addArguments($recursive ? '-rf' : null)
+            ->setTimeout(5);
+
+        try {
+            $output = $process->executeReturnArray();
+
+            if ($output) {
+                // rm only shows output in case of error
+                throw new CommandsException(tr('rm command failed with ":output"', [':output' => $output]));
+            }
+
+        } catch (ProcessFailedException $e) {
+            // The command rm failed
             Commands::handleException('rm', $e);
         }
     }

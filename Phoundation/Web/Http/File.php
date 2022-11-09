@@ -3,9 +3,11 @@
 namespace Phoundation\Web\Http;
 
 use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Commands;
 use Phoundation\Web\Web;
 
 
@@ -105,6 +107,19 @@ class File
 
 
     /**
+     * Returns a new File object with the specified restrictions
+     *
+     * @param Restrictions|null $restrictions
+     * @return File
+     */
+    public static function new(?Restrictions $restrictions = null): File
+    {
+        return new File($restrictions);
+    }
+
+
+
+    /**
      * Sets the file access restrictions
      *
      * @param Restrictions|null $restrictions
@@ -140,7 +155,9 @@ class File
     {
         if (is_string($compression)) {
             if ($compression !== 'auto') {
-                throw new OutOfBoundsException(tr('Unknown value ":value" specified for $compression, please use true, false, or "auto"', [':value' => $compression]));
+                throw new OutOfBoundsException(tr('Unknown value ":value" specified for $compression, please use true, false, or "auto"', [
+                    ':value' => $compression
+                ]));
             }
         }
 
@@ -398,6 +415,38 @@ Log::checkpoint();
         if ($this->die) {
             Core::die();
         }
+    }
+
+
+
+    /**
+     * Download the specified single file to the specified path
+     *
+     * If the path is not specified then by default the function will download to the PATH_TMP directory;
+     * PATH_ROOT/data/tmp
+     *
+     * @see \Phoundation\Filesystem\File::temp()
+     * @param string $url             The URL of the file to be downloaded
+     * @param callable|null $callback If specified, download will execute this callback with either the filename or file
+     *                                contents (depending on $section)
+     * @return string|null            The path to the downloaded file or NULL if a callback was specified
+     */
+    public function download(string $url, callable $callback = null): ?string
+    {
+        // Set temp file and download data
+        $file = \Phoundation\Filesystem\File::temp();
+        $data = file_get_contents($url);
+
+        // Write data to the temp file
+        file_put_contents($file, $data);
+
+        if ($callback) {
+            // Execute the callbacks before returning the data, delete the temporary file after
+            $callback($file);
+            \Phoundation\Filesystem\File::delete($file);
+        }
+
+        return $file;
     }
 
 

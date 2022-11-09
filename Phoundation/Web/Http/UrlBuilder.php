@@ -201,14 +201,14 @@ class UrlBuilder
 
 
     /**
-     * Returns true if the specified string is a full URL
+     * Returns a CDN URL
      *
      * @param string|null $extension
      * @return string
      */
     public function cdn(?string $extension = null): string
     {
-        if (self::is()) {
+        if (Url::is($this->url)) {
             return $this->url;
         }
 
@@ -221,19 +221,85 @@ class UrlBuilder
 
 
     /**
-     * Returns true if the specified string is a full URL
+     * Returns a www URL
      *
      * @return string
      */
     public function www(): string
     {
-        if (self::is()) {
+        if (Url::is($this->url)) {
             return $this->url;
         }
 
         $this->url = $this->buildDomainPrefix('www', $this->url);
 
         return $this->url;
+    }
+
+
+
+    /**
+     * Returns a CSS URL
+     *
+     * @return string
+     */
+    public function css(): string
+    {
+        if (Url::is($this->url)) {
+            return $this->url;
+        }
+
+        $this->url = Strings::startsNotWith($this->url, '/');
+
+        if (!str_starts_with($this->url, 'css/')) {
+            $this->url = 'css/' . $this->url;
+        }
+
+        return $this->cdn('css');
+    }
+
+
+
+    /**
+     * Returns a Javascript URL
+     *
+     * @return string
+     */
+    public function js(): string
+    {
+        if (Url::is($this->url)) {
+            return $this->url;
+        }
+
+        $this->url = Strings::startsNotWith($this->url, '/');
+
+        if (!str_starts_with($this->url, 'js/')) {
+            $this->url = 'js/' . $this->url;
+        }
+
+        return $this->cdn('js');
+    }
+
+
+
+    /**
+     * Returns an image URL
+     *
+     * @return string
+     */
+    public function img(): string
+    {
+        if (Url::is($this->url)) {
+            return $this->url;
+        }
+
+        $this->url = Strings::startsNotWith($this->url, '/');
+
+        if (!str_starts_with($this->url, 'img/')) {
+            $this->url = 'img/' . $this->url;
+        }
+
+        return $this->cdn();
     }
 
 
@@ -482,18 +548,6 @@ class UrlBuilder
         }
 
         return $this;
-    }
-
-
-
-   /**
-     * Returns true if the specified string is a full URL
-     *
-     * @return bool
-     */
-    protected function is(): bool
-    {
-        return filter_var($this->url, FILTER_VALIDATE_URL);
     }
 
 

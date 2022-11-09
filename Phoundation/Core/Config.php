@@ -167,29 +167,44 @@ class Config
 
 
     /**
-     * Return if the specified configuration key path exists or not
+     * Returns true of the specified configuration path exists
      *
-     * @param string|array $keys The key path to search for. This should be specified either as an array with key names
+     * @param string|array $path The key path to search for. This should be specified either as an array with key names
      *                           or a . separated string
      * @return bool
      */
-    public static function exists(string|array $keys): bool
+    public static function exists(string|array $path): bool
     {
-        $keys = Arrays::force($keys, '.');
-        $data = &static::$data;
+        try {
+            self::get($path);
+            return true;
 
-        // Go over each key and if the value for the key is an array, request a subsection
-        foreach ($keys as $key) {
-            if (!array_key_exists($key, $data)) {
-                // The requested key does not exist
-                return false;
-            }
-
-            // Get the requested subsection
-            $data = &$data[$key];
+        } catch (ConfigNotExistsException) {
+            // Ignore, just return null
+            return false;
         }
+    }
 
-        return true;
+
+
+    /**
+     * Returns the value for the specified configuration path, if it exists.
+     *
+     * No error will be thrown if the specified configuration path does not exist
+     *
+     * @param string|array $path The key path to search for. This should be specified either as an array with key names
+     *                           or a . separated string
+     * @return mixed
+     */
+    public static function test(string|array $path): mixed
+    {
+        try {
+            return self::get($path);
+
+        } catch (ConfigNotExistsException) {
+            // Ignore, just return null
+            return null;
+        }
     }
 
 

@@ -16,8 +16,8 @@ web:
       domain: "localhost"
       cloaked: false
       index: "/"
-      www: "https://phoundation/:LANGUAGE/"
-      cdn: "https://cdn.phoundation.localhost/:LANGUAGE/"
+      www: "http://phoundation/:LANGUAGE/"
+      cdn: "http://cdn.localhost/:LANGUAGE/"
     test:
       domain: "test"
       www: "https://test/:LANGUAGE/"

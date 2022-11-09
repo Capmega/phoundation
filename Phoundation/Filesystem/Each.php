@@ -7,7 +7,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
-
+use Phoundation\Filesystem\Exception\FilesystemException;
 
 
 /**
@@ -24,11 +24,18 @@ use Phoundation\Exception\OutOfBoundsException;
 class Each
 {
     /**
+     * File object
+     *
+     * @var File $file
+     */
+    protected File $file;
+
+    /**
      * Filesystem restrictions
      *
-     * @var Restrictions|null $restrictions
+     * @var Restrictions $restrictions
      */
-    protected ?Restrictions $restrictions;
+    protected Restrictions $restrictions;
 
     /**
      * Sets if the object will recurse or not
@@ -45,6 +52,27 @@ class Each
     protected array $paths = [];
 
     /**
+     * The mode that paths will receive when executing this each
+     *
+     * @var string|int|null $mode
+     */
+    protected string|int|null $mode = null;
+
+    /**
+     * If set, will NOT execute on the specified extensions
+     *
+     * @var array|null $blacklist_extensions
+     */
+    protected ?array $blacklist_extensions = null;
+
+    /**
+     * If set, will only execute on the specified extensions
+     *
+     * @var array|null $whitelist_extensions
+     */
+    protected ?array $whitelist_extensions = null;
+
+    /**
      * The paths to $skip
      *
      * @var array $skip
@@ -56,11 +84,14 @@ class Each
     /**
      * Each class constructor
      *
-     * @param Restrictions|null $restrictions
+     * @param File $file The filesystem object that creates this Each object
+     * @param array|string|null $paths
      */
-    public function __construct(?Restrictions $restrictions = null)
+    public function __construct(File $file, array|string|null $paths = null)
     {
-        $this->restrictions = $restrictions;
+        $this->file         = $file;
+        $this->paths        = $paths;
+        $this->restrictions = $file->getRestrictions();
     }
 
 
@@ -91,6 +122,85 @@ class Each
         }
 
         $this->paths = Arrays::force($paths, '');
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the extensions that are blacklisted
+     *
+     * @return array
+     */
+    public function getBlacklistExtensions(): array
+    {
+        return $this->blacklist_extensions;
+    }
+
+
+
+    /**
+     * Sets the extensions that are blacklisted
+     *
+     * @param string|array|null $blacklist_extensions
+     * @return Each
+     */
+    public function setBlacklistExtensions(array|string|null $blacklist_extensions): Each
+    {
+        $this->blacklist_extensions = Arrays::force($blacklist_extensions);
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the extensions that are whitelisted
+     *
+     * @return array
+     */
+    public function getWhitelistExtensions(): array
+    {
+        return $this->whitelist_extensions;
+    }
+
+
+
+    /**
+     * Sets the extensions that are whitelisted
+     *
+     * @param string|array|null $whitelist_extensions
+     * @return Each
+     */
+    public function setWhitelistExtensions(array|string|null $whitelist_extensions): Each
+    {
+        $this->whitelist_extensions = Arrays::force($whitelist_extensions);
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the path mode that will be set for each path
+     *
+     * @return int
+     */
+    public function getPathMode(): int
+    {
+        return $this->mode;
+    }
+
+
+
+    /**
+     * Sets the path mode that will be set for each path
+     *
+     * @param string|int|null $mode
+     * @return Each
+     * @throws OutOfBoundsException if the specified threshold is invalid.
+     */
+    public function setPathMode(string|int|null $mode): Each
+    {
+        $this->mode = get_null($mode);
         return $this;
     }
 
@@ -224,19 +334,24 @@ class Each
         $count = 0;
         $files = [];
 
-        Core::ensureRestrictions($this->restrictions)->check($this->paths);
+        $this->restrictions->check($this->paths, true);
 
         foreach (Arrays::force($this->paths, '') as $path) {
-            try {
-                // Get al files in this directory
-                $path  = Path::absolute($path);
+            // Get al files in this directory
+            $path  = Path::absolute($path);
 
-                if (!$this->skip($path)) {
-                    $files = scandir($path);
+            if (!$this->skip($path)) {
+                if ($this->mode) {
+                    // Temporarily change mode for this callback
+                    $mode = $this->file->mode($path);
+                    $this->file->chmod($path, $this->mode);
                 }
 
-            } catch (Exception $e) {
-                Path::checkReadable($path, previous_e:  $e);
+                try {
+                    $files = scandir($path);
+                } catch (Exception $e) {
+                    Path::checkReadable($path, previous_e:  $e);
+                }
             }
 
             foreach ($files as $file) {
@@ -260,6 +375,25 @@ class Each
                 } elseif (file_exists($path . $file)) {
                     // Execute the callback
                     $count++;
+                    $extension = $this->file->getExtension($file);
+
+                    if ($this->whitelist_extensions) {
+                        // Extension MUST be on this list
+                        if (!array_key_exists($extension, $this->whitelist_extensions)) {
+                            Log::warning(tr('Not executing callback function on file ":file", the extension is not whitelisted', [
+                                ':file' => $path . $file
+                            ]), 2);
+                        }
+                    }
+
+                    if ($this->blacklist_extensions) {
+                        // Extension MUST NOT be on this list
+                        if (array_key_exists($extension, $this->whitelist_extensions)) {
+                            Log::warning(tr('Not executing callback function on file ":file", the extension is blacklisted', [
+                                ':file' => $path . $file
+                            ]), 2);
+                        }
+                    }
 
                     Log::action(tr('Executing callback function on file ":file"', [
                         ':file' => $path . $file
@@ -272,6 +406,9 @@ class Each
                     ]));
                 }
             }
+
+            // Return original file mode
+            $this->file->chmod($path, $mode);
         }
 
         return $count;

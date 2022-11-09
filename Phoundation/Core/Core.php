@@ -17,7 +17,7 @@ use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Processes\Processes;
+use Phoundation\Processes\Process;
 use Phoundation\Web\Client;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
@@ -419,11 +419,11 @@ class Core {
 
                     // Setup locale and character encoding
                     // TODO Check this mess!
-                    ini_set('default_charset', Config::get('encoding.charset', 'UTF-8'));
+                    ini_set('default_charset', Config::get('languages.encoding.charset', 'UTF-8'));
                     self::$register['system']['locale'] = self::setLocale();
 
                     // Prepare for unicode usage
-                    if (Config::get('encoding.charset', 'UTF-8') === 'UTF-8') {
+                    if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
                         mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
 
                         if (function_exists('mb_internal_encoding')) {
@@ -734,11 +734,11 @@ class Core {
 
                     // Setup locale and character encoding
                     // TODO Check this mess!
-                    ini_set('default_charset', Config::get('encoding.charset', 'UTF-8'));
+                    ini_set('default_charset', Config::get('languages.encoding.charset', 'UTF-8'));
                     self::$register['system']['locale'] = self::setLocale();
 
                     // Prepare for unicode usage
-                    if (Config::get('encoding.charset', 'UTF-8') === 'UTF-8') {
+                    if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
 // TOOD Fix this godawful mess!
                         mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
 
@@ -1845,7 +1845,7 @@ class Core {
                 Log::warning(tr('Warning: If you are sure this simply does not exist yet, it can be created now automatically. If it should exist already, then abort this script and check the location!'));
 
                 // TODO Do this better, this is crap
-                $path = Processes::newCliScript('base/init_global_data_path')->executeReturnArray();
+                $path = Process::newCliScript('base/init_global_data_path')->executeReturnArray();
 
                 if (!file_exists($path)) {
                     // Something went wrong and it was not created anyway
@@ -2165,7 +2165,7 @@ class Core {
             }
 
             // Execute the process
-            Processes::new(PATH_ROOT . '/cli')
+            Process::new(PATH_ROOT . '/cli')
                 ->setWait(1)
                 ->setTimeout(self::readRegister('system', 'timeout'))
                 ->setArguments($arguments)

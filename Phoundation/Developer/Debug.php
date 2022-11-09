@@ -490,7 +490,7 @@ class Debug {
                     <td>'.htmlentities($key) . '</td>
                     <td>' . $type.'</td>
                     <td>'.strlen((string) $value) . '</td>
-                    <td class="value">'.htmlentities($value) . '</td>
+                    <td class="value">'.nl2br(htmlentities($value)) . '</td>
                 </tr>';
 
             case 'boolean':
@@ -547,9 +547,7 @@ class Debug {
                 </tr>';
 
             case 'object':
-                /*
-                 * Clean contents!
-                 */
+                // Clean contents!
                 $value  = print_r($value, true);
                 $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
                 $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);

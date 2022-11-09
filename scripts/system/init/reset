@@ -5,7 +5,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Libraries\Libraries;
-use Phoundation\Processes\Processes;
+use Phoundation\Processes\Process;
 
 
 
@@ -45,5 +45,5 @@ Log::warning(tr('WARNING: All version table entries beyond framework code versio
     ':project' => PROJECTCODEVERSION
 ]));
 
-Processes::newCliScript('base init')->executePassthru();
+Process::newCliScript('base init')->executePassthru();
 

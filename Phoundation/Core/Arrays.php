@@ -328,6 +328,7 @@ class Arrays {
      * @param string $row_separator
      * @param string $key_separator
      * @param string|null $auto_quote Quote string values with the specified quote
+     * @param bool $empty_values
      * @return string
      */
     public static function implodeWithKeys(array $source, string $row_separator, string $key_separator, ?string $auto_quote = null, bool $empty_values = false): string

@@ -1008,8 +1008,8 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
             /*
              * Assume all images are PUB images
              */
-            $file_part = '/pub'.Strings::startsWith($src, '/');
-            $file_src  = PATH_ROOT.'www/'.LANGUAGE.$file_part;
+            $file_src = '/pub'.Strings::startsWith($src, '/');
+            $file_src  = PATH_ROOT.'www/'.LANGUAGE.$file_src;
             $src       = cdn_domain($src, $section);
         }
 

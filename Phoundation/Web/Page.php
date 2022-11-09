@@ -10,6 +10,7 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Core\Log;
+use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\UnderConstructionException;
@@ -159,6 +160,9 @@ class Page
                 ]));
             }
 
+            self::$headers['meta']['charset']  = Config::get('languages.encoding.charset', 'UTF-8');
+            self::$headers['meta']['viewport'] = Config::get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no');
+
         } catch (ConfigNotExistsException $e) {
             throw new PageException(tr('No template specified, please ensure your configuration file contains "web.template.class"'), previous: $e);
         } catch (FilesystemException $e) {
@@ -240,15 +244,69 @@ class Page
     }
 
 
+
     /**
      * Sets the page title
      *
      * @param string $title
+     * @param bool $no_translate
      * @return Page
      */
-    public static function setTitle(string $title): Page
+    public static function setTitle(string $title, bool $no_translate = false): Page
     {
         self::$title = $title;
+        return self::getInstance();
+    }
+
+
+
+    /**
+     * Returns the page charset
+     *
+     * @return string|null
+     */
+    public static function getCharset(): ?string
+    {
+        return isset_get(self::$headers['meta']['charset']);
+    }
+
+
+
+    /**
+     * Sets the page charset
+     *
+     * @param string|null $charset
+     * @return Page
+     */
+    public static function setCharset(?string $charset): Page
+    {
+        self::$headers['meta']['charset'] = $charset;
+        return self::getInstance();
+    }
+
+
+
+    /**
+     * Returns the page viewport
+     *
+     * @return string|null
+     */
+    public static function getViewport(): ?string
+    {
+        return isset_get(self::$headers['meta']['viewport']);
+    }
+
+
+
+    /**
+     * Sets the page viewport
+     *
+     * @param string|null $viewport
+     * @return Page
+     */
+    public static function setViewport(?string $viewport): Page
+    {
+        self::$headers['meta']['viewport'] = $viewport;
         return self::getInstance();
     }
 
@@ -514,7 +572,7 @@ throw new UnderConstructionException();
     {
         self::$headers['link'][$url] = [
             'rel'  => 'icon',
-            'href' => $url,
+            'href' => Url::build($url)->cdn('js'),
             'type' => File::mimetype($url)
         ];
 
@@ -546,13 +604,13 @@ throw new UnderConstructionException();
             if ($header) {
                 self::$headers['javascript'][$url] = [
                     'type' => 'text/javascript',
-                    'src'  => Url::build($url)->cdn('js')
+                    'src'  => Url::build($url)->js()
                 ];
 
             } else {
                 self::$footers['javascript'][$url] = [
                     'type' => 'text/javascript',
-                    'src'  => Url::build($url)->cdn('js')
+                    'src'  => Url::build($url)->js()
                 ];
             }
         }
@@ -573,7 +631,7 @@ throw new UnderConstructionException();
         foreach (Arrays::force($urls, '') as $url) {
             self::$headers['link'][$url] = [
                 'rel'  => 'stylesheet',
-                'href' => Url::build($url)->cdn('css'),
+                'href' => Url::build($url)->css(),
             ];
         }
 
@@ -589,28 +647,29 @@ throw new UnderConstructionException();
      */
     public static function buildHeaders(): ?string
     {
-        $return = '';
+        $return = '<!DOCTYPE ' . self::$doctype . '>
+        <html lang="' . Session::getLanguage() . '">';
 
         if (self::$title) {
             $return .= '<title>' . self::$title . '</title>' . PHP_EOL;
         }
 
         foreach (self::$headers['meta'] as $header) {
-            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
+            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"', true);
             $return .= '<meta ' . $header . ' />' . PHP_EOL;
         }
 
         foreach (self::$headers['link'] as $header) {
-            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
+            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"', true);
             $return .= '<link ' . $header . ' />' . PHP_EOL;
         }
 
         foreach (self::$headers['javascript'] as $header) {
-            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
+            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"', true);
             $return .= '<script ' . $header . '></script>' . PHP_EOL;
         }
 
-        return $return;
+        return $return . '</head>';
     }
 
 

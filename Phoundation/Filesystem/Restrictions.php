@@ -98,7 +98,7 @@ class Restrictions
      * @param bool $write
      * @return void
      */
-    public function check(string|array $patterns, bool $write = false): void
+    public function check(string|array $patterns, bool $write): void
     {
         if (!$this->paths) {
             throw new RestrictionsException(tr('The ":label" restrictions have no paths specified', [

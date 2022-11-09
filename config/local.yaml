@@ -13,17 +13,17 @@ web:
     cookies:
   domains:
     primary:
-      domain: "localhost"
+      domain: "localhost" #is this key needed???
       cloaked: false
       index: "/"
-      www: "https://phoundation/:LANGUAGE/"
-      cdn: "https://cdn.phoundation.localhost/:LANGUAGE/"
+      www: "http://localhost/:LANGUAGE/"
+      cdn: "http://cdn.localhost/:LANGUAGE/"
     test:
-      domain: "test"
+      domain: "test" #is this key needed???
       www: "https://test/:LANGUAGE/"
       cdn: "https://cdn.test.localhost/:LANGUAGE/"
     trial:
-      domain: "trial"
+      domain: "trial" #is this key needed???
       www: "https://trial/:LANGUAGE/"
       cdn: "https://cdn.trial.localhost/:LANGUAGE/"
   route:

@@ -3,8 +3,11 @@
 namespace Phoundation\Filesystem;
 
 use Phoundation\Core\Config;
+use Phoundation\Core\Core;
+use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Throwable;
@@ -25,6 +28,49 @@ use Throwable;
 class Path
 {
     /**
+     * The File object
+     *
+     * @var File|null $file
+     */
+    protected ?File $file = null;
+
+    /**
+     * The file access permissions
+     *
+     * @var Restrictions|null
+     */
+    protected ?Restrictions $restrictions = null;
+
+
+
+    /**
+     * File class constructor
+     *
+     * @param Restrictions|null $restrictions
+     * @param File|null $file
+     */
+    public function __construct(?Restrictions $restrictions = null, ?File $file = null)
+    {
+        $this->file         = ($file ?? new File($restrictions));
+        $this->restrictions = Core::ensureRestrictions($restrictions);
+    }
+
+
+
+    /**
+     * Returns a new File object with the specified restrictions
+     *
+     * @param Restrictions|null $restrictions
+     * @return Path
+     */
+    public static function new(?Restrictions $restrictions = null): Path
+    {
+        return new Path($restrictions);
+    }
+
+
+
+    /**
      * Ensures existence of the specified path
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -39,15 +85,15 @@ class Path
      * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
      * @return string The specified file
      */
-    public static function ensure(string $path, ?string $mode = null, ?bool $clear = false, ?Restrictions $restrictions = null): string
+    public function ensure(string $path, ?string $mode = null, ?bool $clear = false, ?Restrictions $restrictions = null): string
     {
-        File::validateFilename($path);
+        $this->file->validateFilename($path);
 
         $mode = Config::get('filesystem.mode.directories', 0750, $mode);
 
         if ($clear) {
-            // Delete the currently existing file so we can  be sure we have an
-            File::delete($path, $restrictions);
+            // Delete the currently existing path so we can  be sure we have a clean path to work with
+            $this->file->delete($path, false, false, $restrictions);
         }
 
         if (!file_exists(Strings::unslash($path))) {
@@ -62,27 +108,33 @@ class Path
                 if (file_exists($path)) {
                     if (!is_dir($path)) {
                         // Some normal file is in the way. Delete the file, and retry
-                        File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions) {
-                            File::delete($path, $restrictions);
-                        });
+                        $this->file->each(dirname($path))
+                            ->setPathMode(0770)
+                            ->execute(function(string $file) use ($restrictions) {
+                                $this->file->delete($file, false, false, $restrictions);
+                            });
 
-                        return Path::ensure($path, $mode);
+                        return $this->ensure($path, $mode);
                     }
 
                     continue;
 
                 } elseif (is_link($path)) {
                     // This is a dead symlink, delete it
-                    File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions) {
-                        File::delete($path, $restrictions);
-                    });
+                    $this->file->each(dirname($path))
+                        ->setPathMode(0770)
+                        ->execute(function(string $file) use ($restrictions) {
+                            $this->file->delete($file, false, false, $restrictions);
+                        });
                 }
 
                 try {
                     // Make sure that the parent path is writable when creating the directory
-                    File::executeMode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode) {
-                        mkdir($path, $mode);
-                    });
+                    $this->file->each(dirname($path))
+                        ->setPathMode(0770)
+                        ->execute(function(string $file) use ($path, $mode) {
+                            mkdir($path, $mode);
+                        });
 
                 }catch(Exception $e) {
                     // It sometimes happens that the specified path was created just in between the file_exists and
@@ -96,8 +148,8 @@ class Path
         } elseif (!is_dir($path)) {
             // Some other file is in the way. Delete the file, and retry.
             // Ensure that the "file" is not accidentally specified as a directory ending in a /
-            File::delete(Strings::endsNotWith($path, '/'), $restrictions);
-            return Path::ensure($path, $mode);
+            $this->file->delete(Strings::endsNotWith($path, '/'), false, false, $restrictions);
+            return $this->ensure($path, $mode);
         }
 
         return Strings::slash(realpath($path));
@@ -119,9 +171,9 @@ class Path
      * @param Throwable|null $previous_e
      * @return void
      */
-    public static function checkReadable(string $file, ?string $type = null, ?Throwable $previous_e = null): void
+    public function checkReadable(string $file, ?string $type = null, ?Throwable $previous_e = null): void
     {
-        File::validateFilename($file);
+        $this->file->validateFilename($file);
 
         if (!file_exists($file)) {
             if (!file_exists(dirname($file))) {
@@ -155,7 +207,7 @@ class Path
      * @version 2.5.90: Added documentation, expanded $create to be able to contain data for the temp file
      * @note: If the resolved temp directory path already exist, it will be deleted, so take care when using $name!
      */
-    public static function temp(bool|string $create = true, bool $limit_to_session = true) : string
+    public function temp(bool|string $create = true, bool $limit_to_session = true) : string
     {
         Path::ensure(PATH_TMP);
 
@@ -176,7 +228,7 @@ class Path
 
         // Temp file can not exist
         if (file_exists($file)) {
-            File::delete($file);
+            $this->file->delete($file);
         }
 
         if ($create) {
@@ -208,7 +260,7 @@ class Path
      * @return ?string string The real path extrapolated from the specified $path, if exists. False if whatever was
      *                 specified does not exist.
      */
-    public static function real(string $path): ?string
+    public function real(string $path): ?string
     {
         try {
             return realpath($path);
@@ -234,16 +286,18 @@ class Path
      * @param string $path
      * @return bool
      */
-    public static function isEmpty(string $path): bool
+    public function isEmpty(string $path): bool
     {
         if (!is_dir($path)) {
-            File::checkReadable($path);
+            $this->file->checkReadable($path);
 
-            throw new PathNotDirectoryException(tr('The specified path ":path" is not a directory', [':path' => $path]));
+            throw new PathNotDirectoryException(tr('The specified path ":path" is not a directory', [
+                ':path' => $path
+            ]));
         }
 
         // Start reading the directory.
-        $handle   = opendir($path);
+        $handle = opendir($path);
 
         while (($file = readdir($handle)) !== false) {
             // Skip . and ..
@@ -271,7 +325,7 @@ class Path
      * @param bool $must_exist
      * @return string The absolute path
      */
-    public static function absolute(?string $path = null, string $prefix = null, bool $must_exist = true): string
+    public function absolute(?string $path = null, string $prefix = null, bool $must_exist = true): string
     {
         if (!$path) {
             return PATH_ROOT;
@@ -307,5 +361,125 @@ class Path
         }
 
         return $return;
+    }
+
+
+    /**
+     * Delete the path, and each parent directory until a non empty directory is encountered
+     *
+     * @see Restrict::restrict() This function uses file location restrictions, see Restrict::restrict() for more information
+     *
+     * @param array|string $patterns A list of path patterns to be cleared
+     * @param bool $sudo
+     * @param Restrictions|null $restrictions
+     * @return void
+     */
+    public function clear(array|string $patterns, bool $sudo = false, ?Restrictions $restrictions = null): void
+    {
+        // Multiple paths specified, clear all
+        if (is_array($patterns)) {
+            foreach ($patterns as $pattern) {
+                Path::clear($pattern, $sudo, $restrictions);
+            }
+
+            return;
+        }
+
+        $pattern = $patterns;
+
+        while ($pattern) {
+            // Restrict location access
+            Core::ensureRestrictions($restrictions)->check($pattern);
+
+            if (!file_exists($pattern)) {
+                // This section does not exist, jump up to the next section above
+                $pattern = dirname($pattern);
+                continue;
+            }
+
+            if (!is_dir($pattern)) {
+                // This is a normal file, we only delete directories here!
+                throw new OutOfBoundsException(tr('Not clearning ":pattern", it is not a directory', [
+                    ':pattern' => $pattern
+                ]));
+            }
+
+            if (!Path::isEmpty($pattern)) {
+                // Do not remove anything more, there is contents here!
+                return;
+            }
+
+            // Remove this entry and continue;
+            try {
+                $this->file->delete($pattern, false, $sudo, $restrictions);
+
+            }catch(Exception $e) {
+                /*
+                 * The directory WAS empty, but cannot be removed
+                 *
+                 * In all probability, a parrallel process added a new content in this directory, so it's no longer empty.
+                 * Just register the event and leave it be.
+                 */
+                Log::warning(tr('Failed to remove empty pattern ":pattern" with exception ":e"', [
+                    ':pattern' => $pattern,
+                    ':e' => $e
+                ]));
+
+                return;
+            }
+
+            // Go one entry up, check if we're still within restrictions, and continue deleting
+            $pattern = dirname($pattern);
+        }
+    }
+
+
+
+    /**
+     * Creates a random path in specified base path (If it does not exist yet), and returns that path
+     *
+     * @param string $path
+     * @param bool $singledir
+     * @param int $length
+     * @return string
+     */
+    public function createTarget(string $path, bool $singledir = false, int $length = 0): string
+    {
+        if (!$length) {
+            $length = Config::get('filesystem.target-path-size', 8);
+        }
+
+        $path = Strings::unslash(Path::ensure($path));
+
+        if ($singledir) {
+            // Assign path in one dir, like abcde/
+            $path = Strings::slash($path).substr(uniqid(), -$length, $length);
+
+        } else {
+            // Assign path in multiple dirs, like a/b/c/d/e/
+            foreach (str_split(substr(uniqid(), -$length, $length)) as $char) {
+                $path .= DIRECTORY_SEPARATOR.$char;
+            }
+        }
+
+        return Strings::slash(Path::ensure($path));
+    }
+
+
+
+    /**
+     * Check the specified $path against this objects' restrictions
+     *
+     * @param string $path
+     * @param bool $write
+     * @return void
+     */
+    protected function checkRestrictions(string $path, bool $write)
+    {
+        if ($this->restrictions === null) {
+            throw new FilesystemException(tr('No filesystem restrictions available'));
+        }
+
+        $this->restrictions->check($path, $write);
     }
 }

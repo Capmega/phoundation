@@ -42,10 +42,18 @@ class Phoundation extends Template
      */
     public function buildHtmlHeader(): ?string
     {
-        Page::loadCss('mdb/mdb');
-        Page::loadJavascript('mdb/mdb');
+        Page::loadCss('css/mdb');
+        Page::loadJavascript('js/mdb');
+        Page::setTitle(tr('Phoundation'));
+//        Page::setFavIcon('img/mdb-favicon.ico');
 
         $html = Page::buildHeaders();
+show($html);
+
+
+
+
+
 
         $html .= '<!DOCTYPE html>
             <html lang="en">

@@ -4,7 +4,7 @@ namespace Phoundation\Databases;
 
 use Phoundation\Core\Strings;
 use Phoundation\Databases\Exception\MysqlException;
-use Phoundation\Processes\Processes;
+use Phoundation\Processes\Process;
 use Phoundation\Servers\Server;
 use Phoundation\Servers\Servers;
 
@@ -108,11 +108,11 @@ class Mysql
      */
     public function importTimezones(): void
     {
-        $mysql = Processes::new('mysql')
+        $mysql = Process::new('mysql')
             ->setTimeout(10)
             ->addArguments(['-p', '-u', 'root', 'mysql']);
 
-        Processes::new('mysql_tzinfo_to_sql')
+        Process::new('mysql_tzinfo_to_sql')
             ->setTimeout(10)
             ->addArgument('/usr/share/zoneinfo')
             ->setPipe($mysql)
