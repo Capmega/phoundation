@@ -29,11 +29,11 @@ use Phoundation\Web\Http\Url;
     <div class="d-flex justify-content-center align-items-center" style="height: 100vh">
         <div class="text-center">
             <?php
-            echo Img::new()
-                ->setClass('mb-4')
-                ->setAlt('MDB')
-                ->setSrc('phoundation.jpg')
-                ->render();
+//            echo Img::new()
+//                ->setClass('mb-4')
+//                ->setAlt('MDB')
+//                ->setSrc('phoundation.jpg')
+//                ->render();
             ?>
             <h5 class="mb-3">Thank you for using our product. We're glad you're with us.</h5>
             <p class="mb-3">MDB Team</p>
