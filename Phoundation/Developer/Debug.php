@@ -1000,13 +1000,16 @@ class Debug {
         // Scan for namespace and class lines
         $namespace = null;
         $class     = null;
-        $results   = File::new()->grep($file, ['namespace ', 'class '], 100);
+        $results   = File::new($file)->grep(['namespace ', 'class '], 100);
 
         // Get the namespace
-        foreach ($results['namespace '] as $line) {
-            if (preg_match_all('/^namespace\s+(.+?);$/i', $line, $matches)) {
-                $namespace = $matches[1][0];
+        foreach ($results as $file) {
+            foreach ($file['namespace '] as $line) {
+                if (preg_match_all('/^namespace\s+(.+?);$/i', $line, $matches)) {
+                    $namespace = $matches[1][0];
+                }
             }
+
         }
 
         if (!$namespace) {
@@ -1014,9 +1017,11 @@ class Debug {
         }
 
         // Get the class name
-        foreach ($results['class '] as $line) {
-            if (preg_match_all('/^class\s+([a-z0-9_]+)(?:(?:\s+extends\s+.+?)?\s+\{)?/i', $line, $matches)) {
-                $class = $matches[1][0];
+        foreach ($results as $file) {
+            foreach ($file['class '] as $line) {
+                if (preg_match_all('/^class\s+([a-z0-9_]+)(?:(?:\s+extends\s+.+?)?\s+\{)?/i', $line, $matches)) {
+                    $class = $matches[1][0];
+                }
             }
         }
 

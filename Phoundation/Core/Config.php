@@ -343,45 +343,47 @@ class Config
             ->setRecurse(true)
             ->setRestrictions(new Restrictions(PATH_ROOT))
             ->executeFiles(function(string $file) use (&$store) {
-            $results = File::new($file, PATH_ROOT)->grep(['Config::get(\'', 'Config::set(\'']);
+                $files = File::new($file, PATH_ROOT)->grep(['Config::get(\'', 'Config::set(\'']);
 
-            foreach ($results as $lines){
-                foreach ($lines as $line) {
-                    // Extract the configuration path and default value for each call
-                    if (!preg_match_all('/Config::[gs]et\s?\([\'"](.+?)[\'"](?:.+?)?(?:,\s?(.+?))\)/i', $line, $matches)) {
-                        if (!preg_match_all('/Config::[gs]et\s?\([\'"](.+?)[\'"](?:.+?)?(?:,\s?(.+?))?\)/i', $line, $matches)) {
-                            Log::warning(tr('Failed to extract a Config::get() or Config::set() from line ":line" in file ":file"', [
-                                ':file' => $file,
-                                ':line' => $line
-                            ]));
+                foreach ($files as $file){
+                    foreach ($file as $lines) {
+                        foreach ($lines as $line) {
+                            // Extract the configuration path and default value for each call
+                            if (!preg_match_all('/Config::[gs]et\s?\([\'"](.+?)[\'"](?:.+?)?(?:,\s?(.+?))\)/i', $line, $matches)) {
+                                if (!preg_match_all('/Config::[gs]et\s?\([\'"](.+?)[\'"](?:.+?)?(?:,\s?(.+?))?\)/i', $line, $matches)) {
+                                    Log::warning(tr('Failed to extract a Config::get() or Config::set() from line ":line" in file ":file"', [
+                                        ':file' => $file,
+                                        ':line' => $line
+                                    ]));
 
-                            continue;
-                        }
-                    }
+                                    continue;
+                                }
+                            }
 
-                    // Pass over all matches
-                    foreach ($matches[0] as $match => $value) {
-                        $path    = str_replace(['"', "'"], '', trim($matches[1][$match]));
-                        $default = str_replace(['"', "'"], '', trim($matches[2][$match]));
+                            // Pass over all matches
+                            foreach ($matches[0] as $match => $value) {
+                                $path = str_replace(['"', "'"], '', trim($matches[1][$match]));
+                                $default = str_replace(['"', "'"], '', trim($matches[2][$match]));
 
-                        // Log all Config::get() and Config::set() calls that have the same configuration path but different
-                        // default values
-                        if (array_key_exists($path, $store)) {
-                            if ($store[$path] !== $default) {
-                                Log::warning(tr('Configuration path ":path" has two different default values ":1" and ":2"', [
-                                    ':path' => $path,
-                                    ':1'    => $default,
-                                    ':2'    => $store[$path],
-                                ]));
+                                // Log all Config::get() and Config::set() calls that have the same configuration path but different
+                                // default values
+                                if (array_key_exists($path, $store)) {
+                                    if ($store[$path] !== $default) {
+                                        Log::warning(tr('Configuration path ":path" has two different default values ":1" and ":2"', [
+                                            ':path' => $path,
+                                            ':1' => $default,
+                                            ':2' => $store[$path],
+                                        ]));
+                                    }
+                                }
+
+                                // Store the configuration path
+                                $store[$path] = $default;
                             }
                         }
-
-                        // Store the configuration path
-                        $store[$path] = $default;
                     }
                 }
-            }
-        });
+            });
 
         // Convert all entries ending in . to array values (these typically have variable subkeys following)
         foreach ($store as $path => $default) {

@@ -157,6 +157,67 @@ class Filesystem
 
 
     /**
+     * Return true if the specified mimetype is for a binary file or false if it is for a text file
+     *
+     * @version 2.5.90: Added function and documentation
+     * @param string $primary        The primary mimetype section to check. If the mimetype is "text/plain", this
+     *                               variable would receive "text". You can also leave $secondary empty and specify the
+     *                               complete mimetype "text/plain" here, both will work
+     * @param string|null $secondary The secondary mimetype section to check. If the mimetype is "text/plain", this
+     *                               variable would receive "plain". If the complete mimetype is specified in $primary,
+    you can leave this one empty
+     * @return boolean True if the specified mimetype is for a binary file, false if it is a text file
+     */
+    public static function isBinary(string $primary, ?string $secondary = null): bool
+    {
+// TODO So isText() works on a file and this works on mimetype strings? Fix this!
+// TODO There is more to this
+// :TODO: IMPROVE THIS! Loads of files that are not text/ are still not binary
+        // Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
+        if (!$secondary) {
+            if (!str_contains($primary, '/')) {
+                throw new FilesystemException(tr('Invalid primary mimetype data ":primary" specified. Either specify the complete mimetype in $primary, or specify the independent primary and secondary sections in $primary and $secondary', [':primary' => $primary]));
+            }
+
+            $secondary = Strings::from($primary , '/');
+            $primary   = Strings::until($primary, '/');
+        }
+
+        // Check the mimetype data
+        switch ($primary) {
+            case 'text':
+                // Plain text
+                return false;
+
+            default:
+                switch ($secondary) {
+                    case 'json':
+                        // no-break
+                    case 'ld+json':
+                        // no-break
+                    case 'svg+xml':
+                        // no-break
+                    case 'x-csh':
+                        // no-break
+                    case 'x-sh':
+                        // no-break
+                    case 'xhtml+xml':
+                        // no-break
+                    case 'xml':
+                        // no-break
+                    case 'vnd.mozilla.xul+xml':
+                        // This is all text
+                        return false;
+                }
+        }
+
+        // This is binary
+        return true;
+    }
+
+
+
+    /**
      * Return the absolute path for the specified path
      *
      * @note If the specified path exists, and it is a directory, this function will automatically add a trailing / to
@@ -314,5 +375,75 @@ class Filesystem
         }
 
         return $file;
+    }
+
+
+
+    /**
+     * Returns the specified octal filemode into a text readable filemode (rwxrwxrwx)
+     *
+     * @param int $mode
+     * @return string
+     */
+    public static function readableFileMode(int $mode): string
+    {
+        $return = '';
+        $mode   = substr(decoct($mode), -3, 3);
+
+        for($i = 0; $i < 3; $i++) {
+            $number = (integer) substr($mode, $i, 1);
+
+            if (($number - 4) >= 0) {
+                $return .= 'r';
+                $number -= 4;
+
+            } else {
+                $return .= '-';
+            }
+
+            if (($number - 2) >= 0) {
+                $return .= 'w';
+                $number -= 2;
+
+            } else {
+                $return .= '-';
+            }
+
+            if (($number - 1) >= 0) {
+                $return .= 'x';
+
+            } else {
+                $return .= '-';
+            }
+        }
+
+        return $return;
+    }
+
+
+
+    /**
+     * Return a system path for the specified type
+     *
+     * @param string $type
+     * @param string $path
+     * @return string
+     */
+    public static function systemPath(string $type, string $path = ''): string
+    {
+        switch ($type) {
+            case 'img':
+                // no-break
+            case 'image':
+                return '/pub/img/' . $path;
+
+            case 'css':
+                // no-break
+            case 'style':
+                return '/pub/css/' . $path;
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown type ":type" specified', [':type' => $type]));
+        }
     }
 }

@@ -6,6 +6,9 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Exception\FileNotExistException;
+use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands;
 use Phoundation\Web\Web;
@@ -447,6 +450,66 @@ Log::checkpoint();
         }
 
         return $file;
+    }
+
+
+
+    /**
+     * If the object file is an HTTP, HTTPS, or FTP URL, then get it locally as a temp file
+     *
+     * @param string $url
+     * @param bool $is_downloaded
+     * @param ?array $context
+     * @return string
+     */
+    public function getLocal(string $url, bool &$is_downloaded = false, ?array $context = null): string
+    {
+        // TODO Replace with function download();
+        throw new UnderConstructionException();
+        try {
+            $context = $this->createStreamContext($context);
+            $url     = trim($url);
+
+            if (str_contains($url, 'http:') and str_contains($url, 'https:') and str_contains($url, 'ftp:')) {
+                if (!file_exists($url)) {
+                    throw new FileNotExistException(tr('Specified file ":file" does not exist', [':file' => $url]));
+                }
+
+                if (is_uploaded_file($url)) {
+                    $tmp  = file_get_uploaded($url);
+                    $this->files = $this->temp($url, null, false);
+
+                    rename($tmp, $this->files);
+                    return $this->files;
+                }
+
+                return $url;
+            }
+
+            // First download the file to a temporary location
+            $this->files          = str_replace(array('://', '/'), '-', $url);
+            $this->files          = $this->temp();
+            $is_downloaded = true;
+
+            $this->path()->ensure(dirname($this->files));
+            file_put_contents(file_get_contents($url, false, $context));
+
+            return $this->files;
+
+        }catch(Exception $e) {
+            $message = $e->getMessage();
+            $message = strtolower($message);
+
+            if (str_contains($message, '404 not found')) {
+                throw new FilesystemException(tr('URL ":file" does not exist', [':file' => $url]));
+            }
+
+            if (str_contains($message, '400 bad request')) {
+                throw new FilesystemException(tr('URL ":file" is invalid', [':file' => $url]));
+            }
+
+            throw new FilesystemException(tr('Failed for file ":file"', [':file' => $url]), $e);
+        }
     }
 
 

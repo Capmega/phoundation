@@ -7,7 +7,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Exception\FilesystemException;
+use Throwable;
 
 
 /**
@@ -72,6 +72,26 @@ class Each
      */
     protected array $skip = [];
 
+    /**
+     * Sets if symlinks should be processed
+     *
+     * @var bool $follow_symlinks
+     */
+    protected bool $follow_symlinks = false;
+
+    /**
+     * Sets if hidden file should be processed
+     *
+     * @var bool $follow_hidden
+     */
+    protected bool $follow_hidden = false;
+
+    /**
+     * Sets if exceptions will be ingored while processing multiple files
+     *
+     * @var bool $ignore_exceptions
+     */
+    protected bool $ignore_exceptions = false;
 
 
     /**
@@ -193,6 +213,87 @@ class Each
     public function setPathMode(string|int|null $mode): Each
     {
         $this->mode = get_null($mode);
+        return $this;
+    }
+
+
+
+    /**
+     * Returns if exceptions will be ignored during the processing of multiple files
+     *
+     * @return bool
+     */
+    public function getIgnoreExceptions(): bool
+    {
+        return $this->ignore_exceptions;
+    }
+
+
+
+    /**
+     * Sets if exceptions will be ignored during the processing of multiple files
+     *
+     * @param bool $ignore_exceptions
+     * @return Each
+     * @throws OutOfBoundsException if the specified threshold is invalid.
+     */
+    public function  setFollowSymlinks(bool $ignore_exceptions): Each
+    {
+        $this->ignore_exceptions = $ignore_exceptions;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns if symlinks should be processed
+     *
+     * @return bool
+     */
+    public function getFollowSymlinks(): bool
+    {
+        return $this->follow_symlinks;
+    }
+
+
+
+    /**
+     * Sets if symlinks should be processed
+     *
+     * @param bool $follow_symlinks
+     * @return Each
+     * @throws OutOfBoundsException if the specified threshold is invalid.
+     */
+    public function  setFollowSymlinks(bool $follow_symlinks): Each
+    {
+        $this->follow_symlinks = $follow_symlinks;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns if hidden file should be processed
+     *
+     * @return bool
+     */
+    public function  getFollowHidden(): bool
+    {
+        return $this->follow_hidden;
+    }
+
+
+
+    /**
+     * Sets if hidden file should be processed
+     *
+     * @param bool $follow_hidden
+     * @return Each
+     * @throws OutOfBoundsException if the specified threshold is invalid.
+     */
+    public function setFollowHidden(bool $follow_hidden): Each
+    {
+        $this->follow_hidden = $follow_hidden;
         return $this;
     }
 
@@ -383,13 +484,29 @@ class Each
             try {
                 $files = scandir($path);
             } catch (Exception $e) {
-                Path::checkReadable($path, previous_e:  $e);
+                Path::new($path, $this->restrictions)->checkReadable(previous_e: $e);
             }
 
             foreach ($files as $file) {
-                if (($file == '.') or ($file == '..')) {
+                if (($file === '.') or ($file === '..')) {
                     // skip these
                     continue;
+                }
+
+                if ($file[0] === '.') {
+                    if (!$this->follow_hidden) {
+                        Log::warning(tr('Not following path ":path", hidden files are ignored', [
+                            ':path' => $path . $file
+                        ]), 2);
+                    }
+                }
+
+                if (is_link($file)) {
+                    if (!$this->follow_symlinks) {
+                        Log::warning(tr('Not following path ":path", symlinks are ignored', [
+                            ':path' => $path . $file
+                        ]), 2);
+                    }
                 }
 
                 if (is_dir($path . $file)) {
@@ -431,7 +548,21 @@ class Each
                         ':file' => $path . $file
                     ]), 2);
 
-                    $callback($path . $file);
+                    try {
+                        $callback($path . $file);
+
+                    } catch (Throwable $e) {
+                        if (!$this->ignore_exceptions) {
+                            // Exceptions will pass!
+                            throw $e;
+                        }
+
+                        // Exceptions will be ignored
+                        Log::warning(tr('File ":file" encountered exception ":e" which will be ignored', [
+                            ':file' => $file,
+                            ':e'    => $e->getMessage()
+                        ]));
+                    }
                 } else {
                     Log::warning(tr('Not executing callback function on file ":file", it does not exist (probably dead symlink)', [
                         ':file' => $path . $file

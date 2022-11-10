@@ -9,9 +9,11 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
+use Phoundation\Processes\Exception\ProcessesException;
 use Throwable;
 
 
@@ -53,8 +55,8 @@ class Path
      */
     public function __construct(array|string|null $path = null, Restrictions|array|string|null $restrictions = null)
     {
-        $this->paths        = Arrays::force($path, null);
-        $this->restrictions = Core::ensureRestrictions($restrictions);
+        $this->paths = Arrays::force($path, null);
+        $this->setRestrictions($restrictions);
     }
 
 
@@ -81,6 +83,44 @@ class Path
     public function each(): Each
     {
         return new Each($this->paths, $this->restrictions);
+    }
+
+
+
+    /**
+     * Returns the paths for this Path object
+     *
+     * @return array
+     */
+    public function getPaths(): array
+    {
+        return $this->paths;
+    }
+
+
+
+    /**
+     * Returns the Restriction object for this Path object
+     *
+     * @return Restrictions
+     */
+    public function getRestrictions(): Restrictions
+    {
+        return $this->restrictions;
+    }
+
+
+
+    /**
+     * Returns the paths for this Path object
+     *
+     * @param Restrictions|array|string|null $restrictions
+     * @return Path
+     */
+    public function setRestrictions(Restrictions|array|string|null $restrictions = null): Path
+    {
+        $this->restrictions = Core::ensureRestrictions($restrictions);
+        return $this;
     }
 
 
@@ -332,11 +372,7 @@ class Path
             $single = Config::getBoolean('filesystem.target-path.single', false);
         }
 
-        if (count($this->paths) > 1) {
-            throw new OutOfBoundsException(tr('Path object has ":count" paths specified while Path::createTarget() can create targets in only one path', [
-                'count' => count($this->paths)
-            ]));
-        }
+        $this->requireSinglePath();
 
         $path = Arrays::firstValue($this->paths);
         $path = Strings::unslash(Path::new($path, $this->restrictions)->ensure());
@@ -547,6 +583,62 @@ class Path
 
 
     /**
+     * Ensure that the object file is writable
+     *
+     * This method will ensure that the object file will exist and is writable. If it does not exist, an empty file
+     * will be created in the parent directory of the specified $this->file
+     *
+     * @param int|null $mode
+     * @return void
+     */
+    public function ensureWritable(?int $mode = null): void
+    {
+        // Get configuration. We need file and directory default modes
+        $mode = Config::get('filesystem.mode.default.directory', 0750, $mode);
+
+        foreach ($this->paths as $path) {
+            // If the object file exists and is writable, then we're done.
+            if (is_writable($path)) {
+                continue;
+            }
+
+            // From here the file is not writable. It may not exist, or it may simply not be writable. Lets continue...
+
+            if (file_exists($path)) {
+                // Great! The file exists, but it is not writable at this moment. Try to make it writable.
+                try {
+                    Log::warning(tr('The object path ":path" (Realpath ":path") is not writable. Attempting to apply default directory mode ":mode"', [
+                        ':file' => $path,
+                        ':path' => realpath($path),
+                        ':mode' => $mode
+                    ]));
+
+                    File::new($path, $this->restrictions)->chmod('u+w');
+
+                } catch (ProcessesException $e) {
+                    throw new FileNotWritableException(tr('The object file ":file" (Realpath ":path") is not writable, and could not be made writable', [
+                        ':file' => $path,
+                        ':path' => realpath($path)
+                    ]));
+                }
+            }
+
+            // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
+            Path::new(dirname($path), $this->restrictions)->ensure();
+
+            Log::warning(tr('The object path ":path" (Realpath ":path") does not exist. Attempting to create it with file mode ":mode"', [
+                ':mode' => Strings::fromOctal($mode),
+                ':file' => $path,
+                ':path' => realpath($path)
+            ]));
+
+            mkdir($path, $mode, true);
+        }
+    }
+
+
+
+    /**
      * Check the specified $path against this objects' restrictions
      *
      * @param string $path
@@ -570,6 +662,22 @@ class Path
     {
         if (!file_exists($path)) {
             throw new FilesystemException(tr('Specified path ":path" does not exist', [':path' => $path]));
+        }
+    }
+
+
+
+    /**
+     * Requires that this Path object has only one path
+     *
+     * @return void
+     */
+    protected function requireSinglePath(): void
+    {
+        if (count($this->paths) > 1) {
+            throw new OutOfBoundsException(tr('Path object has ":count" paths specified while only one path is allowed', [
+                'count' => count($this->paths)
+            ]));
         }
     }
 }
