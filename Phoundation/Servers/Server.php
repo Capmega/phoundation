@@ -66,21 +66,66 @@ class Server
     /**
      * Server constructor
      *
-     * @param Restrictions|null $restrictions
+     * @param string $hostname
+     * @param Restrictions|array|string|null $restrictions
      */
-    public function __construct(?Restrictions $restrictions) {
-        $this->restrictions = $restrictions;
+    public function __construct(string $hostname, Restrictions|array|string|null $restrictions)
+    {
+        $this->setHostname($hostname);
+        $this->setRestrictions($restrictions);
     }
 
 
 
     /**
-     * Returns file restrictions access
+     * Returns the filesystem restrictions for this File object
+     *
+     * @return string
+     */
+    public function getHostname(): string
+    {
+        return $this->hostname;
+    }
+
+
+
+    /**
+     * Sets the filesystem restrictions for this File object
+     *
+     * @param string $hostname
+     * @return void
+     */
+    public function setHostname(string $hostname): void
+    {
+        if (!$hostname) {
+            $hostname = 'localhost';
+        }
+
+        $this->hostname = $hostname;
+    }
+
+
+
+    /**
+     * Returns the filesystem restrictions for this File object
      *
      * @return Restrictions
      */
-    public function restrictions(): Restrictions
+    public function getRestrictions(): Restrictions
     {
-        return Core::ensureRestrictions($this->restrictions);
+        return $this->restrictions;
+    }
+
+
+
+    /**
+     * Sets the filesystem restrictions for this File object
+     *
+     * @param Restrictions|array|string|null $restrictions
+     * @return void
+     */
+    public function setRestrictions(Restrictions|array|string|null $restrictions): void
+    {
+        $this->restrictions = Core::ensureRestrictions($restrictions);
     }
 }

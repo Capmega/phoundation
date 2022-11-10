@@ -5,15 +5,17 @@ namespace Phoundation\Web\Http\Html;
 use Phoundation\Content\Images\Images;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
-use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Notifications\Notification;
+use Phoundation\Filesystem\Path;
+use Phoundation\Processes\Commands;
+use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 use Throwable;
+
 
 
 /**
@@ -28,6 +30,13 @@ use Throwable;
  */
 class Img extends Element
 {
+    /**
+     * Server object where the image conversion commands will be executed
+     *
+     * @var Server $server
+     */
+    protected Server $server;
+
     /**
      * Sets whether the image will be lazily loaded as-needed or directly
      *
@@ -226,7 +235,7 @@ class Img extends Element
 
         if ($this->external) {
             // Download external images local so that we can perform tests, changes, upgrades, etc.
-            $file_src = Http::file()->download($src);
+            $file_src = \Phoundation\Web\Http\File::new($this->server->getRestrictions())->download($src);
         } else {
             // This is a local image (either with or without domain specified) Locate the file
             $file_src = Strings::from($src     , $domain . '/');
@@ -948,7 +957,7 @@ class Img extends Element
      *
      * @return void
      */
-    protected function convert()
+    protected function convert(): void
     {
 
         if (!Config::test('cdn.images.convert.' . $this->format)) {
@@ -972,15 +981,16 @@ class Img extends Element
                     ':target' => $target
                 ]));
 
-                File::new()->executeMode(dirname($this->source), 0770, function() use ($target) {
-                    File::new()->executeMode($this->source, 0660, function() use ($target) {
-                        Images::convert($this->source)
+                // Ensure target is readable and convert
+                Path::new($target)->each()
+                    ->setMode(0660)
+                    ->executePath(function() use ($target) {
+                        Images::new()->convert($this->source)
                             ->setFile($target)
                             ->setMethod('custom')
                             ->setFormat(Config::get('cdn.images.convert.' . $this->format))
-                            ->go();
+                            ->execute();
                     });
-                });
             }
 
             /*

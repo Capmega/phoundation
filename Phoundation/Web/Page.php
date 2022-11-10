@@ -573,7 +573,7 @@ throw new UnderConstructionException();
         self::$headers['link'][$url] = [
             'rel'  => 'icon',
             'href' => Url::build($url)->cdn('js'),
-            'type' => File::new()->mimetype($url)
+            'type' => File::new($url, PATH_CDN . LANGUAGE . '/img')->mimetype()
         ];
 
         return self::getInstance();
@@ -648,7 +648,7 @@ throw new UnderConstructionException();
     public static function buildHeaders(): ?string
     {
         $return = '<!DOCTYPE ' . self::$doctype . '>
-        <html lang="' . Session::getLanguage() . '">';
+        <html lang="' . Session::getLanguage() . '">' . PHP_EOL;
 
         if (self::$title) {
             $return .= '<title>' . self::$title . '</title>' . PHP_EOL;

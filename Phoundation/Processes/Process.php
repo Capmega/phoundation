@@ -7,6 +7,7 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
@@ -146,8 +147,8 @@ Class Process
      */
     public function executePassthru(): bool
     {
-        $exitcode_file = File::new()->temp(false);
-        $output_file   = File::new()->temp(false);
+        $exitcode_file = Filesystem::createTempFile(false)->getFile();
+        $output_file   = Filesystem::createTempFile(false)->getFile();
 
         $exit_code = null;
         $output    = null;

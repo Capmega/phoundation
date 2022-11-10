@@ -2,10 +2,12 @@
 
 namespace Phoundation\Processes;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Servers\Server;
@@ -166,20 +168,66 @@ trait ProcessVariables
      */
     protected bool $clear_logs = false;
 
+    /**
+     * Filesystem access restrictions
+     *
+     * @var Restrictions $restrictions
+     */
+    protected Restrictions $restrictions;
+
 
 
     /**
-     * Process destructor
+     * Process class contructor
+     *
+     * @param Restrictions|array|string|null $restrictions
+     */
+    public function __construct(Restrictions|array|string|null $restrictions)
+    {
+        // Set default filesystem restrictions
+        $this->setRestrictions($restrictions);
+    }
+
+
+
+    /**
+     * Process class destructor
      */
     public function __destruct()
     {
         // Delete the log file?
         if ($this->clear_logs) {
-            File::new($this->log_file)->delete();
+            File::new($this->log_file, Restrictions::new(PATH_DATA . 'log', true))->delete();
         }
 
         // Delete the run file!
-        File::new($this->run_file)->delete();
+        File::new($this->run_file, Restrictions::new(PATH_DATA . 'run', true))->delete();
+    }
+
+
+
+    /**
+     * Returns the filesystem restrictions for this object
+     *
+     * @return Restrictions
+     */
+    public function getRestrictions(): Restrictions
+    {
+        return $this->restrictions;
+    }
+
+
+
+    /**
+     * Sets the filesystem restrictions for this object
+     *
+     * @param Restrictions|array|string|null $restrictions
+     * @return $this
+     */
+    public function setRestrictions(Restrictions|array|string|null $restrictions): static
+    {
+        $this->restrictions = Core::ensureRestrictions($restrictions);
+        return $this;
     }
 
 
@@ -247,6 +295,7 @@ trait ProcessVariables
 
 
 
+// TODO Document why this was commented out
 //    /**
 //     * Returns the log file where the process output will be redirected to
 //     *
@@ -264,7 +313,7 @@ trait ProcessVariables
 //
 //        // Ensure the path ends with a slash and that it is writable
 //        $path = Strings::slash($path);
-//        $path = File::new()->ensureWritable($path);
+//        $path = File::new($path)->ensureWritable();
 //        $this->log_file = $path;
 //
 //        return $this;
@@ -334,6 +383,7 @@ trait ProcessVariables
 
 
 
+// TODO Document why this was commented out
 //    /**
 //     * Sets the run path where the process run file will be written
 //     *
@@ -351,7 +401,7 @@ trait ProcessVariables
 //
 //        // Ensure the path ends with a slash and that it is writable
 //        $path = Strings::slash($path);
-//        $path = File::new()->ensureWritable($path);
+//        $path = File::new($path)->ensureWritable();
 //        $this->run_file = $path;
 //
 //        return $this;
@@ -549,12 +599,12 @@ trait ProcessVariables
         }
 
         if ($which_command) {
-            $real_command = Commands::server($this->server)->which($command);
+            $real_command = SystemCommands::new($this->server)->which($command);
         } else {
             // Check if the command exist on disk
             if (($command !== 'which') and !file_exists($command)) {
                 // The specified command was not found, we'll have to look for it anyway!
-                $real_command = Commands::server($this->server)->which($command);
+                $real_command = SystemCommands::new($this->server)->which($command);
 
                 if (!$real_command) {
                     throw new ProcessesException(tr('Specified process command ":command" does not exist', [':command' => $command]));
@@ -741,7 +791,7 @@ trait ProcessVariables
      * @param string|null $redirect
      * @param int $channel
      * @param bool $append
-     * @return Process|ProcessVariables|Workers
+     * @return $this
      */
     public function setOutputRedirect(?string $redirect, int $channel = 1, bool $append = false): static
     {
@@ -755,7 +805,7 @@ trait ProcessVariables
                 }
             } else {
                 // Redirect output to a file
-                File::new()->checkWritable($redirect);
+                File::new($redirect, $this->restrictions)->checkWritable('output redirect file', true);
                 $this->output_redirect[$channel] = ($append ? '*' : '') . $redirect;
             }
 
@@ -801,7 +851,7 @@ trait ProcessVariables
      */
     public function setInputRedirect(?string $redirect, int $channel = 1): static
     {
-        File::new()->checkReadable($redirect);
+        File::new($redirect, $this->restrictions)->checkReadable();
 
         $this->input_redirect[$channel] = get_null($redirect);
 

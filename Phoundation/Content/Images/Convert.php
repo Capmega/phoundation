@@ -2,11 +2,12 @@
 
 namespace Phoundation\Content\Images;
 
-
-
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Process;
+
+
 
 /**
  * Class Convert
@@ -18,7 +19,7 @@ use Phoundation\Filesystem\Restrictions;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
-class Convert
+class Convert extends Process
 {
     /**
      * The image source file that will be converted
@@ -61,6 +62,7 @@ class Convert
      * Convert class constructor
      *
      * @param string $source
+     * @param Restrictions|null $restrictions
      */
     public function __construct(string $source, ?Restrictions $restrictions = null)
     {
@@ -74,6 +76,8 @@ class Convert
 
         $this->source       = $source;
         $this->restrictions = $restrictions;
+        
+        parent::__construct('convert', $this->server, true);
     }
 
 
@@ -86,7 +90,7 @@ class Convert
      */
     public function setFormat(string $format): Convert
     {
-        // TODO Validat the format
+        // TODO Validate the format
         $this->format = $format;
         return $this;
     }
@@ -125,11 +129,10 @@ class Convert
     }
 
 
-
     /**
      * Returns the file to which the image should be converted
      *
-     * @return string
+     * @return string|null
      */
     public function getFile(): ?string
     {
@@ -137,11 +140,10 @@ class Convert
     }
 
 
-
     /**
      * The format to which the image should be converted
      *
-     * @param string $method
+     * @param string|null $method
      * @return Convert
      */
     public function setMethod(?string $method): Convert

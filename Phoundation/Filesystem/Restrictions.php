@@ -36,7 +36,7 @@ class Restrictions
      *
      * @var string $label
      */
-    protected string $label = 'undefined';
+    protected string $label = 'system';
 
 
 

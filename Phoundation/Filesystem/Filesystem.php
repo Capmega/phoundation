@@ -313,7 +313,7 @@ class Filesystem
      * @param bool $public
      * @return Path A Path object with the temp directory
      */
-    public function createTempDirectory(bool $public = true) : Path
+    public static function createTempDirectory(bool $public = true) : Path
     {
         // Public or private TMP?
         $tmp_path = ($public ? PATH_PUBTMP : PATH_TMP);
@@ -321,7 +321,7 @@ class Filesystem
 
         mkdir($path);
 
-        return new Path($path, $tmp_path);
+        return new Path($path, Restrictions::new($tmp_path, true));
     }
 
 
@@ -330,51 +330,18 @@ class Filesystem
      * Creates a temporary directory
      *
      * @param bool $public
-     * @param bool $create
+     * @param string|null $extension
      * @return File A Path object with the temp directory
      */
-    public function createTempFile(bool $public = true, bool $create = true) : File
+    public static function createTempFile(bool $public = true, ?string $extension = null) : File
     {
         // Public or private TMP?
         $tmp_path = ($public ? PATH_PUBTMP : PATH_TMP);
-        $file     = self::createTemp($tmp_path);
+        $file     = self::createTemp($tmp_path, $extension);
 
-        if ($create) {
-            touch($file);
-        }
+        touch($file);
 
-        return new File($file, $tmp_path);
-    }
-
-
-
-    /**
-     * Creates a path to a temporary directory or file
-     *
-     * @param string $tmp_path
-     * @return string Path to the tmp file or directory
-     */
-    protected function createTemp(string $tmp_path) : string
-    {
-        // Ensure that the TMP path exists
-        Path::new($tmp_path, $tmp_path)->ensure();
-
-        // All temp files and directories are limited to their sessions
-        $session_id = session_id();
-        $filename   = substr(hash('sha1', uniqid() . microtime()), 0, 12);
-
-        if ($session_id) {
-            $filename = $session_id . '/' . $filename;
-        }
-
-        $file = $tmp_path . $filename;
-
-        // Temp directory can not exist yet
-        if (file_exists($file)) {
-            File::new($file, $tmp_path)->delete();
-        }
-
-        return $file;
+        return new File($file, Restrictions::new($tmp_path, true));
     }
 
 
@@ -445,5 +412,41 @@ class Filesystem
             default:
                 throw new OutOfBoundsException(tr('Unknown type ":type" specified', [':type' => $type]));
         }
+    }
+
+
+    
+    /**
+     * Creates a path to a temporary directory or file
+     *
+     * @param string $tmp_path
+     * @param string|null $extension
+     * @return string Path to the tmp file or directory
+     */
+    protected static function createTemp(string $tmp_path, ?string $extension = null) : string
+    {
+        // Ensure that the TMP path exists
+        Path::new($tmp_path, $tmp_path)->ensure();
+
+        // All temp files and directories are limited to their sessions
+        $session_id = session_id();
+        $file       = substr(hash('sha1', uniqid() . microtime()), 0, 12);
+
+        if ($session_id) {
+            $file = $session_id . '/' . $file;
+        }
+
+        if ($extension) {
+            $file .= '.' . $extension;
+        }
+
+        $file = $tmp_path . $file;
+
+        // Temp directory can not exist yet
+        if (file_exists($file)) {
+            File::new($file, $tmp_path)->delete();
+        }
+
+        return $file;
     }
 }

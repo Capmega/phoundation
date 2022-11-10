@@ -26,6 +26,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Processes\Commands;
 use Phoundation\Servers\Server;
@@ -796,12 +797,12 @@ class Sql
      * @param string $file
      * @return void
      */
-    public function import(string $file): void
+    public function import(string $file, Restrictions|array|string|null $restrictions): void
     {
         throw new UnderConstructionException();
 
         $tel = 0;
-        $handle = File::new()->open($file, 'r');
+        $handle = File::new($file, $restrictions)->open('r');
 
         while (($buffer = fgets($handle)) !== false) {
             $buffer = trim($buffer);

@@ -210,7 +210,7 @@ class Each
      * @return Each
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setPathMode(string|int|null $mode): Each
+    public function setMode(string|int|null $mode): Each
     {
         $this->mode = get_null($mode);
         return $this;
@@ -237,7 +237,7 @@ class Each
      * @return Each
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function  setFollowSymlinks(bool $ignore_exceptions): Each
+    public function setIgnoreExceptions(bool $ignore_exceptions): Each
     {
         $this->ignore_exceptions = $ignore_exceptions;
         return $this;
@@ -264,7 +264,7 @@ class Each
      * @return Each
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function  setFollowSymlinks(bool $follow_symlinks): Each
+    public function setFollowSymlinks(bool $follow_symlinks): Each
     {
         $this->follow_symlinks = $follow_symlinks;
         return $this;
@@ -277,7 +277,7 @@ class Each
      *
      * @return bool
      */
-    public function  getFollowHidden(): bool
+    public function getFollowHidden(): bool
     {
         return $this->follow_hidden;
     }
@@ -519,12 +519,12 @@ class Each
 
                     $count += $recurse
                         ->setPath($path . $file)
-                        ->execute($callback);
+                        ->executeFiles($callback);
 
                 } elseif (file_exists($path . $file)) {
                     // Execute the callback
                     $count++;
-                    $extension = $this->file->getExtension($file);
+                    $extension = Filesystem::getExtension($file);
 
                     if ($this->whitelist_extensions) {
                         // Extension MUST be on this list
@@ -571,7 +571,7 @@ class Each
             }
 
             // Return original file mode
-            $this->file->chmod($path, $mode);
+            File::new($path, $this->restrictions)->chmod($mode);
         }
 
         return $count;

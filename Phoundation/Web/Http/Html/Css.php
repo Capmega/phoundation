@@ -67,14 +67,16 @@ class Css
     public static function generateHtml(): ?string
     {
         if (!empty($_CONFIG['cdn']['css']['post'])) {
-            self::$files['post'] = array('min'   => $_CONFIG['cdn']['min'],
-                'media' => (is_string($_CONFIG['cdn']['css']['post']) ? $_CONFIG['cdn']['css']['post'] : ''));
+            self::$files['post'] = [
+                'min'   => $_CONFIG['cdn']['min'],
+                'media' => (is_string($_CONFIG['cdn']['css']['post']) ? $_CONFIG['cdn']['css']['post'] : '')
+            ];
         }
 
         $return = '';
         $min    = $_CONFIG['cdn']['min'];
 
-        Bundler::css(self::$files);
+        Bundler::new()->css(self::$files);
 
         foreach (self::$files as $file => $meta) {
             if (!$file) continue;
@@ -103,12 +105,13 @@ class Css
 
 
     /**
+     * Purge all CSS rules from the specified CSS file that are not used in the specified HTML file
      *
-     *
-     * @param string $file
-     * @return void
+     * @param string $html_file
+     * @param string $css_file
+     * @return string
      */
-    public static function purge(string $html_file, string $c): string
+    public static function purge(string $html_file, string $css_file): string
     {
         //$purged_css      = 'p-'.$css;
         //$purged_css_file = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
@@ -118,7 +121,7 @@ class Css
         //                                    'php', array(PATH_ROOT.'libs/vendor/purge-css/src/purge.php', 'purge:run', $css_file, $html, $purged_css_file))));
         //return $purged_css;
 
-        $purged_css      = 'p-'.$css;
+        $purged_css      = 'p-' . $css_file;
         $purged_css_file = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
         $css_file        = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
         $arguments       = array('--css', $css_file, '--content', $html, '--out', PATH_TMP);

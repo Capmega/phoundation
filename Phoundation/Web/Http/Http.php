@@ -1150,20 +1150,9 @@ class Http
 
 
 
-    /**
-     * Returns a new Http\File object to send files over HTTP to clients
-     *
-     * @param Restrictions $restrictions
-     * @return File
-     */
-    public static function file(Restrictions $restrictions): File
-    {
-        return new File($restrictions);
-    }
-
-
-
     /*
+     * ???
+     *
      * Generate and return a randon name for the specified $name, and store the
      * link between the two under "group"
      */

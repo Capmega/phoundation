@@ -13,7 +13,8 @@
     "mrclay/minify": "*",
     "ext-redis": "*",
     "ext-mongodb": "*",
-    "ext-memcached": "*"
+    "ext-memcached": "*",
+    "ext-apache": "*"
   },
   "require-dev": {
     "phpmd/phpmd": "@stable",

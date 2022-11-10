@@ -100,6 +100,18 @@ class Path
 
 
     /**
+     * Returns the first path for this Path object
+     *
+     * @return string
+     */
+    public function getPath(): string
+    {
+        return Arrays::firstValue($this->paths);
+    }
+
+
+
+    /**
      * Returns the Restriction object for this Path object
      *
      * @return Restrictions
@@ -177,7 +189,7 @@ class Path
                     try {
                         // Make sure that the parent path is writable when creating the directory
                         Path::new(dirname($path), $this->restrictions)->each()
-                            ->setPathMode(0770)
+                            ->setMode(0770)
                             ->executePath(function() use ($path, $mode) {
                                 mkdir($path, $mode);
                             });
@@ -641,11 +653,11 @@ class Path
     /**
      * Check the specified $path against this objects' restrictions
      *
-     * @param string $path
+     * @param array|string $path
      * @param bool $write
      * @return void
      */
-    protected function checkRestrictions(string $path, bool $write)
+    protected function checkRestrictions(array|string $path, bool $write)
     {
         $this->restrictions->check($path, $write);
     }

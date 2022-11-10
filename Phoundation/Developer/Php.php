@@ -4,8 +4,7 @@ namespace Phoundation\Debug;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Filesystem\Each;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\Path;
 
 
 
@@ -48,10 +47,10 @@ class Php extends Each
         ];
 
         foreach (Arrays::force($paths, null) as $path) {
-            File::new()->new()->each($path)
+            Path::new($path)->each()
                 ->setRecurse($recurse)
                 ->setWhitelistExtensions(array_keys($statistics['files']))
-                ->execute(function(string $file) use (&$statistics) {
+                ->executeFiles(function(string $file) use (&$statistics) {
                     $data = file($file);
                     $next_comment = false;
                     $extension = $this->file->getExtension($file);

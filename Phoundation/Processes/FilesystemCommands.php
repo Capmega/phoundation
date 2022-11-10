@@ -85,7 +85,7 @@ class FilesystemCommands extends Commands
 
                 while ($empty) {
                     $file = dirname($file);
-                    $empty = Path::isEmpty($file);
+                    $empty = Path::new($file, $this->server->getRestrictions())->isEmpty();
 
                     if ($empty) {
                         static::delete($file, $recurse_down, false, 1);

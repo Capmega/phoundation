@@ -2,6 +2,10 @@
 
 namespace Phoundation\Content\Images;
 
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Commands;
+use Phoundation\Servers\Server;
+
 
 
 /**
@@ -14,7 +18,7 @@ namespace Phoundation\Content\Images;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
-class Images
+class Images extends Commands
 {
     /**
      * Returns a Convert class to convert the specified image
@@ -22,7 +26,7 @@ class Images
      * @param string $file
      * @return Convert
      */
-    public static function convert(string $file): Convert
+    public function convert(string $file): Convert
     {
         return new Convert($file);
     }

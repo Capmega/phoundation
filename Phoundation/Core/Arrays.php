@@ -1296,10 +1296,10 @@ class Arrays {
      * /code
      *
      * @param string $source The variable that should be forced to be an array
-     * @param string $separator
+     * @param string|null $separator
      * @return array The specified $source, but now converted to an array data type (if it was not an array yet)
      */
-    public static function force(mixed $source, string $separator = ','): array
+    public static function force(mixed $source, ?string $separator = ','): array
     {
         if (($source === '') or ($source === null)) {
             return array();

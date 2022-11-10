@@ -103,7 +103,7 @@ class File
      */
     public function php(array|string|null $paths = null): Php
     {
-        return new Php($this, $paths);
+        return new Php($paths, $this->restrictions);
     }
 
 
@@ -123,12 +123,36 @@ class File
     /**
      * Sets the filesystem restrictions for this File object
      *
-     * @param Restrictions|null $restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @return void
      */
-    public function setRestrictions(?Restrictions $restrictions): void
+    public function setRestrictions(Restrictions|array|string|null $restrictions): void
     {
         $this->restrictions = Core::ensureRestrictions($restrictions);
+    }
+
+
+
+    /**
+     * Returns the files for this File object
+     *
+     * @return array
+     */
+    public function getFiles(): array
+    {
+        return $this->files;
+    }
+
+
+
+    /**
+     * Returns the first file for this File object
+     *
+     * @return string
+     */
+    public function getFile(): string
+    {
+        return Arrays::firstValue($this->files);
     }
 
 
@@ -173,10 +197,10 @@ class File
      * Append specified data string to the end of the object file
      *
      * @param string $data
-     * @return void
+     * @return File
      * @throws FilesystemException
      */
-    public function appendData(string $data): void
+    public function appendData(string $data): File
     {
         // Check filesystem restrictions
         $this->checkRestrictions($this->files, true);
@@ -192,6 +216,8 @@ class File
             fwrite($h, $data);
             fclose($h);
         }
+
+        return $this;
     }
 
 
@@ -200,8 +226,9 @@ class File
      * Concatenates a list of files to a target file
      *
      * @param string|array $sources The source files
+     * @return File
      */
-    public function appendFiles(string|array $sources): void
+    public function appendFiles(string|array $sources): File
     {
         // Check filesystem restrictions
         $this->checkRestrictions($this->files, true);
@@ -238,6 +265,8 @@ class File
 
             fclose($target_h);
         }
+
+        return $this;
     }
 
 
@@ -314,7 +343,7 @@ class File
             if (!file_exists($file)) {
                 // Create the file
                 Path::new(dirname($file), $this->restrictions)->each()
-                    ->setPathMode(0770)
+                    ->setMode(0770)
                     ->executePath(function() use ($file, $mode) {
                         Log::warning(tr('File ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
                             ':file' => $file
@@ -1208,19 +1237,6 @@ class File
 
 
     /**
-     * Locates the specifed command and returns it path
-     *
-     * @param string $command
-     * @return string The path of the object file
-     */
-    public function which(string $command): string
-    {
-        return Commands::local()->which($command);
-    }
-
-
-
-    /**
      * Search / replace the object files
      *
      * @param array $replace The list of keys that will be replaced by values
@@ -1300,13 +1316,13 @@ class File
     /**
      * Check the specified $path against this objects' restrictions
      *
-     * @param string $path
+     * @param array|string $path
      * @param bool $write
      * @return void
      */
-    protected function checkRestrictions(string $path, bool $write)
+    protected function checkRestrictions(array|string $paths, bool $write)
     {
-        $this->checkRestrictions($path, $write);
+        $this->restrictions->check($paths, $write);
     }
 
 
