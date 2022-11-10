@@ -5,6 +5,7 @@ namespace Phoundation\Content\Images;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Commands;
 use Phoundation\Processes\Process;
 
 
@@ -19,7 +20,7 @@ use Phoundation\Processes\Process;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
-class Convert extends Process
+class Convert extends Commands
 {
     /**
      * The image source file that will be converted
@@ -48,13 +49,6 @@ class Convert extends Process
      * @var string|null $method
      */
     protected ?string $method = null;
-
-    /**
-     * Filesystem restrictions for this image object
-     *
-     * @var Restrictions|null $restrictions
-     */
-    protected ?Restrictions $restrictions = null;
 
 
 

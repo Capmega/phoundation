@@ -3,7 +3,7 @@
 namespace Phoundation\Debug;
 
 use Phoundation\Core\Arrays;
-use Phoundation\Filesystem\Each;
+use Phoundation\Filesystem\Execute;
 use Phoundation\Filesystem\Path;
 
 
@@ -19,7 +19,7 @@ use Phoundation\Filesystem\Path;
  * @category Function reference
  * @package Phoundation\Debug
  */
-class Php extends Each
+class Php extends Execute
 {
     /**
      * Returns development statistics for all files in the specified path
@@ -47,10 +47,10 @@ class Php extends Each
         ];
 
         foreach (Arrays::force($paths, null) as $path) {
-            Path::new($path)->each()
+            Path::new($path)->execute()
                 ->setRecurse($recurse)
                 ->setWhitelistExtensions(array_keys($statistics['files']))
-                ->executeFiles(function(string $file) use (&$statistics) {
+                ->executeOnFiles(function(string $file) use (&$statistics) {
                     $data = file($file);
                     $next_comment = false;
                     $extension = $this->file->getExtension($file);

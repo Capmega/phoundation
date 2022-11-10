@@ -69,7 +69,7 @@ class Server
      * @param string $hostname
      * @param Restrictions|array|string|null $restrictions
      */
-    public function __construct(string $hostname, Restrictions|array|string|null $restrictions)
+    public function __construct(string $hostname, Restrictions|array|string|null $restrictions = null)
     {
         $this->setHostname($hostname);
         $this->setRestrictions($restrictions);

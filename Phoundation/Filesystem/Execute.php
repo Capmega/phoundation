@@ -21,7 +21,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class Each
+class Execute
 {
     /**
      * Filesystem restrictions
@@ -124,10 +124,10 @@ class Each
      * Sets the log threshold level to the newly specified level and will return the previous level.
      *
      * @param string|array $paths
-     * @return Each
+     * @return Execute
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setPath(string|array $paths): Each
+    public function setPath(string|array $paths): Execute
     {
         if (!$paths) {
             throw new OutOfBoundsException(tr('No paths specified'));
@@ -155,9 +155,9 @@ class Each
      * Sets the extensions that are blacklisted
      *
      * @param string|array|null $blacklist_extensions
-     * @return Each
+     * @return Execute
      */
-    public function setBlacklistExtensions(array|string|null $blacklist_extensions): Each
+    public function setBlacklistExtensions(array|string|null $blacklist_extensions): Execute
     {
         $this->blacklist_extensions = Arrays::force($blacklist_extensions);
         return $this;
@@ -181,9 +181,9 @@ class Each
      * Sets the extensions that are whitelisted
      *
      * @param string|array|null $whitelist_extensions
-     * @return Each
+     * @return Execute
      */
-    public function setWhitelistExtensions(array|string|null $whitelist_extensions): Each
+    public function setWhitelistExtensions(array|string|null $whitelist_extensions): Execute
     {
         $this->whitelist_extensions = Arrays::force($whitelist_extensions);
         return $this;
@@ -207,10 +207,10 @@ class Each
      * Sets the path mode that will be set for each path
      *
      * @param string|int|null $mode
-     * @return Each
+     * @return Execute
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setMode(string|int|null $mode): Each
+    public function setMode(string|int|null $mode): Execute
     {
         $this->mode = get_null($mode);
         return $this;
@@ -234,10 +234,10 @@ class Each
      * Sets if exceptions will be ignored during the processing of multiple files
      *
      * @param bool $ignore_exceptions
-     * @return Each
+     * @return Execute
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setIgnoreExceptions(bool $ignore_exceptions): Each
+    public function setIgnoreExceptions(bool $ignore_exceptions): Execute
     {
         $this->ignore_exceptions = $ignore_exceptions;
         return $this;
@@ -261,10 +261,10 @@ class Each
      * Sets if symlinks should be processed
      *
      * @param bool $follow_symlinks
-     * @return Each
+     * @return Execute
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setFollowSymlinks(bool $follow_symlinks): Each
+    public function setFollowSymlinks(bool $follow_symlinks): Execute
     {
         $this->follow_symlinks = $follow_symlinks;
         return $this;
@@ -288,10 +288,10 @@ class Each
      * Sets if hidden file should be processed
      *
      * @param bool $follow_hidden
-     * @return Each
+     * @return Execute
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setFollowHidden(bool $follow_hidden): Each
+    public function setFollowHidden(bool $follow_hidden): Execute
     {
         $this->follow_hidden = $follow_hidden;
         return $this;
@@ -315,10 +315,10 @@ class Each
      * Sets the path that will be skipped
      *
      * @param string|array $paths
-     * @return Each
+     * @return Execute
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setSkipPaths(string|array $paths): Each
+    public function setSkipPaths(string|array $paths): Execute
     {
         $this->skip = [];
         return $this->addSkipPaths(Arrays::force($paths, ''));
@@ -330,10 +330,10 @@ class Each
      * Sets the path that will be skipped
      *
      * @param string|array $paths
-     * @return Each
+     * @return Execute
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function addSkipPaths(string|array $paths): Each
+    public function addSkipPaths(string|array $paths): Execute
     {
         foreach ($paths as $path) {
             $this->addSkipPath($path);
@@ -348,10 +348,10 @@ class Each
      * Sets the path that will be skipped
      *
      * @param string $path
-     * @return Each
+     * @return Execute
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function addSkipPath(string $path): Each
+    public function addSkipPath(string $path): Execute
     {
         if ($path) {
             $this->skip[] = Filesystem::absolute($path);
@@ -378,9 +378,9 @@ class Each
      * Sets the filesystem restrictions
      *
      * @param Restrictions|null $restrictions
-     * @return Each
+     * @return Execute
      */
-    public function setRestrictions(?Restrictions $restrictions): Each
+    public function setRestrictions(?Restrictions $restrictions): Execute
     {
         $this->restrictions = $restrictions;
         return $this;
@@ -405,9 +405,9 @@ class Each
      * Returns if the object will recurse or not
      *
      * @param bool $recurse
-     * @return Each
+     * @return Execute
      */
-    public function setRecurse(bool $recurse): Each
+    public function setRecurse(bool $recurse): Execute
     {
         $this->recurse = $recurse;
         return $this;
@@ -422,7 +422,7 @@ class Each
      * @param callable $callback
      * @return void
      */
-    public function executePath(callable $callback): void
+    public function executeOnPathOnly(callable $callback): void
     {
         $this->restrictions->check($this->paths, true);
 
@@ -460,7 +460,7 @@ class Each
      * @param callable $callback
      * @return int
      */
-    public function executeFiles(callable $callback): int
+    public function executeOnFiles(callable $callback): int
     {
         $count = 0;
         $files = [];
@@ -519,7 +519,7 @@ class Each
 
                     $count += $recurse
                         ->setPath($path . $file)
-                        ->executeFiles($callback);
+                        ->executeOnFiles($callback);
 
                 } elseif (file_exists($path . $file)) {
                     // Execute the callback

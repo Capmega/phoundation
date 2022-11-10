@@ -338,11 +338,11 @@ class Config
         $store = [];
 
         // Scan all files for Config::get() and Config::set() calls
-        Path::new(PATH_ROOT, PATH_ROOT)->each()
+        Path::new(PATH_ROOT, PATH_ROOT)->execute()
             ->addSkipPaths([PATH_DATA, PATH_ROOT . 'tests', PATH_ROOT . 'garbage'])
             ->setRecurse(true)
             ->setRestrictions(new Restrictions(PATH_ROOT))
-            ->executeFiles(function(string $file) use (&$store) {
+            ->executeOnFiles(function(string $file) use (&$store) {
                 $files = File::new($file, PATH_ROOT)->grep(['Config::get(\'', 'Config::set(\'']);
 
                 foreach ($files as $file){

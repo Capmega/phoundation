@@ -342,9 +342,9 @@ class File
 
             if (!file_exists($file)) {
                 // Create the file
-                Path::new(dirname($file), $this->restrictions)->each()
+                Path::new(dirname($file), $this->restrictions)->execute()
                     ->setMode(0770)
-                    ->executePath(function() use ($file, $mode) {
+                    ->executeOnPathOnly(function() use ($file, $mode) {
                         Log::warning(tr('File ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
                             ':file' => $file
                         ]));

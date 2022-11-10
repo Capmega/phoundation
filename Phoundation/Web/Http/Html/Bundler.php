@@ -367,9 +367,9 @@ class Bundler
     protected function bundleFiles(array $files): void
     {
         // Generate new bundle file. This requires the pub/$files path to be writable
-        Path::new(dirname($this->bundle_file), $this->restrictions)->each()
+        Path::new(dirname($this->bundle_file), $this->restrictions)->execute()
             ->setMode(0770)
-            ->executePath(function() use ($files) {
+            ->executeOnPathOnly(function() use ($files) {
                 foreach ($files as $file => $data) {
                     $org_file = $file;
                     $file     = $this->path . $file . $this->extension;

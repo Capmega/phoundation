@@ -76,13 +76,13 @@ class Path
 
 
     /**
-     * Returns an Each object to execute callbacks on each file in specified paths
+     * Returns an Execute object to execute callbacks on each file in specified paths
      *
-     * @return Each
+     * @return Execute
      */
-    public function each(): Each
+    public function execute(): Execute
     {
-        return new Each($this->paths, $this->restrictions);
+        return new Execute($this->paths, $this->restrictions);
     }
 
 
@@ -188,9 +188,9 @@ class Path
 
                     try {
                         // Make sure that the parent path is writable when creating the directory
-                        Path::new(dirname($path), $this->restrictions)->each()
+                        Path::new(dirname($path), $this->restrictions)->execute()
                             ->setMode(0770)
-                            ->executePath(function() use ($path, $mode) {
+                            ->executeOnPathOnly(function() use ($path, $mode) {
                                 mkdir($path, $mode);
                             });
 

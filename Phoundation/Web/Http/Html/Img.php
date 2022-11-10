@@ -982,9 +982,9 @@ class Img extends Element
                 ]));
 
                 // Ensure target is readable and convert
-                Path::new($target)->each()
+                Path::new($target)->execute()
                     ->setMode(0660)
-                    ->executePath(function() use ($target) {
+                    ->executeOnPathOnly(function() use ($target) {
                         Images::new()->convert($this->source)
                             ->setFile($target)
                             ->setMethod('custom')
