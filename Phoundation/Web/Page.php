@@ -573,7 +573,7 @@ throw new UnderConstructionException();
         self::$headers['link'][$url] = [
             'rel'  => 'icon',
             'href' => Url::build($url)->cdn('js'),
-            'type' => File::mimetype($url)
+            'type' => File::new()->mimetype($url)
         ];
 
         return self::getInstance();
@@ -709,7 +709,7 @@ throw new UnderConstructionException();
         }
 
         // Find the correct target page
-        $target = Path::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE);
+        $target = Filesystem::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE);
 
         if (str_ends_with($target, 'php')) {
             if ($attachment) {

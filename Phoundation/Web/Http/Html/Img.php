@@ -651,7 +651,7 @@ class Img extends Element
                             log_file(tr('Resized version of ":src" does not yet exist, converting', array(':src' => $params['src'])), 'html', 'VERBOSE/cyan');
                             load_libs('image');
 
-                            File::executeMode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params) {
+                            File::new()->executeMode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params) {
                                 global $_CONFIG;
 
                                 image_convert(array('method' => 'resize',
@@ -738,7 +738,7 @@ class Img extends Element
                         $file = download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
                         $path = cli_unzip($file);
 
-                        File::executeMode(PATH_ROOT.'www/en/pub/js', 0770, function() use ($path) {
+                        File::new()->executeMode(PATH_ROOT.'www/en/pub/js', 0770, function() use ($path) {
                             file_delete(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/');
                             rename($path.'jquery.lazy-master/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
                         });
@@ -972,8 +972,8 @@ class Img extends Element
                     ':target' => $target
                 ]));
 
-                File::executeMode(dirname($this->source), 0770, function() use ($target) {
-                    File::executeMode($this->source, 0660, function() use ($target) {
+                File::new()->executeMode(dirname($this->source), 0770, function() use ($target) {
+                    File::new()->executeMode($this->source, 0660, function() use ($target) {
                         Images::convert($this->source)
                             ->setFile($target)
                             ->setMethod('custom')

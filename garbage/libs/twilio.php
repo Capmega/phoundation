@@ -58,14 +58,14 @@ function twilio_install() {
         /*
          * Ensure the PATH_ROOT/libs/external path exists
          */
-        File::executeMode(PATH_ROOT.'libs', 0770, function() {
+        File::new()->executeMode(PATH_ROOT.'libs', 0770, function() {
             Path::ensure(PATH_ROOT.'libs/external', 0550);
 
             /*
              * Download the twilio PHP library and install it in
              * PATH_ROOT/libs/external
              */
-            File::executeMode(PATH_ROOT.'libs/external', 0770, function() {
+            File::new()->executeMode(PATH_ROOT.'libs/external', 0770, function() {
                 Path::ensure(PATH_ROOT.'libs/external');
                 file_delete(PATH_TMP.'twilio_install.zip');
                 file_delete(PATH_ROOT.'libs/external/twilio-php-master', PATH_ROOT.'libs/external/');

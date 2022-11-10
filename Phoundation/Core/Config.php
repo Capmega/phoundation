@@ -8,6 +8,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Throwable;
 
@@ -167,6 +168,86 @@ class Config
 
 
     /**
+     * Return configuration BOOLEAN for the specified key path
+     *
+     * @note Will cause an exception if a non-boolean value is returned!
+     * @param string|array $path
+     * @param bool|null $default
+     * @param mixed|null $specified
+     * @return bool
+     */
+    public static function getBoolean(string|array $path, ?bool $default = null, mixed $specified = null): bool
+    {
+        return self::get($path, $default, $specified);
+    }
+
+
+
+    /**
+     * Return configuration INTEGER for the specified key path
+     *
+     * @note Will cause an exception if a non integer value is returned!
+     * @param string|array $path
+     * @param int|null $default
+     * @param mixed|null $specified
+     * @return int
+     */
+    public static function getInteger(string|array $path, ?int $default = null, mixed $specified = null): int
+    {
+        return self::get($path, $default, $specified);
+    }
+
+
+
+    /**
+     * Return configuration NUMBER for the specified key path
+     *
+     * @note Will cause an exception if a non numeric value is returned!
+     * @param string|array $path
+     * @param int|float|null $default
+     * @param mixed|null $specified
+     * @return int|float
+     */
+    public static function getNumber(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
+    {
+        return self::get($path, $default, $specified);
+    }
+
+
+
+    /**
+     * Return configuration ARRAY for the specified key path
+     *
+     * @note Will cause an exception if a non array value is returned!
+     * @param string|array $path
+     * @param array|null $default
+     * @param mixed|null $specified
+     * @return array
+     */
+    public static function getArray(string|array $path, array|null $default = null, mixed $specified = null): array
+    {
+        return self::get($path, $default, $specified);
+    }
+
+
+
+    /**
+     * Return configuration STRING for the specified key path
+     *
+     * @note Will cause an exception if a non string value is returned!
+     * @param string|array $path
+     * @param string|null $default
+     * @param mixed|null $specified
+     * @return string
+     */
+    public static function getString(string|array $path, string|null $default = null, mixed $specified = null): string
+    {
+        return self::get($path, $default, $specified);
+    }
+
+
+
+    /**
      * Returns true of the specified configuration path exists
      *
      * @param string|array $path The key path to search for. This should be specified either as an array with key names
@@ -257,13 +338,12 @@ class Config
         $store = [];
 
         // Scan all files for Config::get() and Config::set() calls
-        File::each()
-            ->setPath(PATH_ROOT)
+        Path::new(PATH_ROOT, PATH_ROOT)->each()
             ->addSkipPaths([PATH_DATA, PATH_ROOT . 'tests', PATH_ROOT . 'garbage'])
             ->setRecurse(true)
             ->setRestrictions(new Restrictions(PATH_ROOT))
-            ->execute(function(string $file) use (&$store) {
-            $results = File::grep($file, ['Config::get(\'', 'Config::set(\'']);
+            ->executeFiles(function(string $file) use (&$store) {
+            $results = File::new($file, PATH_ROOT)->grep(['Config::get(\'', 'Config::set(\'']);
 
             foreach ($results as $lines){
                 foreach ($lines as $line) {
@@ -385,6 +465,7 @@ class Config
         // Read the section for each environment
         foreach ($environments as $environment) {
             $file = PATH_ROOT . 'config/' . $environment . '.yaml';
+            Restrictions::new(PATH_ROOT . 'config/')->check($file, false);
 
             // Check if a configuration file exists for this environment
             if (!file_exists($file)) {

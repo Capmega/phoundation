@@ -299,7 +299,7 @@ Class Log {
 
             // Open the specified log file
             if (empty(self::$handles[$file])) {
-                File::ensureWritable($file, 0640);
+                File::new()->ensureWritable($file, 0640);
                 self::$handles[$file] = fopen($file, 'a+');
             }
 

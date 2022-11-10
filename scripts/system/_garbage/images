@@ -622,8 +622,8 @@ switch (cli_method()) {
                                                                     }
                                                                 }
 
-                                                                File::executeMode(dirname($params['target']), 0770, function() use ($params, &$target) {
-                                                                    File::executeMode($params['source'], 0660, function() use ($params, &$target) {
+                                                                File::new()->executeMode(dirname($params['target']), 0770, function() use ($params, &$target) {
+                                                                    File::new()->executeMode($params['source'], 0660, function() use ($params, &$target) {
                                                                         $target = image_convert($params);
                                                                     });
                                                                 });

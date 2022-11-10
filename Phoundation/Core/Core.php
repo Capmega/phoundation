@@ -154,7 +154,7 @@ class Core {
             define('PATH_DATA'  , PATH_ROOT . 'data/');
             define('PATH_CDN'   , PATH_DATA . 'cdn/');
             define('PATH_TMP'   , PATH_DATA . 'tmp/');
-            define('PATH_PUBTMP', PATH_DATA . 'content/tmp/');
+            define('PATH_PUBTMP', PATH_DATA . 'cdn/tmp/');
 
             // Setup error handling, report ALL errors,
             error_reporting(E_ALL);
@@ -2099,12 +2099,17 @@ class Core {
      * With this, availability of restrictions is guaranteed, even if a function did not receive restrictions. If Core
      * restrictions are returned, these core restrictions are the ones that apply
      *
-     * @param Restrictions|null $restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @return Restrictions
      */
-    public static function ensureRestrictions(?Restrictions $restrictions = null): Restrictions
+    public static function ensureRestrictions(Restrictions|array|string|null $restrictions = null): Restrictions
     {
         if ($restrictions) {
+            if (!is_object($restrictions)) {
+                // Restrictions were specified by simple path string or array of paths. Convert to restrictions object
+                $restrictions = new Restrictions($restrictions);
+            }
+
             return $restrictions;
         }
 

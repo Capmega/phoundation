@@ -147,7 +147,7 @@ class Script extends Element
                         // The javascript file is empty
                         Log::warning(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', [':file' => $file.'.js']));
 
-                        File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
+                        File::new()->executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
                             file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', PATH_ROOT.'www/'.LANGUAGE.'/pub/js');
                             file_delete([
                                 'patterns'       => $file.'.js,'.$file.'.min.js',
@@ -160,7 +160,7 @@ class Script extends Element
                         // External cached file is too old
                         Log::warning(tr('Deleting externally cached javascript file ":file" because the file cache time expired', [':file' => $file.'.js']));
 
-                        File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
+                        File::new()->executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
                             file_delete([
                                 'patterns'       => $file.'.js,'.$file.'.min.js',
                                 'force_writable' => true,
@@ -173,7 +173,7 @@ class Script extends Element
                 // If file does not exist, create it now. Check again if it exist, because the previous function may
                 // have possibly deleted it
                 if (!file_exists($file.'.js')) {
-                    File::executeMode(dirname($file), 0770, function() use ($file, $return) {
+                    File::new()->executeMode(dirname($file), 0770, function() use ($file, $return) {
                         Log::action(tr('Writing internal javascript to externally cached file ":file"', [':file' => $file.'.js']));
                         file_put_contents($file.'.js', $return);
                     });

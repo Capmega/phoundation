@@ -178,8 +178,8 @@ class Bundler
             Log::warning(tr('Encountered empty bundle file ":file"', [':file' => $bundle_file]));
             Log::warning(tr('Deleting empty bundle file ":file"', [':file' => $bundle_file]));
 
-            File::executeMode(dirname($bundle_file), 0770, function() use ($bundle_file) {
-                File::delete($bundle_file);
+            File::new()->executeMode(dirname($bundle_file), 0770, function() use ($bundle_file) {
+                File::new()->delete($bundle_file);
             });
 
             return false;
@@ -189,8 +189,8 @@ class Bundler
         if (Config::get('cache.bundler.max-age', 3600) and (filemtime($bundle_file) + Config::get('cache.bundler.max-age', 3600)) < time()) {
             Log::warning(tr('Deleting expired cached bundle file ":file"', [':file' => $bundle_file]));
 
-            File::executeMode(dirname($bundle_file), 0770, function() use ($bundle_file) {
-                File::delete($bundle_file);
+            File::new()->executeMode(dirname($bundle_file), 0770, function() use ($bundle_file) {
+                File::new()->delete($bundle_file);
             });
 
             return false;
@@ -318,7 +318,7 @@ class Bundler
     protected static function bundleFiles(array $files): void
     {
         // Generate new bundle file. This requires the pub/$files path to be writable
-        File::executeMode(dirname(self::$bundle_file), 0770, function() use ($files) {
+        File::new()->executeMode(dirname(self::$bundle_file), 0770, function() use ($files) {
             foreach ($files as $file => $data) {
                 $org_file = $file;
                 $file     = self::$path . $file . self::$extension;
@@ -351,10 +351,10 @@ class Bundler
                 }
 
                 if (Debug::enabled()) {
-                    File::append(self::$bundle_file, "\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
+                    File::new(self::$bundle_file)->appendData("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
 
                 } else {
-                    File::append(self::$bundle_file, $data . (Config::get('web.minify', true) ? '' : "\n"));
+                    File::new(self::$bundle_file)->appendData($data . (Config::get('web.minify', true) ? '' : "\n"));
                 }
 
                 if (self::$count) {
@@ -374,21 +374,21 @@ class Bundler
     protected static function purgeCss(): string
     {
         try {
-            $html_file   = File::temp(Page::getHtml(), 'html');
+            $html_file   = File::new()->temp(Page::getHtml(), 'html');
             $bundle_file = Css::purge($html_file, self::$bundle_file);
 
             Log::success(tr('Purged not-used CSS rules from bundled file ":file"', [
                 ':file' => $bundle_file
             ]));
 
-            File::delete($html_file);
+            File::new()->delete($html_file);
 
             return $bundle_file;
 
         }catch(Throwable $e) {
             // The CSS purge failed. Delete the HTML file (if required) and notify
             if (isset($html_file)) {
-                File::delete($html_file);
+                File::new()->delete($html_file);
             }
 
             Notification::new()

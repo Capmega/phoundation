@@ -24,13 +24,6 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 class Each
 {
     /**
-     * File object
-     *
-     * @var File $file
-     */
-    protected File $file;
-
-    /**
      * Filesystem restrictions
      *
      * @var Restrictions $restrictions
@@ -84,14 +77,13 @@ class Each
     /**
      * Each class constructor
      *
-     * @param File $file The filesystem object that creates this Each object
      * @param array|string|null $paths
+     * @param Restrictions|null $restrictions
      */
-    public function __construct(File $file, array|string|null $paths = null)
+    public function __construct(array|string|null $paths = null, ?Restrictions $restrictions = null)
     {
-        $this->file         = $file;
         $this->paths        = $paths;
-        $this->restrictions = $file->getRestrictions();
+        $this->restrictions = Core::ensureRestrictions($restrictions);
     }
 
 
@@ -261,7 +253,7 @@ class Each
     public function addSkipPath(string $path): Each
     {
         if ($path) {
-            $this->skip[] = Path::absolute($path);
+            $this->skip[] = Filesystem::absolute($path);
         }
 
         return $this;
@@ -327,9 +319,47 @@ class Each
      * Execute the callback function on each file in the specified path
      *
      * @param callable $callback
+     * @return void
+     */
+    public function executePath(callable $callback): void
+    {
+        $this->restrictions->check($this->paths, true);
+
+        foreach (Arrays::force($this->paths, '') as $path) {
+            // Get al files in this directory
+            $path  = Filesystem::absolute($path);
+
+            // Skip this path
+            if ($this->skip($path)) {
+                continue;
+            }
+
+            if ($this->mode) {
+                $mode = File::new($path, $this->restrictions)->switchMode($this->mode);
+            }
+
+            Log::action(tr('Executing callback function on path ":path"', [
+                ':file' => $path
+            ]), 2);
+
+            $callback($path);
+
+            // Return original file mode
+            if (isset($mode)) {
+                File::new($path, $this->restrictions)->chmod($mode);
+            }
+        }
+    }
+
+
+
+    /**
+     * Execute the callback function on each file in the specified path
+     *
+     * @param callable $callback
      * @return int
      */
-    public function execute(callable $callback): int
+    public function executeFiles(callable $callback): int
     {
         $count = 0;
         $files = [];
@@ -338,20 +368,22 @@ class Each
 
         foreach (Arrays::force($this->paths, '') as $path) {
             // Get al files in this directory
-            $path  = Path::absolute($path);
+            $path = Filesystem::absolute($path);
 
+            // Skip this path?
             if (!$this->skip($path)) {
-                if ($this->mode) {
-                    // Temporarily change mode for this callback
-                    $mode = $this->file->mode($path);
-                    $this->file->chmod($path, $this->mode);
-                }
+                continue;
+            }
 
-                try {
-                    $files = scandir($path);
-                } catch (Exception $e) {
-                    Path::checkReadable($path, previous_e:  $e);
-                }
+            if ($this->mode) {
+                // Temporarily change mode for this callback
+                $mode = File::new($path, $this->restrictions)->switchMode($this->mode);
+            }
+
+            try {
+                $files = scandir($path);
+            } catch (Exception $e) {
+                Path::checkReadable($path, previous_e:  $e);
             }
 
             foreach ($files as $file) {

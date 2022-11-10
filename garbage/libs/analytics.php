@@ -130,10 +130,10 @@ function analytics_matomo($sites_id) {
              */
             $file = file_get_local($_CONFIG['analytics']['matomo_domain'].'/piwik.js');
 
-            File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
+            File::new()->executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
                 Path::ensure($path.'matomo', 0550);
 
-                File::executeMode($path.'matomo/', 0770, function($path) use ($file) {
+                File::new()->executeMode($path.'matomo/', 0770, function($path) use ($file) {
                     rename($file, $path.'piwik.js');
                     chmod($path.'piwik.js', 0440);
                 });
@@ -198,10 +198,10 @@ function analytics_google($sites_id) {
              */
             $file = file_get_local('https://www.google-analytics.com/analytics.js');
 
-            File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
+            File::new()->executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
                 Path::ensure($path.'google', 0550);
 
-                File::executeMode($path.'google/', 0770, function($path) use ($file) {
+                File::new()->executeMode($path.'google/', 0770, function($path) use ($file) {
                     rename($file, $path.'analytics.js');
                     chmod($path.'analytics.js', 0440);
                 });

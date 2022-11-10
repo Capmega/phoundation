@@ -146,8 +146,8 @@ Class Process
      */
     public function executePassthru(): bool
     {
-        $exitcode_file = File::temp(false);
-        $output_file   = File::temp(false);
+        $exitcode_file = File::new()->temp(false);
+        $output_file   = File::new()->temp(false);
 
         $exit_code = null;
         $output    = null;

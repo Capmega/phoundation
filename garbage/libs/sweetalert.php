@@ -66,10 +66,10 @@ function sweetalert_install($params) {
         $css = download('https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.css');
         $js  = download('https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.js');
 
-        File::executeMode(PATH_ROOT.'pub/js/', 0770, function() {
+        File::new()->executeMode(PATH_ROOT.'pub/js/', 0770, function() {
             Path::ensure(PATH_ROOT.'pub/js/sweetalert/', 0550);
 
-            File::executeMode(PATH_ROOT.'pub/js/sweetalert/', 0770, function() {
+            File::new()->executeMode(PATH_ROOT.'pub/js/sweetalert/', 0770, function() {
                 rename($js , PATH_ROOT.'pub/js/sweetalert/sweetalert.js');
                 rename($css, PATH_ROOT.'pub/css/sweetalert/sweetalert.css');
             });

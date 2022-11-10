@@ -4,6 +4,7 @@ namespace Phoundation\Filesystem;
 
 use Exception;
 use JetBrains\PhpStorm\ExpectedValues;
+use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
@@ -56,21 +57,25 @@ class File
     protected Restrictions $restrictions;
 
     /**
-     * A path object for internal use, will share filesystem restrictions with this object
+     * The files for this File object
      *
-     * @var Path|null
+     * @var array|null $file
      */
-    protected ?Path $path = null;
+    protected array|null $file = null;
 
 
 
     /**
      * File class constructor
      *
-     * @param Restrictions|null $restrictions
+     * @param array|string|null $file
+     * @param Restrictions|array|string|null $restrictions
      */
-    public function __construct(?Restrictions $restrictions = null)
+    public function __construct(array|string|null $file = null, Restrictions|array|string|null $restrictions = null)
     {
+        Filesystem::validateFilename($file);
+
+        $this->file         = Arrays::force($file, null);
         $this->restrictions = Core::ensureRestrictions($restrictions);
     }
 
@@ -79,12 +84,13 @@ class File
     /**
      * Returns a new File object with the specified restrictions
      *
-     * @param Restrictions|null $restrictions
+     * @param array|string|null $file
+     * @param Restrictions|array|string|null $restrictions
      * @return File
      */
-    public static function new(?Restrictions $restrictions = null): File
+    public static function new(array|string|null $file, Restrictions|array|string|null $restrictions = null): File
     {
-        return new File($restrictions);
+        return new File($file, $restrictions);
     }
 
 
@@ -115,55 +121,56 @@ class File
 
 
     /**
-     * Returns the file mode for the specified file
+     * Returns the file mode for the object file
      *
-     * @param string $file
      * @return int
      */
-    public function mode(string $file): int
+    public function mode(): int
     {
-        return $this->stat($file)['mode'];
+        return $this->stat()['mode'];
     }
 
 
 
     /**
-     * Returns the stat data for the specified file
+     * Returns the stat data for the object file
      *
-     * @param string $file
      * @return array
      */
-    public function stat(string $file): array
+    public function stat(): array
     {
-        $this->restrictions->check($file, false);
+        // Check filesystem restrictions
+        $this->checkRestrictions($this->file, false);
 
         try {
-            $stat = stat($file);
+            $stat = stat($this->file);
 
             if ($stat) {
                 return $stat;
             }
         } catch (Throwable $e) {
-            $this->checkReadable($file, null, false, $e);
+            $this->checkReadable(null, false, $e);
         }
     }
 
 
 
     /**
-     * Append specified data string to the end of the specified file
+     * Append specified data string to the end of the object file
      *
-     * @param string $file
      * @param string $data
      * @return void
      * @throws FilesystemException
      */
-    public function append(string $file, string $data): void
+    public function appendData(string $data): void
     {
-        $this->restrictions->check($file, true);
-        $this->path()->ensure(dirname($file));
+        // Check filesystem restrictions
+        $this->checkRestrictions($this->file, true);
 
-        $h = fopen($file, 'a');
+        // Make sure the file path exists
+        Path::new(dirname($this->file), $this->restrictions)->ensure();
+
+        $h = $this->open('a');
         fwrite($h, $data);
         fclose($h);
     }
@@ -173,34 +180,32 @@ class File
     /**
      * Concatenates a list of files to a target file
      *
-     * @param string $target
-     * @param string|array $sources
+     * @param string|array $sources The source files
      */
-    public function concat(string $target, string|array $sources): void
+    public function appendFiles(string|array $sources): void
     {
-        $this->restrictions->check($target, true);
-
-        if (!is_array($sources)) {
-            $sources = array($sources);
-        }
+        // Check filesystem restrictions
+        $this->checkRestrictions($this->file, true);
 
         // Ensure the target path exists
-        $this->path()->ensure(dirname($target));
+        Path::new(dirname($this->file), $this->restrictions)->ensure();
 
+        // Open target file
         try {
-            $target_h = fopen($target, 'a');
+            $target_h = $this->open('a', $this->file);
         } catch (Throwable $e) {
             // Failed to open the target file
-            self::checkReadable($source, 'target', $e);
+            $this->checkReadable($this->file, 'target', $e);
         }
 
-        foreach ($sources as $source) {
+        // Open each source file
+        foreach (Arrays::force($sources, null) as $source) {
             try {
-                $source_h = fopen($source, 'r');
+                $source_h = $this->open('r', $source);
             } catch (Throwable $e) {
                 // Failed to open one of the sources, get rid of the partial target file
-                self::delete($target);
-                self::checkReadable($source, 'source', $e);
+                $this->delete();
+                $this->checkReadable($source, 'source', $e);
             }
 
             while (!feof($source_h)) {
@@ -227,13 +232,13 @@ class File
     {
         $destination = PATH_ROOT . 'data/uploads/';
 
-        $this->restrictions->check($source     , true);
-        $this->restrictions->check($destination, true);
+        $this->checkRestrictions($source     , true);
+        $this->checkRestrictions($destination, true);
 
         if (is_array($source)) {
             // Assume this is a PHP file upload array entry
             if (empty($source['tmp_name'])) {
-                throw new FilesystemException(tr('file_move_uploaded(): Invalid source specified, must either be a string containing an absolute file path or a PHP $_FILES entry'));
+                throw new FilesystemException(tr('Invalid source specified, must either be a string containing an absolute file path or a PHP $_FILES entry'));
             }
 
             $real = $source['name'];
@@ -244,15 +249,18 @@ class File
         }
 
         is_file($source);
-        $this->path()->ensure($destination);
+        Path::new($destination)->ensure();
 
         // Ensure we're not overwriting anything!
         if (file_exists($destination . $real)) {
-            $real = Strings::untilReverse($real, '.').'_'.substr(uniqid(), -8, 8).'.'.Strings::fromReverse($real, '.');
+            $real = Strings::untilReverse($real, '.') . '_' . substr(uniqid(), -8, 8) . '.' . Strings::fromReverse($real, '.');
         }
 
         if (!move_uploaded_file($source, $destination . $real)) {
-            throw new FilesystemException(tr('Failed to move file ":source" to destination ":destination"', [':source' => $source, ':destination' => $destination]), 'move');
+            throw new FilesystemException(tr('Failed to move file ":source" to destination ":destination"', [
+                ':source' => $source,
+                ':destination' => $destination
+            ]));
         }
 
         // Return destination file
@@ -273,7 +281,7 @@ class File
      */
     public function assignTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string
     {
-        return self::moveToTarget('', $path, $extension, $singledir, $length);
+        return $this->moveToTarget('', $path, $extension, $singledir, $length);
     }
 
 
@@ -290,15 +298,14 @@ class File
      */
     public function assignTargetClean(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string
     {
-        return str_replace($extension, '', self::moveToTarget('', $path, $extension, $singledir, $length));
+        return str_replace($extension, '', $this->moveToTarget('', $path, $extension, $singledir, $length));
     }
 
 
 
     /**
-     * Copy specified file, see file_move_to_target for implementation
+     * Copy object file, see file_move_to_target for implementation
      *
-     * @param string $file
      * @param string $path
      * @param bool $extension
      * @param bool $singledir
@@ -306,14 +313,14 @@ class File
      * @return string
      * @throws Exception
      */
-    public function copyToTarget(string $file, string $path, bool $extension = false, bool $singledir = false, int $length = 4): string
+    public function copyToTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string
     {
-        return self::moveToTarget($file, $path, $extension, $singledir, $length, true);
+        return $this->moveToTarget($path, $extension, $singledir, $length, true);
     }
 
 
     /**
-     * Move specified file (must be either file string or PHP uploaded file array) to a target and returns the target name
+     * Move object file (must be either file string or PHP uploaded file array) to a target and returns the target name
      *
      * IMPORTANT! Extension here is just "the rest of the filename", which may be _small.jpg, or just the extension, .jpg
      * If only an extension is desired, it is VERY important that its specified as ".jpg" and not "jpg"!!
@@ -323,7 +330,6 @@ class File
      * If $singledir is set to false, the resulting file will be in a/b/c/d/e/, if its set to true, it will be in abcde
      * $length specifies howmany characters the subdir should have (4 will make a/b/c/d/ or abcd/)
      *
-     * @param array|string $file
      * @param string $path
      * @param bool $extension
      * @param bool $singledir
@@ -333,40 +339,37 @@ class File
      * @return string The target file
      * @throws Exception
      */
-    public function moveToTarget(array|string $file, string $path, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null): string
+    public function moveToTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null): string
     {
-        $this->restrictions->check($file, true);
-        $this->restrictions->check($path, true);
+        throw new UnderConstructionException();
+        $this->checkRestrictions($this->file, false);
+        $this->checkRestrictions($path, true);
 
-        if (is_array($file)) {
+        if (is_array($this->file)) {
             // Assume this is a PHP $_FILES array entry
-            $upload = $file;
-            $file   = $file['name'];
+            $upload     = $this->file;
+            $this->file = $this->file['name'];
         }
 
         if (isset($upload) and $copy) {
-            throw new FilesystemException(tr('Copy option has been set, but specified file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', [':file' => $file]));
+            throw new FilesystemException(tr('Copy option has been set, but object file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', [':file' => $this->file]));
         }
 
-        $path     = $this->path()->ensure($path);
-        $filename = basename($file);
+        $path     = Path::new($path, $this->restrictions)->ensure();
+        $filename = basename($this->file);
 
         if (!$filename) {
-            /*
-             * We always MUST have a filename
-             */
+            // We always MUST have a filename
             $filename = bin2hex(random_bytes(32));
         }
 
-        /*
-         * Ensure we have a local copy of the file to work with
-         */
-        if ($file) {
-            $file = file_get_local($file, $is_downloaded, $context);
+        // Ensure we have a local copy of the file to work with
+        if ($this->file) {
+            $this->file = \Phoundation\Web\Http\File::new($this->restrictions)->download($is_downloaded, $context);
         }
 
         if (!$extension) {
-            $extension = file_get_extension($filename);
+            $extension = Filesystem::getExtension($filename);
         }
 
         if ($length) {
@@ -376,7 +379,7 @@ class File
             $targetpath = Strings::slash($path);
         }
 
-        $target = $targetpath.strtolower(Strings::convertAccents(Strings::untilReverse($filename, '.'), '-'));
+        $target = $targetpath . strtolower(Strings::convertAccents(Strings::untilReverse($filename, '.'), '-'));
 
         // Check if there is a "point" already in the extension not obligatory at the start of the string
         if ($extension) {
@@ -392,28 +395,26 @@ class File
         if (file_exists($target)) {
             if (isset($upload)) {
                 // File was specified as an upload array
-                return File::moveToTarget($upload, $path, $extension, $singledir, $length, $copy);
+                return $this->moveToTarget($upload, $path, $extension, $singledir, $length, $copy);
             }
 
-            return File::moveToTarget($file, $path, $extension, $singledir, $length, $copy);
+            return $this->moveToTarget($path, $extension, $singledir, $length, $copy);
         }
 
         // Only move if file was specified. If no file specified, then we will only return the available path
-        if ($file) {
+        if ($this->file) {
             if (isset($upload)) {
                 // This is an uploaded file
                 $this->moveToTarget($upload['tmp_name'], $target);
 
             } else {
-                /*
-                 * This is a normal file
-                 */
+                // This is a normal file
                 if ($copy and !$is_downloaded) {
-                    copy($file, $target);
+                    copy($this->file, $target);
 
                 } else {
-                    rename($file, $target);
-                    $this->path()->clear(dirname($file), false);
+                    rename($target);
+                    $this->path(dirname($this->file))->clear(false);
                 }
             }
         }
@@ -424,53 +425,40 @@ class File
 
 
     /**
-     * Ensure that the specified file exists in the specified path
+     * Ensure that the object file exists in the specified path
      *
      * @note Will log to the console in case the file was created
      * @version 2.4.16: Added documentation, improved log output
      *
-     * @param string $file The file that must exist
-     * @param null $mode If the specified $file does not exist, it will be created with this file mode. Defaults to $_CONFIG[fs][file_mode]
+     * @param null $mode If the specified $this->file does not exist, it will be created with this file mode. Defaults to $_CONFIG[fs][file_mode]
      * @param null $pattern_mode If parts of the path for the file do not exist, these will be created as well with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
-     * @return string The specified file
+     * @return string The object file
      */
-    public function ensureFile(string $file, $mode = null, $pattern_mode = null): string
+    public function ensureFile($mode = null, $pattern_mode = null): string
     {
         $mode = Config::get('filesystem.modes.defaults.file', 0640, $mode);
 
-        $this->restrictions->check(dirname($file), true);
-        $this->path()->ensure(dirname($file), $pattern_mode);
+        $this->checkRestrictions(dirname($this->file), true);
+        Path::new(dirname($this->file))->ensure($pattern_mode);
 
-        if (!file_exists($file)) {
+        if (!file_exists($this->file)) {
             // Create the file
-            self::executeMode(dirname($file), 0770, function() use ($file, $mode) {
-                Log::warning(tr('File ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
-                    ':file' => $file
-                ]));
+            Path::new(dirname($this->file), $this->restrictions)->each()
+                ->setPathMode(0770)
+                ->execute(function() use ($mode) {
+                    Log::warning(tr('File ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
+                        ':file' => $this->file
+                    ]));
 
-                touch($file);
+                    touch($this->file);
 
-                if ($mode) {
-                    chmod($file, $mode);
-                }
-            });
+                    if ($mode) {
+                        $this->chmod($mode);
+                    }
+                });
         }
 
-        return $file;
-    }
-
-
-
-    /**
-     * Return the extension of the specified filename
-     *
-     * @param string $filename
-     * @return string
-     */
-    public function getExtension(string $filename): string
-    {
-        return Strings::fromReverse($filename, '.');
-//        return pathinfo($file, PATHINFO_EXTENSION);
+        return $this->file;
     }
 
 
@@ -489,7 +477,7 @@ class File
      * @note: If the resolved temp file path already exist, it will be deleted!
      * @example
      * code
-     * $result = File::temp('This is temporary data!');
+     * $result = $this->temp('This is temporary data!');
      * showdie(file_get_contents($result));
      * /code
      *
@@ -505,7 +493,7 @@ class File
         }
 
         // Get temp path. Path class will process filesystem restrictions, no need to redo that here
-        $path = $this->path()->ensure($path);
+        $path = $this->path($path)->ensure();
 
         // Temp file will contain the session ID
         if ($limit_to_session) {
@@ -525,16 +513,16 @@ class File
             $name .= '.' . $extension;
         }
 
-        $file = $path.$name;
+        $this->file = $path.$name;
 
         // Temp file can not exist
-        if (file_exists($file)) {
-            File::delete($file);
+        if (file_exists($this->file)) {
+            $this->delete();
         }
 
         if ($create) {
             if ($create === true) {
-                touch($file);
+                touch($this->file);
 
             } else {
                 if (!is_string($create)) {
@@ -543,31 +531,30 @@ class File
                     ]));
                 }
 
-                file_put_contents($file, $create);
+                file_put_contents($create);
             }
         }
 
-        return $file;
+        return $this->file;
     }
 
 
 
     /**
-     * Returns the mimetype data for the specified file
+     * Returns the mimetype data for the object file
      *
      * @version 2.4: Added documentation
-     * @param string $file to be tested
-     * @return string The mimetype data for the specified file
+     * @return string The mimetype data for the object file
      */
-    public function mimetype(string $file): string
+    public function mimetype(): string
     {
         static $finfo = false;
 
         // Check filesystem restrictions
-        $this->restrictions->check($file, true);
+        $this->checkRestrictions($this->file, true);
 
-        // Check the specified file
-        if (!$file) {
+        // Check the object file
+        if (!$this->file) {
             throw new OutOfBoundsException(tr('No file specified'));
         }
 
@@ -576,12 +563,12 @@ class File
                 $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
             }
 
-            $mimetype = finfo_file($finfo, $file);
+            $mimetype = finfo_file($finfo, $this->file);
             return $mimetype;
         } catch (Exception $e) {
             // We failed to get mimetype data. Find out why and throw exception
-            self::checkReadable($file, '', true, new FilesystemException(tr('Failed to get mimetype information for file ":file"', [
-                ':file' => $file
+            $this->checkReadable('', true, new FilesystemException(tr('Failed to get mimetype information for file ":file"', [
+                ':file' => $this->file
             ]), previous: $e));
         }
     }
@@ -592,12 +579,11 @@ class File
      * Returns true or false if file is ASCII or not
      *
      * @version 2.4: Added documentation
-     * @param string $file The file to be tested
      * @return bool True if the file is a text file, false if not
      */
-    public function isText(string $file): bool
+    public function isText(): bool
     {
-        $mimetype = self::mimetype($file);
+        $mimetype = $this->mimetype();
 
         if (Strings::until($mimetype, '/') == 'text') {
             return true;
@@ -675,87 +661,32 @@ class File
 
 
     /**
-     * Return all files in a directory that match the specified pattern with optional recursion.
-     *
-     * @param string $path The path from which
-     * @param string|null $filter_pattern
-     * @param boolean $recursive If set to true, return all files below the specified path, including in sub-directories
-     * @return array The matched files
-     *@version 2.4.40: Added documentation, upgraded function
-     */
-    public function listTree(string $path, ?string $filter_pattern = null, bool $recursive = true): array
-    {
-        // Validate path
-        $this->path()->checkReadable($path);
-
-        $return = [];
-        $fh     = opendir($path);
-
-        // Go over all files
-        while (($filename = readdir($fh)) !== false) {
-            // Loop through the files, skipping . and .. and recursing if necessary
-            if (($filename == '.') or ($filename == '..')) {
-                continue;
-            }
-
-            // Does the file match the specified pattern?
-            if ($filter_pattern) {
-                $match = preg_match($filter_pattern, $filename);
-
-                if (!$match) {
-                    continue;
-                }
-            }
-
-            // Get the complete file path
-            $file = Strings::slash($path) . $filename;
-
-            // Add the file to the list. If the file is a directory, then recurse instead. Do NOT add the directory
-            // itself, only files!
-            if (is_dir($file) and $recursive) {
-                $return = array_merge($return, file_list_tree($file));
-
-            } else {
-                $return[] = $file;
-            }
-        }
-
-        closedir($fh);
-
-        return $return;
-    }
-
-
-
-    /**
      * Delete a file weather it exists or not, without error, using the "rm" command
      *
      * @see Restrictions::check() This function uses file location restrictions
      *
-     * @param array|string $patterns A list of path patterns to be deleted
      * @param boolean $clean_path If specified true, all directories above each specified pattern will be deleted as well as long as they are empty. This way, no empty directories will be left laying around
      * @param boolean $sudo If specified true, the rm command will be executed using sudo
-     * @param Restrictions|null $restrictions
      * @return void
      */
-    public function delete(string|array $patterns, bool $clean_path = true, bool $sudo = false, ?Restrictions $restrictions = null): void
+    public function delete(bool $clean_path = true, bool $sudo = false): void
     {
         // Check filesystem restrictions
-        $this->restrictions->check($patterns, true);
+        $this->checkRestrictions($this->file, true);
 
         // Delete all specified patterns
-        foreach (Arrays::force($patterns, null) as $pattern) {
+        foreach ($this->file as $file) {
             // Execute the rm command
             Process::new('rm')
                 ->setSudo($sudo)
                 ->setTimeout(10)
-                ->addArgument($pattern)
+                ->addArgument($file)
                 ->addArgument('-rf')
                 ->executeReturnArray();
 
             // If specified to do so, clear the path upwards from the specified pattern
             if ($clean_path) {
-                $this->path()->clear(dirname($pattern), $sudo, $restrictions);
+                Path::new(dirname($file))->clear($sudo);
             }
         }
     }
@@ -777,13 +708,13 @@ class File
      * set $mode to the default value, specified in $_CONFIG, and then
      * do the same as 0000
      */
-    public function copyTree(string $source, string $destination, array $search = null, array $replace = null, string|array $extensions = null, mixed $mode = true, bool $novalidate = false, ?Restrictions $restrictions = null): string
+    public function copyTree(string $source, string $destination, array $search = null, array $replace = null, string|array $extensions = null, mixed $mode = true, bool $novalidate = false): string
     {
-        throw new UnderConstructionException('File::copyTree() is under construction');
+        throw new UnderConstructionException('$this->copyTree() is under construction');
 
         // Check filesystem restrictions
-        $this->restrictions->check($source, false);
-        $this->restrictions->check($destination, true);
+        $this->checkRestrictions($source, false);
+        $this->checkRestrictions($destination, true);
 
         // Choose between copy filemode (mode is null), set filemode ($mode is a string or octal number) or preset
         // filemode (take from config, TRUE)
@@ -839,7 +770,7 @@ class File
             $destination = Strings::unslash($destination);
 
             if (!file_exists($destination)) {
-// :TODO: Check if dirname() here is correct? It somehow does not make sense
+// :TODO: Check if dirname($this->file) here is correct? It somehow does not make sense
                 if (!file_exists(dirname($destination))) {
                     throw new FilesystemException(tr('Specified destination ":destination" does not exist', [
                         ':destination' => dirname($destination)
@@ -891,31 +822,31 @@ class File
                 }
 
                 if (is_null($mode)) {
-                    $filemode = $_CONFIG['file']['dir_mode'];
+                    $filemode = Config::get('filesystem.modes.defaults.directories', 0640, $mode);
 
-                } elseif (is_link($source.$file)) {
+                } elseif (is_link($source . $file)) {
                     // No file permissions for symlinks
                     $filemode = false;
 
                 } else {
-                    $filemode = fileperms($source.$file);
+                    $filemode = fileperms($source . $file);
                 }
 
-                if (is_dir($source.$file)) {
+                if (is_dir($source . $file)) {
                     // Recurse
-                    if (file_exists($destination.$file)) {
+                    if (file_exists($destination . $file)) {
                         // Destination path already exists. This -by the way- means that the destination tree was not
                         // clean
-                        if (!is_dir($destination.$file)) {
+                        if (!is_dir($destination . $file)) {
                             // Were overwriting here!
-                            file_delete($destination.$file, $restrictions);
+                            file_delete($destination . $file, $restrictions);
                         }
                     }
 
-                    $this->path()->ensure($destination.$file, $filemode);
+                    $this->path($destination . $file)->ensure($filemode);
                 }
 
-                file_copy_tree($source.$file, $destination.$file, $search, $replace, $extensions, $mode, true);
+                file_copy_tree($source . $this->file, $destination . $file, $search, $replace, $extensions, $mode, true);
             }
 
         } else {
@@ -1022,11 +953,11 @@ class File
      */
     public function rename(string $source, string $destination, $search, $rename): void
     {
-        throw new UnderConstructionException('File::rename() is under construction');
+        throw new UnderConstructionException('$this->rename() is under construction');
 
         // Check filesystem restrictions
-        $this->restrictions->check($source, false);
-        $this->restrictions->check($destination, true);
+        $this->checkRestrictions($source, false);
+        $this->checkRestrictions($destination, true);
 
         // Validations
         if (!file_exists($source)) {
@@ -1061,30 +992,30 @@ class File
     /**
      * Change file mode, optionally recursively
      *
-     * @param string|array $patterns
-     * @param string $mode The mode to apply to the specified path (and all files below if recursive is specified)
-     * @param boolean $recursive If set to true, apply specified mode to the specified path and all files below by recursion
+     * @param string|int $mode   The mode to apply to the specified path (and all files below if recursive is specified)
+     * @param boolean $recursive If set to true, apply specified mode to the specified path and all files below by
+     *                           recursion
      * @param bool $sudo
      * @param ?Restrictions $restrictions
      * @return void
-     * @see File::safePattern()
+     * @see $this->safePattern()
      * @version 2.6.30: Added function and documentation
      * @version 2.7.60: Fixed safe file pattern issues
      */
-    public function chmod(string|array $patterns, string $mode, bool $recursive = false, bool $sudo = false, ?Restrictions $restrictions = null): void
+    public function chmod(string|int $mode, bool $recursive = false, bool $sudo = false, ?Restrictions $restrictions = null): void
     {
         if (!($mode)) {
             throw new OutOfBoundsException(tr('No file mode specified'));
         }
 
-        if (!$patterns) {
-            throw new OutOfBoundsException(tr('No path specified'));
+        if (!$this->file) {
+            throw new OutOfBoundsException(tr('No file specified'));
         }
 
         // Check filesystem restrictions
-        $this->restrictions->check($patterns, true);
+        $this->checkRestrictions($this->file, true);
 
-        foreach (Arrays::force($patterns, null) as $pattern) {
+        foreach ($this->file as $pattern) {
             Process::new('chmod')
                 ->setSudo($sudo)
                 ->addArgument($mode)
@@ -1097,17 +1028,31 @@ class File
 
 
     /**
-     * Update the specified file owner and group
+     * Switches file mode to the new value and returns the previous value
      *
-     * @param string|array $patterns
+     * @param string|int $mode
+     * @return string
+     */
+    public function switchMode(string|int $mode): string
+    {
+        $old_mode = $this->mode();
+        $this->chmod($mode);
+
+        return $old_mode;
+    }
+
+
+
+    /**
+     * Update the object file owner and group
+     *
      * @param string|null $user
      * @param string|null $group
      * @param bool $recursive
      * @param bool $sudo
-     * @param Restrictions|null $restrictions
      * @return void
      */
-    public function chown(string|array $patterns, ?string $user = null, ?string $group = null, bool $recursive = false, bool $sudo = false, ?Restrictions $restrictions = null): void
+    public function chown(?string $user = null, ?string $group = null, bool $recursive = false, bool $sudo = false): void
     {
         if (!$user) {
             $user = posix_getpwuid(posix_getuid());
@@ -1119,14 +1064,14 @@ class File
             $group = $group['name'];
         }
 
-        if (!$patterns) {
+        if (!$this->file) {
             throw new OutOfBoundsException(tr('No path specified'));
         }
 
         // Check filesystem restrictions
-        $this->restrictions->check($patterns, true);
+        $this->checkRestrictions($this->file, true);
 
-        foreach (Arrays::force($patterns, null) as $pattern) {
+        foreach ($this->file as $pattern) {
             Process::new('chown')
                 ->setSudo($sudo)
                 ->addArgument($user.':' . $group)
@@ -1164,41 +1109,9 @@ class File
     }
 
 
-    /**
-     * Pick and return a random file name from the specified path
-     *
-     * @note This function reads all files into memory, do NOT use with huge directory (> 10000 files) listings!
-     *
-     * @param string $path
-     * @return string
-     */
-    public function random(string $path): string
-    {
-        // Check filesystem restrictions
-        $this->restrictions->check($path, true);
-
-        if (!file_exists($path)) {
-            throw new FileNotExistException(tr('The specified path ":path" does not exist', [':path' => $path]));
-        }
-
-        $files = scandir($path);
-
-        unset($files[array_search('.' , $files)]);
-        unset($files[array_search('..', $files)]);
-
-        if (!$files) {
-            throw new FilesystemException(tr('The specified path ":path" contains no files', [
-                ':path' => $path
-            ]));
-        }
-
-        return Strings::slash($path) . array_get_random($files);
-    }
-
-
 
     /**
-     * If the specified file is an HTTP, HTTPS, or FTP URL, then get it locally as a temp file
+     * If the object file is an HTTP, HTTPS, or FTP URL, then get it locally as a temp file
      *
      * @param string $url
      * @param bool $is_downloaded
@@ -1208,7 +1121,7 @@ class File
     public function getLocal(string $url, bool &$is_downloaded = false, ?array $context = null): string
     {
         try {
-            $context = File::createStreamContext($context);
+            $context = $this->createStreamContext($context);
             $url     = trim($url);
 
             if (str_contains($url, 'http:') and str_contains($url, 'https:') and str_contains($url, 'ftp:')) {
@@ -1218,24 +1131,24 @@ class File
 
                 if (is_uploaded_file($url)) {
                     $tmp  = file_get_uploaded($url);
-                    $file = File::temp($url, null, false);
+                    $this->file = $this->temp($url, null, false);
 
-                    rename($tmp, $file);
-                    return $file;
+                    rename($tmp, $this->file);
+                    return $this->file;
                 }
 
                 return $url;
             }
 
             // First download the file to a temporary location
-            $file          = str_replace(array('://', '/'), '-', $url);
-            $file          = File::temp($file);
+            $this->file          = str_replace(array('://', '/'), '-', $url);
+            $this->file          = $this->temp();
             $is_downloaded = true;
 
-            $this->path()->ensure(dirname($file));
-            file_put_contents($file, file_get_contents($url, false, $context));
+            $this->path()->ensure(dirname($this->file));
+            file_put_contents(file_get_contents($url, false, $context));
 
-            return $file;
+            return $this->file;
 
         }catch(Exception $e) {
             $message = $e->getMessage();
@@ -1251,84 +1164,6 @@ class File
 
             throw new FilesystemException(tr('Failed for file ":file"', [':file' => $url]), $e);
         }
-    }
-
-
-
-    /**
-     * Return true if the specified mimetype is for a compressed file, false if not
-     *
-     * This function will check the primary and secondary sections of the mimetype and depending on their values,
-     * determine if the file format should use compression or not
-     *
-     * @version 2.5.90: Added function and documentation
-     * @param string $primary        The primary mimetype section to check. If the mimetype is "text/plain", this
-     *                               variable would receive "text". You can also leave $secondary empty and specify the
-     *                               complete mimetype "text/plain" here, both will work
-     * @param string|null $secondary The secondary mimetype section to check. If the mimetype is "text/plain", this
-     *                               variable would receive "plain". If the complete mimetype is specified in $primary,
-     *                               you can leave this one empty
-     * @return boolean True if the specified mimetype is for a compressed file, false if not
-     */
-    public function isCompressed(string $primary, ?string $secondary = null): bool
-    {
-// :TODO: IMPROVE THIS! Loads of files that may be mis detected
-        // Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
-        if (!$secondary) {
-            if (!str_contains($primary, '/')) {
-                throw new FilesystemException(tr('Invalid primary mimetype data ":primary" specified. Either specify the complete mimetype in $primary, or specify the independent primary and secondary sections in $primary and $secondary', [':primary' => $primary]));
-            }
-
-            $secondary = Strings::from($primary , '/');
-            $primary   = Strings::until($primary, '/');
-        }
-
-        // Check the mimetype data
-        if (str_contains($secondary, 'compressed')) {
-            // This file is already compressed
-            return true;
-
-        } elseif (str_contains($secondary, 'zip')) {
-            // This file is already compressed
-            return true;
-
-        } else {
-            switch ($secondary) {
-                case 'jpeg':
-                    // no-break
-                case 'mpeg':
-                    // no-break
-                case 'ogg':
-                    // This file is already compressed
-                    return true;
-
-                default:
-                    switch ($primary) {
-                        case 'audio':
-                            switch ($secondary) {
-                                case 'mpeg':
-                                    // no-break
-                                case 'ogg':
-                            }
-                            break;
-
-                        case 'image':
-                            break;
-
-                        case 'video':
-                            break;
-
-                        default:
-                            // This file probably is not compressed
-                            return false;
-                    }
-            }
-        }
-
-        throw new FilesystemException(tr('Unable to determine if mimetype ":primary/:secondary" is compressed or not', [
-            ':primary' => $primary,
-            ':secondary' => $secondary
-        ]));
     }
 
 
@@ -1397,105 +1232,43 @@ class File
 
 
     /**
-     * Returns the total size in bytes of the tree under the specified path
-     *
-     * @param string $path
-     * @return int The amount of bytes this tree takes
-     */
-    public function treeSize(string $path): int
-    {
-        // Check filesystem restrictions
-        $this->restrictions->check($path, true);
-
-        if (!file_exists($path)) {
-            throw new FilesystemException(tr('Specified path ":path" does not exist', [':path' => $path]));
-        }
-
-        $return = 0;
-        $path   = Strings::slash($path);
-
-        foreach (scandir($path) as $file) {
-            if (($file == '.') or ($file == '..')) continue;
-
-            if (is_dir($path . $file)) {
-                $return += File::treeSize($path . $file);
-
-            } else {
-                $return += filesize($path . $file);
-            }
-        }
-
-        return $return;
-    }
-
-
-
-    /**
-     * Calculate either the total size of the tree under the specified path, or the amount of files (directories not included in count)
-     * @$method (string) either "size" or "count", the required value to return
-     */
-    public function treeFileCount(string $path): int
-    {
-        // Check filesystem restrictions
-        $this->restrictions->check($path, true);
-
-        if (!file_exists($path)) {
-            throw new FilesystemException(tr('Specified path ":path" does not exist', [':path' => $path]));
-        }
-
-        $return = 0;
-        $path   = Strings::slash($path);
-
-        foreach (scandir($path) as $file) {
-            if (($file == '.') or ($file == '..')) continue;
-
-            if (is_dir($path . $file)) {
-                $return += File::treeFileCount($path . $file);
-
-            } else {
-                $return++;
-            }
-        }
-
-        return $return;
-    }
-
-
-
-    /**
      * This is an fopen() wrapper with some built-in error handling
      *
-     * @param string $file
      * @param string $mode
-     * @return resource
+     * @param string|null $file
+     * @return mixed
      */
-    public function open(string $file, #[ExpectedValues(values:['r', 'r+', 'w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+', 'ce+'])] string $mode)
+    public function open(#[ExpectedValues(values:['r', 'r+', 'w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+', 'ce+'])] string $mode, ?string $file = null): mixed
     {
-        // Check filesystem restrictions
-        $this->restrictions->check($file, true);
+        if ($file === null) {
+            $file = $this->file;
+        }
 
-        $handle = @fopen($file, 'r');
+        // Check filesystem restrictions
+        $this->checkRestrictions($file, true);
+
+        $handle = fopen($file, $mode);
 
         if (!$handle) {
             // Check if the mode is valid and if the file can be opened for the requested mode
             $method = match ($mode) {
                 'r' => FILE::READ,
                 'r+', 'w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+', 'ce+' => FILE::WRITE,
-                default => throw new FilesystemException(tr('Could not open file ":file"', [':file' => $file])),
+                default => throw new FilesystemException(tr('Could not open file ":file"', [':file' => $this->file])),
             };
 
             // Mode is valid, check if file is accessible.
             switch ($method) {
                 case FILE::READ:
-                    File::checkReadable($file);
+                    $this->checkReadable();
                     break;
 
                 case FILE::WRITE:
-                    File::checkWritable($file);
+                    $this->checkWritable();
                     break;
             }
 
-            throw new FilesystemException(tr('Failed to open file ":file"', [':file' => $file]));
+            throw new FilesystemException(tr('Failed to open file ":file"', [':file' => $this->file]));
         }
 
         return $handle;
@@ -1504,7 +1277,7 @@ class File
 
 
     /**
-     * Check if the specified file exists and is readable. If not both, an exception will be thrown
+     * Check if the object file exists and is readable. If not both, an exception will be thrown
      *
      * On various occasions, this method could be used AFTER a file read action failed and is used to explain WHY the
      * read action failed. Because of this, the method optionally accepts $previous_e which would be the exception that
@@ -1512,45 +1285,42 @@ class File
      * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
      * previous exception attached to it
      *
-     * @param string $file               The file to be checked
      * @param string|null $type          This is the label that will be added in the exception indicating what type of
      *                                   file it is
-     * @param bool $no_directories       If true, the specified file cannot be a directory
+     * @param bool $no_directories       If true, the object file cannot be a directory
      * @param Throwable|null $previous_e If the file is okay, but this exception was specified, this exception will be
      *                                   thrown
      * @return void
      */
-    public function checkReadable(string $file, ?string $type = null, bool $no_directories = false, ?Throwable $previous_e = null) : void
+    #[NoReturn] public function checkReadable(?string $type = null, bool $no_directories = false, ?Throwable $previous_e = null) : void
     {
-        self::validateFilename($file);
-
-        if (!file_exists($file)) {
-            if (!file_exists(dirname($file))) {
+        if (!file_exists($this->file)) {
+            if (!file_exists(dirname($this->file))) {
                 // The file doesn't exist and neither does its parent directory
                 throw new FilesystemException(tr('The:type file ":file" cannot be read because the directory ":path" does not exist', [
                     ':type' => ($type ? '' : ' ' . $type),
-                    ':file' => $file,
-                    ':path' => dirname($file)
+                    ':file' => $this->file,
+                    ':path' => dirname($this->file)
                 ]), previous: $previous_e);
             }
 
             throw new FilesystemException(tr('The:type file ":file" cannot be read because it does not exist', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $file
+                ':file' => $this->file
             ]), previous: $previous_e);
         }
 
-        if (!is_readable($file)) {
+        if (!is_readable($this->file)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be read', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $file
+                ':file' => $this->file
             ]), previous: $previous_e);
         }
 
-        if ($no_directories and is_dir($file)) {
+        if ($no_directories and is_dir($this->file)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be read because it is a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $file
+                ':file' => $this->file
             ]), previous: $previous_e);
         }
 
@@ -1560,7 +1330,7 @@ class File
 //            // This method was called because a read action failed, throw an exception for it
 //            throw new FilesystemException(tr('The:type file ":file" cannot be read because of an unknown error', [
 //                ':type' => ($type ? '' : ' ' . $type),
-//                ':file' => $file
+//                ':file' => $this->file
 //            ]), previous: $previous_e);
         }
     }
@@ -1568,7 +1338,7 @@ class File
 
 
     /**
-     * Check if the specified file exists and is writable. If not both, an exception will be thrown
+     * Check if the object file exists and is writable. If not both, an exception will be thrown
      *
      * On various occasions, this method could be used AFTER a file read action failed and is used to explain WHY the
      * read action failed. Because of this, the method optionally accepts $previous_e which would be the exception that
@@ -1576,143 +1346,130 @@ class File
      * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
      * previous exception attached to it
      *
-     * @param string $file               The file to be checked
      * @param string|null $type          This is the label that will be added in the exception indicating what type of
      *                                   file it is
-     * @param bool $no_directories       If true, the specified file cannot be a directory
+     * @param bool $no_directories       If true, the object file cannot be a directory
      * @param Throwable|null $previous_e If the file is okay, but this exception was specified, this exception will be
      *                                   thrown
      * @return void
      */
-    public function checkWritable(string $file, ?string $type = null, bool $no_directories = false, ?Throwable $previous_e = null) : void
+    #[NoReturn] public function checkWritable(?string $type = null, bool $no_directories = false, ?Throwable $previous_e = null) : void
     {
-        self::validateFilename($file);
-
-        if (!file_exists($file)) {
-            if (!file_exists(dirname($file))) {
+        if (!file_exists($this->file)) {
+            if (!file_exists(dirname($this->file))) {
                 // The file doesn't exist and neither does its parent directory
                 throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist and neither does the parent path ":path"', [
                     ':type' => ($type ? '' : ' ' . $type),
-                    ':file' => $file,
-                    ':path' => dirname($file)
+                    ':file' => $this->file,
+                    ':path' => dirname($this->file)
                 ]), previous: $previous_e);
             }
 
             throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $file
+                ':file' => $this->file
             ]), previous: $previous_e);
         }
 
-        if (!is_readable($file)) {
+        if (!is_readable($this->file)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be written', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $file
+                ':file' => $this->file
             ]), previous: $previous_e);
         }
 
-        if ($no_directories and is_dir($file)) {
+        if ($no_directories and is_dir($this->file)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be written because it is a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $file
+                ':file' => $this->file
             ]), previous: $previous_e);
         }
 
         if ($previous_e) {
             throw $previous_e;
-
-//            // This method was called because a read action failed, throw an exception for it
-//            throw new FilesystemException(tr('The:type file ":file" cannot be written because of an unknown error', [
-//                ':type' => ($type ? '' : ' ' . $type),
-//                ':file' => $file
-//            ]), previous: $previous_e);
         }
     }
 
 
 
     /**
-     * Ensure that the specified file is writable
+     * Ensure that the object file is writable
      *
-     * This method will ensure that the specified file will exist and is writable. If it does not exist, an empty file
-     * will be created in the parent directory of the specified $file
+     * This method will ensure that the object file will exist and is writable. If it does not exist, an empty file
+     * will be created in the parent directory of the specified $this->file
      *
-     * @param string $file
      * @param int|null $file_mode
      * @param int|null $directory_mode
      * @param string $type
      * @return string
      */
-    public function ensureWritable(string $file, ?int $file_mode = null, ?int $directory_mode = null, string $type = 'file'): string
+    public function ensureWritable(?int $file_mode = null, ?int $directory_mode = null, string $type = 'file'): string
     {
-        self::validateFilename($file);
-
-        // If the specified file exists and is writable, then we're done.
-        if (is_writable($file)) {
+        // If the object file exists and is writable, then we're done.
+        if (is_writable($this->file)) {
             return false;
         }
 
         // From here the file is not writable. It may not exist, or it may simply not be writable. Lets continue...
 
         // Get configuration. We need file and directory default modes
-        $file_mode      = Config::get('filesystem.mode.default.file'     , 0640, $file_mode);
+        $this->file_mode      = Config::get('filesystem.mode.default.file'     , 0640, $this->file_mode);
         $directory_mode = Config::get('filesystem.mode.default.directory', 0750, $directory_mode);
 
-        if (file_exists($file)) {
+        if (file_exists($this->file)) {
             // Great! The file exists, but it is not writable at this moment. Try to make it writable.
             try {
-                Log::warning(tr('The specified file ":file" (Realpath ":path") is not writable. Attempting to apply default file mode ":file_mode"', [':file' => $file, ':path' => realpath($file), ':file_mode' => $file_mode]));
-                self::chmod($file, 'u+w');
-                return $file;
+                Log::warning(tr('The object file ":file" (Realpath ":path") is not writable. Attempting to apply default file mode ":file_mode"', [':file' => $this->file, ':path' => realpath(), ':file_mode' => $this->file_mode]));
+                $this->chmod('u+w');
+                return $this->file;
             } catch (ProcessesException $e) {
                 throw new FileNotWritableException(tr(
-                    'The specified file ":file" (Realpath ":path") is not writable, and could not be made writable',
+                    'The object file ":file" (Realpath ":path") is not writable, and could not be made writable',
                     [
-                        ':file' => $file,
-                        ':path' => realpath($file)
+                        ':file' => $this->file,
+                        ':path' => realpath()
                     ]
                 ));
             }
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
-        $this->path()->ensure(dirname($file));
-        Log::warning(tr('The specified file ":file" (Realpath ":path") does not exist. Attempting to create it with file mode ":filemode"', [':filemode' => Strings::fromOctal($file_mode), ':file' => $file, ':path' => realpath($file)]));
+        $this->path()->ensure(dirname($this->file));
+        Log::warning(tr('The object file ":file" (Realpath ":path") does not exist. Attempting to create it with file mode ":filemode"', [':filemode' => Strings::fromOctal(_mode), ':file' => $this->file, ':path' => realpath()]));
 
         switch ($type) {
             case 'file':
-                touch($file);
-                chmod($file, $file_mode);
+                touch($this->file);
+                chmod(_mode);
                 break;
 
             case 'directory':
-                mkdir($file);
-                chmod($file, $directory_mode);
+                mkdir();
+                chmod($directory_mode);
                 break;
 
             default:
                 throw new OutOfBoundsException(tr('The specified type ":type" is invalid, it should be one of "file" or "directory"', [':type' => $type]));
         }
 
-        return realpath($file);
+        return realpath();
     }
 
 
 
     /**
-     * Returns array with all permission information about the specified file.
+     * Returns array with all permission information about the object file.
      *
      * Idea taken from http://php.net/manual/en/function.fileperms.php
      *
-     * @param string $file
      * @return string
      */
-    public function type(string $file): string
+    public function type(): string
     {
         // Check filesystem restrictions
-        $this->restrictions->check($file, true);
+        $this->checkRestrictions($this->file, true);
 
-        $perms     = fileperms($file);
+        $perms     = fileperms();
         $socket    = (($perms & 0xC000) == 0xC000);
         $symlink   = (($perms & 0xA000) == 0xA000);
         $regular   = (($perms & 0x8000) == 0x8000);
@@ -1757,19 +1514,18 @@ class File
 
     
     /**
-     * Returns array with all permission information about the specified file.
+     * Returns array with all permission information about the object file.
      *
      * Idea taken from http://php.net/manual/en/function.fileperms.php
      *
-     * @param string $file
      * @return array
      */
-    public function getHumanReadableFileMode(string $file): array
+    public function getHumanReadableFileMode(): array
     {
         // Check filesystem restrictions
-        $this->restrictions->check($file, true);
+        $this->checkRestrictions($this->file, true);
 
-        $perms  = fileperms($file);
+        $perms  = fileperms();
         $return = [];
 
         $return['socket']    = (($perms & 0xC000) == 0xC000);
@@ -1884,7 +1640,7 @@ class File
     {
         throw new UnderConstructionException();
         // Check filesystem restrictions
-        $this->restrictions->check($file, true);
+        $this->checkRestrictions($this->file, true);
 
         Arrays::ensure($params);
         Arrays::default($params, 'ignore_exceptions', true);
@@ -1963,29 +1719,29 @@ class File
                 $h    = opendir($pattern);
                 $pattern = Strings::slash($pattern);
 
-                while (($file = readdir($h)) !== false) {
+                while (( = readdir($h)) !== false) {
                     try {
-                        if (($file == '.') or ($file == '..')) continue;
+                        if (( == '.') or ( == '..')) continue;
 
-                        if ((str_starts_with(basename($file), '.')) and !$params['follow_hidden']) {
+                        if ((str_starts_with(basename($this->file), '.')) and !$params['follow_hidden']) {
                             if (Debug::enabled() and PLATFORM_CLI) {
                                 Log::warning(tr('Skipping file ":file" because its hidden', [
-                                    ':file' => $file
+                                    ':file' => $this->file
                                 ]));
                             }
 
                             continue;
                         }
 
-                        $file = $pattern.$file;
+                        $this->file = $pattern.$this->file;
 
-                        if (!file_exists($file)) {
+                        if (!file_exists($this->file)) {
                             throw new FilesystemException(tr('Specified path ":path" does not exist', [
-                                ':path' => $file
+                                ':path' => $this->file
                             ]));
                         }
 
-                        $type = file_type($file);
+                        $type = file_type();
 
                         switch ($type) {
                             case 'link':
@@ -1993,7 +1749,7 @@ class File
                                     continue 2;
                                 }
 
-                                $file = readlink($file);
+                                $this->file = readlink();
 
                             // We got the target file, but we don't know what it is. Restart the process recursively
                             // to process this file
@@ -2008,7 +1764,7 @@ class File
                                     $skip = false;
 
                                     foreach (Arrays::force($params['filters']) as $filter) {
-                                        if (preg_match($filter, $file)) {
+                                        if (preg_match($filter, $this->file)) {
                                             if (Debug::enabled() and PLATFORM_CLI) {
                                                 Log::warning(tr('Skipping file ":file" because of filter ":filter"', [
                                                     ':file' => $pattern,
@@ -2021,24 +1777,24 @@ class File
                                     }
 
                                     if (!$skip) {
-                                        $result = $params['callback']($file, $type, $params['params']);
+                                        $result = $params['callback']($type, $params['params']);
                                         $count++;
 
                                         if ($result === false) {
                                             // When the callback returned boolean false, cancel all other files
                                             Log::warning(tr('callback returned FALSE for file ":file", skipping rest of directory contents!', [
-                                                ':file' => $file
+                                                ':file' => $this->file
                                             ]));
 
                                             goto end;
                                         }
 
-                                        Log::success(tr('Executed code for file ":file"', [':file' => $file]));
+                                        Log::success(tr('Executed code for file ":file"', [':file' => $this->file]));
                                     }
                                 }
 
                                 if (($type == 'directory') and $recursive) {
-                                    $pattern = $file;
+                                    $pattern = $this->file;
                                     $count         += file_tree_execute($params);
                                 }
 
@@ -2048,7 +1804,7 @@ class File
                                 // Skip this unsupported file type
                                 if (Debug::enabled() and PLATFORM_CLI) {
                                     Log::success(tr('Skipping file ":file" with unsupported file type ":type"', [
-                                        ':file' => $file,
+                                        ':file' => $this->file,
                                         ':type' => $type
                                     ]));
                                 }
@@ -2061,7 +1817,7 @@ class File
 
                         if ($e->getCode() === 'not-exists') {
                             Log::warning(tr('Skipping file ":file", it does not exist (in case of a symlink, it may be that the target does not exist)', [
-                                ':file' => $file
+                                ':file' => $this->file
                             ]));
 
                         } else {
@@ -2079,26 +1835,13 @@ class File
                 // Skip this unsupported file type
                 if (Debug::enabled() and PLATFORM_CLI) {
                     Log::warning(tr('Skipping file ":file" with unsupported file type ":type"', [
-                        ':file' => $file,
+                        ':file' => $this->file,
                         ':type' => $pattern
                     ]));
                 }
         }
 
         return $count;
-    }
-
-
-
-    /**
-     * Returns an Each object to execute callbacks on each file in specified paths
-     *
-     * @param array|string|null $paths
-     * @return Each
-     */
-    public function each(array|string|null $paths = null): Each
-    {
-        return new Each($this, $paths);
     }
 
 
@@ -2156,12 +1899,12 @@ class File
 //        // Set the requested mode
 //        try {
 //            if (is_dir($pattern) and $multi) {
-//                $patterns = Cli::find([
+//                $this->file = Cli::find([
 //                    'type'  => 'd',
 //                    'start' => $pattern
 //                ]);
 //
-//                foreach ($patterns as $subpath) {
+//                foreach ($this->file as $subpath) {
 //                    $modes[$subpath] = fileperms($subpath);
 //                    chmod($subpath, $mode);
 //                }
@@ -2234,26 +1977,25 @@ class File
     /**
      * Returns if the link target exists or not
      *
-     * @param string $file
      * @return bool
      */
-    public function linkTargetExists(string $file): bool
+    public function linkTargetExists(): bool
     {
         throw new UnderConstructionException();
-        if (file_exists($file)) {
+        if (file_exists($this->file)) {
             return false;
         }
 
-        if (is_link($file)) {
+        if (is_link()) {
             throw new FilesystemException(tr('Symlink ":source" has non existing target ":target"', [
-                'source' => $file,
-                ':target' => readlink($file)
+                'source' => $this->file,
+                ':target' => readlink()
             ]));
         }
 
         throw new FilesystemException(tr('Symlink ":source" has non existing target ":target"', [
-            'source' => $file,
-            ':target' => readlink($file)
+            'source' => $this->file,
+            ':target' => readlink()
         ]));
     }
 
@@ -2271,8 +2013,8 @@ class File
     public function searchReplace(string $source, string $target, array $replaces): void
     {
         // Check filesystem restrictions
-        $this->restrictions->check($source, false);
-        $this->restrictions->check($target, true);
+        $this->checkRestrictions($source, false);
+        $this->checkRestrictions($target, true);
 
         if (!file_exists($source)) {
             throw new FilesystemException(tr('Specified source file ":source" does not exist', [
@@ -2290,9 +2032,9 @@ class File
         $ft       = fopen($target, 'w');
         $position = 0;
         $length   = 8192;
-        $filesize = filesize($source);
+        $this->filesize = filesize($source);
 
-        while ($position < $filesize) {
+        while ($position < $this->filesize) {
             $data      = fread($fs, $length);
             $position += $length;
             fseek($fs, $position);
@@ -2320,7 +2062,7 @@ class File
     public function lineCount(string $source): int
     {
         throw new UnderConstructionException();
-        self::isText($source);
+        $this->isText($source);
     }
 
 
@@ -2334,42 +2076,7 @@ class File
     public function wordCount(string $source): int
     {
         throw new UnderConstructionException();
-        self::isText($source);
-    }
-
-
-
-    /**
-     * Scan the entire file path STRING upward for the specified file.
-     *
-     * If the specified file doesn't exist in the specified path, go one dir up,
-     * all the way to root /
-     *
-     * @param string $path
-     * @param string $filename
-     * @return string|null
-     */
-    public function scanPathString(string $path, string $filename): ?string
-    {
-        // Check filesystem restrictions
-        $this->restrictions->check($path, false);
-
-        if (!file_exists($path)) {
-            throw new FilesystemException(tr('Specified path ":path" does not exist', [':path' => $path]));
-        }
-
-        while (strlen($path) > 1) {
-            $path = Strings::slash($path);
-
-            if (file_exists($path . $filename)) {
-                // The requested file is found! Return the path where it was found
-                return $path;
-            }
-
-            $path = dirname($path);
-        }
-
-        return null;
+        $this->isText($source);
     }
 
 
@@ -2385,7 +2092,7 @@ class File
     {
         throw new UnderConstructionException();
         // Check filesystem restrictions
-        $this->restrictions->check($path, false);
+        $this->checkRestrictions($path, false);
 
         if (!file_exists($path)) {
             Log::warning(tr('Cannot move the specified path ":path" to backup, it does not exist', [
@@ -2401,7 +2108,7 @@ class File
         if (file_exists($backup_path)) {
             // Backup already exists as well, script run twice in under a second. Delete the current one as the backup
             // was generated less than a second ago
-            File::delete($path, PATH_ROOT.'data/backups/' . $name . '/');
+            $this->delete($path, PATH_ROOT.'data/backups/' . $name . '/');
             return true;
         }
 
@@ -2449,7 +2156,7 @@ class File
         $path = Strings::endsNotWith(Strings::startsNotWith($path, '/'), '/');
 
         // Check filesystem restrictions
-        $this->restrictions->check($path, false);
+        $this->checkRestrictions($path, false);
 
         foreach (explode('/', $path) as $section) {
             $location .= $section;
@@ -2495,7 +2202,7 @@ class File
 
 
     /**
-     * Perform a "sed" action on the specified file
+     * Perform a "sed" action on the object file
      *
      * @see safe_exec()
      * @version 2.4.22: Added function and documentation
@@ -2558,7 +2265,7 @@ class File
     public function cat($params) {
         throw new UnderConstructionException();
         // Check filesystem restrictions
-        $this->restrictions->check($path, false);
+        $this->checkRestrictions($path, false);
 
         Arrays::ensure($params, 'ok_exitcodes,function,sudo,background,domain');
 
@@ -2587,7 +2294,7 @@ class File
      * Locates the specifed command and returns it path
      *
      * @param string $command
-     * @return string The path of the specified file
+     * @return string The path of the object file
      */
     public function which(string $command): string
     {
@@ -2597,47 +2304,23 @@ class File
 
 
     /**
-     * Search / replace the specified file
+     * Search / replace the object file
      *
      * @see file_copy_tree()
-     * @param string $file The file that needs to have the search / replace done
+     * @param string $this->file The file that needs to have the search / replace done
      * @param array $replace The list of keys that will be replaced by values
-     * @return string The $file
+     * @return string The $this->file
      */
-    public function replace(string $file, array $replace): string
+    public function replace(array $replace): string
     {
         // Check filesystem restrictions
-        $this->restrictions->check($path, true);
+        $this->checkRestrictions($path, true);
 
-        $data = file_get_contents($file);
+        $data = file_get_contents();
         $data = str_replace(array_keys($replace), $replace, $data);
 
-        file_put_contents($file, $data);
-        return $file;
-    }
-
-
-
-    /**
-     * Ensures that the specified file name is valid
-     *
-     * @param string $file
-     * @return void
-     */
-    public function validateFilename(string $file): void
-    {
-        $file = trim($file);
-
-        if (!$file) {
-            throw new OutOfBoundsException(tr('No file specified'));
-        }
-
-        if (strlen($file) > 4096) {
-            throw new OutOfBoundsException(tr('The specified filename is too large with ":size" bytes', [':size' => strlen($file)]));
-        }
-
-        // Check filesystem restrictions
-        $this->restrictions->check($file, true);
+        file_put_contents($data);
+        return $this->file;
     }
 
 
@@ -2646,22 +2329,23 @@ class File
      * Filter out the lines that contain the specified filters
      *
      * @note Only supports line of up to 8KB which should be WAY more than enough, but still important to know
-     * @param string $path
-     * @param array $filters
+     * @param string|array $filters
      * @param int|null $until_line
      * @return array
      */
-    public function grep(string $path, string|array $filters, ?int $until_line = null): array
+    public function grep(string|array $filters, ?int $until_line = null): array
     {
         // Check filesystem restrictions
-        $this->restrictions->check($path, false);
+        $this->checkRestrictions($this->file, false);
 
         $return = [];
 
         // Validate filters
-        foreach (Arrays::force($filters, '') as $filter) {
+        foreach (Arrays::force($filters, null) as $filter) {
             if (!is_scalar($filter)) {
-                throw new OutOfBoundsException(tr('The filter ":filter" is invalid, only string filters are allowed', [':filter' => $filter]));
+                throw new OutOfBoundsException(tr('The filter ":filter" is invalid, only string filters are allowed', [
+                    ':filter' => $filter
+                ]));
             }
 
             // Libraries the return array
@@ -2670,18 +2354,21 @@ class File
 
         // Open the file and start scanning each line
         $count  = 0;
-        $handle = File::open($path, 'r');
 
-        while (($line = fgets($handle, 8096)) !== false) {
-            foreach ($filters as $filter) {
-                if (str_contains($line, $filter)) {
-                    $return[$filter][] = $line;
+        foreach ($this->file as $file) {
+            $handle = $this->open($this->file, 'r');
+
+            while (($line = fgets($handle, 8096)) !== false) {
+                foreach ($filters as $filter) {
+                    if (str_contains($line, $filter)) {
+                        $return[$file][$filter][] = $line;
+                    }
                 }
-            }
 
-            if ($until_line and (++$count >= $until_line)) {
-                // We're done, get out
-                break;
+                if ($until_line and (++$count >= $until_line)) {
+                    // We're done, get out
+                    break;
+                }
             }
         }
 
@@ -2692,15 +2379,14 @@ class File
 
 
     /**
-     * Returns true if the specified file is a PHP file
+     * Returns true if the object file is a PHP file
      *
-     * @param string $file
      * @return bool
      */
-    public function isPhp(string $file): bool
+    public function isPhp(): bool
     {
-        if (str_ends_with($file, '.php')) {
-            if (self::isText($file)) {
+        if (str_ends_with($this->file, '.php')) {
+            if ($this->isText()) {
                 return true;
             }
         }
@@ -2711,16 +2397,29 @@ class File
 
 
     /**
-     * Returns a path object for this class
+     * Check the specified $path against this objects' restrictions
      *
-     * @return Path
+     * @param string $path
+     * @param bool $write
+     * @return void
      */
-    protected function path(): Path
+    protected function checkRestrictions(string $path, bool $write)
     {
-        if ($this->path === null) {
-            $this->path = new Path($this->restrictions);
-        }
+        $this->checkRestrictions($path, $write);
+    }
 
-        return $this->path;
+
+
+    /**
+     * Checks if the specified path exists
+     *
+     * @param string|null $path
+     * @return void
+     */
+    protected function fileExists(?string $path): void
+    {
+        if (!file_exists($path)) {
+            throw new FilesystemException(tr('Specified path ":path" does not exist', [':path' => $path]));
+        }
     }
 }

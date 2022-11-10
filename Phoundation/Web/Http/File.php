@@ -244,7 +244,7 @@ class File
         }
 
         // Ensure the specified file is valid and readable
-        \Phoundation\Filesystem\File::checkReadable($file);
+        \Phoundation\Filesystem\File::new()->checkReadable($file);
         $this->restrictions->check($file);
 
         $this->file = $file;
@@ -340,7 +340,7 @@ class File
     /**
      * Returns the mimetype for the file to be sent
      *
-     * @note If no mimetype was set BEFORE executing the File::send() method then this mimetype was detected
+     * @note If no mimetype was set BEFORE executing the File::new()->send() method then this mimetype was detected
      *       automatically
      * @return string|null
      */
@@ -393,7 +393,7 @@ Log::checkpoint();
             $this->mimetype = mime_content_type($this->file);
 
             // What file mode will we use?
-            if (\Phoundation\Filesystem\File::isBinary($this->mimetype)) {
+            if (\Phoundation\Filesystem\File::new()->isBinary($this->mimetype)) {
                 $mode = 'rb';
 
             } else {
@@ -425,7 +425,7 @@ Log::checkpoint();
      * If the path is not specified then by default the function will download to the PATH_TMP directory;
      * PATH_ROOT/data/tmp
      *
-     * @see \Phoundation\Filesystem\File::temp()
+     * @see \Phoundation\Filesystem\File::new()->temp()
      * @param string $url             The URL of the file to be downloaded
      * @param callable|null $callback If specified, download will execute this callback with either the filename or file
      *                                contents (depending on $section)
@@ -434,7 +434,7 @@ Log::checkpoint();
     public function download(string $url, callable $callback = null): ?string
     {
         // Set temp file and download data
-        $file = \Phoundation\Filesystem\File::temp();
+        $file = \Phoundation\Filesystem\File::new()->temp();
         $data = file_get_contents($url);
 
         // Write data to the temp file
@@ -443,7 +443,7 @@ Log::checkpoint();
         if ($callback) {
             // Execute the callbacks before returning the data, delete the temporary file after
             $callback($file);
-            \Phoundation\Filesystem\File::delete($file);
+            \Phoundation\Filesystem\File::new()->delete($file);
         }
 
         return $file;
@@ -462,7 +462,7 @@ Log::checkpoint();
         if ($this->compression === 'auto') {
             // Detect if the file is already compressed. If so, we don't need the server to try to compress the data
             // stream too because it won't do anything (possibly make it even worse)
-            $this->compression = !\Phoundation\Filesystem\File::isCompressed($this->mimetype);
+            $this->compression = !\Phoundation\Filesystem\File::new()->isCompressed($this->mimetype);
         }
 
         if ($this->compression) {

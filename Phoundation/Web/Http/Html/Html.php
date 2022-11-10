@@ -1507,7 +1507,7 @@ Class Html
                          */
                         log_file(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', array(':file' => $file.'.js')), 'html-script', 'yellow');
 
-                        File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
+                        File::new()->executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
                             file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', PATH_ROOT.'www/'.LANGUAGE.'/pub/js');
                             file_delete(array('patterns'       => $file.'.js,'.$file.'.min.js',
                                 'force_writable' => true,
@@ -1520,7 +1520,7 @@ Class Html
                          */
                         log_file(tr('Deleting externally cached javascript file ":file" because the file cache time expired', array(':file' => $file.'.js')), 'html-script', 'yellow');
 
-                        File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
+                        File::new()->executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
                             file_delete(array('patterns'       => $file.'.js,'.$file.'.min.js',
                                 'force_writable' => true,
                                 'restrictions'   => PATH_ROOT.'www/'.LANGUAGE.'/pub/js'));
@@ -1534,7 +1534,7 @@ Class Html
                  * deleted it
                  */
                 if (!file_exists($file.'.js')) {
-                    File::executeMode(dirname($file), 0770, function() use ($file, $return) {
+                    File::new()->executeMode(dirname($file), 0770, function() use ($file, $return) {
                         log_file(tr('Writing internal javascript to externally cached file ":file"', array(':file' => $file.'.js')), 'html-script', 'cyan');
                         file_put_contents($file.'.js', $return);
                     });
@@ -1875,8 +1875,8 @@ Class Html
                 log_file(tr('Modified format target ":target" does not exist, converting original source', array(':target' => $target)), 'html', 'VERYVERBOSE/warning');
                 load_libs('image');
 
-                File::executeMode(dirname($file_src), 0770, function() use ($file_src, $target, $format) {
-                    File::executeMode($file_src, 0660, function() use ($file_src, $target, $format) {
+                File::new()->executeMode(dirname($file_src), 0770, function() use ($file_src, $target, $format) {
+                    File::new()->executeMode($file_src, 0660, function() use ($file_src, $target, $format) {
                         global $_CONFIG;
 
                         image_convert(array('method' => 'custom',
@@ -2238,7 +2238,7 @@ Class Html
                             log_file(tr('Resized version of ":src" does not yet exist, converting', array(':src' => $params['src'])), 'html', 'VERBOSE/cyan');
                             load_libs('image');
 
-                            File::executeMode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params) {
+                            File::new()->executeMode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params) {
                                 global $_CONFIG;
 
                                 image_convert(array('method' => 'resize',
@@ -2325,7 +2325,7 @@ Class Html
                         $file = download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
                         $path = cli_unzip($file);
 
-                        File::executeMode(PATH_ROOT.'www/en/pub/js', 0770, function() use ($path) {
+                        File::new()->executeMode(PATH_ROOT.'www/en/pub/js', 0770, function() use ($path) {
                             file_delete(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/');
                             rename($path.'jquery.lazy-master/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
                         });

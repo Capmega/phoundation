@@ -1058,8 +1058,8 @@ under_construction();
                 log_file(tr('Modified format target ":target" does not exist, converting original source', array(':target' => $target)), 'html', 'VERYVERBOSE/warning');
                 load_libs('image');
 
-                File::executeMode(dirname($file_src), 0770, function() use ($file_src, $target, $format) {
-                    File::executeMode($file_src, 0660, function() use ($file_src, $target, $format) {
+                File::new()->executeMode(dirname($file_src), 0770, function() use ($file_src, $target, $format) {
+                    File::new()->executeMode($file_src, 0660, function() use ($file_src, $target, $format) {
                         global $_CONFIG;
 
                         image_convert(array('method' => 'custom',
@@ -1427,7 +1427,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                             log_file(tr('Resized version of ":src" does not yet exist, converting', array(':src' => $params['src'])), 'html', 'VERBOSE/cyan');
                             load_libs('image');
 
-                            File::executeMode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params) {
+                            File::new()->executeMode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params) {
                                 global $_CONFIG;
 
                                 image_convert(array('method' => 'resize',
@@ -1514,7 +1514,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                         $file = download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
                         $path = cli_unzip($file);
 
-                        File::executeMode(PATH_ROOT.'www/en/pub/js', 0770, function() use ($path) {
+                        File::new()->executeMode(PATH_ROOT.'www/en/pub/js', 0770, function() use ($path) {
                             file_delete(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/');
                             rename($path.'jquery.lazy-master/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
                         });

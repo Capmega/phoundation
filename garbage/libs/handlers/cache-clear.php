@@ -119,7 +119,7 @@ try {
         }
 
         if (file_exists(PATH_ROOT.'www/'.$code.'/pub/js/')) {
-            File::executeMode(PATH_ROOT.'www/'.$code.'/pub/js/', 0770, function() use ($code) {
+            File::new()->executeMode(PATH_ROOT.'www/'.$code.'/pub/js/', 0770, function() use ($code) {
                 file_delete(array('patterns'       => PATH_ROOT.'www/'.$code.'/pub/js/cached-*,'.PATH_ROOT.'www/'.$code.'/pub/js/bundle-*' ,
                                   'restrictions'   => PATH_ROOT.'www/'.$code.'/pub/js/',
                                   'force_writable' => true));
@@ -132,7 +132,7 @@ try {
         }
 
         if (file_exists(PATH_ROOT.'www/'.$code.'/pub/css/')) {
-            File::executeMode(PATH_ROOT.'www/'.$code.'/pub/css/', 0770, function() use ($code) {
+            File::new()->executeMode(PATH_ROOT.'www/'.$code.'/pub/css/', 0770, function() use ($code) {
                 file_delete(array('patterns'       => PATH_ROOT.'www/'.$code.'/pub/css/bundle-*,'.PATH_ROOT.'www/'.$code.'/pub/css/p-bundle-*',
                                   'restrictions'   => PATH_ROOT.'www/'.$code.'/pub/css/',
                                   'force_writable' => true));
@@ -145,7 +145,7 @@ try {
         }
 
         if (file_exists(PATH_ROOT.'www/'.$code.'/admin/pub/js/')) {
-            File::executeMode(PATH_ROOT.'www/'.$code.'/admin/pub/js/', 0770, function() use ($code) {
+            File::new()->executeMode(PATH_ROOT.'www/'.$code.'/admin/pub/js/', 0770, function() use ($code) {
                 file_delete(array('patterns'       => PATH_ROOT.'www/'.$code.'/admin/pub/js/cached-*,'.PATH_ROOT.'www/'.$code.'/admin/pub/js/bundle-*',
                                   'restrictions'   => PATH_ROOT.'www/'.$code.'/admin/pub/js/',
                                   'force_writable' => true));
@@ -158,7 +158,7 @@ try {
         }
 
         if (file_exists(PATH_ROOT.'www/'.$code.'/admin/pub/css/')) {
-            File::executeMode(PATH_ROOT.'www/'.$code.'/admin/pub/css/', 0770, function() use ($code) {
+            File::new()->executeMode(PATH_ROOT.'www/'.$code.'/admin/pub/css/', 0770, function() use ($code) {
                 file_delete(array('patterns'       => PATH_ROOT.'www/'.$code.'/admin/pub/css/bundle-*,'.PATH_ROOT.'www/'.$code.'/admin/pub/css/p-bundle-*',
                                   'restrictions'   => PATH_ROOT.'www/'.$code.'/admin/pub/css/',
                                   'force_writable' => true));
@@ -183,7 +183,7 @@ try {
                                 'name'  => '*.webp'));
 
         foreach ($files as $file) {
-            File::executeMode('*'.dirname($file), 0770, function() use ($file, $path) {
+            File::new()->executeMode('*'.dirname($file), 0770, function() use ($file, $path) {
                 file_delete($file, $path);
             });
         }
@@ -197,7 +197,7 @@ try {
                                 'regex' => '.+@[0-9]+x[0-9]+\..*'));
 
         foreach ($files as $file) {
-            File::executeMode('*'.dirname($file), 0770, function() use ($file, $path) {
+            File::new()->executeMode('*'.dirname($file), 0770, function() use ($file, $path) {
                 file_delete($file, $path);
             });
         }
@@ -216,7 +216,7 @@ try {
      */
     if (FORCE) {
         if (file_exists(PATH_ROOT.'node_modules/')) {
-            File::executeMode('*'.PATH_ROOT.'node_modules/', 0770, function() use ($code) {
+            File::new()->executeMode('*'.PATH_ROOT.'node_modules/', 0770, function() use ($code) {
                 file_delete(PATH_ROOT.'node_modules/', PATH_ROOT);
             });
         }

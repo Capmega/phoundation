@@ -61,6 +61,21 @@ class Restrictions
 
 
     /**
+     * Returns a new Restrictions object with the specified restrictions
+     *
+     * @param string|array|null $paths
+     * @param bool $write
+     * @param string|null $label
+     * @return Restrictions
+     */
+    public static function new(string|array|null $paths, bool $write = false, ?string $label = null): Restrictions
+    {
+        return new Restrictions($paths, $write, $label);
+    }
+
+
+
+    /**
      * Set all paths for this restriction
      *
      * @param array|string $paths
@@ -109,7 +124,7 @@ class Restrictions
         // Check each specified path pattern to see if its allowed or restricted
         foreach (Arrays::force($patterns) as $pattern) {
             foreach ($this->paths as $path => $restrict_write) {
-                $path = Path::absolute($path);
+                $path = Filesystem::absolute($path);
 
                 if (str_starts_with($pattern, $path)) {
                     if ($write and !$restrict_write) {

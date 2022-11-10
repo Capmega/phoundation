@@ -73,7 +73,7 @@ function css_setup($params) {
         // * Move library to PATH_ROOT/libs/vendor directory and ensure its readonly
         // */
         //Path::ensure(PATH_ROOT.'libs/vendor');
-        //File::executeMode(PATH_ROOT.'libs/vendor', 0770, function() {
+        //File::new()->executeMode(PATH_ROOT.'libs/vendor', 0770, function() {
         //    rename(PATH_TMP.'Purge', PATH_ROOT.'libs/vendor/purge-css');
         //    file_delete(PATH_TMP.'Purge');
         //

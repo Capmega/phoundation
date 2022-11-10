@@ -73,7 +73,7 @@ function composer_setup($params) {
             throw new CoreException(tr('composer_setup(): File hash check failed for composer-setup.php'), 'hash-fail');
         }
 
-        File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($file) {
+        File::new()->executeMode(PATH_ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($file) {
             safe_exec(array('commands' => array('php', array($file, '--install-dir', PATH_ROOT.'www/en/libs/', (VERBOSE ? '' : '--quiet')))));
         });
 
@@ -97,7 +97,7 @@ function composer_init_file() {
             }
         }
 
-        File::executeMode(PATH_ROOT, 0770, function() {
+        File::new()->executeMode(PATH_ROOT, 0770, function() {
             file_put_contents(PATH_ROOT.'www/'.LANGUAGE.'/libs/composer.json', "{\n}");
             chmod(PATH_ROOT.'libs/composer.json', 0660);
         });
@@ -135,9 +135,9 @@ function composer_exec($commands, $path = null) {
             throw new CoreException(tr('composer_exec(): No commands specified'), 'not-specified');
         }
 
-        File::executeMode(PATH_ROOT, 0770, function() use ($commands, $path) {
+        File::new()->executeMode(PATH_ROOT, 0770, function() use ($commands, $path) {
             if ($path) {
-                File::executeMode($path, 0770, function() use ($commands, $path) {
+                File::new()->executeMode($path, 0770, function() use ($commands, $path) {
                     safe_exec(array('function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                     'timeout'  => 30,
                                     'commands' => array('cd'                                      , array($path),
@@ -145,10 +145,10 @@ function composer_exec($commands, $path = null) {
                 });
 
             } else {
-                File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($commands) {
+                File::new()->executeMode(PATH_ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($commands) {
                     Path::ensure(PATH_ROOT.'www/'.LANGUAGE.'/libs/vendor', 0550);
 
-                    File::executeMode(PATH_ROOT.'www/'.LANGUAGE.'/libs/vendor', 0770, function() use ($commands) {
+                    File::new()->executeMode(PATH_ROOT.'www/'.LANGUAGE.'/libs/vendor', 0770, function() use ($commands) {
                         file_chmod(array('path'         => PATH_ROOT.'www/'.LANGUAGE.'/libs/vendor',
                                          'mode'         => 'ug+w',
                                          'recursive'    => true,

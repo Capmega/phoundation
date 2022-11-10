@@ -66,7 +66,7 @@ function fancybox_install($params) {
         $js  = download('https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js');
         $css = download('https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css');
 
-        File::executeMode(PATH_ROOT.'www/en/pub/js', 0770, function() {
+        File::new()->executeMode(PATH_ROOT.'www/en/pub/js', 0770, function() {
             file_delete(array(PATH_ROOT.'www/en/pub/js/jquery.fancybox.js',
                               PATH_ROOT.'www/en/pub/css/jquery.fancybox.css'), PATH_ROOT.'www/en/pub');
 

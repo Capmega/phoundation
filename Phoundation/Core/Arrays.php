@@ -1370,4 +1370,25 @@ class Arrays {
 
         return $longest;
     }
+
+
+
+    /**
+     * Remove the key with the specified value from the given source array
+     *
+     * @param array $source
+     * @param string|float|int $value
+     * @return string|int|null NULL if the specified value didn't exist, the array key if it did
+     */
+    public static function unsetValue(array &$source, string|float|int $value): string|int|null
+    {
+        $key = array_search($value , $source);
+
+        if ($key === false) {
+            return null;
+        }
+
+        unset($source[$key]);
+        return $key;
+    }
 }

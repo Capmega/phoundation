@@ -23,7 +23,8 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Filesystem\File;
-
+use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Restrictions;
 
 
 /**
@@ -534,7 +535,7 @@ function execute_script(string $__file, array $argv): void
         include($__file);
     } catch (Throwable $e) {
         // Did this fail because the specified file does not exist?
-        File::checkReadable($__file, 'script', true, $e);
+        File::new()->checkReadable($__file, 'script', true, $e);
     }
 }
 
@@ -629,4 +630,32 @@ function mongo(?string $instance_name = null): Mongo
 function redis(?string $instance_name = null): Redis
 {
     return Databases::Redis($instance_name);
+}
+
+
+
+/**
+ * File::new() quick access wrapper
+ *
+ * @param string|null $file
+ * @param Restrictions|null $restrictions
+ * @return File
+ */
+function file(?string $file, ?Restrictions $restrictions): File
+{
+    return File::new($file, $restrictions);
+}
+
+
+
+/**
+ * Path::new() quick access wrapper
+ *
+ * @param string|null $path
+ * @param Restrictions|null $restrictions
+ * @return Path
+ */
+function path(?string $path, ?Restrictions $restrictions): Path
+{
+    return Path::new($path, $restrictions);
 }

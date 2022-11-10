@@ -6,6 +6,7 @@ namespace Phoundation\Content\Images;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Restrictions;
 
 /**
  * Class Convert
@@ -47,6 +48,13 @@ class Convert
      */
     protected ?string $method = null;
 
+    /**
+     * Filesystem restrictions for this image object
+     *
+     * @var Restrictions|null $restrictions
+     */
+    protected ?Restrictions $restrictions = null;
+
 
 
     /**
@@ -54,13 +62,18 @@ class Convert
      *
      * @param string $source
      */
-    public function __construct(string $source)
+    public function __construct(string $source, ?Restrictions $restrictions = null)
     {
         if (!$source) {
             throw new OutOfBoundsException(tr('No source file specified'));
         }
 
-        $this->source = $source;
+        if (!$restrictions) {
+            $restrictions = new Restrictions(PATH_DATA . 'cdn/');
+        }
+
+        $this->source       = $source;
+        $this->restrictions = $restrictions;
     }
 
 
@@ -102,11 +115,11 @@ class Convert
     {
         if ($this->target) {
             // Target already exists. See if we need to clean the directory for this target
-            Path::clear(dirname($this->target));
+            $this->path(dirname($this->target))->clear();
         }
 
         // Ensure that a path for the target file exists
-        Path::ensure(dirname($this->target));
+        $this->path(dirname($this->target))->ensure();
         $this->target = $target;
         return $this;
     }
@@ -147,5 +160,18 @@ class Convert
     public function getMethod(): ?string
     {
         return $this->method;
+    }
+
+
+
+    /**
+     * Returns a new Path object with the restrictions for this image object
+     *
+     * @param string $path
+     * @return Path
+     */
+    protected function path(string $path): Path
+    {
+        return new Path($path, $this->restrictions);
     }
 }

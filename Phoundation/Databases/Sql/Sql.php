@@ -801,7 +801,7 @@ class Sql
         throw new UnderConstructionException();
 
         $tel = 0;
-        $handle = File::open($file, 'r');
+        $handle = File::new()->open($file, 'r');
 
         while (($buffer = fgets($handle)) !== false) {
             $buffer = trim($buffer);

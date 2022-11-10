@@ -69,10 +69,10 @@ function captcha_html($class = null) {
         if (!file_exists(PATH_ROOT.'pub/js/recaptcha/api.js')) {
             $file = download('https://www.google.com/recaptcha/api.js');
 
-            File::executeMode(PATH_ROOT.'pub/js/', 0770, function() use ($file) {
+            File::new()->executeMode(PATH_ROOT.'pub/js/', 0770, function() use ($file) {
                 Path::ensure(PATH_ROOT.'pub/js/recaptcha/', 0550);
 
-                File::executeMode(PATH_ROOT.'pub/js/recaptcha/', 0770, function() use ($file) {
+                File::new()->executeMode(PATH_ROOT.'pub/js/recaptcha/', 0770, function() use ($file) {
                     rename($file, PATH_ROOT.'pub/js/recaptcha/api.js');
                 });
             });

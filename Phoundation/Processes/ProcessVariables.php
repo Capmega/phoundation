@@ -175,11 +175,11 @@ trait ProcessVariables
     {
         // Delete the log file?
         if ($this->clear_logs) {
-            File::delete($this->log_file);
+            File::new($this->log_file)->delete();
         }
 
         // Delete the run file!
-        File::delete($this->run_file);
+        File::new($this->run_file)->delete();
     }
 
 
@@ -264,7 +264,7 @@ trait ProcessVariables
 //
 //        // Ensure the path ends with a slash and that it is writable
 //        $path = Strings::slash($path);
-//        $path = File::ensureWritable($path);
+//        $path = File::new()->ensureWritable($path);
 //        $this->log_file = $path;
 //
 //        return $this;
@@ -351,7 +351,7 @@ trait ProcessVariables
 //
 //        // Ensure the path ends with a slash and that it is writable
 //        $path = Strings::slash($path);
-//        $path = File::ensureWritable($path);
+//        $path = File::new()->ensureWritable($path);
 //        $this->run_file = $path;
 //
 //        return $this;
@@ -749,11 +749,13 @@ trait ProcessVariables
             if ($redirect[0] === '&') {
                 // Redirect output to other channel
                 if (strlen($redirect) !== 2) {
-                    throw new OutOfBoundsException('Specified redirect ":redirect" is invalid. When redirecting to another channel, always specify &N where N is 0-9', [':redirect' => $redirect]);
+                    throw new OutOfBoundsException('Specified redirect ":redirect" is invalid. When redirecting to another channel, always specify &N where N is 0-9', [
+                        ':redirect' => $redirect
+                    ]);
                 }
             } else {
                 // Redirect output to a file
-                File::checkWritable($redirect);
+                File::new()->checkWritable($redirect);
                 $this->output_redirect[$channel] = ($append ? '*' : '') . $redirect;
             }
 
@@ -799,7 +801,7 @@ trait ProcessVariables
      */
     public function setInputRedirect(?string $redirect, int $channel = 1): static
     {
-        File::checkReadable($redirect);
+        File::new()->checkReadable($redirect);
 
         $this->input_redirect[$channel] = get_null($redirect);
 

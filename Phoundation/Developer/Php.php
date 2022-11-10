@@ -48,7 +48,7 @@ class Php extends Each
         ];
 
         foreach (Arrays::force($paths, null) as $path) {
-            File::new()->each($path)
+            File::new()->new()->each($path)
                 ->setRecurse($recurse)
                 ->setWhitelistExtensions(array_keys($statistics['files']))
                 ->execute(function(string $file) use (&$statistics) {

@@ -993,14 +993,14 @@ class Debug {
      */
     public static function getClassPath(string $file): string
     {
-        if (!File::isPhp($file)) {
+        if (!File::new()->isPhp($file)) {
             throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
         }
 
         // Scan for namespace and class lines
         $namespace = null;
         $class     = null;
-        $results   = File::grep($file, ['namespace ', 'class '], 100);
+        $results   = File::new()->grep($file, ['namespace ', 'class '], 100);
 
         // Get the namespace
         foreach ($results['namespace '] as $line) {
@@ -1046,7 +1046,7 @@ class Debug {
         $file = Strings::startsNotWith($file, '/');
         $file = PATH_ROOT . $file . '.php';
 
-        if (!File::isPhp($file)) {
+        if (!File::new()->isPhp($file)) {
             throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
         }
 
