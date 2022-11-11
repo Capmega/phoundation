@@ -22,7 +22,7 @@ use Throwable;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Processes
  */
-class Commands
+class Command
 {
     /**
      * Where will this be executed? Locally or on the specified server
@@ -47,11 +47,11 @@ class Commands
      * Returns a new Images object
      *
      * @param Server|string|null $server
-     * @return Commands
+     * @return Command
      */
-    public static function new(Server|string|null $server = null): Commands
+    public static function new(Server|string|null $server = null): Command
     {
-        return new Commands($server);
+        return new Command($server);
     }
 
 

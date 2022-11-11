@@ -19,7 +19,7 @@ use Phoundation\Processes\Exception\ProcessFailedException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Processes
  */
-class ProcessCommands extends Commands
+class ProcessCommands extends Command
 {
     /**
      * Returns the process id for the specified command
@@ -76,7 +76,7 @@ class ProcessCommands extends Commands
 
         } catch (ProcessFailedException $e) {
             // The command id failed
-            Commands::handleException('pgrep', $e);
+            Command::handleException('pgrep', $e);
         }
     }
 
@@ -115,7 +115,7 @@ class ProcessCommands extends Commands
 
         } catch (ProcessFailedException $e) {
             // The command kill failed
-            Commands::handleException('kill', $e);
+            Command::handleException('kill', $e);
         }
     }
 
@@ -154,7 +154,7 @@ class ProcessCommands extends Commands
 
         } catch (ProcessFailedException $e) {
             // The command pkill failed
-            Commands::handleException('pkill', $e);
+            Command::handleException('pkill', $e);
         }
     }
 
@@ -195,7 +195,7 @@ class ProcessCommands extends Commands
 
         } catch (ProcessFailedException $e) {
             // The command pkill failed
-            Commands::handleException('pkill', $e);
+            Command::handleException('pkill', $e);
         }
     }
 
@@ -288,7 +288,7 @@ class ProcessCommands extends Commands
 
         } catch (ProcessFailedException $e) {
             // The command pkill failed
-            Commands::handleException('pkill', $e);
+            Command::handleException('pkill', $e);
         }
     }
 }

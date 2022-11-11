@@ -148,13 +148,14 @@ class Core {
              * PATH_TMP    is a private temporary directory
              * PATH_PUBTMP is a public (accessible by web server) temporary directory
              */
-            define('REQUEST'    , substr(uniqid(), 7));
-            define('PATH_ROOT'  , realpath(__DIR__ . '/../..') . '/');
-            define('PATH_WWW'   , PATH_ROOT . 'www/');
-            define('PATH_DATA'  , PATH_ROOT . 'data/');
-            define('PATH_CDN'   , PATH_DATA . 'cdn/');
-            define('PATH_TMP'   , PATH_DATA . 'tmp/');
-            define('PATH_PUBTMP', PATH_DATA . 'cdn/tmp/');
+            define('REQUEST'     , substr(uniqid(), 7));
+            define('PATH_ROOT'   , realpath(__DIR__ . '/../..') . '/');
+            define('PATH_WWW'    , PATH_ROOT . 'www/');
+            define('PATH_DATA'   , PATH_ROOT . 'data/');
+            define('PATH_CDN'    , PATH_DATA . 'cdn/');
+            define('PATH_TMP'    , PATH_DATA . 'tmp/');
+            define('PATH_PUBTMP' , PATH_DATA . 'cdn/tmp/');
+            define('PATH_SCRIPTS', PATH_ROOT . 'scripts/');
 
             // Setup error handling, report ALL errors,
             error_reporting(E_ALL);
@@ -522,10 +523,10 @@ class Core {
 
                             switch ($arg) {
                                 case '--version':
-                                    /*
-                                     * Show version information
-                                     */
-                                    Log::information(tr('BASE framework code version ":fv", project code version ":pv"', [':fv' => self::FRAMEWORKCODEVERSION, ':pv' => PROJECTCODEVERSION]));
+                                    // Show version information
+                                    Log::information(tr('Phoundation framework code version ":fv"', [
+                                        ':fv' => self::FRAMEWORKCODEVERSION
+                                    ]));
                                     $die = 0;
                                     break;
 
@@ -571,9 +572,7 @@ class Core {
                                 case '-L':
                                     // no-break
                                 case '--language':
-                                    /*
-                                     * Set language to be used
-                                     */
+                                    // Set language to be used
                                     if (isset($language)) {
                                         $e = new CoreException(tr('Language has been specified twice'));
                                     }
@@ -616,9 +615,7 @@ class Core {
                                     $valid = preg_match('/^ ORDER BY `[a-z0-9_]+`(?:\s+(?:DESC|ASC))? $/', ORDERBY);
 
                                     if (!$valid) {
-                                        /*
-                                         * The specified column ordering is NOT valid
-                                         */
+                                        // The specified column ordering is NOT valid
                                         $e = new CoreException(tr('The specified orderby argument ":argument" is invalid', [':argument' => ORDERBY]));
                                     }
 
@@ -648,6 +645,13 @@ class Core {
                                 case '--skip-init-check':
                                     // Skip init check for the core database
                                     self::$register['system']['skip_init_check'] = true;
+                                    break;
+
+                                case '-W':
+                                    // no-break
+                                case '--no-warnings':
+                                    define('NOWARNINGS', true);
+                                    unset($GLOBALS['argv'][$argid]);
                                     break;
 
                                 default:

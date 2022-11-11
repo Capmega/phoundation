@@ -172,6 +172,10 @@ class Exception extends RuntimeException
      */
     public function setWarning(bool $warning): Exception
     {
+        if (defined('NOWARNINGS') and NOWARNINGS) {
+            $warning = false;
+        }
+
         $this->warning = $warning;
         return $this;
     }

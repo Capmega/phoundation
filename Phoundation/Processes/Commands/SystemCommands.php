@@ -22,7 +22,7 @@ use Throwable;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Processes
  */
-class SystemCommands extends Commands
+class SystemCommands extends Command
 {
     /**
      * Returns the realpath for the specified command
@@ -51,7 +51,7 @@ class SystemCommands extends Commands
 
         } catch (ProcessFailedException $e) {
             // The command which failed, likely it could not find the requested command
-            Commands::handleException('rm', $e, function($first_line, $last_line, $e) use ($command) {
+            Command::handleException('rm', $e, function($first_line, $last_line, $e) use ($command) {
                 if ($e->getCode() == 1) {
                     if (!$e->getData()['output']) {
                         throw new CommandsException(tr('The which could not find the specified command ":command"', [':command' => $command]));
@@ -92,7 +92,7 @@ class SystemCommands extends Commands
 
         } catch (ProcessFailedException $e) {
             // The command id failed
-            Commands::handleException('rm', $e);
+            Command::handleException('rm', $e);
         }
     }
 }

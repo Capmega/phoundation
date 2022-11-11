@@ -21,7 +21,7 @@ use Phoundation\Processes\Exception\ProcessFailedException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Processes
  */
-class FilesystemCommands extends Commands
+class FilesystemCommands extends Command
 {
     /**
      * Returns the realpath for the specified command
@@ -43,7 +43,7 @@ class FilesystemCommands extends Commands
 
         } catch (ProcessFailedException $e) {
             // The command chmod failed, most of the time either $file doesn't exist, or we don't have access to change the mode
-            Commands::handleException('rm', $e, function($first_line, $last_line, $e) use ($file, $mode) {
+            Command::handleException('rm', $e, function($first_line, $last_line, $e) use ($file, $mode) {
                 if ($e->getCode() == 1) {
                     if (str_contains($last_line, 'no such file or directory')) {
                         throw new CommandsException(tr('Failed to chmod file ":file" to ":mode", it does not exist', [':file' => $file, ':mode' => $mode]));
@@ -95,7 +95,7 @@ class FilesystemCommands extends Commands
 
         } catch (ProcessFailedException $e) {
             // The command rm failed, most of the time either $file doesn't exist, or we don't have access to change the mode
-            Commands::handleException('rm', $e, function($first_line, $last_line, $e) use ($file) {
+            Command::handleException('rm', $e, function($first_line, $last_line, $e) use ($file) {
                 if ($e->getCode() == 1) {
                     if (str_contains($last_line, 'no such file or directory')) {
                         // The specified file does not exist, that is okay, we wanted it gone anyway
@@ -132,7 +132,7 @@ class FilesystemCommands extends Commands
 
         } catch (ProcessFailedException $e) {
             // The command mkdir failed, most of the time either $file doesn't exist, or we don't have access to change the mode
-            Commands::handleException('mkdir', $e, function($first_line, $last_line, $e) use ($file) {
+            Command::handleException('mkdir', $e, function($first_line, $last_line, $e) use ($file) {
                 if ($e->getCode() == 1) {
                     if (str_contains($first_line, 'not a directory')) {
                         $path = Strings::from($first_line, 'directory \'');
