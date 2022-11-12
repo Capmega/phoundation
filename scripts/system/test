@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 use Phoundation\Cli\Color;
-use Phoundation\Cli\Scripts;
+use Phoundation\Cli\Script;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
@@ -32,7 +32,7 @@ $usage = './cli system info';
 
 $help  = 'The info script will show detailed information about the current framework, project, database and more';
 
-Scripts::noArgumentsLeft();
+Script::noArgumentsLeft();
 
 
 

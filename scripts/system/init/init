@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Cli\Scripts;
+use Phoundation\Cli\Script;
 use Phoundation\Libraries\Libraries;
 
 
@@ -18,12 +18,12 @@ use Phoundation\Libraries\Libraries;
  */
 
 // Get command line arguments
-$system   = Scripts::boolArgument('-s,--system', true);
-$plugins  = Scripts::boolArgument('-p,--plugins', true);
-$library  = Scripts::boolArgument('-l,--library');
-$comments = Scripts::argument('-c,--comments', true);
+$system   = Script::boolArgument('-s,--system', true);
+$plugins  = Script::boolArgument('-p,--plugins', true);
+$library  = Script::boolArgument('-l,--library');
+$comments = Script::argument('-c,--comments', true);
 
-Scripts::noArgumentsLeft();
+Script::noArgumentsLeft();
 Libraries::initialize($system, $plugins, $comments, $library);
 
 //    // During init, force EMULATE_PREPARES because loads of init stuff will NOT work without

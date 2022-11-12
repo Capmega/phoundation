@@ -29,7 +29,7 @@ use Throwable;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
-class Scripts
+class Script
 {
     /**
      * The exit code for this process
@@ -68,7 +68,7 @@ class Scripts
 
         // All scripts will execute the cli_done() call, register basic script information
         Core::startup();
-        Core::registerShutdown(['\Phoundation\Cli\Scripts', 'shutdown']);
+        Core::registerShutdown(['\Phoundation\Cli\Script', 'shutdown']);
 
         // Only allow this to be run by the cli script
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
@@ -104,7 +104,7 @@ class Scripts
     #[NoReturn] public static function shutdown(?int $exit_code = null, ?string $exit_message = null): void
     {
         if ($exit_code) {
-            Scripts::setExitCode($exit_code, true);
+            Script::setExitCode($exit_code, true);
         }
 
         if (!QUIET) {
@@ -437,7 +437,7 @@ class Scripts
      *                             of the output
      *
      * @see cli_arguments()
-     * @see Scripts::argument()
+     * @see Script::argument()
      */
     function method(?int $index = null, ?string $default = null): string
     {

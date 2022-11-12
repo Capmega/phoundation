@@ -6,7 +6,7 @@ use DateTimeZone;
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Scripts;
+use Phoundation\Cli\Script;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Date\Date;
@@ -241,7 +241,7 @@ class Core {
                     }
 
                     // Died in CLI
-                    Scripts::shutdown(1, 'startup: Failed with "' . $e->getMessage() . '"');
+                    Script::shutdown(1, 'startup: Failed with "' . $e->getMessage() . '"');
                 }
 
             } catch (Throwable $e) {
@@ -470,27 +470,27 @@ class Core {
                 case 'cli':
                     self::$call_type = 'cli';
                     // Make sure we have the original arguments available
-                    putenv('TIMEOUT='.Scripts::argument('--timeout', true));
+                    putenv('TIMEOUT='.Script::argument('--timeout', true));
 
                     // Define basic platform constants
                     define('ADMIN'   , '');
                     define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
-                    define('QUIET'   , Scripts::argument('-Q,--quiet'));
-                    define('FORCE'   , Scripts::argument('-F,--force'));
-                    define('NOCOLOR' , Scripts::argument('-C,--no-color'));
-                    define('TEST'    , Scripts::argument('-T,--test'));
-                    define('DELETED' , Scripts::argument('--deleted'));
-                    define('STATUS'  , Scripts::argument('-S,--status', true));
+                    define('QUIET'   , Script::argument('-Q,--quiet'));
+                    define('FORCE'   , Script::argument('-F,--force'));
+                    define('NOCOLOR' , Script::argument('-C,--no-color'));
+                    define('TEST'    , Script::argument('-T,--test'));
+                    define('DELETED' , Script::argument('--deleted'));
+                    define('STATUS'  , Script::argument('-S,--status', true));
                     define('STARTDIR', Strings::slash(getcwd()));
 
                     // Check what environment we're in
-                    $environment = Scripts::argument('-E,--env,--environment', true);
+                    $environment = Script::argument('-E,--env,--environment', true);
 
                     if (empty($environment)) {
                         $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
 
                         if (empty($env)) {
-                            Scripts::shutdown(2, 'startup: No required environment specified for project "' . PROJECT . '"');
+                            Script::shutdown(2, 'startup: No required environment specified for project "' . PROJECT . '"');
                         }
 
                     } else {
@@ -677,12 +677,12 @@ class Core {
                     // Something failed?
                     if (isset($e)) {
                         echo "startup-cli: Command line parser failed with \"".$e->getMessage()."\"\n";
-                        Scripts::setExitCode(1);
+                        Script::setExitCode(1);
                         die(1);
                     }
 
                     if (isset($die)) {
-                        Scripts::shutdown($die);
+                        Script::shutdown($die);
                     }
 
                     // set terminal data
@@ -715,7 +715,7 @@ class Core {
 
                     // Get required language.
                     try {
-                        $language = not_empty(Scripts::argument('--language'), Scripts::argument('L'), Config::get('language.default', 'en'));
+                        $language = not_empty(Script::argument('--language'), Script::argument('L'), Config::get('language.default', 'en'));
 
                         if (Config::get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
                             throw new CoreException(tr('Unknown language ":language" specified', array(':language' => $language)), 'unknown');
@@ -757,14 +757,14 @@ class Core {
                     self::$register['ready'] = true;
 
                     // Set more system parameters
-                    if (Scripts::argument('-D,--debug')) {
+                    if (Script::argument('-D,--debug')) {
                         Debug::enabled();
                     }
 
-                    self::$register['all']         = Scripts::argument('-A,--all');
-                    self::$register['page']        = not_empty(Scripts::argument('-P,--page', true), 1);
-                    self::$register['limit']       = not_empty(Scripts::argument('--limit'  , true), Config::get('paging.limit', 50));
-                    self::$register['clean_debug'] = Scripts::argument('--clean-debug');
+                    self::$register['all']         = Script::argument('-A,--all');
+                    self::$register['page']        = not_empty(Script::argument('-P,--page', true), 1);
+                    self::$register['limit']       = not_empty(Script::argument('--limit'  , true), Config::get('paging.limit', 50));
+                    self::$register['clean_debug'] = Script::argument('--clean-debug');
 
                     // Validate parameters and give some startup messages, if needed
                     if (Debug::enabled()) {
@@ -1373,7 +1373,7 @@ class Core {
                             // This is just a simple general warning, no backtrace and such needed, only show the
                             // principal message
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-                            Scripts::shutdown(255);
+                            Script::shutdown(255);
                         }
 
 // TODO Remplement this with proper exception classes
@@ -1441,7 +1441,7 @@ class Core {
                         Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getCallType(), ':script' => self::readRegister('system', 'script')]));
                         Log::error(tr('Exception data:'));
                         Log::error($e);
-                        Scripts::shutdown(1);
+                        Script::shutdown(1);
 
                     case 'http':
                         // Log exception data
@@ -2142,8 +2142,8 @@ class Core {
             return;
         }
 
-        if (Scripts::getProcessUid() !== getmyuid()) {
-            if (!Scripts::getProcessUid() and $permit_root) {
+        if (Script::getProcessUid() !== getmyuid()) {
+            if (!Script::getProcessUid() and $permit_root) {
                 // Root is authorized!
                 return;
             }
@@ -2157,7 +2157,7 @@ class Core {
 
             // Re-execute this command as the specified user
             Log::warning(tr('Current user ":user" is not authorized to execute this script, re-executing script as user ":reuser"', [
-                ':user' => Scripts::getProcessUid(),
+                ':user' => Script::getProcessUid(),
                 ':reuser' => getmyuid()
             ]));
 

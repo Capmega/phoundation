@@ -1,0 +1,24 @@
+#!/usr/bin/php
+<?php
+use Phoundation\Cli\Script;
+use Phoundation\Web\Http\Html\Script;
+
+
+/**
+ * Script system/image/info
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\System
+ */
+$usage = './cli system image info';
+
+$help  = 'This script will display basic information about the specified image';
+
+$image = Script::
+Scripts::noArgumentsLeft();
+
+$image = new Image::new();

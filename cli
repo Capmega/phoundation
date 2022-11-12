@@ -1,8 +1,8 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Cli\Scripts;
+use Phoundation\Cli\Script;
 
 require('./vendor/autoload.php');
 
-Scripts::execute();
+Script::execute();
