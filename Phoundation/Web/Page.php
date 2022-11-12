@@ -16,6 +16,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\PageException;
@@ -159,8 +160,8 @@ class Page
                 ]));
             }
 
-            self::$headers['meta']['charset']  = Config::get('languages.encoding.charset', 'UTF-8');
-            self::$headers['meta']['viewport'] = Config::get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no');
+            self::$headers['meta']['charset']  = ['charset'  => Config::get('languages.encoding.charset', 'UTF-8')];
+            self::$headers['meta']['viewport'] = ['viewport' => Config::get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no')];
 
         } catch (ConfigNotExistsException $e) {
             throw new PageException(tr('No template specified, please ensure your configuration file contains "web.template.class"'), previous: $e);
@@ -569,9 +570,11 @@ throw new UnderConstructionException();
      */
     public static function setFavIcon(string $url): Page
     {
+        show(Url::build($url)->img());
+        showdie(Url::build($url)->img());
         self::$headers['link'][$url] = [
             'rel'  => 'icon',
-            'href' => Url::build($url)->cdn('js'),
+            'href' => Url::build($url)->img(),
             'type' => File::new($url, PATH_CDN . LANGUAGE . '/img')->mimetype()
         ];
 

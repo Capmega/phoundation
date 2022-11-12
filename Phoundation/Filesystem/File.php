@@ -19,7 +19,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Processes\Commands;
+use Phoundation\Processes\Command;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
 use Throwable;
@@ -239,7 +239,7 @@ class File
 
             // Open target file
             try {
-                $target_h = $this->open('a', $file);
+                $target_h = $this->open('a');
             } catch (Throwable $e) {
                 // Failed to open the target file
                 $this->checkReadable('target', true, $e);
@@ -248,7 +248,7 @@ class File
             // Open each source file
             foreach (Arrays::force($sources, null) as $source) {
                 try {
-                    $source_h = $this->open('r', $source);
+                    $source_h = File::new($source, $this->restrictions)->open('r');
                 } catch (Throwable $e) {
                     // Failed to open one of the sources, get rid of the partial target file
                     $this->delete();
@@ -600,8 +600,12 @@ class File
      */
     public function open(#[ExpectedValues(values:['r', 'r+', 'w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+', 'ce+'])] string $mode, $context = null)
     {
+        if (!$mode) {
+            throw new OutOfBoundsException(tr('No file open mode specified'));
+        }
+
         $this->requireSingleFile();
-        $this->checkRestrictions($this->files, true);
+        $this->checkRestrictions($this->files, ($mode[0] !== 'r'));
 
         foreach ($this->files as $file) {
             // Check filesystem restrictions
@@ -1269,9 +1273,6 @@ class File
      */
     public function grep(string|array $filters, ?int $until_line = null): array
     {
-        // Check filesystem restrictions
-        $this->checkRestrictions($this->files, false);
-
         $return = [];
 
         // Validate filters
@@ -1281,21 +1282,19 @@ class File
                     ':filter' => $filter
                 ]));
             }
-
-            // Libraries the return array
-            $return[$filter] = [];
         }
 
         // Open the file and start scanning each line
         $count  = 0;
 
         foreach ($this->files as $file) {
-            $handle = $this->open($this->files, 'r');
+            $handle = $this->open('r');
+            $lines  = [];
 
             while (($line = fgets($handle, 8096)) !== false) {
                 foreach ($filters as $filter) {
                     if (str_contains($line, $filter)) {
-                        $return[$file][$filter][] = $line;
+                        $lines[$filter][] = $line;
                     }
                 }
 
@@ -1303,6 +1302,10 @@ class File
                     // We're done, get out
                     break;
                 }
+            }
+
+            if ($lines) {
+                $return[$file] = $lines;
             }
 
             fclose($handle);
@@ -1316,11 +1319,11 @@ class File
     /**
      * Check the specified $path against this objects' restrictions
      *
-     * @param array|string $path
+     * @param array|string $paths
      * @param bool $write
      * @return void
      */
-    protected function checkRestrictions(array|string $paths, bool $write)
+    protected function checkRestrictions(array|string $paths, bool $write): void
     {
         $this->restrictions->check($paths, $write);
     }

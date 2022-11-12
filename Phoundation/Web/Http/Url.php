@@ -127,7 +127,7 @@ class Url {
      */
     public static function is(string $url): bool
     {
-        return preg_match('/http(?:s)?:/\/\/i', $url);
+        return preg_match('/http(?:s)?:\/\//i', $url);
     }
 
 

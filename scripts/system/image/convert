@@ -1,0 +1,25 @@
+#!/usr/bin/php
+<?php
+use Phoundation\Cli\Scripts;
+use Phoundation\Core\Config;
+use Phoundation\Core\Log;
+
+
+/**
+ * Script system/config/create-default
+ *
+ * This script will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration
+ * paths and their default values
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\System
+ */
+$usage = './cli system config create-default';
+
+$help  = 'This script will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration paths and their default values';
+
+Scripts::noArgumentsLeft();
+
+$image = new Image::new();

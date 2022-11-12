@@ -5,7 +5,7 @@ namespace Phoundation\Content\Images;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Processes\Commands;
+use Phoundation\Processes\Command;
 use Phoundation\Processes\Process;
 
 
@@ -20,14 +20,14 @@ use Phoundation\Processes\Process;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
-class Convert extends Commands
+class Convert extends Command
 {
     /**
      * The image source file that will be converted
      *
-     * @var string
+     * @var Image $source
      */
-    protected string $source;
+    protected Image $source;
 
     /**
      * The target file that will contain the converted image
@@ -55,23 +55,14 @@ class Convert extends Commands
     /**
      * Convert class constructor
      *
-     * @param string $source
-     * @param Restrictions|null $restrictions
+     * @param Image $source
      */
-    public function __construct(string $source, ?Restrictions $restrictions = null)
+    public function __construct(Image $source)
     {
-        if (!$source) {
-            throw new OutOfBoundsException(tr('No source file specified'));
-        }
-
-        if (!$restrictions) {
-            $restrictions = new Restrictions(PATH_DATA . 'cdn/');
-        }
-
         $this->source       = $source;
-        $this->restrictions = $restrictions;
+        $this->restrictions = $source->getRestrictions();
         
-        parent::__construct('convert', $this->server, true);
+        parent::__construct($source->getServer());
     }
 
 
@@ -151,7 +142,7 @@ class Convert extends Commands
     /**
      * Returns the method with which the image should be converted
      *
-     * @return string
+     * @return string|null
      */
     public function getMethod(): ?string
     {

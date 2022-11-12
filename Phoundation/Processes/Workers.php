@@ -417,7 +417,7 @@ class Workers extends Process
     {
         // Check the workers that are still active
         foreach ($this->workers as $pid => $worker) {
-            $ps = ProcessCommands::server($this->server)->ps($pid);
+            $ps = ProcessCommands::new($this->server)->ps($pid);
 
             if ($ps) {
                 // There is A process, but is it the right one? Cleanup both commands to compare

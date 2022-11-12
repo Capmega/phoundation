@@ -508,6 +508,7 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
 }
 
 
+
 /**
  * Execute the specified script file
  *
@@ -535,7 +536,7 @@ function execute_script(string $__file, array $argv): void
         include($__file);
     } catch (Throwable $e) {
         // Did this fail because the specified file does not exist?
-        File::new($__file, PATH_WWW)->checkReadable($__file, 'script', true, $e);
+        File::new($__file, PATH_SCRIPTS)->checkReadable('script', true, $e);
     }
 }
 

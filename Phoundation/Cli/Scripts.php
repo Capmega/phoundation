@@ -14,7 +14,7 @@ use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
-use Phoundation\Processes\Commands;
+use Phoundation\Processes\Command;
 use Throwable;
 
 
@@ -196,7 +196,7 @@ class Scripts
             return posix_getuid();
         }
 
-        return Commands::local()->id('u');
+        return Command::local()->id('u');
     }
 
 

@@ -5,7 +5,7 @@ use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Page;
 use Phoundation\Web\Template;
-
+use Throwable;
 
 
 /**
@@ -24,7 +24,7 @@ class Phoundation extends Template
      * Build the HTTP headers for the page
      *
      * @return int
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function buildHttpHeaders(): int
     {
@@ -45,7 +45,7 @@ class Phoundation extends Template
         Page::loadCss('css/mdb');
         Page::loadJavascript('js/mdb');
         Page::setTitle(tr('Phoundation'));
-//        Page::setFavIcon('img/mdb-favicon.ico');
+        Page::setFavIcon('img/mdb-favicon.ico');
 
         $html = Page::buildHeaders();
 show($html);

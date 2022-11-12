@@ -993,14 +993,14 @@ class Debug {
      */
     public static function getClassPath(string $file): string
     {
-        if (!File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates', ])->isPhp()) {
+        if (!File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates'])->isPhp()) {
             throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
         }
 
         // Scan for namespace and class lines
         $namespace = null;
         $class     = null;
-        $results   = File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates', ])->grep(['namespace ', 'class '], 100);
+        $results   = File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates'])->grep(['namespace ', 'class '], 100);
 
         // Get the namespace
         foreach ($results as $file) {

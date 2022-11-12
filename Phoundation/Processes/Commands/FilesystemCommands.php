@@ -5,7 +5,7 @@ namespace Phoundation\Processes;
 use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Path;
-use Phoundation\Processes\Exception\CommandsException;
+use Phoundation\Processes\Commands\Exception\CommandsException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 
 

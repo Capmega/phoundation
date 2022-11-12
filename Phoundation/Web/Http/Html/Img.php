@@ -2,14 +2,14 @@
 
 namespace Phoundation\Web\Http\Html;
 
-use Phoundation\Content\Images\Images;
+use Phoundation\Content\Images\Image;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
-use Phoundation\Processes\Commands;
+use Phoundation\Processes\Command;
 use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\Http;
@@ -50,6 +50,13 @@ class Img extends Element
      * @var string|null $src
      */
     protected ?string $src = null;
+
+    /**
+     * The file source path for this image
+     *
+     * @var string|null $file_src
+     */
+    protected ?string $file_src = null;
 
     /**
      * The alt text for this image
@@ -985,7 +992,7 @@ class Img extends Element
                 Path::new($target)->execute()
                     ->setMode(0660)
                     ->executeOnPathOnly(function() use ($target) {
-                        Images::new()->convert($this->source)
+                        Image::new()->convert($this->source)
                             ->setFile($target)
                             ->setMethod('custom')
                             ->setFormat(Config::get('cdn.images.convert.' . $this->format))
@@ -993,18 +1000,18 @@ class Img extends Element
                     });
             }
 
-            /*
-             * Convert src back to URL again
-             */
+            // Convert src back to URL again
             $this->file_src = $target;
             $this->src      = Url::build($target_part)->img();
 
         }catch(Throwable $e) {
             // Failed to upgrade image. Use the original image
             $e->makeWarning(true);
-            $e->addMessages(tr('html_img_src(): Failed to auto convert image ":src" to format ":format". Leaving image as-is', [
-                ':src' => $src,
-                ':format' => $_CONFIG['cdn']['img']['auto_convert'][$this->format])));
+            $e->addMessages(tr('Failed to auto convert image ":src" to format ":format". Leaving image as-is', [
+                ':src'    => $this->src,
+                ':format' => Config::get('cdn.images.convert.' . $this->format)
+            ]));
+
             Notification($e);
         }
     }

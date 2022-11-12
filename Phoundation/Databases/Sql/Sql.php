@@ -28,7 +28,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
-use Phoundation\Processes\Commands;
+use Phoundation\Processes\Command;
 use Phoundation\Servers\Server;
 use Phoundation\Servers\Servers;
 use Throwable;
@@ -1595,7 +1595,7 @@ class Sql
                             if (isset_get($this->configuration['ssh_tunnel']['required'])) {
                                 // The tunneling server has "AllowTcpForwarding" set to "no" in the sshd_config, attempt
                                 // auto fix
-                                Commands::server($this->configuration['server'])->enableTcpForwarding($this->configuration['ssh_tunnel']['server']);
+                                Command::server($this->configuration['server'])->enableTcpForwarding($this->configuration['ssh_tunnel']['server']);
                                 continue;
                             }
                         }

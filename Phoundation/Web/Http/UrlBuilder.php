@@ -285,10 +285,26 @@ class UrlBuilder
     /**
      * Returns an image URL
      *
-     * @return string
+     * @return string|null
      */
-    public function img(): string
+    public function img(bool $path = false): ?string
     {
+        if ($path) {
+            // Return the local filesystem path instead of a public URL
+            if (Url::is($this->url)) {
+                // This is an external URL, there is no local file
+                return null;
+            }
+
+            $path = Strings::startsNotWith($this->url, '/');
+
+            if (!str_starts_with($path, 'img/')) {
+                $path = 'img/' . $path;
+            }
+
+            return $path;
+        }
+
         if (Url::is($this->url)) {
             return $this->url;
         }

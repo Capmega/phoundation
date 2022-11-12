@@ -6,7 +6,6 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
-use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Exception\ProcessException;
@@ -176,8 +175,8 @@ Class Process
         $this->setExitCode($exit_code, $output);
 
         // Remove the temp files
-        FilesystemCommands::server($this->server)->delete($output_file);
-        FilesystemCommands::server($this->server)->delete($exitcode_file);
+        FilesystemCommands::new($this->server)->delete($output_file);
+        FilesystemCommands::new($this->server)->delete($exitcode_file);
 
         // So according to the documentation, for some reason passthru() would return null on success and false on
         // failure. Makes sense, right? Just return true or false, please,
@@ -250,7 +249,7 @@ Class Process
     public function kill(int $signal = 15): void
     {
         if ($this->pid) {
-            Commands::server($this->server)->killPid($signal, $this->pid);
+            Command::server($this->server)->killPid($signal, $this->pid);
         }
     }
 
