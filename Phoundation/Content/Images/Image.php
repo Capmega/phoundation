@@ -2,6 +2,7 @@
 
 namespace Phoundation\Content\Images;
 
+use Phoundation\Core\Exception\ImagesException;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
 use Phoundation\Processes\Commands\Command;
@@ -90,6 +91,7 @@ class Image extends Command
         }
 
         if (Strings::until($return['mimetype'], '/') === 'image') {
+            $return['is_image'] = true;
             $dimensions = getimagesize($this->file);
 
             $return['bits']       = $dimensions['bits'];
@@ -97,8 +99,33 @@ class Image extends Command
                 'width'  => $dimensions[0],
                 'height' => $dimensions[1]
             ];
+
+            $return['exif'] = $this->getExifInformation();
+
+        } else {
+            $return['is_image'] = false;
         }
 
         return $return;
+    }
+
+
+
+    /**
+     * Returns EXIF information for the current image
+     *
+     * @return array
+     */
+    protected function getExifInformation(): array
+    {
+        $exif = exif_read_data($this->file);
+
+        if (!$exif) {
+            throw new ImagesException(tr('Failed to read EXIF information from image file ":file"', [
+                ':file' => $this->file
+            ]));
+        }
+
+        return $exif;
     }
 }
