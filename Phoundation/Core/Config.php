@@ -92,82 +92,6 @@ class Config
 
 
     /**
-     * Return configuration data for the specified key path
-     *
-     * @param string|array $path    The key path to search for. This should be specified either as an array with key
-     *                              names or a . separated string
-     * @param mixed|null $default   The default value to return if no value was found in the configuration files
-     * @param mixed|null $specified A value that might have been specified by a calling function. IF this value is not
-     *                              NULL, it will automatically be returned as we will assume that that is the user
-     *                             (developer) specified value we should be using, overriding configuration and defaults
-     * @return mixed
-     */
-    public static function get(string|array $path, mixed $default = null, mixed $specified = null): mixed
-    {
-        Debug::counter('Config::get()')->increase();
-
-        if (self::$fail) {
-            // Config class failed, always return all default values
-            return $default;
-        }
-
-        // Do we have cached configuration information?
-        $cache_key = Strings::force($path, '.');
-
-        if (array_key_exists($cache_key, self::$cache)) {
-            return self::$cache[$cache_key];
-        }
-
-        self::getInstance();
-
-        if ($specified) {
-            return $specified;
-        }
-
-        $path = Arrays::force($path, '.');
-        $data = &static::$data;
-
-        // Go over each key and if the value for the key is an array, request a subsection
-        foreach ($path as $section) {
-            if (!is_array($data)) {
-//                echo "<pre>";var_dump($path);var_dump($section);var_dump($data);echo "\n";
-
-                if ($data !== null) {
-                    Log::warning(tr('Encountered invalid configuration structure whilst looking for ":path". Section ":section" should contain sub values but does not. Please check your configuration files that this structure exists correctly', [
-                        ':path'    => $path,
-                        ':section' => $section
-                    ]));
-                }
-
-                // This section is missing in config files. No biggie, initialize it as an array
-                $data = [];
-            }
-
-            if (!array_key_exists($section, $data)) {
-                // The requested key does not exist
-                if ($default === null) {
-                    // We have no default configuration either
-                    throw new ConfigNotExistsException(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml" AND ":environment.yaml"', [
-                        ':environment' => ENVIRONMENT,
-                        ':section'     => $section,
-                        ':path'        => $path
-                    ]));
-                }
-
-                // The requested key does not exist in configuration, return the default value instead
-                return self::$cache[$cache_key] = $default;
-            }
-
-            // Get the requested subsection. This subsection must be an array!
-            $data = &$data[$section];
-        }
-
-        return self::$cache[$cache_key] = $data;
-    }
-
-
-
-    /**
      * Return configuration BOOLEAN for the specified key path
      *
      * @note Will cause an exception if a non-boolean value is returned!
@@ -295,11 +219,89 @@ class Config
      *
      * @param string|array $path    The key path to search for. This should be specified either as an array with key
      *                              names or a . separated string
+     * @param mixed|null $default   The default value to return if no value was found in the configuration files
+     * @param mixed|null $specified A value that might have been specified by a calling function. IF this value is not
+     *                              NULL, it will automatically be returned as we will assume that that is the user
+     *                             (developer) specified value we should be using, overriding configuration and defaults
+     * @return mixed
+     */
+    public static function get(string|array $path, mixed $default = null, mixed $specified = null): mixed
+    {
+        Debug::counter('Config::get()')->increase();
+
+        if (self::$fail) {
+            // Config class failed, always return all default values
+            return $default;
+        }
+
+        // Do we have cached configuration information?
+        $cache_key = Strings::force($path, '.');
+
+        if (array_key_exists($cache_key, self::$cache)) {
+            return self::$cache[$cache_key];
+        }
+
+        self::getInstance();
+
+        if ($specified) {
+            return $specified;
+        }
+
+        $path = Arrays::force($path, '.');
+        $data = &static::$data;
+
+        // Go over each key and if the value for the key is an array, request a subsection
+        foreach ($path as $section) {
+            if (!is_array($data)) {
+//                echo "<pre>";var_dump($path);var_dump($section);var_dump($data);echo "\n";
+
+                if ($data !== null) {
+                    Log::warning(tr('Encountered invalid configuration structure whilst looking for ":path". Section ":section" should contain sub values but does not. Please check your configuration files that this structure exists correctly', [
+                        ':path'    => $path,
+                        ':section' => $section
+                    ]));
+                }
+
+                // This section is missing in config files. No biggie, initialize it as an array
+                $data = [];
+            }
+
+            if (!array_key_exists($section, $data)) {
+                // The requested key does not exist
+                if ($default === null) {
+                    // We have no default configuration either
+                    throw new ConfigNotExistsException(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml" AND ":environment.yaml"', [
+                        ':environment' => ENVIRONMENT,
+                        ':section'     => $section,
+                        ':path'        => $path
+                    ]));
+                }
+
+                // The requested key does not exist in configuration, return the default value instead
+                return self::$cache[$cache_key] = $default;
+            }
+
+            // Get the requested subsection. This subsection must be an array!
+            $data = &$data[$section];
+        }
+
+        return self::$cache[$cache_key] = $data;
+    }
+
+
+
+    /**
+     * Return configuration data for the specified key path
+     *
+     * @param string|array $path    The key path to search for. This should be specified either as an array with key
+     *                              names or a . separated string
      * @param mixed $value
      * @return mixed
      */
     public static function set(string|array $path, mixed $value = null): mixed
     {
+        self::getInstance();
+
         $cache_key = Strings::force($path, '.');
         $path      = Arrays::force($path, '.');
         $data      = &static::$data;
@@ -308,7 +310,10 @@ class Config
         foreach ($path as $section) {
             if (!is_array($data)) {
                 // Oops, this data section should be an array
-                throw new ConfigException(tr('The configuration section ":section" from requested path ":path" does not exist', [':section' => $section, ':path' => $path]));
+                throw new ConfigException(tr('The configuration section ":section" from requested path ":path" does not exist', [
+                    ':section' => $section,
+                    ':path' => $path
+                ]));
             }
 
             if (!array_key_exists($section, $data)) {
@@ -320,10 +325,61 @@ class Config
             $data = &$data[$section];
         }
 
+        // Clear config cache
+        self::$cache = [];
+
         // The variable $data should now be the correct leaf node. Assign it $value and return it.
         $data = $value;
         return self::$cache[$cache_key] = $value;
     }
+
+
+
+    /**
+     * Reads the configuration file for the specified configuration environment
+     *
+     * @param string $environment
+     * @return void
+     * @throws ConfigException
+     * @throws OutOfBoundsException
+     */
+    protected static function read(string $environment): void
+    {
+        // What environments should be read?
+        if ($environment === 'production') {
+            $environments = ['production'];
+        } else {
+            $environments = ['production', $environment];
+        }
+
+        // Read the section for each environment
+        foreach ($environments as $environment) {
+            $file = PATH_ROOT . 'config/' . $environment . '.yaml';
+            Restrictions::new(PATH_ROOT . 'config/')->check($file, false);
+
+            // Check if a configuration file exists for this environment
+            if (!file_exists($file)) {
+                // Do NOT use tr() here as it will cause endless loops!
+                throw Exceptions::ConfigException('Configuration file "' . Strings::from($file, PATH_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist')->makeWarning();
+            }
+
+            try {
+                // Read the configuration data and merge it in the internal configuration data array
+                $data = yaml_parse_file($file);
+            } catch (Throwable $e) {
+                // Failed to read YAML data from configuration file
+                self::$fail = true;
+                throw $e;
+            }
+
+            if (!is_array($data)) {
+                throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [':file' => $file]));
+            }
+
+            self::$data = Arrays::mergeFull(self::$data, $data);
+        }
+    }
+
 
 
     /**
@@ -443,52 +499,5 @@ class Config
         $data = yaml_emit($data);
         file_put_contents('config/default.yaml', $data);
         return $count;
-    }
-
-
-
-    /**
-     * Reads the configuration file for the specified configuration environment
-     *
-     * @param string $environment
-     * @return void
-     * @throws ConfigException
-     * @throws OutOfBoundsException
-     */
-    protected static function read(string $environment): void
-    {
-        // What environments should be read?
-        if ($environment === 'production') {
-            $environments = ['production'];
-        } else {
-            $environments = ['production', $environment];
-        }
-
-        // Read the section for each environment
-        foreach ($environments as $environment) {
-            $file = PATH_ROOT . 'config/' . $environment . '.yaml';
-            Restrictions::new(PATH_ROOT . 'config/')->check($file, false);
-
-            // Check if a configuration file exists for this environment
-            if (!file_exists($file)) {
-                // Do NOT use tr() here as it will cause endless loops!
-                throw Exceptions::ConfigException('Configuration file "' . Strings::from($file, PATH_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist')->makeWarning();
-            }
-
-            try {
-                // Read the configuration data and merge it in the internal configuration data array
-                $data = yaml_parse_file($file);
-            } catch (Throwable $e) {
-                // Failed to read YAML data from configuration file
-                self::$fail = true;
-                throw $e;
-            }
-
-            if (!is_array($data)) {
-                throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [':file' => $file]));
-            }
-
-            self::$data = Arrays::mergeFull(self::$data, $data);
-        }
     }
 }
