@@ -51,7 +51,10 @@ class Json
 
         if ($result) {
             if (isset($data['result'])) {
-                throw new JsonException(tr('Result was specified both in the data array as ":result1" as wel as the separate variable as ":result2"', [':result1' => $data['result'], ':result2' => $result]));
+                throw new JsonException(tr('Result was specified both in the data array as ":result1" as wel as the separate variable as ":result2"', [
+                    ':result1' => $data['result'],
+                    ':result2' => $result
+                ]));
             }
 
             // Add result to the reply
