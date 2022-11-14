@@ -1,7 +1,10 @@
 #!/usr/bin/php
 <?php
+
+use Phoundation\Cli\Cli;
 use Phoundation\Cli\Script;
 use Phoundation\Content\Images\Image;
+use Phoundation\Core\Log;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Servers\Localhost;
 
@@ -34,4 +37,5 @@ if (!$file) {
 $image = Image::new(Localhost::new(PATH_DATA))->setFile($file);
 
 // Display image information
-showdie($image->getInformation());
+Log::information(tr('Displaying image information for ":file"', [':file' => $file]));
+Cli::displayArray($image->getInformation());

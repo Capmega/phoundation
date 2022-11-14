@@ -90,7 +90,13 @@ class Image extends Command
         }
 
         if (Strings::until($return['mimetype'], '/') === 'image') {
-            $return['dimensions'] = getimagesize($this->file);
+            $dimensions = getimagesize($this->file);
+
+            $return['bits']       = $dimensions['bits'];
+            $return['dimensions'] = [
+                'width'  => $dimensions[0],
+                'height' => $dimensions[1]
+            ];
         }
 
         return $return;
