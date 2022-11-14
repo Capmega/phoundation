@@ -6,9 +6,9 @@ use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Exception\LogException;
-use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
+use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
@@ -239,10 +239,10 @@ Class Log {
      */
     public static function setThreshold(int $threshold): int
     {
-        if ($threshold < 1 or $threshold > 10) {
-            throw new OutOfBoundsException(tr('The specified log threshold level ":level" is invalid. Please ensure the level is between 0 and 10', [
+        if (!is_natural($threshold, 1) or ($threshold > 10)) {
+            throw Exceptions::OutOfBoundsException(tr('The specified log threshold level ":level" is invalid. Please ensure the level is between 0 and 10', [
                 ':level' => $threshold
-            ]));
+            ]))->makeWarning();
         }
 
         $return = $threshold;
@@ -521,7 +521,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public static function warning(mixed $messages = null, int $level = 7): bool
+    public static function warning(mixed $messages = null, int $level = 10): bool
     {
         return self::write($messages, 'warning', $level);
     }
