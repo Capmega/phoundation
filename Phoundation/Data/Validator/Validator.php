@@ -1177,6 +1177,7 @@ class Validator
     /**
      * Validates if the selected field is a valid JSON string
      *
+     * @copyright The used JSON regex validation taken from a twitter post by @Fish_CTO
      * @return Validator
      * @see self::isCsv()
      * @see self::isBase58()
@@ -1194,10 +1195,13 @@ class Validator
                 return '';
             }
 
-            json_decode($value);
+            // Try by regex. If that fails. try JSON decode
+            if (!preg_match('/^(?2)({([ \n\r\t]*)(((?9)(?2):((?2)(?1)(?2)))(,(?2)(?4))*)?}|\[(?2)((?1)(?2)(,(?5))*)?\]|true|false|(\"([^"\\\p{Cc}]|\\(["\\\/bfnrt]|u[\da-fA-F]{4}))*\")|-?(0|[1-9]\d*)(\.\d+)?([eE][-+]?\d+)?|null)(?2)$/', $value)){
+                json_decode($value);
 
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                $this->addFailure(tr('must contain a valid JSON string'));
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    $this->addFailure(tr('must contain a valid JSON string'));
+                }
             }
 
             return $value;
