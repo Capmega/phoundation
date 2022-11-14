@@ -547,7 +547,7 @@ function execute_script(string $__file, array $argv): void
  *
  * @param mixed $variable
  * @param int $level
- * @return
+ * @return mixed
  */
 function variable_zts_safe(mixed $variable, int $level = 0): mixed
 {
