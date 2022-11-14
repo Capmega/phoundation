@@ -14,7 +14,8 @@
     "ext-redis": "*",
     "ext-mongodb": "*",
     "ext-memcached": "*",
-    "ext-apache": "*"
+    "ext-apache": "*",
+    "ext-pcntl": "*"
   },
   "require-dev": {
     "phpmd/phpmd": "@stable",

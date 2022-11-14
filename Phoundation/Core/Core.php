@@ -157,11 +157,15 @@ class Core {
             define('PATH_PUBTMP' , PATH_DATA . 'cdn/tmp/');
             define('PATH_SCRIPTS', PATH_ROOT . 'scripts/');
 
-            // Setup error handling, report ALL errors,
+            // Setup error handling, report ALL errors, setup shutdown functions
             error_reporting(E_ALL);
             set_error_handler(['\Phoundation\Core\Core'         , 'phpErrorHandler']);
             set_exception_handler(['\Phoundation\Core\Core'     , 'uncaughtException']);
             register_shutdown_function(['\Phoundation\Core\Core', 'shutdown']);
+
+            pcntl_signal(SIGTERM, ['\Phoundation\Core\Core', 'shutdown']);
+            pcntl_signal(SIGINT , ['\Phoundation\Core\Core', 'shutdown']);
+            pcntl_signal(SIGHUP , ['\Phoundation\Core\Core', 'shutdown']);
 
             // Load the functions and mb files
             require(PATH_ROOT . 'Phoundation/functions.php');
@@ -515,14 +519,29 @@ class Core {
                         }
 
                         foreach ($GLOBALS['argv'] as $argid => $arg) {
-                            /*
-                             * (Usually first) argument may contain the startup of this script, which we may ignore
-                             */
-                            if ($arg == $_SERVER['PHP_SELF']) {
+                            // (Usually first) argument may contain the startup of this script, which we may ignore
+                            if ($arg === $_SERVER['PHP_SELF']) {
                                 continue;
                             }
 
                             switch ($arg) {
+                                case '-V':
+                                case '--verbose':
+                                    // Set log threshold
+                                    $threshold = $GLOBALS['argv'][$argid + 1];
+
+                                    // Validate
+                                    if (!is_natural($threshold, 1) or ($threshold > 10)) {
+                                        throw Exceptions::OutOfBoundsException(tr('The specified log threshold level ":level" is invalid. Please ensure the level is between 0 and 10', [
+                                            ':level' => $threshold
+                                        ]))->makeWarning();
+                                    }
+
+                                    Config::set('log.threshold', $threshold);
+                                    unset($GLOBALS['argv'][$argid]);
+                                    unset($GLOBALS['argv'][$argid + 1]);
+                                    break;
+
                                 case '--version':
                                     // Show version information
                                     Log::information(tr('Phoundation framework code version ":fv"', [
@@ -536,7 +555,7 @@ class Core {
                                 case '--usage':
                                     // no-break
                                 case 'usage':
-                                    Cli::showUsage(isset_get($GLOBALS['usage']), 'white');
+                                    Script::showUsage(isset_get($GLOBALS['usage']), 'white');
                                     $die = 0;
                                     break;
 
@@ -546,7 +565,7 @@ class Core {
                                     // no-break
                                 case 'help':
                                     if (isset_get($GLOBALS['argv'][$argid + 1]) == 'system') {
-                                        Cli::showHelp('system');
+                                        Script::showHelp('system');
 
                                     } else {
                                         if (empty($GLOBALS['help'])) {
@@ -829,7 +848,7 @@ class Core {
             // Start session
             Session::startup();
             self::$state = 'script';
-
+Log::information('test');
         } catch (Throwable $e) {
             if (PLATFORM_HTTP and headers_sent($file, $line)) {
                 if (preg_match('/debug-.+\.php$/', $file)) {
