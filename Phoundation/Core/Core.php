@@ -814,7 +814,7 @@ class Core {
                     }
 
                     if (Debug::enabled()) {
-                        Log::warning(tr('Running in DEBUG mode'));
+                        Log::warning(tr('Running in DEBUG mode'), 8);
                     }
 
                     if (!is_natural(self::$register['page'])) {

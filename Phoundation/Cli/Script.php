@@ -120,7 +120,7 @@ class Script
                         ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage'    => Numbers::bytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code
-                    ]));
+                    ]), 8);
 
                 } else {
                     if ($exit_message) {
@@ -133,7 +133,7 @@ class Script
                         ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage'    => Numbers::bytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code
-                    ]));
+                    ]), 8);
                 }
 
             } else {
@@ -146,7 +146,7 @@ class Script
                     ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
                     ':time'   => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'  => Numbers::bytes(memory_get_peak_usage())
-                ]));
+                ]), 8);
             }
         }
 
