@@ -5,6 +5,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Cli\Script;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Log;
+use Phoundation\Exception\Exceptions;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Servers\Localhost;
 
@@ -30,7 +31,7 @@ Script::noArgumentsLeft();
 
 // Validate arguments
 if (!$file) {
-    throw new \Phoundation\Exception\OutOfBoundsException(tr('No image specified'));
+    throw Exceptions::OutOfBoundsException(tr('No image specified'))->makeWarning();
 }
 
 // Get image object

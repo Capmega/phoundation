@@ -108,6 +108,8 @@ class Cli
 
         // Display source
         foreach ($source as $key => $value) {
+            $key = Strings::capitalize($key) . ':';
+
             if (!is_scalar($value)) {
                 if (is_object($value)) {
                     // Yeah, how to display this? Try to cast to array, hope for the best.
