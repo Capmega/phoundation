@@ -5,7 +5,7 @@ namespace Phoundation\Databases;
 use Phoundation\Core\Strings;
 use Phoundation\Databases\Exception\MysqlException;
 use Phoundation\Processes\Process;
-use Phoundation\Servers\Server;
+use Phoundation\Servers\Localhost;
 use Phoundation\Servers\Servers;
 
 
@@ -26,17 +26,17 @@ class Mysql
     /**
      * The server object to execute commands on different servers if needed
      *
-     * @var Server|null
+     * @var Localhost|null
      */
-    protected ?Server $server = null;
+    protected ?Localhost $server = null;
 
 
     /**
      * Mysql class constructor
      *
-     * @param Server|null $server
+     * @param Localhost|null $server
      */
-    public function __construct(?Server $server = null)
+    public function __construct(?Localhost $server = null)
     {
         $this->server = $server;
     }
@@ -46,10 +46,10 @@ class Mysql
     /**
      * Get a new instance of the Mysql class
      *
-     * @param Server|null $server
+     * @param Localhost|null $server
      * @return Mysql
      */
-    public static function getInstance(?Server $server = null): Mysql
+    public static function getInstance(?Localhost $server = null): Mysql
     {
         return new Mysql($server);
     }
@@ -60,13 +60,13 @@ class Mysql
      * Execute a query on a remote SSH server in a bash command
      *
      * @note: This does NOT support bound variables!
-     * @todo: This method uses a password file which might be left behind if (for example) the connection would drop
-     *        half way
-     * @param string|Server $server
+     * @param string|Localhost $server
      * @param string $query
      * @param bool $root
      * @param bool $simple_quotes
      * @return array
+     *@todo: This method uses a password file which might be left behind if (for example) the connection would drop
+     *        half way
      */
     public function exec(string $query, bool $root = false, bool $simple_quotes = false): array
     {

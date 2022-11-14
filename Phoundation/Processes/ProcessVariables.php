@@ -10,7 +10,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Exception\ProcessException;
-use Phoundation\Servers\Server;
+use Phoundation\Servers\Localhost;
 
 
 
@@ -143,9 +143,9 @@ trait ProcessVariables
     /**
      * Keeps track on which server this command should be executed. NULL means this local server
      *
-     * @var Server|null $server
+     * @var Localhost|null $server
      */
-    protected ?Server $server = null;
+    protected ?Localhost $server = null;
 
     /**
      * Registers where the exit code for this process will be stored
@@ -549,9 +549,9 @@ trait ProcessVariables
      * Returns the server on which the command should be executed for this process
      *
      * @note NULL means this local server
-     * @return Server|null
+     * @return Localhost|null
      */
-    public function getServer(): ?Server
+    public function getServer(): ?Localhost
     {
         return $this->server;
     }
@@ -562,10 +562,10 @@ trait ProcessVariables
      * Set the server on which the command should be executed for this process
      *
      * @note NULL means this local server
-     * @param Server|null $server
+     * @param Localhost|null $server
      * @return Process|ProcessVariables|Workers
      */
-    public function setServer(?Server $server): static
+    public function setServer(?Localhost $server): static
     {
         $this->server = $server;
         return $this;

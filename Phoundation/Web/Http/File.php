@@ -31,9 +31,9 @@ class File
     /**
      * The file access permissions
      *
-     * @var Restrictions|null
+     * @var Restrictions $restrictions
      */
-    protected ?Restrictions $restrictions = null;
+    protected Restrictions $restrictions;
 
     /**
      * If true, files will be transferred using compression
@@ -111,10 +111,10 @@ class File
     /**
      * Returns a new File object with the specified restrictions
      *
-     * @param Restrictions|null $restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @return File
      */
-    public static function new(?Restrictions $restrictions = null): File
+    public static function new(Restrictions|array|string|null $restrictions = null): File
     {
         return new File($restrictions);
     }
@@ -124,10 +124,10 @@ class File
     /**
      * Sets the file access restrictions
      *
-     * @param Restrictions|null $restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @return File
      */
-    public function setRestrictions(?Restrictions $restrictions): File
+    public function setRestrictions(Restrictions|array|string|null $restrictions): File
     {
         $this->restrictions = $restrictions;
         return $this;

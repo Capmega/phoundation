@@ -1,7 +1,9 @@
 #!/usr/bin/php
 <?php
 use Phoundation\Cli\Script;
-use Phoundation\Web\Http\Html\Script;
+use Phoundation\Content\Images\Image;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Servers\Localhost;
 
 
 /**
@@ -18,7 +20,18 @@ $usage = './cli system image info';
 
 $help  = 'This script will display basic information about the specified image';
 
-$image = Script::
-Scripts::noArgumentsLeft();
+$file         = Script::argument();
+$restrictions = Restrictions::new(PATH_ROOT);
 
-$image = new Image::new();
+Script::noArgumentsLeft();
+
+// Validate arguments
+if (!$file) {
+    throw new \Phoundation\Exception\OutOfBoundsException(tr('No image specified'));
+}
+
+// Get image object
+$image = Image::new(Localhost::new(PATH_DATA))->setFile($file);
+
+// Display image information
+showdie($image->getInformation());

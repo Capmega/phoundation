@@ -5,7 +5,7 @@ namespace Phoundation\Content\Images;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Processes\Command;
+use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Process;
 
 

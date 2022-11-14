@@ -19,7 +19,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Processes\Command;
+use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
 use Throwable;
@@ -655,7 +655,7 @@ class File
      *                                   thrown
      * @return void
      */
-    #[NoReturn] public function checkReadable(?string $type = null, bool $no_directories = false, ?Throwable $previous_e = null) : void
+    public function checkReadable(?string $type = null, bool $no_directories = false, ?Throwable $previous_e = null) : void
     {
         // Check filesystem restrictions
         $this->checkRestrictions($this->files, false);
@@ -721,7 +721,7 @@ class File
      *                                   thrown
      * @return void
      */
-    #[NoReturn] public function checkWritable(?string $type = null, bool $no_directories = false, ?Throwable $previous_e = null) : void
+    public function checkWritable(?string $type = null, bool $no_directories = false, ?Throwable $previous_e = null) : void
     {
         // Check filesystem restrictions
         $this->checkRestrictions($this->files, true);
@@ -1317,13 +1317,13 @@ class File
 
 
     /**
-     * Check the specified $path against this objects' restrictions
+     * Check the specified $path against these objects' restrictions
      *
      * @param array|string $paths
      * @param bool $write
      * @return void
      */
-    protected function checkRestrictions(array|string $paths, bool $write): void
+    protected function checkRestrictions(array|string &$paths, bool $write): void
     {
         $this->restrictions->check($paths, $write);
     }

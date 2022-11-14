@@ -113,7 +113,7 @@ class Restrictions
      * @param bool $write
      * @return void
      */
-    public function check(string|array $patterns, bool $write): void
+    public function check(string|array &$patterns, bool $write): void
     {
         if (!$this->paths) {
             throw new RestrictionsException(tr('The ":label" restrictions have no paths specified', [
@@ -122,9 +122,10 @@ class Restrictions
         }
 
         // Check each specified path pattern to see if its allowed or restricted
-        foreach (Arrays::force($patterns) as $pattern) {
+        foreach (Arrays::force($patterns) as &$pattern) {
             foreach ($this->paths as $path => $restrict_write) {
-                $path = Filesystem::absolute($path);
+                $path    = Filesystem::absolute($path);
+                $pattern = Filesystem::absolute($pattern);
 
                 if (str_starts_with($pattern, $path)) {
                     if ($write and !$restrict_write) {

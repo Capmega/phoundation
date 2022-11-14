@@ -28,8 +28,8 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
-use Phoundation\Processes\Command;
-use Phoundation\Servers\Server;
+use Phoundation\Processes\Commands\Command;
+use Phoundation\Servers\Localhost;
 use Phoundation\Servers\Servers;
 use Throwable;
 
@@ -1252,10 +1252,10 @@ class Sql
     /**
      * Test SQL functions over SSH tunnel for the specified server
      *
-     * @param string|Server $server The server that is to be tested
+     * @param string|Localhost $server The server that is to be tested
      * @return void
      */
-    public function testTunnel(string|Server $server): void
+    public function testTunnel(string|Localhost $server): void
     {
         $this->instance = 'test';
         $port = 6000;

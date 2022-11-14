@@ -14,7 +14,7 @@ use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
-use Phoundation\Processes\Command;
+use Phoundation\Processes\Commands\Command;
 use Throwable;
 
 

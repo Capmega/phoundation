@@ -890,10 +890,10 @@ class Route
      *
      * @param string $target
      * @param bool $attachment
-     * @param Restrictions|null $restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @return void
      */
-    protected static function execute(string $target, bool $attachment = false, ?Restrictions $restrictions = null): void
+    protected static function execute(string $target, bool $attachment = false, Restrictions|array|string|null $restrictions = null): void
     {
         // Remove the 404 auto execution on shutdown
         Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);

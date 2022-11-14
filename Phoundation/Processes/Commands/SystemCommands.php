@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Processes;
+namespace Phoundation\Processes\Commands;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Processes\Commands\Exception\CommandsException;

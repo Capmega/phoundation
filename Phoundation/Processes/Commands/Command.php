@@ -1,13 +1,13 @@
 <?php
 
-namespace Phoundation\Processes;
+namespace Phoundation\Processes\Commands;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Exception\Exception;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Exception\CommandsException;
-use Phoundation\Servers\Server;
+use Phoundation\Servers\Localhost;
 
 
 
@@ -26,9 +26,9 @@ class Command
     /**
      * Where will this be executed? Locally or on the specified server
      *
-     * @var Server $server
+     * @var Localhost $server
      */
-    protected Server $server;
+    protected Localhost $server;
 
     /**
      * File restrictions for this class
@@ -40,9 +40,9 @@ class Command
 
 
     /**
-     * @param Server|string|null $server
+     * @param Localhost|string|null $server
      */
-    public function __construct(Server|string|null $server = null)
+    public function __construct(Localhost|string|null $server = null)
     {
         $this->setServer($server);
         $this->setRestrictions($server->getRestrictions());
@@ -53,12 +53,12 @@ class Command
     /**
      * Returns a new Images object
      *
-     * @param Server|string|null $server
+     * @param Localhost|string|null $server
      * @return Command
      */
-    public static function new(Server|string|null $server = null): Command
+    public static function new(Localhost|string|null $server = null): static
     {
-        return new Command($server);
+        return new static($server);
     }
 
 
@@ -68,13 +68,13 @@ class Command
      *
      * Sets the server by name or object, NULL for localhost
      *
-     * @param Server|string|null $server
+     * @param Localhost|string|null $server
      * @return static
      */
-    public function setServer(Server|string|null $server = null): static
+    public function setServer(Localhost|string|null $server = null): static
     {
         if (!is_object($server)) {
-            $server = new Server($server);
+            $server = new Localhost($server);
         }
 
         $this->server = $server;
@@ -86,9 +86,9 @@ class Command
     /**
      * Returns the server object for this commands object
      *
-     * @return Server
+     * @return Localhost
      */
-    public function getServer(): Server
+    public function getServer(): Localhost
     {
         return $this->server;
     }

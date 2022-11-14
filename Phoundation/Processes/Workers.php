@@ -6,7 +6,7 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Processes\Exception\WorkersException;
-use Phoundation\Servers\Server;
+use Phoundation\Servers\Localhost;
 
 
 
@@ -92,9 +92,9 @@ class Workers extends Process
      * Workers constructor
      *
      * @param string|null $command
-     * @param Server|null $server
+     * @param Localhost|null $server
      */
-    public function __construct(?string $command = null, ?Server $server = null)
+    public function __construct(?string $command = null, ?Localhost $server = null)
     {
         $this->setCommand($command);
         $this->setServer($server);
@@ -106,10 +106,10 @@ class Workers extends Process
      * Returns a new Workers object
      *
      * @param string|null $command
-     * @param Server|null $server
+     * @param Localhost|null $server
      * @return static
      */
-    public static function create(?string $command = null, ?Server $server = null): static
+    public static function create(?string $command = null, ?Localhost $server = null): static
     {
         return new static($command, $server);
     }

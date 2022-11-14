@@ -56,9 +56,9 @@ class Core {
     /**
      * The Core restrictions object
      *
-     * @var Restrictions|null
+     * @var Restrictions $restrictions
      */
-    protected static ?Restrictions $restrictions = null;
+    protected static Restrictions $restrictions;
 
     /**
      * The generic system register to store data
@@ -490,6 +490,7 @@ class Core {
                         $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
 
                         if (empty($env)) {
+                            define('ENVIRONMENT', 'production');
                             Script::shutdown(2, 'startup: No required environment specified for project "' . PROJECT . '"');
                         }
 
@@ -1307,7 +1308,7 @@ class Core {
                     case 'cli':
 //                        // Ensure that required defines are available
 //                        if (!defined('Debug::enabled()')) {
-//                            define('Debug::enabled()', (Scripts::argument('-VV,--very-Debug::enabled()') ? 'Debug::enabled()' : null));
+//                            define('Debug::enabled()', (Script::argument('-VV,--very-Debug::enabled()') ? 'Debug::enabled()' : null));
 //                        }
 //
 //                        self::setTimeout(1);
@@ -1315,14 +1316,14 @@ class Core {
 //                        $defines = [
 //                            'ADMIN'    => '',
 //                            'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
-//                            'Debug::enabled()'  => ((Debug::enabled() or Scripts::argument('-V,--Debug::enabled(),-V2,--very-Debug::enabled()')) ? 'Debug::enabled()' : null),
-//                            'QUIET'    => Scripts::argument('-Q,--quiet'),
-//                            'FORCE'    => Scripts::argument('-F,--force'),
-//                            'TEST'     => Scripts::argument('-T,--test'),
-//                            'LIMIT'    => not_empty(Scripts::argument('--limit'  , true), Config::get('paging.limit', 50)),
-//                            'ALL'      => Scripts::argument('-A,--all'),
-//                            'DELETED'  => Scripts::argument('--deleted'),
-//                            'STATUS'   => Scripts::argument('-S,--status' , true),
+//                            'Debug::enabled()'  => ((Debug::enabled() or Script::argument('-V,--Debug::enabled(),-V2,--very-Debug::enabled()')) ? 'Debug::enabled()' : null),
+//                            'QUIET'    => Script::argument('-Q,--quiet'),
+//                            'FORCE'    => Script::argument('-F,--force'),
+//                            'TEST'     => Script::argument('-T,--test'),
+//                            'LIMIT'    => not_empty(Script::argument('--limit'  , true), Config::get('paging.limit', 50)),
+//                            'ALL'      => Script::argument('-A,--all'),
+//                            'DELETED'  => Script::argument('--deleted'),
+//                            'STATUS'   => Script::argument('-S,--status' , true),
 //                            'STARTDIR' => Strings::slash(getcwd())
 //                        ];
 //
@@ -1360,7 +1361,7 @@ class Core {
 //                                Log::error($e->getMessage());
 //                            }
 //
-//                            Scripts::die(1);
+//                            Script::die(1);
 //                        }
 
                         /*
@@ -1380,32 +1381,32 @@ class Core {
 //                            switch ((string) $e->getCode()) {
 //                                case 'already-running':
 //                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-//                                    Scripts::setExitCode(254);
-//                                    die(Scripts::getExitCode());
+//                                    Script::setExitCode(254);
+//                                    die(Script::getExitCode());
 //
 //                                case 'no-method':
 //                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
 //                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-//                                    Scripts::setExitCode(253);
-//                                    die(Scripts::getExitCode());
+//                                    Script::setExitCode(253);
+//                                    die(Script::getExitCode());
 //
 //                                case 'unknown-method':
 //                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
 //                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-//                                    Scripts::setExitCode(252);
-//                                    die(Scripts::getExitCode());
+//                                    Script::setExitCode(252);
+//                                    die(Script::getExitCode());
 //
 //                                case 'missing-arguments':
 //                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
 //                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-//                                    Scripts::setExitCode(253);
-//                                    die(Scripts::getExitCode());
+//                                    Script::setExitCode(253);
+//                                    die(Script::getExitCode());
 //
 //                                case 'invalid-arguments':
 //                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
 //                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-//                                    Scripts::setExitCode(251);
-//                                    die(Scripts::getExitCode());
+//                                    Script::setExitCode(251);
+//                                    die(Script::getExitCode());
 //
 //                                case 'validation':
 //                                    if (self::readRegister('system', 'script') === 'init') {
@@ -1434,8 +1435,8 @@ class Core {
 //                                    }
 //
 //                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-//                                    Scripts::setExitCode(250);
-//                                    die(Scripts::getExitCode());
+//                                    Script::setExitCode(250);
+//                                    die(Script::getExitCode());
 //                            }
 
                         Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getCallType(), ':script' => self::readRegister('system', 'script')]));

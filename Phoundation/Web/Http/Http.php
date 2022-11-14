@@ -17,7 +17,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Exception\HttpException;
-use Phoundation\Processes\Command;
+use Phoundation\Processes\Commands\Command;
 use Phoundation\Web\Page;
 use Throwable;
 

@@ -2,9 +2,9 @@
 
 namespace Phoundation\Content\Images;
 
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Processes\Command;
-use Phoundation\Servers\Server;
+use Phoundation\Core\Strings;
+use Phoundation\Filesystem\File;
+use Phoundation\Processes\Commands\Command;
 
 
 
@@ -30,29 +30,6 @@ class Image extends Command
 
 
     /**
-     * Image class constructor
-     */
-    public function __construct(Server|string|null $server = null)
-    {
-        parent::__construct($server);
-    }
-
-
-
-    /**
-     * Returns a new Image object
-     *
-     * @param Server|string|null $server
-     * @return static
-     */
-    public static function new(Server|string|null $server = null): static
-    {
-        return new Image($server);
-    }
-
-
-
-    /**
      * Returns the file for this image object
      *
      * @return string|null
@@ -72,6 +49,8 @@ class Image extends Command
      */
     public function setFile(?string $file): static
     {
+        File::new($file, $this->restrictions)->checkReadable();
+
         $this->file = $file;
         return $this;
     }
@@ -86,5 +65,34 @@ class Image extends Command
     public function convert(): Convert
     {
         return new Convert($this);
+    }
+
+
+
+    /**
+     * Return basic information about this image
+     *
+     * @return array
+     */
+    public function getInformation(): array
+    {
+        $return = [
+            'file' => $this->file,
+            'exists' => file_exists($this->file)
+        ];
+
+        if ($return['exists']) {
+            $return['size'] = filesize($this->file);
+        }
+
+        if ($return['size']) {
+            $return['mimetype'] = File::new($this->file, $this->restrictions)->mimetype();
+        }
+
+        if (Strings::until($return['mimetype'], '/') === 'image') {
+            $return['dimensions'] = getimagesize($this->file);
+        }
+
+        return $return;
     }
 }

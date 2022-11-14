@@ -98,9 +98,9 @@ class Execute
      * Each class constructor
      *
      * @param array|string|null $paths
-     * @param Restrictions|null $restrictions
+     * @param Restrictions|array|string|null $restrictions
      */
-    public function __construct(array|string|null $paths = null, ?Restrictions $restrictions = null)
+    public function __construct(array|string|null $paths = null, Restrictions|array|string|null $restrictions = null)
     {
         $this->paths        = $paths;
         $this->restrictions = Core::ensureRestrictions($restrictions);
@@ -377,10 +377,10 @@ class Execute
     /**
      * Sets the filesystem restrictions
      *
-     * @param Restrictions|null $restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @return Execute
      */
-    public function setRestrictions(?Restrictions $restrictions): Execute
+    public function setRestrictions(Restrictions|array|string|null $restrictions): Execute
     {
         $this->restrictions = $restrictions;
         return $this;
