@@ -5,6 +5,7 @@ namespace Phoundation\Processes\Commands;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Processes\Commands\Exception\CommandsException;
 use Phoundation\Processes\Exception\ProcessFailedException;
+use Phoundation\Processes\Process;
 
 
 
@@ -90,5 +91,24 @@ class SystemCommands extends Command
             // The command id failed
             Command::handleException('rm', $e);
         }
+    }
+
+
+
+    /**
+     * Install the specified packages
+     *
+     * @param array|string $packages
+     * @return array
+     */
+    public function aptGetInstall(array|string $packages): array
+    {
+        $process = Process::new('apt-get', $this->server)
+            ->setSudo(true)
+            ->addArguments(['-y', 'install'])
+            ->addArguments($packages)
+            ->setTimeout(1);
+
+        return $process->executeReturnArray();
     }
 }

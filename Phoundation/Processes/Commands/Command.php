@@ -30,22 +30,16 @@ class Command
      */
     protected Server $server;
 
+
+
     /**
-     * File restrictions for this class
+     * Command class constructor
      *
-     * @var Restrictions $restrictions
-     */
-    protected Restrictions $restrictions;
-
-
-
-    /**
      * @param Server|string|null $server
      */
     public function __construct(Server|string|null $server = null)
     {
         $this->setServer($server);
-        $this->setRestrictions($server->getRestrictions());
     }
 
 
@@ -91,31 +85,6 @@ class Command
     public function getServer(): Server
     {
         return $this->server;
-    }
-
-
-
-    /**
-     * Returns the filesystem restrictions for this File object
-     *
-     * @return Restrictions
-     */
-    public function getRestrictions(): Restrictions
-    {
-        return $this->restrictions;
-    }
-
-
-
-    /**
-     * Sets the filesystem restrictions for this File object
-     *
-     * @param Restrictions|array|string|null $restrictions
-     * @return void
-     */
-    public function setRestrictions(Restrictions|array|string|null $restrictions): void
-    {
-        $this->restrictions = Core::ensureRestrictions($restrictions);
     }
 
 

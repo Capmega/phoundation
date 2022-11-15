@@ -67,9 +67,11 @@ class Server
      * Server constructor
      *
      * @param Restrictions|array|string|null $restrictions
+     * @param string|null $hostname
      */
-    public function __construct(Restrictions|array|string|null $restrictions)
+    public function __construct(Restrictions|array|string|null $restrictions, string $hostname = null)
     {
+        $this->setHostname($hostname);
         $this->setRestrictions($restrictions);
     }
 
@@ -78,13 +80,28 @@ class Server
     /**
      * Returns a new server object
      *
-     * @param string $hostname
      * @param Restrictions|array|string|null $restrictions
+     * @param string $hostname
      * @return Server
      */
-    public static function new(string $hostname, Restrictions|array|string|null $restrictions = null): static
+    public static function new(Restrictions|array|string|null $restrictions, string $hostname): static
     {
         return new Server($hostname, $restrictions);
+    }
+
+
+
+    /**
+     * Returns a new server object
+     *
+     * @param string|array|null $paths
+     * @param bool $write
+     * @param string|null $label
+     * @return Server
+     */
+    public static function localhost(string|array|null $paths, bool $write = false, ?string $label = null): static
+    {
+        return new Server(new Restrictions($paths, $write, $label), 'localhost');
     }
 
 
@@ -104,10 +121,10 @@ class Server
     /**
      * Sets the filesystem restrictions for this File object
      *
-     * @param string $hostname
+     * @param string|null $hostname
      * @return void
      */
-    public function setHostname(string $hostname): void
+    public function setHostname(?string $hostname): void
     {
         if (!$hostname) {
             $hostname = 'localhost';
@@ -139,5 +156,19 @@ class Server
     public function setRestrictions(Restrictions|array|string|null $restrictions): void
     {
         $this->restrictions = Core::ensureRestrictions($restrictions);
+    }
+
+
+
+    /**
+     * Check restrictions for the specified path(s)
+     *
+     * @param array|string $paths
+     * @param bool $write
+     * @return void
+     */
+    public function checkRestrictions(array|string $paths, bool $write): void
+    {
+       $this->restrictions->check($paths, $write);
     }
 }

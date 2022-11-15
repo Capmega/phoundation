@@ -13,6 +13,7 @@ use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
+use Phoundation\Servers\Server;
 use Phoundation\Web\Page;
 use Throwable;
 
@@ -61,9 +62,9 @@ class Bundler
     /**
      * Filesystem access restrictions
      *
-     * @var Restrictions $restrictions
+     * @var Server $server
      */
-    protected Restrictions $restrictions;
+    protected Server $server;
 
 
 
@@ -72,7 +73,7 @@ class Bundler
      */
     public function __construct()
     {
-        $this->setRestrictions(Restrictions::new([PATH_CDN . 'js', PATH_CDN . 'css'], true));
+        $this->setServer(Server::localhost([PATH_CDN . 'js', PATH_CDN . 'css'], true));
     }
 
 
@@ -92,11 +93,11 @@ class Bundler
     /**
      * Returns the filesystem restrictions for this File object
      *
-     * @return Restrictions
+     * @return Server
      */
-    public function getRestrictions(): Restrictions
+    public function getServer(): Server
     {
-        return $this->restrictions;
+        return $this->server;
     }
 
 
@@ -104,12 +105,12 @@ class Bundler
     /**
      * Sets the filesystem restrictions for this File object
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param Server|array|string|null $server
      * @return void
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions): void
+    public function setServer(Server|array|string|null $server): void
     {
-        $this->restrictions = Core::ensureRestrictions($restrictions);
+        $this->server = Core::ensureServer($server);
     }
 
 
@@ -234,14 +235,14 @@ class Bundler
         if (!filesize($bundle_file)) {
             Log::warning(tr('Encountered empty bundle file ":file"', [':file' => $bundle_file]));
             Log::warning(tr('Deleting empty bundle file ":file"', [':file' => $bundle_file]));
-            File::new($bundle_file, $this->restrictions)->delete();
+            File::new($bundle_file, $this->server)->delete();
             return false;
         }
 
         // Bundle files are essentially cached files. Ensure the cache is not too old
         if (Config::get('cache.bundler.max-age', 3600) and (filemtime($bundle_file) + Config::get('cache.bundler.max-age', 3600)) < time()) {
             Log::warning(tr('Deleting expired cached bundle file ":file"', [':file' => $bundle_file]));
-            File::new($bundle_file, $this->restrictions)->delete();
+            File::new($bundle_file, $this->server)->delete();
             return false;
         }
 
@@ -367,9 +368,9 @@ class Bundler
     protected function bundleFiles(array $files): void
     {
         // Generate new bundle file. This requires the pub/$files path to be writable
-        Path::new(dirname($this->bundle_file), $this->restrictions)->execute()
+        Path::new(dirname($this->bundle_file), $this->server)->execute()
             ->setMode(0770)
-            ->executeOnPathOnly(function() use ($files) {
+            ->onPathOnly(function() use ($files) {
                 foreach ($files as $file => $data) {
                     $org_file = $file;
                     $file     = $this->path . $file . $this->extension;
@@ -402,10 +403,10 @@ class Bundler
                     }
     
                     if (Debug::enabled()) {
-                        File::new($this->bundle_file, $this->restrictions)->appendData("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
+                        File::new($this->bundle_file, $this->server)->appendData("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
     
                     } else {
-                        File::new($this->bundle_file, $this->restrictions)->appendData($data . (Config::get('web.minify', true) ? '' : "\n"));
+                        File::new($this->bundle_file, $this->server)->appendData($data . (Config::get('web.minify', true) ? '' : "\n"));
                     }
     
                     if ($this->count) {

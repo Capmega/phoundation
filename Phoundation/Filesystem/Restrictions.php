@@ -2,14 +2,11 @@
 
 namespace Phoundation\Filesystem;
 
-
-
-
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Log;
 use Phoundation\Exception\Exceptions;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
+
+
 
 /**
  * Restrictions class

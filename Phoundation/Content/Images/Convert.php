@@ -7,6 +7,7 @@ use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Process;
+use Phoundation\Servers\Server;
 
 
 
@@ -53,21 +54,6 @@ class Convert extends Command
 
 
     /**
-     * Convert class constructor
-     *
-     * @param Image $source
-     */
-    public function __construct(Image $source)
-    {
-        $this->source       = $source;
-        $this->restrictions = $source->getRestrictions();
-        
-        parent::__construct($source->getServer());
-    }
-
-
-
-    /**
      * The format to which the image should be converted
      *
      * @param string $format
@@ -95,12 +81,51 @@ class Convert extends Command
 
 
     /**
+     * Sets the source image on which the conversions will be applied
+     *
+     * @param Image $source
+     * @return Convert
+     */
+    public function setSource(Image $source): Convert
+    {
+        // TODO Validate the format
+        $this->source = $source;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the source image on which the conversions will be applied
+     *
+     * @return Image
+     */
+    public function getSource(): Image
+    {
+        return $this->source;
+    }
+
+
+
+    /**
+     * Returns the source file
+     *
+     * @return string|null
+     */
+    public function getSourceFile(): ?string
+    {
+        return $this->source->getFile();
+    }
+
+
+
+    /**
      * The format to which the image should be converted
      *
      * @param string $target
      * @return Convert
      */
-    public function setTarget(string $target): Convert
+    public function setTargetFile(string $target): Convert
     {
         if ($this->target) {
             // Target already exists. See if we need to clean the directory for this target
@@ -114,15 +139,23 @@ class Convert extends Command
     }
 
 
+
     /**
      * Returns the file to which the image should be converted
      *
+     * @note If no target was set, this will return the source file
      * @return string|null
      */
-    public function getTarget(): ?string
+    public function getTargetFile(): ?string
     {
+        if (!$this->target) {
+            // Apply the operations the source file
+            return $this->getSourceFile();
+        }
+
         return $this->target;
     }
+
 
 
     /**
@@ -156,9 +189,12 @@ class Convert extends Command
      *
      * @return Resize
      */
-    public function resize(): Resize
+    public function resize(bool $background = false): Resize
     {
-        return new Resize();
+        $resize = new Resize($this);
+        $resize->setBackground($background);
+
+        return $resize;
     }
 
 

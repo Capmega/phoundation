@@ -151,7 +151,7 @@ class Script extends Element
 
                         Path::new(PATH_CDN . LANGUAGE . '/js', PATH_CDN . LANGUAGE . '/js')->execute()
                             ->setMode(0770)
-                            ->executeOnPathOnly(function() use ($file) {
+                            ->onPathOnly(function() use ($file) {
                             file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', PATH_ROOT.'www/'.LANGUAGE.'/pub/js');
                             file_delete([
                                 'patterns'       => $file.'.js,'.$file.'.min.js',
@@ -172,7 +172,7 @@ class Script extends Element
                 if (!file_exists($file.'.js')) {
                     Path::new(dirname($file), Restrictions::new(PATH_CDN . LANGUAGE . 'js', true))->execute()
                         ->setMode(0770)
-                        ->executeOnPathOnly(function() use ($file, $return) {
+                        ->onPathOnly(function() use ($file, $return) {
                             Log::action(tr('Writing internal javascript to externally cached file ":file"', [':file' => $file.'.js']));
                             file_put_contents($file.'.js', $return);
                         });

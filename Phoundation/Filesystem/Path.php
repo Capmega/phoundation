@@ -14,6 +14,7 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Processes\Exception\ProcessesException;
+use Phoundation\Servers\Server;
 use Throwable;
 
 
@@ -32,11 +33,11 @@ use Throwable;
 class Path
 {
     /**
-     * The file access permissions
+     * The server object
      *
-     * @var Restrictions
+     * @var Server $server
      */
-    protected Restrictions $restrictions;
+    protected Server $server;
 
     /**
      * The $path for this Path object
@@ -51,12 +52,12 @@ class Path
      * Path class constructor
      *
      * @param array|string|null $path
-     * @param Restrictions|array|string|null $restrictions
+     * @param Server|array|string|null $server
      */
-    public function __construct(array|string|null $path = null, Restrictions|array|string|null $restrictions = null)
+    public function __construct(array|string|null $path = null, Server|array|string|null $server = null)
     {
         $this->paths = Arrays::force($path, null);
-        $this->setRestrictions($restrictions);
+        $this->setServer($server);
     }
 
 
@@ -65,12 +66,12 @@ class Path
      * Returns a new File object with the specified restrictions
      *
      * @param array|string|null $path
-     * @param Restrictions|array|string|null $restrictions
+     * @param Server|array|string|null $server
      * @return Path
      */
-    public static function new(array|string|null $path = null, Restrictions|array|string|null $restrictions = null): Path
+    public static function new(array|string|null $path = null, Server|array|string|null $server = null): Path
     {
-        return new Path($path, $restrictions);
+        return new Path($path, $server);
     }
 
 
@@ -82,7 +83,7 @@ class Path
      */
     public function execute(): Execute
     {
-        return new Execute($this->paths, $this->restrictions);
+        return new Execute($this->paths, $this->server);
     }
 
 
@@ -114,11 +115,11 @@ class Path
     /**
      * Returns the Restriction object for this Path object
      *
-     * @return Restrictions
+     * @return Server
      */
-    public function getRestrictions(): Restrictions
+    public function getServer(): Server
     {
-        return $this->restrictions;
+        return $this->server;
     }
 
 
@@ -126,12 +127,12 @@ class Path
     /**
      * Returns the paths for this Path object
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param Server|array|string|null $server
      * @return Path
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions = null): Path
+    public function setServer(Server|array|string|null $server = null): Path
     {
-        $this->restrictions = Core::ensureRestrictions($restrictions);
+        $this->server = Core::ensureServer($server);
         return $this;
     }
 
@@ -160,7 +161,7 @@ class Path
 
             if ($clear) {
                 // Delete the currently existing path, so we can  be sure we have a clean path to work with
-                File::new($this->paths, $this->restrictions)->delete(false, $sudo);
+                File::new($this->paths, $this->server)->delete(false, $sudo);
             }
 
             if (!file_exists(Strings::unslash($path))) {
@@ -175,7 +176,7 @@ class Path
                     if (file_exists($path)) {
                         if (!is_dir($path)) {
                             // Some normal file is in the way. Delete the file, and retry
-                            File::new($path, $this->restrictions)->delete(false, $sudo);
+                            File::new($path, $this->server)->delete(false, $sudo);
                             return $this->ensure($mode, $clear, $sudo);
                         }
 
@@ -183,14 +184,14 @@ class Path
 
                     } elseif (is_link($path)) {
                         // This is a dead symlink, delete it
-                        File::new($path, $this->restrictions)->delete(false, $sudo);
+                        File::new($path, $this->server)->delete(false, $sudo);
                     }
 
                     try {
                         // Make sure that the parent path is writable when creating the directory
-                        Path::new(dirname($path), $this->restrictions)->execute()
+                        Path::new(dirname($path), $this->server)->execute()
                             ->setMode(0770)
-                            ->executeOnPathOnly(function() use ($path, $mode) {
+                            ->onPathOnly(function() use ($path, $mode) {
                                 mkdir($path, $mode);
                             });
 
@@ -206,7 +207,7 @@ class Path
             } elseif (!is_dir($path)) {
                 // Some other file is in the way. Delete the file, and retry.
                 // Ensure that the "file" is not accidentally specified as a directory ending in a /
-                File::new(Strings::endsNotWith($path, '/'), $this->restrictions)->delete(false, $sudo);
+                File::new(Strings::endsNotWith($path, '/'), $this->server)->delete(false, $sudo);
                 return $this->ensure($mode, $clear, $sudo);
             }
 
@@ -330,14 +331,14 @@ class Path
                     ]));
                 }
 
-                if (!Path::new($path, $this->restrictions)->isEmpty()) {
+                if (!Path::new($path, $this->server)->isEmpty()) {
                     // Do not remove anything more, there is contents here!
                     break;
                 }
 
                 // Remove this entry and continue;
                 try {
-                    File::new($path, $this->restrictions)->delete(false, $sudo);
+                    File::new($path, $this->server)->delete(false, $sudo);
 
                 }catch(Exception $e) {
                     /*
@@ -387,7 +388,7 @@ class Path
         $this->requireSinglePath();
 
         $path = Arrays::firstValue($this->paths);
-        $path = Strings::unslash(Path::new($path, $this->restrictions)->ensure());
+        $path = Strings::unslash(Path::new($path, $this->server)->ensure());
 
         if ($single) {
             // Assign path in one dir, like abcde/
@@ -401,7 +402,7 @@ class Path
         }
 
         // Ensure again to be sure the target directories too have been created
-        return Strings::slash(Path::new($path, $this->restrictions)->ensure());
+        return Strings::slash(Path::new($path, $this->server)->ensure());
     }
 
 
@@ -449,7 +450,7 @@ class Path
                 // Add the file to the list. If the file is a directory, then recurse instead. Do NOT add the directory
                 // itself, only files!
                 if (is_dir($file) and $recursive) {
-                    $return = array_merge($return, Path::new($file, $this->restrictions)->listTree());
+                    $return = array_merge($return, Path::new($file, $this->server)->listTree());
 
                 } else {
                     $return[] = $file;
@@ -549,7 +550,7 @@ class Path
 
                 if (is_dir($path . $file)) {
                     // Recurse
-                    $return += Path::new($path . $file, $this->restrictions)->treeFileSize();
+                    $return += Path::new($path . $file, $this->server)->treeFileSize();
 
                 } else {
                     $return += filesize($path . $file);
@@ -581,7 +582,7 @@ class Path
                 if (($file == '.') or ($file == '..')) continue;
 
                 if (is_dir($path . $file)) {
-                    $return += Path::new($path . $file, $this->restrictions)->treeFileCount();
+                    $return += Path::new($path . $file, $this->server)->treeFileCount();
 
                 } else {
                     $return++;
@@ -625,7 +626,7 @@ class Path
                         ':mode' => $mode
                     ]));
 
-                    File::new($path, $this->restrictions)->chmod('u+w');
+                    File::new($path, $this->server)->chmod('u+w');
 
                 } catch (ProcessesException $e) {
                     throw new FileNotWritableException(tr('The object file ":file" (Realpath ":path") is not writable, and could not be made writable', [
@@ -636,7 +637,7 @@ class Path
             }
 
             // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
-            Path::new(dirname($path), $this->restrictions)->ensure();
+            Path::new(dirname($path), $this->server)->ensure();
 
             Log::warning(tr('The object path ":path" (Realpath ":path") does not exist. Attempting to create it with file mode ":mode"', [
                 ':mode' => Strings::fromOctal($mode),
@@ -659,7 +660,7 @@ class Path
      */
     protected function checkRestrictions(array|string $path, bool $write)
     {
-        $this->restrictions->check($path, $write);
+        $this->server->checkRestrictions($path, $write);
     }
 
 

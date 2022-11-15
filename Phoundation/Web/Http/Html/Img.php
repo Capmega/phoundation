@@ -991,7 +991,7 @@ class Img extends Element
                 // Ensure target is readable and convert
                 Path::new($target)->execute()
                     ->setMode(0660)
-                    ->executeOnPathOnly(function() use ($target) {
+                    ->onPathOnly(function() use ($target) {
                         Image::new()->convert($this->source)
                             ->setFile($target)
                             ->setMethod('custom')

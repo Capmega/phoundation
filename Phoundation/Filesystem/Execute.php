@@ -7,6 +7,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Servers\Server;
 use Throwable;
 
 
@@ -24,11 +25,11 @@ use Throwable;
 class Execute
 {
     /**
-     * Filesystem restrictions
+     * The server object
      *
-     * @var Restrictions $restrictions
+     * @var Server $server
      */
-    protected Restrictions $restrictions;
+    protected Server $server;
 
     /**
      * Sets if the object will recurse or not
@@ -98,12 +99,12 @@ class Execute
      * Each class constructor
      *
      * @param array|string|null $paths
-     * @param Restrictions|array|string|null $restrictions
+     * @param Server|array|string|null $server
      */
-    public function __construct(array|string|null $paths = null, Restrictions|array|string|null $restrictions = null)
+    public function __construct(array|string|null $paths = null, Server|array|string|null $server = null)
     {
-        $this->paths        = $paths;
-        $this->restrictions = Core::ensureRestrictions($restrictions);
+        $this->paths  = $paths;
+        $this->server = Core::ensureServer($server);
     }
 
 
@@ -365,11 +366,11 @@ class Execute
     /**
      * Returns the filesystem restrictions
      *
-     * @return Restrictions|null
+     * @return Server
      */
-    public function getRestrictions(): ?Restrictions
+    public function getServer(): Server
     {
-        return $this->restrictions;
+        return $this->server;
     }
 
 
@@ -377,12 +378,12 @@ class Execute
     /**
      * Sets the filesystem restrictions
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param Server|array|string|null $server
      * @return Execute
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions): Execute
+    public function setServer(Server|array|string|null $server): Execute
     {
-        $this->restrictions = $restrictions;
+        $this->server = $server;
         return $this;
     }
 
@@ -422,9 +423,9 @@ class Execute
      * @param callable $callback
      * @return void
      */
-    public function executeOnPathOnly(callable $callback): void
+    public function onPathOnly(callable $callback): void
     {
-        $this->restrictions->check($this->paths, true);
+        $this->server->checkRestrictions($this->paths, true);
 
         foreach (Arrays::force($this->paths, '') as $path) {
             // Get al files in this directory
@@ -436,7 +437,7 @@ class Execute
             }
 
             if ($this->mode) {
-                $mode = File::new($path, $this->restrictions)->switchMode($this->mode);
+                $mode = File::new($path, $this->server)->switchMode($this->mode);
             }
 
             Log::action(tr('Executing callback function on path ":path"', [
@@ -447,7 +448,7 @@ class Execute
 
             // Return original file mode
             if (isset($mode)) {
-                File::new($path, $this->restrictions)->chmod($mode);
+                File::new($path, $this->server)->chmod($mode);
             }
         }
     }
@@ -460,12 +461,12 @@ class Execute
      * @param callable $callback
      * @return int
      */
-    public function executeOnFiles(callable $callback): int
+    public function onFiles(callable $callback): int
     {
         $count = 0;
         $files = [];
 
-        $this->restrictions->check($this->paths, true);
+        $this->server->checkRestrictions($this->paths, true);
 
         foreach (Arrays::force($this->paths, '') as $path) {
             // Get al files in this directory
@@ -478,13 +479,13 @@ class Execute
 
             if ($this->mode) {
                 // Temporarily change mode for this callback
-                $mode = File::new($path, $this->restrictions)->switchMode($this->mode);
+                $mode = File::new($path, $this->server)->switchMode($this->mode);
             }
 
             try {
                 $files = scandir($path);
             } catch (Exception $e) {
-                Path::new($path, $this->restrictions)->checkReadable(previous_e: $e);
+                Path::new($path, $this->server)->checkReadable(previous_e: $e);
             }
 
             foreach ($files as $file) {
@@ -519,7 +520,7 @@ class Execute
 
                     $count += $recurse
                         ->setPath($path . $file)
-                        ->executeOnFiles($callback);
+                        ->onFiles($callback);
 
                 } elseif (file_exists($path . $file)) {
                     // Execute the callback
@@ -571,7 +572,7 @@ class Execute
             }
 
             // Return original file mode
-            File::new($path, $this->restrictions)->chmod($mode);
+            File::new($path, $this->server)->chmod($mode);
         }
 
         return $count;

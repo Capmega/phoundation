@@ -196,7 +196,7 @@ class Script
             return posix_getuid();
         }
 
-        return Command::local()->id('u');
+        return Command::new()->id('u');
     }
 
 

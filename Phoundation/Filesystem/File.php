@@ -4,7 +4,6 @@ namespace Phoundation\Filesystem;
 
 use Exception;
 use JetBrains\PhpStorm\ExpectedValues;
-use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
@@ -13,15 +12,13 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Date\Date;
 use Phoundation\Debug\Php;
-use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
+use Phoundation\Servers\Server;
 use Throwable;
 
 
@@ -52,9 +49,9 @@ class File
     /**
      * The file access permissions
      *
-     * @var Restrictions
+     * @var Server $server
      */
-    protected Restrictions $restrictions;
+    protected Server $server;
 
     /**
      * The files for this File object
@@ -69,14 +66,14 @@ class File
      * File class constructor
      *
      * @param array|string|null $file
-     * @param Restrictions|array|string|null $restrictions
+     * @param Server|array|string|null $server
      */
-    public function __construct(array|string|null $file = null, Restrictions|array|string|null $restrictions = null)
+    public function __construct(array|string|null $file = null, Server|array|string|null $server = null)
     {
         Filesystem::validateFilename($file);
 
         $this->files = Arrays::force($file, null);
-        $this->setRestrictions($restrictions);
+        $this->setServer($server);
     }
 
 
@@ -85,12 +82,12 @@ class File
      * Returns a new File object with the specified restrictions
      *
      * @param array|string|null $file
-     * @param Restrictions|array|string|null $restrictions
+     * @param Server|array|string|null $server
      * @return File
      */
-    public static function new(array|string|null $file, Restrictions|array|string|null $restrictions = null): File
+    public static function new(array|string|null $file, Server|array|string|null $server = null): File
     {
-        return new File($file, $restrictions);
+        return new File($file, $server);
     }
 
 
@@ -103,7 +100,7 @@ class File
      */
     public function php(array|string|null $paths = null): Php
     {
-        return new Php($paths, $this->restrictions);
+        return new Php($paths, $this->server);
     }
 
 
@@ -111,11 +108,11 @@ class File
     /**
      * Returns the filesystem restrictions for this File object
      *
-     * @return Restrictions
+     * @return Server
      */
-    public function getRestrictions(): Restrictions
+    public function getServer(): Server
     {
-        return $this->restrictions;
+        return $this->server;
     }
 
 
@@ -123,12 +120,12 @@ class File
     /**
      * Sets the filesystem restrictions for this File object
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param Server|array|string|null $server
      * @return void
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions): void
+    public function setServer(Server|array|string|null $server): void
     {
-        $this->restrictions = Core::ensureRestrictions($restrictions);
+        $this->server = Core::ensureServer($server);
     }
 
 
@@ -210,7 +207,7 @@ class File
             $this->checkRestrictions($file, true);
 
             // Make sure the file path exists
-            Path::new(dirname($file), $this->restrictions)->ensure();
+            Path::new(dirname($file), $this->server)->ensure();
 
             $h = $this->open('a');
             fwrite($h, $data);
@@ -235,7 +232,7 @@ class File
 
         foreach ($this->files as $file) {
             // Ensure the target path exists
-            Path::new(dirname($file), $this->restrictions)->ensure();
+            Path::new(dirname($file), $this->server)->ensure();
 
             // Open target file
             try {
@@ -248,7 +245,7 @@ class File
             // Open each source file
             foreach (Arrays::force($sources, null) as $source) {
                 try {
-                    $source_h = File::new($source, $this->restrictions)->open('r');
+                    $source_h = File::new($source, $this->server)->open('r');
                 } catch (Throwable $e) {
                     // Failed to open one of the sources, get rid of the partial target file
                     $this->delete();
@@ -338,13 +335,13 @@ class File
         $mode = Config::get('filesystem.modes.defaults.file', 0640, $mode);
 
         foreach ($this->files as $file) {
-            Path::new(dirname($file), $this->restrictions)->ensure($pattern_mode);
+            Path::new(dirname($file), $this->server)->ensure($pattern_mode);
 
             if (!file_exists($file)) {
                 // Create the file
-                Path::new(dirname($file), $this->restrictions)->execute()
+                Path::new(dirname($file), $this->server)->execute()
                     ->setMode(0770)
-                    ->executeOnPathOnly(function() use ($file, $mode) {
+                    ->onPathOnly(function() use ($file, $mode) {
                         Log::warning(tr('File ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
                             ':file' => $file
                         ]));
@@ -352,7 +349,7 @@ class File
                         touch($file);
 
                         if ($mode) {
-                            File::new($file, $this->restrictions)->chmod($mode);
+                            File::new($file, $this->server)->chmod($mode);
                         }
                     });
             }
@@ -810,7 +807,7 @@ class File
             }
 
             // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
-            Path::new(dirname($file), $this->restrictions)->ensure();
+            Path::new(dirname($file), $this->server)->ensure();
 
             Log::warning(tr('The object file ":file" (Realpath ":path") does not exist. Attempting to create it with file mode ":mode"', [
                 ':mode' => Strings::fromOctal($mode),
@@ -1325,7 +1322,7 @@ class File
      */
     protected function checkRestrictions(array|string &$paths, bool $write): void
     {
-        $this->restrictions->check($paths, $write);
+        $this->server->checkRestrictions($paths, $write);
     }
 
 
@@ -1447,7 +1444,7 @@ class File
             throw new FilesystemException(tr('Copy option has been set, but object file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', [':file' => $this->files]));
         }
 
-        $path     = Path::new($path, $this->restrictions)->ensure();
+        $path     = Path::new($path, $this->server)->ensure();
         $filename = basename($this->files);
 
         if (!$filename) {
@@ -1457,7 +1454,7 @@ class File
 
         // Ensure we have a local copy of the file to work with
         if ($this->files) {
-            $this->files = \Phoundation\Web\Http\File::new($this->restrictions)->download($is_downloaded, $context);
+            $this->files = \Phoundation\Web\Http\File::new($this->server)->download($is_downloaded, $context);
         }
 
         if (!$extension) {
@@ -1628,7 +1625,7 @@ class File
                     // Source is a file
                     if (!is_dir($destination)) {
                         // Remove destination file since it would be overwritten
-                        file_delete($destination, $restrictions);
+                        file_delete($destination, $server);
                     }
                 }
             }
@@ -1662,7 +1659,7 @@ class File
                         // clean
                         if (!is_dir($destination . $file)) {
                             // Were overwriting here!
-                            file_delete($destination . $file, $restrictions);
+                            file_delete($destination . $file, $this->server);
                         }
                     }
 
@@ -1761,5 +1758,43 @@ class File
         }
 
         return $destination;
+    }
+
+
+
+    /**
+     * Makes a backup of this file to the specified target and returns a new File object for the target
+     *
+     * @param string $pattern
+     * @return static
+     */
+    public function backup(string $pattern): static
+    {
+        $target = null;
+
+        self::requireSingleFile();
+
+        foreach ($this->files as $file) {
+            switch ($pattern) {
+                case '~':
+                    $pattern = ':PATH:FILE~';
+                    break;
+
+                case 'backup/~':
+                    $pattern = PATH_DATA . 'backups/:FILE~';
+                    break;
+
+            }
+
+            $dirname  = basename($this->files);
+            $basename = basename($this->files);
+
+            $target = str_replace(':PATH', $dirname, $pattern);
+            $target = str_replace(':FILE', $basename, $target);
+
+            copy ($this->files, $target);
+        }
+
+        return new File($target, $this->server);
     }
 }

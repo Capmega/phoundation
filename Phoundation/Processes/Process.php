@@ -8,6 +8,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
+use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Servers\Server;
@@ -249,7 +250,7 @@ Class Process
     public function kill(int $signal = 15): void
     {
         if ($this->pid) {
-            Command::server($this->server)->killPid($signal, $this->pid);
+            Command::new($this->server)->killPid($signal, $this->pid);
         }
     }
 

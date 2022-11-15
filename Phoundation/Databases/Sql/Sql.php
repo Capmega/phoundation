@@ -797,12 +797,12 @@ class Sql
      * @param string $file
      * @return void
      */
-    public function import(string $file, Restrictions|array|string|null $restrictions): void
+    public function import(string $file, Server|array|string|null $server): void
     {
         throw new UnderConstructionException();
 
         $tel = 0;
-        $handle = File::new($file, $restrictions)->open('r');
+        $handle = File::new($file, $server)->open('r');
 
         while (($buffer = fgets($handle)) !== false) {
             $buffer = trim($buffer);
@@ -1595,7 +1595,7 @@ class Sql
                             if (isset_get($this->configuration['ssh_tunnel']['required'])) {
                                 // The tunneling server has "AllowTcpForwarding" set to "no" in the sshd_config, attempt
                                 // auto fix
-                                Command::server($this->configuration['server'])->enableTcpForwarding($this->configuration['ssh_tunnel']['server']);
+                                Command::new($this->configuration['server'])->enableTcpForwarding($this->configuration['ssh_tunnel']['server']);
                                 continue;
                             }
                         }

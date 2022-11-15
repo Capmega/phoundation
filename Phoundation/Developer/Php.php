@@ -50,7 +50,7 @@ class Php extends Execute
             Path::new($path)->execute()
                 ->setRecurse($recurse)
                 ->setWhitelistExtensions(array_keys($statistics['files']))
-                ->executeOnFiles(function(string $file) use (&$statistics) {
+                ->onFiles(function(string $file) use (&$statistics) {
                     $data = file($file);
                     $next_comment = false;
                     $extension = $this->file->getExtension($file);

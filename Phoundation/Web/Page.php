@@ -19,6 +19,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
+use Phoundation\Servers\Server;
 use Phoundation\Web\Exception\PageException;
 use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Html\Html;
@@ -323,7 +324,7 @@ class Page
      *                                        to be written to disk instead of displayed on the browser. If set to
      *                                        false, the file will be sent as a file to be displayed in the browser
      *                                        itself.
-     * @param Restrictions|array|string|null $restrictions If specified, apply the specified file system restrictions, which may
+     * @param Server|array|string|null $server If specified, apply the specified file system restrictions, which may
      *                                        block the request if the requested file is outside these restrictions
      * @return void
      * @throws Throwable
@@ -332,7 +333,7 @@ class Page
      * @note: This function will kill the process once it has finished executing / sending the target file to the client
      * @version 2.5.88: Added function and documentation
      */
-    #[NoReturn] public static function execute(string $target, bool $attachment = false, Restrictions|array|string|null $restrictions = null): void
+    #[NoReturn] public static function execute(string $target, bool $attachment = false, Server|array|string|null $server = null): void
     {
         try {
             self::getInstance();
@@ -364,7 +365,7 @@ throw new UnderConstructionException();
 
                 default:
                     // This is a normal web page
-                    self::executeWebPage($target, $attachment, $restrictions);
+                    self::executeWebPage($target, $attachment, $server);
             }
 
             // Send the page to the client
@@ -700,10 +701,10 @@ throw new UnderConstructionException();
      *
      * @param string $target
      * @param bool $attachment
-     * @param Restrictions|array|string|null $restrictions
+     * @param Server|array|string|null $server
      * @return void
      */
-    protected static function executeWebPage(string $target, bool $attachment = false, Restrictions|array|string|null $restrictions = null): void
+    protected static function executeWebPage(string $target, bool $attachment = false, Server|array|string|null $server = null): void
     {
         if (Strings::fromReverse(dirname($target), '/') === 'system') {
             // Wait a small random time to avoid timing attacks on system pages
@@ -712,6 +713,9 @@ throw new UnderConstructionException();
 
         // Find the correct target page
         $target = Filesystem::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE);
+
+        // Do we have access to this page?
+        $server->checkRestrictions($target);
 
         if (str_ends_with($target, 'php')) {
             if ($attachment) {

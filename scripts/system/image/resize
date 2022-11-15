@@ -46,4 +46,8 @@ Log::information(tr('Resizing image ":file" to ":xx:y"', [
     ':file' => $file
 ]));
 
-$image->convert()->resize($width, $height);
+$backup = $image->backup('~');
+$backup->view();
+
+$image->convert()->resize()->setMethod('scale')->absolute($width, $height);
+$image->view();

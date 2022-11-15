@@ -14,6 +14,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
+use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Exception\RouteException;
@@ -324,9 +325,9 @@ class Route
                 ]));
             }
 
-            $route        = $target;
-            $attachment   = false;
-            $restrictions = new Restrictions([PATH_WWW , PATH_ROOT.'data/content/downloads'], false, 'Route');
+            $route      = $target;
+            $attachment = false;
+            $server     = new Server(new Restrictions([PATH_WWW , PATH_ROOT.'data/content/downloads'], false, 'Route'));
 
             // Regex matched. Do variable substitution on the target.
             if (preg_match_all('/:([A-Z_]+)/', $target, $variables)) {
@@ -450,7 +451,7 @@ class Route
 
                         $count = 1;
                         unset($flags[$flags_id]);
-                        self::execute(Debug::currentFile(1), $attachment, $restrictions);
+                        self::execute(Debug::currentFile(1), $attachment, $server);
 
                     case 'G':
                         // MUST be a GET reqest, NO POST data allowed!
@@ -750,7 +751,7 @@ class Route
                 Core::die();
             }
 
-            self::execute($page, $attachment, $restrictions);
+            self::execute($page, $attachment, $server);
 
         } catch (Exception $e) {
             if (str_starts_with($e->getMessage(), 'PHP ERROR [2] "preg_match_all():')) {
@@ -890,14 +891,14 @@ class Route
      *
      * @param string $target
      * @param bool $attachment
-     * @param Restrictions|array|string|null $restrictions
+     * @param Server|array|string|null $server
      * @return void
      */
-    protected static function execute(string $target, bool $attachment = false, Restrictions|array|string|null $restrictions = null): void
+    protected static function execute(string $target, bool $attachment = false, Server|array|string|null $server = null): void
     {
         // Remove the 404 auto execution on shutdown
         Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
-        Page::execute($target, $attachment, $restrictions);
+        Page::execute($target, $attachment, $server);
     }
 
 

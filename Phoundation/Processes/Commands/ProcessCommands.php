@@ -5,7 +5,7 @@ namespace Phoundation\Processes\Commands;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Processes\Exception\ProcessFailedException;
-
+use Phoundation\Processes\Process;
 
 
 /**

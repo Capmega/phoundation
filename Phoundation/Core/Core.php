@@ -18,6 +18,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Process;
+use Phoundation\Servers\Server;
 use Phoundation\Web\Client;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
@@ -54,11 +55,11 @@ class Core {
     protected static ?Core $instance = null;
 
     /**
-     * The Core restrictions object
+     * The Core default server object
      *
-     * @var Restrictions $restrictions
+     * @var Server $server
      */
-    protected static Restrictions $restrictions;
+    protected static Server $server;
 
     /**
      * The generic system register to store data
@@ -175,7 +176,7 @@ class Core {
             self::securePhpSettings();
 
             // Set up the Core restrictions object with default file access restrictions
-            self::$restrictions = new Restrictions(PATH_DATA, false, 'Core');
+            self::$server = new Server(new Restrictions(PATH_DATA, false, 'Core'));
 
             // Get the project name
             try {
@@ -2137,7 +2138,32 @@ class Core {
             return $restrictions;
         }
 
-        return self::$restrictions;
+        return self::$server->getRestrictions();
+    }
+
+
+
+    /**
+     * Returns either the specified restrictions object or the Core restrictions object
+     *
+     * With this, availability of restrictions is guaranteed, even if a function did not receive restrictions. If Core
+     * restrictions are returned, these core restrictions are the ones that apply
+     *
+     * @param Server|array|string|null $server
+     * @return Server
+     */
+    public static function ensureServer(Server|array|string|null $server = null): Server
+    {
+        if ($server) {
+            if (!is_object($server)) {
+                // Restrictions were specified by simple path string or array of paths. Convert to restrictions object
+                $server = new Server($server);
+            }
+
+            return $server;
+        }
+
+        return self::$server;
     }
 
 

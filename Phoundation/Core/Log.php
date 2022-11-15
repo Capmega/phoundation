@@ -13,6 +13,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Servers\Server;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Throwable;
@@ -131,9 +132,9 @@ Class Log {
     /**
      * File access restrictions
      *
-     * @var Restrictions $restrictions
+     * @var Server $server
      */
-    protected static Restrictions $restrictions;
+    protected static Server $server;
 
 
 
@@ -152,7 +153,7 @@ Class Log {
         self::$init = true;
 
         // Apply configuration
-        self::$restrictions = new Restrictions(PATH_DATA . 'log/', true);
+        self::$server = new Server(new Restrictions(PATH_DATA . 'log/', true, 'Log'));
         self::setThreshold(Config::get('log.threshold', Core::errorState() ? 1 : 3));
         self::setFile(Config::get('log.file', PATH_ROOT . 'data/log/syslog'));
         self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_FILE));
@@ -308,8 +309,8 @@ Class Log {
 
             // Open the specified log file
             if (empty(self::$handles[$file])) {
-                File::new($file, self::$restrictions)->ensureWritable(0640);
-                self::$handles[$file] = File::new($file, self::$restrictions)->open('a+');
+                File::new($file, self::$server)->ensureWritable(0640);
+                self::$handles[$file] = File::new($file, self::$server)->open('a+');
             }
 
             // Set the class file to the specified file and return the old value and

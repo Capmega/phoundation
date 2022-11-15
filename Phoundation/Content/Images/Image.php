@@ -5,7 +5,6 @@ namespace Phoundation\Content\Images;
 use Phoundation\Core\Exception\ImagesException;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
-use Phoundation\Processes\Commands\Command;
 
 
 
@@ -19,7 +18,7 @@ use Phoundation\Processes\Commands\Command;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
-class Image extends Command
+class Image extends File
 {
     /**
      * The name of the image file
@@ -31,41 +30,16 @@ class Image extends Command
 
 
     /**
-     * Returns the file for this image object
-     *
-     * @return string|null
-     */
-    public function getFile(): ?string
-    {
-        return $this->file;
-    }
-
-
-
-    /**
-     * Sets the file for this image object
-     *
-     * @param string|null $file
-     * @return static
-     */
-    public function setFile(?string $file): static
-    {
-        File::new($file, $this->restrictions)->checkReadable();
-
-        $this->file = $file;
-        return $this;
-    }
-
-
-
-    /**
      * Returns a Convert class to convert the specified image
      *
      * @return Convert
      */
     public function convert(): Convert
     {
-        return new Convert($this);
+        $convert = new Convert($this->getServer());
+        $convert->setSource($this);
+
+        return $convert;
     }
 
 

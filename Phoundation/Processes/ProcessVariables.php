@@ -2,10 +2,12 @@
 
 namespace Phoundation\Processes;
 
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Exception\ProcessesException;
@@ -143,9 +145,9 @@ trait ProcessVariables
     /**
      * Keeps track on which server this command should be executed. NULL means this local server
      *
-     * @var Server|null $server
+     * @var Server $server
      */
-    protected ?Server $server = null;
+    protected Server $server;
 
     /**
      * Registers where the exit code for this process will be stored
@@ -168,24 +170,26 @@ trait ProcessVariables
      */
     protected bool $clear_logs = false;
 
+
     /**
-     * Filesystem access restrictions
+     * If specified, these packages will be automatically installed if the specified command for this process does not
+     * exist
      *
-     * @var Restrictions $restrictions
+     * @var array|string|null
      */
-    protected Restrictions $restrictions;
+    protected array|string|null $packages = null;
 
 
 
     /**
      * Process class contructor
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param Server|array|string|null $server
      */
-    public function __construct(Restrictions|array|string|null $restrictions)
+    public function __construct(Server|array|string|null $server)
     {
         // Set default filesystem restrictions
-        $this->setRestrictions($restrictions);
+        $this->setRestrictions($server);
     }
 
 
@@ -197,11 +201,11 @@ trait ProcessVariables
     {
         // Delete the log file?
         if ($this->clear_logs) {
-            File::new($this->log_file, Restrictions::new(PATH_DATA . 'log', true))->delete();
+            File::new($this->log_file, Server::new(new Restrictions(PATH_DATA . 'log', true)))->delete();
         }
 
         // Delete the run file!
-        File::new($this->run_file, Restrictions::new(PATH_DATA . 'run', true))->delete();
+        File::new($this->run_file, Server::new(new Restrictions(PATH_DATA . 'run', true)))->delete();
     }
 
 
@@ -209,9 +213,9 @@ trait ProcessVariables
     /**
      * Returns the filesystem restrictions for this object
      *
-     * @return Restrictions
+     * @return Server
      */
-    public function getRestrictions(): Restrictions
+    public function getRestrictions(): Server
     {
         return $this->restrictions;
     }
@@ -221,12 +225,12 @@ trait ProcessVariables
     /**
      * Sets the filesystem restrictions for this object
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param Server|array|string|null $server
      * @return $this
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions): static
+    public function setRestrictions(Server|array|string|null $server): static
     {
-        $this->restrictions = Core::ensureRestrictions($restrictions);
+        $this->server = Core::ensureServer($server);
         return $this;
     }
 
@@ -273,7 +277,7 @@ trait ProcessVariables
     /**
      * Sets if this process will register pid information or not
      *
-     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     * @return static This process so that multiple methods can be chained
      */
     public function setRegisterRunfile(bool $register_run_file): static
     {
@@ -300,7 +304,7 @@ trait ProcessVariables
 //     * Returns the log file where the process output will be redirected to
 //     *
 //     * @param string $path
-//     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+//     * @return static This process so that multiple methods can be chained
 //     */
 //    public function setLogFile(string $path): static
 //    {
@@ -353,7 +357,7 @@ trait ProcessVariables
     /**
      * Sets the process identifier
      *
-     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     * @return static This process so that multiple methods can be chained
      * @throws ProcessException
      */
     protected function setIdentifier(): static
@@ -373,7 +377,7 @@ trait ProcessVariables
     /**
      * Sets the run path where the process run file will be written
      *
-     * @return Process|ProcessVariables|Workers|Workers
+     * @return static
      */
     protected function setRunFile(): static
     {
@@ -388,7 +392,7 @@ trait ProcessVariables
 //     * Sets the run path where the process run file will be written
 //     *
 //     * @param string $path
-//     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+//     * @return static This process so that multiple methods can be chained
 //     */
 //    public function setRunFile(string $path): static
 //    {
@@ -413,7 +417,7 @@ trait ProcessVariables
      * Sets the terminal to execute this command
      *
      * @param string|null $term
-     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     * @return static This process so that multiple methods can be chained
      */
     public function setTerm(string $term = null, bool $only_if_empty = false): static
     {
@@ -460,7 +464,7 @@ trait ProcessVariables
      * If $sudo is NULL or FALSE, the command will not execute with sudo. If a string is specified, the command will
      * execute as that user. If TRUE is specified, the command will execute as root (This is basically just a shortcut)
      *
-     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     * @return static This process so that multiple methods can be chained
      */
     public function setSudo(bool|string $sudo): static
     {
@@ -499,7 +503,7 @@ trait ProcessVariables
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
      * @param array $exit_codes
-     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     * @return static This process so that multiple methods can be chained
      */
     public function setAcceptedExitCodes(array $exit_codes): static
     {
@@ -513,7 +517,7 @@ trait ProcessVariables
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
      * @param array $exit_codes
-     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     * @return static This process so that multiple methods can be chained
      */
     public function addAcceptedExitCodes(array $exit_codes): static
     {
@@ -530,7 +534,7 @@ trait ProcessVariables
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
      * @param int $exit_code
-     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     * @return static This process so that multiple methods can be chained
      */
     public function addAcceptedExitCode(int $exit_code): static
     {
@@ -563,7 +567,7 @@ trait ProcessVariables
      *
      * @note NULL means this local server
      * @param Server|null $server
-     * @return Process|ProcessVariables|Workers
+     * @return static
      */
     public function setServer(?Server $server): static
     {
@@ -578,7 +582,7 @@ trait ProcessVariables
      *
      * @param string|null $command
      * @param bool $which_command
-     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     * @return static This process so that multiple methods can be chained
      */
     public function setCommand(?string $command, bool $which_command = false): static
     {
@@ -652,7 +656,7 @@ trait ProcessVariables
      *
      * @note This will reset the currently existing list of arguments.
      * @param array $arguments
-     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     * @return static This process so that multiple methods can be chained
      */
     public function setArguments(array $arguments): static
     {
@@ -665,14 +669,14 @@ trait ProcessVariables
     /**
      * Adds multiple arguments to the existing list of arguments for the command that will be executed
      *
-     * @param array $arguments
-     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     * @param array|string $arguments
+     * @return static This process so that multiple methods can be chained
      */
-    public function addArguments(array $arguments): static
+    public function addArguments(array|string $arguments): static
     {
         $this->cached_command_line = null;
 
-        foreach ($arguments as $argument) {
+        foreach (Arrays::force($arguments, null) as $argument) {
             if (!$argument) {
                 if ($argument !== 0) {
                     // Ignore empty arguments
@@ -693,7 +697,7 @@ trait ProcessVariables
      *
      * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
      * @param string $argument
-     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     * @return static This process so that multiple methods can be chained
      */
     public function addArgument(string $argument): static
     {
@@ -726,7 +730,7 @@ trait ProcessVariables
      *
      * @note This will reset the currently existing list of variables.
      * @param array $variables
-     * @return Process|ProcessVariables|Workers This process so that multiple methods can be chained
+     * @return static This process so that multiple methods can be chained
      */
     public function setVariables(array $variables): static
     {
@@ -761,7 +765,7 @@ trait ProcessVariables
      * Sets the process where the output of this command will be piped to, IF specified
      *
      * @param Process|null $pipe
-     * @return Process|ProcessVariables|Workers
+     * @return static
      */
     public function setPipe(?Process $pipe): static
     {
@@ -847,7 +851,7 @@ trait ProcessVariables
      *
      * @param string|null $redirect
      * @param int $channel
-     * @return Process|ProcessVariables|Workers
+     * @return static
      */
     public function setInputRedirect(?string $redirect, int $channel = 1): static
     {
@@ -890,7 +894,7 @@ trait ProcessVariables
      * 0 seconds  to disable, defaults to 30 seconds
      *
      * @param int $timeout
-     * @return Process|ProcessVariables|Workers|Workers
+     * @return static
      */
     public function setTimeout(int $timeout): static
     {
@@ -926,7 +930,7 @@ trait ProcessVariables
      * Defaults to 0, the process will NOT wait and start immediately
      *
      * @param int $wait
-     * @return Process|ProcessVariables|Workers|Workers
+     * @return static
      */
     public function setWait(int $wait): static
     {
@@ -937,6 +941,32 @@ trait ProcessVariables
         $this->cached_command_line = null;
         $this->wait = $wait;
 
+        return $this;
+    }
+
+
+
+    /**
+     * Sets the packages that should be installed automatically if the command for this process cannot be found
+     *
+     * @return string|array
+     */
+    public function getAutoInstall(): string|array
+    {
+        return $this->packages;
+    }
+
+
+
+    /**
+     * Sets the packages that should be installed automatically if the command for this process cannot be found
+     *
+     * @param string|array $packages
+     * @return static
+     */
+    public function setAutoInstall(string|array $packages): static
+    {
+        $this->packages = $packages;
         return $this;
     }
 
