@@ -10,7 +10,7 @@ use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
-use Phoundation\Servers\Localhost;
+use Phoundation\Servers\Server;
 
 
 
@@ -35,11 +35,11 @@ Class Process
      * Create a new process factory
      *
      * @param string|null $command
-     * @param Localhost|null $server
+     * @param Server|null $server
      * @param bool $which_command
      * @return Process
      */
-    public static function new(?string $command = null, ?Localhost $server = null, bool $which_command = false): Process
+    public static function new(?string $command = null, ?Server $server = null, bool $which_command = false): Process
     {
         return new Process($command, $server, $which_command);
     }
@@ -50,11 +50,11 @@ Class Process
      * Create a new CLI script process factory
      *
      * @param string|null $command
-     * @param Localhost|null $server
+     * @param Server|null $server
      * @param bool $which_command
      * @return Process
      */
-    public static function newCliScript(?string $command = null, ?Localhost $server = null, bool $which_command = false): Process
+    public static function newCliScript(?string $command = null, ?Server $server = null, bool $which_command = false): Process
     {
         $process = self::new('cli', $server, $which_command);
         $process->addArguments(Arrays::force($command, ' '));
@@ -68,10 +68,10 @@ Class Process
      * Processes constructor.
      *
      * @param string|null $command
-     * @param Localhost|null $server
+     * @param Server|null $server
      * @param bool $which_command
      */
-    public function __construct(?string $command = null, ?Localhost $server = null, bool $which_command = false)
+    public function __construct(?string $command = null, ?Server $server = null, bool $which_command = false)
     {
         // Ensure that the run files directory is available
         Path::ensure(PATH_ROOT . 'data/run/');

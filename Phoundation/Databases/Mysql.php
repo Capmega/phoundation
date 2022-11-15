@@ -5,7 +5,7 @@ namespace Phoundation\Databases;
 use Phoundation\Core\Strings;
 use Phoundation\Databases\Exception\MysqlException;
 use Phoundation\Processes\Process;
-use Phoundation\Servers\Localhost;
+use Phoundation\Servers\Server;
 use Phoundation\Servers\Servers;
 
 
@@ -26,17 +26,17 @@ class Mysql
     /**
      * The server object to execute commands on different servers if needed
      *
-     * @var Localhost|null
+     * @var Server|null
      */
-    protected ?Localhost $server = null;
+    protected ?Server $server = null;
 
 
     /**
      * Mysql class constructor
      *
-     * @param Localhost|null $server
+     * @param Server|null $server
      */
-    public function __construct(?Localhost $server = null)
+    public function __construct(?Server $server = null)
     {
         $this->server = $server;
     }
@@ -46,10 +46,10 @@ class Mysql
     /**
      * Get a new instance of the Mysql class
      *
-     * @param Localhost|null $server
+     * @param Server|null $server
      * @return Mysql
      */
-    public static function getInstance(?Localhost $server = null): Mysql
+    public static function getInstance(?Server $server = null): Mysql
     {
         return new Mysql($server);
     }
@@ -60,7 +60,7 @@ class Mysql
      * Execute a query on a remote SSH server in a bash command
      *
      * @note: This does NOT support bound variables!
-     * @param string|Localhost $server
+     * @param string|Server $server
      * @param string $query
      * @param bool $root
      * @param bool $simple_quotes

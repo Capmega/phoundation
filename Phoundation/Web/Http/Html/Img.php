@@ -10,7 +10,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Commands\Command;
-use Phoundation\Servers\Localhost;
+use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
@@ -33,9 +33,9 @@ class Img extends Element
     /**
      * Server object where the image conversion commands will be executed
      *
-     * @var Localhost $server
+     * @var Server $server
      */
-    protected Localhost $server;
+    protected Server $server;
 
     /**
      * Sets whether the image will be lazily loaded as-needed or directly

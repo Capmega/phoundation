@@ -657,6 +657,73 @@ class Script
 
 
     /**
+     * Returns the value for the specified key and ensures it is an integer number
+     *
+     * @param int|string|null $keys
+     * @param bool $default
+     * @return int
+     */
+    public static function integerArgument(int|string|null $keys = null, bool $default = false): int
+    {
+        $value = self::argument($keys, true, $default);
+
+        if (!is_numeric($value) and ((integer) $value != $value)) {
+            throw new OutOfBoundsException(tr('Value for key ":keys" should be an integer number', [
+                ':keys' => $keys
+            ]));
+        }
+
+        return $value;
+    }
+
+
+
+    /**
+     * Returns the value for the specified key and ensures it is a natural number
+     *
+     * @param int|string|null $keys
+     * @param bool $default
+     * @return int
+     */
+    public static function naturalArgument(int|string|null $keys = null, bool $default = false): int
+    {
+        $value = self::argument($keys, true, $default);
+
+        if (!is_natural($value)) {
+            throw new OutOfBoundsException(tr('Value for key ":keys" should be a natural number', [
+                ':keys' => $keys
+            ]));
+        }
+
+        return $value;
+    }
+
+
+
+    /**
+     * Returns the value for the specified key and ensures it is a float number
+     *
+     * @param int|string|null $keys
+     * @param bool $default
+     * @return float
+     */
+    public static function floatArgument(int|string|null $keys = null, bool $default = false): float
+    {
+        $value = self::argument($keys, true, $default);
+
+        // TODO Test this following line, float casting may have slightly different results
+        if (!is_numeric($value) and ((float) $value != $value)) {
+            throw new OutOfBoundsException(tr('Value for key ":keys" should be a float number', [
+                ':keys' => $keys
+            ]));
+        }
+
+        return $value;
+    }
+
+
+
+    /**
      * Show a dot on the console each $each call if $each is false, "DONE" will be printed, with next line. Internal counter will reset if a different $each is received.
      *
      * @note While log_console() will log towards the PATH_ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown

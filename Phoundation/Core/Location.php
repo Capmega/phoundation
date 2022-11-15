@@ -14,8 +14,9 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 
 
+
 /**
- * Class Domain
+ * Class Locations
  *
  *
  * @todo Add language mapping, see the protected method language_map() at the bottom of this class for more info
@@ -24,7 +25,7 @@ use Phoundation\Exception\UnderConstructionException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Http
  */
-class UrlBuilder
+class Location
 {
     /**
      * The domain to build the URL with
@@ -48,55 +49,185 @@ class UrlBuilder
     protected array $configuration;
 
     /**
-     * The url to work with
+     * The file relative to PATH_ROOT
      *
-     * @var string $url
+     * @var string|null $relative_file
      */
-    protected string $url;
+    protected ?string $relative_file = null;
+
+    /**
+     * The absolute file location
+     *
+     * @var string|null $absolute_file
+     */
+    protected ?string $absolute_file = null;
+
+    /**
+     * The public URL to access the file
+     *
+     * @var string|null $url
+     */
+    protected ?string $url = null;
+
+    /**
+     * The type of file
+     *
+     * Should be one of js, css, img
+     *
+     * @var string|null $type
+     */
+    #[ExpectedValues(values: ['js', 'javascript', 'css', 'img', 'image'])] protected ?string $type = null;
 
 
 
     /**
-     * UrlBuilder constructor
+     * Location constructor
      *
-     * @param string|bool|null $url
-     * @param bool|null $cloaked
+     * @param string|bool|null $file
+     * @param string $type
      */
-    public function __construct(string|bool|null $url = null, ?bool $cloaked = null)
+    public function __construct(string|bool|null $file, #[ExpectedValues(values: ['js', 'javascript', 'css', 'img', 'image'])] string $type)
     {
+        $this->setType($type);
+
         // Apply URL presets. Any of these presets will result in full URLs, and we will not have to build anything so
         // $this->process will be set to false.
-        if (($url === true) or ($url === 'self')) {
+        if (($file === true) or ($file === 'self')) {
             // THIS URL.
             $this->useCurrentDomain();
             $this->url = $_SERVER['REQUEST_URI'];
 
-        } elseif ($url === false) {
+        } elseif ($file === false) {
             // Special redirect. Redirect to this very page, but without queries
             $this->useCurrentDomain();
-            $this->url = Strings::until($_SERVER['REQUEST_URI'], '?');
+            $this->url     = Strings::until($_SERVER['REQUEST_URI'], '?');
 
-        } elseif ($url === 'prev') {
+        } elseif ($file === 'prev') {
             // Previous page; Assume we came from the HTTP_REFERER page
-            $this->url = isset_get($_SERVER['HTTP_REFERER']);
+            $this->url     = isset_get($_SERVER['HTTP_REFERER']);
             $this->process = false;
 
             if (!$this->url or ($this->url == $_SERVER['REQUEST_URI'])) {
                 // Don't redirect to the same page! If the referrer was this page, then drop back to the index page
-                $this->url = $this->getIndexUrl();
+                $this->url     = $this->getIndexUrl();
                 $this->process = true;
             }
 
-        } elseif (!$url) {
+        } elseif (!$file) {
             // No target specified, redirect to index page
-            $this->url = $this->getIndexUrl();
+            $this->url     = $this->getIndexUrl();
             $this->process = false;
         } else {
-            // This is a URL section
-            $this->url = $url;
+            // From here we expect either an absolute filename, a URL or if not that, we will assume a relative file
+            // location
+            if (filter_var($file, FILTER_VALIDATE_URL)) {
+                // This is a URL
+                $this->url = $file;
+                $this->relative_file = $this->getRelativeFileFromUrl($file);
+                $this->absolute_file = $this->getAbsoluteFileFromRelativeFile($this->relative_file);
+            } elseif ($file[0] === '/') {
+                // Assume this is an absolute filename
+                $this->absolute_file = $file;
+                $this->relative_file = $this->getRelativeFileFromAbsoluteFile($file);
+                $this->url           = $this->getUrlFromAbsoluteFile($file);
+            } else {
+                // Assume this is a relative file
+                $this->relative_file = $file;
+                $this->absolute_file = $this->getAbsoluteFileFromRelativeFile($file);
+                $this->url           = $this->getUrlFromAbsoluteFile($file);
+            }
+        }
+    }
+
+
+
+    /**
+     * Returns a new Location object for javascript files
+     *
+     * @param string|bool|null $file
+     * @return Location
+     */
+    public static function javascript(string|bool|null $file): Location
+    {
+        return new Location($file, 'javascript');
+    }
+
+
+
+    /**
+     * Returns a new Location object for CSS files
+     *
+     * @param string|bool|null $file
+     * @return Location
+     */
+    public static function css(string|bool|null $file): Location
+    {
+        return new Location($file, 'css');
+    }
+
+
+
+    /**
+     * Returns a new Location object for image files
+     *
+     * @param string|bool|null $file
+     * @return Location
+     */
+    public static function image(string|bool|null $file): Location
+    {
+        return new Location($file, 'image');
+    }
+
+
+
+    /**
+     * Returns the file type: javascript, image, css
+     *
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+
+
+    /**
+     * Sets the file type: javascript, image, css
+     *
+     * @param string $type
+     * @return Location
+     */
+    public function setType(string $type): Location
+    {
+        $type = strtolower(trim($type));
+
+        switch ($type) {
+            case 'js':
+                // no-break
+            case 'javascript':
+                $type = 'javascript';
+                break;
+
+            case 'css':
+                $type = 'css';
+                break;
+
+            case 'img':
+                // no-break
+            case 'image':
+                $type = 'image';
+                break;
+
+            default:
+                throw new OutOfBoundsException(tr('Invalid file type "" specified. Please specify one of "javascript" (or "js"), "css", "image" (or "img)', [
+                    ':type' => $type
+                ]));
         }
 
-        $this->setCloaked($cloaked);
+        $this->type = $type;
+
+        return $this;
     }
 
 
@@ -658,7 +789,7 @@ class UrlBuilder
 
                 } else {
                     if (empty($core->register['route_map'][$this->url_params['language']])) {
-                        Notification(new CoreException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $return, ':language' => $this->url_params['language'])), 'not-specified'));
+                        Notification(new CoreException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', [':url' => $return, ':language' => $this->url_params['language']])));
 
                     } else {
                         $return = str_replace('en/', $this->url_params['language'].'/', $return);
@@ -669,6 +800,78 @@ class UrlBuilder
                     }
                 }
             }
+        }
+    }
+
+
+
+    /**
+     *
+     *
+     * @return string
+     */
+    protected function buildUrlPrefix(): string
+    {
+
+    }
+
+
+
+    /**
+     * Returns a relative file name from the specified URL
+     *
+     * @param string $url
+     * @return string|null
+     */
+    protected function getRelativeFileFromUrl(string $url): ?string
+    {
+        $url_prefix = $this->buildUrlPrefix();
+
+        if (str_starts_with($url, $url_prefix)) {
+            return Strings::from($url, $url_prefix);
+        }
+
+        // This is not a local URL
+        return null;
+    }
+
+
+
+
+    /**
+     * Returns the absolute filename from the given relative file
+     *
+     * @param string $file
+     * @return string
+     */
+    protected function getAbsoluteFileFromRelativeFile(string $file): string
+    {
+
+    }
+
+
+
+    /**
+     *
+     * @param $file
+     * @return string
+     */
+    protected function getRelativeFileFromAbsoluteFile($file): string
+    {
+
+    }
+
+
+
+    /**
+     *
+     * @param $file
+     * @return string
+     */
+    protected function getUrlFromAbsoluteFile($file): string
+    {
+        if (!$this->relative_file) {
+            $this->relative_file = Strings::from();
         }
     }
 }

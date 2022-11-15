@@ -100,7 +100,7 @@ class Convert extends Command
      * @param string $target
      * @return Convert
      */
-    public function setFile(string $target): Convert
+    public function setTarget(string $target): Convert
     {
         if ($this->target) {
             // Target already exists. See if we need to clean the directory for this target
@@ -119,7 +119,7 @@ class Convert extends Command
      *
      * @return string|null
      */
-    public function getFile(): ?string
+    public function getTarget(): ?string
     {
         return $this->target;
     }
@@ -147,6 +147,18 @@ class Convert extends Command
     public function getMethod(): ?string
     {
         return $this->method;
+    }
+
+
+
+    /**
+     * Access to the image resize object
+     *
+     * @return Resize
+     */
+    public function resize(): Resize
+    {
+        return new Resize();
     }
 
 

@@ -11,19 +11,21 @@ use Phoundation\Servers\Server;
 
 
 /**
- * Script system/image/info
+ * Script system/image/convert
  *
- *
+ * This script can apply various conversions to the specified image
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\System
  */
-$usage = './cli system image info IMAGE';
+$usage = './cli system image convert IMAGE';
 
-$help  = 'This script will display basic information about the specified image';
+$help  = 'This script can apply various conversions to the specified image';
 
+$width        = Script::integerArgument('-x,--width' , true);
+$height       = Script::integerArgument('-y,--height', true);
 $file         = Script::argument();
 $restrictions = Restrictions::new(PATH_ROOT);
 
@@ -38,5 +40,10 @@ if (!$file) {
 $image = Image::new(Server::new(PATH_DATA))->setFile($file);
 
 // Display image information
-Log::information(tr('Displaying image information for ":file"', [':file' => $file]));
-Cli::displayArray($image->getInformation());
+Log::information(tr('Resizing image ":file" to ":xx:y"', [
+    ':x' => $width,
+    ':y' => $height,
+    ':file' => $file
+]));
+
+$image->convert()->resize($width, $height);

@@ -848,7 +848,7 @@ class Core {
             // Start session
             Session::startup();
             self::$state = 'script';
-Log::information('test');
+
         } catch (Throwable $e) {
             if (PLATFORM_HTTP and headers_sent($file, $line)) {
                 if (preg_match('/debug-.+\.php$/', $file)) {

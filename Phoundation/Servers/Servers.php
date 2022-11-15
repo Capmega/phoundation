@@ -20,9 +20,9 @@ class Servers
      * This returns a server object for the specified server name
      *
      * @param string $server_name
-     * @return Localhost
+     * @return Server
      */
-    public static function get(string $server_name): Localhost
+    public static function get(string $server_name): Server
     {
 
     }

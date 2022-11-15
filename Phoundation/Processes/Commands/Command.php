@@ -7,7 +7,7 @@ use Phoundation\Core\Core;
 use Phoundation\Exception\Exception;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Exception\CommandsException;
-use Phoundation\Servers\Localhost;
+use Phoundation\Servers\Server;
 
 
 
@@ -26,9 +26,9 @@ class Command
     /**
      * Where will this be executed? Locally or on the specified server
      *
-     * @var Localhost $server
+     * @var Server $server
      */
-    protected Localhost $server;
+    protected Server $server;
 
     /**
      * File restrictions for this class
@@ -40,9 +40,9 @@ class Command
 
 
     /**
-     * @param Localhost|string|null $server
+     * @param Server|string|null $server
      */
-    public function __construct(Localhost|string|null $server = null)
+    public function __construct(Server|string|null $server = null)
     {
         $this->setServer($server);
         $this->setRestrictions($server->getRestrictions());
@@ -53,10 +53,10 @@ class Command
     /**
      * Returns a new Images object
      *
-     * @param Localhost|string|null $server
+     * @param Server|string|null $server
      * @return Command
      */
-    public static function new(Localhost|string|null $server = null): static
+    public static function new(Server|string|null $server = null): static
     {
         return new static($server);
     }
@@ -68,13 +68,13 @@ class Command
      *
      * Sets the server by name or object, NULL for localhost
      *
-     * @param Localhost|string|null $server
+     * @param Server|string|null $server
      * @return static
      */
-    public function setServer(Localhost|string|null $server = null): static
+    public function setServer(Server|string|null $server = null): static
     {
         if (!is_object($server)) {
-            $server = new Localhost($server);
+            $server = new Server($server);
         }
 
         $this->server = $server;
@@ -86,9 +86,9 @@ class Command
     /**
      * Returns the server object for this commands object
      *
-     * @return Localhost
+     * @return Server
      */
-    public function getServer(): Localhost
+    public function getServer(): Server
     {
         return $this->server;
     }
