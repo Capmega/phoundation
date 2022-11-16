@@ -536,7 +536,7 @@ function execute_script(string $__file, array $argv): void
         include($__file);
     } catch (Throwable $e) {
         // Did this fail because the specified file does not exist?
-        File::new($__file, PATH_SCRIPTS)->checkReadable('script', true, $e);
+        File::new($__file, PATH_SCRIPTS)->checkReadable('script', $e);
     }
 }
 

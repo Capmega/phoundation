@@ -2,12 +2,15 @@
 
 namespace Phoundation\Filesystem;
 
+use Exception;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Processes\Exception\ProcessesException;
+use Phoundation\Processes\Process;
 use Phoundation\Servers\Server;
 use Phoundation\Servers\ServerUser;
 use Throwable;
@@ -343,11 +346,11 @@ class FileBasics extends ServerUser
     {
         // Check filesystem restrictions
         $this->checkRestrictions($this->file, true);
-        $return = [];
-
         $this->exists();
 
-        $perms     = fileperms($this->file);
+        $return = [];
+        $perms  = fileperms($this->file);
+
         $socket    = (($perms & 0xC000) == 0xC000);
         $symlink   = (($perms & 0xA000) == 0xA000);
         $regular   = (($perms & 0x8000) == 0x8000);
@@ -358,34 +361,34 @@ class FileBasics extends ServerUser
 
         if ($socket) {
             // This file is a socket
-            $return[$this->file] = 'socket';
+            $return = 'socket';
 
         } elseif ($symlink) {
             // This file is a symbolic link
-            $return[$this->file] = 'symbolic link';
+            $return = 'symbolic link';
 
         } elseif ($regular) {
             // This file is a regular file
-            $return[$this->file] = 'regular file';
+            $return = 'regular file';
 
         } elseif ($bdevice) {
             // This file is a block device
-            $return[$this->file] = 'block device';
+            $return = 'block device';
 
         } elseif ($directory) {
             // This file is a directory
-            $return[$this->file] = 'directory';
+            $return = 'directory';
 
         } elseif ($cdevice) {
             // This file is a character device
-            $return[$this->file] = 'character device';
+            $return = 'character device';
 
         } elseif ($fifopipe) {
             // This file is a FIFO pipe
-            $return[$this->file] = 'fifo pipe';
+            $return = 'fifo pipe';
         } else {
             // This file is an unknown type
-            $return[$this->file] = 'unknown';
+            $return = 'unknown';
         }
 
         return $return;
@@ -507,5 +510,159 @@ class FileBasics extends ServerUser
             (($perms & 0x0200) ? 'T' : '-'));
 
         return $return;
+    }
+
+
+
+    /**
+     * Returns the mimetype data for the object file
+     *
+     * @return string The mimetype data for the object file
+     * @version 2.4: Added documentation
+     */
+    public function mimetype(): string
+    {
+        // TODO Make this an object property
+        static $finfo = null;
+
+        // Check filesystem restrictions
+        $this->checkRestrictions($this->file, false);
+
+        try {
+            if (is_dir($this->file)) {
+                return 'directory';
+            }
+
+            if (!$finfo) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
+            }
+
+            $mimetype = finfo_file($finfo, $this->file);
+            return $mimetype;
+        } catch (Exception $e) {
+            // We failed to get mimetype data. Find out why and throw exception
+            $this->checkReadable('', new FilesystemException(tr('Failed to get mimetype information for file ":file"', [
+                ':file' => $this->file
+            ]), previous: $e));
+        }
+    }
+
+
+
+    /**
+     * Delete a file weather it exists or not, without error, using the "rm" command
+     *
+     * @param boolean $clean_path If specified true, all directories above each specified pattern will be deleted as
+     *                              well as long as they are empty. This way, no empty directories will be left laying
+     *                              around
+     * @param boolean $sudo If specified true, the rm command will be executed using sudo
+     * @return void
+     * @see Restrictions::check() This function uses file location restrictions
+     *
+     */
+    public function delete(bool $clean_path = true, bool $sudo = false): void
+    {
+        // Check filesystem restrictions
+        $this->checkRestrictions($this->file, true);
+
+        // Delete all specified patterns
+        // Execute the rm command
+        Process::new('rm', $this->server)
+            ->setSudo($sudo)
+            ->setTimeout(10)
+            ->addArgument($this->file)
+            ->addArgument('-rf')
+            ->executeReturnArray();
+
+        // If specified to do so, clear the path upwards from the specified pattern
+        if ($clean_path) {
+            Path::new(dirname($this->file))->clear($sudo);
+        }
+    }
+
+
+
+    /**
+     * Switches file mode to the new value and returns the previous value
+     *
+     * @param string|int $mode
+     * @return string
+     */
+    public function switchMode(string|int $mode): string
+    {
+        $old_mode = $this->getMode();
+        $this->chmod($mode);
+
+        return $old_mode;
+    }
+
+
+
+    /**
+     * Update the object file owner and group
+     *
+     * @note This function ALWAYS requires sudo as chown is a root only filesystem command
+     * @param string|null $user
+     * @param string|null $group
+     * @param bool $recursive
+     * @return void
+     */
+    public function chown(?string $user = null, ?string $group = null, bool $recursive = false): void
+    {
+        // Check filesystem restrictions
+        $this->checkRestrictions($this->file, true);
+
+        if (!$user) {
+            $user = posix_getpwuid(posix_getuid());
+            $user = $user['name'];
+        }
+
+        if (!$group) {
+            $group = posix_getpwuid(posix_getuid());
+            $group = $group['name'];
+        }
+
+        foreach ($this->file as $pattern) {
+            Process::new('chown', $this->server)
+                ->setSudo(true)
+                ->addArgument($recursive ? '-R' : null)
+                ->addArgument($user . ':' . $group)
+                ->addArguments($this->file)
+                ->executeReturnArray();
+        }
+    }
+
+
+
+    /**
+     * Change file mode, optionally recursively
+     *
+     * @param string|int $mode The mode to apply to the specified path (and all files below if recursive is specified)
+     * @param boolean $recursive If set to true, apply specified mode to the specified path and all files below by
+     *                           recursion
+     * @param bool $sudo
+     * @return void
+     * @see $this->chown()
+     *
+     */
+    public function chmod(string|int $mode, bool $recursive = false, bool $sudo = false): void
+    {
+        if (!($mode)) {
+            throw new OutOfBoundsException(tr('No file mode specified'));
+        }
+
+        if (!$this->file) {
+            throw new OutOfBoundsException(tr('No file specified'));
+        }
+
+        // Check filesystem restrictions
+        $this->checkRestrictions($this->file, true);
+
+        Process::new('chmod', $this->server)
+            ->setSudo($sudo)
+            ->addArgument($recursive ? '-R' : null)
+            ->addArgument($mode)
+            ->addArguments($this->file)
+            ->executeReturnArray();
     }
 }

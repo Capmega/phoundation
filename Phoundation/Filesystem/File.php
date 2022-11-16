@@ -45,6 +45,7 @@ class File extends FileBasics
     }
 
 
+
     /**
      * Returns the file mode for the object file
      *
@@ -54,6 +55,7 @@ class File extends FileBasics
     {
         return $this->getStat()['mode'];
     }
+
 
 
     /**
@@ -73,9 +75,10 @@ class File extends FileBasics
                 return $stat;
             }
         } catch (Throwable $e) {
-            $this->checkReadable(null, false, $e);
+            $this->checkReadable(null, $e);
         }
     }
+
 
 
     /**
@@ -120,7 +123,7 @@ class File extends FileBasics
             $target_h = $this->open('a');
         } catch (Throwable $e) {
             // Failed to open the target file
-            $this->checkReadable('target', true, $e);
+            $this->checkReadable('target', $e);
         }
 
         // Open each source file
@@ -137,7 +140,7 @@ class File extends FileBasics
             } catch (Throwable $e) {
                 // Failed to open one of the sources, get rid of the partial target file
                 $this->delete();
-                $this->checkReadable('source', true, $e);
+                $this->checkReadable('source', $e);
             }
         }
 
@@ -145,6 +148,7 @@ class File extends FileBasics
 
         return $this;
     }
+
 
 
     /**
@@ -195,6 +199,7 @@ class File extends FileBasics
     }
 
 
+
     /**
      * Ensure that the object file exists in the specified path
      *
@@ -234,35 +239,6 @@ class File extends FileBasics
     }
 
 
-    /**
-     * Returns the mimetype data for the object file
-     *
-     * @return string The mimetype data for the object file
-     * @version 2.4: Added documentation
-     */
-    public function mimetype(): string
-    {
-        // TODO Make this an object property
-        static $finfo = null;
-
-        // Check filesystem restrictions
-        $this->checkRestrictions($this->file, false);
-
-        try {
-            if (!$finfo) {
-                $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
-            }
-
-            $mimetype = finfo_file($finfo, $this->file);
-            return $mimetype;
-        } catch (Exception $e) {
-            // We failed to get mimetype data. Find out why and throw exception
-            $this->checkReadable('', true, new FilesystemException(tr('Failed to get mimetype information for file ":file"', [
-                ':file' => $this->file
-            ]), previous: $e));
-        }
-    }
-
 
     /**
      * Returns true or false if file is ASCII or not
@@ -276,6 +252,7 @@ class File extends FileBasics
     }
 
 
+
     /**
      * Returns true or false if file is ASCII or not
      *
@@ -286,6 +263,7 @@ class File extends FileBasics
         $mimetype = $this->mimetype();
         return Filesystem::isBinary(Strings::until($mimetype, '/'), Strings::from($mimetype, '/'));
     }
+
 
 
     /**
@@ -304,120 +282,6 @@ class File extends FileBasics
         return false;
     }
 
-
-    /**
-     * Delete a file weather it exists or not, without error, using the "rm" command
-     *
-     * @param boolean $clean_path If specified true, all directories above each specified pattern will be deleted as
-     *                              well as long as they are empty. This way, no empty directories will be left laying
-     *                              around
-     * @param boolean $sudo If specified true, the rm command will be executed using sudo
-     * @return void
-     * @see Restrictions::check() This function uses file location restrictions
-     *
-     */
-    public function delete(bool $clean_path = true, bool $sudo = false): void
-    {
-        // Check filesystem restrictions
-        $this->checkRestrictions($this->file, true);
-
-        // Delete all specified patterns
-        // Execute the rm command
-        Process::new('rm', $this->server)
-            ->setSudo($sudo)
-            ->setTimeout(10)
-            ->addArgument($this->file)
-            ->addArgument('-rf')
-            ->executeReturnArray();
-
-        // If specified to do so, clear the path upwards from the specified pattern
-        if ($clean_path) {
-            Path::new(dirname($this->file))->clear($sudo);
-        }
-    }
-
-
-    /**
-     * Switches file mode to the new value and returns the previous value
-     *
-     * @param string|int $mode
-     * @return string
-     */
-    public function switchMode(string|int $mode): string
-    {
-        $old_mode = $this->getMode();
-        $this->chmod($mode);
-
-        return $old_mode;
-    }
-
-
-    /**
-     * Update the object file owner and group
-     *
-     * @note This function ALWAYS requires sudo as chown is a root only filesystem command
-     * @param string|null $user
-     * @param string|null $group
-     * @param bool $recursive
-     * @return void
-     */
-    public function chown(?string $user = null, ?string $group = null, bool $recursive = false): void
-    {
-        // Check filesystem restrictions
-        $this->checkRestrictions($this->file, true);
-
-        if (!$user) {
-            $user = posix_getpwuid(posix_getuid());
-            $user = $user['name'];
-        }
-
-        if (!$group) {
-            $group = posix_getpwuid(posix_getuid());
-            $group = $group['name'];
-        }
-
-        foreach ($this->file as $pattern) {
-            Process::new('chown', $this->server)
-                ->setSudo(true)
-                ->addArgument($recursive ? '-R' : null)
-                ->addArgument($user . ':' . $group)
-                ->addArguments($this->file)
-                ->executeReturnArray();
-        }
-    }
-
-
-    /**
-     * Change file mode, optionally recursively
-     *
-     * @param string|int $mode The mode to apply to the specified path (and all files below if recursive is specified)
-     * @param boolean $recursive If set to true, apply specified mode to the specified path and all files below by
-     *                           recursion
-     * @param bool $sudo
-     * @return void
-     * @see $this->chown()
-     *
-     */
-    public function chmod(string|int $mode, bool $recursive = false, bool $sudo = false): void
-    {
-        if (!($mode)) {
-            throw new OutOfBoundsException(tr('No file mode specified'));
-        }
-
-        if (!$this->file) {
-            throw new OutOfBoundsException(tr('No file specified'));
-        }
-
-        // Check filesystem restrictions
-        $this->checkRestrictions($this->file, true);
-
-        Process::new('chmod', $this->server)
-            ->setSudo($sudo)
-            ->addArgument($recursive ? '-R' : null)
-            ->addArgument($mode)
-            ->addArguments($this->file)
-            ->executeReturnArray();
-    }
 
 
     /**
@@ -447,6 +311,7 @@ class File extends FileBasics
         copy($this->file, $target, $context);
         return new static($target, $this->server);
     }
+
 
 
     /**

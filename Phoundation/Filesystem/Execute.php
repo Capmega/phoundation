@@ -4,15 +4,15 @@ namespace Phoundation\Filesystem;
 
 use Exception;
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Servers\Server;
 use Throwable;
 
 
+
 /**
- * Each class
+ * Execute class
  *
  * This library contains various filesystem file related functions
  *
@@ -22,7 +22,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class Execute
+class Execute extends Path
 {
     /**
      * The server object
@@ -37,13 +37,6 @@ class Execute
      * @var bool $recurse
      */
     protected bool $recurse = false;
-
-    /**
-     * The paths to process
-     *
-     * @var array $paths
-     */
-    protected array $paths = [];
 
     /**
      * The mode that paths will receive when executing this each
@@ -93,50 +86,6 @@ class Execute
      * @var bool $ignore_exceptions
      */
     protected bool $ignore_exceptions = false;
-
-
-    /**
-     * Each class constructor
-     *
-     * @param array|string|null $paths
-     * @param Server|array|string|null $server
-     */
-    public function __construct(array|string|null $paths = null, Server|array|string|null $server = null)
-    {
-        $this->paths  = $paths;
-        $this->server = Core::ensureServer($server);
-    }
-
-
-
-    /**
-     * Returns the path that will be processed
-     *
-     * @return array
-     */
-    public function getPath(): array
-    {
-        return $this->paths;
-    }
-
-
-
-    /**
-     * Sets the log threshold level to the newly specified level and will return the previous level.
-     *
-     * @param string|array $paths
-     * @return Execute
-     * @throws OutOfBoundsException if the specified threshold is invalid.
-     */
-    public function setPath(string|array $paths): Execute
-    {
-        if (!$paths) {
-            throw new OutOfBoundsException(tr('No paths specified'));
-        }
-
-        $this->paths = Arrays::force($paths, '');
-        return $this;
-    }
 
 
 
@@ -197,7 +146,7 @@ class Execute
      *
      * @return int
      */
-    public function getPathMode(): int
+    public function getMode(): int
     {
         return $this->mode;
     }
@@ -364,33 +313,6 @@ class Execute
 
 
     /**
-     * Returns the server and filesystem restrictions
-     *
-     * @return Server
-     */
-    public function getServer(): Server
-    {
-        return $this->server;
-    }
-
-
-
-    /**
-     * Sets the server and filesystem restrictions
-     *
-     * @param Server|array|string|null $server
-     * @return static
-     */
-    public function setServer(Server|array|string|null $server = null): static
-    {
-        $this->server = Core::ensureServer($server);
-        return $this;
-    }
-
-
-
-
-    /**
      * Returns if the object will recurse or not
      *
      * @return bool
@@ -425,30 +347,30 @@ class Execute
      */
     public function onPathOnly(callable $callback): void
     {
-        $this->server->checkRestrictions($this->paths, true);
+        $this->server->checkRestrictions($this->file, true);
 
-        foreach (Arrays::force($this->paths, '') as $path) {
+        foreach (Arrays::force($this->file, '') as $this->file) {
             // Get al files in this directory
-            $path  = Filesystem::absolute($path);
+            $this->file = Filesystem::absolute($this->file);
 
             // Skip this path
-            if ($this->skip($path)) {
+            if ($this->skip($this->file)) {
                 continue;
             }
 
             if ($this->mode) {
-                $mode = File::new($path, $this->server)->switchMode($this->mode);
+                $mode = $this->switchMode($this->mode);
             }
 
             Log::action(tr('Executing callback function on path ":path"', [
-                ':file' => $path
+                ':file' => $this->file
             ]), 2);
 
-            $callback($path);
+            $callback($this->file);
 
             // Return original file mode
             if (isset($mode)) {
-                File::new($path, $this->server)->chmod($mode);
+                $this->chmod($mode);
             }
         }
     }
@@ -466,113 +388,111 @@ class Execute
         $count = 0;
         $files = [];
 
-        $this->server->checkRestrictions($this->paths, true);
+        $this->server->checkRestrictions($this->file, true);
 
-        foreach (Arrays::force($this->paths, '') as $path) {
-            // Get al files in this directory
-            $path = Filesystem::absolute($path);
+        // Get al files in this directory
+        $this->file = Filesystem::absolute($this->file);
 
-            // Skip this path?
-            if (!$this->skip($path)) {
+        // Skip this path?
+        if (!$this->skip($this->file)) {
+            return 0;
+        }
+
+        if ($this->mode) {
+            // Temporarily change mode for this callback
+            $mode = $this->switchMode($this->mode);
+        }
+
+        try {
+            $files = scandir($this->file);
+        } catch (Exception $e) {
+            Path::new($this->file, $this->server)->checkReadable(previous_e: $e);
+        }
+
+        foreach ($files as $file) {
+            if (($file === '.') or ($file === '..')) {
+                // skip these
                 continue;
             }
 
-            if ($this->mode) {
-                // Temporarily change mode for this callback
-                $mode = File::new($path, $this->server)->switchMode($this->mode);
+            if ($file[0] === '.') {
+                if (!$this->follow_hidden) {
+                    Log::warning(tr('Not following path ":path", hidden files are ignored', [
+                        ':path' => $this->file . $file
+                    ]), 2);
+                }
             }
 
-            try {
-                $files = scandir($path);
-            } catch (Exception $e) {
-                Path::new($path, $this->server)->checkReadable(previous_e: $e);
+            if (is_link($file)) {
+                if (!$this->follow_symlinks) {
+                    Log::warning(tr('Not following path ":path", symlinks are ignored', [
+                        ':path' => $this->file . $file
+                    ]), 2);
+                }
             }
 
-            foreach ($files as $file) {
-                if (($file === '.') or ($file === '..')) {
-                    // skip these
+            if (is_dir($this->file . $file)) {
+                // Directory! Recurse?
+                if (!$this->recurse) {
                     continue;
                 }
 
-                if ($file[0] === '.') {
-                    if (!$this->follow_hidden) {
-                        Log::warning(tr('Not following path ":path", hidden files are ignored', [
-                            ':path' => $path . $file
+                $recurse = clone $this;
+
+                $count += $recurse
+                    ->setFile($this->file . $file)
+                    ->onFiles($callback);
+
+            } elseif (file_exists($this->file . $file)) {
+                // Execute the callback
+                $count++;
+                $extension = Filesystem::getExtension($file);
+
+                if ($this->whitelist_extensions) {
+                    // Extension MUST be on this list
+                    if (!array_key_exists($extension, $this->whitelist_extensions)) {
+                        Log::warning(tr('Not executing callback function on file ":file", the extension is not whitelisted', [
+                            ':file' => $this->file . $file
                         ]), 2);
                     }
                 }
 
-                if (is_link($file)) {
-                    if (!$this->follow_symlinks) {
-                        Log::warning(tr('Not following path ":path", symlinks are ignored', [
-                            ':path' => $path . $file
+                if ($this->blacklist_extensions) {
+                    // Extension MUST NOT be on this list
+                    if (array_key_exists($extension, $this->whitelist_extensions)) {
+                        Log::warning(tr('Not executing callback function on file ":file", the extension is blacklisted', [
+                            ':file' => $this->file . $file
                         ]), 2);
                     }
                 }
 
-                if (is_dir($path . $file)) {
-                    // Directory! Recurse?
-                    if (!$this->recurse) {
-                        continue;
+                Log::action(tr('Executing callback function on file ":file"', [
+                    ':file' => $this->file . $file
+                ]), 2);
+
+                try {
+                    $callback($this->file . $file);
+
+                } catch (Throwable $e) {
+                    if (!$this->ignore_exceptions) {
+                        // Exceptions will pass!
+                        throw $e;
                     }
 
-                    $recurse = clone $this;
-
-                    $count += $recurse
-                        ->setPath($path . $file)
-                        ->onFiles($callback);
-
-                } elseif (file_exists($path . $file)) {
-                    // Execute the callback
-                    $count++;
-                    $extension = Filesystem::getExtension($file);
-
-                    if ($this->whitelist_extensions) {
-                        // Extension MUST be on this list
-                        if (!array_key_exists($extension, $this->whitelist_extensions)) {
-                            Log::warning(tr('Not executing callback function on file ":file", the extension is not whitelisted', [
-                                ':file' => $path . $file
-                            ]), 2);
-                        }
-                    }
-
-                    if ($this->blacklist_extensions) {
-                        // Extension MUST NOT be on this list
-                        if (array_key_exists($extension, $this->whitelist_extensions)) {
-                            Log::warning(tr('Not executing callback function on file ":file", the extension is blacklisted', [
-                                ':file' => $path . $file
-                            ]), 2);
-                        }
-                    }
-
-                    Log::action(tr('Executing callback function on file ":file"', [
-                        ':file' => $path . $file
-                    ]), 2);
-
-                    try {
-                        $callback($path . $file);
-
-                    } catch (Throwable $e) {
-                        if (!$this->ignore_exceptions) {
-                            // Exceptions will pass!
-                            throw $e;
-                        }
-
-                        // Exceptions will be ignored
-                        Log::warning(tr('File ":file" encountered exception ":e" which will be ignored', [
-                            ':file' => $file,
-                            ':e'    => $e->getMessage()
-                        ]));
-                    }
-                } else {
-                    Log::warning(tr('Not executing callback function on file ":file", it does not exist (probably dead symlink)', [
-                        ':file' => $path . $file
+                    // Exceptions will be ignored
+                    Log::warning(tr('File ":file" encountered exception ":e" which will be ignored', [
+                        ':file' => $file,
+                        ':e'    => $e->getMessage()
                     ]));
                 }
+            } else {
+                Log::warning(tr('Not executing callback function on file ":file", it does not exist (probably dead symlink)', [
+                    ':file' => $this->file . $file
+                ]));
             }
 
             // Return original file mode
-            File::new($path, $this->server)->chmod($mode);
+            $this->chmod($mode);
         }
 
         return $count;

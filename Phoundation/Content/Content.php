@@ -29,21 +29,19 @@ class Content extends File
      */
     public function view(): array
     {
-        foreach ($this->file as $file) {
-            $file     = File::new($file)->checkReadable('image', true);
-            $mimetype = $file->mimetype();
-            $primary  = Strings::until($mimetype, '/');
+        $file     = File::new($this->file)->checkReadable('image');
+        $mimetype = $file->mimetype();
+        $primary  = Strings::until($mimetype, '/');
 
-            return match ($primary) {
-                'image' => self::viewImage($file),
-                'video' => self::viewVideo($file),
-                'pdf'   => self::viewPdf($file),
-                default => throw new ContentException(tr('Unknown mimetype ":viewer" for file ":file"', [
-                    ':file' => $file->getFile(),
-                    ':mimetype' => $mimetype
-                ])),
-            };
-        }
+        return match ($primary) {
+            'image' => self::viewImage(),
+            'video' => self::viewVideo(),
+            'pdf'   => self::viewPdf(),
+            default => throw new ContentException(tr('Unknown mimetype ":viewer" for file ":file"', [
+                ':file' => $file->getFile(),
+                ':mimetype' => $mimetype
+            ])),
+        };
 
         throw new ContentException(tr('No file specified'), 'invalid');
     }
@@ -53,10 +51,9 @@ class Content extends File
     /**
      * Display the image file
      *
-     * @param File $file
      * @return array
      */
-    protected function viewImage(File $file): array
+    protected function viewImage(): array
     {
         return Process::new('feh', $this->server, 'feh')
             ->addArgument($file->getFile())
@@ -68,10 +65,9 @@ class Content extends File
     /**
      * Display the PDF file
      *
-     * @param File $file
      * @return array
      */
-    protected function viewPdf(File $file): array
+    protected function viewPdf(): array
     {
 
     }
@@ -81,10 +77,9 @@ class Content extends File
     /**
      * Display the video file
      *
-     * @param File $file
      * @return array
      */
-    protected function viewVideo(File $file): array
+    protected function viewVideo(): array
     {
 
     }

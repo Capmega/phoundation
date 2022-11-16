@@ -29,34 +29,13 @@ use Throwable;
 class Path extends FileBasics
 {
     /**
-     * The path for this Path object
-     *
-     * @var string|null $path
-     */
-    protected ?string $path = null;
-
-
-
-    /**
      * Returns an Execute object to execute callbacks on each file in specified paths
      *
      * @return Execute
      */
     public function execute(): Execute
     {
-        return new Execute($this->path, $this->server);
-    }
-
-
-
-    /**
-     * Returns the paths for this Path object
-     *
-     * @return string
-     */
-    public function getPath(): string
-    {
-        return $this->path;
+        return new Execute($this->file, $this->server);
     }
 
 
@@ -147,64 +126,64 @@ class Path extends FileBasics
      */
     public function ensure(?string $mode = null, ?bool $clear = false, bool $sudo = false): string
     {
-        Filesystem::validateFilename($this->path);
+        Filesystem::validateFilename($this->file);
 
         $mode = Config::get('filesystem.mode.directories', 0750, $mode);
 
         if ($clear) {
             // Delete the currently existing path, so we can  be sure we have a clean path to work with
-            File::new($this->path, $this->server)->delete(false, $sudo);
+            File::new($this->file, $this->server)->delete(false, $sudo);
         }
 
-        if (!file_exists(Strings::unslash($this->path))) {
+        if (!file_exists(Strings::unslash($this->file))) {
             // The complete requested path doesn't exist. Try to create it, but directory by directory so that we can
             // correct issues as we run in to them
-            $dirs = explode('/', Strings::startsNotWith($this->path, '/'));
-            $this->path = '';
+            $dirs = explode('/', Strings::startsNotWith($this->file, '/'));
+            $this->file = '';
 
             foreach ($dirs as $dir) {
-                $this->path .= '/' . $dir;
+                $this->file .= '/' . $dir;
 
-                if (file_exists($this->path)) {
-                    if (!is_dir($this->path)) {
+                if (file_exists($this->file)) {
+                    if (!is_dir($this->file)) {
                         // Some normal file is in the way. Delete the file, and retry
-                        File::new($this->path, $this->server)->delete(false, $sudo);
+                        File::new($this->file, $this->server)->delete(false, $sudo);
                         return $this->ensure($mode, $clear, $sudo);
                     }
 
                     continue;
 
-                } elseif (is_link($this->path)) {
+                } elseif (is_link($this->file)) {
                     // This is a dead symlink, delete it
-                    File::new($this->path, $this->server)->delete(false, $sudo);
+                    File::new($this->file, $this->server)->delete(false, $sudo);
                 }
 
                 try {
                     // Make sure that the parent path is writable when creating the directory
-                    Path::new(dirname($this->path), $this->server)->execute()
+                    Path::new(dirname($this->file), $this->server)->execute()
                         ->setMode(0770)
                         ->onPathOnly(function() use ($mode) {
-                            mkdir($this->path, $mode);
+                            mkdir($this->file, $mode);
                         });
 
                 }catch(Exception $e) {
                     // It sometimes happens that the specified path was created just in between the file_exists and
                     // mkdir
-                    if (!file_exists($this->path)) {
+                    if (!file_exists($this->file)) {
                         throw $e;
                     }
                 }
             }
 
-        } elseif (!is_dir($this->path)) {
+        } elseif (!is_dir($this->file)) {
             // Some other file is in the way. Delete the file, and retry.
             // Ensure that the "file" is not accidentally specified as a directory ending in a /
-            File::new(Strings::endsNotWith($this->path, '/'), $this->server)->delete(false, $sudo);
+            File::new(Strings::endsNotWith($this->file, '/'), $this->server)->delete(false, $sudo);
             return $this->ensure($mode, $clear, $sudo);
         }
 
-        $this->path = Strings::slash(realpath($this->path));
-        return $this->path;
+        $this->file = Strings::slash(realpath($this->file));
+        return $this->file;
     }
 
 
@@ -216,19 +195,19 @@ class Path extends FileBasics
      */
     public function isEmpty(): bool
     {
-        foreach ($this->path as $this->path) {
+        foreach ($this->file as $this->file) {
             $this->exists();
 
-            if (!is_dir($this->path)) {
+            if (!is_dir($this->file)) {
                 $this->checkReadable();
 
                 throw new PathNotDirectoryException(tr('The specified path ":path" is not a directory', [
-                    ':path' => $this->path
+                    ':path' => $this->file
                 ]));
             }
 
             // Start reading the directory.
-            $handle = opendir($this->path);
+            $handle = opendir($this->file);
 
             while (($file = readdir($handle)) !== false) {
                 // Skip . and ..
@@ -260,39 +239,39 @@ class Path extends FileBasics
      */
     public function clear(bool $sudo = false): void
     {
-        $this->checkRestrictions($this->path, true);
+        $this->checkRestrictions($this->file, true);
 
-        foreach ($this->path as $this->path) {
-            while ($this->path) {
+        foreach ($this->file as $this->file) {
+            while ($this->file) {
                 // Restrict location access
                 try {
-                    $this->checkRestrictions($this->path, true);
+                    $this->checkRestrictions($this->file, true);
                 } catch (RestrictionsException) {
                     // We're out of our territory, stop scanning!
                     break;
                 }
 
-                if (!file_exists($this->path)) {
+                if (!file_exists($this->file)) {
                     // This section does not exist, jump up to the next section above
-                    $this->path = dirname($this->path);
+                    $this->file = dirname($this->file);
                     continue;
                 }
 
-                if (!is_dir($this->path)) {
+                if (!is_dir($this->file)) {
                     // This is a normal file, we only delete directories here!
                     throw new OutOfBoundsException(tr('Not clearing path ":path", it is not a directory', [
-                        ':path' => $this->path
+                        ':path' => $this->file
                     ]));
                 }
 
-                if (!Path::new($this->path, $this->server)->isEmpty()) {
+                if (!Path::new($this->file, $this->server)->isEmpty()) {
                     // Do not remove anything more, there is contents here!
                     break;
                 }
 
                 // Remove this entry and continue;
                 try {
-                    File::new($this->path, $this->server)->delete(false, $sudo);
+                    File::new($this->file, $this->server)->delete(false, $sudo);
 
                 }catch(Exception $e) {
                     /*
@@ -302,7 +281,7 @@ class Path extends FileBasics
                      * Just register the event and leave it be.
                      */
                     Log::warning(tr('Failed to remove empty pattern ":pattern" with exception ":e"', [
-                        ':pattern' => $this->path,
+                        ':pattern' => $this->file,
                         ':e'       => $e
                     ]));
 
@@ -310,7 +289,7 @@ class Path extends FileBasics
                 }
 
                 // Go one entry up, check if we're still within restrictions, and continue deleting
-                $this->path = dirname($this->path);
+                $this->file = dirname($this->file);
             }
         }
     }
@@ -327,7 +306,7 @@ class Path extends FileBasics
     public function createTarget(?bool $single = null, int $length = 0): string
     {
         // Check filesystem restrictions 
-        $this->checkRestrictions($this->path, true);
+        $this->checkRestrictions($this->file, true);
         $this->exists();
 
         // Check configuration
@@ -339,21 +318,21 @@ class Path extends FileBasics
             $single = Config::getBoolean('filesystem.target-path.single', false);
         }
 
-        $this->path = Strings::unslash(Path::new($this->path, $this->server)->ensure());
+        $this->file = Strings::unslash(Path::new($this->file, $this->server)->ensure());
 
         if ($single) {
             // Assign path in one dir, like abcde/
-            $this->path = Strings::slash($this->path) . substr(uniqid(), -$length, $length);
+            $this->file = Strings::slash($this->file) . substr(uniqid(), -$length, $length);
 
         } else {
             // Assign path in multiple dirs, like a/b/c/d/e/
             foreach (str_split(substr(uniqid(), -$length, $length)) as $char) {
-                $this->path .= DIRECTORY_SEPARATOR . $char;
+                $this->file .= DIRECTORY_SEPARATOR . $char;
             }
         }
 
         // Ensure again to be sure the target directories too have been created
-        return Strings::slash(Path::new($this->path, $this->server)->ensure());
+        return Strings::slash(Path::new($this->file, $this->server)->ensure());
     }
 
 
@@ -368,13 +347,13 @@ class Path extends FileBasics
     public function listTree(array|string|null $filters = null, bool $recursive = true): array
     {
         // Check filesystem restrictions 
-        $this->checkRestrictions($this->path, false);
+        $this->checkRestrictions($this->file, false);
 
         $return = [];
 
-        foreach ($this->path as $this->path) {
+        foreach ($this->file as $this->file) {
             $this->exists();
-            $fh = opendir($this->path);
+            $fh = opendir($this->file);
 
             // Go over all files
             while (($filename = readdir($fh)) !== false) {
@@ -396,7 +375,7 @@ class Path extends FileBasics
                 }
 
                 // Get the complete file path
-                $file = Strings::slash($this->path) . $filename;
+                $file = Strings::slash($this->file) . $filename;
 
                 // Add the file to the list. If the file is a directory, then recurse instead. Do NOT add the directory
                 // itself, only files!
@@ -426,23 +405,23 @@ class Path extends FileBasics
     public function random(): string
     {
         // Check filesystem restrictions 
-        $this->checkRestrictions($this->path, false);
+        $this->checkRestrictions($this->file, false);
 
-        $this->path = Arrays::getRandomValue($this->path);
+        $this->file = Arrays::getRandomValue($this->file);
         $this->exists();
 
-        $files = scandir($this->path);
+        $files = scandir($this->file);
 
         Arrays::unsetValue($files, '.');
         Arrays::unsetValue($files, '..');
 
         if (!$files) {
             throw new FilesystemException(tr('The specified path ":path" contains no files', [
-                ':path' => $this->path
+                ':path' => $this->file
             ]));
         }
 
-        return Strings::slash($this->path) . Arrays::getRandomValue($files);
+        return Strings::slash($this->file) . Arrays::getRandomValue($files);
     }
 
 
@@ -459,20 +438,20 @@ class Path extends FileBasics
     public function scanUpwardsForFile(string $filename): ?string
     {
         // Check filesystem restrictions 
-        $this->checkRestrictions($this->path, false);
+        $this->checkRestrictions($this->file, false);
 
-        foreach ($this->path as $this->path) {
+        foreach ($this->file as $this->file) {
             $this->exists();
 
-            while (strlen($this->path) > 1) {
-                $this->path = Strings::slash($this->path);
+            while (strlen($this->file) > 1) {
+                $this->file = Strings::slash($this->file);
 
-                if (file_exists($this->path . $filename)) {
+                if (file_exists($this->file . $filename)) {
                     // The requested file is found! Return the path where it was found
-                    return $this->path;
+                    return $this->file;
                 }
 
-                $this->path = dirname($this->path);
+                $this->file = dirname($this->file);
             }
         }
 
@@ -489,22 +468,22 @@ class Path extends FileBasics
     public function treeFileSize(): int
     {
         // Check filesystem restrictions 
-        $this->checkRestrictions($this->path, false);
+        $this->checkRestrictions($this->file, false);
 
         $return = 0;
 
-        foreach ($this->path as $this->path) {
+        foreach ($this->file as $this->file) {
             $this->exists();
 
-            foreach (scandir($this->path) as $file) {
+            foreach (scandir($this->file) as $file) {
                 if (($file == '.') or ($file == '..')) continue;
 
-                if (is_dir($this->path . $file)) {
+                if (is_dir($this->file . $file)) {
                     // Recurse
-                    $return += Path::new($this->path . $file, $this->server)->treeFileSize();
+                    $return += Path::new($this->file . $file, $this->server)->treeFileSize();
 
                 } else {
-                    $return += filesize($this->path . $file);
+                    $return += filesize($this->file . $file);
                 }
             }
         }
@@ -522,17 +501,17 @@ class Path extends FileBasics
     public function treeFileCount(): int
     {
         // Check filesystem restrictions 
-        $this->checkRestrictions($this->path, false);
+        $this->checkRestrictions($this->file, false);
 
         $return = 0;
 
         $this->exists();
 
-        foreach (scandir($this->path) as $file) {
+        foreach (scandir($this->file) as $file) {
             if (($file == '.') or ($file == '..')) continue;
 
-            if (is_dir($this->path . $file)) {
-                $return += Path::new($this->path . $file, $this->server)->treeFileCount();
+            if (is_dir($this->file . $file)) {
+                $return += Path::new($this->file . $file, $this->server)->treeFileCount();
 
             } else {
                 $return++;
