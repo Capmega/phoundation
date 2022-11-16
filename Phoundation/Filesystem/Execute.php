@@ -364,7 +364,7 @@ class Execute
 
 
     /**
-     * Returns the filesystem restrictions
+     * Returns the server and filesystem restrictions
      *
      * @return Server
      */
@@ -376,14 +376,14 @@ class Execute
 
 
     /**
-     * Sets the filesystem restrictions
+     * Sets the server and filesystem restrictions
      *
      * @param Server|array|string|null $server
-     * @return Execute
+     * @return static
      */
-    public function setServer(Server|array|string|null $server): Execute
+    public function setServer(Server|array|string|null $server = null): static
     {
-        $this->server = $server;
+        $this->server = Core::ensureServer($server);
         return $this;
     }
 

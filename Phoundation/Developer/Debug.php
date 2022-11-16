@@ -109,6 +109,12 @@ class Debug {
     {
         try {
             if ($production === null) {
+                if (!defined('ENVIRONMENT')) {
+                    // Oops, we're so early in startup that we don't have an environment available yet!
+                    // Assume production!
+                    return true;
+                }
+
                 // Return the setting
                 return (bool) Config::get('debug.production', false);
             }

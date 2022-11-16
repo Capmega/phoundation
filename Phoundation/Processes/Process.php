@@ -6,6 +6,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Commands\Command;
@@ -36,13 +37,13 @@ Class Process
      * Create a new process factory
      *
      * @param string|null $command
-     * @param Server|null $server
-     * @param bool $which_command
+     * @param Server|array|string|null $server
+     * @param string|null $packages
      * @return Process
      */
-    public static function new(?string $command = null, ?Server $server = null, bool $which_command = false): Process
+    public static function new(?string $command = null, Server|array|string|null $server = null, ?string $packages = null): Process
     {
-        return new Process($command, $server, $which_command);
+        return new Process($command, $server, $packages);
     }
 
 
@@ -51,13 +52,13 @@ Class Process
      * Create a new CLI script process factory
      *
      * @param string|null $command
-     * @param Server|null $server
-     * @param bool $which_command
+     * @param Server|array|string|null $server
+     * @param string|null $packages
      * @return Process
      */
-    public static function newCliScript(?string $command = null, ?Server $server = null, bool $which_command = false): Process
+    public static function newCliScript(?string $command = null, Server|array|string|null $server = null, ?string $packages = null): Process
     {
-        $process = self::new('cli', $server, $which_command);
+        $process = self::new('cli', $server, $packages);
         $process->addArguments(Arrays::force($command, ' '));
 
         return $process;
@@ -69,20 +70,22 @@ Class Process
      * Processes constructor.
      *
      * @param string|null $command
-     * @param Server|null $server
-     * @param bool $which_command
+     * @param Server|array|string|null $server
+     * @param string|null $packages
      */
-    public function __construct(?string $command = null, ?Server $server = null, bool $which_command = false)
+    public function __construct(?string $command = null, Server|array|string|null $server = null, ?string $packages = null)
     {
         // Ensure that the run files directory is available
-        Path::ensure(PATH_ROOT . 'data/run/');
+        Path::new(PATH_ROOT . 'data/run/', $server)->ensure();
 
-        if ($server) {
-            $this->setServer($server);
+        $this->setServer($server);
+
+        if ($packages) {
+            $this->setPackages($packages);
         }
 
         if ($command) {
-            $this->setCommand($command, $which_command);
+            $this->setCommand($command);
         }
     }
 
@@ -132,7 +135,10 @@ Class Process
      */
     public function executeReturnArray(): array
     {
-        Log::notice(tr('Executing command ":command" using exec() to return an array', [':command' => $this->getFullCommandLine()]));
+        Log::notice(tr('Executing command ":command" using exec() to return an array', [
+            ':command' => $this->getFullCommandLine()
+        ]));
+
         exec($this->getFullCommandLine(), $output, $exit_code);
         $this->setExitCode($exit_code, $output);
         return $output;
@@ -147,11 +153,7 @@ Class Process
      */
     public function executePassthru(): bool
     {
-        $exitcode_file = Filesystem::createTempFile(false)->getFile();
-        $output_file   = Filesystem::createTempFile(false)->getFile();
-
-        $exit_code = null;
-        $output    = null;
+        $output_file = Filesystem::createTempFile(false)->getFile();
 
         $commands = $this->getFullCommandLine();
         $commands = Strings::endsNotWith($commands, ';');
@@ -160,28 +162,21 @@ Class Process
             Log::notice(tr('Executing command ":commands" using passthru()', [':commands' => $commands]));
         }
 
-        $output = passthru($this->getFullCommandLine(), $exit_code);
-        $this->setExitCode($exit_code);
+        $result = passthru($this->getFullCommandLine(), $exit_code);
 
-        // Get output and exitcode from temp files
-        // NOTE: In case of errors, these output files may NOT exist!
-        if (file_exists($exitcode_file)) {
-            $exit_code = trim(file_get_contents($exitcode_file));
-        }
-
+        // Output available in output file?
         if (file_exists($output_file)) {
             $output = file($output_file);
+            unlink($output_file);
+        } else {
+            $output = null;
         }
 
         $this->setExitCode($exit_code, $output);
 
-        // Remove the temp files
-        FilesystemCommands::new($this->server)->delete($output_file);
-        FilesystemCommands::new($this->server)->delete($exitcode_file);
-
         // So according to the documentation, for some reason passthru() would return null on success and false on
         // failure. Makes sense, right? Just return true or false, please,
-        if ($output === false) {
+        if ($result === false) {
             return false;
         }
 
@@ -264,6 +259,8 @@ Class Process
      */
     public function getFullCommandLine(bool $background = false): string
     {
+        $this->failed = false;
+
         if ($this->cached_command_line) {
             return $this->cached_command_line;
         }

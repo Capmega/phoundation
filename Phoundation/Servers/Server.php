@@ -81,12 +81,12 @@ class Server
      * Returns a new server object
      *
      * @param Restrictions|array|string|null $restrictions
-     * @param string $hostname
+     * @param string|null $hostname
      * @return Server
      */
-    public static function new(Restrictions|array|string|null $restrictions, string $hostname): static
+    public static function new(Restrictions|array|string|null $restrictions, string $hostname = null): static
     {
-        return new Server($hostname, $restrictions);
+        return new Server($restrictions, $hostname);
     }
 
 
@@ -107,7 +107,7 @@ class Server
 
 
     /**
-     * Returns the filesystem restrictions for this File object
+     * Returns the server and filesystem restrictions for this File object
      *
      * @return string
      */
@@ -119,7 +119,7 @@ class Server
 
 
     /**
-     * Sets the filesystem restrictions for this File object
+     * Sets the server and filesystem restrictions for this File object
      *
      * @param string|null $hostname
      * @return void
@@ -136,7 +136,7 @@ class Server
 
 
     /**
-     * Returns the filesystem restrictions for this File object
+     * Returns the server and filesystem restrictions for this File object
      *
      * @return Restrictions
      */
@@ -148,7 +148,7 @@ class Server
 
 
     /**
-     * Sets the filesystem restrictions for this File object
+     * Sets the server and filesystem restrictions for this File object
      *
      * @param Restrictions|array|string|null $restrictions
      * @return void

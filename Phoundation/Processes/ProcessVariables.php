@@ -7,9 +7,10 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Commands\Command;
+use Phoundation\Processes\Commands\Exception\CommandsException;
+use Phoundation\Processes\Commands\SystemCommands;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Servers\Server;
@@ -34,6 +35,13 @@ trait ProcessVariables
      * @var string|null $command
      */
     protected ?string $command = null;
+
+    /**
+     * The command that will be executed for this process
+     *
+     * @var bool $delayed
+     */
+    protected bool $delayed = false;
 
     /**
      * The actual command that was specified
@@ -170,7 +178,6 @@ trait ProcessVariables
      */
     protected bool $clear_logs = false;
 
-
     /**
      * If specified, these packages will be automatically installed if the specified command for this process does not
      * exist
@@ -179,6 +186,12 @@ trait ProcessVariables
      */
     protected array|string|null $packages = null;
 
+    /**
+     * State variable, tracks if the current process has failed or not
+     *
+     * @var bool $failed
+     */
+    protected bool $failed = false;
 
 
     /**
@@ -201,17 +214,14 @@ trait ProcessVariables
     {
         // Delete the log file?
         if ($this->clear_logs) {
-            File::new($this->log_file, Server::new(new Restrictions(PATH_DATA . 'log', true)))->delete();
+            unlink($this->log_file);
         }
-
-        // Delete the run file!
-        File::new($this->run_file, Server::new(new Restrictions(PATH_DATA . 'run', true)))->delete();
     }
 
 
 
     /**
-     * Returns the filesystem restrictions for this object
+     * Returns the server and filesystem restrictions for this object
      *
      * @return Server
      */
@@ -223,7 +233,7 @@ trait ProcessVariables
 
 
     /**
-     * Sets the filesystem restrictions for this object
+     * Sets the server and filesystem restrictions for this object
      *
      * @param Server|array|string|null $server
      * @return $this
@@ -553,9 +563,9 @@ trait ProcessVariables
      * Returns the server on which the command should be executed for this process
      *
      * @note NULL means this local server
-     * @return Server|null
+     * @return Server
      */
-    public function getServer(): ?Server
+    public function getServer(): Server
     {
         return $this->server;
     }
@@ -566,12 +576,12 @@ trait ProcessVariables
      * Set the server on which the command should be executed for this process
      *
      * @note NULL means this local server
-     * @param Server|null $server
+     * @param Server|array|string|null $server
      * @return static
      */
-    public function setServer(?Server $server): static
+    public function setServer(Server|array|string|null $server = null): static
     {
-        $this->server = $server;
+        $this->server = Core::ensureServer($server);
         return $this;
     }
 
@@ -589,9 +599,9 @@ trait ProcessVariables
         if ($command) {
             // Make sure we have a clean command
             $command = trim($command);
-            $real_command = $command;
         }
 
+        $real_command = $command;
         $this->cached_command_line = null;
 
         if (!$command) {
@@ -608,16 +618,31 @@ trait ProcessVariables
             // Check if the command exist on disk
             if (($command !== 'which') and !file_exists($command)) {
                 // The specified command was not found, we'll have to look for it anyway!
-                $real_command = SystemCommands::new($this->server)->which($command);
+                try {
+                    $real_command = SystemCommands::new($this->server)->which($command);
+                } catch (CommandsException) {
+                    // The command does not exist, but we have installation packages available!
+                    if (!$this->failed and $this->packages and !Command::new()->sudoAvailable('apt-get')) {
+                        throw new ProcessesException(tr('Specified process command ":command" does not exist', [
+                            ':command' => $command
+                        ]));
+                    }
 
-                if (!$real_command) {
-                    throw new ProcessesException(tr('Specified process command ":command" does not exist', [':command' => $command]));
+                    $this->failed = true;
+
+                    // Proceed to install the packages and retry
+                    Log::warning(tr('Failed to find the command ":command", installing required packages', [
+                        ':command' => $command
+                    ]));
+
+                    SystemCommands::new()->aptGetInstall($this->packages);
+                    return $this->setCommand($command, $which_command);
                 }
             }
         }
 
         // Apply proper escaping and register the command
-        $this->command = escapeshellcmd($command);
+        $this->command      = escapeshellcmd($command);
         $this->real_command = escapeshellcmd($real_command);
 
         $this->setIdentifier();
@@ -696,11 +721,15 @@ trait ProcessVariables
      * Adds an argument to the existing list of arguments for the command that will be executed
      *
      * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
-     * @param string $argument
+     * @param array|string $argument
      * @return static This process so that multiple methods can be chained
      */
-    public function addArgument(string $argument): static
+    public function addArgument(array|string $argument): static
     {
+        if (is_array($argument)) {
+            return $this->addArguments($argument);
+        }
+
         // Do not escape variables!
         if (!preg_match('/^\$.+?\$$/', $argument)) {
             $arguments = escapeshellarg($argument);
@@ -709,6 +738,20 @@ trait ProcessVariables
         $this->arguments[] = $argument;
 
         return $this;
+    }
+
+
+
+    /**
+     * Sets a single argument for the command that will be executed
+     *
+     * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
+     * @param string $argument
+     * @return static This process so that multiple methods can be chained
+     */
+    public function setArgument(string $argument): static
+    {
+        return $this->setArguments([$argument]);
     }
 
 
@@ -951,7 +994,7 @@ trait ProcessVariables
      *
      * @return string|array
      */
-    public function getAutoInstall(): string|array
+    public function getPackages(): string|array
     {
         return $this->packages;
     }
@@ -964,7 +1007,7 @@ trait ProcessVariables
      * @param string|array $packages
      * @return static
      */
-    public function setAutoInstall(string|array $packages): static
+    public function setPackages(string|array $packages): static
     {
         $this->packages = $packages;
         return $this;
@@ -1004,12 +1047,12 @@ trait ProcessVariables
             throw new ProcessException(tr('Failed to set process PID, no PID specified and run_file has not been set'));
         }
 
+        // Get the PID and remove the run file
         $file = $this->run_file;
         $pid  = file_get_contents($file);
         $pid  = trim($pid);
 
-        // Get the PID and remove the run file
-        //FilesystemCommands::server($this->server)->delete($this->run_file);
+        File::new($this->run_file, $this->server)->delete();
         $this->run_file = null;
 
         if (!$pid) {
@@ -1017,7 +1060,10 @@ trait ProcessVariables
         }
 
         if (!is_numeric($pid)) {
-            throw new ProcessException(tr('Run file ":file" contains invalid data ":data"', [':file' => $file, ':data' => $pid]));
+            throw new ProcessException(tr('Run file ":file" contains invalid data ":data"', [
+                ':file' => $file,
+                ':data' => $pid
+            ]));
         }
 
         $this->pid = $pid;

@@ -191,7 +191,7 @@ class Convert extends Command
      */
     public function resize(bool $background = false): Resize
     {
-        $resize = new Resize($this);
+        $resize = new Resize($this->server);
         $resize->setBackground($background);
 
         return $resize;

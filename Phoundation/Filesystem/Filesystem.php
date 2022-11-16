@@ -21,6 +21,7 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
+use Phoundation\Servers\Server;
 use Throwable;
 use const PhpConsole\Test\PATH_TMP_DIR;
 
@@ -341,7 +342,7 @@ class Filesystem
 
         touch($file);
 
-        return new File($file, Restrictions::new($tmp_path, true));
+        return new File($file, Server::new(Restrictions::new($tmp_path, true)));
     }
 
 

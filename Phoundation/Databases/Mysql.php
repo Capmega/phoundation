@@ -2,6 +2,7 @@
 
 namespace Phoundation\Databases;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Strings;
 use Phoundation\Databases\Exception\MysqlException;
 use Phoundation\Processes\Process;
@@ -26,19 +27,19 @@ class Mysql
     /**
      * The server object to execute commands on different servers if needed
      *
-     * @var Server|null
+     * @var Server|array|string|null $server
      */
-    protected ?Server $server = null;
+    protected Server|array|string|null $server = null;
 
 
     /**
      * Mysql class constructor
      *
-     * @param Server|null $server
+     * @param Server|array|string|null $server
      */
-    public function __construct(?Server $server = null)
+    public function __construct(Server|array|string|null $server = null)
     {
-        $this->server = $server;
+        $this->server = Core::ensureServer($server);
     }
 
 
@@ -46,10 +47,10 @@ class Mysql
     /**
      * Get a new instance of the Mysql class
      *
-     * @param Server|null $server
+     * @param Server|array|string|null $server
      * @return Mysql
      */
-    public static function getInstance(?Server $server = null): Mysql
+    public static function getInstance(Server|array|string|null $server = null): Mysql
     {
         return new Mysql($server);
     }

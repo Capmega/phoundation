@@ -91,7 +91,7 @@ class Bundler
 
 
     /**
-     * Returns the filesystem restrictions for this File object
+     * Returns the server and filesystem restrictions for this File object
      *
      * @return Server
      */
@@ -103,14 +103,15 @@ class Bundler
 
 
     /**
-     * Sets the filesystem restrictions for this File object
+     * Sets the server and filesystem restrictions for this File object
      *
      * @param Server|array|string|null $server
-     * @return void
+     * @return static
      */
-    public function setServer(Server|array|string|null $server): void
+    public function setServer(Server|array|string|null $server = null): static
     {
         $this->server = Core::ensureServer($server);
+        return $this;
     }
 
 

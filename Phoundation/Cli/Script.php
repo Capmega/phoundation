@@ -3,6 +3,7 @@
 namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Cli\Exception\ArgumentsException;
 use Phoundation\Cli\Exception\CliException;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
@@ -470,24 +471,27 @@ class Script
 
 
     /**
-     * Safe and simple way to get arguments from CLI
+     * Returns arguments from the command line
      *
      * This function will REMOVE and then return the argument when its found
      * If the argument is not found, $default will be returned
      *
-     * @param $keys (NOTE: See $next for what will be returned) If set to a numeric value, the value from $argv[$key]
-     *              will be selected. If set as a string value, the $argv key where the value is equal to $key will be
-     *              selected. If set specified as an array, all entries in the specified array will be selected.
-     * @param $next .When set to true, it REQUIRES that the specified key contains a next argument, and this will be
-     *              returned. If set to "all", it will return all following arguments. If set to "optional",
-     *              a next argument will be returned, if available.
+     * @param array|string|int|null $keys   (NOTE: See $next for what will be returned) If set to a numeric value, the
+     *                                      value from $argv[$key] will be selected. If set as a string value, the $argv
+     *                                      key where the value is equal to $key will be selected. If set specified as
+     *                                      an array, all entries in the specified array will be selected.
+     * @param string|bool $next             When set to true, it REQUIRES that the specified key contains a next
+     *                                      argument, and this will be returned. If set to "all", it will return all
+     *                                      following arguments. If set to "optional", a next argument will be returned,
+     *                                      if available.
      * @param string|null $default
-     * @return mixed If $next is null, it will return a boolean value, true if the specified key exists, false if not.
-     *               If $next is true or "optional", the next value will be returned as a string. However, if "optional"
-     *               was used, and the next value was not specified, boolean FALSE will be returned instead. If $next
-     *               is specified as all, all subsequent values will be returned in an array
+     * @return mixed                        If $next is null, it will return a boolean value, true if the specified key
+     *                                      exists, false if not. If $next is true or "optional", the next value will be
+     *                                      returned as a string. However, if "optional" was used, and the next value
+     *                                      was not specified, boolean FALSE will be returned instead. If $next is
+     *                                      specified as all, all subsequent values will be returned in an array
      */
-    public static function argument(int|string|null $keys = null, string|bool $next = false, ?string $default = null): mixed
+    public static function argument(array|string|int|null $keys = null, string|bool $next = false, ?string $default = null): mixed
     {
         global $argv;
 
@@ -530,19 +534,18 @@ class Script
         if ($keys === null) {
             // Get the next argument
             $value = array_shift($argv);
-            $value = Strings::startsNotWith((string) $value, '-');
-            return $value;
+            return Strings::startsNotWith((string) $value, '-');
         }
 
         //Detect multiple key options for the same command, but ensure only one is specified
-        if (is_array($keys) || (is_string($keys) && str_contains($keys, ','))) {
+        if (is_array($keys) or ((is_string($keys)) and str_contains($keys, ','))) {
             $keys = Arrays::force($keys);
-            $results = array();
+            $results = [];
 
             foreach ($keys as $key) {
                 if ($next === 'all') {
-                    //We're requesting all values for all specified keys.
-                    //It will return null in case the specified key does not exist
+                    // We're requesting all values for all specified keys. It will return null in case the specified key
+                    // does not exist
                     $value = static::argument($key, 'all', null);
 
                     if (is_array($value)) {
@@ -550,42 +553,43 @@ class Script
                         $results = array_merge($results, $value);
                     }
                 } else {
-                    $value = static::argument($key, $next, null);
+                    $value = static::argument($key, $next, $default);
 
                     if ($value) {
                         $results[$key] = $value;
+                        break;
                     }
                 }
             }
 
-            if (($next === 'all') && isset($found)) {
+            if (($next === 'all') and isset($found)) {
                 return $results;
             }
 
-            switch (count($results)) {
-                case 0:
-                    return $default;
+            return match (count($results)) {
+                0       => $default,
+                1       => current($results),
+                default => throw new ArgumentsException('Multiple related command line arguments ":results" for the same option specified. Please specify only one', [
 
-                case 1:
-                    return current($results);
-
-                default:
-                    //Multiple command line options were specified, this is not allowed!
-                    throw new CliException('Multiple command line arguments ":results" for the same option specified. Please specify only one', [
-                        ':results' => $results
-                    ]);
-            }
+                    ':results' => $results
+                ])
+            };
         }
 
         if (($key = array_search($keys, $argv)) === false) {
             // Specified argument not found
+            if ($default === null) {
+                // This argument is required!
+                throw new ArgumentsException(tr('The argument ":argument" is required', [':argument' => $keys]));
+            }
+
             return $default;
         }
 
         if ($next) {
             if ($next === 'all') {
                 // Return all following arguments, if available, until the next option
-                $value = array();
+                $value = [];
 
                 foreach ($argv as $argv_key => $argv_value) {
                     if (empty($start)) {
@@ -627,7 +631,7 @@ class Script
             }
 
             if (str_starts_with($value, '-')) {
-                throw new OutOfBoundsException(tr('Argument ":keys" has no assigned value. It is immediately followed by argument ":value"', [
+                throw new ArgumentsException(tr('Argument ":keys" has no assigned value. It is immediately followed by argument ":value"', [
                     ':keys' => $keys,
                     ':value' => $value
                 ]), ['keys' => $keys]);
@@ -646,10 +650,10 @@ class Script
      * Returns true if the specified key exists
      *
      * @param int|string|null $keys
-     * @param bool $default
+     * @param bool|null $default
      * @return bool
      */
-    public static function boolArgument(int|string|null $keys = null, bool $default = false): bool
+    public static function boolArgument(int|string|null $keys = null, ?bool $default = null): bool
     {
         return (bool) self::argument($keys, false, $default);
     }
@@ -660,15 +664,15 @@ class Script
      * Returns the value for the specified key and ensures it is an integer number
      *
      * @param int|string|null $keys
-     * @param bool $default
+     * @param int|null $default
      * @return int
      */
-    public static function integerArgument(int|string|null $keys = null, bool $default = false): int
+    public static function integerArgument(int|string|null $keys = null, ?int $default = null): int
     {
         $value = self::argument($keys, true, $default);
 
         if (!is_numeric($value) and ((integer) $value != $value)) {
-            throw new OutOfBoundsException(tr('Value for key ":keys" should be an integer number', [
+            throw new ArgumentsException(tr('Value for key ":keys" should be an integer number', [
                 ':keys' => $keys
             ]));
         }
@@ -682,15 +686,15 @@ class Script
      * Returns the value for the specified key and ensures it is a natural number
      *
      * @param int|string|null $keys
-     * @param bool $default
+     * @param int|null $default
      * @return int
      */
-    public static function naturalArgument(int|string|null $keys = null, bool $default = false): int
+    public static function naturalArgument(int|string|null $keys = null, ?int $default = null): int
     {
         $value = self::argument($keys, true, $default);
 
         if (!is_natural($value)) {
-            throw new OutOfBoundsException(tr('Value for key ":keys" should be a natural number', [
+            throw new ArgumentsException(tr('Value for key ":keys" should be a natural number', [
                 ':keys' => $keys
             ]));
         }
@@ -704,16 +708,16 @@ class Script
      * Returns the value for the specified key and ensures it is a float number
      *
      * @param int|string|null $keys
-     * @param bool $default
+     * @param float|null $default
      * @return float
      */
-    public static function floatArgument(int|string|null $keys = null, bool $default = false): float
+    public static function floatArgument(int|string|null $keys = null, ?float $default = null): float
     {
         $value = self::argument($keys, true, $default);
 
         // TODO Test this following line, float casting may have slightly different results
         if (!is_numeric($value) and ((float) $value != $value)) {
-            throw new OutOfBoundsException(tr('Value for key ":keys" should be a float number', [
+            throw new ArgumentsException(tr('Value for key ":keys" should be a float number', [
                 ':keys' => $keys
             ]));
         }

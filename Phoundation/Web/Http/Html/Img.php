@@ -242,7 +242,7 @@ class Img extends Element
 
         if ($this->external) {
             // Download external images local so that we can perform tests, changes, upgrades, etc.
-            $file_src = \Phoundation\Web\Http\File::new($this->server->getRestrictions())->download($src);
+            $file_src = \Phoundation\Web\Http\File::new($this->server)->download($src);
         } else {
             // This is a local image (either with or without domain specified) Locate the file
             $file_src = Strings::from($src     , $domain . '/');

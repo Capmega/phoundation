@@ -2,6 +2,7 @@
 
 namespace Phoundation\Processes\Commands;
 
+use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Processes\Commands\Exception\CommandsException;
 use Phoundation\Processes\Exception\ProcessFailedException;
@@ -29,6 +30,13 @@ class SystemCommands extends Command
      */
     public function which(string $command): string
     {
+        static $cache = [];
+
+        // Do we have this which command in cache?
+        if (array_key_exists($command, $cache)) {
+            return $cache[$command];
+        }
+
         $process = Process::new('which', $this->server)
             ->addArgument($command)
             ->setRegisterRunfile(false)
@@ -44,14 +52,18 @@ class SystemCommands extends Command
                 throw new CommandsException(tr('Failed to get realpath for which result ":result" for command  ":command"', [':command' => $command, ':result' => $result]));
             }
 
+            // Cache and return
+            $cache[$command] = $realpath;
             return $realpath;
 
         } catch (ProcessFailedException $e) {
             // The command which failed, likely it could not find the requested command
-            Command::handleException('rm', $e, function($first_line, $last_line, $e) use ($command) {
+            Command::handleException('which', $e, function($first_line, $last_line, $e) use ($command) {
                 if ($e->getCode() == 1) {
                     if (!$e->getData()['output']) {
-                        throw new CommandsException(tr('The which could not find the specified command ":command"', [':command' => $command]));
+                        throw new CommandsException(tr('The which could not find the specified command ":command"', [
+                            ':command' => $command
+                        ]));
                     }
                 }
             });
@@ -99,16 +111,17 @@ class SystemCommands extends Command
      * Install the specified packages
      *
      * @param array|string $packages
-     * @return array
+     * @return void
      */
-    public function aptGetInstall(array|string $packages): array
+    public function aptGetInstall(array|string $packages): void
     {
-        $process = Process::new('apt-get', $this->server)
+        Log::action(tr('Installing packages ":packages"', [':packages' => $packages]));
+
+        Process::new('apt-get', $this->server)
             ->setSudo(true)
             ->addArguments(['-y', 'install'])
             ->addArguments($packages)
-            ->setTimeout(1);
-
-        return $process->executeReturnArray();
+            ->setTimeout(120)
+            ->executePassthru();
     }
 }

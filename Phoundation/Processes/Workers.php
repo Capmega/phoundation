@@ -88,17 +88,20 @@ class Workers extends Process
 
 
 
-    /**
-     * Workers constructor
-     *
-     * @param string|null $command
-     * @param Server|null $server
-     */
-    public function __construct(?string $command = null, ?Server $server = null)
-    {
-        $this->setCommand($command);
-        $this->setServer($server);
-    }
+// TODO Delete the Workers class constructor as it does exactly the same as the parent (VALIDATE THIS)
+
+//    /**
+//     * Workers constructor
+//     *
+//     * @param string|null $command
+//     * @param Server|array|string|null $server
+//     * @param bool $which_command
+//     */
+//    public function __construct(?string $command = null, Server|array|string|null $server = null, bool $which_command = false)
+//    {
+//        $this->setCommand($command, $which_command);
+//        $this->setServer($server);
+//    }
 
 
 
@@ -106,10 +109,10 @@ class Workers extends Process
      * Returns a new Workers object
      *
      * @param string|null $command
-     * @param Server|null $server
+     * @param Server|array|string|null $server
      * @return static
      */
-    public static function create(?string $command = null, ?Server $server = null): static
+    public static function create(?string $command = null, Server|array|string|null $server = null): static
     {
         return new static($command, $server);
     }

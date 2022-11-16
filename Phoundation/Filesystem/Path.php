@@ -4,17 +4,13 @@ namespace Phoundation\Filesystem;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
-use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
-use Phoundation\Processes\Exception\ProcessesException;
-use Phoundation\Servers\Server;
 use Throwable;
 
 
@@ -30,49 +26,14 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class Path
+class Path extends FileBasics
 {
     /**
-     * The server object
+     * The path for this Path object
      *
-     * @var Server $server
+     * @var string|null $path
      */
-    protected Server $server;
-
-    /**
-     * The $path for this Path object
-     *
-     * @var array|null $paths
-     */
-    protected array|null $paths = null;
-
-
-
-    /**
-     * Path class constructor
-     *
-     * @param array|string|null $path
-     * @param Server|array|string|null $server
-     */
-    public function __construct(array|string|null $path = null, Server|array|string|null $server = null)
-    {
-        $this->paths = Arrays::force($path, null);
-        $this->setServer($server);
-    }
-
-
-
-    /**
-     * Returns a new File object with the specified restrictions
-     *
-     * @param array|string|null $path
-     * @param Server|array|string|null $server
-     * @return Path
-     */
-    public static function new(array|string|null $path = null, Server|array|string|null $server = null): Path
-    {
-        return new Path($path, $server);
-    }
+    protected ?string $path = null;
 
 
 
@@ -83,56 +44,88 @@ class Path
      */
     public function execute(): Execute
     {
-        return new Execute($this->paths, $this->server);
+        return new Execute($this->path, $this->server);
     }
 
 
 
     /**
      * Returns the paths for this Path object
-     *
-     * @return array
-     */
-    public function getPaths(): array
-    {
-        return $this->paths;
-    }
-
-
-
-    /**
-     * Returns the first path for this Path object
      *
      * @return string
      */
     public function getPath(): string
     {
-        return Arrays::firstValue($this->paths);
+        return $this->path;
     }
 
 
 
     /**
-     * Returns the Restriction object for this Path object
+     * Check if the object file exists and is readable. If not both, an exception will be thrown
      *
-     * @return Server
+     * On various occasions, this method could be used AFTER a file read action failed and is used to explain WHY the
+     * read action failed. Because of this, the method optionally accepts $previous_e which would be the exception that
+     * is the reason for this check in the first place. If specified, and the method cannot file reasons why the file
+     * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
+     * previous exception attached to it
+     *
+     * @param string|null $type             This is the label that will be added in the exception indicating what type
+     *                                      of file it is
+     * @param Throwable|null $previous_e    If the file is okay, but this exception was specified, this exception will
+     *                                      be thrown
+     * @return static
      */
-    public function getServer(): Server
+    public function checkReadable(?string $type = null, ?Throwable $previous_e = null): static
     {
-        return $this->server;
+        parent::checkReadable($type, $previous_e);
+
+        if (!is_dir($this->file)) {
+            throw new FilesystemException(tr('The:type directory ":file" cannot be read because it is not a directory', [
+                ':type' => ($type ? '' : ' ' . $type),
+                ':file' => $this->file
+            ]), previous: $previous_e);
+        }
+
+        if ($previous_e) {
+            throw $previous_e;
+        }
+
+        return $this;
     }
 
 
 
     /**
-     * Returns the paths for this Path object
+     * Check if the object file exists and is writable. If not both, an exception will be thrown
      *
-     * @param Server|array|string|null $server
-     * @return Path
+     * On various occasions, this method could be used AFTER a file read action failed and is used to explain WHY the
+     * read action failed. Because of this, the method optionally accepts $previous_e which would be the exception that
+     * is the reason for this check in the first place. If specified, and the method cannot file reasons why the file
+     * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
+     * previous exception attached to it
+     *
+     * @param string|null $type          This is the label that will be added in the exception indicating what type of
+     *                                   file it is
+     * @param Throwable|null $previous_e If the file is okay, but this exception was specified, this exception will be
+     *                                   thrown
+     * @return static
      */
-    public function setServer(Server|array|string|null $server = null): Path
+    public function checkWritable(?string $type = null, ?Throwable $previous_e = null) : static
     {
-        $this->server = Core::ensureServer($server);
+        parent::checkWritable($type, $previous_e);
+
+        if (is_dir($this->file)) {
+            throw new FilesystemException(tr('The:type directory ":file" cannot be written because it is not a directory', [
+                ':type' => ($type ? '' : ' ' . $type),
+                ':file' => $this->file
+            ]), previous: $previous_e);
+        }
+
+        if ($previous_e) {
+            throw $previous_e;
+        }
+
         return $this;
     }
 
@@ -148,109 +141,70 @@ class Path
      * @package file
      * @version 2.4.16: Added documentation
      *
-     * @param string|null $mode octal $mode If the specified $path does not exist, it will be created with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
+     * @param string|null $mode octal $mode If the specified $this->path does not exist, it will be created with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
      * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
      * @return string The specified file
      */
     public function ensure(?string $mode = null, ?bool $clear = false, bool $sudo = false): string
     {
-        foreach ($this->paths as $path) {
-            Filesystem::validateFilename($path);
+        Filesystem::validateFilename($this->path);
 
-            $mode = Config::get('filesystem.mode.directories', 0750, $mode);
+        $mode = Config::get('filesystem.mode.directories', 0750, $mode);
 
-            if ($clear) {
-                // Delete the currently existing path, so we can  be sure we have a clean path to work with
-                File::new($this->paths, $this->server)->delete(false, $sudo);
-            }
+        if ($clear) {
+            // Delete the currently existing path, so we can  be sure we have a clean path to work with
+            File::new($this->path, $this->server)->delete(false, $sudo);
+        }
 
-            if (!file_exists(Strings::unslash($path))) {
-                // The complete requested path doesn't exist. Try to create it, but directory by directory so that we can
-                // correct issues as we run in to them
-                $dirs = explode('/', Strings::startsNotWith($path, '/'));
-                $path = '';
+        if (!file_exists(Strings::unslash($this->path))) {
+            // The complete requested path doesn't exist. Try to create it, but directory by directory so that we can
+            // correct issues as we run in to them
+            $dirs = explode('/', Strings::startsNotWith($this->path, '/'));
+            $this->path = '';
 
-                foreach ($dirs as $dir) {
-                    $path .= '/' . $dir;
+            foreach ($dirs as $dir) {
+                $this->path .= '/' . $dir;
 
-                    if (file_exists($path)) {
-                        if (!is_dir($path)) {
-                            // Some normal file is in the way. Delete the file, and retry
-                            File::new($path, $this->server)->delete(false, $sudo);
-                            return $this->ensure($mode, $clear, $sudo);
-                        }
-
-                        continue;
-
-                    } elseif (is_link($path)) {
-                        // This is a dead symlink, delete it
-                        File::new($path, $this->server)->delete(false, $sudo);
+                if (file_exists($this->path)) {
+                    if (!is_dir($this->path)) {
+                        // Some normal file is in the way. Delete the file, and retry
+                        File::new($this->path, $this->server)->delete(false, $sudo);
+                        return $this->ensure($mode, $clear, $sudo);
                     }
 
-                    try {
-                        // Make sure that the parent path is writable when creating the directory
-                        Path::new(dirname($path), $this->server)->execute()
-                            ->setMode(0770)
-                            ->onPathOnly(function() use ($path, $mode) {
-                                mkdir($path, $mode);
-                            });
+                    continue;
 
-                    }catch(Exception $e) {
-                        // It sometimes happens that the specified path was created just in between the file_exists and
-                        // mkdir
-                        if (!file_exists($path)) {
-                            throw $e;
-                        }
-                    }
+                } elseif (is_link($this->path)) {
+                    // This is a dead symlink, delete it
+                    File::new($this->path, $this->server)->delete(false, $sudo);
                 }
 
-            } elseif (!is_dir($path)) {
-                // Some other file is in the way. Delete the file, and retry.
-                // Ensure that the "file" is not accidentally specified as a directory ending in a /
-                File::new(Strings::endsNotWith($path, '/'), $this->server)->delete(false, $sudo);
-                return $this->ensure($mode, $clear, $sudo);
+                try {
+                    // Make sure that the parent path is writable when creating the directory
+                    Path::new(dirname($this->path), $this->server)->execute()
+                        ->setMode(0770)
+                        ->onPathOnly(function() use ($mode) {
+                            mkdir($this->path, $mode);
+                        });
+
+                }catch(Exception $e) {
+                    // It sometimes happens that the specified path was created just in between the file_exists and
+                    // mkdir
+                    if (!file_exists($this->path)) {
+                        throw $e;
+                    }
+                }
             }
 
-            return Strings::slash(realpath($this->paths));
-        }
-    }
-
-
-
-    /**
-     * Check if the specified directory exists and is readable. If not both, an exception will be thrown
-     *
-     * On various occasions, this method could be used AFTER a file read action failed and is used to explain WHY the
-     * read action failed. Because of this, the method optionally accepts $previous_e which would be the exception that
-     * is the reason for this check in the first place. If specified, and the method cannot file reasons why the file
-     * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
-     * previous exception attached to it
-     *
-     * @param string|null $type
-     * @param Throwable|null $previous_e
-     * @return void
-     */
-    public function checkReadable(?string $type = null, ?Throwable $previous_e = null): void
-    {
-        Filesystem::validateFilename($this->paths);
-
-        if (!file_exists($this->paths)) {
-            if (!file_exists(dirname($this->paths))) {
-                // The file doesn't exist and neither does its parent directory
-                throw new FilesystemException(tr('The:type file ":file" cannot be read because it does not exist and neither does the parent path ":path"', [':type' => ($type ? '' : ' ' . $type), ':file' => $this->paths, ':path' => dirname($this->paths)]), previous: $previous_e);
-            }
-
-            throw new FilesystemException(tr('The:type file ":file" cannot be read because it does not exist', [':type' => ($type ? '' : ' ' . $type), ':file' => $this->paths]), previous: $previous_e);
+        } elseif (!is_dir($this->path)) {
+            // Some other file is in the way. Delete the file, and retry.
+            // Ensure that the "file" is not accidentally specified as a directory ending in a /
+            File::new(Strings::endsNotWith($this->path, '/'), $this->server)->delete(false, $sudo);
+            return $this->ensure($mode, $clear, $sudo);
         }
 
-        if (!is_readable($this->paths)) {
-            throw new FilesystemException(tr('The:type file ":file" cannot be read', [':type' => ($type ? '' : ' ' . $type), ':file' => $this->paths]), previous: $previous_e);
-        }
-
-        if ($previous_e) {
-            // This method was called because a read action failed, throw an exception for it
-            throw new FilesystemException(tr('The:type file ":file" cannot be read because of an unknown error', [':type' => ($type ? '' : ' ' . $type), ':file' => $this->paths]), previous: $previous_e);
-        }
+        $this->path = Strings::slash(realpath($this->path));
+        return $this->path;
     }
 
 
@@ -262,19 +216,19 @@ class Path
      */
     public function isEmpty(): bool
     {
-        foreach ($this->paths as $path) {
-            $this->fileExists($path);
+        foreach ($this->path as $this->path) {
+            $this->exists();
 
-            if (!is_dir($path)) {
+            if (!is_dir($this->path)) {
                 $this->checkReadable();
 
                 throw new PathNotDirectoryException(tr('The specified path ":path" is not a directory', [
-                    ':path' => $this->paths
+                    ':path' => $this->path
                 ]));
             }
 
             // Start reading the directory.
-            $handle = opendir($path);
+            $handle = opendir($this->path);
 
             while (($file = readdir($handle)) !== false) {
                 // Skip . and ..
@@ -306,39 +260,39 @@ class Path
      */
     public function clear(bool $sudo = false): void
     {
-        $this->checkRestrictions($this->paths, true);
+        $this->checkRestrictions($this->path, true);
 
-        foreach ($this->paths as $path) {
-            while ($path) {
+        foreach ($this->path as $this->path) {
+            while ($this->path) {
                 // Restrict location access
                 try {
-                    $this->checkRestrictions($this->paths, true);
+                    $this->checkRestrictions($this->path, true);
                 } catch (RestrictionsException) {
                     // We're out of our territory, stop scanning!
                     break;
                 }
 
-                if (!file_exists($path)) {
+                if (!file_exists($this->path)) {
                     // This section does not exist, jump up to the next section above
-                    $path = dirname($path);
+                    $this->path = dirname($this->path);
                     continue;
                 }
 
-                if (!is_dir($path)) {
+                if (!is_dir($this->path)) {
                     // This is a normal file, we only delete directories here!
                     throw new OutOfBoundsException(tr('Not clearing path ":path", it is not a directory', [
-                        ':path' => $path
+                        ':path' => $this->path
                     ]));
                 }
 
-                if (!Path::new($path, $this->server)->isEmpty()) {
+                if (!Path::new($this->path, $this->server)->isEmpty()) {
                     // Do not remove anything more, there is contents here!
                     break;
                 }
 
                 // Remove this entry and continue;
                 try {
-                    File::new($path, $this->server)->delete(false, $sudo);
+                    File::new($this->path, $this->server)->delete(false, $sudo);
 
                 }catch(Exception $e) {
                     /*
@@ -348,7 +302,7 @@ class Path
                      * Just register the event and leave it be.
                      */
                     Log::warning(tr('Failed to remove empty pattern ":pattern" with exception ":e"', [
-                        ':pattern' => $path,
+                        ':pattern' => $this->path,
                         ':e'       => $e
                     ]));
 
@@ -356,7 +310,7 @@ class Path
                 }
 
                 // Go one entry up, check if we're still within restrictions, and continue deleting
-                $path = dirname($path);
+                $this->path = dirname($this->path);
             }
         }
     }
@@ -373,8 +327,8 @@ class Path
     public function createTarget(?bool $single = null, int $length = 0): string
     {
         // Check filesystem restrictions 
-        $this->checkRestrictions($this->paths, true);
-        $this->fileExists($this->paths);
+        $this->checkRestrictions($this->path, true);
+        $this->exists();
 
         // Check configuration
         if (!$length) {
@@ -385,24 +339,21 @@ class Path
             $single = Config::getBoolean('filesystem.target-path.single', false);
         }
 
-        $this->requireSinglePath();
-
-        $path = Arrays::firstValue($this->paths);
-        $path = Strings::unslash(Path::new($path, $this->server)->ensure());
+        $this->path = Strings::unslash(Path::new($this->path, $this->server)->ensure());
 
         if ($single) {
             // Assign path in one dir, like abcde/
-            $path = Strings::slash($path) . substr(uniqid(), -$length, $length);
+            $this->path = Strings::slash($this->path) . substr(uniqid(), -$length, $length);
 
         } else {
             // Assign path in multiple dirs, like a/b/c/d/e/
             foreach (str_split(substr(uniqid(), -$length, $length)) as $char) {
-                $path .= DIRECTORY_SEPARATOR . $char;
+                $this->path .= DIRECTORY_SEPARATOR . $char;
             }
         }
 
         // Ensure again to be sure the target directories too have been created
-        return Strings::slash(Path::new($path, $this->server)->ensure());
+        return Strings::slash(Path::new($this->path, $this->server)->ensure());
     }
 
 
@@ -417,13 +368,13 @@ class Path
     public function listTree(array|string|null $filters = null, bool $recursive = true): array
     {
         // Check filesystem restrictions 
-        $this->checkRestrictions($this->paths, false);
+        $this->checkRestrictions($this->path, false);
 
         $return = [];
 
-        foreach ($this->paths as $path) {
-            $this->fileExists($path);
-            $fh = opendir($path);
+        foreach ($this->path as $this->path) {
+            $this->exists();
+            $fh = opendir($this->path);
 
             // Go over all files
             while (($filename = readdir($fh)) !== false) {
@@ -445,7 +396,7 @@ class Path
                 }
 
                 // Get the complete file path
-                $file = Strings::slash($path) . $filename;
+                $file = Strings::slash($this->path) . $filename;
 
                 // Add the file to the list. If the file is a directory, then recurse instead. Do NOT add the directory
                 // itself, only files!
@@ -475,23 +426,23 @@ class Path
     public function random(): string
     {
         // Check filesystem restrictions 
-        $this->checkRestrictions($this->paths, false);
+        $this->checkRestrictions($this->path, false);
 
-        $path = Arrays::getRandomValue($this->paths);
-        $this->fileExists($path);
+        $this->path = Arrays::getRandomValue($this->path);
+        $this->exists();
 
-        $files = scandir($path);
+        $files = scandir($this->path);
 
         Arrays::unsetValue($files, '.');
         Arrays::unsetValue($files, '..');
 
         if (!$files) {
             throw new FilesystemException(tr('The specified path ":path" contains no files', [
-                ':path' => $path
+                ':path' => $this->path
             ]));
         }
 
-        return Strings::slash($path) . Arrays::getRandomValue($files);
+        return Strings::slash($this->path) . Arrays::getRandomValue($files);
     }
 
 
@@ -508,20 +459,20 @@ class Path
     public function scanUpwardsForFile(string $filename): ?string
     {
         // Check filesystem restrictions 
-        $this->checkRestrictions($this->paths, false);
+        $this->checkRestrictions($this->path, false);
 
-        foreach ($this->paths as $path) {
-            $this->fileExists($path);
+        foreach ($this->path as $this->path) {
+            $this->exists();
 
-            while (strlen($path) > 1) {
-                $path = Strings::slash($path);
+            while (strlen($this->path) > 1) {
+                $this->path = Strings::slash($this->path);
 
-                if (file_exists($path . $filename)) {
+                if (file_exists($this->path . $filename)) {
                     // The requested file is found! Return the path where it was found
-                    return $path;
+                    return $this->path;
                 }
 
-                $path = dirname($path);
+                $this->path = dirname($this->path);
             }
         }
 
@@ -538,22 +489,22 @@ class Path
     public function treeFileSize(): int
     {
         // Check filesystem restrictions 
-        $this->checkRestrictions($this->paths, false);
+        $this->checkRestrictions($this->path, false);
 
         $return = 0;
 
-        foreach ($this->paths as $path) {
-            $this->fileExists($path);
+        foreach ($this->path as $this->path) {
+            $this->exists();
 
-            foreach (scandir($path) as $file) {
+            foreach (scandir($this->path) as $file) {
                 if (($file == '.') or ($file == '..')) continue;
 
-                if (is_dir($path . $file)) {
+                if (is_dir($this->path . $file)) {
                     // Recurse
-                    $return += Path::new($path . $file, $this->server)->treeFileSize();
+                    $return += Path::new($this->path . $file, $this->server)->treeFileSize();
 
                 } else {
-                    $return += filesize($path . $file);
+                    $return += filesize($this->path . $file);
                 }
             }
         }
@@ -571,126 +522,23 @@ class Path
     public function treeFileCount(): int
     {
         // Check filesystem restrictions 
-        $this->checkRestrictions($this->paths, false);
+        $this->checkRestrictions($this->path, false);
 
         $return = 0;
 
-        foreach ($this->paths as $path) {
-            $this->fileExists($path);
+        $this->exists();
 
-            foreach (scandir($path) as $file) {
-                if (($file == '.') or ($file == '..')) continue;
+        foreach (scandir($this->path) as $file) {
+            if (($file == '.') or ($file == '..')) continue;
 
-                if (is_dir($path . $file)) {
-                    $return += Path::new($path . $file, $this->server)->treeFileCount();
+            if (is_dir($this->path . $file)) {
+                $return += Path::new($this->path . $file, $this->server)->treeFileCount();
 
-                } else {
-                    $return++;
-                }
+            } else {
+                $return++;
             }
         }
 
         return $return;
-    }
-
-
-
-    /**
-     * Ensure that the object file is writable
-     *
-     * This method will ensure that the object file will exist and is writable. If it does not exist, an empty file
-     * will be created in the parent directory of the specified $this->file
-     *
-     * @param int|null $mode
-     * @return void
-     */
-    public function ensureWritable(?int $mode = null): void
-    {
-        // Get configuration. We need file and directory default modes
-        $mode = Config::get('filesystem.mode.default.directory', 0750, $mode);
-
-        foreach ($this->paths as $path) {
-            // If the object file exists and is writable, then we're done.
-            if (is_writable($path)) {
-                continue;
-            }
-
-            // From here the file is not writable. It may not exist, or it may simply not be writable. Lets continue...
-
-            if (file_exists($path)) {
-                // Great! The file exists, but it is not writable at this moment. Try to make it writable.
-                try {
-                    Log::warning(tr('The object path ":path" (Realpath ":path") is not writable. Attempting to apply default directory mode ":mode"', [
-                        ':file' => $path,
-                        ':path' => realpath($path),
-                        ':mode' => $mode
-                    ]));
-
-                    File::new($path, $this->server)->chmod('u+w');
-
-                } catch (ProcessesException $e) {
-                    throw new FileNotWritableException(tr('The object file ":file" (Realpath ":path") is not writable, and could not be made writable', [
-                        ':file' => $path,
-                        ':path' => realpath($path)
-                    ]));
-                }
-            }
-
-            // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
-            Path::new(dirname($path), $this->server)->ensure();
-
-            Log::warning(tr('The object path ":path" (Realpath ":path") does not exist. Attempting to create it with file mode ":mode"', [
-                ':mode' => Strings::fromOctal($mode),
-                ':file' => $path,
-                ':path' => realpath($path)
-            ]));
-
-            mkdir($path, $mode, true);
-        }
-    }
-
-
-
-    /**
-     * Check the specified $path against this objects' restrictions
-     *
-     * @param array|string $path
-     * @param bool $write
-     * @return void
-     */
-    protected function checkRestrictions(array|string $path, bool $write)
-    {
-        $this->server->checkRestrictions($path, $write);
-    }
-
-
-
-    /**
-     * Checks if the specified path exists
-     *
-     * @param string|null $path
-     * @return void
-     */
-    protected function fileExists(?string $path): void
-    {
-        if (!file_exists($path)) {
-            throw new FilesystemException(tr('Specified path ":path" does not exist', [':path' => $path]));
-        }
-    }
-
-
-
-    /**
-     * Requires that this Path object has only one path
-     *
-     * @return void
-     */
-    protected function requireSinglePath(): void
-    {
-        if (count($this->paths) > 1) {
-            throw new OutOfBoundsException(tr('Path object has ":count" paths specified while only one path is allowed', [
-                'count' => count($this->paths)
-            ]));
-        }
     }
 }

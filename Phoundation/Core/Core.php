@@ -349,14 +349,15 @@ class Core {
                     define('ADMIN'   , '');
                     define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
                     define('STARTDIR', Strings::slash(getcwd()));
-                    define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : null));
-                    define('TEST'    , (getenv('TEST')    ? 'TEST'    : null));
-                    define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : null));
-                    define('LIMIT'   , (getenv('LIMIT')   ? 'LIMIT'   : Config::get('paging.limit', 50)));
-                    define('ORDERBY' , (getenv('ORDERBY') ? 'ORDERBY' : null));
-                    define('ALL'     , (getenv('ALL')     ? 'ALL'     : null));
-                    define('DELETED' , (getenv('DELETED') ? 'DELETED' : null));
-                    define('STATUS'  , (getenv('STATUS')  ? 'STATUS'  : null));
+                    define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : false));
+                    define('TEST'    , (getenv('TEST')    ? 'TEST'    : false));
+                    define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : false));
+                    define('PAGE'    , Script::naturalArgument('-P,--page' , 1));
+                    define('LIMIT'   , (getenv('LIMIT')   ? 'LIMIT'   : Config::getNatural('paging.limit', 50)));
+                    define('ALL'     , (getenv('ALL')     ? 'ALL'     : false));
+                    define('DELETED' , (getenv('DELETED') ? 'DELETED' : false));
+                    define('ORDERBY' , (getenv('ORDERBY') ? 'ORDERBY' : ''));
+                    define('STATUS'  , (getenv('STATUS')  ? 'STATUS'  : ''));
 
                     // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
 // :TODO: Should pages themselves not check for this and perhaps send other headers?
@@ -474,22 +475,27 @@ class Core {
 
                 case 'cli':
                     self::$call_type = 'cli';
-                    // Make sure we have the original arguments available
-                    putenv('TIMEOUT='.Script::argument('--timeout', true));
 
                     // Define basic platform constants
                     define('ADMIN'   , '');
                     define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
-                    define('QUIET'   , Script::argument('-Q,--quiet'));
-                    define('FORCE'   , Script::argument('-F,--force'));
-                    define('NOCOLOR' , Script::argument('-C,--no-color'));
-                    define('TEST'    , Script::argument('-T,--test'));
-                    define('DELETED' , Script::argument('--deleted'));
-                    define('STATUS'  , Script::argument('-S,--status', true));
                     define('STARTDIR', Strings::slash(getcwd()));
 
+                    define('QUIET'   , Script::boolArgument('-Q,--quiet'   , false));
+                    define('FORCE'   , Script::boolArgument('-F,--force'   , false));
+                    define('NOCOLOR' , Script::boolArgument('-C,--no-color', false));
+                    define('TEST'    , Script::boolArgument('-T,--test'    , false));
+                    define('DELETED' , Script::boolArgument('--deleted'    , false));
+                    define('ALL'     , Script::boolArgument('-A,--all'     , false));
+
+                    define('STATUS'  , Script::argument('-S,--status'      , true, ''));
+                    define('ORDERBY' , Script::argument('-O,--orderby'     , true, ''));
+
+                    define('PAGE'    , Script::naturalArgument('-P,--page' , 1));
+                    define('LIMIT'   , Script::naturalArgument('-L,--limit', Config::get('paging.limit', 50)));
+
                     // Check what environment we're in
-                    $environment = Script::argument('-E,--env,--environment', true);
+                    $environment = Script::argument('-E,--env,--environment', true, '');
 
                     if (empty($environment)) {
                         $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
@@ -748,7 +754,6 @@ class Core {
                         $_SESSION['language'] = $language;
 
                     }catch(Throwable $e) {
-
                         // Language selection failed
                         if (!defined('LANGUAGE')) {
                             define('LANGUAGE', 'en');
@@ -778,14 +783,9 @@ class Core {
                     self::$register['ready'] = true;
 
                     // Set more system parameters
-                    if (Script::argument('-D,--debug')) {
+                    if (Script::boolArgument('-D,--debug', false)) {
                         Debug::enabled();
                     }
-
-                    self::$register['all']         = Script::argument('-A,--all');
-                    self::$register['page']        = not_empty(Script::argument('-P,--page', true), 1);
-                    self::$register['limit']       = not_empty(Script::argument('--limit'  , true), Config::get('paging.limit', 50));
-                    self::$register['clean_debug'] = Script::argument('--clean-debug');
 
                     // Validate parameters and give some startup messages, if needed
                     if (Debug::enabled()) {
@@ -818,16 +818,20 @@ class Core {
                         Log::warning(tr('Running in DEBUG mode'), 8);
                     }
 
-                    if (!is_natural(self::$register['page'])) {
-                        throw new CoreException(tr('Specified -P or --page ":page" is not a natural number', array(':page' => self::$register['page'])));
+                    if (!is_natural(PAGE)) {
+                        throw new CoreException(tr('Specified -P or --page ":page" is not a natural number', [
+                            ':page' => PAGE
+                        ]));
                     }
 
-                    if (!is_natural(self::$register['limit'])) {
-                        throw new CoreException(tr('Specified --limit":limit" is not a natural number', array(':limit' => self::$register['limit'])));
+                    if (!is_natural(LIMIT)) {
+                        throw new CoreException(tr('Specified --limit":limit" is not a natural number', [
+                            ':limit' => LIMIT
+                        ]));
                     }
 
-                    if (self::$register['all']) {
-                        if (self::$register['page'] > 1) {
+                    if (ALL) {
+                        if (PAGE > 1) {
                             throw new CoreException(tr('Both -A or --all and -P or --page have been specified, these options are mutually exclusive'));
                         }
 
@@ -853,10 +857,14 @@ class Core {
         } catch (Throwable $e) {
             if (PLATFORM_HTTP and headers_sent($file, $line)) {
                 if (preg_match('/debug-.+\.php$/', $file)) {
-                    throw new CoreException(tr('Failed because headers were already sent on ":location", so probably some added debug code caused this issue', array(':location' => $file . '@' . $line)), $e);
+                    throw new CoreException(tr('Failed because headers were already sent on ":location", so probably some added debug code caused this issue', [
+                        ':location' => $file . '@' . $line
+                    ]), $e);
                 }
 
-                throw new CoreException(tr('Failed because headers were already sent on ":location"', [':location' => $file . '@' . $line]), $e);
+                throw new CoreException(tr('Failed because headers were already sent on ":location"', [
+                    ':location' => $file . '@' . $line
+                ]), $e);
             }
 
             throw $e;
@@ -1699,8 +1707,8 @@ class Core {
                         }
 
                         if (!Debug::enabled()) {
-                            Notification($f, false, false);
-                            Notification($e, false, false);
+                            Notification::new()->setException($f)->send();
+                            Notification::new()->setException($e)->send();
                             page_show(500);
                         }
 
@@ -1713,10 +1721,9 @@ class Core {
             }
 
         }catch(Throwable $g) {
-            /*
-             * Well, we tried. Here we just give up all together
-             */
-            die("Fatal error. check PATH_ROOT/data/syslog, application server logs, or webserver logs for more information\n");
+            // Well, we tried. Here we just give up all together. Don't do anything anymore because every step from here
+            // will fail anyway. Just die
+            die("Fatal error. check data/syslog, application server logs, or webserver logs for more information\n");
         }
     }
 

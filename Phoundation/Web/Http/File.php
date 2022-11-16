@@ -126,9 +126,9 @@ class File
      * Sets the file access restrictions
      *
      * @param Server|array|string|null $server
-     * @return File
+     * @return static
      */
-    public function setServer(Server|array|string|null $server): File
+    public function setServer(Server|array|string|null $server = null): static
     {
         $this->server = Core::ensureServer($server);
         return $this;

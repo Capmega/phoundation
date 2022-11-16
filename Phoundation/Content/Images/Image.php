@@ -2,6 +2,7 @@
 
 namespace Phoundation\Content\Images;
 
+use Phoundation\Content\Content;
 use Phoundation\Core\Exception\ImagesException;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
@@ -18,7 +19,7 @@ use Phoundation\Filesystem\File;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
-class Image extends File
+class Image extends Content
 {
     /**
      * The name of the image file

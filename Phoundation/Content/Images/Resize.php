@@ -4,11 +4,9 @@ namespace Phoundation\Content\Images;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Path;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Processes\Commands\Command;
+use Phoundation\Filesystem\FileBasics;
 use Phoundation\Processes\Process;
-
+use Phoundation\Servers\Server;
 
 
 /**
@@ -21,14 +19,14 @@ use Phoundation\Processes\Process;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
-class Resize
+class Resize extends FileBasics
 {
     /**
      * The image object on which we will execute the resize operations
      *
-     * @var Convert $convert
+     * @var Server $server
      */
-    protected Convert $convert;
+    protected Server $server;
 
     /**
      * If the resize command should be executed in the background or not
@@ -50,18 +48,6 @@ class Resize
      * @var string $method
      */
     protected string $method = 'resize';
-
-
-
-    /**
-     * Resize class constructor
-     *
-     * @param Convert $convert
-     */
-    public function __construct(Convert $convert)
-    {
-        $this->convert = $convert;
-    }
 
 
 
@@ -140,11 +126,11 @@ class Resize
      */
     public function absolute(int $width, int $height): void
     {
-        $process = Process::new('convert')
-            ->addArgument($this->convert->getSourceFile())
+        $process = Process::new('convert', $this->server)
+            ->addArgument($this->getSourceFile())
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height)
-            ->addArgument($this->convert->getTargetFile());
+            ->addArgument($this->server->getTargetFile());
 
         if ($this->background) {
             // Resize in background
@@ -167,10 +153,10 @@ class Resize
     public function absoluteKeepAspectration(int $width, int $height): void
     {
         $process = Process::new('convert')
-            ->addArgument($this->convert->getSourceFile())
+            ->addArgument($this->server->getSourceFile())
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height . '\\!')
-            ->addArgument($this->convert->getTargetFile());
+            ->addArgument($this->server->getTargetFile());
 
         if ($this->background) {
             // Resize in background
@@ -193,10 +179,10 @@ class Resize
     public function shrinkOnlyLarger(int $width, int $height): void
     {
         $process = Process::new('convert')
-            ->addArgument($this->convert->getSourceFile())
+            ->addArgument($this->server->getSourceFile())
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height . '\\>')
-            ->addArgument($this->convert->getTargetFile());
+            ->addArgument($this->server->getTargetFile());
 
         if ($this->background) {
             // Resize in background
@@ -219,10 +205,10 @@ class Resize
     public function enlargeOnlySmaller(int $width, int $height): void
     {
         $process = Process::new('convert')
-            ->addArgument($this->convert->getSourceFile())
+            ->addArgument($this->server->getSourceFile())
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height . '\\>')
-            ->addArgument($this->convert->getTargetFile());
+            ->addArgument($this->server->getTargetFile());
 
         if ($this->background) {
             // Resize in background
@@ -244,10 +230,10 @@ class Resize
     public function percentage(float $percentage): void
     {
         $process = Process::new('convert')
-            ->addArgument($this->convert->getSourceFile())
+            ->addArgument($this->server->getSourceFile())
             ->addArgument('-' . $this->method)
             ->addArgument($percentage . '%')
-            ->addArgument($this->convert->getTargetFile());
+            ->addArgument($this->server->getTargetFile());
 
         if ($this->background) {
             // Resize in background
@@ -269,10 +255,10 @@ class Resize
     public function pixelCount(int $pixel_count): void
     {
         $process = Process::new('convert')
-            ->addArgument($this->convert->getSourceFile())
+            ->addArgument($this->server->getSourceFile())
             ->addArgument('-' . $this->method)
             ->addArgument($pixel_count . '@')
-            ->addArgument($this->convert->getTargetFile());
+            ->addArgument($this->server->getTargetFile());
 
         if ($this->background) {
             // Resize in background

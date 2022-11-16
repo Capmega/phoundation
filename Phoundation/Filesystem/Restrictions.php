@@ -121,8 +121,8 @@ class Restrictions
         // Check each specified path pattern to see if its allowed or restricted
         foreach (Arrays::force($patterns) as &$pattern) {
             foreach ($this->paths as $path => $restrict_write) {
-                $path    = Filesystem::absolute($path);
-                $pattern = Filesystem::absolute($pattern);
+                $path    = Filesystem::absolute($path   , null, false);
+                $pattern = Filesystem::absolute($pattern, null, false);
 
                 if (str_starts_with($pattern, $path)) {
                     if ($write and !$restrict_write) {

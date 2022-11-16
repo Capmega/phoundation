@@ -70,7 +70,14 @@ class Config
      */
     protected function __construct()
     {
-        self::read(ENVIRONMENT);
+        if (defined('ENVIRONMENT')) {
+            self::read(ENVIRONMENT);
+        } else {
+            // This should only happen in some rare occasions where startup fails and we require configuration access
+            // before ENVIRONMENT has been defined. In those cases, assuming "production" environment is safe enough
+            // TODO Define all other required constants as well!
+            self::read('production');
+        }
     }
 
 
@@ -102,7 +109,23 @@ class Config
      */
     public static function getBoolean(string|array $path, ?bool $default = null, mixed $specified = null): bool
     {
-        return self::get($path, $default, $specified);
+        $return = self::get($path, $default, $specified);
+
+        try {
+            if (is_bool($return)) {
+                return $return;
+            }
+
+            // Try to interpret as boolean
+            return Strings::getBoolean($return);
+        } catch(OutOfBoundsException) {
+            // Do nothing, following exception will do the job
+        }
+
+        throw new ConfigException(tr('The configuration path ":path" should be a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has value ":value" instead', [
+            ':path'  => $path,
+            ':value' => $return
+        ]));
     }
 
 
@@ -118,7 +141,16 @@ class Config
      */
     public static function getInteger(string|array $path, ?int $default = null, mixed $specified = null): int
     {
-        return self::get($path, $default, $specified);
+        $return = self::get($path, $default, $specified);
+
+        if (is_integer($return)) {
+            return $return;
+        }
+
+        throw new ConfigException(tr('The configuration path ":path" should be an integer number but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return
+        ]));
     }
 
 
@@ -126,15 +158,49 @@ class Config
     /**
      * Return configuration NUMBER for the specified key path
      *
-     * @note Will cause an exception if a non numeric value is returned!
+     * @note Will cause an exception if a non-numeric value is returned!
      * @param string|array $path
      * @param int|float|null $default
      * @param mixed|null $specified
      * @return int|float
      */
-    public static function getNumber(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
+    public static function getNatural(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
     {
-        return self::get($path, $default, $specified);
+        $return = self::get($path, $default, $specified);
+
+        if (is_integer($return) and ($return < 0)) {
+            return $return;
+        }
+
+        throw new ConfigException(tr('The configuration path ":path" should be a natural number, integer 0 or above, but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return
+        ]));
+    }
+
+
+
+    /**
+     * Return configuration NUMBER for the specified key path
+     *
+     * @note Will cause an exception if a non-numeric value is returned!
+     * @param string|array $path
+     * @param int|float|null $default
+     * @param mixed|null $specified
+     * @return int|float
+     */
+    public static function getFloat(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
+    {
+        $return = self::get($path, $default, $specified);
+
+        if (is_float($return)) {
+            return $return;
+        }
+
+        throw new ConfigException(tr('The configuration path ":path" should be a number but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return
+        ]));
     }
 
 
@@ -150,7 +216,16 @@ class Config
      */
     public static function getArray(string|array $path, array|null $default = null, mixed $specified = null): array
     {
-        return self::get($path, $default, $specified);
+        $return = self::get($path, $default, $specified);
+
+        if (is_array($return)) {
+            return $return;
+        }
+
+        throw new ConfigException(tr('The configuration path ":path" should be an array but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return
+        ]));
     }
 
 
@@ -166,7 +241,16 @@ class Config
      */
     public static function getString(string|array $path, string|null $default = null, mixed $specified = null): string
     {
-        return self::get($path, $default, $specified);
+        $return = self::get($path, $default, $specified);
+
+        if (is_string($return)) {
+            return $return;
+        }
+
+        throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return
+        ]));
     }
 
 
