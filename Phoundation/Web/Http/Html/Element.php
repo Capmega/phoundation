@@ -2,11 +2,11 @@
 
 namespace Phoundation\Web\Http\Html;
 
-
-
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Web\Page;
+
+
 
 /**
  * Class Element
@@ -96,6 +96,13 @@ class Element
      * @var string|null $autofocus
      */
     protected ?string $autofocus = null;
+
+    /**
+     * Extra attributes or element content can be added through the "extra" variable
+     *
+     * @var string $extra
+     */
+    protected string $extra = '';
 
     /**
      * The attributes for this element
@@ -262,6 +269,46 @@ class Element
     public function getClasses(): array
     {
         return $this->classes;
+    }
+
+
+
+    /**
+     * Sets all the extra element attribute code
+     *
+     * @param string|null $extra
+     * @return Element
+     */
+    public function setExtra(?string $extra): static
+    {
+        $this->extra = '';
+        return $this->addExtra($extra);
+    }
+
+
+
+    /**
+     * Adds more to the extra element attribute code
+     *
+     * @param string|null $extra
+     * @return Element
+     */
+    public function addExtra(?string $extra): static
+    {
+        $this->extra .= ' ' . $extra;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the extra element attribute code
+     *
+     * @return string
+     */
+    public function getExtra(): string
+    {
+        return $this->extra;
     }
 
 
@@ -456,7 +503,7 @@ class Element
         $attributes = $this->buildAttributes();
         $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', true);
 
-        return '<' . $this->type. ' ' . $attributes . '>';
+        return '<' . $this->type. ' ' . $attributes . $this->extra . '>';
     }
 
 

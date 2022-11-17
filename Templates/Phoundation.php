@@ -1,11 +1,13 @@
 <?php
 
 namespace Templates;
-use Phoundation\Web\Http\Html\Html;
+
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Page;
 use Phoundation\Web\Template;
+use Plugins\Mdb\NavBar;
 use Throwable;
+
 
 
 /**
@@ -66,7 +68,8 @@ class Phoundation extends Template
      */
     public function buildPageHeader(): ?string
     {
-        $html = '<body>';
+        $html = '<body>' .
+            NavBar::new()->render();
 
         return $html;
     }
