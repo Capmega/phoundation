@@ -18,9 +18,9 @@ use Phoundation\Servers\Server;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\System
+ * @package Phoundation\Scripts
  */
-$usage = './cli system image info IMAGE';
+$usage = './cli system image info IMAGE_FILE_NAME';
 
 $help  = 'This script will display basic information about the specified image';
 
@@ -35,7 +35,7 @@ if (!$file) {
 }
 
 // Get image object
-$image = Image::new(Server::new(PATH_DATA))->setFile($file);
+$image = Image::new($file, PATH_DATA);
 
 // Display image information
 Log::information(tr('Displaying image information for ":file"', [':file' => $file]));

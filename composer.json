@@ -14,7 +14,6 @@
     "ext-redis": "*",
     "ext-mongodb": "*",
     "ext-memcached": "*",
-    "ext-apache": "*",
     "ext-pcntl": "*",
     "ext-exif": "*"
   },

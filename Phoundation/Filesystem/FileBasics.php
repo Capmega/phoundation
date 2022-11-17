@@ -59,9 +59,9 @@ class FileBasics extends ServerUser
      * File class constructor
      *
      * @param FileBasics|array|string|null $file
-     * @param Server|array|string|null $server
+     * @param Server|array|string|null $server_restrictions
      */
-    public function __construct(FileBasics|array|string|null $file = null, Server|array|string|null $server = null)
+    public function __construct(FileBasics|array|string|null $file = null, Server|array|string|null $server_restrictions = null)
     {
         // Specified file was actually a File or Path object, get the file from there
         if (is_object($file)) {
@@ -70,7 +70,7 @@ class FileBasics extends ServerUser
             $this->setServer($file->getServer());
         } else {
             $this->setFile($file);
-            $this->setServer($server);
+            $this->setServer($server_restrictions);
         }
     }
 
@@ -80,12 +80,12 @@ class FileBasics extends ServerUser
      * Returns a new File object with the specified restrictions
      *
      * @param array|string|null $file
-     * @param Server|array|string|null $server
+     * @param Server|array|string|null $server_restrictions
      * @return static
      */
-    public static function new(array|string|null $file = null, Server|array|string|null $server = null): static
+    public static function new(array|string|null $file = null, Server|array|string|null $server_restrictions = null): static
     {
-        return new static($file, $server);
+        return new static($file, $server_restrictions);
     }
 
 

@@ -168,7 +168,7 @@ class Config
     {
         $return = self::get($path, $default, $specified);
 
-        if (is_integer($return) and ($return < 0)) {
+        if (is_natural($return)) {
             return $return;
         }
 

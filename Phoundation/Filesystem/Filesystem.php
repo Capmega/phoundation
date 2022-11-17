@@ -243,6 +243,34 @@ class Filesystem
             // This is not an absolute path, make it an absolute path
             if (!$prefix) {
                 $prefix = PATH_ROOT;
+            } else {
+                switch ($prefix) {
+                    case 'css':
+                        $prefix = PATH_CDN . LANGUAGE . '/css/';
+                        break;
+                    case 'js':
+                        // no-break
+                    case 'javascript':
+                        $prefix = PATH_CDN . LANGUAGE . '/js/';
+                        break;
+                    case 'img':
+                        // no-break
+                    case 'image':
+                        // no-break
+                    case 'images':
+                        $prefix = PATH_CDN . LANGUAGE . '/img/';
+                        break;
+                    case 'font':
+                        // no-break
+                    case 'fonts':
+                        $prefix = PATH_CDN . LANGUAGE . '/fonts/';
+                        break;
+                    case 'video':
+                        // no-break
+                    case 'videos':
+                        $prefix = PATH_CDN . LANGUAGE . '/video/';
+                        break;
+                }
             }
 
             $return = Strings::slash($prefix) . Strings::unslash($path);

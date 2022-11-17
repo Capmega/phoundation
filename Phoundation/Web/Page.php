@@ -571,13 +571,15 @@ throw new UnderConstructionException();
      */
     public static function setFavIcon(string $url): Page
     {
-        show(Url::build($url)->img());
-        showdie(Url::build($url)->img());
-        self::$headers['link'][$url] = [
-            'rel'  => 'icon',
-            'href' => Url::build($url)->img(),
-            'type' => File::new($url, PATH_CDN . LANGUAGE . '/img')->mimetype()
-        ];
+        try {
+            self::$headers['link'][$url] = [
+                'rel'  => 'icon',
+                'href' => Url::build($url)->img(),
+                'type' => File::new(Filesystem::absolute($url, 'img'), PATH_CDN . LANGUAGE . '/img')->mimetype()
+            ];
+        } catch (FilesystemException $e) {
+            Log::warning($e->makeWarning());
+        }
 
         return self::getInstance();
     }
@@ -715,7 +717,7 @@ throw new UnderConstructionException();
         $target = Filesystem::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE);
 
         // Do we have access to this page?
-        $server->checkRestrictions($target);
+        $server->checkRestrictions($target, false);
 
         if (str_ends_with($target, 'php')) {
             if ($attachment) {

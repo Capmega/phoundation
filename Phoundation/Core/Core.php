@@ -164,9 +164,10 @@ class Core {
             set_exception_handler(['\Phoundation\Core\Core'     , 'uncaughtException']);
             register_shutdown_function(['\Phoundation\Core\Core', 'shutdown']);
 
-            pcntl_signal(SIGTERM, ['\Phoundation\Core\Core', 'shutdown']);
-            pcntl_signal(SIGINT , ['\Phoundation\Core\Core', 'shutdown']);
-            pcntl_signal(SIGHUP , ['\Phoundation\Core\Core', 'shutdown']);
+// TODO Implement PCNTL functions
+//            pcntl_signal(SIGTERM, ['\Phoundation\Core\Core', 'shutdown']);
+//            pcntl_signal(SIGINT , ['\Phoundation\Core\Core', 'shutdown']);
+//            pcntl_signal(SIGHUP , ['\Phoundation\Core\Core', 'shutdown']);
 
             // Load the functions and mb files
             require(PATH_ROOT . 'Phoundation/functions.php');
@@ -352,7 +353,7 @@ class Core {
                     define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : false));
                     define('TEST'    , (getenv('TEST')    ? 'TEST'    : false));
                     define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : false));
-                    define('PAGE'    , Script::naturalArgument('-P,--page' , 1));
+                    define('PAGE'    , isset_get($_GET['page'], 1));
                     define('LIMIT'   , (getenv('LIMIT')   ? 'LIMIT'   : Config::getNatural('paging.limit', 50)));
                     define('ALL'     , (getenv('ALL')     ? 'ALL'     : false));
                     define('DELETED' , (getenv('DELETED') ? 'DELETED' : false));
