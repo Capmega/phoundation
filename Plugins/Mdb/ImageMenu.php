@@ -103,10 +103,13 @@ class ImageMenu extends ElementsBlock
                       aria-labelledby="navbarDropdownMenuAvatar"
                     >';
 
-        foreach ($this->menu as $label => $url) {
-            $html .= '<li>
-                        <a class="dropdown-item" href="' . $url . '">' . $label . '</a>
-                      </li>';
+        if ($this->menu) {
+            foreach ($this->menu as $label => $url) {
+                $html .= '<li>
+                            <a class="dropdown-item" href="' . $url . '">' . $label . '</a>
+                          </li>';
+            }
+
         }
 
         $html .= '  </ul>

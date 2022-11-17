@@ -77,6 +77,33 @@ class NavBar extends ElementsBlock
     }
 
 
+
+    /**
+     * Sets the navbar profile menu
+     *
+     * @param array|null $menu
+     * @return static
+     */
+    public function setProfileMenu(?array $menu): static
+    {
+        $this->profile_menu = $menu;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the navbar profile menu
+     *
+     * @return array|null
+     */
+    public function getProfileMenu(): ?array
+    {
+        return $this->profile_menu;
+    }
+
+
+
     /**
      * Renders and returns the NavBar
      *
@@ -163,7 +190,7 @@ class NavBar extends ElementsBlock
                               </li>
                             </ul>
                           </div>
-                          ' . ProfileImage::new(Session::getUser()->getPicture(), $this->menu)
+                          ' . ProfileImage::new(Session::getUser()->getPicture(), $this->profile_menu)
                                 ->render()
                             . '
                         </div>

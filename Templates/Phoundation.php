@@ -3,6 +3,7 @@
 namespace Templates;
 
 use Phoundation\Web\Http\Http;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Page;
 use Phoundation\Web\Template;
 use Plugins\Mdb\NavBar;
@@ -69,7 +70,12 @@ class Phoundation extends Template
     public function buildPageHeader(): ?string
     {
         $html = '<body>' .
-            NavBar::new()->render();
+            NavBar::new()
+                ->setProfileMenu([
+                    tr('Profile') => Url::build('/profile')->www(),
+                    tr('Sign out') => Url::build('/signout')->www()
+                ])
+                ->render();
 
         return $html;
     }
