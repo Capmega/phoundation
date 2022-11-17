@@ -1580,6 +1580,7 @@ class Core {
                                             border-collapse:collapse;
                                             border-spacing:2px;
                                             margin: 5px auto 5px auto;
+                                            border-radius: 10px;
                                         }
                                         td.center{
                                             text-align: center;
@@ -1589,8 +1590,12 @@ class Core {
                                             color: white;
                                             font-weight: bold;
                                         }
+                                        table.exception thead td{
+                                            border-top-left-radius: 10px;
+                                            border-top-right-radius: 10px;
+                                        }
                                         table.exception td{
-                                            border: 1px solid black;
+                                            border: 0;
                                             padding: 15px;
                                         }
                                         table.exception td.value{
