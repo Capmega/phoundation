@@ -42,42 +42,19 @@ class Phoundation extends Template
      */
     public function buildHtmlHeader(): ?string
     {
+        // Load basic MDB and fonts CSS
+        Page::loadCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+        Page::loadCss('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
         Page::loadCss('css/mdb');
+
+        // Load basic MDB javascript library
         Page::loadJavascript('js/mdb');
+
+        // Set basic page details
         Page::setTitle(tr('Phoundation'));
-        Page::setFavIcon('img/mdb-favicon.ico');
+        Page::setFavIcon('mdb-favicon.ico');
 
-        $html = Page::buildHeaders();
-show($html);
-
-
-
-
-
-
-        $html .= '<!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-                <meta http-equiv="x-ua-compatible" content="ie=edge" />
-                <title>Material Design for Bootstrap</title>
-                <!-- MDB icon -->
-                <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
-                <!-- Font Awesome -->
-                <link
-                        rel="stylesheet"
-                        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-                />
-                <!-- Google Fonts Roboto -->
-                <link
-                        rel="stylesheet"
-                        href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
-                />
-                <!-- MDB -->
-                <link rel="stylesheet" href="css/mdb.min.css" />
-            </head>';
-        return $html;
+        return Page::buildHeaders();
     }
 
 
@@ -117,15 +94,9 @@ show($html);
      */
     public function buildHtmlFooter(): ?string
     {
-        $html = Page::buildFooters();
-
-        $html .= '  <!-- End your project here-->
-                    <!-- MDB -->
-                    <script type="text/javascript" src="js/mdb.min.js"></script>
-                    <!-- Custom scripts -->
-                    <script type="text/javascript"></script>
-                    </body>
-                    </html>';
+        $html  = Page::buildFooters() . '
+        </body>
+        </html>';
 
         return $html;
     }
