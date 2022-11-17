@@ -18,7 +18,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
 use Phoundation\Notifications\Notification;
-use Phoundation\Users\User;
+
 
 
 
@@ -303,8 +303,12 @@ class Debug {
                             header('Content-Type: text/plain', true);
                         }
 
-                        echo "\n".tr('DEBUG SHOW (:file@:line) ', array(':file' => self::currentFile($trace_offset - 1), ':line' => self::currentLine($trace_offset - 1)))."\n";
-                        print_r($value)."\n";
+                        echo PHP_EOL . tr('DEBUG SHOW (:file@:line) ', [
+                            ':file' => self::currentFile($trace_offset - 1),
+                            ':line' => self::currentLine($trace_offset - 1)
+                        ]) . PHP_EOL;
+
+                        print_r($value) . PHP_EOL;
                         break;
 
                     default:
@@ -320,11 +324,11 @@ class Debug {
                 }
 
             } else {
-                echo "\n".tr('DEBUG SHOW (:file@:line) ', [
+                echo PHP_EOL . tr('DEBUG SHOW (:file@:line) ', [
                     ':file' => self::currentFile($trace_offset),
-                        ':line' => self::currentLine($trace_offset)
-                    ])."\n";
-                print_r($value)."\n";
+                    ':line' => self::currentLine($trace_offset)
+                ]) . PHP_EOL;;
+                print_r($value) . PHP_EOL;;
                 flush();
                 ob_flush();
             }
@@ -339,7 +343,11 @@ class Debug {
 
             // Show output on CLI console
             if (is_scalar($value)) {
-                $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:size] ', [':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset), ':size' => strlen((string) $value)])) . $value . "\n";
+                $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:size] ', [
+                    ':file' => self::currentFile($trace_offset),
+                        ':line' => self::currentLine($trace_offset),
+                        ':size' => strlen((string) $value)
+                    ])) . $value . PHP_EOL;
 
             } else {
                 // Sort if is array for easier reading
@@ -348,11 +356,15 @@ class Debug {
                 }
 
                 if (!$quiet) {
-                    $return .= tr('DEBUG SHOW (:file@:line) [:size]', [':file' => self::currentFile($trace_offset), ':line' => self::currentLine($trace_offset), ':size' => count((array) $value)])."\n";
+                    $return .= tr('DEBUG SHOW (:file@:line) [:size]', [
+                        ':file' => self::currentFile($trace_offset),
+                        ':line' => self::currentLine($trace_offset),
+                        ':size' => count((array) $value)
+                    ]) . PHP_EOL;
                 }
 
                 $return .= print_r($value, true);
-                $return .= "\n";
+                $return .= PHP_EOL;
             }
 
             echo $return;
@@ -727,7 +739,7 @@ class Debug {
         }
 
         if (empty(Core::readRegister('debug', 'clean'))) {
-            $query = str_replace("\n", ' ', $query);
+            $query = str_replace(PHP_EOL, ' ', $query);
             $query = Strings::noDouble($query, ' ', '\s');
         }
 
@@ -795,7 +807,7 @@ class Debug {
         }
 
         if ($enabled === 'limited') {
-            if (empty($_SESSION['user']['id']) or !Session::currentUser()->hasAllRights("debug")) {
+            if (empty($_SESSION['user']['id']) or !Session::user()->hasAllRights("debug")) {
                 /*
                  * Only show debug bar to authenticated users with "debug" right
                  */
@@ -967,7 +979,7 @@ class Debug {
             // Ensure that the shutdown function doesn't try to show the 404 page
             Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
 
-            die(Strings::endsWith(str_replace('%count%', $count, $message), "\n"));
+            die(Strings::endsWith(str_replace('%count%', $count, $message), PHP_EOL));
         }
     }
 
