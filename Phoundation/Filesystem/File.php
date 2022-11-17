@@ -12,10 +12,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Debug\Php;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Processes\Exception\ProcessesException;
-use Phoundation\Processes\Process;
 use Throwable;
 
 
@@ -1061,12 +1058,16 @@ class File extends FileBasics
      * @param bool $move
      * @return static
      */
-    public function backup(string $pattern, bool $move = false): static
+    public function backup(string $pattern = '~date', bool $move = false): static
     {
         // Pattern shortcuts
         switch ($pattern) {
             case '~':
                 $pattern = ':PATH:FILE~';
+                break;
+
+            case '~date':
+                $pattern = ':PATH:FILE~:DATE';
                 break;
 
             case 'backup/~':
@@ -1081,8 +1082,9 @@ class File extends FileBasics
 
         $target = str_replace(':PATH', $dirname, $pattern);
         $target = str_replace(':FILE', $basename, $target);
+        $target = str_replace(':DATE', date('ymd-his'), $target);
 
-        // Make backup
+        // Make the backup
         if ($move) {
             rename($this->file, $target);
         } else {

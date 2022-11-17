@@ -2,6 +2,7 @@
 
 namespace Phoundation\Content\Images;
 
+use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
@@ -187,11 +188,12 @@ class Convert extends Command
     /**
      * Access to the image resize object
      *
+     * @param bool $background
      * @return Resize
      */
     public function resize(bool $background = false): Resize
     {
-        $resize = new Resize($this->server);
+        $resize = new Resize($this->source, $this->server);
         $resize->setBackground($background);
 
         return $resize;
@@ -207,6 +209,6 @@ class Convert extends Command
      */
     protected function path(string $path): Path
     {
-        return new Path($path, $this->restrictions);
+        return new Path($path, $this->server);
     }
 }

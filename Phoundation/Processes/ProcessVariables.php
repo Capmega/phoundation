@@ -194,6 +194,7 @@ trait ProcessVariables
     protected bool $failed = false;
 
 
+
     /**
      * Process class contructor
      *
@@ -201,8 +202,8 @@ trait ProcessVariables
      */
     public function __construct(Server|array|string|null $server)
     {
-        // Set default filesystem restrictions
-        $this->setRestrictions($server);
+        // Set server filesystem restrictions
+        $this->setServer($server);
     }
 
 
@@ -216,32 +217,6 @@ trait ProcessVariables
         if ($this->clear_logs) {
             unlink($this->log_file);
         }
-    }
-
-
-
-    /**
-     * Returns the server and filesystem restrictions for this object
-     *
-     * @return Server
-     */
-    public function getRestrictions(): Server
-    {
-        return $this->restrictions;
-    }
-
-
-
-    /**
-     * Sets the server and filesystem restrictions for this object
-     *
-     * @param Server|array|string|null $server
-     * @return $this
-     */
-    public function setRestrictions(Server|array|string|null $server): static
-    {
-        $this->server = Core::ensureServer($server);
-        return $this;
     }
 
 
@@ -852,7 +827,7 @@ trait ProcessVariables
                 }
             } else {
                 // Redirect output to a file
-                File::new($redirect, $this->restrictions)->checkWritable('output redirect file', true);
+                File::new($redirect, $this->server)->checkWritable('output redirect file', true);
                 $this->output_redirect[$channel] = ($append ? '*' : '') . $redirect;
             }
 
@@ -898,7 +873,7 @@ trait ProcessVariables
      */
     public function setInputRedirect(?string $redirect, int $channel = 1): static
     {
-        File::new($redirect, $this->restrictions)->checkReadable();
+        File::new($redirect, $this->server)->checkReadable();
 
         $this->input_redirect[$channel] = get_null($redirect);
 
@@ -1052,7 +1027,7 @@ trait ProcessVariables
         $pid  = file_get_contents($file);
         $pid  = trim($pid);
 
-        File::new($this->run_file, $this->server)->delete();
+        unlink($this->run_file);
         $this->run_file = null;
 
         if (!$pid) {

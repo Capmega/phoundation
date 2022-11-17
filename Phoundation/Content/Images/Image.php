@@ -62,7 +62,7 @@ class Image extends Content
         }
 
         if ($return['size']) {
-            $return['mimetype'] = File::new($this->file, $this->restrictions)->mimetype();
+            $return['mimetype'] = File::new($this->file, $this->server)->mimetype();
         }
 
         if (Strings::until($return['mimetype'], '/') === 'image') {

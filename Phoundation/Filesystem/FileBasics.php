@@ -58,15 +58,20 @@ class FileBasics extends ServerUser
     /**
      * File class constructor
      *
-     * @param array|string|null $file
+     * @param FileBasics|array|string|null $file
      * @param Server|array|string|null $server
      */
-    public function __construct(array|string|null $file = null, Server|array|string|null $server = null)
+    public function __construct(FileBasics|array|string|null $file = null, Server|array|string|null $server = null)
     {
-        Filesystem::validateFilename($file);
-
-        $this->setServer($server);
-        $this->file = $file;
+        // Specified file was actually a File or Path object, get the file from there
+        if (is_object($file)) {
+            $this->setFile($file->getFile());
+            $this->setTarget($file->getTarget());
+            $this->setServer($file->getServer());
+        } else {
+            $this->setFile($file);
+            $this->setServer($server);
+        }
     }
 
 
@@ -93,6 +98,8 @@ class FileBasics extends ServerUser
      */
     public function setFile(string $file): static
     {
+        Filesystem::validateFilename($file);
+
         $this->file = $file;
         return $this;
     }
@@ -133,8 +140,8 @@ class FileBasics extends ServerUser
     public function getTarget(): ?string
     {
         if ($this->target === null) {
-            // By default assume a backup file
-            return $this->file . '~';
+            // By default assume target is the same as the source file
+            return $this->file;
         }
 
         return $this->target;

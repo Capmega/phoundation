@@ -25,25 +25,24 @@ class Content extends File
     /**
      * View the object file
      *
-     * @return array
+     * @return void
      */
-    public function view(): array
+    public function view(): void
     {
         $file     = File::new($this->file)->checkReadable('image');
         $mimetype = $file->mimetype();
         $primary  = Strings::until($mimetype, '/');
 
-        return match ($primary) {
-            'image' => self::viewImage(),
-            'video' => self::viewVideo(),
-            'pdf'   => self::viewPdf(),
-            default => throw new ContentException(tr('Unknown mimetype ":viewer" for file ":file"', [
-                ':file' => $file->getFile(),
+        match ($primary) {
+            'image'     => self::viewImage(),
+            'video'     => self::viewVideo(),
+            'pdf'       => self::viewPdf(),
+            'directory' => self::viewDirectory(),
+            default     => throw new ContentException(tr('Unknown mimetype ":viewer" for file ":file"', [
+                ':file'     => $file->getFile(),
                 ':mimetype' => $mimetype
             ])),
         };
-
-        throw new ContentException(tr('No file specified'), 'invalid');
     }
 
 
@@ -51,13 +50,13 @@ class Content extends File
     /**
      * Display the image file
      *
-     * @return array
+     * @return void
      */
-    protected function viewImage(): array
+    protected function viewImage(): void
     {
-        return Process::new('feh', $this->server, 'feh')
-            ->addArgument($file->getFile())
-            ->executeReturnArray();
+        Process::new('feh', $this->server, 'feh')
+            ->addArgument($this->file)
+            ->executeBackground();
     }
 
 
@@ -65,9 +64,9 @@ class Content extends File
     /**
      * Display the PDF file
      *
-     * @return array
+     * @return void
      */
-    protected function viewPdf(): array
+    protected function viewPdf(): void
     {
 
     }
@@ -77,9 +76,21 @@ class Content extends File
     /**
      * Display the video file
      *
-     * @return array
+     * @return void
      */
-    protected function viewVideo(): array
+    protected function viewVideo(): void
+    {
+
+    }
+
+
+
+    /**
+     * Display the files in this directory
+     *
+     * @return void
+     */
+    protected function viewDirectory(): void
     {
 
     }

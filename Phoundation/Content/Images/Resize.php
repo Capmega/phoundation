@@ -3,10 +3,11 @@
 namespace Phoundation\Content\Images;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FileBasics;
 use Phoundation\Processes\Process;
-use Phoundation\Servers\Server;
+
 
 
 /**
@@ -21,13 +22,6 @@ use Phoundation\Servers\Server;
  */
 class Resize extends FileBasics
 {
-    /**
-     * The image object on which we will execute the resize operations
-     *
-     * @var Server $server
-     */
-    protected Server $server;
-
     /**
      * If the resize command should be executed in the background or not
      *
@@ -126,11 +120,11 @@ class Resize extends FileBasics
      */
     public function absolute(int $width, int $height): void
     {
-        $process = Process::new('convert', $this->server)
-            ->addArgument($this->getSourceFile())
+        $process = $this->convert()
+            ->addArgument($this->file)
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height)
-            ->addArgument($this->server->getTargetFile());
+            ->addArgument($this->getTarget());
 
         if ($this->background) {
             // Resize in background
@@ -152,11 +146,11 @@ class Resize extends FileBasics
      */
     public function absoluteKeepAspectration(int $width, int $height): void
     {
-        $process = Process::new('convert')
-            ->addArgument($this->server->getSourceFile())
+        $process = $this->convert()
+            ->addArgument($this->file)
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height . '\\!')
-            ->addArgument($this->server->getTargetFile());
+            ->addArgument($this->target);
 
         if ($this->background) {
             // Resize in background
@@ -178,11 +172,11 @@ class Resize extends FileBasics
      */
     public function shrinkOnlyLarger(int $width, int $height): void
     {
-        $process = Process::new('convert')
-            ->addArgument($this->server->getSourceFile())
+        $process = $this->convert()
+            ->addArgument($this->file)
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height . '\\>')
-            ->addArgument($this->server->getTargetFile());
+            ->addArgument($this->target);
 
         if ($this->background) {
             // Resize in background
@@ -204,11 +198,11 @@ class Resize extends FileBasics
      */
     public function enlargeOnlySmaller(int $width, int $height): void
     {
-        $process = Process::new('convert')
-            ->addArgument($this->server->getSourceFile())
+        $process = $this->convert()
+            ->addArgument($this->file)
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height . '\\>')
-            ->addArgument($this->server->getTargetFile());
+            ->addArgument($this->target);
 
         if ($this->background) {
             // Resize in background
@@ -229,11 +223,11 @@ class Resize extends FileBasics
      */
     public function percentage(float $percentage): void
     {
-        $process = Process::new('convert')
-            ->addArgument($this->server->getSourceFile())
+        $process = $this->convert()
+            ->addArgument($this->file)
             ->addArgument('-' . $this->method)
             ->addArgument($percentage . '%')
-            ->addArgument($this->server->getTargetFile());
+            ->addArgument($this->target);
 
         if ($this->background) {
             // Resize in background
@@ -254,11 +248,11 @@ class Resize extends FileBasics
      */
     public function pixelCount(int $pixel_count): void
     {
-        $process = Process::new('convert')
-            ->addArgument($this->server->getSourceFile())
+        $process = $this->convert()
+            ->addArgument($this->file)
             ->addArgument('-' . $this->method)
             ->addArgument($pixel_count . '@')
-            ->addArgument($this->server->getTargetFile());
+            ->addArgument($this->target);
 
         if ($this->background) {
             // Resize in background
@@ -267,5 +261,17 @@ class Resize extends FileBasics
 
         // Resize in foreground and store results
         $this->output = $process->executeReturnArray();
+    }
+
+
+
+    /**
+     * Returns a "convert" process
+     *
+     * @return Process
+     */
+    protected function convert(): Process
+    {
+        return Process::new('convert', $this->server);
     }
 }

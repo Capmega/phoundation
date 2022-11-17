@@ -8,7 +8,7 @@ use Phoundation\Filesystem\Restrictions;
 
 
 /**
- * Localhost class
+ * Server class
  *
  * This class manages the localhost server
  *
