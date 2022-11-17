@@ -1558,9 +1558,7 @@ class Core {
                         }
 
                         if (Debug::enabled()) {
-                            /*
-                             * We're trying to show an html error here!
-                             */
+                            // We're trying to show an html error here!
                             if (!headers_sent()) {
                                 http_response_code(500);
                                 header('Content-Type: text/html', true);
@@ -1574,71 +1572,76 @@ class Core {
                                     showdie($e);
                             }
 
-                            $return = ' <style type="text/css">
-                                table.exception{
-                                    font-family: sans-serif;
-                                    width:99%;
-                                    background:#AAAAAA;
-                                    border-collapse:collapse;
-                                    border-spacing:2px;
-                                    margin: 5px auto 5px auto;
-                                }
-                                td.center{
-                                    text-align: center;
-                                }
-                                table.exception thead{
-                                    background: #CE0000;
-                                    color: white;
-                                    font-weight: bold;
-                                }
-                                table.exception td{
-                                    border: 1px solid black;
-                                    padding: 15px;
-                                }
-                                table.exception td.value{
-                                    word-break: break-all;
-                                }
-                                table.debug{
-                                    background:#AAAAAA !important;
-                                }
-                                table.debug thead{
-                                    background: #CE0000 !important;
-                                    color: white;
-                                }
-                                table.debug .debug-header{
-                                    display: none;
-                                }
-                                </style>
-                                <table class="exception">
-                                    <thead>
-                                        <td colspan="2" class="center">
-                                            '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => self::readRegister('system', 'script'), 'type' => Core::getCallType())).'
-                                        </td>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td colspan="2" class="center">
-                                                '.tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => self::readRegister('system', 'script'))).'
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                '.tr('File').'
-                                            </td>
-                                            <td>
-                                                ' . $e->getFile().'
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                '.tr('Line').'
-                                            </td>
-                                            <td>
-                                                ' . $e->getLine().'
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>';
+                            $return = ' <style>
+                                        table.exception{
+                                            font-family: sans-serif;
+                                            width:99%;
+                                            background:#AAAAAA;
+                                            border-collapse:collapse;
+                                            border-spacing:2px;
+                                            margin: 5px auto 5px auto;
+                                        }
+                                        td.center{
+                                            text-align: center;
+                                        }
+                                        table.exception thead{
+                                            background: #CE0000;
+                                            color: white;
+                                            font-weight: bold;
+                                        }
+                                        table.exception td{
+                                            border: 1px solid black;
+                                            padding: 15px;
+                                        }
+                                        table.exception td.value{
+                                            word-break: break-all;
+                                        }
+                                        table.debug{
+                                            background:#AAAAAA !important;
+                                        }
+                                        table.debug thead{
+                                            background: #CE0000 !important;
+                                            color: white;
+                                        }
+                                        table.debug .debug-header{
+                                            display: none;
+                                        }
+                                        </style>
+                                        <table class="exception">
+                                            <thead>
+                                                <td colspan="2" class="center">
+                                                    '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => self::readRegister('system', 'script'), 'type' => Core::getCallType())).'
+                                                </td>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td colspan="2" class="center">
+                                                        '.tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => self::readRegister('system', 'script'))).'
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        '.tr('File').'
+                                                    </td>
+                                                    <td>
+                                                        ' . $e->getFile().'
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        '.tr('Line').'
+                                                    </td>
+                                                    <td>
+                                                        ' . $e->getLine().'
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>';
+
+                            if (!headers_sent()) {
+                                header_remove('Content-Type');
+                                header('Content-Type: text/html', true);
+                            }
 
                             echo $return;
 

@@ -7,9 +7,9 @@ use Phoundation\Core\Core;
 
 
 /**
- * ServerUser class
+ * UsesServer trait
  *
- * This class contains basic server using architectur
+ * This trait contains basic server access restrictions architecture
  *
  * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -17,7 +17,7 @@ use Phoundation\Core\Core;
  * @category Function reference
  * @package Phoundation\Servers
  */
-class ServerUser
+trait UsesServer
 {
     /**
      * The file access permissions

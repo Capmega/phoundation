@@ -2,6 +2,8 @@
 
 namespace Phoundation\Users;
 
+use Phoundation\Content\Images\Image;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\OutOfBoundsException;
@@ -9,6 +11,7 @@ use Phoundation\Geo\City;
 use Phoundation\Geo\Country;
 use Phoundation\Geo\State;
 use Phoundation\Geo\Timezone;
+
 
 
 /**
@@ -28,6 +31,49 @@ class User
 
 
     /**
+     * User class constructor
+     *
+     * @param string|int|null $identifier
+     */
+    public function __construct(string|int|null $identifier = null) {
+        if ($identifier) {
+            $this->load($identifier);
+        }
+    }
+
+
+
+    /**
+     * Returns the picture for this user
+     *
+     * @return Image
+     */
+    public function getPicture(): Image
+    {
+        return Image::new($this->getDataValue('picture'))
+            ->setDescription(tr('Profile image for :user', [':user' => $this->getDisplayName()]));
+    }
+
+
+
+    /**
+     * Sets the picture for this user
+     *
+     * @param Image|string|null $picture
+     * @return User
+     */
+    public function setPicture(Image|string|null $picture): User
+    {
+        if (!$picture) {
+            $picture = Image::new('profiles/default.png');
+        }
+
+        return $this->setDataValue('picture', Strings::from(PATH_CDN, $picture->getFile()));
+    }
+
+
+
+    /**
      * Returns the nickname for this user
      *
      * @return string|null
@@ -37,7 +83,7 @@ class User
         return $this->getDataValue('nickname');
     }
 
-    
+
 
     /**
      * Sets the nickname for this user
@@ -1088,12 +1134,16 @@ class User
     /**
      * Load all user data from database
      *
-     * @param int $id
+     * @param string|int $identifier
      * @return void
      */
-    protected function load(int $id): void
+    protected function load(string|int $identifier): void
     {
-        $data = sql()->get('SELECT * FROM `users` WHERE `id` = :id', [':id' => $id]);
+        if (is_integer($identifier)) {
+            $data = sql()->get('SELECT * FROM `users` WHERE `id`    = :id'   , [':id'    => $identifier]);
+        } else {
+            $data = sql()->get('SELECT * FROM `users` WHERE `email` = :email', [':email' => $identifier]);
+        }
 
         // Store all data
         $this->setData($data);

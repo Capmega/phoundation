@@ -6,7 +6,7 @@ use Phoundation\Content\Content;
 use Phoundation\Core\Exception\ImagesException;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
-
+use Phoundation\Web\Http\Html\Img;
 
 
 /**
@@ -28,6 +28,13 @@ class Image extends Content
      */
     protected ?string $file = null;
 
+    /**
+     * Description for this image. Will be used as ALT text when converting this to an image HTML element
+     *
+     * @var string|null
+     */
+    protected ?string $description = null;
+
 
 
     /**
@@ -41,6 +48,32 @@ class Image extends Content
         $convert->setSource($this);
 
         return $convert;
+    }
+
+
+
+    /**
+     * Sets the image description
+     *
+     * @param string|null $description
+     * @return $this
+     */
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the image description
+     *
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return $this->description;
     }
 
 
@@ -82,6 +115,20 @@ class Image extends Content
         }
 
         return $return;
+    }
+
+
+
+    /**
+     * Returns an HTML Img element for this image
+     *
+     * @return Img
+     */
+    public function getElement(): Img
+    {
+        return Img::new()
+            ->setSrc($this->file)
+            ->setAlt($this->description);
     }
 
 

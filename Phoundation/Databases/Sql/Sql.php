@@ -509,7 +509,7 @@ class Sql
         }
 
         if (array_key_exists('createdon_by', $row)) {
-            $row['createdon_by'] = Session::currentUser()->getId();
+            $row['createdon_by'] = Session::user()->getId();
         }
 
         // Build bound variables for query
@@ -543,7 +543,7 @@ class Sql
         }
 
         if (array_key_exists('modified_by', $row)) {
-            $row['modified_by'] = Session::currentUser()->getId();
+            $row['modified_by'] = Session::user()->getId();
         }
 
         // Build bound variables for query

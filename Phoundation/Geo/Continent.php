@@ -37,10 +37,10 @@ class Continent
     /**
      * Load the Continent data from database
      *
-     * @param int $id
+     * @param int $identifier
      * @return void
      */
-    protected function load(int $id): void
+    protected function load(int $identifier): void
     {
 
     }

@@ -12,8 +12,9 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Server;
-use Phoundation\Servers\ServerUser;
+use Phoundation\Servers\UsesServer;
 use Throwable;
+
 
 
 /**
@@ -27,8 +28,12 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class FileBasics extends ServerUser
+class FileBasics
 {
+    use UsesServer;
+
+
+
     /**
      * File READ method
      */
@@ -44,24 +49,24 @@ class FileBasics extends ServerUser
      *
      * @var string|null $file
      */
-    protected string|null $file = null;
+    protected ?string $file = null;
 
     /**
      * The target file name in case operations create copies of this file
      *
      * @var string|null $target
      */
-    protected string|null $target = null;
+    protected ?string $target = null;
 
 
 
     /**
      * File class constructor
      *
-     * @param FileBasics|array|string|null $file
+     * @param FileBasics|string|null $file
      * @param Server|array|string|null $server_restrictions
      */
-    public function __construct(FileBasics|array|string|null $file = null, Server|array|string|null $server_restrictions = null)
+    public function __construct(FileBasics|string|null $file = null, Server|array|string|null $server_restrictions = null)
     {
         // Specified file was actually a File or Path object, get the file from there
         if (is_object($file)) {
@@ -79,11 +84,11 @@ class FileBasics extends ServerUser
     /**
      * Returns a new File object with the specified restrictions
      *
-     * @param array|string|null $file
+     * @param FileBasics|string|null $file
      * @param Server|array|string|null $server_restrictions
      * @return static
      */
-    public static function new(array|string|null $file = null, Server|array|string|null $server_restrictions = null): static
+    public static function new(FileBasics|string|null $file = null, Server|array|string|null $server_restrictions = null): static
     {
         return new static($file, $server_restrictions);
     }
@@ -93,10 +98,10 @@ class FileBasics extends ServerUser
     /**
      * Returns the file for this File object
      *
-     * @param string $file
+     * @param string|null $file
      * @return static
      */
-    public function setFile(string $file): static
+    public function setFile(?string $file): static
     {
         Filesystem::validateFilename($file);
 

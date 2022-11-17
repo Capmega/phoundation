@@ -421,10 +421,10 @@ trait DataEntry
     /**
      * Will load the data from this data entry from database
      *
-     * @param int $id
+     * @param int $identifier
      * @return void
      */
-    abstract function load(int $id): void;
+    abstract function load(int $identifier): void;
 
 
 

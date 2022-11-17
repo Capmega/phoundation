@@ -68,7 +68,7 @@ class Session
     /**
      * @return User
      */
-    public static function currentUser(): User
+    public static function getUser(): User
     {
         if (self::$user === null) {
             // There is no user, this is a guest session

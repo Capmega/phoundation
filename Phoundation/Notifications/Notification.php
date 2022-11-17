@@ -565,13 +565,13 @@ return $this;
     /**
      * Load the specified notification from the database
      *
-     * @param int $id
+     * @param int $identifier
      * @return void
      */
-    protected function load(int $id): void
+    protected function load(int $identifier): void
     {
         $data = sql()->get('SELECT * FROM `notifications` WHERE `id` = :id', [
-            ':id' => $id
+            ':id' => $identifier
         ]);
 
         $this->setData($data);

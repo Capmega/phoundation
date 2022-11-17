@@ -70,7 +70,7 @@ class Meta
         // Insert the action in the meta_history table
         sql()->insert('meta_history', [
             'meta_id'    => $this->id,
-            'created_by' => Session::currentUser()->getId(),
+            'created_by' => Session::user()->getId(),
             'action'     => $action,
             'data'       => $data
         ]);
