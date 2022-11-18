@@ -94,7 +94,8 @@ class Img extends Element
      */
     public function __construct()
     {
-        parent::__construct('img');
+        parent::__construct();
+        parent::setElement('img');
         $this->lazy_load = Config::get('web.images.lazy-load', true);
     }
 
@@ -343,7 +344,7 @@ class Img extends Element
      * @param string $extension
      * @return string|null
      */
-    protected function getType(string $extension): ?string
+    protected function getFormat(string $extension): ?string
     {
         return match ($extension) {
             'jpg', 'jpeg' => 'jpg',

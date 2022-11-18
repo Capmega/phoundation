@@ -688,12 +688,13 @@ Class Log {
      *
      * A checkpoint log entry will show when the checkpoint was passed where (class::function in file@line)
      *
+     * @param string|null $message
      * @param int $level
      * @return bool
      */
-    public static function checkpoint(int $level = 10): bool
+    public static function checkpoint(?string $message = null, int $level = 10): bool
     {
-        return self::logDebugHeader('CHECKPOINT', 1, $level);
+        return self::logDebugHeader('CHECKPOINT ' . $message, 1, $level);
     }
 
 

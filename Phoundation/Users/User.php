@@ -44,6 +44,18 @@ class User
 
 
     /**
+     * Returns true if this user object is the guest user
+     *
+     * @return bool
+     */
+    public function isGuest(): bool
+    {
+        return ($this->id === 0);
+    }
+
+
+
+    /**
      * Returns the picture for this user
      *
      * @return Image

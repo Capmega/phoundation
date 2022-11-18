@@ -14,6 +14,16 @@ namespace Phoundation\Web\Http\Html;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class ElementsBlock
+abstract class ElementsBlock
 {
+    use ElementAttributes;
+
+
+
+    /**
+     * Render the ElementsBlock
+     *
+     * @return string
+     */
+    public abstract function render(): string;
 }

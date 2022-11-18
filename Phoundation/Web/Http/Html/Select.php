@@ -56,7 +56,8 @@ class Select extends ResourceElement
      */
     public function __construct()
     {
-        parent::__construct('select');
+        parent::__construct();
+        parent::setElement('select');
     }
 
 

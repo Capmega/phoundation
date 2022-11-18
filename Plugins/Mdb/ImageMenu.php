@@ -4,12 +4,13 @@ namespace Plugins\Mdb;
 
 use Phoundation\Content\Images\UsesImage;
 use Phoundation\Content\Images\Image;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\ElementsBlock;
 
 
 
 /**
- * Phoundation template class
+ * MDB Plugin ImageMenu class
  *
  * This class is an example template for your website
  *
@@ -38,56 +39,127 @@ class ImageMenu extends ElementsBlock
      */
     protected int $height = 25;
 
+    /**
+     * The image URL, if no menu is available
+     *
+     * @var string|null $url
+     */
+    protected ?string $url = null;
+
+    /**
+     * The image modal selector
+     *
+     * @var string|null $modal_selector
+     */
+    protected ?string $modal_selector = null;
+
 
 
     /**
-     * ImageMenu class constructor
+     * Sets the menu items
      *
-     * @param Image|string|null $image
      * @param array|null $menu
+     * @return $this
      */
-    public function __construct(Image|string|null $image, ?array $menu)
+    public function setMenu(?array $menu): static
     {
-        $this->menu  = $menu;
-
-        if (!is_object($image)) {
-            $image = new Image($image);
+        if ($menu and $this->url) {
+            throw new OutOfBoundsException(tr('Cannot set menu for image menu, the image URL has already been configured'));
         }
 
-        $this->image = $image;
+        $this->menu = $menu;
+        return $this;
     }
 
 
 
     /**
-     * Returns a new ElementsBlock
+     * Returns the menu items
      *
-     * @param Image|string|null $image
-     * @param array|null $menu
-     * @return static
+     * @return array|null
      */
-    public static function new(Image|string|null $image, ?array $menu): static
+    public function getMenu(): ?array
     {
-        return new static($image, $menu);
+        return $this->menu;
     }
 
 
 
     /**
-     * Renders and returns the profile image block HTML
+     * Sets the URL
+     *
+     * @param string|null $url
+     * @return $this
+     */
+    public function setUrl(?string $url): static
+    {
+        if ($url and $this->menu) {
+            throw new OutOfBoundsException(tr('Cannot set URL for image menu, the menu has already been configured'));
+        }
+
+        $this->url = $url;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the modal selector
+     *
+     * @return string|null
+     */
+    public function getModalSelector(): ?string
+    {
+        return $this->modal_selector;
+    }
+
+
+
+    /**
+     * Sets the modal selector
+     *
+     * @param string|null $modal_selector
+     * @return $this
+     */
+    public function setModalSelector(?string $modal_selector): static
+    {
+        if ($modal_selector and $this->menu) {
+            throw new OutOfBoundsException(tr('Cannot set modal for image menu, the menu has already been configured'));
+        }
+
+        $this->modal_selector = $modal_selector;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the URL
+     *
+     * @return string|null
+     */
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+
+
+    /**
+     * Renders and returns the image menu block HTML
      *
      * @return string
      */
     public function render(): string
     {
-        $html = ' <!-- Avatar -->
-                  <div class="dropdown">
+//.        <button type="button" class="btn btn-primary" data-mdb-toggle="modal" data-mdb-target="#exampleModal" style=""> Launch demo modal </button>
+
+        $html = ' <div class="dropdown">
                     <a
-                      class="dropdown-toggle d-flex align-items-center hidden-arrow"
-                      href="#"
+                      class="' . ($this->menu ? 'dropdown-toggle ' : '') . 'd-flex align-items-center hidden-arrow"
+                      href="' . ($this->menu ? '#' : $this->url) . '"
                       id="navbarDropdownMenuAvatar"
-                      role="button"
-                      data-mdb-toggle="dropdown"
+                      ' . ($this->menu ? 'role="button" data-mdb-toggle="dropdown"' : ($this->modal_selector ? 'data-mdb-toggle="modal" data-mdb-target="' . $this->modal_selector . '"' : null)) . '                    
                       aria-expanded="false"
                     >';
 
@@ -113,7 +185,7 @@ class ImageMenu extends ElementsBlock
         }
 
         $html .= '  </ul>
-                  </div>';
+                  </div>' . PHP_EOL;
 
         return $html;
     }

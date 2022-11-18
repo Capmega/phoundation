@@ -7,7 +7,7 @@ use Phoundation\Servers\UsesServer;
 
 
 /**
- * UsesImage trait
+ * Phoundation UsesImage trait
  *
  * This trait contains basic image architecture
  *

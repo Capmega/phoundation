@@ -17,30 +17,14 @@ namespace Phoundation\Web\Http\Html;
 trait InputElement
 {
     /**
-     * If true, will submit on change
-     *
-     * @var bool $auto_submit
-     */
-    protected bool $auto_submit = false;
-
-    /**
-     * Add onchange functionality
-     *
-     * @var string|null $on_change
-     */
-    protected ?string $on_change = null;
-
-
-
-    /**
      * Sets if the element will auto submit
      *
      * @param bool $auto_submit
-     * @return Element
+     * @return static
      */
-    public function setAutoSubmit(bool $auto_submit): self
+    public function setAutoSubmit(bool $auto_submit): static
     {
-        $this->auto_submit = $auto_submit;
+        $this->attributes['auto_submit'] = $auto_submit;
         return $this;
     }
 
@@ -53,7 +37,7 @@ trait InputElement
      */
     public function getAutoSubmit(): bool
     {
-        return $this->auto_submit;
+        return $this->attributes['auto_submit'];
     }
 
 
@@ -62,11 +46,11 @@ trait InputElement
      * Sets onchange functionality
      *
      * @param string|null $on_change
-     * @return Element
+     * @return static
      */
-    public function setOnChange(?string $on_change): self
+    public function setOnChange(?string $on_change): static
     {
-        $this->on_change = $on_change;
+        $this->attributes['on_change'] = $on_change;
         return $this;
     }
 
@@ -79,7 +63,7 @@ trait InputElement
      */
     public function getOnChange(): ?string
     {
-        return $this->on_change;
+        return isset_get($this->attributes['on_change']);
     }
 
 

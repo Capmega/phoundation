@@ -24,7 +24,7 @@ Class Html
      *
      * @var int $tabindex
      */
-    protected static int $tabindex = 0;
+    protected static int $tabindex = 1;
 
     /**
      * The Cross Site Request Forgery protection class

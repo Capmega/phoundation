@@ -2,12 +2,15 @@
 
 namespace Plugins\Mdb;
 
-
-
 use Phoundation\Content\Images\Image;
+use Phoundation\Core\Config;
+use Phoundation\Core\Session;
+use Phoundation\Web\Http\Url;
+
+
 
 /**
- * Phoundation template class
+ * MDB Plugin ProfileImage class
  *
  * This class is an example template for your website
  *
@@ -19,13 +22,25 @@ use Phoundation\Content\Images\Image;
 class ProfileImage extends ImageMenu
 {
     /**
-     * ImageMenu class constructor
-     *
-     * @param Image|string|null $image
-     * @param array|null $menu
+     * ProfileImage class constructor
      */
-    public function __construct(Image|string|null $image, ?array $menu)
+    public function __construct()
     {
+        // Set up the default image URL
+        $this->setUrl(Config::get('web.pages.signin', 'sign-in.html'));
+        $this->setModalSelector('#signinModal');
+
+        parent::__construct();
+    }
+
+
+
+    /**
+     * ProfileImage class constructor
+     */
+    public function setImage(Image|string|null $image = null): static
+    {
+        // Ensure we have a default profile image
         if (!is_object($image)) {
             if (!$image) {
                 // Default to default profile image
@@ -35,6 +50,46 @@ class ProfileImage extends ImageMenu
             $image->setFile('profiles/default.png');
         }
 
-        parent::__construct($image, $menu);
+        return parent::setImage($image);
+    }
+
+
+
+    /**
+     * Set the menu for this profile image
+     *
+     * @param array|null $menu
+     * @return $this
+     */
+    public function setMenu(?array $menu): static
+    {
+        if (Session::getUser()->isGuest()) {
+            // Don't show menu
+            $menu = null;
+        } else {
+            // Default image menu
+            if (!$menu) {
+                $menu = [
+                    tr('Profile')  => Url::build('/profile')->www(),
+                    tr('Sign out') => Url::build('/signout')->www()
+                ];
+            }
+        }
+
+        return parent::setMenu($menu);
+    }
+
+
+
+    /**
+     * Render the profile image HTML
+     *
+     * @return string
+     */
+    public function render(): string
+    {
+        $html  = parent::render();
+
+        return $html;
     }
 }

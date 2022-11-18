@@ -2,11 +2,13 @@
 
 namespace Phoundation\Core;
 
+use Phoundation\Users\GuestUser;
 use Phoundation\Users\User;
 use Phoundation\Users\Users;
 use Phoundation\Web\Exception\PageException;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
+
 
 
 /**
@@ -72,7 +74,7 @@ class Session
     {
         if (self::$user === null) {
             // There is no user, this is a guest session
-            return new User();
+            return new GuestUser();
         }
 
         return self::$user;

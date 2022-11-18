@@ -1,11 +1,10 @@
 <?php
 
-namespace Templates;
+namespace Templates\Phoundation;
 
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Page;
-use Phoundation\Web\Template;
 use Plugins\Mdb\NavBar;
 use Throwable;
 
@@ -19,9 +18,9 @@ use Throwable;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Templates
+ * @package Templates\Phoundation
  */
-class Phoundation extends Template
+class TemplatePage extends \Phoundation\Web\TemplatePage
 {
     /**
      * Build the HTTP headers for the page
@@ -70,12 +69,7 @@ class Phoundation extends Template
     public function buildPageHeader(): ?string
     {
         $html = '<body>' .
-            NavBar::new()
-                ->setProfileMenu([
-                    tr('Profile') => Url::build('/profile')->www(),
-                    tr('Sign out') => Url::build('/signout')->www()
-                ])
-                ->render();
+            NavBar::new()->render();
 
         return $html;
     }
@@ -108,5 +102,29 @@ class Phoundation extends Template
         </html>';
 
         return $html;
+    }
+
+
+
+    /**
+     * Build the HTML menu
+     *
+     * @return string|null
+     */
+    public function buildMenu(): ?string
+    {
+        return null;
+    }
+
+
+
+    /**
+     * Build the HTML body
+     *
+     * @return string|null
+     */
+    public function buildBody(): ?string
+    {
+        // TODO: Implement buildBody() method.
     }
 }

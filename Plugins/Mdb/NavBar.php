@@ -4,11 +4,13 @@ namespace Plugins\Mdb;
 
 use Phoundation\Core\Session;
 use Phoundation\Web\Http\Html\ElementsBlock;
+use Phoundation\Web\Http\Html\Img;
+use Plugins\Mdb\Modals\SigninModal;
 
 
 
 /**
- * Phoundation template class
+ * MDB Plugin NavBar class
  *
  * This class is an example template for your website
  *
@@ -57,28 +59,6 @@ class NavBar extends ElementsBlock
 
 
     /**
-     * NavBar class constructor
-     */
-    public function __construct()
-    {
-
-    }
-
-
-
-    /**
-     * Returns a new NavBar object
-     *
-     * @return static
-     */
-    public static function new(): static
-    {
-        return new static();
-    }
-
-
-
-    /**
      * Sets the navbar profile menu
      *
      * @param array|null $menu
@@ -112,7 +92,7 @@ class NavBar extends ElementsBlock
     public function render(): string
     {
         $html = '    <!-- Navbar -->
-                    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
                       <!-- Container wrapper -->
                       <div class="container-fluid">
                         <!-- Toggle button -->
@@ -132,12 +112,14 @@ class NavBar extends ElementsBlock
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                           <!-- Navbar brand -->
                           <a class="navbar-brand mt-2 mt-lg-0" href="#">
-                            <img
-                              src="https://mdbcdn.b-cdn.net/img/logo/mdb-transaprent-noshadows.webp"
-                              height="15"
-                              alt="MDB Logo"
-                              loading="lazy"
-                            />
+                          ' . Img::new()
+                                ->setSrc('/logos/phoundation/phoundation-top.png')
+                                ->setAlt('The Phoundation logo')
+                                ->addAttributes([
+                                    'loading' => 'lazy',
+                                    'height'  => 15
+                                ])
+                                ->render(). '
                           </a>
                           <!-- Left links -->
                           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -190,7 +172,9 @@ class NavBar extends ElementsBlock
                               </li>
                             </ul>
                           </div>
-                          ' . ProfileImage::new(Session::getUser()->getPicture(), $this->profile_menu)
+                          ' . ProfileImage::new()
+                                ->setImage(Session::getUser()->getPicture())
+                                ->setMenu($this->profile_menu)
                                 ->render()
                             . '
                         </div>
@@ -199,6 +183,8 @@ class NavBar extends ElementsBlock
                       <!-- Container wrapper -->
                     </nav>
                     <!-- Navbar -->';
+
+        $html .= SigninModal::new()->render() . PHP_EOL;
 
         return $html;
     }

@@ -311,7 +311,7 @@ abstract class ResourceElement extends Element
      */
     protected function renderFooters(): string
     {
-        return '</' . $this->type . '>';
+        return '</' . $this->element . '>';
     }
 
 

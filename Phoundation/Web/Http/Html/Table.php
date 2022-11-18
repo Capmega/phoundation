@@ -50,7 +50,8 @@ Class Table extends ResourceElement
      */
     public function __construct()
     {
-        parent::__construct('table');
+        parent::__construct();
+        parent::setElement('table');
     }
 
 

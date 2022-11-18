@@ -14,7 +14,7 @@ namespace Phoundation\Web;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class Template
+abstract class TemplatePage
 {
     /**
      * Build and send HTTP headers
@@ -36,6 +36,13 @@ abstract class Template
      * @return string|null
      */
     public abstract function buildPageHeader(): ?string;
+
+    /**
+     * Build the page menu
+     *
+     * @return string|null
+     */
+    public abstract function buildMenu(): ?string;
 
     /**
      * Build the page footer

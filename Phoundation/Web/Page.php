@@ -51,9 +51,9 @@ class Page
     /**
      * The template class that build the UI
      *
-     * @var Template|null $template
+     * @var TemplatePage|null $template
      */
-    protected static ?Template $template = null;
+    protected static ?TemplatePage $template = null;
 
     /**
      * The flash object for this user
@@ -150,12 +150,13 @@ class Page
                 ]));
             }
 
-            $class = '\\Templates\\' . $class;
-
+            $class = '\\Templates\\' . $class . '\TemplatePage';
             include(Debug::getClassFile($class));
+            Log::checkpoint($class);
             self::$template = new $class($this);
+Log::checkpoint();
 
-            if (!(self::$template instanceof Template)) {
+            if (!(self::$template instanceof TemplatePage)) {
                 throw new PageException(tr('Configured page template ":class" is invalid. The class should be implementing the interface Phoundation\Web\Template', [
                     ':class' => $class
                 ]));
@@ -415,9 +416,9 @@ throw new UnderConstructionException();
     /**
      * Access to the page template class
      *
-     * @return Template
+     * @return TemplatePage
      */
-    public static function template(): Template
+    public static function template(): TemplatePage
     {
         return self::$template;
     }
@@ -494,6 +495,7 @@ throw new UnderConstructionException();
         self::$html_headers_sent = true;
 
         self::$html .= self::$template->buildPageHeader();
+        self::$html .= self::$template->buildMenu();
         self::$html .= $body;
         self::$html .= self::$template->buildPageFooter();
         self::$html .= self::$template->buildHtmlFooter();

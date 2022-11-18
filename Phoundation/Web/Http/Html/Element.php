@@ -3,8 +3,7 @@
 namespace Phoundation\Web\Http\Html;
 
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Strings;
-use Phoundation\Web\Page;
+use Phoundation\Exception\OutOfBoundsException;
 
 
 
@@ -20,475 +19,41 @@ use Phoundation\Web\Page;
  */
 class Element
 {
+    use ElementAttributes;
+
+
+
     /**
      * The element type
      *
-     * @var string $type
+     * @var string $element
      */
-    protected string $type;
+    protected string $element;
+
+
 
     /**
-     * The HTML id element attribute
+     * Sets the type of element to display
      *
-     * @var string|null $id
+     * @param string $element
+     * @return static
      */
-    protected ?string $id = null;
-
-    /**
-     * The real HTML id element attribute. If id contains "element[]", this will contain "element"
-     *
-     * @var string|null $real_id
-     */
-    protected ?string $real_id = null;
-
-    /**
-     * The HTML name element attribute
-     *
-     * @var string|null $name
-     */
-    protected ?string $name = null;
-
-    /**
-     * The real HTML name element attribute. If name contains "element[]", this will contain "element"
-     *
-     * @var string|null $real_name
-     */
-    protected ?string $real_name = null;
-
-    /**
-     * The HTML class element attribute store
-     *
-     * @var array $classes
-     */
-    protected array $classes = [];
-
-    /**
-     * The HTML class element attribute cache
-     *
-     * @var string|null $class
-     */
-    protected ?string $class = null;
-
-    /**
-     * The HTML tabindex element attribute
-     *
-     * @var int|null $tabindex
-     */
-    protected ?int $tabindex = null;
-
-    /**
-     * The HTML readonly attribute
-     *
-     * @var string|null $readonly
-     */
-    protected ?string $readonly = null;
-
-    /**
-     * The HTML disabled attribute
-     *
-     * @var string|null $disabled
-     */
-    protected ?string $disabled = null;
-
-    /**
-     * The HTML autofocus attribute
-     *
-     * @var string|null $autofocus
-     */
-    protected ?string $autofocus = null;
-
-    /**
-     * Extra attributes or element content can be added through the "extra" variable
-     *
-     * @var string $extra
-     */
-    protected string $extra = '';
-
-    /**
-     * The attributes for this element
-     *
-     * @var array $attributes
-     */
-    protected array $attributes = [];
-
-
-
-    /**
-     * HtmlObject constructor
-     */
-    public function __construct(string $type)
+    public function setElement(string $element): static
     {
-        $this->type     = $type;
-        $this->tabindex = Html::getTabIndex();
-    }
-
-
-
-    /**
-     * Return new HTML Element object
-     */
-    public static function new(): static
-    {
-        return new static();
-    }
-
-
-
-    /**
-     * Sets the HTML id element attribute
-     *
-     * @param string|null $id
-     * @return Element
-     */
-    public function setId(?string $id): static
-    {
-        $this->id      = $id;
-        $this->real_id = Strings::until($id, '[');
-
-        // By default, name and id should be equal
-        if (empty($this->name)) {
-            $this->setName($id);
-        }
-
+        $this->element = $element;
         return $this;
     }
 
 
 
     /**
-     * Returns the HTML id element attribute
-     *
-     * @return string|null
-     */
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
-
-
-
-    /**
-     * Sets the HTML name element attribute
-     *
-     * @param string|null $name
-     * @return Element
-     */
-    public function setName(?string $name): static
-    {
-        $this->name      = $name;
-        $this->real_name = Strings::until($name, '[');
-
-        // By default, name and id should be equal
-        if (empty($this->id)) {
-            $this->setId($name);
-        }
-
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the HTML name element attribute
-     *
-     * @return string|null
-     */
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-
-
-    /**
-     * Sets the HTML class element attribute
-     *
-     * @param array|string|null $classes
-     * @return Element
-     */
-    public function setClasses(array|string|null $classes): static
-    {
-        $this->classes = [];
-        return $this->addClasses($classes);
-    }
-
-
-
-    /**
-     * Sets the HTML class element attribute
-     *
-     * @param string|null $classes
-     * @return Element
-     */
-    public function addClasses(?string $classes): static
-    {
-        foreach (Arrays::force($classes, ' ') as $class) {
-            $this->addClass($class);
-        }
-
-        return $this;
-    }
-
-
-
-    /**
-     * Adds an class to the HTML class element attribute
-     *
-     * @param string $class
-     * @return Element
-     */
-    public function addClass(string $class): static
-    {
-        $this->classes[$class] = true;
-        $this->class = null;
-        return $this;
-    }
-
-
-
-    /**
-     * Adds an class to the HTML class element attribute
-     *
-     * @param string $class
-     * @return Element
-     */
-    public function setClass(string $class): static
-    {
-        $this->classes = [$class => true];
-        $this->class = null;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the HTML class element attribute store
-     *
-     * @return array
-     */
-    public function getClasses(): array
-    {
-        return $this->classes;
-    }
-
-
-
-    /**
-     * Sets all the extra element attribute code
-     *
-     * @param string|null $extra
-     * @return Element
-     */
-    public function setExtra(?string $extra): static
-    {
-        $this->extra = '';
-        return $this->addExtra($extra);
-    }
-
-
-
-    /**
-     * Adds more to the extra element attribute code
-     *
-     * @param string|null $extra
-     * @return Element
-     */
-    public function addExtra(?string $extra): static
-    {
-        $this->extra .= ' ' . $extra;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the extra element attribute code
+     * Returns the HTML class element attribute
      *
      * @return string
      */
-    public function getExtra(): string
+    public function getElement(): string
     {
-        return $this->extra;
-    }
-
-
-
-    /**
-     * Returns the HTML class element attribute
-     *
-     * @return string|null
-     */
-    public function getClass(): ?string
-    {
-        if (!$this->class) {
-            if ($this->classes) {
-                $this->class = implode(' ', $this->classes);
-            } else {
-                $this->class = null;
-            }
-        }
-
-        return $this->class;
-    }
-
-
-
-    /**
-     * Sets the HTML class element attribute
-     *
-     * @param bool $autofocus
-     * @return Element
-     */
-    public function setAutofocus(bool $autofocus): static
-    {
-        $this->autofocus = ($autofocus ? 'autofocus' : null);
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the HTML class element attribute
-     *
-     * @return bool
-     */
-    public function getAutofocus(): bool
-    {
-        return (bool) $this->autofocus;
-    }
-
-
-
-    /**
-     * Set the HTML tabindex element attribute
-     *
-     * @param int|null $tabindex
-     * @return Element
-     */
-    public function setTabIndex(?int $tabindex): static
-    {
-        $this->tabindex = $tabindex;
-        return $this;
-    }
-
-
-    /**
-     * Returns the HTML tabindex element attribute
-     *
-     * @return int|null
-     */
-    public function getTabIndex(): ?int
-    {
-        return $this->tabindex;
-    }
-
-
-
-    /**
-     * Set the HTML disabled element attribute
-     *
-     * @param bool $disabled
-     * @return Element
-     */
-    public function setDisabled(bool $disabled): static
-    {
-        $this->tabindex = ($disabled ? 'disabled' : null);
-        return $this;
-    }
-
-
-    /**
-     * Returns the HTML disabled element attribute
-     *
-     * @return bool
-     */
-    public function getDisabled(): bool
-    {
-        return (bool) $this->disabled;
-    }
-
-
-
-    /**
-     * Set the HTML readonly element attribute
-     *
-     * @param bool $readonly
-     * @return Element
-     */
-    public function setReadonly(bool $readonly): static
-    {
-        $this->readonly = ($readonly ? 'readonly' : null);
-        return $this;
-    }
-
-
-    /**
-     * Returns the HTML readonly element attribute
-     *
-     * @return bool
-     */
-    public function getReadonly(): bool
-    {
-        return $this->tabindex;
-    }
-
-
-
-    /**
-     * Sets all HTML element attributes
-     *
-     * @param array $attributes
-     * @return Element
-     */
-    public function setAttributes(array $attributes): static
-    {
-        $this->attributes = [];
-        $this->addAttributes($attributes);
-        return $this;
-    }
-
-
-
-    /**
-     * Sets all HTML element attributes
-     *
-     * @param array $attributes
-     * @return Element
-     */
-    public function addAttributes(array $attributes): static
-    {
-        foreach ($attributes as $attribute => $value) {
-            $this->addAttribute($attribute, $value);
-        }
-
-        return $this;
-    }
-
-
-
-    /**
-     * Sets all HTML element attributes
-     *
-     * @param string $attribute
-     * @param string $value
-     * @return Element
-     */
-    public function addAttribute(string $attribute, string $value): static
-    {
-        $this->attributes[$attribute] = $value;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns all HTML element attributes
-     *
-     * @return array
-     */
-    public function getAttributes(): array
-    {
-        return $this->attributes;
+        return $this->element;
     }
 
 
@@ -500,22 +65,21 @@ class Element
      */
     public function render(): string
     {
+        if (!$this->element) {
+            throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
+        }
+
         $attributes = $this->buildAttributes();
         $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', true);
 
-        return '<' . $this->type. ' ' . $attributes . $this->extra . '>';
-    }
+        $html = '<' . $this->element . ' ' . $attributes . $this->extra;
 
+        if ($this->content) {
+            return $html . '>' . $this->content . '</' . $this->element . '>';
 
+        }
 
-    /**
-     * Render the element and place it directly into the page buffer
-     *
-     * @return void
-     */
-    public function buffer(): void
-    {
-        Page::buffer($this->render());
+        return $html . ' />';
     }
 
 
@@ -541,7 +105,7 @@ class Element
     /**
      * Add the system arguments to the arguments list
      *
-     * @note The system attributes (id, name, class, tabindex, autofocus, readonly, disabled) will overwrite those same
+     * @note The system attributes (id, name, class, autofocus, readonly, disabled) will overwrite those same
      *       values that were added as general attributes using Element::addAttribute()
      * @return array
      */
@@ -551,7 +115,6 @@ class Element
             'id'        => $this->id,
             'name'      => $this->name,
             'class'     => $this->getClass(),
-            'tabindex'  => $this->tabindex,
             'autofocus' => $this->autofocus,
             'readonly'  => $this->readonly,
             'disabled'  => $this->disabled,
