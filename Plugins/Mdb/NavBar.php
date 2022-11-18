@@ -3,9 +3,9 @@
 namespace Plugins\Mdb;
 
 use Phoundation\Core\Session;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\ElementsBlock;
 use Phoundation\Web\Http\Html\Img;
-use Plugins\Mdb\Modals\SigninModal;
 
 
 
@@ -56,6 +56,13 @@ class NavBar extends ElementsBlock
      */
     protected ?array $profile_menu = null;
 
+    /**
+     * The modal for the signin page
+     *
+     * @var Modal|null $signin_modal
+     */
+    protected ?Modal $signin_modal = null;
+
 
 
     /**
@@ -85,12 +92,42 @@ class NavBar extends ElementsBlock
 
 
     /**
+     * Returns the navbar signin modal
+     *
+     * @return array|null
+     */
+    public function getSigninModal(): ?Modal
+    {
+        return $this->signin_modal;
+    }
+
+
+
+    /**
+     * Sets the navbar signin modal
+     *
+     * @param Modal|null $signin_modal
+     * @return static
+     */
+    public function setProfileMenugetSigninModal(?Modal $signin_modal): static
+    {
+        $this->signin_modal = $signin_modal;
+        return $this;
+    }
+
+
+
+    /**
      * Renders and returns the NavBar
      *
      * @return string
      */
     public function render(): string
     {
+        if (!$this->signin_modal) {
+            throw new OutOfBoundsException(tr('Failed to render NavBar component, no signin modal specified'));
+        }
+
         $html = '    <!-- Navbar -->
                     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
                       <!-- Container wrapper -->
@@ -184,7 +221,7 @@ class NavBar extends ElementsBlock
                     </nav>
                     <!-- Navbar -->';
 
-        $html .= SigninModal::new()->render() . PHP_EOL;
+        $html .= $this->signin_modal::new()->render() . PHP_EOL;
 
         return $html;
     }

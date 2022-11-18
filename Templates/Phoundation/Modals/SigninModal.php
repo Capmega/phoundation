@@ -1,6 +1,6 @@
 <?php
 
-namespace Plugins\Mdb\Modals;
+namespace Templates\Phoundation\Modals;
 
 use Plugins\Mdb\Elements\Button;
 use Plugins\Mdb\Elements\Buttons;
