@@ -7,6 +7,7 @@ namespace Phoundation\Libraries;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
+use Phoundation\Filesystem\Path;
 
 /**
  * Library class
@@ -195,6 +196,18 @@ class Library
     public function getNextInitVersion(): ?string
     {
         return $this->updates?->getNextInitVersion();
+    }
+
+
+
+    /**
+     * Returns the size of all files in this library in bytes
+     *
+     * @return int
+     */
+    public function getSize(): int
+    {
+        return Path::new($this->path, PATH_ROOT)->treeFileSize();
     }
 
 

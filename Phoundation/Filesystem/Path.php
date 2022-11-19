@@ -35,6 +35,7 @@ class Path extends FileBasics
      */
     public function execute(): Execute
     {
+        $this->file = Strings::slash($this->file);
         return new Execute($this->file, $this->server);
     }
 
@@ -57,6 +58,7 @@ class Path extends FileBasics
      */
     public function checkReadable(?string $type = null, ?Throwable $previous_e = null): static
     {
+        $this->file = Strings::slash($this->file);
         parent::checkReadable($type, $previous_e);
 
         if (!is_dir($this->file)) {
@@ -92,6 +94,7 @@ class Path extends FileBasics
      */
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null) : static
     {
+        $this->file = Strings::slash($this->file);
         parent::checkWritable($type, $previous_e);
 
         if (is_dir($this->file)) {
@@ -126,6 +129,7 @@ class Path extends FileBasics
      */
     public function ensure(?string $mode = null, ?bool $clear = false, bool $sudo = false): string
     {
+        $this->file = Strings::slash($this->file);
         Filesystem::validateFilename($this->file);
 
         $mode = Config::get('filesystem.mode.directories', 0750, $mode);
@@ -195,35 +199,33 @@ class Path extends FileBasics
      */
     public function isEmpty(): bool
     {
-        foreach ($this->file as $this->file) {
-            $this->exists();
+        $this->file = Strings::slash($this->file);
+        $this->exists();
 
-            if (!is_dir($this->file)) {
-                $this->checkReadable();
+        if (!is_dir($this->file)) {
+            $this->checkReadable();
 
-                throw new PathNotDirectoryException(tr('The specified path ":path" is not a directory', [
-                    ':path' => $this->file
-                ]));
-            }
-
-            // Start reading the directory.
-            $handle = opendir($this->file);
-
-            while (($file = readdir($handle)) !== false) {
-                // Skip . and ..
-                if (($file == '.') or ($file == '..')) {
-                    continue;
-                }
-
-                // Yeah, this has files
-                closedir($handle);
-                return false;
-            }
-
-            // Yay, no files encountered!
-            closedir($handle);
+            throw new PathNotDirectoryException(tr('The specified path ":path" is not a directory', [
+                ':path' => $this->file
+            ]));
         }
 
+        // Start reading the directory.
+        $handle = opendir($this->file);
+
+        while (($file = readdir($handle)) !== false) {
+            // Skip . and ..
+            if (($file == '.') or ($file == '..')) {
+                continue;
+            }
+
+            // Yeah, this has files
+            closedir($handle);
+            return false;
+        }
+
+        // Yay, no files encountered!
+        closedir($handle);
         return true;
     }
 
@@ -239,58 +241,57 @@ class Path extends FileBasics
      */
     public function clear(bool $sudo = false): void
     {
+        $this->file = Strings::slash($this->file);
         $this->checkRestrictions($this->file, true);
 
-        foreach ($this->file as $this->file) {
-            while ($this->file) {
-                // Restrict location access
-                try {
-                    $this->checkRestrictions($this->file, true);
-                } catch (RestrictionsException) {
-                    // We're out of our territory, stop scanning!
-                    break;
-                }
-
-                if (!file_exists($this->file)) {
-                    // This section does not exist, jump up to the next section above
-                    $this->file = dirname($this->file);
-                    continue;
-                }
-
-                if (!is_dir($this->file)) {
-                    // This is a normal file, we only delete directories here!
-                    throw new OutOfBoundsException(tr('Not clearing path ":path", it is not a directory', [
-                        ':path' => $this->file
-                    ]));
-                }
-
-                if (!Path::new($this->file, $this->server)->isEmpty()) {
-                    // Do not remove anything more, there is contents here!
-                    break;
-                }
-
-                // Remove this entry and continue;
-                try {
-                    File::new($this->file, $this->server)->delete(false, $sudo);
-
-                }catch(Exception $e) {
-                    /*
-                     * The directory WAS empty, but cannot be removed
-                     *
-                     * In all probability, a parrallel process added a new content in this directory, so it's no longer empty.
-                     * Just register the event and leave it be.
-                     */
-                    Log::warning(tr('Failed to remove empty pattern ":pattern" with exception ":e"', [
-                        ':pattern' => $this->file,
-                        ':e'       => $e
-                    ]));
-
-                    break;
-                }
-
-                // Go one entry up, check if we're still within restrictions, and continue deleting
-                $this->file = dirname($this->file);
+        while ($this->file) {
+            // Restrict location access
+            try {
+                $this->checkRestrictions($this->file, true);
+            } catch (RestrictionsException) {
+                // We're out of our territory, stop scanning!
+                break;
             }
+
+            if (!file_exists($this->file)) {
+                // This section does not exist, jump up to the next section above
+                $this->file = dirname($this->file);
+                continue;
+            }
+
+            if (!is_dir($this->file)) {
+                // This is a normal file, we only delete directories here!
+                throw new OutOfBoundsException(tr('Not clearing path ":path", it is not a directory', [
+                    ':path' => $this->file
+                ]));
+            }
+
+            if (!Path::new($this->file, $this->server)->isEmpty()) {
+                // Do not remove anything more, there is contents here!
+                break;
+            }
+
+            // Remove this entry and continue;
+            try {
+                File::new($this->file, $this->server)->delete(false, $sudo);
+
+            }catch(Exception $e) {
+                /*
+                 * The directory WAS empty, but cannot be removed
+                 *
+                 * In all probability, a parrallel process added a new content in this directory, so it's no longer empty.
+                 * Just register the event and leave it be.
+                 */
+                Log::warning(tr('Failed to remove empty pattern ":pattern" with exception ":e"', [
+                    ':pattern' => $this->file,
+                    ':e'       => $e
+                ]));
+
+                break;
+            }
+
+            // Go one entry up, check if we're still within restrictions, and continue deleting
+            $this->file = dirname($this->file);
         }
     }
 
@@ -306,6 +307,7 @@ class Path extends FileBasics
     public function createTarget(?bool $single = null, int $length = 0): string
     {
         // Check filesystem restrictions 
+        $this->file = Strings::slash($this->file);
         $this->checkRestrictions($this->file, true);
         $this->exists();
 
@@ -347,49 +349,46 @@ class Path extends FileBasics
     public function listTree(array|string|null $filters = null, bool $recursive = true): array
     {
         // Check filesystem restrictions 
+        $this->file = Strings::slash($this->file);
         $this->checkRestrictions($this->file, false);
+        $this->exists();
 
         $return = [];
+        $fh     = opendir($this->file);
 
-        foreach ($this->file as $this->file) {
-            $this->exists();
-            $fh = opendir($this->file);
+        // Go over all files
+        while (($filename = readdir($fh)) !== false) {
+            // Loop through the files, skipping . and .. and recursing if necessary
+            if (($filename == '.') or ($filename == '..')) {
+                continue;
+            }
 
-            // Go over all files
-            while (($filename = readdir($fh)) !== false) {
-                // Loop through the files, skipping . and .. and recursing if necessary
-                if (($filename == '.') or ($filename == '..')) {
-                    continue;
-                }
+            // Does the file match the specified pattern?
+            if ($filters) {
+                foreach (Arrays::force($filters, null) as $filter) {
+                    $match = preg_match($filter, $filename);
 
-                // Does the file match the specified pattern?
-                if ($filters) {
-                    foreach (Arrays::force($filters, null) as $filter) {
-                        $match = preg_match($filter, $filename);
-
-                        if (!$match) {
-                            // File did NOT match this filter
-                            continue 2;
-                        }
+                    if (!$match) {
+                        // File did NOT match this filter
+                        continue 2;
                     }
-                }
-
-                // Get the complete file path
-                $file = Strings::slash($this->file) . $filename;
-
-                // Add the file to the list. If the file is a directory, then recurse instead. Do NOT add the directory
-                // itself, only files!
-                if (is_dir($file) and $recursive) {
-                    $return = array_merge($return, Path::new($file, $this->server)->listTree());
-
-                } else {
-                    $return[] = $file;
                 }
             }
 
-            closedir($fh);
+            // Get the complete file path
+            $file = Strings::slash($this->file) . $filename;
+
+            // Add the file to the list. If the file is a directory, then recurse instead. Do NOT add the directory
+            // itself, only files!
+            if (is_dir($file) and $recursive) {
+                $return = array_merge($return, Path::new($file, $this->server)->listTree());
+
+            } else {
+                $return[] = $file;
+            }
         }
 
+        closedir($fh);
         return $return;
     }
 
@@ -405,12 +404,12 @@ class Path extends FileBasics
     public function random(): string
     {
         // Check filesystem restrictions 
+        $this->file = Strings::slash($this->file);
         $this->checkRestrictions($this->file, false);
-
-        $this->file = Arrays::getRandomValue($this->file);
         $this->exists();
 
-        $files = scandir($this->file);
+        $this->file = Arrays::getRandomValue($this->file);
+        $files      = scandir($this->file);
 
         Arrays::unsetValue($files, '.');
         Arrays::unsetValue($files, '..');
@@ -438,21 +437,19 @@ class Path extends FileBasics
     public function scanUpwardsForFile(string $filename): ?string
     {
         // Check filesystem restrictions 
+        $this->file = Strings::slash($this->file);
         $this->checkRestrictions($this->file, false);
+        $this->exists();
 
-        foreach ($this->file as $this->file) {
-            $this->exists();
+        while (strlen($this->file) > 1) {
+            $this->file = Strings::slash($this->file);
 
-            while (strlen($this->file) > 1) {
-                $this->file = Strings::slash($this->file);
-
-                if (file_exists($this->file . $filename)) {
-                    // The requested file is found! Return the path where it was found
-                    return $this->file;
-                }
-
-                $this->file = dirname($this->file);
+            if (file_exists($this->file . $filename)) {
+                // The requested file is found! Return the path where it was found
+                return $this->file;
             }
+
+            $this->file = dirname($this->file);
         }
 
         return null;
@@ -468,23 +465,21 @@ class Path extends FileBasics
     public function treeFileSize(): int
     {
         // Check filesystem restrictions 
+        $this->file = Strings::slash($this->file);
         $this->checkRestrictions($this->file, false);
+        $this->exists();
 
         $return = 0;
 
-        foreach ($this->file as $this->file) {
-            $this->exists();
+        foreach (scandir($this->file) as $file) {
+            if (($file == '.') or ($file == '..')) continue;
 
-            foreach (scandir($this->file) as $file) {
-                if (($file == '.') or ($file == '..')) continue;
+            if (is_dir($this->file . $file)) {
+                // Recurse
+                $return += Path::new($this->file . $file, $this->server)->treeFileSize();
 
-                if (is_dir($this->file . $file)) {
-                    // Recurse
-                    $return += Path::new($this->file . $file, $this->server)->treeFileSize();
-
-                } else {
-                    $return += filesize($this->file . $file);
-                }
+            } else {
+                $return += filesize($this->file . $file);
             }
         }
 
@@ -501,11 +496,11 @@ class Path extends FileBasics
     public function treeFileCount(): int
     {
         // Check filesystem restrictions 
+        $this->file = Strings::slash($this->file);
         $this->checkRestrictions($this->file, false);
+        $this->exists();
 
         $return = 0;
-
-        $this->exists();
 
         foreach (scandir($this->file) as $file) {
             if (($file == '.') or ($file == '..')) continue;

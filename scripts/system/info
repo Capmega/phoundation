@@ -3,12 +3,10 @@
 use Phoundation\Cli\Color;
 use Phoundation\Cli\Script;
 use Phoundation\Core\Config;
-use Phoundation\Core\Core;
 use Phoundation\Core\Log;
+use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
-use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
-use Phoundation\Exception\ScriptException;
 use Phoundation\Libraries\Libraries;
 
 
@@ -42,6 +40,10 @@ try {
     define('PROJECTDBVERSION'  , tr('database ":db" does not exist', [':db' => Config::get('databases.system.name')]));
 }
 
+$system_size    = 0;
+$plugins_size   = 0;
+$templates_size = 0;
+
 //$framework_status = version_compare(Core::FRAMEWORKCODEVERSION, Core::getVersion('framework'));
 //$project_status   = version_compare(Config::get('project.version')  , Core::getVersion('project'));
 
@@ -51,18 +53,36 @@ Log::cli(Color::apply(Strings::size(tr('Environment:')  , 28), 'white') . ' ' . 
 Log::cli(Color::apply(Strings::size(tr('Production:')   , 28), 'white') . ' ' . Strings::boolean(Debug::production()));
 Log::cli(Color::apply(Strings::size(tr('Debug:')        , 28), 'white') . ' ' . Strings::boolean(Debug::enabled()));
 Log::cli(Color::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . Config::get('databases.sql.instances.system.name', 'unknown'));
+
 Log::cli();
 Log::cli(Color::apply(Strings::size(tr('System libraries:'), 28), 'white') . ' ' . Strings::size(tr('Code version'), 14) . tr('Database version'));
 
 foreach (Libraries::listLibraries(true, false) as $library) {
-    Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . ($library->getDatabaseVersion() ?? '-'));
+    $system_size += $library->getSize();
+    Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size($library->getDatabaseVersion() ?? '-', 14) . Strings::size(Numbers::bytes($library->getSize()) ?? '-', 14));
 }
 
 Log::cli();
 Log::cli(Color::apply(Strings::size(tr('Plugin libraries:'), 28), 'white') . ' ' . Strings::size(tr('Code version'), 14) . tr('Database version'));
 
 foreach (Libraries::listLibraries(false) as $library) {
-    Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . ($library->getDatabaseVersion() ?? '-'));
+    $plugins_size += $library->getSize();
+    Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size($library->getDatabaseVersion() ?? '-', 14) . Strings::size(Numbers::bytes($library->getSize()) ?? '-', 14));
 }
+
+Log::cli();
+Log::cli(Color::apply(Strings::size(tr('Template libraries:'), 28), 'white'));
+
+foreach (Libraries::listLibraries(false, false, true) as $library) {
+    $templates_size += $library->getSize();
+    Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size('-', 14) . Strings::size('-', 14) . Strings::size(Numbers::bytes($library->getSize()) ?? '-', 14));
+}
+
+Log::cli();
+Log::cli(Color::apply(Strings::size(tr('Statistics:'), 28), 'white'));
+Log::cli(Color::apply(Strings::size(tr('Total library size:')    , 28), 'white') . ' ' . Numbers::bytes($system_size));
+Log::cli(Color::apply(Strings::size(tr('Plugins library size:')  , 28), 'white') . ' ' . Numbers::bytes($plugins_size));
+Log::cli(Color::apply(Strings::size(tr('Templates library size:'), 28), 'white') . ' ' . Numbers::bytes($templates_size));
+Log::cli(Color::apply(Strings::size(tr('Total library size:')    , 28), 'white') . ' ' . Numbers::bytes($system_size + $plugins_size + $templates_size));
 
 Log::cli();

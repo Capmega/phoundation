@@ -7,7 +7,6 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Core\Tmp;
-use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exceptions;
@@ -35,9 +34,14 @@ class Libraries
     const CLASS_PATH_SYSTEM  = PATH_ROOT . 'Phoundation';
 
     /**
-     * The constant indicating the path for PLugin libraries
+     * The constant indicating the path for Plugin libraries
      */
     const CLASS_PATH_PLUGINS = PATH_ROOT . 'Plugins';
+
+    /**
+     * The constant indicating the path for Template libraries
+     */
+    const CLASS_PATH_TEMPLATES = PATH_ROOT . 'Templates';
 
     /**
      * If true, this system is in initialization mode
@@ -110,11 +114,12 @@ class Libraries
      *
      * @param bool $system
      * @param bool $plugins
+     * @param bool $templates
      * @return array
      */
-    public static function listLibraries(bool $system = true, bool $plugins = true): array
+    public static function listLibraries(bool $system = true, bool $plugins = true, bool $templates = false): array
     {
-        if (!$system and !$plugins) {
+        if (!$system and !$plugins and !$templates) {
             throw new OutOfBoundsException(tr('Both system and plugin library paths are filtered out'));
         }
 
@@ -133,6 +138,17 @@ class Libraries
             } catch (NotExistsException $e) {
                 // The plugins path does not exist. No biggie, note it in the logs and create it for next time.
                 mkdir(self::CLASS_PATH_PLUGINS, Config::get('filesystem.mode.default.directory', 0750));
+            }
+        }
+
+        // List templates libraries
+        if ($templates) {
+            try {
+                $return = array_merge($return, self::listLibraryPaths(self::CLASS_PATH_TEMPLATES));
+
+            } catch (NotExistsException $e) {
+                // The templates path does not exist. No biggie, note it in the logs and create it for next time.
+                mkdir(self::CLASS_PATH_TEMPLATES, Config::get('filesystem.mode.default.directory', 0750));
             }
         }
 
@@ -191,6 +207,11 @@ class Libraries
         foreach ($libraries as $library) {
             // Skip hidden files, current and parent directory
             if ($library[0] === '.') {
+                continue;
+            }
+
+            // Skip the "disabled" directory
+            if ($library === 'disabled') {
                 continue;
             }
 

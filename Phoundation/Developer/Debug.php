@@ -1021,13 +1021,10 @@ class Debug {
         $results   = File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates'])->grep(['namespace ', 'class '], 100);
 
         // Get the namespace
-        foreach ($results as $file) {
-            foreach ($file['namespace '] as $line) {
-                if (preg_match_all('/^namespace\s+(.+?);$/i', $line, $matches)) {
-                    $namespace = $matches[1][0];
-                }
+        foreach ($results['namespace '] as $line) {
+            if (preg_match_all('/^namespace\s+(.+?);$/i', $line, $matches)) {
+                $namespace = $matches[1][0];
             }
-
         }
 
         if (!$namespace) {
@@ -1035,11 +1032,9 @@ class Debug {
         }
 
         // Get the class name
-        foreach ($results as $file) {
-            foreach ($file['class '] as $line) {
-                if (preg_match_all('/^class\s+([a-z0-9_]+)(?:(?:\s+extends\s+.+?)?\s+\{)?/i', $line, $matches)) {
-                    $class = $matches[1][0];
-                }
+        foreach ($results['class '] as $line) {
+            if (preg_match_all('/^class\s+([a-z0-9_]+)(?:(?:\s+extends\s+.+?)?\s+\{)?/i', $line, $matches)) {
+                $class = $matches[1][0];
             }
         }
 
