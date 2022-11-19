@@ -144,9 +144,9 @@ trait DataEntry
      * Set the status for this database entry
      *
      * @param string|null $status
-     * @return DataEntry
+     * @return static
      */
-    public function setStatus(?String $status): self
+    public function setStatus(?String $status): static
     {
         $this->status = $status;
         return $this;
@@ -202,10 +202,10 @@ trait DataEntry
      * Sets all data for this data entry at once with an array of information
      *
      * @param array $details
-     * @return DataEntry
+     * @return static
      * @throws OutOfBoundsException
      */
-    public function setData(?array $details): self
+    public function setData(?array $details): static
     {
         if ($details === null) {
             // No data set
@@ -264,10 +264,10 @@ trait DataEntry
      * Sets all metadata for this data entry at once with an array of information
      *
      * @param array $data
-     * @return DataEntry
+     * @return static
      * @throws OutOfBoundsException
      */
-    protected function setMetaData(?array $data): self
+    protected function setMetaData(?array $data): static
     {
         if ($data === null) {
             // No data set
@@ -316,9 +316,9 @@ trait DataEntry
      *
      * @param string $key
      * @param mixed $value
-     * @return DataEntry
+     * @return static
      */
-    protected function setDataValue(string $key, mixed $value): self
+    protected function setDataValue(string $key, mixed $value): static
     {
         $this->data[$key] = $value;
         return $this;
@@ -331,9 +331,9 @@ trait DataEntry
      *
      * @param string $key
      * @param mixed $value
-     * @return DataEntry
+     * @return static
      */
-    public function addDataValue(string $key, mixed $value): self
+    public function addDataValue(string $key, mixed $value): static
     {
         if (!array_key_exists($key, $this->data)) {
             $this->data[$key] = [];
@@ -354,6 +354,7 @@ trait DataEntry
     /**
      * Returns the value for the specified data key
      *
+     * @param string $key
      * @return mixed
      */
     protected function getDataValue(string $key): mixed

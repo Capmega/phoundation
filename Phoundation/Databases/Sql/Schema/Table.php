@@ -8,6 +8,7 @@ use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;
 
 
+
 /**
  * Schema class
  *
@@ -174,7 +175,10 @@ class Table
      */
     public function addColumn(string $column): Table
     {
-        $this->columns[] = $column;
+        if ($column) {
+            $this->columns[] = $column;
+        }
+
         return $this;
     }
 
