@@ -4,7 +4,9 @@ namespace Templates\Phoundation\Modals;
 
 use Plugins\Mdb\Elements\Buttons;
 use Plugins\Mdb\Components\Modal;
-
+use Plugins\Mdb\Layouts\Grid;
+use Plugins\Mdb\Layouts\GridColumn;
+use Plugins\Mdb\Layouts\GridRow;
 
 
 /**
@@ -24,12 +26,23 @@ class SigninModal extends Modal
      */
     public function __construct()
     {
+        // Build the form
+        $form = 'HELLO!';
+
+        // Build the layout
+        $layout = Grid::new()
+            ->addRow(GridRow::new()
+                ->addColumn(GridColumn::new(3))
+                ->addColumn(GridColumn::new(6)->setContent($form))
+                ->addColumn(GridColumn::new(3))
+            );
+
         // Set defaults
         $this->setId('signinModal')
             ->setTitle(tr('Sign in'))
             ->setButtons(Buttons::new()
                 ->createButton(tr('Sign in'), 'primary'))
-            ->setContent('BLERGH!');
+            ->setContent($layout->render());
 
         return parent::__construct();
     }
