@@ -2,6 +2,8 @@
 
 namespace Plugins\Mdb\Layouts;
 
+use Phoundation\Web\Http\Html\Element;
+
 
 
 /**
@@ -14,7 +16,7 @@ namespace Plugins\Mdb\Layouts;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\Mdb
  */
-class Layout
+class Layout extends Element
 {
 
 }

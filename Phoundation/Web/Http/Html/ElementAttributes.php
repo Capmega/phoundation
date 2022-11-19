@@ -245,15 +245,19 @@ trait ElementAttributes
 
 
     /**
-     * Adds an class to the HTML class element attribute
+     * Adds a class to the HTML class element attribute
      *
-     * @param string $class
+     * @param string|null $class
      * @return static
      */
-    public function addClass(string $class): static
+    public function addClass(?string $class): static
     {
-        $this->classes[$class] = true;
-        $this->class = null;
+        // Only add class if specified.
+        if ($class) {
+            $this->classes[$class] = true;
+            $this->class = null;
+        }
+
         return $this;
     }
 

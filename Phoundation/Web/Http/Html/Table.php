@@ -37,12 +37,11 @@ Class Table extends ResourceElement
     protected ?string $row_class = null;
 
     /**
-     * The table headers
+     * The table column headers
      *
-     * @var array $headers
+     * @var array $column_headers
      */
-    protected array $headers = [];
-
+    protected array $column_headers = [];
 
 
     /**
@@ -57,12 +56,24 @@ Class Table extends ResourceElement
 
 
     /**
+     * Returns a new table object
+     *
+     * @return $this
+     */
+    public static function new(): static
+    {
+        return new static();
+    }
+
+
+
+    /**
      * Sets the HTML row_class element attribute
      *
      * @param array|string|null $row_classes
-     * @return Table
+     * @return static
      */
-    public function setRowClasses(array|string|null $row_classes): self
+    public function setRowClasses(array|string|null $row_classes): static
     {
         $this->row_classes = [];
         return $this->addRowClasses($row_classes);
@@ -74,9 +85,9 @@ Class Table extends ResourceElement
      * Sets the HTML row_class element attribute
      *
      * @param array|string|null $row_classes
-     * @return Table
+     * @return static
      */
-    public function addRowClasses(array|string|null $row_classes): self
+    public function addRowClasses(array|string|null $row_classes): static
     {
         foreach (Arrays::force($row_classes, ' ') as $row_class) {
             $this->addRowClass($row_class);
@@ -88,12 +99,12 @@ Class Table extends ResourceElement
 
 
     /**
-     * Adds an row_class to the HTML row_class element attribute
+     * Adds a row_class to the HTML row_class element attribute
      *
      * @param string $row_class
-     * @return Table
+     * @return static
      */
-    public function addRowClass(string $row_class): self
+    public function addRowClass(string $row_class): static
     {
         $this->row_classes[] = $row_class;
         return $this;
@@ -133,12 +144,12 @@ Class Table extends ResourceElement
      * Sets the table headers
      *
      * @param array $headers
-     * @return Table
+     * @return static
      */
-    public function setHeaders(array $headers): self
+    public function setColumnHeaders(array $headers): static
     {
-        $this->headers = [];
-        return $this->addHeaders($headers);
+        $this->column_headers = [];
+        return $this->addColumnHeaders($headers);
     }
 
 
@@ -147,12 +158,12 @@ Class Table extends ResourceElement
      * Adds the specified headers to the table headers
      *
      * @param array $headers
-     * @return Table
+     * @return static
      */
-    public function addHeaders(array $headers): self
+    public function addColumnHeaders(array $headers): static
     {
         foreach (Arrays::force($headers, ' ') as $header) {
-            $this->addHeader($header);
+            $this->addColumnHeader($header);
         }
 
         return $this;
@@ -163,12 +174,15 @@ Class Table extends ResourceElement
     /**
      * Adds a header to the table headers
      *
-     * @param string $header
-     * @return Table
+     * @param string|null $header
+     * @return static
      */
-    public function addHeader(string $header): self
+    public function addColumnHeader(?string $header): static
     {
-        $this->headers[] = $header;
+        if ($header) {
+            $this->column_headers[] = $header;
+        }
+
         return $this;
     }
 
@@ -179,21 +193,9 @@ Class Table extends ResourceElement
      *
      * @return array
      */
-    public function getHeaders(): array
+    public function getColumnHeaders(): array
     {
-        return $this->headers;
-    }
-
-
-
-    /**
-     * Render the table
-     *
-     * @return string
-     */
-    public function render(): string
-    {
-        return $this->renderHeaders() . $this->renderBody() . '</table>';
+        return $this->column_headers;
     }
 
 
@@ -210,7 +212,6 @@ Class Table extends ResourceElement
         }
 
         $return = '';
-        $empty  = true;
 
         if (($this->source === null) and ($this->source_query === null)) {
             throw new HtmlException(tr('No source specified'));
@@ -242,10 +243,14 @@ Class Table extends ResourceElement
      * @see Table::render()
      * @see Table::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @return string The body HTML (all <option> tags) for a <select> tag
+     * @return string|null The body HTML (all <option> tags) for a <select> tag
      */
-    protected function renderBodyArray(): string
+    protected function renderBodyArray(): ?string
     {
+        if (!$this->source) {
+            return null;
+        }
+
         $return = '<tbody>';
 
         // Process array resource. Go over each row and in each row over each column
@@ -287,14 +292,14 @@ Class Table extends ResourceElement
      * @see Table::render()
      * @see Table::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @return string The body HTML (all <option> tags) for a <select> tag
+     * @return string|null The body HTML (all <option> tags) for a <select> tag
      */
-    protected function renderBodyQuery(): string
+    protected function renderBodyQuery(): ?string
     {
         $return = '';
 
         if (!$this->source_query) {
-            return '';
+            return null;
         }
 
         if (!$this->source_query->rowCount()) {
@@ -302,27 +307,19 @@ Class Table extends ResourceElement
         }
 
         // Process SQL resource
-        while ($row = $this->source_query->fetch(PDO::FETCH_NUM)) {
-            $this->count++;
-            $option_data = '';
-
-            if (!$row[0]) {
-                // To avoid select problems with "none" entries, empty id column values are not allowed
-                Log::warning(tr('Dropping result ":count" without key from source query ":query"', [
-                    ':count' => $this->count,
-                    ':query' => $this->source_query->queryString
-                ]));
-                continue;
+        while ($row = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
+            if (empty($this->column_headers)) {
+                // Auto set headers from the column names
+                $this->column_headers = array_keys($row);
             }
 
-            // Add data- in this option?
-            if (array_key_exists($row[0], $this->source_data)) {
-                foreach ($this->source_data as $key => $value) {
-                    $option_data = ' data-' . $key . '="' . $value . '"';
-                }
+            $return .= '<tr>';
+
+            foreach($row as $column) {
+                $return .= '<td>' . $column . '</td>';
             }
 
-            $return .= '<option' . $this->buildRowClassString() . $this->buildTableedString($row[0]) . ' value="' . htmlentities($row[0]) . '"' . $option_data . '>' . htmlentities($row[1]) . '</option>';
+            $return .= '</tr>';
         }
 
         return $return;
@@ -333,16 +330,16 @@ Class Table extends ResourceElement
     /**
      * Render an <option> for "this select has no data and is empty"
      *
-     * @return string|null
+     * @return string
      */
-    protected function renderBodyEmpty(): ?string
+    protected function renderBodyEmpty(): string
     {
         // No content (other than maybe the "none available" entry) was added
         if ($this->empty) {
-            return '<tr' . $this->buildOptionClassString() . ' selected value=""><td>' . $this->empty . '</td></tr>';
+            return '<tr><td>' . $this->empty . '</td></tr>';
         }
 
-        return null;
+        return '';
     }
 
 

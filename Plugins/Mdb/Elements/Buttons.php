@@ -72,12 +72,15 @@ class Buttons extends ElementsBlock
     /**
      * Adds a single button to button list
      *
-     * @param Button $button
+     * @param Button|null $button
      * @return static
      */
-    public function addButton(Button $button): static
+    public function addButton(?Button $button): static
     {
-        $this->buttons[] = $button;
+        if ($button) {
+            $this->buttons[] = $button;
+        }
+
         return $this;
     }
 

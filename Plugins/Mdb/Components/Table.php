@@ -2,9 +2,9 @@
 
 namespace Plugins\Mdb\Components;
 
-use Phoundation\Web\Http\Html\ElementsBlock;
 
 
+use Plugins\Mdb\Layouts\Section;
 
 /**
  * MDB Plugin Table class
@@ -18,9 +18,66 @@ use Phoundation\Web\Http\Html\ElementsBlock;
  */
 class Table extends \Phoundation\Web\Http\Html\Table
 {
+    /**
+     * Sets whether the table is responsive or not
+     *
+     * @var bool
+     */
+    protected bool $responsive = true;
 
+
+
+    /**
+     * Table class constructor
+     */
+    public function __construct()
+    {
+        $this->addClass('table');
+        parent::__construct();
+    }
+
+
+
+    /**
+     * Returns if the table is responsive or not
+     *
+     * @return bool
+     */
+    public function getResponsive(): bool
+    {
+        return $this->responsive;
+    }
+
+
+
+    /**
+     * Sets if the table is responsive or not
+     *
+     * @param bool $responsive
+     * @return $this
+     */
+    public function setResponsive(bool $responsive): static
+    {
+        $this->responsive = $responsive;
+        return $this;
+    }
+
+
+
+    /**
+     * Render the MDB table
+     *
+     * @return string
+     */
     public function render(): string
     {
-        // TODO: Implement render() method.
+        // Render the table
+        $table = parent::render();
+
+        // Render the section around it
+        return Section::new()
+            ->addClass($this->responsive ? 'table-responsive' : null)
+            ->setContent($table)
+            ->render();
     }
 }

@@ -68,13 +68,15 @@ class Grid extends Container
     /**
      * Add the specified row to this grid
      *
-     * @param GridRow $row
+     * @param GridRow|null $row
      * @return static
      */
-    public function addRow(GridRow $row): static
+    public function addRow(?GridRow $row): static
     {
+        if ($row) {
+            $this->rows[] = $row;
+        }
 
-        $this->rows[] = $row;
         return $this;
     }
 

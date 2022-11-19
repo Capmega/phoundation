@@ -16,7 +16,7 @@ use JetBrains\PhpStorm\ExpectedValues;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\Mdb
  */
-class Container extends Layout
+class Section extends Layout
 {
     /**
      * Container value for this container
@@ -114,6 +114,6 @@ class Container extends Layout
      */
     public function render(): string
     {
-        return '<div class="container' . ($this->type ? '-' . $this->type : null) . '">' . $this->content . '</div>';
+        return '<section class="container' . ($this->type ? '-' . $this->type : null) . '">' . $this->content . '</section>';
     }
 }

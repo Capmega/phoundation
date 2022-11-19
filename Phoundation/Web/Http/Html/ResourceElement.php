@@ -77,7 +77,7 @@ abstract class ResourceElement extends Element
      * Set the HTML none element attribute
      *
      * @param string|null $none
-     * @return Element
+     * @return static
      */
     public function setNone(?string $none): self
     {
@@ -103,7 +103,7 @@ abstract class ResourceElement extends Element
      * Sets the HTML empty element attribute
      *
      * @param string|null $empty
-     * @return Element
+     * @return static
      */
     public function setEmpty(?string $empty): self
     {
@@ -129,7 +129,7 @@ abstract class ResourceElement extends Element
      * Sets if this element will be hidden (Element::render() will return an empty string) if the resource is empty
      *
      * @param bool $hide_empty
-     * @return Element
+     * @return static
      */
     public function setHideEmpty(bool $hide_empty): self
     {
@@ -155,7 +155,7 @@ abstract class ResourceElement extends Element
      * Set the HTML source element attribute
      *
      * @param mixed $source
-     * @return Element
+     * @return static
      */
     public function setSource(mixed $source): self
     {
@@ -185,7 +185,7 @@ abstract class ResourceElement extends Element
      * Set the HTML source_query element attribute
      *
      * @param PDOStatement|string|null $source_query
-     * @return Element
+     * @return static
      */
     public function setSourceQuery(PDOStatement|string|null $source_query): self
     {
@@ -222,7 +222,7 @@ abstract class ResourceElement extends Element
      * @note The format should be as follows: [id => [key => value, key => value], id => [...] ...] This format will
      *       then add the specified keys to each option where the value matches the id
      * @param array $source_data
-     * @return Element
+     * @return static
      */
     public function setSourceData(array $source_data): self
     {
@@ -254,14 +254,14 @@ abstract class ResourceElement extends Element
     public function render(): string
     {
         // Render the body
-        $body = $this->renderBody();
+        $this->content = $this->renderBody();
 
-        if (!$body and $this->hide_empty) {
+        if (!$this->content and $this->hide_empty) {
             return '';
         }
 
-        // Render header and return
-        return $this->renderHeaders() . $body . $this->renderFooters();
+        // Render the top element around the resource block
+        return parent::render();
     }
 
 
@@ -275,43 +275,7 @@ abstract class ResourceElement extends Element
      */
     protected function buildAttributes(): array
     {
-        if ($this->auto_submit) {
-            $this->addClass('auto_submit');
-            // TODO Add auto submit script to the script loader, also check possibly relevant autosubmit lines below
-//            // Autosubmit on the specified selector
-//            $params['autosubmit'] = str_replace('[', '\\\\[', $params['autosubmit']);
-//            $params['autosubmit'] = str_replace(']', '\\\\]', $params['autosubmit']);
-//            return $return.Html::script('$("[name=\''.$params['autosubmit'].'\']").change(function() { $(this).closest("form").find("input,textarea,select").addClass("ignore"); $(this).closest("form").submit(); });');
-        }
-
-// TODO Implement autosubmit
-//        'on_change'  => ($this->on_change ? Elements::jQuery('$("#' . $this->id . '").change(function() { '.$this->on_change . ' });')->render() : null),
-
         return array_merge(parent::buildAttributes(), []);
-    }
-
-
-
-    /**
-     * Generates and returns the HTML headers for this element
-     *
-     * @return string
-     */
-    protected function renderHeaders(): string
-    {
-        return parent::render();
-    }
-
-
-
-    /**
-     * Generates and returns the HTML footers for this element
-     *
-     * @return string
-     */
-    protected function renderFooters(): string
-    {
-        return '</' . $this->element . '>';
     }
 
 
