@@ -2,6 +2,8 @@
 
 namespace Plugins\Mdb\Components;
 
+use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\ElementsBlock;
 use Plugins\Mdb\Elements\Buttons;
@@ -41,6 +43,42 @@ class Modal extends ElementsBlock
      */
     protected ?Buttons $buttons = null;
 
+    /**
+     * Sets the size for this modal
+     *
+     * @var string|null $size
+     */
+    #[ExpectedValues(values:["sm", "lg", "xj", "fullscreen"])]
+    protected ?string $size = null;
+
+    /**
+     * Sets if the modal will animate fading in or not
+     *
+     * @var bool $fade
+     */
+    protected bool $fade = true;
+
+    /**
+     * Sets if the modal is vertically centered or not
+     *
+     * @var bool $vertical_center
+     */
+    protected bool $vertical_center = true;
+
+    /**
+     * Sets if the escape key will close the modal or not
+     *
+     * @var bool $escape
+     */
+    protected bool $escape = true;
+
+    /**
+     * Sets
+     *
+     * @var bool $escape
+     */
+    protected ?bool $backdrop = true;
+
 
 
     /**
@@ -63,6 +101,135 @@ class Modal extends ElementsBlock
     public function setId(?string $id): static
     {
         $this->id = $id;
+        return $this;
+    }
+
+
+
+    /**
+     * Sets the modal size
+     *
+     * @return string|null
+     */
+    #[ExpectedValues(values:["sm", "lg", "xj", "fullscreen"])] public function getSize(): ?string
+    {
+        return $this->size;
+    }
+
+
+    /**
+     * Sets the modal size
+     *
+     * @param string|null $size
+     * @return $this
+     */
+    public function setSize(#[ExpectedValues(values:["sm", "md", "lg", "xj", "fullscreen"])] ?string $size): static
+    {
+        if ($size === 'md') {
+            $size = null;
+        }
+
+        $this->size = $size;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the modal fade
+     *
+     * @return string|null
+     */
+    public function getFade(): ?string
+    {
+        return $this->fade;
+    }
+
+
+    /**
+     * Sets the modal fade
+     *
+     * @param string|null $fade
+     * @return $this
+     */
+    public function setFade(?string $fade): static
+    {
+        $this->fade = $fade;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the modal backdrop
+     *
+     * @return string|null
+     */
+    public function getBackdrop(): ?string
+    {
+        return $this->backdrop;
+    }
+
+
+    /**
+     * Sets the modal backdrop
+     *
+     * @param string|null $backdrop
+     * @return $this
+     */
+    public function setBackdrop(?string $backdrop): static
+    {
+        $this->backdrop = $backdrop;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns if the modal is vertically centered
+     *
+     * @return string|null
+     */
+    public function getVerticalCenter(): ?string
+    {
+        return $this->vertical_center;
+    }
+
+
+    /**
+     * Sets if the modal is vertically centered
+     *
+     * @param string|null $vertical_center
+     * @return $this
+     */
+    public function setVerticalCenter(?string $vertical_center): static
+    {
+        $this->vertical_center = $vertical_center;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the modal escape
+     *
+     * @return string|null
+     */
+    public function getEscape(): ?string
+    {
+        return $this->escape;
+    }
+
+
+    /**
+     * Sets the modal escape
+     *
+     * @param string|null $escape
+     * @return $this
+     */
+    public function setEscape(?string $escape): static
+    {
+        $this->escape = $escape;
         return $this;
     }
 
@@ -131,8 +298,8 @@ class Modal extends ElementsBlock
             throw new OutOfBoundsException(tr('Cannot render modal, no "id" specified'));
         }
 
-        return  '<div class="modal fade" id="' . $this->id . '" tabindex="' . $this->getTabIndex() . '" aria-labelledby="' . $this->id . 'Label" aria-hidden="true">
-                    <div class="modal-dialog">
+        return  '<div class="modal' . ($this->fade ? ' fade' : null) . '" id="' . $this->id . '" tabindex="' . $this->getTabIndex() . '" aria-labelledby="' . $this->id . 'Label" aria-hidden="true" data-mdb-keyboard="' . ($this->escape ? 'false' : 'true') . '" data-mdb-backdrop="' . ($this->backdrop === null ? 'static' : Strings::boolean($this->backdrop)) . '">
+                    <div class="modal-dialog' . ($this->size ? ' modal-' . $this->size : null) . ($this->vertical_center ? ' modal-dialog-centered' : null) . '">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="' . $this->id . 'Label">' . $this->title . '</h5>
