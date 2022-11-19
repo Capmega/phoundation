@@ -73,7 +73,7 @@ class Bundler
      */
     public function __construct()
     {
-        $this->setServer(Server::localhost([PATH_CDN . 'js', PATH_CDN . 'css'], true));
+        $this->setServer(Server::localhost([PATH_CDN . 'js', PATH_CDN . 'css'], true, 'Bundler'));
     }
 
 

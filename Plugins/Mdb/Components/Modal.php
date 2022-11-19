@@ -5,7 +5,7 @@ namespace Plugins\Mdb\Components;
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\ElementsBlock;
+use Phoundation\Web\Http\Html\Elements\ElementsBlock;
 use Plugins\Mdb\Elements\Buttons;
 
 

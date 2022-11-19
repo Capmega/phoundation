@@ -8,21 +8,17 @@ use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
-use Phoundation\Developer\Debug;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Servers\Server;
-use Phoundation\Web\Exception\PageException;
 use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Html\Html;
+use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 use Throwable;
@@ -42,46 +38,53 @@ use Throwable;
 class Page
 {
     /**
-     * Singleton
+     * Current page singleton
      *
-     * @var Page|null $instance
+     * @var Page|null $current
      */
-    protected static ?Page $instance = null;
+    protected static ?Page $current = null;
 
     /**
-     * The template class that build the UI
+     * The template class that builds the UI
      *
-     * @var TemplatePage|null $template
+     * @var Template|null $template
      */
-    protected static ?TemplatePage $template = null;
+    protected ?Template $template;
+
+    /**
+     * The server filesystem restrictions
+     *
+     * @var Server $server
+     */
+    protected Server $server;
 
     /**
      * The flash object for this user
      *
      * @var Flash|null
      */
-    protected static ?Flash $flash = null;
+    protected ?Flash $flash = null;
 
     /**
      * !DOCTYPE variable
      *
      * @var string
      */
-    protected static string $doctype = 'html';
+    protected string $doctype = 'html';
 
     /**
      * The page title
      *
      * @var string|null $title
      */
-    protected static ?string $title = null;
+    protected ?string $title = null;
 
     /**
      * Information that goes into the HTML header
      *
      * @var array $headers
      */
-    protected static array $headers = [
+    protected array $headers = [
         'link'       => [],
         'meta'       => [],
         'javascript' => []
@@ -92,7 +95,7 @@ class Page
      *
      * @var array $footers
      */
-    protected static array $footers = [
+    protected array $footers = [
         'javascript' => []
     ];
 
@@ -115,96 +118,66 @@ class Page
      *
      * @var string $html
      */
-    protected static string $html = '';
+    protected string $html = '';
 
     /**
      * The unique hash for this page
      *
      * @var string|null $hash
      */
-    protected static ?string $hash = null;
+    protected ?string $hash = null;
 
     /**
      * Keeps track on if the HTML headers have been sent / generated or not
      *
      * @var bool $html_headers_sent
      */
-    protected static bool $html_headers_sent = false;
+    protected bool $html_headers_sent = false;
 
 
 
     /**
      * Page class constructor
+     *
+     * @param Template $template
+     * @param Server $server
+     * @throws Exception
      */
-    protected function __construct()
+    protected function __construct(Template $template, Server $server)
     {
         // Set the page hash
-        self::$hash = sha1($_SERVER['REQUEST_URI']);
+        $this->hash = sha1($_SERVER['REQUEST_URI']);
 
-        try {
-            $class = Config::get('web.template.class', 'test');
+        $this->server   = $server;
+        $this->template = $template;
 
-            if (!ctype_alnum($class)) {
-                throw new PageException(tr('Configured page template ":class" is invalid; it should contain only letters and numbers', [
-                    ':class' => $class
-                ]));
-            }
-
-            $class = '\\Templates\\' . $class . '\TemplatePage';
-            include(Debug::getClassFile($class));
-            Log::checkpoint($class);
-            self::$template = new $class($this);
-Log::checkpoint();
-
-            if (!(self::$template instanceof TemplatePage)) {
-                throw new PageException(tr('Configured page template ":class" is invalid. The class should be implementing the interface Phoundation\Web\Template', [
-                    ':class' => $class
-                ]));
-            }
-
-            self::$headers['meta']['charset']  = ['charset'  => Config::get('languages.encoding.charset', 'UTF-8')];
-            self::$headers['meta']['viewport'] = ['viewport' => Config::get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no')];
-
-        } catch (ConfigNotExistsException $e) {
-            throw new PageException(tr('No template specified, please ensure your configuration file contains "web.template.class"'), previous: $e);
-        } catch (FilesystemException $e) {
-            /*
-             * Issue loading the class file.
-             *
-             * Possible issues:
-             *
-             * No file could be determined for the specified class
-             * The file for the specified class is not readable
-             * The file for the specified class is not PHP
-             * The file for the specified class does not contain the specified class
-             */
-            throw new PageException(tr('Specified template class file could not be loaded because ":message"', [
-                ':message' => $e->getMessage()
-            ]));
-        } catch (Exception $e) {
-            if ($e->getMessage()) {
-                throw $e;
-            }
-
-            // The configured template does not exist
-            throw new PageException(tr('Invalid template specified, please check that the configuration "web.template" has a valid and existing template'));
-        }
+        $this->headers['meta']['charset']  = ['charset'  => Config::get('languages.encoding.charset', 'UTF-8')];
+        $this->headers['meta']['viewport'] = ['viewport' => Config::get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no')];
     }
 
 
 
     /**
-     * Singleton, ensure to always return the same Page object.
+     * Returns a new page object
      *
-     * @return Page
+     * @return static
      */
-    public static function getInstance(): Page
+    public static function new(Template $template, Server $server): static
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new Page();
-        }
+        self::$current = new static($template, $server);
+        return self::$current;
+    }
 
-        return self::$instance;
+
+
+    /**
+     * Returns the current page object
+     *
+     * @return static
+     */
+    public static function current(): static
+    {
+        return self::$current;
     }
 
 
@@ -214,9 +187,9 @@ Log::checkpoint();
      *
      * @return string
      */
-    public static function getDocType(): string
+    public function getDocType(): string
     {
-        return self::$doctype;
+        return $this->doctype;
     }
 
 
@@ -227,10 +200,10 @@ Log::checkpoint();
      * @param string $doctype
      * @return Page
      */
-    public static function setDoctype(string $doctype): Page
+    public function setDoctype(string $doctype): static
     {
-        self::$doctype = $doctype;
-        return self::getInstance();
+        $this->doctype = $doctype;
+        return $this;
     }
 
 
@@ -240,9 +213,9 @@ Log::checkpoint();
      *
      * @return string
      */
-    public static function getTitle(): string
+    public function getTitle(): string
     {
-        return self::$title;
+        return $this->title;
     }
 
 
@@ -254,10 +227,10 @@ Log::checkpoint();
      * @param bool $no_translate
      * @return Page
      */
-    public static function setTitle(string $title, bool $no_translate = false): Page
+    public function setTitle(string $title, bool $no_translate = false): static
     {
-        self::$title = $title;
-        return self::getInstance();
+        $this->title = $title;
+        return $this;
     }
 
 
@@ -267,9 +240,9 @@ Log::checkpoint();
      *
      * @return string|null
      */
-    public static function getCharset(): ?string
+    public function getCharset(): ?string
     {
-        return isset_get(self::$headers['meta']['charset']);
+        return isset_get($this->headers['meta']['charset']);
     }
 
 
@@ -280,10 +253,10 @@ Log::checkpoint();
      * @param string|null $charset
      * @return Page
      */
-    public static function setCharset(?string $charset): Page
+    public function setCharset(?string $charset): static
     {
-        self::$headers['meta']['charset'] = $charset;
-        return self::getInstance();
+        $this->headers['meta']['charset'] = $charset;
+        return $this;
     }
 
 
@@ -293,9 +266,9 @@ Log::checkpoint();
      *
      * @return string|null
      */
-    public static function getViewport(): ?string
+    public function getViewport(): ?string
     {
-        return isset_get(self::$headers['meta']['viewport']);
+        return isset_get($this->headers['meta']['viewport']);
     }
 
 
@@ -306,10 +279,10 @@ Log::checkpoint();
      * @param string|null $viewport
      * @return Page
      */
-    public static function setViewport(?string $viewport): Page
+    public function setViewport(?string $viewport): static
     {
-        self::$headers['meta']['viewport'] = $viewport;
-        return self::getInstance();
+        $this->headers['meta']['viewport'] = $viewport;
+        return $this;
     }
 
 
@@ -334,39 +307,36 @@ Log::checkpoint();
      * @note: This function will kill the process once it has finished executing / sending the target file to the client
      * @version 2.5.88: Added function and documentation
      */
-    #[NoReturn] public static function execute(string $target, bool $attachment = false, Server|array|string|null $server = null): void
+    #[NoReturn] public function execute(string $target, bool $attachment = false, Server|array|string|null $server = null): void
     {
         try {
-            self::getInstance();
+            if (Strings::fromReverse(dirname($target), '/') === 'system') {
+                // Wait a small random time to avoid timing attacks on system pages
+                usleep(mt_rand(1, 500));
+            }
 
             Core::writeRegister($target, 'system', 'script_file');
             ob_start();
 
+            Log::notice(tr('Executing ":type" page ":page" with language ":language"', [
+                ':type'     => Core::getCallType(),
+                ':page'     => $target,
+                ':language' => LANGUAGE
+            ]));
+
             switch (Core::getCallType()) {
                 case 'ajax':
-throw new UnderConstructionException();
-                    $include = PATH_ROOT . 'www/' . $language . '/ajax/' . $page . '.php';
-
-                    // Execute ajax page
-                    Log::notice(tr('Showing ":language" language ajax page ":page"', [':page' => $page, ':language' => $language]));
-                    include($include);
+                    // no-break
 
                 case 'api':
-throw new UnderConstructionException();
-                    $include = PATH_ROOT . 'www/api/' . (is_numeric($page) ? 'system/' : '') . $page . '.php';
-
-                    // Execute ajax page
-                    Log::notice(tr('Showing ":language" language api page ":page"', [':page' => $page, ':language' => $language]));
-                    include($include);
+                    include($target);
+                    break;
 
                 case 'admin':
-throw new UnderConstructionException();
-                    $admin = '/admin';
-                // no-break
-
+                    // no-break
                 default:
                     // This is a normal web page
-                    self::executeWebPage($target, $attachment, $server);
+                    $this->template->execute($target);
             }
 
             // Send the page to the client
@@ -374,7 +344,11 @@ throw new UnderConstructionException();
 
         } catch (Exception $e) {
             Notification::new()
-                ->setTitle(tr('Failed to execute page ":page"', [':page' => $target]))
+                ->setTitle(tr('Failed to execute ":type" page ":page" with language ":language"', [
+                    ':type'     => Core::getCallType(),
+                    ':page'     => $target,
+                    ':language' => LANGUAGE
+                ]))
                 ->setException($e)
                 ->send(false);
 
@@ -392,7 +366,7 @@ throw new UnderConstructionException();
      * @param string $data
      * @return int The length of the output buffer
      */
-    public static function buffer(string $data): int
+    public function buffer(string $data): int
     {
         echo $data;
         return ob_get_length();
@@ -406,7 +380,7 @@ throw new UnderConstructionException();
      * @param string $html
      * @return void
      */
-    public static function addHtml(string $html): void
+    public function addHtml(string $html): void
     {
         echo $html;
     }
@@ -418,9 +392,9 @@ throw new UnderConstructionException();
      *
      * @return TemplatePage
      */
-    public static function template(): TemplatePage
+    public function template(): TemplatePage
     {
-        return self::$template;
+        return $this->template;
     }
 
 
@@ -430,7 +404,7 @@ throw new UnderConstructionException();
      *
      * @return string
      */
-    public static function getHtml(): string
+    public function getHtml(): string
     {
         return ob_get_contents();
     }
@@ -442,9 +416,9 @@ throw new UnderConstructionException();
      *
      * @return string
      */
-    public static function getHash(): string
+    public function getHash(): string
     {
-        return self::$hash;
+        return $this->hash;
     }
 
 
@@ -454,9 +428,9 @@ throw new UnderConstructionException();
      *
      * @return bool
      */
-    public static function getHtmlHeadersSent(): bool
+    public function getHtmlHeadersSent(): bool
     {
-        return self::$html_headers_sent;
+        return $this->html_headers_sent;
     }
 
 
@@ -466,7 +440,7 @@ throw new UnderConstructionException();
      *
      * @return int
      */
-    public static function getContentLength(): int
+    public function getContentLength(): int
     {
         return ob_get_length();
     }
@@ -478,7 +452,7 @@ throw new UnderConstructionException();
      *
      * @return void
      */
-    public static function send(): void
+    public function send(): void
     {
         $body = '';
 
@@ -491,18 +465,18 @@ throw new UnderConstructionException();
         ob_start(chunk_size: 4096);
 
         // Build HTML and minify the output
-        self::$html = self::$template->buildHtmlHeader();
-        self::$html_headers_sent = true;
+        $this->html = $this->template->buildHtmlHeader();
+        $this->html_headers_sent = true;
 
-        self::$html .= self::$template->buildPageHeader();
-        self::$html .= self::$template->buildMenu();
-        self::$html .= $body;
-        self::$html .= self::$template->buildPageFooter();
-        self::$html .= self::$template->buildHtmlFooter();
-        self::$html  = Html::minify(self::$html);
+        $this->html .= $this->template->buildPageHeader();
+        $this->html .= $this->template->buildMenu();
+        $this->html .= $body;
+        $this->html .= $this->template->buildPageFooter();
+        $this->html .= $this->template->buildHtmlFooter();
+        $this->html  = Html::minify($this->html);
 
         // Send headers
-        $length = self::$template->buildHttpHeaders();
+        $length = $this->template->buildHttpHeaders();
 
         Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
 
@@ -522,12 +496,12 @@ throw new UnderConstructionException();
         }
 
         // Write to cache and output
-        Cache::writePage(self::$hash, self::$html);
+        Cache::writePage($this->hash, $this->html);
 
-        $length = strlen(self::$html);
+        $length = strlen($this->html);
 
         // Send HTML to the client
-        echo self::$html;
+        echo $this->html;
         ob_flush();
         flush();
 
@@ -541,13 +515,13 @@ throw new UnderConstructionException();
      *
      * @return Flash
      */
-    public static function flash(): Flash
+    public function flash(): Flash
     {
-        if (!self::$flash) {
-            self::$flash = new Flash();
+        if (!$this->flash) {
+            $this->flash = new Flash();
         }
 
-        return self::$flash;
+        return $this->flash;
     }
 
 
@@ -558,9 +532,9 @@ throw new UnderConstructionException();
      * @param array $meta
      * @return void
      */
-    public static function addMeta(array $meta): void
+    public function addMeta(array $meta): void
     {
-        self::$headers['meta'][] = $meta;
+        $this->headers['meta'][] = $meta;
     }
 
 
@@ -571,10 +545,10 @@ throw new UnderConstructionException();
      * @param string $url
      * @return Page
      */
-    public static function setFavIcon(string $url): Page
+    public function setFavIcon(string $url): static
     {
         try {
-            self::$headers['link'][$url] = [
+            $this->headers['link'][$url] = [
                 'rel'  => 'icon',
                 'href' => Url::build($url)->img(),
                 'type' => File::new(Filesystem::absolute($url, 'img'), PATH_CDN . LANGUAGE . '/img')->mimetype()
@@ -583,7 +557,7 @@ throw new UnderConstructionException();
             Log::warning($e->makeWarning());
         }
 
-        return self::getInstance();
+        return $this;
     }
 
 
@@ -595,13 +569,13 @@ throw new UnderConstructionException();
      * @param bool|null $header
      * @return Page
      */
-    public static function loadJavascript(string|array $urls, ?bool $header = null): Page
+    public function loadJavascript(string|array $urls, ?bool $header = null): static
     {
         if ($header === null) {
             $header = Config::get('web.javascript.delay', true);
         }
 
-        if ($header and self::$html_headers_sent) {
+        if ($header and $this->html_headers_sent) {
             Log::warning(tr('Not adding files ":files" to HTML headers as the HTML headers have already been generated', [
                 ':files' => $urls
             ]));
@@ -609,20 +583,20 @@ throw new UnderConstructionException();
 
         foreach (Arrays::force($urls, '') as $url) {
             if ($header) {
-                self::$headers['javascript'][$url] = [
+                $this->headers['javascript'][$url] = [
                     'type' => 'text/javascript',
                     'src'  => Url::build($url)->js()
                 ];
 
             } else {
-                self::$footers['javascript'][$url] = [
+                $this->footers['javascript'][$url] = [
                     'type' => 'text/javascript',
                     'src'  => Url::build($url)->js()
                 ];
             }
         }
 
-        return self::getInstance();
+        return $this;
     }
 
 
@@ -633,16 +607,16 @@ throw new UnderConstructionException();
      * @param string|array $urls
      * @return Page
      */
-    public static function loadCss(string|array $urls): Page
+    public function loadCss(string|array $urls): static
     {
         foreach (Arrays::force($urls, '') as $url) {
-            self::$headers['link'][$url] = [
+            $this->headers['link'][$url] = [
                 'rel'  => 'stylesheet',
                 'href' => Url::build($url)->css(),
             ];
         }
 
-        return self::getInstance();
+        return $this;
     }
 
 
@@ -652,26 +626,26 @@ throw new UnderConstructionException();
      *
      * @return string|null
      */
-    public static function buildHeaders(): ?string
+    public function buildHeaders(): ?string
     {
-        $return = '<!DOCTYPE ' . self::$doctype . '>
+        $return = '<!DOCTYPE ' . $this->doctype . '>
         <html lang="' . Session::getLanguage() . '">' . PHP_EOL;
 
-        if (self::$title) {
-            $return .= '<title>' . self::$title . '</title>' . PHP_EOL;
+        if ($this->title) {
+            $return .= '<title>' . $this->title . '</title>' . PHP_EOL;
         }
 
-        foreach (self::$headers['meta'] as $header) {
+        foreach ($this->headers['meta'] as $header) {
             $header  = Arrays::implodeWithKeys($header, ' ', '=', '"', true);
             $return .= '<meta ' . $header . ' />' . PHP_EOL;
         }
 
-        foreach (self::$headers['link'] as $header) {
+        foreach ($this->headers['link'] as $header) {
             $header  = Arrays::implodeWithKeys($header, ' ', '=', '"', true);
             $return .= '<link ' . $header . ' />' . PHP_EOL;
         }
 
-        foreach (self::$headers['javascript'] as $header) {
+        foreach ($this->headers['javascript'] as $header) {
             $header  = Arrays::implodeWithKeys($header, ' ', '=', '"', true);
             $return .= '<script ' . $header . '></script>' . PHP_EOL;
         }
@@ -686,92 +660,15 @@ throw new UnderConstructionException();
      *
      * @return string|null
      */
-    public static function buildFooters(): ?string
+    public function buildFooters(): ?string
     {
         $return = '';
 
-        foreach (self::$footers['javascript'] as $header) {
+        foreach ($this->footers['javascript'] as $header) {
             $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
             $return .= '<script ' . $header . '></script>' . PHP_EOL;
         }
 
         return $return;
-    }
-
-
-
-    /**
-     * Execute a standard web page
-     *
-     * @param string $target
-     * @param bool $attachment
-     * @param Server|array|string|null $server
-     * @return void
-     */
-    protected static function executeWebPage(string $target, bool $attachment = false, Server|array|string|null $server = null): void
-    {
-        if (Strings::fromReverse(dirname($target), '/') === 'system') {
-            // Wait a small random time to avoid timing attacks on system pages
-            usleep(mt_rand(1, 500));
-        }
-
-        // Find the correct target page
-        $target = Filesystem::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE);
-
-        // Do we have access to this page?
-        $server->checkRestrictions($target, false);
-
-        if (str_ends_with($target, 'php')) {
-            if ($attachment) {
-                // TODO Test this! Implement required HTTP headers!
-                // Execute the PHP file and then send the output to the client as an attachment
-                Log::action(tr('Executing file ":target" and sending output as attachment', [':target' => $target]));
-
-                include($target);
-
-                Http::file(new Restrictions(PATH_WWW, false, 'Page dynamic attachment'))
-                    ->setAttachment(true)
-                    ->setData(ob_get_clean())
-                    ->setFilename(basename($target))
-                    ->send();
-
-            } else {
-                // Execute the file and send the output HTML as a web page
-                Log::action(tr('Executing page ":target" and sending output as HTML web page', [
-                    ':target' => Strings::from($target, PATH_ROOT)
-                ]));
-
-                include($target);
-            }
-
-        } else {
-            if ($attachment) {
-                // TODO Test this! Implement required HTTP headers!
-                // Upload the file to the client as an attachment
-                Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
-
-                Http::file(new Restrictions(PATH_WWW . ',data/attachments', false, 'Page attachment'))
-                    ->setAttachment(true)
-                    ->setFile($target)
-                    ->setFilename(basename($target))
-                    ->send();
-
-            } else {
-                // TODO Test this! Implement required HTTP headers!
-                // Send the file directly
-                $mimetype = mime_content_type($target);
-                $bytes    = filesize($target);
-
-                Log::action(tr('Sending contents of file ":target" with mime-type ":type" directly to client', [
-                    ':target' => $target,
-                    ':type' => $mimetype
-                ]));
-
-                header('Content-Type: ' . $mimetype);
-                header('Content-length: ' . $bytes);
-
-                include($target);
-            }
-        }
     }
 }

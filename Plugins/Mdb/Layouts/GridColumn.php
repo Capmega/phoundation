@@ -3,7 +3,7 @@
 namespace Plugins\Mdb\Layouts;
 
 use JetBrains\PhpStorm\ExpectedValues;
-
+use Phoundation\Exception\OutOfBoundsException;
 
 
 /**
@@ -21,10 +21,10 @@ class GridColumn extends Layout
     /**
      * The size of this column
      *
-     * @var string
+     * @var int|null
      */
-    #[ExpectedValues(values: [1, 2, 3, 4, 5, 6, 7 ,8, 9, 10, 11, 12])]
-    protected string $size;
+    #[ExpectedValues(values: [null, 1, 2, 3, 4, 5, 6, 7 ,8, 9, 10, 11, 12])]
+    protected ?int $size = null;
 
 
     /**
@@ -35,39 +35,15 @@ class GridColumn extends Layout
     #[ExpectedValues(values: ["xs", "sm", "md", "lg", "xl"])]
     protected string $tier = '';
 
-    /**
-     * The content for this column
-     *
-     * @var string|null $content
-     */
-    protected ?string $content = null;
-
 
 
     /**
      * GridColumn class constructor
-     *
-     * @param int $size
-     * @param string $tier
      */
-    public function __construct(int $size, #[ExpectedValues(values: ["xs", "sm", "md", "lg", "xl"])] string $tier = 'md')
+    public function __construct()
     {
-        $this->size = $size;
-        $this->tier = $tier;
-    }
-
-
-
-    /**
-     * Returns a new GridColumn object
-     *
-     * @param int $size
-     * @param string $tier
-     * @return static
-     */
-    public static function new(int $size, #[ExpectedValues(values: ["xs", "sm", "md", "lg", "xl"])] string $tier = 'md'): static
-    {
-        return new static($size, $tier);
+        parent::__construct();
+        $this->tier = 'md';
     }
 
 
@@ -117,35 +93,9 @@ class GridColumn extends Layout
      *
      * @return int
      */
-    #[ExpectedValues(values: [1, 2, 3, 4, 5, 6, 7 ,8, 9, 10, 11, 12])] public function getSize(): int
+    #[ExpectedValues(values: [null, 1, 2, 3, 4, 5, 6, 7 ,8, 9, 10, 11, 12])] public function getSize(): ?int
     {
         return $this->size;
-    }
-
-
-
-    /**
-     * Sets the column content
-     *
-     * @param string $content
-     * @return static
-     */
-    public function setContent(string $content): static
-    {
-        $this->content = $content;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the column content
-     *
-     * @return string
-     */
-    public function getContent(): string
-    {
-        return $this->content;
     }
 
 
@@ -157,6 +107,10 @@ class GridColumn extends Layout
      */
     public function render(): string
     {
+        if (!$this->size) {
+            throw new OutOfBoundsException(tr('Cannot render GridColumn, no size specified'));
+        }
+
         return '<div class="col' . ($this->tier ? '-' . $this->tier : '') . '-' . $this->size . '">' . $this->content . '</div>';
     }
 }

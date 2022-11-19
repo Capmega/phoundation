@@ -2,7 +2,7 @@
 
 namespace Plugins\Mdb\Elements;
 
-use Phoundation\Web\Http\Html\ElementsBlock;
+use Phoundation\Web\Http\Html\Elements\ElementsBlock;
 
 
 

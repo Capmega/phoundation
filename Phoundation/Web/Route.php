@@ -12,9 +12,11 @@ use Phoundation\Data\Validator\Validator;
 use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Servers\Server;
+use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Exception\RouteException;
@@ -35,38 +37,72 @@ use Throwable;
 class Route
 {
     /**
-     * Singleton variable
+     * The template to use for these routes
      *
-     * @var Route|null $instance
+     * @var Template $template
      */
-    protected static ?Route $instance = null;
+    protected Template $template;
+
+    /**
+     * The default server filesystem access restrictions to use while routing
+     *
+     * @var Server $server
+     */
+    protected Server $server;
+
+    /**
+     * The temporary server filesystem access restrictions to use while routing ONLY for the next try
+     *
+     * @var ?Server $temp_server
+     */
+    protected ?Server $temp_server = null;
 
 
 
     /**
      * Route constructor
+     *
+     * @param Template $template
+     * @param Server|array|string|null $server
+     * @throws Throwable
      */
-    protected function __construct()
+    public function __construct(Template $template, Server|array|string|null $server = null)
     {
         // Start the Core object
         Core::startup();
         Validator::hideUserData();
+
+        // Set what template and default server restrictions  we'll be using
+        $this->template = $template;
+        $this->server   = Core::ensureServer($server, PATH_WWW);
     }
 
 
 
     /**
-     * Singleton, ensure to always return the same Route object.
+     * Returns a new routing object
      *
-     * @return Route
+     * @param Template $template
+     * @param Server|array|string|null $server
+     * @return static
      */
-    public static function getInstance(): Route
+    public static function new(Template $template, Server|array|string|null $server = null): static
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new Route();
-        }
+        return new static($template);
+    }
 
-        return self::$instance;
+
+
+    /**
+     * Try the following access restrictions only for the next try
+     *
+     * @param Server|array|string|null $server
+     * @return static
+     */
+    public function using(Server|array|string|null $server = null): static
+    {
+        $this->temp_server = $server;
+        return $this;
     }
 
 
@@ -171,12 +207,10 @@ class Route
      * /code
      *
      */
-    public static function try(string $url_regex, string $target, string $flags = ''): bool
+    public function try(string $url_regex, string $target, string $flags = ''): bool
     {
-        self::getInstance();
-
-        static $count = 1,
-        $init  = false;
+        static $count = 1;
+        static $init  = false;
 
         try {
             $type = ($_POST ?  'POST' : 'GET');
@@ -229,7 +263,7 @@ class Route
             $flags  = explode(',', $flags);
             $until  = false; // By default, do not store this rule
             $block  = false; // By default, do not block this request
-            $static = true;  // By default, do check for static rules, if configured so
+            $static = true;  // By default, do check for rules, if configured so
 
             foreach ($flags as $flag) {
                 if (!$flag) {
@@ -263,16 +297,16 @@ class Route
                 if ($static) {
                     // Check if remote IP is registered for special routing
                     $exists = sql()->get('SELECT   `id`, `uri`, `regex`, `target`, `flags`
-                                                    FROM     `routes_static` 
-                                                    WHERE    `ip` = :ip 
-                                                      AND    `status` IS NULL 
-                                                      AND    `expiredon` >= NOW() 
-                                                    ORDER BY `created_on` DESC 
-                                                    LIMIT 1', [':ip' => $ip]);
+                                                FROM     `routes_static` 
+                                                WHERE    `ip` = :ip 
+                                                AND      `status` IS NULL 
+                                                AND      `expiredon` >= NOW() 
+                                                ORDER BY `created_on` DESC 
+                                                LIMIT 1', [':ip' => $ip]);
 
                     if ($exists) {
                         // Apply semi-permanent routing for this IP
-                        Log::warning(tr('Found active static routing for IP ":ip", continuing routing as if request is URI ":uri" with regex ":regex", target ":target", and flags ":flags" instead', [
+                        Log::warning(tr('Found active routing for IP ":ip", continuing routing as if request is URI ":uri" with regex ":regex", target ":target", and flags ":flags" instead', [
                             ':ip' => $ip,
                             ':uri' => $exists['uri'],
                             ':regex' => $exists['regex'],
@@ -291,7 +325,7 @@ class Route
                     }
 
                 } else {
-                    Log::warning(tr('Not checking for static routes per N flag'));
+                    Log::warning(tr('Not checking for routes per N flag'));
                 }
             }
 
@@ -327,7 +361,6 @@ class Route
 
             $route      = $target;
             $attachment = false;
-            $server     = new Server(new Restrictions([PATH_WWW , PATH_ROOT.'data/content/downloads'], false, 'Route'));
 
             // Regex matched. Do variable substitution on the target.
             if (preg_match_all('/:([A-Z_]+)/', $target, $variables)) {
@@ -451,7 +484,7 @@ class Route
 
                         $count = 1;
                         unset($flags[$flags_id]);
-                        self::execute(Debug::currentFile(1), $attachment, $server);
+                        self::execute(Debug::currentFile(1), $attachment);
 
                     case 'G':
                         // MUST be a GET reqest, NO POST data allowed!
@@ -715,7 +748,7 @@ class Route
 
             if ($until) {
                 /*
-                 * Store the request as a static rule until it expires
+                 * Store the request as a rule until it expires
                  *
                  * Apply semi-permanent routing for this IP
                  *
@@ -723,7 +756,7 @@ class Route
                  * in subsequent loads
                  *
                  * Remove the "H" flag since subsequent requests may not be a hack
-                 * attempt. Since we are going to act as if the static rule AND URI
+                 * attempt. Since we are going to act as if the rule AND URI
                  * apply, we don't know really, avoid unneeded red flags
                  */
                 foreach ($flags as $id => $flag) {
@@ -751,7 +784,7 @@ class Route
                 Core::die();
             }
 
-            self::execute($page, $attachment, $server);
+            self::execute($page, $attachment);
 
         } catch (Exception $e) {
             if (str_starts_with($e->getMessage(), 'PHP ERROR [2] "preg_match_all():')) {
@@ -781,7 +814,7 @@ class Route
     /**
      * Specify a language routing map for multi-lingual websites
      *
-     * The translation map helps route() to detect URL's where the language is native. For example; http://phoundation.org/about.html and http://phoundation.org/nosotros.html should both route to about.php, and maybe you wish to add multiple languages for this. The routing table basically says what static words should be translated to their native language counterparts. The domain() function uses this table as well when generating URL's. See domain() for more information
+     * The translation map helps route() to detect URL's where the language is native. For example; http://phoundation.org/about.html and http://phoundation.org/nosotros.html should both route to about.php, and maybe you wish to add multiple languages for this. The routing table basically says what words should be translated to their native language counterparts. The domain() function uses this table as well when generating URL's. See domain() for more information
      *
      * The translation mapping table should have the following format:
      *
@@ -819,10 +852,8 @@ class Route
      * @param array $map
      * @return void
      */
-    public static function mapUrl(string $language, array $map): void
+    public function mapUrl(string $language, array $map): void
     {
-        self::getInstance();
-
         // Set specific language map
         Log::notice(tr('Setting specified URL map'));
         Core::register($map, 'route', 'map');
@@ -835,7 +866,7 @@ class Route
      * @see Route::postProcess()
      * @return void
      */
-    public static function shutdown(?int $exit_code = null): void
+    public function shutdown(?int $exit_code = null): void
     {
         if ($exit_code) {
             Log::warning(tr('Routed script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
@@ -867,10 +898,8 @@ class Route
      *
      * @return void
      */
-    public static function postProcess(): void
+    public function postProcess(): void
     {
-        self::getInstance();
-
         // Test the URI for known hacks. If so, apply configured response
         if (Config::get('web.route.known-hacks', false)) {
             Log::warning(tr('Applying known hacking rules'));
@@ -891,14 +920,72 @@ class Route
      *
      * @param string $target
      * @param bool $attachment
-     * @param Server|array|string|null $server
      * @return void
      */
-    protected static function execute(string $target, bool $attachment = false, Server|array|string|null $server = null): void
+    protected function execute(string $target, bool $attachment): void
     {
-        // Remove the 404 auto execution on shutdown
-        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
-        Page::execute($target, $attachment, $server);
+        // Find the correct target page
+        $target = Filesystem::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE);
+
+        // Do we have access to this page?
+        $this->server->checkRestrictions($target, false);
+
+        if (str_ends_with($target, 'php')) {
+            if ($attachment) {
+                // TODO Test this! Implement required HTTP headers!
+                // Execute the PHP file and then send the output to the client as an attachment
+                Log::action(tr('Executing file ":target" and sending output as attachment', [
+                    ':target' => $target
+                ]));
+
+                include($target);
+
+                Http::file(new Restrictions(PATH_WWW, false, 'Page dynamic attachment'))
+                    ->setAttachment(true)
+                    ->setData(ob_get_clean())
+                    ->setFilename(basename($target))
+                    ->send();
+
+            } else {
+                // Execute the file and send the output HTML as a web page
+                Log::action(tr('Executing page ":target" and sending output as HTML web page', [
+                    ':target' => Strings::from($target, PATH_ROOT)
+                ]));
+
+                // Remove the 404 auto execution on shutdown
+                Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+                Page::new($this->template, $this->getServer())->execute($target, $attachment);
+            }
+
+        } else {
+            if ($attachment) {
+                // TODO Test this! Implement required HTTP headers!
+                // Upload the file to the client as an attachment
+                Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
+
+                Http::file(new Restrictions(PATH_WWW . ',data/attachments', false, 'Page attachment'))
+                    ->setAttachment(true)
+                    ->setFile($target)
+                    ->setFilename(basename($target))
+                    ->send();
+
+            } else {
+                // TODO Test this! Implement required HTTP headers!
+                // Send the file directly
+                $mimetype = mime_content_type($target);
+                $bytes    = filesize($target);
+
+                Log::action(tr('Sending contents of file ":target" with mime-type ":type" directly to client', [
+                    ':target' => $target,
+                    ':type' => $mimetype
+                ]));
+
+                header('Content-Type: ' . $mimetype);
+                header('Content-length: ' . $bytes);
+
+                include($target);
+            }
+        }
     }
 
 
@@ -919,15 +1006,13 @@ class Route
      *
      * @return void
      */
-    protected static function execute404(): void
+    protected function execute404(): void
     {
-        self::getInstance();
-
         try {
             Core::writeRegister(PATH_WWW . 'system/404', 'system', 'script_path');
             Core::writeRegister('404', 'system', 'script');
 
-            self::execute('system/404.php');
+            self::execute('system/404.php', false);
 
         } catch (Throwable $e) {
             if ($e->getCode() === 'not-exists') {
@@ -962,7 +1047,7 @@ class Route
 
 
     /**
-     * Insert a static route
+     * Insert a route
      *
      * @param $route
      * @return void The result
@@ -990,13 +1075,11 @@ class Route
      * /code
      *
      */
-    protected static function insertStatic($route): void
+    protected function insertStatic($route): void
     {
-        self::getInstance();
-
         $route = Route::validateStatic($route);
 
-        Log::notice(tr('Storing static routing rule ":rule" for IP ":ip"', [':rule' => $route['target'], ':ip' => $route['ip']]));
+        Log::notice(tr('Storing routing rule ":rule" for IP ":ip"', [':rule' => $route['target'], ':ip' => $route['ip']]));
 
         sql()->query(
             'INSERT INTO `routes_static` (`expiredon`                                , `meta_id`, `ip`, `uri`, `regex`, `target`, `flags`)
@@ -1016,7 +1099,7 @@ class Route
 
 
     /**
-     * Validate a static route
+     * Validate a route
      *
      * This function will validate all relevant fields in the specified $route array
      *
@@ -1029,10 +1112,8 @@ class Route
      * @param StaticRoute $route
      * @return string HTML for a categories select box within the specified parameters
      */
-    protected static function validateStatic(StaticRoute $route)
+    protected function validateStatic(StaticRoute $route)
     {
-        self::getInstance();
-
 //        Validator::array($route)
 //            ->select('uri')->isUrl('uri')
 //            ->select('fields')->sanitizeMakeString()->hasMaxCharacters(16)
@@ -1042,5 +1123,25 @@ class Route
 //            ->validate();
 //
 //        return $route;
+    }
+
+
+
+    /**
+     * Returns the temp_server if available, default server otherwise
+     *
+     * @return Server
+     */
+    protected function getServer(): Server
+    {
+        if ($this->temp_server) {
+            $server = $this->temp_server;
+        } else {
+            $server = $this->server;
+        }
+
+        $this->temp_server = null;
+        $server->setLabel('Route');
+        return $server;
     }
 }

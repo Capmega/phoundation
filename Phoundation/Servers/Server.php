@@ -68,11 +68,14 @@ class Server
      *
      * @param Restrictions|array|string|null $restrictions
      * @param string|null $hostname
+     * @param string|null $label
      */
-    public function __construct(Restrictions|array|string|null $restrictions, string $hostname = null)
+    public function __construct(Restrictions|array|string|null $restrictions, string $hostname = null, ?string $label = null)
     {
         $this->setHostname($hostname);
         $this->setRestrictions($restrictions);
+
+        $this->restrictions->setLabel($label);
     }
 
 
@@ -82,11 +85,12 @@ class Server
      *
      * @param Restrictions|array|string|null $restrictions
      * @param string|null $hostname
+     * @param string|null $label
      * @return Server
      */
-    public static function new(Restrictions|array|string|null $restrictions, string $hostname = null): static
+    public static function new(Restrictions|array|string|null $restrictions, string $hostname = null, ?string $label = null): static
     {
-        return new Server($restrictions, $hostname);
+        return new Server($restrictions, $hostname, $label);
     }
 
 
@@ -122,15 +126,42 @@ class Server
      * Sets the server and filesystem restrictions for this File object
      *
      * @param string|null $hostname
-     * @return void
+     * @return static
      */
-    public function setHostname(?string $hostname): void
+    public function setHostname(?string $hostname): static
     {
         if (!$hostname) {
             $hostname = 'localhost';
         }
 
         $this->hostname = $hostname;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the server and filesystem restrictions label
+     *
+     * @return string|null
+     */
+    public function getLabel(): ?string
+    {
+        return $this->restrictions->getLabel();
+    }
+
+
+
+    /**
+     * Sets the server and filesystem restrictions label
+     *
+     * @param string|null $label
+     * @return static
+     */
+    public function setLabel(?string $label): static
+    {
+        $this->restrictions->setLabel($label);
+        return $this;
     }
 
 
@@ -151,11 +182,12 @@ class Server
      * Sets the server and filesystem restrictions for this File object
      *
      * @param Restrictions|array|string|null $restrictions
-     * @return void
+     * @return static
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions): void
+    public function setRestrictions(Restrictions|array|string|null $restrictions): static
     {
         $this->restrictions = Core::ensureRestrictions($restrictions);
+        return $this;
     }
 
 

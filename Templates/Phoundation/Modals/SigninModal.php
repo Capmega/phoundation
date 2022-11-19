@@ -2,7 +2,6 @@
 
 namespace Templates\Phoundation\Modals;
 
-use Plugins\Mdb\Elements\Buttons;
 use Plugins\Mdb\Components\Modal;
 use Plugins\Mdb\Forms\Signin;
 use Plugins\Mdb\Layouts\Grid;
@@ -34,9 +33,9 @@ class SigninModal extends Modal
         // Build the layout
         $layout = Grid::new()
             ->addRow(GridRow::new()
-                ->addColumn(GridColumn::new(3))
-                ->addColumn(GridColumn::new(6)->setContent($form))
-                ->addColumn(GridColumn::new(3))
+                ->addColumn(GridColumn::new()->setSize(3))
+                ->addColumn(GridColumn::new()->setSize(6)->setContent($form))
+                ->addColumn(GridColumn::new()->setSize(3))
             );
 
         // Set defaults

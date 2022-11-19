@@ -3,7 +3,6 @@
 namespace Templates\Phoundation;
 
 use Phoundation\Web\Http\Http;
-use Phoundation\Web\Page;
 use Templates\Phoundation\Components\NavigationBar;
 use Throwable;
 
@@ -19,8 +18,21 @@ use Throwable;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Phoundation
  */
-class TemplatePage extends \Phoundation\Web\TemplatePage
+class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
 {
+    /**
+     * Execute the specified target
+     *
+     * @param string $target
+     * @return void
+     */
+    public function execute(string $target): void
+    {
+        parent::execute($target);
+    }
+
+
+
     /**
      * Build the HTTP headers for the page
      *
@@ -30,7 +42,7 @@ class TemplatePage extends \Phoundation\Web\TemplatePage
     public function buildHttpHeaders(): int
     {
         Http::setContentType('text/html');
-        Page::setDoctype('html');
+        $this->page->setDoctype('html');
         return Http::sendHeaders();
     }
 
@@ -44,18 +56,18 @@ class TemplatePage extends \Phoundation\Web\TemplatePage
     public function buildHtmlHeader(): ?string
     {
         // Load basic MDB and fonts CSS
-        Page::loadCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
-        Page::loadCss('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
-        Page::loadCss('css/mdb');
+        $this->page->loadCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+        $this->page->loadCss('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
+        $this->page->loadCss('css/mdb');
 
         // Load basic MDB javascript library
-        Page::loadJavascript('js/mdb');
+        $this->page->loadJavascript('js/mdb');
 
         // Set basic page details
-        Page::setTitle(tr('Phoundation'));
-        Page::setFavIcon('mdb-favicon.ico');
+        $this->page->setTitle(tr('Phoundation'));
+        $this->page->setFavIcon('mdb-favicon.ico');
 
-        return Page::buildHeaders();
+        return $this->page->buildHeaders();
     }
 
 
@@ -96,7 +108,7 @@ class TemplatePage extends \Phoundation\Web\TemplatePage
      */
     public function buildHtmlFooter(): ?string
     {
-        $html  = Page::buildFooters() . '
+        $html  = $this->page->buildFooters() . '
         </body>
         </html>';
 

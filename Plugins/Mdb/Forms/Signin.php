@@ -3,7 +3,7 @@
 namespace Plugins\Mdb\Forms;
 
 use Phoundation\Core\Config;
-use Phoundation\Web\Http\Html\Form;
+use Phoundation\Web\Http\Html\Elements\Form;
 use Phoundation\Web\Http\Url;
 
 

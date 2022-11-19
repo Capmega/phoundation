@@ -2,7 +2,7 @@
 
 namespace Plugins\Mdb\Layouts;
 
-use Phoundation\Web\Http\Html\Element;
+use Phoundation\Web\Http\Html\Elements\Element;
 
 
 

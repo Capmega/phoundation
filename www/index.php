@@ -1,7 +1,7 @@
 <?php
 
 use Phoundation\Web\Route;
-
+use Templates\Phoundation\Phoundation;
 
 
 /**
@@ -85,9 +85,8 @@ use Phoundation\Web\Route;
  */
 require('../vendor/autoload.php');
 
-Route::try('/^(.+?).html$/'  , '/en/pages/$1.php'      , 'Q'); // Show the requested page
-Route::try('/^$/'            , '/en/pages/index.php'   , 'Q'); // Show index page
-Route::try('/^admin\/(.+?)$/', '/en/pages/admin/$1.php', ''); // Show the requested admin page
+// Use the phoundation class
+$route = new Route(Phoundation::new());
 
 //// Setup URL translations map
 //Route::mapUrl('es', [
@@ -103,9 +102,13 @@ Route::try('/^admin\/(.+?)$/', '/en/pages/admin/$1.php', ''); // Show the reques
 //    'diensten'     => 'services',
 //    'over-ons'     => 'about'
 //]);
-//
-//
-//
+
+// Try the following routes
+$route->try('/^(.+?).html$/'  , '/en/pages/$1.php'      , 'Q'); // Show the requested page
+$route->try('/^$/'            , '/en/pages/index.php'   , 'Q'); // Show index page
+$route->try('/^admin\/(.+?)$/', '/en/pages/admin/$1.php', '' ); // Show the requested admin page
+
+
 //// Front end pages
 //Route::try('/^([a-z]{2})\/$/'                                    , '$1/index.php'                                         , '');                 // Show index page
 //Route::try('/^([a-z]{2})\/([-a-z]+).html$/'                      , '$1/$2.php'                                            , '');                 // Show pages with page name in URL

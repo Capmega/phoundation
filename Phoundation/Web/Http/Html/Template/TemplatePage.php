@@ -1,11 +1,11 @@
 <?php
 
-namespace Phoundation\Web;
+namespace Phoundation\Web\Http\Html\Template;
 
 
 
 /**
- * Template interface
+ * Template class
  *
  * This interface
  *
@@ -16,6 +16,61 @@ namespace Phoundation\Web;
  */
 abstract class TemplatePage
 {
+    /**
+     * The Page object
+     *
+     * @var Page $page
+     */
+    protected Page $page;
+
+    /**
+     * The target page to execute
+     *
+     * @var string $target
+     */
+    protected string $target;
+
+
+
+    /**
+     * TemplatePage constructor
+     *
+     * @param Page $page
+     */
+    public function __construct(Page $page)
+    {
+        $this->page = $page;
+    }
+
+
+
+    /**
+     * Returns a new TargetPage object
+     *
+     * @param Page $page
+     * @return $this
+     */
+    public static function new(Page $page): static
+    {
+        return new static($page);
+    }
+
+
+
+    /**
+     * Execute the page for the specified target
+     *
+     * @param string $target
+     * @return void
+     */
+    public function execute(string $target): void
+    {
+        $this->target = $target;
+    }
+
+
+
+
     /**
      * Build and send HTTP headers
      *

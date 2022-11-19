@@ -4,7 +4,7 @@ namespace Plugins\Mdb\Elements;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Config;
-use Phoundation\Web\Http\Html\Element;
+use Phoundation\Web\Http\Html\Elements\Element;
 
 
 

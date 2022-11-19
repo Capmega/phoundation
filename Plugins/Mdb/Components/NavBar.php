@@ -4,8 +4,8 @@ namespace Plugins\Mdb\Components;
 
 use Phoundation\Core\Session;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\ElementsBlock;
-use Phoundation\Web\Http\Html\Img;
+use Phoundation\Web\Http\Html\Elements\ElementsBlock;
+use Phoundation\Web\Http\Html\Elements\Img;
 
 
 

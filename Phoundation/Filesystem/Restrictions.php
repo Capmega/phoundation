@@ -63,9 +63,9 @@ class Restrictions
      * @param string|array|null $paths
      * @param bool $write
      * @param string|null $label
-     * @return Restrictions
+     * @return static
      */
-    public static function new(string|array|null $paths, bool $write = false, ?string $label = null): Restrictions
+    public static function new(string|array|null $paths, bool $write = false, ?string $label = null): static
     {
         return new Restrictions($paths, $write, $label);
     }
@@ -77,9 +77,24 @@ class Restrictions
      *
      * @param array|string $paths
      * @param bool $write
-     * @return Restrictions
+     * @return static
      */
-    public function setPaths(array|string $paths, bool $write = false): Restrictions
+    public function setPaths(array|string $paths, bool $write = false): static
+    {
+        $this->paths = [];
+        return $this->addPaths($paths, $write);
+    }
+
+
+
+    /**
+     * Set all paths for this restriction
+     *
+     * @param array|string $paths
+     * @param bool $write
+     * @return static
+     */
+    public function addPaths(array|string $paths, bool $write = false): static
     {
         foreach (Arrays::force($paths) as $path) {
             $this->addPath($path, $write);
@@ -95,12 +110,50 @@ class Restrictions
      *
      * @param string $path
      * @param bool $write
-     * @return Restrictions
+     * @return static
      */
-    public function addPath(string $path, bool $write = false): Restrictions
+    public function addPath(string $path, bool $write = false): static
     {
         $this->paths[$path] = $write;
         return $this;
+    }
+
+
+
+    /**
+     * Returns all paths for this restriction
+     *
+     * @return array
+     */
+    public function getPaths(): array
+    {
+        return $this->paths;
+    }
+
+
+
+    /**
+     * Sets the label for this restriction
+     *
+     * @param string|null $label
+     * @return static
+     */
+    public function setLabel(?string $label): static
+    {
+        $this->label = ($label ?? 'system');
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the label for this restriction
+     *
+     * @return string
+     */
+    public function getLabel(): string
+    {
+        return $this->label;
     }
 
 

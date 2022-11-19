@@ -3,7 +3,7 @@
 namespace Plugins\Mdb\Elements;
 
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Web\Http\Html\Element;
+use Phoundation\Web\Http\Html\Elements\Element;
 
 
 

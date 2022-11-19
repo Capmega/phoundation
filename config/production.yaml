@@ -29,7 +29,7 @@ web:
   route:
     known-hacks:
   template:
-    class: "Phoundation"
+    name: "phoundation"
 notifications:
   groups:
     developers:

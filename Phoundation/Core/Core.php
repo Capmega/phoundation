@@ -2168,7 +2168,7 @@ class Core {
      * @param Server|array|string|null $server
      * @return Server
      */
-    public static function ensureServer(Server|array|string|null $server = null): Server
+    public static function ensureServer(Server|array|string|null $server = null, Server|array|string|null $default = null): Server
     {
         if ($server) {
             if (!is_object($server)) {
@@ -2179,6 +2179,17 @@ class Core {
             return $server;
         }
 
+        // Server was not specified. Try the default, if specified?
+        if ($default) {
+            if (!is_object($default)) {
+                // Restrictions were specified by simple path string or array of paths. Convert to restrictions object
+                $default = new Server($default);
+            }
+
+            return $default;
+        }
+
+        // Nope, fall back to the default restrictions
         return self::$server;
     }
 
