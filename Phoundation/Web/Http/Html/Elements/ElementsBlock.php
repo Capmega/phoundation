@@ -1,13 +1,11 @@
 <?php
 
-namespace Phoundation\Web\Http\Html;
-
-use Phoundation\Core\Arrays;
+namespace Phoundation\Web\Http\Html\Elements;
 
 
 
 /**
- * Class Autosuggest
+ * Class ElementsBlock
  *
  *
  *
@@ -16,6 +14,16 @@ use Phoundation\Core\Arrays;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Autosuggest extends Element
+abstract class ElementsBlock
 {
+    use ElementAttributes;
+
+
+
+    /**
+     * Render the ElementsBlock
+     *
+     * @return string
+     */
+    public abstract function render(): string;
 }

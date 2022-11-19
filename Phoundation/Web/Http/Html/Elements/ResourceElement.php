@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Web\Http\Html;
+namespace Phoundation\Web\Http\Html\Elements;
 
 use PDOStatement;
 use Phoundation\Web\Http\Html\Exception\HtmlException;

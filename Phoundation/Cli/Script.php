@@ -440,7 +440,7 @@ class Script
      * @see cli_arguments()
      * @see Script::argument()
      */
-    function method(?int $index = null, ?string $default = null): string
+    public static function method(?int $index = null, ?string $default = null): string
     {
         global $argv;
         static $method = [];

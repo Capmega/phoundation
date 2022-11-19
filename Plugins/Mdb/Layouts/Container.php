@@ -26,12 +26,6 @@ class Container extends Layout
     #[ExpectedValues(values:[null, "sm", "md", "lg", "xl", "xxl"])]
     protected ?string $type = null;
 
-    /**
-     * The content for this container
-     *
-     * @var string|null $content
-     */
-    protected ?string $content = null;
 
 
     /**
@@ -40,6 +34,7 @@ class Container extends Layout
     public function __construct()
     {
         $this->type = 'md';
+        parent::__construct();
     }
 
 
@@ -78,31 +73,6 @@ class Container extends Layout
     #[ExpectedValues(values:[null, "sm", "md", "lg", "xl", "xxl"])] public function getType(): string
     {
         return $this->type;
-    }
-
-
-
-    /**
-     * Sets the content for this container
-     *
-     * @param string $content
-     * @return $this
-     */
-    public function setContent(string $content): static
-    {
-        $this->content = $content;
-    }
-
-
-
-    /**
-     * Returns the content for this container
-     *
-     * @return string
-     */
-    public function getContent(): string
-    {
-        return $this->content;
     }
 
 

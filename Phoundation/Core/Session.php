@@ -5,7 +5,6 @@ namespace Phoundation\Core;
 use Phoundation\Users\GuestUser;
 use Phoundation\Users\User;
 use Phoundation\Users\Users;
-use Phoundation\Web\Exception\PageException;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 

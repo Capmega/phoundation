@@ -1,21 +1,14 @@
 <?php
 
-namespace Phoundation\Web\Http\Html;
+namespace Phoundation\Web\Http\Html\Elements;
 
-use Phoundation\Content\Images\Image;
 use Phoundation\Core\Config;
-use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
-use Phoundation\Processes\Commands\Command;
 use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Page;
-use Throwable;
 
 
 

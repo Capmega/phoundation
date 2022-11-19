@@ -1,13 +1,13 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Cli\Cli;
 use Phoundation\Cli\Script;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Log;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Servers\Server;
+
 
 
 /**

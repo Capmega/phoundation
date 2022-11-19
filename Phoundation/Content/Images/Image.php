@@ -6,7 +6,8 @@ use Phoundation\Content\Content;
 use Phoundation\Core\Exception\ImagesException;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
-use Phoundation\Web\Http\Html\Img;
+use Phoundation\Web\Http\Html\Elements\Img;
+
 
 
 /**

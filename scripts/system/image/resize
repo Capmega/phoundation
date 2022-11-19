@@ -1,7 +1,6 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Cli\Cli;
 use Phoundation\Cli\Script;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Log;

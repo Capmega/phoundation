@@ -1,11 +1,11 @@
 <?php
 
-namespace Phoundation\Web\Http\Html;
+namespace Phoundation\Web\Http\Html\Elements;
 
 
 
 /**
- * Class ElementsBlock
+ * Section class
  *
  *
  *
@@ -14,16 +14,14 @@ namespace Phoundation\Web\Http\Html;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class ElementsBlock
+class Section extends Element
 {
-    use ElementAttributes;
-
-
-
     /**
-     * Render the ElementsBlock
-     *
-     * @return string
+     * Section class constructor
      */
-    public abstract function render(): string;
+    public function __construct()
+    {
+        parent::__construct();
+        parent::setElement('section');
+    }
 }
