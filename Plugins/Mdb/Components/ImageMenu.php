@@ -1,9 +1,8 @@
 <?php
 
-namespace Plugins\Mdb;
+namespace Plugins\Mdb\Components;
 
 use Phoundation\Content\Images\UsesImage;
-use Phoundation\Content\Images\Image;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\ElementsBlock;
 

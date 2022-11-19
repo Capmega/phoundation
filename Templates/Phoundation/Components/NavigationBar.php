@@ -2,7 +2,7 @@
 
 namespace Templates\Phoundation\Components;
 
-use Plugins\Mdb\NavBar;
+use Plugins\Mdb\Components\NavBar;
 use Templates\Phoundation\Modals\SigninModal;
 
 

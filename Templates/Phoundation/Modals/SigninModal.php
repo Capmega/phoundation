@@ -2,9 +2,8 @@
 
 namespace Templates\Phoundation\Modals;
 
-use Plugins\Mdb\Elements\Button;
 use Plugins\Mdb\Elements\Buttons;
-use Plugins\Mdb\Modal;
+use Plugins\Mdb\Components\Modal;
 
 
 

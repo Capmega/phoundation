@@ -1,6 +1,6 @@
 <?php
 
-namespace Plugins\Mdb;
+namespace Plugins\Mdb\Components;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\ElementsBlock;
