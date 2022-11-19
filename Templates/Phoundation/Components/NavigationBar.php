@@ -6,6 +6,7 @@ use Plugins\Mdb\NavBar;
 use Templates\Phoundation\Modals\SigninModal;
 
 
+
 /**
  * Phoundation Template NavigationBar class
  *
@@ -19,7 +20,7 @@ use Templates\Phoundation\Modals\SigninModal;
 class NavigationBar extends NavBar
 {
     /**
-     * Signin modal for this navigation bar
+     * Sign in modal for this navigation bar
      */
     public function __construct()
     {

@@ -150,7 +150,7 @@ class NavBar extends ElementsBlock
                           <!-- Navbar brand -->
                           <a class="navbar-brand mt-2 mt-lg-0" href="#">
                           ' . Img::new()
-                                ->setSrc('/logos/phoundation/phoundation-top.png')
+                                ->setSrc('/logos/phoundation/phoundation-top.jpg')
                                 ->setAlt('The Phoundation logo')
                                 ->addAttributes([
                                     'loading' => 'lazy',

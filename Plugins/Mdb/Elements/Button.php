@@ -3,6 +3,7 @@
 namespace Plugins\Mdb\Elements;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Element;
 
 
@@ -19,6 +20,10 @@ use Phoundation\Web\Http\Html\Element;
  */
 class Button extends Element
 {
+    use ButtonProperties;
+
+
+
     /**
      * @var string
      */
@@ -26,32 +31,11 @@ class Button extends Element
     protected string $button_type = 'primary';
 
     /**
-     * Outlined buttons
-     *
-     * @var bool $outlined
-     */
-    protected bool $outlined = false;
-
-    /**
-     * Rounded buttons
-     *
-     * @var bool $rounded
-     */
-    protected bool $rounded = false;
-
-    /**
      * Floating buttons
      *
      * @var bool $floating
      */
     protected bool $floating = false;
-
-    /**
-     * Text wrapping
-     *
-     * @var bool $wrapping
-     */
-    protected bool $wrapping = true;
 
 
 
@@ -62,6 +46,7 @@ class Button extends Element
     {
         parent::__construct();
         parent::setElement('button');
+        parent::setClasses(Config::getString('web.defaults.elements.classes.button', 'btn'));
     }
 
 
@@ -76,7 +61,7 @@ class Button extends Element
     {
         $this->button_type = strtolower(trim($button_type));
 
-        $this->setButtonClass();
+        $this->setButtonClasses();
 
         return $this;
     }
@@ -96,79 +81,27 @@ class Button extends Element
 
 
     /**
-     * Set if the button is outlined or not
+     * Set if the button is floating or not
      *
-     * @param bool $outlined
+     * @param bool $floating
      * @return Button
      */
-    public function setOutlined(bool $outlined): static
+    public function setFloating(bool $floating): static
     {
-        $this->outlined = $outlined;
+        $this->floating = $floating;
         return $this;
     }
 
 
 
     /**
-     * Returns if the button is outlined or not
+     * Returns if the button is floating or not
      *
      * @return string
      */
-    public function getOutlined(): string
+    public function getFloating(): string
     {
-        return $this->outlined;
-    }
-
-
-
-    /**
-     * Set if the button is rounded or not
-     *
-     * @param bool $rounded
-     * @return Button
-     */
-    public function setRounded(bool $rounded): static
-    {
-        $this->rounded = $rounded;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns if the button is rounded or not
-     *
-     * @return string
-     */
-    public function getRounded(): string
-    {
-        return $this->rounded;
-    }
-
-
-
-    /**
-     * Set if the button is wrapping or not
-     *
-     * @param bool $wrapping
-     * @return Button
-     */
-    public function setWrapping(bool $wrapping): static
-    {
-        $this->wrapping = $wrapping;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns if the button is wrapping or not
-     *
-     * @return string
-     */
-    public function getWrapping(): string
-    {
-        return $this->wrapping;
+        return $this->floating;
     }
 
 
@@ -197,7 +130,7 @@ class Button extends Element
      *
      * @return void
      */
-    protected function setButtonClass(): void
+    protected function setButtonClasses(): void
     {
         // Remove the current button type
         foreach ($this->classes as $id => $class) {
@@ -217,7 +150,7 @@ class Button extends Element
 
         if ($this->floating) {
             $this->addClass('btn-floating');
-            Icons::new()->setContent($this->content)->render();
+            $this->setContent(Icons::new()->setContent($this->content)->render());
         }
     }
 }

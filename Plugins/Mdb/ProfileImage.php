@@ -78,18 +78,4 @@ class ProfileImage extends ImageMenu
 
         return parent::setMenu($menu);
     }
-
-
-
-    /**
-     * Render the profile image HTML
-     *
-     * @return string
-     */
-    public function render(): string
-    {
-        $html  = parent::render();
-
-        return $html;
-    }
 }

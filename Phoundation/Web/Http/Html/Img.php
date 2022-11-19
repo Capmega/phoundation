@@ -67,20 +67,6 @@ class Img extends Element
     protected ?string $alt = null;
 
     /**
-     * The image width
-     *
-     * @var int|null $width
-     */
-    protected ?int $width = null;
-
-    /**
-     * The image height
-     *
-     * @var int|null $height
-     */
-    protected ?int $height = null;
-
-    /**
      * True if this is an image from an external domain (a domain NOT in the "web.domains" configuration)
      *
      * @var bool $external
@@ -96,7 +82,7 @@ class Img extends Element
     {
         parent::__construct();
         parent::setElement('img');
-        $this->lazy_load = Config::get('web.images.lazy-load', true);
+        $this->setLazyLoad(Config::get('web.images.lazy-load', true));
     }
 
 
@@ -158,66 +144,6 @@ class Img extends Element
     public function getAlt(): ?string
     {
         return $this->alt;
-    }
-
-
-
-    /**
-     * Sets the image width in pixels
-     *
-     * @param int|null $width
-     * @return Img
-     */
-    public function setWidth(?int $width): static
-    {
-        if ($width < 1) {
-            throw new OutOfBoundsException(tr('Invalid image width ":value" specified, it should be 1 or above', [':value' => $width]));
-        }
-
-        $this->width = $width;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the image width in pixels
-     *
-     * @return int|null
-     */
-    public function getWidth(): ?int
-    {
-        return $this->width;
-    }
-
-
-
-    /**
-     * Sets the image height in pixels
-     *
-     * @param int|null $height
-     * @return Img
-     */
-    public function setHeight(?int $height): static
-    {
-        if ($height < 1) {
-            throw new OutOfBoundsException(tr('Invalid image height ":value" specified, it should be 1 or above', [':value' => $height]));
-        }
-
-        $this->height = $height;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the image height in pixels
-     *
-     * @return int|null
-     */
-    public function getHeight(): ?int
-    {
-        return $this->height;
     }
 
 
@@ -291,7 +217,7 @@ class Img extends Element
 //        }
 
 
-        $this->src = $src;
+        $this->src = Url::build($src)->img();
         return $this;
     }
 
@@ -383,7 +309,8 @@ class Img extends Element
             throw new HtmlException(tr('No alt attribute specified'));
         }
 
-
+//        show($this);
+//        showdie(parent::render());
 
 
 

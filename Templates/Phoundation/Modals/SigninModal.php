@@ -29,8 +29,7 @@ class SigninModal extends Modal
         $this->setId('signinModal')
             ->setTitle(tr('Sign in'))
             ->setButtons(Buttons::new()
-                ->addButton(Button::new()
-                    ->setContent(tr('Signin'))))
+                ->createButton(tr('Sign in'), 'primary'))
             ->setContent('BLERGH!');
 
         return parent::__construct();

@@ -115,6 +115,8 @@ class Element
             'id'        => $this->id,
             'name'      => $this->name,
             'class'     => $this->getClass(),
+            'height'    => $this->height,
+            'width'     => $this->width,
             'autofocus' => $this->autofocus,
             'readonly'  => $this->readonly,
             'disabled'  => $this->disabled,

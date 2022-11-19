@@ -18,6 +18,10 @@ use Phoundation\Web\Http\Html\ElementsBlock;
  */
 class Buttons extends ElementsBlock
 {
+    use ButtonProperties;
+
+
+
     /**
      * The buttons to render
      *
@@ -74,6 +78,30 @@ class Buttons extends ElementsBlock
     public function addButton(Button $button): static
     {
         $this->buttons[] = $button;
+        return $this;
+    }
+
+
+
+    /**
+     * Creates a new button with defaults and adds it to button list
+     *
+     * @param string $content
+     * @param string $type
+     * @return static
+     */
+    public function createButton(string $content, string $type): static
+    {
+        $button = Button::new()
+            ->setButtonType($type)
+            ->setWrapping($this->wrapping)
+            ->setOutlined($this->outlined)
+            ->setRounded($this->rounded)
+            ->addClasses($this->classes)
+            ->setContent($content);
+
+        $this->addButton($button);
+
         return $this;
     }
 

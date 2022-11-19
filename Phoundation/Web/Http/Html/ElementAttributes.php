@@ -4,7 +4,7 @@ namespace Phoundation\Web\Http\Html;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
-
+use Phoundation\Exception\OutOfBoundsException;
 
 
 /**
@@ -109,6 +109,20 @@ trait ElementAttributes
      * @var string|null $content
      */
     protected ?string $content = null;
+
+    /**
+     * The element height
+     *
+     * @var int|null $height
+     */
+    protected ?int $height = null;
+
+    /**
+     * The element width
+     *
+     * @var int|null $width
+     */
+    protected ?int $width = null;
 
 
 
@@ -216,10 +230,10 @@ trait ElementAttributes
     /**
      * Sets the HTML class element attribute
      *
-     * @param string|null $classes
+     * @param array|string|null $classes
      * @return static
      */
-    public function addClasses(?string $classes): static
+    public function addClasses(array|string|null $classes): static
     {
         foreach (Arrays::force($classes, ' ') as $class) {
             $this->addClass($class);
@@ -281,7 +295,7 @@ trait ElementAttributes
     {
         if (!$this->class) {
             if ($this->classes) {
-                $this->class = implode(' ', $this->classes);
+                $this->class = implode(' ', array_keys($this->classes));
             } else {
                 $this->class = null;
             }
@@ -514,5 +528,69 @@ trait ElementAttributes
     public function getContent(): ?string
     {
         return $this->content;
+    }
+
+
+
+    /**
+     * Sets the height of the element to display
+     *
+     * @param int|null $height
+     * @return static
+     */
+    public function setHeight(?int $height): static
+    {
+        if ($height < 0) {
+            throw new OutOfBoundsException(tr('Invalid element height ":value" specified, it should be 0 or above', [
+                ':value' => $height
+            ]));
+        }
+
+        $this->height = $height;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the height of the element to display
+     *
+     * @return int|null
+     */
+    public function getHeight(): ?int
+    {
+        return $this->height;
+    }
+
+
+
+    /**
+     * Sets the width of the element to display
+     *
+     * @param int|null $width
+     * @return static
+     */
+    public function setWidth(?int $width): static
+    {
+        if ($width < 0) {
+            throw new OutOfBoundsException(tr('Invalid element width ":value" specified, it should be 0 or above', [
+                ':value' => $width
+            ]));
+        }
+
+        $this->width = $width;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the width of the element to display
+     *
+     * @return int|null
+     */
+    public function getWidth(): ?int
+    {
+        return $this->width;
     }
 }

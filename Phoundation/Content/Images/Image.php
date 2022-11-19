@@ -124,7 +124,7 @@ class Image extends Content
      *
      * @return Img
      */
-    public function getElement(): Img
+    public function getHtmlElement(): Img
     {
         return Img::new()
             ->setSrc($this->file)

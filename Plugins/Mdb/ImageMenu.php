@@ -33,13 +33,6 @@ class ImageMenu extends ElementsBlock
     protected ?array $menu = null;
 
     /**
-     * The image height in pixels
-     *
-     * @var int $height
-     */
-    protected int $height = 25;
-
-    /**
      * The image URL, if no menu is available
      *
      * @var string|null $url
@@ -52,6 +45,17 @@ class ImageMenu extends ElementsBlock
      * @var string|null $modal_selector
      */
     protected ?string $modal_selector = null;
+
+
+
+    /**
+     * ImageMenu class constructor
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->height = 25;
+    }
 
 
 
@@ -163,7 +167,7 @@ class ImageMenu extends ElementsBlock
                       aria-expanded="false"
                     >';
 
-        $html .= $this->image->getElement()
+        $html .= $this->image->getHtmlElement()
             ->setHeight($this->height)
             ->addClass('rounded-circle')
             ->setExtra('loading="lazy"')
