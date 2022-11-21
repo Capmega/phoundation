@@ -960,10 +960,9 @@ class Route
             // Upload the file to the client as an attachment
             Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
 
-            Http::file(new Restrictions(PATH_WWW . ',data/attachments', false, 'Page attachment'))
+            File::new($this->server_restrictions)
                 ->setAttachment(true)
                 ->setFile($target)
-                ->setFilename(basename($target))
                 ->send();
 
         } else {

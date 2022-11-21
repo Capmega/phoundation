@@ -250,8 +250,10 @@ class File
         \Phoundation\Filesystem\File::new($file, $this->server_restrictions)->checkReadable();
         $this->server_restrictions->checkRestrictions($file, false);
 
-        $this->file = $file;
-        $this->size = filesize($file);
+        $this->file     = $file;
+        $this->size     = filesize($file);
+        $this->filename = basename($file);
+
         return $this;
     }
 
