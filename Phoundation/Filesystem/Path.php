@@ -515,4 +515,112 @@ class Path extends FileBasics
 
         return $return;
     }
+
+
+
+    /**
+     * Returns PHP code statistics for this path
+     *
+     * @param bool $recurse
+     * @return array
+     */
+    public function getPhpStatistics(bool $recurse = false): array
+    {
+        $return = [
+            'files_statistics' => [],
+            'total_statistics' => [],
+            'file_types'   => [
+                'css'      => 0,
+                'ini'      => 0,
+                'js'       => 0,
+                'html'     => 0,
+                'php'      => 0,
+                'xml'      => 0,
+                'yaml'     => 0,
+                'unknown'  => 0
+            ],
+            'file_extensions' => [
+                'css'     => 0,
+                'scss'    => 0,
+                'ini'     => 0,
+                'js'      => 0,
+                'json'    => 0,
+                'html'    => 0,
+                'htm'     => 0,
+                'php'     => 0,
+                'phps'    => 0,
+                'phtml'   => 0,
+                'xml'     => 0,
+                'yaml'    => 0,
+                'yml'     => 0,
+                'unknown' => 0
+            ]
+        ];
+
+        $this->execute()
+            ->setRecurse($recurse)
+            ->setWhitelistExtensions(array_keys($return['file_extensions']))
+            ->onFiles(function(string $file) use (&$return) {
+                $extension = File::new($file)->getExtension();
+
+                // Add file type and extension statistics
+                switch ($extension) {
+                    case 'css':
+                        // no-break
+                    case 'scss':
+                        $return['file_types']['css']++;
+                        $return['file_extensions'][$extension]++;
+                        break;
+
+                    case 'ini':
+                        $return['file_types']['ini']++;
+                        $return['file_extensions'][$extension]++;
+                        break;
+
+                    case 'js':
+                        // no-break
+                    case 'json':
+                        $return['file_types']['js']++;
+                        $return['file_extensions'][$extension]++;
+                        break;
+
+                    case 'html':
+                        // no-break
+                    case 'htm':
+                        $return['file_types']['html']++;
+                        $return['file_extensions'][$extension]++;
+                        break;
+
+                    case 'php':
+                        // no-break
+                    case 'phps':
+                        // no-break
+                    case 'phtml':
+                        $return['file_types']['php']++;
+                        $return['file_extensions'][$extension]++;
+                        break;
+
+                    case 'xml':
+                        $return['file_types']['xml']++;
+                        $return['file_extensions'][$extension]++;
+                        break;
+
+                    case 'yaml':
+                        // no-break
+                    case 'yml':
+                        $return['file_types']['yaml']++;
+                        $return['file_extensions'][$extension]++;
+                        break;
+
+                    default:
+                        $return['file_extensions']['unknown']++;
+                }
+
+                // Add file statistics
+                $return['files_statistics'][$file] = File::new($file, $this->server)->getPhpStatistics();
+                $return['total_statistics'] = Arrays::addValues($return['total_statistics'], $return['files_statistics'][$file]);
+            });
+
+        return $return;
+    }
 }

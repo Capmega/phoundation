@@ -9,7 +9,6 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Debug\Php;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FilesystemException;
@@ -30,19 +29,6 @@ use Throwable;
  */
 class File extends FileBasics
 {
-    /**
-     * Returns a Php object
-     *
-     * @param string|null $path
-     * @return Php
-     */
-    public function php(string|null $path = null): Php
-    {
-        return new Php($path, $this->server);
-    }
-
-
-
     /**
      * Returns the file mode for the object file
      *
@@ -1092,5 +1078,154 @@ class File extends FileBasics
         }
 
         return new static($target, $this->server);
+    }
+
+
+
+    /**
+     * Returns an array with PHP code statistics for this file
+     *
+     * @return array
+     */
+    public function getPhpStatistics(): array
+    {
+        if (!$this->isPhp()) {
+            throw new FilesystemException(tr('Cannot gather PHP statistics for file ":file", it is not a PHP file', [
+                ':file' => $this->file
+            ]));
+        }
+
+        $return = [
+            'size'           => filesize($this->file),
+            'page_estimate'  => (int) (filesize($this->file) / 4096),
+            'lines'          => 0,
+            'words'          => 0,
+            'code_lines'     => 0,
+            'blank_lines'    => 0,
+            'comment_lines'  => 0,
+            'comment_blocks' => 0,
+            'functions'      => 0,
+            'class_methods'  => 0,
+            'classes'        => 0,
+            'interfaces'     => 0,
+            'traits'         => 0,
+            'enums'          => 0
+        ];
+
+        $data          = file($this->file);
+        $method        = false;
+        $block_comment = false;
+
+        // Process file content
+        foreach ($data as $line) {
+            $line   = trim($line);
+            $line   = strtolower($line);
+
+            // Count words
+            $words            = preg_split("@[\s+　]@u", $line);
+            $return['words'] += count($words);
+
+            if ($block_comment) {
+                $return['comment_lines']++;
+
+                // End of comment block
+                if (str_contains($line, '*/')) {
+                    $block_comment = false;
+                    $line = Strings::from($line, '*/');
+                } else {
+                    // Nope, still block comment
+                    continue;
+                }
+            }
+
+            // Comment line
+            if (str_starts_with($line, '//')) {
+                $return['comment_lines']++;
+                continue;
+            }
+
+            // Comment block
+            if (str_contains($line, '/*')) {
+                $block_comment = true;
+                $return['comment_lines']++;
+                $return['comment_blocks']++;
+                continue;
+            }
+
+            // Interfaces
+            if (str_starts_with($line, 'interface')) {
+                $return['code_lines']++;
+                $return['interface']++;
+                continue;
+            }
+
+            // Traits
+            if (str_starts_with($line, 'trait')) {
+                $return['code_lines']++;
+                $return['traits']++;
+                continue;
+            }
+
+            // Enums
+            if (str_starts_with($line, 'enum')) {
+                $return['code_lines']++;
+                $return['enums']++;
+                continue;
+            }
+
+            // Clean line
+            $line = str_replace(['abstract'], '', $line);
+            $line = trim($line);
+
+            // Classes
+            if (str_starts_with($line, 'class')) {
+                $return['code_lines']++;
+                $return['classes']++;
+                $method = true;
+            } elseif (str_starts_with($line, 'trait')) {
+                $return['code_lines']++;
+                $return['traits']++;
+                $method = true;
+            }
+
+            // Clean line
+            $line = str_replace(['private', 'protected', 'public', 'static'], '', $line);
+            $line = trim($line);
+
+            // Functions & methods
+            if (str_starts_with($line, 'function')) {
+                $return['code_lines']++;
+
+                if ($method) {
+                    $return['class_methods']++;
+                } else {
+                    $return['functions']++;
+                }
+                continue;
+            }
+
+            // Blank line or code line?
+            if (trim($line) == '') {
+                $return['blank_lines']++;
+            } else {
+                $return['code_lines']++;
+            }
+        }
+
+        $return['lines'] += count($data);
+
+        return $return;
+    }
+
+
+
+    /**
+     * Returns the extension of the object filename
+     *
+     * @return string
+     */
+    public function getExtension(): string
+    {
+        return Strings::fromReverse($this->file, '.');
     }
 }

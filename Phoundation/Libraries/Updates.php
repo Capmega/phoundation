@@ -21,7 +21,7 @@ use Phoundation\Libraries\Exception\DoubleVersionException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Libraries
  */
-class Updates
+abstract class Updates
 {
     /**
      * The name for this library
@@ -62,15 +62,15 @@ class Updates
 
     /**
      * Init constructor
-     *
-     * @param string $code_version The code version of this library
      */
-    protected function __construct(string $code_version)
+    public function __construct()
     {
         // Detect the library name
         $library = Strings::untilReverse(get_class($this), '\\');
         $library = Strings::fromReverse($library, '\\');
         $library = strtolower($library);
+
+        $code_version = $this->version();
 
         if (!$code_version) {
             throw new OutOfBoundsException(tr('No code version specified for library ":library" init file', [
@@ -345,4 +345,31 @@ class Updates
 
         return $this->versions_exists;
     }
+
+
+
+    /**
+     * Returns the library version
+     *
+     * @return string
+     */
+    abstract public function version(): string;
+
+
+
+    /**
+     * Returns the library description
+     *
+     * @return string
+     */
+    abstract public function description(): string;
+
+
+
+    /**
+     * Adds the list of updates
+     *
+     * @return void
+     */
+    abstract public function updates(): void;
 }

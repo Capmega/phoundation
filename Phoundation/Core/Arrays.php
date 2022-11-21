@@ -2,7 +2,6 @@
 
 namespace Phoundation\Core;
 
-use Phoundation\Core\Exception\CoreException;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -119,7 +118,7 @@ class Arrays {
 
         if (!$restart) {
             // The current value was found, but it was at the end of the array
-            throw new OutOfBoundsException(tr('Option ":value" does not have a value specified', [':value' => $current_value]), 'invalid');
+            throw new OutOfBoundsException(tr('Option ":value" does not have a value specified', [':value' => $current_value]));
         }
 
         reset($source);
@@ -177,7 +176,10 @@ class Arrays {
             return;
         }
 
-        throw new CoreException(tr('Specified $params ":params" is invalid. It is an ":datatype" but should be either one of array, integer, or string', [':datatype' => gettype($params), ':params' => (is_resource($params) ? '{php resource}' : $params)]));
+        throw new OutOfBoundsException(tr('Specified $params ":params" is invalid. It is an ":datatype" but should be either one of array, integer, or string', [
+            ':datatype' => gettype($params),
+            ':params' => (is_resource($params) ? '{php resource}' : $params)
+        ]));
     }
 
 
@@ -193,7 +195,6 @@ class Arrays {
      * @param int|string $key The key that must exist in the $source array
      * @param mixed $default The default value in case $source[$key] does not exist
      * @return mixed The new value of $source[$key]. This will be either the original value of $source[$key], or the $default value if $source[$key] did not exist
-     * @throws CoreException
      * @see Arrays::ensure()
      * @note $source is passed by reference and will be modified directly!
      * @version 1.22.0: Added documentation
@@ -365,28 +366,12 @@ class Arrays {
      */
     public static function mergeFull(): array
     {
-        $arguments = func_get_args();
+        $arguments = self::getArgumentArrays(func_get_args());
+        $return    = [];
+        $count     = 0;
 
-        if (count($arguments) < 2) {
-            throw new CoreException('Specify at least 2 arrays');
-        }
-
-        $return = [];
-        $count  = 0;
-
-        foreach ($arguments as $array) {
-            $count++;
-
-            if (!is_array($array)) {
-                if ($array === null) {
-                    // Quietly ignore NULL arguments
-                    continue;
-                }
-
-                throw new OutOfBoundsException(tr('Specified argument ":count" is not an array', [
-                    ':count' => $count
-                ]));
-            }
+        foreach ($arguments as $id => $array) {
+            self::requireArrayOrNull($array, $id);
 
             foreach ($array as $key => $value) {
                 if (is_array($value) and array_key_exists($key, $return) and is_array($return[$key])) {
@@ -414,7 +399,7 @@ class Arrays {
     public static function limit(array $source, int $count, bool $return_source = true): array
     {
         if (!is_numeric($count) or ($count < 0)) {
-            throw new CoreException(tr('Specified count is not valid'));
+            throw new OutOfBoundsException(tr('Specified count is not valid'));
         }
 
         $return = [];
@@ -441,10 +426,6 @@ class Arrays {
      */
     public static function filterValues(array $source, array $values): array
     {
-        if (!is_array($source)) {
-            throw new CoreException(tr('Specified source is not an array'), 'invalid');
-        }
-
         foreach (Arrays::force($values) as $value) {
             if (($key = array_search($value, $source)) !== false) {
                 unset($source[$key]);
@@ -465,7 +446,7 @@ class Arrays {
     public static function sequentialValues(int $count, int|string $base_valuename): array
     {
         if ($count < 1) {
-            throw new CoreException(tr('Invalid count specified. Make sure count is numeric, and greater than 0'), 'invalid');
+            throw new OutOfBoundsException(tr('Invalid count specified. Make sure count is numeric, and greater than 0'));
         }
 
         for($i = 0; $i < $count; $i++) {
@@ -486,12 +467,8 @@ class Arrays {
      * @param bool $null_string
      * @return array
      */
-    public static function sequentialKeys(array $source, int|string $base_keyname, bool $filter_null = false, $null_string = false): array
+    public static function sequentialKeys(array $source, int|string $base_keyname, bool $filter_null = false, bool $null_string = false): array
     {
-        if (!is_array($source)) {
-            throw new CoreException(tr('Specified source is an ":type", but it should be an array', [':type' => gettype($source)]), 'invalid');
-        }
-
         $i      = 0;
         $return = [];
 
@@ -796,7 +773,7 @@ class Arrays {
         }
 
         if (count($source) > $max) {
-            throw new CoreException(tr('Specified array has too many elements'), 'arraytoolarge');
+            throw new OutOfBoundsException(tr('Specified array has too many elements'));
         }
 
         return $source;
@@ -816,7 +793,7 @@ class Arrays {
 
         foreach ($source as $value) {
             if (!is_scalar($value)) {
-                throw new CoreException(tr('Specified source array contains non scalar values, cannot use non scalar values for the keys'));
+                throw new OutOfBoundsException(tr('Specified source array contains non scalar values, cannot use non scalar values for the keys'));
             }
 
             $return[$value] = $value;
@@ -832,18 +809,14 @@ class Arrays {
      */
     public static function filteredMerge()
     {
-        $args = func_get_args();
+        $arguments = self::getArgumentArrays(func_get_args(), 3);
+        $filters   = array_shift($arguments);
+        $source    = array_shift($arguments);
+        $source    = Arrays::remove($source, $filters);
 
-        if (count($args) < 3) {
-            throw new CoreException(tr('Function requires at least 3 arguments: filters, source, merge, ...'), 'missing_argument');
-        }
+        array_unshift($arguments, $source);
 
-        $filters = array_shift($args);
-        $source  = array_shift($args);
-        $source  = Arrays::remove($source, $filters);
-        array_unshift($args, $source);
-
-        return call_user_func_array('array_merge', $args);
+        return call_user_func_array('array_merge', $arguments);
     }
 
 
@@ -911,15 +884,15 @@ class Arrays {
     public static function range(int $min, int $max): array
     {
         if (!is_numeric($min)) {
-            throw new CoreException(tr('array_range(): Specified $min not numeric'), 'invalid');
+                throw new OutOfBoundsException(tr('Specified $min is not numeric'));
         }
 
         if (!is_numeric($max)) {
-            throw new CoreException(tr('array_range(): Specified $max not numeric'), 'invalid');
+            throw new OutOfBoundsException(tr('Specified $max is not numeric'));
         }
 
         if ($min > $max) {
-            throw new CoreException(tr('array_range(): Specified $min is equal or larger than $max. Please ensure that $min is smaller'), 'invalid');
+            throw new OutOfBoundsException(tr('Specified $min is equal or larger than $max. Please ensure that $min is smaller'));
         }
 
         $return = [];
@@ -1104,10 +1077,10 @@ class Arrays {
      */
     public static function mergeNull(): array
     {
-        $args   = func_get_args();
-        $return = [];
+        $arguments = self::getArgumentArrays(func_get_args(), 3);
+        $return    = [];
 
-        foreach ($args as $array) {
+        foreach ($arguments as $array) {
             foreach ($array as $key => $value) {
                 if (!isset($return[$key]) or ($value !== null)) {
                     $return[$key] = $value;
@@ -1132,13 +1105,7 @@ class Arrays {
      */
     public static function hide(?array $source, string|array $keys = ['GLOBALS', '%pass', 'ssh_key'], string $hide = '*** HIDDEN ***', string $empty = '-', bool $recurse = true): ?array
     {
-        if (!is_array($source)) {
-            if ($source === null) {
-                return null;
-            }
-
-            throw new OutOfBoundsException(tr('Specified source is not an array nor NULL'));
-        }
+        self::requireArrayOrNull($source);
 
         $keys = Arrays::force($keys);
 
@@ -1183,7 +1150,7 @@ class Arrays {
     public static function renameKey(array $source, int|string $old_key, int|string $new_key): array
     {
         if (!array_key_exists($old_key, $source)) {
-            throw new CoreException(tr('Specified $old_key does not exist in the specified source array'));
+            throw new OutOfBoundsException(tr('Specified $old_key does not exist in the specified source array'));
         }
 
         $source[$new_key] = $source[$old_key];
@@ -1311,7 +1278,7 @@ class Arrays {
 
         if (!is_array($source)) {
             if (!is_string($source)) {
-                return array($source);
+                return [$source];
             }
 
             if (!$separator) {
@@ -1422,5 +1389,132 @@ class Arrays {
 
         unset($source[$key]);
         return $key;
+    }
+
+
+
+    /**
+     * Add all the values from array2, array3, etc to array1
+     *
+     * @param array $array1
+     * @param array $array2
+     * @param array $array3
+     * @param...
+     * @return array
+     */
+    public static function addValues(): array
+    {
+        $arguments = self::getArgumentArrays(func_get_args());
+        $target    = array_shift($arguments);
+
+        // Ensure target is an array
+        self::requireArrayOrNull($target);
+
+        foreach ($arguments as $id => $source) {
+            // Ensure all sources are arrays
+            self::requireArrayOrNull($source, $id);
+
+            foreach ($source as $key => $value) {
+                // Ensure source is numeric!
+                if (!is_numeric($value)) {
+                    if (is_array($value)) {
+                        // Value is an array, check if target has same format
+                        if (array_key_exists($key, $target)) {
+                            if (!is_array($target[$key])) {
+                                throw new OutOfBoundsException(tr('Target / source data incompatibility detected. Source ":id" key ":key" is an array while the target key is not', [
+                                    ':id'  => $id,
+                                    ':key' => $key
+                                ]));
+                            }
+                        } else {
+                            // Initialize with an empty array
+                            $target[$key] = [];
+                        }
+
+                        // Target is also an array, recurse!
+                        $target[$key] = self::addValues($target[$key], $value);
+                        continue;
+                    }
+
+                    throw new OutOfBoundsException(tr('Target and all source arrays must contain only numeric values while source ":source" contains key ":key" with non numeric value ":value"', [
+                        ':source' => $id,
+                        ':key'    => $key,
+                        ':value'  => $value
+                    ]));
+                }
+
+                // Source value is numeric, continue!
+                if (!array_key_exists($key, $target)) {
+                    // Clean copy
+                    $target[$key] = $value;
+                    continue;
+                }
+
+                // Ensure target is numeric!
+                if (!is_numeric($target[$key])) {
+                    throw new OutOfBoundsException(tr('Target and all source arrays must contain only numeric values while target ":target" contains key ":key" with non numeric value ":value"', [
+                        ':source' => $id,
+                        ':key'    => $key,
+                        ':value'  => $value
+                    ]));
+                }
+
+                $target[$key] += $value;
+            }
+        }
+
+        return $target;
+    }
+
+
+
+    /**
+     * Returns the argument arrays ensuring that there are at least 2
+     *
+     * @param array $arguments
+     * @param int $minimum
+     * @return array
+     */
+    protected static function getArgumentArrays(array $arguments, int $minimum = 2): array
+    {
+        if ($minimum < 1) {
+            throw new OutOfBoundsException(tr('Minimum must be 1 or more'));
+        }
+
+        if (count($arguments) < $minimum) {
+            throw new OutOfBoundsException('Specify at least 2 arrays');
+        }
+
+        return $arguments;
+    }
+
+
+
+    /**
+     * Validates the specified source and ensures it is an array or a NULL value
+     *
+     * @param mixed $source
+     * @param string|float|int|null $id
+     * @return void
+     */
+    protected static function requireArrayOrNull(mixed $source, string|float|int|null $id = null): void
+    {
+        if (is_array($source)) {
+            // All good
+            return;
+        }
+
+        if ($source === null) {
+            // Quietly ignore NULL arguments
+            return;
+        }
+
+        if ($id === null) {
+            throw new OutOfBoundsException(tr('Specified argument is not an array'));
+        }
+
+        throw new OutOfBoundsException(tr('Specified argument ":count" is not an array', [
+            ':count' => $id
+        ]));
     }
 }

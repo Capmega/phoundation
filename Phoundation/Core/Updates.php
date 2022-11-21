@@ -17,10 +17,37 @@ namespace Phoundation\Core;
  */
 class Updates extends \Phoundation\Libraries\Updates
 {
-    public function __construct()
+    /**
+     * The current version for this library
+     *
+     * @return string
+     */
+    public function version(): string
     {
-        parent::__construct('0.0.6');
+        return '0.0.6';
+    }
 
+
+
+    /**
+     * The description for this library
+     *
+     * @return string
+     */
+    public function description(): string
+    {
+        return tr('The Core library is the most basic library in the entire Phoundation framwork. It contains all the low level libraries used by all other libraries and is an essential component of your entire system. Do NOT modify!');
+    }
+
+
+
+    /**
+     * The list of version updates available for this library
+     *
+     * @return void
+     */
+    public function updates(): void
+    {
         $this->addUpdate('0.0.1', function () {
             // Add table for version control itself
             sql()->schema()->table('versions')

@@ -17,10 +17,37 @@ namespace Phoundation\Geo;
  */
 class Updates extends \Phoundation\Libraries\Updates
 {
-    public function __construct()
+    /**
+     * The current version for this library
+     *
+     * @return string
+     */
+    public function version(): string
     {
-        parent::__construct('0.0.3');
+        return '0.0.3';
+    }
 
+
+
+    /**
+     * The description for this library
+     *
+     * @return string
+     */
+    public function description(): string
+    {
+        return tr('The Geo library manages all geographical information for users, etc.');
+    }
+
+
+
+    /**
+     * The list of version updates available for this library
+     *
+     * @return void
+     */
+    public function updates(): void
+    {
         $this->addUpdate('0.0.3', function () {
             // Create the geo_timezones table.
             sql()->schema()->table('geo_timezones')

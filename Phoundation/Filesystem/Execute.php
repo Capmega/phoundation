@@ -388,13 +388,11 @@ class Execute extends Path
         $count = 0;
         $files = [];
 
-        $this->server->checkRestrictions($this->file, true);
-
         // Get al files in this directory
         $this->file = Filesystem::absolute($this->file);
 
         // Skip this path?
-        if (!$this->skip($this->file)) {
+        if ($this->skip($this->file)) {
             return 0;
         }
 
@@ -492,7 +490,9 @@ class Execute extends Path
             }
 
             // Return original file mode
-            $this->chmod($mode);
+            if (isset($mode)) {
+                $this->chmod($mode);
+            }
         }
 
         return $count;

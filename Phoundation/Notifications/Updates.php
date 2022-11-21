@@ -17,10 +17,37 @@ namespace Phoundation\Notifications;
  */
 class Updates extends \Phoundation\Libraries\Updates
 {
-    public function __construct()
+    /**
+     * The current version for this library
+     *
+     * @return string
+     */
+    public function version(): string
     {
-        parent::__construct('0.0.6');
+        return '0.0.6';
+    }
 
+
+
+    /**
+     * The description for this library
+     *
+     * @return string
+     */
+    public function description(): string
+    {
+        return tr('The notifications library manages all system notifications to users, administrators, developers, etc');
+    }
+
+
+
+    /**
+     * The list of version updates available for this library
+     *
+     * @return void
+     */
+    public function updates()
+    {
         $this->addUpdate('0.0.6', function () {
             // Add initial tables for the Notification library
             sql()->schema()->table('notifications')

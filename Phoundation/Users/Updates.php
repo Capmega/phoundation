@@ -17,10 +17,37 @@ namespace Phoundation\Users;
  */
 class Updates extends \Phoundation\Libraries\Updates
 {
-    public function __construct()
+    /**
+     * The current version for this library
+     *
+     * @return string
+     */
+    public function version(): string
     {
-        parent::__construct('0.0.5');
+        return '0.0.5';
+    }
 
+
+
+    /**
+     * The description for this library
+     *
+     * @return string
+     */
+    public function description(): string
+    {
+        return tr('This library manages all user functionalities');
+    }
+
+
+
+    /**
+     * The list of version updates available for this library
+     *
+     * @return void
+     */
+    public function updates(): void
+    {
         $this->addUpdate('0.0.4', function () {
             // Create the users table.
             sql()->schema()->table('users')

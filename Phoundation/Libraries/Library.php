@@ -2,12 +2,13 @@
 
 namespace Phoundation\Libraries;
 
-
-
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
+use Phoundation\Utils\PhpStatistics;
+
 
 /**
  * Library class
@@ -63,6 +64,41 @@ class Library
 
         // Get the Init object
         $this->loadUpdatesObject();
+    }
+
+
+    /**
+     * Returns a new Library object for the specified library
+     *
+     * @param string $name
+     * @return Library
+     */
+    public static function get(string $name): Library
+    {
+        if (str_contains($name, '/')) {
+            // This is TYPE/NAME
+            $type = Strings::until($name, '/');
+            $name = Strings::from($name, '/');
+
+            switch ($type) {
+                case 'system':
+                    // no-break
+                case 'plugin':
+                    // no-break
+                case 'template':
+                    break;
+
+                default:
+                    throw new OutOfBoundsException(tr('Unknown library type "" specified, please specify one of "system", "plugin", or "template"', [
+                        ':type' => $type
+                    ]));
+            }
+
+        } else {
+            $type = null;
+        }
+
+        return Libraries::findLibrary($name, (($type === 'system') or ($type === null)), (($type === 'plugin') or ($type === null)), (($type === 'template') or ($type === null)));
     }
 
 
@@ -141,6 +177,18 @@ class Library
 
 
     /**
+     * Returns true if the library is a template library
+     *
+     * @return bool
+     */
+    public function isTemplate(): bool
+    {
+        return $this->getType() === 'template';
+    }
+
+
+
+    /**
      * Returns the library path
      *
      * @return string
@@ -208,6 +256,42 @@ class Library
     public function getSize(): int
     {
         return Path::new($this->path, PATH_ROOT)->treeFileSize();
+    }
+
+
+
+    /**
+     * Returns the version for this library
+     *
+     * @return string
+     */
+    public function getVersion(): string
+    {
+        return $this->updates?->version();
+    }
+
+
+
+    /**
+     * Returns the description for this library
+     *
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return $this->updates?->description();
+    }
+
+
+
+    /**
+     * Returns the PhpStatistics object for this library
+     *
+     * @return array
+     */
+    public function getPhpStatistics(): array
+    {
+        return Path::new($this->getPath(), [PATH_WWW, PATH_ROOT . '/scripts/', LIBRARIES::CLASS_PATH_SYSTEM, LIBRARIES::CLASS_PATH_PLUGINS, LIBRARIES::CLASS_PATH_TEMPLATES])->getPhpStatistics(true);
     }
 
 

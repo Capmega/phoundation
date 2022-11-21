@@ -3,6 +3,7 @@
 namespace Phoundation\Libraries;
 
 use Phoundation\Cache\Cache;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
@@ -12,6 +13,7 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Path;
 use Phoundation\Notifications\Notification;
 
 
@@ -31,17 +33,17 @@ class Libraries
     /**
      * The constant indicating the path for Phoundation libraries
      */
-    const CLASS_PATH_SYSTEM  = PATH_ROOT . 'Phoundation';
+    const CLASS_PATH_SYSTEM  = PATH_ROOT . 'Phoundation/';
 
     /**
      * The constant indicating the path for Plugin libraries
      */
-    const CLASS_PATH_PLUGINS = PATH_ROOT . 'Plugins';
+    const CLASS_PATH_PLUGINS = PATH_ROOT . 'Plugins/';
 
     /**
      * The constant indicating the path for Template libraries
      */
-    const CLASS_PATH_TEMPLATES = PATH_ROOT . 'Templates';
+    const CLASS_PATH_TEMPLATES = PATH_ROOT . 'Templates/';
 
     /**
      * If true, this system is in initialization mode
@@ -61,7 +63,7 @@ class Libraries
      * @param string|null $library
      * @return void
      */
-    public static function initialize(bool $system = true, bool $plugins = true, ?string $comments = null, ?string $library = null): void
+    public static function initialize(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, ?string $library = null): void
     {
         self::$initializing = true;
 
@@ -85,7 +87,7 @@ class Libraries
             self::ensureSystemsDatabase();
 
             // Go over all system libraries and initialize them, then do the same for the plugins
-            self::initializeLibraries($system, $plugins);
+            self::initializeLibraries($system, $plugins, $templates);
         }
 
         // Initialization done!
@@ -98,10 +100,11 @@ class Libraries
                 ->setTitle(tr('System initialization'))
                 ->setMessage(tr('The system ran an initialization'))
                 ->setDetails([
-                    'system'  => $system,
-                    'plugins' => $plugins,
-                    'library' => $library,
-                    'comment' => $comments
+                    'system'    => $system,
+                    'plugins'   => $plugins,
+                    'templates' => $templates,
+                    'library'   => $library,
+                    'comment'   => $comments
                 ])
                 ->send();
         }
@@ -117,7 +120,7 @@ class Libraries
      * @param bool $templates
      * @return array
      */
-    public static function listLibraries(bool $system = true, bool $plugins = true, bool $templates = false): array
+    public static function listLibraries(bool $system = true, bool $plugins = true, bool $templates = true): array
     {
         if (!$system and !$plugins and !$templates) {
             throw new OutOfBoundsException(tr('Both system and plugin library paths are filtered out'));
@@ -165,6 +168,102 @@ class Libraries
     public static function isInitializing(): bool
     {
         return self::$initializing;
+    }
+
+
+
+    /**
+     * Returns the path for the specified library
+     *
+     * @note If the specified library exists both as a system library and a plugin, an OutOfBoundsException exception
+     *       will be thrown
+     * @param string $library
+     * @param bool $system
+     * @param bool $plugin
+     * @param bool $template
+     * @return Library
+     */
+    public static function findLibrary(string $library, bool $system = true, bool $plugin = true, bool $template = true): Library
+    {
+        $return = null;
+        $paths  = [];
+
+        if ($system) {
+            $paths[] = self::CLASS_PATH_SYSTEM;
+        }
+
+        if ($plugin) {
+            $paths[] = self::CLASS_PATH_PLUGINS;
+        }
+
+        if ($template) {
+            $paths[] = self::CLASS_PATH_TEMPLATES;
+        }
+
+        if (empty($paths)) {
+            throw new OutOfBoundsException(tr('Neither system not plugin nor template paths specified to search'));
+        }
+
+        $directory = Strings::capitalize($library);
+
+        // Library must exist in either SYSTEM or PLUGINS paths
+        foreach($paths as $path) {
+            $path = Strings::slash($path);
+
+            // Library must exist and be a directory
+            if (file_exists($path . $directory)) {
+                if (is_dir($path . $directory)) {
+                    if ($return) {
+                        throw new OutOfBoundsException(tr('The specified library ":library" is both a system library and a plugin', [
+                            ':library' => $library
+                        ]));
+                    }
+
+                    $return = new Library($path . $directory);
+                }
+            }
+        }
+
+        if ($return) {
+            return $return;
+        }
+
+        throw Exceptions::NotExistsException(tr('The specified library does not exist'))->makeWarning();
+    }
+
+
+
+    /**
+     * Returns the PhpStatistics object for this library
+     *
+     * @param bool $system
+     * @param bool $plugin
+     * @param bool $template
+     * @return array
+     */
+    public static function getPhpStatistics(bool $system = true, bool $plugin = true, bool $template = true): array
+    {
+        $return = ['totals' => []];
+
+        if ($system) {
+            // Get statistics for all system libraries
+            $return['system'] = Path::new(LIBRARIES::CLASS_PATH_SYSTEM, [LIBRARIES::CLASS_PATH_SYSTEM])->getPhpStatistics(true);
+            $return['totals'] = Arrays::addValues($return['totals'], $return['system']);
+        }
+
+        if ($plugin) {
+            // Get statistics for all plugin libraries
+            $return['plugins'] = Path::new(LIBRARIES::CLASS_PATH_PLUGINS, [LIBRARIES::CLASS_PATH_PLUGINS])->getPhpStatistics(true);
+            $return['totals']  = Arrays::addValues($return['totals'], $return['plugins']);
+        }
+
+        if ($template) {
+            // Get statistics for all template libraries
+            $return['templates'] = Path::new(LIBRARIES::CLASS_PATH_TEMPLATES, [LIBRARIES::CLASS_PATH_TEMPLATES])->getPhpStatistics(true);
+            $return['totals']    = Arrays::addValues($return['totals'], $return['templates']);
+        }
+
+        return $return;
     }
 
 
@@ -235,10 +334,10 @@ class Libraries
      * @param bool $plugins
      * @return int
      */
-    protected static function initializeLibraries(bool $system = true, bool $plugins = true, ?string $comments = null): int
+    protected static function initializeLibraries(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null): int
     {
         // Get a list of all available libraries and their versions
-        $libraries     = self::listLibraries($system, $plugins);
+        $libraries     = self::listLibraries($system, $plugins, $templates);
         $library_count = count($libraries);
         $update_count  = 0;
 
@@ -251,7 +350,9 @@ class Libraries
             foreach ($libraries as $path => $library) {
                 if (!$library->getNextInitVersion()) {
                     // This library has nothing more to initialize, remove it from the list
-                    Log::success(tr('Finished updates for library ":library"', [':library' => $library->getName()]));
+                    Log::success(tr('Finished updates for library ":library"', [
+                        ':library' => $library->getName()
+                    ]));
                     unset($libraries[$path]);
                     break;
                 }
@@ -299,60 +400,6 @@ class Libraries
         });
     }
 
-
-
-    /**
-     * Returns the path for the specified library
-     *
-     * @note If the specified library exists both as a system library and a plugin, an OutOfBoundsException exception
-     *       will be thrown
-     * @throws OutOfBoundsException|NotExistsException
-     * @param string $library
-     * @param bool $system
-     * @param bool $plugin
-     * @return Library
-     */
-    protected static function findLibrary(string $library, bool $system = true, bool $plugin = true): Library
-    {
-        $return = null;
-        $paths  = [];
-
-        if ($system) {
-            $paths[] = self::CLASS_PATH_SYSTEM;
-        }
-
-        if ($plugin) {
-            $paths[] = self::CLASS_PATH_PLUGINS;
-        }
-
-        if (empty($paths)) {
-            throw new OutOfBoundsException(tr('Neither system not plugin paths specified to search'));
-        }
-
-        $directory = Strings::capitalize($library);
-
-        // Library must exist in either SYSTEM or PLUGINS paths
-        foreach($paths as $path) {
-            // Library must exist and be a directory
-            if (file_exists($path . $directory)) {
-                if (is_dir($path . $directory)) {
-                    if ($return) {
-                        throw new OutOfBoundsException(tr('The specified library ":library" is both a system library and a plugin', [
-                            ':library' => $library
-                        ]));
-                    }
-
-                    $return = new Library($path . $directory);
-                }
-            }
-        }
-
-        if ($return) {
-            return $return;
-        }
-
-        throw Exceptions::NotExistsException(tr('The specified library does not exist'))->makeWarning();
-    }
 
 
     /**

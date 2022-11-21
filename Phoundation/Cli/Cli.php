@@ -108,6 +108,7 @@ class Cli
 
         // Display source
         foreach ($source as $key => $value) {
+            $key = str_replace(['_', '-'], ' ', $key);
             $key = Strings::capitalize($key) . ':';
 
             if (!is_scalar($value)) {
