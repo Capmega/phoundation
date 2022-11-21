@@ -28,4 +28,16 @@ class Phoundation extends Template
         $this->template_page = TemplatePage::class;
         parent::__construct();
     }
+
+
+
+    /**
+     * Return a description for this template
+     *
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return 'This is the default template for your website. You are free to add or build other templates';
+    }
 }

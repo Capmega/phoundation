@@ -2,6 +2,9 @@
 
 namespace Templates\Phoundation;
 
+use Phoundation\Cache\Cache;
+use Phoundation\Core\Log;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
 use Templates\Phoundation\Components\NavigationBar;
 use Throwable;
@@ -21,14 +24,49 @@ use Throwable;
 class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
 {
     /**
-     * Execute the specified target
+     * Returns the page instead of sending it to the client
      *
+     * This WILL send the HTTP headers, but will return the HTML instead of sending it to the browser
      * @param string $target
-     * @return void
+     * @return string|null
      */
-    public function execute(string $target): void
+    public function execute(string $target): ?string
     {
-        parent::execute($target);
+        $body = parent::get();
+
+        // Build HTML and minify the output
+        $html = $this->buildHtmlHeader();
+        self::$html_headers_sent = true;
+
+        $html .= $this->buildPageHeader();
+        $html .= $this->buildMenu();
+        $html .= $body;
+        $html .= $this->buildPageFooter();
+        $html .= $this->buildHtmlFooter();
+        $html  = Html::minify($html);
+
+        // Send headers
+        $length = $this->buildHttpHeaders();
+
+        Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
+
+        if (strtoupper($_SERVER['REQUEST_METHOD']) == 'HEAD') {
+            // HEAD request, do not send any HTML whatsoever
+            return null;
+        }
+
+        switch (Http::getHttpCode()) {
+            case 304:
+                // 304 requests indicate the browser to use it's local cache, send nothing
+                // no-break
+
+            case 429:
+                // 429 Tell the client that it made too many requests, send nothing
+                return null;
+        }
+
+        // Write to cache and return HTML
+        return Cache::write(self::$hash, $html);
     }
 
 

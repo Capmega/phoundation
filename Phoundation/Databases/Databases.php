@@ -48,6 +48,13 @@ class Databases
      */
     protected static array $mongo = [];
 
+    /**
+     * The register with all NullDb database instances
+     *
+     * @var array $null_db
+     */
+    protected static array $null_db = [];
+
 
 
     /**
@@ -147,5 +154,30 @@ class Databases
         }
 
         return self::$mongo[$instance];
+    }
+
+
+
+    /**
+     * Access NullDb database instances
+     *
+     * @param string|null $instance
+     * @return NullDb
+     * @throws Exception
+     */
+    public static function NullDb(?string $instance): NullDb
+    {
+        if (!$instance) {
+            // Default to system instance
+            $instance = 'system';
+        }
+
+        if (!array_key_exists($instance, self::$null_db)) {
+            // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
+            // Try connecting
+            self::$null_db[$instance] = new NullDb($instance);
+        }
+
+        return self::$null_db[$instance];
     }
 }

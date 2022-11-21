@@ -665,7 +665,10 @@ class Route
 
                     // Check if route map has the requested language
                     if (empty($core->register['Route::map'][$language])) {
-                        Log::warning(tr('Requested language ":language" does not have a language map available', [':language' => $language]));
+                        Log::warning(tr('Requested language ":language" does not have a language map available', [
+                            ':language' => $language
+                        ]));
+
                         Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
                         Route::execute404();
 
@@ -693,7 +696,7 @@ class Route
                         // Page was not translated, ie its still the original and no translation was found.
                         Log::warning(tr('Requested language ":language" does not have a translation available in the language map for page ":page"', [
                             ':language' => $language,
-                            ':page' => $page
+                            ':page'     => $page
                         ]));
 
                         Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
@@ -704,7 +707,9 @@ class Route
 
             // Check if configured page exists
             if ($page === 'index.php') {
-                throw new RouteException(tr('Route regex ":url_regex" resolved to main index.php page which would cause an endless loop', [':url_regex' => $url_regex]));
+                throw new RouteException(tr('Route regex ":url_regex" resolved to main index.php page which would cause an endless loop', [
+                    ':url_regex' => $url_regex
+                ]));
             }
 
             $page = PATH_WWW . Strings::startsNotWith($page, '/');
@@ -924,67 +929,61 @@ class Route
      */
     protected function execute(string $target, bool $attachment): void
     {
+        // Set the server filesystem restrictions and template for this page
+        Page::setServer($this->getServer());
+
         // Find the correct target page
         $target = Filesystem::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE);
 
-        // Do we have access to this page?
-        $this->server->checkRestrictions($target, false);
-
         if (str_ends_with($target, 'php')) {
+            // Execute the file and send the output HTML as a web page
+            Log::action(tr('Executing page ":target" and sending output as HTML web page', [
+                ':target' => Strings::from($target, PATH_ROOT)
+            ]));
+
+            // Remove the 404 auto execution on shutdown
+            Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+            $html = Page::execute($target, $this->template, $attachment);
+
             if ($attachment) {
-                // TODO Test this! Implement required HTTP headers!
-                // Execute the PHP file and then send the output to the client as an attachment
-                Log::action(tr('Executing file ":target" and sending output as attachment', [
-                    ':target' => $target
-                ]));
-
-                include($target);
-
-                Http::file(new Restrictions(PATH_WWW, false, 'Page dynamic attachment'))
-                    ->setAttachment(true)
-                    ->setData(ob_get_clean())
-                    ->setFilename(basename($target))
-                    ->send();
-
-            } else {
-                // Execute the file and send the output HTML as a web page
-                Log::action(tr('Executing page ":target" and sending output as HTML web page', [
-                    ':target' => Strings::from($target, PATH_ROOT)
-                ]));
-
-                // Remove the 404 auto execution on shutdown
-                Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
-                Page::new($this->template, $this->getServer())->execute($target, $attachment);
-            }
-
-        } else {
-            if ($attachment) {
-                // TODO Test this! Implement required HTTP headers!
-                // Upload the file to the client as an attachment
-                Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
-
+                // Send download headers and send the $html payload
                 Http::file(new Restrictions(PATH_WWW . ',data/attachments', false, 'Page attachment'))
                     ->setAttachment(true)
-                    ->setFile($target)
+                    ->setData($html)
                     ->setFilename(basename($target))
                     ->send();
-
-            } else {
-                // TODO Test this! Implement required HTTP headers!
-                // Send the file directly
-                $mimetype = mime_content_type($target);
-                $bytes    = filesize($target);
-
-                Log::action(tr('Sending contents of file ":target" with mime-type ":type" directly to client', [
-                    ':target' => $target,
-                    ':type' => $mimetype
-                ]));
-
-                header('Content-Type: ' . $mimetype);
-                header('Content-length: ' . $bytes);
-
-                include($target);
             }
+
+            return;
+
+        }
+
+        if ($attachment) {
+            // TODO Test this! Implement required HTTP headers!
+            // Upload the file to the client as an attachment
+            Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
+
+            Http::file(new Restrictions(PATH_WWW . ',data/attachments', false, 'Page attachment'))
+                ->setAttachment(true)
+                ->setFile($target)
+                ->setFilename(basename($target))
+                ->send();
+
+        } else {
+            // TODO Test this! Implement required HTTP headers!
+            // Send the file directly
+            $mimetype = mime_content_type($target);
+            $bytes    = filesize($target);
+
+            Log::action(tr('Sending contents of file ":target" with mime-type ":type" directly to client', [
+                ':target' => $target,
+                ':type' => $mimetype
+            ]));
+
+            header('Content-Type: ' . $mimetype);
+            header('Content-length: ' . $bytes);
+
+            include($target);
         }
     }
 

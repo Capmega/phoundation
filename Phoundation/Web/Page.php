@@ -3,7 +3,6 @@
 namespace Phoundation\Web;
 
 use Exception;
-use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
@@ -11,15 +10,15 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Notifications\Notification;
 use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Flash;
-use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Template\Template;
-use Phoundation\Web\Http\Http;
+use Phoundation\Web\Http\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Url;
 use Throwable;
 
@@ -38,53 +37,53 @@ use Throwable;
 class Page
 {
     /**
-     * Current page singleton
+     * Singleton
      *
-     * @var Page|null $current
+     * @var Page $instance
      */
-    protected static ?Page $current = null;
-
-    /**
-     * The template class that builds the UI
-     *
-     * @var Template|null $template
-     */
-    protected ?Template $template;
+    protected static Page $instance;
 
     /**
      * The server filesystem restrictions
      *
      * @var Server $server
      */
-    protected Server $server;
+    protected static Server $server;
+
+    /**
+     * The template class that builds the UI
+     *
+     * @var TemplatePage $template_page
+     */
+    protected static TemplatePage $template_page;
 
     /**
      * The flash object for this user
      *
      * @var Flash|null
      */
-    protected ?Flash $flash = null;
+    protected static ?Flash $flash = null;
 
     /**
      * !DOCTYPE variable
      *
      * @var string
      */
-    protected string $doctype = 'html';
+    protected static string $doctype = 'html';
 
     /**
      * The page title
      *
      * @var string|null $title
      */
-    protected ?string $title = null;
+    protected static ?string $title = null;
 
     /**
      * Information that goes into the HTML header
      *
      * @var array $headers
      */
-    protected array $headers = [
+    protected static array $headers = [
         'link'       => [],
         'meta'       => [],
         'javascript' => []
@@ -95,7 +94,7 @@ class Page
      *
      * @var array $footers
      */
-    protected array $footers = [
+    protected static array $footers = [
         'javascript' => []
     ];
 
@@ -104,80 +103,104 @@ class Page
      *
      * @var array
      */
-    protected array $header_files = [];
+    protected static array $header_files = [];
 
     /**
      * The files that should be added in the footer
      *
      * @var array
      */
-    protected array $footer_files = [];
+    protected static array $footer_files = [];
 
     /**
      * The HTML buffer for this page
      *
      * @var string $html
      */
-    protected string $html = '';
+    protected static string $html = '';
 
     /**
      * The unique hash for this page
      *
      * @var string|null $hash
      */
-    protected ?string $hash = null;
+    protected static ?string $hash = null;
 
     /**
      * Keeps track on if the HTML headers have been sent / generated or not
      *
      * @var bool $html_headers_sent
      */
-    protected bool $html_headers_sent = false;
+    protected static bool $html_headers_sent = false;
 
 
 
     /**
      * Page class constructor
      *
-     * @param Template $template
-     * @param Server $server
      * @throws Exception
      */
-    protected function __construct(Template $template, Server $server)
+    protected function __construct()
     {
         // Set the page hash
-        $this->hash = sha1($_SERVER['REQUEST_URI']);
+        self::$hash = sha1($_SERVER['REQUEST_URI']);
 
-        $this->server   = $server;
-        $this->template = $template;
-
-        $this->headers['meta']['charset']  = ['charset'  => Config::get('languages.encoding.charset', 'UTF-8')];
-        $this->headers['meta']['viewport'] = ['viewport' => Config::get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no')];
+        self::$headers['meta']['charset']  = ['charset'  => Config::get('languages.encoding.charset', 'UTF-8')];
+        self::$headers['meta']['viewport'] = ['viewport' => Config::get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no')];
     }
 
 
 
     /**
-     * Returns a new page object
+     * Singleton
      *
      * @return static
      */
-    public static function new(Template $template, Server $server): static
+    public static function getInstance(): Page
     {
-        self::$current = new static($template, $server);
-        return self::$current;
+        if (!isset(self::$instance)) {
+            self::$instance = new Page();
+        }
+
+        return self::$instance;
+    }
+
+
+    
+    /**
+     * Returns the current tab index and automatically increments it
+     *
+     * @return Server
+     */
+    public static function getServer(): Server
+    {
+        return self::$server;
     }
 
 
 
     /**
-     * Returns the current page object
+     * Sets the current tab index and automatically increments it
      *
+     * @param Server $server
      * @return static
      */
-    public static function current(): static
+    public static function setServer(Server $server): static
     {
-        return self::$current;
+        self::$server = $server;
+        return self::getInstance();
+    }
+
+
+
+    /**
+     * Returns the current TemplatePage used for this page
+     *
+     * @return TemplatePage
+     */
+    public static function getTemplatePage(): TemplatePage
+    {
+        return self::$template_page;
     }
 
 
@@ -187,23 +210,23 @@ class Page
      *
      * @return string
      */
-    public function getDocType(): string
+    public static function getDocType(): string
     {
-        return $this->doctype;
+        return self::$doctype;
     }
 
 
 
     /**
-     * Returns the current tab index and automatically increments it
+     * Sets the current tab index and automatically increments it
      *
      * @param string $doctype
-     * @return Page
+     * @return static
      */
-    public function setDoctype(string $doctype): static
+    public static function setDoctype(string $doctype): static
     {
-        $this->doctype = $doctype;
-        return $this;
+        self::$doctype = $doctype;
+        return self::getInstance();
     }
 
 
@@ -213,9 +236,9 @@ class Page
      *
      * @return string
      */
-    public function getTitle(): string
+    public static function getTitle(): string
     {
-        return $this->title;
+        return self::$title;
     }
 
 
@@ -225,12 +248,12 @@ class Page
      *
      * @param string $title
      * @param bool $no_translate
-     * @return Page
+     * @return static
      */
-    public function setTitle(string $title, bool $no_translate = false): static
+    public static function setTitle(string $title, bool $no_translate = false): static
     {
-        $this->title = $title;
-        return $this;
+        self::$title = $title;
+        return self::getInstance();
     }
 
 
@@ -240,9 +263,9 @@ class Page
      *
      * @return string|null
      */
-    public function getCharset(): ?string
+    public static function getCharset(): ?string
     {
-        return isset_get($this->headers['meta']['charset']);
+        return isset_get(self::$headers['meta']['charset']);
     }
 
 
@@ -251,12 +274,12 @@ class Page
      * Sets the page charset
      *
      * @param string|null $charset
-     * @return Page
+     * @return static
      */
-    public function setCharset(?string $charset): static
+    public static function setCharset(?string $charset): static
     {
-        $this->headers['meta']['charset'] = $charset;
-        return $this;
+        self::$headers['meta']['charset'] = $charset;
+        return self::getInstance();
     }
 
 
@@ -266,9 +289,9 @@ class Page
      *
      * @return string|null
      */
-    public function getViewport(): ?string
+    public static function getViewport(): ?string
     {
-        return isset_get($this->headers['meta']['viewport']);
+        return isset_get(self::$headers['meta']['viewport']);
     }
 
 
@@ -277,12 +300,12 @@ class Page
      * Sets the page viewport
      *
      * @param string|null $viewport
-     * @return Page
+     * @return static
      */
-    public function setViewport(?string $viewport): static
+    public static function setViewport(?string $viewport): static
     {
-        $this->headers['meta']['viewport'] = $viewport;
-        return $this;
+        self::$headers['meta']['viewport'] = $viewport;
+        return self::getInstance();
     }
 
 
@@ -293,21 +316,18 @@ class Page
      * We have a target for the requested route. If the resource is a PHP page, then
      * execute it. Anything else, send it directly to the client
      *
-     * @param string $target                  The target file that should be executed or sent to the client
-     * @param boolean $attachment             If specified as true, will send the file as a downloadable attachement,
-     *                                        to be written to disk instead of displayed on the browser. If set to
-     *                                        false, the file will be sent as a file to be displayed in the browser
-     *                                        itself.
-     * @param Server|array|string|null $server If specified, apply the specified file system restrictions, which may
-     *                                        block the request if the requested file is outside these restrictions
-     * @return void
+     * @param string $target      The target file that should be executed or sent to the client
+     * @param boolean $attachment If specified as true, will send the file as a downloadable attachement, to be written
+     *                            to disk instead of displayed on the browser. If set to false, the file will be sent as
+     *                            a file to be displayed in the browser itself.
+     * @return string|null
      * @throws Throwable
      * @package Web
      * @see route()
      * @note: This function will kill the process once it has finished executing / sending the target file to the client
      * @version 2.5.88: Added function and documentation
      */
-    #[NoReturn] public function execute(string $target, bool $attachment = false, Server|array|string|null $server = null): void
+    public static function execute(string $target, ?Template $template = null, bool $attachment = false): ?string
     {
         try {
             if (Strings::fromReverse(dirname($target), '/') === 'system') {
@@ -315,32 +335,49 @@ class Page
                 usleep(mt_rand(1, 500));
             }
 
-            Core::writeRegister($target, 'system', 'script_file');
-            ob_start();
+            // Do we have access to this page?
+            self::$server->checkRestrictions($target, false);
 
-            Log::notice(tr('Executing ":type" page ":page" with language ":language"', [
-                ':type'     => Core::getCallType(),
-                ':page'     => $target,
-                ':language' => LANGUAGE
-            ]));
+            // Do we have a cached version available?
+            $output = Cache::read($target);
 
-            switch (Core::getCallType()) {
-                case 'ajax':
-                    // no-break
+            if ($output) {
+                if (!$template) {
+                    if (!self::$template_page) {
+                        throw new OutOfBoundsException(tr('Cannot execute page ":target", no Template specified or available', [
+                            ':target' => $target
+                        ]));
+                    }
+                } else {
+                    // Get a new template page from the specified template
+                    self::$template_page = $template->getTemplatePage();
+                }
 
-                case 'api':
-                    include($target);
-                    break;
+                Core::writeRegister($target, 'system', 'script_file');
+                ob_start();
 
-                case 'admin':
-                    // no-break
-                default:
-                    // This is a normal web page
-                    $this->template->execute($target);
+                Log::notice(tr('Executing ":type" page ":page" with language ":language"', [
+                    ':type'     => Core::getCallType(),
+                    ':page'     => $target,
+                    ':language' => LANGUAGE
+                ]));
+
+                $output = match (Core::getCallType()) {
+                    'ajax', 'api' => self::$api_interfaqce->execute($target),
+                    default       => self::$template_page->execute($target),
+                };
+
+                // Write output to cache
+                Cache::write(self::$hash, $output);
+            }
+
+            // Send it directly as an output
+            if ($attachment) {
+                return $output;
             }
 
             // Send the page to the client
-            Page::send();
+            Page::send($output);
 
         } catch (Exception $e) {
             Notification::new()
@@ -366,7 +403,7 @@ class Page
      * @param string $data
      * @return int The length of the output buffer
      */
-    public function buffer(string $data): int
+    public static function buffer(string $data): int
     {
         echo $data;
         return ob_get_length();
@@ -380,7 +417,7 @@ class Page
      * @param string $html
      * @return void
      */
-    public function addHtml(string $html): void
+    public static function addHtml(string $html): void
     {
         echo $html;
     }
@@ -392,9 +429,9 @@ class Page
      *
      * @return TemplatePage
      */
-    public function template(): TemplatePage
+    public static function template(): TemplatePage
     {
-        return $this->template;
+        return self::$template_page;
     }
 
 
@@ -404,7 +441,7 @@ class Page
      *
      * @return string
      */
-    public function getHtml(): string
+    public static function getHtml(): string
     {
         return ob_get_contents();
     }
@@ -416,9 +453,9 @@ class Page
      *
      * @return string
      */
-    public function getHash(): string
+    public static function getHash(): string
     {
-        return $this->hash;
+        return self::$hash;
     }
 
 
@@ -428,9 +465,9 @@ class Page
      *
      * @return bool
      */
-    public function getHtmlHeadersSent(): bool
+    public static function getHtmlHeadersSent(): bool
     {
-        return $this->html_headers_sent;
+        return self::$html_headers_sent;
     }
 
 
@@ -440,7 +477,7 @@ class Page
      *
      * @return int
      */
-    public function getContentLength(): int
+    public static function getContentLength(): int
     {
         return ob_get_length();
     }
@@ -450,58 +487,15 @@ class Page
     /**
      * Send the current buffer to the client
      *
+     * @param string $output
      * @return void
      */
-    public function send(): void
+    public static function send(string $output): void
     {
-        $body = '';
+        // Send output to the client
+        $length = strlen($output);
+        echo $output;
 
-        /// Get all output buffers
-        while(ob_get_level()) {
-            $body .= ob_get_contents();
-            ob_end_clean();
-        }
-
-        ob_start(chunk_size: 4096);
-
-        // Build HTML and minify the output
-        $this->html = $this->template->buildHtmlHeader();
-        $this->html_headers_sent = true;
-
-        $this->html .= $this->template->buildPageHeader();
-        $this->html .= $this->template->buildMenu();
-        $this->html .= $body;
-        $this->html .= $this->template->buildPageFooter();
-        $this->html .= $this->template->buildHtmlFooter();
-        $this->html  = Html::minify($this->html);
-
-        // Send headers
-        $length = $this->template->buildHttpHeaders();
-
-        Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
-
-        if (strtoupper($_SERVER['REQUEST_METHOD']) == 'HEAD') {
-            // HEAD request, do not send any HTML whatsoever
-            return;
-        }
-
-        switch (Http::getHttpCode()) {
-            case 304:
-                // 304 requests indicate the browser to use it's local cache, send nothing
-                // no-break
-
-            case 429:
-                // 429 Tell the client that it made too many requests, send nothing
-                return;
-        }
-
-        // Write to cache and output
-        Cache::writePage($this->hash, $this->html);
-
-        $length = strlen($this->html);
-
-        // Send HTML to the client
-        echo $this->html;
         ob_flush();
         flush();
 
@@ -511,17 +505,30 @@ class Page
 
 
     /**
+     * Returns the page instead of sending it to the client
+     *
+     * This WILL send the HTTP headers, but will return the HTML instead of sending it to the browser
+     * @return string|null
+     */
+    public static function get(): ?string
+    {
+        return self::$template_page->get();
+    }
+
+
+
+    /**
      * Access the Flash object
      *
      * @return Flash
      */
-    public function flash(): Flash
+    public static function flash(): Flash
     {
-        if (!$this->flash) {
-            $this->flash = new Flash();
+        if (!self::$flash) {
+            self::$flash = new Flash();
         }
 
-        return $this->flash;
+        return self::$flash;
     }
 
 
@@ -532,9 +539,9 @@ class Page
      * @param array $meta
      * @return void
      */
-    public function addMeta(array $meta): void
+    public static function addMeta(array $meta): void
     {
-        $this->headers['meta'][] = $meta;
+        self::$headers['meta'][] = $meta;
     }
 
 
@@ -543,12 +550,12 @@ class Page
      * Set the favicon for this page
      *
      * @param string $url
-     * @return Page
+     * @return static
      */
-    public function setFavIcon(string $url): static
+    public static function setFavIcon(string $url): static
     {
         try {
-            $this->headers['link'][$url] = [
+            self::$headers['link'][$url] = [
                 'rel'  => 'icon',
                 'href' => Url::build($url)->img(),
                 'type' => File::new(Filesystem::absolute($url, 'img'), PATH_CDN . LANGUAGE . '/img')->mimetype()
@@ -557,7 +564,7 @@ class Page
             Log::warning($e->makeWarning());
         }
 
-        return $this;
+        return self::getInstance();
     }
 
 
@@ -567,15 +574,15 @@ class Page
      *
      * @param string|array $urls
      * @param bool|null $header
-     * @return Page
+     * @return static
      */
-    public function loadJavascript(string|array $urls, ?bool $header = null): static
+    public static function loadJavascript(string|array $urls, ?bool $header = null): static
     {
         if ($header === null) {
             $header = Config::get('web.javascript.delay', true);
         }
 
-        if ($header and $this->html_headers_sent) {
+        if ($header and self::$html_headers_sent) {
             Log::warning(tr('Not adding files ":files" to HTML headers as the HTML headers have already been generated', [
                 ':files' => $urls
             ]));
@@ -583,20 +590,20 @@ class Page
 
         foreach (Arrays::force($urls, '') as $url) {
             if ($header) {
-                $this->headers['javascript'][$url] = [
+                self::$headers['javascript'][$url] = [
                     'type' => 'text/javascript',
                     'src'  => Url::build($url)->js()
                 ];
 
             } else {
-                $this->footers['javascript'][$url] = [
+                self::$footers['javascript'][$url] = [
                     'type' => 'text/javascript',
                     'src'  => Url::build($url)->js()
                 ];
             }
         }
 
-        return $this;
+        return self::getInstance();
     }
 
 
@@ -605,18 +612,18 @@ class Page
      * Load the specified CSS file(s)
      *
      * @param string|array $urls
-     * @return Page
+     * @return static
      */
-    public function loadCss(string|array $urls): static
+    public static function loadCss(string|array $urls): static
     {
         foreach (Arrays::force($urls, '') as $url) {
-            $this->headers['link'][$url] = [
+            self::$headers['link'][$url] = [
                 'rel'  => 'stylesheet',
                 'href' => Url::build($url)->css(),
             ];
         }
 
-        return $this;
+        return self::getInstance();
     }
 
 
@@ -626,26 +633,26 @@ class Page
      *
      * @return string|null
      */
-    public function buildHeaders(): ?string
+    public static function buildHeaders(): ?string
     {
-        $return = '<!DOCTYPE ' . $this->doctype . '>
+        $return = '<!DOCTYPE ' . self::$doctype . '>
         <html lang="' . Session::getLanguage() . '">' . PHP_EOL;
 
-        if ($this->title) {
-            $return .= '<title>' . $this->title . '</title>' . PHP_EOL;
+        if (self::$title) {
+            $return .= '<title>' . self::$title . '</title>' . PHP_EOL;
         }
 
-        foreach ($this->headers['meta'] as $header) {
+        foreach (self::$headers['meta'] as $header) {
             $header  = Arrays::implodeWithKeys($header, ' ', '=', '"', true);
             $return .= '<meta ' . $header . ' />' . PHP_EOL;
         }
 
-        foreach ($this->headers['link'] as $header) {
+        foreach (self::$headers['link'] as $header) {
             $header  = Arrays::implodeWithKeys($header, ' ', '=', '"', true);
             $return .= '<link ' . $header . ' />' . PHP_EOL;
         }
 
-        foreach ($this->headers['javascript'] as $header) {
+        foreach (self::$headers['javascript'] as $header) {
             $header  = Arrays::implodeWithKeys($header, ' ', '=', '"', true);
             $return .= '<script ' . $header . '></script>' . PHP_EOL;
         }
@@ -660,11 +667,11 @@ class Page
      *
      * @return string|null
      */
-    public function buildFooters(): ?string
+    public static function buildFooters(): ?string
     {
         $return = '';
 
-        foreach ($this->footers['javascript'] as $header) {
+        foreach (self::$footers['javascript'] as $header) {
             $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
             $return .= '<script ' . $header . '></script>' . PHP_EOL;
         }

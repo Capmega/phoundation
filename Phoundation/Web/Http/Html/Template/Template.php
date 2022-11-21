@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Template;
 
+use Phoundation\Web\Http\Html\Template\Exception\TemplateException;
 use Phoundation\Web\Page;
 
 
@@ -16,8 +17,15 @@ use Phoundation\Web\Page;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Template
+abstract class Template
 {
+    /**
+     * The template name
+     *
+     * @var string
+     */
+    protected string $name;
+
     /**
      * The template page that should be used
      *
@@ -42,7 +50,7 @@ class Template
 
 
     /**
-     * Returns a new template object
+     * Returns a new Template object
      *
      * @return static
      */
@@ -54,13 +62,51 @@ class Template
 
 
     /**
-     * Execute the template
+     * This function checks if this template is the required template
      *
-     * @param string $target
+     * This is in case a specific site requires a specific template
+     *
+     * @param string $name
      * @return void
      */
-    public function execute(Page $page, string $target): void
+    public function requires(string $name): void
     {
-        $this->template_page::new($page)->execute($target);
+        if ($name !== $this->name) {
+            throw new TemplateException(tr('This page requires the ":name" template', [
+                ':name' => $name
+            ]));
+        }
     }
+
+
+
+    /**
+     * Returns a new TemplatePage for this template
+     *
+     * @return TemplatePage
+     */
+    public function getTemplatePage(): TemplatePage
+    {
+        return new $this->template_page;
+    }
+
+
+
+    /**
+     * Returns the name for this template
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+       return basename(__DIR__);
+    }
+
+
+    /**
+     * Returns the description for this template
+     *
+     * @return string
+     */
+    public abstract function getDescription(): string;
 }

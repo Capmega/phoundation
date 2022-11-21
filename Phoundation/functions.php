@@ -18,6 +18,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Databases\Databases;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
+use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
@@ -583,6 +584,7 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
 }
 
 
+
 /**
  * Returns the system SQL database object
  *
@@ -631,4 +633,17 @@ function mongo(?string $instance_name = null): Mongo
 function redis(?string $instance_name = null): Redis
 {
     return Databases::Redis($instance_name);
+}
+
+
+
+/**
+ * Returns the system SQL database object
+ *
+ * @param string|null $instance_name
+ * @return NullDb
+ */
+function null(?string $instance_name = null): NullDb
+{
+    return Databases::NullDb($instance_name);
 }
