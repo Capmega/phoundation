@@ -1480,7 +1480,7 @@ class Core {
                         Log::error($e);
 
                         // Make sure the Router shutdown won't happen so it won't send a 404
-                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+                        Core::unregisterShutdown('route_postprocess');
 
                         // Remove all caching headers
                         if (!headers_sent()) {
@@ -1492,7 +1492,7 @@ class Core {
 
                         //
                         Http::setHttpCode(500);
-                        self::unregisterShutdown(['Route', '404']);
+                        self::unregisterShutdown('route_postprocess');
 
                         $defines = [
                             'ADMIN'    => '',
@@ -1930,18 +1930,25 @@ class Core {
     /**
      * Register a shutdown function
      *
-     * @param array|string $function_name
-     * @param mixed $values
+     * @note Function can be either a function name, a callable function, or an array with static object::method or an
+     *       array with [$object, 'methodname']
+     *
+     * @param string $identifier
+     * @param array|string|callable $function
+     * @param mixed $data
      * @return void
      */
-    public static function registerShutdown(array|string $function_name, mixed $values = null): void
+    public static function registerShutdown(string $identifier, array|string|callable $function, mixed $data = null): void
     {
         if (!is_array(self::readRegister('system', 'shutdown'))) {
             // Libraries shutdown list
             self::$register['system']['shutdown'] = [];
         }
 
-        self::$register['system']['shutdown'][Strings::force($function_name)] = $values;
+        self::$register['system']['shutdown'][$identifier] = [
+            'data'     => $data,
+            'function' => $function
+        ];
     }
 
 
@@ -1957,23 +1964,21 @@ class Core {
      * @category Function reference
      * @package system
      * @see shutdown()
-     * @see register_shutdown()
+     * @see Core::registerShutdown()
      * @version 1.27.0: Added function and documentation
      *
-     * @param array|string $function_name
+     * @param string $identifier
      * @return bool
      */
-    public static function unregisterShutdown(array|string $function_name): bool
+    public static function unregisterShutdown(string $identifier): bool
     {
-        $key = Strings::force($function_name);
-
         if (!is_array(self::readRegister('system', 'shutdown'))) {
             // Libraries shutdown list
             self::$register['system']['shutdown'] = [];
         }
 
-        if (array_key_exists($key, self::$register['system']['shutdown'])) {
-            unset(self::$register['system']['shutdown'][$key]);
+        if (array_key_exists($identifier, self::$register['system']['shutdown'])) {
+            unset(self::$register['system']['shutdown'][$identifier]);
             return true;
         }
 
@@ -2037,56 +2042,77 @@ class Core {
         // Reverse the shutdown calls to execute them last added first, first added last
         self::$register['system']['shutdown'] = array_reverse(self::$register['system']['shutdown']);
 
-        foreach (self::$register['system']['shutdown'] as $method => $value) {
+        foreach (self::$register['system']['shutdown'] as $identifier => $data) {
             try {
-                if (str_contains($method, ',')) {
-                    // Execute the static class method with the specified value
-                    $method = explode(',', $method);
+                $function = $data['function'];
+                $data     = Arrays::force($data['data'], null);
 
-                    // Ensure the class file is loaded
-                    Debug::loadClassFile($method[0]);
+                // If no data was specified at all, then ensure at least one NULL value
+                if (!$data) {
+                    $data = [null];
+                }
+
+                // Execute this shutdown function for each data value
+                foreach ($data as $value) {
+                    Log::notice(tr('Executing shutdown function ":identifier" with data value ":value"', [
+                        ':identifier' => $identifier,
+                        ':value'      => $value
+                    ]));
+
+                    if (is_callable($function)) {
+                        // Execute this call directly
+                        $function($value);
+                        continue;
+                    }
+
+                    if (is_string($function)) {
+                        if (str_contains($function, ',')) {
+                            // This is an array containing components. Explode and treat as array
+                            $function = explode(',', $function);
+                        } else {
+                            $function[0]::{$function[1]}($value);
+                            continue;
+                        }
+                    }
 
                     // Execute this shutdown function with the specified value
-                    if (is_array($value)) {
-                        // Shutdown function value is an array. Execute it for each entry
-                        foreach ($value as $entry) {
-                            Log::notice(tr('Executing shutdown method ":method" with list value ":value"', [
-                                ':method' => $method[0] . '::' . $method[1] . '()',
-                                ':value' => $entry
-                            ]));
+                    if (is_array($function)) {
+                        // Decode the array contents. If anything is not correct, it will no-break fall through to the
+                        // warning log
+                        $function = explode(',', $function);
 
-                            $method[0]::{$method[1]}($entry);
+                        if (count($function) === 2) {
+                            // The first entry can either be a class name string or an object
+                            if (is_object($function[0])) {
+                                if (is_string($function[1])) {
+                                    // Execute the method in the specified object
+                                    $function[0]->$function[1]($value);
+                                    continue;
+                                }
+
+                                // no-break
+                            } elseif (is_string($function[0])) {
+                                if (is_string($function[1])) {
+                                    // Ensure the class file is loaded
+                                    Debug::loadClassFile($function[0]);
+
+                                    // Execute this shutdown function with the specified value
+                                    $function[0]::{$function[1]}($value);
+                                    continue;
+                                }
+
+                                // no-break
+                            }
+
+                            // no-break
                         }
 
-                    } else {
-                        Log::notice(tr('Executing shutdown method ":method" with value ":value"', [
-                            ':method' => $method[0] . '::' . $method[1] . '()',
-                            ':value'  => $value
-                        ]));
-
-                        $method[0]::{$method[1]}($value);
+                        // no-break
                     }
-                } else {
-                    // Execute this shutdown function with the specified value
-                    if (is_array($value)) {
-                        // Shutdown function value is an array. Execute it for each entry
-                        foreach ($value as $entry) {
-                            Log::notice(tr('Executing shutdown function ":function" with list value ":value"', [
-                                ':function' => $method . '()',
-                                ':value'    => $entry
-                            ]));
 
-                            $method($entry);
-                        }
-
-                    } else {
-                        Log::notice(tr('Executing shutdown function ":function" with value ":value"', [
-                            ':function' => $method . '()',
-                            ':value'    => $value
-                        ]));
-
-                        $method($value);
-                    }
+                    Log::warning(tr('Unknown function information ":function" encountered, quietly skipping', [
+                        ':function' => $function
+                    ]));
                 }
 
             } catch (Throwable $e) {

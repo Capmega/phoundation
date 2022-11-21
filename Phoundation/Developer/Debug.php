@@ -265,7 +265,7 @@ class Debug {
             return null;
         }
 
-        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+        Core::unregisterShutdown('route_postprocess');
 
         if (Debug::production()) {
             // This is not usually something you want to happen!
@@ -285,8 +285,7 @@ class Debug {
         if (Core::readyState() and PLATFORM_HTTP) {
             // Show output on web
             if (!headers_sent()) {
-                Http::buildHeaders();
-                Http::sendHeaders();
+                Http::sendHeaders(Http::buildHeaders());
             }
 
             if (empty($core->register['debug_plain'])) {
@@ -296,8 +295,7 @@ class Debug {
                     case 'ajax':
                         // If JSON, CORS requests require correct headers! Also force plain text content type
                         if (!headers_sent()) {
-                            Http::buildHeaders();
-                            Http::sendHeaders();
+                            Http::sendHeaders(Http::buildHeaders());
                         }
 
                         if (!headers_sent()) {
@@ -979,7 +977,7 @@ class Debug {
 
         if ($counter++ >= $count) {
             // Ensure that the shutdown function doesn't try to show the 404 page
-            Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+            Core::unregisterShutdown('route_postprocess');
 
             die(Strings::endsWith(str_replace('%count%', $count, $message), PHP_EOL));
         }

@@ -210,7 +210,7 @@ class Http
      * @todo Refactor and remove $core dependancies
      * @todo Refactor and remove $params dependancies
      */
-    public static function buildHeaders(): ?array
+    public static function buildHeaders(bool $attachment = false): ?array
     {
         if (self::headersSent()) {
             return null;
@@ -325,7 +325,7 @@ class Http
      * @param array $headers
      * @return int The amount of bytes sent. -1 if Http::sendHeaders() was called for the second time.
      */
-    public static function sendHeaders(array $headers = []): int
+    public static function sendHeaders(array $headers): int
     {
         if (self::headersSent(true)) {
             return -1;

@@ -3,6 +3,7 @@
 namespace Phoundation\Web;
 
 use Exception;
+use Phoundation\Api\ApiInterface;
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
@@ -56,6 +57,13 @@ class Page
      * @var TemplatePage $template_page
      */
     protected static TemplatePage $template_page;
+
+    /**
+     * The Phoundation API interface
+     *
+     * @var ApiInterface $api_interface
+     */
+    protected static ApiInterface $api_interface;
 
     /**
      * The flash object for this user
@@ -372,7 +380,7 @@ class Page
 
             // Execute the specified target
             $output = match (Core::getCallType()) {
-                'ajax', 'api' => self::$api_interfaqce->execute($target),
+                'ajax', 'api' => self::$api_interface->execute($target),
                 default       => self::$template_page->execute($target),
             };
 

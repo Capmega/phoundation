@@ -69,7 +69,7 @@ class Script
 
         // All scripts will execute the cli_done() call, register basic script information
         Core::startup();
-        Core::registerShutdown(['\Phoundation\Cli\Script', 'shutdown']);
+        Core::registerShutdown('core_shutdown', ['\Phoundation\Cli\Script', 'shutdown']);
 
         // Only allow this to be run by the cli script
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!

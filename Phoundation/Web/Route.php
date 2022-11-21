@@ -226,8 +226,8 @@ class Route
                     ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')')
                 ]));
 
-                Core::registerShutdown(['\Phoundation\Web\Route', 'shutdown']);
-                Core::registerShutdown(['\Phoundation\Web\Route', 'postProcess']);
+                Core::registerShutdown('core_shutdown', ['\Phoundation\Web\Route', 'shutdown']);
+                Core::registerShutdown('route_postprocess', [$this, 'postProcess']);
             }
 
             if (!$url_regex) {
@@ -458,8 +458,7 @@ class Route
                     case 'B':
                         // Block this request, send nothing
                         Log::warning(tr('Blocking request as per B flag'));
-                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
-                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+                        Core::unregisterShutdown('route_postprocess');
                         $block = true;
                         break;
 
@@ -484,7 +483,7 @@ class Route
 
                         $count = 1;
                         unset($flags[$flags_id]);
-                        self::execute(Debug::currentFile(1), $attachment);
+                        $this->execute(Debug::currentFile(1), $attachment);
 
                     case 'G':
                         // MUST be a GET reqest, NO POST data allowed!
@@ -562,7 +561,7 @@ class Route
 
                         // We are going to redirect so we no longer need to default to 404
                         Log::success(tr('Redirecting to ":route" with HTTP code ":code"', [':route' => $route, ':code' => $http_code]));
-                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+                        Core::unregisterShutdown('route_postprocess');
                         Http::redirect(Url::addQueries($route, $_GET), $http_code);
                         break;
 
@@ -637,7 +636,7 @@ class Route
                                 ':key'   => $key
                             ]));
 
-                            Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+                            Core::unregisterShutdown('route_postprocess');
                             redirect($domain);
                     }
                 }
@@ -669,7 +668,7 @@ class Route
                             ':language' => $language
                         ]));
 
-                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+                        Core::unregisterShutdown('route_postprocess');
                         Route::execute404();
 
                     } else {
@@ -685,7 +684,7 @@ class Route
 
                         if (!file_exists($page)) {
                             Log::warning(tr('Language remapped page ":page" does not exist', [':page' => $page]));
-                            Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+                            Core::unregisterShutdown('route_postprocess');
                             Route::execute404();
                         }
 
@@ -699,7 +698,7 @@ class Route
                             ':page'     => $page
                         ]));
 
-                        Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+                        Core::unregisterShutdown('route_postprocess');
                         Route::execute404();
                     }
                 }
@@ -723,7 +722,7 @@ class Route
                 } else {
                     // The hardcoded file for the regex does not exist, oops!
                     Log::warning(tr('Matched hard coded page ":page" does not exist', [':page' => $page]));
-                    Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+                    Core::unregisterShutdown('route_postprocess');
                     Route::execute404();
                 }
             }
@@ -738,7 +737,7 @@ class Route
             }
 
             // We are going to show the matched page so we no longer need to default to 404
-            Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+            Core::unregisterShutdown('route_postprocess');
 
             /*
              * Execute the page specified in $target (from here, $route)
@@ -789,7 +788,7 @@ class Route
                 Core::die();
             }
 
-            self::execute($page, $attachment);
+            $this->execute($page, $attachment);
 
         } catch (Exception $e) {
             if (str_starts_with($e->getMessage(), 'PHP ERROR [2] "preg_match_all():')) {
@@ -905,17 +904,19 @@ class Route
      */
     public function postProcess(): void
     {
+        Log::warning(tr('Found no routes for known pages, testing for hacks'));
+
         // Test the URI for known hacks. If so, apply configured response
         if (Config::get('web.route.known-hacks', false)) {
             Log::warning(tr('Applying known hacking rules'));
 
             foreach (Config::get('web.route.known-hacks') as $hacks) {
-                self::try($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
+                $this->try($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
             }
         }
 
         // This is not a hack, the page simply cannot be found. Show a 404 instead
-        self::execute404();
+        $this->execute404();
     }
 
 
@@ -933,7 +934,7 @@ class Route
         Page::setServer($this->getServer());
 
         // Find the correct target page
-        $target = Filesystem::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE);
+        $target = Filesystem::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE . '/pages/');
 
         if (str_ends_with($target, 'php')) {
             // Execute the file and send the output HTML as a web page
@@ -943,7 +944,7 @@ class Route
             ]));
 
             // Remove the 404 auto execution on shutdown
-            Core::unregisterShutdown(['\Phoundation\Web\Route', 'postProcess']);
+            Core::unregisterShutdown('route_postprocess');
             $html = Page::execute($target, $this->template, $attachment);
 
             if ($attachment) {
@@ -1008,11 +1009,13 @@ class Route
      */
     protected function execute404(): void
     {
+        Log::warning(tr('Found no routes for known pages nor hacks, sending 404'));
+
         try {
             Core::writeRegister(PATH_WWW . 'system/404', 'system', 'script_path');
             Core::writeRegister('404', 'system', 'script');
 
-            self::execute('system/404.php', false);
+            $this->execute('system/404.php', false);
 
         } catch (Throwable $e) {
             if ($e->getCode() === 'not-exists') {
