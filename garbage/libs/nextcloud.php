@@ -192,19 +192,19 @@ function nextcloud_library_init() {
  * @package nextcloud
  * @see services_list_servers()
  *
- * @param boolean $server If set to true, will only return the default nextcloud server. If set to a domain, will return the domain IF that domain supports the specified service
+ * @param boolean $server_restrictions If set to true, will only return the default nextcloud server. If set to a domain, will return the domain IF that domain supports the specified service
  * @param boolean $force If set to true, will ignore cache and re-read the list from the database
  * @return array a list of all registered and available nextcloud server domains
  */
-function nextcloud_list_servers($server = null, $force = false) {
-    static $servers;
+function nextcloud_list_servers($server_restrictions = null, $force = false) {
+    static $server_restrictionss;
 
     try {
-        if (empty($servers) and !$force) {
-            $servers = services_list_servers('nextcloud', $server);
+        if (empty($server_restrictionss) and !$force) {
+            $server_restrictionss = services_list_servers('nextcloud', $server_restrictions);
         }
 
-        return $servers;
+        return $server_restrictionss;
 
     }catch(Exception $e) {
         throw new CoreException('nextcloud_list_servers(): Failed', $e);
@@ -224,18 +224,18 @@ function nextcloud_list_servers($server = null, $force = false) {
  * @category Function reference
  * @package nextcloud
  *
- * @param boolean $server If set to true, will only return the default nextcloud server. If set to a domain, will return the domain IF that domain supports the specified service
+ * @param boolean $server_restrictions If set to true, will only return the default nextcloud server. If set to a domain, will return the domain IF that domain supports the specified service
  * @return array a list of all registered and available nextcloud server domains
  */
-function nextcloud_select_server($server, $force = false) {
+function nextcloud_select_server($server_restrictions, $force = false) {
     try {
-        $servers = nextcloud_list_servers($server, $force);
+        $server_restrictionss = nextcloud_list_servers($server_restrictions, $force);
 
         /*
          * No server specified, so we should have only the default nextcloud server
          */
-        $server = array_shift($servers);
-        return $server;
+        $server_restrictions = array_shift($server_restrictionss);
+        return $server_restrictions;
 
     }catch(Exception $e) {
         throw new CoreException('nextcloud_select_server(): Failed', $e);
@@ -257,9 +257,9 @@ function nextcloud_select_server($server, $force = false) {
  *
  * @return array a list of all registered and available nextcloud server domains
  */
-function nextcloud_exec($server, $params) {
+function nextcloud_exec($server_restrictions, $params) {
     try {
-        $nextcloud = nextcloud_select_server($server);
+        $nextcloud = nextcloud_select_server($server_restrictions);
 
         foreach ($params['commands'] as $key => &$value) {
             if (!($key % 2)) {
@@ -289,12 +289,12 @@ function nextcloud_exec($server, $params) {
  * @package nextcloud
  *
  * @param mixed $user
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return
  */
-function nextcloud_users_add($user, $server = null) {
+function nextcloud_users_add($user, $server_restrictions = null) {
     try {
-        $return = nextcloud_exec($server, array('commands' => array('export', array('')),
+        $return = nextcloud_exec($server_restrictions, array('commands' => array('export', array('')),
                                                                     'php'   , array('occ', 'user:add', '--password-from-env', '--display-name' => $user['nickname'], $user['id'])));
 
         return $return;
@@ -315,13 +315,13 @@ function nextcloud_users_add($user, $server = null) {
  * @category Function reference
  * @package nextcloud
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param mixed $user
  * @return
  */
-function nextcloud_users_delete($server, $user) {
+function nextcloud_users_delete($server_restrictions, $user) {
     try {
-        $return = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:delete', $user['username']))));
+        $return = nextcloud_exec($server_restrictions, array('commands' => array('php', array('occ', 'user:delete', $user['username']))));
 
         return $return;
 
@@ -341,13 +341,13 @@ function nextcloud_users_delete($server, $user) {
  * @category Function reference
  * @package nextcloud
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param mixed $user
  * @return
  */
-function nextcloud_users_disable($server, $user) {
+function nextcloud_users_disable($server_restrictions, $user) {
     try {
-        $return = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:disable', $user['username']))));
+        $return = nextcloud_exec($server_restrictions, array('commands' => array('php', array('occ', 'user:disable', $user['username']))));
 
         return $return;
 
@@ -367,13 +367,13 @@ function nextcloud_users_disable($server, $user) {
  * @category Function reference
  * @package nextcloud
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param mixed $user
  * @return
  */
-function nextcloud_users_enable($server, $user) {
+function nextcloud_users_enable($server_restrictions, $user) {
     try {
-        $return = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:enable', $user['username']))));
+        $return = nextcloud_exec($server_restrictions, array('commands' => array('php', array('occ', 'user:enable', $user['username']))));
 
         return $return;
 
@@ -393,13 +393,13 @@ function nextcloud_users_enable($server, $user) {
  * @category Function reference
  * @package nextcloud
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param mixed $user
  * @return
  */
-function nextcloud_users_info($server, $user) {
+function nextcloud_users_info($server_restrictions, $user) {
     try {
-        $return = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:info', $user['username']))));
+        $return = nextcloud_exec($server_restrictions, array('commands' => array('php', array('occ', 'user:info', $user['username']))));
 
         return $return;
 
@@ -419,13 +419,13 @@ function nextcloud_users_info($server, $user) {
  * @category Function reference
  * @package nextcloud
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param mixed $user
  * @return
  */
-function nextcloud_users_last_seen($server, $user) {
+function nextcloud_users_last_seen($server_restrictions, $user) {
     try {
-        $return = nextcloud_exec($server, array('commands' => array('export', array('')),
+        $return = nextcloud_exec($server_restrictions, array('commands' => array('export', array('')),
                                                                     'php'   , array('occ', 'user:disable', '--password-from-env', $user['username'])));
 
         return $return;
@@ -446,12 +446,12 @@ function nextcloud_users_last_seen($server, $user) {
  * @category Function reference
  * @package nextcloud
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return
  */
-function nextcloud_users_list($server) {
+function nextcloud_users_list($server_restrictions) {
     try {
-        $return = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:list'))));
+        $return = nextcloud_exec($server_restrictions, array('commands' => array('php', array('occ', 'user:list'))));
 
         return $return;
 
@@ -471,12 +471,12 @@ function nextcloud_users_list($server) {
  * @category Function reference
  * @package nextcloud
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return
  */
-function nextcloud_users_report($server) {
+function nextcloud_users_report($server_restrictions) {
     try {
-        $return = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:report'))));
+        $return = nextcloud_exec($server_restrictions, array('commands' => array('php', array('occ', 'user:report'))));
 
         return $return;
 
@@ -496,14 +496,14 @@ function nextcloud_users_report($server) {
  * @category Function reference
  * @package nextcloud
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param mixed $user
  * @param mixed $password
  * @return
  */
-function nextcloud_users_reset_password($server, $user, $password) {
+function nextcloud_users_reset_password($server_restrictions, $user, $password) {
     try {
-        $return = nextcloud_exec($server, array('commands' => array('export', array('')),
+        $return = nextcloud_exec($server_restrictions, array('commands' => array('export', array('')),
                                                                     'php'   , array('occ', 'user:resetpassword', '--password-from-env', $user['username'])));
 
         return $return;
@@ -524,14 +524,14 @@ function nextcloud_users_reset_password($server, $user, $password) {
  * @category Function reference
  * @package nextcloud
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param mixed $user
  * @param array settings
  * @return
  */
-function nextcloud_users_setting($server, $user, $settings = null) {
+function nextcloud_users_setting($server_restrictions, $user, $settings = null) {
     try {
-        $return = nextcloud_exec($server, array('commands' => array('php', array('occ', 'user:setting', $user['username']))));
+        $return = nextcloud_exec($server_restrictions, array('commands' => array('php', array('occ', 'user:setting', $user['username']))));
 
         return $return;
 
@@ -551,11 +551,11 @@ function nextcloud_users_setting($server, $user, $settings = null) {
  * @category Function reference
  * @package nextcloud
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param mixed $user
  * @return
  */
-function nextcloud_check_user_ldap($server, $user) {
+function nextcloud_check_user_ldap($server_restrictions, $user) {
     try {
 
     }catch(Exception $e) {
@@ -575,12 +575,12 @@ function nextcloud_check_user_ldap($server, $user) {
  * @package nextcloud
  * @see nextcloud_remove_user_from_group()
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param mixed $user
  * @param mixed $group
  * @return
  */
-function nextcloud_add_user_to_group($server, $user, $group) {
+function nextcloud_add_user_to_group($server_restrictions, $user, $group) {
     try {
 
     }catch(Exception $e) {
@@ -600,12 +600,12 @@ function nextcloud_add_user_to_group($server, $user, $group) {
  * @package nextcloud nextcloud
  * @see nextcloud_add_user_to_group()
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param mixed $user
  * @param mixed $group
  * @return
  */
-function nextcloud_remove_user_from_group($server, $user, $group) {
+function nextcloud_remove_user_from_group($server_restrictions, $user, $group) {
     try {
 
     }catch(Exception $e) {

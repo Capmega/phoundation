@@ -1358,10 +1358,10 @@ function image_slider($params = null) {
  * @package image
  *
  * @param string $file The image to be modified
- * @param null mixed $server The server on which to execute this glitch command
+ * @param null mixed $server_restrictions The server on which to execute this glitch command
  * @return string The result
  */
-function image_glitch($file, $server = null) {
+function image_glitch($file, $server_restrictions = null) {
     try {
         $mimetype = image_is_valid($file);
 
@@ -1371,7 +1371,7 @@ function image_glitch($file, $server = null) {
 
         $file_out = file_temp();
 
-        if ($server) {
+        if ($server_restrictions) {
 // :TODO: Git doesnt support multi server yet
             under_construction();
         }
@@ -1382,11 +1382,11 @@ function image_glitch($file, $server = null) {
             load_libs('git');
             log_console('Corrupter program not setup yet, creating now');
 
-            linux_file_delete($server, array('patterns'     => PATH_ROOT.'data/go/corrupter',
+            linux_file_delete($server_restrictions, array('patterns'     => PATH_ROOT.'data/go/corrupter',
                 'restrictions' => false));
 
             git_clone('https://github.com/r00tman/corrupter', PATH_ROOT.'data/go');
-            go_build(PATH_ROOT.'data/go/corrupter', $server);
+            go_build(PATH_ROOT.'data/go/corrupter', $server_restrictions);
         }
 
         go_exec(array('commands' => array('corrupter/corrupter', array($file, $file_out))));

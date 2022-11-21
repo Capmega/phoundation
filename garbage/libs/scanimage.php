@@ -58,7 +58,7 @@ function scanimage_library_init() {
  */
 function scanimage($params) {
     try {
-        $server = servers_get($params['domain']);
+        $server_restrictions = servers_get($params['domain']);
         $params = scanimage_validate($params);
 
         /*
@@ -95,14 +95,14 @@ function scanimage($params) {
                     /*
                      * This is a remote server
                      */
-                    $remote = linux_ensure_path($server, $params['path']);
-                    $pid    = servers_exec($server, array('ok_exitcodes' => '0,2',
+                    $remote = linux_ensure_path($server_restrictions, $params['path']);
+                    $pid    = servers_exec($server_restrictions, array('ok_exitcodes' => '0,2',
                                                           'timeout'      => $params['timeout'],
                                                           'background'   => true,
                                                           'output_log'   => true,
                                                           'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
-                    rsync(array('source'              => $server['domain'].':'.$params['path'],
+                    rsync(array('source'              => $server_restrictions['domain'].':'.$params['path'],
                                 'target'              => $params['local']['batch'],
                                 'monitor_pid'         => $pid,
                                 'exclude'             => '*.part',
@@ -126,7 +126,7 @@ function scanimage($params) {
                     Path::ensure(dirname($file));
 
                     $params['options']['redirect'] = ' > '.$file;
-                    $results                       = servers_exec($server, array('timeout'  => $params['timeout'],
+                    $results                       = servers_exec($server_restrictions, array('timeout'  => $params['timeout'],
                                                                                  'commands' => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
                 } else {
@@ -137,7 +137,7 @@ function scanimage($params) {
                     $remote = '/tmp/'.str_random(16);
 
                     $params['options']['redirect'] = ' > '.$remote;
-                    $results                       = servers_exec($server, array('timeout'  => $params['timeout'],
+                    $results                       = servers_exec($server_restrictions, array('timeout'  => $params['timeout'],
                                                                                  'commands' => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
                     rsync(array('source'              => $params['domain'].':'.$remote,
@@ -244,15 +244,15 @@ function scanimage($params) {
                      * Failed to open the device, it might be busy or not
                      * responding
                      */
-                    $server  = servers_get($params['domain']);
-                    $process = linux_pgrep($server, 'scanimage');
+                    $server_restrictions  = servers_get($params['domain']);
+                    $process = linux_pgrep($server_restrictions, 'scanimage');
 
                     if (substr($line, -24, 24) === 'failed: invalid argument') {
-                        throw new CoreException(tr('scanimage(): The scanner ":scanner" on server ":server" is not responding. Please start or restart the scanner', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'stuck');
+                        throw new CoreException(tr('scanimage(): The scanner ":scanner" on server ":server" is not responding. Please start or restart the scanner', array(':scanner' => $params['device'], ':server' => $server_restrictions['domain'])), 'stuck');
 
                     } else {
                         if ($process) {
-                            throw new CoreException(tr('scanimage(): The scanner ":scanner" on server ":server" is already in operation. Please wait for the process to finish, or kill the process', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'busy');
+                            throw new CoreException(tr('scanimage(): The scanner ":scanner" on server ":server" is already in operation. Please wait for the process to finish, or kill the process', array(':scanner' => $params['device'], ':server' => $server_restrictions['domain'])), 'busy');
                         }
                     }
 
@@ -603,9 +603,9 @@ function scanimage_list() {
  *
  * @return array All found scanner devices
  */
-function scanimage_detect_devices($server = null, $sudo = false) {
+function scanimage_detect_devices($server_restrictions = null, $sudo = false) {
     try {
-        $scanners = servers_exec($server, array('timeout'  => 90,
+        $scanners = servers_exec($server_restrictions, array('timeout'  => 90,
                                                 'commands' => array('scanimage', array('sudo' => $sudo, '-L', '-q'))));
         $devices  = array();
 
@@ -658,7 +658,7 @@ function scanimage_detect_devices($server = null, $sudo = false) {
                  * Get device options
                  */
                 try {
-                    $device['options'] = scanimage_get_options($device['string'], $server, $sudo);
+                    $device['options'] = scanimage_get_options($device['string'], $server_restrictions, $sudo);
 
                 }catch(Exception $e) {
                     devices_set_status('failed', $device['string']);
@@ -822,9 +822,9 @@ function scanimage_detect_devices($server = null, $sudo = false) {
  * @param string $device
  * @return
  */
-function scanimage_get_options($device, $server = null, $sudo = false) {
+function scanimage_get_options($device, $server_restrictions = null, $sudo = false) {
     try {
-        $results = servers_exec($server, array('commands' => array('scanimage', array('sudo' => $sudo, '-A', '-d', $device))));
+        $results = servers_exec($server_restrictions, array('commands' => array('scanimage', array('sudo' => $sudo, '-A', '-d', $device))));
         $return  = array();
 
         foreach ($results as $result) {
@@ -1054,7 +1054,7 @@ function scanimage_get_default() {
  * @param string $device_string The device to get and return data from
  * @return array All found data for the specified device
  */
-function scanimage_get($device, $server = null) {
+function scanimage_get($device, $server_restrictions = null) {
     try {
         if (!$device) {
             /*
@@ -1063,14 +1063,14 @@ function scanimage_get($device, $server = null) {
             return scanimage_get_default();
         }
 
-        $scanner = devices_get($device, $server);
+        $scanner = devices_get($device, $server_restrictions);
 
         if (!$scanner) {
             if (is_numeric($device)) {
                 throw new CoreException(tr('scanimage_get(): Specified scanner ":device" does not exist', array(':device' => $device)), 'not-exists');
             }
 
-            throw new CoreException(tr('scanimage_get(): Specified scanner ":device" does not exist on server ":server"', array(':device' => $device, ':server' => $server)), 'not-exists');
+            throw new CoreException(tr('scanimage_get(): Specified scanner ":device" does not exist on server ":server"', array(':device' => $device, ':server' => $server_restrictions)), 'not-exists');
         }
 
         $scanner['options'] = devices_list_options($scanner['id']);
@@ -1184,27 +1184,27 @@ function scanimage_select_resolution($params) {
  * @version 2.4.9: Added function and documentation
  *
  * @params mixed $device
- * @params null mixed $server
+ * @params null mixed $server_restrictions
  * @return natural The amount of processes found
  */
-function scanimage_runs($device, $server = null) {
+function scanimage_runs($device, $server_restrictions = null) {
     try {
         if (!$device) {
             throw new CoreException(tr('scanimage_runs(): No device specified'), 'not-specified');
         }
 
-        $dbdevice = scanimage_get($device, $server);
+        $dbdevice = scanimage_get($device, $server_restrictions);
 
         if (!$dbdevice) {
             throw new CoreException(tr('scanimage_runs(): The specified scanner ":id" does not exist', array(':id' => $device)), 'warning/not-exist');
         }
 
         $count   = 0;
-        $server  = servers_get($dbdevice['servers_id']);
-        $results = linux_pgrep($server, 'scanimage');
+        $server_restrictions  = servers_get($dbdevice['servers_id']);
+        $results = linux_pgrep($server_restrictions, 'scanimage');
 
         foreach ($results as $result) {
-            $processes = linux_list_processes($server, array($result, 'scanimage'));
+            $processes = linux_list_processes($server_restrictions, array($result, 'scanimage'));
 
             if ($processes) {
                 foreach ($processes as $id => $process) {
@@ -1239,25 +1239,25 @@ function scanimage_runs($device, $server = null) {
  * @version 2.4.9: Added function and documentation
  *
  * @params mixed $device
- * @params null mixed $server
+ * @params null mixed $server_restrictions
  * @return void()
  */
-function scanimage_kill($device, $server = null, $hard = false) {
+function scanimage_kill($device, $server_restrictions = null, $hard = false) {
     try {
         if (!$device) {
             throw new CoreException(tr('scanimage_kill(): No device specified'), 'not-specified');
         }
 
-        $dbdevice = scanimage_get($device, $server);
+        $dbdevice = scanimage_get($device, $server_restrictions);
 
         if (!$dbdevice) {
             throw new CoreException(tr('scanimage_kill(): The specified scanner ":id" does not exist', array(':id' => $device)), 'warning/not-exist');
         }
 
-        $server  = servers_get($dbdevice['servers_id']);
-        $results = linux_pkill($server, 'scanimage', ($hard ? 9 : 15), true);
+        $server_restrictions  = servers_get($dbdevice['servers_id']);
+        $results = linux_pkill($server_restrictions, 'scanimage', ($hard ? 9 : 15), true);
 
-        log_console(tr('Successfully killed the scanimage process for scanner device ":device" on server ":server"', array(':device' => $dbdevice['string'], ':server' => $server['domain'])), 'green');
+        log_console(tr('Successfully killed the scanimage process for scanner device ":device" on server ":server"', array(':device' => $dbdevice['string'], ':server' => $server_restrictions['domain'])), 'green');
 
     }catch(Exception $e) {
         throw new CoreException('scanimage_kill(): Failed', $e);

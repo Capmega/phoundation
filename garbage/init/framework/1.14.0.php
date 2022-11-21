@@ -30,15 +30,15 @@ sql_query('CREATE TABLE `servers_ssh_proxies` (`id`         INT(11)     NOT NULL
  * Inserting proxy relation on new table
  */
 if (sql_column_exists('servers', 'ssh_proxies_id')) {
-    $servers = sql_query('SELECT `id`, `ssh_proxies_id` FROM `servers` WHERE ssh_proxies_id IS NOT NULL');
+    $server_restrictionss = sql_query('SELECT `id`, `ssh_proxies_id` FROM `servers` WHERE ssh_proxies_id IS NOT NULL');
 
-    while ($server = sql_fetch($servers)) {
+    while ($server_restrictions = sql_fetch($server_restrictionss)) {
         sql_query('INSERT INTO `proxy_servers` (`meta_id`, `servers_id`, `proxies_id`)
                    VALUES                      (:meta_id , :servers_id , :proxies_id )',
 
                    array(':meta_id'    => meta_action(),
-                         ':servers_id' => $server['id'],
-                         ':proxies_id' => $server['ssh_proxies_id']));
+                         ':servers_id' => $server_restrictions['id'],
+                         ':proxies_id' => $server_restrictions['ssh_proxies_id']));
     }
 
     /*

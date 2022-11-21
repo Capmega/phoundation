@@ -235,13 +235,13 @@ if (empty($commands)) {
 }
 
 try {
-    $server                     = servers_like($domain);
-    $server                     = servers_get($server);
-    $server['force_terminal']   = isset_get($force_terminal);
-    $server['disable_terminal'] = isset_get($disable_terminal);
-    $server['identity_file']    = $identity_file;
+    $server_restrictions                     = servers_like($domain);
+    $server_restrictions                     = servers_get($server_restrictions);
+    $server_restrictions['force_terminal']   = isset_get($force_terminal);
+    $server_restrictions['disable_terminal'] = isset_get($disable_terminal);
+    $server_restrictions['identity_file']    = $identity_file;
 
-    $result = servers_exec($server, $commands);
+    $result = servers_exec($server_restrictions, $commands);
 
 }catch(Exception $e) {
     switch ($e->getCode()) {

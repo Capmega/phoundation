@@ -45,91 +45,91 @@ function servers_library_init() {
  * @category Function reference
  * @package servers
  *
- * @param array $server
+ * @param array $server_restrictions
  * @param boolean $structure_only
  * @param boolean $password_strength
  * @return array
  */
-function servers_validate($server, $structure_only = false, $password_strength = false) {
+function servers_validate($server_restrictions, $structure_only = false, $password_strength = false) {
     global $_CONFIG;
 
     try {
         load_libs('validate,seo,customers,providers');
 
-        $v = new ValidateForm($server, 'id,ipv4,ipv6,port,domain,domains,seoprovider,seocustomer,ssh_account,description,ssh_proxy,database_accounts_id,bill_duedate,cost,interval,allow_sshd_modification,register');
+        $v = new ValidateForm($server_restrictions, 'id,ipv4,ipv6,port,domain,domains,seoprovider,seocustomer,ssh_account,description,ssh_proxy,database_accounts_id,bill_duedate,cost,interval,allow_sshd_modification,register');
 
         if ($structure_only) {
-            return $server;
+            return $server_restrictions;
         }
 
         /*
          * Check password
          */
         if ($password_strength) {
-            $v->isPassword($server['db_password'], tr('Please specifiy a strong password'), '');
+            $v->isPassword($server_restrictions['db_password'], tr('Please specifiy a strong password'), '');
         }
 
-        if ($server['database_accounts_id']) {
-            $exists = sql_get('SELECT `id` FROM `database_accounts` WHERE `id` = :id', true, array(':id' => $server['database_accounts_id']), 'core');
+        if ($server_restrictions['database_accounts_id']) {
+            $exists = sql_get('SELECT `id` FROM `database_accounts` WHERE `id` = :id', true, array(':id' => $server_restrictions['database_accounts_id']), 'core');
 
             if (!$exists) {
                 $v->setError(tr('The specified database account does not exist'));
             }
 
         } else {
-            $server['database_accounts_id'] = null;
+            $server_restrictions['database_accounts_id'] = null;
         }
 
         /*
          * Domain
          */
-        $v->isNotEmpty($server['domain'], tr('Please specifiy a domain'));
-        $v->isDomain($server['domain'], tr('The domain ":domain" is invalid', array(':domain' => $server['domain'])));
+        $v->isNotEmpty($server_restrictions['domain'], tr('Please specifiy a domain'));
+        $v->isDomain($server_restrictions['domain'], tr('The domain ":domain" is invalid', array(':domain' => $server_restrictions['domain'])));
 
-        if (!empty($server['url']) and !FORCE) {
-            $v->setError(tr('Both domain ":domain" and URL ":url" specified, please specify one or the other', array(':domain' => $server['domain'], ':url' => $server['url'])));
+        if (!empty($server_restrictions['url']) and !FORCE) {
+            $v->setError(tr('Both domain ":domain" and URL ":url" specified, please specify one or the other', array(':domain' => $server_restrictions['domain'], ':url' => $server_restrictions['url'])));
 
-        } elseif (!preg_match('/[a-z0-9][a-z0-9-.]+/', $server['domain'])) {
+        } elseif (!preg_match('/[a-z0-9][a-z0-9-.]+/', $server_restrictions['domain'])) {
             $v->setError(tr('Invalid server specified, be sure it contains only a-z, 0-9, . and -'));
         }
 
         /*
          * Description
          */
-        if (empty($server['description'])) {
-            $server['description'] = '';
+        if (empty($server_restrictions['description'])) {
+            $server_restrictions['description'] = '';
 
         } else {
-            $v->hasMinChars($server['description'],   16, tr('Please specifiy a minimum of 16 characters for the description'));
-            $v->hasMaxChars($server['description'], 2047, tr('Please specifiy a maximum of 2047 characters for the description'));
+            $v->hasMinChars($server_restrictions['description'],   16, tr('Please specifiy a minimum of 16 characters for the description'));
+            $v->hasMaxChars($server_restrictions['description'], 2047, tr('Please specifiy a maximum of 2047 characters for the description'));
 
-            $server['description'] = cfm($server['description']);
+            $server_restrictions['description'] = cfm($server_restrictions['description']);
         }
 
         /*
          * IPv4 check
          */
-        if ($server['ipv4']) {
+        if ($server_restrictions['ipv4']) {
             /*
              * IP was specified manually
              */
-            $v->isFilter($server['ipv4'], FILTER_VALIDATE_IP, tr('Please specify a valid IP address'));
+            $v->isFilter($server_restrictions['ipv4'], FILTER_VALIDATE_IP, tr('Please specify a valid IP address'));
 
         } else {
             /*
              * IP not specified, try to lookup
              */
-            $server['ipv4'] = gethostbynamel($server['domain']);
+            $server_restrictions['ipv4'] = gethostbynamel($server_restrictions['domain']);
 
-            if (!$server['ipv4']) {
-                $server['ipv4'] = null;
+            if (!$server_restrictions['ipv4']) {
+                $server_restrictions['ipv4'] = null;
 
             } else {
-                if (count($server['ipv4']) == 1) {
-                    $server['ipv4'] = array_shift($server['ipv4']);
+                if (count($server_restrictions['ipv4']) == 1) {
+                    $server_restrictions['ipv4'] = array_shift($server_restrictions['ipv4']);
 
                 } else {
-                    $v->isFilter($server['ipv4'], FILTER_VALIDATE_IP, tr('Failed to auto lookup IPv4, please specify a valid IP address'));
+                    $v->isFilter($server_restrictions['ipv4'], FILTER_VALIDATE_IP, tr('Failed to auto lookup IPv4, please specify a valid IP address'));
                 }
             }
         }
@@ -137,21 +137,21 @@ function servers_validate($server, $structure_only = false, $password_strength =
         /*
          * Port check
          */
-        if (empty($server['port'])) {
-            $server['port'] = ssh_get_port();
-            log_console(tr('servers_validate(): No SSH port specified, using port ":port" as default', array(':port' => $server['port'])), 'yellow');
+        if (empty($server_restrictions['port'])) {
+            $server_restrictions['port'] = ssh_get_port();
+            log_console(tr('servers_validate(): No SSH port specified, using port ":port" as default', array(':port' => $server_restrictions['port'])), 'yellow');
         }
 
-        if (!is_numeric($server['port']) or ($server['port'] < 1) or ($server['port'] > 65535)) {
-            $v->setError(tr('Specified port ":port" is not valid', array(':port' => $server['port'])));
+        if (!is_numeric($server_restrictions['port']) or ($server_restrictions['port'] < 1) or ($server_restrictions['port'] > 65535)) {
+            $v->setError(tr('Specified port ":port" is not valid', array(':port' => $server_restrictions['port'])));
         }
 
-        $server['allow_sshd_modification'] = (boolean) $server['allow_sshd_modification'];
+        $server_restrictions['allow_sshd_modification'] = (boolean) $server_restrictions['allow_sshd_modification'];
 
-        if ($server['domains']) {
-            $server['domains'] = Arrays::force($server['domains'], "\n");
+        if ($server_restrictions['domains']) {
+            $server_restrictions['domains'] = Arrays::force($server_restrictions['domains'], "\n");
 
-            foreach ($server['domains'] as &$domain) {
+            foreach ($server_restrictions['domains'] as &$domain) {
                 $domain = trim($domain);
                 $v->isDomain($domain, tr('The domain ":domain" is invalid', array(':domain' => $domain)));
 
@@ -160,74 +160,74 @@ function servers_validate($server, $structure_only = false, $password_strength =
 
             $v->isValid();
 
-            $server['domains'][] = domains_ensure($server['domain'], 'domain');
-            $server['domains']   = array_unique($server['domains']);
+            $server_restrictions['domains'][] = domains_ensure($server_restrictions['domain'], 'domain');
+            $server_restrictions['domains']   = array_unique($server_restrictions['domains']);
 
         } else {
             /*
              * The current domain is all the domains registered for this server
              */
-            $server['domains'] = array($server['domain']);
+            $server_restrictions['domains'] = array($server_restrictions['domain']);
         }
 
-        $v->isScalar($server['seoprovider'], tr('Please specify a valid provider')   , VALIDATE_ALLOW_EMPTY_NULL);
-        $v->isScalar($server['seocustomer'], tr('Please specify a valid customer')   , VALIDATE_ALLOW_EMPTY_NULL);
-        $v->isScalar($server['ssh_account'], tr('Please specify a valid SSH account'), VALIDATE_ALLOW_EMPTY_NULL);
+        $v->isScalar($server_restrictions['seoprovider'], tr('Please specify a valid provider')   , VALIDATE_ALLOW_EMPTY_NULL);
+        $v->isScalar($server_restrictions['seocustomer'], tr('Please specify a valid customer')   , VALIDATE_ALLOW_EMPTY_NULL);
+        $v->isScalar($server_restrictions['ssh_account'], tr('Please specify a valid SSH account'), VALIDATE_ALLOW_EMPTY_NULL);
 
         $v->isValid();
 
         /*
          * Validate provider, customer, and ssh account
          */
-        if ($server['seoprovider']) {
-            $server['providers_id'] = sql_get('SELECT `id` FROM `providers` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $server['seoprovider']), 'core');
+        if ($server_restrictions['seoprovider']) {
+            $server_restrictions['providers_id'] = sql_get('SELECT `id` FROM `providers` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $server_restrictions['seoprovider']), 'core');
 
-            if (!$server['providers_id']) {
-                $v->setError(tr('Specified provider ":provider" does not exist', array(':provider' => $server['seoprovider'])));
+            if (!$server_restrictions['providers_id']) {
+                $v->setError(tr('Specified provider ":provider" does not exist', array(':provider' => $server_restrictions['seoprovider'])));
             }
 
         } else {
-            $server['providers_id'] = null;
+            $server_restrictions['providers_id'] = null;
             //$v->setError(tr('Please specify a provider'));
         }
 
-        if ($server['seocustomer']) {
-            $server['customers_id'] = sql_get('SELECT `id` FROM `customers` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $server['seocustomer']), 'core');
+        if ($server_restrictions['seocustomer']) {
+            $server_restrictions['customers_id'] = sql_get('SELECT `id` FROM `customers` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $server_restrictions['seocustomer']), 'core');
 
-            if (!$server['customers_id']) {
-                $v->setError(tr('Specified customer ":customer" does not exist', array(':customer' => $server['seocustomer'])));
+            if (!$server_restrictions['customers_id']) {
+                $v->setError(tr('Specified customer ":customer" does not exist', array(':customer' => $server_restrictions['seocustomer'])));
             }
 
         } else {
-            $server['customers_id'] = null;
+            $server_restrictions['customers_id'] = null;
         }
 
-        if ($server['ssh_account']) {
-            $server['ssh_accounts_id'] = sql_get('SELECT `id` FROM `ssh_accounts` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $server['ssh_account']), 'core');
+        if ($server_restrictions['ssh_account']) {
+            $server_restrictions['ssh_accounts_id'] = sql_get('SELECT `id` FROM `ssh_accounts` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $server_restrictions['ssh_account']), 'core');
 
-            if (!$server['ssh_accounts_id']) {
-                $v->setError(tr('Specified SSH account ":account" does not exist', array(':account' => $server['ssh_account'])));
+            if (!$server_restrictions['ssh_accounts_id']) {
+                $v->setError(tr('Specified SSH account ":account" does not exist', array(':account' => $server_restrictions['ssh_account'])));
             }
 
         } else {
-            $server['ssh_accounts_id'] = null;
+            $server_restrictions['ssh_accounts_id'] = null;
         }
 
         /*
          * Already exists?
          */
-        $exists = sql_get('SELECT `id` FROM `servers` WHERE `domain` = :domain AND `id` != :id LIMIT 1', true, array(':domain' => $server['domain'], ':id' => isset_get($server['id'], 0)), 'core');
+        $exists = sql_get('SELECT `id` FROM `servers` WHERE `domain` = :domain AND `id` != :id LIMIT 1', true, array(':domain' => $server_restrictions['domain'], ':id' => isset_get($server_restrictions['id'], 0)), 'core');
 
         if ($exists) {
-            $v->setError(tr('A server with domain ":domain" already exists', array(':domain' => $server['domain'])));
+            $v->setError(tr('A server with domain ":domain" already exists', array(':domain' => $server_restrictions['domain'])));
         }
 
-        $server['seodomain']    = seo_unique($server['domain'], 'servers', isset_get($server['id']), 'seodomain');
-        $server['bill_duedate'] = date_convert($server['bill_duedate'], 'mysql');
+        $server_restrictions['seodomain']    = seo_unique($server_restrictions['domain'], 'servers', isset_get($server_restrictions['id']), 'seodomain');
+        $server_restrictions['bill_duedate'] = date_convert($server_restrictions['bill_duedate'], 'mysql');
 
         $v->isValid();
 
-        return $server;
+        return $server_restrictions;
 
     }catch(Exception $e) {
         throw new CoreException('servers_validate(): Failed', $e);
@@ -245,43 +245,43 @@ function servers_validate($server, $structure_only = false, $password_strength =
  * @provider Function reference
  * @package servers
  *
- * @param params $server The server data to be inserted into the database
+ * @param params $server_restrictions The server data to be inserted into the database
  * @return params The validated server data, including server[id]
  */
-function servers_insert($server) {
+function servers_insert($server_restrictions) {
     try {
-        $server = servers_validate($server);
+        $server_restrictions = servers_validate($server_restrictions);
 
         sql_query('INSERT INTO `servers` (`created_by`, `meta_id`, `status`, `domain`, `seodomain`, `port`, `database_accounts_id`, `bill_duedate`, `cost`, `interval`, `providers_id`, `customers_id`, `ssh_accounts_id`, `allow_sshd_modification`, `description`, `ipv4`)
                    VALUES                (:created_by , :meta_id , :status , :domain , :seodomain , :port , :database_accounts_id , :bill_duedate , :cost , :interval , :providers_id , :customers_id , :ssh_accounts_id , :allow_sshd_modification , :description , :ipv4)',
 
-                   array(':status'                  => ($server['ssh_accounts_id'] ? 'testing' : null),
+                   array(':status'                  => ($server_restrictions['ssh_accounts_id'] ? 'testing' : null),
                          ':created_by'               => isset_get($_SESSION['user']['id']),
                          ':meta_id'                 => meta_action(),
-                         ':domain'                  => $server['domain'],
-                         ':seodomain'               => $server['seodomain'],
-                         ':port'                    => $server['port'],
-                         ':database_accounts_id'    => $server['database_accounts_id'],
-                         ':cost'                    => $server['cost'],
-                         ':interval'                => $server['interval'],
-                         ':bill_duedate'            => $server['bill_duedate'],
-                         ':providers_id'            => $server['providers_id'],
-                         ':customers_id'            => $server['customers_id'],
-                         ':ssh_accounts_id'         => $server['ssh_accounts_id'],
-                         ':allow_sshd_modification' => $server['allow_sshd_modification'],
-                         ':description'             => $server['description'],
-                         ':ipv4'                    => $server['ipv4']), 'core');
+                         ':domain'                  => $server_restrictions['domain'],
+                         ':seodomain'               => $server_restrictions['seodomain'],
+                         ':port'                    => $server_restrictions['port'],
+                         ':database_accounts_id'    => $server_restrictions['database_accounts_id'],
+                         ':cost'                    => $server_restrictions['cost'],
+                         ':interval'                => $server_restrictions['interval'],
+                         ':bill_duedate'            => $server_restrictions['bill_duedate'],
+                         ':providers_id'            => $server_restrictions['providers_id'],
+                         ':customers_id'            => $server_restrictions['customers_id'],
+                         ':ssh_accounts_id'         => $server_restrictions['ssh_accounts_id'],
+                         ':allow_sshd_modification' => $server_restrictions['allow_sshd_modification'],
+                         ':description'             => $server_restrictions['description'],
+                         ':ipv4'                    => $server_restrictions['ipv4']), 'core');
 
-        $server['id'] = sql_insert_id('core');
+        $server_restrictions['id'] = sql_insert_id('core');
 
-        log_console(tr('Inserted server ":domain" with id ":id"', array(':domain' => $server['domain'], ':id' => $server['id'])), 'VERBOSE/green');
+        log_console(tr('Inserted server ":domain" with id ":id"', array(':domain' => $server_restrictions['domain'], ':id' => $server_restrictions['id'])), 'VERBOSE/green');
 
-        if ($server['register']) {
-            ssh_add_known_host($server['domain'], $server['port']);
+        if ($server_restrictions['register']) {
+            ssh_add_known_host($server_restrictions['domain'], $server_restrictions['port']);
         }
 
-        servers_update_domains($server, $server['domains']);
-        return $server;
+        servers_update_domains($server_restrictions, $server_restrictions['domains']);
+        return $server_restrictions;
 
     }catch(Exception $e) {
         throw new CoreException('servers_insert(): Failed', $e);
@@ -302,18 +302,18 @@ function servers_insert($server) {
  * @param mixed server
  * @return
  */
-function servers_erase($server) {
+function servers_erase($server_restrictions) {
     try {
-        $server = servers_get($server);
+        $server_restrictions = servers_get($server_restrictions);
 
-        ssh_remove_known_host($server['domain']);
-        servers_update_domains($server);
-        servers_remove_domain($server);
-        servers_unregister_host($server);
+        ssh_remove_known_host($server_restrictions['domain']);
+        servers_update_domains($server_restrictions);
+        servers_remove_domain($server_restrictions);
+        servers_unregister_host($server_restrictions);
 
-        sql_query('DELETE FROM `servers` WHERE `id` = :id', array(':id' => $server['id']), 'core');
+        sql_query('DELETE FROM `servers` WHERE `id` = :id', array(':id' => $server_restrictions['id']), 'core');
 
-        return $server;
+        return $server_restrictions;
 
     }catch(Exception $e) {
         throw new CoreException('servers_insert(): Failed', $e);
@@ -331,13 +331,13 @@ function servers_erase($server) {
  * @provider Function reference
  * @package servers
  *
- * @param params $server The server data to be updated into the database
+ * @param params $server_restrictions The server data to be updated into the database
  * @return params The validated server data
  */
-function servers_update($server) {
+function servers_update($server_restrictions) {
     try {
-        $server = servers_validate($server);
-        meta_action($server['meta_id'], 'update');
+        $server_restrictions = servers_validate($server_restrictions);
+        meta_action($server_restrictions['meta_id'], 'update');
 
         sql_query('UPDATE `servers`
 
@@ -358,25 +358,25 @@ function servers_update($server) {
 
                    WHERE  `id`                      = :id',
 
-                   array(':id'                      =>  $server['id'],
-                         ':status'                  => ($server['ssh_accounts_id'] ? 'testing' : null),
-                         ':domain'                  =>  $server['domain'],
-                         ':seodomain'               =>  $server['seodomain'],
-                         ':port'                    =>  $server['port'],
-                         ':database_accounts_id'    =>  $server['database_accounts_id'],
-                         ':cost'                    =>  $server['cost'],
-                         ':interval'                =>  $server['interval'],
-                         ':bill_duedate'            =>  $server['bill_duedate'],
-                         ':providers_id'            =>  $server['providers_id'],
-                         ':customers_id'            =>  $server['customers_id'],
-                         ':ssh_accounts_id'         =>  $server['ssh_accounts_id'],
-                         ':allow_sshd_modification' =>  $server['allow_sshd_modification'],
-                         ':description'             =>  $server['description'],
-                         ':ipv4'                    =>  $server['ipv4']), 'core');
+                   array(':id'                      =>  $server_restrictions['id'],
+                         ':status'                  => ($server_restrictions['ssh_accounts_id'] ? 'testing' : null),
+                         ':domain'                  =>  $server_restrictions['domain'],
+                         ':seodomain'               =>  $server_restrictions['seodomain'],
+                         ':port'                    =>  $server_restrictions['port'],
+                         ':database_accounts_id'    =>  $server_restrictions['database_accounts_id'],
+                         ':cost'                    =>  $server_restrictions['cost'],
+                         ':interval'                =>  $server_restrictions['interval'],
+                         ':bill_duedate'            =>  $server_restrictions['bill_duedate'],
+                         ':providers_id'            =>  $server_restrictions['providers_id'],
+                         ':customers_id'            =>  $server_restrictions['customers_id'],
+                         ':ssh_accounts_id'         =>  $server_restrictions['ssh_accounts_id'],
+                         ':allow_sshd_modification' =>  $server_restrictions['allow_sshd_modification'],
+                         ':description'             =>  $server_restrictions['description'],
+                         ':ipv4'                    =>  $server_restrictions['ipv4']), 'core');
 
-        log_console(tr('Updated server ":domain" with id ":id"', array(':domain' => $server['domain'], ':id' => $server['id'])), 'VERBOSE/green');
-        servers_update_domains($server, $server['domains']);
-        return $server;
+        log_console(tr('Updated server ":domain" with id ":id"', array(':domain' => $server_restrictions['domain'], ':id' => $server_restrictions['id'])), 'VERBOSE/green');
+        servers_update_domains($server_restrictions, $server_restrictions['domains']);
+        return $server_restrictions;
 
     }catch(Exception $e) {
         throw new CoreException('servers_update(): Failed', $e);
@@ -414,7 +414,7 @@ function servers_like($domain) {
         }
 
         if (is_numeric($domain)) {
-            $server = sql_get('SELECT `domain`
+            $server_restrictions = sql_get('SELECT `domain`
 
                                FROM   `servers`
 
@@ -423,7 +423,7 @@ function servers_like($domain) {
                                true, array(':id' => $domain), 'core');
 
         } else {
-            $server = sql_get('SELECT `domain`
+            $server_restrictions = sql_get('SELECT `domain`
 
                                FROM   `servers`
 
@@ -436,11 +436,11 @@ function servers_like($domain) {
                                            ':seodomain' => '%'.$domain.'%'), 'core');
         }
 
-        if ($server === null) {
+        if ($server_restrictions === null) {
             /*
              * Specified server not found in the default servers list, try domains list
              */
-            $server = sql_get('SELECT `servers`.`domain`
+            $server_restrictions = sql_get('SELECT `servers`.`domain`
 
                                FROM   `domains`
 
@@ -454,12 +454,12 @@ function servers_like($domain) {
                                true, array(':domain'    => '%'.$domain.'%',
                                            ':seodomain' => '%'.$domain.'%'), 'core');
 
-            if (!$server) {
+            if (!$server_restrictions) {
                 throw new CoreException(tr('servers_like(): Specified server ":server" does not exist', array(':server' => $domain)), 'not-exists');
             }
         }
 
-        return $server;
+        return $server_restrictions;
 
     }catch(Exception $e) {
         throw new CoreException('servers_like(): Failed', $e);
@@ -537,15 +537,15 @@ function servers_select($params = null) {
  * @category Function reference
  * @package servers
  *
- * @param mixed $server The server for which the specified domains should be linked. May be specified by id, domain, seodomain, or servers array
+ * @param mixed $server_restrictions The server for which the specified domains should be linked. May be specified by id, domain, seodomain, or servers array
  * @param array $domains The domains which will be linked to the specified server. May be specified by id, domain, seodomain, or domains array
  * @return The amount of domains added for the server
  */
-function servers_update_domains($server, $domains = null) {
+function servers_update_domains($server_restrictions, $domains = null) {
     try {
-        $servers_id = servers_get_id($server);
+        $server_restrictionss_id = servers_get_id($server_restrictions);
 
-        sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id', array(':servers_id' => $servers_id), 'core');
+        sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id', array(':servers_id' => $server_restrictionss_id), 'core');
 
         if (empty($domains)) {
             return false;
@@ -561,17 +561,17 @@ function servers_update_domains($server, $domains = null) {
             $domains_id = domains_get_id($domain);
 
             if (!$domains_id) {
-                $domain = domains_insert(array('domain'       => $server['domain'],
-                                               'seodomain'    => $server['seodomain'],
-                                               'customers_id' => $server['customers_id'],
-                                               'providers_id' => $server['providers_id']));
+                $domain = domains_insert(array('domain'       => $server_restrictions['domain'],
+                                               'seodomain'    => $server_restrictions['seodomain'],
+                                               'customers_id' => $server_restrictions['customers_id'],
+                                               'providers_id' => $server_restrictions['providers_id']));
 
                 $domains_id = $domain['id'];
             }
 
             $insert->execute(array(':meta_id'    => meta_action(),
                                    ':created_by'  => isset_get($_SESSION['user']['id']),
-                                   ':servers_id' => $servers_id,
+                                   ':servers_id' => $server_restrictionss_id,
                                    ':domains_id' => $domains_id));
         }
 
@@ -593,16 +593,16 @@ function servers_update_domains($server, $domains = null) {
  * @category Function reference
  * @package servers
  *
- * @param mixed $server The server to which the domain must be linked. May be specified by id, domain, seodomain, or servers array
+ * @param mixed $server_restrictions The server to which the domain must be linked. May be specified by id, domain, seodomain, or servers array
  * @param mixed $domain The domain to which the server must be linked. May be specified by id, domain, seodomain, or domains array
  *
  * @return boolean True if domain was added, false if it already existed
  */
-function servers_add_domain($server, $domain) {
+function servers_add_domain($server_restrictions, $domain) {
     try {
-        $server = servers_get_id($server);
+        $server_restrictions = servers_get_id($server_restrictions);
         $domain = domains_get_id($domain);
-        $exists = sql_get('SELECT `id` FROM `domains_servers` WHERE `servers_id` = :servers_id AND `domains_id` = :domains_id', true, array(':servers_id' => $server, ':domains_id' => $domain), 'core');
+        $exists = sql_get('SELECT `id` FROM `domains_servers` WHERE `servers_id` = :servers_id AND `domains_id` = :domains_id', true, array(':servers_id' => $server_restrictions, ':domains_id' => $domain), 'core');
 
         if ($exists) {
             return false;
@@ -613,7 +613,7 @@ function servers_add_domain($server, $domain) {
 
                    array('created_by'   => isset_get($_SESSION['user']['id']),
                          'meta_id'     => meta_action(),
-                         'servers_id'  => $server,
+                         'servers_id'  => $server_restrictions,
                          'domains_id'  => $domain), 'core');
 
         return true;
@@ -635,34 +635,34 @@ function servers_add_domain($server, $domain) {
  * @package servers
  *
  * @param mixed $domain The domain to be linked to the server. May be specified by id, domain, or domains array
- * @param mixed $server The server to be linked to the domain. May be specified by id, domain, or servers array
+ * @param mixed $server_restrictions The server to be linked to the domain. May be specified by id, domain, or servers array
  *
  * @return integer Amount of deleted domains
  */
-function servers_remove_domain($server, $domain = null) {
+function servers_remove_domain($server_restrictions, $domain = null) {
     try {
         if (!$domain) {
             /*
              * Remove all domains
              */
-            $domains = servers_list_domains($server);
+            $domains = servers_list_domains($server_restrictions);
 
             foreach ($domains as $domain) {
-                servers_remove_domain($server, $domain);
+                servers_remove_domain($server_restrictions, $domain);
             }
 
             return count($domains);
         }
 
-        $server = servers_get_id($server);
+        $server_restrictions = servers_get_id($server_restrictions);
         $domain = domains_get_id($domain);
 
-        if ($server) {
+        if ($server_restrictions) {
             if ($domain) {
-                $r = sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id AND `domains_id` = :domains_id', array(':domains_id' => $domain, ':servers_id' => $server), 'core');
+                $r = sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id AND `domains_id` = :domains_id', array(':domains_id' => $domain, ':servers_id' => $server_restrictions), 'core');
 
             } else {
-                $r = sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id', array(':servers_id' => $server), 'core');
+                $r = sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id', array(':servers_id' => $server_restrictions), 'core');
             }
 
         } else {
@@ -670,7 +670,7 @@ function servers_remove_domain($server, $domain = null) {
                 $r = sql_query('DELETE FROM `domains_servers` WHERE `domains_id` = :domains_id', array(':domains_id' => $domain), 'core');
 
             } else {
-                throw new CoreException(tr('servers_remove_domain(): Neither $domain not $server specified. At least one must be specified'), 'not-specified');
+                throw new CoreException(tr('servers_remove_domain(): Neither $domain not $server_restrictions specified. At least one must be specified'), 'not-specified');
             }
         }
 
@@ -692,12 +692,12 @@ function servers_remove_domain($server, $domain = null) {
  * @category Function reference
  * @package servers
  *
- * @param mixed $server The server for which the domains must be returned. May be specified by id, domain, seodomain, or servers array
+ * @param mixed $server_restrictions The server for which the domains must be returned. May be specified by id, domain, seodomain, or servers array
  * @return array The domains for the specified server
  */
-function servers_list_domains($server) {
+function servers_list_domains($server_restrictions) {
     try {
-        $server  = servers_get_id($server);
+        $server_restrictions  = servers_get_id($server_restrictions);
         $results = sql_list('SELECT   `domains`.`seodomain`,
                                       `domains`.`domain`
 
@@ -710,7 +710,7 @@ function servers_list_domains($server) {
 
                              ORDER BY `domains`.`domain` ASC',
 
-                             array(':servers_id' => $server), false, 'core');
+                             array(':servers_id' => $server_restrictions), false, 'core');
 
         return $results;
 
@@ -734,40 +734,40 @@ function servers_list_domains($server) {
  * @see ssh_exec()
  * @see safe_exec()
  *
- * @param mixed  $server
+ * @param mixed  $server_restrictions
  * @param mixed  $params[commands]
- * @param string $server[function]
- * @param mixed  $server[ok_exitcodes]
- * @param string $server[timeout]
+ * @param string $server_restrictions[function]
+ * @param mixed  $server_restrictions[ok_exitcodes]
+ * @param string $server_restrictions[timeout]
  * @return array The results of the executed SSH commands in an array, each entry containing one line of the output
  * @see ssh_exec()
  */
-function servers_exec($server, $params) {
+function servers_exec($server_restrictions, $params) {
     try {
-        $server = servers_like($server);
-        $server = servers_get($server);
+        $server_restrictions = servers_like($server_restrictions);
+        $server_restrictions = servers_get($server_restrictions);
 
-        if (!empty($server['domain'])) {
-            array_default($server, 'hostkey_check', true);
+        if (!empty($server_restrictions['domain'])) {
+            array_default($server_restrictions, 'hostkey_check', true);
 
-            if (empty($server['identity_file'])) {
-                if (empty($server['ssh_key'])) {
-                    if (empty($server['password'])) {
-                        throw new CoreException(tr('servers_exec(): The specified server ":server" has no identity file or SSH key available and no password was specified', array(':server' => $server['domain'])), 'missing-data');
+            if (empty($server_restrictions['identity_file'])) {
+                if (empty($server_restrictions['ssh_key'])) {
+                    if (empty($server_restrictions['password'])) {
+                        throw new CoreException(tr('servers_exec(): The specified server ":server" has no identity file or SSH key available and no password was specified', array(':server' => $server_restrictions['domain'])), 'missing-data');
                     }
                 }
 
                 /*
                  * Copy the ssh_key to a temporal identity_file
                  */
-                $server['identity_file'] = servers_create_identity_file($server);
+                $server_restrictions['identity_file'] = servers_create_identity_file($server_restrictions);
             }
         }
 
         /*
          * Execute command on remote server
          */
-        return ssh_exec($server, $params);
+        return ssh_exec($server_restrictions, $params);
 
     }catch(Exception $e) {
         /*
@@ -799,7 +799,7 @@ function servers_exec($server, $params) {
  * @category Function reference
  * @package servers
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return array The database entry data for the requested domain
  */
 function servers_exec_on_all($params) {
@@ -814,7 +814,7 @@ function servers_exec_on_all($params) {
         Arrays::ensure($params);
         array_default($params, 'status', null);
 
-        $server = sql_query('SELECT `servers`.`id`,
+        $server_restrictions = sql_query('SELECT `servers`.`id`,
                                     `servers`.`createdon`,
                                     `servers`.`meta_id`,
                                     `servers`.`port`,
@@ -861,11 +861,11 @@ function servers_exec_on_all($params) {
 
                           array(':status' => $params['status']), 'core');
 
-        while ($server = sql_fetch($servers)) {
-            $params['callback']($server);
+        while ($server_restrictions = sql_fetch($server_restrictionss)) {
+            $params['callback']($server_restrictions);
         }
 
-        return $servers->rowCount();
+        return $server_restrictionss->rowCount();
 
     }catch(Exception $e) {
         throw new CoreException('servers_exec_on_all(): Failed', $e);
@@ -883,17 +883,17 @@ function servers_exec_on_all($params) {
  * @category Function reference
  * @package servers
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return array The database entry data for the requested domain
  */
-function servers_register_host($server) {
+function servers_register_host($server_restrictions) {
     try {
-        $server  = servers_get($server);
-        $domains = servers_list_domains($server);
+        $server_restrictions  = servers_get($server_restrictions);
+        $domains = servers_list_domains($server_restrictions);
 
         foreach ($domains as $domain) {
-            $server  = servers_get($domain);
-            $entries = ssh_add_known_host($server['domain'], $server['port']);
+            $server_restrictions  = servers_get($domain);
+            $entries = ssh_add_known_host($server_restrictions['domain'], $server_restrictions['port']);
 
             if ($entries) {
                 $return = array_merge($entries, $entries);
@@ -918,18 +918,18 @@ function servers_register_host($server) {
  * @category Function reference
  * @package servers
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return void
  */
-function servers_unregister_host($server) {
+function servers_unregister_host($server_restrictions) {
     try {
         $return  = array();
-        $server  = servers_get($server);
-        $domains = servers_list_domains($server);
+        $server_restrictions  = servers_get($server_restrictions);
+        $domains = servers_list_domains($server_restrictions);
 
         foreach ($domains as $domain) {
-            $server  = servers_get($domain);
-            $entries = ssh_add_known_host($server['domain'], $server['port']);
+            $server_restrictions  = servers_get($domain);
+            $entries = ssh_add_known_host($server_restrictions['domain'], $server_restrictions['port']);
 
             if ($entries) {
                 $return = array_merge($entries, $entries);
@@ -996,22 +996,22 @@ function servers_list($as_resource = false) {
  * @category Function reference
  * @package servers
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param boolean $database
  * @param boolean $return_proxies
  * @param boolean $limited_columns
  * @return array The database entry data for the requested domain
  */
-function servers_get($server, $database = false, $return_proxies = true, $limited_columns = false) {
+function servers_get($server_restrictions, $database = false, $return_proxies = true, $limited_columns = false) {
     try {
-        if ($server === null) {
+        if ($server_restrictions === null) {
             /*
              * This means local server, no network connection needed
              */
             return null;
         }
 
-        if (is_array($server)) {
+        if (is_array($server_restrictions)) {
             /*
              * Specified host is an array, so it should already contain all
              * information
@@ -1021,22 +1021,22 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
              * Assume that if identity_file data is available, that we have a
              * complete one
              */
-            if (empty($server['domain'])) {
+            if (empty($server_restrictions['domain'])) {
                 return null;
             }
 
-            if (!empty($server['id'])) {
-                return $server;
+            if (!empty($server_restrictions['id'])) {
+                return $server_restrictions;
             }
 
-        } elseif (!is_scalar($server)) {
-            throw new CoreException(tr('servers_get(): The specified server ":server" is invalid', array(':server' => $server)), 'invalid');
+        } elseif (!is_scalar($server_restrictions)) {
+            throw new CoreException(tr('servers_get(): The specified server ":server" is invalid', array(':server' => $server_restrictions)), 'invalid');
 
-        } elseif (substr($server, 0, 1) === '+') {
+        } elseif (substr($server_restrictions, 0, 1) === '+') {
             /*
              * Use persistent connections
              */
-            $server  = substr($server, 1);
+            $server_restrictions  = substr($server_restrictions, 1);
             $persist = true;
         }
 
@@ -1094,45 +1094,45 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
                    LEFT JOIN `ssh_accounts`
                    ON        `ssh_accounts`.`id`              = `servers`.`ssh_accounts_id` ';
 
-        if (is_numeric($server)) {
+        if (is_numeric($server_restrictions)) {
             /*
              * Host specified by id
              */
             $where   = ' WHERE `servers`.`id` = :id';
-            $execute = array(':id' => $server);
+            $execute = array(':id' => $server_restrictions);
 
-        } elseif (is_array($server)) {
+        } elseif (is_array($server_restrictions)) {
             /*
              * Server host specified by array containing domain
              */
-            if (is_numeric($server['domain'])) {
+            if (is_numeric($server_restrictions['domain'])) {
                 /*
                  * Host specified by id
                  */
                 $where   = ' WHERE `servers`.`id` = :id';
-                $execute = array(':id' => $server['domain']);
+                $execute = array(':id' => $server_restrictions['domain']);
 
-            } elseif (is_scalar($server['domain'])) {
+            } elseif (is_scalar($server_restrictions['domain'])) {
                 /*
                  * Host specified by domain
                  */
                 $where   = ' WHERE `servers`.`domain` = :domain';
 
-                $execute = array(':domain' => $server['domain']);
+                $execute = array(':domain' => $server_restrictions['domain']);
 
             } else {
-                throw new CoreException(tr('servers_get(): Specified server array domain should be a natural numeric id or a domain, but is a ":type"', array(':type' => gettype($server['domain']))), 'invalid');
+                throw new CoreException(tr('servers_get(): Specified server array domain should be a natural numeric id or a domain, but is a ":type"', array(':type' => gettype($server_restrictions['domain']))), 'invalid');
             }
 
-        } elseif (is_string($server)) {
+        } elseif (is_string($server_restrictions)) {
             /*
              * Domain specified by name
              */
             $where   = ' WHERE `servers`.`domain`    = :domain
                          OR    `servers`.`seodomain` = :seodomain';
 
-            $execute = array(':domain'    => $server,
-                             ':seodomain' => $server);
+            $execute = array(':domain'    => $server_restrictions,
+                             ':seodomain' => $server_restrictions);
 
         } else {
             throw new CoreException(tr('servers_get(): Invalid server or domain specified. Should be either a natural nuber, domain, or array containing domain information'), 'invalid');
@@ -1151,7 +1151,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
         $dbserver = sql_get($query.$from.$where.' GROUP BY `servers`.`id`', null, $execute, 'core');
 
         if (!$dbserver) {
-            throw new CoreException(tr('servers_get(): Specified server ":server" does not exist', array(':server' => (is_array($server) ? $server['domain'] : $server))), 'not-exists');
+            throw new CoreException(tr('servers_get(): Specified server ":server" does not exist', array(':server' => (is_array($server_restrictions) ? $server_restrictions['domain'] : $server_restrictions))), 'not-exists');
         }
 
         if ($return_proxies) {
@@ -1176,8 +1176,8 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
                 $dbserver['proxies'] = array_filter($dbserver['proxies']);
             }
 
-            if (is_array($server)) {
-                $dbserver = array_merge($server, $dbserver);
+            if (is_array($server_restrictions)) {
+                $dbserver = array_merge($server_restrictions, $dbserver);
             }
         }
 
@@ -1189,7 +1189,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
 
     }catch(Exception $e) {
         if ($e->getCode() == 'multiple') {
-            throw new CoreException(tr('servers_get(): Specified domain ":domain" matched multiple results, please specify a more exact domain', array(':domain' => (is_array($server) ? isset_get($server['domain']) : $server))), 'multiple');
+            throw new CoreException(tr('servers_get(): Specified domain ":domain" matched multiple results, please specify a more exact domain', array(':domain' => (is_array($server_restrictions) ? isset_get($server_restrictions['domain']) : $server_restrictions))), 'multiple');
         }
 
         throw new CoreException('servers_get(): Failed', $e);
@@ -1208,7 +1208,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
  * @package servers
  * @exception CoreException/failed-connect when server connection test fails
  *
- * @param mixed $server The server to be tested. Specified either by only a domain string, or a server array
+ * @param mixed $server_restrictions The server to be tested. Specified either by only a domain string, or a server array
  * @return void If the server test was executed succesfully, nothing happens
  */
 function servers_test($domain) {
@@ -1263,22 +1263,22 @@ function servers_get_key($username) {
  * @category Function reference
  * @package servers
  *
- * @param array $server Server array containing the private key that will be deleted securely
- * return boolean true if key was cleared, false if the specified $server array did not contain "ss_key"
+ * @param array $server_restrictions Server array containing the private key that will be deleted securely
+ * return boolean true if key was cleared, false if the specified $server_restrictions array did not contain "ss_key"
  */
-function servers_clear_key(&$server) {
+function servers_clear_key(&$server_restrictions) {
     try {
-        if (empty($server['ssh_key'])) {
+        if (empty($server_restrictions['ssh_key'])) {
             return false;
         }
 
         if (function_exists('sodium_memzero')) {
-            sodium_memzero($server['ssh_key']);
-            unset($server['ssh_key']);
+            sodium_memzero($server_restrictions['ssh_key']);
+            unset($server_restrictions['ssh_key']);
 
         } else {
-            $server['ssh_key'] = random_bytes(2048);
-            unset($server['ssh_key']);
+            $server_restrictions['ssh_key'] = random_bytes(2048);
+            unset($server_restrictions['ssh_key']);
         }
 
         return true;
@@ -1302,11 +1302,11 @@ function servers_clear_key(&$server) {
  * @param string $ssh_key The SSH key that must be placed in a keyfile
  * return string $identity_file The created keyfile
  */
-function servers_create_identity_file($server) {
+function servers_create_identity_file($server_restrictions) {
     global $core;
 
     try {
-        if (empty($server['ssh_key'])) {
+        if (empty($server_restrictions['ssh_key'])) {
             throw new CoreException(tr('servers_create_identity_file(): Specified server does not contain an ssh_key'), 'not-specified');
         }
 
@@ -1323,9 +1323,9 @@ function servers_create_identity_file($server) {
 
         touch($identity_file);
         chmod($identity_file, 0600);
-        file_put_contents($identity_file, $server['ssh_key'], FILE_APPEND);
+        file_put_contents($identity_file, $server_restrictions['ssh_key'], FILE_APPEND);
         chmod($identity_file, 0400);
-        servers_clear_key($server);
+        servers_clear_key($server_restrictions);
 
         Core::readRegister('shutdown_servers_remove_identity_file', array($identity_file));
 
@@ -1437,8 +1437,8 @@ function servers_detect_os($domain) {
             throw new CoreException(tr('servers_detect_os(): No data found on for os group ":group"', array(':group' => $matches[0])), 'not-exists');
         }
 
-        $server_os['type']  = 'linux';
-        $server_os['group'] = $group;
+        $server_restrictions_os['type']  = 'linux';
+        $server_restrictions_os['group'] = $group;
 
         /*
          * Getting operating systema name based on release file(/etc/issue or /etc/redhad-release)
@@ -1449,7 +1449,7 @@ function servers_detect_os($domain) {
             throw new CoreException(tr('servers_detect_os(): No name found for os group ":group"', array(':group' => $matches[0])), 'not-exists');
         }
 
-        $server_os['name'] = strtolower($matches[0]);
+        $server_restrictions_os['name'] = strtolower($matches[0]);
 
         /*
          * Getting complete version for the operating system
@@ -1457,12 +1457,12 @@ function servers_detect_os($domain) {
         preg_match('/\d*\.?\d+/', $release, $version);
 
         if (!isset($version[0])) {
-            throw new CoreException(tr('servers_detect_os(): No version found for os ":os"', array(':os' => $server_os['name'])), 'not-exists');
+            throw new CoreException(tr('servers_detect_os(): No version found for os ":os"', array(':os' => $server_restrictions_os['name'])), 'not-exists');
         }
 
-        $server_os['version'] = $version[0];
+        $server_restrictions_os['version'] = $version[0];
 
-        return $server_os;
+        return $server_restrictions_os;
 
     }catch(Exception $e) {
         throw new CoreException('servers_get_os(): Failed', $e);
@@ -1501,7 +1501,7 @@ function servers_get_public_ip($domain) {
 
 
 /*
- * Returns the proxy (if available) linked to the specified $servers_id. If the specified $servers_id has multiple linked proxy servers, a single random one will be chosen and returned
+ * Returns the proxy (if available) linked to the specified $server_restrictionss_id. If the specified $server_restrictionss_id has multiple linked proxy servers, a single random one will be chosen and returned
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -1509,12 +1509,12 @@ function servers_get_public_ip($domain) {
  * @category Function reference
  * @package servers
  *
- * @param numeric $servers_id, id of the required server
+ * @param numeric $server_restrictionss_id, id of the required server
  * @return array
  */
-function servers_get_proxy($servers_id) {
+function servers_get_proxy($server_restrictionss_id) {
     try {
-        $server = sql_get('SELECT    `servers`.`id`,
+        $server_restrictions = sql_get('SELECT    `servers`.`id`,
                                      `servers`.`domain`,
                                      `servers`.`port`,
                                      `servers`.`ipv4`,
@@ -1531,9 +1531,9 @@ function servers_get_proxy($servers_id) {
 
                            LIMIT     1',
 
-                           array(':servers_id' => $servers_id), null, 'core');
+                           array(':servers_id' => $server_restrictionss_id), null, 'core');
 
-        return $server;
+        return $server_restrictions;
 
     }catch(Exception $e) {
         throw new CoreException('servers_get_proxy(): Failed', $e);
@@ -1543,7 +1543,7 @@ function servers_get_proxy($servers_id) {
 
 
 /*
- * Returns all the proxy servers (if available) linked to the specified $servers_id
+ * Returns all the proxy servers (if available) linked to the specified $server_restrictionss_id
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -1551,12 +1551,12 @@ function servers_get_proxy($servers_id) {
  * @category Function reference
  * @package servers
  *
- * @param numeric $servers_id, id of the required server
+ * @param numeric $server_restrictionss_id, id of the required server
  * @return array
  */
-function servers_list_proxies($servers_id) {
+function servers_list_proxies($server_restrictionss_id) {
     try {
-        $servers = sql_list('SELECT    `servers`.`id`,
+        $server_restrictionss = sql_list('SELECT    `servers`.`id`,
                                        `servers`.`domain`,
                                        `servers`.`port`,
                                        `servers`.`ipv4`,
@@ -1569,9 +1569,9 @@ function servers_list_proxies($servers_id) {
 
                              WHERE     `servers_ssh_proxies`.`servers_id` = :servers_id',
 
-                             array(':servers_id' => $servers_id), false, 'core');
+                             array(':servers_id' => $server_restrictionss_id), false, 'core');
 
-        return $servers;
+        return $server_restrictionss;
 
     }catch(Exception $e) {
         throw new CoreException('servers_list_proxies(): Failed', $e);
@@ -1581,7 +1581,7 @@ function servers_list_proxies($servers_id) {
 
 
 /*
- * Add the specified proxy $proxies_id to the proxy chain for the specified $servers_id
+ * Add the specified proxy $proxies_id to the proxy chain for the specified $server_restrictionss_id
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -1589,13 +1589,13 @@ function servers_list_proxies($servers_id) {
  * @category Function reference
  * @package servers
  *
- * @param integer $servers_id
+ * @param integer $server_restrictionss_id
  * @param integer $proxies_id
  * @return integer servers_ssh_proxies insert_id
  */
-function servers_add_ssh_proxy($servers_id, $proxies_id) {
+function servers_add_ssh_proxy($server_restrictionss_id, $proxies_id) {
     try {
-        if (empty($servers_id)) {
+        if (empty($server_restrictionss_id)) {
             throw new CoreException(tr('proxies_create_relation(): No servers id specified'), 'not-specified');
         }
 
@@ -1606,7 +1606,7 @@ function servers_add_ssh_proxy($servers_id, $proxies_id) {
         sql_query('INSERT INTO `servers_ssh_proxies` (`servers_id`, `proxies_id`)
                    VALUES                            (:servers_id , :proxies_id )',
 
-                   array(':servers_id' => $servers_id,
+                   array(':servers_id' => $server_restrictionss_id,
                          ':proxies_id' => $proxies_id), 'core');
 
         return sql_insert_id('core');
@@ -1627,14 +1627,14 @@ function servers_add_ssh_proxy($servers_id, $proxies_id) {
  * @category Function reference
  * @package servers
  *
- * @param integer $servers_id
+ * @param integer $server_restrictionss_id
  * @param integer $old_proxies_id
  * @param integer $new_proxies_id
  * @return void
  */
-function servers_update_ssh_proxy($servers_id, $old_proxies_id, $new_proxies_id) {
+function servers_update_ssh_proxy($server_restrictionss_id, $old_proxies_id, $new_proxies_id) {
     try {
-        if (empty($servers_id)) {
+        if (empty($server_restrictionss_id)) {
             throw new CoreException(tr('servers_update_ssh_proxy(): No servers id specified'), 'not-specified');
         }
 
@@ -1653,7 +1653,7 @@ function servers_update_ssh_proxy($servers_id, $old_proxies_id, $new_proxies_id)
                        WHERE  `servers_id` = :servers_id
                        AND    `proxies_id` = :proxies_id',
 
-                       array(':servers_id' => $servers_id,
+                       array(':servers_id' => $server_restrictionss_id,
                              ':proxies_id' => $old_proxies_id), true, 'core');
 
         if ($id) {
@@ -1671,7 +1671,7 @@ function servers_update_ssh_proxy($servers_id, $old_proxies_id, $new_proxies_id)
              * Record does not exist, creating a new one
              */
             load_libs('servers');
-            servers_add_ssh_proxy($servers_id, $new_proxies_id);
+            servers_add_ssh_proxy($server_restrictionss_id, $new_proxies_id);
         }
 
     }catch(Exception $e) {
@@ -1690,17 +1690,17 @@ function servers_update_ssh_proxy($servers_id, $old_proxies_id, $new_proxies_id)
  * @category Function reference
  * @package servers
  *
- * @param integer $servers_id
+ * @param integer $server_restrictionss_id
  * @param integer $proxies_id
  */
-function servers_delete_ssh_proxy($servers_id, $proxies_id) {
+function servers_delete_ssh_proxy($server_restrictionss_id, $proxies_id) {
     try {
         sql_query('DELETE FROM `servers_ssh_proxies`
 
                    WHERE       `servers_id` = :servers_id
                    AND         `proxies_id` = :proxies_id',
 
-                   array(':servers_id' => $servers_id,
+                   array(':servers_id' => $server_restrictionss_id,
                          ':proxies_id' => $proxies_id), 'core');
 
     }catch(Exception $e) {
@@ -1719,24 +1719,24 @@ function servers_delete_ssh_proxy($servers_id, $proxies_id) {
  * @category Function reference
  * @package servers
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param integer The servers_id
  */
-function servers_get_id($server) {
+function servers_get_id($server_restrictions) {
     try {
-        if (!$server) {
+        if (!$server_restrictions) {
             return null;
         }
 
-        if (is_array($server)) {
-            $server = $server['id'];
+        if (is_array($server_restrictions)) {
+            $server_restrictions = $server_restrictions['id'];
 
-        } elseif (!is_numeric($server)) {
-            $server = servers_get($server);
-            $server = $server['id'];
+        } elseif (!is_numeric($server_restrictions)) {
+            $server_restrictions = servers_get($server_restrictions);
+            $server_restrictions = $server_restrictions['id'];
         }
 
-        return $server;
+        return $server_restrictions;
 
     }catch(Exception $e) {
 		throw new CoreException('servers_get_id(): Failed', $e);
@@ -1754,12 +1754,12 @@ function servers_get_id($server) {
  * @category Function reference
  * @package servers
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return integer The amount of scanned servers
  */
-function servers_scan_domains($server = null) {
+function servers_scan_domains($server_restrictions = null) {
     try {
-        if (!$server) {
+        if (!$server_restrictions) {
             /*
              * Scan ALL servers
              */
@@ -1777,7 +1777,7 @@ function servers_scan_domains($server = null) {
          * Scan the server
          */
 
-        servers_update_domains($server['id'], $domains);
+        servers_update_domains($server_restrictions['id'], $domains);
         return 1;
 
     }catch(Exception $e) {
@@ -1796,18 +1796,18 @@ function servers_scan_domains($server = null) {
  * @category Function reference
  * @package servers
  *
- * @param mixed $server The server to be checked
+ * @param mixed $server_restrictions The server to be checked
  * @param mixed $account This is either an SSH accounts id or name, or if $password is specified, just a normal username on that server (for example; root)
  * @param mixed $password If specified, the specified account will not be taken from the `ssh_accounts` table, but will be regarded as a username on the server which will be used in combination with the specified password
  * @return boolean True if the specified account has access on the specified server
  */
-function servers_check_ssh_access($server, $account, $password = null) {
+function servers_check_ssh_access($server_restrictions, $account, $password = null) {
     try {
-        $server['username'] = $account;
+        $server_restrictions['username'] = $account;
 
         if ($password) {
-            $server['password'] = $password;
-            $results = servers_exec($server, array('commands' => array('echo', array('1'))));
+            $server_restrictions['password'] = $password;
+            $results = servers_exec($server_restrictions, array('commands' => array('echo', array('1'))));
 
         } else {
             $account = ssh_get_account($account);
@@ -1816,7 +1816,7 @@ function servers_check_ssh_access($server, $account, $password = null) {
                 throw new CoreException(tr('servers_check_ssh_access(): The specified account ":account" does not exist in the `ssh_accounts` table', array(':account' => $account)), 'not-exists');
             }
 
-            $results = servers_exec($server, array('commands' => array('echo', array('1'))));
+            $results = servers_exec($server_restrictions, array('commands' => array('echo', array('1'))));
         }
 
 showdie($results);

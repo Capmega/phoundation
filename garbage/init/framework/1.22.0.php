@@ -177,14 +177,14 @@ cli_dot(false);
 /*
  * Update domains table with domains from servers table
  */
-$servers = sql_query('SELECT `id`, `domain`, `seodomain`, `ipv4` FROM `servers`');
+$server_restrictionss = sql_query('SELECT `id`, `domain`, `seodomain`, `ipv4` FROM `servers`');
 
 load_libs('seo,servers,domains');
 log_console(tr('Updating `domains` table with `domains` from `servers` table'));
 
-while ($server = sql_fetch($servers)) {
-    domains_ensure($server['domain']);
-    servers_add_domain($server['id'], $server['domain']);
+while ($server_restrictions = sql_fetch($server_restrictionss)) {
+    domains_ensure($server_restrictions['domain']);
+    servers_add_domain($server_restrictions['id'], $server_restrictions['domain']);
 }
 
 cli_dot(false);

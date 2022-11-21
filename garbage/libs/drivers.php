@@ -28,7 +28,7 @@
  * @param string $model
  * @return void
  */
-function drivers_setup($type, $brand, $model, $server = null) {
+function drivers_setup($type, $brand, $model, $server_restrictions = null) {
     try {
         cli_only();
         load_libs('linux');
@@ -46,8 +46,8 @@ function drivers_setup($type, $brand, $model, $server = null) {
                          * Brother MFC L-8900 CDW scanner / printer combo
                          * Download the generic driver file
                          */
-                        $file  = linux_download($server, 'https://download.brother.com/welcome/dlf006893/linux-brprinter-installer-2.2.1-1.gz');
-                        $file  = linux_unzip($server, $file).'linux-brprinter-installer-2.2.1-1';
+                        $file  = linux_download($server_restrictions, 'https://download.brother.com/welcome/dlf006893/linux-brprinter-installer-2.2.1-1.gz');
+                        $file  = linux_unzip($server_restrictions, $file).'linux-brprinter-installer-2.2.1-1';
 
                         /*
                          * Sanitize the model
@@ -56,7 +56,7 @@ function drivers_setup($type, $brand, $model, $server = null) {
                         $model = str_replace(' ', '', $model);
 
                         chmod($file, 0750);
-                        servers_exec($server, $file.' -f '.$model, null, true, 'passthru');
+                        servers_exec($server_restrictions, $file.' -f '.$model, null, true, 'passthru');
                         break;
 
                     default:

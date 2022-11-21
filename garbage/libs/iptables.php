@@ -28,15 +28,15 @@ function iptables_library_init() {
 /*
  * Execute iptables with the specified parameters
  *
- * @param string|integer $server The unique name or id of the host where to execute the iptables command
+ * @param string|integer $server_restrictions The unique name or id of the host where to execute the iptables command
  * @param string $parameters
  * @return mixed The output of servers_exec() for the specified host with the specified parameters
  */
-function iptables_exec($server, $parameters = null) {
+function iptables_exec($server_restrictions, $parameters = null) {
     static $commands = array();
 
     try {
-        switch ($server) {
+        switch ($server_restrictions) {
             case IPTABLES_CLEAR:
                 $commands = array();
                 return false;
@@ -56,7 +56,7 @@ function iptables_exec($server, $parameters = null) {
                     $command  = implode(';', $commands);
                     $commands = array();
 
-                    servers_exec($server, $command);
+                    servers_exec($server_restrictions, $command);
                 }
 
                 if (!$parameters) {
@@ -67,7 +67,7 @@ function iptables_exec($server, $parameters = null) {
                     return false;
                 }
 
-                return servers_exec($server, 'sudo iptables '.$parameters);
+                return servers_exec($server_restrictions, 'sudo iptables '.$parameters);
         }
 
     }catch(Exception $e) {
@@ -78,11 +78,11 @@ function iptables_exec($server, $parameters = null) {
 
 
 /*
- * @param mixed $server The unique name or id of the host where to execute the iptables command
+ * @param mixed $server_restrictions The unique name or id of the host where to execute the iptables command
  */
-function iptables_set_forward($server, $value = 1) {
+function iptables_set_forward($server_restrictions, $value = 1) {
     try {
-        servers_exec($server, 'sudo bash -c "echo '.$value.' > /proc/sys/net/ipv4/ip_forward"');
+        servers_exec($server_restrictions, 'sudo bash -c "echo '.$value.' > /proc/sys/net/ipv4/ip_forward"');
 
     }catch(Exception $e) {
         throw new CoreException('iptables_set_forward(): Failed', $e);
@@ -92,11 +92,11 @@ function iptables_set_forward($server, $value = 1) {
 
 
 /*
- * @param mixed $server The unique name or id of the host where to execute the iptables command
+ * @param mixed $server_restrictions The unique name or id of the host where to execute the iptables command
  */
-function iptables_flush_nat_rules($server) {
+function iptables_flush_nat_rules($server_restrictions) {
     try {
-        servers_exec($server, 'iptables -t nat -F');
+        servers_exec($server_restrictions, 'iptables -t nat -F');
 
     }catch(Exception $e) {
         throw new CoreException('iptables_flush_nat_rules(): Failed', $e);
@@ -110,14 +110,14 @@ function iptables_flush_nat_rules($server) {
  *
  * @example usage iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination 255.255.255.255:401
  * Sets a new iptables rulte for port forwarding
- * @param mixed $server The unique name or id of the host where to execute the iptables command
+ * @param mixed $server_restrictions The unique name or id of the host where to execute the iptables command
  * @param string $protocol
  * @param integer $origin_port
  * @param integer $destination_port
  * @param string $destination_ip
  * @return void
  */
-function iptables_set_prerouting($server, $protocol, $origin_port, $destination_port, $destination_ip, $operation = 'add') {
+function iptables_set_prerouting($server_restrictions, $protocol, $origin_port, $destination_port, $destination_ip, $operation = 'add') {
     try {
         $protocol         = iptables_validate_protocol($protocol);
         $origin_port      = iptables_validate_port($origin_port);
@@ -129,7 +129,7 @@ function iptables_set_prerouting($server, $protocol, $origin_port, $destination_
          */
         $operation = (($operation == 'add') ? '-A' : '-D');
 
-        iptables_exec($server, ' -t nat '.$operation.' PREROUTING -p tcp --dport '.$origin_port.' -j DNAT --to-destination '.$destination_ip.':'.$destination_port);
+        iptables_exec($server_restrictions, ' -t nat '.$operation.' PREROUTING -p tcp --dport '.$origin_port.' -j DNAT --to-destination '.$destination_ip.':'.$destination_port);
 
     }catch(Exception $e) {
         throw new CoreException('iptables_add_prerouting(): Failed', $e);
@@ -143,20 +143,20 @@ function iptables_set_prerouting($server, $protocol, $origin_port, $destination_
  * Adds a postrouting rule on iptables
  *
  * @example usage iptables -t nat -A POSTROUTING -p tcp -d 255.210.102.105 --dport 40001 -j SNAT --to-source 255.255.255.255
- * @param mixed   $server The unique name or id of the host where to execute the iptables command
+ * @param mixed   $server_restrictions The unique name or id of the host where to execute the iptables command
  * @param string  $protocol
  * @param integer $port
  * @param string  $destination_ip
  * @return void
  */
-function iptables_set_postrouting($server, $protocol, $port, $source_ip, $destination_ip, $operation = 'add') {
+function iptables_set_postrouting($server_restrictions, $protocol, $port, $source_ip, $destination_ip, $operation = 'add') {
     try {
         $protocol       = iptables_validate_protocol($protocol);
         $port           = iptables_validate_port($port);
         $destination_ip = iptables_validate_ip($destination_ip);
         $operation      = $operation == 'add'?'-A':'-D';
 
-        iptables_exec($server, '-t nat '.$operation.' POSTROUTING -p tcp -d '.$destination_ip.' --dport '.$port.' -j SNAT --to-source '.$source_ip);
+        iptables_exec($server_restrictions, '-t nat '.$operation.' POSTROUTING -p tcp -d '.$destination_ip.' --dport '.$port.' -j SNAT --to-source '.$source_ip);
 
     }catch(Exception $e) {
         throw new CoreException('iptables_add_postrouting(): Failed', $e);
@@ -168,12 +168,12 @@ function iptables_set_postrouting($server, $protocol, $port, $source_ip, $destin
 /*
  * Flush all iptables rules
  *
- * @param mixed $server The unique name or id of the host where to execute the iptables command
+ * @param mixed $server_restrictions The unique name or id of the host where to execute the iptables command
  * @return void
  */
-function iptables_flush_all($server) {
+function iptables_flush_all($server_restrictions) {
     try {
-        iptables_exec($server, '-F');
+        iptables_exec($server_restrictions, '-F');
 
     }catch(Exception $e) {
         throw new CoreException('iptables_flush_all(): Failed', $e);
@@ -186,12 +186,12 @@ function iptables_flush_all($server) {
  * Flush all nat rules on iptables
  *
  * @example usage iptables -t nat -F
- * @param mixed $server The unique name or id of the host where to execute the iptables command
+ * @param mixed $server_restrictions The unique name or id of the host where to execute the iptables command
  * @return void
  */
-function iptables_clean_chain_nat($server) {
+function iptables_clean_chain_nat($server_restrictions) {
     try {
-        iptables_exec($server, '-t nat -F');
+        iptables_exec($server_restrictions, '-t nat -F');
 
     }catch(Exception $e) {
         throw new CoreException('iptables_clean_chain_nat(): Failed', $e);
@@ -203,12 +203,12 @@ function iptables_clean_chain_nat($server) {
 /*
  * Deletes all iptables rules
  *
- * @param string $server The unique name or id of the host where to execute the iptables command
+ * @param string $server_restrictions The unique name or id of the host where to execute the iptables command
  * @return void
  */
-function iptables_delete_all($server) {
+function iptables_delete_all($server_restrictions) {
     try {
-        iptables_exec($server, '-X');
+        iptables_exec($server_restrictions, '-X');
 
     }catch(Exception $e) {
         throw new CoreException('iptables_delete_all(): Failed', $e);
@@ -221,21 +221,21 @@ function iptables_delete_all($server) {
  * Adds a rule on iptables to start accepting traffic from a specific ip
  * on a specific port in a specific server
  *
- * @param mixed $server the hostname or id for a specific server
+ * @param mixed $server_restrictions the hostname or id for a specific server
  * @param string $ip, Accept traffic from this ip
  * @param integer $port,Accept traffic on this port
  * @param string $protocol
  * @return void
  */
-function iptables_accept_traffic($server, $ip, $port, $protocol) {
+function iptables_accept_traffic($server_restrictions, $ip, $port, $protocol) {
     try {
-        $result = servers_exec($server, 'if sudo iptables -L -v -n|grep '.$ip.'.*dpt:'.$port.'; then echo "exists"; else echo 0; fi');
+        $result = servers_exec($server_restrictions, 'if sudo iptables -L -v -n|grep '.$ip.'.*dpt:'.$port.'; then echo "exists"; else echo 0; fi');
 
         /*
          * If rule does not exist, we add it
          */
         if (!$result[0]) {
-            iptables_exec($server, ' -A INPUT -p '.$protocol.' -s '.$ip.' --dport '.$port.' -j ACCEPT');
+            iptables_exec($server_restrictions, ' -A INPUT -p '.$protocol.' -s '.$ip.' --dport '.$port.' -j ACCEPT');
         }
 
     }catch(Exception $e) {
@@ -248,18 +248,18 @@ function iptables_accept_traffic($server, $ip, $port, $protocol) {
 /*
  * Removes a rule on iptables to stop accepting traffic from a specific server and port
  *
- * @param mixed $server the hostname or id for a specific server
+ * @param mixed $server_restrictions the hostname or id for a specific server
  * @param string $ip, ip which is going to be accepted for server
  * @param integer $port
  * @param string $protocol
  * @return void
  */
-function iptables_stop_accepting_traffic($server, $ip, $port, $protocol) {
+function iptables_stop_accepting_traffic($server_restrictions, $ip, $port, $protocol) {
     try {
-        $result = servers_exec($server, 'if sudo iptables -L -v -n|grep '.$ip.'.*dpt:'.$port.'; then echo 1; else echo 0; fi');
+        $result = servers_exec($server_restrictions, 'if sudo iptables -L -v -n|grep '.$ip.'.*dpt:'.$port.'; then echo 1; else echo 0; fi');
 
         if ($result[0]) {
-            iptables_exec($server, '-D INPUT -p '.$protocol.' -s '.$ip.' --dport '.$port.' -j ACCEPT');
+            iptables_exec($server_restrictions, '-D INPUT -p '.$protocol.' -s '.$ip.' --dport '.$port.' -j ACCEPT');
         }
 
     }catch(Exception $e) {
@@ -401,9 +401,9 @@ function iptables_validate_chain_type($chain_type) {
  * @param string $destination_ip
  * @return boolean
  */
-function iptables_prerouting_exists($server, $origin_port, $destination_port, $destination_ip) {
+function iptables_prerouting_exists($server_restrictions, $origin_port, $destination_port, $destination_ip) {
     try {
-        $result = servers_exec($server, 'if sudo iptables -t nat -L -n|grep "DNAT.*dpt:'.$origin_port.' to:'.$destination_ip.':'.$destination_port.'"; then echo 1; else echo 0; fi');
+        $result = servers_exec($server_restrictions, 'if sudo iptables -t nat -L -n|grep "DNAT.*dpt:'.$origin_port.' to:'.$destination_ip.':'.$destination_port.'"; then echo 1; else echo 0; fi');
 
         if ($result[0]) {
             return true;
@@ -426,9 +426,9 @@ function iptables_prerouting_exists($server, $origin_port, $destination_port, $d
  * @param string $source_ip
  * @return boolean
  */
-function iptables_postrouting_exists($server, $port, $source_ip) {
+function iptables_postrouting_exists($server_restrictions, $port, $source_ip) {
     try {
-        $result = servers_exec($server, 'if sudo iptables -t nat -L -n|grep "SNAT.*dpt:'.$port.' to:'.$source_ip.'"; then echo 1; else echo 0; fi');
+        $result = servers_exec($server_restrictions, 'if sudo iptables -t nat -L -n|grep "SNAT.*dpt:'.$port.' to:'.$source_ip.'"; then echo 1; else echo 0; fi');
 
         if ($result[0]) {
             return true;
@@ -449,9 +449,9 @@ function iptables_postrouting_exists($server, $port, $source_ip) {
  * @param mixed, server id or hostname for specified server
  * @return void
  */
-function iptalbes_drop_all($server) {
+function iptalbes_drop_all($server_restrictions) {
     try {
-        iptables_exec($server, '-P INPUT DROP');
+        iptables_exec($server_restrictions, '-P INPUT DROP');
 
     }catch(Exception $e) {
         throw new CoreException('iptalbes_drop_all(): Failed', $e);

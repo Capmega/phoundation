@@ -3867,7 +3867,7 @@
 //         * In what servers are we going to store these files?
 //         */
 //        $files       = Arrays::force($files);
-//        $servers     = cdn_assign_servers();
+//        $server_restrictionss     = cdn_assign_servers();
 //        $file_insert = sql_prepare('INSERT IGNORE INTO `cdn_files` (`servers_id`, `section`, `group`, `file`)
 //                                    VALUES                         (:servers_id , :section , :group , :file )');
 //
@@ -3875,11 +3875,11 @@
 //         * Register at what CDN servers the files will be uploaded, and send the
 //         * files there
 //         */
-//        foreach ($servers as $servers_id => $server) {
+//        foreach ($server_restrictionss as $server_restrictionss_id => $server_restrictions) {
 //            foreach ($files as $url => $file) {
-//                log_file(tr('cdn_add_files(): Added file ":file" with url ":url" to CDN server ":server"', array(':file' => $file, ':url' => $url, ':server' => $server)), 'DEBUG/cdn');
+//                log_file(tr('cdn_add_files(): Added file ":file" with url ":url" to CDN server ":server"', array(':file' => $file, ':url' => $url, ':server' => $server_restrictions)), 'DEBUG/cdn');
 //
-//                $file_insert->execute(array(':servers_id' => $servers_id,
+//                $file_insert->execute(array(':servers_id' => $server_restrictionss_id,
 //                                            ':section'    => $section,
 //                                            ':group'      => $group,
 //                                            ':file'       => Strings::startsWith($url, '/')));
@@ -3888,7 +3888,7 @@
 //            /*
 //             * Send the files
 //             */
-//            cdn_send_files($files, $server, $section, $group);
+//            cdn_send_files($files, $server_restrictions, $section, $group);
 //        }
 //
 //        /*
@@ -4026,9 +4026,9 @@
 //        // * We have a CDN server in session? If not, get one.
 //        // */
 //        //if (isset_get($_SESSION['cdn']) === null) {
-//        //    $server = sql_get('SELECT `baseurl` FROM `cdn_servers` WHERE `status` IS NULL ORDER BY RAND() LIMIT 1', true);
+//        //    $server_restrictions = sql_get('SELECT `baseurl` FROM `cdn_servers` WHERE `status` IS NULL ORDER BY RAND() LIMIT 1', true);
 //        //
-//        //    if (!$server) {
+//        //    if (!$server_restrictions) {
 //        //        /*
 //        //         * Err we have no CDN servers, though CDN is configured.. Just
 //        //         * continue locally?
@@ -4038,7 +4038,7 @@
 //        //        return domain($url, $query, $prefix);
 //        //    }
 //        //
-//        //    $_SESSION['cdn'] = Strings::slash($server).strtolower(str_replace('_', '-', PROJECT));
+//        //    $_SESSION['cdn'] = Strings::slash($server_restrictions).strtolower(str_replace('_', '-', PROJECT));
 //        //}
 //        //
 //        //return $_SESSION['cdn'].$url;

@@ -27,9 +27,9 @@ class Img extends Element
     /**
      * Server object where the image conversion commands will be executed
      *
-     * @var Server $server
+     * @var Server $server_restrictions
      */
-    protected Server $server;
+    protected Server $server_restrictions;
 
     /**
      * Sets whether the image will be lazily loaded as-needed or directly
@@ -168,7 +168,7 @@ class Img extends Element
 //
 //        if ($this->external) {
 //            // Download external images local so that we can perform tests, changes, upgrades, etc.
-//            $file_src = \Phoundation\Web\Http\File::new($this->server)->download($src);
+//            $file_src = \Phoundation\Web\Http\File::new($this->server_restrictions)->download($src);
 //        } else {
 //            // This is a local image (either with or without domain specified) Locate the file
 //            $file_src = Strings::from($src     , $domain . '/');

@@ -8,6 +8,7 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Commands\Exception\CommandsException;
 use Phoundation\Processes\Commands\SystemCommands;
@@ -153,9 +154,9 @@ trait ProcessVariables
     /**
      * Keeps track on which server this command should be executed. NULL means this local server
      *
-     * @var Server $server
+     * @var Server $server_restrictions
      */
-    protected Server $server;
+    protected Server $server_restrictions;
 
     /**
      * Registers where the exit code for this process will be stored
@@ -198,12 +199,12 @@ trait ProcessVariables
     /**
      * Process class contructor
      *
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      */
-    public function __construct(Server|array|string|null $server)
+    public function __construct(Server|Restrictions|array|string|null $server_restrictions)
     {
         // Set server filesystem restrictions
-        $this->setServer($server);
+        $this->setServerRestrictions($server_restrictions);
     }
 
 
@@ -540,9 +541,9 @@ trait ProcessVariables
      * @note NULL means this local server
      * @return Server
      */
-    public function getServer(): Server
+    public function getServerRestrictions(): Server
     {
-        return $this->server;
+        return $this->server_restrictions;
     }
 
 
@@ -551,12 +552,12 @@ trait ProcessVariables
      * Set the server on which the command should be executed for this process
      *
      * @note NULL means this local server
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @return static
      */
-    public function setServer(Server|array|string|null $server = null): static
+    public function setServerRestrictions(Server|Restrictions|array|string|null $server_restrictions = null): static
     {
-        $this->server = Core::ensureServer($server);
+        $this->server_restrictions = Core::ensureServer($server_restrictions);
         return $this;
     }
 
@@ -588,13 +589,13 @@ trait ProcessVariables
         }
 
         if ($which_command) {
-            $real_command = SystemCommands::new($this->server)->which($command);
+            $real_command = SystemCommands::new($this->server_restrictions)->which($command);
         } else {
             // Check if the command exist on disk
             if (($command !== 'which') and !file_exists($command)) {
                 // The specified command was not found, we'll have to look for it anyway!
                 try {
-                    $real_command = SystemCommands::new($this->server)->which($command);
+                    $real_command = SystemCommands::new($this->server_restrictions)->which($command);
                 } catch (CommandsException) {
                     // The command does not exist, but we have installation packages available!
                     if (!$this->failed and $this->packages and !Command::new()->sudoAvailable('apt-get')) {
@@ -827,7 +828,7 @@ trait ProcessVariables
                 }
             } else {
                 // Redirect output to a file
-                File::new($redirect, $this->server)->checkWritable('output redirect file', true);
+                File::new($redirect, $this->server_restrictions)->checkWritable('output redirect file', true);
                 $this->output_redirect[$channel] = ($append ? '*' : '') . $redirect;
             }
 
@@ -873,7 +874,7 @@ trait ProcessVariables
      */
     public function setInputRedirect(?string $redirect, int $channel = 1): static
     {
-        File::new($redirect, $this->server)->checkReadable();
+        File::new($redirect, $this->server_restrictions)->checkReadable();
 
         $this->input_redirect[$channel] = get_null($redirect);
 

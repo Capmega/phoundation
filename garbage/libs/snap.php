@@ -54,15 +54,15 @@ function snap_library_init() {
  * This would install the go package
  *
  * @param string $packages A string delimited list of packages to be installed
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return string The output from the snap-get install command
  */
-function snap_install($packages, $server = null) {
+function snap_install($packages, $server_restrictions = null) {
     try {
         $packages  = Arrays::force($packages);
         $arguments = array_merge(array('sudo' => true, 'install', '--classic'), Arrays::force($packages, ' '));
 
-        return servers_exec($server, array('timeout'  => 180,
+        return servers_exec($server_restrictions, array('timeout'  => 180,
                                            'function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                            'commands' => array('snap', $arguments)));
 

@@ -481,7 +481,7 @@ class Config
         Path::new(PATH_ROOT, PATH_ROOT)->execute()
             ->addSkipPaths([PATH_DATA, PATH_ROOT . 'tests', PATH_ROOT . 'garbage'])
             ->setRecurse(true)
-            ->setServer(new Restrictions(PATH_ROOT))
+            ->setServerRestrictions(new Restrictions(PATH_ROOT))
             ->onFiles(function(string $file) use (&$store) {
                 $files = File::new($file, PATH_ROOT)->grep(['Config::get(\'', 'Config::set(\'']);
 

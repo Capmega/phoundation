@@ -16,6 +16,7 @@ use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Servers\Server;
+use Phoundation\Web\Http\File;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
@@ -46,9 +47,9 @@ class Route
     /**
      * The default server filesystem access restrictions to use while routing
      *
-     * @var Server $server
+     * @var Server $server_restrictions
      */
-    protected Server $server;
+    protected Server $server_restrictions;
 
     /**
      * The temporary server filesystem access restrictions to use while routing ONLY for the next try
@@ -63,10 +64,10 @@ class Route
      * Route constructor
      *
      * @param Template $template
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @throws Throwable
      */
-    public function __construct(Template $template, Server|array|string|null $server = null)
+    public function __construct(Template $template, Server|Restrictions|array|string|null $server_restrictions = null)
     {
         // Start the Core object
         Core::startup();
@@ -74,7 +75,7 @@ class Route
 
         // Set what template and default server restrictions  we'll be using
         $this->template = $template;
-        $this->server   = Core::ensureServer($server, PATH_WWW);
+        $this->server_restrictions   = Core::ensureServer($server_restrictions, PATH_WWW);
     }
 
 
@@ -83,10 +84,10 @@ class Route
      * Returns a new routing object
      *
      * @param Template $template
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @return static
      */
-    public static function new(Template $template, Server|array|string|null $server = null): static
+    public static function new(Template $template, Server|Restrictions|array|string|null $server_restrictions = null): static
     {
         return new static($template);
     }
@@ -96,12 +97,12 @@ class Route
     /**
      * Try the following access restrictions only for the next try
      *
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @return static
      */
-    public function using(Server|array|string|null $server = null): static
+    public function using(Server|Restrictions|array|string|null $server_restrictions = null): static
     {
-        $this->temp_server = $server;
+        $this->temp_server = $server_restrictions;
         return $this;
     }
 
@@ -931,7 +932,7 @@ class Route
     protected function execute(string $target, bool $attachment): void
     {
         // Set the server filesystem restrictions and template for this page
-        Page::setServer($this->getServer());
+        Page::setServerRestrictions($this->getServerRestrictions());
 
         // Find the correct target page
         $target = Filesystem::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE . '/pages/');
@@ -943,7 +944,7 @@ class Route
 
             if ($attachment) {
                 // Send download headers and send the $html payload
-                Http::file(new Restrictions(PATH_WWW . ',data/attachments', false, 'Page attachment'))
+                File::new($this->server_restrictions)
                     ->setAttachment(true)
                     ->setData($html)
                     ->setFilename(basename($target))
@@ -1129,16 +1130,16 @@ class Route
      *
      * @return Server
      */
-    protected function getServer(): Server
+    protected function getServerRestrictions(): Server
     {
         if ($this->temp_server) {
-            $server = $this->temp_server;
+            $server_restrictions = $this->temp_server;
         } else {
-            $server = $this->server;
+            $server_restrictions = $this->server_restrictions;
         }
 
         $this->temp_server = null;
-        $server->setLabel('Route');
-        return $server;
+        $server_restrictions->setLabel('Route');
+        return $server_restrictions;
     }
 }

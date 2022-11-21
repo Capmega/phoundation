@@ -28,12 +28,12 @@ function forwardings_library_init() {
 /*
  * Apply all forwarding rules for the specified server
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return void
  */
-function forwardings_apply_server($server) {
+function forwardings_apply_server($server_restrictions) {
     try {
-        $forwardings = forwardings_list($server);
+        $forwardings = forwardings_list($server_restrictions);
 
         if ($forwardings) {
             foreach ($forwardings as $forward) {
@@ -51,12 +51,12 @@ function forwardings_apply_server($server) {
 /*
  * Removes all forwarding rules for the specified server
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return void
  */
-function forwardings_remove_server($server) {
+function forwardings_remove_server($server_restrictions) {
     try {
-        $forwardings = forwardings_list($server);
+        $forwardings = forwardings_list($server_restrictions);
 
         if ($forwardings) {
             foreach ($forwardings as $forward) {
@@ -498,24 +498,24 @@ function forwardings_get($forwardings_id) {
 
 
 /*
- * Returns a list of forwardings programmed for the specified $server
+ * Returns a list of forwardings programmed for the specified $server_restrictions
  *
  * @param mixed server Either servers_id, or hostname of specified server
  * @return array
  */
-function forwardings_list($server) {
+function forwardings_list($server_restrictions) {
     try {
-        if (!is_numeric($server)) {
-            if (!is_string($server)) {
+        if (!is_numeric($server_restrictions)) {
+            if (!is_string($server_restrictions)) {
                 throw new CoreException(tr('forwardings_list(): Server ":server" is not valid. Must be an id or a hostname.'), 'invalid');
             }
 
-            $server = servers_get($server, false, false);
-            $server = $server['id'];
+            $server_restrictions = servers_get($server_restrictions, false, false);
+            $server_restrictions = $server_restrictions['id'];
         }
 
         /*
-         * From here, $server contains the servers_id
+         * From here, $server_restrictions contains the servers_id
          */
 
         $forwardings = sql_list('SELECT `id`,
@@ -534,7 +534,7 @@ function forwardings_list($server) {
                               WHERE  `servers_id` = :servers_id
                               AND    `status` IS NULL',
 
-                              array(':servers_id' => $server),
+                              array(':servers_id' => $server_restrictions),
 
                               true);
 
@@ -597,10 +597,10 @@ function forwardings_delete_list($forwardings, $apply = true) {
  * @param meixed, server id or hostname for specified server
  * @return void
  */
-function forwardings_destroy($server) {
+function forwardings_destroy($server_restrictions) {
     try {
         iptables_flush_all(IPTABLES_BUFFER);
-        iptables_clean_chain_nat($server);
+        iptables_clean_chain_nat($server_restrictions);
     }catch(Exception $e) {
         throw new CoreException('forwardings_destroy(): Failed', $e);
     }
@@ -610,10 +610,10 @@ function forwardings_destroy($server) {
 
 /*
  * Returns a forward rule for a specified server and protocol
- * @param integer $server, id for specified server
+ * @param integer $server_restrictions, id for specified server
  * @return array
  */
-function forwardings_get_by_protocol($server, $protocol) {
+function forwardings_get_by_protocol($server_restrictions, $protocol) {
     try {
         $forward = sql_get('SELECT     `id`,
                                        `servers_id`,
@@ -630,7 +630,7 @@ function forwardings_get_by_protocol($server, $protocol) {
                             WHERE      `servers_id` = :servers_id
                             AND        `protocol`   = :protocol',
 
-                                array(':servers_id' => $server,
+                                array(':servers_id' => $server_restrictions,
                                       ':protocol'   => $protocol));
 
         return $forward;
@@ -645,9 +645,9 @@ function forwardings_get_by_protocol($server, $protocol) {
 /*
  *
  */
-function forwardings_deny_access($server) {
+function forwardings_deny_access($server_restrictions) {
     try {
-        iptalbes_drop_all($server);
+        iptalbes_drop_all($server_restrictions);
     }catch(Exception $e) {
         throw new CoreException('forwardings_deny_access(): Failed', $e);
     }

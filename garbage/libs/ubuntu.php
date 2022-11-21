@@ -26,10 +26,10 @@
  * @param string $package
  * @return void
  */
-function ubuntu_install_package($package, $server) {
+function ubuntu_install_package($package, $server_restrictions) {
     try {
         load_libs('apt');
-        return apt_install($package, true, $server);
+        return apt_install($package, true, $server_restrictions);
 
     }catch(Exception $e) {
         throw new CoreException('ubuntu_install_package(): Failed', $e);

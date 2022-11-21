@@ -597,7 +597,7 @@ function mysqlr_resume_replication($db, $restart_mysql = true) {
  *
  * @param
  */
-function mysqlr_check_configuration_path($server_target) {
+function mysqlr_check_configuration_path($server_restrictions_target) {
     try {
         $mysql_cnf_path = '/etc/mysql/mysql.conf.d/mysqld.cnf';
 
@@ -605,7 +605,7 @@ function mysqlr_check_configuration_path($server_target) {
          * Check for mysqld.cnf file
          */
         log_console(tr('Checking existance of mysql configuration file'), 'VERBOSEDOT');
-        $mysql_cnf = servers_exec($server_target, 'test -f '.$mysql_cnf_path.' && echo "1" || echo "0"');
+        $mysql_cnf = servers_exec($server_restrictions_target, 'test -f '.$mysql_cnf_path.' && echo "1" || echo "0"');
 
         /*
          * Mysql conf file does not exist
@@ -615,10 +615,10 @@ function mysqlr_check_configuration_path($server_target) {
              * Try with other possible configuration file
              */
             $mysql_cnf_path = '/etc/mysql/my.cnf';
-            $mysql_cnf      = servers_exec($server_target, 'test -f '.$mysql_cnf_path.' && echo "1" || echo "0"');
+            $mysql_cnf      = servers_exec($server_restrictions_target, 'test -f '.$mysql_cnf_path.' && echo "1" || echo "0"');
 
             if (!$mysql_cnf[0]) {
-                throw new CoreException(tr('mysqlr_check_configuration_path(): MySQL configuration file :file does not exist on server :server', array(':file' => $mysql_cnf_path, ':server' => $server_target)), 'not-exists');
+                throw new CoreException(tr('mysqlr_check_configuration_path(): MySQL configuration file :file does not exist on server :server', array(':file' => $mysql_cnf_path, ':server' => $server_restrictions_target)), 'not-exists');
             }
         }
 
@@ -642,23 +642,23 @@ function mysqlr_check_configuration_path($server_target) {
  *
  * @param
  */
-function mysqlr_slave_ssh_tunnel($server, $slave) {
+function mysqlr_slave_ssh_tunnel($server_restrictions, $slave) {
     global $_CONFIG;
 
     try {
-        Arrays::ensure($server);
-        array_default($server, 'server'       , '');
-        array_default($server, 'domain'       , '');
-        array_default($server, 'ssh_key'      , '');
-        array_default($server, 'port'         , 22);
-        array_default($server, 'arguments'    , '');
-        array_default($server, 'hostkey_check', true);
+        Arrays::ensure($server_restrictions);
+        array_default($server_restrictions, 'server'       , '');
+        array_default($server_restrictions, 'domain'       , '');
+        array_default($server_restrictions, 'ssh_key'      , '');
+        array_default($server_restrictions, 'port'         , 22);
+        array_default($server_restrictions, 'arguments'    , '');
+        array_default($server_restrictions, 'hostkey_check', true);
 
         /*
          * If server was specified by just name, then lookup the server data in
          * the database
          */
-        if ($server['domain']) {
+        if ($server_restrictions['domain']) {
             $dbserver = sql_get('SELECT    `ssh_accounts`.`username`,
                                            `ssh_accounts`.`ssh_key`,
                                            `servers`.`id`,
@@ -670,17 +670,17 @@ function mysqlr_slave_ssh_tunnel($server, $slave) {
                                  LEFT JOIN `ssh_accounts`
                                  ON        `ssh_accounts`.`id` = `servers`.`ssh_accounts_id`
 
-                                 WHERE     `servers`.`domain` = :domain', array(':domain' => $server['domain']));
+                                 WHERE     `servers`.`domain` = :domain', array(':domain' => $server_restrictions['domain']));
 
             if (!$dbserver) {
-                throw new CoreException(tr('ssh_mysql_slave_tunnel(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exists');
+                throw new CoreException(tr('ssh_mysql_slave_tunnel(): Specified server ":server" does not exist', array(':server' => $server_restrictions['server'])), 'not-exists');
             }
 
-            $server = sql_merge($server, $dbserver);
+            $server_restrictions = sql_merge($server_restrictions, $dbserver);
         }
 
-        if (!$server['hostkey_check']) {
-            $server['arguments'] .= ' -o StrictHostKeyChecking=no -o UserKnownHostsFile='.PATH_ROOT.'data/ssh/known_hosts ';
+        if (!$server_restrictions['hostkey_check']) {
+            $server_restrictions['arguments'] .= ' -o StrictHostKeyChecking=no -o UserKnownHostsFile='.PATH_ROOT.'data/ssh/known_hosts ';
         }
 
         /*
@@ -697,15 +697,15 @@ function mysqlr_slave_ssh_tunnel($server, $slave) {
 
         touch($keyfile);
         chmod($keyfile, 0600);
-        file_put_contents($keyfile, $server['ssh_key'], FILE_APPEND);
+        file_put_contents($keyfile, $server_restrictions['ssh_key'], FILE_APPEND);
         chmod($keyfile, 0400);
 
         /*
          * Copy key file
          * and execute autossh
          */
-        safe_exec('scp '.$server['arguments'].' -P '.$_CONFIG['mysqlr']['port'].' -i '.$keyfile.' '.$keyfile.' '.$server['username'].'@'.$slave.':/data/ssh/keys/');
-        servers_exec($slave, 'autossh -p '.$server['port'].' -i /data/ssh/keys/'.$keyname.' -L '.$server['port'].':localhost:3306 '.$server['username'].'@'.$server['domain'].' -f -N');
+        safe_exec('scp '.$server_restrictions['arguments'].' -P '.$_CONFIG['mysqlr']['port'].' -i '.$keyfile.' '.$keyfile.' '.$server_restrictions['username'].'@'.$slave.':/data/ssh/keys/');
+        servers_exec($slave, 'autossh -p '.$server_restrictions['port'].' -i /data/ssh/keys/'.$keyname.' -L '.$server_restrictions['port'].':localhost:3306 '.$server_restrictions['username'].'@'.$server_restrictions['domain'].' -f -N');
 
         /*
          * Delete local file key
@@ -755,7 +755,7 @@ function mysqlr_full_backup() {
          * Get all servers replicating
          */
         $slave   = $_CONFIG['mysqlr']['domain'];
-        $servers = sql_query('SELECT `id`,
+        $server_restrictionss = sql_query('SELECT `id`,
                                      `domain`,
                                      `seodomain`
 
@@ -763,7 +763,7 @@ function mysqlr_full_backup() {
 
                               WHERE  `replication_status` = "enabled"');
 
-        if (!$servers->rowCount()) {
+        if (!$server_restrictionss->rowCount()) {
             /*
              * There are no servers in replication status
              */
@@ -779,7 +779,7 @@ function mysqlr_full_backup() {
         /*
          * For each server get the databases replicating
          */
-        while ($server = sql_fetch($servers)) {
+        while ($server_restrictions = sql_fetch($server_restrictionss)) {
             $databases = sql_list('SELECT `id`,
                                            `name`
 
@@ -788,7 +788,7 @@ function mysqlr_full_backup() {
                                    WHERE  `replication_status` = "enabled"
                                    AND    `servers_id`         = :servers_id',
 
-                                   array(':servers_id' => $server['id']));
+                                   array(':servers_id' => $server_restrictions['id']));
 
             if (!count($databases)) {
                 /*
@@ -798,7 +798,7 @@ function mysqlr_full_backup() {
                 continue;
             }
 
-            log_console(tr('Making backups of server :server', array(':server' => $server['domain'])), 'VERBOSEDOT');
+            log_console(tr('Making backups of server :server', array(':server' => $server_restrictions['domain'])), 'VERBOSEDOT');
 
             /*
              * Disable replication of each database
@@ -816,8 +816,8 @@ function mysqlr_full_backup() {
             /*
              * Create a directory for the current server inside the backup directory
              */
-            $server_backup_path = $backup_path.'/'.$server['domain'];
-            servers_exec($slave, 'sudo mkdir '.$server_backup_path);
+            $server_restrictions_backup_path = $backup_path.'/'.$server_restrictions['domain'];
+            servers_exec($slave, 'sudo mkdir '.$server_restrictions_backup_path);
 
             foreach ($databases as $id => $name) {
                 $db                 = mysql_get_database($id);
@@ -833,9 +833,9 @@ function mysqlr_full_backup() {
                                  'database' => $db['database_name'],
                                  'gzip'     => '',
                                  'redirect' => ' | sudo tee',
-                                 'file'     => $server_backup_path.'/'.$db['database_name'].'.sql'));
+                                 'file'     => $server_restrictions_backup_path.'/'.$db['database_name'].'.sql'));
 // :DELETE: the below code is deprecated since we are using mysql_dump function
-                //servers_exec($slave, 'sudo mysqldump \"-u'.$db['root_db_user'].'\" \"-p'.$db['root_db_password'].'\" -K -R -n -e --dump-date --comments -B '.$db['database_name'].' | gzip | sudo tee '.$server_backup_path.'/'.$db['database_name'].'.sql.gz');
+                //servers_exec($slave, 'sudo mysqldump \"-u'.$db['root_db_user'].'\" \"-p'.$db['root_db_password'].'\" -K -R -n -e --dump-date --comments -B '.$db['database_name'].' | gzip | sudo tee '.$server_restrictions_backup_path.'/'.$db['database_name'].'.sql.gz');
                 mysqlr_resume_replication($id, false);
             }
 
@@ -876,22 +876,22 @@ function mysqlr_full_backup() {
  * @param
  * @return
  */
-function mysqlr_scp_database($server, $source, $destnation, $from_server = false) {
+function mysqlr_scp_database($server_restrictions, $source, $destnation, $from_server = false) {
     try {
 obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USING THE NEW AVAILABLE FUNCTIONS');
-        Arrays::ensure($server);
-        array_default($server, 'server'       , '');
-        array_default($server, 'domain'       , '');
-        array_default($server, 'ssh_key'      , '');
-        array_default($server, 'port'         , 22);
-        array_default($server, 'hostkey_check', false);
-        array_default($server, 'arguments'    , '');
+        Arrays::ensure($server_restrictions);
+        array_default($server_restrictions, 'server'       , '');
+        array_default($server_restrictions, 'domain'       , '');
+        array_default($server_restrictions, 'ssh_key'      , '');
+        array_default($server_restrictions, 'port'         , 22);
+        array_default($server_restrictions, 'hostkey_check', false);
+        array_default($server_restrictions, 'arguments'    , '');
 
         /*
          * If server was specified by just name, then lookup the server data in
          * the database
          */
-        if ($server['domain']) {
+        if ($server_restrictions['domain']) {
             $dbserver = sql_get('SELECT    `ssh_accounts`.`username`,
                                            `ssh_accounts`.`ssh_key`,
                                            `servers`.`id`,
@@ -905,17 +905,17 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
 
                                  WHERE     `servers`.`domain`   = :domain',
 
-                                 array(':domain' => $server['domain']));
+                                 array(':domain' => $server_restrictions['domain']));
 
             if (!$dbserver) {
-                throw new CoreException(tr('mysqlr_scp_database(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exists');
+                throw new CoreException(tr('mysqlr_scp_database(): Specified server ":server" does not exist', array(':server' => $server_restrictions['server'])), 'not-exists');
             }
 
-            $server = sql_merge($server, $dbserver);
+            $server_restrictions = sql_merge($server_restrictions, $dbserver);
         }
 
-        if (!$server['hostkey_check']) {
-            $server['arguments'] .= ' -o StrictHostKeyChecking=no -o UserKnownHostsFile='.PATH_ROOT.'data/ssh/known_hosts ';
+        if (!$server_restrictions['hostkey_check']) {
+            $server_restrictions['arguments'] .= ' -o StrictHostKeyChecking=no -o UserKnownHostsFile='.PATH_ROOT.'data/ssh/known_hosts ';
         }
 
         /*
@@ -931,20 +931,20 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
 
         touch($keyfile);
         chmod($keyfile, 0600);
-        file_put_contents($keyfile, $server['ssh_key'], FILE_APPEND);
+        file_put_contents($keyfile, $server_restrictions['ssh_key'], FILE_APPEND);
         chmod($keyfile, 0400);
 
         if ($from_server) {
-            $command = $server['username'].'@'.$server['domain'].':'.$source.' '.$destnation;
+            $command = $server_restrictions['username'].'@'.$server_restrictions['domain'].':'.$source.' '.$destnation;
 
         } else {
-            $command = $source.' '.$server['username'].'@'.$server['domain'].':'.$destnation;
+            $command = $source.' '.$server_restrictions['username'].'@'.$server_restrictions['domain'].':'.$destnation;
         }
 
         /*
          * Execute command
          */
-        $result = safe_exec(array('commands' => array('scp', array($server['arguments'], '-P', $server['port'], '-i', $keyfile, $command))));
+        $result = safe_exec(array('commands' => array('scp', array($server_restrictions['arguments'], '-P', $server_restrictions['port'], '-i', $keyfile, $command))));
         chmod($keyfile, 0600);
         file_delete($keyfile, PATH_ROOT.'data/ssh/keys');
 

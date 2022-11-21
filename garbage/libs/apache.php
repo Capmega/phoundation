@@ -128,15 +128,15 @@ function apache_set_identification($hostname, $params) {
 /*
  * Returns the complete path for the vhost according to the operating system
  *
- * @param string $server_os The operating system name
+ * @param string $server_restrictions_os The operating system name
  * @return string The path where the virtual host configuration files are located
  */
-function apache_get_vhosts_path($server_os) {
+function apache_get_vhosts_path($server_restrictions_os) {
     try {
-        if (empty($server_os)) {
+        if (empty($server_restrictions_os)) {
             throw new CoreException(tr('apache_get_vhosts_path(): No operating system specified'), 'not-specified');
         }
-        switch ($server_os) {
+        switch ($server_restrictions_os) {
             case 'mint':
                 //FALL THROUGH
             case 'ubuntu':
@@ -148,7 +148,7 @@ function apache_get_vhosts_path($server_os) {
                 break;
 
             default:
-                throw new CoreException(tr('apache_get_vhosts_path(): Invalid operating system ":os" specified', array(':os' => $server_os['name'])), 'invalid');
+                throw new CoreException(tr('apache_get_vhosts_path(): Invalid operating system ":os" specified', array(':os' => $server_restrictions_os['name'])), 'invalid');
         }
 
         return $vhost_path;
@@ -168,9 +168,9 @@ function apache_get_vhosts_path($server_os) {
  */
 function apache_get_config_path($hostname) {
     try {
-        $server_os = servers_detect_os($hostname);
+        $server_restrictions_os = servers_detect_os($hostname);
 
-        switch ($server_os['name']) {
+        switch ($server_restrictions_os['name']) {
             case 'mint':
                 //FALL THROUGH
             case 'ubuntu':
@@ -182,7 +182,7 @@ function apache_get_config_path($hostname) {
                 break;
 
             default:
-                throw new CoreException(tr('apache_get_config_path(): Invalid operating system ":os" specified', array(':os' => $server_os['name'])), 'invalid');
+                throw new CoreException(tr('apache_get_config_path(): Invalid operating system ":os" specified', array(':os' => $server_restrictions_os['name'])), 'invalid');
         }
 
         return $path;

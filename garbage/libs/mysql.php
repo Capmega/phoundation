@@ -45,42 +45,42 @@ function mysql_library_init() {
  * @category Function reference
  * @package mysql
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param string $query
  * @param boolean $query
  * @param boolean $simple_quotes
  *
  * @return
  */
-function mysql_exec($server, $query, $root = false, $simple_quotes = false) {
+function mysql_exec($server_restrictions, $query, $root = false, $simple_quotes = false) {
     try {
         load_libs('servers');
 
         $query  = addslashes($query);
-        $server = servers_get($server, true);
+        $server_restrictions = servers_get($server_restrictions, true);
 
-        if (empty($server['database_accounts_id'])) {
-            throw new CoreException(tr('mysql_exec(): Cannot execute query on server ":server", it does not have a database account specified', array(':server' => $server['domain'])), 'not-specified');
+        if (empty($server_restrictions['database_accounts_id'])) {
+            throw new CoreException(tr('mysql_exec(): Cannot execute query on server ":server", it does not have a database account specified', array(':server' => $server_restrictions['domain'])), 'not-specified');
         }
 
         /*
          * Are we going to execute as root?
          */
         if ($root) {
-            mysql_create_password_file('root', $server['db_root_password'], $server);
+            mysql_create_password_file('root', $server_restrictions['db_root_password'], $server_restrictions);
 
         } else {
-            mysql_create_password_file($server['db_username'], $server['db_password'], $server);
+            mysql_create_password_file($server_restrictions['db_username'], $server_restrictions['db_password'], $server_restrictions);
         }
 
         if ($simple_quotes) {
-            $results = servers_exec($server, 'mysql -e \''.Strings::endsWith($query, ';').'\'');
+            $results = servers_exec($server_restrictions, 'mysql -e \''.Strings::endsWith($query, ';').'\'');
 
         } else {
-            $results = servers_exec($server, 'mysql -e \"'.Strings::endsWith($query, ';').'\"');
+            $results = servers_exec($server_restrictions, 'mysql -e \"'.Strings::endsWith($query, ';').'\"');
         }
 
-        mysql_delete_password_file($server);
+        mysql_delete_password_file($server_restrictions);
         return $results;
 
     }catch(Exception $e) {
@@ -88,7 +88,7 @@ function mysql_exec($server, $query, $root = false, $simple_quotes = false) {
          * Make sure the password file gets removed!
          */
         try {
-            mysql_delete_password_file($server);
+            mysql_delete_password_file($server_restrictions);
 
         }catch(Exception $e) {
             $e->addMessages($e->getMessages());
@@ -111,14 +111,14 @@ function mysql_exec($server, $query, $root = false, $simple_quotes = false) {
  *
  * @param string $user
  * @param string $password
- * @param mixed $server
+ * @param mixed $server_restrictions
  *
  * @return
  */
-function mysql_create_password_file($user, $password, $server = null) {
+function mysql_create_password_file($user, $password, $server_restrictions = null) {
     try {
         load_libs('servers');
-        servers_exec($server, "rm ~/.my.cnf -f; touch ~/.my.cnf; chmod 0600 ~/.my.cnf; echo '[client]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysql]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysqldump]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysqldiff]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n' >> ~/.my.cnf");
+        servers_exec($server_restrictions, "rm ~/.my.cnf -f; touch ~/.my.cnf; chmod 0600 ~/.my.cnf; echo '[client]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysql]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysqldump]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysqldiff]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n' >> ~/.my.cnf");
 
     }catch(Exception $e) {
         throw new CoreException(tr('mysql_create_password_file(): Failed'), $e);
@@ -136,14 +136,14 @@ function mysql_create_password_file($user, $password, $server = null) {
  * @category Function reference
  * @package mysql
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  *
  * @return
  */
-function mysql_delete_password_file($server = null) {
+function mysql_delete_password_file($server_restrictions = null) {
     try {
         load_libs('servers');
-        servers_exec($server, 'rm ~/.my.cnf -f');
+        servers_exec($server_restrictions, 'rm ~/.my.cnf -f');
 
     }catch(Exception $e) {
         throw new CoreException(tr('mysql_delete_password_file(): Failed'), $e);
@@ -181,14 +181,14 @@ function mysql_dump($params) {
             throw new CoreException(tr('mysql_dump(): No database specified'), 'not-specified');
         }
 
-        $server = servers_get($params['server'], true);
+        $server_restrictions = servers_get($params['server'], true);
 
 // :TOO: Implement optoins through $params
         $options  = ' -K -R -n -e --dump-date --comments -B ';
 
-        mysql_create_password_file('root', $server['db_root_password'], $server);
+        mysql_create_password_file('root', $server_restrictions['db_root_password'], $server_restrictions);
         servers_exec($params['server'], 'mysqldump '.$options.' '.$params['database'].($params['gzip'] == 'yes' ? ' | gzip' : $params['gzip']).' '.($params['redirect'] == 'yes' ? ' > ' : $params['redirect']).' '.$params['file']);
-        mysql_delete_password_file($server);
+        mysql_delete_password_file($server_restrictions);
 
     }catch(Exception $e) {
         throw new CoreException(tr('mysql_dump(): Failed'), $e);
@@ -266,12 +266,12 @@ function mysql_get_database($db_name) {
  * @category Function reference
  * @package mysql
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param mixed $username
  * @param mixed $password
  * @return
  */
-function mysql_reset_password($server, $username, $password) {
+function mysql_reset_password($server_restrictions, $username, $password) {
     try {
 
     }catch(Exception $e) {
@@ -290,12 +290,12 @@ function mysql_reset_password($server, $username, $password) {
  * @category Function reference
  * @package mysql
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return
  */
-function mysql_register_databases($server) {
+function mysql_register_databases($server_restrictions) {
     try {
-        $results = mysql_exec($server, 'SHOW DATABASES');
+        $results = mysql_exec($server_restrictions, 'SHOW DATABASES');
         $count   = 0;
 
         foreach ($databases as $database) {
@@ -318,10 +318,10 @@ function mysql_register_databases($server) {
 
             if ($skip) continue;
 
-            $exists = sql_get('SELECT `id` FROM `databases` WHERE `servers_id` = :servers_id AND `name` = :name', true, array(':servers_id' => $server['id'], ':name' => $database));
+            $exists = sql_get('SELECT `id` FROM `databases` WHERE `servers_id` = :servers_id AND `name` = :name', true, array(':servers_id' => $server_restrictions['id'], ':name' => $database));
             if ($exists) continue;
 
-            $database['servers_id'] = $server['id'];
+            $database['servers_id'] = $server_restrictions['id'];
 
             mysql_insert_database($database);
 

@@ -763,13 +763,13 @@ function proxies_get_prev_next_insert($root_hostname, $target_hostname, $proxies
  */
 function proxies_get_server($host, $return_proxies = false) {
     try {
-        $server = servers_get($host, false, $return_proxies);
+        $server_restrictions = servers_get($host, false, $return_proxies);
 
-        if (empty($server)) {
+        if (empty($server_restrictions)) {
             throw new CoreException(tr('proxies_get_server(): No server found for host ":host"', array(':host' => $host)), 'not-exists');
         }
 
-        return $server;
+        return $server_restrictions;
 
     }catch(Exception $e) {
         throw new CoreException('proxies_get_server(): Failed', $e);

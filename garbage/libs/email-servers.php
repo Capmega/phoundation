@@ -63,13 +63,13 @@ function email_servers_validate($email_server) {
         /*
          * Validate the server
          */
-        $server = servers_get($email_server['server_seodomain'], false, true, true);
+        $server_restrictions = servers_get($email_server['server_seodomain'], false, true, true);
 
-        if (!$server) {
+        if (!$server_restrictions) {
             $v->setError(tr('The specified server ":server" does not exist', array(':server' => $email_server['server_seodomain'])));
         }
 
-        $email_server['servers_id'] = $server['id'];
+        $email_server['servers_id'] = $server_restrictions['id'];
 
         /*
          * Validate the domain
@@ -118,32 +118,32 @@ function email_servers_validate($email_server) {
  * @package email-servers
  * @version
  *
- * @param params $server
+ * @param params $server_restrictions
  * @return params The specified email server, validated and sanitized
  */
-function email_servers_insert($server) {
+function email_servers_insert($server_restrictions) {
     try {
-        $server = email_servers_validate($server);
+        $server_restrictions = email_servers_validate($server_restrictions);
 
         sql_query('INSERT INTO `email_servers` (`created_by`, `meta_id`, `domains_id`, `servers_id`, `domain`, `seodomain`, `description`)
                    VALUES                      (:created_by , :meta_id , :domains_id , :servers_id , :domain , :seodomain , :description )',
 
                    array(':created_by'     => $_SESSION['user']['id'],
                          ':meta_id'       => meta_action(),
-                         ':domains_id'    => $server['domains_id'],
-                         ':servers_id'    => $server['servers_id'],
-                         ':domain'        => $server['domain'],
-                         ':seodomain'     => $server['seodomain'],
-                         ':description'   => $server['description']));
+                         ':domains_id'    => $server_restrictions['domains_id'],
+                         ':servers_id'    => $server_restrictions['servers_id'],
+                         ':domain'        => $server_restrictions['domain'],
+                         ':seodomain'     => $server_restrictions['seodomain'],
+                         ':description'   => $server_restrictions['description']));
 
-        $server['id'] = sql_insert_id();
+        $server_restrictions['id'] = sql_insert_id();
 
         /*
          * Register this domain with this server
          */
-        servers_add_domain($server['servers_id'], $server['domain']);
+        servers_add_domain($server_restrictions['servers_id'], $server_restrictions['domain']);
 
-        return $server;
+        return $server_restrictions;
 
     }catch(Exception $e) {
         throw new CoreException('email_servers_insert(): Failed', $e);
@@ -162,15 +162,15 @@ function email_servers_insert($server) {
  * @package email-servers
  * @version
  *
- * @param params $server
+ * @param params $server_restrictions
  * @return params The specified email server, validated and sanitized
  */
-function email_servers_update($server) {
+function email_servers_update($server_restrictions) {
     try {
-        $server   = email_servers_validate($server);
-        $dbserver = email_servers_get($server['id']);
+        $server_restrictions   = email_servers_validate($server_restrictions);
+        $dbserver = email_servers_get($server_restrictions['id']);
 
-        meta_action($server['meta_id'], 'update');
+        meta_action($server_restrictions['meta_id'], 'update');
 
         $update = sql_query('UPDATE `email_servers`
 
@@ -183,22 +183,22 @@ function email_servers_update($server) {
 
                              WHERE  `id`          = :id',
 
-                             array(':id'          => $server['id'],
-                                   ':domains_id'  => $server['domains_id'],
-                                   ':servers_id'  => $server['servers_id'],
-                                   ':domain'      => $server['domain'],
-                                   ':seodomain'   => $server['seodomain'],
-                                   ':description' => $server['description']));
+                             array(':id'          => $server_restrictions['id'],
+                                   ':domains_id'  => $server_restrictions['domains_id'],
+                                   ':servers_id'  => $server_restrictions['servers_id'],
+                                   ':domain'      => $server_restrictions['domain'],
+                                   ':seodomain'   => $server_restrictions['seodomain'],
+                                   ':description' => $server_restrictions['description']));
 
-        $server['_updated'] = (boolean) $update->rowCount();
+        $server_restrictions['_updated'] = (boolean) $update->rowCount();
 
         /*
          * Register this domain with this server
          */
-        servers_remove_domain($server['servers_id'], $dbserver['domain']);
-        servers_add_domain   ($server['servers_id'], $server['domain']);
+        servers_remove_domain($server_restrictions['servers_id'], $dbserver['domain']);
+        servers_add_domain   ($server_restrictions['servers_id'], $server_restrictions['domain']);
 
-        return $server;
+        return $server_restrictions;
 
     }catch(Exception $e) {
         throw new CoreException('email_servers_update(): Failed', $e);
@@ -419,11 +419,11 @@ function email_servers_validate_domain($domain) {
         if ($e->getCode() == '1049') {
             load_libs('servers');
 
-            $servers  = servers_list_domains($domain['server']);
-            $server   = servers_get($domain['server']);
-            $domain = not_empty($servers[$domain['server']], $domain['server']);
+            $server_restrictionss  = servers_list_domains($domain['server']);
+            $server_restrictions   = servers_get($domain['server']);
+            $domain = not_empty($server_restrictionss[$domain['server']], $domain['server']);
 
-            throw new CoreException(tr('email_servers_validate_domain(): Specified email server ":server" (server domain ":domain") does not have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exists');
+            throw new CoreException(tr('email_servers_validate_domain(): Specified email server ":server" (server domain ":domain") does not have a "mail" database', array(':server' => $domain, ':domain' => $server_restrictions['domain'])), 'not-exists');
         }
 
         throw new CoreException(tr('email_servers_validate_domain(): Failed'), $e);
@@ -442,7 +442,7 @@ function email_servers_validate_domain($domain) {
  * @package email-servers
  * @version
  *
- * @param params $server
+ * @param params $server_restrictions
  * @return params The specified email domain, validated and sanitized
  */
 function email_servers_insert_domain($domain) {
@@ -620,15 +620,15 @@ function email_servers_scan_domains($params = null) {
             /*
              * Setup the database connector for this email server
              */
-            $server    = servers_get($mailserver['servers_id'], true);
-            $database  = databases_get_account(array('filter'  => array('id' => $server['database_accounts_id']),
+            $server_restrictions    = servers_get($mailserver['servers_id'], true);
+            $database  = databases_get_account(array('filter'  => array('id' => $server_restrictions['database_accounts_id']),
                                                      'columns' => 'username,password'));
 
             $connector = sql_make_connector($mailserver['seodomain'], array('overwrite'  => true,
                                                                             'db'         => 'mail',
                                                                             'user'       => $database['username'],
                                                                             'pass'       => $database['password'],
-                                                                            'ssh_tunnel' => array('domain' => $server['domain'])));
+                                                                            'ssh_tunnel' => array('domain' => $server_restrictions['domain'])));
 
             $domains   = email_servers_list_domains(array('connector' => $mailserver['seodomain'],
                                                           'filters'   => array('customer' => $params['seocustomer'])));
@@ -865,11 +865,11 @@ function email_servers_validate_account($account) {
 
     }catch(Exception $e) {
         if ($e->getCode() == '1049') {
-            $servers = servers_list_domains($domain['server']);
-            $server  = servers_get($domain['server']);
-            $domain  = not_empty($servers[$domain['server']], $domain['server']);
+            $server_restrictionss = servers_list_domains($domain['server']);
+            $server_restrictions  = servers_get($domain['server']);
+            $domain  = not_empty($server_restrictionss[$domain['server']], $domain['server']);
 
-            throw new CoreException(tr('email_servers_validate_account(): Specified email server ":server" (server domain ":domain") does not appear to have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exists');
+            throw new CoreException(tr('email_servers_validate_account(): Specified email server ":server" (server domain ":domain") does not appear to have a "mail" database', array(':server' => $domain, ':domain' => $server_restrictions['domain'])), 'not-exists');
         }
 
         throw new CoreException(tr('email_servers_validate_account(): Failed'), $e);
@@ -1009,11 +1009,11 @@ function email_servers_update_password($account, $password) {
  * @category Function reference
  * @package email-servers
  *
- * @param mixed $servers
- * @param mixed $servers
+ * @param mixed $server_restrictionss
+ * @param mixed $server_restrictionss
  * @return array An array with mailbox => bytes format
  */
-function email_servers_list_mailbox_sizes($server, $domain) {
+function email_servers_list_mailbox_sizes($server_restrictions, $domain) {
     try {
         if (!filter_var($domain, FILTER_VALIDATE_DOMAIN)) {
             throw new CoreException(tr('email_servers_list_mailbox_sizes(): Specified domain ":domain" is not a valid domain', array(':domain' => $domain)), 'invalid');
@@ -1021,7 +1021,7 @@ function email_servers_list_mailbox_sizes($server, $domain) {
 
         $total   = 0;
         $return  = array();
-        $results = linux_find($server, array('path'     => '/var/mail/vhosts/'.$domain,
+        $results = linux_find($server_restrictions, array('path'     => '/var/mail/vhosts/'.$domain,
                                              'sudo'     => true,
                                              'maxdepth' => 1,
                                              'type'     => 'd',
@@ -1041,7 +1041,7 @@ function email_servers_list_mailbox_sizes($server, $domain) {
         return $return;
 
     }catch(Exception $e) {
-        if (!linux_file_exists($server, '/var/mail/vhosts/'.$domain, true)) {
+        if (!linux_file_exists($server_restrictions, '/var/mail/vhosts/'.$domain, true)) {
             $e->setCode('not-exist');
             throw new CoreException(tr('email_servers_list_mailbox_sizes(): Specified domain ":domain" does not exists as a mail domain', array(':domain' => $domain)), $e);
         }
@@ -1061,32 +1061,32 @@ function email_servers_list_mailbox_sizes($server, $domain) {
  * @category Function reference
  * @package email-servers
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param boolean [true] $fix If set to true, will auto fix all found issues
  * @return array An array with all accounts that had issues in the format $key => $value email-address (or domain) => issue
  */
-function email_servers_check($server, $fix = true) {
+function email_servers_check($server_restrictions, $fix = true) {
     try {
         $failed['seodomains'] = email_servers_check_seo(array('fix'    => $fix,
-                                                              'server' => $server,
+                                                              'server' => $server_restrictions,
                                                               'table'  => 'domains'));
 
         $failed['seosources'] = email_servers_check_seo(array('fix'    => $fix,
-                                                              'server' => $server,
+                                                              'server' => $server_restrictions,
                                                               'table'  => 'aliases',
                                                               'column' => 'source'));
 
         $failed['seotargets'] = email_servers_check_seo(array('fix'    => $fix,
-                                                              'server' => $server,
+                                                              'server' => $server_restrictions,
                                                               'table'  => 'aliases',
                                                               'column' => 'target'));
 
         $failed['seoaccounts'] = email_servers_check_seo(array('fix'    => $fix,
-                                                               'server' => $server,
+                                                               'server' => $server_restrictions,
                                                                'table'  => 'accounts',
                                                                'column' => 'email'));
 
-        $failed['orphans'] = email_servers_check_orphans($server, $fix);
+        $failed['orphans'] = email_servers_check_orphans($server_restrictions, $fix);
 
         $failed['count'] = count($failed['orphans']) + count($failed['seotargets']) + count($failed['seosources']) + count($failed['seoaccounts']) + count($failed['seodomains']);
 
@@ -1108,7 +1108,7 @@ function email_servers_check($server, $fix = true) {
  * @category Function reference
  * @package email-servers
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param boolean [true] $add If set to true, will add the orphaned account in the database again with status "orphaned"
  * @return array An array with all orphaned directories
  */
@@ -1208,20 +1208,20 @@ function email_servers_check_seo($params) {
  * @category Function reference
  * @package email-servers
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @param boolean [true] $add If set to true, will add the orphaned account in the database again with status "orphaned"
  * @return array An array with all orphaned directories
  */
-function email_servers_check_orphans($server, $add = true) {
+function email_servers_check_orphans($server_restrictions, $add = true) {
     try {
         log_console(tr('Checking for orphaned email account data'), 'cyan');
 
         $return  = array();
-        $domains = linux_ls($server, '/var/mail/vhosts', true);
+        $domains = linux_ls($server_restrictions, '/var/mail/vhosts', true);
 
         foreach ($domains as $domain) {
             log_console(tr('Searching for orphaned accounts in domain ":domain"', array(':domain' => $domain)), 'VERBOSE/cyan');
-            $accounts = linux_ls($server, '/var/mail/vhosts/'.$domain, true);
+            $accounts = linux_ls($server_restrictions, '/var/mail/vhosts/'.$domain, true);
 
             foreach ($accounts as $account) {
                 try {
@@ -1237,7 +1237,7 @@ function email_servers_check_orphans($server, $add = true) {
                             log_console(tr('Adding email account ":account" for orphaned data path ":path"', array(':account' => $account.'@'.$domain, ':path' => '/var/mail/vhosts/'.$domain.'/'.$account)), 'warning');
                             $return[] = $account.'@'.$domain;
 
-                            email_servers_insert_account(array('server'      => $server,
+                            email_servers_insert_account(array('server'      => $server_restrictions,
                                                                'domain'      => $domain,
                                                                'email'       => $account.'@'.$domain,
                                                                'status'      => 'orphaned',

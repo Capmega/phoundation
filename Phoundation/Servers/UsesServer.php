@@ -3,7 +3,7 @@
 namespace Phoundation\Servers;
 
 use Phoundation\Core\Core;
-
+use Phoundation\Filesystem\Restrictions;
 
 
 /**
@@ -22,9 +22,9 @@ trait UsesServer
     /**
      * The file access permissions
      *
-     * @var Server $server
+     * @var Server $server_restrictions
      */
-    protected Server $server;
+    protected Server $server_restrictions;
 
 
 
@@ -33,9 +33,9 @@ trait UsesServer
      *
      * @return Server
      */
-    public function getServer(): Server
+    public function getServerRestrictions(): Server
     {
-        return $this->server;
+        return $this->server_restrictions;
     }
 
 
@@ -43,12 +43,12 @@ trait UsesServer
     /**
      * Sets the server and filesystem restrictions for this File object
      *
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @return static
      */
-    public function setServer(Server|array|string|null $server = null): static
+    public function setServerRestrictions(Server|Restrictions|array|string|null $server_restrictions = null): static
     {
-        $this->server = Core::ensureServer($server);
+        $this->server_restrictions = Core::ensureServer($server_restrictions);
         return $this;
     }
 }

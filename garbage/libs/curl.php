@@ -43,29 +43,29 @@ function curl_library_init() {
 /*
  * Get data using an sven HTTP proxy server
  */
-function curl_get_proxy($url, $file = '', $serverurl = null) {
+function curl_get_proxy($url, $file = '', $server_restrictionsurl = null) {
     global $_CONFIG;
 
     try {
-        if (!$serverurl) {
-            $serverurl = $_CONFIG['curl']['proxies'];
+        if (!$server_restrictionsurl) {
+            $server_restrictionsurl = $_CONFIG['curl']['proxies'];
         }
 
-        if (is_array($serverurl)) {
-            $serverurl = array_random_value($serverurl);
+        if (is_array($server_restrictionsurl)) {
+            $server_restrictionsurl = array_random_value($server_restrictionsurl);
         }
 
         if (is_array($url)) {
             throw new CoreException(tr('curl_get_proxy(): No URL specified'), 'not-specified');
         }
 
-        if (!$serverurl) {
+        if (!$server_restrictionsurl) {
             throw new CoreException(tr('curl_get_proxy(): No proxy server URL(s) specified'), 'not-specified');
         }
 
-        log_console(tr('Using proxy ":proxy"', array(':proxy' => Strings::cut(Strings::Log($serverurl), '://', '/'))), 'VERBOSE');
+        log_console(tr('Using proxy ":proxy"', array(':proxy' => Strings::cut(Strings::Log($server_restrictionsurl), '://', '/'))), 'VERBOSE');
 
-        $data = curl_get(array('url'        => Strings::endsWith($serverurl, '?apikey='.$_CONFIG['curl']['apikey'].'&url=').urlencode($url),
+        $data = curl_get(array('url'        => Strings::endsWith($server_restrictionsurl, '?apikey='.$_CONFIG['curl']['apikey'].'&url=').urlencode($url),
                                'getheaders' => false,
                                'proxies'    => false));
 
@@ -74,7 +74,7 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
         }
 
         if (substr($data['data'], 0, 12) !== 'PROXY_RESULT') {
-            throw new CoreException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', array(':data' => Strings::Log($data), ':proxy' => Strings::cut(Strings::Log($serverurl), '://', '/'))), 'not-specified');
+            throw new CoreException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', array(':data' => Strings::Log($data), ':proxy' => Strings::cut(Strings::Log($server_restrictionsurl), '://', '/'))), 'not-specified');
         }
 
         $data         = substr($data['data'], 12);

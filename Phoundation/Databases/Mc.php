@@ -412,8 +412,8 @@ class Mc
         }
 
         // Ensure all connections are valid
-        foreach ($this->configuration['connections'] as &$servers) {
-            Arrays::ensure($servers, 'host,port,weight');
+        foreach ($this->configuration['connections'] as &$server_restrictionss) {
+            Arrays::ensure($server_restrictionss, 'host,port,weight');
         }
     }
 
@@ -439,12 +439,12 @@ class Mc
                 $failed = 0;
 
                 // Connect to all memcached servers, but only if no servers were added yet (this should normally be the case)
-                foreach ($this->configuration['connections'] as $server) {
+                foreach ($this->configuration['connections'] as $server_restrictions) {
                     try {
-                        $this->memcached->addServer($server['host'], $server['port'], $server['weight']);
-                        $this->connections[] = $server;
+                        $this->memcached->addServer($server_restrictions['host'], $server_restrictions['port'], $server_restrictions['weight']);
+                        $this->connections[] = $server_restrictions;
                     } catch (Throwable $e) {
-                        Log::warning(tr('Failed to connect to memcached server ":host::port"', [':host' => $server['host'], 'port' => $server['port']]));
+                        Log::warning(tr('Failed to connect to memcached server ":host::port"', [':host' => $server_restrictions['host'], 'port' => $server_restrictions['port']]));
                         $failed++;
                     }
                 }

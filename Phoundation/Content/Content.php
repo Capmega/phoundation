@@ -54,7 +54,7 @@ class Content extends File
      */
     protected function viewImage(): void
     {
-        Process::new('feh', $this->server, 'feh')
+        Process::new('feh', $this->server_restrictions, 'feh')
             ->addArgument($this->file)
             ->executeBackground();
     }

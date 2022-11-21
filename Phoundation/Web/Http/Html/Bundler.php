@@ -62,9 +62,9 @@ class Bundler
     /**
      * Filesystem access restrictions
      *
-     * @var Server $server
+     * @var Server $server_restrictions
      */
-    protected Server $server;
+    protected Server $server_restrictions;
 
 
 
@@ -73,7 +73,7 @@ class Bundler
      */
     public function __construct()
     {
-        $this->setServer(Server::localhost([PATH_CDN . 'js', PATH_CDN . 'css'], true, 'Bundler'));
+        $this->setServerRestrictions(Server::localhost([PATH_CDN . 'js', PATH_CDN . 'css'], true, 'Bundler'));
     }
 
 
@@ -95,9 +95,9 @@ class Bundler
      *
      * @return Server
      */
-    public function getServer(): Server
+    public function getServerRestrictions(): Server
     {
-        return $this->server;
+        return $this->server_restrictions;
     }
 
 
@@ -105,12 +105,12 @@ class Bundler
     /**
      * Sets the server and filesystem restrictions for this File object
      *
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @return static
      */
-    public function setServer(Server|array|string|null $server = null): static
+    public function setServerRestrictions(Server|Restrictions|array|string|null $server_restrictions = null): static
     {
-        $this->server = Core::ensureServer($server);
+        $this->server_restrictions = Core::ensureServer($server_restrictions);
         return $this;
     }
 
@@ -236,14 +236,14 @@ class Bundler
         if (!filesize($bundle_file)) {
             Log::warning(tr('Encountered empty bundle file ":file"', [':file' => $bundle_file]));
             Log::warning(tr('Deleting empty bundle file ":file"', [':file' => $bundle_file]));
-            File::new($bundle_file, $this->server)->delete();
+            File::new($bundle_file, $this->server_restrictions)->delete();
             return false;
         }
 
         // Bundle files are essentially cached files. Ensure the cache is not too old
         if (Config::get('cache.bundler.max-age', 3600) and (filemtime($bundle_file) + Config::get('cache.bundler.max-age', 3600)) < time()) {
             Log::warning(tr('Deleting expired cached bundle file ":file"', [':file' => $bundle_file]));
-            File::new($bundle_file, $this->server)->delete();
+            File::new($bundle_file, $this->server_restrictions)->delete();
             return false;
         }
 
@@ -369,7 +369,7 @@ class Bundler
     protected function bundleFiles(array $files): void
     {
         // Generate new bundle file. This requires the pub/$files path to be writable
-        Path::new(dirname($this->bundle_file), $this->server)->execute()
+        Path::new(dirname($this->bundle_file), $this->server_restrictions)->execute()
             ->setMode(0770)
             ->onPathOnly(function() use ($files) {
                 foreach ($files as $file => $data) {
@@ -404,10 +404,10 @@ class Bundler
                     }
     
                     if (Debug::enabled()) {
-                        File::new($this->bundle_file, $this->server)->appendData("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
+                        File::new($this->bundle_file, $this->server_restrictions)->appendData("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
     
                     } else {
-                        File::new($this->bundle_file, $this->server)->appendData($data . (Config::get('web.minify', true) ? '' : "\n"));
+                        File::new($this->bundle_file, $this->server_restrictions)->appendData($data . (Config::get('web.minify', true) ? '' : "\n"));
                     }
     
                     if ($this->count) {

@@ -19,10 +19,10 @@ class Servers
     /**
      * This returns a server object for the specified server name
      *
-     * @param string $server_name
+     * @param string $server_restrictions_name
      * @return Server
      */
-    public static function get(string $server_name): Server
+    public static function get(string $server_restrictions_name): Server
     {
 
     }

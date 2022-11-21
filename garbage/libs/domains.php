@@ -97,20 +97,20 @@ function domains_validate($domain) {
                 throw new CoreException(tr('Invalid servers data specified'), 'invalid');
 
             } else {
-                $servers = array();
+                $server_restrictionss = array();
 
-                foreach ($domain['servers'] as $server) {
-                    if (!$server) continue;
+                foreach ($domain['servers'] as $server_restrictions) {
+                    if (!$server_restrictions) continue;
 
-                    $servers_id = sql_get('SELECT `id` FROM `servers` WHERE `seodomain` = :seodomain AND `status` IS NULL', true, array(':seodomain' => $server), 'core');
-                    $servers[] = $servers_id;
+                    $server_restrictionss_id = sql_get('SELECT `id` FROM `servers` WHERE `seodomain` = :seodomain AND `status` IS NULL', true, array(':seodomain' => $server_restrictions), 'core');
+                    $server_restrictionss[] = $server_restrictionss_id;
 
-                    if (!$servers_id) {
-                        $v->setError(tr('Specified server ":server" does not exist', array(':server' => $server)));
+                    if (!$server_restrictionss_id) {
+                        $v->setError(tr('Specified server ":server" does not exist', array(':server' => $server_restrictions)));
                     }
                 }
 
-                $domain['servers'] = $servers;
+                $domain['servers'] = $server_restrictionss;
             }
         }
 
@@ -263,7 +263,7 @@ function domains_list_servers($domain) {
 
     try {
         $domain  = domains_get_id($domain);
-        $servers = sql_list('SELECT   `servers`.`domain`,
+        $server_restrictionss = sql_list('SELECT   `servers`.`domain`,
                                       `servers`.`seodomain`
 
                              FROM     `domains_servers`
@@ -277,7 +277,7 @@ function domains_list_servers($domain) {
 
                              array(':domains_id' => $domain), false, 'core');
 
-        return $servers;
+        return $server_restrictionss;
 
     }catch(Exception $e) {
         throw new CoreException('domains_list_servers(): Failed', $e);
@@ -296,10 +296,10 @@ function domains_list_servers($domain) {
  * @package domains
  *
  * @param mixed $domain
- * @param array $servers
+ * @param array $server_restrictionss
  * @return The amount of servers added for the domain
  */
-function domains_update_servers($domain, $servers = null) {
+function domains_update_servers($domain, $server_restrictionss = null) {
     global $_CONFIG;
 
     try {
@@ -307,19 +307,19 @@ function domains_update_servers($domain, $servers = null) {
 
         sql_query('DELETE FROM `domains_servers` WHERE `domains_id` = :domains_id', array(':domains_id' => $domain), 'core');
 
-        if (empty($servers)) {
+        if (empty($server_restrictionss)) {
             return false;
         }
 
         $insert = sql_prepare('INSERT INTO `domains_servers` (`domains_id`, `servers_id`)
                                VALUES                        (:domains_id , :servers_id )', 'core');
 
-        foreach ($servers as $servers_id) {
+        foreach ($server_restrictionss as $server_restrictionss_id) {
             $insert->execute(array(':domains_id' => $domain,
-                                   ':servers_id' => $servers_id));
+                                   ':servers_id' => $server_restrictionss_id));
         }
 
-        return count($servers);
+        return count($server_restrictionss);
 
     }catch(Exception $e) {
         throw new CoreException('domains_update_servers(): Failed', $e);

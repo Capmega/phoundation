@@ -47,12 +47,12 @@ function services_library_init() {
  * @category Function reference
  * @package services
  *
- * @param mixed $server:
+ * @param mixed $server_restrictions:
  * @return natural The amount of scanned servers
  */
-function services_scan($server = null) {
+function services_scan($server_restrictions = null) {
     try {
-        if (!$server) {
+        if (!$server_restrictions) {
             /*
              * Scan ALL servers
              */
@@ -69,7 +69,7 @@ function services_scan($server = null) {
         /*
          * Scan the server
          */
-        $server   = servers_get($server);
+        $server_restrictions   = servers_get($server_restrictions);
         $services = services_list();
 
         foreach ($services as $service) {
@@ -135,7 +135,7 @@ function services_scan($server = null) {
             $results = servers_exec();
         }
 
-        services_update_server($server, $services);
+        services_update_server($server_restrictions, $services);
         return 1;
 
     }catch(Exception $e) {
@@ -279,7 +279,7 @@ function services_update($service) {
  * @category Function reference
  * @package services
  *
- * @param params $server
+ * @param params $server_restrictions
  * @param array $services
  * @return natural The amount of services set for the specified server
  */
@@ -365,17 +365,17 @@ function services_get($service, $column = null, $status = null) {
  * @see services_get()
  * @version 1.27.0: Implemented function and added documentation
  *
- * @param mixed $server The server for which all services must be cleared. May be specified by id, domain, or server array
+ * @param mixed $server_restrictions The server for which all services must be cleared. May be specified by id, domain, or server array
  * @return natural The amount of services that were cleared for the specified server
  */
-function services_clear($server) {
+function services_clear($server_restrictions) {
     try {
-        if ($server) {
-            $server = servers_get($server);
+        if ($server_restrictions) {
+            $server_restrictions = servers_get($server_restrictions);
             $r      = sql_query('DELETE FROM `services_servers`
                                  WHERE       `servers_id` = :servers_id',
 
-                                 array(':servers_id' => $server['id']));
+                                 array(':servers_id' => $server_restrictions['id']));
         } else {
             $r      = sql_query('DELETE FROM `services_servers`');
         }

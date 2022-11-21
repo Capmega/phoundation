@@ -64,18 +64,18 @@ class FileBasics
      * File class constructor
      *
      * @param FileBasics|string|null $file
-     * @param Server|array|string|null $server_restrictions
+     * @param Server|Restrictions|array|string|null $server_restrictions_restrictions
      */
-    public function __construct(FileBasics|string|null $file = null, Server|array|string|null $server_restrictions = null)
+    public function __construct(FileBasics|string|null $file = null, Server|Restrictions|array|string|null $server_restrictions_restrictions = null)
     {
         // Specified file was actually a File or Path object, get the file from there
         if (is_object($file)) {
             $this->setFile($file->getFile());
             $this->setTarget($file->getTarget());
-            $this->setServer($file->getServer());
+            $this->setServerRestrictions($file->getServerRestrictions());
         } else {
             $this->setFile($file);
-            $this->setServer($server_restrictions);
+            $this->setServerRestrictions($server_restrictions_restrictions);
         }
     }
 
@@ -85,12 +85,12 @@ class FileBasics
      * Returns a new File object with the specified restrictions
      *
      * @param FileBasics|string|null $file
-     * @param Server|array|string|null $server_restrictions
+     * @param Server|Restrictions|array|string|null $server_restrictions_restrictions
      * @return static
      */
-    public static function new(FileBasics|string|null $file = null, Server|array|string|null $server_restrictions = null): static
+    public static function new(FileBasics|string|null $file = null, Server|Restrictions|array|string|null $server_restrictions_restrictions = null): static
     {
-        return new static($file, $server_restrictions);
+        return new static($file, $server_restrictions_restrictions);
     }
 
 
@@ -163,7 +163,7 @@ class FileBasics
      */
     protected function checkRestrictions(string|null &$file, bool $write): void
     {
-        $this->server->checkRestrictions($file, $write);
+        $this->server_restrictions->checkRestrictions($file, $write);
     }
 
 
@@ -332,7 +332,7 @@ class FileBasics
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
-        Path::new(dirname($this->file), $this->server)->ensure();
+        Path::new(dirname($this->file), $this->server_restrictions)->ensure();
 
         Log::warning(tr('The object file ":file" (Realpath ":path") does not exist. Attempting to create it with file mode ":mode"', [
             ':mode' => Strings::fromOctal($mode),
@@ -579,7 +579,7 @@ class FileBasics
 
         // Delete all specified patterns
         // Execute the rm command
-        Process::new('rm', $this->server)
+        Process::new('rm', $this->server_restrictions)
             ->setSudo($sudo)
             ->setTimeout(10)
             ->addArgument($this->file)
@@ -635,7 +635,7 @@ class FileBasics
         }
 
         foreach ($this->file as $pattern) {
-            Process::new('chown', $this->server)
+            Process::new('chown', $this->server_restrictions)
                 ->setSudo(true)
                 ->addArgument($recursive ? '-R' : null)
                 ->addArgument($user . ':' . $group)
@@ -670,7 +670,7 @@ class FileBasics
         // Check filesystem restrictions
         $this->checkRestrictions($this->file, true);
 
-        Process::new('chmod', $this->server)
+        Process::new('chmod', $this->server_restrictions)
             ->setSudo($sudo)
             ->addArgument($recursive ? '-R' : null)
             ->addArgument($mode)

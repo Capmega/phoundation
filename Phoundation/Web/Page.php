@@ -47,9 +47,9 @@ class Page
     /**
      * The server filesystem restrictions
      *
-     * @var Server $server
+     * @var Server $server_restrictions
      */
-    protected static Server $server;
+    protected static Server $server_restrictions;
 
     /**
      * The template class that builds the UI
@@ -177,9 +177,9 @@ class Page
      *
      * @return Server
      */
-    public static function getServer(): Server
+    public static function getServerRestrictions(): Server
     {
-        return self::$server;
+        return self::$server_restrictions;
     }
 
 
@@ -187,12 +187,12 @@ class Page
     /**
      * Sets the current tab index and automatically increments it
      *
-     * @param Server $server
+     * @param Server $server_restrictions
      * @return static
      */
-    public static function setServer(Server $server): static
+    public static function setServerRestrictions(Server $server_restrictions): static
     {
-        self::$server = $server;
+        self::$server_restrictions = $server_restrictions;
         return self::getInstance();
     }
 
@@ -342,7 +342,7 @@ class Page
             }
 
             // Do we have access to this page?
-            self::$server->checkRestrictions($target, false);
+            self::$server_restrictions->checkRestrictions($target, false);
 
             // Set the page hash
             self::$hash = sha1($_SERVER['REQUEST_URI']);

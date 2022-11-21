@@ -57,9 +57,9 @@ class Core {
     /**
      * The Core default server object
      *
-     * @var Server $server
+     * @var Server $server_restrictions
      */
-    protected static Server $server;
+    protected static Server $server_restrictions;
 
     /**
      * The generic system register to store data
@@ -177,7 +177,7 @@ class Core {
             self::securePhpSettings();
 
             // Set up the Core restrictions object with default file access restrictions
-            self::$server = new Server(new Restrictions(PATH_DATA, false, 'Core'));
+            self::$server_restrictions = new Server(new Restrictions(PATH_DATA, false, 'Core'));
 
             // Get the project name
             try {
@@ -2180,7 +2180,7 @@ class Core {
             return $restrictions;
         }
 
-        return self::$server->getRestrictions();
+        return self::$server_restrictions->getRestrictions();
     }
 
 
@@ -2191,18 +2191,24 @@ class Core {
      * With this, availability of restrictions is guaranteed, even if a function did not receive restrictions. If Core
      * restrictions are returned, these core restrictions are the ones that apply
      *
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
+     * @param Server|Restrictions|array|string|null $default
      * @return Server
      */
-    public static function ensureServer(Server|array|string|null $server = null, Server|array|string|null $default = null): Server
+    public static function ensureServer(Server|Restrictions|array|string|null $server_restrictions = null, Server|Restrictions|array|string|null $default = null): Server
     {
-        if ($server) {
-            if (!is_object($server)) {
+        if ($server_restrictions) {
+            if (!is_object($server_restrictions)) {
                 // Restrictions were specified by simple path string or array of paths. Convert to restrictions object
-                $server = new Server($server);
+                $server_restrictions = new Server($server_restrictions);
             }
 
-            return $server;
+            if ($server_restrictions instanceof Restrictions) {
+                // Server was specified by Restrictions object
+                $server_restrictions = new Server($server_restrictions);
+            }
+
+            return $server_restrictions;
         }
 
         // Server was not specified. Try the default, if specified?
@@ -2216,7 +2222,7 @@ class Core {
         }
 
         // Nope, fall back to the default restrictions
-        return self::$server;
+        return self::$server_restrictions;
     }
 
 

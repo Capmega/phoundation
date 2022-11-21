@@ -5,6 +5,7 @@ namespace Phoundation\Databases;
 use Phoundation\Core\Core;
 use Phoundation\Core\Strings;
 use Phoundation\Databases\Exception\MysqlException;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Server;
 use Phoundation\Servers\Servers;
@@ -27,19 +28,19 @@ class Mysql
     /**
      * The server object to execute commands on different servers if needed
      *
-     * @var Server|array|string|null $server
+     * @var Server|Restrictions|array|string|null $server_restrictions
      */
-    protected Server|array|string|null $server = null;
+    protected Server|Restrictions|array|string|null $server_restrictions = null;
 
 
     /**
      * Mysql class constructor
      *
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      */
-    public function __construct(Server|array|string|null $server = null)
+    public function __construct(Server|Restrictions|array|string|null $server_restrictions = null)
     {
-        $this->server = Core::ensureServer($server);
+        $this->server_restrictions = Core::ensureServer($server_restrictions);
     }
 
 
@@ -47,12 +48,12 @@ class Mysql
     /**
      * Get a new instance of the Mysql class
      *
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @return Mysql
      */
-    public static function getInstance(Server|array|string|null $server = null): Mysql
+    public static function getInstance(Server|Restrictions|array|string|null $server_restrictions = null): Mysql
     {
-        return new Mysql($server);
+        return new Mysql($server_restrictions);
     }
 
 
@@ -61,7 +62,7 @@ class Mysql
      * Execute a query on a remote SSH server in a bash command
      *
      * @note: This does NOT support bound variables!
-     * @param string|Server $server
+     * @param string|Server $server_restrictions
      * @param string $query
      * @param bool $root
      * @param bool $simple_quotes
@@ -76,25 +77,25 @@ class Mysql
 
             // Are we going to execute as root?
             if ($root) {
-                $this->createPasswordFile('root', $server['db_root_password'], $server);
+                $this->createPasswordFile('root', $server_restrictions['db_root_password'], $server_restrictions);
 
             } else {
-                $this->createPasswordFile($server['db_username'], $server['db_password'], $server);
+                $this->createPasswordFile($server_restrictions['db_username'], $server_restrictions['db_password'], $server_restrictions);
             }
 
             if ($simple_quotes) {
-                $results = Servers::exec($server, 'mysql -e \'' . Strings::ends($query, ';') . '\'');
+                $results = Servers::exec($server_restrictions, 'mysql -e \'' . Strings::ends($query, ';') . '\'');
 
             } else {
-                $results = Servers::exec($server, 'mysql -e \"' . Strings::ends($query, ';') . '\"');
+                $results = Servers::exec($server_restrictions, 'mysql -e \"' . Strings::ends($query, ';') . '\"');
             }
 
-            $this->deletePasswordFile($server);
+            $this->deletePasswordFile($server_restrictions);
 
             return $results;
         } catch (MysqlException $e) {
             // Ensure that the password file will be removed
-            $this->deletePasswordFile($server);
+            $this->deletePasswordFile($server_restrictions);
         }
     }
 

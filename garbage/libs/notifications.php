@@ -1429,14 +1429,14 @@ function notifications_messenger($notification, $method) {
  * @category  Function reference
  * @package   desktop_notification
  *
- * @param $server      File on the server that verifies notifications
+ * @param $server_restrictions      File on the server that verifies notifications
  * @param $check_every Set each when must check if there are new notifications in milliseconds
  * @param $icon        Icon used in notifications
  * @param $js_client    If you want to receive notifications even if the browser tab is open
  * @param $time        Time the notification is displayed not work in firefox, firefox close notification in 4 seconds, 0 means never close
  * @return array
  */
-function notifications_webpush($server, $check_every, $icon, $js_client = '', $time = 4000) {
+function notifications_webpush($server_restrictions, $check_every, $icon, $js_client = '', $time = 4000) {
     global $_CONFIG;
 
     try {
@@ -1502,7 +1502,7 @@ function notifications_webpush($server, $check_every, $icon, $js_client = '', $t
                      $.ajax({
                          method: "GET",
                          dataType: "json",
-                         url: "'.$server.'",
+                         url: "'.$server_restrictions.'",
                      })
                      .done(function( data ) {
                          $.each(data["data"], function(i, item) {

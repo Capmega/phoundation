@@ -36,7 +36,7 @@ class Path extends FileBasics
     public function execute(): Execute
     {
         $this->file = Strings::slash($this->file);
-        return new Execute($this->file, $this->server);
+        return new Execute($this->file, $this->server_restrictions);
     }
 
 
@@ -136,7 +136,7 @@ class Path extends FileBasics
 
         if ($clear) {
             // Delete the currently existing path, so we can  be sure we have a clean path to work with
-            File::new($this->file, $this->server)->delete(false, $sudo);
+            File::new($this->file, $this->server_restrictions)->delete(false, $sudo);
         }
 
         if (!file_exists(Strings::unslash($this->file))) {
@@ -151,7 +151,7 @@ class Path extends FileBasics
                 if (file_exists($this->file)) {
                     if (!is_dir($this->file)) {
                         // Some normal file is in the way. Delete the file, and retry
-                        File::new($this->file, $this->server)->delete(false, $sudo);
+                        File::new($this->file, $this->server_restrictions)->delete(false, $sudo);
                         return $this->ensure($mode, $clear, $sudo);
                     }
 
@@ -159,12 +159,12 @@ class Path extends FileBasics
 
                 } elseif (is_link($this->file)) {
                     // This is a dead symlink, delete it
-                    File::new($this->file, $this->server)->delete(false, $sudo);
+                    File::new($this->file, $this->server_restrictions)->delete(false, $sudo);
                 }
 
                 try {
                     // Make sure that the parent path is writable when creating the directory
-                    Path::new(dirname($this->file), $this->server)->execute()
+                    Path::new(dirname($this->file), $this->server_restrictions)->execute()
                         ->setMode(0770)
                         ->onPathOnly(function() use ($mode) {
                             mkdir($this->file, $mode);
@@ -182,7 +182,7 @@ class Path extends FileBasics
         } elseif (!is_dir($this->file)) {
             // Some other file is in the way. Delete the file, and retry.
             // Ensure that the "file" is not accidentally specified as a directory ending in a /
-            File::new(Strings::endsNotWith($this->file, '/'), $this->server)->delete(false, $sudo);
+            File::new(Strings::endsNotWith($this->file, '/'), $this->server_restrictions)->delete(false, $sudo);
             return $this->ensure($mode, $clear, $sudo);
         }
 
@@ -266,14 +266,14 @@ class Path extends FileBasics
                 ]));
             }
 
-            if (!Path::new($this->file, $this->server)->isEmpty()) {
+            if (!Path::new($this->file, $this->server_restrictions)->isEmpty()) {
                 // Do not remove anything more, there is contents here!
                 break;
             }
 
             // Remove this entry and continue;
             try {
-                File::new($this->file, $this->server)->delete(false, $sudo);
+                File::new($this->file, $this->server_restrictions)->delete(false, $sudo);
 
             }catch(Exception $e) {
                 /*
@@ -320,7 +320,7 @@ class Path extends FileBasics
             $single = Config::getBoolean('filesystem.target-path.single', false);
         }
 
-        $this->file = Strings::unslash(Path::new($this->file, $this->server)->ensure());
+        $this->file = Strings::unslash(Path::new($this->file, $this->server_restrictions)->ensure());
 
         if ($single) {
             // Assign path in one dir, like abcde/
@@ -334,7 +334,7 @@ class Path extends FileBasics
         }
 
         // Ensure again to be sure the target directories too have been created
-        return Strings::slash(Path::new($this->file, $this->server)->ensure());
+        return Strings::slash(Path::new($this->file, $this->server_restrictions)->ensure());
     }
 
 
@@ -381,7 +381,7 @@ class Path extends FileBasics
             // Add the file to the list. If the file is a directory, then recurse instead. Do NOT add the directory
             // itself, only files!
             if (is_dir($file) and $recursive) {
-                $return = array_merge($return, Path::new($file, $this->server)->listTree());
+                $return = array_merge($return, Path::new($file, $this->server_restrictions)->listTree());
 
             } else {
                 $return[] = $file;
@@ -476,7 +476,7 @@ class Path extends FileBasics
 
             if (is_dir($this->file . $file)) {
                 // Recurse
-                $return += Path::new($this->file . $file, $this->server)->treeFileSize();
+                $return += Path::new($this->file . $file, $this->server_restrictions)->treeFileSize();
 
             } else {
                 $return += filesize($this->file . $file);
@@ -506,7 +506,7 @@ class Path extends FileBasics
             if (($file == '.') or ($file == '..')) continue;
 
             if (is_dir($this->file . $file)) {
-                $return += Path::new($this->file . $file, $this->server)->treeFileCount();
+                $return += Path::new($this->file . $file, $this->server_restrictions)->treeFileCount();
 
             } else {
                 $return++;
@@ -617,7 +617,7 @@ class Path extends FileBasics
                 }
 
                 // Add file statistics
-                $return['files_statistics'][$file] = File::new($file, $this->server)->getPhpStatistics();
+                $return['files_statistics'][$file] = File::new($file, $this->server_restrictions)->getPhpStatistics();
                 $return['total_statistics'] = Arrays::addValues($return['total_statistics'], $return['files_statistics'][$file]);
             });
 

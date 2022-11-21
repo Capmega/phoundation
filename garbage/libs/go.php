@@ -54,15 +54,15 @@ function go_library_init() {
  * This would install the go package
  *
  * @param string $file The file to execute with go
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return string The output from the go command
  */
-function go_exists($file, $server = null) {
+function go_exists($file, $server_restrictions = null) {
     try {
-        $exists = linux_file_exists($server, PATH_ROOT.'data/go/'.$file, $server);
+        $exists = linux_file_exists($server_restrictions, PATH_ROOT.'data/go/'.$file, $server_restrictions);
 
         if (!$exists) {
-            linux_ensure_path($server, PATH_ROOT.'data/go/');
+            linux_ensure_path($server_restrictions, PATH_ROOT.'data/go/');
         }
 
         return $exists;
@@ -91,7 +91,7 @@ function go_exists($file, $server = null) {
  * This would install the go package
  *
  * @param string $file The file to execute with go
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return string The output from the go command
  */
 function go_exec($params) {
@@ -176,20 +176,20 @@ function go_exec($params) {
  * This would install the go package
  *
  * @param string $file The file to execute with go
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return string The output from the go command
  */
-function go_build($path, $server) {
+function go_build($path, $server_restrictions) {
     try {
-        $server = servers_get($server);
+        $server_restrictions = servers_get($server_restrictions);
 
-        if (!linux_file_exists($server, $path)) {
-            throw new CoreException(tr('go_build(): Specified build path ":path" does not exist on server ":server"', array(':path' => $path, ':server' => $server)), 'not-exist');
+        if (!linux_file_exists($server_restrictions, $path)) {
+            throw new CoreException(tr('go_build(): Specified build path ":path" does not exist on server ":server"', array(':path' => $path, ':server' => $server_restrictions)), 'not-exist');
         }
 
-        linux_ensure_package($server, 'go', 'go');
+        linux_ensure_package($server_restrictions, 'go', 'go');
 
-        return servers_exec($server, array('timeout'  => 180,
+        return servers_exec($server_restrictions, array('timeout'  => 180,
                                            'function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                            'commands' => array('cd', array($path),
                                                                'go', array('build'))));

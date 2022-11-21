@@ -70,13 +70,13 @@ function email_servers_validate($email_server) {
         /*
          * Validate the server
          */
-        $server = servers_get($email_server['server_seodomain'], false, true, true);
+        $server_restrictions = servers_get($email_server['server_seodomain'], false, true, true);
 
-        if (!$server) {
+        if (!$server_restrictions) {
             $v->setError(tr('The specified server ":server" does not exist', array(':server' => $email_server['seodomain'])));
         }
 
-        $email_server['servers_id'] = $server['id'];
+        $email_server['servers_id'] = $server_restrictions['id'];
 
         /*
          * Validate the domain
@@ -195,11 +195,11 @@ function email_servers_validate_domain($domain) {
         if ($e->getCode() == '1049') {
             load_libs('servers');
 
-            $servers  = servers_list_domains($domain['server']);
-            $server   = servers_get($domain['server']);
-            $domain = not_empty($servers[$domain['server']], $domain['server']);
+            $server_restrictionss  = servers_list_domains($domain['server']);
+            $server_restrictions   = servers_get($domain['server']);
+            $domain = not_empty($server_restrictionss[$domain['server']], $domain['server']);
 
-            throw new CoreException(tr('email_servers_validate_domain(): Specified email server ":server" (server domain ":domain") does not have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exists');
+            throw new CoreException(tr('email_servers_validate_domain(): Specified email server ":server" (server domain ":domain") does not have a "mail" database', array(':server' => $domain, ':domain' => $server_restrictions['domain'])), 'not-exists');
         }
 
         throw new CoreException(tr('email_servers_validate_domain(): Failed'), $e);
@@ -351,7 +351,7 @@ function email_servers_get($email_server, $column = null, $status = null) {
  * @category Function reference
  * @package email-servers
  *
- * @param array $servers
+ * @param array $server_restrictionss
  * @return void
  */
 function email_servers_update_password($email, $password) {

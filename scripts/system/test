@@ -121,9 +121,9 @@ show($array);
 //ProcessCommands::local()->psFull(1);
 //
 //Workers::create('ping')
-//    ->addArgument('$server$')
+//    ->addArgument('$server_restrictions$')
 //    ->setTimeout(10)
-//    ->setKey('$server$')
+//    ->setKey('$server_restrictions$')
 //    ->setWaitWorkerFinish(true)
 //    ->setValues([
 //        '1.1.1.1',

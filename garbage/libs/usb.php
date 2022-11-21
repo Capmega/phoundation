@@ -49,10 +49,10 @@ function usb_library_init() {
  * @version 2.4.10: Added documentation, added multi server support
  *
  * @params null string $libusb
- * @params null mixed $server
+ * @params null mixed $server_restrictions
  * @return array
  */
-function usb_list($libusb = null, $server = null) {
+function usb_list($libusb = null, $server_restrictions = null) {
     try {
         $results = servers_exec(array('commands' => array('lsusb')));
         $devices = array();
@@ -110,10 +110,10 @@ function usb_list($libusb = null, $server = null) {
  * @version 2.4.10: Added function and documentation
  *
  * @param string $filter The regular expression filter with which the device will be found
- * @params null mixed $server
+ * @params null mixed $server_restrictions
  * @return array
  */
-function usb_scan($regex_filter, $server = null) {
+function usb_scan($regex_filter, $server_restrictions = null) {
     try {
         $results = safe_exec(array('commands' => array('lsusb', array('-v'))));
         $devices = array();

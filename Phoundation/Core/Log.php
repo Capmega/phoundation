@@ -132,9 +132,9 @@ Class Log {
     /**
      * File access restrictions
      *
-     * @var Server $server
+     * @var Server $server_restrictions
      */
-    protected static Server $server;
+    protected static Server $server_restrictions;
 
 
 
@@ -153,7 +153,7 @@ Class Log {
         self::$init = true;
 
         // Apply configuration
-        self::$server = new Server(new Restrictions(PATH_DATA . 'log/', true, 'Log'));
+        self::$server_restrictions = new Server(new Restrictions(PATH_DATA . 'log/', true, 'Log'));
         self::setThreshold(Config::get('log.threshold', Core::errorState() ? 1 : 3));
         self::setFile(Config::get('log.file', PATH_ROOT . 'data/log/syslog'));
         self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_FILE));
@@ -309,8 +309,8 @@ Class Log {
 
             // Open the specified log file
             if (empty(self::$handles[$file])) {
-                File::new($file, self::$server)->ensureWritable(0640);
-                self::$handles[$file] = File::new($file, self::$server)->open('a+');
+                File::new($file, self::$server_restrictions)->ensureWritable(0640);
+                self::$handles[$file] = File::new($file, self::$server_restrictions)->open('a+');
             }
 
             // Set the class file to the specified file and return the old value and

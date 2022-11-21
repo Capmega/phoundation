@@ -737,13 +737,13 @@ function inet_validate_ip($ip, $allow_all = true, $exception = true) {
  * @param natural $port
  * @return
  */
-function inet_port_available($port, $ip = '0.0.0.0', $server = null) {
+function inet_port_available($port, $ip = '0.0.0.0', $server_restrictions = null) {
     load_libs('servers');
 
     try {
         $ip      = inet_validate_ip($ip);
         $port    = inet_validate_port($port);
-        $results = servers_exec($server, array('ok_exitcodes' => '1',
+        $results = servers_exec($server_restrictions, array('ok_exitcodes' => '1',
                                                'commands'     => array('netstat', array('sudo' => true, '-peanut', 'connector' => '|'),
                                                                        'grep'   , array(':'.$port))));
 
@@ -788,7 +788,7 @@ function inet_port_available($port, $ip = '0.0.0.0', $server = null) {
  * @param string $ip
  * @return available port on the specified IP that is not being listened on yet
  */
-function inet_get_available_port($ip = '0.0.0.0', $server = null, $lowest = 1025, $retries = 10) {
+function inet_get_available_port($ip = '0.0.0.0', $server_restrictions = null, $lowest = 1025, $retries = 10) {
     try {
         $count = 1;
 
@@ -797,7 +797,7 @@ function inet_get_available_port($ip = '0.0.0.0', $server = null, $lowest = 1025
                 throw new OutOfBoundsException(tr('inet_get_available_port(): Failed to find an available port in ":retries" retries', array(':retries' => $retries)), 'failed');
             }
 
-            if (inet_port_available($port, $ip, $server)) {
+            if (inet_port_available($port, $ip, $server_restrictions)) {
                 return $port;
             }
         }

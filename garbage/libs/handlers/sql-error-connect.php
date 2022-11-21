@@ -64,8 +64,8 @@ try {
             load_libs('cli,servers');
 
             if (!cli_pidgrep($tunnel['pid'])) {
-                $server     = servers_get($connector['ssh_tunnel']['domain']);
-                $registered = ssh_host_is_known($server['hostname'], $server['port']);
+                $server_restrictions     = servers_get($connector['ssh_tunnel']['domain']);
+                $registered = ssh_host_is_known($server_restrictions['hostname'], $server_restrictions['port']);
 
                 if ($registered === false) {
                     throw new CoreException(tr('sql_connect(): Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the PATH_ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', array(':hostname' => $connector['ssh_tunnel']['domain'])), $e);
@@ -101,15 +101,15 @@ try {
 
             load_libs('servers,linux');
 
-            $server  = servers_get($connector['ssh_tunnel']['domain']);
-            $allowed = linux_get_ssh_tcp_forwarding($server);
+            $server_restrictions  = servers_get($connector['ssh_tunnel']['domain']);
+            $allowed = linux_get_ssh_tcp_forwarding($server_restrictions);
 
             if (!$allowed) {
                 /*
                  * SSH tunnel is required for this connector, but tcp fowarding
                  * is not allowed. Allow it and retry
                  */
-                if (!$server['allow_sshd_modification']) {
+                if (!$server_restrictions['allow_sshd_modification']) {
                     throw new CoreException(tr('sql_connect(): Connector ":connector" requires SSH tunnel to server, but that server does not allow TCP fowarding, nor does it allow auto modification of its SSH server configuration', array(':connector' => $connector)), 'configuration');
                 }
 
@@ -118,7 +118,7 @@ try {
                 /*
                  * Now enable TCP forwarding on the server, and retry connection
                  */
-                linux_set_ssh_tcp_forwarding($server, true);
+                linux_set_ssh_tcp_forwarding($server_restrictions, true);
                 log_console(tr('Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', array(':server' => $connector['ssh_tunnel']['domain'])), 'yellow');
 
                 if ($connector['ssh_tunnel']['pid']) {

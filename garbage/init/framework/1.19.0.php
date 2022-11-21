@@ -33,14 +33,14 @@ sql_query('CREATE TABLE `servers_hostnames` (`id`          INT(11)     NOT NULL 
 /*
  * Add all current hostnames to server_hostnames list
  */
-$servers = sql_query('SELECT `id`, `hostname` FROM `servers` WHERE `status` IS NULL OR `status` = "unregistered"');
+$server_restrictionss = sql_query('SELECT `id`, `hostname` FROM `servers` WHERE `status` IS NULL OR `status` = "unregistered"');
 $insert  = sql_prepare('INSERT INTO `servers_hostnames` (`meta_id`, `servers_id`, `hostname`)
                         VALUES                          (:meta_id , :servers_id , :hostname )');
 
-while ($server = sql_fetch($servers)) {
+while ($server_restrictions = sql_fetch($server_restrictionss)) {
     $insert->execute(array(':meta_id'    => meta_action(),
-                           ':servers_id' => $server['id'],
-                           ':hostname'   => $server['hostname']));
+                           ':servers_id' => $server_restrictions['id'],
+                           ':hostname'   => $server_restrictions['hostname']));
 }
 
 

@@ -9,6 +9,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
@@ -37,13 +38,13 @@ Class Process
      * Create a new process factory
      *
      * @param string|null $command
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @param string|null $packages
      * @return Process
      */
-    public static function new(?string $command = null, Server|array|string|null $server = null, ?string $packages = null): Process
+    public static function new(?string $command = null, Server|Restrictions|array|string|null $server_restrictions = null, ?string $packages = null): Process
     {
-        return new Process($command, $server, $packages);
+        return new Process($command, $server_restrictions, $packages);
     }
 
 
@@ -52,13 +53,13 @@ Class Process
      * Create a new CLI script process factory
      *
      * @param string|null $command
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @param string|null $packages
      * @return Process
      */
-    public static function newCliScript(?string $command = null, Server|array|string|null $server = null, ?string $packages = null): Process
+    public static function newCliScript(?string $command = null, Server|Restrictions|array|string|null $server_restrictions = null, ?string $packages = null): Process
     {
-        $process = self::new('cli', $server, $packages);
+        $process = self::new('cli', $server_restrictions, $packages);
         $process->addArguments(Arrays::force($command, ' '));
 
         return $process;
@@ -70,15 +71,15 @@ Class Process
      * Processes constructor.
      *
      * @param string|null $command
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @param string|null $packages
      */
-    public function __construct(?string $command = null, Server|array|string|null $server = null, ?string $packages = null)
+    public function __construct(?string $command = null, Server|Restrictions|array|string|null $server_restrictions = null, ?string $packages = null)
     {
         // Ensure that the run files directory is available
-        Path::new(PATH_ROOT . 'data/run/', $server)->ensure();
+        Path::new(PATH_ROOT . 'data/run/', $server_restrictions)->ensure();
 
-        $this->setServer($server);
+        $this->setServerRestrictions($server_restrictions);
 
         if ($packages) {
             $this->setPackages($packages);
@@ -245,7 +246,7 @@ Class Process
     public function kill(int $signal = 15): void
     {
         if ($this->pid) {
-            Command::new($this->server)->killPid($signal, $this->pid);
+            Command::new($this->server_restrictions)->killPid($signal, $this->pid);
         }
     }
 

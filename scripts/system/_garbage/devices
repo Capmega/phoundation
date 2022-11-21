@@ -212,12 +212,12 @@ switch (cli_method()) {
 
     case 'show':
         $id     = cli_argument(1);
-        $server = cli_argument(2);
+        $server_restrictions = cli_argument(2);
 
         cli_no_arguments_left();
 
         try {
-            $device = devices_get($id, $server);
+            $device = devices_get($id, $server_restrictions);
 
         }catch(Exception $e) {
             switch ($e->getCode()) {
@@ -407,7 +407,7 @@ switch (cli_method()) {
             $assign_inventory  = cli_argument('--inventory' , true);
             $sudo              = cli_argument('--sudo');
             $types             = cli_argument(1);
-            $servers           = cli_argument(2);
+            $server_restrictionss           = cli_argument(2);
             $count             = 0;
 
             cli_no_arguments_left();
@@ -499,9 +499,9 @@ switch (cli_method()) {
 
             devices_set_status('not-found');
 
-            $servers_devices = devices_scan($types, $servers, $sudo);
+            $server_restrictionss_devices = devices_scan($types, $server_restrictionss, $sudo);
 
-            foreach ($servers_devices as $servers_id => $devices) {
+            foreach ($server_restrictionss_devices as $server_restrictionss_id => $devices) {
                 foreach ($devices as $device) {
                     /*
                      * Assign device to category / company / branch / department
@@ -514,7 +514,7 @@ switch (cli_method()) {
                     $device['providers_id']   = isset_get($provider['id']);
 
                     try {
-                        $device = devices_insert($device, $servers_id);
+                        $device = devices_insert($device, $server_restrictionss_id);
 
                         if (empty($device['_exists'])) {
                             $count++;

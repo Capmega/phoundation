@@ -22,14 +22,14 @@ class NetworkCommands extends Command
     /**
      * Returns the process id for the specified command
      *
-     * @param string $server
+     * @param string $server_restrictions
      * @return ?float
      */
-    public function ping(string $server): ?float
+    public function ping(string $server_restrictions): ?float
     {
         try {
-            $output = Process::new('pgrep', $this->server, true)
-                ->addArguments(['-c', 1, $server])
+            $output = Process::new('pgrep', $this->server_restrictions, true)
+                ->addArguments(['-c', 1, $server_restrictions])
                 ->setTimeout(1)
                 ->executeReturnArray();
             $output = array_pop($output);

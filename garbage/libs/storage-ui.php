@@ -180,12 +180,12 @@ function storage_ui_process_dosubmit($params, $section, $page) {
                 try {
                     load_libs('devices');
                     $count           = 0;
-                    $servers_devices = devices_scan('document-scanner');
+                    $server_restrictionss_devices = devices_scan('document-scanner');
 
-                    foreach ($servers_devices as $servers_id => $devices) {
+                    foreach ($server_restrictionss_devices as $server_restrictionss_id => $devices) {
                         foreach ($devices as $device) {
                             $count++;
-                            devices_insert($device, $servers_id);
+                            devices_insert($device, $server_restrictionss_id);
                         }
                     }
 

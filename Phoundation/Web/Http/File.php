@@ -32,9 +32,9 @@ class File
     /**
      * The server object
      *
-     * @var Server $server
+     * @var Server $server_restrictions
      */
-    protected Server $server;
+    protected Server $server_restrictions;
 
     /**
      * If true, files will be transferred using compression
@@ -99,11 +99,11 @@ class File
     /**
      * File class constructor
      *
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      */
-    public function __construct(Server|array|string|null $server = null)
+    public function __construct(Server|Restrictions|array|string|null $server_restrictions = null)
     {
-        $this->setServer($server);
+        $this->setServerRestrictions($server_restrictions);
         $this->compression = Config::get('web.http.download.compression', 'auto');
     }
 
@@ -112,12 +112,12 @@ class File
     /**
      * Returns a new File object with the specified restrictions
      *
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @return File
      */
-    public static function new(Server|array|string|null $server = null): File
+    public static function new(Server|Restrictions|array|string|null $server_restrictions = null): File
     {
-        return new File($server);
+        return new File($server_restrictions);
     }
 
 
@@ -125,12 +125,12 @@ class File
     /**
      * Sets the file access restrictions
      *
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @return static
      */
-    public function setServer(Server|array|string|null $server = null): static
+    public function setServerRestrictions(Server|Restrictions|array|string|null $server_restrictions = null): static
     {
-        $this->server = Core::ensureServer($server);
+        $this->server_restrictions = Core::ensureServer($server_restrictions);
         return $this;
     }
 
@@ -141,9 +141,9 @@ class File
      *
      * @return Server
      */
-    public function getServer(): Server
+    public function getServerRestrictions(): Server
     {
-        return $this->server;
+        return $this->server_restrictions;
     }
 
 
@@ -247,8 +247,8 @@ class File
         }
 
         // Ensure the specified file is valid and readable
-        \Phoundation\Filesystem\File::new($file, $this->server)->checkReadable();
-        $this->server->checkRestrictions($file, false);
+        \Phoundation\Filesystem\File::new($file, $this->server_restrictions)->checkReadable();
+        $this->server_restrictions->checkRestrictions($file, false);
 
         $this->file = $file;
         $this->size = filesize($file);
@@ -445,7 +445,7 @@ Log::checkpoint();
         if ($callback) {
             // Execute the callbacks before returning the data, delete the temporary file after
             $callback($file);
-            \Phoundation\Filesystem\File::new($file, $this->server)->delete();
+            \Phoundation\Filesystem\File::new($file, $this->server_restrictions)->delete();
         }
 
         return $file;

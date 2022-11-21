@@ -1533,34 +1533,34 @@ function sql_random_id($table, $min = 1, $max = 2147483648, $connector_name = nu
  * @param
  * @return
  */
-function sql_exec($server, $query, $root = false, $simple_quotes = false) {
+function sql_exec($server_restrictions, $query, $root = false, $simple_quotes = false) {
     try {
         load_libs('servers');
 
         $query = addslashes($query);
 
-        if (!is_array($server)) {
-            $server = servers_get($server, true);
+        if (!is_array($server_restrictions)) {
+            $server_restrictions = servers_get($server_restrictions, true);
         }
 
         /*
          * Are we going to execute as root?
          */
         if ($root) {
-            sql_create_password_file('root', $server['db_root_password'], $server);
+            sql_create_password_file('root', $server_restrictions['db_root_password'], $server_restrictions);
 
         } else {
-            sql_create_password_file($server['db_username'], $server['db_password'], $server);
+            sql_create_password_file($server_restrictions['db_username'], $server_restrictions['db_password'], $server_restrictions);
         }
 
         if ($simple_quotes) {
-            $results = servers_exec($server, 'mysql -e \''.Strings::endsWith($query, ';').'\'');
+            $results = servers_exec($server_restrictions, 'mysql -e \''.Strings::endsWith($query, ';').'\'');
 
         } else {
-            $results = servers_exec($server, 'mysql -e \"'.Strings::endsWith($query, ';').'\"');
+            $results = servers_exec($server_restrictions, 'mysql -e \"'.Strings::endsWith($query, ';').'\"');
         }
 
-        sql_delete_password_file($server);
+        sql_delete_password_file($server_restrictions);
 
         return $results;
 
@@ -1569,7 +1569,7 @@ function sql_exec($server, $query, $root = false, $simple_quotes = false) {
          * Make sure the password file gets removed!
          */
         try {
-            sql_delete_password_file($server);
+            sql_delete_password_file($server_restrictions);
 
         }catch(Exception $e) {
 
@@ -1591,7 +1591,7 @@ function sql_exec($server, $query, $root = false, $simple_quotes = false) {
 // *
 // * @return array
 // */
-//function sql_exec_get($server, $query, $root = false, $simple_quotes = false) {
+//function sql_exec_get($server_restrictions, $query, $root = false, $simple_quotes = false) {
 //    try {
 //
 //    }catch(Exception $e) {
@@ -1797,10 +1797,10 @@ function sql_make_connector($connector_name, $connector) {
  * @package sql
  * @exception CoreException when the test failse
  *
- * @param mixed $server The server that is to be tested
+ * @param mixed $server_restrictions The server that is to be tested
  * @return void
  */
-function sql_test_tunnel($server) {
+function sql_test_tunnel($server_restrictions) {
     global $_CONFIG;
 
     try {
@@ -1808,17 +1808,17 @@ function sql_test_tunnel($server) {
 
         $connector_name = 'test';
         $port           = 6000;
-        $server         = servers_get($server, true);
+        $server_restrictions         = servers_get($server_restrictions, true);
 
-        if (!$server['database_accounts_id']) {
-            throw new CoreException(tr('sql_test_tunnel(): Cannot test SQL over SSH tunnel, server ":server" has no database account linked', array(':server' => $server['domain'])), 'not-exists');
+        if (!$server_restrictions['database_accounts_id']) {
+            throw new CoreException(tr('sql_test_tunnel(): Cannot test SQL over SSH tunnel, server ":server" has no database account linked', array(':server' => $server_restrictions['domain'])), 'not-exists');
         }
 
         sql_make_connector($connector_name, array('port'       => $port,
-                                                  'user'       => $server['db_username'],
-                                                  'pass'       => $server['db_password'],
+                                                  'user'       => $server_restrictions['db_username'],
+                                                  'pass'       => $server_restrictions['db_password'],
                                                   'ssh_tunnel' => array('source_port' => $port,
-                                                                        'domain'      => $server['domain'])));
+                                                                        'domain'      => $server_restrictions['domain'])));
 
         sql_get('SELECT TRUE', true, null, $connector_name);
 

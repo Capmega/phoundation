@@ -272,6 +272,6 @@ class Resize extends FileBasics
      */
     protected function convert(): Process
     {
-        return Process::new('convert', $this->server);
+        return Process::new('convert', $this->server_restrictions);
     }
 }

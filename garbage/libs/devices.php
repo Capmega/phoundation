@@ -55,10 +55,10 @@ function devices_library_init() {
  * @param params $post
  * @return params The specified device parameter array, validated and sanitized
  */
-function devices_merge($device, $post, $server = null) {
+function devices_merge($device, $post, $server_restrictions = null) {
     try {
         $device = sql_merge($device, $post);
-        $device = devices_validate($device, $server, true);
+        $device = devices_validate($device, $server_restrictions, true);
 //showdie('TEST DEVICES_MERGE(), DEVICES_VALIDATE(), MAKE ALL companies_get_*() use sql_simple_get() and all companies_list_*() use sql_simple_list()');
         return $device;
 
@@ -83,9 +83,9 @@ function devices_merge($device, $post, $server = null) {
  * @param
  * @return
  */
-function devices_insert($device, $server = null) {
+function devices_insert($device, $server_restrictions = null) {
     try {
-        $device = devices_validate($device, $server, false);
+        $device = devices_validate($device, $server_restrictions, false);
 
         /*
          * Ensure the device does not exist yet
@@ -173,9 +173,9 @@ function devices_insert($device, $server = null) {
  * @param
  * @return
  */
-function devices_update($device, $server = null) {
+function devices_update($device, $server_restrictions = null) {
     try {
-        $device = devices_validate($device, $server);
+        $device = devices_validate($device, $server_restrictions);
         meta_action($device['meta_id'], 'update');
 
         sql_query(' UPDATE `devices`
@@ -227,10 +227,10 @@ function devices_update($device, $server = null) {
  * @version 1.25.0: Added function and documentation
  *
  * @param params $device
- * @param params $server
+ * @param params $server_restrictions
  * @return params
  */
-function devices_validate($device, $server = null, $update = true) {
+function devices_validate($device, $server_restrictions = null, $update = true) {
     try {
         load_libs('validate,seo,categories,companies,servers,customers,providers,inventories');
         $v = new ValidateForm($device, 'name,type,manufacturer,model,vendor,vendor_string,product,product_string,libusb,bus,device,string,default,category,company,branch,department,employee,customer,provider,inventory,server,description,options');
@@ -273,11 +273,11 @@ function devices_validate($device, $server = null, $update = true) {
          * Validate server
          */
         if (!$update) {
-            if ($server) {
-                $dbserver = servers_get($server);
+            if ($server_restrictions) {
+                $dbserver = servers_get($server_restrictions);
 
                 if (!$dbserver) {
-                    $v->setError(tr('Specified server ":server" does not exist', array(':server' => $server)));
+                    $v->setError(tr('Specified server ":server" does not exist', array(':server' => $server_restrictions)));
                 }
 
                 $device['servers_id'] = $dbserver['id'];
@@ -285,15 +285,15 @@ function devices_validate($device, $server = null, $update = true) {
                 $device['seodomain']  = $dbserver['seodomain'];
 
             } elseif ($device['server']) {
-                $server = servers_get($device['server']);
+                $server_restrictions = servers_get($device['server']);
 
                 if (!$device['servers_id']) {
                     $v->setError(tr('Specified server ":server" does not exist', array(':server' => $device['server'])));
                 }
 
-                $device['servers_id'] = $server['id'];
-                $device['domain']     = $server['domain'];
-                $device['seodomain']  = $server['seodomain'];
+                $device['servers_id'] = $server_restrictions['id'];
+                $device['domain']     = $server_restrictions['domain'];
+                $device['seodomain']  = $server_restrictions['seodomain'];
 
             } else {
                 $device['servers_id'] = null;
@@ -1040,7 +1040,7 @@ function devices_list($type, $all = false, $default_only = false) {
  * @param
  * @return
  */
-function devices_get($device, $server = null) {
+function devices_get($device, $server_restrictions = null) {
     try {
         if (is_numeric($device)) {
             if (!is_natural($device)) {
@@ -1053,11 +1053,11 @@ function devices_get($device, $server = null) {
         } elseif (is_string($device)) {
             load_libs('servers');
 
-            $server = servers_get($server);
+            $server_restrictions = servers_get($server_restrictions);
             $where  = ' WHERE `devices`.`seostring` = :seostring AND `devices`.`servers_id` = :servers_id ';
 
             $execute[':seostring']  = $device;
-            $execute[':servers_id'] = $server['id'];
+            $execute[':servers_id'] = $server_restrictions['id'];
 
         } else {
             if (!$device) {
@@ -1257,7 +1257,7 @@ function devices_clear($type = null) {
  * @param
  * @return
  */
-function devices_scan($types, $server = null, $sudo = false) {
+function devices_scan($types, $server_restrictions = null, $sudo = false) {
     global $_CONFIG;
 
     try {
@@ -1265,43 +1265,43 @@ function devices_scan($types, $server = null, $sudo = false) {
 
         $sudo = ($sudo or $_CONFIG['devices']['sudo']);
 
-        if ($server === null) {
+        if ($server_restrictions === null) {
             /*
              * Scan all registered servers
              */
             $return  = array();
-            $servers = servers_list(true);
+            $server_restrictionss = servers_list(true);
 
-            while ($server = sql_fetch($servers)) {
+            while ($server_restrictions = sql_fetch($server_restrictionss)) {
                 try {
-                    log_console(tr('Scanning server ":server" for devices', array(':server' => $server['domain'])), 'VERBOSE/cyan');
-                    $devices = devices_scan($types, $server['id'], $sudo);
+                    log_console(tr('Scanning server ":server" for devices', array(':server' => $server_restrictions['domain'])), 'VERBOSE/cyan');
+                    $devices = devices_scan($types, $server_restrictions['id'], $sudo);
 
                     if ($devices) {
-                        $return[$server['id']] = $devices[$server['id']];
+                        $return[$server_restrictions['id']] = $devices[$server_restrictions['id']];
                     }
 
                 }catch(Exception $e) {
-                    log_console(tr('Failed to scan server ":server" for devices because ":e"', array(':server' => $server['domain'], ':e' => $e)), 'yellow');
+                    log_console(tr('Failed to scan server ":server" for devices because ":e"', array(':server' => $server_restrictions['domain'], ':e' => $e)), 'yellow');
                 }
             }
 
             return $return;
         }
 
-        if (str_contains($server, ',')) {
+        if (str_contains($server_restrictions, ',')) {
             /*
              * A specific list of servers was specified
              */
-            $servers = Arrays::force($server);
+            $server_restrictionss = Arrays::force($server_restrictions);
             $return  = array();
 
-            foreach ($servers as $server) {
-                log_console(tr('Scanning server ":server" for devices', array(':server' => $server['domain'])), 'VERBOSE/cyan');
-                $devices = devices_scan($types, $server['id'], $sudo);
+            foreach ($server_restrictionss as $server_restrictions) {
+                log_console(tr('Scanning server ":server" for devices', array(':server' => $server_restrictions['domain'])), 'VERBOSE/cyan');
+                $devices = devices_scan($types, $server_restrictions['id'], $sudo);
 
                 if ($devices) {
-                    $return[$server['id']] = $devices[$server['id']];
+                    $return[$server_restrictions['id']] = $devices[$server_restrictions['id']];
                 }
             }
 
@@ -1311,16 +1311,16 @@ function devices_scan($types, $server = null, $sudo = false) {
         /*
          * Scan this specific server
          */
-        $server            = servers_like($server);
-        $server            = servers_get($server);
-        $server['persist'] = true;
-        $servers_id        = $server['id'];
+        $server_restrictions            = servers_like($server_restrictions);
+        $server_restrictions            = servers_get($server_restrictions);
+        $server_restrictions['persist'] = true;
+        $server_restrictionss_id        = $server_restrictions['id'];
         $return            = array();
         $types             = Arrays::force($types);
         $types             = devices_validate_types($types, true);
 
         foreach (Arrays::force($types) as $type => $filter) {
-            log_console(tr('Scanning server ":server" for ":type" type devices', array(':server' => $server['domain'], ':type' => $type)), 'VERBOSE/cyan');
+            log_console(tr('Scanning server ":server" for ":type" type devices', array(':server' => $server_restrictions['domain'], ':type' => $type)), 'VERBOSE/cyan');
 
             switch ($type) {
                 case 'usb':
@@ -1330,7 +1330,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                 case 'barcode-scanner':
                     // no-break
                 case 'webcam':
-                    $devices = servers_exec($server, array('ok_exitcodes' => '0,1',
+                    $devices = servers_exec($server_restrictions, array('ok_exitcodes' => '0,1',
                                                            'commands'     => array('lsusb', array('sudo' => $sudo, 'connector' => '|'),
                                                                                    'grep' , array('-i', $filter))));
                     $entries = array();
@@ -1342,7 +1342,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                             continue;
                         }
 
-                        log_console(tr('Found device ":device" on server ":server"', array(':device' => $device, ':server' => $server['domain'])), 'green');
+                        log_console(tr('Found device ":device" on server ":server"', array(':device' => $device, ':server' => $server_restrictions['domain'])), 'green');
 
                         $entry = array('manufacturer'   => null,
                                        'product'        => null,
@@ -1356,7 +1356,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                                        'string'         => $matches[3][0],
                                        'description'    => $matches[4][0]);
 
-                        $data = servers_exec($server, array('commands' => array('lsusb', array('sudo' => $sudo, '-vs', $entry['bus'].':'.$entry['device']))));
+                        $data = servers_exec($server_restrictions, array('commands' => array('lsusb', array('sudo' => $sudo, '-vs', $entry['bus'].':'.$entry['device']))));
 
                         foreach ($data as $line) {
                             if (stristr($line, 'idProduct')) {
@@ -1380,7 +1380,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                     }
 
                     if ($entries) {
-                        $return[$servers_id] = array_merge(isset_get($return[$servers_id], array()), $entries);
+                        $return[$server_restrictionss_id] = array_merge(isset_get($return[$server_restrictionss_id], array()), $entries);
                     }
 
                     break;
@@ -1392,16 +1392,16 @@ function devices_scan($types, $server = null, $sudo = false) {
                      * Only scan for scanners if scanimage has been installed on
                      * the taget server
                      */
-                    if (linux_which($server, 'scanimage')) {
-                        $devices = scanimage_detect_devices($server, $sudo);
+                    if (linux_which($server_restrictions, 'scanimage')) {
+                        $devices = scanimage_detect_devices($server_restrictions, $sudo);
                         $entries = array();
 
                         foreach ($devices as $device) {
-                            log_console(tr('Found document-scanner device ":device" on server ":server"', array(':device' => $device['raw'], ':server' => $server['domain'])), 'green');
+                            log_console(tr('Found document-scanner device ":device" on server ":server"', array(':device' => $device['raw'], ':server' => $server_restrictions['domain'])), 'green');
                         }
 
                         if ($devices) {
-                            $return[$servers_id] = array_merge(isset_get($return[$servers_id], array()), $devices);
+                            $return[$server_restrictionss_id] = array_merge(isset_get($return[$server_restrictionss_id], array()), $devices);
                         }
                     }
 

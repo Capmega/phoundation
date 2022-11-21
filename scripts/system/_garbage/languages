@@ -191,10 +191,10 @@ switch (cli_method()) {
 
         }catch(Exception $e) {
             if (substr($e->getCode(), 0, 4) == 'HTTP') {
-                $server_message = $e->getData()['data'];
+                $server_restrictions_message = $e->getData()['data'];
                 $code           = $e->getCode();
 
-                throw new CoreException(tr('Translation server gave HTTP code ":code" on URL ":url" with server message ":message"', array(':code' => $code, ':message' => $server_message, ':url' => $_CONFIG['translate']['url'])), $e);
+                throw new CoreException(tr('Translation server gave HTTP code ":code" on URL ":url" with server message ":message"', array(':code' => $code, ':message' => $server_restrictions_message, ':url' => $_CONFIG['translate']['url'])), $e);
             }
 
             throw new CoreException(tr('Test failed'), $e);
@@ -387,7 +387,7 @@ switch (cli_method()) {
 
             }catch(Exception $e) {
                 if (substr($e->getCode(), 0, 4) == 'HTTP') {
-                    $server_message = $e->getData()['data'];
+                    $server_restrictions_message = $e->getData()['data'];
                     $code           = $e->getCode();
 
                     switch (substr($e->getCode(), 4)) {
@@ -398,7 +398,7 @@ switch (cli_method()) {
                             throw new CoreException(tr('Translation server said that project ":project" does not exist', array(':project' => PROJECT)), 'warning');
 
                         default:
-                            throw new CoreException(tr('Translation server gave HTTP code ":code" on URL ":url" with server message ":message"', array(':code' => $code, ':message' => $server_message, ':url' => $_CONFIG['translate']['url'])), $e);
+                            throw new CoreException(tr('Translation server gave HTTP code ":code" on URL ":url" with server message ":message"', array(':code' => $code, ':message' => $server_restrictions_message, ':url' => $_CONFIG['translate']['url'])), $e);
                     }
                 }
 
@@ -455,7 +455,7 @@ switch (cli_method()) {
 
             }catch(Exception $e) {
                 if (substr($e->getCode(), 0, 4) == 'HTTP') {
-                    $server_message = $e->getData()['data'];
+                    $server_restrictions_message = $e->getData()['data'];
                     $code           = $e->getCode();
 
                     switch (substr($e->getCode(), 4)) {
@@ -466,7 +466,7 @@ switch (cli_method()) {
                             throw new CoreException(tr('Translation server said that project ":project" does not exist', array(':project' => PROJECT)), 'warning');
 
                         default:
-                            throw new CoreException(tr('Translation server gave HTTP code ":code" on URL ":url" with server message ":message"', array(':code' => $code, ':message' => $server_message, ':url' => $_CONFIG['translate']['url'])), $e);
+                            throw new CoreException(tr('Translation server gave HTTP code ":code" on URL ":url" with server message ":message"', array(':code' => $code, ':message' => $server_restrictions_message, ':url' => $_CONFIG['translate']['url'])), $e);
                     }
                 }
 

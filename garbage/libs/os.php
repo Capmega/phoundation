@@ -56,15 +56,15 @@ function os_execute_command($hostname, $command = null) {
             /*
              * Server data has been specified by calling function
              */
-            $server = $hostname;
+            $server_restrictions = $hostname;
 
         } else {
             /*
              * Load server data from database
              */
-            $server = servers_get($hostname);
+            $server_restrictions = servers_get($hostname);
 
-            if (!$server) {
+            if (!$server_restrictions) {
                 throw new CoreException(tr('os_execute_command(): Specified hostname ":hostname" does not exist', array(':hostname' => $hostname)), 'not-exists');
             }
         }
@@ -81,10 +81,10 @@ showdie($command);
          * Depending on the OS type, load the required library and continue
          * there
          */
-        switch ($server['os_type']) {
+        switch ($server_restrictions['os_type']) {
             case 'linux':
                 load_libs('linux');
-                return 'linux_'.$command($server, $command);
+                return 'linux_'.$command($server_restrictions, $command);
 
             case 'mac':
                 // no-break
@@ -99,7 +99,7 @@ showdie($command);
                 not_supported();
 
             default:
-                throw new CoreException(tr('os_execute_command(): Unknown operating system type ":type" found for hostname ":hostname"', array(':hostname' => $hostname, ':type' => $server['type'])), 'unknown');
+                throw new CoreException(tr('os_execute_command(): Unknown operating system type ":type" found for hostname ":hostname"', array(':hostname' => $hostname, ':type' => $server_restrictions['type'])), 'unknown');
         }
 
     }catch(Exception $e) {

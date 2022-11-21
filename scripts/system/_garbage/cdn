@@ -39,11 +39,11 @@ switch (cli_method()) {
     case 'command':
         $command = cli_argument(1);
         $data    = cli_argument(2);
-        $servers = cli_argument(3);
+        $server_restrictionss = cli_argument(3);
 
         cli_no_arguments_left();
 
-        cdn_commands_send($command, $data, $servers);
+        cdn_commands_send($command, $data, $server_restrictionss);
         break;
 
     case 'process':
@@ -54,8 +54,8 @@ switch (cli_method()) {
         break;
 
     case 'ping':
-        $servers = arguments();
-        cdn_ping($servers);
+        $server_restrictionss = arguments();
+        cdn_ping($server_restrictionss);
         break;
 
     case 'info':
@@ -66,8 +66,8 @@ switch (cli_method()) {
          */
         log_console(tr('AVAILABE CDN SERVERS:'), '', 'white');
 
-        foreach ($_CONFIG['cdn']['servers'] as $server) {
-            log_console(cdn_prefix($server));
+        foreach ($_CONFIG['cdn']['servers'] as $server_restrictions) {
+            log_console(cdn_prefix($server_restrictions));
         }
 
         log_console('');
@@ -103,9 +103,9 @@ switch (cli_method()) {
          * Ensure that all CDN servers are displayed, also the ones that do not yet
          * have any listings
          */
-        foreach ($_CONFIG['cdn']['servers'] as $server) {
-            if (!isset($list[$server])) {
-                $list[$server] = 0;
+        foreach ($_CONFIG['cdn']['servers'] as $server_restrictions) {
+            if (!isset($list[$server_restrictions])) {
+                $list[$server_restrictions] = 0;
             }
         }
 
@@ -129,10 +129,10 @@ switch (cli_method()) {
         /*
          * Disable specified CDN server by moving all files away from it
          */
-        $server = cli_argument(1);
+        $server_restrictions = cli_argument(1);
         cli_no_arguments_left();
 
-        cdn_remove($server);
+        cdn_remove($server_restrictions);
         break;
 
     case 'balance':

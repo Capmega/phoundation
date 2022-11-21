@@ -102,9 +102,9 @@ function rsync($params) {
          */
         foreach (array('source', 'target') as &$item) {
             try {
-                $server = Strings::until($params[$item], ':', 0, 0, true);
+                $server_restrictions = Strings::until($params[$item], ':', 0, 0, true);
 
-                if ($server) {
+                if ($server_restrictions) {
                     if (isset($remote)) {
                         throw new CoreException(tr('rsync(): Both source and target are on remote servers. One of the two must be local'), 'invalid');
                     }
@@ -113,25 +113,25 @@ function rsync($params) {
                      * Source is a server, see if we know it
                      */
                     $remote                  = true;
-                    $server                  = servers_like($server);
-                    $server                  = servers_get($server);
-                    $server['identity_file'] = servers_create_identity_file($server);
+                    $server_restrictions                  = servers_like($server_restrictions);
+                    $server_restrictions                  = servers_get($server_restrictions);
+                    $server_restrictions['identity_file'] = servers_create_identity_file($server_restrictions);
 
-                    if ($server) {
-                        if ($server['ssh_accounts_id']) {
+                    if ($server_restrictions) {
+                        if ($server_restrictions['ssh_accounts_id']) {
                             /*
                              * Yay, we know the server, set the parameters!
                              */
-                            $ssh = ssh_build_command($server, array('ssh_command'    => 'ssh',
+                            $ssh = ssh_build_command($server_restrictions, array('ssh_command'    => 'ssh',
                                                                     'no_user_server' => true));
-                            $params[$item] = $server['username'].'@'.$params[$item];
+                            $params[$item] = $server_restrictions['username'].'@'.$params[$item];
                         }
                     }
 
                     /*
                      * Ensure this is not executed on PATH_ROOT or part of PATH_ROOT
                      */
-                    switch ($server['domain']) {
+                    switch ($server_restrictions['domain']) {
                         case '':
                             // no-break
                         case 'localhost':
@@ -142,7 +142,7 @@ function rsync($params) {
                                      * syncing to PATH_ROOT or its parents somehow?
                                      */
                                     try {
-                                        if (str_contains(PATH_ROOT, linux_realpath($server, Strings::from($params[$subitem], ':')))) {
+                                        if (str_contains(PATH_ROOT, linux_realpath($server_restrictions, Strings::from($params[$subitem], ':')))) {
                                             throw new CoreException(tr('rsync(): Specified remote ":subitem" path ":path" is PATH_ROOT or parent of PATH_ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
                                         }
 

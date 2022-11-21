@@ -27,9 +27,9 @@ class Execute extends Path
     /**
      * The server object
      *
-     * @var Server $server
+     * @var Server $server_restrictions
      */
-    protected Server $server;
+    protected Server $server_restrictions;
 
     /**
      * Sets if the object will recurse or not
@@ -347,7 +347,7 @@ class Execute extends Path
      */
     public function onPathOnly(callable $callback): void
     {
-        $this->server->checkRestrictions($this->file, true);
+        $this->server_restrictions->checkRestrictions($this->file, true);
 
         foreach (Arrays::force($this->file, '') as $this->file) {
             // Get al files in this directory
@@ -404,7 +404,7 @@ class Execute extends Path
         try {
             $files = scandir($this->file);
         } catch (Exception $e) {
-            Path::new($this->file, $this->server)->checkReadable(previous_e: $e);
+            Path::new($this->file, $this->server_restrictions)->checkReadable(previous_e: $e);
         }
 
         foreach ($files as $file) {

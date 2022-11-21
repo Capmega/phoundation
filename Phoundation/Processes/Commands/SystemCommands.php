@@ -37,7 +37,7 @@ class SystemCommands extends Command
             return $cache[$command];
         }
 
-        $process = Process::new('which', $this->server)
+        $process = Process::new('which', $this->server_restrictions)
             ->addArgument($command)
             ->setRegisterRunfile(false)
             ->setTimeout(1);
@@ -84,7 +84,7 @@ class SystemCommands extends Command
             throw new OutOfBoundsException(tr('Invalid section ":section" specified. This value can only be "u" or "g"', [':section' => $section]));
         }
 
-        $process = Process::new('id', $this->server)
+        $process = Process::new('id', $this->server_restrictions)
             ->addArgument('-' . $section)
             ->setTimeout(1);
 
@@ -117,7 +117,7 @@ class SystemCommands extends Command
     {
         Log::action(tr('Installing packages ":packages"', [':packages' => $packages]));
 
-        Process::new('apt-get', $this->server)
+        Process::new('apt-get', $this->server_restrictions)
             ->setSudo(true)
             ->addArguments(['-y', 'install'])
             ->addArguments($packages)

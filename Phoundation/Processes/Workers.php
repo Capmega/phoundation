@@ -5,6 +5,7 @@ namespace Phoundation\Processes;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Exception\WorkersException;
 use Phoundation\Servers\Server;
 
@@ -94,13 +95,13 @@ class Workers extends Process
 //     * Workers constructor
 //     *
 //     * @param string|null $command
-//     * @param Server|array|string|null $server
+//     * @param Server|Restrictions|array|string|null $server_restrictions
 //     * @param bool $which_command
 //     */
-//    public function __construct(?string $command = null, Server|array|string|null $server = null, bool $which_command = false)
+//    public function __construct(?string $command = null, Server|Restrictions|array|string|null $server_restrictions = null, bool $which_command = false)
 //    {
 //        $this->setCommand($command, $which_command);
-//        $this->setServer($server);
+//        $this->setServerRestrictions($server_restrictions);
 //    }
 
 
@@ -109,12 +110,12 @@ class Workers extends Process
      * Returns a new Workers object
      *
      * @param string|null $command
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @return static
      */
-    public static function create(?string $command = null, Server|array|string|null $server = null): static
+    public static function create(?string $command = null, Server|Restrictions|array|string|null $server_restrictions = null): static
     {
-        return new static($command, $server);
+        return new static($command, $server_restrictions);
     }
 
 
@@ -420,7 +421,7 @@ class Workers extends Process
     {
         // Check the workers that are still active
         foreach ($this->workers as $pid => $worker) {
-            $ps = ProcessCommands::new($this->server)->ps($pid);
+            $ps = ProcessCommands::new($this->server_restrictions)->ps($pid);
 
             if ($ps) {
                 // There is A process, but is it the right one? Cleanup both commands to compare

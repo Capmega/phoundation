@@ -55,13 +55,13 @@ function apt_library_init() {
  *
  * @param string $packages A string delimited list of packages to be installed
  * @param boolean $auto_update If set to true, apt will first update the local database before trying the install method
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return string The output from the apt-get install command
  */
-function apt_install($packages, $auto_update = true, $server = null) {
+function apt_install($packages, $auto_update = true, $server_restrictions = null) {
     try {
         if ($auto_update) {
-            apt_update($server = null);
+            apt_update($server_restrictions = null);
         }
 
         log_console(tr('Installing packages ":packages" using apt', array(':packages' => $packages)), 'cyan');
@@ -69,7 +69,7 @@ function apt_install($packages, $auto_update = true, $server = null) {
         $packages  = Arrays::force($packages);
         $arguments = array_merge(array('sudo' => true, '-y', 'install'), Arrays::force($packages, ' '));
 
-        $results   = servers_exec($server, array('timeout'  => 180,
+        $results   = servers_exec($server_restrictions, array('timeout'  => 180,
                                                  'function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                                  'commands' => array('apt-get', $arguments)));
 
@@ -104,8 +104,8 @@ function apt_install($packages, $auto_update = true, $server = null) {
                          * Some previous install failed. Repair and retry
                          */
                         try {
-                            apt_fix($server);
-                            $method($server);
+                            apt_fix($server_restrictions);
+                            $method($server_restrictions);
 
                         }catch(Exception $f) {
                             throw new CoreException(tr('apt_install(): apt function ":function" failed, repair failed as well with ":f"', array(':function' => $method.'()', ':f' => $f->getMessage())), $e);
@@ -159,18 +159,18 @@ function apt_install($packages, $auto_update = true, $server = null) {
  * @version 2.0.3: Added documentation
  * @example
  * code
- * $result = apt_install($server);
+ * $result = apt_install($server_restrictions);
  * /code
  *
  * This would update the apt database on the specified server
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return string The output from the apt-get update command
  */
-function apt_update($server = null) {
+function apt_update($server_restrictions = null) {
     try {
         log_console(tr('Updating apt database'), 'cyan');
-        $results = servers_exec($server, array('timeout'  => 120,
+        $results = servers_exec($server_restrictions, array('timeout'  => 120,
                                                'function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                                'commands' => array('apt-get', array('sudo' => true, 'update'))));
         return $results;
@@ -256,14 +256,14 @@ function apt_update($server = null) {
  *
  * This would install the git and axel packages
  *
- * @param mixed $server
+ * @param mixed $server_restrictions
  * @return string The output from the dpkg --configure -a command
  */
-function apt_fix($server = null) {
+function apt_fix($server_restrictions = null) {
     try {
         log_console(tr('Fixing apt database'), 'yellow');
 
-        $results = servers_exec($server, array('timeout'  => 120,
+        $results = servers_exec($server_restrictions, array('timeout'  => 120,
                                                'function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                                'commands' => array('dpkg'   , array('sudo' => true, '--configure', '-a', 'connector' => '&&'),
                                                                    'apt-get', array('sudo' => true, 'install', '-f'))));

@@ -142,14 +142,14 @@ try {
 
         case 'add':
             $domain  = cli_arguments(0);
-            $servers = cli_arguments();
+            $server_restrictionss = cli_arguments();
             $count   = 0;
 
             cli_no_arguments_left();
 
             try {
                 domains_insert(array('domain'  => $domain,
-                                     'servers' => $servers));
+                                     'servers' => $server_restrictionss));
 
                 log_console(tr('Added domain ":domain"', array(':domain' => $domain)), 'green');
 
@@ -169,17 +169,17 @@ try {
             break;
 
         case 'update':
-            $server['domain'] = cli_argument(0);
-            domains_update($server);
+            $server_restrictions['domain'] = cli_argument(0);
+            domains_update($server_restrictions);
             break;
 
         case 'register':
-            $server = cli_argument(1);
+            $server_restrictions = cli_argument(1);
             cli_no_arguments_left();
 
-            $server = domains_like($server);
-            $server = domains_get($server);
-            $count  = ssh_add_known_host($server['domain'], $server['port']);
+            $server_restrictions = domains_like($server_restrictions);
+            $server_restrictions = domains_get($server_restrictions);
+            $count  = ssh_add_known_host($server_restrictions['domain'], $server_restrictions['port']);
 
             if ($count) {
                 log_console(tr('Added ":count" domains', array(':count' => $count)), 'green');
@@ -191,12 +191,12 @@ try {
             break;
 
         case 'unregister':
-            $server = cli_argument(1);
+            $server_restrictions = cli_argument(1);
             cli_no_arguments_left();
 
-            $server = domains_like($server);
-            $server = domains_get($server);
-            $count  = ssh_remove_known_host($server['domain'], $server['port']);
+            $server_restrictions = domains_like($server_restrictions);
+            $server_restrictions = domains_get($server_restrictions);
+            $count  = ssh_remove_known_host($server_restrictions['domain'], $server_restrictions['port']);
 
             if ($count) {
                 log_console(tr('Removed ":count" domains', array(':count' => $count)), 'green');
@@ -216,11 +216,11 @@ try {
             // FALLTHROUH
 
         case 'status':
-            $server = cli_argument(1);
+            $server_restrictions = cli_argument(1);
             $status   = ensure_variable($status, cli_argument(2));
             cli_no_arguments_left();
 
-            $count = domains_unregister_host(array('domain'      => $server,
+            $count = domains_unregister_host(array('domain'      => $server_restrictions,
                                                    'identity_file' => $identity_file));
 
             if ($count) {
@@ -233,10 +233,10 @@ try {
             break;
 
         case 'erase':
-            $server = cli_argument(1);
+            $server_restrictions = cli_argument(1);
             cli_no_arguments_left();
 
-            $count = domains_unregister_host(array('domain'      => $server,
+            $count = domains_unregister_host(array('domain'      => $server_restrictions,
                                                    'identity_file' => $identity_file));
 
             if ($count) {
@@ -329,24 +329,24 @@ try {
             }
 
             $order   = ' ORDER BY `domains`.`status` IS NOT NULL DESC ';
-            $servers = sql_query($query.$where.$order.sql_limit(), $execute);
+            $server_restrictionss = sql_query($query.$where.$order.sql_limit(), $execute);
 
-            if (!$servers->rowCount()) {
+            if (!$server_restrictionss->rowCount()) {
                     log_console(tr('There are currently no servers registered'), 'QUIET/yellow');
 
             } else {
                 if ($only_domains) {
                     log_console(tr('Hostname'), 'QUIET/cyan');
 
-                    while ($server = sql_fetch($servers)) {
-                        log_console($server['domain']);
+                    while ($server_restrictions = sql_fetch($server_restrictionss)) {
+                        log_console($server_restrictions['domain']);
                     }
 
                 } else {
                     log_console(Strings::size(tr('#id'), 7).Strings::size(tr('Customer'), 25).Strings::size(tr('Provider'), 25).Strings::size(tr('Hostname'), 33).Strings::size(tr('Status'), 13).Strings::size(tr('Created by'), 32), 'QUIET/cyan');
 
-                    while ($server = sql_fetch($servers)) {
-                        log_console(Strings::size($server['id'], 6, ' ', true).' '.Strings::size($server['customer'], 24).' '.Strings::size($server['provider'], 24).' '.Strings::size($server['domain'], 32).' '.cli_status_color(Strings::size($server['status'], 12)).' '.name($server, 'user'));
+                    while ($server_restrictions = sql_fetch($server_restrictionss)) {
+                        log_console(Strings::size($server_restrictions['id'], 6, ' ', true).' '.Strings::size($server_restrictions['customer'], 24).' '.Strings::size($server_restrictions['provider'], 24).' '.Strings::size($server_restrictions['domain'], 32).' '.cli_status_color(Strings::size($server_restrictions['status'], 12)).' '.name($server_restrictions, 'user'));
                     }
                 }
             }

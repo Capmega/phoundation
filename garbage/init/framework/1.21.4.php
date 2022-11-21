@@ -18,13 +18,13 @@ $doubles = sql_query('SELECT   COUNT(`servers`.`id`) AS `count`,
 
 if ($doubles->rowCount()) {
     while ($double = sql_fetch($doubles)) {
-        $servers = sql_query(' SELECT `id` FROM `servers` WHERE `hostname` = :hostname', array(':hostname' => $double['hostname']));
+        $server_restrictionss = sql_query(' SELECT `id` FROM `servers` WHERE `hostname` = :hostname', array(':hostname' => $double['hostname']));
 
-        while ($servers_id = sql_fetch($servers, true)) {
+        while ($server_restrictionss_id = sql_fetch($server_restrictionss, true)) {
             cli_dot(1);
 
-            sql_query(' DELETE FROM `servers_hostnames` WHERE `servers_id` = :servers_id', array(':servers_id' => $servers_id));
-            sql_query(' DELETE FROM `servers`           WHERE `id`         = :id'        , array(':id'         => $servers_id));
+            sql_query(' DELETE FROM `servers_hostnames` WHERE `servers_id` = :servers_id', array(':servers_id' => $server_restrictionss_id));
+            sql_query(' DELETE FROM `servers`           WHERE `id`         = :id'        , array(':id'         => $server_restrictionss_id));
 
             if (--$double['count'] >= 1) {
                 break;

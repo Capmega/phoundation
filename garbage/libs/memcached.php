@@ -64,8 +64,8 @@ function memcached_connect() {
                     $stats = $core->register['memcached']->getStats();
 
                     if ($stats) {
-                        foreach ($stats as $server => $server_data) {
-                            if ($server_data['pid'] < 0) {
+                        foreach ($stats as $server_restrictions => $server_restrictions_data) {
+                            if ($server_restrictions_data['pid'] < 0) {
                                 /*
                                  * Could not connect to this memcached server. Notify, and remove from the connections list
                                  */
@@ -75,7 +75,7 @@ function memcached_connect() {
                                     'code'    => 'warning/not-available',
                                     'groups'  => 'developers',
                                     'title'   => tr('Memcached server not available'),
-                                    'message' => tr('memcached_connect(): Failed to connect to memcached server ":server"', array(':server' => $server))
+                                    'message' => tr('memcached_connect(): Failed to connect to memcached server ":server"', array(':server' => $server_restrictions))
                                 ]);
                             }
                         }

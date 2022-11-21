@@ -28,20 +28,20 @@ class Command
     /**
      * Where will this be executed? Locally or on the specified server
      *
-     * @var Server $server
+     * @var Server $server_restrictions
      */
-    protected Server $server;
+    protected Server $server_restrictions;
 
 
 
     /**
      * Command class constructor
      *
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      */
-    public function __construct(Server|array|string|null $server = null)
+    public function __construct(Server|Restrictions|array|string|null $server_restrictions = null)
     {
-        $this->setServer($server);
+        $this->setServerRestrictions($server_restrictions);
     }
 
 
@@ -49,12 +49,12 @@ class Command
     /**
      * Returns a new Images object
      *
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @return Command
      */
-    public static function new(Server|array|string|null $server = null): static
+    public static function new(Server|Restrictions|array|string|null $server_restrictions = null): static
     {
-        return new static($server);
+        return new static($server_restrictions);
     }
 
 
@@ -64,12 +64,12 @@ class Command
      *
      * Sets the server by name or object, NULL for localhost
      *
-     * @param Server|array|string|null $server
+     * @param Server|Restrictions|array|string|null $server_restrictions
      * @return static
      */
-    public function setServer(Server|array|string|null $server = null): static
+    public function setServerRestrictions(Server|Restrictions|array|string|null $server_restrictions = null): static
     {
-        $this->server = Core::ensureServer($server);
+        $this->server_restrictions = Core::ensureServer($server_restrictions);
         return $this;
     }
 
@@ -80,9 +80,9 @@ class Command
      *
      * @return Server
      */
-    public function getServer(): Server
+    public function getServerRestrictions(): Server
     {
-        return $this->server;
+        return $this->server_restrictions;
     }
 
 
@@ -108,7 +108,7 @@ class Command
     public function sudoAvailable(string $command): bool
     {
         try {
-            Process::new($command, $this->server)
+            Process::new($command, $this->server_restrictions)
                 ->setSudo(true)
                 ->setCommand($command)
                 ->addArgument('--version')
