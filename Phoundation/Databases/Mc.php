@@ -28,16 +28,23 @@ class Mc
     /**
      * PHP Memcached drivers
      *
-     * @var Memcached| null $memcached
+     * @var Memcached|null $memcached
      */
     protected ?Memcached $memcached = null;
 
     /**
+     * Memcached instance name
+     *
+     * @var string|null $instance_name
+     */
+    protected ?string $instance_name = null;
+
+    /**
      * Memcached configuration
      *
-     * @var array $configuration
+     * @var array|null $configuration
      */
-    protected array $configuration = [];
+    protected ?array $configuration = null;
 
     /**
      * Actove memcached connections for this instance
@@ -74,10 +81,11 @@ class Mc
         }
 
         // Get instance information and connect to memcached servers
+        $this->memcached = new Memcached();
         $this->instance_name = $instance_name;
         $this->namespace = new MemcachedNamespace($this);
         $this->readConfiguration();
-        $this->setConnections($this->configuration['connectors']);
+        $this->setConnections($this->configuration['connections']);
         $this->connect();
     }
 
@@ -195,7 +203,10 @@ class Mc
         $expires = $expires ?? $this->configuration['expires'];
 
         $this->memcached->set($key, $value, $expires);
-        Log::success(tr('Wrote ":bytes" bytes for key ":key"', [':key' => $key, ':bytes' => strlen($value)]), 3);
+        Log::success(tr('Wrote ":bytes" bytes for key ":key"', [
+            ':key'   => $key,
+            ':bytes' => (is_scalar($value) ? strlen((string) $value) : count($value))
+        ]), 3);
 
         return $value;
     }
@@ -374,7 +385,7 @@ class Mc
     protected function readConfiguration(): void
     {
         // Read the configuration
-        $this->configuration = Config::get('memcached.instances.' . $this->instance_name);
+        $this->configuration = Config::get('databases.memcached.instances.' . $this->instance_name);
 
         // Ensure that all required keys are available
         Arrays::ensure($this->configuration, 'connections');
@@ -382,21 +393,26 @@ class Mc
         Arrays::default($this->configuration, 'prefix', gethostname());
 
         // Default connections to localhost if nothing was defined
-        if (!$this->configuration['connnections']) {
-            Log::warning(tr('No memcached connections configured for instance ":instance", defaulting to localhost::11211', [':instance' => $this->instance_name]));
+        if (empty($this->configuration['connections'])) {
+            Log::warning(tr('No memcached connections configured for instance ":instance", defaulting to localhost::11211', [
+                ':instance' => $this->instance_name
+            ]));
 
-            $this->configuration['connnections'] = [
+            $this->configuration['connections'][] = [
                 'host' => '127.0.0.1',
                 'port' => '11211'
             ];
         }
 
-        if (!is_array($this->configuration['connnections'])) {
-            throw new OutOfBoundsException(tr('Invalid memcached connections configured for instance ":instance", it should be an array but is an ":type"', [':instance' => $this->instance_name, ':type' => gettype($this->configuration['connnections'])]));
+        if (!is_array($this->configuration['connections'])) {
+            throw new OutOfBoundsException(tr('Invalid memcached connections configured for instance ":instance", it should be an array but is an ":type"', [
+                ':instance' => $this->instance_name,
+                ':type' => gettype($this->configuration['connections'])
+            ]));
         }
 
         // Ensure all connections are valid
-        foreach ($this->configuration['servers'] as &$servers) {
+        foreach ($this->configuration['connections'] as &$servers) {
             Arrays::ensure($servers, 'host,port,weight');
         }
     }
@@ -416,14 +432,14 @@ class Mc
 
         if (empty($this->memcached)) {
             // Memcached disabled?
-            if (!Config::get('memcached.enabled', true)) {
+            if (!Config::get('databases.memcached.enabled', true)) {
                 Log::warning('Not using memcached, its disabled by configuration "memcached.enabled"');
 
             } else {
                 $failed = 0;
 
                 // Connect to all memcached servers, but only if no servers were added yet (this should normally be the case)
-                foreach ($this->configuration['servers'] as $server) {
+                foreach ($this->configuration['connections'] as $server) {
                     try {
                         $this->memcached->addServer($server['host'], $server['port'], $server['weight']);
                         $this->connections[] = $server;
@@ -442,7 +458,7 @@ class Mc
                             ->setCode('not-available')
                             ->addGroup('developers')
                             ->setTitle(tr('Memcached server not available'))
-                            ->setMessage(tr('Failed to connect to all ":count" memcached servers', [':server' => count($this->configuration['servers'])]))
+                            ->setMessage(tr('Failed to connect to all ":count" memcached servers', [':server' => count($this->configuration['connections'])]))
                             ->send();
                     }
                 }

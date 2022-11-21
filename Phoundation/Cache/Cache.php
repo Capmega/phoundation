@@ -6,7 +6,6 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Log;
 use Phoundation\Databases\Mc;
-use Phoundation\Databases\Null;
 use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis;
@@ -43,12 +42,12 @@ class Cache
     /**
      * Write the specified page to cache
      *
-     * @param string $data
+     * @param array|string $data
      * @param string $key
      * @param string|null $namespace
      * @return void
      */
-    public static function write(string $data, string $key, ?string $namespace = null): void
+    public static function write(array|string $data, string $key, ?string $namespace = null): void
     {
         self::driver()->set($data, $key, $namespace);
     }

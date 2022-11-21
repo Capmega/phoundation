@@ -19,8 +19,8 @@ use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Html\Template\TemplatePage;
+use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
-use Throwable;
 
 
 
@@ -142,9 +142,6 @@ class Page
      */
     protected function __construct()
     {
-        // Set the page hash
-        self::$hash = sha1($_SERVER['REQUEST_URI']);
-
         self::$headers['meta']['charset']  = ['charset'  => Config::get('languages.encoding.charset', 'UTF-8')];
         self::$headers['meta']['viewport'] = ['viewport' => Config::get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no')];
     }
@@ -316,12 +313,13 @@ class Page
      * We have a target for the requested route. If the resource is a PHP page, then
      * execute it. Anything else, send it directly to the client
      *
-     * @param string $target      The target file that should be executed or sent to the client
+     * @param string $target The target file that should be executed or sent to the client
+     * @param Template|null $template
      * @param boolean $attachment If specified as true, will send the file as a downloadable attachement, to be written
      *                            to disk instead of displayed on the browser. If set to false, the file will be sent as
      *                            a file to be displayed in the browser itself.
      * @return string|null
-     * @throws Throwable
+     * @throws Exception
      * @package Web
      * @see route()
      * @note: This function will kill the process once it has finished executing / sending the target file to the client
@@ -338,42 +336,65 @@ class Page
             // Do we have access to this page?
             self::$server->checkRestrictions($target, false);
 
+            // Set the page hash
+            self::$hash = sha1($_SERVER['REQUEST_URI']);
+
             // Do we have a cached version available?
-            $output = Cache::read($target);
+            $cache = Cache::read(self::$hash, 'pages');
 
-            if ($output) {
-                if (!$template) {
-                    if (!self::$template_page) {
-                        throw new OutOfBoundsException(tr('Cannot execute page ":target", no Template specified or available', [
-                            ':target' => $target
-                        ]));
-                    }
-                } else {
-                    // Get a new template page from the specified template
-                    self::$template_page = $template->getTemplatePage();
-                }
+            if ($cache) {
+                $length = Http::sendHeaders($cache['headers']);
+                Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
 
-                Core::writeRegister($target, 'system', 'script_file');
-                ob_start();
-
-                Log::notice(tr('Executing ":type" page ":page" with language ":language"', [
-                    ':type'     => Core::getCallType(),
-                    ':page'     => $target,
-                    ':language' => LANGUAGE
-                ]));
-
-                $output = match (Core::getCallType()) {
-                    'ajax', 'api' => self::$api_interfaqce->execute($target),
-                    default       => self::$template_page->execute($target),
-                };
-
-                // Write output to cache
-                Cache::write(self::$hash, $output);
+                // Send the page to the client
+                Page::send($cache['output']);
             }
 
-            // Send it directly as an output
-            if ($attachment) {
-                return $output;
+            if (!$template) {
+                if (!self::$template_page) {
+                    throw new OutOfBoundsException(tr('Cannot execute page ":target", no Template specified or available', [
+                        ':target' => $target
+                    ]));
+                }
+            } else {
+                // Get a new template page from the specified template
+                self::$template_page = $template->getTemplatePage();
+            }
+
+            Core::writeRegister($target, 'system', 'script_file');
+            ob_start();
+
+            Log::notice(tr('Executing ":type" page ":page" with language ":language"', [
+                ':type'     => Core::getCallType(),
+                ':page'     => $target,
+                ':language' => LANGUAGE
+            ]));
+
+            // Execute the specified target
+            $output = match (Core::getCallType()) {
+                'ajax', 'api' => self::$api_interfaqce->execute($target),
+                default       => self::$template_page->execute($target),
+            };
+
+            // Build the headers, cache output and headers together, then send the headers
+            $headers = Http::buildHeaders($attachment);
+
+            Cache::write([
+                'output'  => $output,
+                'headers' => $headers,
+            ], $target,'pages');
+
+            $length = Http::sendHeaders($headers);
+            Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
+
+            switch (Http::getHttpCode()) {
+                case 304:
+                    // 304 requests indicate the browser to use it's local cache, send nothing
+                    // no-break
+
+                case 429:
+                    // 429 Tell the client that it made too many requests, send nothing
+                    return null;
             }
 
             // Send the page to the client
@@ -387,7 +408,7 @@ class Page
                     ':language' => LANGUAGE
                 ]))
                 ->setException($e)
-                ->send(false);
+                ->send();
 
             throw $e;
         }
@@ -677,5 +698,23 @@ class Page
         }
 
         return $return;
+    }
+
+
+
+    /**
+     * Only-on type switch to indicate that the HTML headers have been generated and no more information can be added
+     * to them
+     *
+     * @param bool $set
+     * @return bool
+     */
+    public static function htmlHeadersSent(bool $set = false): bool
+    {
+        if ($set) {
+            self::$html_headers_sent = true;
+        }
+
+        return self::$html_headers_sent;
     }
 }

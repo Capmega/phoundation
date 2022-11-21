@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Template;
 
+use Phoundation\Core\Strings;
 use Phoundation\Web\Http\Html\Template\Exception\TemplateException;
 use Phoundation\Web\Page;
 
@@ -99,7 +100,7 @@ abstract class Template
      */
     public function getName(): string
     {
-       return basename(__DIR__);
+        return Strings::from(Strings::fromReverse(get_class($this), '\\'), '\\');
     }
 
 

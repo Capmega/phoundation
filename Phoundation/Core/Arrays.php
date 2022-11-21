@@ -1241,14 +1241,18 @@ class Arrays {
     /**
      * Make sure the specified keys are available on the array
      *
-     * @param array $source
+     * @param array|null $source
      * @param string|array $keys
      * @param mixed $default_value
      * @param bool $trim_existing
      * @return void
      */
-    public static function ensure(array &$source, string|array $keys = [], mixed $default_value = null, bool $trim_existing = false): void
+    public static function ensure(?array &$source, string|array $keys = [], mixed $default_value = null, bool $trim_existing = false): void
     {
+        if (!$source) {
+            $source = [];
+        }
+
         if ($keys) {
             foreach (Arrays::force($keys) as $key) {
                 if (!$key) {

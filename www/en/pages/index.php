@@ -4,11 +4,6 @@ use Phoundation\Web\Http\Html\Elements\Img;
 use Plugins\Mdb\Components\Table;
 
 ?>
-<!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-mdb-toggle="modal" data-mdb-target="#exampleModal">
-    Launch demo modal
-</button>
-
 <div class="container">
     <div class="d-flex justify-content-center align-items-center" style="height: 100vh">
         <div class="text-center">

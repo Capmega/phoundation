@@ -46,3 +46,6 @@ databases:
         pass: "base"
   mongo:
     instances:
+  memcached:
+    instances:
+      system:

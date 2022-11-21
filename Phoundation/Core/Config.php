@@ -357,7 +357,7 @@ class Config
                     throw new ConfigNotExistsException(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml" AND ":environment.yaml"', [
                         ':environment' => ENVIRONMENT,
                         ':section'     => $section,
-                        ':path'        => $path
+                        ':path'        => Strings::force($path, '.')
                     ]));
                 }
 

@@ -21,9 +21,9 @@ class NullDb
      *
      * @param string $key
      * @param string|null $namespace
-     * @return null
+     * @return mixed (but really, always NULL)
      */
-    public function get(string $key, ?string $namespace = null): null
+    public function get(string $key, ?string $namespace = null): mixed
     {
         return null;
     }
@@ -57,11 +57,12 @@ class NullDb
     /**
      * Do nothing, really
      *
+     * @param mixed $value
      * @param string $key
      * @param string|null $namespace
      * @return void
      */
-    public function set($value, string $key, ?string $namespace = null): void
+    public function set(mixed $value, string $key, ?string $namespace = null): void
     {
     }
 }

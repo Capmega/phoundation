@@ -80,13 +80,6 @@ class Http
     protected static ?array $accepts = null;
 
     /**
-     * The HTTP headers store
-     *
-     * @var array $headers
-     */
-    protected static array $headers = [];
-
-    /**
      * CORS headers
      *
      * @var array $cors
@@ -210,33 +203,22 @@ class Http
 
 
     /**
-     * Send all the HTTP headers
+     * Builds and returns all the HTTP headers
      *
-     * @return int The amount of bytes sent. -1 if Http::sendHeaders() was called for the second time.
-     * @throws Throwable
+     * @return array|null
      * @todo Refactor and remove $_CONFIG dependancies
      * @todo Refactor and remove $core dependancies
      * @todo Refactor and remove $params dependancies
      */
-    public static function sendHeaders(): int
+    public static function buildHeaders(): ?array
     {
-        if (headers_sent($file, $line)) {
-            Log::warning(tr('Will not send headers again, output started at ":file@:line. Adding backtrace to debug this request', [
-                ':file' => $file,
-                ':line' => $line
-            ]));
-            Log::backtrace();
-            return -2;
+        if (self::headersSent()) {
+            return null;
         }
 
-        if (self::$sent) {
-            // Since
-            Log::warning(tr('Headers already sent by Http::sendHeaders(). This can happen with PHP due to PHP ignoring output buffer flushes, causing this to be called over and over. just ignore this message.'), 2);
-            return -1;
-        }
-
-        self::$sent = true;
-        $length = 0;
+        // Remove incorrect or insecure headers
+        header_remove('Expires');
+        header_remove('Pragma');
 
         /*
          * Ensure that from this point on we have a language configuration available
@@ -248,94 +230,109 @@ class Http
             define('LANGUAGE', Config::get('http.language.default', 'en'));
         }
 
-        try {
-            // Create ETAG, possibly send out HTTP304 if client sent matching ETAG
-            $length += Http::cacheEtag();
+        // Create ETAG, possibly send out HTTP304 if client sent matching ETAG
+        Http::cacheEtag();
 
-            // Add PHP signature?
-            if (!Config::get('security.expose.php-signature', false)) {
-                header_remove('X-Powered-By');
+        // What to do with the PHP signature?
+        $signature = Config::get('security.expose.php-signature', false);
+
+        if (!$signature) {
+            // Remove the PHP signature
+            header_remove('X-Powered-By');
+
+        } elseif (!is_bool($signature)) {
+            // Send custom (fake) X-Powered-By header
+            $headers[] = 'X-Powered-By: ' . $signature;
+        }
+
+        // Add Phoundation signature?
+        if (Config::getBoolean('security.expose.phoundation-signature', false)) {
+            header('X-Powered-By: Phoundation ' . Core::FRAMEWORKCODEVERSION);
+        }
+
+        $headers[] = 'Content-Type: ' . self::$content_type . '; charset=' . Config::get('languages.encoding.charset', 'UTF-8');
+        $headers[] = 'Content-Language: ' . LANGUAGE;
+        $headers[] = 'Content-Length: ' . Page::getContentLength();
+
+        if (self::$http_code == 200) {
+            if (empty($params['last_modified'])) {
+                $headers[] = 'Last-Modified: ' . Date::convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT') . ' GMT';
 
             } else {
-                // Just send the PHP signature, or send a custom fake one?
-                if (!Strings::isBoolean(Config::get('security.expose.php-signature', false))) {
-                    // Send custom expose header to fake X-Powered-By header
-                    $headers[] = 'X-Powered-By: ' . Config::get('security.expose.php-signature', false);
-                }
+                $headers[] = 'Last-Modified: ' . Date::convert($params['last_modified'], 'D, d M Y H:i:s', 'GMT') . ' GMT';
             }
+        }
 
-            // Add Phoundation signature?
-            if (Config::get('security.expose.phoundation-signature', false)) {
-                header('X-Powered-By: Phoundation ' . Core::FRAMEWORKCODEVERSION);
-            }
+        // Add noidex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
+        // These pages should NEVER be indexed
+        if (!Debug::production() or !Core::getCallType('http') or Config::get('web.noindex', false)) {
+            $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
+        }
 
-            $headers[] = 'Content-Type: ' . self::$content_type . '; charset=' . Config::get('languages.encoding.charset', 'UTF-8');
-            $headers[] = 'Content-Language: ' . LANGUAGE;
-            $headers[] = 'Content-Length: ' . Page::getContentLength();
+        // CORS headers
+        if (Config::get('web.security.cors', true) or self::$cors) {
+            // Add CORS / Access-Control-Allow-.... headers
+            // TODO This will cause issues if configured web.cors is not an array!
+            self::$cors = array_merge(Arrays::force(Config::get('web.cors', [])), self::$cors);
 
-            if (self::$http_code == 200) {
-                if (empty($params['last_modified'])) {
-                    $headers[] = 'Last-Modified: ' . Date::convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT') . ' GMT';
+            foreach (self::$cors as $key => $value) {
+                switch ($key) {
+                    case 'origin':
+                        if ($value == '*.') {
+                            // Origin is allowed from all subdomains
+                            $origin = Strings::from(isset_get($_SERVER['HTTP_ORIGIN']), '://');
+                            $length = strlen(isset_get($_SESSION['domain']));
 
-                } else {
-                    $headers[] = 'Last-Modified: ' . Date::convert($params['last_modified'], 'D, d M Y H:i:s', 'GMT') . ' GMT';
-                }
-            }
+                            if (substr($origin, -$length, $length) === isset_get($_SESSION['domain'])) {
+                                // Sub domain matches. Since CORS does not support sub domains, just show the
+                                // current sub domain.
+                                $value = $_SERVER['HTTP_ORIGIN'];
 
-            // Add noidex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
-            // These pages should NEVER be indexed
-            if (!Debug::production() or !Core::getCallType('http') or Config::get('web.noindex', false)) {
-                $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
-            }
-
-            // CORS headers
-            if (Config::get('web.security.cors', true) or self::$cors) {
-                // Add CORS / Access-Control-Allow-.... headers
-                // TODO This will cause issues if configured web.cors is not an array!
-                self::$cors = array_merge(Arrays::force(Config::get('web.cors', [])), self::$cors);
-
-                foreach (self::$cors as $key => $value) {
-                    switch ($key) {
-                        case 'origin':
-                            if ($value == '*.') {
-                                // Origin is allowed from all subdomains
-                                $origin = Strings::from(isset_get($_SERVER['HTTP_ORIGIN']), '://');
-                                $length = strlen(isset_get($_SESSION['domain']));
-
-                                if (substr($origin, -$length, $length) === isset_get($_SESSION['domain'])) {
-                                    // Sub domain matches. Since CORS does not support sub domains, just show the
-                                    // current sub domain.
-                                    $value = $_SERVER['HTTP_ORIGIN'];
-
-                                } else {
-                                    // Sub domain does not match. Since CORS does not support sub domains, just show no
-                                    // allowed origin domain at all
-                                    $value = '';
-                                }
+                            } else {
+                                // Sub domain does not match. Since CORS does not support sub domains, just show no
+                                // allowed origin domain at all
+                                $value = '';
                             }
+                        }
 
+                    // no-break
+
+                    case 'methods':
                         // no-break
+                    case 'headers':
+                        if ($value) {
+                            $headers[] = 'Access-Control-Allow-' . Strings::capitalize($key) . ': ' . $value;
+                        }
 
-                        case 'methods':
-                            // no-break
-                        case 'headers':
-                            if ($value) {
-                                $headers[] = 'Access-Control-Allow-' . Strings::capitalize($key) . ': ' . $value;
-                            }
+                        break;
 
-                            break;
-
-                        default:
-                            throw new HttpException(tr('Unknown CORS header ":header" specified', [':header' => $key]));
-                    }
+                    default:
+                        throw new HttpException(tr('Unknown CORS header ":header" specified', [':header' => $key]));
                 }
             }
+        }
 
-            $headers = self::cache($headers);
+        // Add cache headers and store headers in object headers list
+        return self::cache($headers);
+    }
 
-            // Remove incorrect or insecure headers
-            header_remove('Expires');
-            header_remove('Pragma');
+
+
+    /**
+     * Send all the specified HTTP headers
+     *
+     * @note The amount of sent bytes does NOT include the bytes sent for the HTTP response code header
+     * @param array $headers
+     * @return int The amount of bytes sent. -1 if Http::sendHeaders() was called for the second time.
+     */
+    public static function sendHeaders(array $headers = []): int
+    {
+        if (self::headersSent(true)) {
+            return -1;
+        }
+
+        try {
+            $length = 0;
 
             // Set correct headers
             http_response_code(self::$http_code);
@@ -345,19 +342,10 @@ class Http
                     ':http' => (self::$http_code ? 'HTTP' . self::$http_code : 'HTTP0'),
                     ':url'  => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
                 ]));
-            }
-
-            Log::success(tr('Phoundation sent :http for URL ":url"', [
-                ':http' => (self::$http_code ? 'HTTP' . self::$http_code : 'HTTP0'),
-                ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
-            ]));
-
-            if (Debug::enabled()) {
-                // TODO This is only sending headers, page is not completed its process!
-                Log::success(tr('Page ":script" was processed in ":time" with ":usage" peak memory usage', [
-                    ':script' => Core::readRegister('system', 'script'),
-                    ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage' => Numbers::bytes(memory_get_peak_usage())
+            } else {
+                Log::success(tr('Phoundation sent :http for URL ":url"', [
+                    ':http' => (self::$http_code ? 'HTTP' . self::$http_code : 'HTTP0'),
+                    ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
                 ]));
             }
 
@@ -704,28 +692,21 @@ class Http
      * For more information, see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
      * and https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
      */
-    protected static function cacheEtag()
+    protected static function cacheEtag(): bool
     {
-        /*
-         * ETAG requires HTTP caching enabled
-         * Ajax and API calls do not use ETAG
-         */
+        // ETAG requires HTTP caching enabled. Ajax and API calls do not use ETAG
         if (!Config::get('web.cache.enabled', 'auto') or Core::getCallType('ajax') or Core::getCallType('api')) {
             self::$etag = null;
             return false;
         }
 
-        /*
-         * Create local ETAG
-         */
+        // Create local ETAG
         self::$etag = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
 
 // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
         if (trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == self::$etag) {
             if (empty($core->register['flash'])) {
-                /*
-                 * The client sent an etag which is still valid, no body (or anything else) necesary
-                 */
+                // The client sent an etag which is still valid, no body (or anything else) necessary
                 http_response_code(304);
                 die();
             }
@@ -733,6 +714,7 @@ class Http
 
         return true;
     }
+
 
 
     /**
@@ -990,6 +972,38 @@ class Http
         $submit = strtolower($submit);
 
         return $submit;
+    }
+
+
+
+    /**
+     * Checks if headers have already been sent and logs warnings if so
+     *
+     * @param bool $send_now
+     * @return bool
+     */
+    protected static function headersSent(bool $send_now = false): bool
+    {
+        if (headers_sent($file, $line)) {
+            Log::warning(tr('Will not send headers again, output started at ":file@:line. Adding backtrace to debug this request', [
+                ':file' => $file,
+                ':line' => $line
+            ]));
+            Log::backtrace();
+            return true;
+        }
+
+        if (self::$sent) {
+            // Since
+            Log::warning(tr('Headers already sent by Http::sendHeaders(). This can happen with PHP due to PHP ignoring output buffer flushes, causing this to be called over and over. just ignore this message.'), 2);
+            return true;
+        }
+
+        if ($send_now) {
+            self::$sent = true;
+        }
+
+        return false;
     }
 
 
