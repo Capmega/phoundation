@@ -372,9 +372,10 @@ class Page
             Core::writeRegister($target, 'system', 'script_file');
             ob_start();
 
-            Log::notice(tr('Executing ":type" page ":page" with language ":language"', [
-                ':type'     => Core::getCallType(),
-                ':page'     => $target,
+            // Execute the file and send the output HTML as a web page
+            Log::action(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
+                ':target'   => Strings::from($target, PATH_ROOT),
+                ':template' => $template->getName(),
                 ':language' => LANGUAGE
             ]));
 

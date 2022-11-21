@@ -937,12 +937,6 @@ class Route
         $target = Filesystem::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE . '/pages/');
 
         if (str_ends_with($target, 'php')) {
-            // Execute the file and send the output HTML as a web page
-            Log::action(tr('Executing page ":target" with template ":template" and sending output as HTML web page', [
-                ':target'   => Strings::from($target, PATH_ROOT),
-                ':template' => $this->template->getName()
-            ]));
-
             // Remove the 404 auto execution on shutdown
             Core::unregisterShutdown('route_postprocess');
             $html = Page::execute($target, $this->template, $attachment);
