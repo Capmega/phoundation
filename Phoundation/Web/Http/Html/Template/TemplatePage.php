@@ -125,7 +125,8 @@ abstract class TemplatePage
      */
     public function execute(string $target): ?string
     {
-        $body = include($target);
+        include($target);
+        $body = '';
 
         // Get all output buffers and restart buffer
         while(ob_get_level()) {
@@ -172,7 +173,55 @@ abstract class TemplatePage
         if (!$this->navigation_menu and !$this->sidebar_menu) {
             // No menus configured at all! Add at least something to the navigation menu!
             $this->navigation_menu = [
-                tr('Dashboard') => '/'
+                tr('System') => [
+                    tr('Accounts') => [
+                        tr('Users')       => '/accounts/users',
+                        tr('Roles')       => '/accounts/roles',
+                        tr('Rights')      => '/accounts/rights',
+                        tr('Groups')      => '/accounts/groups',
+                        tr('Switch user') => '/accounts/switch'
+                    ],
+                    tr('Security') => [
+                        tr('Authentications log') => '/security/log/authentications',
+                        tr('Activity log')        => '/security/log/activity'
+                    ],
+                    tr('Libraries')          => '/libraries',
+                    tr('Key / Values store') => '/system/key-values',
+                    tr('Storage system') => [
+                        tr('Collections') => '/storage/collections',
+                        tr('Documents')   => '/storage/documents',
+                        tr('Resources')   => '/storage/resources',
+                    ],
+                    tr('Servers') => [
+                        tr('Servers')      => '/servers/servers',
+                        tr('Forwardings')  => '/servers/forwardings',
+                        tr('SSH accounts') => '/servers/ssh-accounts',
+                        tr('Databases') => '/servers/databases',
+                        tr('Database accounts') => '/servers/database-accounts',
+                    ],
+                    tr('Hardware') => [
+                        tr('devices')  => '/hardware/devices',
+                        tr('Scanners') => [
+                            tr('Document') => [
+                                tr('Drivers') => '/hardware/scanners/document/drivers',
+                                tr('Devices') => '/hardware/scanners/document/devices',
+                            ],
+                            tr('Finger print') => '/hardware/scanners/finger-print',
+                        ]
+                    ],
+                ],
+                tr('Admin') => [
+                    tr('Customers') => '/admin/customers/customers',
+                    tr('Providers') => '/admin/providers/providers',
+                    tr('Companies') => [
+                        tr('Companies') => '/companies/companies',
+                        tr('Branches') => '/companies/branches',
+                        tr('Departments') => '/companies/departments',
+                        tr('Employees') => '/companies/employees',
+                        tr('Inventory') => '/companies/inventory/inventory',
+                    ],
+                ],
+                tr('About') => '/about'
             ];
         }
     }

@@ -48,29 +48,17 @@ class Footer extends ElementsBlock
     public function render(): string
     {
         $html = '<footer id="mdb-footer" class="mt-5" style="background-color: hsl(216, 25%, 95.1%); ">
-                    <div class="container py-5">
-                        
-                        <div class="text-center">
-                
+                    <div class="container py-5">                        
+                        <div class="text-center">               
                         <p class="">
-                          Get useful tips &amp; free resources directly to your inbox along with exclusive subscriber-only content.
+                          This is the default Phoundation template built using the Mdb plugin, see <a class="" href="https://mdbootstrap.com/"> <strong>MDBootstrap.com</strong></a> 
                         </p>
-                        <a href="https://mdbootstrap.com/newsletter/" class="btn btn-primary">JOIN OUR MAILING LIST NOW<i class="fas fa-angle-double-right ms-2"></i></a>
-                
-                
-                
-                
                         </div>
-                        
-                        
                     </div>
-                
-                    
-                    <div class="text-center p-3" style="background-color: hsl(216, 25%, 90%);">© 2022
-                        Copyright:
-                        <a class="" href="https://mdbootstrap.com/"> <strong>MDBootstrap.com</strong></a>
-                    </div>
-                    
+                    <div class="text-center p-3" style="background-color: hsl(216, 25%, 90%);">
+                        © 2022 Framework Copyright: <a class="" href="https://phoundation.org/"> <strong>phoundation.org</strong></a>,
+                        © 2022 Html UI Copyright: <a class="" href="https://mdbootstrap.com/"> <strong>MDBootstrap.com</strong></a>
+                    </div>                    
                 </footer>';
 
         return $html;

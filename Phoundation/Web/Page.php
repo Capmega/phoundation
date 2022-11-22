@@ -321,17 +321,15 @@ class Page
      * We have a target for the requested route. If the resource is a PHP page, then
      * execute it. Anything else, send it directly to the client
      *
+     * @see Route::execute()
+     * @see TemplatePage::execute()
+     *
      * @param string $target The target file that should be executed or sent to the client
      * @param Template|null $template
      * @param boolean $attachment If specified as true, will send the file as a downloadable attachement, to be written
      *                            to disk instead of displayed on the browser. If set to false, the file will be sent as
      *                            a file to be displayed in the browser itself.
      * @return string|null
-     * @throws Exception
-     * @package Web
-     * @see route()
-     * @note: This function will kill the process once it has finished executing / sending the target file to the client
-     * @version 2.5.88: Added function and documentation
      */
     public static function execute(string $target, ?Template $template = null, bool $attachment = false): ?string
     {

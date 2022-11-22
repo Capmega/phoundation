@@ -175,7 +175,7 @@ class Seo
     /**
      * Return a seo appropriate string for given source string
      */
-    function string($source, $replace = '-')
+    public static function string($source, $replace = '-')
     {
         if (str_is_utf8($source)) {
             load_libs('mb');

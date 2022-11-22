@@ -789,7 +789,7 @@ class Route
                 Core::die();
             }
 
-            $this->execute($page, $attachment);
+            return $this->execute($page, $attachment);
 
         } catch (Exception $e) {
             if (str_starts_with($e->getMessage(), 'PHP ERROR [2] "preg_match_all():')) {
@@ -865,6 +865,7 @@ class Route
     }
 
 
+
     /**
      * Shutdown the URL routing
      *
@@ -927,9 +928,9 @@ class Route
      *
      * @param string $target
      * @param bool $attachment
-     * @return void
+     * @return bool
      */
-    protected function execute(string $target, bool $attachment): void
+    protected function execute(string $target, bool $attachment): bool
     {
         // Set the server filesystem restrictions and template for this page
         Page::setServerRestrictions($this->getServerRestrictions());
@@ -951,7 +952,7 @@ class Route
                     ->send();
             }
 
-            return;
+            return true;
 
         }
 
@@ -981,6 +982,8 @@ class Route
 
             include($target);
         }
+
+        return true;
     }
 
 

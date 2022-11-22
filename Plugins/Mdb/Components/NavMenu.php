@@ -2,6 +2,8 @@
 
 namespace Plugins\Mdb\Components;
 
+use Phoundation\Core\Strings;
+use Phoundation\Seo\Seo;
 use Phoundation\Web\Http\Html\Elements\ElementsBlock;
 use Phoundation\Web\Http\Url;
 
@@ -83,7 +85,7 @@ class NavMenu extends ElementsBlock
      */
     public function render(): string
     {
-        return $this->renderMenu($this->menu, 'navbar-nav me-auto mb-2 mb-lg-0');
+        return $this->renderMenu($this->menu, 'nav navbar-nav me-auto mb-2 mb-lg-0');
     }
 
 
@@ -92,30 +94,70 @@ class NavMenu extends ElementsBlock
      * Renders and returns the specified menu entry
      *
      * @param array|null $menu
-     * @param string $class
+     * @param string $ul_class
      * @return string
      */
-    protected function renderMenu(?array $menu, string $class): string
+    protected function renderMenu(?array $menu, string $ul_class): string
     {
         if (!$menu) {
             // No menu specified, return nothing
             return '';
         }
 
-        $html = ' <ul class="' . $class . '">';
+        $html = ' <ul class="' . $ul_class . '">';
+
+        foreach ($menu as $label => $url) {
+            if (is_array($url)) {
+                // This is a sub menu, recurse!
+                $html .= '<li class="nav-item dropdown">
+                              <a class="nav-link dropdown-toggle" data-mdb-toggle="dropdown" id="navbarDropdownMenu' . Strings::capitalize($label) . '">
+                                ' . $label . ' 
+                              </a>
+                              ' . $this->renderSubMenu($url, 'dropdown-menu', ' aria-labelledby="navbarDropdownMenu' . Strings::capitalize($label) . '"') . '
+                          </li>';
+            } else {
+                $html .= '  <li class="nav-item">
+                              <a class="nav-link" href="' . Url::build($url)->www() . '">' . $label . '</a>
+                            </li>';
+            }
+        }
+
+        $html .= '</ul>';
+
+        return $html;
+    }
+
+
+
+    /**
+     * Renders and returns the specified menu entry
+     *
+     * @param array|null $menu
+     * @param string $ul_class
+     * @param string $ul_attributes
+     * @return string
+     */
+    protected function renderSubMenu(?array $menu, string $ul_class, string $ul_attributes = ''): string
+    {
+        if (!$menu) {
+            // No menu specified, return nothing
+            return '';
+        }
+
+        $html = ' <ul class="' . $ul_class . '"' . $ul_attributes . '>';
 
         foreach ($menu as $label => $url) {
             if (is_array($url)) {
                 // This is a sub menu, recurse!
                 $html .= '<li>
                               <a class="dropdown-item" href="#">
-                                ' . $label . '
+                                ' . $label . ' &raquo;
                               </a>
-                              ' . $this->renderMenu($url, 'dropdown-menu dropdown-submenu') . '
+                              ' . $this->renderSubMenu($url, 'dropdown-menu dropdown-submenu') . '
                           </li>';
             } else {
-                $html .= '  <li class="nav-item">
-                              <a class="nav-link" href="' . Url::build($url)->www() . '">' . $label . '</a>
+                $html .= '  <li>
+                              <a class="dropdown-item" href="' . Url::build($url)->www() . '">' . $label . '</a>
                             </li>';
             }
         }
