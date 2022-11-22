@@ -2306,7 +2306,7 @@ class Core {
             date_default_timezone_set($timezone);
 
         }catch(Throwable $e) {
-            // Users timezone failed, use the configured one
+            // Accounts timezone failed, use the configured one
             Notification::new()
                 ->setException($e)
                 ->send();

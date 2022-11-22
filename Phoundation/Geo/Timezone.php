@@ -7,7 +7,7 @@ namespace Phoundation\Geo;
 use Phoundation\Data\DataEntry;
 
 /**
- * Class Users
+ * Class Accounts
  *
  *
  *

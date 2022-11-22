@@ -2,9 +2,8 @@
 
 namespace Phoundation\Core;
 
-use Phoundation\Users\GuestUser;
-use Phoundation\Users\User;
-use Phoundation\Users\Users;
+use Phoundation\Accounts\Users\GuestUser;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 
