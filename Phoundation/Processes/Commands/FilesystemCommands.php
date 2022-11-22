@@ -150,4 +150,39 @@ class FilesystemCommands extends Command
             });
         }
     }
+
+
+
+    /**
+     * Execute a sync using the rsync command
+     *
+     * @param string $source
+     * @param string $target
+     * @param array|null $options
+     * @return void
+     */
+    public function rsync(string $source, string $target, ?array $options = null): void
+    {
+        try {
+            if (!$options) {
+                $options = ['-a', '-v', '-z', '--progress'];
+            }
+
+            Process::new('rsync', $this->server_restrictions)
+                ->addArguments($options)
+                ->addArgument($source)
+                ->addArgument($target)
+                ->setTimeout(1)
+                ->executePassthru();
+
+        } catch (ProcessFailedException $e) {
+            // The command rsync failed, most of the time either $file doesn't exist, or we don't have access to change the mode
+            Command::handleException('rsync', $e, function($first_line, $last_line, $e) use ($source, $target) {
+                throw new CommandsException(tr('Failed to rsync ":source" to ":target', [
+                    ':source' => $source,
+                    ':target' => $target
+                ]));
+            });
+        }
+    }
 }

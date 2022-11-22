@@ -20,8 +20,8 @@ use Phoundation\Libraries\Libraries;
 // Get command line arguments
 $system   = Script::boolArgument('-s,--system', true);
 $plugins  = Script::boolArgument('-p,--plugins', true);
-$library  = Script::boolArgument('-l,--library');
-$comments = Script::argument('-c,--comments', true);
+$library  = Script::Argument('-l,--library' , true, '');
+$comments = Script::argument('-c,--comments', true, '');
 
 Script::noArgumentsLeft();
 Libraries::initialize($system, $plugins, $comments, $library);
