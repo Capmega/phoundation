@@ -70,6 +70,7 @@ abstract class Updates
         $library = Strings::fromReverse($library, '\\');
         $library = strtolower($library);
 
+        $this->updates();
         $code_version = $this->version();
 
         if (!$code_version) {

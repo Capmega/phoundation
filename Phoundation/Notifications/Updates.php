@@ -46,7 +46,7 @@ class Updates extends \Phoundation\Libraries\Updates
      *
      * @return void
      */
-    public function updates()
+    public function updates(): void
     {
         $this->addUpdate('0.0.6', function () {
             // Add initial tables for the Notification library
