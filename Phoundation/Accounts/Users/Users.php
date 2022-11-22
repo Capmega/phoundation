@@ -1,20 +1,20 @@
 <?php
 
-namespace Phoundation\Users;
+namespace Phoundation\Accounts\Users\Users;
 
 use Iterator;
 
 
 
 /**
- * Class Users
+ * Class Accounts
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Users
+ * @package Phoundation\Accounts
  */
 class Users implements Iterator
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Users;
+namespace Phoundation\Accounts\Users;
 
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Strings;
@@ -22,7 +22,7 @@ use Phoundation\Geo\Timezone;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Users
+ * @package Phoundation\Accounts
  */
 class User
 {

@@ -1,7 +1,11 @@
 <?php
 
+namespace Phoundation\Accounts;
+
+
+
 /**
- * Class Groups
+ * Class Rights
  *
  *
  *
@@ -10,7 +14,7 @@
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Groups
+class Rights
 {
 
 }

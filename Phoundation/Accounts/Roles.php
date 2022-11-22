@@ -1,5 +1,9 @@
 <?php
 
+namespace Phoundation\Accounts;
+
+
+
 /**
  * Class Roles
  *
