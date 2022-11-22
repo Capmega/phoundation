@@ -617,7 +617,7 @@ switch (cli_method()) {
                                                                         /*
                                                                          * Target file is different from source file, ensure that it doesn't exist
                                                                          */
-                                                                        $params['target'] = Strings::untilReverse($params['source'], '.').'.'.$params['format'];
+                                                                        $params['target'] = Strings::untilReverse($params['source'], '.') . '_garbage' .$params['format'];
                                                                         file_delete($params['target'], false);
                                                                     }
                                                                 }

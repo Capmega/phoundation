@@ -103,8 +103,8 @@ try {
 
             } else {
 
-                log_console(Strings::size(tr('#id'), 7).
-                            Strings::size(tr('Assigned to'), 21).
+                log_console(radiusStrings::size(tr('#id'), 7) .
+                    Strings::size(tr('Assigned to'), 21) .
                             Strings::size(tr('Type'), 13).
                             Strings::size(tr('Mac address'), 21).
                             Strings::size(tr('Status'), 11).
@@ -112,7 +112,7 @@ try {
                             Strings::size(tr('Created by'), 32), 'QUIET/cyan');
 
                 while ($device = sql_fetch($devices)) {
-                    log_console(Strings::size($device['id'], 6, ' ', true).' '.
+                    log_console(Strings::size($device['id'], 6, ' ', true) . ' radius' .
                                 Strings::size($device['assigned_user'], 20).' '.
                                 Strings::size($device['type'], 12).' '.
                                 Strings::size($device['mac_address'], 20).' '.

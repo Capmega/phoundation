@@ -543,7 +543,7 @@ switch (cli_method()) {
             log_console(tr('There are currently no users registered'), 'QUIET/yellow');
 
         } else {
-            log_console(Strings::size(tr('#id'), 7).Strings::size(tr('Username'), 13).Strings::size(tr('Nickname'), 13).Strings::size(tr('Status'), 11).Strings::size(tr('Role'), 11).tr('Rights'), 'QUIET/cyan');
+            log_console(usersStrings::size(tr('#id'), 7) . Strings::size(tr('Username'), 13) .Strings::size(tr('Nickname'), 13).Strings::size(tr('Status'), 11).Strings::size(tr('Role'), 11).tr('Rights'), 'QUIET/cyan');
 
             while ($user = sql_fetch($r)) {
                 $rights = sql_list('SELECT `rights`.`name`
@@ -557,7 +557,7 @@ switch (cli_method()) {
 
                                     array(':roles_id'    => $user['roles_id']));
 
-                log_console(Strings::size($user['id'], 6, ' ', true).' '.Strings::size($user['username'], 12).' '.Strings::size($user['nickname'], 12).' '.cli_status_color(Strings::size($user['status'], 10)).' '.Strings::size(not_empty($user['role'], '-'), 10).' '.not_empty(Strings::force($rights, ', '), '-'));
+                log_console(Strings::size($user['id'], 6, ' ', true) . ' users' .Strings::size($user['username'], 12).' '.Strings::size($user['nickname'], 12).' '.cli_status_color(Strings::size($user['status'], 10)).' '.Strings::size(not_empty($user['role'], '-'), 10).' '.not_empty(Strings::force($rights, ', '), '-'));
             }
         }
 
@@ -698,10 +698,10 @@ switch (cli_method()) {
                 log_console(tr('There are currently no users registered'), 'QUIET/yellow');
 
         } else {
-            log_console(Strings::size(tr('#id'), 7).Strings::size(tr('Status'), 11).Strings::size(tr('Username'), 13).Strings::size(tr('Nickname'), 13).Strings::size(tr('Type'), 11).Strings::size(tr('Role'), 11).Strings::size(tr('Admin'), 6).Strings::size(tr('God'), 4).Strings::size(tr('Signin count'), 13).Strings::size(tr('Locked until'), 21).Strings::size(tr('Auth failures'), 14).Strings::size(tr('Real name'), 33).Strings::size(tr('Email'), 33), 'QUIET/cyan');
+            log_console(usersStrings::size(tr('#id'), 7) . Strings::size(tr('Status'), 11) .Strings::size(tr('Username'), 13).Strings::size(tr('Nickname'), 13).Strings::size(tr('Type'), 11).Strings::size(tr('Role'), 11).Strings::size(tr('Admin'), 6).Strings::size(tr('God'), 4).Strings::size(tr('Signin count'), 13).Strings::size(tr('Locked until'), 21).Strings::size(tr('Auth failures'), 14).Strings::size(tr('Real name'), 33).Strings::size(tr('Email'), 33), 'QUIET/cyan');
 
             while ($user = sql_fetch($r)) {
-                log_console(Strings::size($user['id'], 6, ' ', true).' '.cli_status_color(Strings::size(status($user['status']), 10)).' '.Strings::size($user['username'], 12).' '.Strings::size($user['nickname'], 12).' '.Strings::size($user['type'], 10).' '.Strings::size($user['role'], 10).' '.Strings::size(($user['admin'] ? 'Yes' : ''), 5).' '.Strings::size(($user['god'] ? 'Yes' : ''), 3).' '.Strings::size($user['signin_count'], 12, ' ', true).' '.Strings::size($user['locked_until'] ? $user['locked_until'] : '-', 20).' '.Strings::size($user['auth_fails'] ? $user['auth_fails'] : '-', 13, ' ', true).' '.Strings::size($user['name'], 32).' '.Strings::size($user['email'], 32));
+                log_console(Strings::size($user['id'], 6, ' ', true) . ' users' .cli_status_color(Strings::size(status($user['status']), 10)).' '.Strings::size($user['username'], 12).' '.Strings::size($user['nickname'], 12).' '.Strings::size($user['type'], 10).' '.Strings::size($user['role'], 10).' '.Strings::size(($user['admin'] ? 'Yes' : ''), 5).' '.Strings::size(($user['god'] ? 'Yes' : ''), 3).' '.Strings::size($user['signin_count'], 12, ' ', true).' '.Strings::size($user['locked_until'] ? $user['locked_until'] : '-', 20).' '.Strings::size($user['auth_fails'] ? $user['auth_fails'] : '-', 13, ' ', true).' '.Strings::size($user['name'], 32).' '.Strings::size($user['email'], 32));
             }
         }
 
@@ -739,7 +739,7 @@ switch (cli_method()) {
 
         foreach ($user as $key => $value) {
             if ($key == 'password') continue;
-            log_console(Color::apply($key.':', 'white').' '.$value);
+            log_console($key . ':' .$value);
         }
 
         break;

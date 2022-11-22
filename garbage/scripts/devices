@@ -201,10 +201,10 @@ switch (cli_method()) {
 
         } else {
             log_console(tr('Showing currently available devices'), 'QUIET/white');
-            log_console(Strings::size(tr('#id'), 6, ' ', true).' '.Strings::size(tr('Name'), 20).' '.Strings::size(tr('Type'), 20).' '.Strings::size(tr('Domain'), 20).' '.Strings::size(tr('Status'), 12).' '.Strings::size(tr('Vendor'), 16).' '.Strings::size(tr('Manufacturer'), 16).' '.Strings::size(tr('Model'), 16).' '.Strings::size(tr('Bus'), 3).' '.Strings::size(tr('Device'), 3).' '.Strings::size(tr('Description'), 32).' '.tr('Device string'), 'QUIET/cyan');
+            log_console(Strings::size(tr('#id'), 6, ' ', true) . ' devices' .Strings::size(tr('Name'), 20).' '.Strings::size(tr('Type'), 20).' '.Strings::size(tr('Domain'), 20).' '.Strings::size(tr('Status'), 12).' '.Strings::size(tr('Vendor'), 16).' '.Strings::size(tr('Manufacturer'), 16).' '.Strings::size(tr('Model'), 16).' '.Strings::size(tr('Bus'), 3).' '.Strings::size(tr('Device'), 3).' '.Strings::size(tr('Description'), 32).' '.tr('Device string'), 'QUIET/cyan');
 
             while ($device = sql_fetch($devices)) {
-                log_console(Strings::size($device['id'], 6, ' ', true).' '.Strings::size(not_empty($device['name'], '-'), 20).' '.Strings::size($device['type'], 20).' '.Strings::size(not_empty($device['domain'], '-'), 20).' '.Strings::size(cli_status_color($device['status']), 12).' '.Strings::size($device['vendor_string'], 16).' '.Strings::size($device['manufacturer'], 16).' '.Strings::size($device['model'], 16).' '.Strings::size($device['bus'], 3).' '.Strings::size($device['device'], 3).' '.Strings::size($device['description'], 32).' '.$device['string']);
+                log_console(Strings::size($device['id'], 6, ' ', true) . ' devices' .Strings::size(not_empty($device['name'], '-'), 20).' '.Strings::size($device['type'], 20).' '.Strings::size(not_empty($device['domain'], '-'), 20).' '.Strings::size(cli_status_color($device['status']), 12).' '.Strings::size($device['vendor_string'], 16).' '.Strings::size($device['manufacturer'], 16).' '.Strings::size($device['model'], 16).' '.Strings::size($device['bus'], 3).' '.Strings::size($device['device'], 3).' '.Strings::size($device['description'], 32).' '.$device['string']);
             }
         }
 
@@ -235,7 +235,7 @@ switch (cli_method()) {
         ksort($device);
 
         foreach ($device as $key => $value) {
-            log_console(Color::apply($key.':', 'white').' '.$value);
+            log_console($key . ':' .$value);
         }
 
         $options = devices_list_option_keys($device['id']);

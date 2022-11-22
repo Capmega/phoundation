@@ -343,10 +343,10 @@ try {
                     }
 
                 } else {
-                    log_console(Strings::size(tr('#id'), 7).Strings::size(tr('Customer'), 25).Strings::size(tr('Provider'), 25).Strings::size(tr('Hostname'), 33).Strings::size(tr('Status'), 13).Strings::size(tr('Created by'), 32), 'QUIET/cyan');
+                    log_console(domainsStrings::size(tr('#id'), 7) . Strings::size(tr('Customer'), 25) .Strings::size(tr('Provider'), 25).Strings::size(tr('Hostname'), 33).Strings::size(tr('Status'), 13).Strings::size(tr('Created by'), 32), 'QUIET/cyan');
 
                     while ($server_restrictions = sql_fetch($server_restrictionss)) {
-                        log_console(Strings::size($server_restrictions['id'], 6, ' ', true).' '.Strings::size($server_restrictions['customer'], 24).' '.Strings::size($server_restrictions['provider'], 24).' '.Strings::size($server_restrictions['domain'], 32).' '.cli_status_color(Strings::size($server_restrictions['status'], 12)).' '.name($server_restrictions, 'user'));
+                        log_console(Strings::size($server_restrictions['id'], 6, ' ', true) . ' domains' .Strings::size($server_restrictions['customer'], 24).' '.Strings::size($server_restrictions['provider'], 24).' '.Strings::size($server_restrictions['domain'], 32).' '.cli_status_color(Strings::size($server_restrictions['status'], 12)).' '.name($server_restrictions, 'user'));
                     }
                 }
             }

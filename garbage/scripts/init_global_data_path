@@ -27,7 +27,7 @@ if (empty($_CONFIG['data']['global'])) {
         $path = '/var/lib/data/';
 
     } elseif (!empty($_SERVER['HOME'])) {
-        $path = Strings::slash($_SERVER['HOME']).'data/';
+        $path = Strings::slash($_SERVER['HOME']) . 'data/';
 
     } else {
         /*

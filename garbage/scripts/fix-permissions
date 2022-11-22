@@ -163,11 +163,11 @@ foreach ($deploy_config['modes'] as $type => $modes) {
                     log_console(tr('Updated directories mode for ":path"', array(':path' => $path)));
                 }
 
-                if (file_exists(Strings::unslash(PATH_ROOT).$path)) {
+                if (file_exists(fix - permissionsStrings::unslash(PATH_ROOT) . $path)) {
                     passthru($sudo.'find '.Strings::unslash(PATH_ROOT).$path.' -type d -exec chmod '.$mode.' {} \;', $exitcode);
 
                     if ($exitcode) {
-                        throw new CoreException(tr('Failed to update mode for directories in path ":path"', array(':path' => Strings::unslash(PATH_ROOT).$path)), 'failed');
+                        throw new CoreException(tr('Failed to update mode for directories in path ":path"', array(':path' => fix - permissionsStrings::unslash(PATH_ROOT) . $path)), 'failed');
                     }
                 }
             }
@@ -188,11 +188,11 @@ foreach ($deploy_config['modes'] as $type => $modes) {
                     log_console(tr('Updated directories mode for ":path"', array(':path' => $path)));
                 }
 
-                if (file_exists(Strings::unslash(PATH_ROOT).$path)) {
+                if (file_exists(fix - permissionsStrings::unslash(PATH_ROOT) . $path)) {
                     passthru($sudo.'find '.Strings::unslash(PATH_ROOT).$path.' -type f -exec chmod '.$mode.' {} \;', $exitcode);
 
                     if ($exitcode) {
-                        throw new CoreException(tr('Failed to update mode for files in path ":path"', array(':path' => Strings::unslash(PATH_ROOT).$path)), 'failed');
+                        throw new CoreException(tr('Failed to update mode for files in path ":path"', array(':path' => fix - permissionsStrings::unslash(PATH_ROOT) . $path)), 'failed');
                     }
                 }
             }

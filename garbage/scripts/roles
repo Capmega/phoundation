@@ -32,7 +32,7 @@ switch (cli_method()) {
                                 WHERE  `status` IS NULL
                                 OR     `status` != "_new" '.sql_limit());
 
-            log_console(Strings::size('#id', 6).' '.Strings::size('Name', 20).' '.Strings::size('Status', 16).' Rights', 'QUIET/cyan');
+            log_console(Strings::size('#id', 6) . ' roles' .Strings::size('Name', 20).' '.Strings::size('Status', 16).' Rights', 'QUIET/cyan');
 
             while ($role = sql_fetch($roles)) {
                 $rights = sql_list('SELECT    `rights`.`name`
@@ -47,7 +47,7 @@ switch (cli_method()) {
 
                                     array(':roles_id' => $role['id']));
 
-                log_console(Strings::size($role['id'], 6, ' ', true).' '.Strings::size($role['name'], 20).' '.Strings::size(status($role['status']), 16).' '.Strings::force($rights, ', '));
+                log_console(Strings::size($role['id'], 6, ' ', true) . ' roles' .Strings::size($role['name'], 20).' '.Strings::size(status($role['status']), 16).' '.Strings::force($rights, ', '));
             }
 
         } else {
@@ -63,10 +63,10 @@ switch (cli_method()) {
                                 WHERE  `status` IS NULL
                                 OR     `status` != "_new" '.sql_limit());
 
-            log_console(Strings::size('#id', 6).' '.Strings::size('Name', 20).' '.Strings::size('Status', 16).' Description', 'QUIET/cyan');
+            log_console(Strings::size('#id', 6) . ' roles' .Strings::size('Name', 20).' '.Strings::size('Status', 16).' Description', 'QUIET/cyan');
 
             while ($role = sql_fetch($roles)) {
-                log_console(Strings::size($role['id'], 6, ' ', true).' '.Strings::size($role['name'], 20).' '.Strings::size(status($role['status']), 16).' '.$role['description']);
+                log_console(Strings::size($role['id'], 6, ' ', true) . ' roles' .Strings::size($role['name'], 20).' '.Strings::size(status($role['status']), 16).' '.$role['description']);
             }
         }
 

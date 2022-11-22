@@ -251,7 +251,7 @@ under_construction('add');
 
         } else {
             if (!QUIET) {
-                log_console(Strings::size('#id', 6).' '.Strings::size('Meta id', 7).' '.Strings::size('User', 22).' '.Strings::size('Parent task id', 14).' '.Strings::size('Command', 32).' '.Strings::size('Status', 16).' '.Strings::size('Description', 48).' '.Strings::size('Execution method', 20).' '.Strings::size('Timeout', 4).' '.Strings::size('Time spent', 10), 'cyan');
+                log_console(Strings::size('#id', 6) . ' tasks' .Strings::size('Meta id', 7).' '.Strings::size('User', 22).' '.Strings::size('Parent task id', 14).' '.Strings::size('Command', 32).' '.Strings::size('Status', 16).' '.Strings::size('Description', 48).' '.Strings::size('Execution method', 20).' '.Strings::size('Timeout', 4).' '.Strings::size('Time spent', 10), 'cyan');
             }
 
             while ($task = sql_fetch($tasks)) {
@@ -271,7 +271,7 @@ under_construction('add');
                         break;
                 }
 
-                log_console(Strings::size($task['id'], 6).' '.Strings::size($task['meta_id'], 7, ' ', true).' '.Strings::size(name($task), 22).' '.Strings::size(not_empty($task['parents_id'], '-'), 14, ' ', true).' '.Strings::size($task['command'], 32).' '.Strings::size($task['status'], 16).' '.Strings::size($task['description'], 48).' '.Strings::size($task['method'], 20).' '.Strings::size(($task['timeout'] ? $task['timeout'] : '-'), 4, ' ', true).' '.Strings::size($task['time_spent'] ? $task['time_spent'] : '-', 10, ' ', true));
+                log_console(Strings::size($task['id'], 6) . ' tasks' .Strings::size($task['meta_id'], 7, ' ', true).' '.Strings::size(name($task), 22).' '.Strings::size(not_empty($task['parents_id'], '-'), 14, ' ', true).' '.Strings::size($task['command'], 32).' '.Strings::size($task['status'], 16).' '.Strings::size($task['description'], 48).' '.Strings::size($task['method'], 20).' '.Strings::size(($task['timeout'] ? $task['timeout'] : '-'), 4, ' ', true).' '.Strings::size($task['time_spent'] ? $task['time_spent'] : '-', 10, ' ', true));
             }
         }
 
@@ -314,15 +314,15 @@ under_construction('add');
         foreach ($task as $key => $value) {
             switch ($key) {
                 case 'status':
-                    log_console(Color::apply(str_capitalize($key).':', 'white').' '.cli_status_color($value));
+                    log_console(str_capitalize($key) . ':' .cli_status_color($value));
                     break;
 
                 default:
-                    log_console(Color::apply(str_capitalize($key).':', 'white').' '.$value);
+                    log_console(str_capitalize($key) . ':' .$value);
             }
         }
 
-        log_console(Color::apply('Description:', 'white').' '.$description);
+        log_console(Color::apply('Description:', 'white') . ' tasks' .$description);
         log_console(Color::apply('Data:', 'white'));
 
         if (empty($data)) {

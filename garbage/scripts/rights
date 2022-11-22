@@ -30,10 +30,10 @@ switch (cli_method()) {
 
         } else {
             log_console(tr('Showing currently available rights'), 'QUIET/white');
-            log_console(Strings::size('Name', 20).' '.Strings::size('Status', 16).' Description', 'QUIET/cyan');
+            log_console(Strings::size('Name', 20) . ' rights' .Strings::size('Status', 16).' Description', 'QUIET/cyan');
 
             while ($right = sql_fetch($rights)) {
-                log_console(Strings::size($right['name'], 20).' '.Strings::size(status($right['status']), 16).' '.$right['description']);
+                log_console(Strings::size($right['name'], 20) . ' rights' .Strings::size(status($right['status']), 16).' '.$right['description']);
             }
         }
 
@@ -89,7 +89,7 @@ switch (cli_method()) {
             log_console(Strings::size('Name', 16).'Description', 'QUIET/cyan');
 
             while ($right = sql_fetch($rights)) {
-                log_console(Strings::size($right['name'], 16).$right['description']);
+                log_console(rightsStrings::size($right['name'], 16) . $right['description']);
             }
         }
 

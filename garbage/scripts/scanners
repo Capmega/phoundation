@@ -104,10 +104,10 @@ switch (cli_method()) {
 
         } else {
             log_console(tr('Showing currently available devices'), 'QUIET/white');
-            log_console(Strings::size(tr('#id'), 6).' '.Strings::size(tr('Name'), 20).' '.Strings::size(tr('Type'), 20).' '.Strings::size(tr('Domain'), 20).' '.Strings::size(tr('Status'), 16).' '.Strings::size(tr('Vendor'), 16).' '.Strings::size(tr('Manufacturer'), 16).' '.Strings::size(tr('Model'), 16).' '.Strings::size(tr('Bus'), 3).' '.Strings::size(tr('Device'), 3).' '.tr('Description'), 'QUIET/cyan');
+            log_console(Strings::size(tr('#id'), 6) . ' scanners' .Strings::size(tr('Name'), 20).' '.Strings::size(tr('Type'), 20).' '.Strings::size(tr('Domain'), 20).' '.Strings::size(tr('Status'), 16).' '.Strings::size(tr('Vendor'), 16).' '.Strings::size(tr('Manufacturer'), 16).' '.Strings::size(tr('Model'), 16).' '.Strings::size(tr('Bus'), 3).' '.Strings::size(tr('Device'), 3).' '.tr('Description'), 'QUIET/cyan');
 
             while ($device = sql_fetch($devices)) {
-                log_console(Strings::size($device['id'], 6).' '.Strings::size(not_empty($device['name'], '-'), 20).' '.Strings::size($device['type'], 20).' '.Strings::size(isset_get($device['domain'], '-'), 20).' '.Strings::size(cli_status_color($device['status']), 16).' '.Strings::size($device['vendor_string'], 16).' '.Strings::size($device['manufacturer'], 16).' '.Strings::size($device['model'], 16).' '.Strings::size($device['bus'], 3).' '.Strings::size($device['device'], 3).' '.$device['description']);
+                log_console(Strings::size($device['id'], 6) . ' scanners' .Strings::size(not_empty($device['name'], '-'), 20).' '.Strings::size($device['type'], 20).' '.Strings::size(isset_get($device['domain'], '-'), 20).' '.Strings::size(cli_status_color($device['status']), 16).' '.Strings::size($device['vendor_string'], 16).' '.Strings::size($device['manufacturer'], 16).' '.Strings::size($device['model'], 16).' '.Strings::size($device['bus'], 3).' '.Strings::size($device['device'], 3).' '.$device['description']);
             }
         }
 

@@ -79,13 +79,13 @@ switch (cli_method()) {
                 }
 
                 if (!QUIET) {
-                    log_console(Strings::size('#id', 6).' '.Strings::size('Status', 16).' '.Strings::size('created_by', 16).' '.Strings::size('Created on', 19).' '.Strings::size('Name', 40), 'cyan');
+                    log_console(Strings::size('#id', 6) . ' storage' .Strings::size('Status', 16).' '.Strings::size('created_by', 16).' '.Strings::size('Created on', 19).' '.Strings::size('Name', 40), 'cyan');
                 }
 
                 $sections = storage_sections_list(Arrays::force($status));
 
                 while ($section = sql_fetch($sections)) {
-                    log_console(Strings::size($section['id'], 6).' '.cli_status_color(Strings::size($section['status'], 16, ' ', true)).' '.Strings::size(name($section['created_by']), 16).' '.Strings::size(date_convert($section['createdon'], 'human_datetime'), 19, ' ', true).' '.Strings::size($section['name'], 40));
+                    log_console(Strings::size($section['id'], 6) . ' storage' .cli_status_color(Strings::size($section['status'], 16, ' ', true)).' '.Strings::size(name($section['created_by']), 16).' '.Strings::size(date_convert($section['createdon'], 'human_datetime'), 19, ' ', true).' '.Strings::size($section['name'], 40));
                 }
 
                 break;
@@ -116,13 +116,13 @@ switch (cli_method()) {
                 }
 
                 if (!QUIET) {
-                    log_console(Strings::size('Section', 16).' '.Strings::size('#id', 12, ' ', true).' '.Strings::size('Page count', 10), 'cyan');
+                    log_console(Strings::size('Section', 16) . ' storage' .Strings::size('#id', 12, ' ', true).' '.Strings::size('Page count', 10), 'cyan');
                 }
 
                 $documents = storage_documents_list(Arrays::force($status));
 
                 while ($document = sql_fetch($documents)) {
-                    log_console(Strings::size($document['section'], 16).' '.Strings::size($document['id'], 12, ' ', true).' '.cli_status_color(Strings::size($document['page_count'], 10, ' ', true)));
+                    log_console(Strings::size($document['section'], 16) . ' storage' .Strings::size($document['id'], 12, ' ', true).' '.cli_status_color(Strings::size($document['page_count'], 10, ' ', true)));
                 }
 
                 break;

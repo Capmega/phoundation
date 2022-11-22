@@ -67,10 +67,10 @@ switch (cli_method()) {
                     log_console(tr('There are currently no blogs registered'), 'QUIET/yellow');
 
                 } else {
-                    log_console(Strings::size(tr('#id'), 6).' '.Strings::size(tr('status'), 16).' '.Strings::size(tr('Created on'), 10).' '.Strings::size(tr('Created by'), 24).' '.Strings::size(tr('Name'), 12), 'QUIET/cyan');
+                    log_console(Strings::size(tr('#id'), 6) . ' blogs' .Strings::size(tr('status'), 16).' '.Strings::size(tr('Created on'), 10).' '.Strings::size(tr('Created by'), 24).' '.Strings::size(tr('Name'), 12), 'QUIET/cyan');
 
                     while ($entry = sql_fetch($entries)) {
-                        log_console(Strings::size($entry['id'], 6).' '.Strings::size(status($entry['status']), 16).' '.Strings::size($entry['createdon'], 10).' '.Strings::size(name($entry['created_by']), 24).' '.Strings::size($entry['name'], 80));
+                        log_console(Strings::size($entry['id'], 6) . ' blogs' .Strings::size(status($entry['status']), 16).' '.Strings::size($entry['createdon'], 10).' '.Strings::size(name($entry['created_by']), 24).' '.Strings::size($entry['name'], 80));
                     }
                 }
 
@@ -104,10 +104,10 @@ switch (cli_method()) {
                     log_console(tr('There are currently no blog posts registered'), 'QUIET/yellow');
 
                 } else {
-                    log_console(Strings::size(tr('#id'), 6).' '.Strings::size(tr('Blog'), 16).' '.Strings::size(tr('status'), 16).' '.Strings::size(tr('Created on'), 10).' '.Strings::size(tr('Created by'), 24).' '.Strings::size(tr('Name'), 12), 'QUIET/cyan');
+                    log_console(Strings::size(tr('#id'), 6) . ' blogs' .Strings::size(tr('Blog'), 16).' '.Strings::size(tr('status'), 16).' '.Strings::size(tr('Created on'), 10).' '.Strings::size(tr('Created by'), 24).' '.Strings::size(tr('Name'), 12), 'QUIET/cyan');
 
                     while ($entry = sql_fetch($entries)) {
-                        log_console(Strings::size($entry['id'], 6).' '.Strings::size($entry['blog'], 16).' '.Strings::size(status($entry['status']), 16).' '.Strings::size($entry['createdon'], 10).' '.Strings::size(name($entry['created_by']), 24).' '.Strings::size($entry['name'], 80));
+                        log_console(Strings::size($entry['id'], 6) . ' blogs' .Strings::size($entry['blog'], 16).' '.Strings::size(status($entry['status']), 16).' '.Strings::size($entry['createdon'], 10).' '.Strings::size(name($entry['created_by']), 24).' '.Strings::size($entry['name'], 80));
                     }
                 }
 

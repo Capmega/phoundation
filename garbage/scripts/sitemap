@@ -121,10 +121,10 @@ switch (cli_method()) {
                     log_console(tr('There are currently no sitemap entries registered'), 'QUIET/yellow');
 
                 } else {
-                    log_console(Strings::size(tr('#id'), 6).' '.Strings::size(tr('Language'), 8).' '.Strings::size(tr('File'), 24).' '.Strings::size(tr('Path'), 80), 'QUIET/cyan');
+                    log_console(Strings::size(tr('#id'), 6) . ' sitemap' .Strings::size(tr('Language'), 8).' '.Strings::size(tr('File'), 24).' '.Strings::size(tr('Path'), 80), 'QUIET/cyan');
 
                     foreach ($files as $file) {
-                        log_console(Strings::size($id++, 6).' '.Strings::size($file['language'], 8).' '.Strings::size($file['file'], 24).' '.Strings::size($file['path'], 80));
+                        log_console(Strings::size($id++, 6) . ' sitemap' .Strings::size($file['language'], 8).' '.Strings::size($file['file'], 24).' '.Strings::size($file['path'], 80));
                     }
                 }
 
@@ -153,10 +153,10 @@ switch (cli_method()) {
                     log_console(tr('There are currently no sitemap entries registered'), 'QUIET/yellow');
 
                 } else {
-                    log_console(Strings::size(tr('#id'), 6).' '.Strings::size(tr('Created on'), 10).' '.Strings::size(tr('Created by'), 24).' '.Strings::size(tr('URL'), 80).' '.Strings::size(tr('Priority'), 8).' '.Strings::size(tr('Page modifiedon'), 16).' '.Strings::size(tr('Change frequency'), 16).' '.Strings::size(tr('Language'), 8).' '.Strings::size(tr('Group'), 12).' '.Strings::size(tr('File'), 12), 'QUIET/cyan');
+                    log_console(Strings::size(tr('#id'), 6) . ' sitemap' .Strings::size(tr('Created on'), 10).' '.Strings::size(tr('Created by'), 24).' '.Strings::size(tr('URL'), 80).' '.Strings::size(tr('Priority'), 8).' '.Strings::size(tr('Page modifiedon'), 16).' '.Strings::size(tr('Change frequency'), 16).' '.Strings::size(tr('Language'), 8).' '.Strings::size(tr('Group'), 12).' '.Strings::size(tr('File'), 12), 'QUIET/cyan');
 
                     while ($entry = sql_fetch($entries)) {
-                        log_console(Strings::size($entry['id'], 6).' '.Strings::size($entry['createdon'], 10).' '.Strings::size(name($entry['created_by']), 24).' '.Strings::size($entry['url'], 80).' '.Strings::size($entry['priority'], 8).' '.Strings::size($entry['page_modifiedon'], 16).' '.Strings::size($entry['change_frequency'], 16).' '.Strings::size($entry['language'], 8).' '.Strings::size($entry['group'], 12).' '.Strings::size($entry['file'], 12));
+                        log_console(Strings::size($entry['id'], 6) . ' sitemap' .Strings::size($entry['createdon'], 10).' '.Strings::size(name($entry['created_by']), 24).' '.Strings::size($entry['url'], 80).' '.Strings::size($entry['priority'], 8).' '.Strings::size($entry['page_modifiedon'], 16).' '.Strings::size($entry['change_frequency'], 16).' '.Strings::size($entry['language'], 8).' '.Strings::size($entry['group'], 12).' '.Strings::size($entry['file'], 12));
                     }
                 }
 
