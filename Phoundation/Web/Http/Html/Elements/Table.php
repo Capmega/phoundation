@@ -4,6 +4,7 @@ namespace Phoundation\Web\Http\Html\Elements;
 
 use PDO;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\Url;
@@ -578,6 +579,13 @@ Class Table extends ResourceElement
         if (empty($this->column_headers)) {
             // Auto set headers from the column names
             $this->column_headers = array_keys($row_values);
+
+            foreach ($this->column_headers as &$column_header) {
+                $column_header = str_replace(['-', '_'], ' ', $column_header);
+                $column_header = Strings::capitalize($column_header);
+            }
+
+            unset($column_header);
         }
 
         // If row identifier was not specified, then assume its the first value in the row

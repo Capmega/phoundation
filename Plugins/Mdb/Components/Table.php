@@ -32,6 +32,20 @@ class Table extends \Phoundation\Web\Http\Html\Elements\Table
      */
     protected bool $full_width = true;
 
+    /**
+     * Table title
+     *
+     * @var string|null $title
+     */
+    protected ?string $title = null;
+
+    /**
+     * Table header text
+     *
+     * @var string|null $header_text
+     */
+    protected ?string $header_text = null;
+
 
 
     /**
@@ -41,6 +55,58 @@ class Table extends \Phoundation\Web\Http\Html\Elements\Table
     {
         $this->addClass('table');
         parent::__construct();
+    }
+
+
+
+    /**
+     * Returns if the table is title or not
+     *
+     * @return string|null
+     */
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+
+
+    /**
+     * Sets if the table is title or not
+     *
+     * @param string|null $title
+     * @return $this
+     */
+    public function setTitle(?string $title): static
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns if the table is header_text or not
+     *
+     * @return string|null
+     */
+    public function getHeaderText(): ?string
+    {
+        return $this->header_text;
+    }
+
+
+
+    /**
+     * Sets if the table is header_text or not
+     *
+     * @param string|null $header_text
+     * @return $this
+     */
+    public function setHeaderText(?string $header_text): static
+    {
+        $this->header_text = $header_text;
+        return $this;
     }
 
 
@@ -125,6 +191,28 @@ class Table extends \Phoundation\Web\Http\Html\Elements\Table
             ->addClass('pb-4')
             ->setContent($return)
             ->render();
+
+        // Render the title and header section around it
+        $content = '';
+
+        if ($this->title) {
+            $content .= '<h2 class="mb-4">' . htmlentities($this->title) . '</h2>';
+        }
+
+        if ($this->header_text) {
+            $content .= '<p>' . htmlentities($this->header_text) . '</p>';
+        }
+        
+        if ($content) {
+            $section = Section::new()
+                ->setContent($content . $return);
+
+            if ($this->id) {
+                $section->setId('section-' . $this->id);
+            }
+
+            return $section->render();
+        }
 
         return $return;
     }
