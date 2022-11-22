@@ -266,13 +266,16 @@ trait ElementAttributes
     /**
      * Adds an class to the HTML class element attribute
      *
-     * @param string $class
+     * @param ?string $class
      * @return static
      */
-    public function setClass(string $class): static
+    public function setClass(?string $class): static
     {
-        $this->classes = [$class => true];
-        $this->class = null;
+        if ($class) {
+            $this->classes = [$class => true];
+            $this->class = null;
+        }
+
         return $this;
     }
 
@@ -487,11 +490,17 @@ trait ElementAttributes
      * Sets all HTML element attributes
      *
      * @param string $attribute
-     * @param string $value
+     * @param string|null $value
      * @return static
      */
-    public function addAttribute(string $attribute, string $value): static
+    public function addAttribute(string $attribute, ?string $value, bool $skip_on_null = false): static
     {
+        if ($value === null) {
+            if ($skip_on_null) {
+                return $this;
+            }
+        }
+
         $this->attributes[$attribute] = $value;
         return $this;
     }

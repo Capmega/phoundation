@@ -6,7 +6,7 @@ use PDO;
 use Phoundation\Core\Arrays;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
-
+use Phoundation\Web\Http\Url;
 
 
 /**
@@ -42,6 +42,35 @@ Class Table extends ResourceElement
      */
     protected array $column_headers = [];
 
+    /**
+     * URL's specific for columns
+     *
+     * @var array $column_url
+     */
+    protected array $column_url = [];
+
+    /**
+     * URL's that apply to all rows
+     *
+     * @var string|null $row_url
+     */
+    protected ?string $row_url = null;
+
+    /**
+     * Top buttons
+     *
+     * @var array $top_buttons
+     */
+    protected array $top_buttons = [];
+
+    /**
+     * Convert columns to checkboxes, buttons, etc
+     *
+     * @var array $convert_columns
+     */
+    protected array $convert_columns = [];
+
+
 
     /**
      * Table constructor
@@ -62,6 +91,121 @@ Class Table extends ResourceElement
     public static function new(): static
     {
         return new static();
+    }
+
+
+
+    /**
+     * Sets the table's column conversions
+     *
+     * @param array|string|null $convert_columns
+     * @return static
+     */
+    public function setConvertColumns(array|string|null $convert_columns): static
+    {
+        $this->convert_columns = [];
+        return $this->addConvertColumns($convert_columns);
+    }
+
+
+
+    /**
+     * Adds multiple table column conversions
+     *
+     * @param array|string|null $convert_columns
+     * @return static
+     */
+    public function addConvertColumns(array|string|null $convert_columns): static
+    {
+        foreach (Arrays::force($convert_columns, ' ') as $column => $callback) {
+            $this->addConvertColumn($column, $callback);
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Adds single table column conversions
+     *
+     * @param string $column
+     * @param string|callable $replace_or_callback
+     * @return static
+     */
+    public function addConvertColumn(string $column, string|callable $replace_or_callback): static
+    {
+        $this->convert_columns[$column] = $replace_or_callback;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the table's column conversions
+     *
+     * @return array
+     */
+    public function getConvertColumns(): array
+    {
+        return $this->convert_columns;
+    }
+
+
+
+    /**
+     * Sets the table's  top buttons
+     *
+     * @param array|string|null $top_buttons
+     * @return static
+     */
+    public function setTopButtons(array|string|null $top_buttons): static
+    {
+        $this->top_buttons = [];
+        return $this->addTopButtons($top_buttons);
+    }
+
+
+
+    /**
+     * Adds multiple buttons to the table's top buttons
+     *
+     * @param array|string|null $top_buttons
+     * @return static
+     */
+    public function addTopButtons(array|string|null $top_buttons): static
+    {
+        foreach (Arrays::force($top_buttons, ' ') as $row_class) {
+            $this->addRowClass($row_class);
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Adds single button to the table's top buttons
+     *
+     * @param string $row_class
+     * @return static
+     */
+    public function addTopButton(string $row_class): static
+    {
+        $this->top_buttons[] = $row_class;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the table's top buttons
+     *
+     * @return array
+     */
+    public function getTopButtons(): array
+    {
+        return $this->top_buttons;
     }
 
 
@@ -135,6 +279,59 @@ Class Table extends ResourceElement
         }
 
         return $this->row_class;
+    }
+
+
+
+    /**
+     * Returns the URL that applies to each column
+     *
+     * @return array
+     */
+    public function getColumnUrl(): array
+    {
+        return $this->column_url;
+    }
+
+
+
+    /**
+     * Sets the URL that applies to each column
+     *
+     * @param string $column
+     * @param string $url
+     * @return static
+     */
+    public function setColumnUrl(string $column, string $url): static
+    {
+        $this->column_url[$column] = $url;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the URL that applies to each row
+     *
+     * @return string|null
+     */
+    public function getRowUrl(): ?string
+    {
+        return $this->row_url;
+    }
+
+
+
+    /**
+     * Sets the URL that applies to each row
+     *
+     * @param string|null $row_url
+     * @return static
+     */
+    public function setRowUrl(string|null $row_url): static
+    {
+        $this->row_url = $row_url;
+        return $this;
     }
 
 
@@ -228,7 +425,7 @@ Class Table extends ResourceElement
             $return = $this->renderBodyEmpty();
         }
 
-        return $return;
+        return $this->renderHeaders() . $return;
     }
 
 
@@ -253,25 +450,26 @@ Class Table extends ResourceElement
         $return = '<tbody>';
 
         // Process array resource. Go over each row and in each row over each column
-        foreach ($this->source as $key => $row_columns) {
-            $row_data = '';
-            $this->count++;
-
-            // Add data- in this option?
-            if (array_key_exists($key, $this->source_data)) {
-                foreach ($this->source_data as $data_key => $data_value) {
-                    $row_data = ' data-' . $data_key . '="' . $data_value . '"';
-                }
-            }
-
-            $row = '<tr' . $row_data . '>';
-
-            if (!is_array($row_columns)) {
+        foreach ($this->source as $key => $row_values) {
+            if (!is_array($row_values)) {
                 throw new OutOfBoundsException(tr('The specified table source array is invalid. Format should be [[header columns][row columns][row columns] ...]'));
             }
 
-            foreach ($row_columns as $column) {
-                $row .= '<td' . $this->buildRowClassString() . '>' . htmlentities($column) . '</td>';
+
+            $row_data = '';
+            $this->count++;
+
+            // Add data-* in this option?
+            if (array_key_exists($key, $this->source_data)) {
+                $row_data = ' data-' . $key . '="' . $this->source_data[$key] . '"';
+            }
+
+            $row = '<tr' . $row_data . $this->buildRowClassString() . '>';
+
+            $row_id = reset($value);
+
+            foreach ($row_values as $column => $value) {
+                $row .= $this->renderCell($row_id, $column, $value);
             }
 
             $return .= $row . '</tr>';
@@ -295,7 +493,7 @@ Class Table extends ResourceElement
      */
     protected function renderBodyQuery(): ?string
     {
-        $return = '';
+        $return = '<tbody>';
 
         if (!$this->source_query) {
             return null;
@@ -306,22 +504,11 @@ Class Table extends ResourceElement
         }
 
         // Process SQL resource
-        while ($row = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
-            if (empty($this->column_headers)) {
-                // Auto set headers from the column names
-                $this->column_headers = array_keys($row);
-            }
-
-            $return .= '<tr>';
-
-            foreach($row as $column) {
-                $return .= '<td>' . $column . '</td>';
-            }
-
-            $return .= '</tr>';
+        while ($row_values = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
+            $return .= $this->renderRow($row_values);
         }
 
-        return $return;
+        return $return . '</tbody>';
     }
 
 
@@ -350,9 +537,13 @@ Class Table extends ResourceElement
      */
     protected function renderHeaders(): string
     {
-        $return = '<table>';
+        $return = '<thead><tr>';
 
-        return $return;
+        foreach ($this->column_headers as $header) {
+            $return .= '<th>' . $header . '</th>';
+        }
+
+        return $return . '</tr></thead>';
     }
 
 
@@ -371,5 +562,97 @@ Class Table extends ResourceElement
         }
 
         return null;
+    }
+
+
+
+    /**
+     * Returns a table cell
+     *
+     * @param array $row_values
+     * @param string|int|null $row_id
+     * @return string
+     */
+    protected function renderRow(array $row_values, string|int|null $row_id = null): string
+    {
+        if (empty($this->column_headers)) {
+            // Auto set headers from the column names
+            $this->column_headers = array_keys($row_values);
+        }
+
+        // If row identifier was not specified, then assume its the first value in the row
+        if ($row_id === null) {
+            $row_id = reset($row_values);
+        }
+
+        // Add data-* in this option?
+//        if (array_key_exists($row_id, $this->source_data)) {
+//            $row_data = ' data-' . $key . '="' . $this->source_data[$key] . '"';
+//        }
+
+        $return = '<tr>';
+
+        foreach($row_values as $column => $value) {
+            $return .= $this->renderCell($row_id, $column, $value);
+        }
+
+        return $return . '</tr>';
+    }
+
+
+
+    /**
+     * Returns a table cell
+     *
+     * @param string $row_id
+     * @param string|int $column
+     * @param string|null $value
+     * @return string
+     */
+    protected function renderCell(string $row_id, string|int $column, ?string $value): string
+    {
+        $value = (string) $value;
+
+        // Do we have row or column URL's?
+        if (array_key_exists($column, $this->column_url)) {
+            // Use this column specific URL
+            $url = $this->column_url;
+
+        } elseif ($this->row_url) {
+            $url = $this->row_url;
+        }
+
+        if (array_key_exists($column, $this->convert_columns)) {
+            if (is_callable($this->convert_columns[$column])) {
+                // Convert this column
+                $converted = $this->convert_columns[$column]($value);
+
+                if (!is_string($converted)) {
+                    throw new OutOfBoundsException(tr('Conversion for column ":column" callback does not return a string as required', [
+                        ':column' => $column
+                    ]));
+                }
+
+                $value = $converted;
+
+            } else {
+                // Convert this column
+                $value = str_replace(':ROW'   , $this->convert_columns[$column], $value);
+                $value = str_replace(':COLUMN', $this->convert_columns[$column], $value);
+            }
+        } else {
+            $value = htmlentities($value);
+        }
+
+        if (isset($url)) {
+            // Apply URL row / column specific information
+            $url = str_replace(':ROW'   , $row_id, $url);
+            $url = str_replace(':COLUMN', $column, $url);
+            $url = Url::build($url)->www();
+
+            return '<td><a href="' . $url . '">' . $value . '</a></td>';
+        }
+
+        return '<td>' . $value . '</td>';
     }
 }

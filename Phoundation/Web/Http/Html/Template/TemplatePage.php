@@ -175,7 +175,7 @@ abstract class TemplatePage
             $this->navigation_menu = [
                 tr('System') => [
                     tr('Accounts') => [
-                        tr('Users')       => '/accounts/users',
+                        tr('Accounts')       => '/accounts/users',
                         tr('Roles')       => '/accounts/roles',
                         tr('Rights')      => '/accounts/rights',
                         tr('Groups')      => '/accounts/groups',

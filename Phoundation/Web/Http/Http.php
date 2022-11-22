@@ -322,12 +322,18 @@ class Http
      * Send all the specified HTTP headers
      *
      * @note The amount of sent bytes does NOT include the bytes sent for the HTTP response code header
-     * @param array $headers
+     * @param array|null $headers
      * @return int The amount of bytes sent. -1 if Http::sendHeaders() was called for the second time.
      */
-    public static function sendHeaders(array $headers): int
+    public static function sendHeaders(?array $headers): int
     {
         if (self::headersSent(true)) {
+            // Headers already sent
+            return -1;
+        }
+
+        if ($headers === null) {
+            // Specified NULL for headers, which is what buildHeaders() returned, so there are no headers to send
             return -1;
         }
 

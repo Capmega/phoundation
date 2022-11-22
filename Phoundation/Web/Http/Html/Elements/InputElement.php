@@ -17,6 +17,74 @@ namespace Phoundation\Web\Http\Html\Elements;
 trait InputElement
 {
     /**
+     * Input element type
+     *
+     * @var string|null $type
+     */
+    protected ?string $type = null;
+
+    /**
+     * Input element value
+     *
+     * @var string|null $value
+     */
+    protected ?string $value = null;
+
+
+
+    /**
+     * Returns the type for the input element
+     *
+     * @return string|null
+     */
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+
+
+    /**
+     * Sets the type for the input element
+     *
+     * @param string|null $type
+     * @return $this
+     */
+    public function setType(string|null $type): static
+    {
+        $this->type = $type;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the value for the input element
+     *
+     * @return string|null
+     */
+    public function getValue(): ?string
+    {
+        return $this->value;
+    }
+
+
+
+    /**
+     * Sets the value for the input element
+     *
+     * @param string|null $value
+     * @return $this
+     */
+    public function setValue(string|null $value): static
+    {
+        $this->value = $value;
+        return $this;
+    }
+
+
+
+    /**
      * Sets if the element will auto submit
      *
      * @param bool $auto_submit
@@ -75,5 +143,11 @@ trait InputElement
      *       values that were added as general attributes using Element::addAttribute()
      * @return array
      */
-    protected abstract function buildAttributes(): array;
+    protected function buildInputAttributes(): array
+    {
+        return [
+            'type'  => $this->type,
+            'value' => $this->value,
+        ];
+    }
 }
