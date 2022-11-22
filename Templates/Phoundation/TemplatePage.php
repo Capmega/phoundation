@@ -4,6 +4,7 @@ namespace Templates\Phoundation;
 
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Page;
+use Plugins\Mdb\Components\Footer;
 use Templates\Phoundation\Components\NavigationBar;
 use Throwable;
 
@@ -83,8 +84,15 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageHeader(): ?string
     {
-        $html = '<body>' .
-            NavigationBar::new()->render();
+        $html = '<body class="mdb-skin-custom " data-mdb-spy="scroll" data-mdb-target="#scrollspy" data-mdb-offset="250">
+                    <header>
+                    ' . NavigationBar::new()
+                        ->setMenu($this->navigation_menu)
+                        ->render() . '
+                    </header>
+                    <main class="pt-5 mdb-docs-layout">
+                        <div class="container mt-5  mt-5  px-lg-5">
+                            <div class="tab-content">';
 
         return $html;
     }
@@ -98,7 +106,10 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageFooter(): ?string
     {
-        $html = '';
+        $html = '           </div>
+                        </div>
+                    </main>' .
+                    Footer::new()->render();
 
         return $html;
     }

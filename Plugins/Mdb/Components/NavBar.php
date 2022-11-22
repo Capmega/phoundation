@@ -66,6 +66,32 @@ class NavBar extends ElementsBlock
 
 
     /**
+     * Sets the navbar menu
+     *
+     * @param array|null $menu
+     * @return static
+     */
+    public function setMenu(?array $menu): static
+    {
+        $this->menu = $menu;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the navbar menu
+     *
+     * @return array|null
+     */
+    public function getMenu(): ?array
+    {
+        return $this->menu;
+    }
+
+
+
+    /**
      * Sets the navbar profile menu
      *
      * @param array|null $menu
@@ -158,19 +184,7 @@ class NavBar extends ElementsBlock
                                 ])
                                 ->render(). '
                           </a>
-                          <!-- Left links -->
-                          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item">
-                              <a class="nav-link" href="#">Dashboard</a>
-                            </li>
-                            <li class="nav-item">
-                              <a class="nav-link" href="#">Team</a>
-                            </li>
-                            <li class="nav-item">
-                              <a class="nav-link" href="#">Projects</a>
-                            </li>
-                          </ul>
-                          <!-- Left links -->
+                          ' . NavMenu::new()->setMenu($this->menu)->render() . '
                         </div>
                         <!-- Collapsible wrapper -->
                     
