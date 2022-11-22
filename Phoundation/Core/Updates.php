@@ -24,7 +24,7 @@ class Updates extends \Phoundation\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.6';
+        return '0.0.7';
     }
 
 
@@ -122,6 +122,23 @@ class Updates extends \Phoundation\Libraries\Updates
                     KEY `created_by` (`created_by`),')
                 ->setForeignKeys('
                     CONSTRAINT `fk_url_cloaks_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)')
+                ->create();
+        })->addUpdate('0.0.7', function () {
+            // Add tables for the sessions management
+            sql()->schema()->table('key_value_store')
+                ->setColumns('
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
+                    `key` varchar(64) NOT NULL,
+                    `value` varchar(4096) NOT NULL,')
+                ->setIndices('
+                    PRIMARY KEY (`id`),
+                    UNIQUE KEY `key` (`key`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_key_value_store_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)')
                 ->create();
         });
     }

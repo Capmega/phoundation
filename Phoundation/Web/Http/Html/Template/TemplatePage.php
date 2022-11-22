@@ -2,9 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Template;
 
-use Phoundation\Core\Log;
 use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Http;
 use Phoundation\Web\Page;
 
 
@@ -28,6 +26,20 @@ abstract class TemplatePage
      */
     protected string $target;
 
+    /**
+     * The navigation menu
+     *
+     * @var array|null $navigation_menu
+     */
+    protected ?array $navigation_menu = null;
+
+    /**
+     * The sidebar menu
+     *
+     * @var array|null $sidebar_menu
+     */
+    protected ?array $sidebar_menu = null;
+
 
 
     /**
@@ -35,6 +47,7 @@ abstract class TemplatePage
      */
     public function __construct()
     {
+        $this->loadMenus();
     }
 
 
@@ -47,6 +60,58 @@ abstract class TemplatePage
     public static function new(): static
     {
         return new static();
+    }
+
+
+
+    /**
+     * Returns the sidebar menu
+     *
+     * @return array|null
+     */
+    public function getSidebarMenu(): ?array
+    {
+        return $this->sidebar_menu;
+    }
+
+
+
+    /**
+     * Sets the sidebar menu
+     *
+     * @param array|null $sidebar_menu
+     * @return static
+     */
+    public function setSidebarMenu(?array $sidebar_menu): static
+    {
+        $this->sidebar_menu = $sidebar_menu;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the navbar top menu
+     *
+     * @return array|null
+     */
+    public function getNavigationMenu(): ?array
+    {
+        return $this->navigation_menu;
+    }
+
+
+
+    /**
+     * Sets the navbar top menu
+     *
+     * @param array|null $navigation_menu
+     * @return static
+     */
+    public function setNavigationMenu(?array $navigation_menu): static
+    {
+        $this->navigation_menu = $navigation_menu;
+        return $this;
     }
 
 
@@ -90,6 +155,26 @@ abstract class TemplatePage
         }
 
         return $output;
+    }
+
+
+
+    /**
+     * Load the menu contents from database
+     *
+     * @return void
+     */
+    protected function loadMenus(): void
+    {
+        $this->navigation_menu = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'navigation_menu']);
+        $this->sidebar_menu    = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'sidebar_menu']);
+
+        if (!$this->navigation_menu and !$this->sidebar_menu) {
+            // No menus configured at all! Add at least something to the navigation menu!
+            $this->navigation_menu = [
+                tr('Dashboard') => '/'
+            ];
+        }
     }
 
 
