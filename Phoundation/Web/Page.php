@@ -386,13 +386,17 @@ class Page
             // Build the headers, cache output and headers together, then send the headers
             $headers = Http::buildHeaders($attachment);
 
-            Cache::write([
-                'output'  => $output,
-                'headers' => $headers,
-            ], $target,'pages');
+            if ($headers) {
+                // Only cache if there are headers. If Http::buildHeaders() returned null this means that the headers
+                // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
+                Cache::write([
+                    'output'  => $output,
+                    'headers' => $headers,
+                ], $target,'pages');
 
-            $length = Http::sendHeaders($headers);
-            Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
+                $length = Http::sendHeaders($headers);
+                Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
+            }
 
             switch (Http::getHttpCode()) {
                 case 304:
