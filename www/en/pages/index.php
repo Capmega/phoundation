@@ -5,26 +5,21 @@ use Plugins\Mdb\Components\Table;
 
 ?>
 <div class="container">
-    <div class="d-flex justify-content-center align-items-center" style="height: 100vh">
+    <div class="d-flex justify-content-center align-items-center">
         <div class="text-center">
             <?php
+            echo Img::new()
+                ->setClass('mb-4')
+                ->setHeight('200')
+                ->setAlt('Phoundation logo')
+                ->setSrc('logos/phoundation/phoundation.png')
+                ->render();
+
             echo Table::new()
                 ->setSourceQuery('SELECT * FROM `versions`')
                 ->render();
 
-            echo Img::new()
-                ->setClass('mb-4')
-                ->setAlt('MDB')
-                ->setSrc('phoundation.jpg')
-                ->render();
             ?>
-            <a
-                    class="btn btn-primary btn-lg"
-                    href="https://mdbootstrap.com/docs/standard/getting-started/"
-                    target="_blank"
-                    role="button"
-            >Start MDB tutorial</a
-            >
         </div>
     </div>
 </div>
