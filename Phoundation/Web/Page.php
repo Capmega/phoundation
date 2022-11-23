@@ -611,7 +611,7 @@ class Page
     public static function loadJavascript(string|array $urls, ?bool $header = null): static
     {
         if ($header === null) {
-            $header = Config::get('web.javascript.delay', true);
+            $header = !Config::getBoolean('web.javascript.delay', true);
         }
 
         if ($header and self::$html_headers_sent) {
