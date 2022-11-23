@@ -122,107 +122,11 @@ trait ValidatorBasics
     protected array $children = [];
 
     /**
-     * Internal $_GET array until validation has been completed
-     *
-     * @var array|null $get
-     */
-    protected static ?array $get = null;
-
-    /**
-     * Internal $_POST array until validation has been completed
-     *
-     * @var array|null $post
-     */
-    protected static ?array $post = null;
-
-    /**
-     * Internal $argv array containing command line variables until validation has been completed
-     *
-     * @var array|null $argv
-     */
-    protected static ?array $argv = null;
-
-    /**
      * The maximum string size that this validator will touch
      *
      * @var int $max_string_size
      */
     protected int $max_string_size = 1073741824;
-
-
-    /**
-     * Validator constructor.
-     *
-     * @note Keys that do not exist in $data that are validated will automatically be created
-     * @note Keys in $data that are not validated will automatically be removed
-     * @param array|null $source The data array that must be validated.
-     * @param Validator|null $parent If specified, this is actually a child validator to the specified parent
-     */
-    public function __construct(?array &$source = [], ?Validator $parent = null) {
-        // Ensure the source is an array
-        if ($source === null) {
-            $source = [];
-        }
-
-        $this->source = &$source;
-        $this->parent = $parent;
-    }
-
-
-
-    /**
-     * Returns a new array validator
-     *
-     * @param array $source
-     * @return Validator
-     */
-    public static function array(array &$source): Validator
-    {
-        return new Validator($source);
-    }
-
-
-
-    /**
-     * Returns a new GET array validator
-     *
-     * @return Validator
-     */
-    public static function get(): Validator
-    {
-        // Clear the $_REQUEST array, it should never be used
-        $_REQUEST = [];
-
-        return new Validator($_GET);
-    }
-
-
-
-    /**
-     * Returns a new POST array validator
-     *
-     * @return Validator
-     */
-    public static function post(): Validator
-    {
-        // Clear the $_REQUEST array, it should never be used
-        $_REQUEST = [];
-
-        return new Validator($_POST);
-    }
-
-
-    /**
-     * Returns a new file validator
-     *
-     * @param string $file
-     * @return FileValidator
-     */
-    public static function file(string $file): FileValidator
-    {
-        return new FileValidator($file);
-    }
-
 
 
     /**
@@ -281,7 +185,7 @@ trait ValidatorBasics
      * @param int|string $field The array key (or HTML form field) that needs to be validated / sanitized
      * @return Validator
      */
-    public function select(int|string $field): Validator
+    public function select(int|string $field): static
     {
         if (!$field) {
             throw new OutOfBoundsException(tr('No field specified'));
@@ -324,7 +228,7 @@ trait ValidatorBasics
      * @param bool|int|float|string|array $default
      * @return Validator
      */
-    public function isOptional(bool|int|float|string|array $default): Validator
+    public function isOptional(bool|int|float|string|array $default): static
     {
         $this->selected_optional = $default;
         return $this;
@@ -339,7 +243,7 @@ trait ValidatorBasics
      * @param string $field
      * @return Validator
      */
-    public function xor(string $field): Validator
+    public function xor(string $field): static
     {
         if ($this->selected_field === $field) {
             throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [':field' => $field]));
@@ -371,7 +275,7 @@ trait ValidatorBasics
      * @return Validator
      * @see Validator::isOptional()
      */
-    public function isEqualTo(string $field, bool $strict = false): Validator
+    public function isEqualTo(string $field, bool $strict = false): static
     {
         return $this->validateValues(function($value) use ($field, $strict) {
             if ($this->process_value_failed) {
@@ -398,9 +302,9 @@ trait ValidatorBasics
     /**
      * Recurse into a sub array and return another validator object for that sub array
      *
-     * @return Validator
+     * @return static
      */
-    public function recurse(): Validator
+    public function recurse(): static
     {
         $this->ensureSelected();
 
@@ -408,9 +312,9 @@ trait ValidatorBasics
         // send in an empty array so that the Validation chain won't break
         if (!is_array($this->selected_value)) {
             $array = [];
-            $child = new Validator($array, $this);
+            $child = new static($array, $this);
         } else {
-            $child = new Validator($this->selected_value, $this);
+            $child = new static($this->selected_value, $this);
         }
 
         $child->setParentField(($this->parent_field ? $this->parent_field . ' > ' : '') . $this->selected_field);
@@ -428,7 +332,7 @@ trait ValidatorBasics
      *
      * @return Validator
      */
-    public function validate(): Validator
+    public function validate(): static
     {
         if ($this->parent) {
             // Copy failures from the child to the parent and return the parent to continue
@@ -574,68 +478,6 @@ trait ValidatorBasics
 
 
     /**
-     * Link $_GET and $_POST and $argv data to internal arrays to ensure developers cannot access them until validation
-     * has been completed
-     *
-     * @note This method will also delete the $_REQUEST array as that should never be used in principle
-     * @return void
-     */
-    public static function hideUserData(): void
-    {
-        global $argv, $_GET, $_POST;
-
-        self::$get  = &$get;
-        self::$post = &$post;
-        self::$argv = &$argv;
-
-        unset($_REQUEST);
-    }
-
-
-
-    /**
-     * Gives free and full access to $_GET data, now that it has been validated
-     *
-     * @return void
-     */
-    protected static function liberateGet(): void
-    {
-        global $_GET;
-
-        $_GET = &self::$get;
-    }
-
-
-
-    /**
-     * Gives free and full access to $_POST data, now that it has been validated
-     *
-     * @return void
-     */
-    protected static function liberatePost(): void
-    {
-        global $_GET;
-
-        $_GET = &self::$get;
-    }
-
-
-
-    /**
-     * Gives free and full access to $_GET data, now that it has been validated
-     *
-     * @return void
-     */
-    protected static function liberateArgv(): void
-    {
-        global $argv;
-
-        $argv = &self::$argv;
-    }
-
-
-
-    /**
      * Ensure that a key has been selected
      *
      * @return void
@@ -643,7 +485,9 @@ trait ValidatorBasics
     protected function ensureSelected(): void
     {
         if (empty($this->selected_field)) {
-            throw new NoKeySelectedException(tr('The specified key ":key" has already been selected before', [':key' => $this->selected_field]));
+            throw new NoKeySelectedException(tr('The specified key ":key" has already been selected before', [
+                ':key' => $this->selected_field
+            ]));
         }
     }
 }

@@ -11,6 +11,7 @@ use Phoundation\Utils\Json;
 use Throwable;
 
 
+
 /**
  * Validator class
  *
@@ -21,7 +22,7 @@ use Throwable;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class Validator
+abstract class Validator
 {
     use ValidatorBasics;
 
@@ -36,9 +37,9 @@ class Validator
      *
      * @see Validator::self()
      * @see Validator::select()
-     * @return Validator
+     * @return static
      */
-    public function each(): Validator
+    public function each(): static
     {
         // This obviously only works on arrays
         $this->isArray();
@@ -62,9 +63,9 @@ class Validator
      *
      * @see Validator::each()
      * @see Validator::select()
-     * @return Validator
+     * @return static
      */
-    public function single(): Validator
+    public function single(): static
     {
         $this->process_values = [null => &$this->selected_value];
 
@@ -77,9 +78,9 @@ class Validator
      * Apply the specified anonymous function on a single or all of the process_values for the selected field
      *
      * @param callable $function
-     * @return Validator
+     * @return static
      */
-    protected function validateValues(callable $function): Validator
+    protected function validateValues(callable $function): static
     {
         if ($this->process_value) {
             // A single value was selected, test only this value
@@ -124,9 +125,9 @@ class Validator
      *
      * This method ensures that the specified array key is a boolean
      *
-     * @return Validator
+     * @return static
      */
-    public function isBoolean(): Validator
+    public function isBoolean(): static
     {
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
@@ -147,9 +148,9 @@ class Validator
      *
      * This method ensures that the specified array key is an integer
      *
-     * @return Validator
+     * @return static
      */
-    public function isInteger(): Validator
+    public function isInteger(): static
     {
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
@@ -170,9 +171,9 @@ class Validator
      *
      * This method ensures that the specified array key is an float
      *
-     * @return Validator
+     * @return static
      */
-    public function isFloat(): Validator
+    public function isFloat(): static
     {
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
@@ -193,9 +194,9 @@ class Validator
      *
      * This method ensures that the specified array key is numeric
      *
-     * @return Validator
+     * @return static
      */
-    public function isNumeric(): Validator
+    public function isNumeric(): static
     {
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
@@ -217,9 +218,9 @@ class Validator
      * This method ensures that the specified array key is positive
      *
      * @param bool $allow_zero
-     * @return Validator
+     * @return static
      */
-    public function isPositive(bool $allow_zero = false): Validator
+    public function isPositive(bool $allow_zero = false): static
     {
         return $this->validateValues(function($value) use ($allow_zero) {
             $this->isNumeric();
@@ -244,9 +245,9 @@ class Validator
      *
      * This method ensures that the specified array key is a valid database id (integer, 1 and above)
      *
-     * @return Validator
+     * @return static
      */
-    public function isId(): Validator
+    public function isId(): static
     {
         return $this->isPositive(false);
     }
@@ -259,9 +260,9 @@ class Validator
      * This method ensures that the specified array key is positive
      *
      * @param int|float $amount
-     * @return Validator
+     * @return static
      */
-    public function isMoreThan(int|float $amount): Validator
+    public function isMoreThan(int|float $amount): static
     {
         return $this->validateValues(function($value) use ($amount) {
             $this->isNumeric();
@@ -287,9 +288,9 @@ class Validator
      * This method ensures that the specified array key is positive
      *
      * @param int|float $amount
-     * @return Validator
+     * @return static
      */
-    public function isLessThan(int|float $amount): Validator
+    public function isLessThan(int|float $amount): static
     {
         return $this->validateValues(function($value) use ($amount) {
             $this->isNumeric();
@@ -316,9 +317,9 @@ class Validator
      *
      * @param int|float $minimum
      * @param int|float $maximum
-     * @return Validator
+     * @return static
      */
-    public function isBetween(int|float $minimum, int|float $maximum): Validator
+    public function isBetween(int|float $minimum, int|float $maximum): static
     {
         return $this->validateValues(function($value) use ($minimum, $maximum) {
             $this->isNumeric();
@@ -344,9 +345,9 @@ class Validator
      * This method ensures that the specified array key is negative
      *
      * @param bool $allow_zero
-     * @return Validator
+     * @return static
      */
-    public function isNegative(bool $allow_zero = false): Validator
+    public function isNegative(bool $allow_zero = false): static
     {
         return $this->validateValues(function($value) use ($allow_zero) {
             $this->isNumeric();
@@ -371,9 +372,9 @@ class Validator
      *
      * This method ensures that the specified array key is a scalar value
      *
-     * @return Validator
+     * @return static
      */
-    public function isScalar(): Validator
+    public function isScalar(): static
     {
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
@@ -395,7 +396,7 @@ class Validator
      * This method ensures that the specified array key is a scalar value
      *
      * @param array $array
-     * @return Validator
+     * @return static
      */
     public function inArray(array $array) : Validator
     {
@@ -425,7 +426,7 @@ class Validator
      * This method ensures that the specified array key contains the specified string
      *
      * @param string $string
-     * @return Validator
+     * @return static
      */
     public function contains(string $string) : Validator
     {
@@ -453,9 +454,9 @@ class Validator
      *
      * This method ensures that the specified array key is a string
      *
-     * @return Validator
+     * @return static
      */
-    public function isString(): Validator
+    public function isString(): static
     {
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
@@ -475,9 +476,9 @@ class Validator
      * Validates that the selected field is equal or larger than the specified amount of characters
      *
      * @param int $characters
-     * @return Validator
+     * @return static
      */
-    public function hasCharacters(int $characters): Validator
+    public function hasCharacters(int $characters): static
     {
         return $this->validateValues(function($value) use ($characters) {
             $this->isString();
@@ -501,9 +502,9 @@ class Validator
      * Validates that the selected field is equal or larger than the specified amount of characters
      *
      * @param int $characters
-     * @return Validator
+     * @return static
      */
-    public function hasMinCharacters(int $characters): Validator
+    public function hasMinCharacters(int $characters): static
     {
         return $this->validateValues(function($value) use ($characters) {
             $this->isString();
@@ -527,9 +528,9 @@ class Validator
      * Validates that the selected field is equal or shorter than the specified amount of characters
      *
      * @param int|null $characters
-     * @return Validator
+     * @return static
      */
-    public function hasMaxCharacters(?int $characters = null): Validator
+    public function hasMaxCharacters(?int $characters = null): static
     {
         return $this->validateValues(function($value) use ($characters) {
             $this->isString();
@@ -543,7 +544,11 @@ class Validator
             if ($characters === null) {
                 $characters = $this->max_string_size;
             } elseif ($characters > $this->max_string_size) {
-                Log::warning(tr('The specified amount of maximum characters ":specified" surpasses the configured amount of ":configured". Forcing configured amount instead', [':specified' => $characters, ':configured' => $this->max_string_size]));
+                Log::warning(tr('The specified amount of maximum characters ":specified" surpasses the configured amount of ":configured". Forcing configured amount instead', [
+                    ':specified'  => $characters,
+                    ':configured' => $this->max_string_size
+                ]));
+
                 $characters = $this->max_string_size;
             }
 
@@ -561,9 +566,9 @@ class Validator
      * Validates that the selected field matches the specified regex
      *
      * @param string $regex
-     * @return Validator
+     * @return static
      */
-    public function matchesRegex(string $regex): Validator
+    public function matchesRegex(string $regex): static
     {
         return $this->validateValues(function($value) use ($regex) {
             $this->isString();
@@ -586,9 +591,9 @@ class Validator
     /**
      * Validates that the selected field contains only alphabet characters
      *
-     * @return Validator
+     * @return static
      */
-    public function isAlpha(): Validator
+    public function isAlpha(): static
     {
         return $this->validateValues(function($value) {
             $this->isString();
@@ -611,9 +616,9 @@ class Validator
     /**
      * Validates that the selected field contains only alphanumeric characters
      *
-     * @return Validator
+     * @return static
      */
-    public function isAlphaNumeric(): Validator
+    public function isAlphaNumeric(): static
     {
         return $this->validateValues(function($value) {
             $this->isString();
@@ -636,9 +641,9 @@ class Validator
     /**
      * Validates that the selected field contains only lowercase letters
      *
-     * @return Validator
+     * @return static
      */
-    public function isLowercase(): Validator
+    public function isLowercase(): static
     {
         return $this->validateValues(function($value) {
             $this->isString();
@@ -661,9 +666,9 @@ class Validator
     /**
      * Validates that the selected field contains only uppercase letters
      *
-     * @return Validator
+     * @return static
      */
-    public function isUppercase(): Validator
+    public function isUppercase(): static
     {
         return $this->validateValues(function($value) {
             $this->isString();
@@ -684,11 +689,12 @@ class Validator
 
 
     /**
-     * Validates that the selected field contains only characters that are printable, but neither letter, digit or blank
+     * Validates that the selected field contains only characters that are printable, but neither letter, digit nor
+     * blank
      *
-     * @return Validator
+     * @return static
      */
-    public function isPunct(): Validator
+    public function isPunct(): static
     {
         return $this->validateValues(function($value) {
             $this->isString();
@@ -711,9 +717,9 @@ class Validator
     /**
      * Validates that the selected field contains only printable characters (including blanks)
      *
-     * @return Validator
+     * @return static
      */
-    public function isPrintable(): Validator
+    public function isPrintable(): static
     {
         return $this->validateValues(function($value) {
             $this->isString();
@@ -736,9 +742,9 @@ class Validator
     /**
      * Validates that the selected field contains only printable characters (NO blanks)
      *
-     * @return Validator
+     * @return static
      */
-    public function isGraph(): Validator
+    public function isGraph(): static
     {
         return $this->validateValues(function($value) {
             $this->isString();
@@ -761,9 +767,9 @@ class Validator
     /**
      * Validates that the selected field contains only whitespace characters
      *
-     * @return Validator
+     * @return static
      */
-    public function isWhitespace(): Validator
+    public function isWhitespace(): static
     {
         return $this->validateValues(function($value) {
             $this->isString();
@@ -786,9 +792,9 @@ class Validator
     /**
      * Validates that the selected field contains only hexadecimal characters
      *
-     * @return Validator
+     * @return static
      */
-    public function isHexadecimal(): Validator
+    public function isHexadecimal(): static
     {
         return $this->validateValues(function($value) {
             $this->isString();
@@ -811,9 +817,9 @@ class Validator
     /**
      * Validates that the selected field contains only octal numbers
      *
-     * @return Validator
+     * @return static
      */
-    public function isOctal(): Validator
+    public function isOctal(): static
     {
         return $this->validateValues(function($value) {
             $this->isString();
@@ -839,9 +845,9 @@ class Validator
      * @param mixed $validate_value
      * @param bool $strict If true, will perform a strict check
      * @param bool $secret If specified the $validate_value will not be shown
-     * @return Validator
+     * @return static
      */
-    public function isValue(mixed $validate_value, bool $strict = false, bool $secret = false): Validator
+    public function isValue(mixed $validate_value, bool $strict = false, bool $secret = false): static
     {
         return $this->validateValues(function($value) use ($validate_value, $strict, $secret) {
             if ($strict) {
@@ -880,9 +886,9 @@ class Validator
     /**
      * Validates that the selected field is a date
      *
-     * @return Validator
+     * @return static
      */
-    public function isDate(): Validator
+    public function isDate(): static
     {
         return $this->validateValues(function($value) {
             $this->isString();
@@ -908,9 +914,9 @@ class Validator
      * Validates that the selected date field is older than the specified date
      *
      * @param DateTime $date_time
-     * @return Validator
+     * @return static
      */
-    public function isOlderThan(DateTime $date_time): Validator
+    public function isOlderThan(DateTime $date_time): static
     {
         return $this->validateValues(function($value) use ($date_time) {
             $this->isDate();
@@ -935,9 +941,9 @@ class Validator
      * Validates that the selected date field is younger than the specified date
      *
      * @param DateTime $date_time
-     * @return Validator
+     * @return static
      */
-    public function isYoungerThan(DateTime $date_time): Validator
+    public function isYoungerThan(DateTime $date_time): static
     {
         return $this->validateValues(function($value) use ($date_time) {
             $this->isDate();
@@ -963,9 +969,9 @@ class Validator
      *
      * This method ensures that the specified array key is an array
      *
-     * @return Validator
+     * @return static
      */
-    public function isArray(): Validator
+    public function isArray(): static
     {
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
@@ -985,9 +991,9 @@ class Validator
      * Validates that the selected field array has a minimal amount of elements
      *
      * @param int $count
-     * @return Validator
+     * @return static
      */
-    public function hasElements(int $count): Validator
+    public function hasElements(int $count): static
     {
         return $this->validateValues(function($value) use ($count) {
             $this->isArray();
@@ -1011,9 +1017,9 @@ class Validator
      * Validates that the selected field array has a minimal amount of elements
      *
      * @param int $count
-     * @return Validator
+     * @return static
      */
-    public function hasMinimumElements(int $count): Validator
+    public function hasMinimumElements(int $count): static
     {
         return $this->validateValues(function($value) use ($count) {
             $this->isArray();
@@ -1037,9 +1043,9 @@ class Validator
      * Validates that the selected field array has a maximum amount of elements
      *
      * @param int $count
-     * @return Validator
+     * @return static
      */
-    public function hasMaximumElements(int $count): Validator
+    public function hasMaximumElements(int $count): static
     {
         return $this->validateValues(function($value) use ($count) {
             $this->isArray();
@@ -1062,9 +1068,9 @@ class Validator
     /**
      * Validates if the selected field is a valid email address
      *
-     * @return Validator
+     * @return static
      */
-    public function isHttpMethod(): Validator
+    public function isHttpMethod(): static
     {
         return $this->validateValues(function($value) {
             $this->hasMinCharacters(3)->hasMaxCharacters(128);
@@ -1102,9 +1108,9 @@ class Validator
     /**
      * Validates if the selected field is a valid email address
      *
-     * @return Validator
+     * @return static
      */
-    public function isEmail(): Validator
+    public function isEmail(): static
     {
         return $this->validateValues(function($value) {
             $this->hasMinCharacters(3)->hasMaxCharacters(128);
@@ -1127,9 +1133,9 @@ class Validator
     /**
      * Validates if the selected field is a valid email address
      *
-     * @return Validator
+     * @return static
      */
-    public function isUrl(): Validator
+    public function isUrl(): static
     {
         return $this->validateValues(function($value) {
             $this->hasMinCharacters(3)->hasMaxCharacters(128);
@@ -1152,9 +1158,9 @@ class Validator
     /**
      * Validates if the selected field is a valid IP address
      *
-     * @return Validator
+     * @return static
      */
-    public function isIp(): Validator
+    public function isIp(): static
     {
         return $this->validateValues(function($value) {
             $this->hasMinCharacters(3)->hasMaxCharacters(48);
@@ -1178,14 +1184,14 @@ class Validator
      * Validates if the selected field is a valid JSON string
      *
      * @copyright The used JSON regex validation taken from a twitter post by @Fish_CTO
-     * @return Validator
+     * @return static
      * @see self::isCsv()
      * @see self::isBase58()
      * @see self::isBase64()
      * @see self::isSerialized()
      * @see self::sanitizeDecodeJson()
      */
-    public function isJson(): Validator
+    public function isJson(): static
     {
         return $this->validateValues(function($value) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
@@ -1216,13 +1222,13 @@ class Validator
      * @param string $separator The separation character, defaults to comma
      * @param string $enclosure
      * @param string $escape
-     * @return Validator
+     * @return static
      * @see self::isBase58()
      * @see self::isBase64()
      * @see self::isSerialized()
      * @see self::sanitizeDecodeCsv()
      */
-    public function isCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): Validator
+    public function isCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static
     {
         return $this->validateValues(function($value) use ($separator, $enclosure, $escape) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
@@ -1234,8 +1240,10 @@ class Validator
 
             try {
                 str_getcsv($value, $separator, $enclosure, $escape);
-            } catch (Throwable $e) {
-                $this->addFailure(tr('must contain a valid ":separator" separated string', [':separator' => $separator]));
+            } catch (Throwable) {
+                $this->addFailure(tr('must contain a valid ":separator" separated string', [
+                    ':separator' => $separator
+                ]));
             }
 
             return $value;
@@ -1247,14 +1255,14 @@ class Validator
     /**
      * Validates if the selected field is a serialized string
      *
-     * @return Validator
+     * @return static
      * @see self::isCsv()
      * @see self::isBase58()
      * @see self::isBase64()
      * @see self::isSerialized()
      * @see self::sanitizeDecodeSerialized()
      */
-    public function isSerialized(): Validator
+    public function isSerialized(): static
     {
         return $this->validateValues(function($value) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
@@ -1266,7 +1274,7 @@ class Validator
 
             try {
                 unserialize($value);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid serialized string'));
             }
 
@@ -1279,13 +1287,13 @@ class Validator
     /**
      * Validates if the selected field is a base58 string
      *
-     * @return Validator
+     * @return static
      * @see self::isCsv()
      * @see self::isBase64()
      * @see self::isSerialized()
      * @see self::sanitizeDecodeBase58()
      */
-    public function isBase58(): Validator
+    public function isBase58(): static
     {
         return $this->validateValues(function($value) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
@@ -1297,7 +1305,7 @@ class Validator
 
             try {
                 base58_decode($value);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid bas58 encoded string'));
             }
 
@@ -1310,13 +1318,13 @@ class Validator
     /**
      * Validates if the selected field is a base64 string
      *
-     * @return Validator
+     * @return static
      * @see self::isCsv()
      * @see self::isBase58()
      * @see self::isSerialized()
      * @see self::sanitizeDecodeBase64()
      */
-    public function isBase64(): Validator
+    public function isBase64(): static
     {
         return $this->validateValues(function($value) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
@@ -1328,7 +1336,7 @@ class Validator
 
             try {
                 base64_decode($value);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid bas64 encoded string'));
             }
 
@@ -1342,10 +1350,10 @@ class Validator
      * Sanitize the selected value by trimming whitespace
      *
      * @param string $characters
-     * @return Validator
+     * @return static
      * @see trim()
      */
-    public function sanitizeTrim(string $characters = "\t\n\r\0\x0B"): Validator
+    public function sanitizeTrim(string $characters = "\t\n\r\0\x0B"): static
     {
         return $this->validateValues(function($value) use ($characters) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
@@ -1355,9 +1363,7 @@ class Validator
                 return '';
             }
 
-            $value = trim($value, $characters);
-
-            return $value;
+            return trim($value, $characters);
         });
     }
 
@@ -1366,11 +1372,11 @@ class Validator
     /**
      * Sanitize the selected value by making the entire string uppercase
      *
-     * @return Validator
+     * @return static
      * @see self::sanitizeTrim()
      * @see self::sanitizeLowercase()
      */
-    public function sanitizeUppercase(): Validator
+    public function sanitizeUppercase(): static
     {
         return $this->validateValues(function($value) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
@@ -1382,7 +1388,7 @@ class Validator
 
             try {
                 $value = mb_strtoupper($value);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid string'));
             }
 
@@ -1395,11 +1401,11 @@ class Validator
     /**
      * Sanitize the selected value by making the entire string lowercase
      *
-     * @return Validator
+     * @return static
      * @see self::sanitizeTrim()
      * @see self::sanitizeUppercase()
      */
-    public function sanitizeLowercase(): Validator
+    public function sanitizeLowercase(): static
     {
         return $this->validateValues(function($value) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
@@ -1411,7 +1417,7 @@ class Validator
 
             try {
                 $value = mb_strtolower($value);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid string'));
             }
 
@@ -1427,10 +1433,10 @@ class Validator
      * @param array $replace A key => value map of all items that should be searched / replaced
      * @param bool $regex If true, all keys in the $replace array will be treated as a regex instead of a normal string
      *                    This is slower and more memory intensive, but more flexible as well.
-     * @return Validator
+     * @return static
      * @see trim()
      */
-    public function sanitizeSearchReplace(array $replace, bool $regex = false): Validator
+    public function sanitizeSearchReplace(array $replace, bool $regex = false): static
     {
         return $this->validateValues(function($value) use ($replace, $regex) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
@@ -1459,13 +1465,13 @@ class Validator
      * Sanitize the selected value by decoding the JSON
      *
      * @param bool $array If true, will return the data in associative arrays instead of generic objects
-     * @return Validator
+     * @return static
      * @see self::isJson()
      * @see self::sanitizeDecodeCsv()
      * @see self::sanitizeDecodeSerialized()
      * @see self::sanitizeMakeString()
      */
-    public function sanitizeDecodeJson(bool $array = true): Validator
+    public function sanitizeDecodeJson(bool $array = true): static
     {
         return $this->validateValues(function($value) use ($array) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
@@ -1477,7 +1483,7 @@ class Validator
 
             try {
                 $value = Json::decode($value);
-            } catch (JsonException $e) {
+            } catch (JsonException) {
                 $this->addFailure(tr('must contain a valid JSON string'));
             }
 
@@ -1493,7 +1499,7 @@ class Validator
      * @param string $separator The separation character, defaults to comma
      * @param string $enclosure
      * @param string $escape
-     * @return Validator
+     * @return static
      * @see self::isCsv()
      * @see self::sanitizeDecodeBase58()
      * @see self::sanitizeDecodeBase64()
@@ -1502,7 +1508,7 @@ class Validator
      * @see self::sanitizeDecodeUrl()
      * @see self::sanitizeMakeString()
      */
-    public function sanitizeDecodeCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): Validator
+    public function sanitizeDecodeCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static
     {
         return $this->validateValues(function($value) use ($separator, $enclosure, $escape) {
             if ($this->process_value_failed) {
@@ -1512,8 +1518,10 @@ class Validator
 
             try {
                 $value = str_getcsv($value, $separator, $enclosure, $escape);
-            } catch (Throwable $e) {
-                $this->addFailure(tr('must contain a valid ":separator" separated string', [':separator' => $separator]));
+            } catch (Throwable) {
+                $this->addFailure(tr('must contain a valid ":separator" separated string', [
+                    ':separator' => $separator
+                ]));
             }
 
             return $value;
@@ -1525,7 +1533,7 @@ class Validator
     /**
      * Sanitize the selected value by decoding the specified CSV
      *
-     * @return Validator
+     * @return static
      * @see self::sanitizeDecodeBase58()
      * @see self::sanitizeDecodeBase64()
      * @see self::sanitizeDecodeCsv()
@@ -1533,7 +1541,7 @@ class Validator
      * @see self::sanitizeDecodeUrl()
      * @see self::sanitizeMakeString()
      */
-    public function sanitizeDecodeSerialized(): Validator
+    public function sanitizeDecodeSerialized(): static
     {
         return $this->validateValues(function($value) {
             if ($this->process_value_failed) {
@@ -1556,7 +1564,7 @@ class Validator
     /**
      * Sanitize the selected value by decoding the specified CSV
      *
-     * @return Validator
+     * @return static
      * @see self::sanitizeDecodeBase64()
      * @see self::sanitizeDecodeCsv()
      * @see self::sanitizeDecodeJson()
@@ -1564,7 +1572,7 @@ class Validator
      * @see self::sanitizeDecodeUrl()
      * @see self::sanitizeMakeString()
      */
-    public function sanitizeDecodeBase58(): Validator
+    public function sanitizeDecodeBase58(): static
     {
         return $this->validateValues(function($value) {
             if ($this->process_value_failed) {
@@ -1574,7 +1582,7 @@ class Validator
 
             try {
                 $value = base58_decode($value);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid base58 encoded string'));
             }
 
@@ -1587,7 +1595,7 @@ class Validator
     /**
      * Sanitize the selected value by decoding the specified CSV
      *
-     * @return Validator
+     * @return static
      * @see self::sanitizeDecodeBase58()
      * @see self::sanitizeDecodeCsv()
      * @see self::sanitizeDecodeJson()
@@ -1595,7 +1603,7 @@ class Validator
      * @see self::sanitizeDecodeUrl()
      * @see self::sanitizeMakeString()
      */
-    public function sanitizeDecodeBase64(): Validator
+    public function sanitizeDecodeBase64(): static
     {
         return $this->validateValues(function($value) {
             if ($this->process_value_failed) {
@@ -1605,7 +1613,7 @@ class Validator
 
             try {
                 $value = base64_decode($value);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid base64 encoded string'));
             }
 
@@ -1618,7 +1626,7 @@ class Validator
     /**
      * Sanitize the selected value by decoding the specified CSV
      *
-     * @return Validator
+     * @return static
      * @see self::sanitizeDecodeBase58()
      * @see self::sanitizeDecodeBase64()
      * @see self::sanitizeDecodeCsv()
@@ -1626,7 +1634,7 @@ class Validator
      * @see self::sanitizeDecodeSerialized()
      * @see self::sanitizeMakeString()
      */
-    public function sanitizeDecodeUrl(): Validator
+    public function sanitizeDecodeUrl(): static
     {
         return $this->validateValues(function($value) {
             if ($this->process_value_failed) {
@@ -1636,7 +1644,7 @@ class Validator
 
             try {
                 $value = urldecode($value);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid url string'));
             }
 
@@ -1649,7 +1657,7 @@ class Validator
     /**
      * Sanitize the selected value by making it a string
      *
-     * @return Validator
+     * @return static
      * @see self::sanitizeDecodeBase58()
      * @see self::sanitizeDecodeBase64()
      * @see self::sanitizeDecodeCsv()
@@ -1657,7 +1665,7 @@ class Validator
      * @see self::sanitizeDecodeSerialized()
      * @see self::sanitizeDecodeUrl()
      */
-    public function sanitizeMakeString(): Validator
+    public function sanitizeMakeString(): static
     {
         return $this->validateValues(function($value) {
             if ($this->process_value_failed) {
@@ -1667,7 +1675,7 @@ class Validator
 
             try {
                 $value = Strings::force($value);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 $this->addFailure(tr('cannot be processed'));
             }
 

@@ -2,6 +2,8 @@
 
 namespace Phoundation\Data\Exception;
 
+use Phoundation\Data\Validator\Exception\ValidatorException;
+
 
 
 /**

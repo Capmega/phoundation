@@ -5,25 +5,23 @@ namespace Phoundation\Data\Validator;
 
 
 /**
- * PostValidator class
+ * ArgvValidator class
  *
- * This class validates data from untrusted $_POST
- *
- * $_REQUEST will be cleared automatically as this array should not  be used.
+ * This class validates data from untrusted $argv
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class PostValidator extends Validator
+class ArgvValidator extends Validator
 {
     /**
-     * Internal $_POST array until validation has been completed
+     * Internal $argv array until validation has been completed
      *
-     * @var array|null $post
+     * @var array|null $argv
      */
-    protected static ?array $post = null;
+    protected static ?array $argv = null;
 
 
 
@@ -40,7 +38,7 @@ class PostValidator extends Validator
      * @param Validator|null $parent If specified, this is actually a child validator to the specified parent
      */
     public function __construct(?Validator $parent = null) {
-        $this->source = &self::$post;
+        $this->source = &self::$argv;
         $this->parent = $parent;
     }
 
@@ -60,36 +58,32 @@ class PostValidator extends Validator
 
 
     /**
-     * Link $_GET and $_POST and $argv data to internal arrays to ensure developers cannot access them until validation
+     * Link $_GET and $argv and $argv data to internal arrays to ensure developers cannot access them until validation
      * has been completed
-     *
-     * @note This class will purge the $_REQUEST array as this array contains a mix of $_GET and $_POST variables which
-     *       should never be used
      *
      * @return void
      */
     public static function hideData(): void
     {
-        global $_POST;
+        global $argv;
 
-        // Copy POST data and reset both POST and REQUEST
-        self::$post = $_POST;
+        // Copy $argv data and reset the global $argv
+        self::$argv = $argv;
 
-        $_POST    = [];
-        $_REQUEST = [];
+        $argv     = [];
     }
 
 
 
     /**
-     * Gives free and full access to $_POST data, now that it has been validated
+     * Gives free and full access to $argv data, now that it has been validated
      *
      * @return void
      */
     protected static function liberateData(): void
     {
-        global $_POST;
-        $_POST = self::$post;
-        self::$post = null;
+        global $argv;
+        $argv = self::$argv;
+        self::$argv = null;
     }
 }
