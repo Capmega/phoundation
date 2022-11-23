@@ -3,7 +3,7 @@
 namespace Templates\Phoundation\Components;
 
 use Plugins\Mdb\Components\NavBar;
-use Templates\Phoundation\Modals\SigninModal;
+use Templates\Phoundation\Modals\SignInModal;
 
 
 
@@ -25,6 +25,6 @@ class NavigationBar extends NavBar
     public function __construct()
     {
         parent::__construct();
-        $this->signin_modal = new SigninModal();
+        $this->sign_in_modal = new SignInModal();
     }
 }

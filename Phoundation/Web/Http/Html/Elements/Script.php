@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http\Html\Elements;
 
 use Phoundation\Core\Log;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
@@ -27,6 +28,59 @@ use Throwable;
 class Script extends Element
 {
     /**
+     * What event to wrap this script into
+     *
+     * @var string|null $event_wrapper
+     */
+    protected ?string $event_wrapper = 'dom_content';
+
+
+
+    /**
+     * Returns the event wrapper code for this script
+     *
+     * @return string|null
+     */
+    public function getEventWrapper(): ?string
+    {
+        return $this->event_wrapper;
+    }
+
+
+
+    /**
+     * Sets the event wrapper code for this script
+     *
+     * @param string|null $event_wrapper
+     * @return static
+     */
+    public function setEventWrapper(?string $event_wrapper): static
+    {
+        switch ($event_wrapper) {
+            case 'dom_content':
+                // no-break
+            case 'window':
+                // no-break
+            case 'function':
+                // no-break
+            case '':
+                // no-break
+            case null:
+                break;
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown event wrapper ":value" specified', [
+                    ':value' => $event_wrapper
+                ]));
+        }
+
+        $this->event_wrapper = $event_wrapper;
+        return $this;
+    }
+
+
+
+    /**
      * Generates and returns the HTML string for a <script> element
      *
      * @note: If web.javascript.delay is configured true, it will return an empty string and add the string to the
@@ -35,6 +89,48 @@ class Script extends Element
      */
     public function render(): string
     {
+        $content = '';
+
+        /*
+         * Apply event wrapper
+         *
+         * On what event should this script be executed? Eithere boolean true
+         * for standard "document ready" or your own jQuery
+         *
+         * If false, no event wrapper will be added
+         */
+        switch ($this->event_wrapper) {
+            case 'dom_content':
+                $content = 'document.addEventListener("DOMContentLoaded", function(e) {
+                              ' . $this->content . '
+                           });';
+                break;
+
+            case 'window':
+                $content = 'window.addEventListener("load", function(e) {
+                              ' . $this->content . '
+                           });';
+                break;
+
+            case 'function':
+                $content = '$(function() {
+                              ' . $this->content . '
+                           });';
+                break;
+
+            case '':
+                // no-break
+            case null:
+                break;
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown event wrapper ":value" specified', [
+                    ':value' => $this->event_wrapper
+                ]));
+        }
+
+        return '<script type="text/javascript">' . $content . '</script>';
+
         /*
          * @note If $_CONFIG[cdn][js][load_delayed] is true, this function will not return anything, and add the generated HTML to $core->register[script_delayed] instead
          * @note Even if $_CONFIG[cdn][js][load_delayed] is true, the return value of this function should always be received in a variable, just in case the setting gets changes for whatever reason

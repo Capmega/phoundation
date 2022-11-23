@@ -3,7 +3,7 @@
 namespace Templates\Phoundation;
 
 use Phoundation\Web\Http\Html\Template\Template;
-
+use Phoundation\Web\Page;
 
 
 /**

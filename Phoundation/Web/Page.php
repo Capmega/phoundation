@@ -620,7 +620,7 @@ class Page
             ]));
         }
 
-        foreach (Arrays::force($urls, '') as $url) {
+        foreach (Arrays::force($urls, ',') as $url) {
             if ($header) {
                 self::$headers['javascript'][$url] = [
                     'type' => 'text/javascript',

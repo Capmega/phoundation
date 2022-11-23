@@ -59,9 +59,9 @@ class NavBar extends ElementsBlock
     /**
      * The modal for the signin page
      *
-     * @var Modal|null $signin_modal
+     * @var Modal|null $sign_in_modal
      */
-    protected ?Modal $signin_modal = null;
+    protected ?Modal $sign_in_modal = null;
 
 
 
@@ -118,13 +118,13 @@ class NavBar extends ElementsBlock
 
 
     /**
-     * Returns the navbar signin modal
+     * Returns the navbar sign-in modal
      *
-     * @return array|null
+     * @return Modal|null
      */
-    public function getSigninModal(): ?Modal
+    public function getSignInModal(): ?Modal
     {
-        return $this->signin_modal;
+        return $this->sign_in_modal;
     }
 
 
@@ -132,12 +132,12 @@ class NavBar extends ElementsBlock
     /**
      * Sets the navbar signin modal
      *
-     * @param Modal|null $signin_modal
+     * @param Modal|null $sign_in_modal
      * @return static
      */
-    public function setProfileMenugetSigninModal(?Modal $signin_modal): static
+    public function setSignInModal(?Modal $sign_in_modal): static
     {
-        $this->signin_modal = $signin_modal;
+        $this->sign_in_modal = $sign_in_modal;
         return $this;
     }
 
@@ -150,8 +150,8 @@ class NavBar extends ElementsBlock
      */
     public function render(): string
     {
-        if (!$this->signin_modal) {
-            throw new OutOfBoundsException(tr('Failed to render NavBar component, no signin modal specified'));
+        if (!$this->sign_in_modal) {
+            throw new OutOfBoundsException(tr('Failed to render NavBar component, no sign-in modal specified'));
         }
 
         $html = '    <!-- Navbar -->
@@ -235,7 +235,7 @@ class NavBar extends ElementsBlock
                     </nav>
                     <!-- Navbar -->';
 
-        $html .= $this->signin_modal::new()->render() . PHP_EOL;
+        $html .= $this->sign_in_modal->render() . PHP_EOL;
 
         return $html;
     }

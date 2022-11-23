@@ -69,8 +69,21 @@ class ArgvValidator extends Validator
 
         // Copy $argv data and reset the global $argv
         self::$argv = $argv;
+        $argv = [];
+    }
 
-        $argv     = [];
+
+
+    /**
+     * Validate GET data and liberate GET data if all went well.
+     *
+     * @return $this
+     */
+    public function validate(): static
+    {
+        parent::validate();
+        $this->liberateData();
+        return $this;
     }
 
 

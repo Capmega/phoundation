@@ -7,8 +7,9 @@ use Phoundation\Web\Http\Html\Elements\Form;
 use Phoundation\Web\Http\Url;
 
 
+
 /**
- * MDB Plugin Signin form class
+ * MDB Plugin SignIn form class
  *
  *
  *
@@ -17,8 +18,15 @@ use Phoundation\Web\Http\Url;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\Mdb
  */
-class Signin extends Form
+class SignInForm extends Form
 {
+    /**
+     * The signin URL
+     *
+     * @var string|null
+     */
+    protected ?string $sign_in_url = null;
+
     /**
      * The register page URL
      *
@@ -46,6 +54,32 @@ class Signin extends Form
         $this->setForgotPasswordUrl(Config::get('web.defaults.urls.forgot-password', 'forgot-password'));
         $this->setAction(Config::get('web.defaults.urls.signin', 'signin'));
         $this->setMethod('post');
+    }
+
+
+
+    /**
+     * Returns the signin URL
+     *
+     * @return string
+     */
+    public function getSignInUrl(): string
+    {
+        return $this->sign_in_url;
+    }
+
+
+
+    /**
+     * Sets the signin URL
+     *
+     * @param string $sign_in_url
+     * @return static
+     */
+    public function setSignInUrl(string $sign_in_url): static
+    {
+        $this->sign_in_url = Url::build($sign_in_url)->www();
+        return $this;
     }
 
 
@@ -103,7 +137,7 @@ class Signin extends Form
 
 
     /**
-     * Render the HTML for this Signin form
+     * Render the HTML for this Sign-in form
      *
      * @return string
      */
@@ -111,14 +145,14 @@ class Signin extends Form
     {
         $this->content = '<!-- Email input -->
                           <div class="form-outline mb-4">
-                            <input type="email" id="form2Example1" class="form-control" />
-                            <label class="form-label" for="form2Example1">' . tr('Email address') . '</label>
+                            <input type="email" id="email" name="email" class="form-control" />
+                            <label class="form-label" for="email">' . tr('Email address') . '</label>
                           </div>
                         
                           <!-- Password input -->
                           <div class="form-outline mb-4">
-                            <input type="password" id="form2Example2" class="form-control" />
-                            <label class="form-label" for="form2Example2">' . tr('Password') . '</label>
+                            <input type="password" id="password" name="password" class="form-control" />
+                            <label class="form-label" for="password">' . tr('Password') . '</label>
                           </div>
                         
                           <!-- 2 column grid layout for inline styling -->
@@ -126,8 +160,8 @@ class Signin extends Form
                             <div class="col d-flex justify-content-center">
                               <!-- Checkbox -->
                               <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="form2Example34" checked />
-                                <label class="form-check-label" for="form2Example34"> ' . tr('Remember me') . ' </label>
+                                <input class="form-check-input" type="checkbox" value="1" id="remember_me" name="remember_me" checked />
+                                <label class="form-check-label" for="remember_me"> ' . tr('Remember me') . ' </label>
                               </div>
                             </div>
                         
@@ -159,9 +193,8 @@ class Signin extends Form
                             <button type="button" class="btn btn-primary btn-floating mx-1">
                               <i class="fab fa-github"></i>
                             </button>
-                          </div>
-                        </form>';
+                          </div>';
 
-        return parent::render();
+       return parent::render();
     }
 }

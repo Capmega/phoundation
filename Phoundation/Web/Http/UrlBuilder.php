@@ -239,6 +239,42 @@ class UrlBuilder
 
 
     /**
+     * Returns an ajax URL
+     *
+     * @return string
+     */
+    public function ajax(): string
+    {
+        if (Url::is($this->url)) {
+            return $this->url;
+        }
+
+        $this->url = $this->buildDomainPrefix('www', 'ajax/' . $this->url);
+
+        return $this->url;
+    }
+
+
+
+    /**
+     * Returns an api URL
+     *
+     * @return string
+     */
+    public function api(): string
+    {
+        if (Url::is($this->url)) {
+            return $this->url;
+        }
+
+        $this->url = $this->buildDomainPrefix('www', 'api' . $this->url);
+
+        return $this->url;
+    }
+
+
+
+    /**
      * Returns a CSS URL
      *
      * @return string

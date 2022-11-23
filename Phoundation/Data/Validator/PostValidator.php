@@ -82,6 +82,20 @@ class PostValidator extends Validator
 
 
     /**
+     * Validate GET data and liberate GET data if all went well.
+     *
+     * @return $this
+     */
+    public function validate(): static
+    {
+        parent::validate();
+        $this->liberateData();
+        return $this;
+    }
+
+
+
+    /**
      * Gives free and full access to $_POST data, now that it has been validated
      *
      * @return void

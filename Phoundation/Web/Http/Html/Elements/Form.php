@@ -19,7 +19,7 @@ use Phoundation\Web\Http\Url;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\Mdb
  */
-class Form extends ElementsBlock
+class Form extends Element
 {
     /**
      * The submit method
@@ -79,6 +79,7 @@ class Form extends ElementsBlock
     public function __construct()
     {
         parent::__construct();
+        $this->setElement('form');
         $this->setAcceptCharset(Config::get('languages.encoding.', 'utf-8'));
     }
 
@@ -286,18 +287,42 @@ class Form extends ElementsBlock
 
 
     /**
-     * Render the HTML for this Signin form
+     * Add the system arguments to the arguments list
      *
-     * @return string
+     * @note The system attributes (id, name, class, autofocus, readonly, disabled) will overwrite those same
+     *       values that were added as general attributes using Element::addAttribute()
+     * @return array
      */
-    public function render(): string
+    protected function buildAttributes(): array
     {
-        if (!$this->action) {
-            throw new OutOfBoundsException(tr('Cannot render form, no action specified'));
+        if (!$this->method) {
+            throw new OutOfBoundsException(tr('Cannot render form, no "method" specified'));
         }
 
-        return '<form action="' . $this->action . '" method="' . $this->method . '"' . ($this->target ? ' target="' . $this->target . '"' : null) . ($this->no_validate ? ' novalidate' : null) . ($this->auto_complete ? ' autocomplete="on"' : null) . ($this->accept_charset ? ' accept-charset="' . $this->accept_charset . '"' : null) . ($this->rel ? ' rel="' . $this->rel . '"' : null) . ($this->name ? ' name="' . $this->name . '"' : null) . '>
-                ' . $this->content . '
-               </form>';
+        if (!$this->action) {
+            throw new OutOfBoundsException(tr('Cannot render form, no "action" specified'));
+        }
+
+        // These are obligatory
+        $return = [
+            'action'       => $this->action,
+            'method'       => $this->method,
+            'autocomplete' => $this->auto_complete ? 'on' : 'off',
+        ];
+
+        if ($this->no_validate) {
+            $return['novalidate'] = null;
+        }
+
+        if ($this->accept_charset) {
+            $return['accept-charset'] = $this->accept_charset;
+        }
+
+        if ($this->rel) {
+            $return['rel'] = $this->rel;
+        }
+
+        // Merge the system values over the set attributes
+        return array_merge(parent::buildAttributes(), $this->attributes, $return);
     }
 }

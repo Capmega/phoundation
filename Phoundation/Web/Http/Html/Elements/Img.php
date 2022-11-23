@@ -94,7 +94,7 @@ class Img extends Element
 
         if ($lazy_load) {
             $this->addClass('lazy');
-            Page::loadJavascript('jquery.lazy/jquery.lazy.js');
+            Page::loadJavascript('jquery/lazyload/jquery.lazyload');
         }
 
         $this->lazy_load = $lazy_load;
