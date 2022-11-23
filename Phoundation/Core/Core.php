@@ -20,7 +20,6 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Server;
 use Phoundation\Web\Client;
-use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
@@ -231,8 +230,8 @@ class Core {
                     // Register basic HTTP information
                     // TODO MOVE TO HTTP CLASS
                     self::$register['http']['code'] = 200;
-//                    self::$register['http']['accepts'] = Http::accepts();
-//                    self::$register['http']['accepts_languages'] = Http::acceptsLanguages();
+//                    self::$register['http']['accepts'] = Page::accepts();
+//                    self::$register['http']['accepts_languages'] = Page::acceptsLanguages();
                     break;
             }
 
@@ -310,12 +309,7 @@ class Core {
                      * with route execution, $_SERVER[PHP_SELF] would be route, so we cannot use that. Route will store
                      * the file being executed in self::$register['script_path'] instead
                      */
-                    if (isset(self::$register['script_path'])) {
-                        $file = '/' . self::$register['script_path'];
-
-                    } else {
-                        $file = '/' . $_SERVER['PHP_SELF'];
-                    }
+                    $file = $_SERVER['REQUEST_URI'];
 
                     // Autodetect what http call type we're on from the script being executed
                     if (str_contains($file, '/admin/')) {
@@ -379,29 +373,17 @@ class Core {
                     // DEPRECATED
                     // TODO THIS SHOULD BE DONE BY THE Route CLASS!
                     try {
-                        $supported = Config::get('languages.supported', ['en' => []]);
+                        $supported = Config::get('languages.supported', ['en', 'es']);
 
                         if ($supported) {
                             // Language is defined by the www/LANGUAGE dir that is used.
-                            $url = $_SERVER['REQUEST_URI'];
+                            $url      = $_SERVER['REQUEST_URI'];
+                            $url      = Strings::startsNotWith($url, '/');
+                            $language = Strings::until($url, '/');
 
-                            if (empty($url)) {
-                                $url      = $_SERVER['REQUEST_URI'];
-                                $url      = Strings::startsNotWith($url, '/');
-                                $language = Strings::until($url, '/');
-
-                                if (!array_key_exists($language, $supported)) {
-                                    Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration languages.supported', [':language' => $language]));
-                                    $language = Config::get('languages.default', 'en');
-                                }
-
-                            } else {
-                                $language = substr($url, 0, 2);
-
-                                if (!array_key_exists($language, $supported)) {
-                                    Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration languages.supported', [':language' => $language]));
-                                    $language = Config::get('languages.default', 'en');
-                                }
+                            if (!in_array($language, $supported)) {
+                                Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration languages.supported', [':language' => $language]));
+                                $language = Config::get('languages.default', 'en');
                             }
 
                         } else {
@@ -451,12 +433,12 @@ class Core {
 
                     // If POST request, automatically untranslate translated POST entries
                     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                        Html::untranslate();
-                        Html::fixCheckboxValues();
+//                        Html::untranslate();
+//                        Html::fixCheckboxValues();
 
-                        if (Config::get('security.csrf.enabled') === 'force') {
+                        if (Config::getBoolean('security.csrf.enabled', true) === 'force') {
                             // Force CSRF checks on every submit!
-                            Http::checkCsrf();
+//                            Http::checkCsrf();
                         }
                     }
 
@@ -1491,7 +1473,7 @@ class Core {
                         }
 
                         //
-                        Http::setHttpCode(500);
+                        Page::setHttpCode(500);
                         self::unregisterShutdown('route_postprocess');
 
                         $defines = [
@@ -2374,7 +2356,7 @@ class Core {
         if (!$domain) {
             // No domain was requested at all, so probably instead of a domain name, an IP was requested. Redirect to
             // the domain name
-            Http::redirect(PROTOCOL.Web::getDomain());
+            Page::redirect(PROTOCOL.Web::getDomain());
         }
 
 
@@ -2394,7 +2376,7 @@ class Core {
                         ':target' => Web::getDomain()
                     ]));
 
-                    Http::redirect(PROTOCOL . Web::getDomain());
+                    Page::redirect(PROTOCOL . Web::getDomain());
                     break;
 
                 case 'all':

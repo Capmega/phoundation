@@ -93,7 +93,7 @@ class UrlBuilder
             $this->process = false;
         } else {
             // This is a URL section
-            $this->url = $url;
+            $this->url = Strings::startsNotWith($url, '/');
         }
 
         $this->setCloaked($cloaked);

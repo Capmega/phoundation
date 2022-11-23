@@ -17,12 +17,52 @@ namespace Phoundation\Api;
 class ApiInterface
 {
     /**
+     * Returns a new ApiInterface object
+     *
+     * @return ApiInterface
+     */
+    public static function new(): ApiInterface
+    {
+        return new ApiInterface();
+    }
+
+
+
+    /**
      * Execute the specified API page
      *
      * @param string $target
-     * @return string
+     * @return string|null
      */
-    public function execute(string $target): string
+    public function execute(string $target): ?string
+    {
+        include($target);
+
+        $output = '';
+
+        // Get all output buffers and restart buffer
+        while(ob_get_level()) {
+            $output .= ob_get_contents();
+            ob_end_clean();
+        }
+
+        ob_start(chunk_size: 4096);
+
+        // Build Template specific HTTP headers
+        $this->buildHttpHeaders($output);
+
+        return $output;
+    }
+
+
+
+    /**
+     * Build and send API specific HTTP headers
+     *
+     * @param string $output
+     * @return void
+     */
+    public function buildHttpHeaders(string $output): void
     {
 
     }

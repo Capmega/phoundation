@@ -147,13 +147,8 @@ abstract class TemplatePage
         $output .= $this->buildHtmlFooter();
         $output  = Html::minify($output);
 
-        // Build headers
-        $this->buildHttpHeaders();
-
-        if (strtoupper($_SERVER['REQUEST_METHOD']) == 'HEAD') {
-            // HEAD request, do not send any HTML whatsoever
-            return null;
-        }
+        // Build Template specific HTTP headers
+        $this->buildHttpHeaders($output);
 
         return $output;
     }
@@ -231,9 +226,10 @@ abstract class TemplatePage
     /**
      * Build and send HTTP headers
      *
+     * @param string $output
      * @return void
      */
-    public abstract function buildHttpHeaders(): void;
+    public abstract function buildHttpHeaders(string $output): void;
 
     /**
      * Build the HTML header for the page

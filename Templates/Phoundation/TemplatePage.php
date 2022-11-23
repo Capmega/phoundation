@@ -4,6 +4,7 @@ namespace Templates\Phoundation;
 
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Http;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Page;
 use Plugins\Mdb\Components\Footer;
 use Templates\Phoundation\Components\NavigationBar;
@@ -42,13 +43,13 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     /**
      * Build the HTTP headers for the page
      *
+     * @param string $output
      * @return void
      *
-     * @throws Throwable
      */
-    public function buildHttpHeaders(): void
+    public function buildHttpHeaders(string $output): void
     {
-        Http::setContentType('text/html');
+        Page::setContentType('text/html');
         Page::setDoctype('html');
     }
 
@@ -93,7 +94,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
                 ->getForm()
                     ->setId('form-signin')
                     ->setMethod('post')
-                    ->setAction(Config::get('web.pages.signin', 'sign-in.html'));
+                    ->setAction(Url::build(Config::get('web.pages.signin', '/system/sign-in.html'))->ajax());
 
         $html = '<body class="mdb-skin-custom " data-mdb-spy="scroll" data-mdb-target="#scrollspy" data-mdb-offset="250">
                     <header>

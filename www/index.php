@@ -103,10 +103,20 @@ $route = new Route(Phoundation::new());
 //    'over-ons'     => 'about'
 //]);
 
-// Try the following routes
+
+
+// AJAX routes
+$route->try('/^\w{2}\/ajax\/(.+?).html$/', '/en/ajax/$1.php', '' ); // Show the requested AJAX page
+
+
+
+// Page routes
 $route->try('/^(.+?).html$/'  , '/en/pages/$1.php'      , 'Q'); // Show the requested page
 $route->try('/^$/'            , '/en/pages/index.php'   , 'Q'); // Show index page
 $route->try('/^admin\/(.+?)$/', '/en/pages/admin/$1.php', '' ); // Show the requested admin page
+
+
+
 
 
 //// Front end pages

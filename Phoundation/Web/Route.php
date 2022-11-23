@@ -565,7 +565,7 @@ class Route
                         // We are going to redirect so we no longer need to default to 404
                         Log::success(tr('Redirecting to ":route" with HTTP code ":code"', [':route' => $route, ':code' => $http_code]));
                         Core::unregisterShutdown('route_postprocess');
-                        Http::redirect(Url::addQueries($route, $_GET), $http_code);
+                        Page::redirect(Url::build($route)->addQueries($_GET)->www(), $http_code);
                         break;
 
                     case 'S':
@@ -640,7 +640,7 @@ class Route
                             ]));
 
                             Core::unregisterShutdown('route_postprocess');
-                            redirect($domain);
+                            Page::redirect($domain);
                     }
                 }
             }

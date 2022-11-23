@@ -2,6 +2,7 @@
 
 namespace Templates\Phoundation\Modals;
 
+use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Elements\Script;
 use Phoundation\Web\Http\Url;
 use Plugins\Mdb\Components\Modal;
@@ -86,7 +87,7 @@ class SignInModal extends Modal
             $("form#form-signin").submit(function(e) {
                 e.stopPropagation();
 console.log("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
-                $.post("' . Url::build('system/signin')->ajax() . '");
+                $.post("' . Url::build(Config::get('web.pages.signin', '/system/sign-in.html'))->ajax() . '");
                 return false;
             })
             ')

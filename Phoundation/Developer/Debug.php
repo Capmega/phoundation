@@ -285,7 +285,7 @@ class Debug {
         if (Core::readyState() and PLATFORM_HTTP) {
             // Show output on web
             if (!headers_sent()) {
-                Http::sendHeaders(Http::buildHeaders());
+                Page::sendHeaders(Page::buildHttpHeaders());
             }
 
             if (empty($core->register['debug_plain'])) {
@@ -295,7 +295,7 @@ class Debug {
                     case 'ajax':
                         // If JSON, CORS requests require correct headers! Also force plain text content type
                         if (!headers_sent()) {
-                            Http::sendHeaders(Http::buildHeaders());
+                            Page::sendHeaders(Page::buildHttpHeaders());
                         }
 
                         if (!headers_sent()) {

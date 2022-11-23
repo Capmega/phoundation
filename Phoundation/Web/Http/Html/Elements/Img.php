@@ -282,7 +282,7 @@ class Img extends Element
      */
     protected function isAccepted(string $format): bool
     {
-        return Http::accepts('image/' . $format);
+        return Page::accepts('image/' . $format);
     }
 
 
