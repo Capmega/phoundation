@@ -364,9 +364,6 @@ trait ValidatorBasics
         }
 
         if ($this->failures) {
-            Log::warning(tr('Array validation ended with the following failures'), 3);
-            Log::warning($this->failures, 2);
-
             throw Exceptions::ValidationFailedException(tr('Validation of the specified source array failed with the registered failures'), $this->failures)->makeWarning();
         }
 
@@ -460,7 +457,7 @@ trait ValidatorBasics
         } elseif ($this->parent_field) {
             $failure = tr('The ":field" field in ":parent" ', [':parent' => $this->parent_field, ':field' => $this->selected_field]) . $failure;
         } else {
-            $failure = tr('The ":field" ', [':parent' => $this->parent_field, ':field' => $this->selected_field]) . $failure;
+            $failure = tr('The ":field" field ', [':field' => $this->selected_field]) . $failure;
         }
 
         // Generate key to store this failure

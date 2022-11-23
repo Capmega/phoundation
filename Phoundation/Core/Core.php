@@ -1381,10 +1381,17 @@ class Core {
                          * If not using Debug::enabled() mode, then try to give nice error messages
                          * for known issues
                          */
-                        if (($e instanceof Exception) and ($e->isWarning() or $e instanceof ValidationFailedException)) {
+                        if (($e instanceof Exception) and ($e->isWarning())) {
                             // This is just a simple general warning, no backtrace and such needed, only show the
                             // principal message
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+                            Script::shutdown(255);
+                        }
+
+                        if ($e instanceof ValidationFailedException) {
+                            // This is just a simple validation warning, show warning messages in the exception data
+                            Log::warning(tr('Validation warning: :warning', [':warning' => $e->getMessage()]));
+                            Log::warning($e->getData());
                             Script::shutdown(255);
                         }
 
@@ -1456,10 +1463,21 @@ class Core {
                         Script::shutdown(1);
 
                     case 'http':
-                        // Log exception data
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getCallType(), ':script' => self::readRegister('system', 'script')]));
-                        Log::error(tr('Exception data:'));
-                        Log::error($e);
+                        if ($e instanceof ValidationFailedException) {
+                            // This is just a simple validation warning, show warning messages in the exception data
+                            Log::warning(tr('Validation warning: :warning', [':warning' => $e->getMessage()]));
+                            Log::warning($e->getData());
+                            Script::shutdown(255);
+                        } elseif (($e instanceof Exception) and ($e->isWarning())) {
+                            // This is just a simple general warning, no backtrace and such needed, only show the
+                            // principal message
+                            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+                        } else {
+                            // Log exception data
+                            Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getCallType(), ':script' => self::readRegister('system', 'script')]));
+                            Log::error(tr('Exception data:'));
+                            Log::error($e);
+                        }
 
                         // Make sure the Router shutdown won't happen so it won't send a 404
                         Core::unregisterShutdown('route_postprocess');

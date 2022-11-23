@@ -1,5 +1,16 @@
 <?php
 
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Json;
 
-Json::reply('Hello world!');
+show($_GET);
+
+
+PostValidator::new()
+    ->select('test')->isNumeric()
+    ->validate();
+
+show($_GET);
+showdie($_POST);
+
+Json::reply();
