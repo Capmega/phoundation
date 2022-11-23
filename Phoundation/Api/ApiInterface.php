@@ -4,6 +4,8 @@ namespace Phoundation\Api;
 
 
 
+use Phoundation\Web\Page;
+
 /**
  * Class ApiInterface
  *
@@ -64,6 +66,6 @@ class ApiInterface
      */
     public function buildHttpHeaders(string $output): void
     {
-
+        Page::setContentType('application/json');
     }
 }
