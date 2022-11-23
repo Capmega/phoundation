@@ -18,8 +18,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
 use Phoundation\Notifications\Notification;
-
-
+use Phoundation\Web\Page;
 
 
 /**
@@ -283,32 +282,20 @@ class Debug {
         }
 
         if (Core::readyState() and PLATFORM_HTTP) {
-            // Show output on web
-            if (!headers_sent()) {
-                Page::sendHeaders(Page::buildHttpHeaders());
-            }
-
             if (empty($core->register['debug_plain'])) {
                 switch (Core::getCallType()) {
                     case 'api':
                         // no-break
                     case 'ajax':
-                        // If JSON, CORS requests require correct headers! Also force plain text content type
-                        if (!headers_sent()) {
-                            Page::sendHeaders(Page::buildHttpHeaders());
-                        }
-
                         if (!headers_sent()) {
                             header_remove('Content-Type');
                             header('Content-Type: text/plain', true);
                         }
 
-                        echo PHP_EOL . tr('DEBUG SHOW (:file@:line) ', [
+                        $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) ', [
                             ':file' => self::currentFile($trace_offset - 1),
                             ':line' => self::currentLine($trace_offset - 1)
-                        ]) . PHP_EOL;
-
-                        print_r($value) . PHP_EOL;
+                        ]) . PHP_EOL . print_r($value, true) . PHP_EOL;
                         break;
 
                     default:
@@ -318,10 +305,17 @@ class Debug {
                             header('Content-Type: text/html', true);
                         }
 
-                        echo self::showHtml($value, tr('Unknown'), $trace_offset);
-                        ob_flush();
-                        flush();
+                        $output = self::showHtml($value, tr('Unknown'), $trace_offset);
                 }
+
+                // Show output on web
+                if (!headers_sent()) {
+                    Page::sendHttpHeaders(Page::buildHttpHeaders($output));
+                }
+
+                echo $output;
+                ob_flush();
+                flush();
 
             } else {
                 echo PHP_EOL . tr('DEBUG SHOW (:file@:line) ', [
