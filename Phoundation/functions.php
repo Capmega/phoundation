@@ -400,7 +400,7 @@ function pick_random_multiple(?int $count = null): string|array
  * @param bool $quiet
  * @return mixed
  */
-function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
+function show(mixed $source = null, int $trace_offset = 2, bool $quiet = false): mixed
 {
     return Debug::show($source, $trace_offset, $quiet);
 }
@@ -415,7 +415,7 @@ function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false):
  * @param bool $quiet
  * @return void
  */
-#[NoReturn] function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): void
+#[NoReturn] function showdie(mixed $source = null, int $trace_offset = 3, bool $quiet = false): void
 {
     Debug::showdie($source, $trace_offset, $quiet);
 }
