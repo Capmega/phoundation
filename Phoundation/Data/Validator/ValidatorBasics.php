@@ -2,6 +2,7 @@
 
 namespace Phoundation\Data\Validator;
 
+use Composer\XdebugHandler\Process;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Exception\KeyAlreadySelectedException;
@@ -192,11 +193,15 @@ trait ValidatorBasics
         }
 
         if (in_array($field, $this->selected_fields)) {
-            throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [':key' => $field]));
+            throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
+                ':key' => $field
+            ]));
         }
 
         if ($this->source === null) {
-            throw new OutOfBoundsException(tr('Cannot select field ":field", no source array specified', [':field' => $field]));
+            throw new OutOfBoundsException(tr('Cannot select field ":field", no source array specified', [
+                ':field' => $field
+            ]));
         }
 
         // Does the field exist in the source? If not, initialize it with NULL to be able to process it
@@ -213,7 +218,6 @@ trait ValidatorBasics
         $this->process_values    = [null => &$this->selected_value];
         $this->selected_optional = null;
 
-//show('SELECTED ' . ($this->parent_field ? $this->parent_field . ' > ' : '') . $field);
         return $this;
     }
 
@@ -334,6 +338,20 @@ trait ValidatorBasics
      */
     public function validate(): static
     {
+        // Remove all unselected and all failed fields
+        foreach ($this->source as $field => $value) {
+            // Unprocessed fields
+            if (!in_array($field, $this->selected_fields)) {
+                unset($this->source[$field]);
+                continue;
+            }
+
+            // Failed fields
+            if (array_key_exists($field, $this->failures)) {
+                unset($this->source[$field]);
+            }
+        }
+
         if ($this->parent) {
             // Copy failures from the child to the parent and return the parent to continue
             foreach ($this->failures as $field => $failure) {

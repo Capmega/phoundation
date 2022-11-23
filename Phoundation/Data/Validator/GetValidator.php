@@ -99,6 +99,9 @@ class GetValidator extends Validator
      */
     protected static function liberateData(): void
     {
+        show($_GET);
+        show(self::$get);
+        die();
         global $_GET;
         $_GET = self::$get;
         self::$get = null;
