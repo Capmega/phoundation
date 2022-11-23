@@ -8,7 +8,8 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Validator\Validator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
@@ -69,9 +70,10 @@ class Route
      */
     public function __construct(Template $template, Server|Restrictions|array|string|null $server_restrictions = null)
     {
-        // Start the Core object
+        // Start the Core object, hide $_GET & $_POST
         Core::startup();
-        Validator::hideUserData();
+        GetValidator::hideData();
+        PostValidator::hideData();
 
         // Set what template and default server restrictions  we'll be using
         $this->template = $template;
