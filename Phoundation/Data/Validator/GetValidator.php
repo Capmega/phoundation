@@ -37,8 +37,7 @@ class GetValidator extends Validator
      * @param Validator|null $parent If specified, this is actually a child validator to the specified parent
      */
     public function __construct(?Validator $parent = null) {
-        $this->source = &self::$get;
-        $this->parent = $parent;
+        $this->construct($parent, self::$get);
     }
 
 
@@ -72,7 +71,7 @@ class GetValidator extends Validator
         // Copy GET data and reset both GET and REQUEST
         self::$get = $_GET;
 
-        $_GET    = [];
+        $_GET     = [];
         $_REQUEST = [];
     }
 
@@ -88,6 +87,19 @@ class GetValidator extends Validator
         parent::validate();
         $this->liberateData();
         return $this;
+    }
+
+
+
+    /**
+     * Selects the specified key within the array that we are validating
+     *
+     * @param int|string $field The array key (or HTML form field) that needs to be validated / sanitized
+     * @return static
+     */
+    public function select(int|string $field): static
+    {
+        return $this->standardSelect($field);
     }
 
 

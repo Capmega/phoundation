@@ -8,6 +8,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Script;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
@@ -422,7 +423,7 @@ class Core {
                     }
 
                     // Check for configured maintenance mode
-                    if (Config::get('system.maintenance', false)) {
+                    if (Config::getBoolean('system.maintenance', false)) {
                         // We are in maintenance mode, have to show mainenance page.
                         Page::execute(503);
                     }
@@ -436,7 +437,7 @@ class Core {
 //                        Html::untranslate();
 //                        Html::fixCheckboxValues();
 
-                        if (Config::getBoolean('security.csrf.enabled', true) === 'force') {
+                        if (Config::get('security.csrf.enabled', true) === 'force') {
                             // Force CSRF checks on every submit!
 //                            Http::checkCsrf();
                         }
@@ -459,37 +460,58 @@ class Core {
                 case 'cli':
                     self::$call_type = 'cli';
 
+                    ArgvValidator::hideData($GLOBALS['argv']);
+
+                    $arguments = ArgvValidator::new()
+                        ->select('--deleted')->isOptional(false)->isBoolean()
+                        ->select('-A,--all')->isOptional(false)->isBoolean()
+                        ->select('-C,--no-color')->isOptional(false)->isBoolean()
+                        ->select('-D,--debug')->isOptional(false)->isBoolean()
+                        ->select('-E,--environment')->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(64)
+                        ->select('-F,--force')->isOptional(false)->isBoolean()
+                        ->select('-H,--help')->isOptional(false)->isBoolean()
+                        ->select('-L,--limit')->isOptional(Config::get('paging.limit', 50))->isId()
+                        ->select('-O,--order-by')->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(128)
+                        ->select('-P,--page')->isOptional(1)->isId()
+                        ->select('-Q,--quiet')->isOptional(false)->isBoolean()
+                        ->select('-S,--status')->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(16)
+                        ->select('-T,--test')->isOptional(false)->isBoolean()
+                        ->select('-U,--usage')->isOptional(false)->isBoolean()
+                        ->select('-V,--verbose')->isOptional(false)->isBoolean()
+                        ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
+                        ->select('--language')->isOptional(null)->isCode()
+                        ->select('--timezone')->isOptional(false)->isBoolean()
+                        ->select('--version')->isOptional(false)->isBoolean()
+                        ->validate()
+                        ->extract();
+
                     // Define basic platform constants
                     define('ADMIN'   , '');
                     define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
                     define('STARTDIR', Strings::slash(getcwd()));
 
-                    define('QUIET'   , Script::boolArgument('-Q,--quiet'   , false));
-                    define('FORCE'   , Script::boolArgument('-F,--force'   , false));
-                    define('NOCOLOR' , Script::boolArgument('-C,--no-color', false));
-                    define('TEST'    , Script::boolArgument('-T,--test'    , false));
-                    define('DELETED' , Script::boolArgument('--deleted'    , false));
-                    define('ALL'     , Script::boolArgument('-A,--all'     , false));
-
-                    define('STATUS'  , Script::argument('-S,--status'      , true, ''));
-                    define('ORDERBY' , Script::argument('-O,--orderby'     , true, ''));
-
-                    define('PAGE'    , Script::naturalArgument('-P,--page' , 1));
-                    define('LIMIT'   , Script::naturalArgument('-L,--limit', Config::get('paging.limit', 50)));
+                    define('QUIET'   , $arguments['quiet']);
+                    define('VERBOSE' , $arguments['verbose']);
+                    define('FORCE'   , $arguments['force']);
+                    define('NOCOLOR' , $arguments['no_color']);
+                    define('TEST'    , $arguments['test']);
+                    define('DELETED' , $arguments['deleted']);
+                    define('ALL'     , $arguments['all']);
+                    define('STATUS'  , $arguments['status']);
+                    define('PAGE'    , $arguments['page']);
+                    define('LIMIT'   , $arguments['limit']);
 
                     // Check what environment we're in
-                    $environment = Script::argument('-E,--env,--environment', true, '');
-
-                    if (empty($environment)) {
+                    if (isset($arguments['environment'])) {
+                        // Environment was manually specified on command line
+                        $env = $arguments['environment'];
+                    } else {
                         $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
 
                         if (empty($env)) {
                             define('ENVIRONMENT', 'production');
                             Script::shutdown(2, 'startup: No required environment specified for project "' . PROJECT . '"');
                         }
-
-                    } else {
-                        $env = $environment;
                     }
 
                     define('ENVIRONMENT', $env);
@@ -497,185 +519,108 @@ class Core {
                     // Set protocol
                     define('PROTOCOL', Config::get('web.protocol', 'https://'));
 
+                    // Correct $_SERVER['PHP_SELF'], sometimes seems empty
+                    if (empty($_SERVER['PHP_SELF'])) {
+                        if (!isset($_SERVER['_'])) {
+                            $e = new OutOfBoundsException('No $_SERVER[PHP_SELF] or $_SERVER[_] found');
+                        }
+
+                        $_SERVER['PHP_SELF'] =  $_SERVER['_'];
+                    }
+
                     // Process command line system arguments if we have no exception so far
-                    if (empty($e)) {
-                        // Correct $_SERVER['PHP_SELF'], sometimes seems empty
-                        if (empty($_SERVER['PHP_SELF'])) {
-                            if (!isset($_SERVER['_'])) {
-                                $e = new OutOfBoundsException('No $_SERVER[PHP_SELF] or $_SERVER[_] found');
+                    if ($arguments['version']) {
+                        Log::information(tr('Phoundation framework code version ":fv"', [
+                            ':fv' => self::FRAMEWORKCODEVERSION
+                        ]));
+                        $die = 0;
+                    }
+
+                    // Set more system parameters
+                    if ($arguments['debug']) {
+                        Debug::enabled();
+                    }
+
+                    if ($arguments['usage']) {
+                        Script::showUsage(isset_get($GLOBALS['usage']), 'white');
+                        $die = 0;
+                    }
+
+                    if ($arguments['help']) {
+                        if (isset_get($GLOBALS['argv'][$argid + 1]) == 'system') {
+                            Script::showHelp('system');
+
+                        } else {
+                            if (empty($GLOBALS['help'])) {
+                                $e = new CoreException(tr('Sorry, this script has no help text defined'), 'warning');
                             }
 
-                            $_SERVER['PHP_SELF'] =  $_SERVER['_'];
-                        }
+                            $GLOBALS['help'] = Arrays::force($GLOBALS['help'], "\n");
 
-                        foreach ($GLOBALS['argv'] as $argid => $arg) {
-                            // (Usually first) argument may contain the startup of this script, which we may ignore
-                            if ($arg === $_SERVER['PHP_SELF']) {
-                                continue;
-                            }
+                            if (count($GLOBALS['help']) == 1) {
+                                Log::information(array_shift($GLOBALS['help']));
 
-                            switch ($arg) {
-                                case '-V':
-                                case '--verbose':
-                                    // Set log threshold
-                                    $threshold = $GLOBALS['argv'][$argid + 1];
+                            } else {
+                                foreach (Arrays::force($GLOBALS['help'], "\n") as $line) {
+                                    Log::information($line);
+                                }
 
-                                    // Validate
-                                    if (!is_natural($threshold, 1) or ($threshold > 10)) {
-                                        throw Exceptions::OutOfBoundsException(tr('The specified log threshold level ":level" is invalid. Please ensure the level is between 0 and 10', [
-                                            ':level' => $threshold
-                                        ]))->makeWarning();
-                                    }
-
-                                    Config::set('log.threshold', $threshold);
-                                    unset($GLOBALS['argv'][$argid]);
-                                    unset($GLOBALS['argv'][$argid + 1]);
-                                    break;
-
-                                case '--version':
-                                    // Show version information
-                                    Log::information(tr('Phoundation framework code version ":fv"', [
-                                        ':fv' => self::FRAMEWORKCODEVERSION
-                                    ]));
-                                    $die = 0;
-                                    break;
-
-                                case '-U':
-                                    // no-break
-                                case '--usage':
-                                    // no-break
-                                case 'usage':
-                                    Script::showUsage(isset_get($GLOBALS['usage']), 'white');
-                                    $die = 0;
-                                    break;
-
-                                case '-H':
-                                    // no-break
-                                case '--help':
-                                    // no-break
-                                case 'help':
-                                    if (isset_get($GLOBALS['argv'][$argid + 1]) == 'system') {
-                                        Script::showHelp('system');
-
-                                    } else {
-                                        if (empty($GLOBALS['help'])) {
-                                            $e = new CoreException(tr('Sorry, this script has no help text defined'), 'warning');
-                                        }
-
-                                        $GLOBALS['help'] = Arrays::force($GLOBALS['help'], "\n");
-
-                                        if (count($GLOBALS['help']) == 1) {
-                                            Log::information(array_shift($GLOBALS['help']));
-
-                                        } else {
-                                            foreach (Arrays::force($GLOBALS['help'], "\n") as $line) {
-                                                Log::information($line);
-                                            }
-
-                                            Log::information();
-                                        }
-                                    }
-
-                                    $die = 0;
-                                    break;
-
-                                case '-L':
-                                    // no-break
-                                case '--language':
-                                    // Set language to be used
-                                    if (isset($language)) {
-                                        $e = new CoreException(tr('Language has been specified twice'));
-                                    }
-
-                                    if (!isset($GLOBALS['argv'][$argid + 1])) {
-                                        $e = new CoreException(tr('The "language" argument requires a two letter language core right after it'));
-                                    }
-
-                                    $language = $GLOBALS['argv'][$argid + 1];
-
-                                    unset($GLOBALS['argv'][$argid]);
-                                    unset($GLOBALS['argv'][$argid + 1]);
-                                    break;
-
-                                //case '-E':
-                                //    // no-break
-                                //case '--env':
-                                //    /*
-                                //     * Set environment and reset next
-                                //     */
-                                //    if (isset($environment)) {
-                                //        $e = new CoreException(tr('Environment has been specified twice'), 'exists');
-                                //    }
-                                //
-                                //    if (!isset($GLOBALS['argv'][$argid + 1])) {
-                                //        $e = new CoreException(tr('The "environment" argument requires an existing environment name right after it'));
-                                //    }
-                                //
-                                //    $environment = $GLOBALS['argv'][$argid + 1];
-                                //
-                                //    unset($GLOBALS['argv'][$argid]);
-                                //    unset($GLOBALS['argv'][$argid + 1]);
-                                //    break;
-
-                                case '-O':
-                                    // TALLTHROUGH
-                                case '--orderby':
-                                    define('ORDERBY', ' ORDER BY `'.Strings::until($GLOBALS['argv'][$argid + 1], ' ').'` '.Strings::from($GLOBALS['argv'][$argid + 1], ' ').' ');
-
-                                    $valid = preg_match('/^ ORDER BY `[a-z0-9_]+`(?:\s+(?:DESC|ASC))? $/', ORDERBY);
-
-                                    if (!$valid) {
-                                        // The specified column ordering is NOT valid
-                                        $e = new CoreException(tr('The specified orderby argument ":argument" is invalid', [':argument' => ORDERBY]));
-                                    }
-
-                                    unset($GLOBALS['argv'][$argid]);
-                                    unset($GLOBALS['argv'][$argid + 1]);
-                                    break;
-
-                                case '--timezone':
-                                    // Set timezone
-                                    if (isset($timezone)) {
-                                        $e = new CoreException(tr('Timezone has been specified twice'), 'exists');
-                                    }
-
-                                    if (!isset($GLOBALS['argv'][$argid + 1])) {
-                                        $e = new CoreException(tr('The "timezone" argument requires a valid and existing timezone name right after it'));
-
-                                    }
-
-                                    $timezone = $GLOBALS['argv'][$argid + 1];
-
-                                    unset($GLOBALS['argv'][$argid]);
-                                    unset($GLOBALS['argv'][$argid + 1]);
-                                    break;
-
-                                case '-I':
-                                    // no-break
-                                case '--skip-init-check':
-                                    // Skip init check for the core database
-                                    self::$register['system']['skip_init_check'] = true;
-                                    break;
-
-                                case '-W':
-                                    // no-break
-                                case '--no-warnings':
-                                    define('NOWARNINGS', true);
-                                    unset($GLOBALS['argv'][$argid]);
-                                    break;
-
-                                default:
-                                    // This is not a system parameter, ignore for now as it will be processed later
-                                    break;
+                                Log::information();
                             }
                         }
 
-                        unset($arg);
-                        unset($argid);
+                        $die = 0;
+                    }
 
-                        if (!defined('ORDERBY')) {
-                            define('ORDERBY', '');
+                    if ($arguments['language']) {
+                        // Set language to be used
+                        if (isset($language)) {
+                            $e = new CoreException(tr('Language has been specified twice'));
                         }
+
+                        if (!isset($GLOBALS['argv'][$argid + 1])) {
+                            $e = new CoreException(tr('The "language" argument requires a two letter language core right after it'));
+                        }
+
+                        $language = $GLOBALS['argv'][$argid + 1];
+
+                        unset($GLOBALS['argv'][$argid]);
+                        unset($GLOBALS['argv'][$argid + 1]);
+                    }
+
+                    if ($arguments['order_by']) {
+                        define('ORDERBY', ' ORDER BY `' . Strings::until($arguments['order_by'], ' ') . '` ' . Strings::from($arguments['order_by'], ' ') . ' ');
+
+                        $valid = preg_match('/^ ORDER BY `[a-z0-9_]+`(?:\s+(?:DESC|ASC))? $/', ORDERBY);
+
+                        if (!$valid) {
+                            // The specified column ordering is NOT valid
+                            $e = new CoreException(tr('The specified orderby argument ":argument" is invalid', [':argument' => ORDERBY]));
+                        }
+
+                        unset($GLOBALS['argv'][$argid]);
+                        unset($GLOBALS['argv'][$argid + 1]);
+                    }
+
+                    if ($arguments['timezone']) {
+                        // Set timezone
+                        if (isset($timezone)) {
+                            $e = new CoreException(tr('Timezone has been specified twice'), 'exists');
+                        }
+
+                        if (!isset($GLOBALS['argv'][$argid + 1])) {
+                            $e = new CoreException(tr('The "timezone" argument requires a valid and existing timezone name right after it'));
+
+                        }
+
+                        $timezone = $GLOBALS['argv'][$argid + 1];
+
+                        unset($GLOBALS['argv'][$argid]);
+                        unset($GLOBALS['argv'][$argid + 1]);
+                    }
+
+                    if ($arguments['no_warnings']) {
+                        define('NOWARNINGS', true);
                     }
 
                     // Remove the command itself from the argv array
@@ -725,7 +670,7 @@ class Core {
 
                     // Get required language.
                     try {
-                        $language = not_empty(Script::argument('--language'), Script::argument('L'), Config::get('language.default', 'en'));
+                        $language = not_empty($arguments['language'], Config::get('language.default', 'en'));
 
                         if (Config::get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
                             throw new CoreException(tr('Unknown language ":language" specified', array(':language' => $language)), 'unknown');
@@ -764,11 +709,6 @@ class Core {
 
                     //
                     self::$register['ready'] = true;
-
-                    // Set more system parameters
-                    if (Script::boolArgument('-D,--debug', false)) {
-                        Debug::enabled();
-                    }
 
                     // Validate parameters and give some startup messages, if needed
                     if (Debug::enabled()) {
@@ -1293,6 +1233,28 @@ class Core {
         $state = self::$state;
         self::$state = 'error';
 
+        // Ensure that definitions exist
+        $defines = [
+            'ADMIN'    => '',
+            'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
+            'STARTDIR' => Strings::slash(getcwd()),
+            'FORCE'    => (getenv('FORCE')   ? 'FORCE'   : null),
+            'TEST'     => (getenv('TEST')    ? 'TEST'    : null),
+            'QUIET'    => (getenv('QUIET')   ? 'QUIET'   : null),
+            'LIMIT'    => (getenv('LIMIT')   ? 'LIMIT'   : Config::get('paging.limit', 50)),
+            'ORDERBY'  => (getenv('ORDERBY') ? 'ORDERBY' : null),
+            'ALL'      => (getenv('ALL')     ? 'ALL'     : null),
+            'DELETED'  => (getenv('DELETED') ? 'DELETED' : null),
+            'STATUS'   => (getenv('STATUS')  ? 'STATUS'  : null)
+        ];
+
+        foreach ($defines as $key => $value) {
+            if (!defined($key)) {
+                define($key, $value);
+            }
+        }
+
+        // Start processing the uncaught exception
         try {
             try {
                 if ($executed) {
@@ -1317,64 +1279,6 @@ class Core {
 
                 switch (PLATFORM) {
                     case 'cli':
-//                        // Ensure that required defines are available
-//                        if (!defined('Debug::enabled()')) {
-//                            define('Debug::enabled()', (Script::argument('-VV,--very-Debug::enabled()') ? 'Debug::enabled()' : null));
-//                        }
-//
-//                        self::setTimeout(1);
-//
-//                        $defines = [
-//                            'ADMIN'    => '',
-//                            'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
-//                            'Debug::enabled()'  => ((Debug::enabled() or Script::argument('-V,--Debug::enabled(),-V2,--very-Debug::enabled()')) ? 'Debug::enabled()' : null),
-//                            'QUIET'    => Script::argument('-Q,--quiet'),
-//                            'FORCE'    => Script::argument('-F,--force'),
-//                            'TEST'     => Script::argument('-T,--test'),
-//                            'LIMIT'    => not_empty(Script::argument('--limit'  , true), Config::get('paging.limit', 50)),
-//                            'ALL'      => Script::argument('-A,--all'),
-//                            'DELETED'  => Script::argument('--deleted'),
-//                            'STATUS'   => Script::argument('-S,--status' , true),
-//                            'STARTDIR' => Strings::slash(getcwd())
-//                        ];
-//
-//                        foreach ($defines as $key => $value) {
-//                            if (!defined($key)) {
-//                                define($key, $value);
-//                            }
-//                        }
-//
-//                        Notification::getInstance()
-//                            ->setException($e)
-//                            ->send();
-//
-//                        // Specified arguments were wrong
-//                        // TODO CHANGE PARAMETERS TO "ARGUMENTS"
-//                        if ($e->getCode() === 'parameters') {
-//                            Log::warning(trim(Strings::from($e->getMessage(), '():')));
-//                            $GLOBALS['core'] = false;
-//                            die(1);
-//                        }
-//
-//                        if (self::startupState($state)) {
-//                            /*
-//                             * Configuration hasn't been loaded yet, we cannot even know if
-//                             * we are in debug mode or not!
-//                             *
-//                             * Log to the webserver error log files at the very least
-//                             */
-//                            if (method_exists($e, 'getMessages')) {
-//                                foreach ($e->getMessages() as $message) {
-//                                    Log::error($message);
-//                                }
-//
-//                            } else {
-//                                Log::error($e->getMessage());
-//                            }
-//
-//                            Script::die(1);
-//                        }
-
                         /*
                          * Command line script crashed.
                          *
@@ -1493,26 +1397,6 @@ class Core {
                         //
                         Page::setHttpCode(500);
                         self::unregisterShutdown('route_postprocess');
-
-                        $defines = [
-                            'ADMIN'    => '',
-                            'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
-                            'STARTDIR' => Strings::slash(getcwd()),
-                            'FORCE'    => (getenv('FORCE')   ? 'FORCE'   : null),
-                            'TEST'     => (getenv('TEST')    ? 'TEST'    : null),
-                            'QUIET'    => (getenv('QUIET')   ? 'QUIET'   : null),
-                            'LIMIT'    => (getenv('LIMIT')   ? 'LIMIT'   : Config::get('paging.limit', 50)),
-                            'ORDERBY'  => (getenv('ORDERBY') ? 'ORDERBY' : null),
-                            'ALL'      => (getenv('ALL')     ? 'ALL'     : null),
-                            'DELETED'  => (getenv('DELETED') ? 'DELETED' : null),
-                            'STATUS'   => (getenv('STATUS')  ? 'STATUS'  : null)
-                        ];
-
-                        foreach ($defines as $key => $value) {
-                            if (!defined($key)) {
-                                define($key, $value);
-                            }
-                        }
 
                         Notification::new()
                             ->setException($e)

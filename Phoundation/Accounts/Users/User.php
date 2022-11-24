@@ -2,6 +2,8 @@
 
 namespace Phoundation\Accounts\Users;
 
+use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry;
@@ -31,14 +33,38 @@ class User
 
 
     /**
-     * User class constructor
+     * Authenticates the specified user id / email with its password
      *
-     * @param string|int|null $identifier
+     * @param string|int $identifier
+     * @param string $password
+     * @return static
      */
-    public function __construct(string|int|null $identifier = null) {
-        if ($identifier) {
-            $this->load($identifier);
+    public static function authenticate(string|int $identifier, string $password): static
+    {
+        $user = User::get($identifier);
+
+        if ($user->passwordMatch($password)) {
+            return $user;
         }
+
+        throw new AuthenticationException(tr('The specified password did not match for user ":user"', [
+            ':user' => $identifier
+        ]));
+    }
+
+
+
+    /**
+     * Authenticates the specified user id / email with its password
+     *
+     * @param string $key
+     * @return static
+     */
+    public static function authenticateKey(string $key): static
+    {
+        // Load the key data
+
+        // Return the user linked to the key
     }
 
 
@@ -72,9 +98,9 @@ class User
      * Sets the picture for this user
      *
      * @param Image|string|null $picture
-     * @return User
+     * @return static
      */
-    public function setPicture(Image|string|null $picture): User
+    public function setPicture(Image|string|null $picture): static
     {
         if (!$picture) {
             $picture = Image::new('profiles/default.png');
@@ -101,9 +127,9 @@ class User
      * Sets the nickname for this user
      *
      * @param string $nickname
-     * @return User
+     * @return static
      */
-    public function setNickname(string $nickname): User
+    public function setNickname(string $nickname): static
     {
         return $this->setDataValue('nickname', $nickname);
     }
@@ -126,9 +152,9 @@ class User
      * Sets the name for this user
      *
      * @param string $name
-     * @return User
+     * @return static
      */
-    public function setName(string $name): User
+    public function setName(string $name): static
     {
         return $this->setDataValue('name', $name);
     }
@@ -151,9 +177,9 @@ class User
      * Sets the email for this user
      *
      * @param string $email
-     * @return User
+     * @return static
      */
-    public function setEmail(string $email): User
+    public function setEmail(string $email): static
     {
         return $this->setDataValue('email', $email);
     }
@@ -176,9 +202,9 @@ class User
      * Sets the username for this user
      *
      * @param string $username
-     * @return User
+     * @return static
      */
-    public function setUsername(string $username): User
+    public function setUsername(string $username): static
     {
         return $this->setDataValue('username', $username);
     }
@@ -201,9 +227,9 @@ class User
      * Sets the last_signin for this user
      *
      * @param string $last_signin
-     * @return User
+     * @return static
      */
-    public function setLastSignin(string $last_signin): User
+    public function setLastSignin(string $last_signin): static
     {
         return $this->setDataValue('last_signin', $last_signin);
     }
@@ -226,9 +252,9 @@ class User
      * Sets the auth_fails for this user
      *
      * @param string $auth_fails
-     * @return User
+     * @return static
      */
-    public function setAuthenticationFailures(string $auth_fails): User
+    public function setAuthenticationFailures(string $auth_fails): static
     {
         return $this->setDataValue('auth_fails', $auth_fails);
     }
@@ -251,9 +277,9 @@ class User
      * Sets the locked_until for this user
      *
      * @param string $locked_until
-     * @return User
+     * @return static
      */
-    public function setLockedUntil(string $locked_until): User
+    public function setLockedUntil(string $locked_until): static
     {
         return $this->setDataValue('locked_until', $locked_until);
     }
@@ -276,9 +302,9 @@ class User
      * Sets the signin_count for this user
      *
      * @param string $signin_count
-     * @return User
+     * @return static
      */
-    public function setSigninCount(string $signin_count): User
+    public function setSigninCount(string $signin_count): static
     {
         return $this->setDataValue('signin_count', $signin_count);
     }
@@ -302,9 +328,9 @@ class User
      * Sets the fingerprint datetime for this user
      *
      * @param \DateTime|int $fingerprint
-     * @return User
+     * @return static
      */
-    public function setFingerprint(\DateTime|int $fingerprint): User
+    public function setFingerprint(\DateTime|int $fingerprint): static
     {
         if (is_object($fingerprint)) {
             $fingerprint = $fingerprint->format('Y-m-d H:i:s');
@@ -331,9 +357,9 @@ class User
      * Sets the domain for this user
      *
      * @param string $domain
-     * @return User
+     * @return static
      */
-    public function setDomain(string $domain): User
+    public function setDomain(string $domain): static
     {
         return $this->setDataValue('domain', $domain);
     }
@@ -356,9 +382,9 @@ class User
      * Sets the title for this user
      *
      * @param string $title
-     * @return User
+     * @return static
      */
-    public function setTitle(string $title): User
+    public function setTitle(string $title): static
     {
         return $this->setDataValue('title', $title);
     }
@@ -381,9 +407,9 @@ class User
      * Sets the avatar for this user
      *
      * @param string $avatar
-     * @return User
+     * @return static
      */
-    public function setAvatar(string $avatar): User
+    public function setAvatar(string $avatar): static
     {
         return $this->setDataValue('avatar', $avatar);
     }
@@ -406,9 +432,9 @@ class User
      * Sets the code for this user
      *
      * @param string $code
-     * @return User
+     * @return static
      */
-    public function setCode(string $code): User
+    public function setCode(string $code): static
     {
         return $this->setDataValue('code', $code);
     }
@@ -431,9 +457,9 @@ class User
      * Sets the type for this user
      *
      * @param string $type
-     * @return User
+     * @return static
      */
-    public function setType(string $type): User
+    public function setType(string $type): static
     {
         return $this->setDataValue('type', $type);
     }
@@ -456,9 +482,9 @@ class User
      * Sets the keywords for this user
      *
      * @param string $keywords
-     * @return User
+     * @return static
      */
-    public function setKeywords(string $keywords): User
+    public function setKeywords(string $keywords): static
     {
         return $this->setDataValue('keywords', $keywords);
     }
@@ -481,9 +507,9 @@ class User
      * Sets the phones for this user
      *
      * @param string $phones
-     * @return User
+     * @return static
      */
-    public function setPhones(string $phones): User
+    public function setPhones(string $phones): static
     {
         return $this->setDataValue('phones', $phones);
     }
@@ -506,9 +532,9 @@ class User
      * Sets the address for this user
      *
      * @param string $address
-     * @return User
+     * @return static
      */
-    public function setAddress(string $address): User
+    public function setAddress(string $address): static
     {
         return $this->setDataValue('address', $address);
     }
@@ -531,9 +557,9 @@ class User
      * Sets the verification_code for this user
      *
      * @param string $verification_code
-     * @return User
+     * @return static
      */
-    public function setVerificationCode(string $verification_code): User
+    public function setVerificationCode(string $verification_code): static
     {
         return $this->setDataValue('verification_code', $verification_code);
     }
@@ -556,9 +582,9 @@ class User
      * Sets the verified_on for this user
      *
      * @param string $verified_on
-     * @return User
+     * @return static
      */
-    public function setverifiedOn(string $verified_on): User
+    public function setverifiedOn(string $verified_on): static
     {
         return $this->setDataValue('verified_on', $verified_on);
     }
@@ -581,9 +607,9 @@ class User
      * Sets the priority for this user
      *
      * @param string $priority
-     * @return User
+     * @return static
      */
-    public function setPriority(string $priority): User
+    public function setPriority(string $priority): static
     {
         return $this->setDataValue('priority', $priority);
     }
@@ -606,9 +632,9 @@ class User
      * Sets the is_leader for this user
      *
      * @param string $is_leader
-     * @return User
+     * @return static
      */
-    public function setIsLeader(string $is_leader): User
+    public function setIsLeader(string $is_leader): static
     {
         return $this->setDataValue('is_leader', $is_leader);
     }
@@ -618,7 +644,7 @@ class User
     /**
      * Returns the leaders_id for this user
      *
-     * @return User|null
+     * @return static|null
      */
     public function getLeader(): ?User
     {
@@ -637,9 +663,9 @@ class User
      * Sets the leaders_id for this user
      *
      * @param int|User $leader
-     * @return User
+     * @return static
      */
-    public function setLeader(int|User $leader): User
+    public function setLeader(int|User $leader): static
     {
         if (is_object($leader)) {
             $leader = $leader->getId();
@@ -666,9 +692,9 @@ class User
      * Sets the latitude for this user
      *
      * @param float|null $latitude
-     * @return User
+     * @return static
      */
-    public function setLatitude(?float $latitude): User
+    public function setLatitude(?float $latitude): static
     {
         return $this->setDataValue('latitude', $latitude);
     }
@@ -691,9 +717,9 @@ class User
      * Sets the longitude for this user
      *
      * @param float|null $longitude
-     * @return User
+     * @return static
      */
-    public function setLongitude(?float $longitude): User
+    public function setLongitude(?float $longitude): static
     {
         return $this->setDataValue('longitude', $longitude);
     }
@@ -716,9 +742,9 @@ class User
      * Sets the accuracy for this user
      *
      * @param int|null $accuracy
-     * @return User
+     * @return static
      */
-    public function setAccuracy(?int $accuracy): User
+    public function setAccuracy(?int $accuracy): static
     {
         return $this->setDataValue('accuracy', $accuracy);
     }
@@ -741,9 +767,9 @@ class User
      * Sets the offset_latitude for this user
      *
      * @param float|null $offset_latitude
-     * @return User
+     * @return static
      */
-    public function setOffsetLatitude(?float $offset_latitude): User
+    public function setOffsetLatitude(?float $offset_latitude): static
     {
         return $this->setDataValue('offset_latitude', $offset_latitude);
     }
@@ -766,9 +792,9 @@ class User
      * Sets the offset_longitude for this user
      *
      * @param float|null $offset_longitude
-     * @return User
+     * @return static
      */
-    public function setOffsetLongitude(?float $offset_longitude): User
+    public function setOffsetLongitude(?float $offset_longitude): static
     {
         return $this->setDataValue('offset_longitude', $offset_longitude);
     }
@@ -791,9 +817,9 @@ class User
      * Sets the cities_id for this user
      *
      * @param City|null $city
-     * @return User
+     * @return static
      */
-    public function setCity(?City $city): User
+    public function setCity(?City $city): static
     {
         if (is_object($city)) {
             $city = $city->getId();
@@ -820,9 +846,9 @@ class User
      * Sets the states_id for this user
      *
      * @param State|null $state
-     * @return User
+     * @return static
      */
-    public function setState(?State $state): User
+    public function setState(?State $state): static
     {
         if (is_object($state)) {
             $state = $state->getId();
@@ -849,9 +875,9 @@ class User
      * Sets the countries_id for this user
      *
      * @param Country|null $country
-     * @return User
+     * @return static
      */
-    public function setCountry(?Country $country): User
+    public function setCountry(?Country $country): static
     {
         if (is_object($country)) {
             $country = $country->getId();
@@ -878,9 +904,9 @@ class User
      * Sets the redirect for this user
      *
      * @param string $redirect
-     * @return User
+     * @return static
      */
-    public function setRedirect(string $redirect): User
+    public function setRedirect(string $redirect): static
     {
         if (!filter_var($redirect, FILTER_VALIDATE_URL)) {
             throw new OutOfBoundsException(tr('Invalid redirect URL ":redirect" specified', [
@@ -909,9 +935,9 @@ class User
      * Sets the language for this user
      *
      * @param string $language
-     * @return User
+     * @return static
      */
-    public function setLanguage(string $language): User
+    public function setLanguage(string $language): static
     {
         if (strlen($language) != 2) {
             throw new OutOfBoundsException(tr('Invalid language ":language" specified', [
@@ -940,9 +966,9 @@ class User
      * Sets the gender for this user
      *
      * @param string $gender
-     * @return User
+     * @return static
      */
-    public function setGender(string $gender): User
+    public function setGender(string $gender): static
     {
         return $this->setDataValue('gender', $gender);
     }
@@ -970,12 +996,12 @@ class User
     /**
      * Sets the birthday for this user
      *
-     * @param string $gender
-     * @return User
+     * @param string $birthday
+     * @return static
      */
-    public function setBirthday(string $gender): User
+    public function setBirthday(string $birthday): static
     {
-        return $this->setDataValue('birthday', $gender);
+        return $this->setDataValue('birthday', $birthday);
     }
 
 
@@ -995,12 +1021,12 @@ class User
     /**
      * Sets the description for this user
      *
-     * @param string $gender
-     * @return User
+     * @param string $description
+     * @return static
      */
-    public function setDescription(string $gender): User
+    public function setDescription(string $description): static
     {
-        return $this->setDataValue('description', $gender);
+        return $this->setDataValue('description', $description);
     }
 
 
@@ -1020,12 +1046,12 @@ class User
     /**
      * Sets the comments for this user
      *
-     * @param string $gender
-     * @return User
+     * @param string $comments
+     * @return static
      */
-    public function setComments(string $gender): User
+    public function setComments(string $comments): static
     {
-        return $this->setDataValue('comments', $gender);
+        return $this->setDataValue('comments', $comments);
     }
 
 
@@ -1045,12 +1071,12 @@ class User
     /**
      * Sets the website for this user
      *
-     * @param string $gender
-     * @return User
+     * @param string $website
+     * @return static
      */
-    public function setWebsite(string $gender): User
+    public function setWebsite(string $website): static
     {
-        return $this->setDataValue('website', $gender);
+        return $this->setDataValue('website', $website);
     }
 
 
@@ -1077,9 +1103,9 @@ class User
      * Sets the timezone for this user
      *
      * @param string $gender
-     * @return User
+     * @return static
      */
-    public function setTimezone(string $gender): User
+    public function setTimezone(string $gender): static
     {
         return $this->setDataValue('timezone', $gender);
     }
@@ -1120,6 +1146,35 @@ class User
 
 
     /**
+     * Returns the role for this user
+     *
+     * @return Role
+     */
+    public function getRole(): Role
+    {
+        return Role::get($this->getDataValue('role'));
+    }
+
+
+
+    /**
+     * Sets the role for this user to the specified role
+     *
+     * @param Role|string $role
+     * @return $this
+     */
+    public function setRole(Role|string $role): static
+    {
+        if (is_object($role)) {
+            $role = $role->getId();
+        }
+
+        return $this->setDataValue('role', $role);
+    }
+
+
+
+    /**
      * Returns true if the user has ALL the specified rights
      *
      * @param array|string $rights
@@ -1144,6 +1199,33 @@ class User
 
 
     /**
+     * Returns true if the specified password matches the users password
+     *
+     * @param string $password
+     * @return bool
+     */
+    public function passwordMatch(string $password): bool
+    {
+        $hash = $this->hashPassword($password);
+        return $hash === $this->getDataValue('password');
+    }
+
+
+
+    /**
+     * Save all user data to database
+     *
+     * @return static
+     */
+    public function save(): static
+    {
+        $this->id = sql()->write('users', $this->getInsertColumns(), $this->getUpdateColumns());
+        return $this;
+    }
+
+
+
+    /**
      * Load all user data from database
      *
      * @param string|int $identifier
@@ -1160,18 +1242,6 @@ class User
         // Store all data
         $this->setData($data);
         $this->setMetaData($data);
-    }
-
-
-
-    /**
-     * Save all user data to database
-     *
-     * @return void
-     */
-    protected function save(): void
-    {
-        $this->id = sql()->write('users', $this->getInsertColumns(), $this->getUpdateColumns());
     }
 
 

@@ -582,11 +582,12 @@ return $this;
     /**
      * Save this notification to the database
      *
-     * @return void
+     * @return static
      */
-    protected function save(): void
+    protected function save(): static
     {
         sql()->write('notifications', $this->getInsertColumns(), $this->getUpdateColumns());
+        return $this;
     }
 
 

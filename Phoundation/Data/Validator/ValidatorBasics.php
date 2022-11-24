@@ -2,14 +2,11 @@
 
 namespace Phoundation\Data\Validator;
 
-use Composer\XdebugHandler\Process;
-use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Exception\Exceptions;
-use Phoundation\Exception\OutOfBoundsException;
+use ReflectionProperty;
 
 
 
@@ -66,7 +63,7 @@ trait ValidatorBasics
      *
      * @var mixed $selected_optional
      */
-    protected mixed $selected_optional = null;
+    protected mixed $selected_optional;
 
     /**
      * The value(s) that actually will be tested. This most of the time will be an array with a single reference to
@@ -129,6 +126,14 @@ trait ValidatorBasics
      */
     protected int $max_string_size = 1073741824;
 
+    /**
+     * Required to test if property is initialized or not
+     *
+     * @var ReflectionProperty $reflection_property
+     */
+    protected ReflectionProperty $reflection_property;
+
+
 
     /**
      * Returns the maximum string size that this Validator will touch
@@ -181,58 +186,15 @@ trait ValidatorBasics
 
 
     /**
-     * Selects the specified key within the array that we are validating
-     *
-     * @param int|string $field The array key (or HTML form field) that needs to be validated / sanitized
-     * @return Validator
-     */
-    public function select(int|string $field): static
-    {
-        if (!$field) {
-            throw new OutOfBoundsException(tr('No field specified'));
-        }
-
-        if (in_array($field, $this->selected_fields)) {
-            throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
-                ':key' => $field
-            ]));
-        }
-
-        if ($this->source === null) {
-            throw new OutOfBoundsException(tr('Cannot select field ":field", no source array specified', [
-                ':field' => $field
-            ]));
-        }
-
-        // Does the field exist in the source? If not, initialize it with NULL to be able to process it
-        if (!array_key_exists($field, $this->source)) {
-            $this->source[$field] = null;
-        }
-
-        // Select the field. Unset process_values first to ensure the byref link is broken
-        unset($this->process_values);
-
-        $this->selected_field    = $field;
-        $this->selected_fields[] = $field;
-        $this->selected_value    = $this->source[$field];
-        $this->process_values    = [null => &$this->selected_value];
-        $this->selected_optional = null;
-
-        return $this;
-    }
-
-
-
-    /**
      * This method will make the selected field optional and use the specified $default instead
      *
      * This means that either it may not exist, or it's contents may be NULL
      *
      * @see Validator::xor()
-     * @param bool|int|float|string|array $default
-     * @return Validator
+     * @param array|string|float|int|bool|null $default
+     * @return static
      */
-    public function isOptional(bool|int|float|string|array $default): static
+    public function isOptional(array|string|float|int|bool|null $default): static
     {
         $this->selected_optional = $default;
         return $this;
@@ -245,7 +207,7 @@ trait ValidatorBasics
      *
      * @see Validator::isOptional()
      * @param string $field
-     * @return Validator
+     * @return static
      */
     public function xor(string $field): static
     {
@@ -276,7 +238,7 @@ trait ValidatorBasics
      * @param string $field
      * @param bool $strict If true will execute a strict comparison where the datatype must match as well (so 1 would
      *                     not be the same as "1") for example
-     * @return Validator
+     * @return static
      * @see Validator::isOptional()
      */
     public function isEqualTo(string $field, bool $strict = false): static
@@ -334,7 +296,7 @@ trait ValidatorBasics
      *
      * This method will check the failures array and if any failures were registered, it will throw an exception
      *
-     * @return Validator
+     * @return static
      */
     public function validate(): static
     {
@@ -408,15 +370,16 @@ trait ValidatorBasics
         }
 
         if ($value === null) {
-            if ($this->selected_optional === null) {
+            if (!$this->reflection_property->isInitialized($this)){
                 // At this point we know we MUST have a value, so we're bad here
                 $this->addFailure(tr('is required'));
                 return false;
             }
 
-            // If value is set or not doesn't matter, its okay
+            // If value is set or not doesn't matter, it's okay
             $value = $this->selected_optional;
-            return true;
+            $this->process_value_failed = true;
+            return false;
         }
 
         // Field has a value, we're okay

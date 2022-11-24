@@ -6,8 +6,11 @@ use DateTime;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Exception\KeyAlreadySelectedException;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
+use ReflectionProperty;
 use Throwable;
 
 
@@ -243,13 +246,54 @@ abstract class Validator
     /**
      * Validates the datatype for the selected field
      *
-     * This method ensures that the specified array key is a valid database id (integer, 1 and above)
+     * This method ensures that the specified array key is a valid natural number (integer, 1 and above)
      *
+     * @param bool $allow_zero
      * @return static
      */
-    public function isId(): static
+    public function isNatural(bool $allow_zero = true): static
     {
-        return $this->isPositive(false);
+        return $this->isInteger()->isPositive(false);
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is a valid database id (integer, 1 and above)
+     *
+     * @param bool $allow_zero
+     * @return static
+     */
+    public function isId(bool $allow_zero = false): static
+    {
+        return $this->isInteger()->isPositive(false);
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is a valid code
+     *
+     * @param bool $allow_zero
+     * @return static
+     */
+    public function isCode(bool $allow_zero = false): static
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(4)->hasMaxCharacters(16);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            $this->isPrintable();
+            return $value;
+        });
     }
 
 
@@ -379,7 +423,6 @@ abstract class Validator
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (!is_scalar($value)) {
-//show($value);
                     $this->addFailure(tr('must have a scalar value', [':field' => $this->selected_field]));
                 }
             }
@@ -911,6 +954,33 @@ abstract class Validator
 
 
     /**
+     * Validates that the selected field is a timezone
+     *
+     * @return static
+     */
+    public function isTimezone(): static
+    {
+        return $this->validateValues(function($value) {
+            $this->isString();
+            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+// TODO Implement
+//            if (!preg_match($regex, $value)) {
+//                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
+//            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
      * Validates that the selected date field is older than the specified date
      *
      * @param DateTime $date_time
@@ -1106,6 +1176,160 @@ abstract class Validator
 
 
     /**
+     * Validates if the selected field is a valid phone number
+     *
+     * @return static
+     */
+    public function isPhone(): static
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(10)->hasMaxCharacters(20);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            $this->matchesRegex('/[0-9- ].+?/');
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid multiple phones field
+     *
+     * @return static
+     */
+    public function isPhones(): static
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(10)->hasMaxCharacters(64);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            $this->matchesRegex('/[0-9- ,].+?/');
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid gender
+     *
+     * @return static
+     */
+    public function isGender(): static
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(2)->hasMaxCharacters(16);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            $this->isPrintable();
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid name
+     *
+     * @return static
+     */
+    public function isName(): static
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(2)->hasMaxCharacters(128);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            $this->isPrintable();
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid description
+     *
+     * @return static
+     */
+    public function isDescription(): static
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMaxCharacters(16777216);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            $this->isPrintable();
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid password
+     *
+     * @return static
+     */
+    public function isPassword(): static
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(10)->hasMaxCharacters(128);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid and strong enough password
+     *
+     * @return static
+     */
+    public function isStrongPassword(): static
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(10)->hasMaxCharacters(128);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            // TODO Implement
+
+            return $value;
+        });
+    }
+
+
+
+    /**
      * Validates if the selected field is a valid email address
      *
      * @return static
@@ -1136,6 +1360,31 @@ abstract class Validator
      * @return static
      */
     public function isUrl(): static
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(3)->hasMaxCharacters(128);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if (!filter_var($value, FILTER_VALIDATE_URL)) {
+                $this->addFailure(tr('must contain a valid URL'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid domain name
+     *
+     * @return static
+     */
+    public function isDomain(): static
     {
         return $this->validateValues(function($value) {
             $this->hasMinCharacters(3)->hasMaxCharacters(128);
@@ -1681,5 +1930,71 @@ abstract class Validator
 
             return $value;
         });
+    }
+
+
+
+    /**
+     * Constructor for all validator types
+     *
+     * @param Validator|null $parent
+     * @param array|null $source
+     * @return void
+     */
+    protected function construct(?Validator $parent = null, ?array &$source = []): void
+    {
+        // Ensure the source is an array
+        if ($source === null) {
+            $source = [];
+        }
+
+        $this->source = &$source;
+        $this->parent = $parent;
+
+        $this->reflection_property = new ReflectionProperty($this, 'selected_optional');
+   }
+
+
+
+    /**
+     * Selects the specified key within the array that we are validating
+     *
+     * @param int|string $field The array key (or HTML form field) that needs to be validated / sanitized
+     * @return static
+     */
+    public function standardSelect(int|string $field): static
+    {
+        if (!$field) {
+            throw new OutOfBoundsException(tr('No field specified'));
+        }
+
+        if (in_array($field, $this->selected_fields)) {
+            throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
+                ':key' => $field
+            ]));
+        }
+
+        if ($this->source === null) {
+            throw new OutOfBoundsException(tr('Cannot select field ":field", no source array specified', [
+                ':field' => $field
+            ]));
+        }
+
+        // Does the field exist in the source? If not, initialize it with NULL to be able to process it
+        if (!array_key_exists($field, $this->source)) {
+            $this->source[$field] = null;
+        }
+
+        // Select the field. Unset process_values first to ensure the byref link is broken
+        unset($this->process_values);
+
+        $this->selected_field    = $field;
+        $this->selected_fields[] = $field;
+        $this->selected_value    = $this->source[$field];
+        $this->process_values    = [null => &$this->selected_value];
+
+        unset($this->selected_optional);
+
+        return $this;
     }
 }

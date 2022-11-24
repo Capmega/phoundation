@@ -5,6 +5,7 @@ namespace Phoundation\Data;
 use DateTime;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Meta;
+use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Accounts\Users\User;
 
@@ -22,6 +23,13 @@ use Phoundation\Accounts\Users\User;
  */
 trait DataEntry
 {
+    /**
+     * Default protected keys, keys that may not leave this object
+     *
+     * @var array|string[]
+     */
+    protected array $protected_keys = ['password', 'key'];
+
     /**
      * Contains the database id for this entry
      *
@@ -88,18 +96,42 @@ trait DataEntry
 
 
     /**
-     * DataEntry contructor
+     * User class constructor
      *
-     * @param int|null $id
+     * @param string|int|null $identifier
      */
-    final public function __construct(?int $id = null)
-    {
+    public function __construct(string|int|null $identifier = null) {
         $this->setKeys();
 
-        if ($id) {
-            $this->id = $id;
-            $this->load($id);
+        if ($identifier) {
+            $this->id = $identifier;
+            $this->load($identifier);
         }
+    }
+
+
+
+    /**
+     * Returns a User object
+     *
+     * @return static
+     */
+    public static function new(): static
+    {
+        return new static();
+    }
+
+
+
+    /**
+     * Returns a User object for the user owning the specified email address
+     *
+     * @param string|int|null $identifier
+     * @return static
+     */
+    public static function get(string|int $identifier = null): static
+    {
+        return new static($identifier);
     }
 
 
@@ -201,7 +233,7 @@ trait DataEntry
     /**
      * Sets all data for this data entry at once with an array of information
      *
-     * @param array $details
+     * @param array|null $details
      * @return static
      * @throws OutOfBoundsException
      */
@@ -250,20 +282,65 @@ trait DataEntry
 
 
     /**
+     * Returns all keys that are protected and cannot be removed from this object
+     *
+     * @return array
+     */
+    public function getProtectedKeys(): array
+    {
+        return $this->protected_keys;
+    }
+
+
+
+    /**
+     * Adds a list of extra keys that are protected and cannot be removed from this object
+     *
+     * @param array $keys
+     * @return static
+     */
+    protected function addProtectedKeys(array $keys): static
+    {
+        foreach ($keys as $key) {
+            $this->addProtectedKey($key);
+        }
+        return $this;
+    }
+
+
+
+    /**
+     * Adds a single extra key that are protected and cannot be removed from this object
+     *
+     * @param string $key
+     * @return static
+     */
+    protected function addProtectedKey(string $key): static
+    {
+        $this->protected_keys[] = $key;
+        return $this;
+    }
+
+
+
+    /**
      * Returns all data for this data entry at once with an array of information
      *
+     * @note This method filters out all keys defined in self::getProtectedKeys() to ensure that keys like "password"
+     *       will not become available outside this object
      * @return array
      */
     public function getData(): array
     {
-        return $this->data;
+        return Arrays::remove($this->data, $this->protected_keys);
     }
+
 
 
     /**
      * Sets all metadata for this data entry at once with an array of information
      *
-     * @param array $data
+     * @param ?array $data
      * @return static
      * @throws OutOfBoundsException
      */
@@ -359,7 +436,25 @@ trait DataEntry
      */
     protected function getDataValue(string $key): mixed
     {
+        $this->checkProtected($key);
         return isset_get($this->data[$key]);
+    }
+
+
+
+    /**
+     * Returns if the specified DataValue key can be visible outside this object or not
+     *
+     * @param string $key
+     * @return void
+     */
+    protected function checkProtected(string $key): void
+    {
+        if (in_array($key, $this->protected_keys)) {
+            throw new OutOfBoundsException(tr('Specified DataValue key ":key" is protected and cannot be accessed', [
+                ':key' => $key
+            ]));
+        }
     }
 
 
@@ -432,7 +527,7 @@ trait DataEntry
     /**
      * Will save the data from this data entry to database
      *
-     * @return void
+     * @return static
      */
-    abstract function save(): void;
+    abstract function save(): static;
 }

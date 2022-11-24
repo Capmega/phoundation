@@ -28,13 +28,7 @@ class ArrayValidator extends Validator
      * @param Validator|null $parent If specified, this is actually a child validator to the specified parent
      */
     public function __construct(?array &$source = [], ?Validator $parent = null) {
-        // Ensure the source is an array
-        if ($source === null) {
-            $source = [];
-        }
-
-        $this->source = &$source;
-        $this->parent = $parent;
+        $this->construct($parent, $source);
     }
 
 
@@ -49,5 +43,18 @@ class ArrayValidator extends Validator
     public static function new(array &$source, ?Validator $parent = null): static
     {
         return new static($source, $parent);
+    }
+
+
+
+    /**
+     * Selects the specified key within the array that we are validating
+     *
+     * @param int|string $field The array key (or HTML form field) that needs to be validated / sanitized
+     * @return static
+     */
+    public function select(int|string $field): static
+    {
+        return $this->standardSelect($field);
     }
 }

@@ -400,7 +400,7 @@ function pick_random_multiple(?int $count = null): string|array
  * @param bool $quiet
  * @return mixed
  */
-function show(mixed $source = null, int $trace_offset = 2, bool $quiet = false): mixed
+function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
 {
     return Debug::show($source, $trace_offset, $quiet);
 }
@@ -415,7 +415,7 @@ function show(mixed $source = null, int $trace_offset = 2, bool $quiet = false):
  * @param bool $quiet
  * @return void
  */
-#[NoReturn] function showdie(mixed $source = null, int $trace_offset = 3, bool $quiet = false): void
+#[NoReturn] function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): void
 {
     Debug::showdie($source, $trace_offset, $quiet);
 }
@@ -514,24 +514,12 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
  * Execute the specified script file
  *
  * @param string $__file
- * @param array $argv
  * @return void
  * @throws Throwable
  */
-function execute_script(string $__file, array $argv): void
+function execute_script(string $__file): void
 {
     global $argv;
-
-    if ($argv) {
-        Log::information(tr('Executing script ":script" with arguments ":arguments"', [
-            ':script' => $__file,
-            ':arguments' => $argv
-        ]));
-    } else {
-        Log::information(tr('Executing script ":script" with no arguments', [
-            ':script' => $__file
-        ]));
-    }
 
     try {
         include($__file);

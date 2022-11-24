@@ -96,7 +96,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     `birthday` date DEFAULT NULL,
                     `description` text DEFAULT NULL,
                     `comments` mediumtext DEFAULT NULL,
-                    `website` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+                    `website` varchar(2048) CHARACTER SET latin1 DEFAULT NULL,
                     `timezone` varchar(32) DEFAULT NULL')
                 ->setIndices('                
                     PRIMARY KEY (`id`),

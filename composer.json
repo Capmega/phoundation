@@ -15,7 +15,8 @@
     "ext-mongodb": "*",
     "ext-memcached": "*",
     "ext-pcntl": "*",
-    "ext-exif": "*"
+    "ext-exif": "*",
+    "ext-readline": "*"
   },
   "require-dev": {
     "phpmd/phpmd": "@stable",

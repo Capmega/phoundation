@@ -1,0 +1,77 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+
+/**
+ * Script system/accounts/users/create
+ *
+ * This script will create a new user with the specified properties
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+$usage = './cli system accounts user create [OPTIONS]
+./cli system sync -l -i --to ENVIRONMENT';
+
+$help  = 'This script allows you to create users';
+
+// Validate arguments
+$arguments = ArgvValidator::new()
+    ->select('-e,--email', true)->isEmail()
+    ->select('-n,--name', true)->isName()
+    ->select('-r,--role', true)->isName()
+    ->select('-g,--gender', true)->isOptional(null)->isGender()
+    ->select('-t,--title', true)->isOptional(null)->isName()
+    ->select('-l,--language', true)->isOptional(null)->isName()
+    ->select('-d,--description', true)->isOptional(null)->isDescription()
+    ->select('-c,--comments', true)->isOptional(null)->isDescription()
+    ->select('-u,--username', true)->isOptional(null)->isDescription()->isName()
+    ->select('-a,--address', true)->isOptional(null)->hasMaxCharacters(255)->isPrintable()
+    ->select('-w,--website', true)->isOptional(null)->isUrl()
+    ->select('-p,--phones', true)->isOptional(null)->isPhones()
+    ->select('-b,--birthday', true)->isOptional(null)->isDate()
+    ->select('-t,--timezone', true)->isOptional(null)->isTimezone()
+    ->select('--domain', true)->isOptional(null)->isDomain()
+    ->select('--lead-by', true)->isOptional(null)->isEmail()
+    ->select('--country', true)->isOptional(null)->isName()
+    ->select('--state', true)->isOptional(null)->isName()
+    ->select('--city', true)->isOptional(null)->isName()
+    ->select('--is-leader')->isOptional(false)->isBoolean()
+    ->validate()
+    ->extract();
+showdie($arguments);
+$arguments['password']          = readline(tr('Please type the users password: '));
+$arguments['password_validate'] = readline(tr('Please re-type the users password: '));
+
+// Create user
+$user = User::new()
+    ->setEmail($arguments['email'])
+    ->setName($arguments['name'])
+    ->setTitle($arguments['title'])
+    ->setGender($arguments['gender'])
+    ->setLanguage($arguments['language'])
+    ->setDescription($arguments['description'])
+    ->setComments($arguments['comments'])
+    ->setUsername($arguments['username'])
+    ->setAddress($arguments['address'])
+    ->setWebsite($arguments['website'])
+    ->setPhones($arguments['phones'])
+    ->setBirthday($arguments['birthday'])
+    ->setTimezone($arguments['timezone'])
+    ->setLeader($arguments['lead_by'])
+    ->setIsLeader($arguments['is_leader'])
+    ->setCountry($arguments['country'])
+    ->setState($arguments['state'])
+    ->setCity($arguments['city'])
+    ->setCountry($arguments['country'])
+    ->setRole($arguments['role'])
+    ->save();
+
+Log::success(tr('Created user ":user"', [':user' => $user->getDisplayName()]));
