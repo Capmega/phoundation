@@ -85,7 +85,7 @@ trait ValidatorBasics
      *
      * @var mixed $process_value
      */
-    protected mixed $process_value = null;
+    protected mixed $process_value;
 
     /**
      * Registers when the single value being tested failed during multiple tests or not
@@ -127,11 +127,18 @@ trait ValidatorBasics
     protected int $max_string_size = 1073741824;
 
     /**
-     * Required to test if property is initialized or not
+     * Required to test if selected_optional property is initialized or not
      *
-     * @var ReflectionProperty $reflection_property
+     * @var ReflectionProperty $reflection_selected_optional
      */
-    protected ReflectionProperty $reflection_property;
+    protected ReflectionProperty $reflection_selected_optional;
+
+    /**
+     * Required to test if process_value property is initialized or not
+     *
+     * @var ReflectionProperty $reflection_process_value
+     */
+    protected ReflectionProperty $reflection_process_value;
 
 
 
@@ -350,7 +357,6 @@ trait ValidatorBasics
         $this->selected_fields = [];
         $this->selected_value  = null;
         $this->process_values  = null;
-        $this->process_value   = null;
         $this->source          = null;
     }
 
@@ -370,7 +376,7 @@ trait ValidatorBasics
         }
 
         if ($value === null) {
-            if (!$this->reflection_property->isInitialized($this)){
+            if (!$this->reflection_selected_optional->isInitialized($this)){
                 // At this point we know we MUST have a value, so we're bad here
                 $this->addFailure(tr('is required'));
                 return false;

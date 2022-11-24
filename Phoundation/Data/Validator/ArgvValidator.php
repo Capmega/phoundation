@@ -28,7 +28,7 @@ class ArgvValidator extends Validator
      *
      * @var array $argv
      */
-    protected static array $argv;
+    public static array $argv;
 
 
 
@@ -89,12 +89,17 @@ class ArgvValidator extends Validator
      */
     public function select(int|string $field, string|bool $next = false): static
     {
+        // Unset various values first to ensure the byref link is broken
+        unset($this->process_value);
+        unset($this->process_values);
+        unset($this->selected_value);
+
+        $this->process_value_failed = false;
+
         if (!$field) {
             throw new OutOfBoundsException(tr('No field specified'));
         }
-        print_r($field);
-        print_r(self::$argv);
-        die('aaaaaaaaaaaaaaaaaaa');
+
         $fields = Arrays::force($field, ',');
         $value  = self::argument($field, $next);
 
@@ -126,12 +131,10 @@ class ArgvValidator extends Validator
         // Add the field to the array
         $this->source[$clean_field] = $value;
 
-        // Select the field. Unset process_values first to ensure the byref link is broken
-        unset($this->process_values);
-
+        // Select the field.
         $this->selected_field    = $clean_field;
         $this->selected_fields[] = $clean_field;
-        $this->selected_value    = $this->source[$clean_field];
+        $this->selected_value    = &$this->source[$clean_field];
         $this->process_values    = [null => &$this->selected_value];
 
         unset($this->selected_optional);
@@ -154,10 +157,21 @@ class ArgvValidator extends Validator
         foreach ($this->selected_fields as $field) {
             $return[$field] = $this->source[$field];
         }
-show(self::$argv);
-show($this->source);
+
         $argv = [];
         return $return;
+    }
+
+
+
+    /**
+     * Returns the amount of command line arguments still available.
+     *
+     * @return int
+     */
+    public static function count(): int
+    {
+        return count(self::$argv);
     }
 
 

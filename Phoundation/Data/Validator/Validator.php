@@ -50,8 +50,6 @@ abstract class Validator
         // Unset process_values first to ensure the byref link is broken
         unset($this->process_values);
         $this->process_values = &$this->selected_value;
-//show($this->process_values);
-//show('each');
         return $this;
     }
 
@@ -85,25 +83,21 @@ abstract class Validator
      */
     protected function validateValues(callable $function): static
     {
-        if ($this->process_value) {
+        if ($this->reflection_process_value->isInitialized($this)){
             // A single value was selected, test only this value
             $this->process_value = $function($this->process_value);
         } else {
             $this->ensureSelected();
-//show('START VALIDATE VALUES "' . $this->selected_field . '" (' . ($this->process_value_failed ? 'FAILED' : 'NOT FAILED') . ')');
-//show($this->process_values);
 
             if ($this->process_value_failed) {
-//show('NOT VALIDATING, ALREADY FAILED');
                 // In the span of multiple tests on one value, one test failed, don't execute the rest of the tests
                 return $this;
             }
 
             foreach ($this->process_values as $key => &$value) {
-//show('KEY ' . $key.' / VALUE:' . Strings::force($value));
                 // Process all process_values
-                $this->process_key = $key;
-                $this->process_value = &$value;
+                $this->process_key          = $key;
+                $this->process_value        = &$value;
                 $this->process_value_failed = false;
 
                 $this->process_value = $function($this->process_value);
@@ -113,9 +107,6 @@ abstract class Validator
             unset($value);
             unset($this->process_key);
             unset($this->process_value);
-
-            $this->process_key = null;
-            $this->process_value = null;
         }
 
         return $this;
@@ -230,7 +221,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if ($value < ($allow_zero ? 0 : 1)) {
@@ -253,7 +244,7 @@ abstract class Validator
      */
     public function isNatural(bool $allow_zero = true): static
     {
-        return $this->isInteger()->isPositive(false);
+        return $this->isInteger()->isPositive($allow_zero);
     }
 
 
@@ -268,7 +259,7 @@ abstract class Validator
      */
     public function isId(bool $allow_zero = false): static
     {
-        return $this->isInteger()->isPositive(false);
+        return $this->isInteger()->isPositive($allow_zero);
     }
 
 
@@ -284,11 +275,11 @@ abstract class Validator
     public function isCode(bool $allow_zero = false): static
     {
         return $this->validateValues(function($value) {
-            $this->hasMinCharacters(4)->hasMaxCharacters(16);
+            $this->hasMinCharacters(2)->hasMaxCharacters(16);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             $this->isPrintable();
@@ -313,7 +304,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if ($value <= $amount) {
@@ -341,7 +332,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if ($value >= $amount) {
@@ -370,7 +361,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (($value <= $minimum) or ($value >= $maximum)) {
@@ -398,7 +389,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if ($value > ($allow_zero ? 0 : 1)) {
@@ -450,7 +441,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!in_array($value, $array)) {
@@ -479,7 +470,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!str_contains($value, $string)) {
@@ -528,7 +519,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (strlen($value) != $characters) {
@@ -554,7 +545,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (strlen($value) < $characters) {
@@ -580,7 +571,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             // Validate the maximum amount of characters
@@ -618,7 +609,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!preg_match($regex, $value)) {
@@ -643,7 +634,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!ctype_alpha($value)) {
@@ -668,7 +659,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!ctype_alnum($value)) {
@@ -693,7 +684,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!ctype_lower($value)) {
@@ -718,7 +709,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!ctype_upper($value)) {
@@ -744,7 +735,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!ctype_punct($value)) {
@@ -769,7 +760,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!ctype_print($value)) {
@@ -794,7 +785,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!ctype_graph($value)) {
@@ -819,7 +810,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!ctype_space($value)) {
@@ -844,7 +835,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!ctype_xdigit($value)) {
@@ -869,7 +860,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!preg_match('/^0-7*$/', $value)) {
@@ -908,7 +899,7 @@ abstract class Validator
 
                 if ($this->process_value_failed) {
                     // Validation already failed, don't test anything more
-                    return '';
+                    return $value;
                 }
 
                 if ($value != $validate_value) {
@@ -939,7 +930,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
 // TODO Implement
@@ -966,7 +957,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
 // TODO Implement
@@ -993,7 +984,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
 // TODO Implement
@@ -1020,7 +1011,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
 // TODO Implement
@@ -1070,7 +1061,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (count($value) != $count) {
@@ -1096,7 +1087,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (count($value) < $count) {
@@ -1122,7 +1113,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (count($value) > $count) {
@@ -1147,7 +1138,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             $value = mb_strtoupper($value);
@@ -1187,7 +1178,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             $this->matchesRegex('/[0-9- ].+?/');
@@ -1209,7 +1200,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             $this->matchesRegex('/[0-9- ,].+?/');
@@ -1231,7 +1222,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             $this->isPrintable();
@@ -1253,7 +1244,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             $this->isPrintable();
@@ -1275,7 +1266,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             $this->isPrintable();
@@ -1297,7 +1288,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             return $value;
@@ -1318,7 +1309,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             // TODO Implement
@@ -1341,7 +1332,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
@@ -1366,7 +1357,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!filter_var($value, FILTER_VALIDATE_URL)) {
@@ -1391,7 +1382,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!filter_var($value, FILTER_VALIDATE_URL)) {
@@ -1416,7 +1407,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if (!filter_var($value, FILTER_VALIDATE_IP)) {
@@ -1447,7 +1438,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             // Try by regex. If that fails. try JSON decode
@@ -1484,7 +1475,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             try {
@@ -1518,7 +1509,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             try {
@@ -1549,7 +1540,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             try {
@@ -1580,7 +1571,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             try {
@@ -1609,7 +1600,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             return trim($value, $characters);
@@ -1632,7 +1623,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             try {
@@ -1661,7 +1652,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             try {
@@ -1692,7 +1683,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             if ($regex) {
@@ -1727,7 +1718,7 @@ abstract class Validator
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             try {
@@ -1762,7 +1753,7 @@ abstract class Validator
         return $this->validateValues(function($value) use ($separator, $enclosure, $escape) {
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             try {
@@ -1795,7 +1786,7 @@ abstract class Validator
         return $this->validateValues(function($value) {
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             try {
@@ -1826,7 +1817,7 @@ abstract class Validator
         return $this->validateValues(function($value) {
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             try {
@@ -1857,7 +1848,7 @@ abstract class Validator
         return $this->validateValues(function($value) {
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             try {
@@ -1888,7 +1879,7 @@ abstract class Validator
         return $this->validateValues(function($value) {
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             try {
@@ -1919,7 +1910,7 @@ abstract class Validator
         return $this->validateValues(function($value) {
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return '';
+                return $value;
             }
 
             try {
@@ -1951,7 +1942,8 @@ abstract class Validator
         $this->source = &$source;
         $this->parent = $parent;
 
-        $this->reflection_property = new ReflectionProperty($this, 'selected_optional');
+        $this->reflection_selected_optional = new ReflectionProperty($this, 'selected_optional');
+        $this->reflection_process_value     = new ReflectionProperty($this, 'process_value');
    }
 
 
@@ -1964,6 +1956,13 @@ abstract class Validator
      */
     public function standardSelect(int|string $field): static
     {
+        // Unset various values first to ensure the byref link is broken
+        unset($this->process_value);
+        unset($this->process_values);
+        unset($this->selected_value);
+
+        $this->process_value_failed = false;
+
         if (!$field) {
             throw new OutOfBoundsException(tr('No field specified'));
         }
@@ -1985,12 +1984,10 @@ abstract class Validator
             $this->source[$field] = null;
         }
 
-        // Select the field. Unset process_values first to ensure the byref link is broken
-        unset($this->process_values);
-
+        // Select the field.
         $this->selected_field    = $field;
         $this->selected_fields[] = $field;
-        $this->selected_value    = $this->source[$field];
+        $this->selected_value    = &$this->source[$field];
         $this->process_values    = [null => &$this->selected_value];
 
         unset($this->selected_optional);

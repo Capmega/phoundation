@@ -38,20 +38,6 @@ class Script
      */
     protected static int $exit_code = 0;
 
-    /**
-     * The arguments given to the executed script
-     *
-     * @var array|null $arguments
-     */
-    protected static ?array $arguments = null;
-
-    /**
-     * The command line arguments
-     *
-     * @var array|null $argv
-     */
-    protected static ?array $argv = null;
-
 
 
     /**
@@ -62,14 +48,6 @@ class Script
      */
     public static function execute(): void
     {
-        ArgvValidator::new()
-            ->select('test');
-        die('bbbbbbbbbbbbb');
-
-        // Backup the command line arguments
-        self::$argv      =  $GLOBALS['argv'];
-        self::$arguments = &$GLOBALS['argv'];
-
         // All scripts will execute the cli_done() call, register basic script information
         Core::startup();
         Core::registerShutdown('core_shutdown', ['\Phoundation\Cli\Script', 'shutdown']);
@@ -77,10 +55,6 @@ class Script
         // Only allow this to be run by the cli script
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
         self::only();
-
-        if (count(self::$argv) <= 1) {
-            throw Exceptions::OutOfBoundsException('No method specified!')->makeWarning();
-        }
 
         // Get the script file to execute
         $file = self::findScript();
@@ -219,7 +193,9 @@ class Script
             return;
         }
 
-        throw Exceptions::CliInvalidArgumentsException(tr('Invalid arguments ":arguments" encountered', [':arguments' => Strings::force($argv, ', ')]))->makeWarning();
+        throw Exceptions::CliInvalidArgumentsException(tr('Invalid arguments ":arguments" encountered', [
+            ':arguments' => Strings::force($argv, ', ')
+        ]))->makeWarning();
     }
 
 
@@ -233,6 +209,15 @@ class Script
     {
         $file     = PATH_ROOT . 'scripts/';
         $argument = null;
+
+        if (count(ArgvValidator::count()) <= 1) {
+            throw Exceptions::OutOfBoundsException('No method specified!')->makeWarning();
+        }
+
+        print_r(ArgvValidator::$argv);
+        die('bbbbbbbbbbbbb');
+        ArgvValidator::new()
+            ->select('test');
 
         foreach (self::$arguments as $position => $argument) {
             if (str_ends_with($argument, '/cli')) {
