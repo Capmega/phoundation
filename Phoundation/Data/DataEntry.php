@@ -99,7 +99,7 @@ abstract class DataEntry
      *
      * @param string|int|null $identifier
      */
-    protected function construct(string|int|null $identifier = null): void
+    public function __construct(string|int|null $identifier = null)
     {
         $this->setKeys();
 
@@ -117,11 +117,12 @@ abstract class DataEntry
     /**
      * Returns a User object
      *
+     * @param string|int|null $identifier
      * @return static
      */
-    public static function new(): static
+    public static function new(string|int|null $identifier = null): static
     {
-        return new static();
+        return new static($identifier);
     }
 
 
@@ -130,11 +131,17 @@ abstract class DataEntry
      * Returns a User object for the user owning the specified email address
      *
      * @param string|int|null $identifier
-     * @return static
+     * @return static|null
      */
-    public static function get(string|int $identifier = null): static
+    public static function get(string|int $identifier = null): ?static
     {
-        return new static($identifier);
+        $user = new static($identifier);
+
+        if ($user->getId()) {
+            return $user;
+        }
+
+        return null;
     }
 
 
@@ -529,8 +536,8 @@ abstract class DataEntry
     /**
      * Will load the data from this data entry from database
      *
-     * @param int $identifier
+     * @param string|int $identifier
      * @return void
      */
-    abstract protected function load(int $identifier): void;
+    abstract protected function load(string|int $identifier): void;
 }

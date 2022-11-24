@@ -1173,8 +1173,6 @@ class Sql
                             VALUES               (:created_by , :count , :hash , NOW() + INTERVAL :expires SECOND)
          
                             ON DUPLICATE KEY UPDATE `count`      = :update_count,
-                                                    `modified_on` = NOW(),
-                                                    `modified_by` = :update_modified_by,
                                                     `until`      = NOW() + INTERVAL :update_expires SECOND',
 
                             [
@@ -1183,7 +1181,6 @@ class Sql
                                 ':count' => $count,
                                 ':expires' => $expires,
                                 ':update_expires' => $expires,
-                                ':update_modified_by' => isset_get($_SESSION['user']['id']),
                                 ':update_count' => $count
                             ]);
 
@@ -1466,7 +1463,7 @@ class Sql
 //                                     `meta_id`,
 //                                     `status`,
 //                                     `name`,
-//                                     `seoname`,
+//                                     `seo_name`,
 //                                     `servers_id`,
 //                                     `hostname`,
 //                                     `driver`,
@@ -1954,13 +1951,13 @@ class Sql
 //        } elseif (is_string($entry)) {
 //            if ($seo) {
 //                if ($code) {
-//                    $return['where'] = '`name` = :name OR `seoname` = :seoname OR `code` = :code';
+//                    $return['where'] = '`name` = :name OR `seo_name` = :seoname OR `code` = :code';
 //                    $return['execute'] = array(':code' => $entry,
 //                        ':name' => $entry,
 //                        ':seoname' => $entry);
 //
 //                } else {
-//                    $return['where'] = '`name` = :name OR `seoname` = :seoname';
+//                    $return['where'] = '`name` = :name OR `seo_name` = :seoname';
 //                    $return['execute'] = array(':name' => $entry,
 //                        ':seoname' => $entry);
 //                }

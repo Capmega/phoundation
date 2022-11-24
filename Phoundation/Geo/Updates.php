@@ -59,13 +59,13 @@ class Updates extends \Phoundation\Libraries\Updates
                     `utc_offset` varchar(6) CHARACTER SET latin1 NOT NULL,
                     `utc_dst_offset` varchar(6) CHARACTER SET latin1 NOT NULL,
                     `name` varchar(64) NOT NULL,
-                    `seoname` varchar(64) NOT NULL,
+                    `seo_name` varchar(64) NOT NULL,
                     `comments` varchar(255) DEFAULT NULL,
                     `notes` varchar(255) DEFAULT NULL,')
                 ->setIndices('  
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `name` (`name`),
-                    UNIQUE KEY `seoname` (`seoname`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
                     KEY `coordinates` (`coordinates`),
                     KEY `utc_offset` (`utc_offset`),
                     KEY `utc_dst_offset` (`utc_dst_offset`),
@@ -81,14 +81,14 @@ class Updates extends \Phoundation\Libraries\Updates
                     `geonames_id` int NOT NULL,
                     `code` varchar(2) NOT NULL,
                     `name` varchar(32) NOT NULL,
-                    `seoname` varchar(32) NOT NULL,
+                    `seo_name` varchar(32) NOT NULL,
                     `alternate_names` varchar(4000) NOT NULL,
                     `latitude` decimal(10,7) NOT NULL,
                     `longitude` decimal(10,7) NOT NULL,
                     `timezones_id` int DEFAULT NULL,')
                 ->setIndices('  PRIMARY KEY (`id`),
                     UNIQUE KEY `name` (`name`),
-                    UNIQUE KEY `seoname` (`seoname`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
                     KEY `geonames_id` (`geonames_id`),
                     KEY `code` (`code`),
                     KEY `latitude` (`latitude`),
@@ -125,14 +125,14 @@ class Updates extends \Phoundation\Libraries\Updates
                     `longitude` decimal(10,7) DEFAULT NULL,
                     `alternate_names` varchar(4000) DEFAULT NULL,
                     `name` varchar(200) NOT NULL,
-                    `seoname` varchar(200) NOT NULL,
+                    `seo_name` varchar(200) NOT NULL,
                     `capital` varchar(200) DEFAULT NULL,
                     `areainsqkm` double DEFAULT NULL,
                     `population` int DEFAULT NULL,')
                 ->setIndices('
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `name` (`name`),
-                    UNIQUE KEY `seoname` (`seoname`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
                     KEY `code` (`code`),
                     KEY `code_iso` (`iso_alpha2`),
                     KEY `tld` (`tld`),
@@ -173,7 +173,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     `country_code` varchar(2) NOT NULL,
                     `code` varchar(2) NOT NULL,
                     `name` varchar(200) NOT NULL,
-                    `seoname` varchar(200) NOT NULL,
+                    `seo_name` varchar(200) NOT NULL,
                     `alternate_names` text,
                     `latitude` decimal(10,7) DEFAULT NULL,
                     `longitude` decimal(10,7) DEFAULT NULL,
@@ -184,7 +184,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     `filter` enum("default", "selective") CHARACTER SET latin1 NOT NULL DEFAULT "default",')
                 ->setIndices('
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `seoname` (`seoname`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
                     UNIQUE KEY `name_2` (`name`,`latitude`,`longitude`),
                     KEY `timezones_id` (`timezones_id`),
                     KEY `continents_id` (`continents_id`),
@@ -218,7 +218,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     `states_id` int NOT NULL,
                     `code` varchar(2),
                     `name` varchar(64),
-                    `seoname` varchar(64),
+                    `seo_name` varchar(64),
                     `alternate_names` text,
                     `latitude` decimal(10,7) DEFAULT NULL,
                     `longitude` decimal(10,7) DEFAULT NULL,
@@ -228,7 +228,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     `admin2` varchar(20) DEFAULT NULL')
                 ->setIndices('
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `seoname` (`seoname`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
                     UNIQUE KEY `name_2` (`name`,`latitude`,`longitude`,`countries_id`),
                     KEY `status` (`status`),
                     KEY `timezones_id` (`timezones_id`),
@@ -277,7 +277,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     `states_id` int NOT NULL,
                     `counties_id` int DEFAULT NULL,
                     `name` varchar(200) NOT NULL,
-                    `seoname` varchar(200) NOT NULL,
+                    `seo_name` varchar(200) NOT NULL,
                     `alternate_names` text,
                     `alternate_country_codes` varchar(60) DEFAULT NULL,
                     `latitude` decimal(10,7) DEFAULT NULL,
@@ -290,7 +290,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     `feature_code` varchar(10) DEFAULT NULL,')
                 ->setIndices('
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `seoname` (`states_id`,`seoname`),
+                    UNIQUE KEY `seo_name` (`states_id`,`seo_name`),
                     UNIQUE KEY `name_2` (`name`,`latitude`,`longitude`,`countries_id`),
                     KEY `geonames_id` (`geonames_id`),
                     KEY `timezones_id` (`timezones_id`),

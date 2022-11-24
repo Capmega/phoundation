@@ -55,8 +55,6 @@ class Updates extends \Phoundation\Libraries\Updates
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_by` int DEFAULT NULL,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `modified_by` int DEFAULT NULL,
-                    `modified_on` datetime NULL,
                     `meta_id` int NOT NULL,
                     `status` varchar(16) DEFAULT NULL,
                     `code` varchar(16) DEFAULT NULL,
@@ -72,8 +70,6 @@ class Updates extends \Phoundation\Libraries\Updates
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
-                    KEY `modified_by` (`modified_by`),
-                    KEY `modified_on` (`modified_on`),
                     KEY `meta_id` (`meta_id`),
                     KEY `status` (`status`),
                     KEY `code` (`code`),
@@ -81,7 +77,6 @@ class Updates extends \Phoundation\Libraries\Updates
                     KEY `priority` (`priority`),')
                 ->setForeignKeys('
                     CONSTRAINT `fk_notifications_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
-                    CONSTRAINT `fk_notifications_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`),
                     CONSTRAINT `fk_notifications_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),')
                 ->create();
 

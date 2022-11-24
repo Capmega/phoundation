@@ -19,6 +19,13 @@ use Phoundation\Exception\OutOfBoundsException;
 abstract class DataList implements Iterator
 {
     /**
+     * The list parent
+     *
+     * @var DataEntry|null $parent
+     */
+    protected ?DataEntry $parent;
+
+    /**
      * The data list
      *
      * @var array $list
@@ -35,13 +42,26 @@ abstract class DataList implements Iterator
 
 
     /**
+     * DataList class constructor
+     *
+     * @param DataEntry|null $parent
+     */
+    public function __construct(?DataEntry $parent = null)
+    {
+        $this->parent = $parent;
+    }
+
+
+
+    /**
      * Returns new Roles object
      *
+     * @param DataEntry|null $parent
      * @return static
      */
-    public static function new(): static
+    public static function new(?DataEntry $parent = null): static
     {
-        return new static();
+        return new static($parent);
     }
 
 

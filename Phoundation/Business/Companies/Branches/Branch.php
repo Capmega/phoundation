@@ -1,56 +1,49 @@
 <?php
 
-namespace Phoundation\Accounts\Roles;
+namespace Phoundation\Business\Companies\Branches;
 
 use Phoundation\Data\DataEntry;
 
 
 
 /**
- * Class Role
+ * Class Branch
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package Phoundation\Companies
  */
-class Role extends DataEntry
+class Branch extends DataEntry
 {
+
     /**
-     *
-     *
-     * @return static
+     * @inheritDoc
      */
     public function save(): static
     {
         // TODO: Implement save() method.
-        return $this;
     }
 
 
 
     /**
-     *
-     *
-     * @param int $identifier
-     * @return void
-     */
-    protected function load(int $identifier): void
-    {
-        // TODO: Implement load() method.
-    }
-
-
-
-    /**
-     *
-     *
-     * @return void
+     * @inheritDoc
      */
     protected function setKeys(): void
     {
         // TODO: Implement setKeys() method.
+    }
+
+
+
+    /**
+     * @inheritDoc
+     */
+    protected function load(int|string $identifier): void
+    {
+        // TODO: Implement load() method.
     }
 }

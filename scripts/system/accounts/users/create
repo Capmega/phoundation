@@ -1,8 +1,10 @@
 #!/usr/bin/php
 <?php
 
+use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Cli\Cli;
 use Phoundation\Core\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 
@@ -21,13 +23,61 @@ use Phoundation\Data\Validator\ArgvValidator;
 $usage = './cli system accounts user create [OPTIONS]
 ./cli system sync -l -i --to ENVIRONMENT';
 
-$help  = 'This script allows you to create users';
+$help  = 'This script allows you to create users
+
+
+
+ARGUMENTS
+
+
+-e / --email                            The email address for the user
+
+-n / --name                             The name for the user
+
+-r / --roles ROLE[,ROLE,ROLE]           A comma separated list of the roles that this user has on this system. The roles 
+                                        must already exist. These roles will grant the user rights which will give him 
+                                        or her access to the various parts of the system
+
+[-g / --gender]
+
+[-t / --title]
+
+[-l / --language]
+
+[-d / --description]
+
+[-c / --comments]
+
+[-u / --username]
+
+[-a / --address]
+
+[-w / --website]
+
+[-p / --phones]
+
+[-b / --birthday]
+
+[-t / --timezone]
+
+[--domain]
+
+[--lead-by]
+
+[--country]
+
+[--state]
+
+[--city]
+
+[--is-leader]                           If specified, this user will be registered as having a leadership position';
+
+
 
 // Validate arguments
 $arguments = ArgvValidator::new()
     ->select('-e,--email', true)->isEmail()
     ->select('-n,--name', true)->isName()
-    ->select('-r,--role', true)->isName()
     ->select('-g,--gender', true)->isOptional(null)->isGender()
     ->select('-t,--title', true)->isOptional(null)->isName()
     ->select('-l,--language', true)->isOptional(null)->isName()
@@ -44,15 +94,35 @@ $arguments = ArgvValidator::new()
     ->select('--country', true)->isOptional(null)->isName()
     ->select('--state', true)->isOptional(null)->isName()
     ->select('--city', true)->isOptional(null)->isName()
+    ->select('--company', true)->isOptional(null)->isName()
+    ->select('--department', true)->isOptional(null)->isName()
+    ->select('--branch', true)->isOptional(null)->isName()
     ->select('--is-leader')->isOptional(false)->isBoolean()
+    ->select('-r,--roles')->isOptional(null)->forceArray()->each()->isName()
     ->validate()
     ->extract();
 
-//$arguments['password']          = Cli::readPassword(tr('Please type the users password: '));
-//$arguments['password_validate'] = Cli::readPassword(tr('Please re-type the users password: '));
+
+// Check if the user already exists
+$exists = User::get($arguments['email']);
+
+if ($exists) {
+    throw new AccountsException(tr('Cannot create user with ":email", this email already exists', [
+        ':email' => $arguments['email']
+    ]));
+}
+
+
+
+// Add password for this user
+$arguments['password']          = Cli::readPassword(tr('Please type the users password: '));
+$arguments['password_validate'] = Cli::readPassword(tr('Please re-type the users password: '));
+
+
 
 // Create user
-$user = User::get($arguments['email'])
+$user = User::new()
+    ->setEmail($arguments['email'])
     ->setName($arguments['name'])
     ->setTitle($arguments['title'])
     ->setGender($arguments['gender'])
@@ -70,9 +140,15 @@ $user = User::get($arguments['email'])
     ->setCountry($arguments['country'])
     ->setState($arguments['state'])
     ->setCity($arguments['city'])
-    ->setCountry($arguments['country']);
+    ->setCountry($arguments['country'])
+    ->setCompany($arguments['company']);
 
-$user->roles()->add(Role::new($arguments['role']));
+$user->roles()->add(Role::get($arguments['role']));
+
+$user->company()
+    ->setDeparment($arguments['branch'])
+    ->setBranch($arguments['branch']);
+
 $user->save();
 
 Log::success(tr('Created user ":user"', [':user' => $user->getDisplayName()]));

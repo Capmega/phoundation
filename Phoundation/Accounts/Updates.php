@@ -55,8 +55,6 @@ class Updates extends \Phoundation\Libraries\Updates
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_by` int DEFAULT NULL,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `modified_by` int DEFAULT NULL,
-                    `modified_on` datetime DEFAULT NULL,
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `last_signin` datetime DEFAULT NULL,
@@ -115,8 +113,6 @@ class Updates extends \Phoundation\Libraries\Updates
                     KEY `leaders_id` (`leaders_id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
-                    KEY `modified_by` (`modified_by`),
-                    KEY `modified_on` (`modified_on`),
                     KEY `nickname` (`nickname`),
                     KEY `priority` (`priority`),
                     KEY `fingerprint` (`fingerprint`),
@@ -127,7 +123,6 @@ class Updates extends \Phoundation\Libraries\Updates
                     KEY `status` (`status`)')
                 ->setForeignKeys('
                     CONSTRAINT `fk_users_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_users_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_users_leaders_id` FOREIGN KEY (`leaders_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_users_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_users_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT,
@@ -141,8 +136,6 @@ class Updates extends \Phoundation\Libraries\Updates
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` int DEFAULT NULL,
-                    `modified_by` int DEFAULT NULL,
-                    `modified_on` datetime DEFAULT NULL,
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(32) NOT NULL,
@@ -152,14 +145,11 @@ class Updates extends \Phoundation\Libraries\Updates
                     UNIQUE KEY `name` (`name`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
-                    KEY `modified_by` (`modified_by`),
-                    KEY `modified_on` (`modified_on`),
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`)')
                 ->setForeignKeys('
                     CONSTRAINT `fk_users_rights_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_users_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_users_rights_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,')
+                    CONSTRAINT `fk_users_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT')
                 ->create();
 
             // Create the users_roles table.
@@ -168,8 +158,6 @@ class Updates extends \Phoundation\Libraries\Updates
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` int DEFAULT NULL,
-                    `modified_by` int DEFAULT NULL,
-                    `modified_on` datetime DEFAULT NULL,
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
@@ -178,15 +166,12 @@ class Updates extends \Phoundation\Libraries\Updates
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
-                    KEY `modified_on` (`modified_on`),
-                    KEY `modified_by` (`modified_by`),
                     KEY `status` (`status`),
                     KEY `name` (`name`),
                     KEY `meta_id` (`meta_id`),')
                 ->setForeignKeys('
                     CONSTRAINT `fk_users_roles_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_users_roles_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_users_roles_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT')
+                    CONSTRAINT `fk_users_roles_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT')
                 ->create();
 
             // Create the users_groups table.
@@ -195,8 +180,6 @@ class Updates extends \Phoundation\Libraries\Updates
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` int DEFAULT NULL,
-                    `modified_by` int DEFAULT NULL,
-                    `modified_on` datetime DEFAULT NULL,
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
@@ -205,15 +188,12 @@ class Updates extends \Phoundation\Libraries\Updates
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
-                    KEY `modified_on` (`modified_on`),
-                    KEY `modified_by` (`modified_by`),
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`),
                     KEY `name` (`name`),')
                 ->setForeignKeys('
                     CONSTRAINT `fk_users_groups_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_users_groups_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_users_groups_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT')
+                    CONSTRAINT `fk_users_groups_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT')
                 ->create();
 
             // Create the users_rights_links table.

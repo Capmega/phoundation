@@ -4,6 +4,7 @@ namespace Phoundation\Accounts\Users;
 
 use Phoundation\Accounts\Roles\UserRoles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Business\Companies\Company;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry;
@@ -35,17 +36,12 @@ class User extends DataEntry
      */
     protected UserRoles $roles;
 
-
-
     /**
-     * User class constructor
+     * The company for this user
      *
-     * @param int|string|null $identifier
+     * @var Company
      */
-    public function __construct(int|string|null $identifier = null)
-    {
-        $this->construct($identifier);
-    }
+    protected Company $company;
 
 
 
@@ -1165,6 +1161,48 @@ class User extends DataEntry
     /**
      * Returns the roles for this user
      *
+     * @return Company|null
+     */
+    public function company(): ?Company
+    {
+        return $this->getCompany();
+    }
+
+
+
+    /**
+     * Returns the company for this user
+     *
+     * @return Company|null
+     */
+    public function getCompany(): ?Company
+    {
+        return $this->company;
+    }
+
+
+
+    /**
+     * Sets the company for this user
+     *
+     * @param  Company|string|int|null $company
+     * @return static
+     */
+    public function setCompany(Company|string|int|null $company): static
+    {
+        if (!is_object($company)) {
+            $company = new Company($company);
+        }
+
+        $this->company = $company;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the roles for this user
+     *
      * @return UserRoles
      */
     public function roles(): UserRoles
@@ -1304,7 +1342,8 @@ class User extends DataEntry
             'description',
             'comments',
             'website',
-            'timezone'
+            'timezone',
+            'companies_id'
         ];
     }
 }
