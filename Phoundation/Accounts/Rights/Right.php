@@ -1,13 +1,13 @@
 <?php
 
-namespace Phoundation\Business\Companies\Branches;
+namespace Phoundation\Accounts\Rights;
 
 use Phoundation\Data\DataEntry;
 
 
 
 /**
- * Class Branch
+ * Right class
  *
  *
  *
@@ -15,9 +15,9 @@ use Phoundation\Data\DataEntry;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Companies
+ * @package Phoundation\Accounts
  */
-class Branch extends DataEntry
+class Right extends DataEntry
 {
 
     /**

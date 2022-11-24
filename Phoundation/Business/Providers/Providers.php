@@ -4,7 +4,19 @@ namespace Phoundation\Business\Providers;
 
 use Phoundation\Data\DataList;
 
-class Providers extends DataList
+
+
+/**
+ * Providers class
+ *
+ *
+ *
+ * @see \Phoundation\Data\DataList
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Business
+ */class Providers extends DataList
 {
 
     /**
