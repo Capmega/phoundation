@@ -7,7 +7,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
-
+use Phoundation\Processes\Process;
 
 
 /**
@@ -129,5 +129,26 @@ class Cli
 
             Log::cli(Color::apply(Strings::size(' ', $offset) . Strings::size($key , $key_size), 'white') . ' ' . $value);
         }
+    }
+
+
+
+    /**
+     * Read a password from the command line prompt
+     *
+     * @param string $prompt
+     * @return string
+     */
+    public static function readPassword(string $prompt): string
+    {
+        echo $prompt;
+
+        system('stty -echo');
+        $return = trim(fgets(STDIN));
+
+        system('stty echo');
+        echo PHP_EOL;
+
+        return $return;
     }
 }
