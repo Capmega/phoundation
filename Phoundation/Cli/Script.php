@@ -62,9 +62,6 @@ class Script
         Core::writeRegister($file, 'system', 'script');
         Core::writeRegister(Strings::fromReverse($file, '/'), 'script');
 
-        // Store arguments in the ArgvValidator object
-        ArgvValidator::hideData(self::$arguments);
-
         // Execute the script
         execute_script($file);
     }
@@ -207,42 +204,37 @@ class Script
      */
     protected static function findScript(): string
     {
-        $file     = PATH_ROOT . 'scripts/';
-        $argument = null;
-
-        if (count(ArgvValidator::count()) <= 1) {
+        if (ArgvValidator::count() <= 1) {
             throw Exceptions::OutOfBoundsException('No method specified!')->makeWarning();
         }
 
-        print_r(ArgvValidator::$argv);
-        die('bbbbbbbbbbbbb');
-        ArgvValidator::new()
-            ->select('test');
+        $file    = PATH_ROOT . 'scripts/';
+        $methods = ArgvValidator::getMethods();
 
-        foreach (self::$arguments as $position => $argument) {
-            if (str_ends_with($argument, '/cli')) {
+        foreach ($methods as $position => $method) {
+            if (str_ends_with($method, '/cli')) {
                 // This is the cli command, ignore it
-                unset(self::$arguments[$position]);
+                ArgvValidator::removeMethod($method);
                 continue;
             }
 
-            if (!preg_match('/[a-z0-9-]/i', $argument)) {
+            if (!preg_match('/[a-z0-9-]/i', $method)) {
                 // Methods can only have alphanumeric characters
                 throw Exceptions::OutOfBoundsException(tr('The specified method ":method" contains invalid characters. only a-z, 0-9 and - are allowed', [
-                    ':method' => $argument
+                    ':method' => $method
                 ]))->makeWarning();
             }
 
-            if (str_starts_with($argument, '-')) {
+            if (str_starts_with($method, '-')) {
                 // Methods can only have alphanumeric characters
                 throw Exceptions::OutOfBoundsException(tr('The specified method ":method" starts with a - character which is not allowed', [
-                    ':method' => $argument
+                    ':method' => $method
                 ]))->makeWarning();
             }
 
             // Start processing arguments as methods here
-            $file .= $argument;
-            unset(self::$arguments[$position]);
+            $file .= $method;
+            ArgvValidator::removeMethod($method);
 
             if (!file_exists($file)) {
                 // The specified path doesn't exist
@@ -260,10 +252,10 @@ class Script
             $file .= '/';
 
             // Does a file with the directory name exists inside?
-            if (file_exists($file . $argument)) {
-                if (!is_dir($file . $argument)) {
+            if (file_exists($file . $method)) {
+                if (!is_dir($file . $method)) {
                     // This is the file!
-                    return $file . $argument;
+                    return $file . $method;
                 }
             }
 
@@ -273,10 +265,10 @@ class Script
         // Here we're still in a directory. If a file exists in that directory with the same name as the directory
         // itself then that is the one that will be executed. For example, PATH_ROOT/cli system init will execute
         // PATH_ROOT/scripts/system/init/init
-        if (file_exists($file . $argument)) {
-            if (!is_dir($file . $argument)) {
+        if (file_exists($file . $method)) {
+            if (!is_dir($file . $method)) {
                 // Yup, this is it guys!
-                return $file . $argument;
+                return $file . $method;
             }
         }
 
@@ -285,6 +277,7 @@ class Script
             ':file' => $file
         ]))->makeWarning();
     }
+
 
 
     /**

@@ -7,6 +7,8 @@ use Phoundation\Cli\Script;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Exception\KeyAlreadySelectedException;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -172,6 +174,57 @@ class ArgvValidator extends Validator
     public static function count(): int
     {
         return count(self::$argv);
+    }
+
+
+
+    /**
+     * Returns an array of command line methods
+     *
+     * @return array
+     */
+    public static function getMethods(): array
+    {
+        $methods = [];
+
+        // Scan all arguments until named parameters start
+        foreach (self::$argv as $argument) {
+            if (str_starts_with($argument, '-')) {
+                break;
+            }
+
+            $methods[] = $argument;
+        }
+
+        // Validate all methods
+        foreach ($methods as $method) {
+            if (strlen($method) > 32) {
+                throw new ValidationFailedException(tr('Specified method ":method" is too long, it should be less than 32 characters', [':method' => $method]));
+            }
+        }
+
+        return $methods;
+    }
+
+
+
+    /**
+     * Remove the specified method from the arguments list
+     *
+     * @param string $method
+     * @return void
+     */
+    public static function removeMethod(string $method): void
+    {
+        $key = array_search($method, self::$argv);
+
+        if ($key === false) {
+            throw new ValidatorException(tr('Cannot remove method ":method", it does not exist', [
+                ':method' => $method
+            ]));
+        }
+
+        unset(self::$argv[$method]);
     }
 
 
