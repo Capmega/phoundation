@@ -5,7 +5,6 @@ namespace Phoundation\Data;
 use DateTime;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Meta;
-use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Accounts\Users\User;
 
@@ -21,7 +20,7 @@ use Phoundation\Accounts\Users\User;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-trait DataEntry
+abstract class DataEntry
 {
     /**
      * Default protected keys, keys that may not leave this object
@@ -96,11 +95,11 @@ trait DataEntry
 
 
     /**
-     * User class constructor
+     * DataEntry class constructor
      *
      * @param string|int|null $identifier
      */
-    public function __construct(string|int|null $identifier = null) {
+    protected function construct(string|int|null $identifier = null) {
         $this->setKeys();
 
         if ($identifier) {
