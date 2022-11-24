@@ -75,7 +75,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     `code` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `type` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `keywords` varchar(255) DEFAULT NULL,
-                    `phones` varchar(64) CHARACTER SET latin1 NOT NULL,
+                    `phones` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
                     `address` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
                     `verification_code` varchar(128) DEFAULT NULL,
                     `verified_on` datetime DEFAULT NULL,
