@@ -457,7 +457,7 @@ class Sql
 
             throw new SqlException(tr('Query ":query" failed with ":messages"', [
                 ':query'    => $this->buildQueryString($query, $execute),
-                ':messages' => $e->getMessages()
+                ':messages' => $e->getMessage()
             ]), $e);
         }
     }

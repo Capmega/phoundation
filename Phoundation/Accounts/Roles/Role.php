@@ -16,12 +16,8 @@ use Phoundation\Data\DataEntry;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Role
+class Role extends DataEntry
 {
-    use DataEntry;
-
-
-
     /**
      *
      *

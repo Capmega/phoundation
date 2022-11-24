@@ -2,7 +2,7 @@
 
 namespace Phoundation\Accounts\Users;
 
-use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Roles\UserRoles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Strings;
@@ -26,9 +26,26 @@ use Phoundation\Geo\Timezone;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class User
+class User extends DataEntry
 {
-    use DataEntry;
+    /**
+     * The roles for this user
+     *
+     * @var UserRoles
+     */
+    protected UserRoles $roles;
+
+
+
+    /**
+     * User class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        $this->construct($identifier);
+    }
 
 
 
@@ -126,10 +143,10 @@ class User
     /**
      * Sets the nickname for this user
      *
-     * @param string $nickname
+     * @param string|null $nickname
      * @return static
      */
-    public function setNickname(string $nickname): static
+    public function setNickname(?string $nickname): static
     {
         return $this->setDataValue('nickname', $nickname);
     }
@@ -151,10 +168,10 @@ class User
     /**
      * Sets the name for this user
      *
-     * @param string $name
+     * @param string|null $name
      * @return static
      */
-    public function setName(string $name): static
+    public function setName(?string $name): static
     {
         return $this->setDataValue('name', $name);
     }
@@ -201,10 +218,10 @@ class User
     /**
      * Sets the username for this user
      *
-     * @param string $username
+     * @param string|null $username
      * @return static
      */
-    public function setUsername(string $username): static
+    public function setUsername(?string $username): static
     {
         return $this->setDataValue('username', $username);
     }
@@ -226,10 +243,10 @@ class User
     /**
      * Sets the last_signin for this user
      *
-     * @param string $last_signin
+     * @param string|null $last_signin
      * @return static
      */
-    public function setLastSignin(string $last_signin): static
+    public function setLastSignin(?string $last_signin): static
     {
         return $this->setDataValue('last_signin', $last_signin);
     }
@@ -251,10 +268,10 @@ class User
     /**
      * Sets the auth_fails for this user
      *
-     * @param string $auth_fails
+     * @param int|null $auth_fails
      * @return static
      */
-    public function setAuthenticationFailures(string $auth_fails): static
+    public function setAuthenticationFailures(?int $auth_fails): static
     {
         return $this->setDataValue('auth_fails', $auth_fails);
     }
@@ -276,10 +293,10 @@ class User
     /**
      * Sets the locked_until for this user
      *
-     * @param string $locked_until
+     * @param string|null $locked_until
      * @return static
      */
-    public function setLockedUntil(string $locked_until): static
+    public function setLockedUntil(?string $locked_until): static
     {
         return $this->setDataValue('locked_until', $locked_until);
     }
@@ -301,10 +318,10 @@ class User
     /**
      * Sets the signin_count for this user
      *
-     * @param string $signin_count
+     * @param int|null $signin_count
      * @return static
      */
-    public function setSigninCount(string $signin_count): static
+    public function setSigninCount(?int $signin_count): static
     {
         return $this->setDataValue('signin_count', $signin_count);
     }
@@ -356,10 +373,10 @@ class User
     /**
      * Sets the domain for this user
      *
-     * @param string $domain
+     * @param string|null $domain
      * @return static
      */
-    public function setDomain(string $domain): static
+    public function setDomain(?string $domain): static
     {
         return $this->setDataValue('domain', $domain);
     }
@@ -381,10 +398,10 @@ class User
     /**
      * Sets the title for this user
      *
-     * @param string $title
+     * @param string|null $title
      * @return static
      */
-    public function setTitle(string $title): static
+    public function setTitle(?string $title): static
     {
         return $this->setDataValue('title', $title);
     }
@@ -406,10 +423,10 @@ class User
     /**
      * Sets the avatar for this user
      *
-     * @param string $avatar
+     * @param string|null $avatar
      * @return static
      */
-    public function setAvatar(string $avatar): static
+    public function setAvatar(?string $avatar): static
     {
         return $this->setDataValue('avatar', $avatar);
     }
@@ -431,10 +448,10 @@ class User
     /**
      * Sets the code for this user
      *
-     * @param string $code
+     * @param string|null $code
      * @return static
      */
-    public function setCode(string $code): static
+    public function setCode(?string $code): static
     {
         return $this->setDataValue('code', $code);
     }
@@ -456,10 +473,10 @@ class User
     /**
      * Sets the type for this user
      *
-     * @param string $type
+     * @param string|null $type
      * @return static
      */
-    public function setType(string $type): static
+    public function setType(?string $type): static
     {
         return $this->setDataValue('type', $type);
     }
@@ -481,10 +498,10 @@ class User
     /**
      * Sets the keywords for this user
      *
-     * @param string $keywords
+     * @param string|null $keywords
      * @return static
      */
-    public function setKeywords(string $keywords): static
+    public function setKeywords(?string $keywords): static
     {
         return $this->setDataValue('keywords', $keywords);
     }
@@ -506,10 +523,10 @@ class User
     /**
      * Sets the phones for this user
      *
-     * @param string $phones
+     * @param string|null $phones
      * @return static
      */
-    public function setPhones(string $phones): static
+    public function setPhones(?string $phones): static
     {
         return $this->setDataValue('phones', $phones);
     }
@@ -531,10 +548,10 @@ class User
     /**
      * Sets the address for this user
      *
-     * @param string $address
+     * @param string|null $address
      * @return static
      */
-    public function setAddress(string $address): static
+    public function setAddress(?string $address): static
     {
         return $this->setDataValue('address', $address);
     }
@@ -556,10 +573,10 @@ class User
     /**
      * Sets the verification_code for this user
      *
-     * @param string $verification_code
+     * @param string|null $verification_code
      * @return static
      */
-    public function setVerificationCode(string $verification_code): static
+    public function setVerificationCode(?string $verification_code): static
     {
         return $this->setDataValue('verification_code', $verification_code);
     }
@@ -581,10 +598,10 @@ class User
     /**
      * Sets the verified_on for this user
      *
-     * @param string $verified_on
+     * @param string|null $verified_on
      * @return static
      */
-    public function setverifiedOn(string $verified_on): static
+    public function setverifiedOn(?string $verified_on): static
     {
         return $this->setDataValue('verified_on', $verified_on);
     }
@@ -606,10 +623,10 @@ class User
     /**
      * Sets the priority for this user
      *
-     * @param string $priority
+     * @param int|null $priority
      * @return static
      */
-    public function setPriority(string $priority): static
+    public function setPriority(?int $priority): static
     {
         return $this->setDataValue('priority', $priority);
     }
@@ -619,9 +636,9 @@ class User
     /**
      * Returns the is_leader for this user
      *
-     * @return string|null
+     * @return bool
      */
-    public function getIsLeader(): ?string
+    public function getIsLeader(): bool
     {
         return $this->getDataValue('is_leader');
     }
@@ -631,12 +648,12 @@ class User
     /**
      * Sets the is_leader for this user
      *
-     * @param string $is_leader
+     * @param bool|null $is_leader
      * @return static
      */
-    public function setIsLeader(string $is_leader): static
+    public function setIsLeader(?bool $is_leader): static
     {
-        return $this->setDataValue('is_leader', $is_leader);
+        return $this->setDataValue('is_leader', (bool) $is_leader);
     }
 
 
@@ -662,10 +679,10 @@ class User
     /**
      * Sets the leaders_id for this user
      *
-     * @param int|User $leader
+     * @param User|int|null $leader
      * @return static
      */
-    public function setLeader(int|User $leader): static
+    public function setLeader(User|int|null $leader): static
     {
         if (is_object($leader)) {
             $leader = $leader->getId();
@@ -903,10 +920,10 @@ class User
     /**
      * Sets the redirect for this user
      *
-     * @param string $redirect
+     * @param string|null $redirect
      * @return static
      */
-    public function setRedirect(string $redirect): static
+    public function setRedirect(?string $redirect): static
     {
         if (!filter_var($redirect, FILTER_VALIDATE_URL)) {
             throw new OutOfBoundsException(tr('Invalid redirect URL ":redirect" specified', [
@@ -934,12 +951,12 @@ class User
     /**
      * Sets the language for this user
      *
-     * @param string $language
+     * @param string|null $language
      * @return static
      */
-    public function setLanguage(string $language): static
+    public function setLanguage(?string $language): static
     {
-        if (strlen($language) != 2) {
+        if ($language and (strlen($language) != 2)) {
             throw new OutOfBoundsException(tr('Invalid language ":language" specified', [
                 ':language' => $language
             ]));
@@ -965,10 +982,10 @@ class User
     /**
      * Sets the gender for this user
      *
-     * @param string $gender
+     * @param string|null $gender
      * @return static
      */
-    public function setGender(string $gender): static
+    public function setGender(?string $gender): static
     {
         return $this->setDataValue('gender', $gender);
     }
@@ -996,10 +1013,10 @@ class User
     /**
      * Sets the birthday for this user
      *
-     * @param string $birthday
+     * @param string|null $birthday
      * @return static
      */
-    public function setBirthday(string $birthday): static
+    public function setBirthday(?string $birthday): static
     {
         return $this->setDataValue('birthday', $birthday);
     }
@@ -1021,10 +1038,10 @@ class User
     /**
      * Sets the description for this user
      *
-     * @param string $description
+     * @param string|null $description
      * @return static
      */
-    public function setDescription(string $description): static
+    public function setDescription(?string $description): static
     {
         return $this->setDataValue('description', $description);
     }
@@ -1046,10 +1063,10 @@ class User
     /**
      * Sets the comments for this user
      *
-     * @param string $comments
+     * @param string|null $comments
      * @return static
      */
-    public function setComments(string $comments): static
+    public function setComments(?string $comments): static
     {
         return $this->setDataValue('comments', $comments);
     }
@@ -1071,10 +1088,10 @@ class User
     /**
      * Sets the website for this user
      *
-     * @param string $website
+     * @param string|null $website
      * @return static
      */
-    public function setWebsite(string $website): static
+    public function setWebsite(?string $website): static
     {
         return $this->setDataValue('website', $website);
     }
@@ -1102,10 +1119,10 @@ class User
     /**
      * Sets the timezone for this user
      *
-     * @param string $gender
+     * @param string|null $gender
      * @return static
      */
-    public function setTimezone(string $gender): static
+    public function setTimezone(?string $gender): static
     {
         return $this->setDataValue('timezone', $gender);
     }
@@ -1146,30 +1163,17 @@ class User
 
 
     /**
-     * Returns the role for this user
+     * Returns the roles for this user
      *
-     * @return Role
+     * @return UserRoles
      */
-    public function getRole(): Role
+    public function roles(): UserRoles
     {
-        return Role::get($this->getDataValue('role'));
-    }
-
-
-
-    /**
-     * Sets the role for this user to the specified role
-     *
-     * @param Role|string $role
-     * @return $this
-     */
-    public function setRole(Role|string $role): static
-    {
-        if (is_object($role)) {
-            $role = $role->getId();
+        if (!isset($this->roles)) {
+            $this->roles = UserRoles::new()->setUser($this->getDataValue('id'));
         }
 
-        return $this->setDataValue('role', $role);
+        return $this->roles;
     }
 
 
@@ -1220,6 +1224,7 @@ class User
     public function save(): static
     {
         $this->id = sql()->write('users', $this->getInsertColumns(), $this->getUpdateColumns());
+        $this->roles->save();
         return $this;
     }
 

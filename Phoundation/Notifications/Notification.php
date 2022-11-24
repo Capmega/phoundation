@@ -23,12 +23,8 @@ use Throwable;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Notification
  */
-class Notification
+class Notification extends DataEntry
 {
-    use DataEntry;
-
-
-
     /**
      * Keeps track of if this noticication was logged or not
      *
@@ -135,24 +131,12 @@ class Notification
 
 
     /**
-     * Returns a new notification object instance
-     *
-     * @return Notification
-     */
-    public static function new(): Notification
-    {
-        return new Notification();
-    }
-
-
-
-    /**
      * Sets the code for this notification
      *
      * @param string|null $code
-     * @return Notification
+     * @return static
      */
-    public function setCode(?string $code): Notification
+    public function setCode(?string $code): static
     {
         if (strlen((string) $code) > 16) {
             throw new OutOfBoundsException('Invalid code specified for this notification, it should be less than or equal to 16 characters');
@@ -180,9 +164,9 @@ class Notification
      * Sets the status for this notification
      *
      * @param string|null $status
-     * @return Notification
+     * @return static
      */
-    public function setStatus(?string $status): Notification
+    public function setStatus(?string $status): static
     {
         $this->setDataValue('status', $status);
         return $this;
@@ -206,9 +190,9 @@ class Notification
      * Sets the priority level for this notification
      *
      * @param int $priority
-     * @return Notification
+     * @return static
      */
-    public function setPriority(int $priority): Notification
+    public function setPriority(int $priority): static
     {
         if (($priority < 1) or ($priority > 10)) {
             throw new OutOfBoundsException('Invalid priority level ":priority" specified. It should be an integer between 1 and 10', [
@@ -238,9 +222,9 @@ class Notification
      * Sets the type for this notification
      *
      * @param string $type
-     * @return Notification
+     * @return static
      */
-    public function setType(#[ExpectedValues(values: ["INFORMATION", "NOTICE", "WARNING", "ERROR"])] string $type): Notification
+    public function setType(#[ExpectedValues(values: ["INFORMATION", "NOTICE", "WARNING", "ERROR"])] string $type): static
     {
         $clean_type = strtoupper(trim($type));
 
@@ -295,9 +279,9 @@ class Notification
      * Sets the title for this notification
      *
      * @param string $title
-     * @return Notification
+     * @return static
      */
-    public function setTitle(string $title): Notification
+    public function setTitle(string $title): static
     {
         if (!$title) {
             throw new OutOfBoundsException('No title specified for this notification');
@@ -325,9 +309,9 @@ class Notification
      * Sets the message for this notification
      *
      * @param string $message
-     * @return Notification
+     * @return static
      */
-    public function setMessage(string $message): Notification
+    public function setMessage(string $message): static
     {
         if (!$message) {
             throw new OutOfBoundsException('No message specified for this notification');
@@ -343,9 +327,9 @@ class Notification
      * Sets the exception for this notification
      *
      * @param Throwable $e
-     * @return Notification
+     * @return static
      */
-    public function setException(Throwable $e): Notification
+    public function setException(Throwable $e): static
     {
         $this->setCode($e->getCode());
         $this->setMessage($e->getMessage());
@@ -376,9 +360,9 @@ class Notification
      * Sets the details for this notification
      *
      * @param mixed $details
-     * @return Notification
+     * @return static
      */
-    public function setDetails(mixed $details): Notification
+    public function setDetails(mixed $details): static
     {
         $this->setDataValue('details', $details);
         return $this;
@@ -415,9 +399,9 @@ class Notification
      *
      * @note: This will reset the current already registered groups
      * @param array|string $groups
-     * @return Notification
+     * @return static
      */
-    public function setGroups(array|string $groups): Notification
+    public function setGroups(array|string $groups): static
     {
         if (!$groups) {
             throw new OutOfBoundsException('No groups specified for this notification');
@@ -434,9 +418,9 @@ class Notification
      * Sets the message for this notification
      *
      * @param array|string $groups
-     * @return Notification
+     * @return static
      */
-    public function addGroups(array|string $groups): Notification
+    public function addGroups(array|string $groups): static
     {
         if (!$groups) {
             throw new OutOfBoundsException('No groups specified for this notification');
@@ -455,9 +439,9 @@ class Notification
      * Sets the message for this notification
      *
      * @param string $group
-     * @return Notification
+     * @return static
      */
-    public function addGroup(string $group): Notification
+    public function addGroup(string $group): static
     {
         $group = trim($group);
 
@@ -474,10 +458,10 @@ class Notification
      * Send the notification
      *
      * @param bool|null $log
-     * @return Notification
+     * @return static
      * @todo Implement!
      */
-    public function send(?bool $log = null): Notification
+    public function send(?bool $log = null): static
     {
         if ($log === null) {
             $log = self::$auto_log;
@@ -525,9 +509,9 @@ return $this;
     /**
      * Log this notification to the system logs as well
      *
-     * @return Notification
+     * @return static
      */
-    public function log(): Notification
+    public function log(): static
     {
         switch ($this->getType()) {
             case 'ERROR':
@@ -584,7 +568,7 @@ return $this;
      *
      * @return static
      */
-    protected function save(): static
+    public function save(): static
     {
         sql()->write('notifications', $this->getInsertColumns(), $this->getUpdateColumns());
         return $this;

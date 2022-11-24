@@ -99,11 +99,15 @@ abstract class DataEntry
      *
      * @param string|int|null $identifier
      */
-    protected function construct(string|int|null $identifier = null) {
+    protected function construct(string|int|null $identifier = null): void
+    {
         $this->setKeys();
 
         if ($identifier) {
-            $this->id = $identifier;
+            if (is_numeric($identifier)) {
+                $this->id = $identifier;
+            }
+
             $this->load($identifier);
         }
     }
@@ -505,11 +509,20 @@ abstract class DataEntry
 
 
     /**
+     * Will save the data from this data entry to database
+     *
+     * @return static
+     */
+    abstract public function save(): static;
+
+
+
+    /**
      * Will set the available data keys for this data entry
      *
      * @return void
      */
-    abstract function setKeys(): void;
+    abstract protected function setKeys(): void;
 
 
 
@@ -519,14 +532,5 @@ abstract class DataEntry
      * @param int $identifier
      * @return void
      */
-    abstract function load(int $identifier): void;
-
-
-
-    /**
-     * Will save the data from this data entry to database
-     *
-     * @return static
-     */
-    abstract function save(): static;
+    abstract protected function load(int $identifier): void;
 }

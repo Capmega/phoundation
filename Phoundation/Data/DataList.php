@@ -79,7 +79,7 @@ abstract class DataList implements Iterator
      *
      * @return mixed
      */
-    public function current(): DataEntry
+    #[\ReturnTypeWillChange] public function current(): DataEntry
     {
         return $this->list[$this->position];
     }
@@ -91,7 +91,7 @@ abstract class DataList implements Iterator
      *
      * @return static
      */
-    public function next(): static
+    #[\ReturnTypeWillChange] public function next(): static
     {
         ++$this->position;
         return $this;
@@ -104,7 +104,7 @@ abstract class DataList implements Iterator
      *
      * @return static
      */
-    public function previous(): static
+    #[\ReturnTypeWillChange] public function previous(): static
     {
         if ($this->position > 0) {
             throw new OutOfBoundsException(tr('Cannot jump to previous element, the position is already at 0'));
@@ -141,13 +141,14 @@ abstract class DataList implements Iterator
 
 
     /**
+     * Rewinds the internal pointer to 0
      *
-     *
-     * @return void
+     * @return static
      */
-    public function rewind(): void
+    #[\ReturnTypeWillChange] public function rewind(): static
     {
         $this->position = 0;
+        return $this;
     }
 
 
