@@ -19,7 +19,6 @@ use Phoundation\Data\DataList;
  */
 class Departments extends DataList
 {
-
     /**
      * @inheritDoc
      */

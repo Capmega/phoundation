@@ -3,7 +3,8 @@
 namespace Phoundation\Geo;
 
 use Phoundation\Data\DataEntry;
-use Phoundation\Date\Time;
+use Phoundation\Data\DataEntryNameDescription;
+
 
 
 /**
@@ -16,9 +17,24 @@ use Phoundation\Date\Time;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Geo
  */
-class Continent
+class Continent extends DataEntry
 {
-    use DataEntry;
+    use DataEntryNameDescription;
+
+
+
+    /**
+     * Continent class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        self::$entry_name = 'geo continent';
+        $this->table      = 'geo_continents';
+
+        parent::__construct($identifier);
+    }
 
 
 
@@ -50,10 +66,22 @@ class Continent
     /**
      * Save the Continent data to database
      *
+     * @return static
+     */
+    public function save(): static
+    {
+        return $this;
+    }
+
+
+
+    /**
+     * Set the keys for this DataEntry
+     *
      * @return void
      */
-    protected function save(): void
+    protected function setKeys(): void
     {
-
+        // TODO: Implement setKeys() method.
     }
 }

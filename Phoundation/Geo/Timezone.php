@@ -2,12 +2,13 @@
 
 namespace Phoundation\Geo;
 
-
-
 use Phoundation\Data\DataEntry;
+use Phoundation\Data\DataEntryNameDescription;
+
+
 
 /**
- * Class Accounts
+ * Class Timezone
  *
  *
  *
@@ -16,9 +17,24 @@ use Phoundation\Data\DataEntry;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Geo
  */
-class Timezone
+class Timezone extends DataEntry
 {
-    use DataEntry;
+    use DataEntryNameDescription;
+
+
+
+    /**
+     * Timezone class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        self::$entry_name = 'geo timezone';
+        $this->table      = 'geo_timezones';
+
+        parent::__construct($identifier);
+    }
 
 
 
@@ -38,10 +54,22 @@ class Timezone
     /**
      * Save the Timezone data to database
      *
+     * @return static
+     */
+    public function save(): static
+    {
+        return $this;
+    }
+
+
+
+    /**
+     * Set the keys for this DataEntry
+     *
      * @return void
      */
-    protected function save(): void
+    protected function setKeys(): void
     {
-
+        // TODO: Implement setKeys() method.
     }
 }

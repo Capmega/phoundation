@@ -3,6 +3,7 @@
 namespace Phoundation\Business\Customers;
 
 use Phoundation\Data\DataEntry;
+use Phoundation\Data\DataEntryNameDescription;
 
 
 
@@ -19,6 +20,24 @@ use Phoundation\Data\DataEntry;
  */
 class Customer extends DataEntry
 {
+    use DataEntryNameDescription;
+
+
+
+    /**
+     * Customer class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        self::$entry_name = 'customer';
+        $this->table      = 'business_customers';
+
+        parent::__construct($identifier);
+    }
+
+
 
     /**
      * @inheritDoc

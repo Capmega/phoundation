@@ -3,6 +3,7 @@
 namespace Phoundation\Geo;
 
 use Phoundation\Data\DataEntry;
+use Phoundation\Data\DataEntryNameDescription;
 
 
 
@@ -16,9 +17,24 @@ use Phoundation\Data\DataEntry;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Geo
  */
-class State
+class State extends DataEntry
 {
-    use DataEntry;
+    use DataEntryNameDescription;
+
+
+
+    /**
+     * State class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        self::$entry_name = 'geo state';
+        $this->table      = 'geo_states';
+
+        parent::__construct($identifier);
+    }
 
 
 
@@ -74,10 +90,22 @@ class State
     /**
      * Save the State data to database
      *
-     * @return void
+     * @return static
      */
-    protected function save(): void
+    public function save(): static
     {
 
+    }
+
+
+
+    /**
+     * Set the keys for this DataEntry
+     *
+     * @return void
+     */
+    protected function setKeys(): void
+    {
+        // TODO: Implement setKeys() method.
     }
 }

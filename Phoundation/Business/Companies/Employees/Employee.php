@@ -3,6 +3,7 @@
 namespace Phoundation\Business\Companies\Employees;
 
 use Phoundation\Data\DataEntry;
+use Phoundation\Data\DataEntryNameDescription;
 
 
 
@@ -19,22 +20,34 @@ use Phoundation\Data\DataEntry;
  */
 class Employee extends DataEntry
 {
+    use DataEntryNameDescription;
+
+
+
+    /**
+     * Employee class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        self::$entry_name = 'company employee';
+        $this->table      = 'business_employees';
+
+        parent::__construct($identifier);
+    }
+
+
 
     /**
      * @inheritDoc
      */
     public function save(): static
     {
-        // TODO: Implement save() method.
+        return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function setKeys(): void
-    {
-        // TODO: Implement setKeys() method.
-    }
+
 
     /**
      * @inheritDoc
@@ -42,5 +55,15 @@ class Employee extends DataEntry
     protected function load(int|string $identifier): void
     {
         // TODO: Implement load() method.
+    }
+
+
+
+    /**
+     * @inheritDoc
+     */
+    protected function setKeys(): void
+    {
+        // TODO: Implement setKeys() method.
     }
 }

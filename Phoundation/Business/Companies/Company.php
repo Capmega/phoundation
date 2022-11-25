@@ -5,6 +5,7 @@ namespace Phoundation\Business\Companies;
 use Phoundation\Business\Companies\Branches\Branches;
 use Phoundation\Business\Companies\Departments\Departments;
 use Phoundation\Data\DataEntry;
+use Phoundation\Data\DataEntryNameDescription;
 use Phoundation\Data\DataList;
 
 
@@ -22,6 +23,25 @@ use Phoundation\Data\DataList;
  */
 class Company extends DataEntry
 {
+    use DataEntryNameDescription;
+
+
+
+    /**
+     * Company class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        self::$entry_name = 'company';
+        $this->table      = 'business_companies';
+
+        parent::__construct($identifier);
+    }
+
+
+
     /**
      * The branches for this company
      *
@@ -45,7 +65,12 @@ class Company extends DataEntry
      */
     public function branches(): Branches
     {
-        return Branches::new($this);
+        if (!isset($this->branches)) {
+            $this->branches = Branches::new($this);
+        }
+
+        return $this->branches;
+
     }
 
 
@@ -57,7 +82,11 @@ class Company extends DataEntry
      */
     public function departments(): Departments
     {
-        return Departments::new($this);
+        if (!isset($this->departments)) {
+            $this->departments = Departments::new($this);
+        }
+
+        return $this->departments;
     }
 
 

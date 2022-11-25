@@ -1039,9 +1039,9 @@ class Sql
      * @param int $max
      * @return int
      */
-    public function uniqueId(string $table, string $column = 'id', int $max = 10000000): int
+    public function findRandomId(string $table, string $column = 'id', int $max = 2147483648): int
     {
-        $retries = 0;
+        $retries    = 0;
         $maxretries = 50;
 
         while (++$retries < $maxretries) {
@@ -1054,31 +1054,6 @@ class Sql
         }
 
         throw new SqlException(tr('Could not find a unique id in ":retries" retries', [':retries' => $maxretries]));
-    }
-
-
-
-    /**
-     * Return a random but existing row id from the specified table
-     *
-     * @todo This is sort of the same as Sql::uniqueId(), merge these two!
-     * @param string $table
-     * @param int $min
-     * @param int $max
-     * @return int
-     */
-    public function randomId(string $table, int $min = 1, int $max = 2147483648): int
-    {
-        $exists = true;
-        $id = -1; // Libraries id negatively to ensure
-        $timeout = 50; // Don't do more than 50 tries on this!
-
-        while ($exists and --$timeout > 0) {
-            $id = mt_rand($min, $max);
-            $exists = $this->query('SELECT `id` FROM `' . $table . '` WHERE `id` = :id', [':id' => $id]);
-        }
-
-        return $id;
     }
 
 

@@ -2,8 +2,8 @@
 
 namespace Phoundation\Accounts\Rights;
 
-use DataEntryNameDescription;
 use Phoundation\Data\DataEntry;
+use Phoundation\Data\DataEntryNameDescription;
 
 
 
@@ -29,7 +29,9 @@ class Right extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        $this->table = 'users_rights';
+        self::$entry_name = 'right';
+        $this->table      = 'accounts_rights';
+
         parent::__construct($identifier);
     }
 

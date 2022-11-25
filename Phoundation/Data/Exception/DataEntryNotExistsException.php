@@ -2,8 +2,6 @@
 
 namespace Phoundation\Data\Exception;
 
-use Phoundation\Data\Validator\Exception\ValidatorException;
-
 
 
 /**
@@ -16,6 +14,6 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class KeyAlreadySelectedException extends ValidatorException
+class DataEntryNotExistsException extends DataException
 {
 }

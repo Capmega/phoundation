@@ -121,11 +121,17 @@ class Notification extends DataEntry
 
 
     /**
-     * Notification constructor
+     * Notification class constructor
+     *
+     * @param int|string|null $identifier
      */
-    protected function __construct()
+    public function __construct(int|string|null $identifier = null)
     {
-        self::$auto_log = Config::get('notifications.auto-log', true);
+        self::$auto_log   = Config::get('notifications.auto-log', true);
+        self::$entry_name = 'notification';
+        $this->table      = 'notifications';
+
+        parent::__construct($identifier);
     }
 
 

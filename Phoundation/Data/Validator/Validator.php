@@ -1439,8 +1439,8 @@ abstract class Validator
                 return $value;
             }
 
-            if (!filter_var($value, FILTER_VALIDATE_URL)) {
-                $this->addFailure(tr('must contain a valid URL'));
+            if (!filter_var($value, FILTER_VALIDATE_DOMAIN)) {
+                $this->addFailure(tr('must contain a valid domain'));
             }
 
             return $value;

@@ -21,7 +21,7 @@ use Zend_Utf8;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Class reference
- * @package Core
+ * @package Phoundation\Core
  */
 class Strings
 {
@@ -1657,13 +1657,42 @@ class Strings
         $return = [];
         $length = strlen($source);
 
-        for($i = 0; $i < $length; $i++){
+        for ($i = 0; $i < $length; $i++) {
             if (empty($return[$source[$i]])) {
                 $return[$source[$i]] = substr_count($source, $source[$i]);
             }
         }
 
         sort($return);
+        return $return;
+    }
+
+
+
+    /**
+     * Returns an array with all found alphanumeric series
+     *
+     * @param string $source
+     * @return int
+     */
+    public static function countAlphaNumericSeries(string $source): int
+    {
+        $prev   = 0;
+        $return = 0;
+        $source = preg_replace( '/[\W]/', '', $source);
+        $source = strtolower($source);
+        $length = strlen($source);
+
+        for ($i = 0; $i < $length; $i++) {
+            $ord = ord($source[$i]);
+
+            if (($ord === ($prev - 1)) or ($ord === ($prev + 1))) {
+                $return++;
+            }
+
+            $prev = $ord;
+        }
+
         return $return;
     }
 }

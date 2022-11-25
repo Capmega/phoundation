@@ -1,21 +1,19 @@
 <?php
 
-namespace Phoundation\Data\Exception;
-
-use Phoundation\Data\Validator\Exception\ValidatorException;
+namespace Phoundation\Data\Validator\Exception;
 
 
 
 /**
- * Class NoKeySelectedException
+ * Class KeyAlreadySelectedException
  *
- * This exception is thrown when a validation is done without having a key selected first
+ * This exception is thrown when selecting a key that has already been selected before
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class NoKeySelectedException extends ValidatorException
+class KeyAlreadySelectedException extends ValidatorException
 {
 }

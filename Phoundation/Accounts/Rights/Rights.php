@@ -25,7 +25,7 @@ class Rights extends DataList
      */
     public function load(): static
     {
-
+        $this->list = sql()->list('SELECT * FROM `accounts_rights`');
         return $this;
     }
 

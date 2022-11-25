@@ -18,7 +18,6 @@ use Phoundation\Data\DataList;
  */
 class Employees extends DataList
 {
-
     /**
      * @inheritDoc
      */
@@ -27,11 +26,13 @@ class Employees extends DataList
         // TODO: Implement load() method.
     }
 
+
+
     /**
      * @inheritDoc
      */
     public function save(): static
     {
-        // TODO: Implement save() method.
+        return $this;
     }
 }

@@ -101,10 +101,10 @@ ArgvValidator::new()
     ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
     ->validate();
 
-// Check if the user already exists
-$exists = User::get($argv['email']);
 
-if ($exists) {
+
+// Check if the user already exists
+if (User::exists($argv['email'])) {
     throw new AccountsException(tr('Cannot create user with ":email", this email already exists', [
         ':email' => $argv['email']
     ]));
@@ -113,13 +113,14 @@ if ($exists) {
 
 
 // Add password for this user
-$argv['password']          = Cli::readPassword(tr('Please type the users password: '));
-$argv['password_validate'] = Cli::readPassword(tr('Please re-type the users password: '));
+$argv['password']          = Cli::readPassword(tr('Please type the users password:'));
+$argv['password_validate'] = Cli::readPassword(tr('Please re-type the users password:'));
 
 
 
 // Create user
 $user = User::new()
+    ->validatePassword($argv['password'], $argv['password_validate'])
     ->setEmail($argv['email'])
     ->setName($argv['name'])
     ->setTitle($argv['title'])
@@ -138,15 +139,23 @@ $user = User::new()
     ->setCountry($argv['country'])
     ->setState($argv['state'])
     ->setCity($argv['city'])
-    ->setCountry($argv['country'])
-    ->setCompany($argv['company']);
+    ->setCompany($argv['company'])
+    ->setBranch($argv['branch'])
+    ->setDepartment($argv['department']);
 
-$user->roles()->add(Role::get($argv['role']));
 
-$user->company()
-    ->setDeparment($argv['branch'])
-    ->setBranch($argv['branch']);
 
-$user->save();
+// Set users roles
+foreach ($argv['roles'] as $role) {
+    $user->roles()->add(Role::get($role));
+}
 
+
+
+// Save the user and update the users password
+$user->save()->setPassword($argv['password'], $argv['password_validate']);
+
+
+
+// Done!
 Log::success(tr('Created user ":user"', [':user' => $user->getDisplayName()]));

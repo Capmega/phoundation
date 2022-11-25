@@ -20,11 +20,14 @@ use Phoundation\Accounts\Users\User;
 class UserRoles extends Roles
 {
     /**
-     * The user for this roles list
+     * DataList class constructor
      *
-     * @var User
+     * @param User|null $parent
      */
-    protected User $user;
+    public function __construct(?User $parent = null)
+    {
+        parent::__construct($parent);
+    }
 
 
 
@@ -35,7 +38,7 @@ class UserRoles extends Roles
      */
     public function getUser(): User
     {
-        return $this->user;
+        return $this->parent;
     }
 
 
@@ -52,7 +55,7 @@ class UserRoles extends Roles
             $user = new User($user);
         }
 
-        $this->user = $user;
+        $this->parent = $user;
         return $this;
     }
 
@@ -65,6 +68,14 @@ class UserRoles extends Roles
      */
     public function load(): static
     {
+        // Load the roles for this user only
+        $this->list = sql()->list('   SELECT     `accounts_roles`.* 
+                                            FROM       `accounts_roles` 
+                                            RIGHT JOIN `accounts_users_roles` 
+                                            ON         `accounts_users_roles`.`roles_id` = `accounts_roles`.`id`
+                                            AND        `accounts_users_roles`.`users_id` = :users_id', [
+                                                ':users_id' => $this->parent->getId()
+        ]);
 
         return $this;
     }
@@ -78,6 +89,23 @@ class UserRoles extends Roles
      */
     public function save(): static
     {
+showdie($this);
+        // Delete current roles list
+        sql()->query('DELETE FROM `accounts_users_roles` WHERE `users_id` = :users_id', [
+            'users_id' => $this->parent->getId()
+        ]);
+
+        // Add new roles list
+        $prepare = sql()->prepare('DELETE FROM `accounts_users_roles` WHERE `users_id` = :users_id', [
+            'users_id' => $this->parent->getId()
+        ]);
+
+        foreach ($this->list as $item) {
+            $prepare->execute([
+                'users_id' => $this->parent->getId(),
+                'roles_id' => $item,
+            ]);
+        }
 
         return $this;
     }

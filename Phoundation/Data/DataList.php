@@ -4,6 +4,7 @@ namespace Phoundation\Data;
 
 use Iterator;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Elements\Table;
 
 
 /**
@@ -95,6 +96,19 @@ abstract class DataList implements Iterator
 
 
     /**
+     * Returns if the specified data entry exists in the data list
+     *
+     * @param DataEntry $entry
+     * @return bool
+     */
+    public function exists(DataEntry $entry): bool
+    {
+        return array_key_exists($entry->getId(), $this->list);
+    }
+
+
+
+    /**
      * Returns the current item
      *
      * @return mixed
@@ -169,6 +183,27 @@ abstract class DataList implements Iterator
     {
         $this->position = 0;
         return $this;
+    }
+
+
+
+    /**
+     * Creates and returns a table for the data in this list
+     *
+     * @param string $class
+     * @return Table
+     */
+    public function table(string $class = Table::class): Table
+    {
+        if (!is_subclass_of($class, Table::class)) {
+            throw new OutOfBoundsException(tr('Invalid class ":class" specified, the class must be a subclass of Table::class', [
+                ':class' => $class
+            ]));
+        }
+
+        // Create and return the table
+        return $class::new()
+            ->setSourceData($this->list);
     }
 
 

@@ -328,7 +328,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     CONSTRAINT `fk_accounts_old_passwords_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE')
                 ->create();
 
-            sql()->schema()->table('accounts_banned_passwords')->define()
+            sql()->schema()->table('accounts_compromised_passwords')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_by` int NOT NULL,

@@ -146,7 +146,7 @@ class Seo
 
                 } else {
                     if ($first_suffix) {
-                        $source = $source . trim(seo_string($first_suffix, $replace));
+                        $source = $source . trim(self::string($first_suffix, $replace));
                         $first_suffix = null;
                         $id--;
 
@@ -155,7 +155,7 @@ class Seo
                     }
                 }
 
-                $exists = sql($connector_name)->get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . $column . '` = "' . $return . '"' . $ownid . ';');
+                $exists = sql($connector_name)->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = "' . $return . '"' . $ownid . ';');
 
                 if (!$exists) {
                     return $return;

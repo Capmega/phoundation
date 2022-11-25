@@ -1,21 +1,23 @@
 <?php
 
+namespace Phoundation\Data;
+
 use Phoundation\Seo\Seo;
 
+
+
+/**
+ * Trait DataEntryNameDescription
+ *
+ * This trait contains methods for DataEntry objects that require a name and description
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Data
+ */
 trait DataEntryNameDescription
 {
-    /**
-     * Returns the name for this user
-     *
-     * @return string|null
-     */
-    public function getName(): ?string
-    {
-        return $this->getDataValue('name');
-    }
-
-
-
     /**
      * Returns the SEO name for this user
      *
@@ -29,6 +31,18 @@ trait DataEntryNameDescription
 
 
     /**
+     * Returns the name for this user
+     *
+     * @return string|null
+     */
+    public function getName(): ?string
+    {
+        return $this->getDataValue('name');
+    }
+
+
+
+    /**
      * Sets the name for this user
      *
      * @param string|null $name
@@ -36,10 +50,10 @@ trait DataEntryNameDescription
      */
     public function setName(?string $name): static
     {
-        $seo_name = Seo::unique($name, $this->table, $this->id);
+        $seo_name = Seo::unique($name, $this->table, $this->id, $this->unique_column);
 
-        $this->setDataValue('name', $name);
-        return $this->setDataValue('seo_name', $seo_name);
+        $this->setDataValue('seo_name', $seo_name);
+        return $this->setDataValue('name', $name);
     }
 
 

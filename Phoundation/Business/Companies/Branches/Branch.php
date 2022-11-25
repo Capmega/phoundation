@@ -3,6 +3,7 @@
 namespace Phoundation\Business\Companies\Branches;
 
 use Phoundation\Data\DataEntry;
+use Phoundation\Data\DataEntryNameDescription;
 
 
 
@@ -19,6 +20,24 @@ use Phoundation\Data\DataEntry;
  */
 class Branch extends DataEntry
 {
+    use DataEntryNameDescription;
+
+
+
+    /**
+     * Department class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        self::$entry_name = 'company branch';
+        $this->table      = 'business_branches';
+
+        parent::__construct($identifier);
+    }
+
+
 
     /**
      * @inheritDoc

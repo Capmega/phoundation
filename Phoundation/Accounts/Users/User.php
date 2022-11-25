@@ -2,17 +2,19 @@
 
 namespace Phoundation\Accounts\Users;
 
-use DataEntryNameDescription;
 use Phoundation\Accounts\Roles\UserRoles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Api\Users;
+use Phoundation\Business\Companies\Branches\Branch;
 use Phoundation\Business\Companies\Company;
+use Phoundation\Business\Companies\Departments\Department;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry;
+use Phoundation\Data\DataEntryNameDescription;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\Validator;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\City;
@@ -48,9 +50,34 @@ class User extends DataEntry
     /**
      * The company for this user
      *
-     * @var Company
+     * @var Company|null $company
      */
-    protected Company $company;
+    protected ?Company $company;
+
+    /**
+     * The department for this user
+     *
+     * @var Department|null $department
+     */
+    protected ?Department $department;
+
+    /**
+     * The branch for this user
+     *
+     * @var Branch|null $branch
+     */
+    protected ?Branch $branch;
+
+
+
+    public function __construct(int|string|null $identifier = null)
+    {
+        self::$entry_name    = 'user';
+        $this->table         = 'accounts_users';
+        $this->unique_column = 'email';
+
+        parent::__construct($identifier);
+    }
 
 
 
@@ -84,9 +111,8 @@ class User extends DataEntry
      */
     public static function authenticateKey(string $key): static
     {
-        // Load the key data
-
-        // Return the user linked to the key
+        // Return the user that has this API key
+        return Users::getUserFromApiKey($key);
     }
 
 
@@ -1093,6 +1119,24 @@ class User extends DataEntry
      */
     public function setPassword(string $password, string $validation): static
     {
+        $this->validatePassword($password, $validation);
+
+        $password = $this->passwordHash($password);
+
+        return $this->setDataValue('password', $password);
+    }
+
+
+
+    /**
+     * Validates the specified password
+     *
+     * @param string $password
+     * @param string $validation
+     * @return static
+     */
+    public function validatePassword(string $password, string $validation): static
+    {
         $password   = trim($password);
         $validation = trim($validation);
 
@@ -1100,7 +1144,7 @@ class User extends DataEntry
             throw new ValidationFailedException(tr('No password specified'));
         }
 
-        if ($validation) {
+        if (!$validation) {
             throw new ValidationFailedException(tr('No validation password specified'));
         }
 
@@ -1108,11 +1152,9 @@ class User extends DataEntry
             throw new ValidationFailedException(tr('The password must match the validation password'));
         }
 
-        if (!$this->passwordSecure($password)) {
-            throw new ValidationFailedException(tr('The password is not secure enough'));
-        }
+        $this->passwordTestSecure($password);
 
-        return $this->setDataValue('password', $password);
+        return $this;
     }
 
 
@@ -1151,18 +1193,6 @@ class User extends DataEntry
 
 
     /**
-     * Returns the roles for this user
-     *
-     * @return Company|null
-     */
-    public function company(): ?Company
-    {
-        return $this->getCompany();
-    }
-
-
-
-    /**
      * Returns the company for this user
      *
      * @return Company|null
@@ -1182,11 +1212,103 @@ class User extends DataEntry
      */
     public function setCompany(Company|string|int|null $company): static
     {
-        if (!is_object($company)) {
-            $company = new Company($company);
+        if ($company) {
+            if (!is_object($company)) {
+                $company = Company::get($company);
+            }
         }
 
         $this->company = $company;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the department for this user
+     *
+     * @return Department|null
+     */
+    public function getDepartment(): ?Department
+    {
+        return $this->department;
+    }
+
+
+
+    /**
+     * Sets the department for this user
+     *
+     * @param Department|string|int|null $department
+     * @return static
+     */
+    public function setDepartment(Department|string|int|null $department): static
+    {
+        if ($department) {
+            if (!is_object($department)) {
+                $department = Department::get($department);
+            }
+
+            // This branch must be part of the specified company!
+            if (!$this->company) {
+                throw new ValidationFailedException(tr('Cannot specify a department, this user is not linked to a company yet'));
+            }
+
+            // This branch must be part of the specified company!
+            if (!$this->company->departments()->exists($department)) {
+                throw new ValidationFailedException(tr('The department ":department" is not part of company ":company"', [
+                    ':branch' => $department->getName(),
+                    ':company' => $this->company->getName()
+                ]));
+            }
+        }
+
+        $this->department = $department;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the branch for this user
+     *
+     * @return Branch|null
+     */
+    public function getBranch(): ?Branch
+    {
+        return $this->branch;
+    }
+
+
+
+    /**
+     * Sets the branch for this user
+     *
+     * @param  Branch|string|int|null $branch
+     * @return static
+     */
+    public function setBranch(Branch|string|int|null $branch): static
+    {
+        if ($branch) {
+            if (!is_object($branch)) {
+                $branch = Branch::get($branch);
+            }
+
+            // This branch must be part of the specified company!
+            if (!$this->company) {
+                throw new ValidationFailedException(tr('Cannot specify a branch, this user is not linked to a company yet'));
+            }
+
+            // This branch must be part of the specified company!
+            if (!$this->company->branches()->exists($branch)) {
+                throw new ValidationFailedException(tr('The branch ":branch" is not part of company ":company"', [
+                    ':branch' => $branch->getName(),
+                    ':company' => $this->company->getName()
+                ]));
+            }
+        }
+
+        $this->branch = $branch;
         return $this;
     }
 
@@ -1322,19 +1444,17 @@ class User extends DataEntry
      * Returns true if the password is considered secure enough
      *
      * @param string $password
-     * @return bool
+     * @return void
      */
-    protected function passwordSecure(string $password): bool
+    protected function passwordTestSecure(string $password): void
     {
         if ($this->passwordWeak($password)) {
-            return false;
+            throw new ValidationFailedException(tr('This password is not secure enough'));
         }
 
-        if ($this->passwordBanned($password)) {
-            return false;
+        if ($this->passwordCompromised($password)) {
+            throw new ValidationFailedException(tr('This password has been compromised'));
         }
-
-        return true;
     }
 
 
@@ -1348,6 +1468,7 @@ class User extends DataEntry
     protected function passwordWeak(string $password): bool
     {
         $strength = $this->getPasswordStrength($password);
+show($strength);
         return ($strength < Config::get('security.password.strength', 50));
     }
 
@@ -1380,24 +1501,24 @@ class User extends DataEntry
 
         // Check if password is not all lower case
         if(strtolower($password) === $password){
-            $strength -= 5;
+            $strength -= 15;
         }
 
         // Check if password is not all upper case
         if(strtoupper($password) === $password){
-            $strength -= 5;
+            $strength -= 15;
         }
 
         // Bonus for long passwords
-        $strength += ($length - 8);
+        $strength += ($length * 2);
 
         // Get the amount of upper case letters in the password
         preg_match_all('/[A-Z]/', $password, $matches);
-        $strength += (count($matches[0]) / 2);
+        $strength += (count($matches[0]) * 2);
 
         // Get the amount of lower case letters in the password
         preg_match_all('/[a-z]/', $password, $matches);
-        $strength += (count($matches[0]) / 2);
+        $strength += (count($matches[0]) * 2);
 
         // Get the numbers in the password
         preg_match_all('/[0-9]/', $password, $matches);
@@ -1411,7 +1532,7 @@ class User extends DataEntry
         $chars            = str_split($password);
         $num_unique_chars = count(array_unique($chars));
 
-        $strength += $num_unique_chars * 2;
+        $strength += $num_unique_chars * 4;
 
         // Test for same character repeats
         $repeats = Strings::countCharacters($password);
@@ -1422,6 +1543,11 @@ class User extends DataEntry
         } else {
             $strength = $strength + ($strength * ($count / $length));
         }
+
+        // Test for character series
+        $series     = Strings::countAlphaNumericSeries($password);
+        $percentage = ($series / strlen($password)) * 100;
+        $strength  += ((100 - $percentage) / 2);
 
         // Strength is a number 1 - 100;
         $strength = floor(($strength > 99) ? 99 : $strength);
@@ -1441,9 +1567,9 @@ class User extends DataEntry
      * @param string $password
      * @return bool
      */
-    protected function passwordBanned(string $password): bool
+    protected function passwordCompromised(string $password): bool
     {
-        return (bool) sql()->get('SELECT `id` FROM `users_banned_passwords` WHERE `password` = :password', [
+        return (bool) sql()->get('SELECT `id` FROM `accounts_compromised_passwords` WHERE `password` = :password', [
             ':password' => $password
         ]);
     }
@@ -1454,10 +1580,10 @@ class User extends DataEntry
      * Returns the hashed version of the possword
      *
      * @param string $password
-     * @return bool
+     * @return string
      */
     protected function passwordHash(string $password): string
     {
-
+        return '*DEFAULT*' . password_hash($this->id . $password);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Phoundation\Accounts\Roles;
 
-use DataEntryNameDescription;
 use Phoundation\Data\DataEntry;
+use Phoundation\Data\DataEntryNameDescription;
 
 
 
@@ -22,6 +22,7 @@ class Role extends DataEntry
     use DataEntryNameDescription;
 
 
+
     /**
      * Role class constructor
      *
@@ -29,7 +30,9 @@ class Role extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        $this->table = 'users_roles';
+        self::$entry_name = 'role';
+        $this->table      = 'accounts_roles';
+
         parent::__construct($identifier);
     }
 

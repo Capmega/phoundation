@@ -18,7 +18,6 @@ use Phoundation\Data\DataList;
  */
 class Branches extends DataList
 {
-
     /**
      * @inheritDoc
      */

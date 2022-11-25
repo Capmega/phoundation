@@ -5,6 +5,7 @@ namespace Phoundation\Data;
 use DateTime;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Meta;
+use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Accounts\Users\User;
 
@@ -23,11 +24,25 @@ use Phoundation\Accounts\Users\User;
 abstract class DataEntry
 {
     /**
+     * The label name for this data entry, used in errors, etc
+     *
+     * @var string $entry_name
+     */
+    protected static string $entry_name;
+
+    /**
      * The table name where this data entry is stored
      *
-     * @var string
+     * @var string $table
      */
     protected string $table;
+
+    /**
+     * The unique column identifier, next to id
+     *
+     * @var string $unique_column
+     */
+    protected string $unique_column = 'seo_name';
 
     /**
      * Default protected keys, keys that may not leave this object
@@ -142,13 +157,29 @@ abstract class DataEntry
      */
     public static function get(string|int $identifier = null): ?static
     {
-        $user = new static($identifier);
+        $entry = new static($identifier);
 
-        if ($user->getId()) {
-            return $user;
+        if ($entry->getId()) {
+            return $entry;
         }
 
-        return null;
+        throw new DataEntryNotExistsException(tr('The ":label" entry ":identifier" does not exist', [
+            ':label'      => self::$entry_name,
+            ':identifier' => $identifier
+        ]));
+    }
+
+
+
+    /**
+     * Returns true if an entry with the specified identifier exists
+     *
+     * @param string|int|null $identifier
+     * @return bool
+     */
+    public static function exists(string|int $identifier = null): bool
+    {
+        return (bool) static::new($identifier)->getId();
     }
 
 
@@ -529,7 +560,10 @@ abstract class DataEntry
      */
     public function save(): static
     {
+        $this->id = sql()->findRandomId($this->table);
+show($this->id);
         $this->id = sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns());
+
         return $this;
     }
 
@@ -544,9 +578,9 @@ abstract class DataEntry
     protected function load(string|int $identifier): void
     {
         if (is_integer($identifier)) {
-            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `id`       = :id'   , [':id'       => $identifier]);
+            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `id`                           = :id'                     , [':id'       => $identifier]);
         } else {
-            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `seo_name` = :email', [':seo_name' => $identifier]);
+            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `' . $this->unique_column . '` = :' . $this->unique_column, [$this->unique_column => $identifier]);
         }
 
         // Store all data in the object
