@@ -1065,7 +1065,7 @@ Class Html
      *                                       'class'      => 'users',
      *                                       'autosubmit' => true,
      *                                       'selected'   => $item['users_id'],
-     *                                       'resource'   => sql_query('SELECT `id`, `name` FROM `users` WHERE `status` IS NULL'))).'
+     *                                       'resource'   => sql_query('SELECT `id`, `name` FROM `accounts_users` WHERE `status` IS NULL'))).'
      *               </div>
      * /code
      * @example

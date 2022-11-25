@@ -76,7 +76,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     KEY `type` (`type`),
                     KEY `priority` (`priority`),')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_notifications_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                    CONSTRAINT `fk_notifications_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
                     CONSTRAINT `fk_notifications_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),')
                 ->create();
 
@@ -94,9 +94,9 @@ class Updates extends \Phoundation\Libraries\Updates
                     KEY `notifications_id` (`notifications_id`),
                     KEY `groups_id` (`groups_id`),')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_notifications_groups_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                    CONSTRAINT `fk_notifications_groups_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
                     CONSTRAINT `fk_notifications_groups_notifications_id` FOREIGN KEY (`notifications_id`) REFERENCES `notifications` (`id`),
-                    CONSTRAINT `fk_notifications_groups_groups_id` FOREIGN KEY (`groups_id`) REFERENCES `users_groups` (`id`),')
+                    CONSTRAINT `fk_notifications_groups_groups_id` FOREIGN KEY (`groups_id`) REFERENCES `accounts_groups` (`id`),')
                 ->create();
         });
     }

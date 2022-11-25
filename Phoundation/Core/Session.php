@@ -210,7 +210,7 @@ class Session
                             FROM `extended_sessions` WHERE `session_key` = ":session_key" AND DATE(`addedon`) < DATE(NOW());', array(':session_key' => cfm($_COOKIE['extsession'])));
 
             if ($ext['users_id']) {
-                $user = sql_get('SELECT * FROM `users` WHERE `users`.`id` = :id', array(':id' => cfi($ext['users_id'])));
+                $user = sql_get('SELECT * FROM `accounts_users` WHERE `accounts_users`.`id` = :id', array(':id' => cfi($ext['users_id'])));
 
                 if ($user['id']) {
                     // Auto sign in user

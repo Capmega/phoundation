@@ -518,8 +518,8 @@ class Sql
             $row['meta_id'] = Meta::init();
         }
 
-        if (array_key_exists('createdon_by', $row)) {
-            $row['createdon_by'] = Session::user()->getId();
+        if (array_key_exists('created_by', $row)) {
+            $row['created_by'] = Session::getUser()->getId();
         }
 
         // Build bound variables for query

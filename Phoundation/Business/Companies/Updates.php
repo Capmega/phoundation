@@ -73,7 +73,7 @@ class Updates extends \Phoundation\Libraries\Updates
                                       KEY `meta_id` (`meta_id`),
                                       KEY `categories_id` (`categories_id`)')
                 ->setForeignKeys(' CONSTRAINT `fk_providers_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`),
-                                              CONSTRAINT `fk_providers_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                                              CONSTRAINT `fk_providers_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
                                               CONSTRAINT `fk_providers_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)')
                 ->create();
 
@@ -119,7 +119,7 @@ class Updates extends \Phoundation\Libraries\Updates
                                               CONSTRAINT `fk_customers_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`),
                                               CONSTRAINT `fk_customers_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`),
                                               CONSTRAINT `fk_customers_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`),
-                                              CONSTRAINT `fk_customers_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                                              CONSTRAINT `fk_customers_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
                                               CONSTRAINT `fk_customers_documents_id` FOREIGN KEY (`documents_id`) REFERENCES `categories` (`id`),
                                               CONSTRAINT `fk_customers_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
                                               CONSTRAINT `fk_customers_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`)')
@@ -149,7 +149,7 @@ class Updates extends \Phoundation\Libraries\Updates
                                       KEY `customers_id` (`customers_id`),
                                       KEY `providers_id` (`providers_id`)')
                 ->setForeignKeys(' CONSTRAINT `fk_companies_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`),
-                                              CONSTRAINT `fk_companies_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                                              CONSTRAINT `fk_companies_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
                                               CONSTRAINT `fk_companies_customers_id` FOREIGN KEY (`customers_id`) REFERENCES `customers` (`id`),
                                               CONSTRAINT `fk_companies_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
                                               CONSTRAINT `fk_companies_providers_id` FOREIGN KEY (`providers_id`) REFERENCES `providers` (`id`)')
@@ -175,7 +175,7 @@ class Updates extends \Phoundation\Libraries\Updates
                                       KEY `created_by` (`created_by`),
                                       KEY `status` (`status`)')
                 ->setForeignKeys(' CONSTRAINT `fk_branches_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `companies` (`id`),
-                                              CONSTRAINT `fk_branches_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                                              CONSTRAINT `fk_branches_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
                                               CONSTRAINT `fk_branches_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)')
                 ->create();
 
@@ -202,7 +202,7 @@ class Updates extends \Phoundation\Libraries\Updates
                                       KEY `fk_departments_branches_id` (`branches_id`)')
                 ->setForeignKeys(' CONSTRAINT `fk_departments_branches_id` FOREIGN KEY (`branches_id`) REFERENCES `branches` (`id`),
                                               CONSTRAINT `fk_departments_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `companies` (`id`),
-                                              CONSTRAINT `fk_departments_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                                              CONSTRAINT `fk_departments_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
                                               CONSTRAINT `fk_departments_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)')
                 ->create();
 
@@ -231,7 +231,7 @@ class Updates extends \Phoundation\Libraries\Updates
                                       KEY `status` (`status`)')
                 ->setForeignKeys(' CONSTRAINT `fk_employees_branches_id` FOREIGN KEY (`branches_id`) REFERENCES `branches` (`id`),
                                               CONSTRAINT `fk_employees_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `companies` (`id`),
-                                              CONSTRAINT `fk_employees_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                                              CONSTRAINT `fk_employees_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
                                               CONSTRAINT `fk_employees_departments_id` FOREIGN KEY (`departments_id`) REFERENCES `departments` (`id`),
                                               CONSTRAINT `fk_employees_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)')
                 ->create();

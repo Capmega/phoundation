@@ -1643,4 +1643,27 @@ class Strings
                 return tr(':countth', [':count' => $count]);
         }
     }
+
+
+
+    /**
+     * Returns an array with
+     *
+     * @param string $source
+     * @return array
+     */
+    public static function countCharacters(string $source): array
+    {
+        $return = [];
+        $length = strlen($source);
+
+        for($i = 0; $i < $length; $i++){
+            if (empty($return[$source[$i]])) {
+                $return[$source[$i]] = substr_count($source, $source[$i]);
+            }
+        }
+
+        sort($return);
+        return $return;
+    }
 }

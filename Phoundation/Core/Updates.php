@@ -103,7 +103,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     KEY `users_id` (`users_id`),
                     KEY `ip` (`ip`)')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_sessions_extended_users_id` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE CASCADE')
+                    CONSTRAINT `fk_sessions_extended_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE')
                 ->create();
         })->addUpdate('0.0.6', function () {
             // Add tables for the sessions management
@@ -121,7 +121,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_url_cloaks_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)')
+                    CONSTRAINT `fk_url_cloaks_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`)')
                 ->create();
         })->addUpdate('0.0.7', function () {
             // Add tables for the sessions management
@@ -138,7 +138,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_key_value_store_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)')
+                    CONSTRAINT `fk_key_value_store_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`)')
                 ->create();
         });
     }

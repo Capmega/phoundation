@@ -7,8 +7,12 @@ use Phoundation\Accounts\Roles\UserRoles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Business\Companies\Company;
 use Phoundation\Content\Images\Image;
+use Phoundation\Core\Config;
+use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\City;
@@ -205,26 +209,26 @@ class User extends DataEntry
 
 
     /**
-     * Returns the last_signin for this user
+     * Returns the last_sign_in for this user
      *
      * @return string|null
      */
     public function getLastSignin(): ?string
     {
-        return $this->getDataValue('last_signin');
+        return $this->getDataValue('last_sign_in');
     }
 
 
 
     /**
-     * Sets the last_signin for this user
+     * Sets the last_sign_in for this user
      *
-     * @param string|null $last_signin
+     * @param string|null $last_sign_in
      * @return static
      */
-    public function setLastSignin(?string $last_signin): static
+    public function setLastSignin(?string $last_sign_in): static
     {
-        return $this->setDataValue('last_signin', $last_signin);
+        return $this->setDataValue('last_sign_in', $last_sign_in);
     }
 
 
@@ -280,26 +284,26 @@ class User extends DataEntry
 
 
     /**
-     * Returns the signin_count for this user
+     * Returns the sign_in_count for this user
      *
      * @return string|null
      */
     public function getSigninCount(): ?string
     {
-        return $this->getDataValue('signin_count');
+        return $this->getDataValue('sign_in_count');
     }
 
 
 
     /**
-     * Sets the signin_count for this user
+     * Sets the sign_in_count for this user
      *
-     * @param int|null $signin_count
+     * @param int|null $sign_in_count
      * @return static
      */
-    public function setSigninCount(?int $signin_count): static
+    public function setSigninCount(?int $sign_in_count): static
     {
-        return $this->setDataValue('signin_count', $signin_count);
+        return $this->setDataValue('sign_in_count', $sign_in_count);
     }
 
 
@@ -1081,6 +1085,39 @@ class User extends DataEntry
 
 
     /**
+     * Sets the password for this user
+     *
+     * @param string $password
+     * @param string $validation
+     * @return static
+     */
+    public function setPassword(string $password, string $validation): static
+    {
+        $password   = trim($password);
+        $validation = trim($validation);
+
+        if (!$password) {
+            throw new ValidationFailedException(tr('No password specified'));
+        }
+
+        if ($validation) {
+            throw new ValidationFailedException(tr('No validation password specified'));
+        }
+
+        if ($password !== $validation) {
+            throw new ValidationFailedException(tr('The password must match the validation password'));
+        }
+
+        if (!$this->passwordSecure($password)) {
+            throw new ValidationFailedException(tr('The password is not secure enough'));
+        }
+
+        return $this->setDataValue('password', $password);
+    }
+
+
+
+    /**
      * Returns the name for this user that can be displayed
      *
      * @return string
@@ -1236,10 +1273,10 @@ class User extends DataEntry
             'created_on',
             'meta_id',
             'status',
-            'last_signin',
+            'last_sign_in',
             'auth_fails',
             'locked_until',
-            'signin_count',
+            'sign_in_count',
             'username',
             'password',
             'fingerprint',
@@ -1277,5 +1314,150 @@ class User extends DataEntry
             'timezone',
             'companies_id'
         ];
+    }
+
+
+
+    /**
+     * Returns true if the password is considered secure enough
+     *
+     * @param string $password
+     * @return bool
+     */
+    protected function passwordSecure(string $password): bool
+    {
+        if ($this->passwordWeak($password)) {
+            return false;
+        }
+
+        if ($this->passwordBanned($password)) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+
+    /**
+     * Returns true if the password is considered secure enough
+     *
+     * @param string $password
+     * @return bool
+     */
+    protected function passwordWeak(string $password): bool
+    {
+        $strength = $this->getPasswordStrength($password);
+        return ($strength < Config::get('security.password.strength', 50));
+    }
+
+
+
+    /**
+     * Returns true if the password is considered secure enough
+     *
+     * @param string $password
+     * @return int
+     */
+    protected function getPasswordStrength(string $password): int
+    {
+        // Get the length of the password
+        $strength = 10;
+        $length   = strlen($password);
+
+        if($length < 8) {
+            if(!$length) {
+                Log::warning(tr('No password specified'));
+                return -1;
+            }
+
+            Log::warning(tr('Specified password has length ":length" which is too short and cannot be accepted', [
+                ':length' => $length
+            ]));
+
+            return -1;
+        }
+
+        // Check if password is not all lower case
+        if(strtolower($password) === $password){
+            $strength -= 5;
+        }
+
+        // Check if password is not all upper case
+        if(strtoupper($password) === $password){
+            $strength -= 5;
+        }
+
+        // Bonus for long passwords
+        $strength += ($length - 8);
+
+        // Get the amount of upper case letters in the password
+        preg_match_all('/[A-Z]/', $password, $matches);
+        $strength += (count($matches[0]) / 2);
+
+        // Get the amount of lower case letters in the password
+        preg_match_all('/[a-z]/', $password, $matches);
+        $strength += (count($matches[0]) / 2);
+
+        // Get the numbers in the password
+        preg_match_all('/[0-9]/', $password, $matches);
+        $strength += (count($matches[0]) * 2);
+
+        // Check for special chars
+        preg_match_all('/[|!@#$%&*\/=?,;.:\-_+~^\\\]/', $password, $matches);
+        $strength += (count($matches[0]) * 2);
+
+        // Get the number of unique chars
+        $chars            = str_split($password);
+        $num_unique_chars = count(array_unique($chars));
+
+        $strength += $num_unique_chars * 2;
+
+        // Test for same character repeats
+        $repeats = Strings::countCharacters($password);
+        $count   = (array_pop($repeats) + array_pop($repeats) + array_pop($repeats));
+
+        if (($count / ($length + 3) * 10) >= 3) {
+            $strength = $strength - ($strength * ($count / $length));
+        } else {
+            $strength = $strength + ($strength * ($count / $length));
+        }
+
+        // Strength is a number 1 - 100;
+        $strength = floor(($strength > 99) ? 99 : $strength);
+
+        if(VERBOSE){
+            Log::notice(tr('Password strength is ":strength"', [':strength' => $strength]));
+        }
+
+        return $strength;
+    }
+
+
+
+    /**
+     * Returns true if the password is considered secure enough
+     *
+     * @param string $password
+     * @return bool
+     */
+    protected function passwordBanned(string $password): bool
+    {
+        return (bool) sql()->get('SELECT `id` FROM `users_banned_passwords` WHERE `password` = :password', [
+            ':password' => $password
+        ]);
+    }
+
+
+
+    /**
+     * Returns the hashed version of the possword
+     *
+     * @param string $password
+     * @return bool
+     */
+    protected function passwordHash(string $password): string
+    {
+
     }
 }

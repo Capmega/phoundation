@@ -21,7 +21,7 @@ class Table extends \Phoundation\Web\Http\Html\Elements\Table
      */
     public function __construct()
     {
-        $this->setSourceQuery('SELECT * FROM `users`');
+        $this->setSourceQuery('SELECT * FROM `accounts_users`');
         parent::__construct();
     }
 }

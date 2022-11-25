@@ -74,7 +74,7 @@ class Updates extends \Phoundation\Libraries\Updates
             sql()->schema()->table('categories')->alter()
                 ->addColumn('`created_by` int DEFAULT NULL', 'AFTER `created_on`')
                 ->addIndices('KEY `created_by` (`created_by`)')
-                ->addForeignKeys('CONSTRAINT `fk_categories_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)');
+                ->addForeignKeys('CONSTRAINT `fk_categories_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`)');
         });
     }
 }
