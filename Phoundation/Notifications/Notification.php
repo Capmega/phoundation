@@ -248,7 +248,9 @@ class Notification extends DataEntry
                 throw new OutOfBoundsException(tr('No type specified for this notification'));
 
             default:
-                throw new OutOfBoundsException(tr('Unknown type ":type" specified for this notification, please ensure it is one of "WARNING", "ERROR", "NOTICE", or "INFORMATION"', [':type' => $type]));
+                throw new OutOfBoundsException(tr('Unknown type ":type" specified for this notification, please ensure it is one of "WARNING", "ERROR", "NOTICE", or "INFORMATION"', [
+                    ':type' => $type
+                ]));
         }
 
         $this->setDataValue('type', $clean_type);
