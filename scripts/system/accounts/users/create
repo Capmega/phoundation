@@ -100,7 +100,7 @@ $arguments = ArgvValidator::new()
     ->select('--is-leader')->isOptional(false)->isBoolean()
     ->select('-r,--roles')->isOptional(null)->forceArray()->each()->isName()
     ->validate()
-    ->extract();
+    ->extract(true);
 
 
 // Check if the user already exists

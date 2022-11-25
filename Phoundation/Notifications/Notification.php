@@ -549,10 +549,10 @@ return $this;
     /**
      * Load the specified notification from the database
      *
-     * @param int $identifier
+     * @param string|int $identifier
      * @return void
      */
-    protected function load(int $identifier): void
+    protected function load(string|int $identifier): void
     {
         $data = sql()->get('SELECT * FROM `notifications` WHERE `id` = :id', [
             ':id' => $identifier

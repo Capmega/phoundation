@@ -1802,6 +1802,29 @@ abstract class Validator
 
 
     /**
+     * Sanitize the selected value by converting it to an array
+     *
+     * @param string $characters
+     * @return static
+     * @see trim()
+     */
+    public function sanitizeForceArray(string $characters = ','): static
+    {
+        return $this->validateValues(function($value) use ($characters) {
+            $this->hasMinCharacters(3)->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return $value;
+            }
+
+            return Arrays::force($value, $characters);
+        });
+    }
+
+
+
+    /**
      * Sanitize the selected value by decoding the specified CSV
      *
      * @return static

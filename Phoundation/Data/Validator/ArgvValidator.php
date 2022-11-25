@@ -91,32 +91,65 @@ class ArgvValidator extends Validator
      */
     public function select(int|string $field, string|bool $next = false): static
     {
+        if ($this->source === null) {
+            throw new OutOfBoundsException(tr('Cannot select field ":field", no source array specified', [
+                ':field' => $field
+            ]));
+        }
+
         // Unset various values first to ensure the byref link is broken
         unset($this->process_value);
         unset($this->process_values);
         unset($this->selected_value);
 
         $this->process_value_failed = false;
+        $clean_field = null;
 
         if (!$field) {
             throw new OutOfBoundsException(tr('No field specified'));
         }
 
-        $fields = Arrays::force($field, ',');
-        $value  = self::argument($field, $next);
-
-        foreach ($fields as $field) {
+        // Determine the correct clean field name for the specified argument field
+        foreach (Arrays::force($field, ',') as $field) {
             $field = trim($field);
 
             if (str_starts_with($field, '--')) {
                 // This is the long form argument
+                $clean_field = Strings::startsNotWith($field, '-');
+                $clean_field = str_replace('-', '_', $clean_field);
                 break;
             }
+
+            if (str_starts_with($field, '-')) {
+                // This is the short form argument, won't  be a variable name unless there is no alternative
+                $clean_field = Strings::startsNotWith($field, '-');
+                $clean_field = str_replace('-', '_', $clean_field);
+                continue;
+            }
+
+            // This is not a modifier field but a method or value argument instead. Do not modify the field name
+            // Do change the field value to NULL, which will cause ArgvValidator::argument() to return the next
+            // available argument
+            $clean_field = $field;
+            $field       = null;
         }
 
-        // Get the value from the $argv array
-        $clean_field = Strings::startsNotWith($field, '-');
-        $clean_field = str_replace('-', '_', $clean_field);
+        if (!$clean_field) {
+            throw new ValidatorException(tr('Failed to determine clean field name for ":field"', [
+                ':field' => $field
+            ]));
+        }
+
+        // Get the value from the arguments list
+        $value = self::argument($field, $next);
+
+        if (!$field and str_starts_with($value, '-')) {
+            // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently can'y
+            // We're looking not for a modifier, but for a method or value. This is a modifier, so don't use it. Put the
+            // value back on the arguments list
+            self::$argv[] = $value;
+            $value = null;
+        }
 
         if (in_array($clean_field, $this->selected_fields)) {
             throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
@@ -124,13 +157,7 @@ class ArgvValidator extends Validator
             ]));
         }
 
-        if ($this->source === null) {
-            throw new OutOfBoundsException(tr('Cannot select field ":field", no source array specified', [
-                ':field' => $field
-            ]));
-        }
-
-        // Add the field to the array
+        // Add the cleaned field to the source array
         $this->source[$clean_field] = $value;
 
         // Select the field.
@@ -148,19 +175,27 @@ class ArgvValidator extends Validator
     /**
      * Extracts the validated fields from the $argv and returns them as an array
      *
+     * @param bool $no_arguments_left
      * @return array
      */
-    public function extract(): array
+    public function extract(bool $no_arguments_left = false): array
     {
         global $argv;
+        unset($argv);
 
+        $argv   = [];
         $return = [];
 
         foreach ($this->selected_fields as $field) {
             $return[$field] = $this->source[$field];
+            unset($this->source[$field]);
         }
 
-        $argv = [];
+        if ($no_arguments_left) {
+            // There cannot be any other arguments left anymore
+            Script::noArgumentsLeft(self::$argv);
+        }
+
         return $return;
     }
 
@@ -199,7 +234,9 @@ class ArgvValidator extends Validator
         // Validate all methods
         foreach ($methods as $method) {
             if (strlen($method) > 32) {
-                throw new ValidationFailedException(tr('Specified method ":method" is too long, it should be less than 32 characters', [':method' => $method]));
+                throw new ValidationFailedException(tr('Specified method ":method" is too long, it should be less than 32 characters', [
+                    ':method' => $method
+                ]));
             }
         }
 
@@ -224,7 +261,7 @@ class ArgvValidator extends Validator
             ]));
         }
 
-        unset(self::$argv[$method]);
+        unset(self::$argv[$key]);
     }
 
 
@@ -333,9 +370,8 @@ class ArgvValidator extends Validator
         }
 
         if ($keys === null) {
-            // Get the next argument
-            $value = array_shift(self::$argv);
-            return Strings::startsNotWith((string) $value, '-');
+            // Get the next argument?
+            return array_shift(self::$argv);
         }
 
         //Detect multiple key options for the same command, but ensure only one is specified

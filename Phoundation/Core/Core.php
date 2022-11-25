@@ -476,12 +476,12 @@ class Core {
                         ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
                         ->select('--version')->isOptional(false)->isBoolean()
                         ->select('-E,--environment', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(64)
-                        ->select('-L,--limit'      , true)->isOptional(Config::get('paging.limit', 50))->isId()
-                        ->select('-O,--order-by'   , true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(128)
-                        ->select('-P,--page'       , true)->isOptional(1)->isId()
-                        ->select('-S,--status'     , true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(16)
-                        ->select('--language'      , true)->isOptional(null)->isCode()
-                        ->select('--timezone'      , true)->isOptional(false)->isBoolean()
+                        ->select('-L,--limit', true)->isOptional(Config::get('paging.limit', 50))->isId()
+                        ->select('-O,--order-by', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(128)
+                        ->select('-P,--page', true)->isOptional(1)->isId()
+                        ->select('-S,--status', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(16)
+                        ->select('--language', true)->isOptional(null)->isCode()
+                        ->select('--timezone', true)->isOptional(false)->isBoolean()
                         ->validate()
                         ->extract();
 

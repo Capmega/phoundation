@@ -180,18 +180,23 @@ class Script
      *
      * If arguments were still found, an appropriate exceptoin will be thrown
      *
+     * @param array|null $arguments
      * @return void
      */
-    public static function noArgumentsLeft(): void
+    public static function noArgumentsLeft(?array $arguments = null): void
     {
         global $argv;
 
-        if (empty($argv)) {
+        if ($arguments === null) {
+            $arguments = $argv;
+        }
+
+        if (empty($arguments)) {
             return;
         }
 
         throw Exceptions::CliInvalidArgumentsException(tr('Invalid arguments ":arguments" encountered', [
-            ':arguments' => Strings::force($argv, ', ')
+            ':arguments' => Strings::force($arguments, ', ')
         ]))->makeWarning();
     }
 

@@ -7,6 +7,7 @@ use Phoundation\Cli\Script;
 use Phoundation\Core\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Libraries\Libraries;
 use Phoundation\Libraries\Library;
@@ -26,11 +27,20 @@ $usage   = './cli system libraries info LIBRARY_NAME';
 
 $help    = 'The libraries info script will show detailed information about the specified library';
 
-$type    = Script::argument('-t,--type', true, '');
-$library = Script::argument();
+// Validate arguments
+try {
+    ECHO "++++++++++++++++++++++++++++++++++++++++++++++++++++".PHP_EOL;
 
-Script::noArgumentsLeft();
+    $arguments = ArgvValidator::new()
+        ->select('-t,--type', true)->isOptional(null)->isName()
+        ->select('library')->isOptional(null)->hasMaxCharacters(64)->sanitizeForceArray()->each()->isName()
+        ->validate()
+        ->extract(true);
+    showdie($arguments);
+}catch(Throwable $e){
+    showdie($e);
 
+}
 if ($library) {
     if ($type) {
         throw Exceptions::OutOfBoundsException(tr('Library nane AND -t / --type specified, these are mutually exclusive. Please specify either one or the other'))->makeWarning();

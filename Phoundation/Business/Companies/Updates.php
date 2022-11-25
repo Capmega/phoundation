@@ -52,39 +52,36 @@ class Updates extends \Phoundation\Libraries\Updates
             // Create the providers table.
             sql()->schema()->table('providers')
                 ->setColumns('`id` int NOT NULL AUTO_INCREMENT,
-                                      `createdon` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                      `createdby` int NOT NULL,
+                                      `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                      `created_by` int NOT NULL,
                                       `meta_id` int DEFAULT NULL,
-                                      `modifiedby` int DEFAULT NULL,
                                       `status` varchar(16) DEFAULT NULL,
                                       `categories_id` int DEFAULT NULL,
                                       `name` varchar(32) NOT NULL,
-                                      `seoname` varchar(32) NOT NULL,
+                                      `seo_name` varchar(32) NOT NULL,
                                       `email` varchar(128) DEFAULT NULL,
                                       `phones` varchar(36) DEFAULT NULL,
                                       `code` varchar(64) DEFAULT NULL,
                                       `url` varchar(255) DEFAULT NULL,
                                       `description` varchar(2040) DEFAULT NULL')
                 ->setIndices(' PRIMARY KEY (`id`),
-                                      UNIQUE KEY `seoname` (`seoname`),
-                                      KEY `createdon` (`createdon`),
-                                      KEY `createdby` (`createdby`),
-                                      KEY `modifiedby` (`modifiedby`),
+                                      UNIQUE KEY `seo_name` (`seo_name`),
+                                      KEY `created_on` (`created_on`),
+                                      KEY `created_by` (`created_by`),
                                       KEY `status` (`status`),
                                       KEY `name` (`name`),
                                       KEY `meta_id` (`meta_id`),
                                       KEY `categories_id` (`categories_id`)')
                 ->setForeignKeys(' CONSTRAINT `fk_providers_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`),
-                                              CONSTRAINT `fk_providers_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`),
-                                              CONSTRAINT `fk_providers_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
-                                              CONSTRAINT `fk_providers_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users` (`id`)')
+                                              CONSTRAINT `fk_providers_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
+                                              CONSTRAINT `fk_providers_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)')
                 ->create();
 
             // Create the customers table.
             sql()->schema()->table('customers')
                 ->setColumns('`id` int NOT NULL AUTO_INCREMENT,
-                                      `createdon` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                      `createdby` int NOT NULL,
+                                      `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                      `created_by` int NOT NULL,
                                       `meta_id` int DEFAULT NULL,
                                       `status` varchar(16) DEFAULT NULL,
                                       `name` varchar(64) DEFAULT NULL,
@@ -101,13 +98,13 @@ class Updates extends \Phoundation\Libraries\Updates
                                       `countries_id` int DEFAULT NULL,
                                       `states_id` int DEFAULT NULL,
                                       `cities_id` int DEFAULT NULL,
-                                      `seoname` varchar(64) DEFAULT NULL,
+                                      `seo_name` varchar(64) DEFAULT NULL,
                                       `url` varchar(255) DEFAULT NULL,
                                       `description` varchar(2040) DEFAULT NULL')
                 ->setIndices(' PRIMARY KEY (`id`),
-                                      UNIQUE KEY `seoname` (`seoname`),
-                                      KEY `createdon` (`createdon`),
-                                      KEY `createdby` (`createdby`),
+                                      UNIQUE KEY `seo_name` (`seo_name`),
+                                      KEY `created_on` (`created_on`),
+                                      KEY `created_by` (`created_by`),
                                       KEY `status` (`status`),
                                       KEY `name` (`name`),
                                       KEY `countries_id` (`countries_id`),
@@ -122,7 +119,7 @@ class Updates extends \Phoundation\Libraries\Updates
                                               CONSTRAINT `fk_customers_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`),
                                               CONSTRAINT `fk_customers_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`),
                                               CONSTRAINT `fk_customers_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`),
-                                              CONSTRAINT `fk_customers_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`),
+                                              CONSTRAINT `fk_customers_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
                                               CONSTRAINT `fk_customers_documents_id` FOREIGN KEY (`documents_id`) REFERENCES `categories` (`id`),
                                               CONSTRAINT `fk_customers_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
                                               CONSTRAINT `fk_customers_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`)')
