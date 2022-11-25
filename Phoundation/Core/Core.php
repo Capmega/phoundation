@@ -1285,17 +1285,17 @@ class Core {
                          * If not using Debug::enabled() mode, then try to give nice error messages
                          * for known issues
                          */
-                        if (($e instanceof Exception) and ($e->isWarning())) {
-                            // This is just a simple general warning, no backtrace and such needed, only show the
-                            // principal message
-                            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-                            Script::shutdown(255);
-                        }
-
-                        if ($e instanceof ValidationFailedException) {
+                        if (($e instanceof ValidationFailedException) and $e->isWarning()) {
                             // This is just a simple validation warning, show warning messages in the exception data
                             Log::warning(tr('Validation warning: :warning', [':warning' => $e->getMessage()]));
                             Log::warning($e->getData());
+                            Script::shutdown(255);
+                        }
+
+                        if (($e instanceof Exception) and $e->isWarning()) {
+                            // This is just a simple general warning, no backtrace and such needed, only show the
+                            // principal message
+                            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
                             Script::shutdown(255);
                         }
 
