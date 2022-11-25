@@ -85,15 +85,15 @@ class ArgvValidator extends Validator
     /**
      * Selects the specified key within the array that we are validating
      *
-     * @param int|string $field The array key (or HTML form field) that needs to be validated / sanitized
+     * @param int|string $fields The array key (or HTML form field) that needs to be validated / sanitized
      * @param string|bool $next
      * @return static
      */
-    public function select(int|string $field, string|bool $next = false): static
+    public function select(int|string $fields, string|bool $next = false): static
     {
         if ($this->source === null) {
-            throw new OutOfBoundsException(tr('Cannot select field ":field", no source array specified', [
-                ':field' => $field
+            throw new OutOfBoundsException(tr('Cannot select fields ":fields", no source array specified', [
+                ':fields' => $fields
             ]));
         }
 
@@ -105,12 +105,14 @@ class ArgvValidator extends Validator
         $this->process_value_failed = false;
         $clean_field = null;
 
-        if (!$field) {
+        $field       = null;
+
+        if (!$fields) {
             throw new OutOfBoundsException(tr('No field specified'));
         }
 
         // Determine the correct clean field name for the specified argument field
-        foreach (Arrays::force($field, ',') as $field) {
+        foreach (Arrays::force($fields, ',') as $field) {
             $field = trim($field);
 
             if (str_starts_with($field, '--')) {
@@ -141,9 +143,9 @@ class ArgvValidator extends Validator
         }
 
         // Get the value from the arguments list
-        $value = self::argument($field, $next);
+        $value = self::argument($fields, $next);
 
-        if (!$field and str_starts_with($value, '-')) {
+        if (!$field and str_starts_with((string) $value, '-')) {
             // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently can'y
             // We're looking not for a modifier, but for a method or value. This is a modifier, so don't use it. Put the
             // value back on the arguments list
@@ -153,7 +155,7 @@ class ArgvValidator extends Validator
 
         if (in_array($clean_field, $this->selected_fields)) {
             throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
-                ':key' => $field
+                ':key' => $fields
             ]));
         }
 

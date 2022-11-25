@@ -3,7 +3,6 @@
 
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Color;
-use Phoundation\Cli\Script;
 use Phoundation\Core\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
@@ -28,68 +27,63 @@ $usage   = './cli system libraries info LIBRARY_NAME';
 $help    = 'The libraries info script will show detailed information about the specified library';
 
 // Validate arguments
-try {
-    ECHO "++++++++++++++++++++++++++++++++++++++++++++++++++++".PHP_EOL;
+$arguments = ArgvValidator::new()
+    ->select('-t,--type,--types', true)->isOptional(null)->isName()
+    ->select('library')->isOptional(null)->hasMaxCharacters(64)->sanitizeForceArray()->each()->isName()
+    ->validate()
+    ->extract(true);
 
-    $arguments = ArgvValidator::new()
-        ->select('-t,--type', true)->isOptional(null)->isName()
-        ->select('library')->isOptional(null)->hasMaxCharacters(64)->sanitizeForceArray()->each()->isName()
-        ->validate()
-        ->extract(true);
-    showdie($arguments);
-}catch(Throwable $e){
-    showdie($e);
-
-}
-if ($library) {
-    if ($type) {
+if ($arguments['library']) {
+    if ($arguments['type']) {
         throw Exceptions::OutOfBoundsException(tr('Library nane AND -t / --type specified, these are mutually exclusive. Please specify either one or the other'))->makeWarning();
     }
 
-    $library    = Library::get($library);
-    $statistics = $library->getPhpStatistics();
+    foreach ($arguments['library'] as $library) {
+        $library    = Library::get($library);
+        $statistics = $library->getPhpStatistics();
 
-    Log::cli(Color::apply(Strings::size(tr('Name:')        , 28), 'white') . ' ' . $library->getName());
-    Log::cli(Color::apply(Strings::size(tr('Version:')     , 28), 'white') . ' ' . $library->getVersion());
-    Log::cli(Color::apply(Strings::size(tr('Path:')        , 28), 'white') . ' ' . $library->getPath());
-    Log::cli(Color::apply(Strings::size(tr('Description:') , 28), 'white') . ' ' . $library->getDescription());
+        Log::cli(Color::apply(Strings::size(tr('Name:')        , 28), 'white') . ' ' . $library->getName());
+        Log::cli(Color::apply(Strings::size(tr('Version:')     , 28), 'white') . ' ' . $library->getVersion());
+        Log::cli(Color::apply(Strings::size(tr('Path:')        , 28), 'white') . ' ' . $library->getPath());
+        Log::cli(Color::apply(Strings::size(tr('Description:') , 28), 'white') . ' ' . $library->getDescription());
 
-    Log::cli();
+        Log::cli();
 
-    Log::cli(Color::apply(Strings::size(tr('Statistics:') , 28), 'white'));
-    Cli::displayArray($statistics['total_statistics']);
-} elseif ($type) {
+        Log::cli(Color::apply(Strings::size(tr('Statistics:') , 28), 'white'));
+        Cli::displayArray($statistics['total_statistics']);
+    }
+} elseif ($arguments['type']) {
     // Sanitize and validate
-    $type = strtolower(trim($type));
+    $arguments['type'] = strtolower(trim($arguments['type']));
 
-    switch ($type) {
+    switch ($arguments['type']) {
         case 'system':
             // no-break
             break;
         case 'plugin':
             // no-break
         case 'plugins':
-            $type = 'plugins';
+            $arguments['type'] = 'plugins';
             break;
 
         case 'template':
             // no-break
         case 'templates':
-            $type = 'templates';
+            $arguments['type'] = 'templates';
             break;
 
         default:
             throw Exceptions::OutOfBoundsException(tr('Unknown library type ":type" specified. Please specify one of "system", "plugins" or "templates"', [
-                    ':type' => $type
+                    ':type' => $arguments['type']
             ]));
     }
 
     // Get statistics and display
-    $statistics = Libraries::getPhpStatistics(($type === 'system'), ($type === 'plugins'), ($type === 'templates'));
+    $statistics = Libraries::getPhpStatistics(($arguments['type'] === 'system'), ($arguments['type'] === 'plugins'), ($arguments['type'] === 'templates'));
 
     Log::cli(Color::apply(tr('Statistics:'), 'white'));
-    Log::cli(Color::apply(tr('Statistics for ":type" type libraries:', [':type' => Strings::capitalize($type)]) , 'white'));
-    Cli::displayArray($statistics['system']['total_statistics']);
+    Log::cli(Color::apply(tr('Statistics for ":type" type libraries:', [':type' => Strings::capitalize($arguments['type'])]) , 'white'));
+    Cli::displayArray($statistics[$arguments['type']]['total_statistics']);
 
 } else {
     $statistics = Libraries::getPhpStatistics();

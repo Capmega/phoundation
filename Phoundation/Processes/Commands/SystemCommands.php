@@ -49,7 +49,10 @@ class SystemCommands extends Command
 
             if (!$realpath) {
                 // So which gave us a path that doesn't exist or that we can't access
-                throw new CommandsException(tr('Failed to get realpath for which result ":result" for command  ":command"', [':command' => $command, ':result' => $result]));
+                throw new CommandsException(tr('Failed to get realpath for which result ":result" for command  ":command"', [
+                    ':command' => $command,
+                    ':result' => $result
+                ]));
             }
 
             // Cache and return
@@ -81,7 +84,9 @@ class SystemCommands extends Command
     public function id(string $section): int
     {
         if (($section != 'u') and ($section != 'g')) {
-            throw new OutOfBoundsException(tr('Invalid section ":section" specified. This value can only be "u" or "g"', [':section' => $section]));
+            throw new OutOfBoundsException(tr('Invalid section ":section" specified. This value can only be "u" or "g"', [
+                ':section' => $section
+            ]));
         }
 
         $process = Process::new('id', $this->server_restrictions)
