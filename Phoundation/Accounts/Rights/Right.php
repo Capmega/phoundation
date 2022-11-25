@@ -2,16 +2,16 @@
 
 namespace Phoundation\Accounts\Rights;
 
+use DataEntryNameDescription;
 use Phoundation\Data\DataEntry;
 
 
 
 /**
- * Right class
+ * Class Right
  *
  *
  *
- * @see \Phoundation\Data\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -19,32 +19,38 @@ use Phoundation\Data\DataEntry;
  */
 class Right extends DataEntry
 {
+    use DataEntryNameDescription;
+
 
     /**
-     * @inheritDoc
+     * Right class constructor
+     *
+     * @param int|string|null $identifier
      */
-    public function save(): static
+    public function __construct(int|string|null $identifier = null)
     {
-        // TODO: Implement save() method.
+        $this->table = 'users_rights';
+        parent::__construct($identifier);
     }
 
 
 
     /**
-     * @inheritDoc
+     * Sets the available data keys for the Right class
+     *
+     * @return void
      */
     protected function setKeys(): void
     {
-        // TODO: Implement setKeys() method.
-    }
-
-
-
-    /**
-     * @inheritDoc
-     */
-    protected function load(int|string $identifier): void
-    {
-        // TODO: Implement load() method.
+        $this->keys = [
+            'id',
+            'created_by',
+            'created_on',
+            'meta_id',
+            'status',
+            'name',
+            'seo_name',
+            'description'
+        ];
     }
 }

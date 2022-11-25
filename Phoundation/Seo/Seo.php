@@ -3,6 +3,7 @@
 namespace Phoundation\Seo;
 
 use Exception;
+use Phoundation\Core\Strings;
 use Phoundation\Databases\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 
@@ -52,7 +53,7 @@ class Seo
      *
      */
     // :TODO: Update to use bound variable queries
-    public function unique(string $source, string $table, ?int $ownid = null, string $column = 'seoname', string $replace = '-', $first_suffix = null, $connector_name = null): string|null
+    public static function unique(string $source, string $table, ?int $ownid = null, string $column = 'seoname', string $replace = '-', $first_suffix = null, $connector_name = null): string|null
     {
         /*
          * Prepare string
@@ -177,14 +178,12 @@ class Seo
      */
     public static function string($source, $replace = '-')
     {
-        if (str_is_utf8($source)) {
-            load_libs('mb');
-
+        if (Strings::isUtf8($source)) {
             //clean up string
-            $source = mb_strtolower(mb_trim(mb_strip_tags($source)));
+            $source = mb_strtolower(trim(mb_strip_tags($source)));
 
             //convert spanish crap to english
-            $source2 = str_convert_accents($source);
+            $source2 = Strings::convertAccents($source);
 
             //remove special chars
             $from = array("'", '"', '\\');

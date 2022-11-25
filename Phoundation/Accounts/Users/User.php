@@ -2,6 +2,7 @@
 
 namespace Phoundation\Accounts\Users;
 
+use DataEntryNameDescription;
 use Phoundation\Accounts\Roles\UserRoles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Business\Companies\Company;
@@ -29,6 +30,10 @@ use Phoundation\Geo\Timezone;
  */
 class User extends DataEntry
 {
+    use DataEntryNameDescription;
+
+
+
     /**
      * The roles for this user
      *
@@ -145,31 +150,6 @@ class User extends DataEntry
     public function setNickname(?string $nickname): static
     {
         return $this->setDataValue('nickname', $nickname);
-    }
-
-
-
-    /**
-     * Returns the name for this user
-     *
-     * @return string|null
-     */
-    public function getName(): ?string
-    {
-        return $this->getDataValue('name');
-    }
-
-
-
-    /**
-     * Sets the name for this user
-     *
-     * @param string|null $name
-     * @return static
-     */
-    public function setName(?string $name): static
-    {
-        return $this->setDataValue('name', $name);
     }
 
 
@@ -1020,31 +1000,6 @@ class User extends DataEntry
 
 
     /**
-     * Returns the description for this user
-     *
-     * @return string|null
-     */
-    public function getDescription(): ?string
-    {
-        return $this->getDataValue('description');
-    }
-
-
-
-    /**
-     * Sets the description for this user
-     *
-     * @param string|null $description
-     * @return static
-     */
-    public function setDescription(?string $description): static
-    {
-        return $this->setDataValue('description', $description);
-    }
-
-
-
-    /**
      * Returns the comments for this user
      *
      * @return string|null
@@ -1261,30 +1216,9 @@ class User extends DataEntry
      */
     public function save(): static
     {
-        $this->id = sql()->write('users', $this->getInsertColumns(), $this->getUpdateColumns());
+        parent::save();
         $this->roles->save();
         return $this;
-    }
-
-
-
-    /**
-     * Load all user data from database
-     *
-     * @param string|int $identifier
-     * @return void
-     */
-    protected function load(string|int $identifier): void
-    {
-        if (is_integer($identifier)) {
-            $data = sql()->get('SELECT * FROM `users` WHERE `id`    = :id'   , [':id'    => $identifier]);
-        } else {
-            $data = sql()->get('SELECT * FROM `users` WHERE `email` = :email', [':email' => $identifier]);
-        }
-
-        // Store all data
-        $this->setData($data);
-        $this->setMetaData($data);
     }
 
 
@@ -1300,8 +1234,6 @@ class User extends DataEntry
             'id',
             'created_by',
             'created_on',
-            'modified_by',
-            'modified_on',
             'meta_id',
             'status',
             'last_signin',

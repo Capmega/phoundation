@@ -2,6 +2,7 @@
 
 namespace Phoundation\Accounts\Roles;
 
+use DataEntryNameDescription;
 use Phoundation\Data\DataEntry;
 
 
@@ -18,39 +19,38 @@ use Phoundation\Data\DataEntry;
  */
 class Role extends DataEntry
 {
+    use DataEntryNameDescription;
+
+
     /**
+     * Role class constructor
      *
-     *
-     * @return static
+     * @param int|string|null $identifier
      */
-    public function save(): static
+    public function __construct(int|string|null $identifier = null)
     {
-        // TODO: Implement save() method.
-        return $this;
+        $this->table = 'users_roles';
+        parent::__construct($identifier);
     }
 
 
 
     /**
-     *
-     *
-     * @param int $identifier
-     * @return void
-     */
-    protected function load(int $identifier): void
-    {
-        // TODO: Implement load() method.
-    }
-
-
-
-    /**
-     *
+     * Sets the available data keys for the Role class
      *
      * @return void
      */
     protected function setKeys(): void
     {
-        // TODO: Implement setKeys() method.
+        $this->keys = [
+            'id',
+            'created_by',
+            'created_on',
+            'meta_id',
+            'status',
+            'name',
+            'seo_name',
+            'description'
+        ];
     }
 }

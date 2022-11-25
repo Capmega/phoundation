@@ -23,6 +23,13 @@ use Phoundation\Accounts\Users\User;
 abstract class DataEntry
 {
     /**
+     * The table name where this data entry is stored
+     *
+     * @var string
+     */
+    protected string $table;
+
+    /**
      * Default protected keys, keys that may not leave this object
      *
      * @var array|string[]
@@ -520,7 +527,32 @@ abstract class DataEntry
      *
      * @return static
      */
-    abstract public function save(): static;
+    public function save(): static
+    {
+        $this->id = sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns());
+        return $this;
+    }
+
+
+
+    /**
+     * Load all user data from database
+     *
+     * @param string|int $identifier
+     * @return void
+     */
+    protected function load(string|int $identifier): void
+    {
+        if (is_integer($identifier)) {
+            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `id`       = :id'   , [':id'       => $identifier]);
+        } else {
+            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `seo_name` = :email', [':seo_name' => $identifier]);
+        }
+
+        // Store all data in the object
+        $this->setData($data);
+        $this->setMetaData($data);
+    }
 
 
 
@@ -530,14 +562,4 @@ abstract class DataEntry
      * @return void
      */
     abstract protected function setKeys(): void;
-
-
-
-    /**
-     * Will load the data from this data entry from database
-     *
-     * @param string|int $identifier
-     * @return void
-     */
-    abstract protected function load(string|int $identifier): void;
 }

@@ -61,20 +61,20 @@ class Updates extends \Phoundation\Libraries\Updates
                     `auth_fails` int NOT NULL,
                     `locked_until` datetime DEFAULT NULL,
                     `signin_count` int NOT NULL,
-                    `username` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
+                    `username` varchar(64) DEFAULT NULL,
                     `password` varchar(255) NOT NULL,
                     `fingerprint` datetime DEFAULT NULL,
                     `domain` varchar(128) DEFAULT NULL,
                     `title` varchar(24) DEFAULT NULL,
-                    `name` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+                    `name` varchar(255) DEFAULT NULL,
                     `nickname` varchar(64) DEFAULT NULL,
                     `avatar` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
                     `email` varchar(128) DEFAULT NULL,
                     `code` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `type` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `type` varchar(16) DEFAULT NULL,
                     `keywords` varchar(255) DEFAULT NULL,
                     `phones` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
-                    `address` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+                    `address` varchar(255) DEFAULT NULL,
                     `verification_code` varchar(128) DEFAULT NULL,
                     `verified_on` datetime DEFAULT NULL,
                     `priority` int DEFAULT NULL,
@@ -89,12 +89,12 @@ class Updates extends \Phoundation\Libraries\Updates
                     `states_id` int DEFAULT NULL,
                     `countries_id` int DEFAULT NULL,
                     `redirect` varchar(255) DEFAULT NULL,
-                    `language` char(2) CHARACTER SET latin1 DEFAULT NULL,
-                    `gender` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `language` char(2) DEFAULT NULL,
+                    `gender` varchar(16) DEFAULT NULL,
                     `birthday` date DEFAULT NULL,
                     `description` text DEFAULT NULL,
                     `comments` mediumtext DEFAULT NULL,
-                    `website` varchar(2048) CHARACTER SET latin1 DEFAULT NULL,
+                    `website` varchar(2048) DEFAULT NULL,
                     `timezone` varchar(32) DEFAULT NULL')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
@@ -139,10 +139,12 @@ class Updates extends \Phoundation\Libraries\Updates
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(32) NOT NULL,
+                    `seo_name` varchar(32) NOT NULL,
                     `description` varchar(2047) NOT NULL')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `name` (`name`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
+                    KEY `name` (`name`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
                     KEY `status` (`status`),
@@ -160,14 +162,16 @@ class Updates extends \Phoundation\Libraries\Updates
                     `created_by` int DEFAULT NULL,
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+                    `name` varchar(32) DEFAULT NULL,
+                    `seo_name` varchar(32) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL,')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
+                    KEY `name` (`name`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
-                    KEY `name` (`name`),
                     KEY `meta_id` (`meta_id`),')
                 ->setForeignKeys('
                     CONSTRAINT `fk_users_roles_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,
@@ -182,15 +186,17 @@ class Updates extends \Phoundation\Libraries\Updates
                     `created_by` int DEFAULT NULL,
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+                    `name` varchar(32) DEFAULT NULL,
+                    `seo_name` varchar(32) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL,')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`),
-                    KEY `name` (`name`),')
+                    KEY `name` (`name`)')
                 ->setForeignKeys('
                     CONSTRAINT `fk_users_groups_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_users_groups_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT')
@@ -204,7 +210,8 @@ class Updates extends \Phoundation\Libraries\Updates
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `users_id` int NOT NULL,
                     `rights_id` int NOT NULL,
-                    `name` varchar(32) NOT NULL,')
+                    `name` varchar(32) NOT NULL,
+                    `seo_name` varchar(32) DEFAULT NULL')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `users_rights` (`users_id`,`rights_id`),
@@ -212,7 +219,8 @@ class Updates extends \Phoundation\Libraries\Updates
                     KEY `created_on` (`created_on`),
                     KEY `users_id` (`users_id`),
                     KEY `rights_id` (`rights_id`),
-                    KEY `name` (`name`),')
+                    KEY `name` (`name`),
+                    KEY `seo_name` (`seo_name`)')
                 ->setForeignKeys('
                     CONSTRAINT `fk_users_rights_links_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_users_rights_links_users_id` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,

@@ -2,7 +2,7 @@
 
 namespace Phoundation\Accounts\Users\Users;
 
-use Iterator;
+use Phoundation\Data\DataList;
 
 
 
@@ -16,47 +16,15 @@ use Iterator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Users implements Iterator
+class Users extends DataList
 {
-    /**
-     * Authenticate a user with the specified password
-     *
-     * @param string $user
-     * @param string $password
-     * @return User|null
-     */
-    public static function authenticate(string $user, string $password): ?User
+    protected function load(): static
     {
-
+        // TODO: Implement load() method.
     }
 
-
-
-    /**
-     * @return mixed
-     */
-    public function current(): mixed
+    public function save(): static
     {
-        // TODO: Implement current() method.
-    }
-
-    public function next(): void
-    {
-        // TODO: Implement next() method.
-    }
-
-    public function key(): mixed
-    {
-        // TODO: Implement key() method.
-    }
-
-    public function valid(): bool
-    {
-        // TODO: Implement valid() method.
-    }
-
-    public function rewind(): void
-    {
-        // TODO: Implement rewind() method.
+        // TODO: Implement save() method.
     }
 }

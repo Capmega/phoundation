@@ -1,27 +1,44 @@
 <?php
 
-namespace Phoundation\Data\Categories;
+namespace Phoundation\Accounts\Categories;
 
 use Phoundation\Data\DataList;
 
+
+
+/**
+ * Class Categories
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Data
+ */
 class Categories extends DataList
 {
-
     /**
-     * @inheritDoc
+     * Load the data for this categories list
+     *
+     * @return static
      */
-    protected function load(): static
+    public function load(): static
     {
-        // TODO: Implement load() method.
+
+        return $this;
     }
 
 
 
     /**
-     * @inheritDoc
+     * Save this categories list
+     *
+     * @return static
      */
     public function save(): static
     {
-        // TODO: Implement save() method.
+
+        return $this;
     }
 }

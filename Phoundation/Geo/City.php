@@ -85,10 +85,10 @@ class City
     /**
      * Load the City data from database
      *
-     * @param int $identifier
+     * @param string|int $identifier
      * @return void
      */
-    protected function load(int $identifier): void
+    protected function load(string|int $identifier): void
     {
 
     }

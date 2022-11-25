@@ -16,7 +16,8 @@ use Phoundation\Data\DataList;
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Business
- */class Providers extends DataList
+ */
+class Providers extends DataList
 {
 
     /**
