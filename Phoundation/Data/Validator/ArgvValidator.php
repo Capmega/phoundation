@@ -31,7 +31,7 @@ class ArgvValidator extends Validator
      *
      * @var array $argv
      */
-    public static array $argv;
+    protected static array $argv;
 
 
 
