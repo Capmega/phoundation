@@ -226,7 +226,7 @@ abstract class Validator
             }
 
             if ($value < ($allow_zero ? 0 : 1)) {
-                $this->addFailure(tr('must have a positive value', [':field' => $this->selected_field]));
+                $this->addFailure(tr('must have a positive value'));
             }
 
             return $value;
@@ -415,7 +415,7 @@ abstract class Validator
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (!is_scalar($value)) {
-                    $this->addFailure(tr('must have a scalar value', [':field' => $this->selected_field]));
+                    $this->addFailure(tr('must have a scalar value'));
                 }
             }
 
@@ -496,7 +496,7 @@ abstract class Validator
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (!is_string($value)) {
-                    $this->addFailure(tr('must have a string value', [':field' => $this->selected_field]));
+                    $this->addFailure(tr('must have a string value'));
                     $value = '';
                 }
             }
