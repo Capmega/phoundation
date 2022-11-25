@@ -50,7 +50,7 @@ class Updates extends \Phoundation\Libraries\Updates
     {
         $this->addUpdate('0.0.1', function () {
             // Add table for version control itself
-            sql()->schema()->table('versions')
+            sql()->schema()->table('versions')->define()
                 ->setColumns('
                     `id` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -65,12 +65,12 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
         })->addUpdate('0.0.2', function () {
             // Add tables for the meta library
-            sql()->schema()->table('meta')
+            sql()->schema()->table('meta')->define()
                 ->setColumns('`id` int NOT NULL AUTO_INCREMENT')
                 ->setIndices('PRIMARY KEY (`id`)')
                 ->create();
 
-            sql()->schema()->table('meta_history')
+            sql()->schema()->table('meta_history')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -89,7 +89,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
         })->addUpdate('0.0.5', function () {
             // Add tables for the sessions management
-            sql()->schema()->table('sessions_extended')
+            sql()->schema()->table('sessions_extended')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -107,7 +107,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
         })->addUpdate('0.0.6', function () {
             // Add tables for the sessions management
-            sql()->schema()->table('url_cloaks')
+            sql()->schema()->table('url_cloaks')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -125,7 +125,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
         })->addUpdate('0.0.7', function () {
             // Add tables for the sessions management
-            sql()->schema()->table('key_value_store')
+            sql()->schema()->table('key_value_store')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

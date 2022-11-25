@@ -50,7 +50,7 @@ class Updates extends \Phoundation\Libraries\Updates
     {
         $this->addUpdate('0.0.3', function () {
             // Create the geo_timezones table.
-            sql()->schema()->table('geo_timezones')
+            sql()->schema()->table('geo_timezones')->define()
                 ->setColumns('  
                     `id` int NOT NULL AUTO_INCREMENT,                   
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -74,7 +74,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the geo_continents table.
-            sql()->schema()->table('geo_continents')
+            sql()->schema()->table('geo_continents')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,                   
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -100,7 +100,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the geo_countries table.
-            sql()->schema()->table('geo_countries')
+            sql()->schema()->table('geo_countries')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -162,7 +162,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the geo_states table.
-            sql()->schema()->table('geo_states')
+            sql()->schema()->table('geo_states')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -207,7 +207,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the geo_counties table.
-            sql()->schema()->table('geo_counties')
+            sql()->schema()->table('geo_counties')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -249,7 +249,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the geo_features table.
-            sql()->schema()->table('geo_features')
+            sql()->schema()->table('geo_features')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -264,7 +264,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the geo_cities table.
-            sql()->schema()->table('geo_cities')
+            sql()->schema()->table('geo_cities')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,

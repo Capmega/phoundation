@@ -90,6 +90,13 @@ class Sql
      */
     protected Schema $schema;
 
+    /**
+     * Unique ID for this SQL connection
+     *
+     * @var string
+     */
+    protected string $uniqueid;
+
 
 
     /**
@@ -106,6 +113,7 @@ class Sql
         }
 
         $this->instance = $instance;
+        $this->uniqueid = Strings::random();
 
         // Read configuration and connect
         self::readConfiguration($instance);
@@ -197,6 +205,8 @@ class Sql
         $database = $this->getDatabaseName($database);
         $this->using_database = $database;
 
+        Log::action(tr('(' . $this->uniqueid . ') Using database ":database"', [':database' => $database]));
+
         try {
             $this->pdo->query('USE `' . $database . '`');
         } catch (Throwable $e) {
@@ -232,9 +242,9 @@ class Sql
         try {
             // PDO statement can be specified instead of a query
             if (!is_string($query)) {
-                if (Config::get('databases.sql.debug', false) or ($query->queryString[0] == ' ')) {
+                if (Config::getBoolean('databases.sql.debug', false) or ($query->queryString[0] == ' ')) {
                     // Log query
-                    Log::sql($query, $execute);
+                    Log::sql('(' . $this->uniqueid . ') ' . $query, $execute);
                 }
 
                 Timers::get('query')->startLap($query->queryString);
@@ -253,7 +263,7 @@ class Sql
             }
 
             if ($query[0] == ' ') {
-                Log::sql($query, $execute);
+                Log::sql('(' . $this->uniqueid . ') ' . $query, $execute);
             }
 
             Timers::get('query')->startLap();
@@ -332,7 +342,7 @@ class Sql
                      * Some database operation has failed
                      */
                     foreach ($e->getMessages() as $message) {
-                        Log::error($message);
+                        Log::error('(' . $this->uniqueid . ') ' . $message);
                     }
 
                     die(1);
@@ -1192,9 +1202,9 @@ class Sql
     /**
      * Returns what database currently is selected
      *
-     * @return string
+     * @return string|null
      */
-    public function getCurrentDatabase(): string
+    public function getCurrentDatabase(): ?string
     {
         return $this->getColumn('SELECT DATABASE() AS `database` FROM DUAL;');
     }
@@ -1380,7 +1390,7 @@ class Sql
 
                 } else {
                     if (!is_scalar($value)) {
-                        throw new SqlException(tr('Log::sql(): Specified key ":key" has non-scalar value ":value"', array(':key' => $key, ':value' => $value)), 'invalid');
+                        throw new SqlException(tr('(' . $this->uniqueid . ') Specified key ":key" has non-scalar value ":value"', array(':key' => $key, ':value' => $value)), 'invalid');
                     }
 
                     $query = str_replace($key, $value, $query);
@@ -1399,7 +1409,7 @@ class Sql
 
         // Debug::enabled() already logs the query, don't log it again
         if (!Debug::enabled()) {
-            Log::debug(Strings::endsWith($query, ';'));
+            Log::debug('(' . $this->uniqueid . ') ' . Strings::endsWith($query, ';'));
         }
 
         return Debug::show(Strings::endsWith($query, ';'), 6);
@@ -1422,7 +1432,7 @@ class Sql
         $query = strtolower(substr(trim($query), 0, 10));
 
         if (!str_starts_with($query, 'select') and !str_starts_with($query, 'show')) {
-            throw new SqlException('Query "' . Strings::log(Log::sql($query, $execute, true), 4096) . '" is not a SELECT or SHOW query and as such cannot return results');
+            throw new SqlException('Query "' . Strings::log(Log::sql('(' . $this->uniqueid . ') ' . $query, $execute, true), 4096) . '" is not a SELECT or SHOW query and as such cannot return results');
         }
     }
 
@@ -1533,7 +1543,7 @@ class Sql
 
             default:
                 // Here be dragons!
-                Log::warning(tr('WARNING: ":driver" DRIVER MAY WORK BUT IS NOT SUPPORTED!', [
+                Log::warning(tr('(' . $this->uniqueid . ') WARNING: ":driver" DRIVER MAY WORK BUT IS NOT SUPPORTED!', [
                     ':driver' => $configuration['driver']
                 ]));
         }
@@ -1573,14 +1583,14 @@ class Sql
                     $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['host'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (($use_database and $this->configuration['name']) ? ';dbname=' . $this->configuration['name'] : '');
                     $this->pdo = new PDO($connect_string, $this->configuration['user'], $this->configuration['pass'], $this->configuration['pdo_attributes']);
 
-                    Log::success(tr('Connected to instance ":instance" with PDO connect string ":string"', [
+                    Log::success(tr('(' . $this->uniqueid . ') Connected to instance ":instance" with PDO connect string ":string"', [
                         ':instance' => $this->instance,
                         ':string' => $connect_string
                     ]), 3);
                     break;
 
                 } catch (Exception $e) {
-                    Log::error(tr('Failed to connect to instance ":instance" with PDO connect string ":string", error follows below', [
+                    Log::error(tr('(' . $this->uniqueid . ') Failed to connect to instance ":instance" with PDO connect string ":string", error follows below', [
                         ':instance' => $this->instance,
                         ':string' => $connect_string
                     ]));
@@ -1626,7 +1636,7 @@ class Sql
                 $this->pdo->query('SET time_zone = "' . $this->configuration['timezone'] . '";');
 
             } catch (Throwable $e) {
-                Log::warning(tr('Failed to set timezone for database instance ":instance" with error ":e"', [':instance' => $this->instance, ':e' => $e->getMessage()]));
+                Log::warning(tr('(' . $this->uniqueid . ') Failed to set timezone for database instance ":instance" with error ":e"', [':instance' => $this->instance, ':e' => $e->getMessage()]));
 
                 if (!Core::readRegister('no_time_zone') and (Core::compareRegister('init', 'system', 'script'))) {
                     throw $e;
@@ -1648,7 +1658,7 @@ class Sql
                 throw new PhpModuleNotAvailableException(tr('Failed to connect with ":driver" driver, it looks like its not available', [':driver' => $this->configuration['driver']]));
             }
 
-            Log::Warning(tr('Encountered exception ":e" while connecting to database server, attempting to resolve', array(':e' => $e->getMessage())));
+            Log::Warning(tr('(' . $this->uniqueid . ') Encountered exception ":e" while connecting to database server, attempting to resolve', array(':e' => $e->getMessage())));
 
             // We failed to use the specified database, oh noes!
             switch ($e->getCode()) {
@@ -1721,16 +1731,16 @@ class Sql
                             throw new SqlException(tr('Connector ":connector" requires SSH tunnel to server, but that server does not allow TCP fowarding, nor does it allow auto modification of its SSH server configuration', [':connector' => $this->configuration]));
                         }
 
-                        Log::warning(tr('Connector ":connector" requires SSH tunnel to server ":server", but that server does not allow TCP fowarding. Server allows SSH server configuration modification, attempting to resolve issue', [':server' => $this->configuration['ssh_tunnel']['domain']]));
+                        Log::warning(tr('(' . $this->uniqueid . ') Connector ":connector" requires SSH tunnel to server ":server", but that server does not allow TCP fowarding. Server allows SSH server configuration modification, attempting to resolve issue', [':server' => $this->configuration['ssh_tunnel']['domain']]));
 
                         /*
                          * Now enable TCP forwarding on the server, and retry connection
                          */
                         linux_set_ssh_tcp_forwarding($server_restrictions, true);
-                        Log::warning(tr('Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', [':server' => $this->configuration['ssh_tunnel']['domain']]));
+                        Log::warning(tr('(' . $this->uniqueid . ') Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', [':server' => $this->configuration['ssh_tunnel']['domain']]));
 
                         if ($this->configuration['ssh_tunnel']['pid']) {
-                            Log::warning(tr('Closing previously opened SSH tunnel to server ":server"', [':server' => $this->configuration['ssh_tunnel']['domain']]));
+                            Log::warning(tr('(' . $this->uniqueid . ') Closing previously opened SSH tunnel to server ":server"', [':server' => $this->configuration['ssh_tunnel']['domain']]));
                             Ssh::closeTunnel($this->configuration['ssh_tunnel']['pid']);
                         }
 
@@ -1802,7 +1812,7 @@ class Sql
 //            $_SESSION['sql_random_seed'] = random_int(PHP_INT_MIN, PHP_INT_MAX);
 //
 //            // Connect to database
-//            Log::action(tr('Connecting to SQL instance ":name"', [':name' => $this->instance]), 2);
+//            Log::action(tr('(' . $this->uniqueid . ') Connecting to SQL instance ":name"', [':name' => $this->instance]), 2);
 //
 //            // This is only required for the system connection
 //            if (Libraries::isInitializing()) {
@@ -1839,7 +1849,7 @@ class Sql
 //
 //                        try {
 //                            if (empty($r) or !$r->rowCount()) {
-//                                Log::warning(tr('No versions table found or no versions in versions table found, assumed empty database ":db"', [':db' => $this->configuration['name']]));
+//                                Log::warning(tr('(' . $this->uniqueid . ') No versions table found or no versions in versions table found, assumed empty database ":db"', [':db' => $this->configuration['name']]));
 //
 //                                define('FRAMEWORKDBVERSION', 0);
 //                                define('PROJECTDBVERSION', 0);
@@ -1876,8 +1886,8 @@ class Sql
 //                         * On console, show current versions
 //                         */
 //                        if ((PLATFORM_CLI) and Debug::enabled()) {
-//                            Log::notice(tr('Found framework code version ":Core::FRAMEWORKCODEVERSION" and framework database version ":frameworkdbversion"', [':Core::FRAMEWORKCODEVERSION' => Core::FRAMEWORKCODEVERSION, ':frameworkdbversion' => FRAMEWORKDBVERSION]));
-//                            Log::notice(tr('Found project code version ":projectcodeversion" and project database version ":projectdbversion"', [':projectcodeversion' => PROJECTCODEVERSION, ':projectdbversion' => PROJECTDBVERSION]));
+//                            Log::notice(tr('(' . $this->uniqueid . ') Found framework code version ":Core::FRAMEWORKCODEVERSION" and framework database version ":frameworkdbversion"', [':Core::FRAMEWORKCODEVERSION' => Core::FRAMEWORKCODEVERSION, ':frameworkdbversion' => FRAMEWORKDBVERSION]));
+//                            Log::notice(tr('(' . $this->uniqueid . ') Found project code version ":projectcodeversion" and project database version ":projectdbversion"', [':projectcodeversion' => PROJECTCODEVERSION, ':projectdbversion' => PROJECTDBVERSION]));
 //                        }
 //
 //

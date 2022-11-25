@@ -50,7 +50,7 @@ class Updates extends \Phoundation\Libraries\Updates
     {
         $this->addUpdate('0.0.6', function () {
             // Add initial tables for the Notification library
-            sql()->schema()->table('notifications')
+            sql()->schema()->table('notifications')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_by` int DEFAULT NULL,
@@ -80,7 +80,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     CONSTRAINT `fk_notifications_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),')
                 ->create();
 
-            sql()->schema()->table('notifications_groups')
+            sql()->schema()->table('notifications_groups')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_by` int DEFAULT NULL,

@@ -36,7 +36,7 @@ class Updates extends \Phoundation\Libraries\Updates
      */
     public function description(): string
     {
-        return tr('This library manages all user functionalities');
+        return tr('This library manages all company functionalities');
     }
 
 
@@ -50,7 +50,7 @@ class Updates extends \Phoundation\Libraries\Updates
     {
         $this->addUpdate('0.0.2', function () {
             // Create the providers table.
-            sql()->schema()->table('providers')
+            sql()->schema()->table('providers')->define()
                 ->setColumns('`id` int NOT NULL AUTO_INCREMENT,
                                       `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                       `created_by` int NOT NULL,
@@ -78,7 +78,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the customers table.
-            sql()->schema()->table('customers')
+            sql()->schema()->table('customers')->define()
                 ->setColumns('`id` int NOT NULL AUTO_INCREMENT,
                                       `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                       `created_by` int NOT NULL,
@@ -126,7 +126,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the companies table.
-            sql()->schema()->table('companies')
+            sql()->schema()->table('companies')->define()
                 ->setColumns('`id` int NOT NULL AUTO_INCREMENT,
                                       `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                       `created_by` int DEFAULT NULL,
@@ -137,7 +137,7 @@ class Updates extends \Phoundation\Libraries\Updates
                                       `providers_id` int DEFAULT NULL,
                                       `name` varchar(64) DEFAULT NULL,
                                       `seo_name` varchar(64) DEFAULT NULL,
-                                      `description` varchar(2047) DEFAULT NULL,')
+                                      `description` varchar(2047) DEFAULT NULL')
                 ->setIndices(' PRIMARY KEY (`id`),
                                       UNIQUE KEY `seo_name` (`seo_name`),
                                       UNIQUE KEY `categories_name` (`categories_id`,`name`),
@@ -147,7 +147,7 @@ class Updates extends \Phoundation\Libraries\Updates
                                       KEY `created_by` (`created_by`),
                                       KEY `status` (`status`),
                                       KEY `customers_id` (`customers_id`),
-                                      KEY `providers_id` (`providers_id`),')
+                                      KEY `providers_id` (`providers_id`)')
                 ->setForeignKeys(' CONSTRAINT `fk_companies_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`),
                                               CONSTRAINT `fk_companies_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
                                               CONSTRAINT `fk_companies_customers_id` FOREIGN KEY (`customers_id`) REFERENCES `customers` (`id`),
@@ -156,7 +156,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the branches table.
-            sql()->schema()->table('branches')
+            sql()->schema()->table('branches')->define()
                 ->setColumns('`id` int NOT NULL AUTO_INCREMENT,
                                       `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                       `created_by` int DEFAULT NULL,
@@ -165,7 +165,7 @@ class Updates extends \Phoundation\Libraries\Updates
                                       `companies_id` int NOT NULL,
                                       `name` varchar(64) DEFAULT NULL,
                                       `seo_name` varchar(64) DEFAULT NULL,
-                                      `description` varchar(2047) DEFAULT NULL,')
+                                      `description` varchar(2047) DEFAULT NULL')
                 ->setIndices(' PRIMARY KEY (`id`),
                                       UNIQUE KEY `seo_name` (`seo_name`),
                                       UNIQUE KEY `company_name` (`companies_id`,`name`),
@@ -173,14 +173,14 @@ class Updates extends \Phoundation\Libraries\Updates
                                       KEY `companies_id` (`companies_id`),
                                       KEY `created_on` (`created_on`),
                                       KEY `created_by` (`created_by`),
-                                      KEY `status` (`status`),')
+                                      KEY `status` (`status`)')
                 ->setForeignKeys(' CONSTRAINT `fk_branches_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `companies` (`id`),
                                               CONSTRAINT `fk_branches_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
                                               CONSTRAINT `fk_branches_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)')
                 ->create();
 
             // Create the departments table.
-            sql()->schema()->table('departments')
+            sql()->schema()->table('departments')->define()
                 ->setColumns('`id` int NOT NULL AUTO_INCREMENT,
                                       `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                       `created_by` int DEFAULT NULL,
@@ -190,7 +190,7 @@ class Updates extends \Phoundation\Libraries\Updates
                                       `branches_id` int DEFAULT NULL,
                                       `name` varchar(64) DEFAULT NULL,
                                       `seo_name` varchar(64) DEFAULT NULL,
-                                      `description` varchar(2047) DEFAULT NULL,')
+                                      `description` varchar(2047) DEFAULT NULL')
                 ->setIndices(' PRIMARY KEY (`id`),
                                       UNIQUE KEY `seo_name` (`seo_name`),
                                       UNIQUE KEY `company_branch_name` (`companies_id`,`branches_id`,`name`),
@@ -199,7 +199,7 @@ class Updates extends \Phoundation\Libraries\Updates
                                       KEY `created_on` (`created_on`),
                                       KEY `created_by` (`created_by`),
                                       KEY `status` (`status`),
-                                      KEY `fk_departments_branches_id` (`branches_id`),')
+                                      KEY `fk_departments_branches_id` (`branches_id`)')
                 ->setForeignKeys(' CONSTRAINT `fk_departments_branches_id` FOREIGN KEY (`branches_id`) REFERENCES `branches` (`id`),
                                               CONSTRAINT `fk_departments_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `companies` (`id`),
                                               CONSTRAINT `fk_departments_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
@@ -207,7 +207,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the employees table.
-            sql()->schema()->table('employees')
+            sql()->schema()->table('employees')->define()
                 ->setColumns('`id` int NOT NULL AUTO_INCREMENT,
                                       `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                       `created_by` int DEFAULT NULL,
@@ -219,7 +219,7 @@ class Updates extends \Phoundation\Libraries\Updates
                                       `users_id` int DEFAULT NULL,
                                       `name` varchar(64) DEFAULT NULL,
                                       `seo_name` varchar(64) DEFAULT NULL,
-                                      `description` varchar(2047) DEFAULT NULL,')
+                                      `description` varchar(2047) DEFAULT NULL')
                 ->setIndices(' PRIMARY KEY (`id`),
                                       UNIQUE KEY `seo_name` (`seo_name`),
                                       KEY `meta_id` (`meta_id`),
@@ -228,7 +228,7 @@ class Updates extends \Phoundation\Libraries\Updates
                                       KEY `departments_id` (`departments_id`),
                                       KEY `created_on` (`created_on`),
                                       KEY `created_by` (`created_by`),
-                                      KEY `status` (`status`),')
+                                      KEY `status` (`status`)')
                 ->setForeignKeys(' CONSTRAINT `fk_employees_branches_id` FOREIGN KEY (`branches_id`) REFERENCES `branches` (`id`),
                                               CONSTRAINT `fk_employees_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `companies` (`id`),
                                               CONSTRAINT `fk_employees_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),

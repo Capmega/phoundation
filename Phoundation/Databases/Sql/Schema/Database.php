@@ -7,6 +7,7 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Exception\UnderConstructionException;
 
 
 /**
@@ -19,29 +20,8 @@ use Phoundation\Databases\Sql\Sql;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-class Database
+class Database extends SchemaAbstract
 {
-    /**
-     * The database name
-     *
-     * @var string|null $name
-     */
-    protected ?string $name = null;
-
-    /**
-     * The SQL interface
-     *
-     * @var Sql $sql
-     */
-    protected Sql $sql;
-
-    /**
-     * The SQL configuration
-     *
-     * @var array $configuration
-     */
-    protected array $configuration;
-
     /**
      * The columns for this database
      *
@@ -62,19 +42,6 @@ class Database
      * @var array $tables
      */
     protected array $tables = [];
-
-
-
-    /**
-     * Database constructor
-     *
-     * @param Sql $sql
-     */
-    public function __construct(Sql $sql)
-    {
-        $this->sql           = $sql;
-        $this->configuration = $sql->getConfiguration();
-   }
 
 
 
@@ -104,6 +71,22 @@ class Database
 
 
     /**
+     * Sets the database name
+     *
+     * This will effectively rename the database. Since MySQL does not support renaming operations, this requires
+     * dumping the entire database and importing it under the new name and dropping the original. Depending on your
+     * database size, this may take a while!
+     *
+     * @return static
+     */
+    public function setName(string $name): static
+    {
+        throw new UnderConstructionException();
+    }
+
+
+
+    /**
      * Create this database
      *
      * @return void
@@ -121,6 +104,8 @@ class Database
             ':charset' => $this->configuration['charset'],
             ':collate' => $this->configuration['collate']
         ]);
+
+        $this->sql->use($this->sql->getDatabase());
     }
 
 
@@ -161,9 +146,22 @@ class Database
     {
         // If we don't have this table yet, create it now
         if (!array_key_exists($name, $this->tables)) {
-            $this->tables[$name] = new Table($this->sql, $name);
+            $this->tables[$name] = new Table( $name, $this->sql, $this);
         }
 
         return $this->tables[$name];
+    }
+
+
+
+    /**
+     * Load the table parameters from database
+     *
+     * @return void
+     */
+    protected function load(): void
+    {
+        // Load columns & indices data
+        // TODO Implement
     }
 }

@@ -44,8 +44,6 @@ databases:
         name: "phoundation"
         user: "base"
         pass: "base"
-  mongo:
-    instances:
   memcached:
     instances:
       system:

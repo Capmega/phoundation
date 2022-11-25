@@ -13,6 +13,7 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Notifications\Notification;
 
@@ -55,10 +56,50 @@ class Libraries
 
 
     /**
+     * Resets the entire system by wiping all databases
+     *
+     * @return void
+     */
+    public static function reset(): void
+    {
+        Log::warning('Executing system reset, dropping all databases!');
+        $databases = Config::get('databases');
+
+        foreach ($databases as $driver => $data) {
+            switch ($driver) {
+                case 'sql':
+                    foreach ($data['instances'] as $instance => $configuration) {
+                        Log::warning(tr('Dropping SQL database ":database" for instance ":instance"', [
+                            ':instance' => $instance,
+                            ':database' => $configuration['name']
+                        ]));
+
+                        sql($instance)->query('DROP DATABASE IF EXISTS `' . $configuration['name'] . '`');
+                    }
+
+                    break;
+
+                case 'memcached':
+                case 'mongo':
+                case 'redis':
+                case 'elasticsearch':
+                    Log::error(tr('Support for resetting driver ":driver" is under construction', [':driver' => $driver]));
+                    break;
+
+                default:
+                    // Ignore, only process drivers
+            }
+        }
+    }
+
+
+
+    /**
      * Execute a complete systems initialization
      *
      * @param bool $system
      * @param bool $plugins
+     * @param bool $templates
      * @param string|null $comments
      * @param string|null $library
      * @return void

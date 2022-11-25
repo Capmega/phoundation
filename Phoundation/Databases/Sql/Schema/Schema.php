@@ -28,13 +28,6 @@ class Schema
     protected ?string $instance_name = null;
 
     /**
-     * The database interface for this schema
-     *
-     * @var Sql $sql
-     */
-    protected Sql $sql;
-
-    /**
      * The databases for this schema
      *
      * @var array $databases
@@ -81,7 +74,7 @@ class Schema
 
         // If we don't have this database yet, create it now
         if (!array_key_exists($name, $this->databases)) {
-            $this->databases[$name] = new Database($this->sql);
+            $this->databases[$name] = new Database($name, $this->sql, $this);
         }
 
         // Set current database and return a database object

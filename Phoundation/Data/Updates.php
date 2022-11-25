@@ -24,7 +24,7 @@ class Updates extends \Phoundation\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.1';
+        return '0.0.5';
     }
 
 
@@ -48,12 +48,11 @@ class Updates extends \Phoundation\Libraries\Updates
      */
     public function updates(): void
     {
-        $this->addUpdate('0.0.1', function () {
-            // Create the providers table.
-            sql()->schema()->table('categories')
+        $this->addUpdate('0.0.2', function () {
+            // Create the categories table.
+            sql()->schema()->table('categories')->define()
                 ->setColumns('`id` int NOT NULL AUTO_INCREMENT,
                                       `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                      `created_by` int DEFAULT NULL,
                                       `meta_id` int NOT NULL,
                                       `status` varchar(16) DEFAULT NULL,
                                       `parents_id` int DEFAULT NULL,
@@ -66,12 +65,16 @@ class Updates extends \Phoundation\Libraries\Updates
                                       KEY `meta_id` (`meta_id`),
                                       KEY `parents_id` (`parents_id`),
                                       KEY `created_on` (`created_on`),
-                                      KEY `created_by` (`created_by`),
                                       KEY `status` (`status`)')
-                ->setForeignKeys(' CONSTRAINT `fk_categories_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
-                                              CONSTRAINT `fk_categories_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
+                ->setForeignKeys(' CONSTRAINT `fk_categories_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
                                               CONSTRAINT `fk_categories_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `categories` (`id`)')
                 ->create();
+        })->addUpdate('0.0.5', function () {
+            // Modify the categories table.
+            sql()->schema()->table('categories')->alter()
+                ->addColumn('`created_by` int DEFAULT NULL', 'AFTER `created_on`')
+                ->addIndices('KEY `created_by` (`created_by`)')
+                ->addForeignKeys('CONSTRAINT `fk_categories_createdby` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)');
         });
     }
 }

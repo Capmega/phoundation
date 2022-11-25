@@ -19,12 +19,17 @@ use Phoundation\Libraries\Libraries;
 
 // Get command line arguments
 $arguments = ArgvValidator::new()
+    ->select('--drop')->isOptional(false)->isBoolean()
     ->select('-s,--system')->isOptional(true)->isBoolean()
     ->select('-p,--plugins')->isOptional(true)->isBoolean()
     ->select('-l,--library', true)->isOptional(true)->isBoolean()
     ->select('-c,--comments', true)->isOptional(true)->isBoolean()
     ->validate()
     ->extract(true);
+
+if ($arguments['drop']) {
+    Libraries::reset();
+}
 
 Libraries::initialize($arguments['system'], $arguments['plugins'], $arguments['comments'], $arguments['library']);
 

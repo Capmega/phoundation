@@ -50,7 +50,7 @@ class Updates extends \Phoundation\Libraries\Updates
     {
         $this->addUpdate('0.0.4', function () {
             // Create the users table.
-            sql()->schema()->table('users')
+            sql()->schema()->table('users')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_by` int DEFAULT NULL,
@@ -131,7 +131,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the users_rights table.
-            sql()->schema()->table('users_rights')
+            sql()->schema()->table('users_rights')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -153,7 +153,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the users_roles table.
-            sql()->schema()->table('users_roles')
+            sql()->schema()->table('users_roles')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -175,7 +175,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the users_groups table.
-            sql()->schema()->table('users_groups')
+            sql()->schema()->table('users_groups')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -197,7 +197,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the users_rights_links table.
-            sql()->schema()->table('users_rights_links')
+            sql()->schema()->table('users_rights_links')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_by` int DEFAULT NULL,
@@ -220,7 +220,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the users_roles_links table.
-            sql()->schema()->table('users_roles_links')
+            sql()->schema()->table('users_roles_links')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_by` int DEFAULT NULL,
@@ -241,7 +241,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
 
             // Create the users_roles_rights_links table.
-            sql()->schema()->table('users_roles_rights_links')
+            sql()->schema()->table('users_roles_rights_links')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_by` int DEFAULT NULL,
@@ -262,7 +262,7 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->create();
         })->addUpdate('0.0.5', function () {
             // Create additional user tables.
-            sql()->schema()->table('users_authentications')
+            sql()->schema()->table('users_authentications')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -289,7 +289,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     CONSTRAINT `fk_authentications_users_id` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE CASCADE')
                 ->create();
 
-            sql()->schema()->table('users_password_resets')
+            sql()->schema()->table('users_password_resets')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -306,7 +306,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     CONSTRAINT `fk_users_password_resets_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE')
                 ->create();
 
-            sql()->schema()->table('users_old_passwords')
+            sql()->schema()->table('users_old_passwords')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
                     `created_by` int NOT NULL,

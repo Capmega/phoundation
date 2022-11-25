@@ -30,7 +30,7 @@ class SqlExists
      */
     public static function databaseExists($database, $query = null, $connector = null) {
         try {
-            $return = sql_query('SHOW DATABASES LIKE "'.cfm($database).'"', null, $connector);
+            $return = sql()->query('SHOW DATABASES LIKE "'.cfm($database).'"', null, $connector);
 
             if (substr($query, 0, 1) == '!') {
                 $not   = true;
