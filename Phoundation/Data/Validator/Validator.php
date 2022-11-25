@@ -8,6 +8,7 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Exception\KeyAlreadySelectedException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Filesystem;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use ReflectionProperty;
@@ -1248,6 +1249,57 @@ abstract class Validator
             }
 
             $this->isPrintable();
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid name
+     *
+     * @param string|null $prefix
+     * @return static
+     */
+    public function isFile(?string $prefix = null): static
+    {
+        return $this->validateValues(function($value) use($prefix) {
+            $this->hasMinCharacters(1)->hasMaxCharacters(2048);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return $value;
+            }
+
+            if (!str_starts_with($value, '/')) {
+                $this->addFailure(tr('must be a file path'));
+            }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid name
+     *
+     * @return static
+     */
+    public function isExistingFile(): static
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(1)->hasMaxCharacters(2048);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return $value;
+            }
+
+            if (file_exists($value)) {
+                $this->addFailure(tr('must be an existing file'));
+            }
+
             return $value;
         });
     }
