@@ -1,6 +1,7 @@
 #!/usr/bin/php
 <?php
 use Phoundation\Cli\Script;
+use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Sync;
 
 
@@ -23,20 +24,21 @@ $usage = './cli system sync ENVIRONMENT
 $help  = 'This script will synchronize either the specified environment to your local environment or vice versa.
 With this, a production environment can easily be tested locally, for example';
 
-$lock = Script::boolArgument('-l,--lock', true);
-$init = Script::boolArgument('-i,--init', true);
-$to   = Script::boolArgument('-t,--to'  , true);
-
-$environment = Script::Argument('-e,--environment', true);
-
-Script::noArgumentsLeft();
+// Validate arguments
+$arguments = ArgvValidator::new()
+    ->select('-l,--lock')->isOptional(false)->isBoolean()
+    ->select('-i,--init')->isOptional(true)->isBoolean()
+    ->select('-t,--to')->isOptional(true)->isBoolean()
+    ->select('-e,--environment')->isOptional(null)->isName()
+    ->validate()
+    ->extract(true);
 
 $sync = Sync::new()
-    ->setEnvironment($environment)
-    ->setLock($lock)
-    ->setLock($lock);
+    ->setEnvironment($arguments['environment'])
+    ->setLock($arguments['lock'])
+    ->setInit($arguments['init']);
 
-if ($to) {
+if ($arguments['to']) {
     $sync->toEnvironment();
 } else {
     $sync->fromEnvironment();

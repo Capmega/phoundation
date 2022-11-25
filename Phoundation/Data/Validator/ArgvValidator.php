@@ -9,6 +9,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
+use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -30,7 +31,7 @@ class ArgvValidator extends Validator
      *
      * @var array $argv
      */
-    public static array $argv;
+    protected static array $argv;
 
 
 
@@ -195,10 +196,28 @@ class ArgvValidator extends Validator
 
         if ($no_arguments_left) {
             // There cannot be any other arguments left anymore
-            Script::noArgumentsLeft(self::$argv);
+            self::noArgumentsLeft();
         }
 
         return $return;
+    }
+
+
+
+    /**
+     * Throws an exception if there are still arguments left in the Arguments validator object
+     *
+     * @return void
+     */
+    public static function noArgumentsLeft(): void
+    {
+        if (empty(self::$argv)) {
+            return;
+        }
+
+        throw Exceptions::CliInvalidArgumentsException(tr('Invalid arguments ":arguments" encountered', [
+            ':arguments' => Strings::force(self::$argv, ', ')
+        ]))->makeWarning();
     }
 
 

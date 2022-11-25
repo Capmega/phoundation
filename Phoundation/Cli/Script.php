@@ -176,33 +176,6 @@ class Script
 
 
     /**
-     * Ensures that no other command line arguments are left.
-     *
-     * If arguments were still found, an appropriate exceptoin will be thrown
-     *
-     * @param array|null $arguments
-     * @return void
-     */
-    public static function noArgumentsLeft(?array $arguments = null): void
-    {
-        global $argv;
-
-        if ($arguments === null) {
-            $arguments = $argv;
-        }
-
-        if (empty($arguments)) {
-            return;
-        }
-
-        throw Exceptions::CliInvalidArgumentsException(tr('Invalid arguments ":arguments" encountered', [
-            ':arguments' => Strings::force($arguments, ', ')
-        ]))->makeWarning();
-    }
-
-
-
-    /**
      * Find the script to execute from the given arguments
      *
      * @return string
