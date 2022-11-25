@@ -2,10 +2,11 @@
 
 namespace Phoundation\Seo;
 
-use Exception;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
-use Phoundation\Databases\Sql;
 use Phoundation\Exception\OutOfBoundsException;
+
+
 
 /**
  * Class Seo
@@ -20,25 +21,24 @@ use Phoundation\Exception\OutOfBoundsException;
 class Seo
 {
     /**
-     * Generate an unique seo name
+     * Generate a unique seo name
      *
-     * This function will use seo_string() to convert the specified $source variable to a seo optimized string, and then it will check the specified $table to ensure that it does not yet exist. If the current seo string already exists, it will be expanded with a natural number and the table will be checked again. If the seo string is still found, this number will be incremented each loop, until the string is no longer found
+     * This function will use Seo::string() to convert the specified $source variable to a seo optimized string, and
+     * then it will check the specified $table to ensure that it does not yet exist. If the current seo string already
+     * exists, it will be expanded with a natural number and the table will be checked again. If the seo string is still
+     * found, this number will be incremented each loop, until the string is no longer found
      *
-     * @param scalar $source
+     * @param array|string $source
      * @param string $table
-     * @param null natural $ownid
+     * @param array|int|null $ownid
      * @param string $column
      * @param string $replace
      * @param null $first_suffix
-     * @param null string $connector_name If specified, use the specified database connector instead of the default "core" database connector
-     * @return string The specified $source string seo optimized, which does not yet exist in the specified $table
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package seo
-     * @see seo_string()
-     * @version 1.27.0: Added documentation
+     * @param string|null $connector_name   If specified, use the specified database connector instead of the default
+     *                                      database connector
+     * @return string|null                  The specified $source string seo optimized, which does not yet exist in the
+     *                                      specified $table
+     * @see Seo::string()
      * @example
      * code
      * $name   = 'Capmega';
@@ -53,17 +53,14 @@ class Seo
      *
      */
     // :TODO: Update to use bound variable queries
-    public static function unique(string $source, string $table, ?int $ownid = null, string $column = 'seoname', string $replace = '-', $first_suffix = null, $connector_name = null): string|null
+    // :TODO: Add WAY more comments in code, I can barely figure out whats going on there
+    public static function unique(array|string $source, string $table, array|int|null $ownid = null, string $column = 'seoname', string $replace = '-', $first_suffix = null, ?string $connector_name = null): string|null
     {
-        /*
-         * Prepare string
-         */
+        // Prepare string
         $id = 0;
 
         if (empty($source)) {
-            /*
-             * If the given string is empty, then treat seoname as null, this should not cause indexing issues
-             */
+            // If the given string is empty, then treat seoname as null, this should not cause indexing issues
             return null;
         }
 
@@ -92,9 +89,7 @@ class Seo
             $source = trim(self::string($source, $replace));
         }
 
-        /*
-         * Filter out the id of the record itself
-         */
+        // Filter out the id of the record itself
         if ($ownid) {
             if (is_scalar($ownid)) {
                 $ownid = ' AND `id` != ' . $ownid;
@@ -104,7 +99,9 @@ class Seo
 
                 if (!is_numeric($ownid[$key])) {
                     if (!is_scalar($ownid[$key])) {
-                        throw new OutOfBoundsException(tr('Invalid $ownid array value datatype specified, should be scalar and numeric, but is ":type"', [':type' => gettype($ownid[$key])]));
+                        throw new OutOfBoundsException(tr('Invalid $ownid array value datatype specified, should be scalar and numeric, but is ":type"', [
+                            ':type' => gettype($ownid[$key])
+                        ]));
                     }
 
                     $ownid[$key] = '"' . $ownid[$key] . '"';
@@ -113,21 +110,19 @@ class Seo
                 $ownid = ' AND `' . $key . '` != ' . $ownid[$key];
 
             } else {
-                throw new OutOfBoundsException(tr('Invalid $ownid datatype specified, should be either scalar, or array, but is ":type"', [':type' => gettype($ownid)]));
+                throw new OutOfBoundsException(tr('Invalid $ownid datatype specified, should be either scalar, or array, but is ":type"', [
+                    ':type' => gettype($ownid)
+                ]));
             }
 
         } else {
             $ownid = '';
         }
 
-        /*
-         * If the seostring exists, add an identifier to it.
-         */
+        // If the seostring exists, add an identifier to it.
         while (true) {
             if (is_array($source)) {
-                /*
-                 * Check on multiple columns, add identifier on first column value
-                 */
+                // Check on multiple columns, add identifier on first column value
                 if ($id) {
                     if ($first_suffix) {
                         $source[key($first)] = reset($first) . trim(self::string($first_suffix, $replace));
@@ -139,7 +134,7 @@ class Seo
                     }
                 }
 
-                $exists = Sql::get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . array_implode_with_keys($source, '" AND `', '` = "', true) . '"' . $ownid . ';', true, null, $connector_name);
+                $exists = sql($connector_name)->get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . Arrays::implodeWithKeys($source, '" AND `', '` = "', true) . '"' . $ownid . ';');
 
                 if (!$exists) {
                     return $source[key($first)];
@@ -147,7 +142,7 @@ class Seo
 
             } else {
                 if (!$id) {
-                    $str = $source;
+                    $return = $source;
 
                 } else {
                     if ($first_suffix) {
@@ -156,14 +151,14 @@ class Seo
                         $id--;
 
                     } else {
-                        $str = $source . $id;
+                        $return = $source . $id;
                     }
                 }
 
-                $exists = Sql::get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . $column . '` = "' . $str . '"' . $ownid . ';', true, null, $connector_name);
+                $exists = sql($connector_name)->get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . $column . '` = "' . $return . '"' . $ownid . ';');
 
                 if (!$exists) {
-                    return $str;
+                    return $return;
                 }
             }
 
@@ -205,7 +200,7 @@ class Seo
             //clean up string
             $source = strtolower(trim(strip_tags($source)));
             //convert spanish crap to english
-            $source2 = str_convert_accents($source);
+            $source2 = Strings::convertAccents($source);
 
             //remove special chars
             $from = array("'", '"', '\\');
@@ -222,52 +217,6 @@ class Seo
             $last = preg_replace('/\\' . $replace . '\\' . $replace . '+/', '-', $last);
 
             return trim($last, '-');
-        }
-    }
-
-
-    /*
-     * Here be wrapper functions
-     * DO NOT USE THESE, THESE FUNCTIONS ARE DEPRECATED AND WILL BE DROPPED IN THE NEAR FUTURE!!
-     */
-    function seo_create_string($source, $replace = '-')
-    {
-        try {
-            return seo_string($source, $replace = '-');
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException('seo_string(): Failed', $e);
-        }
-    }
-
-    function seo_generate_unique_name($source, $table, $ownid = null, $field = 'seoname', $replace = '-', $first_suffix = null)
-    {
-        try {
-            return seo_unique($source, $table, $ownid, $field, $replace, $first_suffix);
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException('seo_generate_unique_name(): Failed', $e);
-        }
-    }
-
-
-
-    /**
-     * @param $source
-     * @param $table
-     * @param $ownid
-     * @param $field
-     * @param $replace
-     * @param $first_suffix
-     * @return mixed|string|null
-     */
-    public function uniqueString($source, $table, $ownid = null, $field = 'seoname', $replace = '-', $first_suffix = null)
-    {
-        try {
-            return seo_unique($source, $table, $ownid, $field, $replace, $first_suffix);
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException('seo_unique_string(): Failed', $e);
         }
     }
 }
