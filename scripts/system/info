@@ -6,6 +6,7 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Debug;
 use Phoundation\Libraries\Libraries;
 
@@ -25,7 +26,7 @@ $usage = './cli system info';
 
 $help  = 'The info script will show detailed information about the current framework, project, database and more';
 
-Script::noArgumentsLeft();
+ArgvValidator::noArgumentsLeft();
 
 try {
     Sql()->query('SELECT 1');

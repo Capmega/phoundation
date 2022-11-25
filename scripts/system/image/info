@@ -2,11 +2,10 @@
 <?php
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Script;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Log;
+use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Exception\Exceptions;
-use Phoundation\Filesystem\Restrictions;
 
 
 
@@ -24,19 +23,19 @@ $usage = './cli system image info IMAGE_FILE_NAME';
 
 $help  = 'This script will display basic information about the specified image';
 
-$file         = Script::argument();
-$restrictions = Restrictions::new(PATH_ROOT);
-
-Script::noArgumentsLeft();
+$arguments = ArgvValidator::new()
+    ->select('file', true)->isExistingFile()
+    ->validate()
+    ->extract(true);
 
 // Validate arguments
-if (!$file) {
+if (!$arguments['file']) {
     throw Exceptions::OutOfBoundsException(tr('No image specified'))->makeWarning();
 }
 
 // Get image object
-$image = Image::new($file, PATH_DATA);
+$image = Image::new($arguments['file'], PATH_DATA);
 
 // Display image information
-Log::information(tr('Displaying image information for ":file"', [':file' => $file]));
+Log::information(tr('Displaying image information for ":file"', [':file' => $arguments['file']]));
 Cli::displayArray($image->getInformation());

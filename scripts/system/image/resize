@@ -1,12 +1,9 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Cli\Script;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Log;
-use Phoundation\Exception\Exceptions;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Servers\Server;
+use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
@@ -23,35 +20,34 @@ $usage = './cli system image resize IMAGE_FILE_NAME -x 500 -y 500 -m scale';
 
 $help  = 'This script can apply various conversions to the specified image
 
+
+
 ARGUMENTS
+
+
 
 -x, --width WIDTH                       Width of the image
 -y, --height HEIGHT                     Height of the image
 -m, --method METHOD                     Resizing method (scale, sample, resample)
--t, --type                              Resizing type 
-';
+-t, --type                              Resizing type ';
 
-$method       = Script::argument('-m,--method', false, 'scale');
-$width        = Script::integerArgument('-x,--width');
-$height       = Script::integerArgument('-y,--height');
-$file         = Script::argument();
-$restrictions = Restrictions::new(PATH_ROOT);
-
-Script::noArgumentsLeft();
-
-// Validate arguments
-if (!$file) {
-    throw Exceptions::OutOfBoundsException(tr('No image specified'))->makeWarning();
-}
+// Validate command line arguments
+$arguments = ArgvValidator::new()
+    ->select('-m,--method', true)->isOptional('scale')->isName()
+    ->select('-x,--width', true)->isInteger()
+    ->select('-y,--height', true)->isInteger()
+    ->select('file')->isExistingFile()
+    ->validate()
+    ->extract(true);
 
 // Get image object
-$image = Image::new($file, Server::new(PATH_DATA));
+$image = Image::new($arguments['file'], PATH_DATA);
 
 // Display image information
 Log::information(tr('Resizing image ":file" to ":xx:y"', [
-    ':x' => $width,
-    ':y' => $height,
-    ':file' => $file
+    ':x' => $arguments['width'],
+    ':y' => $arguments['height'],
+    ':file' => $arguments['file']
 ]));
 
 $backup = $image->backup();
@@ -59,7 +55,7 @@ $backup->view();
 
 $image->convert()
     ->resize()
-    ->setMethod($method)
-    ->absolute($width, $height);
+    ->setMethod($arguments['method'])
+    ->absolute($arguments['width'], $arguments['height']);
 
 $image->view();

@@ -1,12 +1,11 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Cli\Script;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Log;
+use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Exception\Exceptions;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Servers\Server;
 
 
 
@@ -24,19 +23,22 @@ $usage = './cli system image convert IMAGE';
 
 $help  = 'This script can apply various conversions to the specified image';
 
-$method       = Script::method();
-$file         = Script::argument();
+$arguments = ArgvValidator::new()
+    ->select('method')->isName()
+    ->select('file')->isExistingFile()
+    ->validate()
+    ->extract(true);
+
 $restrictions = Restrictions::new(PATH_ROOT);
 
-Script::noArgumentsLeft();
-
 // Validate arguments
-if (!$file) {
+if (!$arguments['file']) {
     throw Exceptions::OutOfBoundsException(tr('No image specified'))->makeWarning();
 }
 
 // Get image object
-$image = Image::new(Server::new(PATH_DATA))->setFile($file);
+$image = Image::new(Restrictions::new(PATH_DATA, true))->setFile($arguments['file']);
+$image->convert()->crop();
 
 // Display image information
-Log::information(tr('Displaying image information for ":file"', [':file' => $file]));
+Log::information(tr('Displaying image information for ":file"', [':file' => $arguments['file']]));

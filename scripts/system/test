@@ -32,7 +32,7 @@ $usage = './cli system info';
 
 $help  = 'The info script will show detailed information about the current framework, project, database and more';
 
-Script::noArgumentsLeft();
+ArgvValidator::noArgumentsLeft();
 
 
 

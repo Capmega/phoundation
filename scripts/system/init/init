@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Cli\Script;
+use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Libraries\Libraries;
 
 
@@ -18,13 +18,15 @@ use Phoundation\Libraries\Libraries;
  */
 
 // Get command line arguments
-$system   = Script::boolArgument('-s,--system', true);
-$plugins  = Script::boolArgument('-p,--plugins', true);
-$library  = Script::Argument('-l,--library' , true, '');
-$comments = Script::argument('-c,--comments', true, '');
+$arguments = ArgvValidator::new()
+    ->select('-s,--system')->isOptional(true)->isBoolean()
+    ->select('-p,--plugins')->isOptional(true)->isBoolean()
+    ->select('-l,--library', true)->isOptional(true)->isBoolean()
+    ->select('-c,--comments', true)->isOptional(true)->isBoolean()
+    ->validate()
+    ->extract(true);
 
-Script::noArgumentsLeft();
-Libraries::initialize($system, $plugins, $comments, $library);
+Libraries::initialize($arguments['system'], $arguments['plugins'], $arguments['comments'], $arguments['library']);
 
 //    // During init, force EMULATE_PREPARES because loads of init stuff will NOT work without
 //    foreach ($_CONFIG['db'] as $name => &$connector) {
