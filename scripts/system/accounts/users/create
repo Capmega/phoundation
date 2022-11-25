@@ -98,10 +98,9 @@ $arguments = ArgvValidator::new()
     ->select('--department', true)->isOptional(null)->isName()
     ->select('--branch', true)->isOptional(null)->isName()
     ->select('--is-leader')->isOptional(false)->isBoolean()
-    ->select('-r,--roles')->isOptional(null)->forceArray()->each()->isName()
+    ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
     ->validate()
     ->extract(true);
-
 
 // Check if the user already exists
 $exists = User::get($arguments['email']);
