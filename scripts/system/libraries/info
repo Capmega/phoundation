@@ -27,18 +27,17 @@ $usage   = './cli system libraries info LIBRARY_NAME';
 $help    = 'The libraries info script will show detailed information about the specified library';
 
 // Validate arguments
-$arguments = ArgvValidator::new()
+ArgvValidator::new()
     ->select('-t,--type,--types', true)->isOptional(null)->isName()
     ->select('library')->isOptional(null)->hasMaxCharacters(64)->sanitizeForceArray()->each()->isName()
-    ->validate()
-    ->extract(true);
+    ->validate();
 
-if ($arguments['library']) {
-    if ($arguments['type']) {
+if ($argv['library']) {
+    if ($argv['type']) {
         throw Exceptions::OutOfBoundsException(tr('Library nane AND -t / --type specified, these are mutually exclusive. Please specify either one or the other'))->makeWarning();
     }
 
-    foreach ($arguments['library'] as $library) {
+    foreach ($argv['library'] as $library) {
         $library    = Library::get($library);
         $statistics = $library->getPhpStatistics();
 
@@ -52,38 +51,38 @@ if ($arguments['library']) {
         Log::cli(Color::apply(Strings::size(tr('Statistics:') , 28), 'white'));
         Cli::displayArray($statistics['total_statistics']);
     }
-} elseif ($arguments['type']) {
+} elseif ($argv['type']) {
     // Sanitize and validate
-    $arguments['type'] = strtolower(trim($arguments['type']));
+    $argv['type'] = strtolower(trim($argv['type']));
 
-    switch ($arguments['type']) {
+    switch ($argv['type']) {
         case 'system':
             // no-break
             break;
         case 'plugin':
             // no-break
         case 'plugins':
-            $arguments['type'] = 'plugins';
+            $argv['type'] = 'plugins';
             break;
 
         case 'template':
             // no-break
         case 'templates':
-            $arguments['type'] = 'templates';
+            $argv['type'] = 'templates';
             break;
 
         default:
             throw Exceptions::OutOfBoundsException(tr('Unknown library type ":type" specified. Please specify one of "system", "plugins" or "templates"', [
-                    ':type' => $arguments['type']
+                    ':type' => $argv['type']
             ]));
     }
 
     // Get statistics and display
-    $statistics = Libraries::getPhpStatistics(($arguments['type'] === 'system'), ($arguments['type'] === 'plugins'), ($arguments['type'] === 'templates'));
+    $statistics = Libraries::getPhpStatistics(($argv['type'] === 'system'), ($argv['type'] === 'plugins'), ($argv['type'] === 'templates'));
 
     Log::cli(Color::apply(tr('Statistics:'), 'white'));
-    Log::cli(Color::apply(tr('Statistics for ":type" type libraries:', [':type' => Strings::capitalize($arguments['type'])]) , 'white'));
-    Cli::displayArray($statistics[$arguments['type']]['total_statistics']);
+    Log::cli(Color::apply(tr('Statistics for ":type" type libraries:', [':type' => Strings::capitalize($argv['type'])]) , 'white'));
+    Cli::displayArray($statistics[$argv['type']]['total_statistics']);
 
 } else {
     $statistics = Libraries::getPhpStatistics();

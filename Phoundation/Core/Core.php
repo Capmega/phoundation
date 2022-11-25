@@ -462,7 +462,7 @@ class Core {
 
                     ArgvValidator::hideData($GLOBALS['argv']);
 
-                    $arguments = ArgvValidator::new()
+                    $argv = ArgvValidator::new()
                         ->select('--deleted')->isOptional(false)->isBoolean()
                         ->select('-A,--all')->isOptional(false)->isBoolean()
                         ->select('-C,--no-color')->isOptional(false)->isBoolean()
@@ -483,28 +483,28 @@ class Core {
                         ->select('--language', true)->isOptional(null)->isCode()
                         ->select('--timezone', true)->isOptional(false)->isBoolean()
                         ->validate()
-                        ->extract();
+                        ->getArgv();
 
                     // Define basic platform constants
                     define('ADMIN'   , '');
                     define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
                     define('STARTDIR', Strings::slash(getcwd()));
 
-                    define('QUIET'   , $arguments['quiet']);
-                    define('VERBOSE' , $arguments['verbose']);
-                    define('FORCE'   , $arguments['force']);
-                    define('NOCOLOR' , $arguments['no_color']);
-                    define('TEST'    , $arguments['test']);
-                    define('DELETED' , $arguments['deleted']);
-                    define('ALL'     , $arguments['all']);
-                    define('STATUS'  , $arguments['status']);
-                    define('PAGE'    , $arguments['page']);
-                    define('LIMIT'   , $arguments['limit']);
+                    define('QUIET'   , $argv['quiet']);
+                    define('VERBOSE' , $argv['verbose']);
+                    define('FORCE'   , $argv['force']);
+                    define('NOCOLOR' , $argv['no_color']);
+                    define('TEST'    , $argv['test']);
+                    define('DELETED' , $argv['deleted']);
+                    define('ALL'     , $argv['all']);
+                    define('STATUS'  , $argv['status']);
+                    define('PAGE'    , $argv['page']);
+                    define('LIMIT'   , $argv['limit']);
 
                     // Check what environment we're in
-                    if (isset($arguments['environment'])) {
+                    if (isset($argv['environment'])) {
                         // Environment was manually specified on command line
-                        $env = $arguments['environment'];
+                        $env = $argv['environment'];
                     } else {
                         $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
 
@@ -529,7 +529,7 @@ class Core {
                     }
 
                     // Process command line system arguments if we have no exception so far
-                    if ($arguments['version']) {
+                    if ($argv['version']) {
                         Log::information(tr('Phoundation framework code version ":fv"', [
                             ':fv' => self::FRAMEWORKCODEVERSION
                         ]));
@@ -537,16 +537,16 @@ class Core {
                     }
 
                     // Set more system parameters
-                    if ($arguments['debug']) {
+                    if ($argv['debug']) {
                         Debug::enabled();
                     }
 
-                    if ($arguments['usage']) {
+                    if ($argv['usage']) {
                         Script::showUsage(isset_get($GLOBALS['usage']), 'white');
                         $die = 0;
                     }
 
-                    if ($arguments['help']) {
+                    if ($argv['help']) {
                         if (isset_get($GLOBALS['argv'][$argid + 1]) == 'system') {
                             Script::showHelp('system');
 
@@ -572,7 +572,7 @@ class Core {
                         $die = 0;
                     }
 
-                    if ($arguments['language']) {
+                    if ($argv['language']) {
                         // Set language to be used
                         if (isset($language)) {
                             $e = new CoreException(tr('Language has been specified twice'));
@@ -588,8 +588,8 @@ class Core {
                         unset($GLOBALS['argv'][$argid + 1]);
                     }
 
-                    if ($arguments['order_by']) {
-                        define('ORDERBY', ' ORDER BY `' . Strings::until($arguments['order_by'], ' ') . '` ' . Strings::from($arguments['order_by'], ' ') . ' ');
+                    if ($argv['order_by']) {
+                        define('ORDERBY', ' ORDER BY `' . Strings::until($argv['order_by'], ' ') . '` ' . Strings::from($argv['order_by'], ' ') . ' ');
 
                         $valid = preg_match('/^ ORDER BY `[a-z0-9_]+`(?:\s+(?:DESC|ASC))? $/', ORDERBY);
 
@@ -602,7 +602,7 @@ class Core {
                         unset($GLOBALS['argv'][$argid + 1]);
                     }
 
-                    if ($arguments['timezone']) {
+                    if ($argv['timezone']) {
                         // Set timezone
                         if (isset($timezone)) {
                             $e = new CoreException(tr('Timezone has been specified twice'), 'exists');
@@ -619,7 +619,7 @@ class Core {
                         unset($GLOBALS['argv'][$argid + 1]);
                     }
 
-                    if ($arguments['no_warnings']) {
+                    if ($argv['no_warnings']) {
                         define('NOWARNINGS', true);
                     }
 
@@ -670,7 +670,7 @@ class Core {
 
                     // Get required language.
                     try {
-                        $language = not_empty($arguments['language'], Config::get('language.default', 'en'));
+                        $language = not_empty($argv['language'], Config::get('language.default', 'en'));
 
                         if (Config::get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
                             throw new CoreException(tr('Unknown language ":language" specified', array(':language' => $language)), 'unknown');

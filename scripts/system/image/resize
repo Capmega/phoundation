@@ -32,22 +32,21 @@ ARGUMENTS
 -t, --type                              Resizing type ';
 
 // Validate command line arguments
-$arguments = ArgvValidator::new()
+ArgvValidator::new()
     ->select('-m,--method', true)->isOptional('scale')->isName()
     ->select('-x,--width', true)->isInteger()
     ->select('-y,--height', true)->isInteger()
     ->select('file')->isExistingFile()
-    ->validate()
-    ->extract(true);
+    ->validate();
 
 // Get image object
-$image = Image::new($arguments['file'], PATH_DATA);
+$image = Image::new($argv['file'], PATH_DATA);
 
 // Display image information
 Log::information(tr('Resizing image ":file" to ":xx:y"', [
-    ':x' => $arguments['width'],
-    ':y' => $arguments['height'],
-    ':file' => $arguments['file']
+    ':x' => $argv['width'],
+    ':y' => $argv['height'],
+    ':file' => $argv['file']
 ]));
 
 $backup = $image->backup();
@@ -55,7 +54,7 @@ $backup->view();
 
 $image->convert()
     ->resize()
-    ->setMethod($arguments['method'])
-    ->absolute($arguments['width'], $arguments['height']);
+    ->setMethod($argv['method'])
+    ->absolute($argv['width'], $argv['height']);
 
 $image->view();

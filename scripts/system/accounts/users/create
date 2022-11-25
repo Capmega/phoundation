@@ -75,7 +75,7 @@ ARGUMENTS
 
 
 // Validate arguments
-$arguments = ArgvValidator::new()
+ArgvValidator::new()
     ->select('-e,--email', true)->isEmail()
     ->select('-n,--name', true)->isName()
     ->select('-g,--gender', true)->isOptional(null)->isGender()
@@ -99,54 +99,53 @@ $arguments = ArgvValidator::new()
     ->select('--branch', true)->isOptional(null)->isName()
     ->select('--is-leader')->isOptional(false)->isBoolean()
     ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
-    ->validate()
-    ->extract(true);
+    ->validate();
 
 // Check if the user already exists
-$exists = User::get($arguments['email']);
+$exists = User::get($argv['email']);
 
 if ($exists) {
     throw new AccountsException(tr('Cannot create user with ":email", this email already exists', [
-        ':email' => $arguments['email']
+        ':email' => $argv['email']
     ]));
 }
 
 
 
 // Add password for this user
-$arguments['password']          = Cli::readPassword(tr('Please type the users password: '));
-$arguments['password_validate'] = Cli::readPassword(tr('Please re-type the users password: '));
+$argv['password']          = Cli::readPassword(tr('Please type the users password: '));
+$argv['password_validate'] = Cli::readPassword(tr('Please re-type the users password: '));
 
 
 
 // Create user
 $user = User::new()
-    ->setEmail($arguments['email'])
-    ->setName($arguments['name'])
-    ->setTitle($arguments['title'])
-    ->setGender($arguments['gender'])
-    ->setLanguage($arguments['language'])
-    ->setDescription($arguments['description'])
-    ->setComments($arguments['comments'])
-    ->setUsername($arguments['username'])
-    ->setAddress($arguments['address'])
-    ->setWebsite($arguments['website'])
-    ->setPhones($arguments['phones'])
-    ->setBirthday($arguments['birthday'])
-    ->setTimezone($arguments['timezone'])
-    ->setLeader($arguments['lead_by'])
-    ->setIsLeader($arguments['is_leader'])
-    ->setCountry($arguments['country'])
-    ->setState($arguments['state'])
-    ->setCity($arguments['city'])
-    ->setCountry($arguments['country'])
-    ->setCompany($arguments['company']);
+    ->setEmail($argv['email'])
+    ->setName($argv['name'])
+    ->setTitle($argv['title'])
+    ->setGender($argv['gender'])
+    ->setLanguage($argv['language'])
+    ->setDescription($argv['description'])
+    ->setComments($argv['comments'])
+    ->setUsername($argv['username'])
+    ->setAddress($argv['address'])
+    ->setWebsite($argv['website'])
+    ->setPhones($argv['phones'])
+    ->setBirthday($argv['birthday'])
+    ->setTimezone($argv['timezone'])
+    ->setLeader($argv['lead_by'])
+    ->setIsLeader($argv['is_leader'])
+    ->setCountry($argv['country'])
+    ->setState($argv['state'])
+    ->setCity($argv['city'])
+    ->setCountry($argv['country'])
+    ->setCompany($argv['company']);
 
-$user->roles()->add(Role::get($arguments['role']));
+$user->roles()->add(Role::get($argv['role']));
 
 $user->company()
-    ->setDeparment($arguments['branch'])
-    ->setBranch($arguments['branch']);
+    ->setDeparment($argv['branch'])
+    ->setBranch($argv['branch']);
 
 $user->save();
 

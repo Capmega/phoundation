@@ -25,20 +25,19 @@ $help  = 'This script will synchronize either the specified environment to your 
 With this, a production environment can easily be tested locally, for example';
 
 // Validate arguments
-$arguments = ArgvValidator::new()
+ArgvValidator::new()
     ->select('-l,--lock')->isOptional(false)->isBoolean()
     ->select('-i,--init')->isOptional(true)->isBoolean()
     ->select('-t,--to')->isOptional(true)->isBoolean()
     ->select('-e,--environment')->isOptional(null)->isName()
-    ->validate()
-    ->extract(true);
+    ->validate();
 
 $sync = Sync::new()
-    ->setEnvironment($arguments['environment'])
-    ->setLock($arguments['lock'])
-    ->setInit($arguments['init']);
+    ->setEnvironment($argv['environment'])
+    ->setLock($argv['lock'])
+    ->setInit($argv['init']);
 
-if ($arguments['to']) {
+if ($argv['to']) {
     $sync->toEnvironment();
 } else {
     $sync->fromEnvironment();

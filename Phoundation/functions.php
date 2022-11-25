@@ -519,6 +519,8 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
  */
 function execute_script(string $__file): void
 {
+    global $argv;
+
     try {
         include($__file);
     } catch (Throwable $e) {

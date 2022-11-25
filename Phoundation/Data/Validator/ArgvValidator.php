@@ -176,30 +176,14 @@ class ArgvValidator extends Validator
 
 
     /**
-     * Extracts the validated fields from the $argv and returns them as an array
+     * Returns the $argv array
      *
-     * @param bool $no_arguments_left
      * @return array
      */
-    public function extract(bool $no_arguments_left = false): array
+    public function getArgv(): array
     {
         global $argv;
-        unset($argv);
-
-        $argv   = [];
-        $return = [];
-
-        foreach ($this->selected_fields as $field) {
-            $return[$field] = $this->source[$field];
-            unset($this->source[$field]);
-        }
-
-        if ($no_arguments_left) {
-            // There cannot be any other arguments left anymore
-            self::noArgumentsLeft();
-        }
-
-        return $return;
+        return $argv;
     }
 
 
@@ -207,12 +191,12 @@ class ArgvValidator extends Validator
     /**
      * Throws an exception if there are still arguments left in the Arguments validator object
      *
-     * @return void
+     * @return static
      */
-    public static function noArgumentsLeft(): void
+    public function noArgumentsLeft(): static
     {
         if (empty(self::$argv)) {
-            return;
+            return $this;
         }
 
         throw Exceptions::CliInvalidArgumentsException(tr('Invalid arguments ":arguments" encountered', [

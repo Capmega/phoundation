@@ -23,19 +23,18 @@ $usage = './cli system image info IMAGE_FILE_NAME';
 
 $help  = 'This script will display basic information about the specified image';
 
-$arguments = ArgvValidator::new()
+ArgvValidator::new()
     ->select('file', true)->isExistingFile()
-    ->validate()
-    ->extract(true);
+    ->validate();
 
 // Validate arguments
-if (!$arguments['file']) {
+if (!$argv['file']) {
     throw Exceptions::OutOfBoundsException(tr('No image specified'))->makeWarning();
 }
 
 // Get image object
-$image = Image::new($arguments['file'], PATH_DATA);
+$image = Image::new($argv['file'], PATH_DATA);
 
 // Display image information
-Log::information(tr('Displaying image information for ":file"', [':file' => $arguments['file']]));
+Log::information(tr('Displaying image information for ":file"', [':file' => $argv['file']]));
 Cli::displayArray($image->getInformation());
