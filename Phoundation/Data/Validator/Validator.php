@@ -8,7 +8,6 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Exception\KeyAlreadySelectedException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Filesystem;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use ReflectionProperty;
@@ -48,9 +47,12 @@ abstract class Validator
         // This obviously only works on arrays
         $this->isArray();
 
-        // Unset process_values first to ensure the byref link is broken
-        unset($this->process_values);
-        $this->process_values = &$this->selected_value;
+        if (!$this->process_value_failed) {
+            // Unset process_values first to ensure the byref link is broken
+            unset($this->process_values);
+            $this->process_values = &$this->selected_value;
+        }
+
         return $this;
     }
 
