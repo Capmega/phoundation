@@ -40,14 +40,14 @@ use Phoundation\Web\Http\Url;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Page
+class WebPage
 {
     /**
      * Singleton
      *
-     * @var Page $instance
+     * @var WebPage $instance
      */
-    protected static Page $instance;
+    protected static WebPage $instance;
 
     /**
      * The server filesystem restrictions
@@ -217,10 +217,10 @@ class Page
      *
      * @return static
      */
-    public static function getInstance(): Page
+    public static function getInstance(): WebPage
     {
         if (!isset(self::$instance)) {
-            self::$instance = new Page();
+            self::$instance = new WebPage();
         }
 
         return self::$instance;

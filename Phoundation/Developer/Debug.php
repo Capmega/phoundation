@@ -18,7 +18,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Http;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Page;
+use Phoundation\Web\WebPage;
 
 
 /**
@@ -310,7 +310,7 @@ class Debug {
 
                 // Show output on web
                 if (!headers_sent()) {
-                    Page::sendHttpHeaders(Page::buildHttpHeaders($output));
+                    WebPage::sendHttpHeaders(WebPage::buildHttpHeaders($output));
                 }
 
                 echo $output;

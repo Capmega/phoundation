@@ -4,7 +4,7 @@ namespace Phoundation\Web\Http\Html\Template;
 
 use Phoundation\Core\Strings;
 use Phoundation\Web\Http\Html\Template\Exception\TemplateException;
-use Phoundation\Web\Page;
+use Phoundation\Web\WebPage;
 
 
 

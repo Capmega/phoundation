@@ -3,7 +3,7 @@
 namespace Phoundation\Web\Http\Html;
 
 use Phoundation\Core\Arrays;
-use Phoundation\Web\Page;
+use Phoundation\Web\WebPage;
 
 
 

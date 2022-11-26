@@ -14,7 +14,7 @@ use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Servers\Server;
-use Phoundation\Web\Page;
+use Phoundation\Web\WebPage;
 use Throwable;
 
 
@@ -185,7 +185,7 @@ class Bundler
             }
 
             // Add the bundle file to the page
-            Page::addFile($this->bundle_file);
+            WebPage::addFile($this->bundle_file);
         }
 
         return $this->bundle_file;
@@ -427,7 +427,7 @@ class Bundler
     protected function purgeCss(): string
     {
         try {
-            $html_file_object = Filesystem::createTempFile(false,'html')->appendData(Page::getHtml());
+            $html_file_object = Filesystem::createTempFile(false,'html')->appendData(WebPage::getHtml());
 
             $bundle_file = Css::purge($this->bundle_file, $html_file_object->getFile());
 

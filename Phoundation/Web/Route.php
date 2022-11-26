@@ -565,7 +565,7 @@ class Route
                         // We are going to redirect so we no longer need to default to 404
                         Log::success(tr('Redirecting to ":route" with HTTP code ":code"', [':route' => $route, ':code' => $http_code]));
                         Core::unregisterShutdown('route_postprocess');
-                        Page::redirect(Url::build($route)->addQueries($_GET)->www(), $http_code);
+                        WebPage::redirect(Url::build($route)->addQueries($_GET)->www(), $http_code);
                         break;
 
                     case 'S':
@@ -640,7 +640,7 @@ class Route
                             ]));
 
                             Core::unregisterShutdown('route_postprocess');
-                            Page::redirect($domain);
+                            WebPage::redirect($domain);
                     }
                 }
             }
@@ -935,7 +935,7 @@ class Route
     protected function execute(string $target, bool $attachment): bool
     {
         // Set the server filesystem restrictions and template for this page
-        Page::setServerRestrictions($this->getServerRestrictions());
+        WebPage::setServerRestrictions($this->getServerRestrictions());
 
         // Find the correct target page
         $target = Filesystem::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE . '/pages/');
@@ -943,7 +943,7 @@ class Route
         if (str_ends_with($target, 'php')) {
             // Remove the 404 auto execution on shutdown
             Core::unregisterShutdown('route_postprocess');
-            $html = Page::execute($target, $this->template, $attachment);
+            $html = WebPage::execute($target, $this->template, $attachment);
 
             if ($attachment) {
                 // Send download headers and send the $html payload

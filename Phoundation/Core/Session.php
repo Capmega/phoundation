@@ -4,7 +4,7 @@ namespace Phoundation\Core;
 
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Web\Page;
+use Phoundation\Web\WebPage;
 
 
 
@@ -122,7 +122,7 @@ class Session
         }
 
         // No supported domain found, redirect to the primary domain
-        Page::redirect(true);
+        WebPage::redirect(true);
     }
 
 
@@ -148,7 +148,7 @@ class Session
     {
         // Check what languages are accepted by the client (in order of importance) and see if we support any of those
         $supported_languages = Arrays::force(Config::get('languages.supported', []));
-        $requested_languages = Page::acceptsLanguages();
+        $requested_languages = WebPage::acceptsLanguages();
 
         foreach ($requested_languages as $requested_language) {
             if (in_array($requested_language['language'], $supported_languages)) {

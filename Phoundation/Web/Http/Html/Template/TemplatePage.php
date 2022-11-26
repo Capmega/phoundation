@@ -3,7 +3,7 @@
 namespace Phoundation\Web\Http\Html\Template;
 
 use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Page;
+use Phoundation\Web\WebPage;
 
 
 
@@ -138,7 +138,7 @@ abstract class TemplatePage
 
         // Build HTML and minify the output
         $output = $this->buildHtmlHeader();
-        Page::htmlHeadersSent(true);
+        WebPage::htmlHeadersSent(true);
 
         $output .= $this->buildPageHeader();
         $output .= $this->buildMenu();

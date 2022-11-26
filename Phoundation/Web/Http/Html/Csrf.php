@@ -8,7 +8,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\Exceptions;
-use Phoundation\Web\Page;
+use Phoundation\Web\WebPage;
 use Throwable;
 
 
@@ -149,7 +149,7 @@ class Csrf
             Log::warning('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
             Log::warning(Core::getCallType('http'));
             Log::warning($e);
-            Page::flash()->add(tr('The form data was too old, please try again'), 'warning');
+            WebPage::flash()->add(tr('The form data was too old, please try again'), 'warning');
         }
     }
 }

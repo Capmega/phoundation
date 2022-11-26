@@ -5,7 +5,7 @@ namespace Templates\Phoundation;
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
-use Phoundation\Web\Page;
+use Phoundation\Web\WebPage;
 use Plugins\Mdb\Components\Footer;
 use Templates\Phoundation\Components\NavigationBar;
 use Throwable;
@@ -49,8 +49,8 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildHttpHeaders(string $output): void
     {
-        Page::setContentType('text/html');
-        Page::setDoctype('html');
+        WebPage::setContentType('text/html');
+        WebPage::setDoctype('html');
     }
 
 
@@ -63,18 +63,18 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     public function buildHtmlHeader(): ?string
     {
         // Load basic MDB and fonts CSS
-        Page::loadCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
-        Page::loadCss('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
-        Page::loadCss('css/mdb');
+        WebPage::loadCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+        WebPage::loadCss('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
+        WebPage::loadCss('css/mdb');
 
         // Load basic MDB amd jQuery javascript libraries
-        Page::loadJavascript('mdb,jquery/jquery');
+        WebPage::loadJavascript('mdb,jquery/jquery');
 
         // Set basic page details
-        Page::setTitle(tr('Phoundation'));
-        Page::setFavIcon('mdb-favicon.ico');
+        WebPage::setTitle(tr('Phoundation'));
+        WebPage::setFavIcon('mdb-favicon.ico');
 
-        return Page::buildHeaders();
+        return WebPage::buildHeaders();
     }
 
 
@@ -133,7 +133,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildHtmlFooter(): ?string
     {
-        $html  = Page::buildFooters() . '
+        $html  = WebPage::buildFooters() . '
         </body>
         </html>';
 

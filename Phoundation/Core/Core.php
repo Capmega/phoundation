@@ -24,7 +24,7 @@ use Phoundation\Web\Client;
 use Phoundation\Web\Http\Http;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Page;
+use Phoundation\Web\WebPage;
 use Phoundation\Web\Web;
 use Throwable;
 
@@ -425,7 +425,7 @@ class Core {
                     // Check for configured maintenance mode
                     if (Config::getBoolean('system.maintenance', false)) {
                         // We are in maintenance mode, have to show mainenance page.
-                        Page::execute(503);
+                        WebPage::execute(503);
                     }
 
                     // Set cookie, start session where needed, etc.
@@ -1395,7 +1395,7 @@ class Core {
                         }
 
                         //
-                        Page::setHttpCode(500);
+                        WebPage::setHttpCode(500);
                         self::unregisterShutdown('route_postprocess');
 
                         Notification::new()
@@ -2258,7 +2258,7 @@ class Core {
         if (!$domain) {
             // No domain was requested at all, so probably instead of a domain name, an IP was requested. Redirect to
             // the domain name
-            Page::redirect(PROTOCOL.Web::getDomain());
+            WebPage::redirect(PROTOCOL.Web::getDomain());
         }
 
 
@@ -2278,7 +2278,7 @@ class Core {
                         ':target' => Web::getDomain()
                     ]));
 
-                    Page::redirect(PROTOCOL . Web::getDomain());
+                    WebPage::redirect(PROTOCOL . Web::getDomain());
                     break;
 
                 case 'all':
@@ -2490,7 +2490,7 @@ class Core {
                                     session_start();
 
                                     if (Config::get('web.sessions.cookies.notification-expired', false)) {
-                                        Page::flash()->add(tr('Your browser cookie was expired, or does not exist. You may have to sign in again'), 'warning');
+                                        WebPage::flash()->add(tr('Your browser cookie was expired, or does not exist. You may have to sign in again'), 'warning');
                                     }
 
                                     $_POST = [];

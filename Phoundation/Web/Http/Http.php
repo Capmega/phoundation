@@ -19,7 +19,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Processes\Commands\Command;
-use Phoundation\Web\Page;
+use Phoundation\Web\WebPage;
 use Throwable;
 
 
