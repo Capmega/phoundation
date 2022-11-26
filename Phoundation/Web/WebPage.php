@@ -14,6 +14,8 @@ use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
+use Phoundation\Exception\AccessDeniedException;
+use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
@@ -31,7 +33,7 @@ use Phoundation\Web\Http\Url;
 
 
 /**
- * Class Page
+ * Class WebPage
  *
  * This class contains methods to assist in building web pages
  *
@@ -177,7 +179,7 @@ class WebPage
     protected static int $http_code = 200;
 
     /**
-     * The list of meta data that the client accepts
+     * The list of metadata that the client accepts
      *
      * @var array|null $accepts
      */
@@ -262,6 +264,56 @@ class WebPage
     public static function getTemplatePage(): TemplatePage
     {
         return self::$template_page;
+    }
+
+
+
+    /**
+     * Will throw an AccessDeniedException if the current session user is "guest"
+     *
+     * @param string|int|null $new_target
+     * @return void
+     */
+    public static function requiresNotGuest(string|int|null $new_target = 'sign-in'): void
+    {
+        if (Session::getUser()->isGuest()) {
+            throw Exceptions::AccessDeniedException(tr('You do not have the required rights to view this page'))->setNewTarget($new_target);
+        }
+    }
+
+
+
+    /**
+     * Will throw an AccessDeniedException if the current session user does not have ALL of the specified rights
+     *
+     * @param array|string $rights
+     * @param string|int|null $new_target
+     * @return void
+     */
+    public static function requiresAllRights(array|string $rights, string|int|null $new_target = 403): void
+    {
+        self::requiresNotGuest();
+
+        if (!Session::getUser()->hasAllRights($rights)) {
+            throw Exceptions::AccessDeniedException(tr('You do not have the required rights to view this page'))->setNewTarget($new_target);
+        }
+    }
+
+
+
+    /**
+     * Will throw an AccessDeniedException if the current session user does not have SOME of the specified rights
+     *
+     * @param array|string $rights
+     * @return void
+     */
+    public static function requiresSomeRights(array|string $rights, string|int|null $new_target = 403): void
+    {
+        self::requiresNotGuest();
+
+        if (!Session::getUser()->hasSomeRights($rights)) {
+            throw Exceptions::AccessDeniedException(tr('You do not have the required rights to view this page'))->setNewTarget($new_target);
+        }
     }
 
 
@@ -519,35 +571,56 @@ class WebPage
             ob_start();
 
             // Execute the specified target
-            switch (Core::getCallType()) {
-                case 'api':
-                    // no-break
-                case 'ajax':
-                    self::$api_interface = new ApiInterface();
-                    $output = self::$api_interface->execute($target);
-                    break;
+            try {
+                switch (Core::getCallType()) {
+                    case 'api':
+                        // no-break
+                    case 'ajax':
+                        self::$api_interface = new ApiInterface();
+                        $output = self::$api_interface->execute($target);
+                        break;
 
-                default:
-                    if (!$template) {
-                        if (!self::$template_page) {
-                            throw new OutOfBoundsException(tr('Cannot execute page ":target", no Template specified or available', [
-                                ':target' => $target
-                            ]));
+                    default:
+                        if (!$template) {
+                            if (!self::$template_page) {
+                                throw new OutOfBoundsException(tr('Cannot execute page ":target", no Template specified or available', [
+                                    ':target' => $target
+                                ]));
+                            }
+                        } else {
+                            // Get a new template page from the specified template
+                            self::$template_page = $template->getTemplatePage();
                         }
-                    } else {
-                        // Get a new template page from the specified template
-                        self::$template_page = $template->getTemplatePage();
-                    }
 
-                    // Execute the file and send the output HTML as a web page
-                    Log::action(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
-                        ':target'   => Strings::from($target, PATH_ROOT),
-                        ':template' => $template->getName(),
-                        ':language' => LANGUAGE
-                    ]));
+                        // Execute the file and send the output HTML as a web page
+                        Log::action(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
+                            ':target' => Strings::from($target, PATH_ROOT),
+                            ':template' => $template->getName(),
+                            ':language' => LANGUAGE
+                        ]));
 
-                    $output = self::$template_page->execute($target);
-            };
+                        $output = self::$template_page->execute($target);
+                };
+            } catch (AccessDeniedException $e) {
+                $new_target = $e->getNewTarget();
+
+                Log::warning(tr('Access denied to target ":target" for user ":user", redirecting to new target ":new"', [
+                    ':target' => $target,
+                    ':user'   => Session::getUser()->getDisplayId(),
+                    ':new'    => $new_target
+                ]));
+
+                switch (Core::getCallType()) {
+                    case 'api':
+                        // no-break
+                    case 'ajax':
+                        $output = self::$api_interface->execute($new_target);
+                        break;
+
+                    default:
+                        $output = self::$template_page->execute($new_target);
+                };
+            }
 
             // TODO Work on the HTTP headers, lots of issues here still, like content-length!
             // Build the headers, cache output and headers together, then send the headers

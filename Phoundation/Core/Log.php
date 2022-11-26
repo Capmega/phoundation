@@ -84,7 +84,7 @@ Class Log {
      *
      * @var int $display
      */
-    protected static int $display = self::BACKTRACE_DISPLAY_FILE;
+    protected static int $display = self::BACKTRACE_DISPLAY_BOTH;
 
     /**
      * Keeps track of if the static object has been initialized or not
@@ -156,7 +156,7 @@ Class Log {
         self::$server_restrictions = new Server(new Restrictions(PATH_DATA . 'log/', true, 'Log'));
         self::setThreshold(Config::get('log.threshold', Core::errorState() ? 1 : 3));
         self::setFile(Config::get('log.file', PATH_ROOT . 'data/log/syslog'));
-        self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_FILE));
+        self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
         self::setLocalId(substr(uniqid(true), -8, 8));
         self::setGlobalId($global_id);
 

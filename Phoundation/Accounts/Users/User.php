@@ -1346,6 +1346,18 @@ class User extends DataEntry
 
 
     /**
+     * Returns the name with an id for a user
+     *
+     * @return string
+     */
+    function getDisplayId(): string
+    {
+        return $this->getDataValue('id') . ' / ' . $this->getDisplayName();
+    }
+
+
+
+    /**
      * Returns the company for this user
      *
      * @return Company|null

@@ -337,4 +337,20 @@ class Exceptions
     {
         return new RestrictionsException($messages, $data, $code, $previous);
     }
+
+
+
+    /**
+     * Exceptions factory for AccessDeniedException
+     *
+     * @param string|array $messages
+     * @param mixed|null $data
+     * @param string|null $code
+     * @param Throwable|null $previous
+     * @return AccessDeniedException
+     */
+    public static function AccessDeniedException(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): AccessDeniedException
+    {
+        return new AccessDeniedException($messages, $data, $code, $previous);
+    }
 }

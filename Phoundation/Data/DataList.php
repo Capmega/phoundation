@@ -3,6 +3,7 @@
 namespace Phoundation\Data;
 
 use Iterator;
+use Phoundation\Cli\Cli;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Elements\Table;
 use ReturnTypeWillChange;
@@ -34,6 +35,13 @@ abstract class DataList implements Iterator
      * @var array $list
      */
     protected array $list;
+
+    /**
+     * A list of filters that will filter the list data when being loaded
+     *
+     * @var array $filters
+     */
+    protected array $filters = [];
 
     /**
      * The iterator position
@@ -99,6 +107,99 @@ abstract class DataList implements Iterator
     public function list(): array
     {
         return $this->list;
+    }
+
+
+
+    /**
+     * Returns all configured filters to apply when loading the data list
+     *
+     * @return array
+     */
+    public function getFilters(): array
+    {
+        return $this->filters;
+    }
+
+
+
+    /**
+     * Set multiple filters to apply when loading the data list
+     *
+     * @note This will clear all already defined filters
+     * @param array $filters
+     * @return $this
+     */
+    public function setFilters(array $filters): static
+    {
+        $this->filters = [];
+        return $this->addFilters($filters);
+    }
+
+
+
+    /**
+     * Add multiple filters to apply when loading the data list
+     *
+     * @param array $filters
+     * @return $this
+     */
+    public function addFilters(array $filters): static
+    {
+        foreach ($filters as $key => $value) {
+            $this->addFilter($key, $value);
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Add a filter to apply when loading the data list
+     *
+     * @param string $key
+     * @param array|string|int|null $value
+     * @return $this
+     */
+    public function addFilter(string $key, array|string|int|null $value): static
+    {
+        if ($value !== null) {
+            if ($key === 'status') {
+                $this->filters[$key] = get_null($value);
+            } else {
+                $this->filters[$key] = $value;
+            }
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Add a filter to apply when loading the data list
+     *
+     * @param string $key
+     * @return $this
+     */
+    public function removeFilter(string $key): static
+    {
+        unset($this->filters[$key]);
+        return $this;
+    }
+
+
+
+    /**
+     * Remove all filters to apply when loading the data list
+     *
+     * @return $this
+     */
+    public function clearFilters(): static
+    {
+        $this->filters = [];
+        return $this;
     }
 
 
@@ -196,12 +297,12 @@ abstract class DataList implements Iterator
 
 
     /**
-     * Creates and returns a table for the data in this list
+     * Creates and returns an HTML table for the data in this list
      *
      * @param string $class
      * @return Table
      */
-    public function table(string $class = Table::class): Table
+    public function htmlTable(string $class = Table::class): Table
     {
         if (!is_subclass_of($class, Table::class)) {
             throw new OutOfBoundsException(tr('Invalid class ":class" specified, the class must be a subclass of Table::class', [
@@ -209,9 +310,26 @@ abstract class DataList implements Iterator
             ]));
         }
 
+        $this->ensureLoaded();
+
         // Create and return the table
         return $class::new()
             ->setSourceData($this->list);
+    }
+
+
+
+    /**
+     * Creates and returns a CLI table for the data in this list
+     *
+     * @param string|null $key_header
+     * @param string|null $value_header
+     * @return void
+     */
+    public function CliDisplayArray(?string $key_header = null, ?string $value_header = null): void
+    {
+        $this->ensureLoaded();
+        Cli::displayArray($this->list, $key_header, $value_header);
     }
 
 
@@ -243,6 +361,20 @@ abstract class DataList implements Iterator
     {
         unset($this->list[$entry->getId()]);
         return $this;
+    }
+
+
+
+    /**
+     * If the list has not yet loaded its content, do so now
+     *
+     * @return void
+     */
+    protected function ensureLoaded(): void
+    {
+        if (!isset($this->list)) {
+            $this->load();
+        }
     }
 
 

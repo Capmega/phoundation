@@ -20,8 +20,8 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system accounts user create [OPTIONS]
-./cli system sync -l -i --to ENVIRONMENT';
+$usage = './cli system accounts users create [OPTIONS]
+./cli system users create -l -i --to ENVIRONMENT';
 
 $help  = 'This script allows you to create users
 
