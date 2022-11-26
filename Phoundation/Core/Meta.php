@@ -7,7 +7,7 @@ namespace Phoundation\Core;
 /**
  * Meta class
  *
- * This class keeps track of meta data for database entries throughout phoundation projects
+ * This class keeps track of metadata for database entries throughout phoundation projects
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -30,16 +30,49 @@ class Meta
      */
     protected array $history = [];
 
+
+
     /**
      * Meta constructor
      *
      * @param int|null $id
+     * @param bool $load
      */
-    public function __construct(?int $id = null)
+    public function __construct(?int $id = null, bool $load = false)
     {
-        if ($id) {
+        if ($id and $load) {
             $this->load($id);
+        } else {
+            sql()->query('INSERT INTO `meta` (`id`)
+                                VALUES             (NULL)');
+            $this->id = sql()->insertId();
         }
+    }
+
+
+
+    /**
+     * Meta constructor
+     *
+     * @return Meta
+     */
+    public static function new(): Meta
+    {
+        return new Meta();
+    }
+
+
+
+    /**
+     * Returns a meta object for the specified id
+     *
+     * @param int|null $id
+     * @param bool $load
+     * @return Meta
+     */
+    public static function get(?int $id = null, bool $load = false): Meta
+    {
+        return new Meta($id, $load);
     }
 
 
@@ -47,32 +80,38 @@ class Meta
     /**
      * Creates a new meta entry and returns the database id for it
      *
+     * @param string|null $comments
+     * @param array|null $data
      * @return int
      */
-    public static function init(): int
+    public static function init( ?string $comments = null, ?array $data = null): int
     {
         $meta = new Meta();
-        $meta->addAction('created');
+        $meta->action('created', $comments, $data);
+
         return $meta->id;
     }
 
 
 
     /**
-     * Adds the specified action to the meta history
+     * Creates a new meta entry and returns the database id for it
      *
      * @param string $action
+     * @param string|null $comments
      * @param array|null $data
      * @return void
      */
-    public function addAction(string $action, ?array $data = null): void
+    public function action(string $action,  ?string $comments = null, ?array $data = null): void
     {
         // Insert the action in the meta_history table
-        sql()->insert('meta_history', [
-            'meta_id'    => $this->id,
-            'created_by' => Session::user()->getId(),
-            'action'     => $action,
-            'data'       => $data
+        sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `comments`, `data`) 
+                            VALUES                     (:meta_id , :created_by , :action , :comments , :data )', [
+            ':meta_id'    => $this->id,
+            ':created_by' => Session::getUser()->getId(),
+            ':action'     => $action,
+            ':comments'   => $comments,
+            ':data'       => $data
         ]);
     }
 
@@ -87,6 +126,8 @@ class Meta
     protected function load(int $id): void
     {
         $this->id = $id;
-        $this->history = sql()->list('SELECT * FROM `meta_history` WHERE `meta_id` = :meta_id', [':meta_id' => $id]);
+        $this->history = sql()->list('SELECT * FROM `meta_history` WHERE `meta_id` = :meta_id', [
+            ':meta_id' => $id
+        ]);
     }
 }

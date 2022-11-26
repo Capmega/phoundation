@@ -473,6 +473,7 @@ class Sql
     }
 
 
+
     /**
      * Write the specified data row in the specified table
      *
@@ -484,17 +485,18 @@ class Sql
      * @param string $table
      * @param array $insert_row
      * @param array $update_row
+     * @param string|null $comments
      * @return int|null
      * @throws Throwable
      */
-    public function write(string $table, array $insert_row, array $update_row): ?int
+    public function write(string $table, array $insert_row, array $update_row,  ?string $comments = null): ?int
     {
         if (isset_get($update_row['id'])) {
-            $this->update($table, $update_row);
+            $this->update($table, $update_row, $comments);
             return $update_row['id'];
         }
 
-        return $this->insert($table, $insert_row);
+        return $this->insert($table, $insert_row, $comments);
     }
 
 
@@ -508,14 +510,14 @@ class Sql
      *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
      * @param array $row
+     * @param string|null $comments
      * @return int
-     * @throws Throwable
      */
-    public function insert(string $table, array $row): int
+    public function insert(string $table, array $row,  ?string $comments = null): int
     {
         // Set meta fields
         if (array_key_exists('meta_id', $row)) {
-            $row['meta_id'] = Meta::init();
+            $row['meta_id'] = Meta::init($comments);
         }
 
         if (array_key_exists('created_by', $row)) {
@@ -542,25 +544,23 @@ class Sql
      *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
      * @param array $row
+     * @param string|null $comments
      * @return int
-     * @throws Throwable
      */
-    public function update(string $table, array $row): int
+    public function update(string $table, array $row,  ?string $comments = null): int
     {
         // Set meta fields
-        if (array_key_exists('modified_on', $row)) {
-            $row['modified_on'] = time();
-        }
-
-        if (array_key_exists('modified_by', $row)) {
-            $row['modified_by'] = Session::user()->getId();
+        if (array_key_exists('meta_id', $row)) {
+            Meta::get($row['meta_id'])->action('update', $comments, $row);
         }
 
         // Build bound variables for query
         $keys   = $this->updateColumns($row);
         $values = $this->values($row);
 
-        $this->query('UPDATE `' . $table . '` SET (' . $keys . ')', $values);
+        $this->query('UPDATE `' . $table . '` 
+                            SET     ' . $keys  . '
+                            WHERE   `id` = :id', $values);
 
         return $this->pdo->lastInsertId();
     }
@@ -941,7 +941,15 @@ class Sql
         $return = [];
 
         foreach ($source as $key => $value) {
-            $return[] = '`' . $prefix . $key . '` = :' . $key;
+            switch ($key) {
+                case 'id':
+                    // no-break
+                case 'meta_id':
+                    // NEVER update these!
+                    break;
+                default:
+                    $return[] = '`' . $prefix . $key . '` = :' . $key;
+            }
         }
 
         return implode(', ', $return);
@@ -1004,7 +1012,13 @@ class Sql
         $return  = [];
 
         foreach ($source as $key => $value) {
-            $return[':' . $prefix . $key] = $value;
+            switch ($key) {
+                case 'meta_id':
+                    // NEVER update these!
+                    break;
+                default:
+                    $return[':' . $prefix . $key] = $value;
+            }
         }
 
         return $return;
@@ -1033,13 +1047,14 @@ class Sql
     /**
      * Return a unique, non-existing ID for the specified table.column
      *
-     * @todo This is sort of the same as Sql::randomId(), merge these two!
      * @param string $table
      * @param string $column
      * @param int $max
+     * @param string|null $comments
      * @return int
+     * @todo This is sort of the same as Sql::randomId(), merge these two!
      */
-    public function findRandomId(string $table, string $column = 'id', int $max = 2147483648): int
+    public function findRandomId(string $table, string $column = 'id', int $max = 2147483648, ?string $comments = null): int
     {
         $retries    = 0;
         $maxretries = 50;
@@ -1049,6 +1064,7 @@ class Sql
 
             // TODO Find a better algorithm than "Just try random shit until something sticks"
             if (!$this->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :id', [':id' => $id])) {
+                $this->query('INSERT INTO `' . $table . '` (`id`, `meta_id`) VALUES (' . $id . ', ' . Meta::init($comments) . ')');
                 return $id;
             }
         }

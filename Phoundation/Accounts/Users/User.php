@@ -68,8 +68,27 @@ class User extends DataEntry
      */
     protected ?Branch $branch;
 
+    /**
+     * Columns that will NOT be inserted
+     *
+     * @var array $remove_columns_on_insert
+     */
+    protected array $remove_columns_on_insert = ['id', 'password'];
+
+    /**
+     * Columns that will NOT be updated
+     *
+     * @var array $remove_columns_on_update
+     */
+    protected array $remove_columns_on_update = ['meta_id', 'created_by', 'created_on', 'password'];
 
 
+
+    /**
+     * User class constructor
+     *
+     * @param int|string|null $identifier
+     */
     public function __construct(int|string|null $identifier = null)
     {
         self::$entry_name    = 'user';
@@ -1468,7 +1487,6 @@ class User extends DataEntry
     protected function passwordWeak(string $password): bool
     {
         $strength = $this->getPasswordStrength($password);
-show($strength);
         return ($strength < Config::get('security.password.strength', 50));
     }
 

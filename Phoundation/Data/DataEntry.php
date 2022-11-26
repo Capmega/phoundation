@@ -114,6 +114,20 @@ abstract class DataEntry
      */
     protected array $keys = [];
 
+    /**
+     * Columns that will NOT be inserted
+     *
+     * @var array $remove_columns_on_insert
+     */
+    protected array $remove_columns_on_insert = ['id'];
+
+    /**
+     * Columns that will NOT be updated
+     *
+     * @var array $remove_columns_on_update
+     */
+    protected array $remove_columns_on_update = ['meta_id', 'created_by', 'created_on'];
+
 
 
     /**
@@ -445,6 +459,10 @@ abstract class DataEntry
      */
     protected function setDataValue(string $key, mixed $value): static
     {
+        if ($key === 'meta_id') {
+            throw new OutOfBoundsException(tr('The "meta_id" key cannot be changed'));
+        }
+
         $this->data[$key] = $value;
         return $this;
     }
@@ -518,9 +536,8 @@ abstract class DataEntry
         $return = explode('_', $variable);
         $return = array_map('ucfirst', $return);
         $return = implode('', $return);
-        $return = ucfirst($return);
 
-        return $return;
+        return ucfirst($return);
     }
 
 
@@ -532,9 +549,7 @@ abstract class DataEntry
      */
     protected function getInsertColumns(): array
     {
-        return Arrays::remove($this->data, [
-            'id', 'modified_by', 'modified_on'
-        ]);
+        return Arrays::remove($this->data, $this->remove_columns_on_insert);
     }
 
 
@@ -546,9 +561,7 @@ abstract class DataEntry
      */
     protected function getUpdateColumns(): array
     {
-        return Arrays::remove($this->data, [
-            'meta_id', 'created_by', 'created_on', 'modified_by', 'modified_on'
-        ]);
+        return Arrays::remove($this->data, $this->remove_columns_on_update);
     }
 
 
@@ -560,9 +573,8 @@ abstract class DataEntry
      */
     public function save(): static
     {
-        $this->id = sql()->findRandomId($this->table);
-show($this->id);
-        $this->id = sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns());
+        $this->data['id'] = sql()->findRandomId($this->table);
+        $this->data['id'] = sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns());
 
         return $this;
     }
@@ -578,7 +590,7 @@ show($this->id);
     protected function load(string|int $identifier): void
     {
         if (is_integer($identifier)) {
-            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `id`                           = :id'                     , [':id'       => $identifier]);
+            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `id`                           = :id'                     , [':id'                => $identifier]);
         } else {
             $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `' . $this->unique_column . '` = :' . $this->unique_column, [$this->unique_column => $identifier]);
         }

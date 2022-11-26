@@ -77,7 +77,8 @@ class Updates extends \Phoundation\Libraries\Updates
                     `created_by` int DEFAULT NULL,
                     `meta_id` int DEFAULT NULL,
                     `action` varchar(16) DEFAULT NULL,
-                    `data` varchar(64) DEFAULT NULL')
+                    `comments` varchar(255) DEFAULT NULL,
+                    `data` varchar(2555) DEFAULT NULL')
                 ->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
