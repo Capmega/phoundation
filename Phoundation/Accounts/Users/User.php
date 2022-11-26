@@ -17,6 +17,7 @@ use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Date\DateTime;
+use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\City;
 use Phoundation\Geo\Country;
@@ -1566,7 +1567,7 @@ class User extends DataEntry
     public function passwordMatch(string $password): bool
     {
         $hash = $this->passwordHash($password);
-        return $hash === $this->getDataValue('password');
+        return $hash === isset_get($this->data['password']);
     }
 
 
@@ -1772,6 +1773,10 @@ class User extends DataEntry
      */
     protected function passwordHash(string $password): string
     {
+        if (!$password) {
+            throw new OutOfBoundsException(tr('No password specified'));
+        }
+
         return '*DEFAULT*' . password_hash($this->getDataValue('id') . $password, PASSWORD_DEFAULT);
     }
 }

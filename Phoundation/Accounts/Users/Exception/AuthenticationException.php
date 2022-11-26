@@ -4,6 +4,8 @@ namespace Phoundation\Accounts\Users\Exception;
 
 
 
+use Throwable;
+
 /**
  * Class AuthenticationException
  *
@@ -16,4 +18,9 @@ namespace Phoundation\Accounts\Users\Exception;
  */
 class AuthenticationException extends UsersException
 {
+    public function __construct(array|string $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null)
+    {
+        parent::__construct($messages, $data, $code, $previous);
+        $this->makeWarning();
+    }
 }

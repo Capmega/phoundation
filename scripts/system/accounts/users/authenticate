@@ -1,0 +1,46 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Accounts\Users\User;
+use Phoundation\Cli\Cli;
+use Phoundation\Core\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+
+/**
+ * Script system/accounts/users/authenticate
+ *
+ * This script can be used to test the authentication for the specified user
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+$usage = './cli system accounts users authenticate USER';
+
+$help  = 'This script can be used to test the authentication for the specified user
+
+
+
+ARGUMENTS
+
+
+
+-';
+
+
+
+// Validate arguments
+ArgvValidator::new()
+    ->select('user')->hasMinCharacters(2)->hasMaxCharacters(255)
+    ->validate();
+
+
+
+// Get a password and try to authenticate
+$password = Cli::readPassword(tr('Password:'));
+$user     = User::authenticate($argv['user'], $password);
+
+Log::success(tr('User ":user" was authenticated successfully', [':user' => $user->getDisplayName()]));

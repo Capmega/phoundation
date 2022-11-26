@@ -3,6 +3,7 @@
 namespace Phoundation\Exception;
 
 use Exception;
+use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Cli\Exception\CliInvalidArgumentsException;
 use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Core\Arrays;

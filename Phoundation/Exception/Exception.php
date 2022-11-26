@@ -84,6 +84,22 @@ class Exception extends RuntimeException
 
 
     /**
+     * Returns a new exception object
+     *
+     * @param string|array $messages
+     * @param mixed|null $data
+     * @param string|null $code
+     * @param Throwable|null $previous
+     * @return static
+     */
+    public static function new(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): static
+    {
+        return new static($messages, $data, $code, $previous);
+    }
+
+
+
+    /**
      * Return the exception related data
      *
      * @return mixed
