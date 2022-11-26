@@ -26,7 +26,7 @@ $usage = './cli system info';
 
 $help  = 'The info script will show detailed information about the current framework, project, database and more';
 
-ArgvValidator::noArgumentsLeft();
+ArgvValidator::new()->noArgumentsLeft();
 
 try {
     Sql()->query('SELECT 1');
@@ -56,27 +56,27 @@ Log::cli(Color::apply(Strings::size(tr('Debug:')        , 28), 'white') . ' ' . 
 Log::cli(Color::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . Config::get('databases.sql.instances.system.name', 'unknown'));
 
 Log::cli();
-Log::cli(Color::apply(Strings::size(tr('System libraries:'), 28), 'white') . ' ' . Strings::size(tr('Code version'), 14) . tr('Database version'));
+Log::cli(Color::apply(Strings::size(tr('System libraries:'), 28) . ' ' . Strings::size(tr('Code version'), 14) . Strings::size(tr('Database version'), 18) . Strings::size(tr('Size'), 14), 'white'));
 
 foreach (Libraries::listLibraries(true, false) as $library) {
     $system_size += $library->getSize();
-    Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size($library->getDatabaseVersion() ?? '-', 14) . Strings::size(Numbers::bytes($library->getSize()) ?? '-', 14));
+    Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size($library->getDatabaseVersion() ?? '-', 18) . Strings::size(Numbers::bytes($library->getSize()) ?? '-', 14));
 }
 
 Log::cli();
-Log::cli(Color::apply(Strings::size(tr('Plugin libraries:'), 28), 'white') . ' ' . Strings::size(tr('Code version'), 14) . tr('Database version'));
+Log::cli(Color::apply(Strings::size(tr('Plugin libraries:'), 28) . ' ' . Strings::size(tr('Code version'), 14) . Strings::size(tr('Database version'), 18) . Strings::size(tr('Size'), 14), 'white'));
 
 foreach (Libraries::listLibraries(false) as $library) {
     $plugins_size += $library->getSize();
-    Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size($library->getDatabaseVersion() ?? '-', 14) . Strings::size(Numbers::bytes($library->getSize()) ?? '-', 14));
+    Log::cli(Color::apply(Strings::size($library->getName(), 28) . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size($library->getDatabaseVersion() ?? '-', 18) . Strings::size(Numbers::bytes($library->getSize()) ?? '-', 14), 'white'));
 }
 
 Log::cli();
-Log::cli(Color::apply(Strings::size(tr('Template libraries:'), 28), 'white'));
+Log::cli(Color::apply(Strings::size(tr('Template libraries:'), 61) . Strings::size(tr('Size'), 14), 'white'));
 
 foreach (Libraries::listLibraries(false, false, true) as $library) {
     $templates_size += $library->getSize();
-    Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size('-', 14) . Strings::size('-', 14) . Strings::size(Numbers::bytes($library->getSize()) ?? '-', 14));
+    Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size('-', 14) . Strings::size('-', 18) . Strings::size(Numbers::bytes($library->getSize()) ?? '-', 14));
 }
 
 Log::cli();
