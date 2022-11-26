@@ -2,6 +2,7 @@
 
 namespace Phoundation\Accounts\Roles;
 
+use Phoundation\Accounts\Rights\RoleRights;
 use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
 
@@ -39,13 +40,29 @@ class Role extends DataEntry
 
 
     /**
+     * Add the specified rights to this role
+     *
+     * @return RoleRights
+     */
+    public function rights(): RoleRights
+    {
+        if (!$this->list) {
+            $this->list = new RoleRights($this);
+        }
+
+        return $this->list;
+    }
+
+
+
+    /**
      * Sets the available data keys for the Role class
      *
      * @return void
      */
-    protected function setKeys(): void
+    protected function setColumns(): void
     {
-        $this->keys = [
+        $this->columns = [
             'id',
             'created_by',
             'created_on',

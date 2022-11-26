@@ -2,28 +2,28 @@
 
 namespace Phoundation\Accounts\Rights;
 
-use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Users\User;
 
 
 
 /**
- * Class RoleRights
+ * Class UserRights
  *
- * This class is a Rights list object with rights limited to the specified role
+ * This class is a Rights list object with rights limited to the specified user
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class RoleRights extends Rights
+class UserRights extends Rights
 {
     /**
      * DataList class constructor
      *
-     * @param Role|null $parent
+     * @param User|null $parent
      */
-    public function __construct(?Role $parent = null)
+    public function __construct(?User $parent = null)
     {
         parent::__construct($parent);
     }
@@ -53,8 +53,8 @@ class RoleRights extends Rights
                 }
 
                 // Insert data in database
-                sql()->insert('accounts_roles_rights', [
-                    'roles_id'  => $this->parent->getId(),
+                sql()->insert('accounts_users_rights', [
+                    'users_id'  => $this->parent->getId(),
                     'rights_id' => $right->getId()
                 ]);
 
@@ -77,8 +77,8 @@ class RoleRights extends Rights
     public function remove(Right|int|null $right): static
     {
         if ($right) {
-            sql()->query('DELETE FROM `accounts_roles_rights` WHERE `roles_id` = :roles_id AND `rights_id` = :rights_id', [
-                'roles_id'  => $this->parent->getId(),
+            sql()->query('DELETE FROM `accounts_users_rights` WHERE `users_id` = :users_id AND `rights_id` = :rights_id', [
+                'users_id'  => $this->parent->getId(),
                 'rights_id' => $right->getId()
             ]);
 
@@ -91,14 +91,14 @@ class RoleRights extends Rights
 
 
     /**
-     * Remove all rights for this role
+     * Remove all rights for this user
      *
      * @return $this
      */
     public function clear(): static
     {
-        sql()->query('DELETE FROM `accounts_roles_rights` WHERE `roles_id` = :roles_id', [
-            'roles_id'  => $this->parent->getId()
+        sql()->query('DELETE FROM `accounts_users_rights` WHERE `users_id` = :users_id', [
+            'users_id'  => $this->parent->getId()
         ]);
 
         return $this;
@@ -113,10 +113,10 @@ class RoleRights extends Rights
      */
     public function load(): static
     {
-        $this->list = sql()->list('SELECT `accounts_roles_rights`.* 
-                                         FROM   `accounts_roles_rights` 
-                                         WHERE  `accounts_roles_rights`.`roles_id` = :roles_id', [
-                                             ':roles_id' => $this->parent->getId()
+        $this->list = sql()->list('SELECT `accounts_users_rights`.* 
+                                         FROM   `accounts_users_rights` 
+                                         WHERE  `accounts_users_rights`.`users_id` = :users_id', [
+            ':users_id' => $this->parent->getId()
         ]);
         return $this;
     }
@@ -131,15 +131,15 @@ class RoleRights extends Rights
     public function save(): static
     {
         // Delete the current list
-        sql()->query('DELETE FROM `accounts_roles_rights` 
-                            WHERE       `accounts_roles_rights`.`roles_id` = :roles_id', [
-            ':roles_id' => $this->parent->getId()
+        sql()->query('DELETE FROM `accounts_users_rights` 
+                            WHERE       `accounts_users_rights`.`users_id` = :users_id', [
+            ':users_id' => $this->parent->getId()
         ]);
 
         // Add the new list
-        sql()->query('DELETE FROM `accounts_roles_rights` 
-                            WHERE       `accounts_roles_rights`.`roles_id` = :roles_id', [
-            ':roles_id' => $this->parent->getId()
+        sql()->query('DELETE FROM `accounts_users_rights` 
+                            WHERE       `accounts_users_rights`.`users_id` = :users_id', [
+            ':users_id' => $this->parent->getId()
         ]);
 
         return $this;

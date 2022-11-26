@@ -3,6 +3,7 @@
 namespace Phoundation\Geo;
 
 use Phoundation\Data\DataEntry;
+use Phoundation\Data\DataEntryNameDescription;
 
 
 
@@ -16,9 +17,9 @@ use Phoundation\Data\DataEntry;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Geo
  */
-class City
+class City extends DataEntry
 {
-    use DataEntry;
+    use DataEntryNameDescription;
 
 
 

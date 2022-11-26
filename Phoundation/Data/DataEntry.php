@@ -12,7 +12,7 @@ use Phoundation\Accounts\Users\User;
 
 
 /**
- * DataEntry trait
+ * Class DataEntry
  *
  * This class contains the basic data entry traits
  *
@@ -23,6 +23,8 @@ use Phoundation\Accounts\Users\User;
  */
 abstract class DataEntry
 {
+    use DataEntryNameDescription;
+
     /**
      * The label name for this data entry, used in errors, etc
      *
@@ -52,55 +54,6 @@ abstract class DataEntry
     protected array $protected_keys = ['password', 'key'];
 
     /**
-     * Contains the database id for this entry
-     *
-     * @var int|null
-     */
-    protected ?int $id = null;
-
-    /**
-     * The user who created this entry
-     *
-     * @var int|null $created_by
-     */
-    protected ?int $created_by = null;
-
-    /**
-     * The user who last modified this entry
-     *
-     * @var int|null $modified_by
-     */
-    protected ?int $modified_by = null;
-
-    /**
-     * The datetime when this entry was created
-     *
-     * @var DateTime|null $created_on
-     */
-    protected ?DateTime $created_on = null;
-
-    /**
-     * The datetime when this entry was modified
-     *
-     * @var DateTime|null $modified_on
-     */
-    protected ?DateTime $modified_on = null;
-
-    /**
-     * Identifier of the meta-object for this entry
-     *
-     * @var int|null $meta_id
-     */
-    protected ?int $meta_id = null;
-
-    /**
-     * Contains the status for this entry
-     *
-     * @var string|null
-     */
-    protected ?string $status = null;
-
-    /**
      * Contains the data for all information of this data entry
      *
      * @var array $data
@@ -110,9 +63,9 @@ abstract class DataEntry
     /**
      * Key definitions for the data for this entry
      *
-     * @var array $keys
+     * @var array $columns
      */
-    protected array $keys = [];
+    protected array $columns = [];
 
     /**
      * Columns that will NOT be inserted
@@ -128,6 +81,13 @@ abstract class DataEntry
      */
     protected array $remove_columns_on_update = ['meta_id', 'created_by', 'created_on'];
 
+    /**
+     * A list with optional linked other DataEntry objects
+     *
+     * @var DataList|null
+     */
+    protected ?DataList $list = null;
+
 
 
     /**
@@ -137,11 +97,11 @@ abstract class DataEntry
      */
     public function __construct(string|int|null $identifier = null)
     {
-        $this->setKeys();
+        $this->setColumns();
 
         if ($identifier) {
             if (is_numeric($identifier)) {
-                $this->id = $identifier;
+                $this->data['id'] = $identifier;
             }
 
             $this->load($identifier);
@@ -205,7 +165,7 @@ abstract class DataEntry
      */
     public function isNew(): bool
     {
-        return !$this->id;
+        return !$this->getDataValue('id');
     }
 
 
@@ -213,11 +173,11 @@ abstract class DataEntry
     /**
      * Returns id for this database entry
      *
-     * @return ?int
+     * @return int|null
      */
-    public function getId(): ?int
+    public function getId(): int|null
     {
-        return $this->id;
+        return $this->getDataValue('id');
     }
 
 
@@ -229,7 +189,7 @@ abstract class DataEntry
      */
     public function getStatus(): ?string
     {
-        return $this->status;
+        return $this->getDataValue('status');
     }
 
 
@@ -242,8 +202,7 @@ abstract class DataEntry
      */
     public function setStatus(?String $status): static
     {
-        $this->status = $status;
-        return $this;
+        return $this->setDataValue('status', $status);
     }
 
 
@@ -256,20 +215,32 @@ abstract class DataEntry
      */
     public function getCreatedBy(): ?User
     {
-        return new User($this->created_by);
+        $created_by = $this->getDataValue('created_by');
+
+        if ($created_by === null) {
+            return null;
+        }
+
+        return new User($created_by);
     }
 
 
 
     /**
-     * Returns the user that modified this data entry
+     * Returns the user that created this data entry
      *
-     * @note Returns NULL if this class was not modified yet, or has no support for modified_by information
+     * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
      * @return User|null
      */
-    public function getModifiedBy(): ?User
+    public function getCreatedOn(): ?DateTime
     {
-        return new User($this->modified_by);
+        $created_on = $this->getDataValue('created_by');
+
+        if ($created_on === null) {
+            return null;
+        }
+
+        return new DateTime($created_on);
     }
 
 
@@ -283,11 +254,13 @@ abstract class DataEntry
      */
     public function getMeta(): ?Meta
     {
-        if ($this->meta_id === null) {
+        $meta_id = $this->getDataValue('meta_id');
+
+        if ($meta_id === null) {
             return null;
         }
 
-        return new Meta($this->meta_id);
+        return new Meta($meta_id);
     }
 
 
@@ -306,7 +279,7 @@ abstract class DataEntry
             return $this;
         }
 
-        if (empty($this->keys)) {
+        if (empty($this->columns)) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
                 ':class' => gettype($this)
             ]));
@@ -318,17 +291,20 @@ abstract class DataEntry
                 case 'id':
                     // no-break
                 case 'created_by':
-                // no-break
+                    // no-break
                 case 'created_on':
-                // no-break
-                case 'modified_by':
-                // no-break
-                case 'modified_on':
-                // no-break
+                    // no-break
                 case 'status':
-                // no-break
+                    // no-break
                 case 'meta_id':
+                    // no-break
+                case 'password':
                     // Go to next key
+                    continue 2;
+
+                case 'seo_name':
+                    // Store this data directly
+                    $this->setDataValue('meta', $value);
                     continue 2;
             }
 
@@ -413,7 +389,7 @@ abstract class DataEntry
             return $this;
         }
 
-        if (empty($this->keys)) {
+        if (empty($this->columns)) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
                 ':class' => gettype($this)
             ]));
@@ -427,10 +403,6 @@ abstract class DataEntry
                 case 'created_by':
                     // no-break
                 case 'created_on':
-                    // no-break
-                case 'modified_by':
-                    // no-break
-                case 'modified_on':
                     // no-break
                 case 'status':
                     // no-break
@@ -537,7 +509,7 @@ abstract class DataEntry
         $return = array_map('ucfirst', $return);
         $return = implode('', $return);
 
-        return ucfirst($return);
+        return 'set' . ucfirst($return);
     }
 
 
@@ -549,7 +521,10 @@ abstract class DataEntry
      */
     protected function getInsertColumns(): array
     {
-        return Arrays::remove($this->data, $this->remove_columns_on_insert);
+        $return = Arrays::remove($this->data, $this->remove_columns_on_insert);
+        $return = Arrays::keep($return, $this->columns);
+
+        return $return;
     }
 
 
@@ -561,7 +536,10 @@ abstract class DataEntry
      */
     protected function getUpdateColumns(): array
     {
-        return Arrays::remove($this->data, $this->remove_columns_on_update);
+        $return = Arrays::remove($this->data, $this->remove_columns_on_update);
+        $return = Arrays::keep($return, $this->columns);
+
+        return $return;
     }
 
 
@@ -575,6 +553,10 @@ abstract class DataEntry
     {
         $this->data['id'] = sql()->findRandomId($this->table);
         $this->data['id'] = sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns());
+
+        if ($this->list) {
+            $this->list->save();
+        }
 
         return $this;
     }
@@ -607,5 +589,5 @@ abstract class DataEntry
      *
      * @return void
      */
-    abstract protected function setKeys(): void;
+    abstract protected function setColumns(): void;
 }

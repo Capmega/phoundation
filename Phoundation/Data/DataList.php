@@ -5,10 +5,12 @@ namespace Phoundation\Data;
 use Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Elements\Table;
+use ReturnTypeWillChange;
+
 
 
 /**
- * DataList trait
+ * Class DataList
  *
  *
  *
@@ -46,10 +48,15 @@ abstract class DataList implements Iterator
      * DataList class constructor
      *
      * @param DataEntry|null $parent
+     * @param bool $load
      */
-    public function __construct(?DataEntry $parent = null)
+    public function __construct(?DataEntry $parent = null, bool $load = false)
     {
         $this->parent = $parent;
+
+        if ($parent and $load) {
+            $this->load();
+        }
     }
 
 
@@ -68,42 +75,43 @@ abstract class DataList implements Iterator
 
 
     /**
-     * Add the specified data entry to the data list
-     *
-     * @param DataEntry $entry
-     * @return $this
-     */
-    public function add(DataEntry $entry): static
-    {
-        $this->list[$entry->getId()] = $entry;
-        return $this;
-    }
-
-
-
-    /**
-     * Remove the specified data entry from the data list
-     *
-     * @param DataEntry $entry
-     * @return $this
-     */
-    public function remove(DataEntry $entry): static
-    {
-        unset($this->list[$entry->getId()]);
-        return $this;
-    }
-
-
-
-    /**
      * Returns if the specified data entry exists in the data list
      *
-     * @param DataEntry $entry
+     * @param DataEntry|int $entry
      * @return bool
      */
-    public function exists(DataEntry $entry): bool
+    public function exists(DataEntry|int $entry): bool
     {
+        if (is_integer($entry)) {
+            return array_key_exists($entry, $this->list);
+        }
+
         return array_key_exists($entry->getId(), $this->list);
+    }
+
+
+
+    /**
+     * Returns the entire internal list
+     *
+     * @return array
+     */
+    public function list(): array
+    {
+        return $this->list;
+    }
+
+
+
+    /**
+     * Returns the item with the specified identifier
+     *
+     * @param int $identifier
+     * @return DataEntry|null
+     */
+    #[ReturnTypeWillChange] public function get(int $identifier): ?DataEntry
+    {
+        return isset_get($this->list[$identifier]);
     }
 
 
@@ -113,7 +121,7 @@ abstract class DataList implements Iterator
      *
      * @return mixed
      */
-    #[\ReturnTypeWillChange] public function current(): DataEntry
+    #[ReturnTypeWillChange] public function current(): DataEntry
     {
         return $this->list[$this->position];
     }
@@ -125,7 +133,7 @@ abstract class DataList implements Iterator
      *
      * @return static
      */
-    #[\ReturnTypeWillChange] public function next(): static
+    #[ReturnTypeWillChange] public function next(): static
     {
         ++$this->position;
         return $this;
@@ -138,7 +146,7 @@ abstract class DataList implements Iterator
      *
      * @return static
      */
-    #[\ReturnTypeWillChange] public function previous(): static
+    #[ReturnTypeWillChange] public function previous(): static
     {
         if ($this->position > 0) {
             throw new OutOfBoundsException(tr('Cannot jump to previous element, the position is already at 0'));
@@ -179,7 +187,7 @@ abstract class DataList implements Iterator
      *
      * @return static
      */
-    #[\ReturnTypeWillChange] public function rewind(): static
+    #[ReturnTypeWillChange] public function rewind(): static
     {
         $this->position = 0;
         return $this;
@@ -204,6 +212,37 @@ abstract class DataList implements Iterator
         // Create and return the table
         return $class::new()
             ->setSourceData($this->list);
+    }
+
+
+
+    /**
+     * Add the specified data entry to the data list
+     *
+     * @param DataEntry|null $entry
+     * @return $this
+     */
+    protected function addEntry(?DataEntry $entry): static
+    {
+        if ($entry) {
+            $this->list[$entry->getId()] = $entry;
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Remove the specified data entry from the data list
+     *
+     * @param DataEntry $entry
+     * @return $this
+     */
+    protected function removeEntry(DataEntry $entry): static
+    {
+        unset($this->list[$entry->getId()]);
+        return $this;
     }
 
 

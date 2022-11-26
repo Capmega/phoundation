@@ -2,6 +2,7 @@
 
 namespace Phoundation\Accounts\Users;
 
+use Phoundation\Accounts\Rights\UserRights;
 use Phoundation\Accounts\Roles\UserRoles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Api\Users;
@@ -43,9 +44,16 @@ class User extends DataEntry
     /**
      * The roles for this user
      *
-     * @var UserRoles
+     * @var UserRoles $roles
      */
     protected UserRoles $roles;
+
+    /**
+     * The rights for this user
+     *
+     * @var UserRights $rights
+     */
+    protected UserRights $rights;
 
     /**
      * The company for this user
@@ -279,26 +287,26 @@ class User extends DataEntry
 
 
     /**
-     * Returns the auth_fails for this user
+     * Returns the authentication_failures for this user
      *
      * @return string|null
      */
     public function getAuthenticationFailures(): ?string
     {
-        return $this->getDataValue('auth_fails');
+        return $this->getDataValue('authentication_failures');
     }
 
 
 
     /**
-     * Sets the auth_fails for this user
+     * Sets the authentication_failures for this user
      *
-     * @param int|null $auth_fails
+     * @param int|null $authentication_failures
      * @return static
      */
-    public function setAuthenticationFailures(?int $auth_fails): static
+    public function setAuthenticationFailures(?int $authentication_failures): static
     {
-        return $this->setDataValue('auth_fails', $auth_fails);
+        return $this->setDataValue('authentication_failures', $authentication_failures);
     }
 
 
@@ -369,16 +377,20 @@ class User extends DataEntry
     /**
      * Sets the fingerprint datetime for this user
      *
-     * @param \DateTime|int $fingerprint
+     * @param DateTime|string|int|null $fingerprint
      * @return static
      */
-    public function setFingerprint(\DateTime|int $fingerprint): static
+    public function setFingerprint(DateTime|string|int|null $fingerprint): static
     {
-        if (is_object($fingerprint)) {
-            $fingerprint = $fingerprint->format('Y-m-d H:i:s');
+        if ($fingerprint) {
+            if (!is_object($fingerprint)) {
+                $fingerprint = new DateTime($fingerprint);
+            }
+
+            return $this->setDataValue('fingerprint', $fingerprint->format('Y-m-d H:i:s'));
         }
 
-        return $this->setDataValue('fingerprint', $fingerprint);
+        return $this->setDataValue('fingerprint', null);
     }
 
 
@@ -684,9 +696,34 @@ class User extends DataEntry
 
 
     /**
-     * Returns the leaders_id for this user
+     * Returns the leader for this user
      *
-     * @return static|null
+     * @return int|null
+     */
+    public function getLeadersId(): ?int
+    {
+        return $this->getDataValue('leaders_id');
+    }
+
+
+
+    /**
+     * Sets the leader for this user
+     *
+     * @param int|null $leaders_id
+     * @return static
+     */
+    public function setLeadersId(int|null $leaders_id): static
+    {
+        return $this->setDataValue('leaders_id', $leaders_id);
+    }
+
+
+
+    /**
+     * Returns the leader for this user
+     *
+     * @return User|null
      */
     public function getLeader(): ?User
     {
@@ -702,7 +739,7 @@ class User extends DataEntry
 
 
     /**
-     * Sets the leaders_id for this user
+     * Sets the leader for this user
      *
      * @param User|int|null $leader
      * @return static
@@ -846,11 +883,42 @@ class User extends DataEntry
     /**
      * Returns the cities_id for this user
      *
-     * @return City|null
+     * @return int|null
      */
-    public function getCity(): ?City
+    public function getCitiesId(): ?int
     {
         return $this->getDataValue('cities_id');
+    }
+
+
+
+    /**
+     * Sets the cities_id for this user
+     *
+     * @param int|null $cities_id
+     * @return static
+     */
+    public function setCitiesId(?int $cities_id): static
+    {
+        return $this->setDataValue('cities_id', $cities_id);
+    }
+
+
+
+    /**
+     * Returns the cities_id for this user
+     *
+     * @return int|null
+     */
+    public function getCity(): ?int
+    {
+        $cities_id = $this->getDataValue('cities_id');
+
+        if ($cities_id) {
+            return new City($cities_id);
+        }
+
+        return null;
     }
 
 
@@ -875,9 +943,9 @@ class User extends DataEntry
     /**
      * Returns the states_id for this user
      *
-     * @return State|null
+     * @return int|null
      */
-    public function getState(): ?State
+    public function getStatesId(): ?int
     {
         return $this->getDataValue('states_id');
     }
@@ -886,6 +954,37 @@ class User extends DataEntry
 
     /**
      * Sets the states_id for this user
+     *
+     * @param int|null $states_id
+     * @return static
+     */
+    public function setStatesId(?int $states_id): static
+    {
+        return $this->setDataValue('states_id', $states_id);
+    }
+
+
+
+    /**
+     * Returns the state for this user
+     *
+     * @return State|null
+     */
+    public function getState(): ?State
+    {
+        $states_id = $this->getDataValue('states_id');
+
+        if ($states_id) {
+            return new State($states_id);
+        }
+
+        return null;
+    }
+
+
+
+    /**
+     * Sets the state for this user
      *
      * @param State|null $state
      * @return static
@@ -904,11 +1003,42 @@ class User extends DataEntry
     /**
      * Returns the countries_id for this user
      *
+     * @return int|null
+     */
+    public function getCountriesId(): ?int
+    {
+        return $this->getDataValue('countries_id');
+    }
+
+
+
+    /**
+     * Sets the countries_id for this user
+     *
+     * @param int|null $country
+     * @return static
+     */
+    public function setCountriesId(?int $country): static
+    {
+        return $this->setDataValue('countries_id', $country);
+    }
+
+
+
+    /**
+     * Returns the countries_id for this user
+     *
      * @return Country|null
      */
     public function getCountry(): ?Country
     {
-        return $this->getDataValue('countries_id');
+        $countries_id = $this->getDataValue('countries_id');
+
+        if ($countries_id) {
+            return new Country($countries_id);
+        }
+
+        return null;
     }
 
 
@@ -950,13 +1080,15 @@ class User extends DataEntry
      */
     public function setRedirect(?string $redirect): static
     {
-        if (!filter_var($redirect, FILTER_VALIDATE_URL)) {
-            throw new OutOfBoundsException(tr('Invalid redirect URL ":redirect" specified', [
-                ':redirect' => $redirect
-            ]));
+        if ($redirect) {
+            if (!filter_var($redirect, FILTER_VALIDATE_URL)) {
+                throw new OutOfBoundsException(tr('Invalid redirect URL ":redirect" specified', [
+                    ':redirect' => $redirect
+                ]));
+            }
         }
 
-        return $this->setDataValue('redirect', $redirect);
+        return $this->setDataValue('redirect', get_null($redirect));
     }
 
 
@@ -981,10 +1113,12 @@ class User extends DataEntry
      */
     public function setLanguage(?string $language): static
     {
-        if ($language and (strlen($language) != 2)) {
-            throw new OutOfBoundsException(tr('Invalid language ":language" specified', [
-                ':language' => $language
-            ]));
+        if ($language) {
+            if (strlen($language) != 2) {
+                throw new OutOfBoundsException(tr('Invalid language ":language" specified', [
+                    ':language' => $language
+                ]));
+            }
         }
 
         return $this->setDataValue('language', $language);
@@ -1026,11 +1160,11 @@ class User extends DataEntry
     {
         $birthday = $this->getDataValue('birthday');
 
-        if ($birthday === null) {
-            return null;
+        if ($birthday ) {
+            return new DateTime($birthday);
         }
 
-        return new DateTime($birthday);
+        return null;
     }
 
 
@@ -1341,10 +1475,34 @@ class User extends DataEntry
     public function roles(): UserRoles
     {
         if (!isset($this->roles)) {
-            $this->roles = UserRoles::new()->setUser($this->getDataValue('id'));
+            if (!$this->getId()) {
+                throw new OutOfBoundsException(tr('Cannot access User roles without saving User first'));
+            }
+
+            $this->roles = UserRoles::new($this);
         }
 
         return $this->roles;
+    }
+
+
+
+    /**
+     * Returns the roles for this user
+     *
+     * @return UserRights
+     */
+    public function rights(): UserRights
+    {
+        if (!isset($this->rights)) {
+            if (!$this->getId()) {
+                throw new OutOfBoundsException(tr('Cannot access User rights without saving User first'));
+            }
+
+            $this->rights = UserRights::new($this);
+        }
+
+        return $this->rights;
     }
 
 
@@ -1374,20 +1532,6 @@ class User extends DataEntry
 
 
     /**
-     * Returns true if the specified password matches the users password
-     *
-     * @param string $password
-     * @return bool
-     */
-    public function passwordMatch(string $password): bool
-    {
-        $hash = $this->hashPassword($password);
-        return $hash === $this->getDataValue('password');
-    }
-
-
-
-    /**
      * Save all user data to database
      *
      * @return static
@@ -1395,8 +1539,22 @@ class User extends DataEntry
     public function save(): static
     {
         parent::save();
-        $this->roles->save();
+        $this->roles()->save();
         return $this;
+    }
+
+
+
+    /**
+     * Returns true if the specified password matches the users password
+     *
+     * @param string $password
+     * @return bool
+     */
+    public function passwordMatch(string $password): bool
+    {
+        $hash = $this->passwordHash($password);
+        return $hash === $this->getDataValue('password');
     }
 
 
@@ -1406,16 +1564,16 @@ class User extends DataEntry
      *
      * @return void
      */
-    protected function setKeys(): void
+    protected function setColumns(): void
     {
-        $this->keys = [
+        $this->columns = [
             'id',
             'created_by',
             'created_on',
             'meta_id',
             'status',
             'last_sign_in',
-            'auth_fails',
+            'authentication_failures',
             'locked_until',
             'sign_in_count',
             'username',
@@ -1595,13 +1753,13 @@ class User extends DataEntry
 
 
     /**
-     * Returns the hashed version of the possword
+     * Returns the hashed version of the password
      *
      * @param string $password
      * @return string
      */
     protected function passwordHash(string $password): string
     {
-        return '*DEFAULT*' . password_hash($this->id . $password);
+        return '*DEFAULT*' . password_hash($this->getDataValue('id') . $password, PASSWORD_DEFAULT);
     }
 }

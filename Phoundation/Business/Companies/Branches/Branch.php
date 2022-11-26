@@ -52,7 +52,7 @@ class Branch extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function setKeys(): void
+    protected function setColumns(): void
     {
         // TODO: Implement setKeys() method.
     }

@@ -4,6 +4,9 @@ namespace Phoundation\Accounts;
 
 
 
+use Phoundation\Accounts\Rights\Right;
+use Phoundation\Accounts\Roles\Role;
+
 /**
  * Updates class
  *
@@ -58,7 +61,7 @@ class Updates extends \Phoundation\Libraries\Updates
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `last_sign_in` datetime DEFAULT NULL,
-                    `auth_fails` int NOT NULL,
+                    `authentication_failures` int NOT NULL,
                     `locked_until` datetime DEFAULT NULL,
                     `sign_in_count` int NOT NULL,
                     `username` varchar(64) DEFAULT NULL,
@@ -341,6 +344,18 @@ class Updates extends \Phoundation\Libraries\Updates
                 ->setForeignKeys('
                     CONSTRAINT `fk_accounts_banned_passwords_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE')
                 ->create();
+
+            // Create default rights and roles
+            $god = Right::new()
+                ->setName('God')
+                ->setDescription('This right will give the user access to everything, everywhere')
+                ->save();
+
+            Role::new()
+                ->setName('God')
+                ->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
+                ->save()
+                ->rights()->add($god);
         });
     }
 }

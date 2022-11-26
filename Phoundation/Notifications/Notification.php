@@ -589,14 +589,14 @@ return $this;
      *
      * @return void
      */
-    protected function setKeys(): void
+    protected function setColumns(): void
     {
         $this->data = [
             'groups' => [],
             'priority' => 10
         ];
 
-        $this->keys = [
+        $this->columns = [
             'id',
             'created_by',
             'created_on',

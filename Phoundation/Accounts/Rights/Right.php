@@ -22,6 +22,7 @@ class Right extends DataEntry
     use DataEntryNameDescription;
 
 
+
     /**
      * Right class constructor
      *
@@ -42,9 +43,9 @@ class Right extends DataEntry
      *
      * @return void
      */
-    protected function setKeys(): void
+    protected function setColumns(): void
     {
-        $this->keys = [
+        $this->columns = [
             'id',
             'created_by',
             'created_on',

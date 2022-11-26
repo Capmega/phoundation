@@ -145,15 +145,15 @@ $user = User::new()
 
 
 
+// Save the user and update the users password
+$user->save()->setPassword($argv['password'], $argv['password_validate']);
+
+
+
 // Set users roles
 foreach ($argv['roles'] as $role) {
     $user->roles()->add(Role::get($role));
 }
-
-
-
-// Save the user and update the users password
-$user->save()->setPassword($argv['password'], $argv['password_validate']);
 
 
 

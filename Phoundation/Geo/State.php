@@ -104,7 +104,7 @@ class State extends DataEntry
      *
      * @return void
      */
-    protected function setKeys(): void
+    protected function setColumns(): void
     {
         // TODO: Implement setKeys() method.
     }

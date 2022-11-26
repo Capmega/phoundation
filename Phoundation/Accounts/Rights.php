@@ -2,6 +2,8 @@
 
 namespace Phoundation\Accounts;
 
+use Phoundation\Data\DataList;
+
 
 
 /**
@@ -14,7 +16,15 @@ namespace Phoundation\Accounts;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Rights
+class Rights extends DataList
 {
+    protected function load(): static
+    {
+        return $this;
+    }
 
+    public function save(): static
+    {
+        return $this;
+    }
 }

@@ -1064,7 +1064,7 @@ class Sql
 
             // TODO Find a better algorithm than "Just try random shit until something sticks"
             if (!$this->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :id', [':id' => $id])) {
-                $this->query('INSERT INTO `' . $table . '` (`id`, `meta_id`) VALUES (' . $id . ', ' . Meta::init($comments) . ')');
+                $this->query('INSERT INTO `' . $table . '` (`id`, `meta_id`, `status`) VALUES (' . $id . ', ' . Meta::init($comments) . ', "__reserved")');
                 return $id;
             }
         }
