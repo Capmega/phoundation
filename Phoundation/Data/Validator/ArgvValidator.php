@@ -6,7 +6,7 @@ use Phoundation\Cli\Exception\ArgumentsException;
 use Phoundation\Cli\Script;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Exception\KeyAlreadySelectedException;
+use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Exception\Exceptions;
@@ -105,7 +105,6 @@ class ArgvValidator extends Validator
 
         $this->process_value_failed = false;
         $clean_field = null;
-
         $field       = null;
 
         if (!$fields) {
@@ -133,8 +132,8 @@ class ArgvValidator extends Validator
             // This is not a modifier field but a method or value argument instead. Do not modify the field name
             // Do change the field value to NULL, which will cause ArgvValidator::argument() to return the next
             // available argument
-            $clean_field = $field;
-            $field       = null;
+            $clean_field = $fields;
+            $fields      = null;
         }
 
         if (!$clean_field) {

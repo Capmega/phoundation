@@ -42,14 +42,5 @@ ArgvValidator::new()
 
 
 
-// Check if the user already exists
-if (!User::exists($argv['user'])) {
-    throw new AccountsException(tr('Cannot display information about user ":user", it does not exists', [
-        ':user' => $argv['user']
-    ]));
-}
-
-
-
 // Display user data
 Cli::displayArray(User::get($argv['user'])->getData());
