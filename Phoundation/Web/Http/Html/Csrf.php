@@ -7,7 +7,7 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Exception\Exceptions;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\WebPage;
 use Throwable;
 
@@ -100,18 +100,18 @@ class Csrf
             }
 
             if (empty($_POST['csrf'])) {
-                throw Exceptions::OutOfBoundsException(tr('No CSRF field specified'))->makeWarning();
+                throw OutOfBoundsException::new(tr('No CSRF field specified'))->makeWarning();
             }
 
             if (Core::getCallType('ajax')) {
                 if (substr($_POST['csrf'], 0, 5) != 'ajax_') {
                     // Invalid CSRF code is sppokie, don't make this a warning
-                    throw Exceptions::OutOfBoundsException(tr('Specified CSRF ":code" is invalid'))->makeWarning();
+                    throw OutOfBoundsException::new(tr('Specified CSRF ":code" is invalid'))->makeWarning();
                 }
             }
 
             if (empty($_SESSION['csrf'][$_POST['csrf']])) {
-                throw Exceptions::OutOfBoundsException(tr('Specified CSRF ":code" does not exist', [
+                throw OutOfBoundsException::new(tr('Specified CSRF ":code" does not exist', [
                     ':code' => $_POST['csrf']
                 ]))->makeWarning();
             }
@@ -125,7 +125,7 @@ class Csrf
             // Code timed out?
             if (Config::get('security.csrf.timeout', 3600)) {
                 if (($timestamp + Config::get('security.csrf.timeout')) < $now->getTimestamp()) {
-                    throw Exceptions::OutOfBoundsException(tr('Specified CSRF ":code" timed out', [
+                    throw OutOfBoundsException::new(tr('Specified CSRF ":code" timed out', [
                         ':code' => $_POST['csrf']
                     ]))->makeWarning();
                 }

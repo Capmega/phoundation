@@ -4,8 +4,8 @@ namespace Phoundation\Data\Validator;
 
 use Phoundation\Core\Strings;
 use Phoundation\Data\Exception\NoKeySelectedException;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
-use Phoundation\Exception\Exceptions;
 use ReflectionProperty;
 
 
@@ -333,7 +333,7 @@ trait ValidatorBasics
         }
 
         if ($this->failures) {
-            throw Exceptions::ValidationFailedException(tr('Validation of the specified source array failed with the registered failures'), $this->failures)->makeWarning();
+            throw ValidationFailedException::new(tr('Validation of the specified source array failed with the registered failures'), $this->failures)->makeWarning();
         }
 
         return $this;

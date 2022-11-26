@@ -4,13 +4,13 @@ namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Exception\CliException;
+use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Date\Time;
-use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
@@ -183,7 +183,7 @@ class Script
     protected static function findScript(): string
     {
         if (ArgvValidator::count() <= 1) {
-            throw Exceptions::OutOfBoundsException('No method specified!')->makeWarning();
+            throw OutOfBoundsException::new('No method specified!')->makeWarning();
         }
 
         $file    = PATH_ROOT . 'scripts/';
@@ -198,14 +198,14 @@ class Script
 
             if (!preg_match('/[a-z0-9-]/i', $method)) {
                 // Methods can only have alphanumeric characters
-                throw Exceptions::OutOfBoundsException(tr('The specified method ":method" contains invalid characters. only a-z, 0-9 and - are allowed', [
+                throw OutOfBoundsException::new(tr('The specified method ":method" contains invalid characters. only a-z, 0-9 and - are allowed', [
                     ':method' => $method
                 ]))->makeWarning();
             }
 
             if (str_starts_with($method, '-')) {
                 // Methods can only have alphanumeric characters
-                throw Exceptions::OutOfBoundsException(tr('The specified method ":method" starts with a - character which is not allowed', [
+                throw OutOfBoundsException::new(tr('The specified method ":method" starts with a - character which is not allowed', [
                     ':method' => $method
                 ]))->makeWarning();
             }
@@ -216,7 +216,7 @@ class Script
 
             if (!file_exists($file)) {
                 // The specified path doesn't exist
-                throw Exceptions::MethodNotFoundException(tr('The specified method file ":file" was not found', [
+                throw MethodNotFoundException::new(tr('The specified method file ":file" was not found', [
                     ':file' => $file
                 ]))->makeWarning();
             }
@@ -251,7 +251,7 @@ class Script
         }
 
         // We're stuck in a directory still, no script to execute
-        throw Exceptions::MethodNotFoundException(tr('The specified method file ":file" was not found', [
+        throw MethodNotFoundException::new(tr('The specified method file ":file" was not found', [
             ':file' => $file
         ]))->makeWarning();
     }

@@ -4,6 +4,7 @@ namespace Phoundation\Content\Images;
 
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
@@ -197,6 +198,18 @@ class Convert extends Command
         $resize->setBackground($background);
 
         return $resize;
+    }
+
+
+
+    /**
+     * Access to the image resize object
+     *
+     * @return Resize
+     */
+    public function crop(): Resize
+    {
+        throw new UnderConstructionException();
     }
 
 

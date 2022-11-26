@@ -3,13 +3,13 @@
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Cli\Exception\ArgumentsException;
+use Phoundation\Cli\Exception\CliInvalidArgumentsException;
 use Phoundation\Cli\Script;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
-use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -198,7 +198,7 @@ class ArgvValidator extends Validator
             return $this;
         }
 
-        throw Exceptions::CliInvalidArgumentsException(tr('Invalid arguments ":arguments" encountered', [
+        throw CliInvalidArgumentsException::new(tr('Invalid arguments ":arguments" encountered', [
             ':arguments' => Strings::force(self::$argv, ', ')
         ]))->makeWarning();
     }

@@ -15,7 +15,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
-use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
@@ -277,7 +276,7 @@ class WebPage
     public static function requiresNotGuest(string|int|null $new_target = 'sign-in'): void
     {
         if (Session::getUser()->isGuest()) {
-            throw Exceptions::AccessDeniedException(tr('You do not have the required rights to view this page'))->setNewTarget($new_target);
+            throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))->setNewTarget($new_target);
         }
     }
 
@@ -295,7 +294,7 @@ class WebPage
         self::requiresNotGuest();
 
         if (!Session::getUser()->hasAllRights($rights)) {
-            throw Exceptions::AccessDeniedException(tr('You do not have the required rights to view this page'))->setNewTarget($new_target);
+            throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))->setNewTarget($new_target);
         }
     }
 
@@ -312,7 +311,7 @@ class WebPage
         self::requiresNotGuest();
 
         if (!Session::getUser()->hasSomeRights($rights)) {
-            throw Exceptions::AccessDeniedException(tr('You do not have the required rights to view this page'))->setNewTarget($new_target);
+            throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))->setNewTarget($new_target);
         }
     }
 

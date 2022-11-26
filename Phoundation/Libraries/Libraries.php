@@ -269,7 +269,7 @@ class Libraries
             return $return;
         }
 
-        throw Exceptions::NotExistsException(tr('The specified library does not exist'))->makeWarning();
+        throw NotExistsException::new(tr('The specified library does not exist'))->makeWarning();
     }
 
 

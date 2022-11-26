@@ -2,7 +2,7 @@
 
 namespace Data\Validator;
 
-use Phoundation\Data\Exception\ValidatorException;
+use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Validator;
 use PHPUnit\Framework\TestCase;
 

@@ -444,7 +444,7 @@ class Config
             // Check if a configuration file exists for this environment
             if (!file_exists($file)) {
                 // Do NOT use tr() here as it will cause endless loops!
-                throw Exceptions::ConfigException('Configuration file "' . Strings::from($file, PATH_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist')->makeWarning();
+                throw ConfigException::new('Configuration file "' . Strings::from($file, PATH_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist')->makeWarning();
             }
 
             try {

@@ -14,8 +14,8 @@ use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exception;
-use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Process;
@@ -359,7 +359,7 @@ class Core {
 // :TODO: Should pages themselves not check for this and perhaps send other headers?
                     switch ($_SERVER['REQUEST_METHOD'] ) {
                         case 'OPTIONS':
-                            Exceptions::underConstruction();
+                            throw new UnderConstructionException();
                     }
 
                     // Set security umask

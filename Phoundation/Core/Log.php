@@ -8,7 +8,6 @@ use Phoundation\Cli\Color;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
-use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
@@ -241,7 +240,7 @@ Class Log {
     public static function setThreshold(int $threshold): int
     {
         if (!is_natural($threshold, 1) or ($threshold > 10)) {
-            throw Exceptions::OutOfBoundsException(tr('The specified log threshold level ":level" is invalid. Please ensure the level is between 0 and 10', [
+            throw OutOfBoundsException::new(tr('The specified log threshold level ":level" is invalid. Please ensure the level is between 0 and 10', [
                 ':level' => $threshold
             ]))->makeWarning();
         }

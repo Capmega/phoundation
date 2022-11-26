@@ -3,7 +3,7 @@
 namespace Phoundation\Accounts;
 
 use Phoundation\Core\Core;
-use Phoundation\Exception\Exceptions;
+use Phoundation\Exception\OutOfBoundsException;
 
 
 
@@ -25,7 +25,7 @@ class Authenticate
         // Todo Move this to a security class where its actually used. No need to check this every time when its not being used in 99% of the page calls
         if (!defined('SEED') or !SEED) {
             if (Core::readRegister('system', 'script') !== 'setup') {
-                throw Exceptions::outOfBoundsException(tr('startup: Configuration data in "PATH_ROOT/config/production.yaml"' . (ENVIRONMENT === 'production' ? '' : ' or "PATH_ROOT/config/' . ENVIRONMENT . '.yaml"') . ' has not been fully configured. Please ensure that security.seed is not empty'))->makeWarning();
+                throw outOfBoundsException::new(tr('startup: Configuration data in "PATH_ROOT/config/production.yaml"' . (ENVIRONMENT === 'production' ? '' : ' or "PATH_ROOT/config/' . ENVIRONMENT . '.yaml"') . ' has not been fully configured. Please ensure that security.seed is not empty'))->makeWarning();
             }
         }
 

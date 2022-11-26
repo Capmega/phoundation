@@ -9,9 +9,9 @@ use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
-use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+
 
 
 /**
@@ -492,7 +492,7 @@ class UrlBuilder
             // It's not the primary domain
             if (!array_key_exists($domain, $domains)) {
                 // It's not a listed domain either, we don't know this domain, oh noes!
-                throw Exceptions::ConfigNotExistsException(tr('No configuration available for domain ":domain"', [
+                throw ConfigNotExistsException::new(tr('No configuration available for domain ":domain"', [
                     ':domain' => $domain
                 ]));
             }

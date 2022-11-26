@@ -5,8 +5,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Exception\Exceptions;
-
+use Phoundation\Exception\OutOfBoundsException;
 
 
 /**
@@ -29,7 +28,7 @@ ArgvValidator::new()
 
 // Validate arguments
 if (!$argv['file']) {
-    throw Exceptions::OutOfBoundsException(tr('No image specified'))->makeWarning();
+    throw OutOfBoundsException::new(tr('No image specified'))->makeWarning();
 }
 
 // Get image object
