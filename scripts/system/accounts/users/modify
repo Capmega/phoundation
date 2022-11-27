@@ -20,8 +20,8 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system accounts users create [OPTIONS]
-./cli system users create -l -i --to ENVIRONMENT';
+$usage = './cli system accounts users modify USER [OPTIONS]
+./cli system users modify USER -l -i --to ENVIRONMENT';
 
 $help  = 'This script allows you to modify users
 
@@ -29,6 +29,8 @@ $help  = 'This script allows you to modify users
 
 ARGUMENTS
 
+
+USER                                    The user to modify. Always specify users by their email addresses
 
 -e / --email                            The email address for the user
 
@@ -64,15 +66,17 @@ ARGUMENTS
 
 [--lead-by]
 
-[--country]
+[--country]                             The country where the user resides
 
-[--state]
+[--state]                               The state where the user resides
 
-[--city]
+[--city]                                The city where the user resides
 
 [--is-leader]                           If specified, this user will be registered as having a leadership position';
 
 
+// TODO Select users by email AND domain!
+//Config::get('web.domains.primary.domain')
 
 // Validate arguments
 ArgvValidator::new()
@@ -132,6 +136,8 @@ $user = User::get($argv['user'])
 
 
 // Set users roles
+$user->roles()->clear(false);
+
 foreach ($argv['roles'] as $role) {
     $user->roles()->add(Role::get($role));
 }

@@ -354,12 +354,16 @@ abstract class DataList implements Iterator
     /**
      * Remove the specified data entry from the data list
      *
-     * @param DataEntry $entry
+     * @param DataEntry|int|null $entry
      * @return $this
      */
-    protected function removeEntry(DataEntry $entry): static
+    protected function removeEntry(DataEntry|int|null $entry): static
     {
-        unset($this->list[$entry->getId()]);
+        if (is_object($entry->getId())) {
+            $entry = $entry->getId();
+        }
+
+        unset($this->list[$entry]);
         return $this;
     }
 

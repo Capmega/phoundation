@@ -34,15 +34,16 @@ class UserRoles extends Roles
      * Add the specified data entry to the data list
      *
      * @param Role|array|int|null $role
+     * @param bool $database
      * @return $this
      */
-    public function add(Role|array|int|null $role): static
+    public function add(Role|array|int|null $role, bool $database = true): static
     {
         if ($role) {
             if (is_array($role)) {
                 // Add multiple roles
                 foreach ($role as $item) {
-                    $this->add($role);
+                    $this->add($item, $database);
                 }
 
             } else {
@@ -52,11 +53,13 @@ class UserRoles extends Roles
                     $role = Role::get($role);
                 }
 
-                // Insert data in database
-                sql()->insert('accounts_users_roles', [
-                    'users_id'  => $this->parent->getId(),
-                    'roles_id' => $role->getId()
-                ]);
+                if ($database) {
+                    // Insert data in database
+                    sql()->insert('accounts_users_roles', [
+                        'users_id' => $this->parent->getId(),
+                        'roles_id' => $role->getId()
+                    ]);
+                }
 
                 // Add role to internal list
                 $this->addEntry($role);
@@ -74,15 +77,18 @@ class UserRoles extends Roles
      * Remove the specified data entry from the data list
      *
      * @param Role|int|null $role
+     * @param bool $database
      * @return $this
      */
-    public function remove(Role|int|null $role): static
+    public function remove(Role|int|null $role, bool $database = true): static
     {
         if ($role) {
-            sql()->query('DELETE FROM `accounts_users_roles` WHERE `users_id` = :users_id AND `roles_id` = :roles_id', [
-                'users_id'  => $this->parent->getId(),
-                'roles_id' => $role->getId()
-            ]);
+            if ($database) {
+                sql()->query('DELETE FROM `accounts_users_roles` WHERE `users_id` = :users_id AND `roles_id` = :roles_id', [
+                    'users_id'  => $this->parent->getId(),
+                    'roles_id' => $role->getId()
+                ]);
+            }
 
             $this->removeEntry($role);
             $this->parent->rights()->load();
@@ -98,11 +104,15 @@ class UserRoles extends Roles
      *
      * @return $this
      */
-    public function clear(): static
+    public function clear(bool $database = true): static
     {
-        sql()->query('DELETE FROM `accounts_users_roles` WHERE `users_id` = :users_id', [
-            'users_id'  => $this->parent->getId()
-        ]);
+        if ($database) {
+            sql()->query('DELETE FROM `accounts_users_roles` WHERE `users_id` = :users_id', [
+                'users_id'  => $this->parent->getId()
+            ]);
+        }
+
+
 
         return $this;
     }
