@@ -141,7 +141,7 @@ class Cli
      */
     public static function readPassword(string $prompt): string
     {
-        echo $prompt;
+        echo trim($prompt) . ' ';
 
         system('stty -echo');
         $return = trim(fgets(STDIN));

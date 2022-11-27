@@ -853,9 +853,9 @@ class Arrays {
      *
      * @param array $source
      * @param bool $ignore_non_numbers
-     * @return int
+     * @return float
      */
-    public static function average(array $source, bool $ignore_non_numbers = false): int
+    public static function average(array $source, bool $ignore_non_numbers = false): float
     {
         $total = 0;
 

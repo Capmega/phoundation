@@ -5,11 +5,14 @@ namespace Phoundation\Accounts\Users;
 use Phoundation\Accounts\Rights\UserRights;
 use Phoundation\Accounts\Roles\UserRoles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Accounts\Users\Exception\UsersException;
 use Phoundation\Api\Users;
 use Phoundation\Business\Companies\Branches\Branch;
 use Phoundation\Business\Companies\Company;
 use Phoundation\Business\Companies\Departments\Department;
+use Phoundation\Cli\Script;
 use Phoundation\Content\Images\Image;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
@@ -17,7 +20,6 @@ use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Date\DateTime;
-use Phoundation\Exception\Exceptions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\City;
 use Phoundation\Geo\Country;
@@ -1274,10 +1276,9 @@ class User extends DataEntry
     public function setPassword(string $password, string $validation): static
     {
         $this->validatePassword($password, $validation);
+        $this->setDataValue('password', $this->passwordHash($password));
 
-        $password = $this->passwordHash($password);
-
-        return $this->setDataValue('password', $password);
+        return $this->savePassword();
     }
 
 
@@ -1566,8 +1567,46 @@ class User extends DataEntry
      */
     public function passwordMatch(string $password): bool
     {
-        $hash = $this->passwordHash($password);
-        return $hash === isset_get($this->data['password']);
+        return password_verify($this->passwordSeed($password), $this->data['password']);
+    }
+
+
+
+    /**
+     * Returns the best encryption cost available on this machine
+     *
+     * This code will benchmark your server to determine how high of a cost you can afford. You want to set the highest
+     * cost that you can without slowing down you server too much. 8-10 is a good baseline, and more is good if your
+     * servers are fast enough. The code below aims for ≤ 50 milliseconds stretching time, which is a good baseline for
+     * systems handling interactive logins.
+     *
+     * @note Taken from https://www.php.net/manual/en/function.password-hash.php and modified by Sven Olaf Oostenbrink
+     * @param int $tries
+     * @return int
+     */
+    public static function findBestEncryptionCost(int $tries = 20): int
+    {
+        $time  = Config::get('security.password.time', 50) / 1000;
+        $costs = [];
+        $try   = 0;
+
+        while (++$try < $tries) {
+            $cost = 3;
+
+            do {
+                $cost++;
+                $start = microtime(true);
+                password_hash('test', PASSWORD_BCRYPT, ['cost' => $cost]);
+                $end = microtime(true);
+                Script::dot();
+            } while (($end - $start) < $time);
+
+            $costs[] = $cost;
+        }
+
+        Log::cli();
+
+        return (int) Arrays::average($costs);
     }
 
 
@@ -1777,6 +1816,42 @@ class User extends DataEntry
             throw new OutOfBoundsException(tr('No password specified'));
         }
 
-        return '*DEFAULT*' . password_hash($this->getDataValue('id') . $password, PASSWORD_DEFAULT);
+        return password_hash($this->passwordSeed($password), PASSWORD_BCRYPT, [
+            'cost' => Config::get('security.passwords.cost', 10)
+        ]);
+    }
+
+
+
+    /**
+     * Returns the password with a seed
+     *
+     * @param string $password
+     * @return string
+     */
+    protected function passwordSeed(string $password): string
+    {
+        return Config::get('security.seed', 'phoundation') . $this->getDataValue('id') . $password;
+    }
+
+
+
+    /**
+     * Save the password for this user
+     *
+     * @return $this
+     */
+    protected function savePassword(): static
+    {
+        if (empty($this->data['id'])) {
+            throw new UsersException(tr('Cannot save password, this user does not have an id'));
+        }
+
+        sql()->query('UPDATE `accounts_users` SET `password` = :password WHERE `id` = :id', [
+            ':id'       => $this->data['id'],
+            ':password' => $this->data['password']
+        ]);
+
+        return $this;
     }
 }
