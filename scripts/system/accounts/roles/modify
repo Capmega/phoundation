@@ -1,0 +1,64 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Accounts\Exception\AccountsException;
+use Phoundation\Accounts\Roles\Role;
+use Phoundation\Core\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+
+/**
+ * Script system/accounts/roles/create
+ *
+ * This script will create a new role with the specified properties
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+$usage = './cli system accounts role create -n NAME [OPTIONS]
+./cli system accounts role create -n test -d "This is a test role!"';
+
+$help  = 'This script allows you to create roles
+
+
+
+ARGUMENTS
+
+
+
+-n / --name                             The name for the role
+
+[-d / --description]                    The description for the role';
+
+
+
+// Validate arguments
+ArgvValidator::new()
+    ->select('-n,--name', true)->isName()
+    ->select('-d,--description', true)->isOptional(null)->isDescription()
+    ->validate();
+
+
+
+// Check if the role already exists
+if (Role::exists($argv['name'])) {
+    throw new AccountsException(tr('Cannot create role with name ":name", it already exists', [
+        ':name' => $argv['name']
+    ]));
+}
+
+
+
+// Create role and save it
+$role = Role::new()
+    ->setName($argv['name'])
+    ->setDescription($argv['description'])
+    ->save();
+
+
+
+// Done!
+Log::success(tr('Created new role ":role"', [':role' => $role->getName()]));

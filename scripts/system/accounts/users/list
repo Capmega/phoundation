@@ -28,6 +28,8 @@ ARGUMENTS
 
 -d / --details                          Will show more details about each user
 
+--domains DOMAIN[,DOMAIN,DOMAIN,...]    Will only display users for the specified domains
+
 --deleted                               Will also show deleted users
 
 -r/--role ROLE                          Will only display users with the specified role';
@@ -37,11 +39,13 @@ ARGUMENTS
 // Validate arguments
 ArgvValidator::new()
     ->select('-d,--details')->isOptional(false)->isBoolean()
-    ->select('-r,--roles,--role', true)->isOptional(null)->isName()
+    ->select('--domains,--domain')->isOptional(null)->sanitizeForceArray()->each()->isDomain()
+    ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
     ->validate();
 
 
 Users::new()
     ->addFilter('roles', $argv['roles'])
+    ->addFilter('domains', $argv['domains'])
     ->addFilter('status', (DELETED ? 'deleted' : null))
     ->cliDisplayArray(tr('Id'), tr('Email'));

@@ -1,0 +1,47 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Accounts\Roles\Roles;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+
+/**
+ * Script system/accounts/roles/list
+ *
+ * This script will list the available roles on this system
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+$usage = './cli system accounts roles list [OPTIONS]
+./cli system accounts roles list -d -r god';
+
+$help  = 'This script will list the available roles on this system
+
+
+
+ARGUMENTS
+
+
+-d / --details                          Will show more details about each role
+
+--deleted                               Will also show deleted roles
+
+-r/--role ROLE                          Will only display roles with the specified role';
+
+
+
+// Validate arguments
+ArgvValidator::new()
+    ->select('-d,--details')->isOptional(false)->isBoolean()
+    ->select('-r,--roles,--role', true)->isOptional(null)->isName()
+    ->validate();
+
+
+Roles::new()
+    ->addFilter('roles', $argv['roles'])
+    ->addFilter('status', (DELETED ? 'deleted' : null))
+    ->cliDisplayArray(tr('Id'), tr('Email'));
