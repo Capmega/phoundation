@@ -109,9 +109,10 @@ class RoleRights extends Rights
     /**
      * Load the data for this rights list into the object
      *
+     * @param bool $details
      * @return static
      */
-    public function load(): static
+    public function load(bool $details = false): static
     {
         $this->list = sql()->list('SELECT `accounts_roles_rights`.* 
                                          FROM   `accounts_roles_rights` 

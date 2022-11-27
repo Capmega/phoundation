@@ -18,7 +18,7 @@ use Phoundation\Data\DataList;
  */
 class Rights extends DataList
 {
-    protected function load(): static
+     protected function load(bool $details = false): static
     {
         return $this;
     }

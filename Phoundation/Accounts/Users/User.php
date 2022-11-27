@@ -1529,6 +1529,7 @@ class User extends DataEntry
      */
     public function hasAllRights(array|string $rights): bool
     {
+        return $this->rights->contains($rights);
     }
 
 
@@ -1541,6 +1542,7 @@ class User extends DataEntry
      */
     public function hasSomeRights(array|string $rights): bool
     {
+        return $this->rights->contains($rights, false);
     }
 
 

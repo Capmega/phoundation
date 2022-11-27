@@ -21,9 +21,10 @@ class Categories extends DataList
     /**
      * Load the data for this categories list
      *
+     * @param bool $details
      * @return static
      */
-    public function load(): static
+    public function load(bool $details = false): static
     {
 
         return $this;

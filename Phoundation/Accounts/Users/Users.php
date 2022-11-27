@@ -3,7 +3,7 @@
 namespace Phoundation\Accounts\Users;
 
 use Phoundation\Data\DataList;
-use Phoundation\Databases\Sql\queryBuilder;
+use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Exception\NotSupportedException;
 
 
@@ -20,13 +20,21 @@ use Phoundation\Exception\NotSupportedException;
  */
 class Users extends DataList
 {
-    protected function load(): static
+     protected function load(bool $details = false): static
     {
-        $builder = new queryBuilder();
+        $builder = new QueryBuilder();
         $builder->addSelect('SELECT `accounts_users`.`id`, 
+                                          `accounts_users`.`domain`,
                                           `accounts_users`.`email`,
                                           `accounts_users`.`name`');
         $builder->addFrom('FROM `accounts_users`');
+
+        if ($details) {
+            // Add more columns
+            $builder->addSelect(',`accounts_users`.`nickname`, 
+                                        `accounts_users`.`phones`,');
+
+        }
 
         foreach ($this->filters as $key => $value){
             switch ($key) {

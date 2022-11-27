@@ -21,9 +21,10 @@ class Roles extends DataList
     /**
      * Load the data for this roles list
      *
+     * @param bool $details
      * @return static
      */
-    public function load(): static
+    public function load(bool $details = false): static
     {
         $this->list = sql()->list('SELECT * FROM `accounts_roles`');
         return $this;

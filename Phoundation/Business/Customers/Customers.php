@@ -23,7 +23,7 @@ class Customers extends DataList
     /**
      * @inheritDoc
      */
-    protected function load(): static
+     protected function load(bool $details = false): static
     {
         // TODO: Implement load() method.
     }

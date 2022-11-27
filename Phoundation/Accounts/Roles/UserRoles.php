@@ -122,9 +122,10 @@ class UserRoles extends Roles
     /**
      * Load the data for this roles list into the object
      *
+     * @param bool $details
      * @return static
      */
-    public function load(): static
+    public function load(bool $details = false): static
     {
         $this->list = sql()->list('SELECT `accounts_users_roles`.* 
                                          FROM   `accounts_users_roles` 
