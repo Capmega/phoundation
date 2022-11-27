@@ -18,35 +18,35 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-class queryBuilder
+class QueryBuilder
 {
     /**
      * Select part of query
      *
      * @var string $select
      */
-    protected string $select;
+    protected string $select = '';
 
     /**
      * Delete part of query
      *
      * @var string $delete
      */
-    protected string $delete;
+    protected string $delete = '';
 
     /**
      * Update part of query
      *
      * @var string $update
      */
-    protected string $update;
+    protected string $update = '';
 
     /**
      * From part of query
      *
      * @var string $from
      */
-    protected string $from;
+    protected string $from = '';
 
     /**
      * Join part of query
@@ -88,19 +88,15 @@ class queryBuilder
      */
     public function addSelect(string $select): static
     {
-        if (isset($this->select)) {
-            throw new OutOfBoundsException(tr('SELECT part of query has already been added'));
-        }
-
-        if (isset($this->delete)) {
+        if ($this->delete) {
             throw new OutOfBoundsException(tr('DELETE part of query has already been added, cannot add SELECT'));
         }
 
-        if (isset($this->update)) {
+        if ($this->update) {
             throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add SELECT'));
         }
 
-        $this->select = $select;
+        $this->select .= $select;
         return $this;
     }
 
@@ -114,19 +110,15 @@ class queryBuilder
      */
     public function addDelete(string $delete): static
     {
-        if (isset($this->delete)) {
-            throw new OutOfBoundsException(tr('DELETE part of query has already been added'));
-        }
-
-        if (isset($this->select)) {
+        if ($this->select) {
             throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add DELETE'));
         }
 
-        if (isset($this->update)) {
+        if ($this->update) {
             throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add DELETE'));
         }
 
-        $this->delete = $delete;
+        $this->delete .= $delete;
         return $this;
     }
 
@@ -140,19 +132,15 @@ class queryBuilder
      */
     public function addUpdate(string $update): static
     {
-        if (isset($this->update)) {
-            throw new OutOfBoundsException(tr('UPDATE part of query has already been added'));
-        }
-
-        if (isset($this->select)) {
+        if ($this->select) {
             throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add UPDATE'));
         }
 
-        if (isset($this->delete)) {
+        if ($this->delete) {
             throw new OutOfBoundsException(tr('DELETE part of query has already been added, cannot add UPDATE'));
         }
 
-        $this->update = $update;
+        $this->update .= $update;
         return $this;
     }
 
@@ -166,15 +154,11 @@ class queryBuilder
      */
     public function addFrom(string $from): static
     {
-        if (isset($this->from)) {
-            throw new OutOfBoundsException(tr('FROM part of query has already been added'));
-        }
-
         if (isset($this->update)) {
             throw new OutOfBoundsException(tr('This is an UPDATE query, cannot add FROM'));
         }
 
-        $this->from = $from;
+        $this->from .= $from;
         return $this;
     }
 
