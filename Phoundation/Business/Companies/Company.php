@@ -28,21 +28,6 @@ class Company extends DataEntry
 
 
     /**
-     * Company class constructor
-     *
-     * @param int|string|null $identifier
-     */
-    public function __construct(int|string|null $identifier = null)
-    {
-        self::$entry_name = 'company';
-        $this->table      = 'business_companies';
-
-        parent::__construct($identifier);
-    }
-
-
-
-    /**
      * The branches for this company
      *
      * @var DataList $branches
@@ -55,6 +40,21 @@ class Company extends DataEntry
      * @var DataList $departments
      */
     protected DataList $departments;
+
+
+
+    /**
+     * Company class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        self::$entry_name = 'company';
+        $this->table      = 'business_companies';
+
+        parent::__construct($identifier);
+    }
 
 
 

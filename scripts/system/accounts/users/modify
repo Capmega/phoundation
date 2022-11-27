@@ -1,0 +1,142 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Accounts\Exception\AccountsException;
+use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Users\User;
+use Phoundation\Cli\Cli;
+use Phoundation\Core\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+
+/**
+ * Script system/accounts/users/modify
+ *
+ * This script will modify a user with the specified properties
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+$usage = './cli system accounts users create [OPTIONS]
+./cli system users create -l -i --to ENVIRONMENT';
+
+$help  = 'This script allows you to modify users
+
+
+
+ARGUMENTS
+
+
+-e / --email                            The email address for the user
+
+-n / --name                             The name for the user
+
+-r / --roles ROLE[,ROLE,ROLE]           A comma separated list of the roles that this user has on this system. The roles 
+                                        must already exist. These roles will grant the user rights which will give him 
+                                        or her access to the various parts of the system
+
+[-g / --gender]
+
+[-t / --title]
+
+[-l / --language]
+
+[-d / --description]
+
+[-c / --comments]
+
+[-u / --username]
+
+[-a / --address]
+
+[-w / --website]
+
+[-p / --phones]
+
+[-b / --birthday]
+
+[-t / --timezone]
+
+[--domain]
+
+[--lead-by]
+
+[--country]
+
+[--state]
+
+[--city]
+
+[--is-leader]                           If specified, this user will be registered as having a leadership position';
+
+
+
+// Validate arguments
+ArgvValidator::new()
+    ->select('user', true)->isEmail()
+    ->select('-e,--email', true)->isEmail()
+    ->select('-n,--name', true)->isName()
+    ->select('-g,--gender', true)->isOptional(null)->isGender()
+    ->select('-t,--title', true)->isOptional(null)->isName()
+    ->select('-l,--language', true)->isOptional(null)->isName()
+    ->select('-d,--description', true)->isOptional(null)->isDescription()
+    ->select('-c,--comments', true)->isOptional(null)->isDescription()
+    ->select('-u,--username', true)->isOptional(null)->isDescription()->isName()
+    ->select('-a,--address', true)->isOptional(null)->hasMaxCharacters(255)->isPrintable()
+    ->select('-w,--website', true)->isOptional(null)->isUrl()
+    ->select('-p,--phones', true)->isOptional(null)->isPhones()
+    ->select('-b,--birthday', true)->isOptional(null)->isDate()
+    ->select('-t,--timezone', true)->isOptional(null)->isTimezone()
+    ->select('--domain', true)->isOptional(null)->isDomain()
+    ->select('--lead-by', true)->isOptional(null)->isEmail()
+    ->select('--country', true)->isOptional(null)->isName()
+    ->select('--state', true)->isOptional(null)->isName()
+    ->select('--city', true)->isOptional(null)->isName()
+    ->select('--company', true)->isOptional(null)->isName()
+    ->select('--department', true)->isOptional(null)->isName()
+    ->select('--branch', true)->isOptional(null)->isName()
+    ->select('--is-leader')->isOptional(false)->isBoolean()
+    ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+    ->validate();
+
+
+
+// Modify user and save
+$user = User::get($argv['user'])
+    ->setEmail($argv['email'])
+    ->setName($argv['name'])
+    ->setTitle($argv['title'])
+    ->setGender($argv['gender'])
+    ->setLanguage($argv['language'])
+    ->setDescription($argv['description'])
+    ->setComments($argv['comments'])
+    ->setUsername($argv['username'])
+    ->setAddress($argv['address'])
+    ->setWebsite($argv['website'])
+    ->setPhones($argv['phones'])
+    ->setBirthday($argv['birthday'])
+    ->setTimezone($argv['timezone'])
+    ->setLeader($argv['lead_by'])
+    ->setIsLeader($argv['is_leader'])
+    ->setCountry($argv['country'])
+    ->setState($argv['state'])
+    ->setCity($argv['city'])
+    ->setCompany($argv['company'])
+    ->setBranch($argv['branch'])
+    ->setDepartment($argv['department'])
+    ->save();
+
+
+
+// Set users roles
+foreach ($argv['roles'] as $role) {
+    $user->roles()->add(Role::get($role));
+}
+
+
+
+// Done!
+Log::success(tr('Modified user ":user"', [':user' => $user->getDisplayName()]));

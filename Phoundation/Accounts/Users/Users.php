@@ -24,7 +24,8 @@ class Users extends DataList
     {
         $builder = new queryBuilder();
         $builder->addSelect('SELECT `accounts_users`.`id`, 
-                                          `accounts_users`.`email`');
+                                          `accounts_users`.`email`,
+                                          `accounts_users`.`name`');
         $builder->addFrom('FROM `accounts_users`');
 
         foreach ($this->filters as $key => $value){

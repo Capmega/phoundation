@@ -551,13 +551,18 @@ abstract class DataEntry
      */
     public function save(): static
     {
-        $this->data['id'] = sql()->findRandomId($this->table);
-        $this->data['id'] = sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns());
-
-        if ($this->list) {
-            $this->list->save();
+        if (!isset($this->data['id'])) {
+            // This is a new entry, reserve an id
+            $this->data['id'] = sql()->reserveRandomId($this->table);
         }
 
+        // Write the entry
+        sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns());
+
+        // Write the list, if set
+        $this->list?->save();
+
+        // Done!
         return $this;
     }
 

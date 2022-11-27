@@ -1276,7 +1276,7 @@ class User extends DataEntry
     public function setPassword(string $password, string $validation): static
     {
         $this->validatePassword($password, $validation);
-        $this->setDataValue('password', $this->passwordHash($password));
+        $this->setDataValue('password', $this->hashPassword($password));
 
         return $this->savePassword();
     }
@@ -1307,7 +1307,7 @@ class User extends DataEntry
             throw new ValidationFailedException(tr('The password must match the validation password'));
         }
 
-        $this->passwordTestSecure($password);
+        $this->testPasswordSecurity($password);
 
         return $this;
     }
@@ -1567,7 +1567,7 @@ class User extends DataEntry
      */
     public function passwordMatch(string $password): bool
     {
-        return password_verify($this->passwordSeed($password), $this->data['password']);
+        return password_verify($this->seedPassword($password), $this->data['password']);
     }
 
 
@@ -1675,13 +1675,13 @@ class User extends DataEntry
      * @param string $password
      * @return void
      */
-    protected function passwordTestSecure(string $password): void
+    protected function testPasswordSecurity(string $password): void
     {
-        if ($this->passwordWeak($password)) {
+        if ($this->passwordIsWeak($password)) {
             throw new ValidationFailedException(tr('This password is not secure enough'));
         }
 
-        if ($this->passwordCompromised($password)) {
+        if ($this->passwordIsCompromised($password)) {
             throw new ValidationFailedException(tr('This password has been compromised'));
         }
     }
@@ -1694,7 +1694,7 @@ class User extends DataEntry
      * @param string $password
      * @return bool
      */
-    protected function passwordWeak(string $password): bool
+    protected function passwordIsWeak(string $password): bool
     {
         $strength = $this->getPasswordStrength($password);
         return ($strength < Config::get('security.password.strength', 50));
@@ -1795,7 +1795,7 @@ class User extends DataEntry
      * @param string $password
      * @return bool
      */
-    protected function passwordCompromised(string $password): bool
+    protected function passwordIsCompromised(string $password): bool
     {
         return (bool) sql()->get('SELECT `id` FROM `accounts_compromised_passwords` WHERE `password` = :password', [
             ':password' => $password
@@ -1810,13 +1810,13 @@ class User extends DataEntry
      * @param string $password
      * @return string
      */
-    protected function passwordHash(string $password): string
+    protected function hashPassword(string $password): string
     {
         if (!$password) {
             throw new OutOfBoundsException(tr('No password specified'));
         }
 
-        return password_hash($this->passwordSeed($password), PASSWORD_BCRYPT, [
+        return password_hash($this->seedPassword($password), PASSWORD_BCRYPT, [
             'cost' => Config::get('security.passwords.cost', 10)
         ]);
     }
@@ -1829,7 +1829,7 @@ class User extends DataEntry
      * @param string $password
      * @return string
      */
-    protected function passwordSeed(string $password): string
+    protected function seedPassword(string $password): string
     {
         return Config::get('security.seed', 'phoundation') . $this->getDataValue('id') . $password;
     }

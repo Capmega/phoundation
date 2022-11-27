@@ -1054,7 +1054,7 @@ class Sql
      * @return int
      * @todo This is sort of the same as Sql::randomId(), merge these two!
      */
-    public function findRandomId(string $table, string $column = 'id', int $max = 2147483648, ?string $comments = null): int
+    public function reserveRandomId(string $table, string $column = 'id', int $max = 2147483648, ?string $comments = null): int
     {
         $retries    = 0;
         $maxretries = 50;
