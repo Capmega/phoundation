@@ -57,13 +57,14 @@ abstract class DataList implements Iterator
      *
      * @param DataEntry|null $parent
      * @param bool $load
+     * @param bool $details
      */
-    public function __construct(?DataEntry $parent = null, bool $load = false)
+    public function __construct(?DataEntry $parent = null, bool $load = false, bool $details = false)
     {
         $this->parent = $parent;
 
         if ($parent and $load) {
-            $this->load();
+            $this->load($details);
         }
     }
 
@@ -95,6 +96,39 @@ abstract class DataList implements Iterator
         }
 
         return array_key_exists($entry->getId(), $this->list);
+    }
+
+
+
+    /**
+     * Returns if all (or optionally any) of the specified entries are in this list
+     *
+     * @param DataList|array|string $list
+     * @param bool $all
+     * @return bool
+     */
+    public function contains(DataList|array|string $list, bool $all = true): bool
+    {
+        if (is_string($list)) {
+            $list = explode(',', $list);
+        }
+
+        foreach ($list as $entry) {
+            if (!in_array($entry, $this->list)) {
+                if ($all) {
+                    // Ann need to be in the array but we found one missing
+                    return false;
+                }
+            } else {
+                if (!$all) {
+                    // only one needs to be in the array, we found one, we're good!
+                    return true;
+                }
+            }
+        }
+
+        // All were in the array
+        return true;
     }
 
 
@@ -324,11 +358,12 @@ abstract class DataList implements Iterator
      *
      * @param string|null $key_header
      * @param string|null $value_header
+     * @param bool $details
      * @return void
      */
-    public function CliDisplayArray(?string $key_header = null, ?string $value_header = null): void
+    public function CliDisplayArray(?string $key_header = null, ?string $value_header = null, bool $details = false): void
     {
-        $this->ensureLoaded();
+        $this->ensureLoaded($details);
         Cli::displayArray($this->list, $key_header, $value_header);
     }
 
@@ -372,12 +407,13 @@ abstract class DataList implements Iterator
     /**
      * If the list has not yet loaded its content, do so now
      *
+     * @param bool $details
      * @return void
      */
-    protected function ensureLoaded(): void
+    protected function ensureLoaded(bool $details = false): void
     {
         if (!isset($this->list)) {
-            $this->load();
+            $this->load($details);
         }
     }
 
@@ -386,9 +422,10 @@ abstract class DataList implements Iterator
     /**
      * Load the data list elements from database
      *
+     * @param bool $details
      * @return static
      */
-    abstract protected function load(): static;
+    abstract protected function load(bool $details = true): static;
 
 
 
