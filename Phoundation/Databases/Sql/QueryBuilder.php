@@ -154,7 +154,7 @@ class QueryBuilder
      */
     public function addFrom(string $from): static
     {
-        if (isset($this->update)) {
+        if ($this->update) {
             throw new OutOfBoundsException(tr('This is an UPDATE query, cannot add FROM'));
         }
 
