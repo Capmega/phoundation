@@ -48,4 +48,4 @@ Users::new()
     ->addFilter('roles', $argv['roles'])
     ->addFilter('domains', $argv['domains'])
     ->addFilter('status', (DELETED ? 'deleted' : null))
-    ->cliDisplayArray(tr('Id'), tr('Email'));
+    ->CliDisplayTable();

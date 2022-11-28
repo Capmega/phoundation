@@ -1373,6 +1373,80 @@ class Arrays {
 
 
     /**
+     * Returns the longest value string for each column from each row in the specified source array
+     *
+     * @note Any non-string keys will be treated as displayed strings
+     * @param array $source
+     * @param int $add_extra
+     * @return array
+     */
+    public static function getLongestStringPerColumn(array $source, int $add_extra = 0, ?string $add_key = null, bool $check_column_key_length = true): array
+    {
+        $columns = [];
+
+        foreach ($source as $key => $row) {
+            // Initialize the return array
+            if (empty($columns)) {
+                $columns = Arrays::initialize(array_keys($row), $add_extra);
+
+                if ($add_key) {
+                    $columns[$add_key] = $add_extra;
+                }
+            }
+
+            // The key length
+            if ($add_key !== null) {
+                $length = (strlen((string) $key) + $add_extra);
+
+                if ($length > $columns[$add_key]) {
+                    $columns[$add_key] = $length;
+                }
+            }
+
+            // The length of each column
+            foreach ($row as $column => $value) {
+                $length = (strlen((string) $value) + $add_extra);
+
+                if ($length > $columns[$column]) {
+                    $columns[$column] = $length;
+                }
+
+                if ($check_column_key_length) {
+                    $length = (strlen((string) $column) + $add_extra);
+
+                    if ($length > $columns[$column]) {
+                        $columns[$column] = $length;
+                    }
+                }
+            }
+        }
+
+        return $columns;
+    }
+
+
+
+    /**
+     * Returns a new array with the specified keys, all having the specified default value
+     *
+     * @param array $keys
+     * @param mixed $default
+     * @return array
+     */
+    public static function initialize(array $keys, mixed $default = null): array
+    {
+        $return = [];
+
+        foreach ($keys as $key) {
+            $return[$key] = $default;
+        }
+
+        return $return;
+    }
+
+
+
+    /**
      * Remove the key with the specified value from the given source array
      *
      * @param array $source

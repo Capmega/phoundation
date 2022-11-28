@@ -356,15 +356,15 @@ abstract class DataList implements Iterator
     /**
      * Creates and returns a CLI table for the data in this list
      *
-     * @param string|null $key_header
-     * @param string|null $value_header
+     * @param array|null $columns
      * @param bool $details
+     * @param string|null $id_column
      * @return void
      */
-    public function CliDisplayArray(?string $key_header = null, ?string $value_header = null, bool $details = false): void
+    public function CliDisplayTable(?array $columns = null, bool $details = false, ?string $id_column = 'id'): void
     {
         $this->ensureLoaded($details);
-        Cli::displayArray($this->list, $key_header, $value_header);
+        Cli::displayTable($this->list, $columns, $id_column);
     }
 
 

@@ -76,12 +76,74 @@ class Cli
      * Display the data in the specified source array in a neat looking table
      *
      * @param array $source
+     * @param array|null $headers
+     * @param string|null $id_column
+     * @return void
+     */
+    public static function displayTable(array $source, array|null $headers = null, ?string $id_column = 'id'): void
+    {
+        // Determine the size of the keys to display them
+        $column_sizes = Arrays::getLongestStringPerColumn($source, 2, $id_column);
+
+        // Get headers from columns
+        if ($headers === null) {
+            $value   = str_replace(['_', '-'], ' ', $id_column);
+            $value   = Strings::capitalize($value) . ':';
+            $headers = ($id_column ? [$id_column => $value] : []);
+            $row     = current($source);
+
+            foreach ($row as $header => $value) {
+                $value = str_replace(['_', '-'], ' ', $header);
+                $value = Strings::capitalize($value) . ':';
+
+                $headers[$header] = $value;
+            }
+        }
+
+        // Display header
+        foreach ($headers as $column => $header) {
+            Log::cli(Color::apply(Strings::size($header , $column_sizes[$column]), 'white') . ' ', 10, false);
+        }
+
+        Log::cli();
+
+        // Display source
+        foreach ($source as $id => $row) {
+            if (!is_array($row)) {
+                // Wrong! This is a row and as such should be an array
+                throw new OutOfBoundsException(tr('Invalid row ":row" specified for id ":id", it should be an array', [
+                    ':id' => $id,
+                    ':row' => $row,
+                ]));
+            }
+
+            array_unshift($row, $id);
+
+            foreach ($row as $column => $value) {
+                if ($column === 0) {
+                    // Due to the nature of array_unshift (we can't specify key name, so it always has key 0), rename!
+                    $column = $id_column;
+                }
+
+                Log::cli(Strings::size($value , $column_sizes[$column], ' ', is_numeric($value)) . ' ', 10, false);
+            }
+
+            Log::cli();
+        }
+    }
+
+
+
+    /**
+     * Display the data in the specified source array in a neat looking form
+     *
+     * @param array $source
      * @param string|null $key_header
      * @param string|null $value_header
      * @param int $offset If specified, the text will be set $offset amount of characters to the right
      * @return void
      */
-    public static function displayArray(array $source, ?string $key_header = null, string $value_header = null, int $offset = 0): void
+    public static function displayForm(array $source, ?string $key_header = null, string $value_header = null, int $offset = 0): void
     {
         // Validate arguments
         if ($offset < 0) {

@@ -679,9 +679,7 @@ class Strings
             ]));
         }
 
-        if ($source === null) {
-            return '';
-        }
+        $source = (string) $source;
 
         $strlen = mb_strlen(Color::strip($source));
 

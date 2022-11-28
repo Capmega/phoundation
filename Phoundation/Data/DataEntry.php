@@ -3,6 +3,7 @@
 namespace Phoundation\Data;
 
 use DateTime;
+use Phoundation\Cli\Cli;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Meta;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
@@ -564,6 +565,21 @@ abstract class DataEntry
 
         // Done!
         return $this;
+    }
+
+
+
+    /**
+     * Creates and returns a CLI table for the data in this list
+     *
+     * @param string|null $key_header
+     * @param string|null $value_header
+     * @param bool $details
+     * @return void
+     */
+    public function CliDisplayForm(?string $key_header = null, ?string $value_header = null, bool $details = false): void
+    {
+        Cli::displayTable($this->data, $key_header, $value_header);
     }
 
 
