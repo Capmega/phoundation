@@ -32,7 +32,9 @@ ARGUMENTS
 
 --deleted                               Will also show deleted users
 
--r/--role ROLE                          Will only display users with the specified role';
+--roles ROLE[,ROLE,ROLE,...]           Will only display users with the specified role
+
+--rights RIGHT[RIGHT,RIGHT,...]        Will only display users with the specified right';
 
 
 
@@ -41,11 +43,13 @@ ArgvValidator::new()
     ->select('-d,--details')->isOptional(false)->isBoolean()
     ->select('--domains,--domain')->isOptional(null)->sanitizeForceArray()->each()->isDomain()
     ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+    ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
     ->validate();
 
 
 Users::new()
     ->addFilter('roles', $argv['roles'])
+    ->addFilter('rights', $argv['rights'])
     ->addFilter('domains', $argv['domains'])
     ->addFilter('status', (DELETED ? 'deleted' : null))
-    ->CliDisplayTable();
+    ->CliDisplayTable($argv['details']);

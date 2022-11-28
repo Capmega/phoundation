@@ -30,18 +30,18 @@ ARGUMENTS
 
 --deleted                               Will also show deleted roles
 
--r/--role ROLE                          Will only display roles with the specified role';
+--rights RIGHT[RIGHT,RIGHT,...]        Will only display roles with the specified right';
 
 
 
 // Validate arguments
 ArgvValidator::new()
     ->select('-d,--details')->isOptional(false)->isBoolean()
-    ->select('-r,--roles,--role', true)->isOptional(null)->isName()
+    ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
     ->validate();
 
 
 Roles::new()
-    ->addFilter('roles', $argv['roles'])
+    ->addFilter('rights', $argv['rights'])
     ->addFilter('status', (DELETED ? 'deleted' : null))
-    ->CliDisplayTable();
+    ->CliDisplayTable($argv['details']);

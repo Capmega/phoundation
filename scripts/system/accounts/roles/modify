@@ -37,23 +37,15 @@ ARGUMENTS
 
 // Validate arguments
 ArgvValidator::new()
+    ->select('role', true)->isName()
     ->select('-n,--name', true)->isName()
     ->select('-d,--description', true)->isOptional(null)->isDescription()
     ->validate();
 
 
 
-// Check if the role already exists
-if (Role::exists($argv['name'])) {
-    throw new AccountsException(tr('Cannot create role with name ":name", it already exists', [
-        ':name' => $argv['name']
-    ]));
-}
-
-
-
 // Create role and save it
-$role = Role::new()
+$role = Role::get($argv['role'])
     ->setName($argv['name'])
     ->setDescription($argv['description'])
     ->save();
@@ -61,4 +53,4 @@ $role = Role::new()
 
 
 // Done!
-Log::success(tr('Created new role ":role"', [':role' => $role->getName()]));
+Log::success(tr('Modified role ":role"', [':role' => $role->getDisplayName()]));
