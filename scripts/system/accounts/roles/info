@@ -43,4 +43,4 @@ ArgvValidator::new()
 
 
 // Display user data
-Cli::displayTable(User::get($argv['user'])->getData());
+Cli::displayForm(User::get($argv['user'])->getData());

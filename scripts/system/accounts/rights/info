@@ -1,17 +1,14 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Accounts\Exception\AccountsException;
-use Phoundation\Accounts\Roles\Role;
-use Phoundation\Accounts\Users\User;
+use Phoundation\Accounts\Rights\Right;
 use Phoundation\Cli\Cli;
-use Phoundation\Core\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
 
 /**
- * Script system/accounts/users/info
+ * Script system/accounts/rights/info
  *
  * This script displays information about the specified user.
  *
@@ -20,7 +17,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system accounts users info USER';
+$usage = './cli system accounts rights info USER';
 
 $help  = 'This script displays information about the specified user.  
 
@@ -43,4 +40,4 @@ ArgvValidator::new()
 
 
 // Display user data
-Cli::displayTable(User::get($argv['user'])->getData());
+Cli::displayForm(Right::get($argv['user'])->getData());

@@ -1378,6 +1378,8 @@ class Arrays {
      * @note Any non-string keys will be treated as displayed strings
      * @param array $source
      * @param int $add_extra
+     * @param string|null $add_key
+     * @param bool $check_column_key_length
      * @return array
      */
     public static function getLongestStringPerColumn(array $source, int $add_extra = 0, ?string $add_key = null, bool $check_column_key_length = true): array
@@ -1385,6 +1387,14 @@ class Arrays {
         $columns = [];
 
         foreach ($source as $key => $row) {
+            if (!is_array($row)) {
+                throw new OutOfBoundsException(tr('Invalid table source specified; row ":key" has datatype ":required" should be array but is ":type" instead', [
+                    ':key'      => $key,
+                    ':required' => 'array',
+                    ':type'     => gettype($row)
+                ]));
+            }
+
             // Initialize the return array
             if (empty($columns)) {
                 $columns = Arrays::initialize(array_keys($row), $add_extra);

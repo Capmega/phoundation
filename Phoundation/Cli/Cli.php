@@ -80,8 +80,14 @@ class Cli
      * @param string|null $id_column
      * @return void
      */
-    public static function displayTable(array $source, array|null $headers = null, ?string $id_column = 'id'): void
+    public static function displayTable(array $source, array|null $headers = null, ?string $id_column = 'id', int $column_spacing = 2): void
     {
+        if (!is_natural($column_spacing)) {
+            throw new OutOfBoundsException(tr('Invalid column spacing ":spacing" specified, please ensure it is a natural number, 1 or higher', [
+                ':spacing' => $column_spacing
+            ]));
+        }
+
         // Determine the size of the keys to display them
         $column_sizes = Arrays::getLongestStringPerColumn($source, 2, $id_column);
 
@@ -102,7 +108,7 @@ class Cli
 
         // Display header
         foreach ($headers as $column => $header) {
-            Log::cli(Color::apply(Strings::size($header , $column_sizes[$column]), 'white') . ' ', 10, false);
+            Log::cli(Color::apply(Strings::size($header , $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false);
         }
 
         Log::cli();
@@ -125,7 +131,7 @@ class Cli
                     $column = $id_column;
                 }
 
-                Log::cli(Strings::size($value , $column_sizes[$column], ' ', is_numeric($value)) . ' ', 10, false);
+                Log::cli(Strings::size($value , $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false);
             }
 
             Log::cli();

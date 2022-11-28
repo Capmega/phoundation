@@ -33,7 +33,6 @@ class Users extends DataList
             // Add more columns
             $builder->addSelect(',`accounts_users`.`nickname`, 
                                         `accounts_users`.`phones`,');
-
         }
 
         foreach ($this->filters as $key => $value){
