@@ -52,10 +52,10 @@ class RoleRights extends Rights
                     'rights_id' => $rights->getId()
                 ]);
 
-//                // Update all users with this role to get the new right as well!
-//                foreach ($this->parent->users() as $user) {
-//                    $user->updateRights();
-//                }
+                // Update all users with this role to get the new right as well!
+                foreach ($this->parent->users() as $user) {
+                    $user->updateRights();
+                }
 
                 // Add right to internal list
                 $this->addEntry($rights);
@@ -90,10 +90,10 @@ class RoleRights extends Rights
                     'rights_id' => $rights->getId()
                 ]);
 
-//                // Update all users with this role to get the new right as well!
-//                foreach ($this->parent->users() as $user) {
-//                    $user->updateRights();
-//                }
+                // Update all users with this role to get the new right as well!
+                foreach ($this->parent->users() as $user) {
+                    $user->updateRights();
+                }
 
                 $this->removeEntry($rights);
             }

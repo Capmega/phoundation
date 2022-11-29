@@ -573,7 +573,7 @@ class Sql
             // Log meta_id action
             Meta::get($row['meta_id'])->action('update', $comments);
 
-            // Never update meta information 
+            // Never update meta information
             unset($row['status']);
             unset($row['meta_id']);
             unset($row['created_by']);
