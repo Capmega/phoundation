@@ -394,6 +394,10 @@ class Json
      */
     public static function encode(mixed $source, int $options = 0, int $depth = 512): string
     {
+        if ($source === null) {
+            return '';
+        }
+
         $return = json_encode($source, $options, $depth);
 
         if (json_last_error()) {

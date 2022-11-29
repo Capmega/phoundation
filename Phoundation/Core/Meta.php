@@ -4,6 +4,8 @@ namespace Phoundation\Core;
 
 
 
+use Phoundation\Utils\Json;
+
 /**
  * Meta class
  *
@@ -102,7 +104,7 @@ class Meta
      * @param array|null $data
      * @return void
      */
-    public function action(string $action,  ?string $comments = null, ?array $data = null): void
+    public function action(string $action, ?string $comments = null, ?array $data = null): void
     {
         // Insert the action in the meta_history table
         sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `comments`, `data`) 
@@ -111,7 +113,7 @@ class Meta
             ':created_by' => Session::getUser()->getId(),
             ':action'     => $action,
             ':comments'   => $comments,
-            ':data'       => $data
+            ':data'       => Json::encode($data)
         ]);
     }
 

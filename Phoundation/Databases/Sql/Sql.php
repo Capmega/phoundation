@@ -312,13 +312,18 @@ class Sql
             if ($query) {
                 if ($execute) {
                     if (!is_array($execute)) {
-                        throw new SqlException(tr('The specified $execute parameter is NOT an array, it is an ":type"', [':type' => gettype($execute)]), $e);
+                        throw new SqlException(tr('The specified $execute parameter is NOT an array, it is an ":type"', [
+                            ':type' => gettype($execute)
+                        ]), $e);
                     }
 
                     foreach ($execute as $key => $value) {
                         if (!is_scalar($value) and !is_null($value)) {
                             // This is automatically a problem!
-                            throw new SqlException(tr('POSSIBLE ERROR: The specified $execute array contains key ":key" with non scalar value ":value"', [':key' => $key, ':value' => $value]), $e);
+                            throw new SqlException(tr('POSSIBLE ERROR: The specified $execute array contains key ":key" with non scalar value ":value"', [
+                                ':key'   => $key,
+                                ':value' => $value
+                            ]), $e);
                         }
                     }
                 }
@@ -416,11 +421,14 @@ class Sql
                         case 1452:
                             // Foreign key error, get the FK error data from mysql
                             try {
-                                $fk = $this->getColumn('SHOW ENGINE INNODB STATUS');
-                                $fk = Strings::from($fk, 'LATEST FOREIGN KEY ERROR');
-                                $fk = Strings::from($fk, '------------------------');
-                                $fk = Strings::until($fk, '------------');
+                                $fk = $this->get('SHOW ENGINE INNODB STATUS');
+                                $fk = Strings::from($fk['Status'], 'LATEST FOREIGN KEY ERROR');
+                                $fk = Strings::from($fk, 'Foreign key constraint fails for');
+                                $fk = Strings::from($fk, ',');
+                                $fk = Strings::until($fk, 'DATA TUPLE');
+                                $fk = Strings::until($fk, 'Trying to');
                                 $fk = str_replace("\n", ' ', $fk);
+                                $fk = trim($fk);
 
                             }catch(Exception $e) {
                                 throw new SqlException(tr('Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', [
@@ -428,7 +436,7 @@ class Sql
                                 ]), $e);
                             }
 
-                            throw new SqlException(tr('Query ":query" failed with error 1005 with the message ":message"', [
+                            throw new SqlException(tr('Query ":query" failed with error 1005 with the message "Foreign key error on :message"', [
                                 ':query'   => $this->buildQueryString($query, $execute, true),
                                 ':message' => $fk
                             ]), $e);
@@ -492,15 +500,16 @@ class Sql
     public function write(string $table, array $insert_row, array $update_row, ?string $comments = null): ?int
     {
         if (empty($update_row['id'])) {
-            // This is a new entry, reserve an id then update that row wit the insert row data
-            $insert_row['id'] = $this->reserveRandomId($table);
-
-            if (!array_key_exists('status', $insert_row)) {
-                $insert_row['status'] = null;
+            if (array_key_exists('meta_id', $insert_row)) {
+                // This is a  DataEntry, reserve an id, default metadata, then update that row wit the insert row data
+                $insert_row['id'] = $this->reserveRandomId($table, $insert_row, $comments);
+                $this->update($table, $insert_row, $comments);
+                return $update_row['id'];
             }
 
-            $this->update($table, $insert_row, $comments);
-            return $update_row['id'];
+            // This table does NOT have meta_id support and is not a DataEntry table, likely a linked list table
+            // either way, no need for unique id's, do a simple direct insert
+            return $this->insert($table, $insert_row, $comments);
         }
 
         // This is an existing entry, update!
@@ -527,12 +536,11 @@ class Sql
         // Set meta fields
         if (array_key_exists('meta_id', $row)) {
             $row['meta_id'] = Meta::init($comments);
-        }
+            $row['created_by'] = Session::getUser()->getId();
 
-        $row['created_by'] = Session::getUser()->getId();
-
-        if (!array_key_exists('status', $row)) {
-            $row['status'] = null;
+            if ($row['status'] === '__reserved') {
+                $row['status'] = null;
+            }
         }
 
         // Build bound variables for query
@@ -562,7 +570,14 @@ class Sql
     {
         // Set meta fields
         if (array_key_exists('meta_id', $row)) {
-            Meta::get($row['meta_id'])->action('update', $comments, $row);
+            // Log meta_id action
+            Meta::get($row['meta_id'])->action('update', $comments);
+
+            // Never update meta information 
+            unset($row['status']);
+            unset($row['meta_id']);
+            unset($row['created_by']);
+            unset($row['created_on']);
         }
 
         // Build bound variables for query
@@ -734,12 +749,18 @@ class Sql
             }
 
             // Specified column doesn't exist
-            throw new SqlColumnDoesNotExistsException('Cannot return column ":column", it does not exist in the result set for query ":query"', [':query' => $query, ':column' => $column]);
+            throw new SqlColumnDoesNotExistsException(tr('Cannot return column ":column", it does not exist in the result set for query ":query"', [
+                ':query' => $query,
+                ':column' => $column
+            ]));
         } else {
             // No column was specified, so we MUST have received only one column!
             if (count($result) > 1) {
                 // The query returned multiple columns
-                throw new SqlException('The query ":query" returned ":count" columns while $this->getColumn() can only return one single column', [':query' => $query, ':count' => count($result)]);
+                throw new SqlException(tr('The query ":query" returned ":count" columns while $this->getColumn() can only return one single column', [
+                    ':query' => $query,
+                    ':count' => count($result)
+                ]));
             }
 
             return Arrays::firstValue($result);
@@ -1059,23 +1080,29 @@ class Sql
      * Return a unique, non-existing ID for the specified table.column
      *
      * @param string $table
-     * @param string $column
-     * @param int $max
+     * @param array $data
      * @param string|null $comments
      * @return int
      * @todo This is sort of the same as Sql::randomId(), merge these two!
      */
-    public function reserveRandomId(string $table, string $column = 'id', int $max = 2147483648, ?string $comments = null): int
+    public function reserveRandomId(string $table, array $data, ?string $comments = null): int
     {
         $retries    = 0;
-        $maxretries = 50;
+        $maxretries = 20;
 
         while (++$retries < $maxretries) {
-            $id = mt_rand(1, $max);
+            $id = mt_rand(1, 2147483648);
 
-            // TODO Find a better algorithm than "Just try random shit until something sticks"
-            if (!$this->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :id', [':id' => $id])) {
-                $this->query('INSERT INTO `' . $table . '` (`id`, `meta_id`, `status`) VALUES (' . $id . ', ' . Meta::init($comments) . ', "__reserved")');
+            // Try a random number and see if its used. If not, use it.
+            if (!$this->get('SELECT `id` FROM `' . $table . '` WHERE `id` = :id', [':id' => $id])) {
+                $this->query('INSERT INTO `' . $table . '` (`id`, `created_by`, `meta_id`, `status`)
+                                    VALUES                       (:id , :created_by , :meta_id , :status )', [
+                                        ':id'         => $id,
+                                        ':created_by' => Session::getUser()->getId(),
+                                        ':meta_id'    => Meta::init($comments),
+                                        ':status'     => isset_get($data['status'])
+                ]);
+
                 return $id;
             }
         }

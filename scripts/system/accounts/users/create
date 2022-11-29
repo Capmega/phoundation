@@ -20,8 +20,8 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system accounts users create [OPTIONS]
-./cli system users create -l -i --to ENVIRONMENT';
+$usage = './cli system accounts users create EMAIL [OPTIONS]
+./cli system users create user@example.com -d "This is a test user"';
 
 $help  = 'This script allows you to create users
 
@@ -30,7 +30,7 @@ $help  = 'This script allows you to create users
 ARGUMENTS
 
 
--e / --email                            The email address for the user
+EMAIL                                   The email address for the user
 
 -n / --name                             The name for the user
 
@@ -76,7 +76,7 @@ ARGUMENTS
 
 // Validate arguments
 ArgvValidator::new()
-    ->select('-e,--email', true)->isEmail()
+    ->select('email', true)->isEmail()
     ->select('-n,--name', true)->isName()
     ->select('-g,--gender', true)->isOptional(null)->isGender()
     ->select('-t,--title', true)->isOptional(null)->isName()
@@ -105,9 +105,9 @@ ArgvValidator::new()
 
 // Check if the user already exists
 if (User::exists($argv['email'])) {
-    throw new AccountsException(tr('Cannot create user with email ":email", it already exists', [
+    throw AccountsException::new(tr('Cannot create user with email ":email", it already exists', [
         ':email' => $argv['email']
-    ]));
+    ]))->makeWarning();
 }
 
 

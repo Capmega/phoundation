@@ -106,6 +106,8 @@ abstract class DataEntry
             }
 
             $this->load($identifier);
+        } else {
+            $this->setMetaData();
         }
     }
 
@@ -386,8 +388,14 @@ abstract class DataEntry
      * @return static
      * @throws OutOfBoundsException
      */
-    protected function setMetaData(?array $data): static
+    protected function setMetaData(?array $data = null): static
     {
+        $this->data['id']         = null;
+        $this->data['created_by'] = null;
+        $this->data['created_on'] = null;
+        $this->data['meta_id']    = null;
+        $this->data['status']     = null;
+
         if ($data === null) {
             // No data set
             return $this;
@@ -558,6 +566,9 @@ abstract class DataEntry
     public function save(): static
     {
         // Write the entry
+        show($this->data);
+        show($this->getInsertColumns());
+        show($this->getUpdateColumns());
         sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns());
 
         // Write the list, if set

@@ -18,8 +18,8 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system accounts right create -n NAME [OPTIONS]
-./cli system accounts right create -n test -d "This is a test right!"';
+$usage = './cli system accounts right create NAME [OPTIONS]
+./cli system accounts right create test -d "This is a test right!"';
 
 $help  = 'This script allows you to create rights
 
@@ -28,8 +28,7 @@ $help  = 'This script allows you to create rights
 ARGUMENTS
 
 
-
--n / --name                             The name for the right
+NAME                                    The name for the right
 
 [-d / --description]                    The description for the right';
 
@@ -37,7 +36,7 @@ ARGUMENTS
 
 // Validate arguments
 ArgvValidator::new()
-    ->select('-n,--name', true)->isName()
+    ->select('name', true)->isName()
     ->select('-d,--description', true)->isOptional(null)->isDescription()
     ->validate();
 
@@ -45,9 +44,9 @@ ArgvValidator::new()
 
 // Check if the right already exists
 if (Right::exists($argv['name'])) {
-    throw new AccountsException(tr('Cannot create right with name ":name", it already exists', [
+    throw AccountsException::new(tr('Cannot create right with name ":name", it already exists', [
         ':name' => $argv['name']
-    ]));
+    ]))->makeWarning();
 }
 
 

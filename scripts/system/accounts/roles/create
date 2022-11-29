@@ -18,8 +18,8 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system accounts roles create -n NAME [OPTIONS]
-./cli system accounts roles create -n test -d "This is a test role!"';
+$usage = './cli system accounts roles create NAME [OPTIONS]
+./cli system accounts roles create test -d "This is a test role!"';
 
 $help  = 'This script allows you to create roles
 
@@ -29,7 +29,7 @@ ARGUMENTS
 
 
 
--n / --name                             The name for the role
+NAME                                    The name for the role
 
 [-d / --description]                    The description for the role';
 
@@ -37,7 +37,7 @@ ARGUMENTS
 
 // Validate arguments
 ArgvValidator::new()
-    ->select('-n,--name', true)->isName()
+    ->select('name', true)->isName()
     ->select('-d,--description', true)->isOptional(null)->isDescription()
     ->validate();
 
@@ -45,9 +45,9 @@ ArgvValidator::new()
 
 // Check if the role already exists
 if (Role::exists($argv['name'])) {
-    throw new AccountsException(tr('Cannot create role with name ":name", it already exists', [
+    throw AccountsException::new(tr('Cannot create role with name ":name", it already exists', [
         ':name' => $argv['name']
-    ]));
+    ]))->makeWarning();
 }
 
 
