@@ -1,7 +1,6 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Core\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -38,19 +37,18 @@ ARGUMENTS
 // Validate arguments
 ArgvValidator::new()
     ->select('role', true)->isName()
-    ->select('-n,--name', true)->isName()
+    ->select('-n,--name', true)->isOptional(null)->isName()
     ->select('-d,--description', true)->isOptional(null)->isDescription()
     ->validate();
 
 
 
-// Create role and save it
+// Load role, then modify and save it
 $role = Role::get($argv['role'])
-    ->setName($argv['name'])
-    ->setDescription($argv['description'])
+    ->setData($argv)
     ->save();
 
 
 
 // Done!
-Log::success(tr('Modified role ":role"', [':role' => $role->getDisplayName()]));
+Log::success(tr('Modified role ":role"', [':role' => $role->getName()]));

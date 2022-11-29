@@ -2,6 +2,7 @@
 
 namespace Phoundation\Accounts\Users;
 
+use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Exception\NotSupportedException;
@@ -13,6 +14,7 @@ use Phoundation\Exception\NotSupportedException;
  *
  *
  *
+ * @see \Phoundation\Data\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -20,7 +22,25 @@ use Phoundation\Exception\NotSupportedException;
  */
 class Users extends DataList
 {
-     protected function load(bool $details = false): static
+    /**
+     * DataList class constructor
+     *
+     * @param DataEntry|null $parent
+     */
+    public function __construct(?DataEntry $parent = null)
+    {
+        $this->entry_class = User::class;
+        parent::__construct($parent);
+    }
+
+
+    /**
+     * Load the data for this users list
+     *
+     * @param string|null $columns
+     * @return static
+     */
+     protected function load(?string $columns = '*'): static
     {
         $builder = new QueryBuilder();
         $builder->addSelect('SELECT `accounts_users`.`id`, 

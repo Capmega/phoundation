@@ -2,6 +2,7 @@
 
 namespace Phoundation\Business\Companies\Departments;
 
+use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataList;
 
 
@@ -19,6 +20,19 @@ use Phoundation\Data\DataList;
  */
 class Departments extends DataList
 {
+    /**
+     * DataList class constructor
+     *
+     * @param DataEntry|null $parent
+     */
+    public function __construct(?DataEntry $parent = null)
+    {
+        $this->entry_class = Department::class;
+        parent::__construct($parent);
+    }
+
+
+
     /**
      * @inheritDoc
      */

@@ -2,7 +2,9 @@
 
 namespace Phoundation\Business\Companies\Employees;
 
+use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataList;
+
 
 
 /**
@@ -18,6 +20,19 @@ use Phoundation\Data\DataList;
  */
 class Employees extends DataList
 {
+    /**
+     * DataList class constructor
+     *
+     * @param DataEntry|null $parent
+     */
+    public function __construct(?DataEntry $parent = null)
+    {
+        $this->entry_class = Employee::class;
+        parent::__construct($parent);
+    }
+
+
+
     /**
      * @inheritDoc
      */

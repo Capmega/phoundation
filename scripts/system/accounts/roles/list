@@ -26,8 +26,6 @@ $help  = 'This script will list the available roles on this system
 ARGUMENTS
 
 
--d / --details                          Will show more details about each role
-
 --deleted                               Will also show deleted roles
 
 --rights RIGHT[RIGHT,RIGHT,...]        Will only display roles with the specified right';
@@ -36,7 +34,6 @@ ARGUMENTS
 
 // Validate arguments
 ArgvValidator::new()
-    ->select('-d,--details')->isOptional(false)->isBoolean()
     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
     ->validate();
 
@@ -44,4 +41,4 @@ ArgvValidator::new()
 Roles::new()
     ->addFilter('rights', $argv['rights'])
     ->addFilter('status', (DELETED ? 'deleted' : null))
-    ->CliDisplayTable($argv['details']);
+    ->CliDisplayTable();

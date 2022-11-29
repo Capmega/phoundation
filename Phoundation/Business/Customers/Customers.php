@@ -2,6 +2,7 @@
 
 namespace Phoundation\Business\Customers;
 
+use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataList;
 
 
@@ -19,6 +20,18 @@ use Phoundation\Data\DataList;
  */
 class Customers extends DataList
 {
+    /**
+     * DataList class constructor
+     *
+     * @param DataEntry|null $parent
+     */
+    public function __construct(?DataEntry $parent = null)
+    {
+        $this->entry_class = Customer::class;
+        parent::__construct($parent);
+    }
+
+
 
     /**
      * @inheritDoc

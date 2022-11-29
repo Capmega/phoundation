@@ -269,13 +269,13 @@ abstract class DataEntry
     /**
      * Sets all data for this data entry at once with an array of information
      *
-     * @param array|null $details
+     * @param array|null $data
      * @return static
      * @throws OutOfBoundsException
      */
-    public function setData(?array $details): static
+    public function setData(?array $data): static
     {
-        if ($details === null) {
+        if ($data === null) {
             // No data set
             return $this;
         }
@@ -286,7 +286,7 @@ abstract class DataEntry
             ]));
         }
 
-        foreach ($details as $key => $value) {
+        foreach ($data as $key => $value) {
             // These keys cannot be set through setData()
             switch ($key) {
                 case 'id':
@@ -311,10 +311,13 @@ abstract class DataEntry
 
             // Store this data through the methods to ensure datatype and filtering is done correctly
             $method = $this->convertVariableToSetMethod($key);
-            $this->$method($value);
+
+            // Only apply if a method exist for this variable
+            if (method_exists($this, $method)){
+                $this->$method($value);
+            }
         }
 
-        $this->data = $details;
         return $this;
     }
 
@@ -409,7 +412,7 @@ abstract class DataEntry
                     // no-break
                 case 'meta_id':
                     // Store the meta data
-                    $this->$key = $value;
+                    $this->data[$key] = $value;
 
                 default:
                     // Go to next key
@@ -417,7 +420,6 @@ abstract class DataEntry
             }
         }
 
-        $this->data = $data;
         return $this;
     }
 
@@ -436,7 +438,10 @@ abstract class DataEntry
             throw new OutOfBoundsException(tr('The "meta_id" key cannot be changed'));
         }
 
-        $this->data[$key] = $value;
+        if ($value !== null) {
+            $this->data[$key] = $value;
+        }
+
         return $this;
     }
 
@@ -552,11 +557,6 @@ abstract class DataEntry
      */
     public function save(): static
     {
-        if (!isset($this->data['id'])) {
-            // This is a new entry, reserve an id
-            $this->data['id'] = sql()->reserveRandomId($this->table);
-        }
-
         // Write the entry
         sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns());
 
@@ -574,10 +574,9 @@ abstract class DataEntry
      *
      * @param string|null $key_header
      * @param string|null $value_header
-     * @param bool $details
      * @return void
      */
-    public function CliDisplayForm(?string $key_header = null, ?string $value_header = null, bool $details = false): void
+    public function CliDisplayForm(?string $key_header = null, ?string $value_header = null): void
     {
         Cli::displayTable($this->data, $key_header, $value_header);
     }
@@ -599,8 +598,8 @@ abstract class DataEntry
         }
 
         // Store all data in the object
-        $this->setData($data);
         $this->setMetaData($data);
+        $this->setData($data);
     }
 
 

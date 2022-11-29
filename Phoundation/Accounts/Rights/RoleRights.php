@@ -3,7 +3,7 @@
 namespace Phoundation\Accounts\Rights;
 
 use Phoundation\Accounts\Roles\Role;
-
+use Phoundation\Accounts\Roles\RoleUsers;
 
 
 /**
@@ -33,33 +33,32 @@ class RoleRights extends Rights
     /**
      * Add the specified data entry to the data list
      *
-     * @param Right|array|int|null $right
+     * @param Right|array|null $rights
      * @return $this
      */
-    public function add(Right|array|int|null $right): static
+    public function add(Right|array|null $rights): static
     {
-        if ($right) {
-            if (is_array($right)) {
+        if ($rights) {
+            if (is_array($rights)) {
                 // Add multiple rights
-                foreach ($right as $item) {
+                foreach ($rights as $right) {
                     $this->add($right);
                 }
 
             } else {
                 // Add single right
-                if (is_integer($right)) {
-                    // Right was specified as integer, get an object for it
-                    $right = Right::get($right);
-                }
-
-                // Insert data in database
                 sql()->insert('accounts_roles_rights', [
                     'roles_id'  => $this->parent->getId(),
-                    'rights_id' => $right->getId()
+                    'rights_id' => $rights->getId()
                 ]);
 
+//                // Update all users with this role to get the new right as well!
+//                foreach ($this->parent->users() as $user) {
+//                    $user->updateRights();
+//                }
+
                 // Add right to internal list
-                $this->addEntry($right);
+                $this->addEntry($rights);
             }
         }
 
@@ -71,18 +70,33 @@ class RoleRights extends Rights
     /**
      * Remove the specified data entry from the data list
      *
-     * @param Right|int|null $right
+     * @param Right|array|null $rights
      * @return $this
      */
-    public function remove(Right|int|null $right): static
+    public function remove(Right|array|null $rights): static
     {
-        if ($right) {
-            sql()->query('DELETE FROM `accounts_roles_rights` WHERE `roles_id` = :roles_id AND `rights_id` = :rights_id', [
-                'roles_id'  => $this->parent->getId(),
-                'rights_id' => $right->getId()
-            ]);
+        if ($rights) {
+            if (is_array($rights)) {
+                // Remove multiple rights
+                foreach ($rights as $right) {
+                    $this->remove($right);
+                }
 
-            $this->removeEntry($right);
+            } else {
+                // Remove single right
+                sql()->query('DELETE FROM `accounts_roles_rights` 
+                                    WHERE       `roles_id` = :roles_id AND `rights_id` = :rights_id', [
+                    'roles_id' => $this->parent->getId(),
+                    'rights_id' => $rights->getId()
+                ]);
+
+//                // Update all users with this role to get the new right as well!
+//                foreach ($this->parent->users() as $user) {
+//                    $user->updateRights();
+//                }
+
+                $this->removeEntry($rights);
+            }
         }
 
         return $this;
@@ -101,7 +115,7 @@ class RoleRights extends Rights
             'roles_id'  => $this->parent->getId()
         ]);
 
-        return $this;
+        return parent::clearEntries();
     }
 
 
@@ -109,10 +123,10 @@ class RoleRights extends Rights
     /**
      * Load the data for this rights list into the object
      *
-     * @param bool $details
+     * @param string|null $columns
      * @return static
      */
-    public function load(bool $details = false): static
+    public function load(?string $columns = null): static
     {
         $this->list = sql()->list('SELECT `accounts_roles_rights`.* 
                                          FROM   `accounts_roles_rights` 

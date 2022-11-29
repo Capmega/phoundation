@@ -56,6 +56,18 @@ class Role extends DataEntry
 
 
     /**
+     * Returns the users that are linked to this role
+     *
+     * @return RoleUsers
+     */
+    public function users(): RoleUsers
+    {
+        return new RoleUsers($this);
+    }
+
+
+
+    /**
      * Sets the available data keys for the Role class
      *
      * @return void

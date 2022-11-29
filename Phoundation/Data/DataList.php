@@ -2,6 +2,7 @@
 
 namespace Phoundation\Data;
 
+use Composer\XdebugHandler\Process;
 use Iterator;
 use Phoundation\Cli\Cli;
 use Phoundation\Exception\OutOfBoundsException;
@@ -50,6 +51,13 @@ abstract class DataList implements Iterator
      */
     protected int $position = 0;
 
+    /**
+     * The class for the items in this list when the item is dynamically created
+     *
+     * @var string
+     */
+    protected string $entry_class;
+
 
 
     /**
@@ -59,12 +67,23 @@ abstract class DataList implements Iterator
      * @param bool $load
      * @param bool $details
      */
-    public function __construct(?DataEntry $parent = null, bool $load = false, bool $details = false)
+    public function __construct(?DataEntry $parent = null, bool $load = false)
     {
+        // Validate the entry class
+        if (isset($this->entry_class)) {
+            if (!is_subclass_of($this->entry_class, DataEntry::class)) {
+                throw new OutOfBoundsException(tr('Specified entry_class is invalid. The class should be a sub class of DataEntry::class but is a ":class"', [
+                    ':class' => $this->entry_class
+                ]));
+            }
+        } else {
+            throw new OutOfBoundsException(tr('DataList class has not yet been set. The class should contain some DataEntry::class compatible class name'));
+        }
+
         $this->parent = $parent;
 
         if ($parent and $load) {
-            $this->load($details);
+            $this->load();
         }
     }
 
@@ -246,7 +265,13 @@ abstract class DataList implements Iterator
      */
     #[ReturnTypeWillChange] public function get(int $identifier): ?DataEntry
     {
-        return isset_get($this->list[$identifier]);
+        $entry = isset_get($this->list[$identifier]);
+
+        if ($entry and !is_object($entry)) {
+            $entry = new $this->entry_class($entry);
+        }
+
+        return $entry;
     }
 
 
@@ -258,7 +283,13 @@ abstract class DataList implements Iterator
      */
     #[ReturnTypeWillChange] public function current(): DataEntry
     {
-        return $this->list[$this->position];
+        $entry = $this->list[$this->position];
+
+        if ($entry and !is_object($entry)) {
+            $entry = new $this->entry_class($entry);
+        }
+
+        return $entry;
     }
 
 
@@ -357,13 +388,12 @@ abstract class DataList implements Iterator
      * Creates and returns a CLI table for the data in this list
      *
      * @param array|null $columns
-     * @param bool $details
      * @param string|null $id_column
      * @return void
      */
-    public function CliDisplayTable(?array $columns = null, bool $details = false, ?string $id_column = 'id'): void
+    public function CliDisplayTable(?array $columns = null, ?string $id_column = 'id'): void
     {
-        $this->ensureLoaded($details);
+        $this->ensureLoaded();
         Cli::displayTable($this->list, $columns, $id_column);
     }
 
@@ -405,15 +435,27 @@ abstract class DataList implements Iterator
 
 
     /**
+     * Remove all the entries from the DataList
+     *
+     * @return $this
+     */
+    protected function clearEntries(): static
+    {
+        $this->list = [];
+        return $this;
+    }
+
+
+
+    /**
      * If the list has not yet loaded its content, do so now
      *
-     * @param bool $details
      * @return void
      */
-    protected function ensureLoaded(bool $details = false): void
+    protected function ensureLoaded(): void
     {
         if (!isset($this->list)) {
-            $this->load($details);
+            $this->load();
         }
     }
 
@@ -422,10 +464,10 @@ abstract class DataList implements Iterator
     /**
      * Load the data list elements from database
      *
-     * @param bool $details
+     * @param string|null $columns
      * @return static
      */
-    abstract protected function load(bool $details = true): static;
+    abstract protected function load(?string $columns = null): static;
 
 
 

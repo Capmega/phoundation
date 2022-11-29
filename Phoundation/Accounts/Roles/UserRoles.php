@@ -65,6 +65,7 @@ class UserRoles extends Roles
                 $this->addEntry($role);
             }
 
+            // Reload the rights for this user
             $this->parent->rights()->load();
         }
 
@@ -90,6 +91,7 @@ class UserRoles extends Roles
                 ]);
             }
 
+            // Remove the role from this object as well, then reload the rights for this user
             $this->removeEntry($role);
             $this->parent->rights()->load();
         }
@@ -106,13 +108,13 @@ class UserRoles extends Roles
      */
     public function clear(bool $database = true): static
     {
-        if ($database) {
-            sql()->query('DELETE FROM `accounts_users_roles` WHERE `users_id` = :users_id', [
-                'users_id'  => $this->parent->getId()
-            ]);
-        }
+        sql()->query('DELETE FROM `accounts_users_roles` WHERE `users_id` = :users_id', [
+            'users_id'  => $this->parent->getId()
+        ]);
 
-
+        // Remove the roles from this object as well, then reload the rights for this user
+        parent::clearEntries();
+        $this->parent->rights()->load();
 
         return $this;
     }
@@ -122,16 +124,17 @@ class UserRoles extends Roles
     /**
      * Load the data for this roles list into the object
      *
-     * @param bool $details
+     * @param string|null $columns
      * @return static
      */
-    public function load(bool $details = false): static
+    public function load(?string $columns = null): static
     {
         $this->list = sql()->list('SELECT `accounts_users_roles`.* 
                                          FROM   `accounts_users_roles` 
                                          WHERE  `accounts_users_roles`.`users_id` = :users_id', [
             ':users_id' => $this->parent->getId()
         ]);
+
         return $this;
     }
 

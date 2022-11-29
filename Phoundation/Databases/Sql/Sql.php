@@ -489,11 +489,18 @@ class Sql
      * @return int|null
      * @throws Throwable
      */
-    public function write(string $table, array $insert_row, array $update_row,  ?string $comments = null): ?int
+    public function write(string $table, array $insert_row, array $update_row, ?string $comments = null): ?int
     {
         if (isset_get($update_row['id'])) {
+            // This is an existing entry, update!
             $this->update($table, $update_row, $comments);
             return $update_row['id'];
+        }
+
+        // This is a new entry, so insert
+        if (!isset($this->data['id'])) {
+            // This is a new entry, reserve an id
+            $insert_row['id'] = $this->reserveRandomId($table);
         }
 
         return $this->insert($table, $insert_row, $comments);
@@ -520,8 +527,12 @@ class Sql
             $row['meta_id'] = Meta::init($comments);
         }
 
-        if (array_key_exists('created_by', $row)) {
+        if (!array_key_exists('created_by', $row)) {
             $row['created_by'] = Session::getUser()->getId();
+        }
+
+        if (!array_key_exists('status', $row)) {
+            $row['status'] = null;
         }
 
         // Build bound variables for query

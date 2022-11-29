@@ -26,8 +26,6 @@ $help  = 'This script will list the available users on this system
 ARGUMENTS
 
 
--d / --details                          Will show more details about each user
-
 --domains DOMAIN[,DOMAIN,DOMAIN,...]    Will only display users for the specified domains
 
 --deleted                               Will also show deleted users
@@ -40,7 +38,6 @@ ARGUMENTS
 
 // Validate arguments
 ArgvValidator::new()
-    ->select('-d,--details')->isOptional(false)->isBoolean()
     ->select('--domains,--domain')->isOptional(null)->sanitizeForceArray()->each()->isDomain()
     ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
@@ -52,4 +49,4 @@ Users::new()
     ->addFilter('rights', $argv['rights'])
     ->addFilter('domains', $argv['domains'])
     ->addFilter('status', (DELETED ? 'deleted' : null))
-    ->CliDisplayTable($argv['details']);
+    ->CliDisplayTable();

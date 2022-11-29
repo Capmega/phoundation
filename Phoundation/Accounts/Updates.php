@@ -240,9 +240,9 @@ class Updates extends \Phoundation\Libraries\Updates
                     `roles_id` int NOT NULL,')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
+                    UNIQUE KEY `users_roles` (`users_id`,`roles_id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
-                    UNIQUE KEY `users_roles` (`users_id`,`roles_id`),
                     KEY `roles_id` (`roles_id`),
                     KEY `users_id` (`users_id`),')
                 ->setForeignKeys('
@@ -261,9 +261,9 @@ class Updates extends \Phoundation\Libraries\Updates
                     `rights_id` int NOT NULL,')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
+                    UNIQUE KEY `roles_rights` (`roles_id`,`rights_id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
-                    UNIQUE KEY `roles_id_2` (`roles_id`,`rights_id`),
                     KEY `roles_id` (`roles_id`),
                     KEY `rights_id` (`rights_id`),')
                 ->setForeignKeys('

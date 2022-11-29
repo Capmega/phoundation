@@ -76,11 +76,12 @@ class Cli
      * Display the data in the specified source array in a neat looking table
      *
      * @param array $source
-     * @param array|null $headers
+     * @param array|string|null $headers
      * @param string|null $id_column
+     * @param int $column_spacing
      * @return void
      */
-    public static function displayTable(array $source, array|null $headers = null, ?string $id_column = 'id', int $column_spacing = 2): void
+    public static function displayTable(array $source, array|string|null $headers = null, ?string $id_column = 'id', int $column_spacing = 2): void
     {
         if (!is_natural($column_spacing)) {
             throw new OutOfBoundsException(tr('Invalid column spacing ":spacing" specified, please ensure it is a natural number, 1 or higher', [

@@ -81,8 +81,8 @@ USER                                    The user to modify. Always specify users
 // Validate arguments
 ArgvValidator::new()
     ->select('user', true)->isEmail()
-    ->select('-e,--email', true)->isEmail()
-    ->select('-n,--name', true)->isName()
+    ->select('-e,--email', true)->isOptional(null)->isEmail()
+    ->select('-n,--name', true)->isOptional(null)->isName()
     ->select('-g,--gender', true)->isOptional(null)->isGender()
     ->select('-t,--title', true)->isOptional(null)->isName()
     ->select('-l,--language', true)->isOptional(null)->isName()

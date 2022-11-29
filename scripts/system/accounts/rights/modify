@@ -1,8 +1,7 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Accounts\Exception\AccountsException;
-use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Rights\Right;
 use Phoundation\Core\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 
@@ -37,15 +36,15 @@ ARGUMENTS
 
 // Validate arguments
 ArgvValidator::new()
-    ->select('right', true)->isEmail()
-    ->select('-n,--name', true)->isName()
+    ->select('right', true)->isName()
+    ->select('-n,--name', true)->isOptional(null)->isName()
     ->select('-d,--description', true)->isOptional(null)->isDescription()
     ->validate();
 
 
 
 // Create right and save it
-$right = Role::get($argv['right'])
+$right = Right::get($argv['right'])
     ->setName($argv['name'])
     ->setDescription($argv['description'])
     ->save();
@@ -53,4 +52,4 @@ $right = Role::get($argv['right'])
 
 
 // Done!
-Log::success(tr('Modified right ":right"', [':right' => $right->getDisplayName()]));
+Log::success(tr('Modified right ":right"', [':right' => $right->getName()]));
