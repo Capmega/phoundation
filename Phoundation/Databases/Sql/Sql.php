@@ -491,19 +491,21 @@ class Sql
      */
     public function write(string $table, array $insert_row, array $update_row, ?string $comments = null): ?int
     {
-        if (isset_get($update_row['id'])) {
-            // This is an existing entry, update!
-            $this->update($table, $update_row, $comments);
+        if (empty($update_row['id'])) {
+            // This is a new entry, reserve an id then update that row wit the insert row data
+            $insert_row['id'] = $this->reserveRandomId($table);
+
+            if (!array_key_exists('status', $insert_row)) {
+                $insert_row['status'] = null;
+            }
+
+            $this->update($table, $insert_row, $comments);
             return $update_row['id'];
         }
 
-        // This is a new entry, so insert
-        if (!isset($this->data['id'])) {
-            // This is a new entry, reserve an id
-            $insert_row['id'] = $this->reserveRandomId($table);
-        }
-
-        return $this->insert($table, $insert_row, $comments);
+        // This is an existing entry, update!
+        $this->update($table, $update_row, $comments);
+        return $update_row['id'];
     }
 
 
@@ -527,9 +529,7 @@ class Sql
             $row['meta_id'] = Meta::init($comments);
         }
 
-        if (!array_key_exists('created_by', $row)) {
-            $row['created_by'] = Session::getUser()->getId();
-        }
+        $row['created_by'] = Session::getUser()->getId();
 
         if (!array_key_exists('status', $row)) {
             $row['status'] = null;

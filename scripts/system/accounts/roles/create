@@ -18,8 +18,8 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system accounts role create -n NAME [OPTIONS]
-./cli system accounts role create -n test -d "This is a test role!"';
+$usage = './cli system accounts roles create -n NAME [OPTIONS]
+./cli system accounts roles create -n test -d "This is a test role!"';
 
 $help  = 'This script allows you to create roles
 
