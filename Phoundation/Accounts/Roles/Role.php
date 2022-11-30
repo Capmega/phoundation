@@ -2,7 +2,8 @@
 
 namespace Phoundation\Accounts\Roles;
 
-use Phoundation\Accounts\Rights\RoleRights;
+use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
 
@@ -42,12 +43,12 @@ class Role extends DataEntry
     /**
      * Add the specified rights to this role
      *
-     * @return RoleRights
+     * @return Rights
      */
-    public function rights(): RoleRights
+    public function rights(): Rights
     {
         if (!$this->list) {
-            $this->list = new RoleRights($this);
+            $this->list = new Rights($this);
         }
 
         return $this->list;
@@ -58,11 +59,11 @@ class Role extends DataEntry
     /**
      * Returns the users that are linked to this role
      *
-     * @return RoleUsers
+     * @return Users
      */
-    public function users(): RoleUsers
+    public function users(): Users
     {
-        return new RoleUsers($this);
+        return new Users($this);
     }
 
 

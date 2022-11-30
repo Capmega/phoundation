@@ -43,17 +43,8 @@ class Users extends DataList
      protected function load(?string $columns = '*'): static
     {
         $builder = new QueryBuilder();
-        $builder->addSelect('SELECT `accounts_users`.`id`, 
-                                          `accounts_users`.`domain`,
-                                          `accounts_users`.`email`,
-                                          `accounts_users`.`name`');
+        $builder->addSelect('SELECT `accounts_users`.' . $columns);
         $builder->addFrom('FROM `accounts_users`');
-
-        if ($details) {
-            // Add more columns
-            $builder->addSelect(',`accounts_users`.`nickname`, 
-                                        `accounts_users`.`phones`,');
-        }
 
         foreach ($this->filters as $key => $value){
             switch ($key) {

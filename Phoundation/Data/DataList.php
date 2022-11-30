@@ -64,10 +64,8 @@ abstract class DataList implements Iterator
      * DataList class constructor
      *
      * @param DataEntry|null $parent
-     * @param bool $load
-     * @param bool $details
      */
-    public function __construct(?DataEntry $parent = null, bool $load = false)
+    public function __construct(?DataEntry $parent = null)
     {
         // Validate the entry class
         if (isset($this->entry_class)) {
@@ -82,7 +80,7 @@ abstract class DataList implements Iterator
 
         $this->parent = $parent;
 
-        if ($parent and $load) {
+        if ($parent) {
             $this->load();
         }
     }
@@ -424,11 +422,14 @@ abstract class DataList implements Iterator
      */
     protected function removeEntry(DataEntry|int|null $entry): static
     {
-        if (is_object($entry->getId())) {
-            $entry = $entry->getId();
+        if ($entry) {
+            if (is_object($entry)) {
+                $entry = $entry->getId();
+            }
+
+            unset($this->list[$entry]);
         }
 
-        unset($this->list[$entry]);
         return $this;
     }
 

@@ -554,7 +554,6 @@ class Sql
     }
 
 
-
     /**
      * Insert the specified data row in the specified table
      *
@@ -564,14 +563,15 @@ class Sql
      * @param string $table
      * @param array $row
      * @param string|null $comments
+     * @param string|null $action
      * @return int
      */
-    public function update(string $table, array $row,  ?string $comments = null): int
+    public function update(string $table, array $row,  ?string $comments = null, ?string $action = 'update'): int
     {
         // Set meta fields
         if (array_key_exists('meta_id', $row)) {
             // Log meta_id action
-            Meta::get($row['meta_id'])->action('update', $comments);
+            Meta::get($row['meta_id'])->action($action, $comments);
 
             // Never update meta information
             unset($row['status']);
@@ -581,14 +581,95 @@ class Sql
         }
 
         // Build bound variables for query
-        $keys   = $this->updateColumns($row);
+        $update = $this->updateColumns($row);
         $values = $this->values($row);
 
         $this->query('UPDATE `' . $table . '` 
-                            SET     ' . $keys  . '
+                            SET     ' . $update  . '
                             WHERE   `id` = :id', $values);
 
         return $this->pdo->lastInsertId();
+    }
+
+
+
+    /**
+     * Update the status for the data row in the specified table to "deleted"
+     *
+     * This is a simplified insert method to speed up writing basic insert queries
+     *
+     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
+     *       to this table are in the $row value, the query will automatically fail with an exception!
+     * @param string $table
+     * @param array $row
+     * @param string|null $comments
+     * @return int
+     */
+    public function delete(string $table, array $row, ?string $comments = null): int
+    {
+        // DataEntry table?
+        if (array_key_exists('meta_id', $row)) {
+            return $this->setStatus('deleted', $table, $row, $comments);
+        }
+
+        // This table is not a DataEntry table, just delete the entry
+        return $this->erase($table, $row);
+    }
+
+
+
+    /**
+     * Update the status for the data row in the specified table to the specified status
+     *
+     * @param string|null $status
+     * @param string $table
+     * @param array $row
+     * @param string|null $comments
+     * @return int
+     */
+    public function setStatus(?string $status, string $table, array $row, ?string $comments = null): int
+    {
+        // Set meta fields
+        if (array_key_exists('meta_id', $row)) {
+            // Update the meta data
+            Meta::get($row['meta_id'])->action('deleted', $comments);
+
+            // Create the update filters
+            $update = $this->filterColumns($row, ' AND ');
+
+            // Update the row to status "deleted"
+            return $this->query('UPDATE `' . $table . '` 
+                                       SET `status` = ":status"
+                                       WHERE ' . $update, [
+               ':status' => $status
+            ])->rowCount();
+        }
+
+        // This table is not a DataEntry table, just delete the entry
+        return $this->erase($table, $row);
+    }
+
+
+
+    /**
+     * Delete the row in the specified table
+     *
+     * This is a simplified delete method to speed up writing basic delete queries for DataEntry tables
+     *
+     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
+     *       to this table are in the $row value, the query will automatically fail with an exception!
+     * @param string $table
+     * @param array $row
+     * @return int
+     */
+    public function erase(string $table, array $row): int
+    {
+        // Build bound variables for query
+        $values = $this->values($row);
+        $update = $this->filterColumns($row, ' AND ');
+
+        return $this->query('DELETE FROM `' . $table . '`
+                                   WHERE        ' . $update, $values)->rowCount();
     }
 
 
@@ -966,9 +1047,10 @@ class Sql
      *
      * @param array $source
      * @param string|null $prefix
+     * @param string $separator
      * @return string
      */
-    protected function updateColumns(array $source, ?string $prefix = null): string
+    protected function updateColumns(array $source, ?string $prefix = null, string $separator = ', '): string
     {
         $return = [];
 
@@ -984,7 +1066,27 @@ class Sql
             }
         }
 
-        return implode(', ', $return);
+        return implode($separator, $return);
+    }
+
+
+
+    /**
+     * Return a list of the specified $columns from the specified source
+     *
+     * @param array $source
+     * @param string $separator
+     * @return string
+     */
+    protected function filterColumns(array $source, string $separator = ' AND '): string
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            $return[] = '`' . $key . '` = :' . $key;
+        }
+
+        return implode($separator, $return);
     }
 
 

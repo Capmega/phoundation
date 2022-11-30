@@ -1601,4 +1601,45 @@ class Arrays {
             ':count' => $id
         ]));
     }
+
+
+
+    /**
+     * Returns an array with "remove" and "add" section to indicate required actions to change $source1 into $source2
+     *
+     * @param array $source1
+     * @param array $source2
+     * @return array
+     */
+    public static function valueDiff(array $source1, array $source2): array
+    {
+        $return = [
+            'add'    => [],
+            'remove' => []
+        ];
+
+        foreach ($source1 as $value) {
+            if (!is_scalar($value)) {
+                throw new OutOfBoundsException(tr('Only scalar values are supported while source 1 has a non-scalar value'));
+            }
+
+            if (!in_array($value, $source2)) {
+                // Key doesn't exist in source2, add it
+                $return['remove'][] = $value;
+            }
+        }
+
+        foreach ($source2 as $value) {
+            if (!is_scalar($value)) {
+                throw new OutOfBoundsException(tr('Only scalar values are supported while source 2 has a non-scalar value'));
+            }
+
+            if (!in_array($value, $source1)) {
+                // Key doesn't exist in source1, add it and next
+                $return['add'][] = $value;
+            }
+        }
+
+        return $return;
+    }
 }

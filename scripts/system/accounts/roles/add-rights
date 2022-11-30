@@ -4,7 +4,8 @@
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Core\Log;
-use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Exception\DataEntryNotExistsException;use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Exception\OutOfBoundsException;
 
 
 
@@ -44,11 +45,15 @@ ArgvValidator::new()
 
 
 
-// Get role and add rights
-$role = Role::get($argv['role']);
+// Check role exists, get role, and add rights
+try {
+    $role = Role::get($argv['role']);
 
-foreach ($argv['rights'] as $right) {
-    $role->rights()->add(Right::get($right));
+    foreach ($argv['rights'] as $right) {
+        $role->rights()->add(Right::get($right));
+    }
+}catch (DataEntryNotExistsException $e) {
+    throw $e->makeWarning();
 }
 
 

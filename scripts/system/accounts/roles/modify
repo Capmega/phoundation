@@ -30,7 +30,9 @@ ARGUMENTS
 
 -n / --name                             The name for the role
 
-[-d / --description]                    The description for the role';
+[-d / --description]                    The description for the role
+
+[-r / --rights] RIGHT[,RIGHT,RIGHT,...] The rights for this role';
 
 
 
@@ -39,14 +41,17 @@ ArgvValidator::new()
     ->select('role', true)->isName()
     ->select('-n,--name', true)->isOptional(null)->isName()
     ->select('-d,--description', true)->isOptional(null)->isDescription()
+    ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
     ->validate();
 
 
 
-// Load role, then modify and save it
+// Load role, then modify it, save it, and update the rights
 $role = Role::get($argv['role'])
     ->setData($argv)
     ->save();
+
+$role->rights()->set($argv['rights']);
 
 
 

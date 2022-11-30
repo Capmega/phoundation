@@ -9,7 +9,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script system/accounts/roles/remove-right
+ * Script system/accounts/roles/add-right
  *
  * This script will create a new role with the specified properties
  *
@@ -48,7 +48,7 @@ ArgvValidator::new()
 $role = Role::get($argv['role']);
 
 foreach ($argv['rights'] as $right) {
-    $role->rights()->remove(Right::get($right));
+    $role->rights()->add(Right::get($right));
 }
 
 

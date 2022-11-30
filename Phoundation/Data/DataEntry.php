@@ -566,9 +566,6 @@ abstract class DataEntry
     public function save(): static
     {
         // Write the entry
-        show($this->data);
-        show($this->getInsertColumns());
-        show($this->getUpdateColumns());
         sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns());
 
         // Write the list, if set
