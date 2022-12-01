@@ -504,7 +504,7 @@ class Sql
                 // This is a  DataEntry, reserve an id, default metadata, then update that row wit the insert row data
                 $insert_row['id'] = $this->reserveRandomId($table, $insert_row, $comments);
                 $this->update($table, $insert_row, $comments);
-                return $update_row['id'];
+                return $insert_row['id'];
             }
 
             // This table does NOT have meta_id support and is not a DataEntry table, likely a linked list table
