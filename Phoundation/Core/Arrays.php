@@ -6,6 +6,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 
 
+
 /**
  * Class Arrays
  *
@@ -118,7 +119,9 @@ class Arrays {
 
         if (!$restart) {
             // The current value was found, but it was at the end of the array
-            throw new OutOfBoundsException(tr('Option ":value" does not have a value specified', [':value' => $current_value]));
+            throw new OutOfBoundsException(tr('Option ":value" does not have a value specified', [
+                ':value' => $current_value
+            ]));
         }
 
         reset($source);
@@ -144,7 +147,7 @@ class Arrays {
      * @version 2.5.119: Added function and documentation
      *
      */
-    public static function params(mixed &$params, string $string_key = null, $numeric_key = null, ?bool $default = false): void
+    public static function params(mixed &$params, string $string_key = null, string $numeric_key = null, ?bool $default = false): void
     {
         if(!$params) {
             // The specified value is empty (probably null, "", etc). Convert it into an array containing the numeric and string keys with null values
@@ -233,21 +236,6 @@ class Arrays {
                 throw new OutOfBoundsException(tr('Key ":key" does not exist in array', [':key' => $key]));
             }
         }
-    }
-
-
-
-    /**
-     * Make sure the array is cleared, but with specified keys available
-     *
-     * @param $keys
-     * @param null $value
-     * @return array
-     */
-    public static function clear($keys, $value = null): array
-    {
-        $array = [];
-        return Arrays::ensure($array, $keys, $value);
     }
 
 
@@ -437,20 +425,22 @@ class Arrays {
 
 
     /**
-     * Return an array with the amount of values where each value name is $base_valuename# and # is a sequential number
+     * Return an array with the amount of values where each value name is $base_value_name# and # is a sequential number
      *
      * @param int $count
-     * @param int|string $base_valuename
+     * @param int|string $base_value_name
      * @return array
      */
-    public static function sequentialValues(int $count, int|string $base_valuename): array
+    public static function sequentialValues(int $count, int|string $base_value_name): array
     {
         if ($count < 1) {
             throw new OutOfBoundsException(tr('Invalid count specified. Make sure count is numeric, and greater than 0'));
         }
 
+        $return = [];
+
         for($i = 0; $i < $count; $i++) {
-            $return[] = $base_valuename.$i;
+            $return[] = $base_value_name.$i;
         }
 
         return $return;
@@ -462,36 +452,32 @@ class Arrays {
      * Return the source array with the keys all replaced by sequential values based on base_keyname
      *
      * @param array $source
-     * @param int|string $base_keyname
+     * @param int|string $base_key_name
      * @param bool $filter_null
      * @param bool $null_string
      * @return array
      */
-    public static function sequentialKeys(array $source, int|string $base_keyname, bool $filter_null = false, bool $null_string = false): array
+    public static function sequentialKeys(array $source, int|string $base_key_name, bool $filter_null = false, bool $null_string = false): array
     {
         $i      = 0;
         $return = [];
 
         foreach ($source as $value) {
-            /*
-             * Regard all "null" and "NULL" strings as NULL
-             */
+            // Regard all "null" and "NULL" strings as NULL
             if ($null_string) {
                 if (($value === 'null') or ($value === 'NULL')) {
                     $value = null;
                 }
             }
 
-            /*
-             * Filter out all NULL values
-             */
+            // Filter out all NULL values
             if ($filter_null) {
                 if ($value === null) {
                     continue;
                 }
             }
 
-            $return[$base_keyname.$i++] = $value;
+            $return[$base_key_name.$i++] = $value;
         }
 
         return $return;
@@ -563,9 +549,7 @@ class Arrays {
                     $add = true;
 
                     if ($skip) {
-                        /*
-                         * Do not include the key itself, skip it
-                         */
+                        // Do not include the key itself, skip it
                         continue;
                     }
 
@@ -708,7 +692,7 @@ class Arrays {
             if (in_array($key, $skip)) continue;
 
             if (is_string($value)) {
-                $target[$key] = mb_trim($value);
+                $target[$key] = trim($value);
 
             } elseif ($value !== null) {
                 $target[$key] = $value;
@@ -772,7 +756,7 @@ class Arrays {
     public static function max(array $source, int $max = 20): array
     {
         if ($max < 0) {
-            throw new OutOfBoundsException(tr('Specified $max value is negative. Please ensure it is a positive integer, 0 or highter'));
+            throw new OutOfBoundsException(tr('Specified $max value is negative. Please ensure it is a positive integer, 0 or higher'));
         }
 
         if (count($source) > $max) {
@@ -828,12 +812,12 @@ class Arrays {
      * Return all elements from source1. If the value of one element is null, then try to return it from source2
      *
      * @note If a key was found in $source1 that was null, and that key does not exist, the $default value will be
-     *      assigned instead
+     *       assigned instead
      * @param array $source1
      * @param array $source2
      * @param mixed $default
-     * @return bool Truel if $source1 had keys with NULL values and was modified with values from $source2, false
-     *      otherwise
+     * @return bool True if $source1 had keys with NULL values and was modified with values from $source2, false
+     *              otherwise
      */
     public static function notNull(array &$source1, array $source2, mixed $default = null): bool
     {
@@ -905,43 +889,6 @@ class Arrays {
         }
 
         return $return;
-    }
-
-
-
-    /**
-     * Ensure that all array values
-     *
-     * @param array $source
-     * @param bool $recursive
-     * @return array
-     */
-    public static function clean(array $source, bool $recursive = true): array
-    {
-        foreach ($source as &$value) {
-            switch (gettype($value)) {
-                case 'integer':
-                    // no-break
-                case 'double':
-                    // no-break
-                case 'float':
-                    $value = cfi($value);
-                    break;
-
-                case 'string':
-                    $value = cfm($value);
-                    break;
-
-                case 'array':
-                    if ($recursive) {
-                        $value = Arrays::clean($value, $recursive);
-                    }
-
-                    break;
-            }
-        }
-
-        return $source;
     }
 
 
@@ -1674,6 +1621,7 @@ class Arrays {
      *
      * @param array $source
      * @param string|float|int $value
+     * @param string|float|int $replace
      * @return bool
      */
     public static function replaceIfExists(array &$source, string|float|int $value, string|float|int $replace): bool
