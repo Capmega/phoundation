@@ -38,24 +38,35 @@ class Roles extends DataList
     }
 
 
-
     /**
      * Set the entries to the specified list
      *
+     * @param array $list
      * @return static
      */
     public function set(array $list): static
     {
+        $this->ensureParent('save entries');
+
         // Convert the list to id's
-        foreach ($list as $role) {
-            $roles_list[] = Role::new($role)->getId();
+        $rights_list = [];
+
+        foreach ($list as $right) {
+            $rights_list[] = $this->entry_class::new($right)->getId();
         }
 
-        show($this->list);
-        show($roles_list);
-        $diff = Arrays::valueDiff($this->list, $roles_list);
+        // Get a list of what we have to add and remove to get the same list, and apply
+        $diff = Arrays::valueDiff($this->list, $rights_list);
 
-        showdie($diff);
+        foreach ($diff['add'] as $right) {
+            $this->parent->roles()->add($right);
+        }
+
+        foreach ($diff['remove'] as $right) {
+            $this->parent->roles()->remove($right);
+        }
+
+        return $this;
     }
 
 
@@ -63,29 +74,29 @@ class Roles extends DataList
     /**
      * Add the specified data entry to the data list
      *
-     * @param Role|array|null $roles
+     * @param Role|array|int|null $role
      * @return static
      */
-    public function add(Role|array|null $roles): static
+    public function add(Role|array|int|null $role): static
     {
-        if ($roles) {
-            if (is_array($roles)) {
+        $this->ensureParent('add entry to parent');
+
+        if ($role) {
+            if (is_array($role)) {
                 // Add multiple rights
-                foreach ($roles as $role) {
-                    $this->add($role);
+                foreach ($role as $entry) {
+                    $this->add($entry);
                 }
 
             } else {
                 // Add single right. Since this is a Role object, the entry already exists in the database
-                if (!$this->parent) {
-                    throw new OutOfBoundsException(tr('Cannot add entry to parent, no parent specified'));
-                }
+                $role = Role::get($role);
 
                 // Already exists?
-                if (in_array($roles->getId(), $this->list)) {
+                if (in_array($role->getId(), $this->list)) {
                     throw DataEntryAlreadyExistsException::new(tr('Cannot add role ":role", it already exists for ":type" ":parent"', [
                         ':type'   => Strings::fromReverse(get_class($this->parent), '\\'),
-                        ':role'   => $roles->getName(),
+                        ':role'   => $role->getName(),
                         ':parent' => $this->parent->getName()
                     ]))->makeWarning();
                 }
@@ -94,24 +105,24 @@ class Roles extends DataList
                 if ($this->parent instanceof User) {
                     sql()->insert('accounts_users_roles', [
                         'users_id' => $this->parent->getId(),
-                        'roles_id' => $roles->getId()
+                        'roles_id' => $role->getId()
                     ]);
 
                     // Add right to internal list
-                    $this->addEntry($roles);
+                    $this->addEntry($role);
                 } elseif ($this->parent instanceof Right) {
                     sql()->insert('accounts_roles_rights', [
                         'rights_id' => $this->parent->getId(),
-                        'roles_id'  => $roles->getId()
+                        'roles_id'  => $role->getId()
                     ]);
 
                     // Update all users with this right to get the new right as well!
                     foreach ($this->parent->users() as $user) {
-                        $user->rights()->update();
+                        $user->rights()->updateRights();
                     }
 
                     // Add right to internal list
-                    $this->addEntry($roles);
+                    $this->addEntry($role);
                 }
             }
         }
@@ -124,45 +135,45 @@ class Roles extends DataList
     /**
      * Remove the specified role from the roles list
      *
-     * @param Role|array|null $roles
+     * @param Role|array|int|null $role
      * @return static
      */
-    public function remove(Role|array|null $roles): static
+    public function remove(Role|array|int|null $role): static
     {
-        if ($roles) {
-            if (is_array($roles)) {
+        $this->ensureParent('remove entry from parent');
+
+        if ($role) {
+            if (is_array($role)) {
                 // Add multiple rights
-                foreach ($roles as $role) {
-                    $this->remove($role);
+                foreach ($role as $entry) {
+                    $this->remove($entry);
                 }
 
             } else {
                 // Add single right. Since this is a Role object, the entry already exists in the database
-                if (!$this->parent) {
-                    throw new OutOfBoundsException(tr('Cannot add entry to parent, no parent specified'));
-                }
+                $role = Role::get($role);
 
                 if ($this->parent instanceof User) {
                     sql()->delete('accounts_users_roles', [
                         'users_id' => $this->parent->getId(),
-                        'roles_id' => $roles->getId()
+                        'roles_id' => $role->getId()
                     ]);
 
                     // Add right to internal list
-                    $this->removeEntry($roles);
+                    $this->removeEntry($role);
                 } elseif ($this->parent instanceof Right) {
                     sql()->delete('accounts_roles_rights', [
                         'rights_id' => $this->parent->getId(),
-                        'roles_id'  => $roles->getId()
+                        'roles_id'  => $role->getId()
                     ]);
 
                     // Update all users with this right to get the new right as well!
                     foreach ($this->parent->users() as $user) {
-                        $user->rights()->update();
+                        $user->rights()->updateRights();
                     }
 
                     // Add right to internal list
-                    $this->removeEntry($roles);
+                    $this->removeEntry($role);
                 }
             }
         }
@@ -179,9 +190,7 @@ class Roles extends DataList
      */
     public function clear(): static
     {
-        if (!$this->parent) {
-            throw new OutOfBoundsException(tr('Cannot clear parent entries, no parent specified'));
-        }
+        $this->ensureParent('clear all entries from parent');
 
         if ($this->parent instanceof User) {
             sql()->query('DELETE FROM `accounts_users_roles` WHERE `users_id` = :users_id', [
@@ -208,14 +217,14 @@ class Roles extends DataList
     {
         if ($this->parent) {
             if ($this->parent instanceof User) {
-                $this->list = sql()->list('SELECT `accounts_users_roles`.`rights_id` 
+                $this->list = sql()->list('SELECT `accounts_users_roles`.`roles_id` 
                                            FROM   `accounts_users_roles` 
                                            WHERE  `accounts_users_roles`.`users_id` = :users_id', [
                     ':users_id' => $this->parent->getId()
                 ]);
 
             } elseif ($this->parent instanceof Right) {
-                $this->list = sql()->list('SELECT `accounts_roles_rights`.`rights_id` 
+                $this->list = sql()->list('SELECT `accounts_roles_rights`.`roles_id` 
                                            FROM   `accounts_roles_rights` 
                                            WHERE  `accounts_roles_rights`.`rights_id` = :rights_id', [
                     ':rights_id' => $this->parent->getId()
@@ -326,9 +335,7 @@ class Roles extends DataList
      */
     public function save(): static
     {
-        if (!$this->parent) {
-            throw new OutOfBoundsException(tr('Cannot clear parent entries, no parent specified'));
-        }
+        $this->ensureParent('save parent entries');
 
         if ($this->parent instanceof User) {
             // Delete the current list

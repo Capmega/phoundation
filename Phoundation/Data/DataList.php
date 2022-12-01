@@ -457,6 +457,21 @@ abstract class DataList implements Iterator
 
 
     /**
+     * Will throw an OutOfBoundsException exception if no parent was set for this list
+     *
+     * @param string $action
+     * @return void
+     */
+    protected function ensureParent(string $action): void
+    {
+        if (!$this->parent) {
+            throw new OutOfBoundsException(tr('Cannot ":action", no parent specified', [':action' => $action]));
+        }
+    }
+
+
+
+    /**
      * Load the id list from database
      *
      * @return static

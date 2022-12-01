@@ -129,11 +129,19 @@ abstract class DataEntry
     /**
      * Returns a User object for the user owning the specified email address
      *
-     * @param string|int|null $identifier
+     * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
+     *       simplify "if this is not DataEntry object then this is new DataEntry object" into
+     *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
+     * @param DataEntry|string|int|null $identifier
      * @return static|null
      */
-    public static function get(string|int $identifier = null): ?static
+    public static function get(DataEntry|string|int $identifier = null): ?static
     {
+        if (is_object($identifier)) {
+            // This already is a DataEntry object, no need to create one
+            return $identifier;
+        }
+
         $entry = new static($identifier);
 
         if ($entry->getId()) {

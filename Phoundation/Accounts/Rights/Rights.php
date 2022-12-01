@@ -42,20 +42,32 @@ class Rights extends DataList
     /**
      * Set the entries to the specified list
      *
+     * @param array $list
      * @return static
      */
     public function set(array $list): static
     {
+        $this->ensureParent('save entries');
+
         // Convert the list to id's
+        $rights_list = [];
+
         foreach ($list as $right) {
-            $rights_list[] = Right::new($right)->getId();
+            $rights_list[] = $this->entry_class::new($right)->getId();
         }
 
-show($this->list);
-show($rights_list);
+        // Get a list of what we have to add and remove to get the same list, and apply
         $diff = Arrays::valueDiff($this->list, $rights_list);
 
-        showdie($diff);
+        foreach ($diff['add'] as $right) {
+            $this->parent->rights()->add($right);
+        }
+
+        foreach ($diff['remove'] as $right) {
+            $this->parent->rights()->remove($right);
+        }
+
+        return $this;
     }
 
 
@@ -63,29 +75,29 @@ show($rights_list);
     /**
      * Add the specified data entry to the data list
      *
-     * @param Right|array|null $rights
+     * @param Right|array|int|null $right
      * @return static
      */
-    public function add(Right|array|null $rights): static
+    public function add(Right|array|int|null $right): static
     {
-        if ($rights) {
-            if (is_array($rights)) {
+        $this->ensureParent('add entry to parent');
+
+        if ($right) {
+            if (is_array($right)) {
                 // Add multiple rights
-                foreach ($rights as $right) {
-                    $this->add($right);
+                foreach ($right as $entry) {
+                    $this->add($entry);
                 }
 
             } else {
                 // Add single right. Since this is a Right object, the entry already exists in the database
-                if (!$this->parent) {
-                    throw new OutOfBoundsException(tr('Cannot add entry to parent, no parent specified'));
-                }
+                $right = Right::get($right);
 
                 // Already exists?
-                if (in_array($rights->getId(), $this->list)) {
+                if (in_array($right->getId(), $this->list)) {
                     throw DataEntryAlreadyExistsException::new(tr('Cannot add right ":right", it already exists for ":type" ":parent"', [
                         ':type'   => Strings::fromReverse(get_class($this->parent), '\\'),
-                        ':right'  => $rights->getName(),
+                        ':right'  => $right->getName(),
                         ':parent' => $this->parent->getName()
                     ]))->makeWarning();
                 }
@@ -94,15 +106,15 @@ show($rights_list);
                 if ($this->parent instanceof User) {
                     sql()->insert('accounts_users_rights', [
                         'users_id'  => $this->parent->getId(),
-                        'rights_id' => $rights->getId()
+                        'rights_id' => $right->getId()
                     ]);
 
                     // Add right to internal list
-                    $this->addEntry($rights);
+                    $this->addEntry($right);
                 } elseif ($this->parent instanceof Role) {
                     sql()->insert('accounts_roles_rights', [
                         'roles_id'  => $this->parent->getId(),
-                        'rights_id' => $rights->getId()
+                        'rights_id' => $right->getId()
                     ]);
 
                     // Update all users with this role to get the new right as well!
@@ -111,7 +123,7 @@ show($rights_list);
                     }
 
                     // Add right to internal list
-                    $this->addEntry($rights);
+                    $this->addEntry($right);
                 }
             }
         }
@@ -124,36 +136,36 @@ show($rights_list);
     /**
      * Remove the specified data entry from the data list
      *
-     * @param Right|array|null $rights
+     * @param Right|array|int|null $right
      * @return static
      */
-    public function remove(Right|array|null $rights): static
+    public function remove(Right|array|int|null $right): static
     {
-        if ($rights) {
-            if (is_array($rights)) {
+        $this->ensureParent('remove entry from parent');
+
+        if ($right) {
+            if (is_array($right)) {
                 // Add multiple rights
-                foreach ($rights as $right) {
-                    $this->remove($right);
+                foreach ($right as $entry) {
+                    $this->remove($entry);
                 }
 
             } else {
                 // Add single right. Since this is a Right object, the entry already exists in the database
-                if (!$this->parent) {
-                    throw new OutOfBoundsException(tr('Cannot add entry to parent, no parent specified'));
-                }
+                $right = Right::get($right);
 
                 if ($this->parent instanceof User) {
                     sql()->delete('accounts_users_rights', [
                         'users_id'  => $this->parent->getId(),
-                        'rights_id' => $rights->getId()
+                        'rights_id' => $right->getId()
                     ]);
 
                     // Add right to internal list
-                    $this->removeEntry($rights);
+                    $this->removeEntry($right);
                 } elseif ($this->parent instanceof Role) {
                     sql()->delete('accounts_roles_rights', [
                         'roles_id'  => $this->parent->getId(),
-                        'rights_id' => $rights->getId()
+                        'rights_id' => $right->getId()
                     ]);
 
                     // Update all users with this role to get the new right as well!
@@ -162,7 +174,7 @@ show($rights_list);
                     }
 
                     // Add right to internal list
-                    $this->removeEntry($rights);
+                    $this->removeEntry($right);
                 }
             }
         }
@@ -179,9 +191,7 @@ show($rights_list);
      */
     public function clear(): static
     {
-        if (!$this->parent) {
-            throw new OutOfBoundsException(tr('Cannot clear parent entries, no parent specified'));
-        }
+        $this->ensureParent('clear all entries from parent');
 
         if ($this->parent instanceof User) {
             sql()->query('DELETE FROM `accounts_users_rights` WHERE `users_id` = :users_id', [
@@ -326,9 +336,7 @@ show($rights_list);
      */
     public function save(): static
     {
-        if (!$this->parent) {
-            throw new OutOfBoundsException(tr('Cannot clear parent entries, no parent specified'));
-        }
+        $this->ensureParent('save parent entries');
 
         if ($this->parent instanceof User) {
             // Delete the current list
