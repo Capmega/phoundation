@@ -6,6 +6,7 @@ use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Log;
+use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
@@ -135,11 +136,16 @@ $user = User::get($argv['user'])
 
 
 
-// Set users roles
-$user->roles()->clear(false);
+try {
+    // Set users roles
+    $user->roles()->clear(false);
 
-foreach ($argv['roles'] as $role) {
-    $user->roles()->add(Role::get($role));
+    foreach ($argv['roles'] as $role) {
+        $user->roles()->add(Role::get($role));
+    }
+
+}catch (DataEntryNotExistsException $e) {
+    throw $e->makeWarning();
 }
 
 

@@ -1,28 +1,26 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Roles\Role;
-use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
-use Phoundation\Core\Log;
+use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
 
 /**
- * Script system/accounts/users/info
+ * Script system/accounts/roles/info
  *
- * This script displays information about the specified user.
+ * This script displays information about the specified role.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system accounts users info USER';
+$usage = './cli system accounts roles info USER';
 
-$help  = 'This script displays information about the specified user.  
+$help  = 'This script displays information about the specified role.  
 
 
 
@@ -30,17 +28,21 @@ ARGUMENTS
 
 
 
-USER                                    The user to display information about. Specify either by user id or email 
-                                        address';
+USER                                    The role to display information about. Specify either by role id or seo-name';
 
 
 
 // Validate arguments
 ArgvValidator::new()
-    ->select('user')->hasMinCharacters(2)->hasMaxCharacters(255)
+    ->select('role')->hasMinCharacters(2)->hasMaxCharacters(255)
     ->validate();
 
 
 
-// Display user data
-Cli::displayForm(User::get($argv['user'])->getData());
+try {
+    // Display role data
+    Cli::displayForm(Role::get($argv['role'])->getData());
+
+}catch (DataEntryNotExistsException $e) {
+    throw $e->makeWarning();
+}

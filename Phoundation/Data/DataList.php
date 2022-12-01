@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data;
 
-use Composer\XdebugHandler\Process;
 use Iterator;
 use Phoundation\Cli\Cli;
 use Phoundation\Exception\OutOfBoundsException;
@@ -88,7 +87,7 @@ abstract class DataList implements Iterator
 
 
     /**
-     * Returns new Roles object
+     * Returns new DataList object with an optional parent
      *
      * @param DataEntry|null $parent
      * @return static
@@ -151,7 +150,7 @@ abstract class DataList implements Iterator
 
 
     /**
-     * Returns the entire internal list
+     * Returns the entire internal id list
      *
      * @return array
      */
@@ -264,10 +263,7 @@ abstract class DataList implements Iterator
     #[ReturnTypeWillChange] public function get(int $identifier): ?DataEntry
     {
         $entry = isset_get($this->list[$identifier]);
-
-        if ($entry and !is_object($entry)) {
-            $entry = new $this->entry_class($entry);
-        }
+        $entry = new $this->entry_class($entry);
 
         return $entry;
     }
@@ -282,10 +278,7 @@ abstract class DataList implements Iterator
     #[ReturnTypeWillChange] public function current(): DataEntry
     {
         $entry = $this->list[$this->position];
-
-        if ($entry and !is_object($entry)) {
-            $entry = new $this->entry_class($entry);
-        }
+        $entry = new $this->entry_class($entry);
 
         return $entry;
     }
@@ -386,13 +379,14 @@ abstract class DataList implements Iterator
      * Creates and returns a CLI table for the data in this list
      *
      * @param array|null $columns
+     * @param array $filters
      * @param string|null $id_column
      * @return void
      */
-    public function CliDisplayTable(?array $columns = null, ?string $id_column = 'id'): void
+    public function CliDisplayTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): void
     {
-        $this->ensureLoaded();
-        Cli::displayTable($this->list, $columns, $id_column);
+        $list = $this->loadDetails($columns, $filters);
+        Cli::displayTable($list, $columns, $id_column);
     }
 
 
@@ -463,12 +457,22 @@ abstract class DataList implements Iterator
 
 
     /**
-     * Load the data list elements from database
+     * Load the id list from database
      *
-     * @param string|null $columns
      * @return static
      */
-    abstract protected function load(?string $columns = null): static;
+    abstract protected function load(): static;
+
+
+
+    /**
+     * Load the data list elements from database
+     *
+     * @param array|string|null $columns
+     * @param array $filters
+     * @return array
+     */
+    abstract protected function loadDetails(array|string|null $columns, array $filters = []): array;
 
 
 

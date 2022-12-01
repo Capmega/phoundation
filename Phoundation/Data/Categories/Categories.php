@@ -36,10 +36,9 @@ class Categories extends DataList
     /**
      * Load the data for this categories list
      *
-     * @param string|null $columns
      * @return static
      */
-    public function load(?string $columns = null): static
+    public function load(): static
     {
 
         return $this;

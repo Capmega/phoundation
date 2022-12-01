@@ -4,6 +4,7 @@
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Log;
+use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
@@ -39,8 +40,15 @@ ArgvValidator::new()
 
 
 
-// Get a password and try to authenticate
-$password = Cli::readPassword(tr('Password:'));
-$user     = User::authenticate($argv['user'], $password);
+try {
+    // Get a password and try to authenticate
+    $password = Cli::readPassword(tr('Password:'));
+    $user     = User::authenticate($argv['user'], $password);
+
+}catch (DataEntryNotExistsException $e) {
+    throw $e->makeWarning();
+}
+
+
 
 Log::success(tr('User ":user" was authenticated successfully', [':user' => $user->getDisplayName()]));

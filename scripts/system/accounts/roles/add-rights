@@ -45,13 +45,14 @@ ArgvValidator::new()
 
 
 
-// Check role exists, get role, and add rights
 try {
+    // Check role exists, get role, and add rights
     $role = Role::get($argv['role']);
 
     foreach ($argv['rights'] as $right) {
         $role->rights()->add(Right::get($right));
     }
+
 }catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();
 }

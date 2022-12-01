@@ -3,6 +3,7 @@
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Cli\Cli;
+use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
@@ -39,5 +40,10 @@ ArgvValidator::new()
 
 
 
-// Display user data
-Cli::displayForm(Right::get($argv['user'])->getData());
+try {
+    // Display user data
+    Cli::displayForm(Right::get($argv['user'])->getData());
+
+}catch (DataEntryNotExistsException $e) {
+    throw $e->makeWarning();
+}

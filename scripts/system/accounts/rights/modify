@@ -3,6 +3,7 @@
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Core\Log;
+use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
@@ -43,11 +44,16 @@ ArgvValidator::new()
 
 
 
-// Create right and save it
-$right = Right::get($argv['right'])
-    ->setName($argv['name'])
-    ->setDescription($argv['description'])
-    ->save();
+try {
+    // Get right and modify it
+    $right = Right::get($argv['right'])
+        ->setName($argv['name'])
+        ->setDescription($argv['description'])
+        ->save();
+
+}catch (DataEntryNotExistsException $e) {
+    throw $e->makeWarning();
+}
 
 
 

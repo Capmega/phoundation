@@ -3,7 +3,7 @@
 namespace Phoundation\Core;
 
 use Phoundation\Exception\OutOfBoundsException;
-
+use Phoundation\Exception\UnderConstructionException;
 
 
 /**
@@ -743,7 +743,9 @@ class Arrays {
 
 
     /**
-     * Return the value of one of the first found key of the specified keys
+     * ???? Return the value of one of the first found key of the specified keys
+     *
+     * Not sure what this is supposed to be doing
      *
      * @param array $source
      * @param array $keys
@@ -751,6 +753,7 @@ class Arrays {
      */
     public static function extractFirst(array $source, array $keys): array
     {
+        throw new UnderConstructionException();
         foreach ($keys as $key) {
             if (!empty($source[$key])) {
                 return $source[$key];
@@ -1641,5 +1644,47 @@ class Arrays {
         }
 
         return $return;
+    }
+
+
+
+    /**
+     * Will return true if the specified value exists, and remove if from the array
+     *
+     * @param array $source
+     * @param string|float|int $value
+     * @return bool
+     */
+    public static function removeIfExists(array &$source, string|float|int $value): bool
+    {
+        $key = array_search($value, $source);
+
+        if ($key) {
+            unset($source[$key]);
+            return true;
+        }
+
+        return false;
+    }
+
+
+
+    /**
+     * Will return true if the specified value exists, and modify it in array
+     *
+     * @param array $source
+     * @param string|float|int $value
+     * @return bool
+     */
+    public static function replaceIfExists(array &$source, string|float|int $value, string|float|int $replace): bool
+    {
+        $key = array_search($value, $source);
+
+        if ($key) {
+            $source[$key] = $replace;
+            return true;
+        }
+
+        return false;
     }
 }
