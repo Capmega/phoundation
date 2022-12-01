@@ -42,7 +42,7 @@ class Users extends DataList
     /**
      * Set the entries to the specified list
      *
-     * @return $this
+     * @return static
      */
     public function set(array $list): static
     {
@@ -64,7 +64,7 @@ class Users extends DataList
      * Add the specified data entry to the data list
      *
      * @param User|array|null $users
-     * @return $this
+     * @return static
      */
     public function add(User|array|null $users): static
     {
@@ -120,7 +120,7 @@ class Users extends DataList
      * Remove the specified data entry from the data list
      *
      * @param User|array|null $users
-     * @return $this
+     * @return static
      */
     public function remove(User|array|null $users): static
     {
@@ -165,7 +165,7 @@ class Users extends DataList
     /**
      * Remove all rights for this right
      *
-     * @return $this
+     * @return static
      */
     public function clear(): static
     {

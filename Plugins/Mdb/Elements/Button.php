@@ -110,7 +110,7 @@ class Button extends Element
      * Set the content for this button
      *
      * @param string|null $content
-     * @return $this
+     * @return static
      */
     public function setContent(?string $content): static
     {

@@ -45,7 +45,7 @@ class Icons extends Element
      * Sets the icon size
      *
      * @param string $size
-     * @return $this
+     * @return static
      */
     public function setSize(#[ExpectedValues(values:["xs", "sm", "lg", "2x", "3x", "4x", "5x", "6x", "7x", "8x", "9x", "10x"])] string $size): static
     {

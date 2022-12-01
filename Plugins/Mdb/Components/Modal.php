@@ -96,7 +96,7 @@ class Modal extends ElementsBlock
      * Sets the modal identifier
      *
      * @param string|null $id
-     * @return $this
+     * @return static
      */
     public function setId(?string $id): static
     {
@@ -121,7 +121,7 @@ class Modal extends ElementsBlock
      * Sets the modal size
      *
      * @param string|null $size
-     * @return $this
+     * @return static
      */
     public function setSize(#[ExpectedValues(values:["sm", "md", "lg", "xj", "fullscreen"])] ?string $size): static
     {
@@ -150,7 +150,7 @@ class Modal extends ElementsBlock
      * Sets the modal fade
      *
      * @param string|null $fade
-     * @return $this
+     * @return static
      */
     public function setFade(?string $fade): static
     {
@@ -175,7 +175,7 @@ class Modal extends ElementsBlock
      * Sets the modal backdrop
      *
      * @param string|null $backdrop
-     * @return $this
+     * @return static
      */
     public function setBackdrop(?string $backdrop): static
     {
@@ -200,7 +200,7 @@ class Modal extends ElementsBlock
      * Sets if the modal is vertically centered
      *
      * @param string|null $vertical_center
-     * @return $this
+     * @return static
      */
     public function setVerticalCenter(?string $vertical_center): static
     {
@@ -225,7 +225,7 @@ class Modal extends ElementsBlock
      * Sets the modal escape
      *
      * @param string|null $escape
-     * @return $this
+     * @return static
      */
     public function setEscape(?string $escape): static
     {
@@ -251,7 +251,7 @@ class Modal extends ElementsBlock
      * Sets the modal title
      *
      * @param string|null $title
-     * @return $this
+     * @return static
      */
     public function setTitle(?string $title): static
     {
@@ -277,7 +277,7 @@ class Modal extends ElementsBlock
      * Sets the modal buttons
      *
      * @param Buttons|null $buttons
-     * @return $this
+     * @return static
      */
     public function setButtons(?Buttons $buttons): static
     {

@@ -48,7 +48,7 @@ trait InputElement
      * Sets the type for the input element
      *
      * @param string|null $type
-     * @return $this
+     * @return static
      */
     public function setType(string|null $type): static
     {
@@ -74,7 +74,7 @@ trait InputElement
      * Sets the value for the input element
      *
      * @param string|null $value
-     * @return $this
+     * @return static
      */
     public function setValue(string|null $value): static
     {

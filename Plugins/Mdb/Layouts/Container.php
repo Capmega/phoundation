@@ -55,7 +55,7 @@ class Container extends Layout
      * Sets the type for this container
      *
      * @param string $type
-     * @return $this
+     * @return static
      */
     public function setType(#[ExpectedValues(values:[null, "sm", "md", "lg", "xl", "xxl"])] string $type): static
     {

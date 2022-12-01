@@ -178,7 +178,7 @@ abstract class DataList implements Iterator
      *
      * @note This will clear all already defined filters
      * @param array $filters
-     * @return $this
+     * @return static
      */
     public function setFilters(array $filters): static
     {
@@ -192,7 +192,7 @@ abstract class DataList implements Iterator
      * Add multiple filters to apply when loading the data list
      *
      * @param array $filters
-     * @return $this
+     * @return static
      */
     public function addFilters(array $filters): static
     {
@@ -210,7 +210,7 @@ abstract class DataList implements Iterator
      *
      * @param string $key
      * @param array|string|int|null $value
-     * @return $this
+     * @return static
      */
     public function addFilter(string $key, array|string|int|null $value): static
     {
@@ -231,7 +231,7 @@ abstract class DataList implements Iterator
      * Add a filter to apply when loading the data list
      *
      * @param string $key
-     * @return $this
+     * @return static
      */
     public function removeFilter(string $key): static
     {
@@ -244,7 +244,7 @@ abstract class DataList implements Iterator
     /**
      * Remove all filters to apply when loading the data list
      *
-     * @return $this
+     * @return static
      */
     public function clearFilters(): static
     {
@@ -395,7 +395,7 @@ abstract class DataList implements Iterator
      * Add the specified data entry to the data list
      *
      * @param DataEntry|null $entry
-     * @return $this
+     * @return static
      */
     protected function addEntry(?DataEntry $entry): static
     {
@@ -412,7 +412,7 @@ abstract class DataList implements Iterator
      * Remove the specified data entry from the data list
      *
      * @param DataEntry|int|null $entry
-     * @return $this
+     * @return static
      */
     protected function removeEntry(DataEntry|int|null $entry): static
     {
@@ -432,7 +432,7 @@ abstract class DataList implements Iterator
     /**
      * Remove all the entries from the DataList
      *
-     * @return $this
+     * @return static
      */
     protected function clearEntries(): static
     {

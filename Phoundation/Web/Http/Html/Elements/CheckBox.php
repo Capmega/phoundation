@@ -71,7 +71,7 @@ class CheckBox extends Element
      * Sets if the checkbox is checked or not
      *
      * @param bool $checked
-     * @return $this
+     * @return static
      */
     public function setChecked(bool $checked): static
     {
@@ -97,7 +97,7 @@ class CheckBox extends Element
      * Sets the label for the checkbox
      *
      * @param string|null $label
-     * @return $this
+     * @return static
      */
     public function setLabel(string|null $label): static
     {
@@ -123,7 +123,7 @@ class CheckBox extends Element
      * Sets the label_class for the checkbox
      *
      * @param string|null $label_class
-     * @return $this
+     * @return static
      */
     public function setLabelClass(string|null $label_class): static
     {

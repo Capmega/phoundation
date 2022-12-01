@@ -42,7 +42,7 @@ class Roles extends DataList
     /**
      * Set the entries to the specified list
      *
-     * @return $this
+     * @return static
      */
     public function set(array $list): static
     {
@@ -64,7 +64,7 @@ class Roles extends DataList
      * Add the specified data entry to the data list
      *
      * @param Role|array|null $roles
-     * @return $this
+     * @return static
      */
     public function add(Role|array|null $roles): static
     {
@@ -125,7 +125,7 @@ class Roles extends DataList
      * Remove the specified role from the roles list
      *
      * @param Role|array|null $roles
-     * @return $this
+     * @return static
      */
     public function remove(Role|array|null $roles): static
     {
@@ -175,7 +175,7 @@ class Roles extends DataList
     /**
      * Remove all rights for this right
      *
-     * @return $this
+     * @return static
      */
     public function clear(): static
     {

@@ -62,7 +62,7 @@ class ImageMenu extends ElementsBlock
      * Sets the menu items
      *
      * @param array|null $menu
-     * @return $this
+     * @return static
      */
     public function setMenu(?array $menu): static
     {
@@ -92,7 +92,7 @@ class ImageMenu extends ElementsBlock
      * Sets the URL
      *
      * @param string|null $url
-     * @return $this
+     * @return static
      */
     public function setUrl(?string $url): static
     {
@@ -122,7 +122,7 @@ class ImageMenu extends ElementsBlock
      * Sets the modal selector
      *
      * @param string|null $modal_selector
-     * @return $this
+     * @return static
      */
     public function setModalSelector(?string $modal_selector): static
     {

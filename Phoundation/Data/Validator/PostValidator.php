@@ -83,7 +83,7 @@ class PostValidator extends Validator
     /**
      * Validate GET data and liberate GET data if all went well.
      *
-     * @return $this
+     * @return static
      */
     public function validate(): static
     {

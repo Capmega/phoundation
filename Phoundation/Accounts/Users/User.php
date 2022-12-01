@@ -1841,7 +1841,7 @@ class User extends DataEntry
     /**
      * Save the password for this user
      *
-     * @return $this
+     * @return static
      */
     protected function savePassword(): static
     {

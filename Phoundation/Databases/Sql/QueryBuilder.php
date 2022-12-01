@@ -84,7 +84,7 @@ class QueryBuilder
      * Make this a SELECT query by adding the select clause here
      *
      * @param string $select
-     * @return $this
+     * @return static
      */
     public function addSelect(string $select): static
     {
@@ -106,7 +106,7 @@ class QueryBuilder
      * Make this a DELETE query by adding the select clause here
      *
      * @param string $delete
-     * @return $this
+     * @return static
      */
     public function addDelete(string $delete): static
     {
@@ -128,7 +128,7 @@ class QueryBuilder
      * Make this a UPDATE query by adding the select clause here
      *
      * @param string $update
-     * @return $this
+     * @return static
      */
     public function addUpdate(string $update): static
     {
@@ -150,7 +150,7 @@ class QueryBuilder
      * Add the FROM part of the query
      *
      * @param string $from
-     * @return $this
+     * @return static
      */
     public function addFrom(string $from): static
     {
@@ -168,7 +168,7 @@ class QueryBuilder
      * Add a JOIN part of the query
      *
      * @param string $join
-     * @return $this
+     * @return static
      */
     public function addJoin(string $join): static
     {
@@ -185,7 +185,7 @@ class QueryBuilder
      * Add a WHERE part of the query
      *
      * @param string $where
-     * @return $this
+     * @return static
      */
     public function addWhere(string $where): static
     {
@@ -203,7 +203,7 @@ class QueryBuilder
      *
      * @param string $column
      * @param string|int $value
-     * @return $this
+     * @return static
      */
     public function addExecute(string $column, string|int $value): static
     {

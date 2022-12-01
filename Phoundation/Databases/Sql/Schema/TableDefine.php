@@ -55,7 +55,7 @@ class TableDefine extends SchemaAbstract
      * Sets the table name
      *
      * @param string $name
-     * @return $this
+     * @return static
      */
     protected function setName(string $name): static
     {

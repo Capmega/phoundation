@@ -87,7 +87,7 @@ Class Table extends ResourceElement
     /**
      * Returns a new table object
      *
-     * @return $this
+     * @return static
      */
     public static function new(): static
     {

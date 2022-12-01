@@ -75,7 +75,7 @@ class Table extends \Phoundation\Web\Http\Html\Elements\Table
      * Sets if the table is title or not
      *
      * @param string|null $title
-     * @return $this
+     * @return static
      */
     public function setTitle(?string $title): static
     {
@@ -101,7 +101,7 @@ class Table extends \Phoundation\Web\Http\Html\Elements\Table
      * Sets if the table is header_text or not
      *
      * @param string|null $header_text
-     * @return $this
+     * @return static
      */
     public function setHeaderText(?string $header_text): static
     {
@@ -127,7 +127,7 @@ class Table extends \Phoundation\Web\Http\Html\Elements\Table
      * Sets if the table is responsive or not
      *
      * @param bool $responsive
-     * @return $this
+     * @return static
      */
     public function setResponsive(bool $responsive): static
     {
@@ -153,7 +153,7 @@ class Table extends \Phoundation\Web\Http\Html\Elements\Table
      * Sets if the table is full width or not
      *
      * @param bool $full_width
-     * @return $this
+     * @return static
      */
     public function setFullWidth(bool $full_width): static
     {

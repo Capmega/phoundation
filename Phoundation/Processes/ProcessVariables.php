@@ -238,7 +238,7 @@ trait ProcessVariables
      * Sets if  the log files will be cleared after this object is destroyed or not
      *
      * @param bool $clear_logs
-     * @return $this
+     * @return static
      */
     public function setClearLogs(bool $clear_logs): static
     {
@@ -814,7 +814,7 @@ trait ProcessVariables
      * @param string|null $redirect
      * @param int $channel
      * @param bool $append
-     * @return $this
+     * @return static
      */
     public function setOutputRedirect(?string $redirect, int $channel = 1, bool $append = false): static
     {

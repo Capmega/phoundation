@@ -57,7 +57,7 @@ class Image extends Content
      * Sets the image description
      *
      * @param string|null $description
-     * @return $this
+     * @return static
      */
     public function setDescription(?string $description): static
     {

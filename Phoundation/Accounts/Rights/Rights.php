@@ -42,7 +42,7 @@ class Rights extends DataList
     /**
      * Set the entries to the specified list
      *
-     * @return $this
+     * @return static
      */
     public function set(array $list): static
     {
@@ -64,7 +64,7 @@ show($rights_list);
      * Add the specified data entry to the data list
      *
      * @param Right|array|null $rights
-     * @return $this
+     * @return static
      */
     public function add(Right|array|null $rights): static
     {
@@ -125,7 +125,7 @@ show($rights_list);
      * Remove the specified data entry from the data list
      *
      * @param Right|array|null $rights
-     * @return $this
+     * @return static
      */
     public function remove(Right|array|null $rights): static
     {
@@ -175,7 +175,7 @@ show($rights_list);
     /**
      * Remove all rights for this role
      *
-     * @return $this
+     * @return static
      */
     public function clear(): static
     {

@@ -101,7 +101,7 @@ class Form extends Element
      * Sets the form action
      *
      * @param string $action
-     * @return $this
+     * @return static
      */
     public function setAction(string $action): static
     {
@@ -127,7 +127,7 @@ class Form extends Element
      * Sets the form method
      *
      * @param string $method
-     * @return $this
+     * @return static
      */
     public function setMethod(string $method): static
     {
@@ -153,7 +153,7 @@ class Form extends Element
      * Sets the form no_validate
      *
      * @param string $no_validate
-     * @return $this
+     * @return static
      */
     public function setNoValidate(string $no_validate): static
     {
@@ -179,7 +179,7 @@ class Form extends Element
      * Sets the form auto_complete
      *
      * @param string $auto_complete
-     * @return $this
+     * @return static
      */
     public function setAutoComplete(string $auto_complete): static
     {
@@ -205,7 +205,7 @@ class Form extends Element
      * Sets the form accept_charset
      *
      * @param string $accept_charset
-     * @return $this
+     * @return static
      */
     public function setAcceptCharset(string $accept_charset): static
     {
@@ -231,7 +231,7 @@ class Form extends Element
      * Sets the form rel
      *
      * @param string $rel
-     * @return $this
+     * @return static
      */
     public function setRel(string $rel): static
     {
@@ -257,7 +257,7 @@ class Form extends Element
      * Sets the form target
      *
      * @param string $target
-     * @return $this
+     * @return static
      */
     public function setTarget(string $target): static
     {

@@ -59,7 +59,7 @@ class ProfileImage extends ImageMenu
      * Set the menu for this profile image
      *
      * @param array|null $menu
-     * @return $this
+     * @return static
      */
     public function setMenu(?array $menu): static
     {
