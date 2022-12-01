@@ -569,12 +569,13 @@ abstract class DataEntry
     /**
      * Will save the data from this data entry to database
      *
+     * @todo BUG: After the first insert, this object will be missing the meta information like created_by, created_on, meta_id. Reload?
      * @return static
      */
     public function save(): static
     {
         // Write the entry
-        sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns());
+        $this->data['id'] = sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns());
 
         // Write the list, if set
         $this->list?->save();

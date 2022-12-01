@@ -150,13 +150,25 @@ abstract class DataList implements Iterator
 
 
     /**
-     * Returns the entire internal id list
+     * Returns the entire internal list
      *
      * @return array
      */
     public function list(): array
     {
         return $this->list;
+    }
+
+
+
+    /**
+     * Returns the list of internal ID's
+     *
+     * @return array
+     */
+    public function idList(): array
+    {
+        return array_keys($this->list);
     }
 
 
@@ -262,10 +274,19 @@ abstract class DataList implements Iterator
      */
     #[ReturnTypeWillChange] public function get(int $identifier): ?DataEntry
     {
-        $entry = isset_get($this->list[$identifier]);
-        $entry = new $this->entry_class($entry);
+        // Does this entry exist?
+        if (!array_key_exists($identifier, $this->list)) {
+            throw new OutOfBoundsException(tr('Key ":key" does not exist in this DataList', [
+                ':key' => $identifier
+            ]));
+        }
 
-        return $entry;
+        // Is this entry loaded?
+        if (is_object($this->list[$identifier])) {
+            $this->list[$identifier] = new $this->entry_class($identifier);
+        }
+
+        return $this->list[$identifier];
     }
 
 
@@ -273,14 +294,11 @@ abstract class DataList implements Iterator
     /**
      * Returns the current item
      *
-     * @return mixed
+     * @return int
      */
-    #[ReturnTypeWillChange] public function current(): DataEntry
+    #[ReturnTypeWillChange] public function current(): int
     {
-        $entry = $this->list[$this->position];
-        $entry = new $this->entry_class($entry);
-
-        return $entry;
+        return current($this->list);
     }
 
 
@@ -292,7 +310,7 @@ abstract class DataList implements Iterator
      */
     #[ReturnTypeWillChange] public function next(): static
     {
-        ++$this->position;
+        next($this->list);
         return $this;
     }
 
@@ -305,24 +323,20 @@ abstract class DataList implements Iterator
      */
     #[ReturnTypeWillChange] public function previous(): static
     {
-        if ($this->position > 0) {
-            throw new OutOfBoundsException(tr('Cannot jump to previous element, the position is already at 0'));
-        }
-
-        --$this->position;
+        prev($this->list);
         return $this;
     }
 
 
 
     /**
-     * Returns the current iteraor position
+     * Returns the current iterator position
      *
      * @return int
      */
     public function key(): int
     {
-        return $this->position;
+        return key($this->list);
     }
 
 
@@ -334,7 +348,7 @@ abstract class DataList implements Iterator
      */
     public function valid(): bool
     {
-        return isset($this->array[$this->position]);
+        return isset($this->list[key($this->list)]);
     }
 
 
@@ -346,7 +360,7 @@ abstract class DataList implements Iterator
      */
     #[ReturnTypeWillChange] public function rewind(): static
     {
-        $this->position = 0;
+        reset($this->list);
         return $this;
     }
 

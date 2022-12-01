@@ -137,11 +137,7 @@ $user = User::get($argv['user'])
 
 try {
     // Set users roles
-    $user->roles()->clear(false);
-
-    foreach ($argv['roles'] as $role) {
-        $user->roles()->add(Role::get($role));
-    }
+    $user->roles()->set($argv['roles']);
 
 }catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();

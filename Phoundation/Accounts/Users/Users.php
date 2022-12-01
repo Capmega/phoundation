@@ -5,6 +5,7 @@ namespace Phoundation\Accounts\Users;
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataList;
 use Phoundation\Data\Exception\DataEntryAlreadyExistsException;
@@ -51,7 +52,7 @@ class Users extends DataList
         $rights_list = [];
 
         foreach ($list as $right) {
-            $rights_list[] = $this->entry_class::new($right)->getId();
+            $rights_list[] = $this->entry_class::get($right)->getId();
         }
 
         // Get a list of what we have to add and remove to get the same list, and apply
@@ -91,7 +92,7 @@ class Users extends DataList
                 $user = User::get($user);
 
                 // Already exists?
-                if (in_array($user->getId(), $this->list)) {
+                if (array_key_exists($user->getId(), $this->list)) {
                     throw DataEntryAlreadyExistsException::new(tr('Cannot add user ":user", it already exists for ":type" ":parent"', [
                         ':type' => Strings::fromReverse(get_class($this->parent), '\\'),
                         ':right' => $user->getName(),
@@ -101,6 +102,11 @@ class Users extends DataList
 
                 // Add entry to parent, Role or User
                 if ($this->parent instanceof Role) {
+                    Log::action(tr('Adding role ":role" to user ":user"', [
+                        ':role' => $this->parent->getId(),
+                        ':user' => $user->getId()
+                    ]));
+
                     sql()->insert('accounts_users_rights', [
                         'roles_id' => $this->parent->getId(),
                         'users_id' => $user->getId()
@@ -109,6 +115,11 @@ class Users extends DataList
                     // Add right to internal list
                     $this->addEntry($user);
                 } elseif ($this->parent instanceof Right) {
+                    Log::action(tr('Adding right ":right" to user ":user"', [
+                        ':right' => $this->parent->getId(),
+                        ':user'  => $user->getId()
+                    ]));
+
                     sql()->insert('accounts_users_rights', [
                         'rights_id' => $this->parent->getId(),
                         'users_id' => $user->getId()
@@ -146,6 +157,11 @@ class Users extends DataList
                 $user = User::get($user);
 
                 if ($this->parent instanceof Role) {
+                    Log::action(tr('Removing role ":role" from user ":user"', [
+                        ':role' => $this->parent->getId(),
+                        ':user' => $user->getId()
+                    ]));
+
                     sql()->delete('accounts_users_rights', [
                         'roles_id' => $this->parent->getId(),
                         'users_id' => $user->getId()
@@ -154,6 +170,11 @@ class Users extends DataList
                     // Add right to internal list
                     $this->removeEntry($user);
                 } elseif ($this->parent instanceof Right) {
+                    Log::action(tr('Removing right ":right" from user ":user"', [
+                        ':right' => $this->parent->getId(),
+                        ':user'  => $user->getId()
+                    ]));
+
                     sql()->delete('accounts_users_rights', [
                         'rights_id' => $this->parent->getId(),
                         'users_id' => $user->getId()
@@ -179,11 +200,19 @@ class Users extends DataList
         $this->ensureParent('clear all entries from parent');
 
         if ($this->parent instanceof Role) {
+            Log::action(tr('Removing role ":role" from all users', [
+                ':right' => $this->parent->getId(),
+            ]));
+
             sql()->query('DELETE FROM `accounts_users_roles` WHERE `roles_id` = :roles_id', [
                 'roles_id' => $this->parent->getId()
             ]);
 
         } elseif ($this->parent instanceof Right) {
+            Log::action(tr('Removing right ":right" from all users', [
+                ':right' => $this->parent->getId(),
+            ]));
+
             sql()->query('DELETE FROM `accounts_users_rights` WHERE `rights_id` = :rights_id', [
                 'rights_id' => $this->parent->getId()
             ]);
@@ -221,6 +250,8 @@ class Users extends DataList
             $this->list = sql()->list('SELECT `id` FROM `accounts_rights`');
         }
 
+        // The keys contain the ids...
+        $this->list = array_flip($this->list);
         return $this;
     }
 

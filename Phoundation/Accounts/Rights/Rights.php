@@ -5,11 +5,11 @@ namespace Phoundation\Accounts\Rights;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataList;
 use Phoundation\Data\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Databases\Sql\QueryBuilder;
-use Phoundation\Exception\OutOfBoundsException;
 
 
 
@@ -53,7 +53,7 @@ class Rights extends DataList
         $rights_list = [];
 
         foreach ($list as $right) {
-            $rights_list[] = $this->entry_class::new($right)->getId();
+            $rights_list[] = $this->entry_class::get($right)->getId();
         }
 
         // Get a list of what we have to add and remove to get the same list, and apply
@@ -94,7 +94,7 @@ class Rights extends DataList
                 $right = Right::get($right);
 
                 // Already exists?
-                if (in_array($right->getId(), $this->list)) {
+                if (array_key_exists($right->getId(), $this->list)) {
                     throw DataEntryAlreadyExistsException::new(tr('Cannot add right ":right", it already exists for ":type" ":parent"', [
                         ':type'   => Strings::fromReverse(get_class($this->parent), '\\'),
                         ':right'  => $right->getName(),
@@ -104,6 +104,11 @@ class Rights extends DataList
 
                 // Add entry to parent, User or Role
                 if ($this->parent instanceof User) {
+                    Log::action(tr('Adding right ":right" to user ":user"', [
+                        ':user'  => $this->parent->getId(),
+                        ':right' => $right->getId()
+                    ]));
+
                     sql()->insert('accounts_users_rights', [
                         'users_id'  => $this->parent->getId(),
                         'rights_id' => $right->getId()
@@ -112,6 +117,11 @@ class Rights extends DataList
                     // Add right to internal list
                     $this->addEntry($right);
                 } elseif ($this->parent instanceof Role) {
+                    Log::action(tr('Adding right ":right" to role ":role"', [
+                        ':role' => $this->parent->getId(),
+                        ':right' => $right->getId()
+                    ]));
+
                     sql()->insert('accounts_roles_rights', [
                         'roles_id'  => $this->parent->getId(),
                         'rights_id' => $right->getId()
@@ -194,11 +204,19 @@ class Rights extends DataList
         $this->ensureParent('clear all entries from parent');
 
         if ($this->parent instanceof User) {
+            Log::action(tr('Removing all rights from user ":user"', [
+                ':user' => $this->parent->getId(),
+            ]));
+
             sql()->query('DELETE FROM `accounts_users_rights` WHERE `users_id` = :users_id', [
                 'users_id'  => $this->parent->getId()
             ]);
 
         } elseif ($this->parent instanceof Role) {
+            Log::action(tr('Removing all rights from role ":role"', [
+                ':role' => $this->parent->getId(),
+            ]));
+
             sql()->query('DELETE FROM `accounts_roles_rights` WHERE `roles_id` = :roles_id', [
                 'roles_id'  => $this->parent->getId()
             ]);
@@ -237,6 +255,8 @@ class Rights extends DataList
             $this->list = sql()->list('SELECT `id` FROM `accounts_rights`');
         }
 
+        // The keys contain the ids...
+        $this->list = array_flip($this->list);
         return $this;
     }
 

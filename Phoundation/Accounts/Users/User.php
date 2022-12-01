@@ -2,11 +2,10 @@
 
 namespace Phoundation\Accounts\Users;
 
-use Phoundation\Accounts\Rights\UserRights;
-use Phoundation\Accounts\Roles\UserRoles;
+use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\UsersException;
-use Phoundation\Api\Users;
 use Phoundation\Business\Companies\Branches\Branch;
 use Phoundation\Business\Companies\Company;
 use Phoundation\Business\Companies\Departments\Department;
@@ -47,16 +46,16 @@ class User extends DataEntry
     /**
      * The roles for this user
      *
-     * @var UserRoles $roles
+     * @var Roles $roles
      */
-    protected UserRoles $roles;
+    protected Roles $roles;
 
     /**
      * The rights for this user
      *
-     * @var UserRights $rights
+     * @var Rights $rights
      */
-    protected UserRights $rights;
+    protected Rights $rights;
 
     /**
      * The company for this user
@@ -229,10 +228,10 @@ class User extends DataEntry
     /**
      * Sets the email for this user
      *
-     * @param string $email
+     * @param string|null $email
      * @return static
      */
-    public function setEmail(string $email): static
+    public function setEmail(?string $email): static
     {
         return $this->setDataValue('email', $email);
     }
@@ -1484,16 +1483,16 @@ class User extends DataEntry
     /**
      * Returns the roles for this user
      *
-     * @return UserRoles
+     * @return Roles
      */
-    public function roles(): UserRoles
+    public function roles(): Roles
     {
         if (!isset($this->roles)) {
             if (!$this->getId()) {
-                throw new OutOfBoundsException(tr('Cannot access User roles without saving User first'));
+                throw new OutOfBoundsException(tr('Cannot access user roles without saving user first'));
             }
 
-            $this->roles = UserRoles::new($this);
+            $this->roles = Roles::new($this);
         }
 
         return $this->roles;
@@ -1504,16 +1503,16 @@ class User extends DataEntry
     /**
      * Returns the roles for this user
      *
-     * @return UserRights
+     * @return Rights
      */
-    public function rights(): UserRights
+    public function rights(): Rights
     {
         if (!isset($this->rights)) {
             if (!$this->getId()) {
                 throw new OutOfBoundsException(tr('Cannot access User rights without saving User first'));
             }
 
-            $this->rights = UserRights::new($this);
+            $this->rights = Rights::new($this);
         }
 
         return $this->rights;
@@ -1554,9 +1553,7 @@ class User extends DataEntry
      */
     public function save(): static
     {
-        parent::save();
-        $this->roles()->save();
-        return $this;
+        return parent::save();
     }
 
 
@@ -1727,6 +1724,23 @@ class User extends DataEntry
             ]));
 
             return -1;
+        }
+
+        // Test for email parts
+        if ($this->getEmail()) {
+            $tests = [
+                'user'    => Strings::from($this->getEmail(), '@'),
+                'domain'  => Strings::until($this->getEmail(), '@'),
+                'ruser'   => strrev(Strings::from($this->getEmail(), '@')),
+                'rdomain' => strrev(Strings::until($this->getEmail(), '@'))
+            ];
+
+            foreach ($tests as $test) {
+                if (str_contains($password, $test)) {
+                    // password contains email parts, either straight or in reverse. Both are not allowed
+                    return -1;
+                }
+            }
         }
 
         // Check if password is not all lower case
