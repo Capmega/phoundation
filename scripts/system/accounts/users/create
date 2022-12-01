@@ -5,7 +5,9 @@ use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
+use Phoundation\Core\Config;
 use Phoundation\Core\Log;
+use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
@@ -77,19 +79,21 @@ EMAIL                                   The email address for the user
 // Validate arguments
 ArgvValidator::new()
     ->select('email', true)->isEmail()
-    ->select('-n,--name', true)->isName()
-    ->select('-g,--gender', true)->isOptional(null)->isGender()
-    ->select('-t,--title', true)->isOptional(null)->isName()
-    ->select('-l,--language', true)->isOptional(null)->isName()
-    ->select('-d,--description', true)->isOptional(null)->isDescription()
-    ->select('-c,--comments', true)->isOptional(null)->isDescription()
-    ->select('-u,--username', true)->isOptional(null)->isDescription()->isName()
     ->select('-a,--address', true)->isOptional(null)->hasMaxCharacters(255)->isPrintable()
-    ->select('-w,--website', true)->isOptional(null)->isUrl()
-    ->select('-p,--phones', true)->isOptional(null)->isPhones()
     ->select('-b,--birthday', true)->isOptional(null)->isDate()
-    ->select('-t,--timezone', true)->isOptional(null)->isTimezone()
+    ->select('-c,--comments', true)->isOptional(null)->isDescription()
+    ->select('-d,--description', true)->isOptional(null)->isDescription()
+    ->select('-g,--gender', true)->isOptional(null)->isGender()
+    ->select('-l,--language', true)->isOptional(null)->isName()
+    ->select('-n,--name', true)->isName()
+    ->select('-p,--phones', true)->isOptional(null)->isPhones()
+    ->select('-t,--title', true)->isOptional(null)->isName()
+    ->select('-u,--username', true)->isOptional(null)->isDescription()->isName()
+    ->select('-w,--website', true)->isOptional(null)->isUrl()
+    ->select('--no-password')->isOptional(false)->isBoolean()
+    ->select('--timezone', true)->isOptional(null)->isTimezone()
     ->select('--domain', true)->isOptional(Config::get('web.domains.primary.domain'))->isDomain()
+    ->select('--is-leader')->isOptional(false)->isBoolean()
     ->select('--lead-by', true)->isOptional(null)->isEmail()
     ->select('--country', true)->isOptional(null)->isName()
     ->select('--state', true)->isOptional(null)->isName()
@@ -97,8 +101,8 @@ ArgvValidator::new()
     ->select('--company', true)->isOptional(null)->isName()
     ->select('--department', true)->isOptional(null)->isName()
     ->select('--branch', true)->isOptional(null)->isName()
-    ->select('--is-leader')->isOptional(false)->isBoolean()
     ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+    ->noArgumentsLeft()
     ->validate();
 
 
@@ -112,15 +116,29 @@ if (User::exists($argv['email'])) {
 
 
 
+// Ensure that specified roles exist
+try {
+    foreach ($argv['roles'] as &$role) {
+        $role = Role::get($role);
+    }
+
+    unset($role);
+}catch (DataEntryNotExistsException $e) {
+    throw $e->makeWarning();
+}
+
+
+
 // Add password for this user
-$argv['password']          = Cli::readPassword(tr('Please type the users password:'));
-$argv['password_validate'] = Cli::readPassword(tr('Please re-type the users password:'));
+if (!$argv['no_password']) {
+    $argv['password']          = Cli::readPassword(tr('Please type the users password:'));
+    $argv['password_validate'] = Cli::readPassword(tr('Please re-type the users password:'));
+}
 
 
 
 // Create user
 $user = User::new()
-    ->validatePassword($argv['password'], $argv['password_validate'])
     ->setEmail($argv['email'])
     ->setName($argv['name'])
     ->setTitle($argv['title'])
@@ -141,18 +159,23 @@ $user = User::new()
     ->setCity($argv['city'])
     ->setCompany($argv['company'])
     ->setBranch($argv['branch'])
-    ->setDepartment($argv['department']);
+    ->setDepartment($argv['department'])
+    ->save();
 
 
 
-// Save the user and update the users password
-$user->save()->setPassword($argv['password'], $argv['password_validate']);
+// Update the users password
+if (!$argv['no_password']) {
+    $user
+        ->validatePassword($argv['password'], $argv['password_validate'])
+        ->setPassword($argv['password'], $argv['password_validate']);
+}
 
 
 
 // Set users roles
 foreach ($argv['roles'] as $role) {
-    $user->roles()->add(Role::get($role));
+    $user->roles()->add($role);
 }
 
 

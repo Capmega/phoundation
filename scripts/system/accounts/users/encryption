@@ -36,6 +36,11 @@ ARGUMENTS
 
 
 
+// Validate no arguments
+ArgvValidator::new()->noArgumentsLeft();
+
+
+
 // Display
 Core::setTimeout(60);
 Log::information(tr('Calculating best encryption cost, this may take a few seconds so be patient...'));

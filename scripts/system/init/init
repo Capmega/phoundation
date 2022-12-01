@@ -17,6 +17,8 @@ use Phoundation\Libraries\Libraries;
  * @package Phoundation\Core
  */
 
+
+
 // Get command line arguments
 ArgvValidator::new()
     ->select('--drop')->isOptional(false)->isBoolean()
@@ -24,12 +26,19 @@ ArgvValidator::new()
     ->select('-p,--plugins')->isOptional(true)->isBoolean()
     ->select('-l,--library', true)->isOptional(true)->isBoolean()
     ->select('-c,--comments', true)->isOptional(true)->isBoolean()
+    ->noArgumentsLeft()
     ->validate();
 
+
+
+// Drop the database and start from scratch? DANGER!
 if ($argv['drop']) {
     Libraries::reset();
 }
 
+
+
+// Initialize the system
 Libraries::initialize($argv['system'], $argv['plugins'], $argv['comments'], $argv['library']);
 
 //    // During init, force EMULATE_PREPARES because loads of init stuff will NOT work without

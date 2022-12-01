@@ -35,9 +35,12 @@ ARGUMENTS
 // Validate arguments
 ArgvValidator::new()
     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+    ->noArgumentsLeft()
     ->validate();
 
 
+
+// List roles
 Roles::new()
     ->addFilter('rights', $argv['rights'])
     ->addFilter('status', (DELETED ? 'deleted' : null))

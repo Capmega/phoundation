@@ -36,6 +36,7 @@ ARGUMENTS
 // Validate arguments
 ArgvValidator::new()
     ->select('user')->hasMinCharacters(2)->hasMaxCharacters(255)
+    ->noArgumentsLeft()
     ->validate();
 
 

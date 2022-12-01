@@ -28,6 +28,12 @@
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+
+// Ensure no arguments
+ArgvValidator::new()->noArgumentsLeft();
 
 
 

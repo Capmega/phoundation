@@ -41,6 +41,7 @@ RIGHT[,RIGHT,RIGHT,...]                 The rights linked with the role. Each us
 ArgvValidator::new()
     ->select('role', true)->isName()
     ->select('rights', true)->sanitizeForceArray()->each()->isName()
+    ->noArgumentsLeft()
     ->validate();
 
 

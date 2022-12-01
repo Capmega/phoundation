@@ -35,6 +35,7 @@ ARGUMENTS
 // Validate arguments
 ArgvValidator::new()
     ->select('-r,--roles,--role', true)->isOptional(null)->isName()
+    ->noArgumentsLeft()
     ->validate();
 
 

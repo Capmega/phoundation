@@ -30,6 +30,7 @@ ArgvValidator::new()
     ->select('-i,--init')->isOptional(true)->isBoolean()
     ->select('-t,--to')->isOptional(true)->isBoolean()
     ->select('-e,--environment')->isOptional(null)->isName()
+    ->noArgumentsLeft()
     ->validate();
 
 $sync = Sync::new()

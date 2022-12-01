@@ -1,13 +1,2 @@
 #!/usr/bin/php
 <?php
-/*
- * This is an example hook script
- */
-require_once(dirname(__FILE__).'/../../libs/startup.php');
-
-try {
-
-}catch(Exception $e) {
-    throw new CoreException('scripts/hooks/example: Failed', $e);
-}
-?>

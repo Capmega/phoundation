@@ -40,6 +40,7 @@ ArgvValidator::new()
     ->select('right', true)->isName()
     ->select('-n,--name', true)->isOptional(null)->isName()
     ->select('-d,--description', true)->isOptional(null)->isDescription()
+    ->noArgumentsLeft()
     ->validate();
 
 

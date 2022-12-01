@@ -26,12 +26,18 @@ $usage   = './cli system libraries info LIBRARY_NAME';
 
 $help    = 'The libraries info script will show detailed information about the specified library';
 
+
+
 // Validate arguments
 ArgvValidator::new()
     ->select('-t,--type,--types', true)->isOptional(null)->isName()
     ->select('library')->isOptional(null)->hasMaxCharacters(64)->sanitizeForceArray()->each()->isName()
+    ->noArgumentsLeft()
     ->validate();
 
+
+
+// Show information for a specific library
 if ($argv['library']) {
     if ($argv['type']) {
         throw OutOfBoundsException::new(tr('Library nane AND -t / --type specified, these are mutually exclusive. Please specify either one or the other'))->makeWarning();
@@ -52,6 +58,7 @@ if ($argv['library']) {
         Cli::displayTable($statistics['total_statistics']);
     }
 } elseif ($argv['type']) {
+    // Show information for a type of libraries
     // Sanitize and validate
     $argv['type'] = strtolower(trim($argv['type']));
 

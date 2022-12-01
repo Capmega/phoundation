@@ -31,16 +31,23 @@ ARGUMENTS
 -m, --method METHOD                     Resizing method (scale, sample, resample)
 -t, --type                              Resizing type ';
 
+
+
 // Validate command line arguments
 ArgvValidator::new()
     ->select('-m,--method', true)->isOptional('scale')->isName()
     ->select('-x,--width', true)->isInteger()
     ->select('-y,--height', true)->isInteger()
     ->select('file')->isExistingFile()
+    ->noArgumentsLeft()
     ->validate();
+
+
 
 // Get image object
 $image = Image::new($argv['file'], PATH_DATA);
+
+
 
 // Display image information
 Log::information(tr('Resizing image ":file" to ":xx:y"', [
@@ -49,9 +56,15 @@ Log::information(tr('Resizing image ":file" to ":xx:y"', [
     ':file' => $argv['file']
 ]));
 
+
+
+// Make a backup of this image and show it
 $backup = $image->backup();
 $backup->view();
 
+
+
+// Do the resize and show the result too
 $image->convert()
     ->resize()
     ->setMethod($argv['method'])

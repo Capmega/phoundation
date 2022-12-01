@@ -39,6 +39,7 @@ NAME                                    The name for the role
 ArgvValidator::new()
     ->select('name', true)->isName()
     ->select('-d,--description', true)->isOptional(null)->isDescription()
+    ->noArgumentsLeft()
     ->validate();
 
 

@@ -3,6 +3,9 @@
 /*
  * This is an empty test script template
  */
+
+use Phoundation\Exception\UnderConstructionException;
+
 $usage = './scripts/base/mysql method [OPTIONS]
 
 ./scripts/base/mysql list databases [OPTIONS]
@@ -70,6 +73,7 @@ replication
     backup                       - Make remote backup on replication server
                                    for databases that are replicating';
 
+throw new UnderConstructionException();
 
 load_libs('mysql,mysqlr');
 cli_only();

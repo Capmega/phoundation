@@ -23,19 +23,21 @@ $usage = './cli system image convert IMAGE';
 
 $help  = 'This script can apply various conversions to the specified image';
 
+
+
+// Validate arguments
 ArgvValidator::new()
     ->select('method')->isName()
     ->select('file')->isExistingFile()
     ->validate();
 
-// Validate arguments
-if (!$argv['file']) {
-    throw OutOfBoundsException::new(tr('No image specified'))->makeWarning();
-}
 
-// Get image object
+
+// Get image and crop it
 $image = Image::new($argv['file'], Restrictions::new(PATH_DATA, true));
 $image->convert()->crop();
+
+
 
 // Display image information
 Log::information(tr('Displaying image information for ":file"', [':file' => $argv['file']]));

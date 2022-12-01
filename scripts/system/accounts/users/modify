@@ -63,7 +63,7 @@ USER                                    The user to modify. Always specify users
 
 [-t / --timezone]
 
-[--domain]
+[--domain]                              The domain where this user is valid
 
 [--lead-by]
 
@@ -76,35 +76,34 @@ USER                                    The user to modify. Always specify users
 [--is-leader]                           If specified, this user will be registered as having a leadership position';
 
 
-// TODO Select users by email AND domain!
-//Config::get('web.domains.primary.domain')
 
 // Validate arguments
 ArgvValidator::new()
     ->select('user', true)->isEmail()
-    ->select('-e,--email', true)->isOptional(null)->isEmail()
-    ->select('-n,--name', true)->isOptional(null)->isName()
-    ->select('-g,--gender', true)->isOptional(null)->isGender()
-    ->select('-t,--title', true)->isOptional(null)->isName()
-    ->select('-l,--language', true)->isOptional(null)->isName()
-    ->select('-d,--description', true)->isOptional(null)->isDescription()
-    ->select('-c,--comments', true)->isOptional(null)->isDescription()
-    ->select('-u,--username', true)->isOptional(null)->isDescription()->isName()
     ->select('-a,--address', true)->isOptional(null)->hasMaxCharacters(255)->isPrintable()
-    ->select('-w,--website', true)->isOptional(null)->isUrl()
-    ->select('-p,--phones', true)->isOptional(null)->isPhones()
     ->select('-b,--birthday', true)->isOptional(null)->isDate()
-    ->select('-t,--timezone', true)->isOptional(null)->isTimezone()
+    ->select('-c,--comments', true)->isOptional(null)->isDescription()
+    ->select('-d,--description', true)->isOptional(null)->isDescription()
+    ->select('-e,--email', true)->isOptional(null)->isEmail()
+    ->select('-g,--gender', true)->isOptional(null)->isGender()
+    ->select('-l,--language', true)->isOptional(null)->isName()
+    ->select('-n,--name', true)->isOptional(null)->isName()
+    ->select('-p,--phones', true)->isOptional(null)->isPhones()
+    ->select('-t,--title', true)->isOptional(null)->isName()
+    ->select('-u,--username', true)->isOptional(null)->isDescription()->isName()
+    ->select('-w,--website', true)->isOptional(null)->isUrl()
     ->select('--domain', true)->isOptional(null)->isDomain()
+    ->select('--is-leader')->isOptional(false)->isBoolean()
     ->select('--lead-by', true)->isOptional(null)->isEmail()
+    ->select('--timezone', true)->isOptional(null)->isTimezone()
     ->select('--country', true)->isOptional(null)->isName()
     ->select('--state', true)->isOptional(null)->isName()
     ->select('--city', true)->isOptional(null)->isName()
     ->select('--company', true)->isOptional(null)->isName()
     ->select('--department', true)->isOptional(null)->isName()
     ->select('--branch', true)->isOptional(null)->isName()
-    ->select('--is-leader')->isOptional(false)->isBoolean()
     ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+    ->noArgumentsLeft()
     ->validate();
 
 

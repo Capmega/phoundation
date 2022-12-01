@@ -41,6 +41,7 @@ ArgvValidator::new()
     ->select('--domains,--domain')->isOptional(null)->sanitizeForceArray()->each()->isDomain()
     ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+    ->noArgumentsLeft()
     ->validate();
 
 
