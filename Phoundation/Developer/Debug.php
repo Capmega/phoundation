@@ -162,17 +162,27 @@ class Debug {
      * Returns the class name from where this call was made
      *
      * @param int $trace
-     * @return string
+     * @param string|null $default
+     * @return string|null
      */
-    public static function currentClass(int $trace = 0): string
+    public static function currentClass(int $trace = 0, ?string $default = '-'): ?string
     {
         $backtrace = debug_backtrace();
+        return isset_get($backtrace[$trace + 1]['class'], $default);
+    }
 
-        if (!isset($backtrace[$trace + 1])) {
-            return -1;
-        }
 
-        return isset_get($backtrace[$trace + 1]['class'], '-');
+    /**
+     * Returns the function name from where this call was made
+     *
+     * @param int $trace
+     * @param string|null $default
+     * @return string|null
+     */
+    public static function currentFunction(int $trace = 0, ?string $default = '-'): ?string
+    {
+        $backtrace = debug_backtrace();
+        return isset_get($backtrace[$trace + 1]['function'], $default);
     }
 
 
@@ -181,36 +191,13 @@ class Debug {
      * Returns the filename from where this call was made
      *
      * @param int $trace
-     * @return string
+     * @param string|null $default
+     * @return string|null
      */
-    public static function currentFile(int $trace = 0): string
+    public static function currentFile(int $trace = 0, ?string $default = '-'): ?string
     {
         $backtrace = debug_backtrace();
-
-        if (!isset($backtrace[$trace + 1])) {
-            return '-';
-        }
-
-        return isset_get($backtrace[$trace + 1]['file'], '-');
-    }
-
-
-
-    /**
-     * Returns the function name from where this call was made
-     *
-     * @param int $trace
-     * @return string
-     */
-    public static function currentFunction(int $trace = 0): string
-    {
-        $backtrace = debug_backtrace();
-
-        if (!isset($backtrace[$trace + 1])) {
-            return -1;
-        }
-
-        return isset_get($backtrace[$trace + 1]['function'], '-');
+        return isset_get($backtrace[$trace + 1]['file'], $default);
     }
 
 
@@ -219,17 +206,47 @@ class Debug {
      * Returns the line number from where this call was made
      *
      * @param int $trace
-     * @return int
+     * @param int|null $default
+     * @return int|null
      */
-    public static function currentLine(int $trace = 0): int
+    public static function currentLine(int $trace = 0, ?int $default = -1): ?int
     {
         $backtrace = debug_backtrace();
+        return isset_get($backtrace[$trace + 1]['line'], $default);
+    }
 
-        if (!isset($backtrace[$trace + 1])) {
-            return -1;
+
+
+    /**
+     * Returns a string indicating function or class method in file@line,
+     *
+     * @note To avoid any possible enless looping, this method does NOT return translatable texts
+     * @param int $trace
+     * @return string
+     */
+    public static function currentLocation(int $trace = 0): string
+    {
+        $class    = self::currentClass($trace + 1, null);
+        $function = self::currentFunction($trace + 1, null);
+        $return   = self::currentFile($trace) . '@' . self::currentLine($trace);
+
+        switch ($function) {
+            case null:
+                // no-break
+            case 'include':
+                // no-break
+            case 'require':
+                // Just file@line
+                return 'File ' . $return;
+
+            default:
+                if ($class) {
+                    $function = $class . '::' . $function;
+                }
+
+                // Class method or function in file@line
+                return $function . 'in' . $return;
         }
-
-        return isset_get($backtrace[$trace + 1]['line'], -1);
     }
 
 
