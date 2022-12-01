@@ -85,7 +85,7 @@ class Color
      */
     public static function apply(?string $source, ?string $foreground_color, ?string $background_color = null, bool $reset = true): ?string
     {
-        if (NOCOLOR or (!$foreground_color or ($foreground_color === 'cli') or ($foreground_color === 'notice')) and !$background_color) {
+        if ((defined('NOCOLOR') and NOCOLOR) or (!$foreground_color or ($foreground_color === 'cli') or ($foreground_color === 'notice')) and !$background_color) {
             // Do NOT apply color
             return $source;
         }
