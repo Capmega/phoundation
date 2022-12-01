@@ -410,10 +410,9 @@ class ArgvValidator extends Validator
             return match (count($results)) {
                 0       => null,
                 1       => current($results),
-                default => throw new ArgumentsException('Multiple related command line arguments ":results" for the same option specified. Please specify only one', [
-
+                default => throw ArgumentsException::new('Multiple related command line arguments ":results" for the same option specified. Please specify only one', [
                     ':results' => $results
-                ])
+                ])->makeWarning()
             };
         }
 
@@ -449,27 +448,23 @@ class ArgvValidator extends Validator
                 return $value;
             }
 
-            // Return next argument, if available
-            $value = null;
-
             try {
+                // Return next argument, if available
                 $value = Arrays::nextValue(self::$argv, $keys, true);
             } catch (OutOfBoundsException $e) {
-                if ($e->getCode() == 'invalid') {
-                    if ($next !== 'optional') {
-                        // This argument requires another parameter
-                        throw $e->setCode('missing-arguments');
-                    }
-
-                    $value = false;
+                if ($next !== 'optional') {
+                    // This argument requires another parameter
+                    throw $e->makeWarning();
                 }
+
+                $value = $next;
             }
 
-            if (str_starts_with($value, '-')) {
-                throw new ArgumentsException(tr('Argument ":keys" has no assigned value. It is immediately followed by argument ":value"', [
-                    ':keys' => $keys,
+            if (str_starts_with((string) $value, '-')) {
+                throw ArgumentsException::new(tr('Argument ":keys" has no assigned value. It is immediately followed by argument ":value"', [
+                    ':keys'  => $keys,
                     ':value' => $value
-                ]), ['keys' => $keys]);
+                ]), ['keys' => $keys])->makeWarning();
             }
 
             return $value;
