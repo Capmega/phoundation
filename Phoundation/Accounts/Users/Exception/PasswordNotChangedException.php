@@ -1,22 +1,22 @@
 <?php
 
-namespace Phoundation\Data\Validator\Exception;
+namespace Phoundation\Accounts\Users\Exception;
 
 use Throwable;
 
 
 
 /**
- * Class ValidationFailedException
+ * Class PasswordNotChangedException
  *
- * This exception is thrown when a validator found validation failures
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package Phoundation\Accounts
  */
-class ValidationFailedException extends ValidatorException
+class PasswordNotChangedException extends UsersException
 {
     public function __construct(array|string $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null)
     {

@@ -2,9 +2,9 @@
 
 namespace Phoundation\Accounts\Users\Exception;
 
-
-
 use Throwable;
+
+
 
 /**
  * Class AuthenticationException

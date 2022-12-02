@@ -5,6 +5,7 @@ namespace Phoundation\Accounts\Users;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
 use Phoundation\Accounts\Users\Exception\UsersException;
 use Phoundation\Business\Companies\Branches\Branch;
 use Phoundation\Business\Companies\Company;
@@ -1275,9 +1276,22 @@ class User extends DataEntry
     public function setPassword(string $password, string $validation): static
     {
         $this->validatePassword($password, $validation);
-        $this->setDataValue('password', $this->hashPassword($password));
+        $this->setPasswordDirectly($this->hashPassword($password));
 
         return $this->savePassword();
+    }
+
+
+
+    /**
+     * Sets the password for this user
+     *
+     * @param string $password
+     * @return static
+     */
+    protected function setPasswordDirectly(string $password): static
+    {
+        return $this->setDataValue('password', $password);
     }
 
 
@@ -1306,7 +1320,17 @@ class User extends DataEntry
             throw new ValidationFailedException(tr('The password must match the validation password'));
         }
 
+        // Is the password secure?
         $this->testPasswordSecurity($password);
+
+        // Is the password not the same as the current password?
+        try {
+            self::authenticate($this->getEmail(), $password);
+            throw new PasswordNotChangedException(tr('The specified password is the same as the current password'));
+
+        } catch (AuthenticationException) {
+            // This password is new, yay! We can continue;
+        }
 
         return $this;
     }
@@ -1566,7 +1590,21 @@ class User extends DataEntry
      */
     public function passwordMatch(string $password): bool
     {
-        return password_verify($this->seedPassword($password), $this->data['password']);
+        return $this->passwordCompare($password, $this->data['password']);
+    }
+
+
+
+    /**
+     * Returns true if the specified password and password hash match
+     *
+     * @param string $password
+     * @param string $hashed_password
+     * @return bool
+     */
+    protected function passwordCompare(string $password, string $hashed_password): bool
+    {
+        return password_verify($this->seedPassword($password), $hashed_password);
     }
 
 
@@ -1682,6 +1720,10 @@ class User extends DataEntry
 
         if ($this->passwordIsCompromised($password)) {
             throw new ValidationFailedException(tr('This password has been compromised'));
+        }
+
+        if ($this->passwordIsUsedPreviously($password)) {
+            throw new ValidationFailedException(tr('This password has been used before'));
         }
     }
 
@@ -1816,6 +1858,30 @@ class User extends DataEntry
         return (bool) sql()->get('SELECT `id` FROM `accounts_compromised_passwords` WHERE `password` = :password', [
             ':password' => $password
         ]);
+    }
+
+
+
+    /**
+     * Returns true if the password is considered secure enough
+     *
+     * @todo add limiting to 6-12 months, then passwords should be dumped
+     * @param string $new_password
+     * @return bool
+     */
+    protected function passwordIsUsedPreviously(string $new_password): bool
+    {
+        $hash_passwords = sql()->list('SELECT `id` FROM `accounts_old_passwords` WHERE `created_by` = :created_by', [
+            ':created_by' => $this->getId()
+        ]);
+
+        foreach ($hash_passwords as $hash_password) {
+            if ($this->passwordCompare($new_password, $hash_password)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 

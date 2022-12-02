@@ -40,29 +40,31 @@ class Users extends DataList
     /**
      * Set the entries to the specified list
      *
-     * @param array $list
+     * @param array|null $list
      * @return static
      */
-    public function set(array $list): static
+    public function set(?array $list): static
     {
         $this->ensureParent('save entries');
 
-        // Convert the list to id's
-        $rights_list = [];
+        if (is_array($list)) {
+            // Convert the list to id's
+            $rights_list = [];
 
-        foreach ($list as $right) {
-            $rights_list[] = $this->entry_class::get($right)->getId();
-        }
+            foreach ($list as $right) {
+                $rights_list[] = $this->entry_class::get($right)->getId();
+            }
 
-        // Get a list of what we have to add and remove to get the same list, and apply
-        $diff = Arrays::valueDiff($this->list, $rights_list);
+            // Get a list of what we have to add and remove to get the same list, and apply
+            $diff = Arrays::valueDiff($this->list, $rights_list);
 
-        foreach ($diff['add'] as $right) {
-            $this->parent->roles()->add($right);
-        }
+            foreach ($diff['add'] as $right) {
+                $this->parent->roles()->add($right);
+            }
 
-        foreach ($diff['remove'] as $right) {
-            $this->parent->roles()->remove($right);
+            foreach ($diff['remove'] as $right) {
+                $this->parent->roles()->remove($right);
+            }
         }
 
         return $this;

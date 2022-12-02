@@ -46,7 +46,14 @@ ArgvValidator::new()
 
 try {
     // Display user data
-    Cli::displayForm(User::get($argv['user'])->getData());
+    User::get($argv['user'])->CliDisplayForm();
+
+    Log::information('Roles assigned to this user:');
+    User::get($argv['user'])->roles()->CliDisplayTable();
+
+    Log::information('Roles assigned to this user through its roles:');
+    User::get($argv['user'])->rights()->CliDisplayTable();
+
 
 }catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();

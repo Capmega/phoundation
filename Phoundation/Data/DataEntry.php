@@ -320,9 +320,12 @@ abstract class DataEntry
                 case 'status':
                     // no-break
                 case 'meta_id':
-                    // no-break
-                case 'password':
                     // Go to next key
+                    continue 2;
+
+                case 'password':
+                    // Passwords are always set directly
+                    $this->setPasswordDirectly($value);
                     continue 2;
 
                 case 'seo_name':
@@ -607,7 +610,7 @@ abstract class DataEntry
      */
     public function CliDisplayForm(?string $key_header = null, ?string $value_header = null): void
     {
-        Cli::displayTable($this->data, $key_header, $value_header);
+        Cli::displayForm($this->data, $key_header, $value_header);
     }
 
 
