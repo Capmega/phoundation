@@ -1,6 +1,7 @@
 #!/usr/bin/php
 <?php
 
+use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Core\Log;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
@@ -49,11 +50,19 @@ ArgvValidator::new()
 
 
 try {
+    // Ensure that specified roles exist
+    foreach ($argv['rights'] as &$right) {
+        $right = Right::get($right);
+    }
+
+    unset($right);
+
     // Load role, then modify it, save it, and update the rights
     $role = Role::get($argv['role'])
         ->setData($argv)
         ->save();
 
+    // Set the rights for this role
     $role->rights()->set($argv['rights']);
 
 }catch (DataEntryNotExistsException $e) {

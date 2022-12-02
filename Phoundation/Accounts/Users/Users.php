@@ -8,7 +8,6 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataList;
-use Phoundation\Data\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Databases\Sql\QueryBuilder;
 
 
@@ -92,41 +91,35 @@ class Users extends DataList
                 $user = User::get($user);
 
                 // Already exists?
-                if (array_key_exists($user->getId(), $this->list)) {
-                    throw DataEntryAlreadyExistsException::new(tr('Cannot add user ":user", it already exists for ":type" ":parent"', [
-                        ':type' => Strings::fromReverse(get_class($this->parent), '\\'),
-                        ':right' => $user->getName(),
-                        ':parent' => $this->parent->getName()
-                    ]))->makeWarning();
-                }
+                if (!array_key_exists($user->getId(), $this->list)) {
+                    // Add entry to parent, Role or Right
+                    if ($this->parent instanceof Role) {
+                        Log::action(tr('Adding role ":role" to user ":user"', [
+                            ':role' => $this->parent->getLogId(),
+                            ':user' => $user->getLogId()
+                        ]));
 
-                // Add entry to parent, Role or User
-                if ($this->parent instanceof Role) {
-                    Log::action(tr('Adding role ":role" to user ":user"', [
-                        ':role' => $this->parent->getId(),
-                        ':user' => $user->getId()
-                    ]));
+                        sql()->insert('accounts_users_rights', [
+                            'roles_id' => $this->parent->getId(),
+                            'users_id' => $user->getId()
+                        ]);
 
-                    sql()->insert('accounts_users_rights', [
-                        'roles_id' => $this->parent->getId(),
-                        'users_id' => $user->getId()
-                    ]);
+                        // Add right to internal list
+                        $this->addEntry($user);
+                    } elseif ($this->parent instanceof Right) {
+                        Log::action(tr('Adding right ":right" to user ":user"', [
+                            ':right' => $this->parent->getLogId(),
+                            ':user'  => $user->getLogId()
+                        ]));
 
-                    // Add right to internal list
-                    $this->addEntry($user);
-                } elseif ($this->parent instanceof Right) {
-                    Log::action(tr('Adding right ":right" to user ":user"', [
-                        ':right' => $this->parent->getId(),
-                        ':user'  => $user->getId()
-                    ]));
+                        sql()->insert('accounts_users_rights', [
+                            'rights_id' => $this->parent->getId(),
+                            'users_id' => $user->getId()
+                        ]);
 
-                    sql()->insert('accounts_users_rights', [
-                        'rights_id' => $this->parent->getId(),
-                        'users_id' => $user->getId()
-                    ]);
-
-                    // Add right to internal list
-                    $this->addEntry($user);
+                        // Add right to internal list
+                        $this->addEntry($user);
+                    }
                 }
             }
         }
@@ -158,8 +151,8 @@ class Users extends DataList
 
                 if ($this->parent instanceof Role) {
                     Log::action(tr('Removing role ":role" from user ":user"', [
-                        ':role' => $this->parent->getId(),
-                        ':user' => $user->getId()
+                        ':role' => $this->parent->getLogId(),
+                        ':user' => $user->getLogId()
                     ]));
 
                     sql()->delete('accounts_users_rights', [
@@ -171,8 +164,8 @@ class Users extends DataList
                     $this->removeEntry($user);
                 } elseif ($this->parent instanceof Right) {
                     Log::action(tr('Removing right ":right" from user ":user"', [
-                        ':right' => $this->parent->getId(),
-                        ':user'  => $user->getId()
+                        ':right' => $this->parent->getLogId(),
+                        ':user'  => $user->getLogId()
                     ]));
 
                     sql()->delete('accounts_users_rights', [
@@ -201,7 +194,7 @@ class Users extends DataList
 
         if ($this->parent instanceof Role) {
             Log::action(tr('Removing role ":role" from all users', [
-                ':right' => $this->parent->getId(),
+                ':right' => $this->parent->getLogId(),
             ]));
 
             sql()->query('DELETE FROM `accounts_users_roles` WHERE `roles_id` = :roles_id', [
@@ -210,7 +203,7 @@ class Users extends DataList
 
         } elseif ($this->parent instanceof Right) {
             Log::action(tr('Removing right ":right" from all users', [
-                ':right' => $this->parent->getId(),
+                ':right' => $this->parent->getLogId(),
             ]));
 
             sql()->query('DELETE FROM `accounts_users_rights` WHERE `rights_id` = :rights_id', [

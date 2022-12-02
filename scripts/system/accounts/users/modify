@@ -108,34 +108,39 @@ ArgvValidator::new()
 
 
 
-// Modify user and save
-$user = User::get($argv['user'])
-    ->setEmail($argv['email'])
-    ->setName($argv['name'])
-    ->setTitle($argv['title'])
-    ->setGender($argv['gender'])
-    ->setLanguage($argv['language'])
-    ->setDescription($argv['description'])
-    ->setComments($argv['comments'])
-    ->setUsername($argv['username'])
-    ->setAddress($argv['address'])
-    ->setWebsite($argv['website'])
-    ->setPhones($argv['phones'])
-    ->setBirthday($argv['birthday'])
-    ->setTimezone($argv['timezone'])
-    ->setLeader($argv['lead_by'])
-    ->setIsLeader($argv['is_leader'])
-    ->setCountry($argv['country'])
-    ->setState($argv['state'])
-    ->setCity($argv['city'])
-    ->setCompany($argv['company'])
-    ->setBranch($argv['branch'])
-    ->setDepartment($argv['department'])
-    ->save();
-
-
-
 try {
+    // Ensure that specified roles exist
+    foreach ($argv['roles'] as &$role) {
+        $role = Role::get($role);
+    }
+
+    unset($role);
+
+    // Modify user and save
+    $user = User::get($argv['user'])
+        ->setEmail($argv['email'])
+        ->setName($argv['name'])
+        ->setTitle($argv['title'])
+        ->setGender($argv['gender'])
+        ->setLanguage($argv['language'])
+        ->setDescription($argv['description'])
+        ->setComments($argv['comments'])
+        ->setUsername($argv['username'])
+        ->setAddress($argv['address'])
+        ->setWebsite($argv['website'])
+        ->setPhones($argv['phones'])
+        ->setBirthday($argv['birthday'])
+        ->setTimezone($argv['timezone'])
+        ->setLeader($argv['lead_by'])
+        ->setIsLeader($argv['is_leader'])
+        ->setCountry($argv['country'])
+        ->setState($argv['state'])
+        ->setCity($argv['city'])
+        ->setCompany($argv['company'])
+        ->setBranch($argv['branch'])
+        ->setDepartment($argv['department'])
+        ->save();
+
     // Set users roles
     $user->roles()->set($argv['roles']);
 

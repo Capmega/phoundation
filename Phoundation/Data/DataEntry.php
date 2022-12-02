@@ -194,6 +194,18 @@ abstract class DataEntry
 
 
     /**
+     * Returns id for this database entry that can be used in logs
+     *
+     * @return string
+     */
+    public function getLogId(): string
+    {
+        return $this->getDataValue('id') . ' / ' . $this->getDataValue($this->unique_column);
+    }
+
+
+
+    /**
      * Returns status for this database entry
      *
      * @return ?String

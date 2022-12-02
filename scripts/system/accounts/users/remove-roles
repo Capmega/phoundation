@@ -3,6 +3,7 @@
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -39,20 +40,24 @@ RIGHT[,RIGHT,RIGHT,...]                 The rights linked with the role. Each us
 
 // Validate arguments
 ArgvValidator::new()
-    ->select('role', true)->isName()
-    ->select('rights', true)->sanitizeForceArray()->each()->isName()
+    ->select('user', true)->isName()
+    ->select('roles', true)->sanitizeForceArray()->each()->isName()
     ->noArgumentsLeft()
     ->validate();
 
 
 
 try {
-    // Get role and add rights
-    $role = Role::get($argv['role']);
-
-    foreach ($argv['rights'] as $right) {
-        $role->rights()->remove(Right::get($right));
+    // Ensure that specified roles exist
+    foreach ($argv['roles'] as &$role) {
+        $role = Role::get($role);
     }
+
+    unset($role);
+
+    // Get role and add rights
+    $user = User::get($argv['user']);
+    $user->roles()->remove($argv['roles']);
 
 }catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();
@@ -61,4 +66,4 @@ try {
 
 
 // Done!
-Log::success(tr('Modified role ":role"', [':role' => $role->getName()]));
+Log::success(tr('Modified user ":user"', [':user' => $user->getName()]));

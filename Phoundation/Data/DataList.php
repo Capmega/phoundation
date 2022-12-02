@@ -298,7 +298,7 @@ abstract class DataList implements Iterator
      */
     #[ReturnTypeWillChange] public function current(): int
     {
-        return current($this->list);
+        return key($this->list);
     }
 
 

@@ -4,6 +4,7 @@
 use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Core\Log;
+use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
@@ -39,6 +40,7 @@ NAME                                    The name for the role
 ArgvValidator::new()
     ->select('name', true)->isName()
     ->select('-d,--description', true)->isOptional(null)->isDescription()
+    ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
     ->noArgumentsLeft()
     ->validate();
 
@@ -53,11 +55,30 @@ if (Role::exists($argv['name'])) {
 
 
 
+try {
+    // Ensure that specified roles exist
+    foreach ($argv['rights'] as &$right) {
+        $right = Role::get($right);
+    }
+
+    unset($right);
+
+}catch (DataEntryNotExistsException $e) {
+    throw $e->makeWarning();
+}
+
+
+
 // Create role and save it
 $role = Role::new()
     ->setName($argv['name'])
     ->setDescription($argv['description'])
     ->save();
+
+
+
+// Set the rights for this role
+$role->rights()->set($argv['rights']);
 
 
 

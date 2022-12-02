@@ -174,9 +174,7 @@ if (!$argv['no_password']) {
 
 
 // Set users roles
-foreach ($argv['roles'] as $role) {
-    $user->roles()->add($role);
-}
+$user->roles()->add($argv['roles']);
 
 
 
