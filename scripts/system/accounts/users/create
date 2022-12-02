@@ -116,13 +116,16 @@ if (User::exists($argv['email'])) {
 
 
 
-// Ensure that specified roles exist
 try {
-    foreach ($argv['roles'] as &$role) {
-        $role = Role::get($role);
+    // Ensure that specified roles exist
+    if ($argv['roles']) {
+        foreach ($argv['roles'] as &$role) {
+            $role = Role::get($role);
+        }
+
+        unset($role);
     }
 
-    unset($role);
 }catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();
 }

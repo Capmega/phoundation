@@ -49,11 +49,13 @@ ArgvValidator::new()
 
 try {
     // Ensure that specified roles exist
-    foreach ($argv['roles'] as &$role) {
-        $role = Role::get($role);
-    }
+    if ($argv['roles']) {
+        foreach ($argv['roles'] as &$role) {
+            $role = Role::get($role);
+        }
 
-    unset($role);
+        unset($role);
+    }
 
     // Get role and add rights
     $user = User::get($argv['user']);

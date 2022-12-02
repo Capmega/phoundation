@@ -57,11 +57,13 @@ if (Role::exists($argv['name'])) {
 
 try {
     // Ensure that specified roles exist
-    foreach ($argv['rights'] as &$right) {
-        $right = Role::get($right);
-    }
+    if ($argv['rights']) {
+        foreach ($argv['rights'] as &$right) {
+            $right = Role::get($right);
+        }
 
-    unset($right);
+        unset($right);
+    }
 
 }catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();

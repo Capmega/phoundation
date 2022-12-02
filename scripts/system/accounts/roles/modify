@@ -51,11 +51,13 @@ ArgvValidator::new()
 
 try {
     // Ensure that specified roles exist
-    foreach ($argv['rights'] as &$right) {
-        $right = Right::get($right);
-    }
+    if ($argv['rights']) {
+        foreach ($argv['rights'] as &$right) {
+            $right = Right::get($right);
+        }
 
-    unset($right);
+        unset($right);
+    }
 
     // Load role, then modify it, save it, and update the rights
     $role = Role::get($argv['role'])

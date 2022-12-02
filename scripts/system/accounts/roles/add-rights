@@ -47,12 +47,18 @@ ArgvValidator::new()
 
 
 try {
+    // Ensure that specified $rights exist
+    if ($argv['rights']) {
+        foreach ($argv['rights'] as &$right) {
+            $right = Right::get($right);
+        }
+
+        unset($right);
+    }
+
     // Check role exists, get role, and add rights
     $role = Role::get($argv['role']);
-
-    foreach ($argv['rights'] as $right) {
-        $role->rights()->add(Right::get($right));
-    }
+    $role->rights()->add($argv['rights']);
 
 }catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();
