@@ -63,6 +63,27 @@ class QueryBuilder
     protected array $wheres = [];
 
     /**
+     * Groupby part of query
+     *
+     * @var array $group_by
+     */
+    protected array $group_by = [];
+
+    /**
+     * Having part of query
+     *
+     * @var array $having
+     */
+    protected array $having = [];
+
+    /**
+     * Orderby part of query
+     *
+     * @var array $order_by
+     */
+    protected array $order_by = [];
+
+    /**
      * The build variables
      *
      * @var array $execute
@@ -199,6 +220,57 @@ class QueryBuilder
 
 
     /**
+     * Add a GROUP BY part of the query
+     *
+     * @param string $group_by
+     * @return static
+     */
+    public function addGroupBy(string $group_by): static
+    {
+        if ($group_by) {
+            $this->group_by[] = $group_by;
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Add a HAVING part of the query
+     *
+     * @param string $having
+     * @return static
+     */
+    public function addHaving(string $having): static
+    {
+        if ($having) {
+            $this->having[] = $having;
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Add a ORDER BY part of the query
+     *
+     * @param string $order_by
+     * @return static
+     */
+    public function addOrderBy(string $order_by): static
+    {
+        if ($order_by) {
+            $this->order_by[] = $order_by;
+        }
+
+        return $this;
+    }
+
+
+
+    /**
      * Add a JOIN part of the query
      *
      * @param string $column
@@ -286,6 +358,18 @@ class QueryBuilder
 
         foreach ($this->wheres as $where) {
             $query .= $where . ' ';
+        }
+
+        foreach ($this->group_by as $group_by) {
+            $query .= $group_by . ' ';
+        }
+
+        foreach ($this->having as $having) {
+            $query .= $having . ' ';
+        }
+
+        foreach ($this->order_by as $order_by) {
+            $query .= $order_by . ' ';
         }
 
         return $query;
