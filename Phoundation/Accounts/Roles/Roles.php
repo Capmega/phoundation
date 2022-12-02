@@ -282,11 +282,16 @@ class Roles extends DataList
      * @param array $filters
      * @return array
      */
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
+    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // Default columns
         if (!$columns) {
             $columns = 'id,name,rights';
+        }
+
+        // Default ordering
+        if (!$order_by) {
+            $order_by = ['name' => false];
         }
 
         // Get column information
@@ -300,6 +305,12 @@ class Roles extends DataList
         $builder->addSelect(' SELECT ' . $columns);
         $builder->addFrom('FROM `accounts_roles`');
 
+        // Add ordering
+        foreach ($order_by as $column => $direction) {
+            $builder->addOrderBy('ORDER BY `' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
+        }
+
+        // Build filters
         foreach ($filters as $key => $value){
             switch ($key) {
                 case 'users':

@@ -256,11 +256,16 @@ class Users extends DataList
      * @param array $filters
      * @return array
      */
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
+    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // Default columns
         if (!$columns) {
             $columns = 'id,domain,email,name,phones,roles';
+        }
+
+        // Default ordering
+        if (!$order_by) {
+            $order_by = ['email' => false];
         }
 
         // Get column information
@@ -274,6 +279,12 @@ class Users extends DataList
         $builder->addSelect(' SELECT ' . $columns);
         $builder->addFrom('FROM `accounts_users`');
 
+        // Add ordering
+        foreach ($order_by as $column => $direction) {
+            $builder->addOrderBy('ORDER BY `' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
+        }
+
+        // Build filters
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'roles':
