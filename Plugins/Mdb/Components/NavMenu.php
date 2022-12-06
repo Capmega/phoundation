@@ -67,10 +67,10 @@ class NavMenu extends ElementsBlock
     /**
      * Sets the menu data
      *
-     * @param array $menu
+     * @param array|null $menu
      * @return NavMenu
      */
-    public function setMenu(array $menu): static
+    public function setMenu(?array $menu): static
     {
         $this->menu = $menu;
         return $this;

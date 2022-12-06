@@ -27,7 +27,7 @@ class ProfileImage extends ImageMenu
     public function __construct()
     {
         // Set up the default image URL
-        $this->setUrl(Config::get('web.pages.signin', 'sign-in.html'));
+        $this->setUrl(Config::get('web.pages.signin', ''));
         $this->setModalSelector('#signinModal');
 
         parent::__construct();

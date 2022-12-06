@@ -3,6 +3,7 @@
 namespace Plugins\Mdb\Components;
 
 use Phoundation\Content\Images\UsesImage;
+use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Elements\ElementsBlock;
 
