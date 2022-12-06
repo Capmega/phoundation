@@ -1963,8 +1963,6 @@ class Core {
                     if (is_array($function)) {
                         // Decode the array contents. If anything is not correct, it will no-break fall through to the
                         // warning log
-                        $function = explode(',', $function);
-
                         if (count($function) === 2) {
                             // The first entry can either be a class name string or an object
                             if (is_object($function[0])) {
@@ -2579,7 +2577,7 @@ class Core {
                         }
 
                         // Auto extended sessions?
-                        Web::session()->checkExtended();
+                        Session::checkExtended();
 
                         // Set users timezone
                         if (empty($_SESSION['user']['timezone'])) {
