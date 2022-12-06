@@ -55,7 +55,7 @@ if ($argv['library']) {
         Log::cli();
 
         Log::cli(Color::apply(Strings::size(tr('Statistics:') , 28), 'white'));
-        Cli::displayTable($statistics['total_statistics']);
+        Cli::displayForm($statistics['total_statistics']);
     }
 } elseif ($argv['type']) {
     // Show information for a type of libraries
@@ -89,7 +89,7 @@ if ($argv['library']) {
 
     Log::cli(Color::apply(tr('Statistics:'), 'white'));
     Log::cli(Color::apply(tr('Statistics for ":type" type libraries:', [':type' => Strings::capitalize($argv['type'])]) , 'white'));
-    Cli::displayTable($statistics[$argv['type']]['total_statistics']);
+    Cli::displayForm($statistics[$argv['type']]['total_statistics']);
 
 } else {
     $statistics = Libraries::getPhpStatistics();
@@ -101,7 +101,7 @@ if ($argv['library']) {
         $statistics[$type]['total_statistics']['size'] = Numbers::bytes($statistics[$type]['total_statistics']['size']);
 
         Log::cli(Color::apply(tr('Statistics for ":type" libraries:', [':type' => $type]), 'white'));
-        Cli::displayTable($statistics[$type]['total_statistics']);
+        Cli::displayForm($statistics[$type]['total_statistics']);
         Log::cli();
     }
 }
