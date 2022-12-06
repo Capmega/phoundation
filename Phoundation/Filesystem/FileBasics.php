@@ -72,7 +72,7 @@ class FileBasics
         if (is_object($file)) {
             $this->setFile($file->getFile());
             $this->setTarget($file->getTarget());
-            $this->setServerRestrictions($file->getServerRestrictions());
+            $this->setServerRestrictions($server_restrictions_restrictions ?? $file->getServerRestrictions());
         } else {
             $this->setFile($file);
             $this->setServerRestrictions($server_restrictions_restrictions);

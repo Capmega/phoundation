@@ -75,7 +75,9 @@ class Server
         $this->setHostname($hostname);
         $this->setRestrictions($restrictions);
 
-        $this->restrictions->setLabel($label);
+        if ($label) {
+            $this->restrictions->setLabel($label);
+        }
     }
 
 
