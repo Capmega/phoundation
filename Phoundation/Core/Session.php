@@ -4,6 +4,10 @@ namespace Phoundation\Core;
 
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Exception\ConfigException;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Web\WebPage;
 
 
@@ -88,7 +92,11 @@ class Session
      */
     public static function signIn(string $user, string $password): User
     {
-        self::$user = Users::authenticate($user, $password);
+        self::$user = User::authenticate($user, $password);
+        self::clear();
+        self::start();
+
+//        $_SESSION['users_id']
         return self::$user;
     }
 
@@ -198,7 +206,7 @@ class Session
      *
      * @return bool
      */
-    public function checkExtended(): bool
+    public static function checkExtended(): bool
     {
         if (empty($_CONFIG['sessions']['extended']['enabled'])) {
             return false;
@@ -229,5 +237,57 @@ class Session
         }
 
         return false;
+    }
+
+
+
+    /**
+     * Clear the current session
+     *
+     * @return void
+     */
+    public static function clear(): void
+    {
+        $_SESSION = [];
+    }
+
+
+
+    /**
+     * Start a PHP session
+     *
+     * @return bool
+     */
+    public static function start(): bool
+    {
+        if (!Config::get('web.sessions.enabled', true)) {
+            return false;
+        }
+
+        switch (Config::get('web.sessions.handler', 'files')) {
+            case 'files':
+                $path = Path::new(Config::get('web.sessions.path', PATH_DATA), Restrictions::new([PATH_DATA . 'sessions/', '/var/lib/php/sessions'], true, 'system/sessions'))->ensure();
+
+                session_save_path($path);
+                session_start();
+                break;
+
+            case 'memcached':
+                // no-break
+            case 'redis':
+                // no-break
+            case 'mongo':
+                // no-break
+            case 'mysql':
+                throw new UnderConstructionException();
+                break;
+
+            default:
+                throw new ConfigException(tr('Unknown session handler ":handler" specified in configuration path "web.sessions.handler"', [
+                    ':handler' => Config::get('web.sessions.handler', 'files')
+                ]));
+        }
+
+        return true;
     }
 }
