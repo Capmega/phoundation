@@ -65,3 +65,4 @@ Current features planned for v4.* tree:
 * Fully automated deployment system that checks code, minifies CSS / JS, translates, sends code to remote server, and updates all file mode settings
 * Servers management
 * Devices management over multiple servers
+  
