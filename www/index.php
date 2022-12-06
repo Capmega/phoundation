@@ -85,8 +85,12 @@ use Templates\Phoundation\Phoundation;
  */
 require('../vendor/autoload.php');
 
+
+
 // Use the phoundation class
 $route = new Route(Phoundation::new());
+
+
 
 //// Setup URL translations map
 //Route::mapUrl('es', [
