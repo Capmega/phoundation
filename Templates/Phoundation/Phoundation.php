@@ -25,7 +25,10 @@ class Phoundation extends Template
      */
     public function __construct()
     {
-        $this->template_page = TemplatePage::class;
+        $this->name             = 'Phoundation';
+        $this->page_class       = TemplatePage::class;
+        $this->components_class = TemplateComponents::class;
+
         parent::__construct();
     }
 

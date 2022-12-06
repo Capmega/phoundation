@@ -76,8 +76,8 @@ class Route
         PostValidator::hideData();
 
         // Set what template and default server restrictions  we'll be using
-        $this->template = $template;
-        $this->server_restrictions   = Core::ensureServer($server_restrictions, PATH_WWW);
+        $this->template            = $template;
+        $this->server_restrictions = Core::ensureServer($server_restrictions, PATH_WWW);
     }
 
 

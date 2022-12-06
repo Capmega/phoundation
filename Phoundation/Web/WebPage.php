@@ -58,11 +58,18 @@ class WebPage
     protected static Server $server_restrictions;
 
     /**
-     * The template class that builds the UI
+     * The TemplatePage class that builds the UI
      *
      * @var TemplatePage $template_page
      */
     protected static TemplatePage $template_page;
+
+    /**
+     * The template class that builds the UI
+     *
+     * @var Template $template
+     */
+    protected static Template $template;
 
     /**
      * The Phoundation API interface
@@ -256,6 +263,18 @@ class WebPage
 
 
     /**
+     * Returns the current Template for this page
+     *
+     * @return Template
+     */
+    public static function getTemplate(): Template
+    {
+        return self::$template;
+    }
+
+
+
+    /**
      * Returns the current TemplatePage used for this page
      *
      * @return TemplatePage
@@ -304,6 +323,7 @@ class WebPage
      * Will throw an AccessDeniedException if the current session user does not have SOME of the specified rights
      *
      * @param array|string $rights
+     * @param string|int|null $new_target
      * @return void
      */
     public static function requiresSomeRights(array|string $rights, string|int|null $new_target = 403): void
@@ -569,6 +589,19 @@ class WebPage
             Core::writeRegister($target, 'system', 'script_file');
             ob_start();
 
+            // Initialize the template
+            if (!$template) {
+                if (!self::$template_page) {
+                    throw new OutOfBoundsException(tr('Cannot execute page ":target", no Template specified or available', [
+                        ':target' => $target
+                    ]));
+                }
+            } else {
+                // Get a new template page from the specified template
+                self::$template      = $template;
+                self::$template_page = $template->getPage();
+            }
+
             // Execute the specified target
             try {
                 switch (Core::getCallType()) {
@@ -580,17 +613,6 @@ class WebPage
                         break;
 
                     default:
-                        if (!$template) {
-                            if (!self::$template_page) {
-                                throw new OutOfBoundsException(tr('Cannot execute page ":target", no Template specified or available', [
-                                    ':target' => $target
-                                ]));
-                            }
-                        } else {
-                            // Get a new template page from the specified template
-                            self::$template_page = $template->getTemplatePage();
-                        }
-
                         // Execute the file and send the output HTML as a web page
                         Log::action(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
                             ':target' => Strings::from($target, PATH_ROOT),

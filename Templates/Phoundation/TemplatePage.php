@@ -2,13 +2,8 @@
 
 namespace Templates\Phoundation;
 
-use Phoundation\Core\Config;
-use Phoundation\Web\Http\Http;
-use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
 use Plugins\Mdb\Components\Footer;
-use Templates\Phoundation\Components\NavigationBar;
-use Throwable;
 
 
 
@@ -86,19 +81,9 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageHeader(): ?string
     {
-        // Set up the navigation bar
-        $navigation_bar = NavigationBar::new();
-        $navigation_bar
-            ->setMenu($this->navigation_menu)
-            ->getSignInModal()
-                ->getForm()
-                    ->setId('form-signin')
-                    ->setMethod('post')
-                    ->setAction(Url::build(Config::get('web.pages.signin', '/system/sign-in.html'))->ajax());
-
         $html = '<body class="mdb-skin-custom " data-mdb-spy="scroll" data-mdb-target="#scrollspy" data-mdb-offset="250">
                     <header>
-                    ' . $navigation_bar->render() . '
+                    ' . $this->components->buildNavigationBar($this->navigation_menu) . '
                     </header>
                     <main class="pt-5 mdb-docs-layout">
                         <div class="container mt-5  mt-5  px-lg-5">
@@ -162,5 +147,15 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     public function buildBody(): ?string
     {
         // TODO: Implement buildBody() method.
+    }
+
+
+
+    /**
+     * @return string|null
+     */
+    public function buildProfileImage(): ?string
+    {
+        // TODO: Implement buildProfileImage() method.
     }
 }

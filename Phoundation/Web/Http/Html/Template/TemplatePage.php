@@ -20,6 +20,20 @@ use Phoundation\Web\WebPage;
 abstract class TemplatePage
 {
     /**
+     * The components that this template can use to build the page
+     *
+     * @var TemplateComponents $components
+     */
+    protected TemplateComponents $components;
+
+    /**
+     * The page menus for this template
+     *
+     * @var TemplateMenus $menus
+     */
+    protected TemplateMenus $menus;
+
+    /**
      * The target page to execute
      *
      * @var string $target
@@ -45,8 +59,10 @@ abstract class TemplatePage
     /**
      * TemplatePage constructor
      */
-    public function __construct()
+    public function __construct(TemplateComponents $components, TemplateMenus $menus)
     {
+        $this->menus      = $menus;
+        $this->components = $components;
         $this->loadMenus();
     }
 
@@ -55,11 +71,13 @@ abstract class TemplatePage
     /**
      * Returns a new TargetPage object
      *
+     * @param TemplateComponents $components
+     * @param TemplateMenus $menus
      * @return static
      */
-    public static function new(): static
+    public static function new(TemplateComponents $components, TemplateMenus $menus): static
     {
-        return new static();
+        return new static($components, $menus);
     }
 
 
@@ -75,7 +93,6 @@ abstract class TemplatePage
     }
 
 
-
     /**
      * Sets the sidebar menu
      *
@@ -89,7 +106,6 @@ abstract class TemplatePage
     }
 
 
-
     /**
      * Returns the navbar top menu
      *
@@ -99,7 +115,6 @@ abstract class TemplatePage
     {
         return $this->navigation_menu;
     }
-
 
 
     /**
@@ -115,7 +130,6 @@ abstract class TemplatePage
     }
 
 
-
     /**
      * Returns the page instead of sending it to the client
      *
@@ -129,7 +143,7 @@ abstract class TemplatePage
         $body = '';
 
         // Get all output buffers and restart buffer
-        while(ob_get_level()) {
+        while (ob_get_level()) {
             $body .= ob_get_contents();
             ob_end_clean();
         }
@@ -145,7 +159,7 @@ abstract class TemplatePage
         $output .= $body;
         $output .= $this->buildPageFooter();
         $output .= $this->buildHtmlFooter();
-        $output  = Html::minify($output);
+        $output = Html::minify($output);
 
         // Build Template specific HTTP headers
         $this->buildHttpHeaders($output);
@@ -165,59 +179,12 @@ abstract class TemplatePage
         $this->navigation_menu = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'navigation_menu']);
         $this->sidebar_menu    = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'sidebar_menu']);
 
-        if (!$this->navigation_menu and !$this->sidebar_menu) {
-            // No menus configured at all! Add at least something to the navigation menu!
-            $this->navigation_menu = [
-                tr('System') => [
-                    tr('Accounts') => [
-                        tr('Accounts')       => '/accounts/users',
-                        tr('Roles')       => '/accounts/roles',
-                        tr('Rights')      => '/accounts/rights',
-                        tr('Groups')      => '/accounts/groups',
-                        tr('Switch user') => '/accounts/switch'
-                    ],
-                    tr('Security') => [
-                        tr('Authentications log') => '/security/log/authentications',
-                        tr('Activity log')        => '/security/log/activity'
-                    ],
-                    tr('Libraries')          => '/libraries',
-                    tr('Key / Values store') => '/system/key-values',
-                    tr('Storage system') => [
-                        tr('Collections') => '/storage/collections',
-                        tr('Documents')   => '/storage/documents',
-                        tr('Resources')   => '/storage/resources',
-                    ],
-                    tr('Servers') => [
-                        tr('Servers')      => '/servers/servers',
-                        tr('Forwardings')  => '/servers/forwardings',
-                        tr('SSH accounts') => '/servers/ssh-accounts',
-                        tr('Databases') => '/servers/databases',
-                        tr('Database accounts') => '/servers/database-accounts',
-                    ],
-                    tr('Hardware') => [
-                        tr('devices')  => '/hardware/devices',
-                        tr('Scanners') => [
-                            tr('Document') => [
-                                tr('Drivers') => '/hardware/scanners/document/drivers',
-                                tr('Devices') => '/hardware/scanners/document/devices',
-                            ],
-                            tr('Finger print') => '/hardware/scanners/finger-print',
-                        ]
-                    ],
-                ],
-                tr('Admin') => [
-                    tr('Customers') => '/admin/customers/customers',
-                    tr('Providers') => '/admin/providers/providers',
-                    tr('Companies') => [
-                        tr('Companies') => '/companies/companies',
-                        tr('Branches') => '/companies/branches',
-                        tr('Departments') => '/companies/departments',
-                        tr('Employees') => '/companies/employees',
-                        tr('Inventory') => '/companies/inventory/inventory',
-                    ],
-                ],
-                tr('About') => '/about'
-            ];
+        if (!$this->navigation_menu) {
+            $this->navigation_menu = $this->menus->getNavigationMenu();
+        }
+
+        if (!$this->sidebar_menu) {
+            $this->navigation_menu = $this->menus->getSidebarMenu();
         }
     }
 

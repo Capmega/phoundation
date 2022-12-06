@@ -26,7 +26,7 @@ use Plugins\Mdb\Layouts\GridRow;
 class SignInModal extends Modal
 {
     /**
-     * The sign in object
+     * The sign-in object
      *
      * @var SignInForm|null $form
      */
