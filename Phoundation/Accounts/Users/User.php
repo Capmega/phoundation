@@ -154,7 +154,7 @@ class User extends DataEntry
      */
     public function isGuest(): bool
     {
-        return ($this->id === 0);
+        return !isset_get($this->data['id']);
     }
 
 
