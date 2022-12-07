@@ -305,8 +305,8 @@ class Debug {
                         // no-break
                     case 'ajax':
                         if (!headers_sent()) {
-                            header_remove('Content-Type');
-                            header('Content-Type: text/plain', true);
+                            WebPage::setContentType('text/html');
+                            WebPage::sendHttpHeaders(WebPage::buildHttpHeaders($output));
                         }
 
                         $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) ', [
@@ -317,16 +317,12 @@ class Debug {
 
                     default:
                         // Force HTML content type, and show HTML data
-                        if (!headers_sent()) {
-                            header_remove('Content-Type');
-                            header('Content-Type: text/html', true);
-                        }
-
                         $output = self::showHtml($value, tr('Unknown'), $trace_offset);
                 }
 
                 // Show output on web
                 if (!headers_sent()) {
+                    WebPage::setContentType('text/html');
                     WebPage::sendHttpHeaders(WebPage::buildHttpHeaders($output));
                 }
 
