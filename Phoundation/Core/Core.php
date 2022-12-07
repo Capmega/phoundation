@@ -2043,6 +2043,36 @@ class Core {
 
 
     /**
+     * Returns the memory limit in bytes
+     *
+     * @return int
+     */
+    public static function getMemoryLimit(): int
+    {
+        $limit = ini_get('memory_limit');
+        $limit = Numbers::fromBytes($limit, 'b');
+
+        return $limit;
+    }
+
+
+
+    /**
+     * Returns the memory limit in bytes
+     *
+     * @return int
+     */
+    public static function getMemoryAvailable(): int
+    {
+        $limit = self::getMemoryLimit();
+        $used  = memory_get_usage();
+
+        return $limit - $used;
+    }
+
+
+
+    /**
      * Returns either the specified restrictions object or the Core restrictions object
      *
      * With this, availability of restrictions is guaranteed, even if a function did not receive restrictions. If Core

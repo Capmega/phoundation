@@ -880,7 +880,7 @@ class Route
             Log::warning(tr('Routed script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
                 ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
                 ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                ':usage'    => Numbers::bytes(memory_get_peak_usage()),
+                ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                 ':exitcode' => $exit_code
             ]));
 
@@ -888,7 +888,7 @@ class Route
             Log::success(tr('Routed script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
                 ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
                 ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                ':usage'    => Numbers::bytes(memory_get_peak_usage()),
+                ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                 ':exitcode' => $exit_code
             ]));
         }

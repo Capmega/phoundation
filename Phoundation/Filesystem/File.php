@@ -6,6 +6,7 @@ use Exception;
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
@@ -29,6 +30,63 @@ use Throwable;
  */
 class File extends FileBasics
 {
+    /**
+     * The default size of the file buffer
+     *
+     * @var int|null $buffer_size
+     */
+    protected ?int $buffer_size = null;
+
+
+
+    /**
+     * Returns the configured file buffer size
+     *
+     * @return int
+     */
+    public function getBufferSize(): int
+    {
+        $required  = Config::get('filesystem.buffer.size', $this->buffer_size ?? 65536);
+        $available = Core::getMemoryAvailable();
+
+        if ($required > $available) {
+            // The required file buffer is larger than the available memory, oops...
+            if (Config::get('filesystem.buffer.auto', false)) {
+                throw new FilesystemException(tr('Failed to set file buffer of ":required", only ":available" memory available', [
+                    ':required'  => $required,
+                    ':available' => $available
+                ]));
+            }
+
+            // Just auto adjust to half of the available memory
+            Log::warning(tr('File buffer of ":required" but only ":available" memory available. Created buffer of ":size" instead', [
+                ':required'  => $required,
+                ':available' => $available,
+                ':size'      => $available * .5
+            ]));
+
+            $required = $available * .5;
+        }
+
+        return $required;
+    }
+
+
+
+    /**
+     * Sets the configured file buffer size
+     *
+     * @param int|null $buffer_size
+     * @return static
+     */
+    public function setBufferSize(?int $buffer_size): static
+    {
+        $this->buffer_size = $buffer_size;
+        return $this;
+    }
+
+
+
     /**
      * Returns the file mode for the object file
      *
@@ -611,7 +669,7 @@ class File extends FileBasics
         $count  = 0;
         $return = [];
 
-        while (($line = fgets($handle, 1073741824)) !== false) {
+        while (($line = fgets($handle, $this->getBufferSize())) !== false) {
             foreach ($filters as $filter) {
                 if (str_contains($line, $filter)) {
                     $return[$filter][] = $line;

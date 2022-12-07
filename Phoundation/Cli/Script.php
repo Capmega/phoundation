@@ -92,7 +92,7 @@ class Script
                     Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
                         ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
                         ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                        ':usage'    => Numbers::bytes(memory_get_peak_usage()),
+                        ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code
                     ]), 8);
 
@@ -105,7 +105,7 @@ class Script
                     Log::error(tr('Script ":script" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                         ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
                         ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                        ':usage'    => Numbers::bytes(memory_get_peak_usage()),
+                        ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code
                     ]), 8);
                 }
@@ -119,7 +119,7 @@ class Script
                 Log::success(tr('Finished ":script" script in ":time" with ":usage" peak memory usage', [
                     ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
                     ':time'   => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage'  => Numbers::bytes(memory_get_peak_usage())
+                    ':usage'  => Numbers::getHumanReadableBytes(memory_get_peak_usage())
                 ]), 8);
             }
         }
