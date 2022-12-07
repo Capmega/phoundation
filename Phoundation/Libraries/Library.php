@@ -147,6 +147,10 @@ class Library
             return 'system';
         }
 
+        if ($path === 'templates') {
+            return 'template';
+        }
+
         return 'plugin';
     }
 
@@ -262,10 +266,10 @@ class Library
 
     /**
      * Returns the version for this library
-     *
-     * @return string
+     *pLr3o297s&&i
+     * @return string|null
      */
-    public function getVersion(): string
+    public function getVersion(): ?string
     {
         return $this->updates?->version();
     }
@@ -275,9 +279,9 @@ class Library
     /**
      * Returns the description for this library
      *
-     * @return string
+     * @return string|null
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->updates?->description();
     }
