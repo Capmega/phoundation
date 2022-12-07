@@ -157,7 +157,7 @@ abstract class ResourceElement extends Element
      * @param mixed $source
      * @return static
      */
-    public function setSource(mixed $source): self
+    public function setSourceArray(mixed $source): self
     {
         if ($this->source) {
             throw new HtmlException(tr('Cannot specify source, a source query was already specified'));

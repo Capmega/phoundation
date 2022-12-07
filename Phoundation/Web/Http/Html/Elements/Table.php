@@ -456,7 +456,6 @@ Class Table extends ResourceElement
                 throw new OutOfBoundsException(tr('The specified table source array is invalid. Format should be [[header columns][row columns][row columns] ...]'));
             }
 
-
             $row_data = '';
             $this->count++;
 
@@ -467,10 +466,8 @@ Class Table extends ResourceElement
 
             $row = '<tr' . $row_data . $this->buildRowClassString() . '>';
 
-            $row_id = reset($value);
-
             foreach ($row_values as $column => $value) {
-                $row .= $this->renderCell($row_id, $column, $value);
+                $row .= $this->renderCell($key, $column, $value);
             }
 
             $return .= $row . '</tr>';

@@ -1,6 +1,5 @@
 <?php
 
-use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Json;
@@ -26,5 +25,4 @@ PostValidator::new()
 $user  = Session::signIn($_POST['email'], $_POST['password']);
 $image = Webpage::getTemplate()->getComponents()->buildProfileImage();
 
-Log::printr(['html' => $image]);
 Json::reply(['html' => $image]);

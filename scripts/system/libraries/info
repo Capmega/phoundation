@@ -98,7 +98,7 @@ if ($argv['library']) {
     Log::cli(Color::apply(Strings::size(tr('Statistics:') , 28), 'white'));
 
     foreach ($types as $type) {
-        $statistics[$type]['total_statistics']['size'] = Numbers::bytes($statistics[$type]['total_statistics']['size']);
+        $statistics[$type]['total_statistics']['size'] = Numbers::getHumanReadableBytes($statistics[$type]['total_statistics']['size']);
 
         Log::cli(Color::apply(tr('Statistics for ":type" libraries:', [':type' => $type]), 'white'));
         Cli::displayForm($statistics[$type]['total_statistics']);
