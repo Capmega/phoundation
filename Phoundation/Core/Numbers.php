@@ -2,7 +2,7 @@
 
 namespace Phoundation\Core;
 
-use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Exception\NumbersException;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -57,76 +57,13 @@ class Numbers
      * @return string
      * @throws OutOfBoundsException
      */
-    public static function bytes(string|float|int $amount, string $unit = 'AUTO', int $precision = 2, bool $add_suffix = true): string
+    public static function getHumanReadableBytes(string|float|int $amount, string $unit = 'AUTO', int $precision = 2, bool $add_suffix = true): string
     {
-        if (!$amount) {
-            $amount = 0;
-        }
-
-        $amount = str_replace(',', '', $amount);
-
-        if (!is_numeric($amount)) {
-            // Calculate back to bytes
-            if (!preg_match('/(\d+(?:\.\d+)?)(\w{1,3})/', $amount, $matches))  {
-                throw new CoreException(tr('Specified amount ":amount" is not a valid byte amount. Format should be either n, or nKB, nKiB, etc', [':amount' => $amount]));
-            }
-
-            switch (strtolower($matches[2])) {
-                case 'b':
-                    // Just bytes
-                    $amount = $matches[1];
-                    break;
-
-                case 'kb':
-                    // Kilobytes
-                    $amount = $matches[1] * 1000;
-                    break;
-
-                case 'kib':
-                    // Kibibytes
-                    $amount = $matches[1] * 1024;
-                    break;
-
-                case 'mb':
-                    // Megabytes
-                    $amount = $matches[1] * 1000000;
-                    break;
-
-                case 'mib':
-                    // Mibibytes
-                    $amount = $matches[1] * 1048576;
-                    break;
-
-                case 'gb':
-                    // Gigabytes
-                    $amount = $matches[1] * 1000000 * 1000;
-                    break;
-
-                case 'gib':
-                    // Gibibytes
-                    $amount = $matches[1] * 1048576 * 1024;
-                    break;
-
-                case 'tb':
-                    // Terabytes
-                    $amount = $matches[1] * 1000000 * 1000000;
-                    break;
-
-                case 'tib':
-                    // Tibibytes
-                    $amount = $matches[1] * 1048576 * 1048576;
-                    break;
-
-                default:
-                    throw new OutOfBoundsException(tr('Specified suffix ":suffix" on amount ":amount" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc', [':suffix' => strtolower($matches[2]), ':amount' => $amount]));
-            }
-        }
-
         // We can only have an integer amount of bytes
-        $amount = ceil($amount);
+        $amount = Numbers::fromBytes($amount);
 
         if ($unit === 'auto') {
-            // Auto determine what unit to use
+            // Auto determine what unit to use in 10^N bytes
             if ($amount > 1000000) {
                 if ($amount > (1000000 * 1000)) {
                     if ($amount > (1000000 * 1000000)) {
@@ -144,7 +81,7 @@ class Numbers
                 $unit = 'kib';
             }
         } elseif ($unit === 'AUTO') {
-            // Auto determine what unit to use
+            // Auto determine what unit to use in 2^N bytes
             if ($amount > 1048576) {
                 if ($amount > (1048576 * 1024)) {
                     if ($amount > (1048576 * 1048576)) {
@@ -237,6 +174,97 @@ class Numbers
 
 
     /**
+     * Reads a bytes string like "4MB" and returns the amount of bytes
+     *
+     * @param string|float|int $amount
+     * @return int
+     * @throws OutOfBoundsException
+     */
+    public static function fromBytes(string|float|int $amount): int
+    {
+        if (!$amount) {
+            $amount = 0;
+        }
+
+        $amount = str_replace(',', '', $amount);
+
+        if (!is_numeric($amount)) {
+            // Calculate back to bytes
+            if (!preg_match('/(\d+(?:\.\d+)?)(\w{1,3})/', $amount, $matches))  {
+                throw new NumbersException(tr('Specified amount ":amount" is not a valid byte amount. Format should be either n, or nKB, nKiB, etc', [
+                    ':amount' => $amount
+                ]));
+            }
+
+            switch (strtolower($matches[2])) {
+                case 'b':
+                    // Just bytes
+                    $amount = $matches[1];
+                    break;
+
+                case 'kb':
+                    // Kilobytes
+                    $amount = $matches[1] * 1000;
+                    break;
+
+                case 'k':
+                    // no-break
+                case 'kib':
+                    // Kibibytes
+                    $amount = $matches[1] * 1024;
+                    break;
+
+                case 'mb':
+                    // Megabytes
+                    $amount = $matches[1] * 1000000;
+                    break;
+
+                case 'm':
+                    // no-break
+                case 'mib':
+                    // Mibibytes
+                    $amount = $matches[1] * 1048576;
+                    break;
+
+                case 'gb':
+                    // Gigabytes
+                    $amount = $matches[1] * 1000000 * 1000;
+                    break;
+
+                case 'g':
+                    // no-break
+                case 'gib':
+                    // Gibibytes
+                    $amount = $matches[1] * 1048576 * 1024;
+                    break;
+
+                case 'tb':
+                    // Terabytes
+                    $amount = $matches[1] * 1000000 * 1000000;
+                    break;
+
+                case 't':
+                    // no-break
+                case 'tib':
+                    // Tibibytes
+                    $amount = $matches[1] * 1048576 * 1048576;
+                    break;
+
+                default:
+                    throw new OutOfBoundsException(tr('Specified suffix ":suffix" on amount ":amount" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc', [
+                        ':suffix' => strtolower($matches[2]),
+                        ':amount' => $amount
+                    ]));
+            }
+        }
+
+        // We can only have an integer amount of bytes
+        return ceil($amount);
+    }
+
+
+
+    /**
      * Make the specified number humand readable
      *
      * @param string|float|int $number
@@ -303,10 +331,10 @@ class Numbers
             // Validate we have numeric values
             if (!is_numeric($value)) {
                 if (!is_scalar($value)) {
-                    throw new CoreException(tr('Variable ":key" is not a numeric scalar value, it is an ":type"', [':key' => $key, ':type' => gettype($value)]));
+                    throw new NumbersException(tr('Variable ":key" is not a numeric scalar value, it is an ":type"', [':key' => $key, ':type' => gettype($value)]));
                 }
 
-                throw new CoreException(tr('Variable ":key" has value ":value" which is not numeric', [':key' => $key, ':value' => $value]));
+                throw new NumbersException(tr('Variable ":key" has value ":value" which is not numeric', [':key' => $key, ':value' => $value]));
             }
 
             // Cleanup the number
