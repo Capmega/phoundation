@@ -63,6 +63,7 @@ class Session
             return;
         }
 
+        self::check();
         self::setLanguage();
     }
 
@@ -202,41 +203,16 @@ class Session
 
 
     /**
-     * Checks if an extended session is available for this user
+     * Check if we have a session from a cookie
      *
-     * @return bool
+     * @return void
      */
-    public static function checkExtended(): bool
+    public static function check(): void
     {
-        if (empty($_CONFIG['sessions']['extended']['enabled'])) {
-            return false;
+        if (array_key_exists(Config::get('web.sessions.cookies.name', 'phoundation'), $_COOKIE)) {
+            self::start();
+            self::checkExtended();
         }
-
-        if (isset($_COOKIE['extsession']) and !isset($_SESSION['user'])) {
-            // Pull  extsession data
-            $ext = sql_get('SELECT `users_id` 
-                            FROM `extended_sessions` WHERE `session_key` = ":session_key" AND DATE(`addedon`) < DATE(NOW());', array(':session_key' => cfm($_COOKIE['extsession'])));
-
-            if ($ext['users_id']) {
-                $user = sql_get('SELECT * FROM `accounts_users` WHERE `accounts_users`.`id` = :id', array(':id' => cfi($ext['users_id'])));
-
-                if ($user['id']) {
-                    // Auto sign in user
-                    self::$user = Users::signin($user, true);
-                    return true;
-
-                } else {
-                    // Remove cookie
-                    setcookie('extsession', 'stub', 1);
-                }
-
-            } else {
-                // Remove cookie
-                setcookie('extsession', 'stub', 1);
-            }
-        }
-
-        return false;
     }
 
 
@@ -270,6 +246,11 @@ class Session
 
                 session_save_path($path);
                 session_start();
+
+                Log::success(tr('Started new session for user ":user" from IP ":ip"', [
+                    ':user' => self::$user->getLogId(),
+                    ':ip'   => $_SERVER['REMOTE_ADDR']
+                ]));
                 break;
 
             case 'memcached':
@@ -289,5 +270,57 @@ class Session
         }
 
         return true;
+    }
+
+
+
+    /**
+     * Destroy the current user session
+     *
+     * @return void
+     */
+    public static function destroy(): void
+    {
+        session_destroy();
+    }
+
+
+
+    /**
+     * Checks if an extended session is available for this user
+     *
+     * @return bool
+     */
+    protected static function checkExtended(): bool
+    {
+        if (empty($_CONFIG['sessions']['extended']['enabled'])) {
+            return false;
+        }
+
+        if (isset($_COOKIE['extsession']) and !isset($_SESSION['user'])) {
+            // Pull  extsession data
+            $ext = sql_get('SELECT `users_id` 
+                            FROM `extended_sessions` WHERE `session_key` = ":session_key" AND DATE(`addedon`) < DATE(NOW());', array(':session_key' => cfm($_COOKIE['extsession'])));
+
+            if ($ext['users_id']) {
+                $user = sql_get('SELECT * FROM `accounts_users` WHERE `accounts_users`.`id` = :id', array(':id' => cfi($ext['users_id'])));
+
+                if ($user['id']) {
+                    // Auto sign in user
+                    self::$user = Users::signin($user, true);
+                    return true;
+
+                } else {
+                    // Remove cookie
+                    setcookie('extsession', 'stub', 1);
+                }
+
+            } else {
+                // Remove cookie
+                setcookie('extsession', 'stub', 1);
+            }
+        }
+
+        return false;
     }
 }

@@ -23,6 +23,6 @@ PostValidator::new()
     ->validate();
 
 $user  = Session::signIn($_POST['email'], $_POST['password']);
-$image = Webpage::getTemplate()->getComponents()->buildProfileImage();
+$image = Webpage::getTemplate()->getComponents()->profileImage()->setModalSelector(null);
 
-Json::reply(['html' => $image]);
+Json::reply(['html' => $image->render()]);
