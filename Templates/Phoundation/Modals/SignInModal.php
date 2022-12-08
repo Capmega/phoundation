@@ -86,10 +86,13 @@ class SignInModal extends Modal
             ->setContent('
             $("form#form-signin").submit(function(e) {
                 e.stopPropagation();
+                
                 $.post("' . Url::build(Config::get('web.pages.signin', '/system/sign-in.html'))->ajax() . '", $(this).serialize())
-                    .done(function () {
-                        alert("success!");
+                    .done(function (data, textStatus, jqXHR) {
+                        $(".image-menu").replaceWith(data.html);
+                        $("#signinModal").modal("hide");                     
                     });
+                    
                 return false;
             })
             ')

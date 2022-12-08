@@ -1,23 +1,23 @@
 <?php
 
-namespace Plugins\Mdb\Components;
+namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Content\Images\Image;
+use Phoundation\Core\Config;
 use Phoundation\Core\Session;
 use Phoundation\Web\Http\Url;
-use Templates\Phoundation\TemplateMenus;
 
 
 
 /**
- * MDB Plugin ProfileImage class
+ * ProfileImage class
  *
- * This class is an example template for your website
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Plugins\Mdb
+ * @package Phoundation\Web
  */
 class ProfileImage extends ImageMenu
 {
@@ -27,16 +27,7 @@ class ProfileImage extends ImageMenu
     public function __construct()
     {
         // Set up the default image URL
-//        $this->setUrl(Config::get('web.pages.signin', ''));
-        $this->setImage(Session::getUser()->getPicture());
-
-        if (Session::getUser()->isGuest()) {
-            // This is a guest user, make sure that the profile image shows the sign in modal
-            $this->setModalSelector('#signinModal');
-        } else {
-            $this->setMenu(TemplateMenus::getProfileImageMenu());
-        }
-
+        $this->setUrl(Config::get('web.pages.signin', ''));
         parent::__construct();
     }
 
@@ -44,9 +35,6 @@ class ProfileImage extends ImageMenu
 
     /**
      * ProfileImage class constructor
-     *
-     * @param Image|string|null $image
-     * @return ProfileImage
      */
     public function setImage(Image|string|null $image = null): static
     {
@@ -87,5 +75,17 @@ class ProfileImage extends ImageMenu
         }
 
         return parent::setMenu($menu);
+    }
+
+
+
+    /**
+     * Render the ProfileImage HTML
+     *
+     * @return string
+     */
+    public function render(): string
+    {
+        // TODO: Implement render() method.
     }
 }

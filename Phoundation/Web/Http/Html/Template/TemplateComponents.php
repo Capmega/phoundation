@@ -2,8 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Template;
 
-use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Http\Html\Components\ImageMenu;
 
 
 
@@ -48,12 +47,11 @@ abstract class TemplateComponents
 
 
     /**
-     * Builds and returns a profile image button
+     * Returns a profile image object
      *
-     * @param array|null $menu
-     * @return string|null
+     * @return ImageMenu
      */
-    public abstract function buildProfileImage(?array $menu = null): ?string;
+    public abstract function profileImage(): ImageMenu;
 
 
 

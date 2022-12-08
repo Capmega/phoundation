@@ -16,17 +16,17 @@ namespace Templates\Phoundation;
  */
 class TemplateMenus extends \Phoundation\Web\Http\Html\Template\TemplateMenus
 {
-    public function getSidebarMenu(): ?array
+    public static function getSidebarMenu(): ?array
     {
         return parent::getSidebarMenu();
     }
 
-    public function getNavigationMenu(): ?array
+    public static function getNavigationMenu(): ?array
     {
         return parent::getNavigationMenu();
     }
 
-    public function getProfileImageMenu(): ?array
+    public static function getProfileImageMenu(): ?array
     {
         return parent::getProfileImageMenu();
     }

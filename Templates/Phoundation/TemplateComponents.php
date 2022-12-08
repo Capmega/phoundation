@@ -3,10 +3,11 @@
 namespace Templates\Phoundation;
 
 use Phoundation\Core\Config;
-use Phoundation\Core\Session;
 use Phoundation\Web\Http\Url;
+use Plugins\Mdb\Components\ImageMenu;
+use Plugins\Mdb\Components\ProfileImage;
 use Templates\Phoundation\Components\NavigationBar;
-use Templates\Phoundation\Components\ProfileImage;
+
 
 
 /**
@@ -71,15 +72,11 @@ class TemplateComponents extends \Phoundation\Web\Http\Html\Template\TemplateCom
     /**
      * Builds and returns a profile image
      *
-     * @param array|null $menu
-     * @return string|null
+     * @return ProfileImage
      */
-    public function buildProfileImage(?array $menu = null): ?string
+    public function profileImage(): ProfileImage
     {
-        return ProfileImage::new()
-            ->setImage(Session::getUser()->getPicture())
-            ->setMenu($menu)
-            ->render();
+        return ProfileImage::new();
     }
 
 

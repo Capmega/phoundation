@@ -21,7 +21,7 @@ class TemplateMenus
      *
      * @return array|null
      */
-    public function getSidebarMenu(): ?array
+    public static function getSidebarMenu(): ?array
     {
         return null;
     }
@@ -33,55 +33,55 @@ class TemplateMenus
      *
      * @return array|null
      */
-    public function getNavigationMenu(): ?array
+    public static function getNavigationMenu(): ?array
     {
         return [
             tr('System') => [
                 tr('Accounts') => [
-                    tr('Accounts') => '/accounts/users',
-                    tr('Roles') => '/accounts/roles',
-                    tr('Rights') => '/accounts/rights',
-                    tr('Groups') => '/accounts/groups',
+                    tr('Accounts') => '/accounts/users.html',
+                    tr('Roles') => '/accounts/roles.html',
+                    tr('Rights') => '/accounts/rights.html',
+                    tr('Groups') => '/accounts/groups.html',
                     tr('Switch user') => '/accounts/switch'
                 ],
                 tr('Security') => [
-                    tr('Authentications log') => '/security/log/authentications',
+                    tr('Authentications log') => '/security/log/authentications.html',
                     tr('Activity log') => '/security/log/activity'
                 ],
-                tr('Libraries') => '/libraries',
-                tr('Key / Values store') => '/system/key-values',
+                tr('Libraries') => '/libraries.html',
+                tr('Key / Values store') => '/system/key-values.html',
                 tr('Storage system') => [
-                    tr('Collections') => '/storage/collections',
-                    tr('Documents') => '/storage/documents',
-                    tr('Resources') => '/storage/resources',
+                    tr('Collections') => '/storage/collections.html',
+                    tr('Documents') => '/storage/documents.html',
+                    tr('Resources') => '/storage/resources.html',
                 ],
                 tr('Servers') => [
-                    tr('Servers') => '/servers/servers',
-                    tr('Forwardings') => '/servers/forwardings',
-                    tr('SSH accounts') => '/servers/ssh-accounts',
-                    tr('Databases') => '/servers/databases',
-                    tr('Database accounts') => '/servers/database-accounts',
+                    tr('Servers') => '/servers/servers.html',
+                    tr('Forwardings') => '/servers/forwardings.html',
+                    tr('SSH accounts') => '/servers/ssh-accounts.html',
+                    tr('Databases') => '/servers/databases.html',
+                    tr('Database accounts') => '/servers/database-accounts.html',
                 ],
                 tr('Hardware') => [
-                    tr('devices') => '/hardware/devices',
+                    tr('devices') => '/hardware/devices.html',
                     tr('Scanners') => [
                         tr('Document') => [
-                            tr('Drivers') => '/hardware/scanners/document/drivers',
-                            tr('Devices') => '/hardware/scanners/document/devices',
+                            tr('Drivers') => '/hardware/scanners/document/drivers.html',
+                            tr('Devices') => '/hardware/scanners/document/devices.html',
                         ],
-                        tr('Finger print') => '/hardware/scanners/finger-print',
+                        tr('Finger print') => '/hardware/scanners/finger-print.html',
                     ]
                 ],
             ],
             tr('Admin') => [
-                tr('Customers') => '/admin/customers/customers',
-                tr('Providers') => '/admin/providers/providers',
+                tr('Customers') => '/admin/customers/customers.html',
+                tr('Providers') => '/admin/providers/providers.html',
                 tr('Companies') => [
-                    tr('Companies') => '/companies/companies',
-                    tr('Branches') => '/companies/branches',
-                    tr('Departments') => '/companies/departments',
-                    tr('Employees') => '/companies/employees',
-                    tr('Inventory') => '/companies/inventory/inventory',
+                    tr('Companies') => '/companies/companies.html',
+                    tr('Branches') => '/companies/branches.html',
+                    tr('Departments') => '/companies/departments.html',
+                    tr('Employees') => '/companies/employees.html',
+                    tr('Inventory') => '/companies/inventory/inventory.html',
                 ],
             ],
             tr('About') => '/about'
@@ -95,11 +95,11 @@ class TemplateMenus
      *
      * @return array|null
      */
-    public function getProfileImageMenu(): ?array
+    public static function getProfileImageMenu(): ?array
     {
         return [
-            tr('Profile') => '/profile',
-            tr('Sign out') => '/sign-out',
+            tr('Profile') => '/profile.html',
+            tr('Sign out') => '/sign-out.html',
         ];
     }
 }
