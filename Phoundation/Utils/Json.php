@@ -41,12 +41,7 @@ class Json
     public static function reply(null|string|array $data = null, string $result = 'OK', ?int $http_code = null, string $after = 'die'): void
     {
         if (!$data) {
-            $data = Arrays::force($data);
-        }
-
-        // Auto assume result = "OK" entry if not specified
-        if (empty($data['data'])) {
-            $data = ['data' => $data];
+            $data = Arrays::force($data, null);
         }
 
         if ($result) {
