@@ -11,6 +11,8 @@ languages:
 web:
   sessions:
     cookies:
+      secure: false
+      domain: 'auto'
   domains:
     primary:
       domain: "localhost" #is this key needed???
