@@ -3,6 +3,7 @@
 namespace Phoundation\Core;
 
 use DateTimeZone;
+use GeoIP;
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Cli;
@@ -2269,6 +2270,7 @@ class Core {
 
             case 'full':
                 header('Powered-By: Phoundation version "' . Core::FRAMEWORKCODEVERSION . '"');
+                break;
 
             case 'none':
                 break;
@@ -2307,7 +2309,6 @@ class Core {
                     ]));
 
                     WebPage::redirect(PROTOCOL . Web::getDomain());
-                    break;
 
                 case 'all':
                     // All domains are allowed
@@ -2321,7 +2322,7 @@ class Core {
                             ':target' => Web::getDomain()
                         ]));
 
-                        redirect(PROTOCOL . Web::getDomain());
+                        WebPage::redirect(PROTOCOL . Web::getDomain());
                     }
 
                     break;
@@ -2340,7 +2341,7 @@ class Core {
                             ':target' => Web::getDomain()
                         ]));
 
-                        redirect(PROTOCOL . Web::getDomain());
+                        WebPage::redirect(PROTOCOL . Web::getDomain());
                     }
 
                     break;
@@ -2354,7 +2355,7 @@ class Core {
                                 ':target' => Web::getDomain()
                             ]));
 
-                            redirect(PROTOCOL . Web::getDomain());
+                            WebPage::redirect(PROTOCOL . Web::getDomain());
                         }
 
                     } else {
@@ -2366,7 +2367,7 @@ class Core {
                                 ':target' => Web::getDomain()
                             ]));
 
-                            redirect(PROTOCOL . Web::getDomain());
+                            WebPage::redirect(PROTOCOL . Web::getDomain());
                         }
                     }
             }
@@ -2414,7 +2415,7 @@ class Core {
                             ':current_domain' => $domain
                         ]))->send();
 
-                    redirect(PROTOCOL.Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'));
+                    WebPage::redirect(PROTOCOL.Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'));
                 }
 
                 ini_set('session.cookie_domain', Config::get('web.sessions.cookies.domain'));
@@ -2443,7 +2444,7 @@ class Core {
 
                 } else {
                     if (Config::get('cache.http.enabled', true) === 'auto') {
-                        ini_set('session.cache_limiter', Config::get('cache.http.php-cache-limiter'    , true));
+                        ini_set('session.cache_limiter', Config::get('cache.http.php-cache-limiter'         , true));
                         ini_set('session.cache_expire' , Config::get('cache.http.php-cache-php-cache-expire', true));
                     }
                 }
@@ -2482,7 +2483,7 @@ class Core {
 
                     // Set cookie, but only if page is not API and domain has cookie configured
                     if (Config::get('web.sessions.cookies.europe', true) and !Config::get('web.sessions.cookies.name', 'phoundation')) {
-                        if (GeoIP::isEuropean()) {
+                        if (GeoIP::new()->isEuropean()) {
                             // All first visits to european countries require cookie permissions given!
                             $_SESSION['euro_cookie'] = true;
                             return;
@@ -2508,10 +2509,9 @@ class Core {
                                     /*
                                      * Cookie code is valid, but it doesn't exist.
                                      *
-                                     * Start a session with this non-existing cookie. Rename
-                                     * our session after the cookie, as deleting the cookie
-                                     * from the browser turned out to be problematic to say
-                                     * the least
+                                     * Start a session with this non-existing cookie. Rename our session after the
+                                     * cookie, as deleting the cookie from the browser turned out to be problematic to
+                                     * say the least
                                      */
                                     Log::information(tr('Received non existing cookie ":cookie", recreating', [':cookie' => $_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')]]));
 
@@ -2542,9 +2542,8 @@ class Core {
                                 /*
                                  * Woah, something really went wrong..
                                  *
-                                 * This may be
-                                 * headers already sent (the $core->register['script'] file has a space or BOM at the beginning maybe?)
-                                 * permissions of PHP session directory?
+                                 * This may be headers already sent (the $core->register['script'] file has a space or
+                                 * BOM at the beginning maybe?) permissions of PHP session directory?
                                  */
 // :TODO: Add check on $core->register['script'] file if it contains BOM!
                                 throw new CoreException('startup-webpage(): session start and session regenerate both failed, check PHP session directory', $e);
@@ -2555,11 +2554,8 @@ class Core {
                             /*
                              * URL cloaking was enabled and requires strict checking.
                              *
-                             * Ensure that we have a cloaked URL users_id and that it
-                             * matches the sessions users_id
-                             *
-                             * Only check cloaking rules if we are NOT displaying a
-                             * system page
+                             * Ensure that we have a cloaked URL users_id and that it matches the sessions users_id
+                             * Only check cloaking rules if we are NOT displaying a system page
                              */
                             if (!Core::getCallType('system')) {
                                 if (empty($core->register['url_cloak_users_id'])) {
@@ -2574,11 +2570,8 @@ class Core {
 
                         if (Config::get('web.sessions.regenerate-id', false)) {
                             if (isset($_SESSION['created']) and (time() - $_SESSION['created'] > Config::get('web.sessions.regenerate_id', false))) {
-                                /*
-                                 * Use "created" to monitor session id age and
-                                 * refresh it periodically to mitigate attacks on
-                                 * sessions like session fixation
-                                 */
+                                // Use "created" to monitor session id age and refresh it periodically to mitigate
+                                // attacks on sessions like session fixation
                                 session_regenerate_id(true);
                                 $_SESSION['created'] = time();
                             }
@@ -2605,9 +2598,6 @@ class Core {
                         } else {
                             $_SESSION['first_visit'] = 1;
                         }
-
-                        // Auto extended sessions?
-                        Session::checkExtended();
 
                         // Set users timezone
                         if (empty($_SESSION['user']['timezone'])) {
