@@ -704,21 +704,20 @@ class WebPage
      *
      * @param string|bool|null $url
      * @param int $http_code
-     * @param bool $clear_session_redirect
      * @param int|null $time_delay
      * @return void
      */
-    #[NoReturn] public static function redirect(string|bool|null $url = null, int $http_code = 301, bool $clear_session_redirect = true, ?int $time_delay = null): void
+    #[NoReturn] public static function redirect(string|bool|null $url = null, int $http_code = 301, ?int $time_delay = null): void
     {
         if (!PLATFORM_HTTP) {
-            throw new WebException(tr('self::redirect() can only be called on web sessions'));
+            throw new WebException(tr('WebPage::redirect() can only be called on web sessions'));
         }
 
         // Build URL
-        $url = self::build($url)->www();
+        $url = Url::build($url)->www();
 
-        if ($_GET['redirect']) {
-            $url = self::build($url)->addQueries('redirect=' . urlencode($_GET['redirect']));
+        if (isset_get($_GET['redirect'])) {
+            $url = Url::build($url)->addQueries('redirect=' . urlencode($_GET['redirect']));
         }
 
         /*
@@ -747,14 +746,6 @@ class WebPage
                 throw new OutOfBoundsException(tr('Invalid HTTP code ":code" specified', [
                     ':code' => $http_code
                 ]));
-        }
-
-        // ???
-        if ($clear_session_redirect) {
-            if (!empty($_SESSION)) {
-                unset($_GET['redirect']);
-                unset($_SESSION['sso_referrer']);
-            }
         }
 
         // Redirect with time delay
