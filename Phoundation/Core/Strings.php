@@ -680,7 +680,6 @@ class Strings
         }
 
         $source = (string) $source;
-
         $strlen = mb_strlen(Color::strip($source));
 
         if ($strlen == $size) {
@@ -1057,6 +1056,61 @@ class Strings
         }
 
         return mb_substr($source, $pos + mb_strlen($needle) - $more);
+    }
+
+
+    /**
+     * Return the given string from the specified needle having been skipped $count times
+     *
+     * @param string|null $source
+     * @param string $needle
+     * @param int $count
+     * @param bool $required
+     * @return string
+     */
+    public static function skip(?string $source, string $needle, int $count, bool $required = false): string
+    {
+        if (!$needle) {
+            throw new OutOfBoundsException(tr('No needle specified'));
+        }
+
+        if ($count < 1) {
+            throw new OutOfBoundsException(tr('Invalid count ":count" specified', [':count' => $count]));
+        }
+
+        for ($i = 0; $i < $count; $i++) {
+            $source = Strings::from($source, $needle, 0, $required);
+        }
+
+        return $source;
+    }
+
+
+
+    /**
+     * Return the given string from the specified needle having been skipped $count times starting from the end of the
+     * string
+     *
+     * @param string|null $source
+     * @param string $needle
+     * @param int $count
+     * @return string
+     */
+    public static function skipReverse(?string $source, string $needle, int $count): string
+    {
+        if (!$needle) {
+            throw new OutOfBoundsException(tr('No needle specified'));
+        }
+
+        if ($count < 1) {
+            throw new OutOfBoundsException(tr('Invalid count ":count" specified', [':count' => $count]));
+        }
+
+        for ($i = 0; $i < $count; $i++) {
+            $source = Strings::fromReverse($source, $needle, 0);
+        }
+
+        return $source;
     }
 
 
