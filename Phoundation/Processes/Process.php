@@ -130,7 +130,7 @@ Class Process
 
 
     /**
-     * Execute the command using the PHP exec() cakk abd return an array
+     * Execute the command using the PHP exec() call and return an array
      *
      * @return array The output from the executed command
      */
@@ -142,6 +142,21 @@ Class Process
 
         exec($this->getFullCommandLine(), $output, $exit_code);
         $this->setExitCode($exit_code, $output);
+        return $output;
+    }
+
+
+
+    /**
+     * Execute the command using the PHP exec() call and return a string
+     *
+     * @return string The output from the executed command
+     */
+    public function executeReturnString(): string
+    {
+        $output = $this->executeReturnArray();
+        $output = implode(PHP_EOL, $output);
+
         return $output;
     }
 
