@@ -2,12 +2,23 @@
 
 namespace Phoundation\Core;
 
+use DateTimeZone;
+use Exception;
+use GeoIP;
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Exception\ConfigException;
+use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Exception\SessionException;
+use Phoundation\Developer\Debug;
+use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Notifications\Notification;
+use Phoundation\Web\Client;
+use Phoundation\Web\Http\Http;
+use Phoundation\Web\Web;
 use Phoundation\Web\WebPage;
 
 
@@ -240,12 +251,27 @@ class Session
             return false;
         }
 
+        if (Core::getCallType('api')) {
+            // Do not send cookies to API's!
+            return false;
+        }
+
+        if (isset_get(Core::readRegister('session', 'client')['type']) === 'crawler') {
+            // Do not send cookies to crawlers!
+            Log::information(tr('Crawler ":crawler" on URL ":url"', [
+                ':crawler' => Core::readRegister('session', 'client'),
+                ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']
+            ]));
+
+            return false;
+        }
+
+        // What handler to use?
         switch (Config::get('web.sessions.handler', 'files')) {
             case 'files':
                 $path = Path::new(Config::get('web.sessions.path', PATH_DATA), Restrictions::new([PATH_DATA . 'sessions/', '/var/lib/php/sessions'], true, 'system/sessions'))->ensure();
 
                 session_save_path($path);
-                session_start();
 
                 Log::success(tr('Started new session for user ":user" from IP ":ip"', [
                     ':user' => self::getUser()->getLogId(),
@@ -259,7 +285,7 @@ class Session
                 // no-break
             case 'mongo':
                 // no-break
-            case 'mysql':
+            case 'sql':
                 throw new UnderConstructionException();
                 break;
 
@@ -269,6 +295,106 @@ class Session
                 ]));
         }
 
+        // Start session
+        session_start();
+
+        if (Config::get('web.sessions.cookies.lifetime', 0)) {
+            // Session cookie timed out?
+            if (isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > Config::get('web.sessions.cookies.lifetime', 0))) {
+                // Session expired!
+                session_unset();
+                session_destroy();
+                session_start();
+                session_regenerate_id(true);
+            }
+        }
+
+        // Initialize session?
+        if (empty($_SESSION['init'])) {
+            // Initialize the session
+            $_SESSION['init']         = time();
+            $_SESSION['first_domain'] = self::$domain;
+
+//                        $_SESSION['client']       = Core::readRegister('system', 'session', 'client');
+//                        $_SESSION['mobile']       = Core::readRegister('system', 'session', 'mobile');
+//                        $_SESSION['location']     = Core::readRegister('system', 'session', 'location');
+//                        $_SESSION['language']     = Core::readRegister('system', 'session', 'language');
+
+            // Set users timezone
+            if (empty($_SESSION['user']['timezone'])) {
+                $_SESSION['user']['timezone'] = Config::get('timezone.display', 0);
+
+            } else {
+                try {
+                    $check = new DateTimeZone($_SESSION['user']['timezone']);
+
+                }catch(Exception $e) {
+                    // Timezone invalid for this user. Notification developers, and fix timezone for user
+                    $_SESSION['user']['timezone'] = Config::get('timezone.display', 0);
+
+                    Notification::new()
+                        ->setException(SessionException::new(tr('Reset timezone for user ":user" to ":timezone"', [
+                            ':user'     => name($_SESSION['user']),
+                            ':timezone' => $_SESSION['user']['timezone']
+                        ]), $e)->makeWarning(true))
+                        ->send();
+                }
+            }
+        }
+
+        // Euro cookie check, can we do cookies at all?
+        if (Config::get('web.sessions.cookies.europe', true) and !Config::get('web.sessions.cookies.name', 'phoundation')) {
+            if (GeoIP::new()->isEuropean()) {
+                // All first visits to european countries require cookie permissions given!
+                $_SESSION['euro_cookie'] = true;
+                return false;
+            }
+        }
+
+        if (Config::get('security.url-cloaking.enabled', false) and Config::get('security.url-cloaking.strict', false)) {
+            /*
+             * URL cloaking was enabled and requires strict checking.
+             *
+             * Ensure that we have a cloaked URL users_id and that it matches the sessions users_id
+             * Only check cloaking rules if we are NOT displaying a system page
+             */
+            if (!Core::getCallType('system')) {
+                if (empty($core->register['url_cloak_users_id'])) {
+                    throw new SessionException(tr('Failed cloaked URL strict checking, no cloaked URL users_id registered'));
+                }
+
+                if ($core->register['url_cloak_users_id'] !== $_SESSION['user']['id']) {
+                    throw new AccessDeniedException(tr('Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', [
+                        ':session_users_id' => $_SESSION['user']['id'],
+                        ':cloak_users_id'   => $core->register['url_cloak_users_id']
+                    ]));
+                }
+            }
+        }
+
+        if (Config::get('web.sessions.regenerate-id', false)) {
+            // Regenerate session identifier
+            if (isset($_SESSION['created']) and (time() - $_SESSION['created'] > Config::get('web.sessions.regenerate_id', false))) {
+                // Use "created" to monitor session id age and refresh it periodically to mitigate
+                // attacks on sessions like session fixation
+                session_regenerate_id(true);
+                $_SESSION['created'] = time();
+            }
+        }
+
+        // Set last activity, and first_visit variables
+        $_SESSION['last_activity'] = time();
+
+        if (isset($_SESSION['first_visit'])) {
+            if ($_SESSION['first_visit']) {
+                $_SESSION['first_visit']--;
+            }
+
+        } else {
+            $_SESSION['first_visit'] = 1;
+        }
+
+        $_SESSION['domain'] = self::$domain;
         return true;
     }
 
@@ -282,6 +408,244 @@ class Session
     public static function destroy(): void
     {
         session_destroy();
+    }
+
+
+
+    /**
+     * Initialize the user session
+     *
+     * @return void
+     */
+    public static function init(): void
+    {
+        // Correctly detect the remote IP
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
+
+        self::checkDomains();
+        self::configureCookies();
+
+        // New session? Detect client type, language, and mobile device
+        if (empty($_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')])) {
+            Client::detect();
+        } else {
+            try {
+                // We have a cookie! Start a session for it
+                Session::start();
+            } catch (SessionException $e) {
+                // Failed to start an existing session, so we'll have to detect the client anyway
+                Client::detect();
+            }
+        }
+
+        Http::setSslDefaultContext();
+    }
+
+
+
+    /**
+     * Configure cookies
+     *
+     * @return void
+     */
+    protected static function configureCookies(): void
+    {
+        // Check the cookie domain configuration to see if it's valid.
+        // NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain] must be one of "auto" or ".auto"
+        switch (Config::get('web.sessions.cookies.domain', '.auto')) {
+            case false:
+                // This domain has no cookies
+                break;
+
+            case 'auto':
+                Config::set('sessions.cookies.domain', self::$domain);
+                ini_set('session.cookie_domain', self::$domain);
+                break;
+
+            case '.auto':
+                Config::get('web.sessions.cookies.domain', '.'.self::$domain);
+                ini_set('session.cookie_domain', '.'.self::$domain);
+                break;
+
+            default:
+                /*
+                 * Test cookie domain limitation
+                 *
+                 * If the configured cookie domain is different from the current domain then all cookie will inexplicably fail without warning,
+                 * so this must be detected to avoid lots of hair pulling and throwing arturo off the balcony incidents :)
+                 */
+                if (Config::get('web.sessions.cookies.domain')[0] == '.') {
+                    $test = substr(Config::get('web.sessions.cookies.domain'), 1);
+
+                } else {
+                    $test = Config::get('web.sessions.cookies.domain');
+                }
+
+                if (!str_contains(self::$domain, $test)) {
+                    Notification::new()
+                        ->setCode('configuration')
+                        ->setGroups('developers')
+                        ->setTitle(tr('Invalid cookie domain'))
+                        ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
+                            ':domain'         => Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'),
+                            ':cookie_domain'  => Config::get('web.sessions.cookies.domain'),
+                            ':current_domain' => self::$domain
+                        ]))->send();
+
+                    WebPage::redirect(PROTOCOL.Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'));
+                }
+
+                ini_set('session.cookie_domain', Config::get('web.sessions.cookies.domain'));
+                unset($test);
+                unset($length);
+        }
+
+        // Set session and cookie parameters
+        try {
+            if (Config::get('web.sessions.enabled', true)) {
+                // Force session cookie configuration
+                ini_set('session.gc_maxlifetime' , Config::get('web.sessions.timeout'            , true));
+                ini_set('session.cookie_lifetime', Config::get('web.sessions.cookies.lifetime'   , 0));
+                ini_set('session.use_strict_mode', Config::get('web.sessions.cookies.strict_mode', true));
+                ini_set('session.name'           , Config::get('web.sessions.cookies.name'       , 'phoundation'));
+                ini_set('session.cookie_httponly', Config::get('web.sessions.cookies.http-only'  , true));
+                ini_set('session.cookie_secure'  , Config::get('web.sessions.cookies.secure'     , true));
+                ini_set('session.cookie_samesite', Config::get('web.sessions.cookies.same-site'  , true));
+                ini_set('session.save_handler'   , Config::get('sessions.handler'                , 'files'));
+                ini_set('session.save_path'      , Config::get('sessions.path'                   , PATH_DATA . 'data/sessions/'));
+
+                if (Config::get('web.sessions.check-referrer', true)) {
+                    ini_set('session.referer_check', self::$domain);
+                }
+
+                if (Debug::enabled() or !Config::get('cache.http.enabled', true)) {
+                    ini_set('session.cache_limiter', 'nocache');
+
+                } else {
+                    if (Config::get('cache.http.enabled', true) === 'auto') {
+                        ini_set('session.cache_limiter', Config::get('cache.http.php-cache-limiter'         , true));
+                        ini_set('session.cache_expire' , Config::get('cache.http.php-cache-php-cache-expire', true));
+                    }
+                }
+            }
+
+        }catch(Exception $e) {
+            if ($e->getCode() == 403) {
+                Log::warning($e->getMessage());
+                $core->register['page_show'] = 403;
+
+            } else {
+                if (!is_writable(session_save_path())) {
+                    throw new SessionException('Session startup failed because the session path ":path" is not writable for platform ":platform"', array(':path' => session_save_path(), ':platform' => PLATFORM), $e);
+                }
+
+                throw new SessionException('Session startup failed', $e);
+            }
+        }
+    }
+
+
+
+    /**
+     * Check the requested domain, if its a valid main domain, sub domain or whitelabel domain
+     *
+     * @return void
+     */
+    protected static function checkDomains(): void
+    {
+        // :TODO: The next section may be included in the whitelabel domain check
+        // Check if the requested domain is allowed
+        self::$domain = $_SERVER['HTTP_HOST'];
+
+        if (!self::$domain) {
+            // No domain was requested at all, so probably instead of a domain name, an IP was requested. Redirect to
+            // the domain name
+            WebPage::redirect();
+        }
+
+
+
+        // Check the detected domain against the configured domain. If it doesn't match then check if it's a registered
+        // whitelabel domain
+        if (self::$domain === Web::getDomain()) {
+            // This is the primary domain
+
+        } else {
+            // This is not the registered domain!
+            switch (Config::get('web.domains.whitelabels', false)) {
+                case '':
+                    // White label domains are disabled, so the requested domain MUST match the configured domain
+                    Log::warning(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', [
+                        ':source' => $_SERVER['HTTP_HOST'],
+                        ':target' => Web::getDomain()
+                    ]));
+
+                    WebPage::redirect(PROTOCOL . Web::getDomain());
+
+                case 'all':
+                    // All domains are allowed
+                    break;
+
+                case 'sub':
+                    // White label domains are disabled, but subdomains from the primary domain are allowed
+                    if (Strings::from(self::$domain, '.') !== Web::getDomain()) {
+                        Log::warning(tr('Whitelabels are set to subdomains only, redirecting domain ":source" to ":target"', [
+                            ':source' => $_SERVER['HTTP_HOST'],
+                            ':target' => Web::getDomain()
+                        ]));
+
+                        WebPage::redirect(PROTOCOL . Web::getDomain());
+                    }
+
+                    break;
+
+                case 'list':
+                    // This domain must be registered in the whitelabels list
+                    self::$domain = sql()->getColumn('SELECT `domain` 
+                                                          FROM   `whitelabels` 
+                                                          WHERE  `domain` = :domain 
+                                                          AND `status` IS NULL',
+                        [':domain' => $_SERVER['HTTP_HOST']]);
+
+                    if (empty(self::$domain)) {
+                        Log::warning(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', [
+                            ':source' => $_SERVER['HTTP_HOST'],
+                            ':target' => Web::getDomain()
+                        ]));
+
+                        WebPage::redirect(PROTOCOL . Web::getDomain());
+                    }
+
+                    break;
+
+                default:
+                    if (is_array(Config::get('web.domains.whitelabels', false))) {
+                        // Domain must be specified in one of the array entries
+                        if (!in_array(self::$domain, Config::get('web.domains.whitelabels', false))) {
+                            Log::warning(tr('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [
+                                ':source' => $_SERVER['HTTP_HOST'],
+                                ':target' => Web::getDomain()
+                            ]));
+
+                            WebPage::redirect(PROTOCOL . Web::getDomain());
+                        }
+
+                    } else {
+                        // The domain must match either domain configuration or the domain specified in configuration
+                        // "whitelabels.enabled"
+                        if (self::$domain !== Config::get('web.domains.whitelabels', false)) {
+                            Log::warning(tr('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', [
+                                ':source' => $_SERVER['HTTP_HOST'],
+                                ':target' => Web::getDomain()
+                            ]));
+
+                            WebPage::redirect(PROTOCOL . Web::getDomain());
+                        }
+                    }
+            }
+        }
     }
 
 

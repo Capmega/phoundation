@@ -76,7 +76,7 @@ class Http
      * @version 2.8.29: Added function and documentation
      *
      */
-    public static function set_ssl_default_context(?bool $verify_peer = null, ?bool $verify_peer_name = null, ?bool $allow_self_signed = null)
+    public static function setSslDefaultContext(?bool $verify_peer = null, ?bool $verify_peer_name = null, ?bool $allow_self_signed = null)
     {
         $verify_peer = not_null($verify_peer, Config::get('security.ssl.verify.peer', true));
         $verify_peer_name = not_null($verify_peer, Config::get('security.ssl.verify.peer_name', true));
@@ -554,7 +554,10 @@ class Http
     function limitRequestMethod(string $method): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== $method) {
-            throw new OutOfBoundsException(tr('limit_request_method(): This request was made with HTTP method ":server_method" but for this page or call only HTTP method ":method" is allowed', array(':method' => $method, ':server_method' => $_SERVER['REQUEST_METHOD'])), 'warning/method-not-allowed');
+            throw new OutOfBoundsException(tr('This request was made with HTTP method ":server_method" but for this page or call only HTTP method ":method" is allowed', [
+                ':method'        => $method,
+                ':server_method' => $_SERVER['REQUEST_METHOD']
+            ]));
         }
     }
 

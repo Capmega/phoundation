@@ -9,6 +9,7 @@ use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
+use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
@@ -1190,9 +1191,25 @@ class WebPage
             $headers[] = 'X-Powered-By: ' . $signature;
         }
 
-        // Add Phoundation signature?
-        if (Config::getBoolean('security.expose.phoundation-signature', false)) {
-            header('X-Powered-By: Phoundation ' . Core::FRAMEWORKCODEVERSION);
+        // Add a powered-by header
+        switch (Config::getBoolean('security.expose.phoundation-signature', 'limited')) {
+            case 'limited':
+                header('Powered-By: Phoundation');
+                break;
+
+            case 'full':
+                header(tr('Powered-By: Phoundation version ":version"', [':version' => Core::FRAMEWORKCODEVERSION]));
+                break;
+
+            case 'none':
+                // no-break
+            case '':
+                break;
+
+            default:
+                throw new OutOfBoundsException(tr('Invalid configuration value ":value" for "security.signature" Please use one of "none", "limited", or "full"', [
+                    ':value' => Config::get('security.expose.phoundation')
+                ]));
         }
 
         $headers[] = 'Content-Type: ' . self::$content_type . '; charset=' . Config::get('languages.encoding.charset', 'UTF-8');
