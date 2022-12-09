@@ -428,7 +428,7 @@ class Core {
                     }
 
                     // Set cookie, start session where needed, etc.
-                    Session::init();
+                    Session::startup();
                     self::setTimeZone();
 
                     // If POST request, automatically untranslate translated POST entries

@@ -74,8 +74,29 @@ class Session
             return;
         }
 
-        self::check();
-        self::setLanguage();
+        // Correctly detect the remote IP
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
+
+        self::checkDomains();
+        self::configureCookies();
+        self::checkCookie();
+
+        // New session? Detect client type, language, and mobile device
+        if (empty($_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')])) {
+            Client::detect();
+        } else {
+            try {
+                // We have a cookie! Start a session for it
+                Session::start();
+            } catch (SessionException $e) {
+                // Failed to start an existing session, so we'll have to detect the client anyway
+                Client::detect();
+            }
+        }
+
+        Http::setSslDefaultContext();
     }
 
 
@@ -154,6 +175,10 @@ class Session
      */
     public static function getLanguage(): string
     {
+        if (empty(self::$language)) {
+            self::setLanguage();
+        }
+
         return self::$language;
     }
 
@@ -218,7 +243,7 @@ class Session
      *
      * @return void
      */
-    public static function check(): void
+    public static function checkCookie(): void
     {
         if (array_key_exists(Config::get('web.sessions.cookies.name', 'phoundation'), $_COOKIE)) {
             self::start();
@@ -413,39 +438,6 @@ class Session
 
 
     /**
-     * Initialize the user session
-     *
-     * @return void
-     */
-    public static function init(): void
-    {
-        // Correctly detect the remote IP
-        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        }
-
-        self::checkDomains();
-        self::configureCookies();
-
-        // New session? Detect client type, language, and mobile device
-        if (empty($_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')])) {
-            Client::detect();
-        } else {
-            try {
-                // We have a cookie! Start a session for it
-                Session::start();
-            } catch (SessionException $e) {
-                // Failed to start an existing session, so we'll have to detect the client anyway
-                Client::detect();
-            }
-        }
-
-        Http::setSslDefaultContext();
-    }
-
-
-
-    /**
      * Configure cookies
      *
      * @return void
@@ -564,8 +556,6 @@ class Session
             // the domain name
             WebPage::redirect();
         }
-
-
 
         // Check the detected domain against the configured domain. If it doesn't match then check if it's a registered
         // whitelabel domain
