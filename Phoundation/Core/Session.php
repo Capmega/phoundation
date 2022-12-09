@@ -248,7 +248,7 @@ class Session
                 session_start();
 
                 Log::success(tr('Started new session for user ":user" from IP ":ip"', [
-                    ':user' => self::$user->getLogId(),
+                    ':user' => self::getUser()->getLogId(),
                     ':ip'   => $_SERVER['REMOTE_ADDR']
                 ]));
                 break;
