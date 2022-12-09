@@ -16,7 +16,8 @@
     "ext-memcached": "*",
     "ext-pcntl": "*",
     "ext-exif": "*",
-    "ext-readline": "*"
+    "ext-readline": "*",
+    "ext-curl": "*"
   },
   "require-dev": {
     "phpmd/phpmd": "@stable",
