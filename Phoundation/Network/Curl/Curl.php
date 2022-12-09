@@ -773,32 +773,6 @@ abstract class Curl
 
 
     /**
-     * Returns the referer header
-     *
-     * @return string
-     */
-    public function getReferer(): string
-    {
-        return $this->referer;
-    }
-
-
-
-    /**
-     * Sets the referer header
-     *
-     * @param string $referer
-     * @return static
-     */
-    public function setReferer(string $referer): static
-    {
-        $this->referer = $referer;
-        return $this;
-    }
-
-
-
-    /**
      * Returns the file to which the result will be saved
      *
      * @return string

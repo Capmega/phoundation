@@ -19,6 +19,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Commands\SystemCommands;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Server;
 use Phoundation\Web\Client;
@@ -2052,6 +2053,12 @@ class Core {
     {
         $limit = ini_get('memory_limit');
         $limit = Numbers::fromBytes($limit, 'b');
+
+        if ($limit === -1) {
+            // No memory limit configured, just get how much memory we have available in total
+            $free  = SystemCommands::new()->free();
+            $limit = ceil($free['memory']['available'] * .8);
+        }
 
         return $limit;
     }

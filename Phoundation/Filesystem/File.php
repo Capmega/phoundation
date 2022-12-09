@@ -48,7 +48,7 @@ class File extends FileBasics
     {
         $required  = Config::get('filesystem.buffer.size', $this->buffer_size ?? 65536);
         $available = Core::getMemoryAvailable();
-
+        
         if ($required > $available) {
             // The required file buffer is larger than the available memory, oops...
             if (Config::get('filesystem.buffer.auto', false)) {
@@ -65,7 +65,7 @@ class File extends FileBasics
                 ':size'      => $available * .5
             ]));
 
-            $required = $available * .5;
+            $required = ceil($available * .5);
         }
 
         return $required;
