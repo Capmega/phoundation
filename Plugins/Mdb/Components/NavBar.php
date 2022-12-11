@@ -154,7 +154,7 @@ class NavBar extends ElementsBlock
             throw new OutOfBoundsException(tr('Failed to render NavBar component, no sign-in modal specified'));
         }
 
-        $profile_image = ProfileImage::new()
+        $image = ProfileImage::new()
             ->setImage(Session::getUser()->getPicture())
             ->setMenu($this->profile_menu)
             ->setUrl(null);
@@ -228,7 +228,7 @@ class NavBar extends ElementsBlock
                               </li>
                             </ul>
                           </div>
-                          ' . $profile_image->render() . '
+                          ' . $image->render() . '
                         </div>
                         <!-- Right elements -->
                       </div>

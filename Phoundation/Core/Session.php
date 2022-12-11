@@ -8,8 +8,9 @@ use GeoIP;
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Exception\ConfigException;
-use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\SessionException;
+use Phoundation\Data\Exception\DataEntryNotExistsException;
+use Phoundation\Data\Exception\DataEntryStatusException;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\UnderConstructionException;
@@ -20,7 +21,7 @@ use Phoundation\Web\Client;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Web;
 use Phoundation\Web\WebPage;
-
+use Throwable;
 
 
 /**
@@ -83,19 +84,6 @@ class Session
         self::configureCookies();
         self::checkCookie();
 
-        // New session? Detect client type, language, and mobile device
-        if (empty($_COOKIE[Config::get('web.sessions.cookies.name', 'phoundation')])) {
-            Client::detect();
-        } else {
-            try {
-                // We have a cookie! Start a session for it
-                Session::start();
-            } catch (SessionException $e) {
-                // Failed to start an existing session, so we'll have to detect the client anyway
-                Client::detect();
-            }
-        }
-
         Http::setSslDefaultContext();
     }
 
@@ -107,10 +95,52 @@ class Session
     public static function getUser(): User
     {
         if (self::$user === null) {
+            // User object does not yet exist
+            if (isset_get($_SESSION['user']['id'])) {
+                // Create new user object and ensure its still good to go
+                try {
+                    $user = User::get($_SESSION['user']['id']);
+
+                    if ($user->getStatus()) {
+                        // Only status NULL is allowed
+                        throw new DataEntryStatusException(tr('The user ":user" has the status ":status" which is not allowed, removing session entry and dropping to guest user', [
+                            ':user'   => $user->getLogId(),
+                            ':status' => $user->getStatus()
+                        ]));
+                    }
+
+                    return $user;
+
+                } catch (DataEntryNotExistsException) {
+                    Log::warning(tr('The session user ":id" does not exist, removing session entry and dropping to guest user', [
+                        ':id' => $_SESSION['user']['id']
+                    ]));
+
+                    // Remove entry and try again
+                    unset($_SESSION['user']['id']);
+
+                } catch (DataEntryStatusException $e) {
+                    Log::warning($e->getMessage());
+
+                    // Remove entry and try again
+                    unset($_SESSION['user']['id']);
+
+                } catch (Throwable $e) {
+                    Log::warning(tr('Failed to fetch user ":user" for session with ":e", removing session entry and dropping to guest user', [
+                        ':e'    => $e->getMessage(),
+                        ':user' => $_SESSION['user']['id']
+                    ]));
+
+                    // Remove entry and try again
+                    unset($_SESSION['user']['id']);
+                }
+            }
+
             // There is no user, this is a guest session
             return new GuestUser();
         }
 
+        // Return the user object
         return self::$user;
     }
 
@@ -127,9 +157,9 @@ class Session
     {
         self::$user = User::authenticate($user, $password);
         self::clear();
-        self::start();
+        self::init();
 
-//        $_SESSION['users_id']
+        $_SESSION['user']['id'] = self::$user->getId();
         return self::$user;
     }
 
@@ -245,9 +275,18 @@ class Session
      */
     public static function checkCookie(): void
     {
+        // New session? Detect client type, language, and mobile device
         if (array_key_exists(Config::get('web.sessions.cookies.name', 'phoundation'), $_COOKIE)) {
-            self::start();
-            self::checkExtended();
+            try {
+                // We have a cookie! Start a session for it
+                Session::start();
+            } catch (SessionException $e) {
+                Log::warning(tr('Failed to resume session due to exception ":e"', [':e' => $e->getMessage()]));
+                // Failed to start an existing session, so we'll have to detect the client anyway
+                Client::detect();
+            }
+        } else {
+            Client::detect();
         }
     }
 
@@ -276,7 +315,7 @@ class Session
             return false;
         }
 
-        if (Core::getCallType('api')) {
+        if (Core::isCallType('api')) {
             // Do not send cookies to API's!
             return false;
         }
@@ -285,7 +324,7 @@ class Session
             // Do not send cookies to crawlers!
             Log::information(tr('Crawler ":crawler" on URL ":url"', [
                 ':crawler' => Core::readRegister('session', 'client'),
-                ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']
+                ':url'     => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']
             ]));
 
             return false;
@@ -311,6 +350,7 @@ class Session
             case 'mongo':
                 // no-break
             case 'sql':
+                // TODO Implement these session handlers ASAP
                 throw new UnderConstructionException();
                 break;
 
@@ -321,7 +361,9 @@ class Session
         }
 
         // Start session
+Log::warning('START SESSION');
         session_start();
+        self::checkExtended();
 
         if (Config::get('web.sessions.cookies.lifetime', 0)) {
             // Session cookie timed out?
@@ -329,6 +371,7 @@ class Session
                 // Session expired!
                 session_unset();
                 session_destroy();
+Log::warning('RESTART SESSION');
                 session_start();
                 session_regenerate_id(true);
             }
@@ -336,35 +379,7 @@ class Session
 
         // Initialize session?
         if (empty($_SESSION['init'])) {
-            // Initialize the session
-            $_SESSION['init']         = time();
-            $_SESSION['first_domain'] = self::$domain;
-
-//                        $_SESSION['client']       = Core::readRegister('system', 'session', 'client');
-//                        $_SESSION['mobile']       = Core::readRegister('system', 'session', 'mobile');
-//                        $_SESSION['location']     = Core::readRegister('system', 'session', 'location');
-//                        $_SESSION['language']     = Core::readRegister('system', 'session', 'language');
-
-            // Set users timezone
-            if (empty($_SESSION['user']['timezone'])) {
-                $_SESSION['user']['timezone'] = Config::get('timezone.display', 0);
-
-            } else {
-                try {
-                    $check = new DateTimeZone($_SESSION['user']['timezone']);
-
-                }catch(Exception $e) {
-                    // Timezone invalid for this user. Notification developers, and fix timezone for user
-                    $_SESSION['user']['timezone'] = Config::get('timezone.display', 0);
-
-                    Notification::new()
-                        ->setException(SessionException::new(tr('Reset timezone for user ":user" to ":timezone"', [
-                            ':user'     => name($_SESSION['user']),
-                            ':timezone' => $_SESSION['user']['timezone']
-                        ]), $e)->makeWarning(true))
-                        ->send();
-                }
-            }
+            self::init();
         }
 
         // Euro cookie check, can we do cookies at all?
@@ -444,6 +459,7 @@ class Session
      */
     protected static function configureCookies(): void
     {
+Log::backtrace();
         // Check the cookie domain configuration to see if it's valid.
         // NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain] must be one of "auto" or ".auto"
         switch (Config::get('web.sessions.cookies.domain', '.auto')) {
@@ -525,7 +541,6 @@ class Session
 
         }catch(Exception $e) {
             if ($e->getCode() == 403) {
-                Log::warning($e->getMessage());
                 $core->register['page_show'] = 403;
 
             } else {
@@ -676,5 +691,47 @@ class Session
         }
 
         return false;
+    }
+
+
+
+    /**
+     * Initialize the session with basic data
+     *
+     * @return void
+     */
+    protected static function init(): void
+    {
+        Log::action(tr('Initializing new session user ":user"', [':user' => self::$user->getLogId()]));
+
+        // Initialize the session
+        $_SESSION['init']         = time();
+        $_SESSION['first_domain'] = self::$domain;
+
+//                        $_SESSION['client']       = Core::readRegister('system', 'session', 'client');
+//                        $_SESSION['mobile']       = Core::readRegister('system', 'session', 'mobile');
+//                        $_SESSION['location']     = Core::readRegister('system', 'session', 'location');
+//                        $_SESSION['language']     = Core::readRegister('system', 'session', 'language');
+
+        // Set users timezone
+        if (empty($_SESSION['user']['timezone'])) {
+            $_SESSION['user']['timezone'] = Config::get('timezone.display', 0);
+
+        } else {
+            try {
+                $check = new DateTimeZone($_SESSION['user']['timezone']);
+
+            }catch(Exception $e) {
+                // Timezone invalid for this user. Notification developers, and fix timezone for user
+                $_SESSION['user']['timezone'] = Config::get('timezone.display', 0);
+
+                Notification::new()
+                    ->setException(SessionException::new(tr('Reset timezone for user ":user" to ":timezone"', [
+                        ':user'     => name($_SESSION['user']),
+                        ':timezone' => $_SESSION['user']['timezone']
+                    ]), $e)->makeWarning(true))
+                    ->send();
+            }
+        }
     }
 }

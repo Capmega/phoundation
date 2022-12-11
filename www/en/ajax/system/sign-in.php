@@ -4,7 +4,7 @@ use Phoundation\Core\Session;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Json;
 use Phoundation\Web\WebPage;
-
+use Plugins\Mdb\Components\ProfileImage;
 
 
 /**
@@ -22,7 +22,11 @@ PostValidator::new()
     ->select('password')->isPassword()
     ->validate();
 
+// Attempt to sign in and if all okay, return an updated profile image with menu
 $user  = Session::signIn($_POST['email'], $_POST['password']);
-$image = Webpage::getTemplate()->getComponents()->profileImage()->setModalSelector(null);
+$image = ProfileImage::new()
+    ->setImage(Session::getUser()->getPicture())
+    ->setMenu(null)
+    ->setUrl(null);
 
 Json::reply(['html' => $image->render()]);

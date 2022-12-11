@@ -112,6 +112,25 @@ class User extends DataEntry
 
 
     /**
+     * Returns id for this user entry that can be used in logs
+     *
+     * @return string
+     */
+    public function getLogId(): string
+    {
+        $id = $this->getDataValue('id');
+
+        if (!$id) {
+            // This is a guest user
+            return $id . ' / ' . tr('Guest');
+        }
+
+        return $id . ' / ' . $this->getDataValue($this->unique_column);
+    }
+
+
+
+    /**
      * Authenticates the specified user id / email with its password
      *
      * @param string|int $identifier

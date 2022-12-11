@@ -764,8 +764,7 @@ class Core {
                     break;
             }
 
-            // Start session
-            Session::startup();
+            // We're done, transfer control to script
             self::$state = 'script';
 
         } catch (Throwable $e) {
