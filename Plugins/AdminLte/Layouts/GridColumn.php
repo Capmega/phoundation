@@ -1,20 +1,20 @@
 <?php
 
-namespace Plugins\Mdb\Layouts;
+ namespace Plugins\AdminLte\Layouts;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Exception\OutOfBoundsException;
 
 
 /**
- * MDB Plugin GridColumn class
+ * AdminLte Plugin GridColumn class
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Plugins\Mdb
+  * @package Plugins\AdminLte
  */
 class GridColumn extends Layout
 {

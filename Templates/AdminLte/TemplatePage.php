@@ -58,17 +58,23 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     public function buildHtmlHeader(): ?string
     {
         // Load basic MDB and fonts CSS
-        WebPage::loadCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
-        WebPage::loadCss('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
-        WebPage::loadCss('css/mdb');
-        WebPage::loadCss('css/mdb-fix');
+        WebPage::loadCss('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback');
+        WebPage::loadCss('adminlte/plugins/fontawesome-free/css/all"');
+        WebPage::loadCss('adminlte/css/adminlte');
+        WebPage::loadCss('adminlte/plugins/overlayScrollbars/css/OverlayScrollbars');
 
         // Load basic MDB amd jQuery javascript libraries
-        WebPage::loadJavascript('mdb,jquery/jquery');
+        WebPage::loadJavascript([
+            'adminlte/plugins/jquery/jquery',
+            'adminlte/plugins/jquery-ui/jquery-ui',
+            'adminlte/plugins/bootstrap/js/bootstrap.bundle',
+            'adminlte/plugins/overlayScrollbars/js/jquery.overlayScrollbars',
+            'adminlte/js/adminlte'
+        ]);
 
         // Set basic page details
-        WebPage::setTitle(tr('Phoundation'));
-        WebPage::setFavIcon('mdb-favicon.ico');
+        WebPage::setTitle(tr('Phoundation platform'));
+        WebPage::setFavIcon('favicon/phoundation.png');
 
         return WebPage::buildHeaders();
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Plugins\Mdb\Components;
+ namespace Plugins\AdminLte\Components;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Strings;
@@ -11,14 +11,14 @@ use Plugins\Mdb\Elements\Buttons;
 
 
 /**
- * MDB Plugin Modal class
+ * AdminLte Plugin Modal class
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Plugins\Mdb
+  * @package Plugins\AdminLte
  */
 class Modal extends ElementsBlock
 {

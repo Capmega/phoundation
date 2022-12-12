@@ -1,20 +1,20 @@
 <?php
 
-namespace Plugins\Mdb\Components;
+ namespace Plugins\AdminLte\Components;
 
 use Phoundation\Web\Http\Html\Elements\Section;
 
 
 
 /**
- * MDB Plugin Table class
+ * AdminLte Plugin Table class
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Plugins\Mdb
+  * @package Plugins\AdminLte
  */
 class Table extends \Phoundation\Web\Http\Html\Elements\Table
 {

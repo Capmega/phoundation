@@ -1,6 +1,6 @@
 <?php
 
-namespace Plugins\Mdb\Components;
+ namespace Plugins\AdminLte\Components;
 
 use Phoundation\Core\Session;
 use Phoundation\Exception\OutOfBoundsException;
@@ -10,14 +10,14 @@ use Phoundation\Web\Http\Html\Elements\Img;
 
 
 /**
- * MDB Plugin TopBar class
+ * AdminLte Plugin TopBar class
  *
  * This class is an example template for your website
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Plugins\Mdb
+  * @package Plugins\AdminLte
  */
 class TopBar extends ElementsBlock
 {
