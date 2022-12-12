@@ -115,9 +115,10 @@ $route->try('/^\w{2}\/ajax\/(.+?).html$/', '/en/ajax/$1.php', '' ); // Show the 
 
 
 // Page routes
-$route->try('/^(.+?).html$/'  , '/en/pages/$1.php'      , 'Q'); // Show the requested page
-$route->try('/^$/'            , '/en/pages/index.php'   , 'Q'); // Show index page
-$route->try('/^admin\/(.+?)$/', '/en/pages/admin/$1.php', '' ); // Show the requested admin page
+$route->try('/^(\w{2})\/(.+?).html$/'  , '/$1/pages/$2.php'      , 'Q'); // Show the requested page
+$route->try('/^(\w{2})\/?$/'           , '/$1/pages/index.php'   , ''); // Show the requested page
+$route->try('/^$/'                     , '/en/pages/index.php'   , ''); // Show index page
+$route->try('/^(\w{2})\/admin\/(.+?)$/', '/$1/pages/admin/$2.php', 'Q' ); // Show the requested admin page
 
 
 

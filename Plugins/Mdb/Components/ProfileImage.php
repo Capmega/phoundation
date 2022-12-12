@@ -80,8 +80,8 @@ class ProfileImage extends ImageMenu
             // Default image menu
             if (!$menu) {
                 $menu = [
-                    tr('Profile')  => Url::build('/profile')->www(),
-                    tr('Sign out') => Url::build('/signout')->www()
+                    tr('Profile')  => Url::build('/profile.html')->www(),
+                    tr('Sign out') => Url::build('/sign-out.html')->www()
                 ];
             }
         }

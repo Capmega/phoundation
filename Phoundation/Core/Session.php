@@ -24,6 +24,7 @@ use Phoundation\Web\WebPage;
 use Throwable;
 
 
+
 /**
  * Class Session
  *
@@ -459,7 +460,6 @@ Log::warning('RESTART SESSION');
      */
     protected static function configureCookies(): void
     {
-Log::backtrace();
         // Check the cookie domain configuration to see if it's valid.
         // NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain] must be one of "auto" or ".auto"
         switch (Config::get('web.sessions.cookies.domain', '.auto')) {
@@ -702,7 +702,7 @@ Log::backtrace();
      */
     protected static function init(): void
     {
-        Log::action(tr('Initializing new session user ":user"', [':user' => self::$user->getLogId()]));
+        Log::action(tr('Initializing new session user ":user"', [':user' => self::getUser()->getLogId()]));
 
         // Initialize the session
         $_SESSION['init']         = time();
