@@ -2,13 +2,12 @@
 
 namespace Templates\Phoundation\Components;
 
-use Plugins\Mdb\Components\NavBar;
 use Templates\Phoundation\Modals\SignInModal;
 
 
 
 /**
- * Phoundation Template NavigationBar class
+ * Phoundation Template TopBar class
  *
  *
  *
@@ -17,7 +16,7 @@ use Templates\Phoundation\Modals\SignInModal;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Phoundation
  */
-class NavigationBar extends NavBar
+class TopBar extends \Plugins\Mdb\Components\TopBar
 {
     /**
      * Sign in modal for this navigation bar

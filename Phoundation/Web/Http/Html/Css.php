@@ -6,6 +6,7 @@ use Phoundation\Cdn\Cdn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
+use Phoundation\Filesystem\File;
 
 
 /**
@@ -126,24 +127,17 @@ class Css
         $css_file        = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
         $arguments       = array('--css', $css_file, '--content', $html, '--out', PATH_TMP);
 
-        /*
-         * Ensure that any previous version is deleted
-         */
-        file_delete($purged_css_file, PATH_ROOT.'www/'.LANGUAGE.'/pub/css');
+        // Ensure that any previous version is deleted
+        File::new($purged_css_file)->delete();
+        File::new(PATH_WWW . LANGUAGE . '/pub/css')->delete();
 
-        /*
-         * Add list of selectors that should be whitelisted
-         */
+        // Add list of selectors that should be whitelisted
         if (!empty($_CONFIG['css']['whitelist'][$core->register['script']])) {
-            /*
-             * Use the whitelist specifically for this page
-             */
+            // Use the whitelist specifically for this page
             $whitelist = &$_CONFIG['css']['whitelist'][$core->register['script']];
 
         } else {
-            /*
-             * Use the default whitelist
-             */
+            // Use the default whitelist
             $whitelist = &$_CONFIG['css']['whitelist']['default'];
         }
 
@@ -159,9 +153,7 @@ class Css
 
         unset($whitelist);
 
-        /*
-         * Purge CSS
-         */
+        // Purge CSS
         load_libs('node');
         node_exec('./purgecss', $arguments);
         rename(PATH_TMP.basename($css_file), $purged_css_file);

@@ -9,7 +9,6 @@ use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;

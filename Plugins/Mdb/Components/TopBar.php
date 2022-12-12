@@ -10,7 +10,7 @@ use Phoundation\Web\Http\Html\Elements\Img;
 
 
 /**
- * MDB Plugin NavBar class
+ * MDB Plugin TopBar class
  *
  * This class is an example template for your website
  *
@@ -19,7 +19,7 @@ use Phoundation\Web\Http\Html\Elements\Img;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\Mdb
  */
-class NavBar extends ElementsBlock
+class TopBar extends ElementsBlock
 {
     /**
      * A list of items that will be displayed in the top menu bar in the specified order

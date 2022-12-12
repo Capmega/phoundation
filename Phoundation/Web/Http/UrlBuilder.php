@@ -469,7 +469,7 @@ class UrlBuilder
             return $this->url . '.min.' . $extension;
         }
 
-        return $this->url . $extension;
+        return $this->url . '.' . $extension;
     }
 
 

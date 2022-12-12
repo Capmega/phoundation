@@ -61,6 +61,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         WebPage::loadCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
         WebPage::loadCss('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
         WebPage::loadCss('css/mdb');
+        WebPage::loadCss('css/mdb-fix');
 
         // Load basic MDB amd jQuery javascript libraries
         WebPage::loadJavascript('mdb,jquery/jquery');

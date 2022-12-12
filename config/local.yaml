@@ -9,6 +9,7 @@ languages:
   supported: ["en", "es"]
   default: "en"
 web:
+  minify: false
   sessions:
     cookies:
       secure: false

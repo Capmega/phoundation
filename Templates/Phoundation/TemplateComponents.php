@@ -6,7 +6,7 @@ use Phoundation\Core\Config;
 use Phoundation\Web\Http\Url;
 use Plugins\Mdb\Components\ImageMenu;
 use Plugins\Mdb\Components\ProfileImage;
-use Templates\Phoundation\Components\NavigationBar;
+use Templates\Phoundation\Components\TopBar;
 
 
 
@@ -43,7 +43,7 @@ class TemplateComponents extends \Phoundation\Web\Http\Html\Template\TemplateCom
     public function buildNavigationBar(?array $navigation_menu): ?string
     {
         // Set up the navigation bar
-        $navigation_bar = NavigationBar::new();
+        $navigation_bar = TopBar::new();
         $navigation_bar
             ->setMenu($navigation_menu)
             ->getSignInModal()
