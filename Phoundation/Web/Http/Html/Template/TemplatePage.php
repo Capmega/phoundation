@@ -63,6 +63,7 @@ abstract class TemplatePage
     {
         $this->menus      = $menus;
         $this->components = $components;
+
         $this->loadMenus();
     }
 
@@ -184,7 +185,7 @@ abstract class TemplatePage
         }
 
         if (!$this->sidebar_menu) {
-            $this->navigation_menu = $this->menus->getSidebarMenu();
+            $this->sidebar_menu = $this->menus->getSidebarMenu();
         }
     }
 
