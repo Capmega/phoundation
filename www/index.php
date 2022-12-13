@@ -1,7 +1,8 @@
 <?php
 
 use Phoundation\Web\Route;
-use Templates\Phoundation\Phoundation;
+use Templates\AdminLte\AdminLte;
+use Templates\Mdb\Mdb;
 
 
 /**
@@ -88,7 +89,7 @@ require('../vendor/autoload.php');
 
 
 // Use the phoundation class
-$route = new Route(Phoundation::new());
+$route = new Route(AdminLte::new());
 
 
 
@@ -121,6 +122,10 @@ $route->try('/^$/'                     , '/en/pages/index.php'   , ''); // Show 
 $route->try('/^(\w{2})\/admin\/(.+?)$/', '/$1/pages/admin/$2.php', 'Q' ); // Show the requested admin page
 
 
+
+// Mdb page routes
+$route = new Route(Mdb::new());
+$route->try('/^(\w{2})\/mdb.html$/'  , '/$1/pages/mdb.php', 'Q');
 
 
 

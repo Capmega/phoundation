@@ -13,7 +13,7 @@ use Plugins\Mdb\Elements\CheckBox;
 //            echo Img::new()
 //                ->setClass('mb-4')
 //                ->setHeight('200')
-//                ->setAlt('Phoundation logo')
+//                ->setAlt('Mdb logo')
 //                ->setSrc('logos/phoundation/phoundation.png')
 //                ->render();
 
