@@ -49,7 +49,7 @@ class Footer extends ElementsBlock
     {
         $html = '<footer class="main-footer">
                     <div class="float-right d-none d-sm-block">
-                      <b>' . tr('Phoundation (AdminLte template) Version') . '</b> ' . FRAMEWORKDBVERSION . '
+                      <b>' . tr('Mdb (AdminLte template) Version') . '</b> ' . FRAMEWORKDBVERSION . '
                     </div>
                     <strong>Copyright © 2017-2023 <a href="https://phoundation.org">phoundation.org</a>.</strong> All rights reserved. <br>
                     <strong>Copyright © 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.

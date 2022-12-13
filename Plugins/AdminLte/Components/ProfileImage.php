@@ -5,7 +5,7 @@ namespace Plugins\AdminLte\Components;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Session;
 use Phoundation\Web\Http\Url;
-use Templates\Phoundation\TemplateMenus;
+use Templates\Mdb\TemplateMenus;
 
 
 
