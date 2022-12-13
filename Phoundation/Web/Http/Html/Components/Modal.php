@@ -4,7 +4,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Web\Http\Html\Elements\ElementsBlock;
-use Plugins\Mdb\Elements\Buttons;
+use Phoundation\Web\Http\Html\Elements\Buttons;
 
 
 
