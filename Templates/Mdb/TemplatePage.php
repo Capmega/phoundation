@@ -67,8 +67,8 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         WebPage::loadJavascript('mdb,jquery/jquery');
 
         // Set basic page details
-        WebPage::setTitle(tr('Mdb'));
-        WebPage::setFavIcon('mdb-favicon.ico');
+        WebPage::setTitle(tr('Phoundation platform'));
+        WebPage::setFavIcon('favicon/phoundation.ico');
 
         return WebPage::buildHeaders();
     }
