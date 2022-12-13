@@ -19,7 +19,6 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Servers\Server;
 use Phoundation\Web\Http\File;
 use Phoundation\Web\Http\Html\Template\Template;
-use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Exception\RouteException;
 use Throwable;
@@ -91,7 +90,7 @@ class Route
      */
     public static function new(Template $template, Server|Restrictions|array|string|null $server_restrictions = null): static
     {
-        return new static($template);
+        return new static($template, $server_restrictions);
     }
 
 
