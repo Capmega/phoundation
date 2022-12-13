@@ -1,20 +1,20 @@
 <?php
 
-namespace Templates\Phoundation\Components;
+ namespace Templates\Mdb\Components;
 
-use Templates\Phoundation\Modals\SignInModal;
+use Templates\Mdb\Modals\SignInModal;
 
 
 
 /**
- * Phoundation Template TopBar class
+ * Mdb Template TopBar class
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Templates\Phoundation
+ * @package Templates\Mdb
  */
 class TopBar extends \Plugins\Mdb\Components\TopBar
 {

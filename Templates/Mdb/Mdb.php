@@ -1,22 +1,22 @@
 <?php
 
-namespace Templates\Phoundation;
+ namespace Templates\Mdb;
 
 use Phoundation\Web\Http\Html\Template\Template;
 
 
 
 /**
- * Class Phoundation
+ * Class Mdb
  *
- * This is the Phoundation template
+ * This is the Mdb template
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package Mdb\Web
  */
-class Phoundation extends Template
+class Mdb extends Template
 {
     /**
      * Template constructor
@@ -25,7 +25,7 @@ class Phoundation extends Template
      */
     public function __construct()
     {
-        $this->name             = 'Phoundation';
+        $this->name             = 'Mdb';
         $this->page_class       = TemplatePage::class;
         $this->components_class = TemplateComponents::class;
 

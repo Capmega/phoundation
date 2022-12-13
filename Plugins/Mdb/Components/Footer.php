@@ -51,7 +51,7 @@ class Footer extends ElementsBlock
                     <div class="container py-5">                        
                         <div class="text-center">               
                         <p class="">
-                          This is the default Phoundation template built using the Mdb plugin, see <a class="" href="https://mdbootstrap.com/"> <strong>MDBootstrap.com</strong></a>
+                          This is the default Mdb template built using the Mdb plugin, see <a class="" href="https://mdbootstrap.com/"> <strong>MDBootstrap.com</strong></a>
                         </p>
                         <a target="_blank" href="https://mdbootstrap.com/docs/">MDB documentation</a> 
                         </div>

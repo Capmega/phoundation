@@ -1,6 +1,6 @@
 <?php
 
-namespace Templates\Phoundation;
+ namespace Templates\Mdb;
 
 use Phoundation\Web\WebPage;
 use Plugins\Mdb\Components\Footer;
@@ -8,14 +8,14 @@ use Plugins\Mdb\Components\Footer;
 
 
 /**
- * Phoundation template class
+ * Mdb template class
  *
  * This class is an example template for your website
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Templates\Phoundation
+ * @package Templates\Mdb
  */
 class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
 {
@@ -67,7 +67,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         WebPage::loadJavascript('mdb,jquery/jquery');
 
         // Set basic page details
-        WebPage::setTitle(tr('Phoundation'));
+        WebPage::setTitle(tr('Mdb'));
         WebPage::setFavIcon('mdb-favicon.ico');
 
         return WebPage::buildHeaders();

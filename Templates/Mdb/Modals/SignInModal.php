@@ -1,6 +1,6 @@
 <?php
 
-namespace Templates\Phoundation\Modals;
+ namespace Templates\Mdb\Modals;
 
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Elements\Script;

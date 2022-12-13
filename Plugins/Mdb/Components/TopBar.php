@@ -182,7 +182,7 @@ class TopBar extends ElementsBlock
                           <a class="navbar-brand mt-2 mt-lg-0" href="#">
                           ' . Img::new()
                                 ->setSrc('/logos/phoundation/phoundation-top.png')
-                                ->setAlt('The Phoundation logo')
+                                ->setAlt('The Mdb logo')
                                 ->addAttributes([
                                     'loading' => 'lazy',
                                     'height'  => 50
