@@ -151,7 +151,7 @@ class TopBar extends ElementsBlock
     public function render(): string
     {
         if (!$this->sign_in_modal) {
-            throw new OutOfBoundsException(tr('Failed to render NavBar component, no sign-in modal specified'));
+            throw new OutOfBoundsException(tr('Failed to render TopBar component, no sign-in modal specified'));
         }
 
         $image = ProfileImage::new()

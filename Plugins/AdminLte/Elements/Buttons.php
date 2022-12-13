@@ -1,6 +1,6 @@
 <?php
 
- namespace Plugins\AdminLte\Elements;
+namespace Plugins\AdminLte\Elements;
 
 use Phoundation\Web\Http\Html\Elements\ElementsBlock;
 
@@ -14,7 +14,7 @@ use Phoundation\Web\Http\Html\Elements\ElementsBlock;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-  * @package Plugins\AdminLte
+ * @package Plugins\AdminLte
  */
 class Buttons extends ElementsBlock
 {

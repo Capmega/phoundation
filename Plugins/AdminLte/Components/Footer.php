@@ -1,6 +1,6 @@
 <?php
 
- namespace Plugins\AdminLte\Components;
+namespace Plugins\AdminLte\Components;
 
 use Phoundation\Web\Http\Html\Elements\ElementsBlock;
 
@@ -14,7 +14,7 @@ use Phoundation\Web\Http\Html\Elements\ElementsBlock;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-  * @package Plugins\AdminLte
+ * @package Plugins\AdminLte
  */
 class Footer extends ElementsBlock
 {
@@ -43,24 +43,17 @@ class Footer extends ElementsBlock
     /**
      * Renders and returns the HTML for the footer
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
-        $html = '<footer id="mdb-footer" class="mt-5" style="background-color: hsl(216, 25%, 95.1%); ">
-                    <div class="container py-5">                        
-                        <div class="text-center">               
-                        <p class="">
-                          This is the default Phoundation template built using the Mdb plugin, see <a class="" href="https://mdbootstrap.com/"> <strong>MDBootstrap.com</strong></a>
-                        </p>
-                        <a target="_blank" href="https://mdbootstrap.com/docs/">MDB documentation</a> 
-                        </div>
+        $html = '<footer class="main-footer">
+                    <div class="float-right d-none d-sm-block">
+                      <b>' . tr('Phoundation (AdminLte template) Version') . '</b> ' . FRAMEWORKDBVERSION . '
                     </div>
-                    <div class="text-center p-3" style="background-color: hsl(216, 25%, 90%);">
-                        © 2022 Framework Copyright: <a class="" href="https://phoundation.org/"> <strong>phoundation.org</strong></a>,
-                        © 2022 Html UI Copyright: <a class="" href="https://mdbootstrap.com/"> <strong>MDBootstrap.com</strong></a>
-                    </div>                    
-                </footer>';
+                    <strong>Copyright © 2017-2023 <a href="https://phoundation.org">phoundation.org</a>.</strong> All rights reserved. <br>
+                    <strong>Copyright © 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
+                  </footer>';
 
         return $html;
     }

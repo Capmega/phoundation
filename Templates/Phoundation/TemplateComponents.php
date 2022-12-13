@@ -27,7 +27,7 @@ class TemplateComponents extends \Phoundation\Web\Http\Html\Template\TemplateCom
      *
      * @return string|null
      */
-    public function buildSidebarMenu(): ?string
+    public function buildSidebar(): ?string
     {
         // TODO: Implement buildSidebarMenu() method.
     }
@@ -40,7 +40,7 @@ class TemplateComponents extends \Phoundation\Web\Http\Html\Template\TemplateCom
      * @param array|null $navigation_menu
      * @return string|null
      */
-    public function buildNavigationBar(?array $navigation_menu): ?string
+    public function buildTopBar(?array $navigation_menu): ?string
     {
         // Set up the navigation bar
         $navigation_bar = TopBar::new();

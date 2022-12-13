@@ -4,8 +4,9 @@ namespace Templates\AdminLte;
 
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Url;
-use Plugins\AdminLte\Components\ImageMenu;
+use Plugins\AdminLte\Components\BreadCrumbs;
 use Plugins\AdminLte\Components\ProfileImage;
+use Plugins\AdminLte\Components\SideBar;
 use Templates\AdminLte\Components\TopBar;
 
 
@@ -13,7 +14,7 @@ use Templates\AdminLte\Components\TopBar;
 /**
  * TemplateComponents class
  *
- * This class contains various MDB template components
+ * This class contains various AdminLte template components
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -27,9 +28,9 @@ class TemplateComponents extends \Phoundation\Web\Http\Html\Template\TemplateCom
      *
      * @return string|null
      */
-    public function buildSidebarMenu(): ?string
+    public function buildSidebar(): ?string
     {
-        // TODO: Implement buildSidebarMenu() method.
+        return SideBar::new()->render();
     }
 
 
@@ -40,12 +41,12 @@ class TemplateComponents extends \Phoundation\Web\Http\Html\Template\TemplateCom
      * @param array|null $navigation_menu
      * @return string|null
      */
-    public function buildNavigationBar(?array $navigation_menu): ?string
+    public function buildTopBar(?array $navigation_menu): ?string
     {
         // Set up the navigation bar
         $navigation_bar = TopBar::new();
         $navigation_bar
-            ->setMenu($navigation_menu)
+            ->setBreadCrumbs(BreadCrumbs::new($this->bread_crumbs))
             ->getSignInModal()
             ->getForm()
             ->setId('form-signin')

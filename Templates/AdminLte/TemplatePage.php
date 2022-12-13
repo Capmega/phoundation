@@ -88,13 +88,11 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageHeader(): ?string
     {
-        $html = '<body class="mdb-skin-custom " data-mdb-spy="scroll" data-mdb-target="#scrollspy" data-mdb-offset="250">
-                    <header>
-                    ' . $this->components->buildNavigationBar($this->navigation_menu) . '
-                    </header>
-                    <main class="pt-5 mdb-docs-layout">
-                        <div class="container mt-5  mt-5  px-lg-5">
-                            <div class="tab-content">';
+        $html = '<body class="sidebar-mini" style="height: auto;">
+                    <div class="wrapper">
+                        ' . $this->components->buildTopBar($this->navigation_menu) . '
+                        ' . $this->components->buildSideBar($this->side_menu) . '
+                        <div class="content-wrapper" style="min-height: 1518.06px;">';
 
         return $html;
     }
@@ -108,10 +106,8 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageFooter(): ?string
     {
-        $html = '           </div>
-                        </div>
-                    </main>' .
-                    Footer::new()->render();
+        $html =     Footer::new()->render() . '
+                </div>';
 
         return $html;
     }

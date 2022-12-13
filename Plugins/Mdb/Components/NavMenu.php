@@ -135,9 +135,9 @@ class NavMenu extends ElementsBlock
      * @param array|null $menu
      * @param string $ul_class
      * @param string $ul_attributes
-     * @return string
+     * @return string|null
      */
-    protected function renderSubMenu(?array $menu, string $ul_class, string $ul_attributes = ''): string
+    protected function renderSubMenu(?array $menu, string $ul_class, string $ul_attributes = ''): ?string
     {
         if (!$menu) {
             // No menu specified, return nothing

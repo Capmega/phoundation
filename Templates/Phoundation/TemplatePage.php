@@ -84,7 +84,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         $html = '<body class="mdb-skin-custom " data-mdb-spy="scroll" data-mdb-target="#scrollspy" data-mdb-offset="250">
                     <header>
-                    ' . $this->components->buildNavigationBar($this->navigation_menu) . '
+                    ' . $this->components->buildTopBar($this->navigation_menu) . '
                     </header>
                     <main class="pt-5 mdb-docs-layout">
                         <div class="container mt-5  mt-5  px-lg-5">

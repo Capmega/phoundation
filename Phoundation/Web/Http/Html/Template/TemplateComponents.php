@@ -23,7 +23,7 @@ abstract class TemplateComponents
      *
      * @return string|null
      */
-    public abstract function buildSidebarMenu(): ?string;
+    public abstract function buildSidebar(): ?string;
 
 
 
@@ -33,7 +33,7 @@ abstract class TemplateComponents
      * @param array|null $navigation_menu
      * @return string|null
      */
-    public abstract function buildNavigationBar(?array $navigation_menu): ?string;
+    public abstract function buildTopBar(?array $navigation_menu): ?string;
 
 
 

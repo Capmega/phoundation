@@ -154,7 +154,7 @@ abstract class ImageMenu extends ElementsBlock
     /**
      * Renders and returns the image menu block HTML
      *
-     * @return string
+     * @return string|null
      */
-    public abstract function render(): string;
+    public abstract function render(): ?string;
 }

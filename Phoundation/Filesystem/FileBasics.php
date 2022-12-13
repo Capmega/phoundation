@@ -82,6 +82,17 @@ class FileBasics
 
 
     /**
+     * FileBasics class toString method
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getFile();
+    }
+
+
+    /**
      * Returns a new File object with the specified restrictions
      *
      * @param FileBasics|string|null $file

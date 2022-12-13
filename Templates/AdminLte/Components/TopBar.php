@@ -1,6 +1,6 @@
 <?php
 
-namespace Templates\AdminLteComponents;
+namespace Templates\AdminLte\Components;
 
 use Templates\AdminLte\Modals\SignInModal;
 

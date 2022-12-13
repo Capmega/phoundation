@@ -1,6 +1,6 @@
 <?php
 
- namespace Plugins\AdminLte\Components;
+namespace Plugins\AdminLte\Components;
 
 use Phoundation\Core\Strings;
 use Phoundation\Seo\Seo;
@@ -17,7 +17,7 @@ use Phoundation\Web\Http\Url;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-  * @package Plugins\AdminLte
+ * @package Plugins\AdminLte
  */
 class NavMenu extends ElementsBlock
 {
@@ -81,9 +81,9 @@ class NavMenu extends ElementsBlock
     /**
      * Renders and returns the HTML for the footer
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         return $this->renderMenu($this->menu, 'nav navbar-nav me-auto mb-2 mb-lg-0');
     }

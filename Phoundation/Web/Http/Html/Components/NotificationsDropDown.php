@@ -1,13 +1,13 @@
 <?php
 
-namespace Plugins\AdminLte\Elements;
+namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Web\Http\Html\Elements\ElementsBlock;
 
 
 
 /**
- * AdminLte Plugin Toolbar class
+ * NotificationsDropDown class
  *
  *
  *
@@ -16,13 +16,12 @@ use Phoundation\Web\Http\Html\Elements\ElementsBlock;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\AdminLte
  */
-class Toolbar extends ElementsBlock
+abstract class NotificationsDropDown extends ElementsBlock
 {
     /**
-     * @inheritDoc
+     * Renders and returns the NavBar
+     *
+     * @return string|null
      */
-    public function render(): string
-    {
-        // TODO: Implement render() method.
-    }
+    abstract public function render(): ?string;
 }
