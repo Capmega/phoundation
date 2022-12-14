@@ -70,9 +70,11 @@ class Route
     public function __construct(Template $template, Server|Restrictions|array|string|null $server_restrictions = null)
     {
         // Start the Core object, hide $_GET & $_POST
-        Core::startup();
-        GetValidator::hideData();
-        PostValidator::hideData();
+        if (Core::getState() === 'init') {
+            Core::startup();
+            GetValidator::hideData();
+            PostValidator::hideData();
+        }
 
         // Set what template and default server restrictions  we'll be using
         $this->template            = $template;

@@ -6,12 +6,13 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\Panel;
 use Phoundation\Web\Http\Url;
 
 
 
 /**
- * AdminLte Plugin SideBar class
+ * AdminLte Plugin SidePanel class
  *
  * This class is an example template for your website
  *
@@ -20,7 +21,7 @@ use Phoundation\Web\Http\Url;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\AdminLte
  */
-class SideBar extends \Phoundation\Web\Http\Html\Components\SideBar
+class SidePanel extends Panel
 {
     /**
      * Renders and returns the sidebar
@@ -30,7 +31,7 @@ class SideBar extends \Phoundation\Web\Http\Html\Components\SideBar
     public function render(): ?string
     {
         if (!$this->sign_in_modal) {
-            throw new OutOfBoundsException(tr('Failed to render TopBar component, no sign-in modal specified'));
+            throw new OutOfBoundsException(tr('Failed to render SidePanel component, no sign-in modal specified'));
         }
 
         $html = '<aside class="main-sidebar sidebar-dark-primary elevation-4">
@@ -58,7 +59,7 @@ class SideBar extends \Phoundation\Web\Http\Html\Components\SideBar
                                             <img src="' . Session::getUser()->getPicture()->getFile() . '" class="img-circle elevation-2" alt="' . tr('Image for :user', [':user' => Session::getUser()->getDisplayName()]) . '">
                                         </div>
                                         <div class="info">
-                                            <a href="' . Url::build('/users/entry/' . urlencode(Session::getUser()->getEmail()))->www() . '" class="d-block">' . Session::getUser()->getDisplayName() . '</a>
+                                            <a href="' . (Session::getUser()->isGuest() ? '' : Url::build('/users/entry/' . urlencode(Session::getUser()->getEmail()))->www()) . '" class="d-block">' . Session::getUser()->getDisplayName() . '</a>
                                         </div>
                                     </div>               
                                     <div class="form-inline">
@@ -81,7 +82,7 @@ class SideBar extends \Phoundation\Web\Http\Html\Components\SideBar
                                         </div>
                                     </div>               
                                     <nav class="mt-2">
-                                        ' . $this->renderMenu($this->menu) . '                                
+                                        ' . ($this->menu ? $this->renderMenu($this->menu) : '') . '                                
                                     </nav>                   
                                 </div>
                             </div>
@@ -141,6 +142,8 @@ class SideBar extends \Phoundation\Web\Http\Html\Components\SideBar
             $html .= '</li>';
         }
 
-        return $html . '</ul>';
+        $html .= '</ul>' . $this->sign_in_modal->render() . PHP_EOL;
+
+        return $html;
     }
 }

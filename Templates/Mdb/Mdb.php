@@ -25,9 +25,8 @@ class Mdb extends Template
      */
     public function __construct()
     {
-        $this->name             = 'Mdb';
-        $this->page_class       = TemplatePage::class;
-        $this->components_class = TemplateComponents::class;
+        $this->name       = 'Mdb';
+        $this->page_class = TemplatePage::class;
 
         parent::__construct();
     }

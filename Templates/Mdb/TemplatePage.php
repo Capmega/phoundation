@@ -2,8 +2,12 @@
 
  namespace Templates\Mdb;
 
+use Phoundation\Core\Config;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
+use Plugins\Mdb\Components\BreadCrumbs;
 use Plugins\Mdb\Components\Footer;
+use Templates\Mdb\Components\TopPanel;
 
 
 
@@ -30,6 +34,9 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function execute(string $target): ?string
     {
+        // Set the WebPage breadcrumbs
+        WebPage::setBreadCrumbs(new BreadCrumbs());
+
         return parent::execute($target);
     }
 
@@ -64,7 +71,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         WebPage::loadCss('css/mdb-fix');
 
         // Load basic MDB amd jQuery javascript libraries
-        WebPage::loadJavascript('mdb,jquery/jquery');
+        WebPage::loadJavascript('js/mdb,js/jquery/jquery');
 
         // Set basic page details
         WebPage::setTitle(tr('Phoundation platform'));
@@ -84,7 +91,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         $html = '<body class="mdb-skin-custom " data-mdb-spy="scroll" data-mdb-target="#scrollspy" data-mdb-offset="250">
                     <header>
-                    ' . $this->components->buildTopBar($this->navigation_menu) . '
+                    ' . $this->buildTopPanel($this->primary_menu) . '
                     </header>
                     <main class="pt-5 mdb-docs-layout">
                         <div class="container mt-5  mt-5  px-lg-5">
@@ -158,5 +165,28 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     public function buildProfileImage(): ?string
     {
         // TODO: Implement buildProfileImage() method.
+    }
+
+
+
+    /**
+     * Builds and returns a navigation bar
+     *
+     * @param array|null $navigation_menu
+     * @return string|null
+     */
+    protected function buildTopPanel(?array $navigation_menu): ?string
+    {
+        // Set up the navigation bar
+        $navigation_bar = TopPanel::new();
+        $navigation_bar
+            ->setMenu($navigation_menu)
+            ->getSignInModal()
+            ->getForm()
+            ->setId('form-signin')
+            ->setMethod('post')
+            ->setAction(Url::build(Config::get('web.pages.signin', '/system/sign-in.html'))->ajax());
+
+        return $navigation_bar->render();
     }
 }

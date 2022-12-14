@@ -16,14 +16,14 @@ namespace Templates\AdminLte;
  */
 class TemplateMenus extends \Phoundation\Web\Http\Html\Template\TemplateMenus
 {
-    public static function getSidebarMenu(): ?array
+    public static function getSecondaryMenu(): ?array
     {
-        return parent::getSidebarMenu();
+        return parent::getSecondaryMenu();
     }
 
-    public static function getNavigationMenu(): ?array
+    public static function getPrimaryMenu(): ?array
     {
-        return parent::getNavigationMenu();
+        return parent::getPrimaryMenu();
     }
 
     public static function getProfileImageMenu(): ?array

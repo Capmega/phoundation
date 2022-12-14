@@ -3,14 +3,13 @@
 namespace Plugins\Mdb\Components;
 
 use Phoundation\Core\Session;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Elements\ElementsBlock;
+use Phoundation\Web\Http\Html\Components\Panel;
 use Phoundation\Web\Http\Html\Elements\Img;
 
 
 
 /**
- * MDB Plugin TopBar class
+ * MDB Plugin TopPanel class
  *
  * This class is an example template for your website
  *
@@ -19,126 +18,15 @@ use Phoundation\Web\Http\Html\Elements\Img;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\Mdb
  */
-class TopBar extends ElementsBlock
+class TopPanel extends Panel
 {
     /**
-     * A list of items that will be displayed in the top menu bar in the specified order
-     *
-     * @var array $items
+     * TopPanel class constructor
      */
-    protected array $items = [];
-
-    /**
-     * The site logo
-     *
-     * @var string|null $logo
-     */
-    protected ?string $logo = null;
-
-    /**
-     * The site menu
-     *
-     * @var array|null
-     */
-    protected ?array $menu = null;
-
-    /**
-     * The profile image block
-     *
-     * @var ProfileImage|null
-     */
-    protected ?ProfileImage $profile = null;
-
-    /**
-     * The profile menu
-     *
-     * @var array|null
-     */
-    protected ?array $profile_menu = null;
-
-    /**
-     * The modal for the signin page
-     *
-     * @var Modal|null $sign_in_modal
-     */
-    protected ?Modal $sign_in_modal = null;
-
-
-
-    /**
-     * Sets the navbar menu
-     *
-     * @param array|null $menu
-     * @return static
-     */
-    public function setMenu(?array $menu): static
+    public function __construct()
     {
-        $this->menu = $menu;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the navbar menu
-     *
-     * @return array|null
-     */
-    public function getMenu(): ?array
-    {
-        return $this->menu;
-    }
-
-
-
-    /**
-     * Sets the navbar profile menu
-     *
-     * @param array|null $menu
-     * @return static
-     */
-    public function setProfileMenu(?array $menu): static
-    {
-        $this->profile_menu = $menu;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the navbar profile menu
-     *
-     * @return array|null
-     */
-    public function getProfileMenu(): ?array
-    {
-        return $this->profile_menu;
-    }
-
-
-
-    /**
-     * Returns the navbar sign-in modal
-     *
-     * @return Modal|null
-     */
-    public function getSignInModal(): ?Modal
-    {
-        return $this->sign_in_modal;
-    }
-
-
-
-    /**
-     * Sets the navbar signin modal
-     *
-     * @param Modal|null $sign_in_modal
-     * @return static
-     */
-    public function setSignInModal(?Modal $sign_in_modal): static
-    {
-        $this->sign_in_modal = $sign_in_modal;
-        return $this;
+        parent::__construct();
+        $this->getModals()->setRequired('sign-in');
     }
 
 
@@ -150,10 +38,6 @@ class TopBar extends ElementsBlock
      */
     public function render(): string
     {
-        if (!$this->sign_in_modal) {
-            throw new OutOfBoundsException(tr('Failed to render TopBar component, no sign-in modal specified'));
-        }
-
         $image = ProfileImage::new()
             ->setImage(Session::getUser()->getPicture())
             ->setMenu($this->profile_menu)
@@ -189,7 +73,7 @@ class TopBar extends ElementsBlock
                                 ])
                                 ->render(). '
                           </a>
-                          ' . NavMenu::new()->setMenu($this->menu)->render() . '
+                          ' . Menu::new()->setMenu($this->menu)->render() . '
                         </div>
                         <!-- Collapsible wrapper -->
                     
@@ -236,7 +120,7 @@ class TopBar extends ElementsBlock
                     </nav>
                     <!-- Navbar -->';
 
-        $html .= $this->sign_in_modal->render() . PHP_EOL;
+        $html .= $this->modals->render() . PHP_EOL;
 
         return $html;
     }

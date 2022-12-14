@@ -25,9 +25,8 @@ class AdminLte extends Template
      */
     public function __construct()
     {
-        $this->name             = 'AdminLte';
-        $this->page_class       = TemplatePage::class;
-        $this->components_class = TemplateComponents::class;
+        $this->name       = 'AdminLte';
+        $this->page_class = TemplatePage::class;
 
         parent::__construct();
     }

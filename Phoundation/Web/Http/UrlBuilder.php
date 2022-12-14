@@ -287,10 +287,6 @@ class UrlBuilder
 
         $this->url = Strings::startsNotWith($this->url, '/');
 
-        if (!str_starts_with($this->url, 'css/')) {
-            $this->url = 'css/' . $this->url;
-        }
-
         return $this->cdn('css');
     }
 
@@ -308,10 +304,6 @@ class UrlBuilder
         }
 
         $this->url = Strings::startsNotWith($this->url, '/');
-
-        if (!str_starts_with($this->url, 'js/')) {
-            $this->url = 'js/' . $this->url;
-        }
 
         return $this->cdn('js');
     }

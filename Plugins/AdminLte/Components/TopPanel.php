@@ -2,12 +2,12 @@
 
 namespace Plugins\AdminLte\Components;
 
-use Phoundation\Exception\OutOfBoundsException;
-
+use Phoundation\Web\Http\Html\Components\Panel;
+use Phoundation\Web\WebPage;
 
 
 /**
- * AdminLte Plugin TopBar class
+ * AdminLte Plugin TopPanel class
  *
  *
  *
@@ -16,23 +16,18 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\AdminLte
  */
-class TopBar extends \Phoundation\Web\Http\Html\Components\TopBar
+class TopPanel extends Panel
 {
     /**
-     * Renders and returns the NavBar
+     * Renders and returns the top panel
      *
      * @return string|null
      */
     public function render(): ?string
     {
-        if (!$this->sign_in_modal) {
-            throw new OutOfBoundsException(tr('Failed to render TopBar component, no sign-in modal specified'));
-        }
-
         $html = '<nav class="main-header navbar navbar-expand navbar-white navbar-light">
                     <!-- Left navbar links -->
-                    ' . $this->bread_crumbs->render() . '
-                    
+                    ' . WebPage::getBreadCrumbs()->render() . '                    
                     <!-- Right navbar links -->
                     <ul class="navbar-nav ml-auto">
                       <!-- Navbar Search -->
@@ -78,8 +73,6 @@ class TopBar extends \Phoundation\Web\Http\Html\Components\TopBar
                       </li>
                     </ul>
                   </nav>';
-
-        $html .= $this->sign_in_modal->render() . PHP_EOL;
 
         return $html;
     }

@@ -20,13 +20,6 @@ use Phoundation\Web\WebPage;
 abstract class TemplatePage
 {
     /**
-     * The components that this template can use to build the page
-     *
-     * @var TemplateComponents $components
-     */
-    protected TemplateComponents $components;
-
-    /**
      * The page menus for this template
      *
      * @var TemplateMenus $menus
@@ -43,27 +36,25 @@ abstract class TemplatePage
     /**
      * The navigation menu
      *
-     * @var array|null $navigation_menu
+     * @var array|null $primary_menu
      */
-    protected ?array $navigation_menu = null;
+    protected ?array $primary_menu = null;
 
     /**
-     * The sidebar menu
+     * The side panel menu
      *
-     * @var array|null $sidebar_menu
+     * @var array|null $secondary_menu
      */
-    protected ?array $sidebar_menu = null;
+    protected ?array $secondary_menu = null;
 
 
 
     /**
      * TemplatePage constructor
      */
-    public function __construct(TemplateComponents $components, TemplateMenus $menus)
+    public function __construct(TemplateMenus $menus)
     {
-        $this->menus      = $menus;
-        $this->components = $components;
-
+        $this->menus = $menus;
         $this->loadMenus();
     }
 
@@ -72,37 +63,36 @@ abstract class TemplatePage
     /**
      * Returns a new TargetPage object
      *
-     * @param TemplateComponents $components
      * @param TemplateMenus $menus
      * @return static
      */
-    public static function new(TemplateComponents $components, TemplateMenus $menus): static
+    public static function new(TemplateMenus $menus): static
     {
-        return new static($components, $menus);
+        return new static($menus);
     }
 
 
 
     /**
-     * Returns the sidebar menu
+     * Returns the side panel menu
      *
      * @return array|null
      */
-    public function getSidebarMenu(): ?array
+    public function getSecondaryMenu(): ?array
     {
-        return $this->sidebar_menu;
+        return $this->secondary_menu;
     }
 
 
     /**
-     * Sets the sidebar menu
+     * Sets the side panel menu
      *
-     * @param array|null $sidebar_menu
+     * @param array|null $secondary_menu
      * @return static
      */
-    public function setSidebarMenu(?array $sidebar_menu): static
+    public function setSecondaryMenu(?array $secondary_menu): static
     {
-        $this->sidebar_menu = $sidebar_menu;
+        $this->secondary_menu = $secondary_menu;
         return $this;
     }
 
@@ -112,21 +102,21 @@ abstract class TemplatePage
      *
      * @return array|null
      */
-    public function getNavigationMenu(): ?array
+    public function getPrimaryMenu(): ?array
     {
-        return $this->navigation_menu;
+        return $this->primary_menu;
     }
 
 
     /**
      * Sets the navbar top menu
      *
-     * @param array|null $navigation_menu
+     * @param array|null $primary_menu
      * @return static
      */
-    public function setNavigationMenu(?array $navigation_menu): static
+    public function setPrimaryMenu(?array $primary_menu): static
     {
-        $this->navigation_menu = $navigation_menu;
+        $this->primary_menu = $primary_menu;
         return $this;
     }
 
@@ -177,15 +167,15 @@ abstract class TemplatePage
      */
     protected function loadMenus(): void
     {
-        $this->navigation_menu = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'navigation_menu']);
-        $this->sidebar_menu    = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'sidebar_menu']);
+        $this->primary_menu   = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'primary_menu']);
+        $this->secondary_menu = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'secondary_menu']);
 
-        if (!$this->navigation_menu) {
-            $this->navigation_menu = $this->menus->getNavigationMenu();
+        if (!$this->primary_menu) {
+            $this->primary_menu = $this->menus->getPrimaryMenu();
         }
 
-        if (!$this->sidebar_menu) {
-            $this->sidebar_menu = $this->menus->getSidebarMenu();
+        if (!$this->secondary_menu) {
+            $this->secondary_menu = $this->menus->getSecondaryMenu();
         }
     }
 

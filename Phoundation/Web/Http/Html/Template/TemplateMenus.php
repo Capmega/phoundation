@@ -17,11 +17,11 @@ namespace Phoundation\Web\Http\Html\Template;
 class TemplateMenus
 {
     /**
-     * Returns the default sidebar menu
+     * Returns the default side panel menu
      *
      * @return array|null
      */
-    public static function getSidebarMenu(): ?array
+    public static function getSecondaryMenu(): ?array
     {
         return null;
     }
@@ -33,58 +33,179 @@ class TemplateMenus
      *
      * @return array|null
      */
-    public static function getNavigationMenu(): ?array
+    public static function getPrimaryMenu(): ?array
     {
         return [
             tr('System') => [
-                tr('Accounts') => [
-                    tr('Accounts') => '/accounts/users.html',
-                    tr('Roles') => '/accounts/roles.html',
-                    tr('Rights') => '/accounts/rights.html',
-                    tr('Groups') => '/accounts/groups.html',
-                    tr('Switch user') => '/accounts/switch'
-                ],
-                tr('Security') => [
-                    tr('Authentications log') => '/security/log/authentications.html',
-                    tr('Activity log') => '/security/log/activity'
-                ],
-                tr('Libraries') => '/libraries.html',
-                tr('Key / Values store') => '/system/key-values.html',
-                tr('Storage system') => [
-                    tr('Collections') => '/storage/collections.html',
-                    tr('Documents') => '/storage/documents.html',
-                    tr('Resources') => '/storage/resources.html',
-                ],
-                tr('Servers') => [
-                    tr('Servers') => '/servers/servers.html',
-                    tr('Forwardings') => '/servers/forwardings.html',
-                    tr('SSH accounts') => '/servers/ssh-accounts.html',
-                    tr('Databases') => '/servers/databases.html',
-                    tr('Database accounts') => '/servers/database-accounts.html',
-                ],
-                tr('Hardware') => [
-                    tr('devices') => '/hardware/devices.html',
-                    tr('Scanners') => [
-                        tr('Document') => [
-                            tr('Drivers') => '/hardware/scanners/document/drivers.html',
-                            tr('Devices') => '/hardware/scanners/document/devices.html',
+                'icon'    => '',
+                'submenu' => [
+                    tr('Accounts') => [
+                        'icon'    => '',
+                        'submenu' => [
+                            tr('Accounts') => [
+                                'url'  => '/accounts/users.html',
+                                'icon' => ''
+                            ],
+                            tr('Roles') => [
+                                'url'  => '/accounts/roles.html',
+                                'icon' => ''
+                            ],
+                            tr('Rights') => [
+                                'url'  => '/accounts/rights.html',
+                                'icon' => ''
+                            ],
+                            tr('Groups') => [
+                                'url'  => '/accounts/groups.html',
+                                'icon' => ''
+                            ],
+                            tr('Switch user') => [
+                                'url'  => '/accounts/switch',
+                                'icon' => ''
+                            ]
+                        ]
+                    ],
+                    tr('Security') => [
+                        'icon'    => '',
+                        'submenu' => [
+                            tr('Authentications log') => [
+                                'url'  => '/security/log/authentications.html',
+                                'icon' => ''
+                            ],
+                            tr('Activity log') => [
+                                'url'  => '/security/log/activity',
+                                'icon' => ''
+                            ]
                         ],
-                        tr('Finger print') => '/hardware/scanners/finger-print.html',
+                    ],
+                    tr('Libraries') => [
+                        'url'  => '/libraries.html',
+                        'icon' => ''
+                    ],
+                    tr('Key / Values store') => [
+                        'url'  => '/system/key-values.html',
+                        'icon' => ''
+                    ],
+                    tr('Storage system') => [
+                        'icon'    => '',
+                        'submenu' => [
+                            tr('Collections') => [
+                                'url'  => '/storage/collections.html',
+                                'icon' => ''
+                            ],
+                            tr('Documents')  => [
+                                'url'  => '/storage/documents.html',
+                                'icon' => ''
+                            ],
+                            tr('Resources') => [
+                                'url'  => '/storage/resources.html',
+                                'icon' => ''
+                            ]
+                        ]
+                    ],
+                    tr('Servers') => [
+                        'icon'    => '',
+                        'submenu' => [
+                            tr('Servers') => [
+                                'url'  => '/servers/servers.html',
+                                'icon' => ''
+                            ],
+                            tr('Forwards') => [
+                                'url'  => '/servers/forwards.html',
+                                'icon' => ''
+                            ],
+                            tr('SSH accounts') => [
+                                'url'  => '/servers/ssh-accounts.html',
+                                'icon' => ''
+                            ],
+                            tr('Databases') => [
+                                'url'  => '/servers/databases.html',
+                                'icon' => ''
+                            ],
+                            tr('Database accounts') => [
+                                'url'  => '/servers/database-accounts.html',
+                                'icon' => ''
+                            ],
+                        ]
+                    ],
+                    tr('Hardware') => [
+                        'icon'    => '',
+                        'submenu' => [
+                            tr('devices') => [
+                                'url'  => '/hardware/devices.html',
+                                'icon' => ''
+                            ],
+                            tr('Scanners') => [
+                                'icon'    => '',
+                                'submenu' => [
+                                    tr('Document') => [
+                                        'icon'    => '',
+                                        'submenu' => [
+                                            tr('Drivers') => [
+                                                'url'  => '/hardware/scanners/document/drivers.html',
+                                                'icon' => ''
+                                            ],
+                                            tr('Devices') => [
+                                                'url'  => '/hardware/scanners/document/devices.html',
+                                                'icon' => ''
+                                            ],
+                                        ]
+                                    ],
+                                    tr('Finger print') => [
+                                        'url'  => '/hardware/scanners/finger-print.html',
+                                        'icon' => ''
+                                    ],
+                                ]
+                            ]
+                        ]
                     ]
                 ],
             ],
             tr('Admin') => [
-                tr('Customers') => '/admin/customers/customers.html',
-                tr('Providers') => '/admin/providers/providers.html',
-                tr('Companies') => [
-                    tr('Companies') => '/companies/companies.html',
-                    tr('Branches') => '/companies/branches.html',
-                    tr('Departments') => '/companies/departments.html',
-                    tr('Employees') => '/companies/employees.html',
-                    tr('Inventory') => '/companies/inventory/inventory.html',
-                ],
+                'icon'    => '',
+                'submenu' => [
+                    tr('Customers') => [
+                        [
+                            'url'  => '/admin/customers/customers.html',
+                            'icon' => ''
+                        ],
+                    ],
+                    tr('Providers') => [
+                        [
+                            'url'  => '/admin/providers/providers.html',
+                            'icon' => ''
+                        ],
+                    ],
+                    tr('Companies') => [
+                        'icon'    => '',
+                        'submenu' => [
+                            tr('Companies') => [
+                                'url'  => '/companies/companies.html',
+                                'icon' => ''
+                            ],
+                            tr('Branches') => [
+                                'url'  => '/companies/branches.html',
+                                'icon' => ''
+                            ],
+                            tr('Departments') => [
+                                'url'  => '/companies/departments.html',
+                                'icon' => ''
+                            ],
+                            tr('Employees') => [
+                                'url'  => '/companies/employees.html',
+                                'icon' => ''
+                            ],
+                            tr('Inventory') => [
+                                'url'  => '/companies/inventory/inventory.html',
+                                'icon' => ''
+                            ]
+                        ]
+                    ]
+                ]
             ],
-            tr('About') => '/about'
+            tr('About') => [
+                'url'  => '/about',
+                'icon' => ''
+            ]
         ];
     }
 

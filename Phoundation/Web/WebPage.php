@@ -24,6 +24,7 @@ use Phoundation\Servers\Server;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Flash;
+use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Http;
@@ -205,6 +206,13 @@ class WebPage
      */
     protected static ?string $content_type = null;
 
+    /**
+     * Bread crumbs for this page
+     *
+     * @var BreadCrumbs
+     */
+    protected static BreadCrumbs $bread_crumbs;
+
 
 
     /**
@@ -235,7 +243,7 @@ class WebPage
     }
 
 
-    
+
     /**
      * Returns the current tab index and automatically increments it
      *
@@ -257,6 +265,36 @@ class WebPage
     public static function setServerRestrictions(Server $server_restrictions): static
     {
         self::$server_restrictions = $server_restrictions;
+        return self::getInstance();
+    }
+
+
+
+    /**
+     * Returns the bread crumbs for this page
+     *
+     * @return BreadCrumbs
+     */
+    public static function getBreadCrumbs(): BreadCrumbs
+    {
+        if (!isset(self::$bread_crumbs)) {
+            throw new OutOfBoundsException(tr('WebPage BreadCrumbs object has not been set'));
+        }
+
+        return self::$bread_crumbs;
+    }
+
+
+
+    /**
+     * Sets the bread crumbs for this page
+     *
+     * @param BreadCrumbs $bread_crumbs
+     * @return static
+     */
+    public static function setBreadCrumbs(BreadCrumbs $bread_crumbs): static
+    {
+        self::$bread_crumbs = $bread_crumbs;
         return self::getInstance();
     }
 

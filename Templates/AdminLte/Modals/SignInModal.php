@@ -94,8 +94,6 @@ class SignInModal extends Modal
                     });
                     
                 return false;
-            })
-            ')
-            ->render();
+            })')->render();
     }
 }

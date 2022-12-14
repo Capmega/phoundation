@@ -3,14 +3,13 @@
 namespace Plugins\Mdb\Components;
 
 use Phoundation\Core\Strings;
-use Phoundation\Seo\Seo;
-use Phoundation\Web\Http\Html\Elements\ElementsBlock;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Url;
 
 
 
 /**
- * MDB Plugin NavMenu class
+ * MDB Plugin Menu class
  *
  *
  *
@@ -19,65 +18,8 @@ use Phoundation\Web\Http\Url;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\Mdb
  */
-class NavMenu extends ElementsBlock
+class Menu extends \Phoundation\Web\Http\Html\Components\Menu
 {
-    /**
-     * The menu data
-     *
-     * @var array|null
-     */
-    protected ?array $menu = null;
-
-
-
-    /**
-     * Footer class constructor
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-
-
-    /**
-     * Returns a new footer object
-     *
-     * @return static
-     */
-    public static function new(): static
-    {
-        return new static();
-    }
-
-
-
-    /**
-     * Returns the menu data
-     *
-     * @return array
-     */
-    public function getMenu(): array
-    {
-        return $this->menu;
-    }
-
-
-
-    /**
-     * Sets the menu data
-     *
-     * @param array|null $menu
-     * @return NavMenu
-     */
-    public function setMenu(?array $menu): static
-    {
-        $this->menu = $menu;
-        return $this;
-    }
-
-
-
     /**
      * Renders and returns the HTML for the footer
      *
@@ -106,18 +48,25 @@ class NavMenu extends ElementsBlock
 
         $html = ' <ul class="' . $ul_class . '">';
 
-        foreach ($menu as $label => $url) {
-            if (is_array($url)) {
+        foreach ($menu as $label => $entry) {
+            if (!is_array($entry)) {
+                // Invalid entry, skip!
+                throw new OutOfBoundsException('Invalid menu entry ":label" detected, skipping', [
+                    ':label' => $label
+                ]);
+            }
+
+            if (is_array(isset_get($entry['menu']))) {
                 // This is a sub menu, recurse!
                 $html .= '<li class="nav-item dropdown">
                               <a class="nav-link dropdown-toggle" data-mdb-toggle="dropdown" id="navbarDropdownMenu' . Strings::capitalize($label) . '">
                                 ' . $label . ' 
                               </a>
-                              ' . $this->renderSubMenu($url, 'dropdown-menu', ' aria-labelledby="navbarDropdownMenu' . Strings::capitalize($label) . '"') . '
+                              ' . $this->renderSubMenu($entry['menu'], 'dropdown-menu', ' aria-labelledby="navbarDropdownMenu' . Strings::capitalize($label) . '"') . '
                           </li>';
             } else {
                 $html .= '  <li class="nav-item">
-                              <a class="nav-link" href="' . Url::build($url)->www() . '">' . $label . '</a>
+                              <a class="nav-link" href="' . Url::build(isset_get($entry['url']))->www() . '">' . $label . '</a>
                             </li>';
             }
         }
@@ -146,18 +95,25 @@ class NavMenu extends ElementsBlock
 
         $html = ' <ul class="' . $ul_class . '"' . $ul_attributes . '>';
 
-        foreach ($menu as $label => $url) {
-            if (is_array($url)) {
+        foreach ($menu as $label => $entry) {
+            if (!is_array($entry)) {
+                // Invalid entry, skip!
+                throw new OutOfBoundsException('Invalid menu entry ":label" detected, skipping', [
+                    ':label' => $label
+                ]);
+            }
+
+            if (is_array(isset_get($entry['menu']))) {
                 // This is a sub menu, recurse!
                 $html .= '<li>
                               <a class="dropdown-item" href="#">
                                 ' . $label . ' &raquo;
                               </a>
-                              ' . $this->renderSubMenu($url, 'dropdown-menu dropdown-submenu') . '
+                              ' . $this->renderSubMenu($entry['menu'], 'dropdown-menu dropdown-submenu') . '
                           </li>';
             } else {
                 $html .= '  <li>
-                              <a class="dropdown-item" href="' . Url::build($url)->www() . '">' . $label . '</a>
+                              <a class="dropdown-item" href="' . Url::build($entry['url'])->www() . '">' . $label . '</a>
                             </li>';
             }
         }

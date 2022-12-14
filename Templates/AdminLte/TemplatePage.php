@@ -2,9 +2,14 @@
 
 namespace Templates\AdminLte;
 
+use Phoundation\Core\Config;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
+use Plugins\AdminLte\Components\BreadCrumbs;
 use Plugins\AdminLte\Components\Footer;
-
+use Templates\AdminLte\Components\SidePanel;
+use Templates\AdminLte\Components\TopPanel;
+use Templates\AdminLte\Modals\SignInModal;
 
 
 /**
@@ -30,6 +35,9 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function execute(string $target): ?string
     {
+        // Set the WebPage breadcrumbs
+        WebPage::setBreadCrumbs(new BreadCrumbs());
+
         return parent::execute($target);
     }
 
@@ -59,7 +67,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         // Load basic MDB and fonts CSS
         WebPage::loadCss('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback');
-        WebPage::loadCss('adminlte/plugins/fontawesome-free/css/all"');
+        WebPage::loadCss('adminlte/plugins/fontawesome-free/css/all');
         WebPage::loadCss('adminlte/css/adminlte');
         WebPage::loadCss('adminlte/plugins/overlayScrollbars/css/OverlayScrollbars');
 
@@ -88,13 +96,11 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageHeader(): ?string
     {
-        $html = '<body class="sidebar-mini" style="height: auto;">
+        return '<body class="sidebar-mini" style="height: auto;">
                     <div class="wrapper">
-                        ' . $this->components->buildTopBar($this->navigation_menu) . '
-                        ' . $this->components->buildSideBar($this->side_menu) . '
+                        ' . $this->buildTopPanel() . '
+                        ' . $this->buildSidePanel() . '
                         <div class="content-wrapper" style="min-height: 1518.06px;">';
-
-        return $html;
     }
 
 
@@ -121,9 +127,9 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildHtmlFooter(): ?string
     {
-        $html  = WebPage::buildFooters() . '
-        </body>
-        </html>';
+        $html  =          WebPage::buildFooters() . '
+                      </body>
+                  </html>';
 
         return $html;
     }
@@ -160,5 +166,40 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     public function buildProfileImage(): ?string
     {
         // TODO: Implement buildProfileImage() method.
+    }
+
+
+
+    /**
+     * Builds and returns the top panel HTML
+     *
+     * @return string
+     */
+    protected function buildTopPanel(): string
+    {
+        return TopPanel::new()->render();
+    }
+
+
+
+    /**
+     * Builds and returns the sidebar HTML
+     *
+     * @return string
+     */
+    protected function buildSidePanel(): string
+    {
+        $sign_in = new SignInModal();
+
+        $sign_in->getForm()
+            ->setId('form-signin')
+            ->setMethod('post')
+            ->setAction(Url::build(Config::get('web.pages.signin', '/system/sign-in.html'))->ajax());
+
+        $panel = SidePanel::new()
+            ->getModals()
+                ->add('sign-in', $sign_in);
+
+        return $panel->render();
     }
 }

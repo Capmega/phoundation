@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Http\Html\Template;
 
-use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Template\Exception\TemplateException;
@@ -36,25 +35,11 @@ abstract class Template
     protected string $page_class;
 
     /**
-     * The class name to use for the components
-     *
-     * @var string
-     */
-    protected string $components_class;
-
-    /**
      * The Template page object
      *
      * @var TemplatePage $page
      */
     protected TemplatePage $page;
-
-    /**
-     * Components for this template
-     *
-     * @var TemplateComponents
-     */
-    protected TemplateComponents $components;
 
 
 
@@ -67,13 +52,6 @@ abstract class Template
     {
         if (empty($this->page_class)) {
             $this->page_class = TemplatePage::class;
-        }
-
-        // components class MUST be specified!
-        if (empty($this->components_class)) {
-            throw new OutOfBoundsException(tr('Cannot instantiate template ":class", No components class specified', [
-                'class' => get_class($this)
-            ]));
         }
     }
 
@@ -119,7 +97,7 @@ abstract class Template
     {
         if (!isset($this->page)) {
             // Instantiate page object
-            $page = new $this->page_class($this->getComponents(), new TemplateMenus());
+            $page = new $this->page_class(new TemplateMenus());
 
             if (!($page instanceof TemplatePage)) {
                 throw new OutOfBoundsException(tr('Cannot instantiate ":template" template page object, specified class ":class" is not a sub class of "TemplatePage"', [
@@ -132,30 +110,6 @@ abstract class Template
         }
 
         return $this->page;
-    }
-
-
-
-    /**
-     * @return TemplateComponents
-     */
-    public function getComponents(): TemplateComponents
-    {
-        if (!isset($this->components)) {
-            // Instantiate components object
-            $components = new $this->components_class();
-
-            if (!($components instanceof TemplateComponents)) {
-                throw new OutOfBoundsException(tr('Cannot instantiate ":template" template components object, specified class ":class" is not a sub class of "TemplateComponents"', [
-                    ':template' => $this->name,
-                    'class'     => $this->components_class
-                ]));
-            }
-
-            $this->components = $components;
-        }
-
-        return $this->components;
     }
 
 

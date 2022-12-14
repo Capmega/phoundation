@@ -7,7 +7,7 @@ use Templates\Mdb\Modals\SignInModal;
 
 
 /**
- * Mdb Template TopBar class
+ * Mdb Template TopPanel class
  *
  *
  *
@@ -16,7 +16,7 @@ use Templates\Mdb\Modals\SignInModal;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Mdb
  */
-class TopBar extends \Plugins\Mdb\Components\TopBar
+class TopPanel extends \Plugins\Mdb\Components\TopPanel
 {
     /**
      * Sign in modal for this navigation bar

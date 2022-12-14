@@ -2,12 +2,10 @@
 
 namespace Templates\AdminLte\Components;
 
-use Templates\AdminLte\Modals\SignInModal;
-
 
 
 /**
- * AdminLte Template TopBar class
+ * AdminLte Template TopPanel class
  *
  *
  *
@@ -16,14 +14,6 @@ use Templates\AdminLte\Modals\SignInModal;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class TopBar extends \Plugins\AdminLte\Components\TopBar
+class TopPanel extends \Plugins\AdminLte\Components\TopPanel
 {
-    /**
-     * Sign in modal for this navigation bar
-     */
-    public function __construct()
-    {
-        parent::__construct();
-        $this->sign_in_modal = new SignInModal();
-    }
 }
