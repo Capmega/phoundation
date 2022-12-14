@@ -45,14 +45,21 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
 
         foreach ($menu as $label => $entry) {
             // Build menu entry
-            $html .= '<li class="nav-item">
-                        <a href="' . (isset_get($entry['url']) ?? '#') . '" class="nav-link">
-                            <i class="nav-icon fas ' . isset_get($entry['icon']) . '"></i>
-                            <p>' . $label . (isset($entry['menu']) ? '<i class="right fas fa-angle-left"></i>' : (isset($entry['badge']) ? '<span class="right badge badge-' . $entry['badge']['type'] . '">' . $entry['badge']['label'] . '</span>' : '')) . '</p>
-                        </a>';
+            if (isset($entry['url']) or isset($entry['menu'])) {
+                $html .= '<li class="nav-item">
+                            <a href="' . (isset_get($entry['url']) ?? '#') . '" class="nav-link">
+                                ' . (isset($entry['icon']) ? '<i class="nav-icon fas ' . $entry['icon'] . '"></i>' : '') . '
+                                <p>' . $label . (isset($entry['menu']) ? '<i class="right fas fa-angle-left"></i>' : (isset($entry['badge']) ? '<span class="right badge badge-' . $entry['badge']['type'] . '">' . $entry['badge']['label'] . '</span>' : '')) . '</p>
+                            </a>';
 
-            if (isset($entry['menu'])) {
-                $html .= $this->renderMenu($entry['menu'], true);
+                if (isset($entry['menu'])) {
+                    $html .= $this->renderMenu($entry['menu'], true);
+                }
+            } else {
+                // Not a clickable menu element, just a label
+                $html .= '<li class="nav-header">
+                                ' . (isset($entry['icon']) ? '<i class="nav-icon fas ' . $entry['icon'] . '"></i>' : '') . '
+                                ' . strtoupper($label) . (isset($entry['badge']) ? '<span class="right badge badge-' . $entry['badge']['type'] . '">' . $entry['badge']['label'] . '</span>' : '');
             }
 
             $html .= '</li>';
