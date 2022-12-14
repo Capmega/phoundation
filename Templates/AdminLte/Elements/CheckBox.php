@@ -1,6 +1,6 @@
 <?php
 
-namespace Plugins\AdminLte\Elements;
+namespace Templates\AdminLte\Elements;
 
 
 
@@ -12,7 +12,7 @@ namespace Plugins\AdminLte\Elements;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Plugins\AdminLte
+ * @package Templates\AdminLte
  */
 class CheckBox extends \Phoundation\Web\Http\Html\Elements\CheckBox
 {

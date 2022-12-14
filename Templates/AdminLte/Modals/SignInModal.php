@@ -5,11 +5,11 @@ namespace Templates\AdminLte\Modals;
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Elements\Script;
 use Phoundation\Web\Http\Url;
-use Plugins\AdminLte\Components\Modal;
-use Plugins\AdminLte\Forms\SignInForm;
-use Plugins\AdminLte\Layouts\Grid;
-use Plugins\AdminLte\Layouts\GridColumn;
-use Plugins\AdminLte\Layouts\GridRow;
+use Templates\AdminLte\Components\Modal;
+use Templates\AdminLte\Forms\SignInForm;
+use Templates\AdminLte\Layouts\Grid;
+use Templates\AdminLte\Layouts\GridColumn;
+use Templates\AdminLte\Layouts\GridRow;
 
 
 
@@ -21,7 +21,7 @@ use Plugins\AdminLte\Layouts\GridRow;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Plugins\AdminLte
+ * @package Templates\AdminLte
  */
 class SignInModal extends Modal
 {
