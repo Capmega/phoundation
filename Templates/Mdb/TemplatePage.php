@@ -1,6 +1,6 @@
 <?php
 
- namespace Templates\Mdb;
+namespace Templates\Mdb;
 
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Url;
