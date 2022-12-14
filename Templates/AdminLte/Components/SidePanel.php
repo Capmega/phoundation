@@ -24,6 +24,6 @@ class SidePanel extends \Plugins\AdminLte\Components\SidePanel
     public function __construct()
     {
         parent::__construct();
-        $this->sign_in_modal = new SignInModal();
+        $this->getModals()->add('sign-in', new SignInModal());
     }
 }

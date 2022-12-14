@@ -36,9 +36,9 @@ abstract class Panel extends ElementsBlock
     /**
      * Menu for this panel
      *
-     * @var Menu $menu
+     * @var Menu|null $menu
      */
-    protected Menu $menu;
+    protected ?Menu $menu = null;
 
     /**
      * The profile image block
@@ -59,10 +59,10 @@ abstract class Panel extends ElementsBlock
     /**
      * Sets the panel menu
      *
-     * @param Menu $menu
+     * @param Menu|null $menu
      * @return static
      */
-    public function setMenu(Menu $menu): static
+    public function setMenu(?Menu $menu): static
     {
         $this->menu = $menu;
         return $this;
@@ -77,11 +77,7 @@ abstract class Panel extends ElementsBlock
      */
     public function getMenu(): ?Menu
     {
-        if (isset($this->menu)) {
-            return $this->menu;
-        }
-
-        return null;
+        return $this->menu;
     }
 
 

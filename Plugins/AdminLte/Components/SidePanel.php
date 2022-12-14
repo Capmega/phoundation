@@ -5,7 +5,6 @@ namespace Plugins\AdminLte\Components;
 use Phoundation\Core\Config;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Panel;
 use Phoundation\Web\Http\Url;
 
@@ -30,10 +29,6 @@ class SidePanel extends Panel
      */
     public function render(): ?string
     {
-        if (!$this->sign_in_modal) {
-            throw new OutOfBoundsException(tr('Failed to render SidePanel component, no sign-in modal specified'));
-        }
-
         $html = '<aside class="main-sidebar sidebar-dark-primary elevation-4">
                     <a href="' . Url::build()->www() . '" class="brand-link">
                         <img src="dist/img/AdminLTELogo.png" alt="' . tr(':project logo', [':project' => Strings::capitalize(Config::get('project.name'))]) . '" class="brand-image img-circle elevation-3" style="opacity: .8">
@@ -82,7 +77,7 @@ class SidePanel extends Panel
                                         </div>
                                     </div>               
                                     <nav class="mt-2">
-                                        ' . ($this->menu ? $this->renderMenu($this->menu) : '') . '                                
+                                        ' . $this->menu?->render() . '                                
                                     </nav>                   
                                 </div>
                             </div>
@@ -105,44 +100,7 @@ class SidePanel extends Panel
                     </div>                    
                 </aside>';
 
-        $html .= $this->sign_in_modal->render() . PHP_EOL;
-
-        return $html;
-    }
-
-
-
-    /**
-     * Renders the HTML for the sidebar menu
-     *
-     * @param array $menu
-     * @param bool $sub_menu
-     * @return string
-     */
-    protected function renderMenu(array $menu, bool $sub_menu = false): string
-    {
-        if ($sub_menu) {
-            $html = '<ul class="nav nav-treeview">';
-        } else {
-            $html = '<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">';
-        }
-
-        foreach ($menu as $label => $entry) {
-            // Build menu entry
-            $html .= '<li class="nav-item">
-                        <a href="' . (isset_get($entry['url']) ?? '#') . '" class="nav-link">
-                            <i class="nav-icon fas ' . isset_get($entry['icon']) . '"></i>
-                            <p>' . $label . (isset($entry['menu']) ? '<i class="right fas fa-angle-left"></i>' : (isset($entry['badge']) ? '<span class="right badge badge-' . $entry['badge']['type'] . '">' . $entry['badge']['label'] . '</span>' : '')) . '</p>
-                        </a>';
-
-            if (isset($entry['menu'])) {
-                $html .= $this->renderMenu($entry['menu'], true);
-            }
-
-            $html .= '</li>';
-        }
-
-        $html .= '</ul>' . $this->sign_in_modal->render() . PHP_EOL;
+        $html .= $this->modals->render() . PHP_EOL;
 
         return $html;
     }

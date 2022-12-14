@@ -190,15 +190,14 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     protected function buildSidePanel(): string
     {
         $sign_in = new SignInModal();
-
         $sign_in->getForm()
             ->setId('form-signin')
             ->setMethod('post')
             ->setAction(Url::build(Config::get('web.pages.signin', '/system/sign-in.html'))->ajax());
 
-        $panel = SidePanel::new()
-            ->getModals()
-                ->add('sign-in', $sign_in);
+        $panel = SidePanel::new();
+        $panel->getModals()
+            ->add('sign-in', $sign_in);
 
         return $panel->render();
     }
