@@ -2,8 +2,8 @@
 
 use Phoundation\Libraries\Libraries;
 use Phoundation\Web\Http\Html\Elements\Img;
-use Plugins\Mdb\Components\Table;
-use Plugins\Mdb\Elements\CheckBox;
+use Templates\Mdb\Components\Table;
+use Templates\Mdb\Elements\CheckBox;
 
 ?>
 <div class="container">
