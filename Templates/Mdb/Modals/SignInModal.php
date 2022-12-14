@@ -5,11 +5,11 @@
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Elements\Script;
 use Phoundation\Web\Http\Url;
-use Plugins\Mdb\Components\Modal;
-use Plugins\Mdb\Forms\SignInForm;
-use Plugins\Mdb\Layouts\Grid;
-use Plugins\Mdb\Layouts\GridColumn;
-use Plugins\Mdb\Layouts\GridRow;
+use Templates\Mdb\Components\Modal;
+use Templates\Mdb\Forms\SignInForm;
+use Templates\Mdb\Layouts\Grid;
+use Templates\Mdb\Layouts\GridColumn;
+use Templates\Mdb\Layouts\GridRow;
 
 
 
@@ -21,7 +21,7 @@ use Plugins\Mdb\Layouts\GridRow;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Plugins\Mdb
+ * @package Templates\Mdb
  */
 class SignInModal extends Modal
 {

@@ -16,7 +16,7 @@ use Templates\Mdb\Modals\SignInModal;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Mdb
  */
-class SidePanel extends \Plugins\Mdb\Components\SidePanel
+class SidePanel extends \Templates\Mdb\Components\SidePanel
 {
     /**
      * Sign in modal for this navigation bar

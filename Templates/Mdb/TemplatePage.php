@@ -5,8 +5,8 @@
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
-use Plugins\Mdb\Components\BreadCrumbs;
-use Plugins\Mdb\Components\Footer;
+use Templates\Mdb\Components\BreadCrumbs;
+use Templates\Mdb\Components\Footer;
 use Templates\Mdb\Components\TopPanel;
 
 
