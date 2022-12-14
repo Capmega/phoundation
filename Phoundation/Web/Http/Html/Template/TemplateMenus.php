@@ -2,6 +2,8 @@
 
 namespace Phoundation\Web\Http\Html\Template;
 
+use Phoundation\Web\Http\Html\Components\Menu;
+
 
 
 /**
@@ -16,14 +18,18 @@ namespace Phoundation\Web\Http\Html\Template;
  */
 class TemplateMenus
 {
+    protected static string $menu_class = Menu::class;
+
+
+
     /**
      * Returns the default side panel menu
      *
-     * @return array|null
+     * @return Menu
      */
-    public static function getSecondaryMenu(): ?array
+    public static function getSecondaryMenu(): Menu
     {
-        return null;
+        return new self::$menu_class();
     }
 
 
@@ -31,11 +37,13 @@ class TemplateMenus
     /**
      * Returns the default top navbar top menu
      *
-     * @return array|null
+     * @return Menu
      */
-    public static function getPrimaryMenu(): ?array
+    public static function getPrimaryMenu(): Menu
     {
-        return [
+        $menu = new self::$menu_class();
+
+        return $menu->setMenu([
             tr('System') => [
                 'icon'    => '',
                 'submenu' => [
@@ -206,7 +214,7 @@ class TemplateMenus
                 'url'  => '/about',
                 'icon' => ''
             ]
-        ];
+        ]);
     }
 
 
@@ -214,13 +222,21 @@ class TemplateMenus
     /**
      * Returns the default menu for the profile image
      *
-     * @return array|null
+     * @return Menu
      */
-    public static function getProfileImageMenu(): ?array
+    public static function getProfileImageMenu(): Menu
     {
-        return [
-            tr('Profile') => '/profile.html',
-            tr('Sign out') => '/sign-out.html',
-        ];
+        $menu = new self::$menu_class();
+
+        return $menu->setMenu([
+            tr('Profile') => [
+                'url'  => '/profile.html',
+                'icon' => ''
+            ],
+            tr('Sign out') => [
+                'url'  => '/sign-out.html',
+                'icon' => ''
+            ],
+        ]);
     }
 }

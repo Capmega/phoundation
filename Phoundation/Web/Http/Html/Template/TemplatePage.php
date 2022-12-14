@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Template;
 
+use Phoundation\Web\Http\Html\Components\Menu;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\WebPage;
 
@@ -34,18 +35,18 @@ abstract class TemplatePage
     protected string $target;
 
     /**
-     * The navigation menu
+     * The page primary menu
      *
-     * @var array|null $primary_menu
+     * @var Menu $primary_menu
      */
-    protected ?array $primary_menu = null;
+    protected Menu $primary_menu;
 
     /**
-     * The side panel menu
+     * The page secondary menu
      *
-     * @var array|null $secondary_menu
+     * @var Menu $secondary_menu
      */
-    protected ?array $secondary_menu = null;
+    protected Menu $secondary_menu;
 
 
 
@@ -150,7 +151,7 @@ abstract class TemplatePage
         $output .= $body;
         $output .= $this->buildPageFooter();
         $output .= $this->buildHtmlFooter();
-        $output = Html::minify($output);
+        $output  = Html::minify($output);
 
         // Build Template specific HTTP headers
         $this->buildHttpHeaders($output);
@@ -167,14 +168,18 @@ abstract class TemplatePage
      */
     protected function loadMenus(): void
     {
-        $this->primary_menu   = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'primary_menu']);
-        $this->secondary_menu = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'secondary_menu']);
+        $primary_menu   = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'primary_menu']);
+        $secondary_menu = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'secondary_menu']);
 
-        if (!$this->primary_menu) {
+        if ($primary_menu) {
+            $this->primary_menu = Menu::new($primary_menu);
+        } else {
             $this->primary_menu = $this->menus->getPrimaryMenu();
         }
 
-        if (!$this->secondary_menu) {
+        if ($secondary_menu) {
+            $this->secondary_menu = Menu::new($secondary_menu);
+        } else {
             $this->secondary_menu = $this->menus->getSecondaryMenu();
         }
     }

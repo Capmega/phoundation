@@ -23,16 +23,23 @@ abstract class Template
     /**
      * The template name
      *
-     * @var string
+     * @var string $name
      */
     protected string $name;
 
     /**
      * The class name to use for the page
      *
-     * @var string
+     * @var string $page_class
      */
     protected string $page_class;
+
+    /**
+     * The class name to use for the menus
+     *
+     * @var string $menus_class
+     */
+    protected string $menus_class;
 
     /**
      * The Template page object
@@ -51,7 +58,12 @@ abstract class Template
     public function __construct()
     {
         if (empty($this->page_class)) {
-            $this->page_class = TemplatePage::class;
+            $this->page_class  = TemplatePage::class;
+            $this->menus_class = TemplateMenus::class;
+        }
+
+        if (empty($this->menus_class)) {
+            throw new OutOfBoundsException('Cannot start template "' . $this->getName() . '", the menus class was not defined');
         }
     }
 
@@ -97,7 +109,7 @@ abstract class Template
     {
         if (!isset($this->page)) {
             // Instantiate page object
-            $page = new $this->page_class(new TemplateMenus());
+            $page = new $this->page_class(new $this->menus_class());
 
             if (!($page instanceof TemplatePage)) {
                 throw new OutOfBoundsException(tr('Cannot instantiate ":template" template page object, specified class ":class" is not a sub class of "TemplatePage"', [
