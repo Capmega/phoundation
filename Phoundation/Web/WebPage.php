@@ -29,7 +29,7 @@ use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
-
+use Throwable;
 
 
 /**
@@ -117,11 +117,32 @@ class WebPage
     protected static string $doctype = 'html';
 
     /**
-     * The page title
+     * The browser page title
      *
-     * @var string|null $title
+     * @var string|null $page_title
      */
-    protected static ?string $title = null;
+    protected static ?string $page_title = null;
+
+    /**
+     * The browser page description
+     *
+     * @var string|null $description
+     */
+    protected static ?string $description = null;
+
+    /**
+     * The page header title
+     *
+     * @var string|null $header_title
+     */
+    protected static ?string $header_title = null;
+
+    /**
+     * The page header subtitle
+     *
+     * @var string|null $header_sub_title
+     */
+    protected static ?string $header_sub_title = null;
 
     /**
      * Information that goes into the HTML header
@@ -505,27 +526,109 @@ class WebPage
 
 
     /**
-     * Returns the page title
+     * Returns the browser page title
      *
      * @return string
      */
-    public static function getTitle(): string
+    public static function getPageTitle(): string
     {
-        return self::$title;
+        return self::$page_title;
     }
 
 
 
     /**
-     * Sets the page title
+     * Sets the browser page title
      *
-     * @param string $title
-     * @param bool $no_translate
+     * @param string $page_title
      * @return static
      */
-    public static function setTitle(string $title, bool $no_translate = false): static
+    public static function setPageTitle(string $page_title): static
     {
-        self::$title = $title;
+        self::$page_title = strip_tags($page_title);
+        return self::getInstance();
+    }
+
+
+
+    /**
+     * Returns the browser page title
+     *
+     * @return string|null
+     */
+    public static function getDescription(): ?string
+    {
+        return self::$description;
+    }
+
+
+
+    /**
+     * Sets the browser page description
+     *
+     * @param string|null $description
+     * @return static
+     */
+    public static function setDescription(?string $description): static
+    {
+        self::$description = strip_tags($description);
+        return self::getInstance();
+    }
+
+
+
+    /**
+     * Returns the page header title
+     *
+     * @return string|null
+     */
+    public static function getHeaderTitle(): ?string
+    {
+        return self::$header_title;
+    }
+
+
+
+    /**
+     * Sets the page header title
+     *
+     * @param string|null $header_title
+     * @return static
+     */
+    public static function setHeaderTitle(?string $header_title): static
+    {
+        self::$header_title = $header_title;
+
+        if (!self::$page_title) {
+            self::$page_title = Config::get('project.name', 'Phoundation') . $header_title;
+        }
+
+        return self::getInstance();
+    }
+
+
+
+    /**
+     * Returns the page header subtitle
+     *
+     * @return string|null
+     */
+    public static function getHeaderSubTitle(): ?string
+    {
+        return self::$header_sub_title;
+    }
+
+
+
+    /**
+     * Sets the page header subtitle
+     *
+     * @param string|null $header_sub_title
+     * @return static
+     */
+    public static function setHeaderSubTitle(?string $header_sub_title): static
+    {
+        self::$header_sub_title = $header_sub_title;
         return self::getInstance();
     }
 
@@ -1122,8 +1225,8 @@ class WebPage
         $return = '<!DOCTYPE ' . self::$doctype . '>
         <html lang="' . Session::getLanguage() . '">' . PHP_EOL;
 
-        if (self::$title) {
-            $return .= '<title>' . self::$title . '</title>' . PHP_EOL;
+        if (self::$page_title) {
+            $return .= '<title>' . self::$page_title . '</title>' . PHP_EOL;
         }
 
         foreach (self::$headers['meta'] as $header) {
