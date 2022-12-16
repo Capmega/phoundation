@@ -136,9 +136,9 @@ Class Process
      */
     public function executeReturnArray(): array
     {
-        Log::notice(tr('Executing command ":command" using exec() to return an array', [
+        Log::action(tr('Executing command ":command" using exec() to return an array', [
             ':command' => $this->getFullCommandLine()
-        ]));
+        ]), 2);
 
         exec($this->getFullCommandLine(), $output, $exit_code);
         $this->setExitCode($exit_code, $output);
@@ -175,7 +175,7 @@ Class Process
         $commands = Strings::endsNotWith($commands, ';');
 
         if (Debug::enabled()) {
-            Log::notice(tr('Executing command ":commands" using passthru()', [':commands' => $commands]));
+            Log::action(tr('Executing command ":commands" using passthru()', [':commands' => $commands]), 2);
         }
 
         $result = passthru($this->getFullCommandLine(), $exit_code);
