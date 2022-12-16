@@ -43,7 +43,7 @@ class TemplateMenus
     {
         $menu = new self::$menu_class();
 
-        return $menu->setMenu([
+        return $menu->setSource([
             tr('Dashboard') => [
                 'url'  => '/',
                 'icon' => 'fa-tachometer-alt',
@@ -56,23 +56,23 @@ class TemplateMenus
                 'menu' => [
                     tr('Accounts') => [
                         'url'  => '/accounts/users.html',
-                        'icon' => ''
+                        'icon' => 'fa-users'
                     ],
                     tr('Roles') => [
                         'url'  => '/accounts/roles.html',
-                        'icon' => ''
+                        'icon' => 'fa-users'
                     ],
                     tr('Rights') => [
                         'url'  => '/accounts/rights.html',
-                        'icon' => ''
+                        'icon' => 'fa-lock'
                     ],
                     tr('Groups') => [
                         'url'  => '/accounts/groups.html',
-                        'icon' => ''
+                        'icon' => 'fa-users'
                     ],
                     tr('Switch user') => [
                         'url'  => '/accounts/switch',
-                        'icon' => ''
+                        'icon' => 'fa-user'
                     ]
                 ]
             ],
@@ -89,10 +89,6 @@ class TemplateMenus
                     ]
                 ],
             ],
-            tr('Libraries') => [
-                'url'  => '/libraries.html',
-                'icon' => 'fa-book'
-            ],
             tr('Key / Values store') => [
                 'url'  => '/system/key-values.html',
                 'icon' => 'fa-database'
@@ -106,16 +102,16 @@ class TemplateMenus
                     ],
                     tr('Documents')  => [
                         'url'  => '/storage/documents.html',
-                        'icon' => 'fa-files-o'
+                        'icon' => 'fa-book'
                     ],
                     tr('Resources') => [
                         'url'  => '/storage/resources.html',
-                        'icon' => 'list-ul'
+                        'icon' => 'fa-list-ul'
                     ]
                 ]
             ],
             tr('Servers') => [
-                'icon' => '',
+                'icon' => 'fa-server',
                 'menu' => [
                     tr('Servers') => [
                         'url'  => '/servers/servers.html',
@@ -142,15 +138,15 @@ class TemplateMenus
             tr('Hardware') => [
                 'icon' => 'fa-camera',
                 'menu' => [
-                    tr('devices') => [
+                    tr('Devices') => [
                         'url'  => '/hardware/devices.html',
-                        'icon' => 'fa-usb'
+                        'icon' => 'fa-camera'
                     ],
                     tr('Scanners') => [
-                        'icon' => 'fa-printer',
+                        'icon' => 'fa-print',
                         'menu' => [
                             tr('Document') => [
-                                'icon' => 'fa-',
+                                'icon' => 'fa-book',
                                 'menu' => [
                                     tr('Drivers') => [
                                         'url'  => '/hardware/scanners/document/drivers.html',
@@ -170,8 +166,30 @@ class TemplateMenus
                     ]
                 ]
             ],
-            tr('Admin') => [
+            tr('Phoundation') => [
+                'url'  => '/phoundation.html',
                 'icon' => '',
+                'menu' => [
+                    tr('Configuration') => [
+                        'url'  => '/admin/phoundation/configuration.html',
+                        'icon' => ''
+                    ],
+                    tr('Routing') => [
+                        'url'  => '/admin/phoundation/routing.html',
+                        'icon' => ''
+                    ],
+                    tr('Plugins') => [
+                        'url'  => '/admin/phoundation/plugins.html',
+                        'icon' => ''
+                    ],
+                    tr('Templates') => [
+                        'url'  => '/admin/phoundation/templates.html',
+                        'icon' => ''
+                    ],
+                ]
+            ],
+            tr('Admin') => [
+                'icon' => 'fa-sprocket',
             ],
             tr('Customers') => [
                 'url'  => '/admin/customers/customers.html',
@@ -227,7 +245,7 @@ class TemplateMenus
     {
         $menu = new self::$menu_class();
 
-        return $menu->setMenu([
+        return $menu->setSource([
             tr('Profile') => [
                 'url'  => '/profile.html',
                 'icon' => ''
