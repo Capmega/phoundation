@@ -131,16 +131,7 @@ abstract class TemplatePage
      */
     public function execute(string $target): ?string
     {
-        include($target);
-        $body = '';
-
-        // Get all output buffers and restart buffer
-        while (ob_get_level()) {
-            $body .= ob_get_contents();
-            ob_end_clean();
-        }
-
-        ob_start(chunk_size: 4096);
+        $body = $this->buildBody($target);
 
         // Build HTML and minify the output
         $output = $this->buildHtmlHeader();
@@ -182,6 +173,29 @@ abstract class TemplatePage
         } else {
             $this->secondary_menu = $this->menus->getSecondaryMenu();
         }
+    }
+
+
+
+    /**
+     * Build the page body
+     *
+     * @param string $target
+     * @return string|null
+     */
+    public function buildBody(string $target): ?string
+    {
+        include($target);
+        $body = '';
+
+        // Get all output buffers and restart buffer
+        while (ob_get_level()) {
+            $body .= ob_get_contents();
+            ob_end_clean();
+        }
+
+        ob_start(chunk_size: 4096);
+        return $body;
     }
 
 
