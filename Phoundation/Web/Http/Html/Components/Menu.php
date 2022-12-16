@@ -18,36 +18,4 @@ use Phoundation\Web\Http\Html\Elements\ElementsBlock;
  */
 abstract class Menu extends ElementsBlock
 {
-    /**
-     * The menu data
-     *
-     * @var array|null
-     */
-    protected ?array $menu = null;
-
-
-
-    /**
-     * Returns the menu data
-     *
-     * @return array
-     */
-    public function getMenu(): array
-    {
-        return $this->menu;
-    }
-
-
-
-    /**
-     * Sets the menu data
-     *
-     * @param array|null $menu
-     * @return static
-     */
-    public function setMenu(?array $menu): static
-    {
-        $this->menu = $menu;
-        return $this;
-    }
 }
