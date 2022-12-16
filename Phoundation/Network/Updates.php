@@ -64,7 +64,7 @@ class Updates extends \Phoundation\Libraries\Updates
                   KEY `created_by` (`created_by`),
                   KEY `url` (`url`),')
                 ->setForeignKeys('
-                  CONSTRAINT `fk_network_curl_cache_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE')
+                  CONSTRAINT `fk_network_curl_cache_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE')
                 ->create();
         });
     }
