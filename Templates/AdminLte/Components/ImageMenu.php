@@ -9,7 +9,7 @@ use Phoundation\Exception\OutOfBoundsException;
 /**
  * AdminLte Plugin ImageMenu class
  *
- * This class is an example template for your website
+ * 
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
