@@ -3,7 +3,7 @@
 use Phoundation\Core\Session;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Json;
-use Plugins\Mdb\Components\ProfileImage;
+use Templates\AdminLte\Components\ProfileImage;
 
 
 
