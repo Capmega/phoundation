@@ -561,64 +561,72 @@ class Path extends FileBasics
             ->setRecurse($recurse)
             ->setWhitelistExtensions(array_keys($return['file_extensions']))
             ->onFiles(function(string $file) use (&$return) {
-                $extension = File::new($file)->getExtension();
+                try {
+                    $extension = File::new($file)->getExtension();
 
-                // Add file type and extension statistics
-                switch ($extension) {
-                    case 'css':
-                        // no-break
-                    case 'scss':
-                        $return['file_types']['css']++;
-                        $return['file_extensions'][$extension]++;
-                        break;
+                    // Add file type and extension statistics
+                    switch ($extension) {
+                        case 'css':
+                            // no-break
+                        case 'scss':
+                            $return['file_types']['css']++;
+                            $return['file_extensions'][$extension]++;
+                            break;
 
-                    case 'ini':
-                        $return['file_types']['ini']++;
-                        $return['file_extensions'][$extension]++;
-                        break;
+                        case 'ini':
+                            $return['file_types']['ini']++;
+                            $return['file_extensions'][$extension]++;
+                            break;
 
-                    case 'js':
-                        // no-break
-                    case 'json':
-                        $return['file_types']['js']++;
-                        $return['file_extensions'][$extension]++;
-                        break;
+                        case 'js':
+                            // no-break
+                        case 'json':
+                            $return['file_types']['js']++;
+                            $return['file_extensions'][$extension]++;
+                            break;
 
-                    case 'html':
-                        // no-break
-                    case 'htm':
-                        $return['file_types']['html']++;
-                        $return['file_extensions'][$extension]++;
-                        break;
+                        case 'html':
+                            // no-break
+                        case 'htm':
+                            $return['file_types']['html']++;
+                            $return['file_extensions'][$extension]++;
+                            break;
 
-                    case 'php':
-                        // no-break
-                    case 'phps':
-                        // no-break
-                    case 'phtml':
-                        $return['file_types']['php']++;
-                        $return['file_extensions'][$extension]++;
-                        break;
+                        case 'php':
+                            // no-break
+                        case 'phps':
+                            // no-break
+                        case 'phtml':
+                            $return['file_types']['php']++;
+                            $return['file_extensions'][$extension]++;
+                            break;
 
-                    case 'xml':
-                        $return['file_types']['xml']++;
-                        $return['file_extensions'][$extension]++;
-                        break;
+                        case 'xml':
+                            $return['file_types']['xml']++;
+                            $return['file_extensions'][$extension]++;
+                            break;
 
-                    case 'yaml':
-                        // no-break
-                    case 'yml':
-                        $return['file_types']['yaml']++;
-                        $return['file_extensions'][$extension]++;
-                        break;
+                        case 'yaml':
+                            // no-break
+                        case 'yml':
+                            $return['file_types']['yaml']++;
+                            $return['file_extensions'][$extension]++;
+                            break;
 
-                    default:
-                        $return['file_extensions']['unknown']++;
+                        default:
+                            $return['file_extensions']['unknown']++;
+                    }
+
+                    // Add file statistics
+                    $return['files_statistics'][$file] = File::new($file, $this->server_restrictions)->getPhpStatistics();
+                    $return['total_statistics'] = Arrays::addValues($return['total_statistics'], $return['files_statistics'][$file]);
+
+                } catch (FilesystemException $e) {
+                    Log::warning(tr('Ignoring file ":file" due to exception ":e"', [
+                        ':file' => $file,
+                        ':e'    => $e,
+                    ]), 2);
                 }
-
-                // Add file statistics
-                $return['files_statistics'][$file] = File::new($file, $this->server_restrictions)->getPhpStatistics();
-                $return['total_statistics'] = Arrays::addValues($return['total_statistics'], $return['files_statistics'][$file]);
             });
 
         return $return;
