@@ -1,64 +1,40 @@
 <?php
 
-use Phoundation\Libraries\Libraries;
-use Phoundation\Web\Http\Html\Elements\Img;
-use Templates\Mdb\Components\Table;
-use Templates\Mdb\Elements\CheckBox;
-
-?>
-<div class="container">
-    <div class="d-flex justify-content-center align-items-center">
-        <div class="">
-            <?php
-//            echo Img::new()
-//                ->setClass('mb-4')
-//                ->setHeight('200')
-//                ->setAlt('Mdb logo')
-//                ->setSrc('logos/phoundation/phoundation.png')
-//                ->render();
-
-//            $box = CheckBox::new()
-//                ->setId('testId')
-//                ->setValue('aaaaaaa')
-//                ->setLabel('TEST!')
-//                ->render();
-//
-//            show($box);
-//            echo $box;
-
-            $libraries = [];
-
-            foreach(Libraries::listLibraries() as $library) {
-                $libraries[$library->getName()] = [
-                    'name'        => $library->getName(),
-                    'version'     => $library->getVersion()     ?? '-',
-                    'type'        => $library->getType(),
-                    'description' => $library->getDescription() ?? '-'
-                ];
-            }
-
-            $table = Table::new()
-                ->setTitle('Libraries')
-                ->setHeaderText('Browser default checkboxes and radios are replaced with the help of .form-check, a series of classes for both input types that improves the layout and behavior of their HTML elements, that provide greater customization and cross browser consistency. Checkboxes are for selecting one or several options in a list, while radios are for selecting one option from many.
-
-Structurally, our <input>s and <label>s are sibling elements as opposed to an <input> within a <label>. This is slightly more verbose as you must specify id and for attributes to relate the <input> and <label>.
-
-We use the sibling selector (~) for all our <input> states, like :checked or :disabled. When combined with the .form-check-label class, we can easily style the text for each item based on the <input>\'s state.')
-                ->setRowUrl('/users/:ROW')
-                ->setSourceArray($libraries)
-                ->setColumnHeaders([tr('Name'), tr('Version'), tr('Type'), tr('Description')])
-                ->addConvertColumn('id', function ($value) {
-                    return CheckBox::new()
-                        ->setValue($value)
-                        ->render();
-                })
-                ->render();
-
-            echo $table;
-
-            ?>
-        </div>
-    </div>
-</div>
+use Phoundation\Web\WebPage;
+use Templates\AdminLte\Components\BreadCrumbs;
+use Templates\AdminLte\Components\Widgets\Cards\Card;
+use Templates\AdminLte\Layouts\Grid;
+use Templates\AdminLte\Layouts\GridRow;
+use Templates\AdminLte\Layouts\GridColumn;
 
 
+
+// Build the page
+$card = Card::new()
+    ->setTitle(tr('This is a test!'))
+    ->setBody('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam leo nisl, iaculis nec est quis, dapibus commodo mi. Nunc dui metus, ultricies ac vestibulum sit amet, rutrum tristique est. Aenean et consectetur sem. Mauris non scelerisque urna, in efficitur nibh. Nulla facilisi. Ut tempor ligula fringilla nibh commodo, sed scelerisque erat posuere. Aenean lobortis volutpat sem, eu tincidunt neque hendrerit non. Nunc maximus ante et arcu maximus maximus. Ut vitae leo et arcu condimentum pellentesque sed et diam. Mauris ut sapien porttitor, pharetra erat quis, suscipit leo. Vestibulum a libero vitae quam tempor aliquam. Proin ultrices nisl in ante aliquam, at posuere arcu luctus. Nulla iaculis porttitor sem eu dignissim.');
+
+$column = GridColumn::new()
+    ->setSize(4)
+    ->setTier('xl')
+    ->setContent($card->render());
+$row    = GridRow::new()
+    ->addColumn($column)
+    ->addColumn($column)
+    ->addColumn($column)
+    ->addColumn($column);
+$layout = Grid::new()->addRow($row);
+
+echo $layout->render();
+
+
+
+// Set page meta data
+WebPage::setPageTitle(tr('Dashboard (under development)'));
+WebPage::setHeaderTitle(tr('Dashboard'));
+WebPage::setHeaderSubTitle(tr('(under development)'));
+WebPage::setDescription(tr(''));
+WebPage::setBreadCrumbs(BreadCrumbs::new([
+    '/' => tr('Home'),
+    ''  => tr('Dashboard')
+]));
