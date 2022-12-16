@@ -26,7 +26,6 @@ class GridColumn extends Layout
     #[ExpectedValues(values: [null, 1, 2, 3, 4, 5, 6, 7 ,8, 9, 10, 11, 12])]
     protected ?int $size = null;
 
-
     /**
      * The tier class for this column
      *
@@ -91,7 +90,7 @@ class GridColumn extends Layout
     /**
      * Returns the column size
      *
-     * @return int
+     * @return int|null
      */
     #[ExpectedValues(values: [null, 1, 2, 3, 4, 5, 6, 7 ,8, 9, 10, 11, 12])] public function getSize(): ?int
     {

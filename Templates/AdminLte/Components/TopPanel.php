@@ -19,6 +19,17 @@ use Phoundation\Web\WebPage;
 class TopPanel extends Panel
 {
     /**
+     * TopPanel constructor
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->menu = new TopMenu();
+    }
+
+
+
+    /**
      * Renders and returns the top panel
      *
      * @return string|null
@@ -27,7 +38,7 @@ class TopPanel extends Panel
     {
         $html = '<nav class="main-header navbar navbar-expand navbar-white navbar-light">
                     <!-- Left navbar links -->
-                    ' . WebPage::getBreadCrumbs()->render() . '                    
+                    ' . $this->getMenu()->render() . '                    
                     <!-- Right navbar links -->
                     <ul class="navbar-nav ml-auto">
                       <!-- Navbar Search -->

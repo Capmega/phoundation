@@ -5,11 +5,12 @@ namespace Templates\AdminLte;
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
-use Templates\AdminLte\Components\BreadCrumbs;
 use Templates\AdminLte\Components\Footer;
 use Templates\AdminLte\Components\SidePanel;
+use Templates\AdminLte\Components\TopMenu;
 use Templates\AdminLte\Components\TopPanel;
 use Templates\AdminLte\Modals\SignInModal;
+
 
 
 /**
@@ -35,9 +36,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function execute(string $target): ?string
     {
-        // Set the WebPage breadcrumbs
-        WebPage::setBreadCrumbs(new BreadCrumbs());
-
         return parent::execute($target);
     }
 
@@ -81,7 +79,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         ]);
 
         // Set basic page details
-        WebPage::setTitle(tr('Phoundation platform'));
+        WebPage::setPageTitle(tr('Phoundation platform'));
         WebPage::setFavIcon('favicon/phoundation.png');
 
         return WebPage::buildHeaders();
@@ -99,8 +97,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         return '<body class="sidebar-mini" style="height: auto;">
                     <div class="wrapper">
                         ' . $this->buildTopPanel() . '
-                        ' . $this->buildSidePanel() . '
-                        <div class="content-wrapper" style="min-height: 1518.06px;">';
+                        ' . $this->buildSidePanel();
     }
 
 
@@ -151,11 +148,26 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     /**
      * Build the HTML body
      *
+     * @param string $target
      * @return string|null
      */
-    public function buildBody(): ?string
+    public function buildBody(string $target): ?string
     {
-        // TODO: Implement buildBody() method.
+        $body = parent::buildBody($target);
+        $body = '   <div class="content-wrapper" style="min-height: 1518.06px;">                   
+                       ' . $this->buildBodyHeader() . '
+                        <section class="content">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        ' . $body . '
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>';
+
+        return $body;
     }
 
 
@@ -201,5 +213,35 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
             ->add('sign-in', $sign_in);
 
         return $panel->render();
+    }
+
+
+
+    /**
+     * Builds the body header
+     *
+     * @return string
+     */
+    protected function buildBodyHeader(): string
+    {
+        $sub_title = WebPage::getHeaderSubTitle();
+
+        $html = '   <section class="content-header">
+                      <div class="container-fluid">
+                        <div class="row mb-2">
+                          <div class="col-sm-6">
+                            <h1>
+                              ' . WebPage::getHeaderTitle() . '
+                              ' . ($sub_title ? '<small>' . $sub_title . '</small>' : '') . '                          
+                            </h1>
+                          </div>
+                          <div class="col-sm-6">
+                            ' . WebPage::getBreadCrumbs()->render() .  '
+                          </div>
+                        </div>
+                      </div>
+                    </section>';
+
+        return $html;
     }
 }

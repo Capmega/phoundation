@@ -74,7 +74,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         WebPage::loadJavascript('js/mdb,js/jquery/jquery');
 
         // Set basic page details
-        WebPage::setTitle(tr('Phoundation platform'));
+        WebPage::setPageTitle(tr('Phoundation platform'));
         WebPage::setFavIcon('favicon/phoundation.ico');
 
         return WebPage::buildHeaders();
@@ -91,7 +91,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         $html = '<body class="mdb-skin-custom " data-mdb-spy="scroll" data-mdb-target="#scrollspy" data-mdb-offset="250">
                     <header>
-                    ' . $this->buildTopPanel($this->primary_menu) . '
+                    ' . $this->buildTopPanel($this->secondary_menu) . '
                     </header>
                     <main class="pt-5 mdb-docs-layout">
                         <div class="container mt-5  mt-5  px-lg-5">
@@ -181,11 +181,12 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         $navigation_bar = TopPanel::new();
         $navigation_bar
             ->setMenu($navigation_menu)
-            ->getSignInModal()
-            ->getForm()
-            ->setId('form-signin')
-            ->setMethod('post')
-            ->setAction(Url::build(Config::get('web.pages.signin', '/system/sign-in.html'))->ajax());
+            ->getModals()
+                ->get('sign-in')
+                    ->getForm()
+                        ->setId('form-signin')
+                        ->setMethod('post')
+                        ->setAction(Url::build(Config::get('web.pages.signin', '/system/sign-in.html'))->ajax());
 
         return $navigation_bar->render();
     }

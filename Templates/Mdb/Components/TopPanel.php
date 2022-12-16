@@ -75,7 +75,7 @@ class TopPanel extends Panel
                 ])
                 ->render(). '
                           </a>
-                          ' . Menu::new()->setMenu($this->menu)->render() . '
+                          ' . Menu::new()->setSource($this->menu)->render() . '
                         </div>
                         <!-- Collapsible wrapper -->
                     

@@ -3,7 +3,7 @@
 namespace Templates\AdminLte\Components;
 
 use Phoundation\Web\Http\Url;
-
+use function Symfony\Component\String\s;
 
 
 /**
@@ -18,29 +18,24 @@ use Phoundation\Web\Http\Url;
  */
 class BreadCrumbs extends \Phoundation\Web\Http\Html\Components\BreadCrumbs
 {
-    /**
-     * Render the HTML for this AdminLte
-     *
-     * @return string|null
-     */
     public function render(): ?string
     {
-        $return = '<ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                        </li>
-                        <li class="nav-item d-none d-sm-inline-block">
-                            <a href="' . Url::build()->www() . '" class="nav-link">' . tr('Home') . '</a>
-                        </li>';
+        $html = ' <ol class="breadcrumb float-sm-right">';
 
         if ($this->source) {
+            $count = count($this->source);
+
             foreach ($this->source as $url => $label) {
-                $return . '<li class="nav-item d-none d-sm-inline-block">
-                                <a href="' . Url::build($url)->www() . '" class="nav-link">' . $label . '</a>
-                            </li>';
+                if (!--$count) {
+                    // The last item is the active item
+                    $html .= '<li class="breadcrumb-item active">' . $label . '</li>';
+
+                } else {
+                    $html .= '<li class="breadcrumb-item"><a href="' . Url::build($url)->www() . '">' . $label . '</a></li>';
+                }
             }
         }
 
-        return $return . '</ul>';;
+        return $html . '</ol>';
     }
 }

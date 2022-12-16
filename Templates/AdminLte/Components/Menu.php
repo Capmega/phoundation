@@ -23,7 +23,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
      */
     public function render(): string
     {
-        return $this->renderMenu($this->menu);
+        return $this->renderMenu($this->source);
     }
 
 
@@ -31,11 +31,11 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
     /**
      * Renders the HTML for the sidebar menu
      *
-     * @param array $menu
+     * @param array $source
      * @param bool $sub_menu
      * @return string
      */
-    protected function renderMenu(array $menu, bool $sub_menu = false): string
+    protected function renderMenu(array $source, bool $sub_menu = false): string
     {
         if ($sub_menu) {
             $html = '<ul class="nav nav-treeview">';
@@ -43,7 +43,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
             $html = '<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">';
         }
 
-        foreach ($menu as $label => $entry) {
+        foreach ($source as $label => $entry) {
             // Build menu entry
             if (isset($entry['url']) or isset($entry['menu'])) {
                 $html .= '<li class="nav-item">
