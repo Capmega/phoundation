@@ -378,6 +378,9 @@ Log::warning('RESTART SESSION');
             }
         }
 
+        // Time that THIS session started
+        $_SESSION['start'] = microtime(true);
+
         // Initialize session?
         if (empty($_SESSION['init'])) {
             self::init();
@@ -698,11 +701,16 @@ Log::warning('RESTART SESSION');
     /**
      * Initialize the session with basic data
      *
-     * @return void
+     * @return bool
      */
-    protected static function init(): void
+    protected static function init(): bool
     {
-        Log::action(tr('Initializing new session user ":user"', [':user' => self::getUser()->getLogId()]));
+        if (empty($_SESSION['start'])) {
+            // There is no active session yet, follow the Session::start() path instead!
+            return self::start();
+        }
+
+        Log::action(tr('Initializing new session for user ":user"', [':user' => self::getUser()->getLogId()]));
 
         // Initialize the session
         $_SESSION['init']         = time();
@@ -727,11 +735,13 @@ Log::warning('RESTART SESSION');
 
                 Notification::new()
                     ->setException(SessionException::new(tr('Reset timezone for user ":user" to ":timezone"', [
-                        ':user'     => name($_SESSION['user']),
+                        ':user'     => self::getUser()->getLogId(),
                         ':timezone' => $_SESSION['user']['timezone']
                     ]), $e)->makeWarning(true))
                     ->send();
             }
         }
+
+        return true;
     }
 }
