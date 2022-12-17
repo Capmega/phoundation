@@ -27,9 +27,9 @@ abstract class ImageMenu extends ElementsBlock
     /**
      * The menu items [label => url]
      *
-     * @var array|null $menu
+     * @var Menu|null $menu
      */
-    protected ?array $menu = null;
+    protected ?Menu $menu = null;
 
     /**
      * The image URL, if no menu is available
@@ -64,10 +64,10 @@ abstract class ImageMenu extends ElementsBlock
     /**
      * Sets the menu items
      *
-     * @param array|null $menu
+     * @param Menu|null $menu
      * @return static
      */
-    public function setMenu(?array $menu): static
+    public function setMenu(?Menu $menu): static
     {
         if ($menu and $this->url) {
             throw new OutOfBoundsException(tr('Cannot set menu for image menu, the image URL has already been configured'));
@@ -82,9 +82,9 @@ abstract class ImageMenu extends ElementsBlock
     /**
      * Returns the menu items
      *
-     * @return array|null
+     * @return Menu|null
      */
-    public function getMenu(): ?array
+    public function getMenu(): ?Menu
     {
         return $this->menu;
     }

@@ -150,11 +150,12 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     /**
      * Build the HTML body
      *
+     * @param string $target
      * @return string|null
      */
-    public function buildBody(): ?string
+    public function buildBody(string $target): ?string
     {
-        // TODO: Implement buildBody() method.
+        return parent::buildBody($target);
     }
 
 
@@ -172,15 +173,14 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     /**
      * Builds and returns a navigation bar
      *
-     * @param array|null $navigation_menu
      * @return string|null
      */
-    protected function buildTopPanel(?array $navigation_menu): ?string
+    protected function buildTopPanel(): ?string
     {
         // Set up the navigation bar
         $navigation_bar = TopPanel::new();
         $navigation_bar
-            ->setMenu($navigation_menu)
+            ->setMenu($this->primary_menu)
             ->getModals()
                 ->get('sign-in')
                     ->getForm()

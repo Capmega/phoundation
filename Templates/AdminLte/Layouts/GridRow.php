@@ -103,17 +103,9 @@ class GridRow extends Layout
     public function render(): string
     {
         $return = '<div class="row">';
-        $size   = 0;
 
         foreach ($this->columns as $column) {
-            $size   += $column->getSize();
             $return .= $column->render();
-        }
-
-        if ($size != 12) {
-            Log::warning(tr('GridRow found a row with size ":size" while each row should be exactly size 12', [
-                ':size' => $size
-            ]));
         }
 
         return $return . '</div>';

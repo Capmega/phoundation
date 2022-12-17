@@ -558,16 +558,19 @@ class Route
 
                             default:
                                 throw new RouteException(tr('Invalid R flag HTTP CODE ":code" specified for target ":target"', [
-                                    ':code' => ':' . $http_code,
+                                    ':code'   => ':' . $http_code,
                                     ':target' => ':' . $target
                                 ]));
                         }
 
                         // We are going to redirect so we no longer need to default to 404
-                        Log::success(tr('Redirecting to ":route" with HTTP code ":code"', [':route' => $route, ':code' => $http_code]));
+                        Log::success(tr('Redirecting to ":route" with HTTP code ":code"', [
+                            ':route' => $route,
+                            ':code'  => $http_code
+                        ]));
+
                         Core::unregisterShutdown('route_postprocess');
                         WebPage::redirect(Url::build($route)->addQueries($_GET)->www(), $http_code);
-                        break;
 
                     case 'S':
                         $until = substr($flag, 1);

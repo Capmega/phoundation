@@ -4,6 +4,7 @@ namespace Templates\Mdb\Components;
 
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Session;
+use Phoundation\Web\Http\Html\Components\Menu;
 use Phoundation\Web\Http\Url;
 use Templates\Mdb\TemplateMenus;
 
@@ -68,10 +69,10 @@ class ProfileImage extends ImageMenu
     /**
      * Set the menu for this profile image
      *
-     * @param array|null $menu
+     * @param Menu|null $menu
      * @return static
      */
-    public function setMenu(?array $menu): static
+    public function setMenu(Menu|null $menu): static
     {
         if (Session::getUser()->isGuest()) {
             // Don't show menu

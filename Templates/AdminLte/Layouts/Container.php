@@ -24,7 +24,7 @@ class Container extends Layout
      * @var string|null $type
      */
     #[ExpectedValues(values:[null, "sm", "md", "lg", "xl", "xxl"])]
-    protected ?string $type = null;
+    protected ?string $type = 'xxl';
 
 
 
@@ -33,7 +33,6 @@ class Container extends Layout
      */
     public function __construct()
     {
-        $this->type = 'md';
         parent::__construct();
     }
 

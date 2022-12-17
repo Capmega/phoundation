@@ -19,28 +19,6 @@ use Phoundation\Web\Http\Html\Elements\ElementsBlock;
 class Footer extends ElementsBlock
 {
     /**
-     * Footer class constructor
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-
-
-    /**
-     * Returns a new footer object
-     *
-     * @return static
-     */
-    public static function new(): static
-    {
-        return new static();
-    }
-
-
-
-    /**
      * Renders and returns the HTML for the footer
      *
      * @return string

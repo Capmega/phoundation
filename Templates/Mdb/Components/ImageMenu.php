@@ -2,14 +2,14 @@
 
 namespace Templates\Mdb\Components;
 
-
-
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\Menu;
+
 
 /**
  * MDB Plugin ImageMenu class
  *
- * 
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -18,7 +18,7 @@ use Phoundation\Exception\OutOfBoundsException;
  */
 class ImageMenu extends \Phoundation\Web\Http\Html\Components\ImageMenu
 {
-   /**
+    /**
      * Renders and returns the image menu block HTML
      *
      * @return string
@@ -52,12 +52,11 @@ class ImageMenu extends \Phoundation\Web\Http\Html\Components\ImageMenu
                     >';
 
         if ($this->menu) {
-            foreach ($this->menu as $label => $url) {
+            foreach ($this->menu->getSource() as $label => $url) {
                 $html .= '<li>
                             <a class="dropdown-item" href="' . $url . '">' . $label . '</a>
                           </li>';
             }
-
         }
 
         $html .= '  </ul>

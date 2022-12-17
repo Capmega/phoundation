@@ -27,7 +27,7 @@ class TopMenu extends \Phoundation\Web\Http\Html\Components\Menu
     {
         if (!$this->source) {
             $this->source = [
-                tr('Contact') => ['url' => '/contact.html'],
+                tr('Front-end') => ['url' => '/'],
             ];
         }
 

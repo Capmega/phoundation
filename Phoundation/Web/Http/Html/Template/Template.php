@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Template;
 
+use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Template\Exception\TemplateException;

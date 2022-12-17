@@ -88,11 +88,6 @@ require('../vendor/autoload.php');
 
 
 
-// Use the phoundation class
-$route = new Route(AdminLte::new());
-
-
-
 //// Setup URL translations map
 //Route::mapUrl('es', [
 //    'conferencias' => 'conferences',
@@ -110,22 +105,26 @@ $route = new Route(AdminLte::new());
 
 
 
-// AJAX routes
-$route->try('/^\w{2}\/ajax\/(.+?).html$/', '/en/ajax/$1.php', '' ); // Show the requested AJAX page
+// AdminLte based admin routes
+$route = new Route(AdminLte::new());
+$route->try('/^\w{2}\/admin\/ajax\/(.+?).html$/', '/en/ajax/$1.php', '' ); // Show the requested AJAX page
+$route->try('/^(\w{2})\/admin\/(.+?).html$/'    , '/$1/pages/admin/$2.php', 'Q');     // Show the requested page
+$route->try('/^(\w{2})\/admin\/?$/'             , '/admin/index.html'  , 'R301');  // Redirect to index page
+$route->try('/^admin\/$/'                       , '/admin/index.html'  , 'R301');  // Redirect to index page
 
 
 
-// Page routes
-$route->try('/^(\w{2})\/(.+?).html$/'  , '/$1/pages/$2.php'      , 'Q'); // Show the requested page
-$route->try('/^(\w{2})\/?$/'           , '/$1/pages/index.php'   , ''); // Show the requested page
-$route->try('/^$/'                     , '/en/pages/index.php'   , ''); // Show index page
-$route->try('/^(\w{2})\/admin\/(.+?)$/', '/$1/pages/admin/$2.php', 'Q' ); // Show the requested admin page
-
-
-
-// Mdb page routes
+// Mdb based front-page routes
 $route = new Route(Mdb::new());
-$route->try('/^(\w{2})\/mdb.html$/'  , '/$1/pages/mdb.php', 'Q');
+$route->try('/^\w{2}\/ajax\/(.+?).html$/'   , '/en/ajax/$1.php', '' ); // Show the requested AJAX page
+$route->try('/^(\w{2})\/(.+?).html$/'       , '/$1/pages/$2.php', '');     // Show the requested page
+$route->try('/^(\w{2})\/?$/'                , '/index.html'  , 'R301');  // Redirect to index page
+$route->try('/^$/'                          , '/index.html'  , 'R301');  // Redirect to index page
+
+
+
+
+
 
 
 

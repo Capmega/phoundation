@@ -42,7 +42,7 @@ class TopPanel extends Panel
     {
         $image = ProfileImage::new()
             ->setImage(Session::getUser()->getPicture())
-            ->setMenu($this->profile_menu)
+            ->setMenu($this->menu)
             ->setUrl(null);
 
         $html = '    <!-- Navbar -->
@@ -75,7 +75,7 @@ class TopPanel extends Panel
                 ])
                 ->render(). '
                           </a>
-                          ' . Menu::new()->setSource($this->menu)->render() . '
+                          ' . $this->menu->render() . '
                         </div>
                         <!-- Collapsible wrapper -->
                     

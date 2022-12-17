@@ -7,7 +7,6 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
 use Templates\AdminLte\Components\Footer;
 use Templates\AdminLte\Components\SidePanel;
-use Templates\AdminLte\Components\TopMenu;
 use Templates\AdminLte\Components\TopPanel;
 use Templates\AdminLte\Modals\SignInModal;
 
