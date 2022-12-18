@@ -136,7 +136,7 @@ class Debug {
      * @param array|string[] $remove_sections
      * @return array
      */
-    public static function backtrace(int $start = 1, array $remove_sections = ['args']): array
+    public static function backtrace(int $start = 1, array|string $remove_sections = ['args', 'object']): array
     {
         $trace           = [];
         $remove_sections = Arrays::force($remove_sections);
