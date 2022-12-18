@@ -29,11 +29,12 @@ class Users extends DataList
      * DataList class constructor
      *
      * @param Role|User|null $parent
+     * @param string|null $id_column
      */
-    public function __construct(Role|User|null $parent = null)
+    public function __construct(Role|User|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = User::class;
-        parent::__construct($parent);
+        parent::__construct($parent, $id_column);
     }
 
 
@@ -101,7 +102,7 @@ class Users extends DataList
                             ':user' => $user->getLogId()
                         ]));
 
-                        sql()->insert('accounts_users_rights', [
+                        sql()->insert('accounts_users_roles', [
                             'roles_id' => $this->parent->getId(),
                             'users_id' => $user->getId()
                         ]);
@@ -116,7 +117,9 @@ class Users extends DataList
 
                         sql()->insert('accounts_users_rights', [
                             'rights_id' => $this->parent->getId(),
-                            'users_id' => $user->getId()
+                            'users_id'  => $user->getId(),
+                            'name'      => $this->parent->getName(),
+                            'seo_name'  => $this->parent->getSeoName()
                         ]);
 
                         // Add right to internal list
@@ -220,10 +223,15 @@ class Users extends DataList
     /**
      * Load the data for this rights list into the object
      *
+     * @param string|null $id_column
      * @return static
      */
-    public function load(): static
+    public function load(?string $id_column = 'users_id'): static
     {
+        if (!$id_column) {
+            $id_column = 'users_id';
+        }
+
         if ($this->parent) {
             if ($this->parent instanceof Role) {
                 $this->list = sql()->list('SELECT `accounts_users_roles`.`users_id` 
@@ -381,7 +389,9 @@ class Users extends DataList
             foreach ($this->list as $id) {
                 sql()->insert('accounts_users_rights', [
                     'rights_id' => $this->parent->getId(),
-                    'users_id' => $id
+                    'users_id'  => $id,
+                    'name'      => $this->parent->getName(),
+                    'seo_name'  => $this->parent->getSeoName()
                 ]);
             }
 

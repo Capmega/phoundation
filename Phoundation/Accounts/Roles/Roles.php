@@ -29,11 +29,12 @@ class Roles extends DataList
      * DataList class constructor
      *
      * @param User|Role|null $parent
+     * @param string|null $id_column
      */
-    public function __construct(User|Role|null $parent = null)
+    public function __construct(User|Role|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Role::class;
-        parent::__construct($parent);
+        parent::__construct($parent, $id_column);
     }
 
 
@@ -245,10 +246,15 @@ class Roles extends DataList
     /**
      * Load the data for this rights list into the object
      *
+     * @param string|null $id_column
      * @return static
      */
-    public function load(): static
+    public function load(?string $id_column = 'roles_id'): static
     {
+        if (!$id_column) {
+            $id_column = 'roles_id';
+        }
+
         if ($this->parent) {
             if ($this->parent instanceof User) {
                 $this->list = sql()->list('SELECT `accounts_users_roles`.`roles_id`

@@ -63,8 +63,9 @@ abstract class DataList implements Iterator
      * DataList class constructor
      *
      * @param DataEntry|null $parent
+     * @param string|null $id_column
      */
-    public function __construct(?DataEntry $parent = null)
+    public function __construct(?DataEntry $parent = null, ?string $id_column = null)
     {
         // Validate the entry class
         if (isset($this->entry_class)) {
@@ -80,7 +81,7 @@ abstract class DataList implements Iterator
         $this->parent = $parent;
 
         if ($parent) {
-            $this->load();
+            $this->load($id_column);
         }
     }
 
@@ -90,11 +91,12 @@ abstract class DataList implements Iterator
      * Returns new DataList object with an optional parent
      *
      * @param DataEntry|null $parent
+     * @param string|null $id_column
      * @return static
      */
-    public static function new(?DataEntry $parent = null): static
+    public static function new(?DataEntry $parent = null, ?string $id_column = null): static
     {
-        return new static($parent);
+        return new static($parent, $id_column);
     }
 
 
@@ -121,9 +123,50 @@ abstract class DataList implements Iterator
      *
      * @param DataList|array|string $list
      * @param bool $all
+     * @param string|null $always_match
      * @return bool
      */
-    public function contains(DataList|array|string $list, bool $all = true): bool
+    public function containsKey(DataList|array|string $list, bool $all = true, string $always_match = null): bool
+    {
+        if (is_string($list)) {
+            $list = explode(',', $list);
+        }
+
+        foreach ($list as $entry) {
+            if (!array_key_exists($entry, $this->list)) {
+                if ($all) {
+                    // All need to be in the array, but we found one missing.
+                    // Can still match if $always_match is available!
+                    if ($always_match and array_key_exists($always_match, $this->list)) {
+                        // Okay, this list contains ALL the requested entries due to $always_match
+                        return true;
+                    }
+
+                    return false;
+                }
+            } else {
+                if (!$all) {
+                    // only one needs to be in the array, we found one, we're good!
+                    return true;
+                }
+            }
+        }
+
+        // All were in the array
+        return true;
+    }
+
+
+
+    /**
+     * Returns if all (or optionally any) of the specified entries are in this list
+     *
+     * @param DataList|array|string $list
+     * @param bool $all
+     * @param string|null $always_match
+     * @return bool
+     */
+    public function containsValue(DataList|array|string $list, bool $all = true, string $always_match = null): bool
     {
         if (is_string($list)) {
             $list = explode(',', $list);
@@ -132,7 +175,13 @@ abstract class DataList implements Iterator
         foreach ($list as $entry) {
             if (!in_array($entry, $this->list)) {
                 if ($all) {
-                    // Ann need to be in the array but we found one missing
+                    // All need to be in the array, but we found one missing.
+                    // Can still match if $always_match is available!
+                    if ($always_match and in_array($always_match, $this->list)) {
+                        // Okay, this list contains ALL the requested entries due to $always_match
+                        return true;
+                    }
+
                     return false;
                 }
             } else {
@@ -282,7 +331,7 @@ abstract class DataList implements Iterator
         }
 
         // Is this entry loaded?
-        if (is_object($this->list[$identifier])) {
+        if (!is_object($this->list[$identifier])) {
             $this->list[$identifier] = new $this->entry_class($identifier);
         }
 
@@ -294,11 +343,11 @@ abstract class DataList implements Iterator
     /**
      * Returns the current item
      *
-     * @return int
+     * @return DataEntry|null
      */
-    #[ReturnTypeWillChange] public function current(): int
+    #[ReturnTypeWillChange] public function current(): ?DataEntry
     {
-        return key($this->list);
+        return $this->get(key($this->list));
     }
 
 
@@ -488,9 +537,10 @@ abstract class DataList implements Iterator
     /**
      * Load the id list from database
      *
+     * @param string|null $id_column
      * @return static
      */
-    abstract protected function load(): static;
+    abstract protected function load(?string $id_column = null): static;
 
 
 

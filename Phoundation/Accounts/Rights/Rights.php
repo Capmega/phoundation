@@ -29,11 +29,12 @@ class Rights extends DataList
      * DataList class constructor
      *
      * @param User|Role|null $parent
+     * @param string|null $id_column
      */
-    public function __construct(User|Role|null $parent = null)
+    public function __construct(User|Role|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Right::class;
-        parent::__construct($parent);
+        parent::__construct($parent, $id_column);
     }
 
 
@@ -105,7 +106,9 @@ class Rights extends DataList
 
                         sql()->insert('accounts_users_rights', [
                             'users_id'  => $this->parent->getId(),
-                            'rights_id' => $right->getId()
+                            'rights_id' => $right->getId(),
+                            'name'      => $right->getName(),
+                            'seo_name'  => $right->getSeoName()
                         ]);
 
                         // Add right to internal list
@@ -236,20 +239,26 @@ class Rights extends DataList
     /**
      * Load the data for this rights list into the object
      *
+     * @param string|null $id_column
      * @return static
      */
-    public function load(): static
+    public function load(?string $id_column = 'rights_id'): static
     {
+        if (!$id_column) {
+            $id_column = 'rights_id';
+        }
+
         if ($this->parent) {
+            // Load only rights for specified parent
             if ($this->parent instanceof User) {
-                $this->list = sql()->list('SELECT `accounts_users_rights`.`rights_id` 
+                $this->list = sql()->list('SELECT `accounts_users_rights`.`' . $id_column . '` 
                                                FROM   `accounts_users_rights` 
                                                WHERE  `accounts_users_rights`.`users_id` = :users_id', [
                     ':users_id' => $this->parent->getId()
                 ]);
 
             } elseif ($this->parent instanceof Role) {
-                $this->list = sql()->list('SELECT `accounts_roles_rights`.`rights_id` 
+                $this->list = sql()->list('SELECT `accounts_roles_rights`.`' . $id_column . '` 
                                            FROM   `accounts_roles_rights` 
                                            WHERE  `accounts_roles_rights`.`roles_id` = :roles_id', [
                     ':roles_id' => $this->parent->getId()
@@ -258,11 +267,13 @@ class Rights extends DataList
             }
 
         } else {
+            // Load all
             $this->list = sql()->list('SELECT `id` FROM `accounts_rights`');
         }
 
         // The keys contain the ids...
         $this->list = array_flip($this->list);
+
         return $this;
     }
 
@@ -384,9 +395,13 @@ class Rights extends DataList
 
             // Add the new list
             foreach ($this->list as $id) {
+                $right = new Right($id);
+
                 sql()->insert('accounts_users_rights', [
                     'users_id'  => $this->parent->getId(),
-                    'rights_id' => $id
+                    'rights_id' => $id,
+                    'name'      => $right->getName(),
+                    'seo_name'  => $right->getSeoName()
                 ]);
             }
 

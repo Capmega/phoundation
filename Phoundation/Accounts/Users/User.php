@@ -1551,11 +1551,7 @@ class User extends DataEntry
     public function rights(): Rights
     {
         if (!isset($this->rights)) {
-            if (!$this->getId()) {
-                throw new OutOfBoundsException(tr('Cannot access User rights without saving User first'));
-            }
-
-            $this->rights = Rights::new($this);
+            $this->rights = Rights::new($this, 'seo_name');
         }
 
         return $this->rights;
@@ -1571,7 +1567,7 @@ class User extends DataEntry
      */
     public function hasAllRights(array|string $rights): bool
     {
-        return $this->rights->contains($rights);
+        return $this->rights()->containsKey($rights, true, 'god');
     }
 
 
@@ -1584,7 +1580,7 @@ class User extends DataEntry
      */
     public function hasSomeRights(array|string $rights): bool
     {
-        return $this->rights->contains($rights, false);
+        return $this->rights()->containsKey($rights, false, 'god');
     }
 
 
