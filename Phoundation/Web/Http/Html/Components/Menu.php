@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Web\Http\Html\Elements\ElementsBlock;
+use Phoundation\Web\Http\Url;
 
 
 
@@ -18,4 +19,19 @@ use Phoundation\Web\Http\Html\Elements\ElementsBlock;
  */
 abstract class Menu extends ElementsBlock
 {
+    public function setSource(?array $source): static
+    {
+        // Ensure all URL's are absolute
+        foreach ($source as $label => &$entry) {
+            if (is_string($entry)) {
+                $entry = ['url' => $entry];
+            }
+
+            $entry['url'] = Url::build($entry['url'])->www();
+        }
+
+        unset($entry);
+
+        return parent::setSource($source);
+    }
 }

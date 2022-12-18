@@ -107,19 +107,19 @@ require('../vendor/autoload.php');
 
 // AdminLte based admin routes
 $route = new Route(AdminLte::new());
-$route->try('/^\w{2}\/admin\/ajax\/(.+?).html$/', '/en/ajax/$1.php', '' ); // Show the requested AJAX page
-$route->try('/^(\w{2})\/admin\/(.+?).html$/'    , '/$1/pages/admin/$2.php', 'Q');     // Show the requested page
-$route->try('/^(\w{2})\/admin\/?$/'             , '/admin/index.html'  , 'R301');  // Redirect to index page
-$route->try('/^admin\/$/'                       , '/admin/index.html'  , 'R301');  // Redirect to index page
+$route->try('/^\w{2}\/admin\/ajax\/(.+?).html$/', '/en/ajax/$1.php'       , '' );       // Execute the requested AJAX page
+$route->try('/^(\w{2})\/admin\/(.+?).html$/'    , '/$1/pages/admin/$2.php', 'Q');       // Show the requested page
+$route->try('/^(\w{2})\/admin\/?$/'             , '/admin/index.html'     , 'R301');    // Redirect to admin index page
+$route->try('/^admin\/$/'                       , '/admin/index.html'     , 'R301');    // Redirect to admin index page
 
 
 
 // Mdb based front-page routes
 $route = new Route(Mdb::new());
-$route->try('/^\w{2}\/ajax\/(.+?).html$/'   , '/en/ajax/$1.php', '' ); // Show the requested AJAX page
-$route->try('/^(\w{2})\/(.+?).html$/'       , '/$1/pages/$2.php', '');     // Show the requested page
-$route->try('/^(\w{2})\/?$/'                , '/index.html'  , 'R301');  // Redirect to index page
-$route->try('/^$/'                          , '/index.html'  , 'R301');  // Redirect to index page
+$route->try('/^\w{2}\/ajax\/(.+?).html$/'   , '/en/ajax/$1.php' , '' );     // Execute the requested AJAX page
+$route->try('/^(\w{2})\/(.+?).html$/'       , '/$1/pages/$2.php', '');      // Show the requested page
+$route->try('/^(\w{2})\/?$/'                , '/index.html'     , 'R301');  // Redirect to front-end index page
+$route->try('/^$/'                          , '/index.html'     , 'R301');  // Redirect to front-end index page
 
 
 

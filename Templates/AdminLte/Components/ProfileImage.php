@@ -5,7 +5,7 @@ namespace Templates\AdminLte\Components;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Session;
 use Phoundation\Web\Http\Html\Components\Menu;
-use Phoundation\Web\Http\Url;
+use Templates\AdminLte\TemplateMenus;
 
 
 
@@ -80,8 +80,8 @@ class ProfileImage extends ImageMenu
             // Default image menu
             if (!$menu) {
                 $menu = DropDownMenu::new([
-                    tr('Profile')  => Url::build('/profile.html')->www(),
-                    tr('Sign out') => Url::build('/sign-out.html')->www()
+                    tr('Profile')  => '/profile.html',
+                    tr('Sign out') => '/sign-out.html'
                 ]);
             }
         }
