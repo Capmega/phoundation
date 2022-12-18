@@ -3,10 +3,12 @@
 namespace Templates\Mdb;
 
 use Phoundation\Core\Config;
+use Phoundation\Core\Session;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
 use Templates\Mdb\Components\BreadCrumbs;
 use Templates\Mdb\Components\Footer;
+use Templates\Mdb\Components\ProfileImage;
 use Templates\Mdb\Components\TopPanel;
 
 
@@ -177,10 +179,16 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     protected function buildTopPanel(): ?string
     {
+        $image = ProfileImage::new()
+            ->setImage(Session::getUser()->getPicture())
+            ->setMenu(TemplateMenus::getProfileImageMenu())
+            ->setUrl(null);
+
         // Set up the navigation bar
         $navigation_bar = TopPanel::new();
         $navigation_bar
             ->setMenu($this->primary_menu)
+            ->setProfileImage($image)
             ->getModals()
                 ->get('sign-in')
                     ->getForm()

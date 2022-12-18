@@ -18,6 +18,9 @@ use Templates\AdminLte\Components\Menu;
  */
 class TemplateMenus extends \Phoundation\Web\Http\Html\Template\TemplateMenus
 {
+    /**
+     * TemplateMenus class constructor
+     */
     public function __construct()
     {
         self::$menu_class = Menu::class;

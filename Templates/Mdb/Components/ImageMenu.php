@@ -2,6 +2,7 @@
 
 namespace Templates\Mdb\Components;
 
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Menu;
 
@@ -52,9 +53,14 @@ class ImageMenu extends \Phoundation\Web\Http\Html\Components\ImageMenu
                     >';
 
         if ($this->menu) {
-            foreach ($this->menu->getSource() as $label => $url) {
+            foreach ($this->menu->getSource() as $label => $entry) {
+                if (is_string($entry)) {
+                    // Menu entry data was specified as just the URL in a string
+                    $entry = ['url' => $entry];
+                }
+
                 $html .= '<li>
-                            <a class="dropdown-item" href="' . $url . '">' . $label . '</a>
+                            <a class="dropdown-item" href="' . $entry['url'] . '">' . $label . '</a>
                           </li>';
             }
         }

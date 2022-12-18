@@ -80,10 +80,10 @@ class ProfileImage extends ImageMenu
         } else {
             // Default image menu
             if (!$menu) {
-                $menu = [
+                $menu = DropDownMenu::new([
                     tr('Profile')  => Url::build('/profile.html')->www(),
                     tr('Sign out') => Url::build('/sign-out.html')->www()
-                ];
+                ]);
             }
         }
 

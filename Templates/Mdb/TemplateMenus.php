@@ -2,6 +2,8 @@
 
 namespace Templates\Mdb;
 
+use Phoundation\Core\Log;
+use Phoundation\Core\Session;
 use Templates\Mdb\Components\Menu;
 
 
@@ -18,8 +20,38 @@ use Templates\Mdb\Components\Menu;
  */
 class TemplateMenus extends \Phoundation\Web\Http\Html\Template\TemplateMenus
 {
+    /**
+     * TemplateMenus class constructor
+     */
     public function __construct()
     {
         self::$menu_class = Menu::class;
+    }
+
+
+    /**
+     * Returns the default top navbar top menu
+     *
+     * @return Menu
+     */
+    public static function getPrimaryMenu(): Menu
+    {
+        $menu   = new self::$menu_class();
+        $source = [
+            tr('Dashboard') => [
+                'url'  => '/dashboard',
+            ],
+            tr('Blog') => [
+                'url'  => '/blog',
+            ]
+        ];
+
+        if (Session::getUser()->hasAllRights('admin')) {
+            $source[tr('Admin')] = [
+                'url'  => '/admin'
+            ];
+        }
+
+        return $menu->setSource($source);
     }
 }

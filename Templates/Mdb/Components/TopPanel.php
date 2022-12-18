@@ -40,11 +40,6 @@ class TopPanel extends Panel
      */
     public function render(): string
     {
-        $image = ProfileImage::new()
-            ->setImage(Session::getUser()->getPicture())
-            ->setMenu($this->menu)
-            ->setUrl(null);
-
         $html = '    <!-- Navbar -->
                     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
                       <!-- Container wrapper -->
@@ -114,7 +109,7 @@ class TopPanel extends Panel
                               </li>
                             </ul>
                           </div>
-                          ' . $image->render() . '
+                          ' . $this->profile_image->render() . '
                         </div>
                         <!-- Right elements -->
                       </div>
