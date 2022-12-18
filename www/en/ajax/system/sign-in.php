@@ -3,8 +3,8 @@
 use Phoundation\Core\Session;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Json;
-use Templates\AdminLte\Components\ProfileImage;
-
+use Templates\Mdb\Components\ProfileImage;
+use Templates\Mdb\TemplateMenus;
 
 
 /**
@@ -24,9 +24,15 @@ PostValidator::new()
 
 // Attempt to sign in and if all okay, return an updated profile image with menu
 $user  = Session::signIn($_POST['email'], $_POST['password']);
+
+$menu  = TemplateMenus::getPrimaryMenu();
+
 $image = ProfileImage::new()
     ->setImage(Session::getUser()->getPicture())
     ->setMenu(null)
     ->setUrl(null);
 
-Json::reply(['html' => $image->render()]);
+Json::reply([
+    'topMenu'      => $menu->render(),
+    'profileImage' => $image->render()
+]);
