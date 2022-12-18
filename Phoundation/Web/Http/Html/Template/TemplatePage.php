@@ -77,9 +77,9 @@ abstract class TemplatePage
     /**
      * Returns the side panel menu
      *
-     * @return array|null
+     * @return Menu|null
      */
-    public function getSecondaryMenu(): ?array
+    public function getSecondaryMenu(): ?Menu
     {
         return $this->secondary_menu;
     }
@@ -88,10 +88,10 @@ abstract class TemplatePage
     /**
      * Sets the side panel menu
      *
-     * @param array|null $secondary_menu
+     * @param Menu|null $secondary_menu
      * @return static
      */
-    public function setSecondaryMenu(?array $secondary_menu): static
+    public function setSecondaryMenu(?Menu $secondary_menu): static
     {
         $this->secondary_menu = $secondary_menu;
         return $this;
@@ -101,9 +101,9 @@ abstract class TemplatePage
     /**
      * Returns the navbar top menu
      *
-     * @return array|null
+     * @return Menu|null
      */
-    public function getPrimaryMenu(): ?array
+    public function getPrimaryMenu(): ?Menu
     {
         return $this->primary_menu;
     }
@@ -112,14 +112,15 @@ abstract class TemplatePage
     /**
      * Sets the navbar top menu
      *
-     * @param array|null $primary_menu
+     * @param Menu|null $primary_menu
      * @return static
      */
-    public function setPrimaryMenu(?array $primary_menu): static
+    public function setPrimaryMenu(?Menu $primary_menu): static
     {
         $this->primary_menu = $primary_menu;
         return $this;
     }
+
 
 
     /**
@@ -146,7 +147,6 @@ abstract class TemplatePage
 
         // Build Template specific HTTP headers
         $this->buildHttpHeaders($output);
-
         return $output;
     }
 

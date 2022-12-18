@@ -697,13 +697,15 @@ class WebPage
      *
      * @param string $target The target file that should be executed or sent to the client
      * @param Template|null $template
-     * @param boolean $attachment If specified as true, will send the file as a downloadable attachement, to be written
+     * @param boolean $attachment If specified as true, will send the file as a downloadable attachment, to be written
      *                            to disk instead of displayed on the browser. If set to false, the file will be sent as
      *                            a file to be displayed in the browser itself.
      * @return string|null
      */
     public static function execute(string $target, ?Template $template = null, bool $attachment = false): ?string
     {
+//        show(Session::getUser()->rights());
+//        showdie(Session::getUser());
         try {
             if (Strings::fromReverse(dirname($target), '/') === 'system') {
                 // Wait a small random time to avoid timing attacks on system pages
@@ -745,6 +747,14 @@ class WebPage
 
             // Execute the specified target
             try {
+                // Execute the file and send the output HTML as a web page
+                Log::action(tr('Executing ":call" type page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
+                    ':call'     => Core::getCallType(),
+                    ':target'   => Strings::from($target, PATH_ROOT),
+                    ':template' => $template->getName(),
+                    ':language' => LANGUAGE
+                ]));
+
                 switch (Core::getCallType()) {
                     case 'api':
                         // no-break
@@ -754,13 +764,6 @@ class WebPage
                         break;
 
                     default:
-                        // Execute the file and send the output HTML as a web page
-                        Log::action(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
-                            ':target' => Strings::from($target, PATH_ROOT),
-                            ':template' => $template->getName(),
-                            ':language' => LANGUAGE
-                        ]));
-
                         $output = self::$template_page->execute($target);
                 };
             } catch (AccessDeniedException $e) {

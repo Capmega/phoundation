@@ -43,9 +43,9 @@ abstract class Panel extends ElementsBlock
     /**
      * The profile image block
      *
-     * @var ProfileImage
+     * @var ImageMenu
      */
-    protected ProfileImage $profile_image;
+    protected ImageMenu $profile_image;
 
     /**
      * Modals for this panel
@@ -101,10 +101,10 @@ abstract class Panel extends ElementsBlock
     /**
      * Sets the panel profile image
      *
-     * @param ProfileImage $profile_image
+     * @param ImageMenu $profile_image
      * @return static
      */
-    public function setProfileImage(ProfileImage $profile_image): static
+    public function setProfileImage(ImageMenu $profile_image): static
     {
         $this->profile_image = $profile_image;
         return $this;
