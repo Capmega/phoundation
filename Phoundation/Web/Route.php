@@ -3,10 +3,12 @@
 namespace Phoundation\Web;
 
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Numbers;
+use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -38,36 +40,74 @@ use Throwable;
 class Route
 {
     /**
+     * Singleton variable
+     *
+     * @var Route
+     */
+    protected static Route $instance;
+
+    /**
      * The template to use for these routes
      *
      * @var Template $template
      */
-    protected Template $template;
+    protected static Template $template;
+
+    /**
+     * The templates to use for 404 pages in different sections
+     *
+     * @var array $system_templates
+     */
+    protected static array $system_templates;
 
     /**
      * The default server filesystem access restrictions to use while routing
      *
      * @var Server $server_restrictions
      */
-    protected Server $server_restrictions;
+    protected static Server $server_restrictions;
 
     /**
-     * The temporary server filesystem access restrictions to use while routing ONLY for the next try
+     * The temporary template to use while routing ONLY for the current try
      *
-     * @var ?Server $temp_server
+     * @var ?string $temp_template
      */
-    protected ?Server $temp_server = null;
+    protected static ?string $temp_template = null;
+
+    /**
+     * The request method
+     *
+     * @var string $method
+     */
+    protected static string $method;
+
+    /**
+     * The remote IP address that made this request
+     *
+     * @var string|mixed $ip
+     */
+    protected static string $ip;
+
+    /**
+     * The request URI
+     *
+     * @var string $uri
+     */
+    protected static string $uri;
+
+    /**
+     * The request query
+     *
+     * @var string $query
+     */
+    protected static string $query;
 
 
 
     /**
      * Route constructor
-     *
-     * @param Template $template
-     * @param Server|Restrictions|array|string|null $server_restrictions
-     * @throws Throwable
      */
-    public function __construct(Template $template, Server|Restrictions|array|string|null $server_restrictions = null)
+    protected function __construct()
     {
         // Start the Core object, hide $_GET & $_POST
         if (Core::getState() === 'init') {
@@ -76,37 +116,101 @@ class Route
             PostValidator::hideData();
         }
 
+        /*
+         * Cleanup the request URI by removing all GET requests and the leading
+         * slash, URIs cannot be longer than 255 characters
+         *
+         * Deny URI's larger than 255 characters. If these are specified,
+         * automatically 404 because this is a hard coded limit. The reason for
+         * this is that the routes_static table columns currently only hold 255
+         * characters and at the moment I see no reason why anyone would want
+         * more than 255 characters in their URL.
+         */
+        self::$method = ($_POST ? 'POST' : 'GET');
+        self::$ip     = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
+        self::$uri    = Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
+        self::$uri    = Strings::until(self::$uri                     , '?');
+        self::$query  = Strings::from($_SERVER['REQUEST_URI']         , '?');
+
+        if (strlen(self::$uri) > 2048) {
+            Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See Route() class). 404-ing the request', [
+                ':uri'   => self::$uri,
+                ':count' => strlen(self::$uri)
+            ]));
+
+            self::execute404();
+        }
+
+        // Ensure the post-processing function is registered
+        Log::action(tr('Processing ":domain" routes for ":method" method request ":url" from client ":client"', [
+            ':domain' => Config::get('web.domains.primary.domain'),
+            ':method' => self::$method,
+            ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+            ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')')
+        ]));
+
+        Core::registerShutdown('core_shutdown', ['\Phoundation\Web\Route', 'shutdown']);
+        Core::registerShutdown('route_postprocess', ['\Phoundation\Web\Route', 'postProcess']);
+    }
+
+
+
+    /**
+     * Singleton, ensure to always return the same Route object.
+     *
+     * @return Route
+     */
+    public static function getInstance(): Route
+    {
+        if (!isset(self::$instance)) {
+            self::$instance = new Route();
+        }
+
+        return self::$instance;
+    }
+
+
+
+    /**
+     * After this call, all tries will use the specified template and server restrictions
+     *
+     * @param string $template
+     * @param Server|Restrictions|array|string|null $server_restrictions
+     */
+    public static function setTemplate(string $template, Server|Restrictions|array|string|null $server_restrictions = null): void
+    {
+        self::getInstance();
+
+        if (!is_subclass_of($template, 'Phoundation\Web\Http\Html\Template\Template')) {
+            throw new OutOfBoundsException(tr('Cannot construct new Route object: Specified template class ":class" is not a sub class of "Phoundation\Web\Http\Html\Template\Template"', [
+                ':class' => $template
+            ]));
+        }
+
         // Set what template and default server restrictions  we'll be using
-        $this->template            = $template;
-        $this->server_restrictions = Core::ensureServer($server_restrictions, PATH_WWW);
+        self::$template            = $template::new();
+        self::$server_restrictions = Core::ensureServer($server_restrictions, PATH_WWW, 'Route');
     }
 
 
 
     /**
-     * Returns a new routing object
+     * Set different templates for different site section
      *
-     * @param Template $template
-     * @param Server|Restrictions|array|string|null $server_restrictions
-     * @return static
+     * @param string $template
+     * @param string|null $pattern
+     * @return void
      */
-    public static function new(Template $template, Server|Restrictions|array|string|null $server_restrictions = null): static
+    public static function setSystemTemplate(string $template, ?string $pattern = null): void
     {
-        return new static($template, $server_restrictions);
-    }
+        if (!is_subclass_of($template, 'Phoundation\Web\Http\Html\Template\Template')) {
+            throw new OutOfBoundsException(tr('Cannot set 404 template for pattern ":pattern": Specified template class ":class" is not a sub class of "Phoundation\Web\Http\Html\Template\Template"', [
+                ':pattern' => $pattern,
+                ':class'   => $template
+            ]));
+        }
 
-
-
-    /**
-     * Try the following access restrictions only for the next try
-     *
-     * @param Server|Restrictions|array|string|null $server_restrictions
-     * @return static
-     */
-    public function using(Server|Restrictions|array|string|null $server_restrictions = null): static
-    {
-        $this->temp_server = $server_restrictions;
-        return $this;
+        self::$system_templates[$pattern] = $template;
     }
 
 
@@ -136,8 +240,9 @@ class Route
      * R301             Redirect to the specified page argument using HTTP 301
      * R302             Redirect to the specified page argument using HTTP 302
      * S$SECONDS$       Store the specified rule for this IP and apply it for $SECONDS$ amount of seconds. $SECONDS$ is optional, and defaults to 86400 seconds (1 day). This works well to auto 404 IP's that are doing naughty things for at least a day
+     * T$TEMPLATE$      Use the specified template instead of the current template for this try
      * X$PATHS$         Restrict access to the specified dot-comma separated $PATHS$ list. $PATHS is optional and defaults to PATH_ROOT.'www,'.PATH_ROOT.'data/content/downloads'
-     *
+     * Z$RIGHT$[$PAGE$] Requires that the current session user has the specified right, or $PAGE$ will be shown, with $PAGE$ defaulting to system/403. Multiple Z flags may be specified
      * The $Debug::enabled() and $Debug::enabled() variables here are to set the system in Debug::enabled() or Debug::enabled() mode, but ONLY if the system runs in debug mode. The former will add extra log output in the data/log files, the latter will add LOADS of extra log data in the data/log files, so please use with care and only if you cannot resolve the problem
      *
      * Once all Route::add() calls have passed without result, the system will shut down. The shutdown() call will then automatically execute Route::execute404() which will display the 404 page
@@ -199,71 +304,34 @@ class Route
      *
      * @example Setup URL translations map. In this example, URL's with /es/ with the word "conferencias" would map to the word "conferences", etc.
      * code
-     * Route::map('es', ['conferencias' => 'conferences',
-     *                   'portafolio'   => 'portfolio',
-     *                   'servicios'    => 'services',
-     *                   'nosotros'     => 'about']);
+     * Route::map('es', [
+     *     'conferencias' => 'conferences',
+     *     'portafolio'   => 'portfolio',
+     *     'servicios'    => 'services',
+     *     'nosotros'     => 'about'
+     * ]);
      *
-     * Route::map('nl' => ['conferenties' => 'conferences',
-     *                    'portefeuille' => 'portfolio',
-     *                    'diensten'     => 'services',
-     *                    'over-ons'     => 'about']);
+     * Route::map('nl', [
+     *     'conferenties' => 'conferences',
+     *     'portefeuille' => 'portfolio',
+     *     'diensten'     => 'services',
+     *     'over-ons'     => 'about'
+     *  ]);
      * /code
      *
      */
-    public function try(string $url_regex, string $target, string $flags = ''): bool
+    public static function try(string $url_regex, string $target, string $flags = ''): bool
     {
         static $count = 1;
-        static $init  = false;
 
         try {
-            $type = ($_POST ?  'POST' : 'GET');
-            $ip   = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
-
-            // Ensure the post-processing function is registered
-            if (!$init) {
-                $init = true;
-                Log::action(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', [
-                    ':domain' => Config::get('web.domains.primary.www'),
-                    ':type'   => $type,
-                    ':url'    => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
-                    ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')')
-                ]));
-
-                Core::registerShutdown('core_shutdown', ['\Phoundation\Web\Route', 'shutdown']);
-                Core::registerShutdown('route_postprocess', [$this, 'postProcess']);
-            }
-
             if (!$url_regex) {
                 // Match an empty string
                 $url_regex = '/^$/';
             }
 
-            /*
-             * Cleanup the request URI by removing all GET requests and the leading
-             * slash, URIs cannot be longer than 255 characters
-             *
-             * Deny URI's larger than 255 characters. If these are specified,
-             * automatically 404 because this is a hard coded limit. The reason for
-             * this is that the routes_static table columns currently only hold 255
-             * characters and at the moment I see no reason why anyone would want
-             * more than 255 characters in their URL.
-             */
-            $query = Strings::from($_SERVER['REQUEST_URI']         , '?');
-            $uri   = Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
-            $uri   = Strings::until($uri                           , '?');
-
-            if (strlen($uri) > 2048) {
-                Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See route() function). 404-ing the request', [
-                    ':uri' => $uri,
-                    ':count' => strlen($uri)
-                ]));
-
-                Route::execute404();
-            }
-
             // Apply pre-matching flags. Depending on individual flags we may do different things
-            $flags  = strtoupper($flags);
+            $uri    = self::$uri;
             $flags  = explode(',', $flags);
             $until  = false; // By default, do not store this rule
             $block  = false; // By default, do not block this request
@@ -282,8 +350,8 @@ class Route
                         break;
 
                     case 'M':
-                        $uri .= '?' . $query;
-                        Log::notice(tr('Adding query to URI ":uri"', array(':uri' => $uri)));
+                        $uri .= '?' . self::$query;
+                        Log::notice(tr('Adding query to URI ":uri"', [':uri' => $uri]));
 
                         if (!array_search('Q', $flags)) {
                             // Auto imply Q
@@ -306,16 +374,16 @@ class Route
                                                 AND      `status` IS NULL 
                                                 AND      `expiredon` >= NOW() 
                                                 ORDER BY `created_on` DESC 
-                                                LIMIT 1', [':ip' => $ip]);
+                                                LIMIT 1', [':ip' => self::$ip]);
 
                     if ($exists) {
                         // Apply semi-permanent routing for this IP
                         Log::warning(tr('Found active routing for IP ":ip", continuing routing as if request is URI ":uri" with regex ":regex", target ":target", and flags ":flags" instead', [
-                            ':ip' => $ip,
-                            ':uri' => $exists['uri'],
-                            ':regex' => $exists['regex'],
+                            ':ip'     => self::$ip,
+                            ':uri'    => $exists['uri'],
+                            ':regex'  => $exists['regex'],
                             ':target' => $exists['target'],
-                            ':flags' => $exists['flags']
+                            ':flags'  => $exists['flags']
                         ]));
 
                         $uri       = $exists['uri'];
@@ -337,8 +405,8 @@ class Route
             Log::action(tr('Testing rule ":count" ":regex" on ":type" ":url"', [
                 ':count' => $count,
                 ':regex' => $url_regex,
-                ':type' => $type,
-                ':url' => $uri
+                ':type'  => self::$method,
+                ':url'   => $uri
             ]));
 
             try {
@@ -357,8 +425,8 @@ class Route
 
             if (Debug::enabled()) {
                 Log::success(tr('Regex ":count" ":regex" matched with matches ":matches"', [
-                    ':count' => $count,
-                    ':regex' => $url_regex,
+                    ':count'   => $count,
+                    ':regex'   => $url_regex,
                     ':matches' => $matches
                 ]));
             }
@@ -435,7 +503,7 @@ class Route
                         Log::warning(tr('Ignoring regex ":regex" because route ":route" has error ":e"', [
                             ':regex' => $url_regex,
                             ':route' => $route,
-                            ':e' => $e->getMessage()
+                            ':e'     => $e->getMessage()
                         ]));
                     }
                 }
@@ -487,7 +555,7 @@ class Route
 
                         $count = 1;
                         unset($flags[$flags_id]);
-                        $this->execute(Debug::currentFile(1), $attachment);
+                        self::execute(Debug::currentFile(1), $attachment);
 
                     case 'G':
                         // MUST be a GET reqest, NO POST data allowed!
@@ -507,7 +575,7 @@ class Route
                             ->setGroups('security')
                             ->setTitle(tr('*Possible hack attempt detected*'))
                             ->setMessage(tr('The IP address ":ip" made the request ":request" which was matched by regex ":regex" with flags ":flags" and caused this notification', [
-                                ':ip'      => $ip,
+                                ':ip'      => self::$ip,
                                 ':request' => $uri,
                                 ':regex'   => $url_regex,
                                 ':flags'   => implode(',', $flags)
@@ -586,11 +654,39 @@ class Route
 
                         break;
 
+                    case 'T':
+                        self::$temp_template = substr($flag, 1);
+                        break;
+
                     case 'X':
                         // Restrict access to the specified path list
                         $restrictions = substr($flag, 1);
                         $restrictions = str_replace(';', ',', $restrictions);
                         break;
+
+                    case 'Z':
+                        // Restrict access to users with the specified right, or execute the specified page instead
+                        // (defaults to 403). Format is Z$RIGHT$[$PAGE$] and multiple Z rules may be specified
+                        if (!preg_match_all('/^Z(.+?)(?:\[(.+?)\])?$/iu', $flag, $matches)) {
+                            Log::warning(tr('Invalid "Z" (requires right) rule ":flag" encountered, denying access by default for security', [
+                                ':flag' => $flag
+                            ]));
+
+                            self::execute403();
+                        }
+
+                        $right = get_null(isset_get($matches[1][0]));
+                        $page  = get_null(isset_get($matches[2][0]));
+
+                        if (!Session::getUser()->hasAllRights($right)) {
+                            Log::warning(tr('Denied user ":user" access to resource because of missing right ":right"', [
+                                ':user'     => Session::getUser()->getLogId(),
+                                ':right'    => $right
+                            ]));
+
+                            self::execute($page ?? Config::get('web.pages.access-denied', 'system/403.php'), false);
+                            return false;
+                        }
                 }
             }
 
@@ -598,7 +694,10 @@ class Route
             if (empty($get)) {
                 if (!empty($_GET)) {
                     // Client specified variables on a URL that does not allow queries, cancel the match
-                    Log::warning(tr('Matched route ":route" does not allow query variables while client specified them, cancelling match', [':route' => $route]));
+                    Log::warning(tr('Matched route ":route" does not allow query variables while client specified them, cancelling match', [
+                        ':route' => $route
+                    ]));
+
 //                    Log::vardump($_GET);
 
                     $count++;
@@ -786,7 +885,7 @@ class Route
                     'regex'     => $url_regex,
                     'flags'     => $flags,
                     'uri'       => $uri,
-                    'ip'        => $ip
+                    'ip'        => self::$ip
                 ]);
             }
 
@@ -795,7 +894,7 @@ class Route
                 Core::die();
             }
 
-            return $this->execute($page, $attachment);
+            return self::execute($page, $attachment);
 
         } catch (Exception $e) {
             if (str_starts_with($e->getMessage(), 'PHP ERROR [2] "preg_match_all():')) {
@@ -863,7 +962,7 @@ class Route
      * @param array $map
      * @return void
      */
-    public function mapUrl(string $language, array $map): void
+    public static function mapUrl(string $language, array $map): void
     {
         // Set specific language map
         Log::notice(tr('Setting specified URL map'));
@@ -878,7 +977,7 @@ class Route
      * @see Route::postProcess()
      * @return void
      */
-    public function shutdown(?int $exit_code = null): void
+    public static function shutdown(?int $exit_code = null): void
     {
         if ($exit_code) {
             Log::warning(tr('Routed script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
@@ -910,7 +1009,7 @@ class Route
      *
      * @return void
      */
-    public function postProcess(): void
+    public static function postProcess(): void
     {
         Log::warning(tr('Found no routes for known pages, testing for hacks'));
 
@@ -919,12 +1018,12 @@ class Route
             Log::warning(tr('Applying known hacking rules'));
 
             foreach (Config::get('web.route.known-hacks') as $hacks) {
-                $this->try($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
+                self::try($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
             }
         }
 
         // This is not a hack, the page simply cannot be found. Show a 404 instead
-        $this->execute404();
+        self::execute404();
     }
 
 
@@ -936,10 +1035,10 @@ class Route
      * @param bool $attachment
      * @return bool
      */
-    protected function execute(string $target, bool $attachment): bool
+    protected static function execute(string $target, bool $attachment): bool
     {
         // Set the server filesystem restrictions and template for this page
-        WebPage::setServerRestrictions($this->getServerRestrictions());
+        WebPage::setServerRestrictions(self::getServerRestrictions());
 
         // Find the correct target page
         $target = Filesystem::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE . '/pages/');
@@ -947,11 +1046,11 @@ class Route
         if (str_ends_with($target, 'php')) {
             // Remove the 404 auto execution on shutdown
             Core::unregisterShutdown('route_postprocess');
-            $html = WebPage::execute($target, $this->template, $attachment);
+            $html = WebPage::execute($target, self::$template, $attachment);
 
             if ($attachment) {
                 // Send download headers and send the $html payload
-                File::new($this->server_restrictions)
+                File::new(self::$server_restrictions)
                     ->setAttachment(true)
                     ->setData($html)
                     ->setFilename(basename($target))
@@ -967,7 +1066,7 @@ class Route
             // Upload the file to the client as an attachment
             Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
 
-            File::new($this->server_restrictions)
+            File::new(self::$server_restrictions)
                 ->setAttachment(true)
                 ->setFile($target)
                 ->send();
@@ -986,6 +1085,8 @@ class Route
             header('Content-Type: ' . $mimetype);
             header('Content-length: ' . $bytes);
 
+            showdie(Debug::backtrace());
+            showdie($target);
             include($target);
         }
 
@@ -995,30 +1096,75 @@ class Route
 
 
     /**
-     * Show the 404 page
+     * Show the 403 page
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package Web
      * @see Route::add()
      * @see Route::shutdown()
-     * @note: This method typically would only need to be called by the route() or Route::shutdown()functions.
-     * @note: This method will kill the process
-     * @version 2.0.5: Added function and documentation
-     *
      * @return void
      */
-    protected function execute404(): void
+    #[NoReturn] protected static function execute403(): void
+    {
+        Log::warning(tr('Access denied to requested resource, sending 403 instead'));
+
+        self::selectSystemTemplate();
+
+        try {
+            Core::writeRegister(PATH_WWW . 'system/403', 'system', 'script_path');
+            Core::writeRegister('403', 'system', 'script');
+
+            self::execute('system/403.php', false);
+
+        } catch (Throwable $e) {
+            if ($e->getCode() === 'not-exists') {
+                Log::warning(tr('The system/403.php page does not exist, showing basic 403 message instead'));
+
+                echo tr('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+                <html><head>
+                <title>:title</title>
+                </head><body>
+                <h1>:h1</h1>
+                <p>:p</p>
+                <hr>
+                :body
+                </body></html>', [
+                    ':title' => tr('403 - Forbidden'),
+                    ':h1'    => tr('Access forbidden'),
+                    ':p'     => tr('You do not have access to the requested URL on this server'),
+                    ':body'  => ((Config::get('security.expose.phoundation', false)) ? '<address>Phoundation ' . Core::FRAMEWORKCODEVERSION . '</address>' : '')
+                ]);
+
+                die();
+            }
+
+            Log::warning(tr('The 403 page failed to show with an exception, showing basic 403 message instead and logging exception below'));
+            Log::setBacktraceDisplay('BACKTRACE_DISPLAY_BOTH');
+            Log::error($e);
+
+            echo tr('403 - Forbidden: You do not have access to the requested resource');
+            die();
+        }
+    }
+
+
+
+    /**
+     * Show the 404 page
+     *
+     * @see Route::add()
+     * @see Route::shutdown()
+     * @return void
+     */
+    #[NoReturn] protected static function execute404(): void
     {
         Log::warning(tr('Found no routes for known pages nor hacks, sending 404'));
+
+        self::selectSystemTemplate();
 
         try {
             Core::writeRegister(PATH_WWW . 'system/404', 'system', 'script_path');
             Core::writeRegister('404', 'system', 'script');
 
-            $this->execute('system/404.php', false);
+            self::execute('system/404.php', false);
 
         } catch (Throwable $e) {
             if ($e->getCode() === 'not-exists') {
@@ -1033,11 +1179,12 @@ class Route
                 <hr>
                 :body
                 </body></html>', [
-                    ':title' => tr('404 Not Found'),
+                    ':title' => tr('404 - Not Found'),
                     ':h1'    => tr('Not Found'),
-                    ':p'     => tr('The requested URL /wer was not found on this server'),
-                    ':body'  => ((Config::get('security.expose.phoundation-signature', false)) ? '<address>Phoundation ' . Core::FRAMEWORKCODEVERSION . '</address>' : '')
+                    ':p'     => tr('The requested URL was not found on this server'),
+                    ':body'  => ((Config::get('security.expose.phoundation', false)) ? '<address>Phoundation ' . Core::FRAMEWORKCODEVERSION . '</address>' : '')
                 ]);
+
                 die();
             }
 
@@ -1045,7 +1192,7 @@ class Route
             Log::setBacktraceDisplay('BACKTRACE_DISPLAY_BOTH');
             Log::error($e);
 
-            echo tr('404 - The requested page does not exist');
+            echo tr('404 - The requested resource does not exist');
             die();
         }
     }
@@ -1081,7 +1228,7 @@ class Route
      * /code
      *
      */
-    protected function insertStatic($route): void
+    protected static function insertStatic($route): void
     {
         $route = Route::validateStatic($route);
 
@@ -1109,16 +1256,10 @@ class Route
      *
      * This function will validate all relevant fields in the specified $route array
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package categories
-     *
      * @param StaticRoute $route
      * @return string HTML for a categories select box within the specified parameters
      */
-    protected function validateStatic(StaticRoute $route)
+    protected static function validateStatic(StaticRoute $route)
     {
 //        Validator::array($route)
 //            ->select('uri')->isUrl('uri')
@@ -1138,16 +1279,49 @@ class Route
      *
      * @return Server
      */
-    protected function getServerRestrictions(): Server
+    protected static function getServerRestrictions(): Server
     {
-        if ($this->temp_server) {
-            $server_restrictions = $this->temp_server;
-        } else {
-            $server_restrictions = $this->server_restrictions;
+        return self::$server_restrictions;
+    }
+
+
+
+    /**
+     * Use one of the specified system templates to display a system page
+     */
+    protected static function selectSystemTemplate(): void
+    {
+        foreach (self::$system_templates as $regex => $template) {
+            try {
+                if ($regex) {
+                    if (preg_match($regex, self::$uri)) {
+                        // Use this template
+                        Log::action(tr('Selecting template ":template" to display system page', [
+                            ':template' => $template
+                        ]));
+
+                        self::$template = $template::new();
+                        return;
+                    }
+                } else {
+                    // This is the default template
+                    Log::action(tr('Selecting default template ":template" to display system page', [
+                        ':template' => $template
+                    ]));
+
+                    self::$template = $template::new();
+                    return;
+                }
+            } catch (Exception $e) {
+                Log::warning(tr('Not selecting system template ":template" because the regex ":regex" failed with ":e". Ignoring template and skipping to next', [
+                    ':template' => $template,
+                    ':e'        => $e,
+                    ':regex'    => $regex
+                ]));
+            }
         }
 
-        $this->temp_server = null;
-        $server_restrictions->setLabel('Route');
-        return $server_restrictions;
+        // No system template applied!
+        Log::warning(tr('Failed to select a template to display system page'));
     }
 }
