@@ -45,7 +45,7 @@ class TemplateMenus
 
         return $menu->setSource([
             tr('Dashboard') => [
-                'url'  => '/',
+                'url'  => '/admin/',
                 'icon' => 'fa-tachometer-alt',
             ],
             tr('System') => [
@@ -54,24 +54,24 @@ class TemplateMenus
             tr('Accounts') => [
                 'icon' => 'fa-users',
                 'menu' => [
-                    tr('Accounts') => [
-                        'url'  => '/accounts/users.html',
+                    tr('Users') => [
+                        'url'  => '/admin/accounts/users.html',
                         'icon' => 'fa-users'
                     ],
                     tr('Roles') => [
-                        'url'  => '/accounts/roles.html',
+                        'url'  => '/admin/accounts/roles.html',
                         'icon' => 'fa-users'
                     ],
                     tr('Rights') => [
-                        'url'  => '/accounts/rights.html',
+                        'url'  => '/admin/accounts/rights.html',
                         'icon' => 'fa-lock'
                     ],
                     tr('Groups') => [
-                        'url'  => '/accounts/groups.html',
+                        'url'  => '/admin/accounts/groups.html',
                         'icon' => 'fa-users'
                     ],
                     tr('Switch user') => [
-                        'url'  => '/accounts/switch',
+                        'url'  => '/admin/accounts/switch',
                         'icon' => 'fa-user'
                     ]
                 ]
@@ -80,32 +80,32 @@ class TemplateMenus
                 'icon' => 'fa-lock',
                 'menu' => [
                     tr('Authentications log') => [
-                        'url'  => '/security/log/authentications.html',
+                        'url'  => '/admin/security/log/authentications.html',
                         'icon' => 'fa-key'
                     ],
                     tr('Activity log') => [
-                        'url'  => '/security/log/activity',
+                        'url'  => '/admin/security/log/activity',
                         'icon' => 'fa-tasks'
                     ]
                 ],
             ],
             tr('Key / Values store') => [
-                'url'  => '/system/key-values.html',
+                'url'  => '/admin/system/key-values.html',
                 'icon' => 'fa-database'
             ],
             tr('Storage system') => [
                 'icon' => 'fa-database',
                 'menu' => [
                     tr('Collections') => [
-                        'url'  => '/storage/collections.html',
+                        'url'  => '/admin/storage/collections.html',
                         'icon' => 'fa-paperclip'
                     ],
                     tr('Documents')  => [
-                        'url'  => '/storage/documents.html',
+                        'url'  => '/admin/storage/documents.html',
                         'icon' => 'fa-book'
                     ],
                     tr('Resources') => [
-                        'url'  => '/storage/resources.html',
+                        'url'  => '/admin/storage/resources.html',
                         'icon' => 'fa-list-ul'
                     ]
                 ]
@@ -114,23 +114,23 @@ class TemplateMenus
                 'icon' => 'fa-server',
                 'menu' => [
                     tr('Servers') => [
-                        'url'  => '/servers/servers.html',
+                        'url'  => '/admin/servers/servers.html',
                         'icon' => 'fa-server'
                     ],
                     tr('Forwards') => [
-                        'url'  => '/servers/forwards.html',
+                        'url'  => '/admin/servers/forwards.html',
                         'icon' => 'fa-arrow-right'
                     ],
                     tr('SSH accounts') => [
-                        'url'  => '/servers/ssh-accounts.html',
+                        'url'  => '/admin/servers/ssh-accounts.html',
                         'icon' => 'fa-gear'
                     ],
                     tr('Databases') => [
-                        'url'  => '/servers/databases.html',
+                        'url'  => '/admin/servers/databases.html',
                         'icon' => 'fa-database'
                     ],
                     tr('Database accounts') => [
-                        'url'  => '/servers/database-accounts.html',
+                        'url'  => '/admin/servers/database-accounts.html',
                         'icon' => 'fa-users'
                     ],
                 ]
@@ -139,7 +139,7 @@ class TemplateMenus
                 'icon' => 'fa-camera',
                 'menu' => [
                     tr('Devices') => [
-                        'url'  => '/hardware/devices.html',
+                        'url'  => '/admin/hardware/devices.html',
                         'icon' => 'fa-camera'
                     ],
                     tr('Scanners') => [
@@ -149,17 +149,17 @@ class TemplateMenus
                                 'icon' => 'fa-book',
                                 'menu' => [
                                     tr('Drivers') => [
-                                        'url'  => '/hardware/scanners/document/drivers.html',
+                                        'url'  => '/admin/hardware/scanners/document/drivers.html',
                                         'icon' => ''
                                     ],
                                     tr('Devices') => [
-                                        'url'  => '/hardware/scanners/document/devices.html',
+                                        'url'  => '/admin/hardware/scanners/document/devices.html',
                                         'icon' => ''
                                     ],
                                 ]
                             ],
                             tr('Finger print') => [
-                                'url'  => '/hardware/scanners/finger-print.html',
+                                'url'  => '/admin/hardware/scanners/finger-print.html',
                                 'icon' => ''
                             ],
                         ]
@@ -167,23 +167,23 @@ class TemplateMenus
                 ]
             ],
             tr('Phoundation') => [
-                'url'  => '/phoundation.html',
+                'url'  => '/admin/phoundation.html',
                 'icon' => '',
                 'menu' => [
                     tr('Configuration') => [
-                        'url'  => '/admin/phoundation/configuration.html',
+                        'url'  => '/admin/admin/phoundation/configuration.html',
                         'icon' => ''
                     ],
                     tr('Routing') => [
-                        'url'  => '/admin/phoundation/routing.html',
+                        'url'  => '/admin/admin/phoundation/routing.html',
                         'icon' => ''
                     ],
                     tr('Plugins') => [
-                        'url'  => '/admin/phoundation/plugins.html',
+                        'url'  => '/admin/admin/phoundation/plugins.html',
                         'icon' => ''
                     ],
                     tr('Templates') => [
-                        'url'  => '/admin/phoundation/templates.html',
+                        'url'  => '/admin/admin/phoundation/templates.html',
                         'icon' => ''
                     ],
                 ]
@@ -192,34 +192,34 @@ class TemplateMenus
                 'icon' => 'fa-sprocket',
             ],
             tr('Customers') => [
-                'url'  => '/admin/customers/customers.html',
+                'url'  => '/admin/admin/customers/customers.html',
                 'icon' => 'fa-users'
             ],
             tr('Providers') => [
-                'url'  => '/admin/providers/providers.html',
+                'url'  => '/admin/admin/providers/providers.html',
                 'icon' => 'fa-users'
             ],
             tr('Business') => [
                 'icon' => 'fa-building',
                 'menu' => [
                     tr('Companies') => [
-                        'url'  => '/companies/companies.html',
+                        'url'  => '/admin/companies/companies.html',
                         'icon' => 'fa-building'
                     ],
                     tr('Branches') => [
-                        'url'  => '/companies/branches.html',
+                        'url'  => '/admin/companies/branches.html',
                         'icon' => 'fa-building'
                     ],
                     tr('Departments') => [
-                        'url'  => '/companies/departments.html',
+                        'url'  => '/admin/companies/departments.html',
                         'icon' => 'fa-sitemap'
                     ],
                     tr('Employees') => [
-                        'url'  => '/companies/employees.html',
+                        'url'  => '/admin/companies/employees.html',
                         'icon' => 'fa-users'
                     ],
                     tr('Inventory') => [
-                        'url'  => '/companies/inventory/inventory.html',
+                        'url'  => '/admin/companies/inventory/inventory.html',
                         'icon' => 'fa-shopping-cart'
                     ]
                 ]
@@ -228,7 +228,7 @@ class TemplateMenus
                 'icon' => ''
             ],
             tr('About') => [
-                'url'  => '/about',
+                'url'  => '/admin/about',
                 'icon' => ''
             ]
         ]);
@@ -247,11 +247,11 @@ class TemplateMenus
 
         return $menu->setSource([
             tr('Profile') => [
-                'url'  => '/profile.html',
+                'url'  => '/admin/profile.html',
                 'icon' => ''
             ],
             tr('Sign out') => [
-                'url'  => '/sign-out.html',
+                'url'  => '/admin/sign-out.html',
                 'icon' => ''
             ],
         ]);
