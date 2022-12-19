@@ -21,6 +21,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Notifications\Notification;
 use Phoundation\Servers\Server;
+use Phoundation\Utils\Json;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Flash;
@@ -230,9 +231,9 @@ class WebPage
     /**
      * Bread crumbs for this page
      *
-     * @var BreadCrumbs
+     * @var BreadCrumbs|null
      */
-    protected static BreadCrumbs $bread_crumbs;
+    protected static ?BreadCrumbs $bread_crumbs = null;
 
 
 
@@ -294,12 +295,12 @@ class WebPage
     /**
      * Returns the bread crumbs for this page
      *
-     * @return BreadCrumbs
+     * @return BreadCrumbs|null
      */
-    public static function getBreadCrumbs(): BreadCrumbs
+    public static function getBreadCrumbs(): ?BreadCrumbs
     {
         if (!isset(self::$bread_crumbs)) {
-            throw new OutOfBoundsException(tr('WebPage BreadCrumbs object has not been set'));
+            Log::warning(tr('WebPage BreadCrumbs object has not been set'));
         }
 
         return self::$bread_crumbs;
@@ -704,8 +705,6 @@ class WebPage
      */
     public static function execute(string $target, ?Template $template = null, bool $attachment = false): ?string
     {
-//        show(Session::getUser()->rights());
-//        showdie(Session::getUser());
         try {
             if (Strings::fromReverse(dirname($target), '/') === 'system') {
                 // Wait a small random time to avoid timing attacks on system pages
@@ -722,11 +721,20 @@ class WebPage
             $cache = Cache::read(self::$hash, 'pages');
 
             if ($cache) {
-                $length = self::sendHttpHeaders($cache['headers']);
-                Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
+                try {
+                    $cache  = Json::decode($cache);
+                    $length = self::sendHttpHeaders($cache['headers']);
+                    Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
 
-                // Send the page to the client
-                self::send($cache['output']);
+                    // Send the page to the client
+                    self::send($cache['output']);
+                } catch (Throwable $e) {
+                    // Cache failed!
+                    Log::warning(tr('Failed to send full cache page ":page" with following exception, ignoring cache and building page', [
+                        ':page' => self::$hash,
+                    ]));
+                    Log::exception($e);
+                }
             }
 
             Core::writeRegister($target, 'system', 'script_file');
