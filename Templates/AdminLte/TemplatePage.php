@@ -235,7 +235,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
                             </h1>
                           </div>
                           <div class="col-sm-6">
-                            ' . WebPage::getBreadCrumbs()->render() .  '
+                            ' . WebPage::getBreadCrumbs()?->render() .  '
                           </div>
                         </div>
                       </div>
