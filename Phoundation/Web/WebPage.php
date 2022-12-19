@@ -1335,7 +1335,7 @@ class WebPage
         }
 
         // Add a powered-by header
-        switch (Config::getBoolean('security.expose.phoundation-signature', 'limited')) {
+        switch (Config::getBoolean('security.expose.phoundation', 'limited')) {
             case 'limited':
                 header('Powered-By: Phoundation');
                 break;
