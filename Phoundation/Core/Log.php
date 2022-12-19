@@ -515,6 +515,20 @@ Class Log {
 
 
     /**
+     * Dump an exception object in the log file
+     *
+     * @param mixed $messages
+     * @param int $level
+     * @return bool
+     */
+    public static function exception(Throwable $messages = null, int $level = 10): bool
+    {
+        return self::write($messages, 'error', $level, false);
+    }
+
+
+
+    /**
      * Write a warning message in the log file
      *
      * @param mixed $messages
