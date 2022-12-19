@@ -18,3 +18,4 @@ www/en/admin/pub/css/bundle-*
 *.patch
 phoundation.komodoproject
 vendor
+nohup.out
