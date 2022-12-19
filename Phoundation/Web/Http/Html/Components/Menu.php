@@ -27,7 +27,9 @@ abstract class Menu extends ElementsBlock
                 $entry = ['url' => $entry];
             }
 
-            $entry['url'] = Url::build($entry['url'])->www();
+            if (array_key_exists('url', $entry)) {
+                $entry['url'] = Url::build($entry['url'])->www();
+            }
         }
 
         unset($entry);
