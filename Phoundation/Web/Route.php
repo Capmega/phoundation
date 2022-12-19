@@ -1156,7 +1156,7 @@ class Route
      */
     #[NoReturn] protected static function execute404(): void
     {
-        Log::warning(tr('Found no routes for known pages nor hacks, sending 404'));
+        Log::warning(tr('Found no routes for known hacks, sending 404'));
 
         self::selectSystemTemplate();
 
