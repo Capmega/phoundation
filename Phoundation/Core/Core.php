@@ -278,13 +278,13 @@ class Core {
     }
 
 
+
     /**
      * The core::startup() method will start up the core class
      *
      * This method starts the correct call type handler
      *
      * @return void
-     * @throws Throwable
      */
     public static function startup(): void
     {
@@ -2103,17 +2103,17 @@ class Core {
      * @param Server|Restrictions|array|string|null $default
      * @return Server
      */
-    public static function ensureServer(Server|Restrictions|array|string|null $server_restrictions = null, Server|Restrictions|array|string|null $default = null): Server
+    public static function ensureServer(Server|Restrictions|array|string|null $server_restrictions = null, Server|Restrictions|array|string|null $default = null, ?string $label = null): Server
     {
         if ($server_restrictions) {
             if (!is_object($server_restrictions)) {
                 // Restrictions were specified by simple path string or array of paths. Convert to restrictions object
-                $server_restrictions = new Server($server_restrictions);
-            }
-
-            if ($server_restrictions instanceof Restrictions) {
-                // Server was specified by Restrictions object
-                $server_restrictions = new Server($server_restrictions);
+                $server_restrictions = new Server($server_restrictions, 'localhost', $label);
+            } elseif ($server_restrictions instanceof Restrictions) {
+                    // Server was specified by Restrictions object
+                    $server_restrictions = new Server($server_restrictions, 'localhost', $label);
+            } else {
+                $server_restrictions->setLabel($label);
             }
 
             return $server_restrictions;
@@ -2123,10 +2123,10 @@ class Core {
         if ($default) {
             if (!is_object($default)) {
                 // Restrictions were specified by simple path string or array of paths. Convert to restrictions object
-                $default = new Server($default);
+                return new Server($default, 'localhost', $label);
             }
 
-            return $default;
+            return $default->setLabel($label);
         }
 
         // Nope, fall back to the default restrictions

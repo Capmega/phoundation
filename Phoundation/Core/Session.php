@@ -98,7 +98,7 @@ class Session
         if (self::$user === null) {
             // User object does not yet exist
             if (isset_get($_SESSION['user']['id'])) {
-                // Create new user object and ensure its still good to go
+                // Create new user object and ensure it's still good to go
                 try {
                     $user = User::get($_SESSION['user']['id']);
 
@@ -300,7 +300,8 @@ class Session
      */
     public static function clear(): void
     {
-        $_SESSION = [];
+        global $_SESSION;
+        $_SESSION = ['start' => $_SESSION['start']];
     }
 
 
@@ -325,7 +326,7 @@ class Session
             // Do not send cookies to crawlers!
             Log::information(tr('Crawler ":crawler" on URL ":url"', [
                 ':crawler' => Core::readRegister('session', 'client'),
-                ':url'     => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']
+                ':url'     => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
             ]));
 
             return false;
@@ -335,13 +336,7 @@ class Session
         switch (Config::get('web.sessions.handler', 'files')) {
             case 'files':
                 $path = Path::new(Config::get('web.sessions.path', PATH_DATA), Restrictions::new([PATH_DATA . 'sessions/', '/var/lib/php/sessions'], true, 'system/sessions'))->ensure();
-
                 session_save_path($path);
-
-                Log::success(tr('Started new session for user ":user" from IP ":ip"', [
-                    ':user' => self::getUser()->getLogId(),
-                    ':ip'   => $_SERVER['REMOTE_ADDR']
-                ]));
                 break;
 
             case 'memcached':
@@ -362,9 +357,13 @@ class Session
         }
 
         // Start session
-Log::warning('START SESSION');
         session_start();
         self::checkExtended();
+
+        Log::success(tr('Started session for user ":user" from IP ":ip"', [
+            ':user' => self::getUser()->getLogId(),
+            ':ip'   => $_SERVER['REMOTE_ADDR']
+        ]));
 
         if (Config::get('web.sessions.cookies.lifetime', 0)) {
             // Session cookie timed out?
