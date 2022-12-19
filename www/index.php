@@ -105,21 +105,27 @@ require('../vendor/autoload.php');
 
 
 
+/// Set templates for 404 pages in different sections
+Route::setSystemTemplate(AdminLte::class, '/^\w{2}\/admin\//');      // Use AdminLTE template for system pages like 403, 404, etc on admin pages
+Route::setSystemTemplate(Mdb::class);                                       // Use Mdb template for system pages like 403, 404, etc for all other pages
+
+
+
 // AdminLte based admin routes
-$route = new Route(AdminLte::new());
-$route->try('/^\w{2}\/admin\/ajax\/(.+?).html$/', '/en/ajax/$1.php'       , '' );       // Execute the requested AJAX page
-$route->try('/^(\w{2})\/admin\/(.+?).html$/'    , '/$1/pages/admin/$2.php', 'Q');       // Show the requested page
-$route->try('/^(\w{2})\/admin\/?$/'             , '/admin/index.html'     , 'R301');    // Redirect to admin index page
-$route->try('/^admin\/$/'                       , '/admin/index.html'     , 'R301');    // Redirect to admin index page
+Route::setTemplate(AdminLte::class);
+Route::try('/^\w{2}\/admin\/ajax\/(.+?).html$/', '/en/ajax/$1.php'       , 'Zadmin' );        // Execute the requested AJAX page
+Route::try('/^(\w{2})\/admin\/(.+?).html$/'    , '/$1/pages/admin/$2.php', 'Zadmin,Q');       // Show the requested page
+Route::try('/^(\w{2})\/admin\/?$/'             , '/admin/index.html'     , 'Zadmin,R301');    // Redirect to admin index page
+Route::try('/^admin\/$/'                       , '/admin/index.html'     , 'Zadmin,R301');    // Redirect to admin index page
 
 
 
 // Mdb based front-page routes
-$route = new Route(Mdb::new());
-$route->try('/^\w{2}\/ajax\/(.+?).html$/'   , '/en/ajax/$1.php' , '' );     // Execute the requested AJAX page
-$route->try('/^(\w{2})\/(.+?).html$/'       , '/$1/pages/$2.php', '');      // Show the requested page
-$route->try('/^(\w{2})\/?$/'                , '/index.html'     , 'R301');  // Redirect to front-end index page
-$route->try('/^$/'                          , '/index.html'     , 'R301');  // Redirect to front-end index page
+Route::setTemplate(Mdb::class);
+Route::try('/^\w{2}\/ajax\/(.+?).html$/', '/en/ajax/$1.php' , '' );     // Execute the requested AJAX page
+Route::try('/^(\w{2})\/(.+?).html$/'    , '/$1/pages/$2.php', '');      // Show the requested page
+Route::try('/^(\w{2})\/?$/'             , '/index.html'     , 'R301');  // Redirect to front-end index page
+Route::try('/^$/'                       , '/index.html'     , 'R301');  // Redirect to front-end index page
 
 
 
