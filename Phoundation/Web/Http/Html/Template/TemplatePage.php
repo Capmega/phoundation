@@ -206,33 +206,33 @@ abstract class TemplatePage
      * @param string $output
      * @return void
      */
-    public abstract function buildHttpHeaders(string $output): void;
+    abstract public function buildHttpHeaders(string $output): void;
 
     /**
      * Build the HTML header for the page
      *
      * @return string|null
      */
-    public abstract function buildHtmlHeader(): ?string;
+    abstract public function buildHtmlHeader(): ?string;
 
     /**
      * Build the page header
      *
      * @return string|null
      */
-    public abstract function buildPageHeader(): ?string;
+    abstract public function buildPageHeader(): ?string;
 
     /**
      * Build the page menu
      *
      * @return string|null
      */
-    public abstract function buildMenu(): ?string;
+    abstract public function buildMenu(): ?string;
 
     /**
      * Build the page footer
      *
      * @return string|null
      */
-    public abstract function buildPageFooter(): ?string;
+    abstract public function buildPageFooter(): ?string;
 }

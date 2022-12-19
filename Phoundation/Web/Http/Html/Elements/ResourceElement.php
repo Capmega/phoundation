@@ -285,5 +285,5 @@ abstract class ResourceElement extends Element
      *
      * @return string
      */
-    public abstract function renderBody(): string;
+    abstract public function renderBody(): string;
 }

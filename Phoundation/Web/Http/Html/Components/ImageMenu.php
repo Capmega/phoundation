@@ -156,5 +156,5 @@ abstract class ImageMenu extends ElementsBlock
      *
      * @return string|null
      */
-    public abstract function render(): ?string;
+    abstract public function render(): ?string;
 }

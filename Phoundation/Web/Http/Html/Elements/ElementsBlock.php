@@ -92,5 +92,5 @@ abstract class ElementsBlock
      *
      * @return string|null
      */
-    public abstract function render(): ?string;
+    abstract public function render(): ?string;
 }

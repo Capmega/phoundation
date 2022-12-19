@@ -143,5 +143,5 @@ abstract class Template
      *
      * @return string
      */
-    public abstract function getDescription(): string;
+    abstract public function getDescription(): string;
 }
