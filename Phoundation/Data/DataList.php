@@ -5,6 +5,7 @@ namespace Phoundation\Data;
 use Iterator;
 use Phoundation\Cli\Cli;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Elements\Table;
 use ReturnTypeWillChange;
 
@@ -53,9 +54,16 @@ abstract class DataList implements Iterator
     /**
      * The class for the items in this list when the item is dynamically created
      *
-     * @var string
+     * @var string $entry_class
      */
     protected string $entry_class;
+
+    /**
+     * The query to display an HTML table for this list
+     *
+     * @var string $html_query
+     */
+    protected string $html_query;
 
 
 
@@ -83,6 +91,30 @@ abstract class DataList implements Iterator
         if ($parent) {
             $this->load($id_column);
         }
+    }
+
+
+
+    /**
+     * Return the object contents in JSON string format
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return Json::encode($this);
+    }
+
+
+
+    /**
+     * Return the object contents in array format
+     *
+     * @return array
+     */
+    public function __toArray(): array
+    {
+        return $this->list;
     }
 
 
@@ -230,6 +262,32 @@ abstract class DataList implements Iterator
     public function getFilters(): array
     {
         return $this->filters;
+    }
+
+
+
+    /**
+     * Set the query for this object when shown as HTML table
+     *
+     * @param string $query
+     * @return static
+     */
+    public function setHtmlQuery(string $query): static
+    {
+        $this->html_query = $query;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the query for this object when shown as HTML table
+     *
+     * @return string
+     */
+    public function getHtmlQuery(): string
+    {
+        return $this->html_query;
     }
 
 
@@ -418,22 +476,18 @@ abstract class DataList implements Iterator
     /**
      * Creates and returns an HTML table for the data in this list
      *
-     * @param string $class
      * @return Table
      */
-    public function htmlTable(string $class = Table::class): Table
+    public function getHtmlTable(): Table
     {
-        if (!is_subclass_of($class, Table::class)) {
-            throw new OutOfBoundsException(tr('Invalid class ":class" specified, the class must be a subclass of Table::class', [
-                ':class' => $class
+        if (!isset($this->html_query)) {
+            throw new OutOfBoundsException(tr('Cannot generate HMTL table for ":class", no html query specified', [
+                ':class' => get_class($this)
             ]));
         }
 
-        $this->ensureLoaded();
-
         // Create and return the table
-        return $class::new()
-            ->setSourceData($this->list);
+        return Table::new()->setSourceQuery($this->html_query);
     }
 
 

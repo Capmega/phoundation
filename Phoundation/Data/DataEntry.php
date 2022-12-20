@@ -9,7 +9,7 @@ use Phoundation\Core\Meta;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Accounts\Users\User;
-
+use Phoundation\Utils\Json;
 
 
 /**
@@ -109,6 +109,30 @@ abstract class DataEntry
         } else {
             $this->setMetaData();
         }
+    }
+
+
+
+    /**
+     * Return the object contents in JSON string format
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return Json::encode($this);
+    }
+
+
+
+    /**
+     * Return the object contents in array format
+     *
+     * @return array
+     */
+    public function __toArray(): array
+    {
+        return $this->data;
     }
 
 
