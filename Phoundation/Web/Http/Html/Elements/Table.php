@@ -8,6 +8,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\WebPage;
 
 
 /**
@@ -20,7 +21,7 @@ use Phoundation\Web\Http\Url;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-Class Table extends ResourceElement
+class Table extends ResourceElement
 {
     /**
      * The class for the <row> elements within the <table> element
@@ -51,7 +52,7 @@ Class Table extends ResourceElement
     protected array $column_url = [];
 
     /**
-     * URL's that apply to all rows
+     * URLs that apply to all rows
      *
      * @var string|null $row_url
      */
@@ -70,6 +71,13 @@ Class Table extends ResourceElement
      * @var array $convert_columns
      */
     protected array $convert_columns = [];
+
+    /**
+     * If true, the first (id) column will be checkboxes
+     *
+     * @var bool $checkbox_selectors
+     */
+    protected bool $checkbox_selectors = false;
 
 
 
@@ -91,7 +99,8 @@ Class Table extends ResourceElement
      */
     public static function new(): static
     {
-        return new static();
+        $class = WebPage::getTemplate()->getComponentClass(static::class);
+        return new $class();
     }
 
 
@@ -312,6 +321,32 @@ Class Table extends ResourceElement
 
 
     /**
+     * Returns if the first column will automatically be converted to checkboxes
+     *
+     * @return bool
+     */
+    public function getCheckboxSelectors(): bool
+    {
+        return $this->checkbox_selectors;
+    }
+
+
+
+    /**
+     * Sets if the first column will automatically be converted to checkboxes
+     *
+     * @param bool $checkbox_selectors
+     * @return static
+     */
+    public function setCheckboxSelectors(bool $checkbox_selectors): static
+    {
+        $this->checkbox_selectors = $checkbox_selectors;
+        return $this;
+    }
+
+
+
+    /**
      * Returns the URL that applies to each row
      *
      * @return string|null
@@ -453,7 +488,13 @@ Class Table extends ResourceElement
         // Process array resource. Go over each row and in each row over each column
         foreach ($this->source as $key => $row_values) {
             if (!is_array($row_values)) {
-                throw new OutOfBoundsException(tr('The specified table source array is invalid. Format should be [[header columns][row columns][row columns] ...]'));
+                if (!is_object($row_values) or !method_exists($row_values, '__toArray')) {
+                    throw new OutOfBoundsException(tr('The specified table source array is invalid. Format should be [[header columns][row columns][row columns] ...], a ":type" was encountered instead', [
+                        ':type' => gettype($row_values)
+                    ]));
+                }
+
+                $row_values = $row_values->__toArray();
             }
 
             $row_data = '';
@@ -464,10 +505,18 @@ Class Table extends ResourceElement
                 $row_data = ' data-' . $key . '="' . $this->source_data[$key] . '"';
             }
 
-            $row = '<tr' . $row_data . $this->buildRowClassString() . '>';
+            $row   = '<tr' . $row_data . $this->buildRowClassString() . '>';
+            $first = true;
 
             foreach ($row_values as $column => $value) {
-                $row .= $this->renderCell($key, $column, $value);
+                if ($first) {
+                    // Convert first column to checkboxes?
+                    $value = $this->renderCheckboxColumn($column, $value);
+                    $row  .= $this->renderCell($key, $column, $value, false);
+                    $first = false;
+                } else {
+                    $row .= $this->renderCell($key, $column, $value);
+                }
             }
 
             $return .= $row . '</tr>';
@@ -596,9 +645,17 @@ Class Table extends ResourceElement
 //        }
 
         $return = '<tr>';
+        $first  = true;
 
         foreach($row_values as $column => $value) {
-            $return .= $this->renderCell($row_id, $column, $value);
+            if ($first) {
+                // Convert first column to checkboxes?
+                $value   = $this->renderCheckboxColumn($column, $value);
+                $return .= $this->renderCell($row_id, $column, $value, false);
+                $first = false;
+            } else {
+                $return .= $this->renderCell($row_id, $column, $value);
+            }
         }
 
         return $return . '</tr>';
@@ -612,9 +669,10 @@ Class Table extends ResourceElement
      * @param string $row_id
      * @param string|int $column
      * @param string|null $value
+     * @param bool $entities
      * @return string
      */
-    protected function renderCell(string $row_id, string|int $column, ?string $value): string
+    protected function renderCell(string $row_id, string|int $column, ?string $value, bool $entities = true): string
     {
         $value = (string) $value;
 
@@ -646,7 +704,9 @@ Class Table extends ResourceElement
                 $value = str_replace(':COLUMN', $this->convert_columns[$column], $value);
             }
         } else {
-            $value = htmlentities($value);
+            if ($entities) {
+                $value = htmlentities($value);
+            }
         }
 
         if (isset($url)) {
@@ -659,5 +719,26 @@ Class Table extends ResourceElement
         }
 
         return '<td>' . $value . '</td>';
+    }
+
+
+
+    /**
+     * Changes the first column to a checkbox
+     *
+     * @param string $column
+     * @param string $value
+     * @return string
+     */
+    protected function renderCheckboxColumn(string $column, string $value): string
+    {
+        if (!$this->checkbox_selectors) {
+            return $value;
+        }
+
+        return CheckBox::new()
+            ->setName($column)
+            ->setValue($value)
+            ->render();
     }
 }
