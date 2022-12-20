@@ -43,4 +43,16 @@ class AdminLte extends Template
     {
         return 'This is the AdminLte admin template for your website. You are free to add or build other templates';
     }
+
+
+
+    /**
+     * Returns the path for this template
+     *
+     * @return string
+     */
+    public function getPath(): string
+    {
+        return __DIR__ . '/';
+    }
 }

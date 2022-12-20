@@ -4,6 +4,7 @@ namespace Phoundation\Web\Http\Html\Template;
 
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Template\Exception\TemplateException;
 
@@ -50,7 +51,6 @@ abstract class Template
     protected TemplatePage $page;
 
 
-
     /**
      * Template constructor
      *
@@ -59,7 +59,7 @@ abstract class Template
     public function __construct()
     {
         if (empty($this->page_class)) {
-            $this->page_class  = TemplatePage::class;
+            $this->page_class = TemplatePage::class;
             $this->menus_class = TemplateMenus::class;
         }
 
@@ -67,7 +67,6 @@ abstract class Template
             throw new OutOfBoundsException('Cannot start template "' . $this->getName() . '", the menus class was not defined');
         }
     }
-
 
 
     /**
@@ -79,7 +78,6 @@ abstract class Template
     {
         return new static();
     }
-
 
 
     /**
@@ -100,7 +98,6 @@ abstract class Template
     }
 
 
-
     /**
      * Returns a new TemplatePage for this template
      *
@@ -115,7 +112,7 @@ abstract class Template
             if (!($page instanceof TemplatePage)) {
                 throw new OutOfBoundsException(tr('Cannot instantiate ":template" template page object, specified class ":class" is not a sub class of "TemplatePage"', [
                     ':template' => $this->name,
-                    'class'     => $this->page_class
+                    'class' => $this->page_class
                 ]));
             }
 
@@ -124,7 +121,6 @@ abstract class Template
 
         return $this->page;
     }
-
 
 
     /**
@@ -138,10 +134,39 @@ abstract class Template
     }
 
 
+
+    /**
+     * Returns a template version class for the specified component
+     *
+     * @param object|string $component
+     * @return string
+     */
+    public function getComponentClass(object|string $component): string
+    {
+        $file = Strings::fromReverse($component, '\\');
+        $file = $this->getPath() . 'Components/' . $file . '.php';
+
+        if (file_exists($file)) {
+            return Debug::getClassPath($file);
+        }
+
+        // The template component does not exist, return the basic Phoundation version
+        return $component;
+    }
+
+
+
     /**
      * Returns the description for this template
      *
      * @return string
      */
     abstract public function getDescription(): string;
+
+    /**
+     * Returns the root path for this template
+     *
+     * @return string
+     */
+    abstract public function getPath(): string;
 }
