@@ -9,7 +9,8 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
-
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Elements\Table;
 
 
 /**
@@ -34,8 +35,25 @@ class Users extends DataList
     public function __construct(Role|User|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = User::class;
+        $this->setHtmlQuery('SELECT `id`, `name`, `email`, `status`, `created_on` FROM `accounts_users`');
         parent::__construct($parent, $id_column);
     }
+
+
+
+    /**
+     * Creates and returns an HTML table for the data in this list
+     *
+     * @return Table
+     */
+    public function getHtmlTable(): Table
+    {
+        $table = parent::getHtmlTable();
+        $table->setCheckboxSelectors(true);
+
+        return $table;
+    }
+
 
 
     /**
