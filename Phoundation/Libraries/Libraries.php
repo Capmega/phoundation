@@ -14,6 +14,7 @@ use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Notifications\Notification;
+use Phoundation\Web\Http\Html\Elements\Table;
 
 
 
@@ -308,6 +309,21 @@ class Libraries
 
 
     /**
+     * Creates and returns an HTML table for the data in this list
+     *
+     * @return Table
+     */
+    public static function getHtmlTable(): Table
+    {
+        // Create and return the table
+        return Table::new()
+            ->setColumnHeaders([tr('Library'), tr('Version'), tr('Description')])
+            ->setSourceArray(self::listLibraries());
+    }
+
+
+
+    /**
      * Ensure that the systems database exists
      *
      * @return void
@@ -335,7 +351,7 @@ class Libraries
         $path    = Strings::endsWith($path, '/');
 
         if (!file_exists($path)) {
-            throw new NotExistsException(tr('The specified libraray base path ":path" does not exist', [
+            throw new NotExistsException(tr('The specified library base path ":path" does not exist', [
                 ':path' => $path
             ]));
         }
@@ -371,6 +387,8 @@ class Libraries
      *
      * @param bool $system
      * @param bool $plugins
+     * @param bool $templates
+     * @param string|null $comments
      * @return int
      */
     protected static function initializeLibraries(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null): int

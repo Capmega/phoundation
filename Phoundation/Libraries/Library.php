@@ -7,7 +7,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
-use Phoundation\Utils\PhpStatistics;
+use Phoundation\Utils\Json;
 
 
 /**
@@ -65,6 +65,35 @@ class Library
         // Get the Init object
         $this->loadUpdatesObject();
     }
+
+
+
+    /**
+     * Return the object contents in JSON string format
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return Json::encode($this);
+    }
+
+
+
+    /**
+     * Return the object contents in array format
+     *
+     * @return array
+     */
+    public function __toArray(): array
+    {
+        return [
+            'name'        => $this->getName(),
+            'version'     => $this->getVersion(),
+            'description' => $this->getDescription()
+        ];
+    }
+
 
 
     /**
