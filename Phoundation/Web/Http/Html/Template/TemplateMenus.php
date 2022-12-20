@@ -171,19 +171,23 @@ class TemplateMenus
                 'icon' => '',
                 'menu' => [
                     tr('Configuration') => [
-                        'url'  => '/admin/admin/phoundation/configuration.html',
+                        'url'  => '/admin/phoundation/configuration.html',
                         'icon' => ''
                     ],
                     tr('Routing') => [
-                        'url'  => '/admin/admin/phoundation/routing.html',
+                        'url'  => '/admin/phoundation/routing.html',
+                        'icon' => ''
+                    ],
+                    tr('Libraries') => [
+                        'url'  => '/admin/phoundation/libraries.html',
                         'icon' => ''
                     ],
                     tr('Plugins') => [
-                        'url'  => '/admin/admin/phoundation/plugins.html',
+                        'url'  => '/admin/phoundation/plugins.html',
                         'icon' => ''
                     ],
                     tr('Templates') => [
-                        'url'  => '/admin/admin/phoundation/templates.html',
+                        'url'  => '/admin/phoundation/templates.html',
                         'icon' => ''
                     ],
                 ]
@@ -192,11 +196,11 @@ class TemplateMenus
                 'icon' => 'fa-sprocket',
             ],
             tr('Customers') => [
-                'url'  => '/admin/admin/customers/customers.html',
+                'url'  => '/admin/customers/customers.html',
                 'icon' => 'fa-users'
             ],
             tr('Providers') => [
-                'url'  => '/admin/admin/providers/providers.html',
+                'url'  => '/admin/providers/providers.html',
                 'icon' => 'fa-users'
             ],
             tr('Business') => [
