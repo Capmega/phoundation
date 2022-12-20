@@ -2,6 +2,8 @@
 
 namespace Templates\AdminLte\Components\Widgets\Cards;
 
+use Phoundation\Core\Arrays;
+use Phoundation\Exception\OutOfBoundsException;
 use Templates\AdminLte\Components\Widgets\Widget;
 
 
@@ -26,39 +28,32 @@ class Card extends Widget
     protected ?string $title = null;
 
     /**
-     * The body content of the card
-     *
-     * @var string|null $body
-     */
-    protected ?string $body = null;
-
-    /**
      * If this card is collapsable or not
      *
-     * @var bool $has_collapse
+     * @var bool $has_collapse_button
      */
-    protected bool $has_collapse = true;
+    protected bool $has_collapse_button = true;
 
     /**
      * If this card can reload or not
      *
-     * @var bool $has_reload
+     * @var bool $has_reload_button
      */
-    protected bool $has_reload = true;
+    protected bool $has_reload_button = true;
 
     /**
      * If this card can close or not
      *
-     * @var bool $has_close
+     * @var bool $has_close_button
      */
-    protected bool $has_close = true;
+    protected bool $has_close_button = true;
 
     /**
      * If this card can maximize or not
      *
-     * @var bool $has_maximize
+     * @var bool $has_maximize_button
      */
-    protected bool $has_maximize = true;
+    protected bool $has_maximize_button = true;
 
     /**
      * If this card is shown with outline color or not
@@ -96,26 +91,77 @@ class Card extends Widget
 
 
     /**
-     * Returns the body content of the card
+     * Returns a list of enabled buttons
      *
-     * @return string|null
+     * @return array
      */
-    public function getBody(): ?string
+    public function getButtons(): array
     {
-        return $this->body;
+        $return = [];
+
+        if ($this->has_close_button) {
+            $return['close'] = true;
+        }
+
+        if ($this->has_maximize_button) {
+            $return['maximize'] = true;
+        }
+
+        if ($this->has_collapse_button) {
+            $return['collapse'] = true;
+        }
+
+        if ($this->has_reload_button) {
+            $return['reload'] = true;
+        }
+
+        return $return;
     }
 
 
 
     /**
-     * Sets the body content of the card
+     * Sets a list of enabled buttons
      *
-     * @param string|null $body
+     * @param array|string|null $buttons
      * @return static
      */
-    public function setBody(?string $body): static
+    public function setButtons(array|string|null $buttons = null): static
     {
-        $this->body = $body;
+        $this->has_close_button    = false;
+        $this->has_reload_button   = false;
+        $this->has_maximize_button = false;
+        $this->has_collapse_button = false;
+
+        foreach (Arrays::force($buttons) as $button) {
+            switch ($button) {
+                case '':
+                    // Ignore
+                    break;
+
+                case 'close':
+                    $this->has_close_button = true;
+                    break;
+
+                case 'reload':
+                    $this->has_reload_button = true;
+                    break;
+
+                case 'collapse':
+                    $this->has_collapse_button = true;
+                    break;
+
+                case 'maximize':
+                    $this->has_maximize_button = true;
+                    break;
+
+                default:
+                    throw new OutOfBoundsException(tr('Unknown button ":button" specified', [
+                        ':button' => $button
+                    ]));
+            }
+        }
+
         return $this;
     }
 
@@ -126,9 +172,9 @@ class Card extends Widget
      *
      * @return bool
      */
-    public function getHasCollapse(): bool
+    public function getHasCollapseButton(): bool
     {
-        return $this->has_collapse;
+        return $this->has_collapse_button;
     }
 
 
@@ -136,12 +182,12 @@ class Card extends Widget
     /**
      * Sets if the card can collapse
      *
-     * @param bool $has_collapse
+     * @param bool $has_collapse_button
      * @return static
      */
-    public function setHasCollapse(bool $has_collapse): static
+    public function setHasCollapseButton(bool $has_collapse_button): static
     {
-        $this->has_collapse = $has_collapse;
+        $this->has_collapse_button = $has_collapse_button;
         return $this;
     }
 
@@ -152,9 +198,9 @@ class Card extends Widget
      *
      * @return bool
      */
-    public function getHasClose(): bool
+    public function getHasCloseButton(): bool
     {
-        return $this->has_close;
+        return $this->has_close_button;
     }
 
 
@@ -162,12 +208,12 @@ class Card extends Widget
     /**
      * Sets if the card can close
      *
-     * @param bool $has_close
+     * @param bool $has_close_button
      * @return static
      */
-    public function setHasClose(bool $has_close): static
+    public function setHasCloseButton(bool $has_close_button): static
     {
-        $this->has_close = $has_close;
+        $this->has_close_button = $has_close_button;
         return $this;
     }
 
@@ -178,9 +224,9 @@ class Card extends Widget
      *
      * @return bool
      */
-    public function getHasReload(): bool
+    public function getHasReloadButton(): bool
     {
-        return $this->has_reload;
+        return $this->has_reload_button;
     }
 
 
@@ -188,12 +234,12 @@ class Card extends Widget
     /**
      * Sets if the card can reload
      *
-     * @param bool $has_reload
+     * @param bool $has_reload_button
      * @return static
      */
-    public function setHasReload(bool $has_reload): static
+    public function setHasReloadButton(bool $has_reload_button): static
     {
-        $this->has_reload = $has_reload;
+        $this->has_reload_button = $has_reload_button;
         return $this;
     }
 
@@ -204,9 +250,9 @@ class Card extends Widget
      *
      * @return bool
      */
-    public function getHasMaximize(): bool
+    public function getHasMaximizeButton(): bool
     {
-        return $this->has_maximize;
+        return $this->has_maximize_button;
     }
 
 
@@ -214,12 +260,12 @@ class Card extends Widget
     /**
      * Sets if the card can maximize
      *
-     * @param bool $has_maximize
+     * @param bool $has_maximize_button
      * @return static
      */
-    public function setHasMaximize(bool $has_maximize): static
+    public function setHasMaximizeButton(bool $has_maximize_button): static
     {
-        $this->has_maximize = $has_maximize;
+        $this->has_maximize_button = $has_maximize_button;
         return $this;
     }
 
@@ -260,23 +306,23 @@ class Card extends Widget
                       <div class="card-header">
                         <h3 class="card-title">' . $this->title . '</h3>
                         <div class="card-tools">
-                          ' . ($this->has_reload ? '  <button type="button" class="btn btn-tool" data-card-widget="card-refresh" data-source="widgets.html" data-source-selector="#card-refresh-content" data-load-on-init="false">
+                          ' . ($this->has_reload_button ? '  <button type="button" class="btn btn-tool" data-card-widget="card-refresh" data-source="widgets.html" data-source-selector="#card-refresh-content" data-load-on-init="false">
                                                         <i class="fas fa-sync-alt"></i>
                                                       </button>' : '') . '
-                          ' . ($this->has_maximize ? '<button type="button" class="btn btn-tool" data-card-widget="maximize">
+                          ' . ($this->has_maximize_button ? '<button type="button" class="btn btn-tool" data-card-widget="maximize">
                                                         <i class="fas fa-expand"></i>
                                                       </button>' : '') . '
-                          ' . ($this->has_collapse ? '<button type="button" class="btn btn-tool" data-card-widget="collapse">
+                          ' . ($this->has_collapse_button ? '<button type="button" class="btn btn-tool" data-card-widget="collapse">
                                                         <i class="fas fa-minus"></i>
                                                       </button>' : '') . '
-                          ' . ($this->has_close ? '   <button type="button" class="btn btn-tool" data-card-widget="remove">
+                          ' . ($this->has_close_button ? '   <button type="button" class="btn btn-tool" data-card-widget="remove">
                                                         <i class="fas fa-times"></i>
                                                       </button>' : '') . '
                         </div>
                       </div>
                       <!-- /.card-header -->
                       <div class="card-body">
-                        ' . $this->body. '
+                        ' . $this->content. '
                       </div>
                     </div>';
 
