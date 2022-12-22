@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Web\Http\Html\Elements;
+namespace Phoundation\Web\Http\Html\Elements\Input;
 
 
 
