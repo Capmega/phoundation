@@ -1,7 +1,8 @@
 <?php
 
+use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\WebPage;
-use Templates\AdminLte\Components\BreadCrumbs;
+
 ?>
 <div class="container">
     <div class="d-flex justify-content-center align-items-center" style="height: 100vh">
@@ -11,6 +12,7 @@ use Templates\AdminLte\Components\BreadCrumbs;
     </div>
 </div>
 <?php
+
 // Set page meta data
 WebPage::setPageTitle(tr('404 - Page not found'));
 WebPage::setHeaderTitle('');

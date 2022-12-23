@@ -1,7 +1,8 @@
 <?php
 
 use Phoundation\Web\WebPage;
-use Templates\AdminLte\Components\BreadCrumbs;
+use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+
 ?>
 <div class="container">
     <div class="d-flex justify-content-center align-items-center" style="height: 100vh">

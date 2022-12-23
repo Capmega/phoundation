@@ -1,20 +1,20 @@
 <?php
 
 use Phoundation\Accounts\Users\Users;
+use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\WebPage;
-use Templates\AdminLte\Components\BreadCrumbs;
-use Templates\AdminLte\Components\Widgets\Cards\Card;
 
 
 
 // Build the page content
+$table = Users::new()
+    ->getHtmlTable()
+    ->setRowUrl('/admin/accounts/:ROW.html');
+
 echo Card::new()
-    ->setTitle('Users')
-    ->setType('')
-    ->setButtons()
-    ->setContent(Users::new()->getHtmlTable()->render())
+    ->setContent($table->render())
     ->render();
-//echo Users::new()->htmlTable()->render();
 
 
 

@@ -3,8 +3,9 @@
 use Phoundation\Core\Session;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Json;
-use Templates\Mdb\Components\ProfileImage;
-use Templates\Mdb\TemplateMenus;
+use Phoundation\Web\Http\Html\Components\ProfileImage;
+use Phoundation\Web\Http\Html\Template\TemplateMenus;
+
 
 
 /**
@@ -15,7 +16,7 @@ use Templates\Mdb\TemplateMenus;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Mdb\Accounts
+ * @package Phoundation\Accounts
  */
 PostValidator::new()
     ->select('email')->isEmail()

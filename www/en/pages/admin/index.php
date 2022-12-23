@@ -1,11 +1,11 @@
 <?php
 
 use Phoundation\Web\WebPage;
-use Templates\AdminLte\Components\BreadCrumbs;
-use Templates\AdminLte\Components\Widgets\Cards\Card;
-use Templates\AdminLte\Layouts\Grid;
-use Templates\AdminLte\Layouts\GridRow;
-use Templates\AdminLte\Layouts\GridColumn;
+use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Http\Html\Layouts\Grid;
+use Phoundation\Web\Http\Html\Layouts\GridRow;
+use Phoundation\Web\Http\Html\Layouts\GridColumn;
 
 
 
