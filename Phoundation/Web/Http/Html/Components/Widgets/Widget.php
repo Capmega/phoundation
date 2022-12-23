@@ -2,9 +2,8 @@
 
 namespace Phoundation\Web\Http\Html\Components\Widgets;
 
-use Phoundation\Web\Http\Html\Elements\ElementsBlock;
+use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\Mode;
-
 
 
 /**

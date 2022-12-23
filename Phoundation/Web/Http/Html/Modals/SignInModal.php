@@ -4,7 +4,7 @@ namespace Phoundation\Web\Http\Html\Modals;
 
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Components\Modal;
-use Phoundation\Web\Http\Html\Elements\Script;
+use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Html\Forms\SignInForm;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Html\Layouts\GridColumn;

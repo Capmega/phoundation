@@ -2,9 +2,6 @@
 
 namespace Templates\AdminLte\Components;
 
-use Phoundation\Web\Http\Html\Elements\ElementsBlock;
-
-
 
 /**
  * AdminLte Plugin MessagesDropDown class

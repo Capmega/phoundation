@@ -2,8 +2,7 @@
 
 namespace Templates\Mdb\Layouts;
 
-use Phoundation\Web\Http\Html\Elements\Element;
-
+use Phoundation\Web\Http\Html\Components\Element;
 
 
 /**

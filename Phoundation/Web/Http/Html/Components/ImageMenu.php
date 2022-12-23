@@ -4,8 +4,6 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Content\Images\UsesImage;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Elements\ElementsBlock;
-
 
 
 /**

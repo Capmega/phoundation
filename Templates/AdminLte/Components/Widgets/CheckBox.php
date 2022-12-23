@@ -2,9 +2,6 @@
 
 namespace Templates\AdminLte\Components\Widgets;
 
-use Phoundation\Web\Http\Html\Components\Mode;
-
-
 
 /**
  * Checkbox class
@@ -16,7 +13,7 @@ use Phoundation\Web\Http\Html\Components\Mode;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class CheckBox extends \Phoundation\Web\Http\Html\Elements\CheckBox
+class CheckBox extends \Phoundation\Web\Http\Html\Components\CheckBox
 {
     /**
      * Checkbox class constructor

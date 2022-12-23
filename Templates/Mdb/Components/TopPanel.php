@@ -2,11 +2,9 @@
 
 namespace Templates\Mdb\Components;
 
-use Phoundation\Core\Session;
+use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Components\Panel;
-use Phoundation\Web\Http\Html\Elements\Img;
 use Templates\Mdb\Modals\SignInModal;
-
 
 
 /**

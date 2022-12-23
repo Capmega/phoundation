@@ -2,8 +2,7 @@
 
 namespace Templates\Mdb\Components;
 
-use Phoundation\Web\Http\Html\Elements\Section;
-
+use Phoundation\Web\Http\Html\Components\Section;
 
 
 /**

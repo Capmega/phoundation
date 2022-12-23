@@ -14,7 +14,7 @@ namespace Templates\AdminLte\Components\Widgets;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class Buttons extends \Phoundation\Web\Http\Html\Elements\Buttons
+class Buttons extends \Phoundation\Web\Http\Html\Components\Buttons
 {
    /**
      * Renders and returns the buttons HTML

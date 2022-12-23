@@ -3,14 +3,13 @@
 namespace Templates\Mdb\Modals;
 
 use Phoundation\Core\Config;
-use Phoundation\Web\Http\Html\Elements\Script;
+use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Url;
 use Templates\Mdb\Components\Modal;
 use Templates\Mdb\Forms\SignInForm;
 use Templates\Mdb\Layouts\Grid;
 use Templates\Mdb\Layouts\GridColumn;
 use Templates\Mdb\Layouts\GridRow;
-
 
 
 /**
