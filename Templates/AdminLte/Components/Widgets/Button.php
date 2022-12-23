@@ -1,6 +1,6 @@
 <?php
 
-namespace Templates\AdminLte\Elements;
+namespace Templates\AdminLte\Components\Widgets;
 
 
 

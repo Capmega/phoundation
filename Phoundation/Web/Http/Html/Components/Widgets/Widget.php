@@ -3,7 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components\Widgets;
 
 use Phoundation\Web\Http\Html\Elements\ElementsBlock;
-use Phoundation\Web\Http\Html\Components\Type;
+use Phoundation\Web\Http\Html\Components\Mode;
 
 
 
@@ -19,7 +19,7 @@ use Phoundation\Web\Http\Html\Components\Type;
  */
 abstract class Widget extends ElementsBlock
 {
-    use Type;
+    use Mode;
 
 
 

@@ -23,7 +23,7 @@ class SmallBox extends \Phoundation\Web\Http\Html\Components\Widgets\Boxes\Small
      */
     public function render(): ?string
     {
-        $html = '   <div class="small-box bg-' . $this->type . ($this->shadow ? ' ' . $this->shadow : '') . '">
+        $html = '   <div class="small-box bg-' . $this->mode . ($this->shadow ? ' ' . $this->shadow : '') . '">
                       <div class="inner">
                         <h3>' . $this->value . '</h3>       
                         <p>' . $this->title . '</p>

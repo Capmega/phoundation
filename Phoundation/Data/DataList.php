@@ -6,7 +6,7 @@ use Iterator;
 use Phoundation\Cli\Cli;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Http\Html\Elements\Table;
+use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
 
 

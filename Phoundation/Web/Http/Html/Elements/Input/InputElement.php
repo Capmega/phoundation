@@ -2,6 +2,8 @@
 
 namespace Phoundation\Web\Http\Html\Elements\Input;
 
+use Phoundation\Web\Http\Html\Components\Mode;
+
 
 
 /**
@@ -16,6 +18,10 @@ namespace Phoundation\Web\Http\Html\Elements\Input;
  */
 trait InputElement
 {
+    use Mode;
+
+
+
     /**
      * Input element type
      *

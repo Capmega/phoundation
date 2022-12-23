@@ -16,15 +16,15 @@ use JetBrains\PhpStorm\ExpectedValues;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-trait Type
+trait Mode
 {
     /**
      * The type of infobox to show
      *
-     * @var string|null $type
+     * @var string|null $mode
      */
     #[ExpectedValues([null, 'primary', 'info', 'warning', 'danger', 'success'])]
-    protected ?string $type = null;
+    protected ?string $mode = null;
 
 
 
@@ -34,9 +34,9 @@ trait Type
      * @return string|null
      */
     #[ExpectedValues([null, 'primary', 'info', 'warning', 'danger', 'success'])]
-    public function getType(): ?string
+    public function getMode(): ?string
     {
-        return $this->type;
+        return $this->mode;
     }
 
 
@@ -44,12 +44,12 @@ trait Type
     /**
      * Returns the type of infobox to show
      *
-     * @param string|null $type
+     * @param string|null $mode
      * @return static
      */
-    public function setType(#[ExpectedValues([null, 'primary', 'info', 'warning', 'danger', 'success'])] ?string $type): static
+    public function setMode(#[ExpectedValues([null, 'primary', 'info', 'warning', 'danger', 'success'])] ?string $mode): static
     {
-        $this->type = $type;
+        $this->mode = $mode;
         return $this;
     }
 }

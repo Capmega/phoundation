@@ -10,7 +10,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Elements\Table;
+use Phoundation\Web\Http\Html\Components\Table;
 
 
 /**

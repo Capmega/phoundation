@@ -24,7 +24,7 @@ class InfoBox extends \Phoundation\Web\Http\Html\Components\Widgets\Boxes\InfoBo
     public function render(): ?string
     {
         $html = '   <div class="info-box shadow-none">
-                      <span class="info-box-icon bg-' . $this->type . '"><i class="far ' . $this->icon . '"></i></span>
+                      <span class="info-box-icon bg-' . $this->mode . '"><i class="far ' . $this->icon . '"></i></span>
         
                       <div class="info-box-content">
                         <span class="info-box-text">' . $this->title . '</span>

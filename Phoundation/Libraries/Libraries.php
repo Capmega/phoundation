@@ -14,7 +14,7 @@ use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Elements\Table;
+use Phoundation\Web\Http\Html\Components\Table;
 
 
 

@@ -23,7 +23,7 @@ class InfoBoxBg extends \Phoundation\Web\Http\Html\Components\Widgets\Boxes\Info
      */
     public function render(): ?string
     {
-        $html = '   <div class="info-box bg-' . $this->type . '">
+        $html = '   <div class="info-box bg-' . $this->mode . '">
                       <span class="info-box-icon"><i class="far ' . $this->icon . '"></i></span>
         
                       <div class="info-box-content">

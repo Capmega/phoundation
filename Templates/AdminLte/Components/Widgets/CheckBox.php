@@ -1,6 +1,8 @@
 <?php
 
-namespace Templates\AdminLte\Elements;
+namespace Templates\AdminLte\Components\Widgets;
+
+use Phoundation\Web\Http\Html\Components\Mode;
 
 
 
@@ -16,10 +18,6 @@ namespace Templates\AdminLte\Elements;
  */
 class CheckBox extends \Phoundation\Web\Http\Html\Elements\CheckBox
 {
-    use Type;
-
-
-
     /**
      * Checkbox class constructor
      */
