@@ -143,13 +143,14 @@ abstract class Template
      */
     public function getTemplateComponentClass(object|string $component): string
     {
-        if (!str_starts_with($component, 'Phoundation\\Web\\Http\\Html\\')) {
+        if (!str_starts_with($component, 'Phoundation\\Web\\Http\\Html\\Components\\')) {
             // Assume a template specific path was specified, use this.
             return $component;
         }
 
         $file = Strings::from($component, 'Phoundation\\Web\\Http\\Html\\');
-        $file = $this->getPath() . 'Components/' . $file . '.php';
+        $file = str_replace('\\', '/', $file);
+        $file = $this->getPath() . $file . '.php';
 
         if (file_exists($file)) {
             return Debug::getClassPath($file);
