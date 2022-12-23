@@ -10,6 +10,8 @@ use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Http\Html\Components\DataEntryForm;
+
 
 
 /**
@@ -25,6 +27,8 @@ use Phoundation\Utils\Json;
 abstract class DataEntry
 {
     use DataEntryNameDescription;
+
+
 
     /**
      * The label name for this data entry, used in errors, etc
@@ -62,11 +66,11 @@ abstract class DataEntry
     protected array $data = [];
 
     /**
-     * Key definitions for the data for this entry
+     * Meta information about the keys in this DataEntry
      *
-     * @var array $columns
+     * @var array $keys
      */
-    protected array $columns = [];
+    protected array $keys = [];
 
     /**
      * Columns that will NOT be inserted
@@ -98,7 +102,7 @@ abstract class DataEntry
      */
     public function __construct(string|int|null $identifier = null)
     {
-        $this->setColumns();
+        $this->setKeys();
 
         if ($identifier) {
             if (is_numeric($identifier)) {
@@ -326,7 +330,7 @@ abstract class DataEntry
             return $this;
         }
 
-        if (empty($this->columns)) {
+        if (empty($this->keys)) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
                 ':class' => gettype($this)
             ]));
@@ -352,9 +356,9 @@ abstract class DataEntry
                     $this->setPasswordDirectly($value);
                     continue 2;
 
-                case 'seo_name':
+                case $this->unique_column:
                     // Store this data directly
-                    $this->setDataValue('meta', $value);
+                    $this->setDataValue($this->unique_column, $value);
                     continue 2;
             }
 
@@ -395,6 +399,7 @@ abstract class DataEntry
         foreach ($keys as $key) {
             $this->addProtectedKey($key);
         }
+
         return $this;
     }
 
@@ -448,7 +453,7 @@ abstract class DataEntry
             return $this;
         }
 
-        if (empty($this->columns)) {
+        if (empty($this->keys)) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
                 ':class' => gettype($this)
             ]));
@@ -583,7 +588,7 @@ abstract class DataEntry
     protected function getInsertColumns(): array
     {
         $return = Arrays::remove($this->data, $this->remove_columns_on_insert);
-        $return = Arrays::keep($return, $this->columns);
+        $return = Arrays::keep($return, $this->keys);
 
         return $return;
     }
@@ -598,7 +603,7 @@ abstract class DataEntry
     protected function getUpdateColumns(): array
     {
         $return = Arrays::remove($this->data, $this->remove_columns_on_update);
-        $return = Arrays::keep($return, $this->columns);
+        $return = Arrays::keep($return, $this->keys);
 
         return $return;
     }
@@ -626,15 +631,29 @@ abstract class DataEntry
 
 
     /**
-     * Creates and returns a CLI table for the data in this list
+     * Creates and returns a CLI table for the data in this entry
      *
      * @param string|null $key_header
      * @param string|null $value_header
      * @return void
      */
-    public function CliDisplayForm(?string $key_header = null, ?string $value_header = null): void
+    public function getCliForm(?string $key_header = null, ?string $value_header = null): void
     {
         Cli::displayForm($this->data, $key_header, $value_header);
+    }
+
+
+
+    /**
+     * Creates and returns an HTML for the data in this entry
+     *
+     * @return DataEntryForm
+     */
+    public function getHtmlForm(): DataEntryForm
+    {
+        return DataEntryForm::new()
+            ->setSource($this->data)
+            ->setKeys($this->keys);
     }
 
 
@@ -665,5 +684,5 @@ abstract class DataEntry
      *
      * @return void
      */
-    abstract protected function setColumns(): void;
+    abstract protected function setKeys(): void;
 }

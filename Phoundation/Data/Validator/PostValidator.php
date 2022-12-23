@@ -27,7 +27,6 @@ class PostValidator extends Validator
 
 
 
-
     /**
      * Validator constructor.
      *
@@ -76,6 +75,20 @@ class PostValidator extends Validator
 
         $_POST    = [];
         $_REQUEST = [];
+    }
+
+
+
+    /**
+     * Add the specified value for key to the internal GET array
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return void
+     */
+    public static function addData(string $key, mixed $value): void
+    {
+        self::$post[$key] = $value;
     }
 
 

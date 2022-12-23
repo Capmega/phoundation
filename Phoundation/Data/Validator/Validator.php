@@ -152,8 +152,13 @@ abstract class Validator
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (!is_integer($value)) {
-                    $this->addFailure(tr('must have an integer value'));
-                    $value = 0;
+                    if (is_string($value) and ((int) $value == $value)) {
+                        // This integer value was specified as a numeric string
+                        $value = (int) $value;
+                    } else {
+                        $this->addFailure(tr('must have an integer value'));
+                        $value = 0;
+                    }
                 }
             }
 
@@ -175,8 +180,14 @@ abstract class Validator
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (!is_float($value)) {
-                    $this->addFailure(tr('must have a float value'));
-                    $value = 0.0;
+                    if (is_string($value) and ((float) $value == $value)) {
+                        // This float value was specified as a numeric string
+// TODO Test this! There may be slight inaccuracies here due to how floats work, so maybe we should check within a range?
+                        $value = (float) $value;
+                    } else {
+                        $this->addFailure(tr('must have a float value'));
+                        $value = 0.0;
+                    }
                 }
             }
 

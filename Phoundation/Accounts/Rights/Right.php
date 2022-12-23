@@ -43,9 +43,9 @@ class Right extends DataEntry
      *
      * @return void
      */
-    protected function setColumns(): void
+    protected function setKeys(): void
     {
-        $this->columns = [
+        $this->keys = [
             'id',
             'created_by',
             'created_on',

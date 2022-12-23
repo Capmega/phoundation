@@ -19,7 +19,7 @@ use Phoundation\Data\DataEntry;
 class Page extends DataEntry
 {
 
-    protected function setColumns(): void
+    protected function setKeys(): void
     {
         // TODO: Implement setColumns() method.
     }

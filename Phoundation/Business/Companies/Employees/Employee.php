@@ -62,7 +62,7 @@ class Employee extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function setColumns(): void
+    protected function setKeys(): void
     {
         // TODO: Implement setKeys() method.
     }

@@ -1668,54 +1668,192 @@ class User extends DataEntry
      *
      * @return void
      */
-    protected function setColumns(): void
+    protected function setKeys(): void
     {
-        $this->columns = [
-            'id',
-            'created_by',
-            'created_on',
-            'meta_id',
-            'status',
-            'last_sign_in',
-            'authentication_failures',
-            'locked_until',
-            'sign_in_count',
-            'username',
-            'password',
-            'fingerprint',
-            'domain',
-            'title',
-            'name',
-            'nickname',
-            'avatar',
-            'email',
-            'code',
-            'type',
-            'keywords',
-            'phones',
-            'address',
-            'verification_code',
-            'verified_on',
-            'priority',
-            'is_leader',
-            'leaders_id',
-            'latitude',
-            'longitude',
-            'accuracy',
-            'offset_latitude',
-            'offset_longitude',
-            'cities_id',
-            'states_id',
-            'countries_id',
-            'redirect',
-            'language',
-            'gender',
-            'birthday',
-            'description',
-            'comments',
-            'website',
-            'timezone',
-            'companies_id'
+        $this->keys = [
+            'id' => [
+                'display'  => true,
+                'readonly' => true,
+                'type'     => 'numeric',
+                'label'    => tr('Database ID')
+            ],
+            'created_by' => [
+                'display'  => true,
+                'readonly' => true,
+                'source'   => 'SELECT `username` FROM `users` WHERE `id` = :id',
+                'label'    => tr('Created by')
+            ],
+            'created_on' => [
+                'display'  => true,
+                'readonly' => true,
+                'type'     => 'date',
+                'label'    => tr('Created on')
+            ],
+            'meta_id' => [
+                'display'  => true,
+                'readonly' => true,
+                'element'  => function(){},
+                'label'    => tr('Meta information')
+            ],
+            'status' => [
+                'readonly' => true,
+                'label'    => tr('Status')
+            ],
+            'last_sign_in' => [
+                'readonly' => true,
+                'type'     => 'date',
+                'label'    => tr('Last sign in')
+            ],
+            'authentication_failures' => [
+                'readonly' => true,
+                'type'     => 'numeric',
+                'label'    => tr('Authentication failures')
+            ],
+            'locked_until' => [
+                'readonly' => true,
+                'type'     => 'date',
+                'label'    => tr('Locked until')
+            ],
+            'sign_in_count' => [
+                'readonly' => true,
+                'type'     => 'numeric',
+                'label'    => tr('Sign in count')
+            ],
+            'username' => [
+                'label'    => tr('Username')
+            ],
+            'password' => [
+                'type'     => 'password',
+                'label'    => tr('Password')
+            ],
+            'fingerprint' => [
+                'element'  => function(){}
+            ],
+            'domain' => [
+                'label'    => tr('Domain')
+            ],
+            'title' => [
+                'label'    => tr('Title')
+            ],
+            'name' => [
+                'label'    => tr('name')
+            ],
+            'nickname' => [
+                'label'    => tr('Nickname')
+            ],
+            'avatar' => [
+                'label'    => tr('Avatar')
+            ],
+            'email' => [
+                'display'  => true,
+                'type'     => 'email',
+                'label'    => tr('Email address')
+            ],
+            'code' => [
+                'label'    => tr('Code')
+            ],
+            'keywords' => [
+                'label'    => tr('Keywords')
+            ],
+            'phones'  => [
+                'label'    => tr('Phones')
+            ],
+            'address' => [
+                'label'    => tr('Address')
+            ],
+            'verification_code' => [
+                'display'  => false
+            ],
+            'verified_on' => [
+                'readonly' => true,
+                'type'     => 'date',
+                'label'    => tr('Verified on'),
+            ],
+            'priority' => [
+                'type'     => 'number',
+                'label'    => tr('Priority'),
+            ],
+            'is_leader' => [
+                'type'     => 'checkbox',
+                'label'    => tr('Is leader'),
+            ],
+            'leaders_id' => [
+                'source'   => 'SELECT `username` FROM `users` WHERE `id` = :id',
+                'label'    => tr('leaders_id'),
+            ],
+            'latitude' => [
+                'label'    => tr('Latitude'),
+            ],
+            'longitude' => [
+                'label'    => tr('Longitude'),
+            ],
+            'accuracy' => [
+                'label'    => tr('Accuracy'),
+            ],
+            'offset_latitude' => [
+                'label'    => tr('Offset latitude'),
+            ],
+            'offset_longitude' => [
+                'label'    => tr('offset_longitude'),
+            ],
+            'countries_id' => [
+                'element'  => 'select',
+                'source'   => 'SELECT `id`, `name` FROM `geo_countries`',
+                'label'    => tr('Country')
+            ],
+            'states_id' => [
+                'element'  => 'select',
+                'source'   => 'SELECT `id`, `name` FROM `geo_states` WHERE `countries_id` = :countries_id',
+                'execute'  => [':countries_id' => isset_get($this->data['countries_id'])],
+                'label'    => tr('State'),
+            ],
+            'cities_id' => [
+                'element'  => 'select',
+                'source'   => 'SELECT `id`, `name` FROM `geo_cities` WHERE `states_id` = :states_id',
+                'execute'  => [':states_id' => isset_get($this->data['states_id'])],
+                'label'    => tr('City'),
+            ],
+            'redirect' => [
+                'type'     => 'text',
+                'label'    => tr('Redirect'),
+            ],
+            'language' => [
+                'element'  => 'select',
+                'source'   => 'SELECT `id`, `name` FROM `languages`',
+                'label'    => tr('language'),
+            ],
+            'gender' => [
+                'element'  => 'select',
+                'source'   => [
+                    'male'   => tr('Male'),
+                    'female' => tr('Female'),
+                    'other'  => tr('Other')
+                ],
+                'label'    => tr('Gender'),
+            ],
+            'birthday' => [
+                'label'    => tr('Birthday'),
+            ],
+            'description' => [
+                'element'  => 'text',
+                'label'    => tr('Description'),
+            ],
+            'comments' => [
+                'element'  => 'text',
+                'label'    => tr('Comments'),
+            ],
+            'website' => [
+                'type'     => 'url',
+                'label'    => tr('Website'),
+            ],
+            'timezone' => [
+                'source'   => 'SELECT `seo_name`, `name` FROM `geo_timezones`',
+                'label'    => tr('Timezone'),
+            ],
+            'companies_id' => [
+                'source'   => 'SELECT `id`, `name` FROM `business_companies`',
+                'label'    => tr('Company'),
+            ]
         ];
     }
 

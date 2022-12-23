@@ -78,6 +78,20 @@ class GetValidator extends Validator
 
 
     /**
+     * Add the specified value for key to the internal GET array
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return void
+     */
+    public static function addData(string $key, mixed $value): void
+    {
+        self::$get[$key] = $value;
+    }
+
+
+
+    /**
      * Validate GET data and liberate GET data if all went well.
      *
      * @return static
@@ -111,9 +125,6 @@ class GetValidator extends Validator
      */
     protected static function liberateData(): void
     {
-        show($_GET);
-        show(self::$get);
-        die();
         global $_GET;
         $_GET = self::$get;
         self::$get = null;
