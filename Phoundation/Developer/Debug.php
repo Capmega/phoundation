@@ -273,7 +273,6 @@ class Debug {
      * @param int $trace_offset
      * @param bool $quiet
      * @return mixed
-     * @throws CoreException
      */
     public static function show(mixed $value = null, int $trace_offset = 0, bool $quiet = false): mixed
     {
@@ -306,7 +305,7 @@ class Debug {
                     case 'ajax':
                         if (!headers_sent()) {
                             WebPage::setContentType('text/html');
-                            WebPage::sendHttpHeaders(WebPage::buildHttpHeaders($output));
+                            WebPage::sendHttpHeaders(WebPage::buildHttpHeaders($value));
                         }
 
                         $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) ', [
