@@ -17,7 +17,7 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Element
+abstract class Element
 {
     use ElementAttributes;
 

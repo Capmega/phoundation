@@ -10,7 +10,7 @@ use Phoundation\Web\Http\Url;
 
 
 /**
- * MDB Plugin Signin form class
+ * Form class
  *
  *
  *

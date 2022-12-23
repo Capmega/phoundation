@@ -2,8 +2,6 @@
 
 namespace Templates\AdminLte\Components;
 
-use Phoundation\Web\Http\Html\Components\Panel;
-use Phoundation\Web\WebPage;
 
 
 /**
@@ -16,19 +14,8 @@ use Phoundation\Web\WebPage;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class TopPanel extends Panel
+class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
 {
-    /**
-     * TopPanel constructor
-     */
-    public function __construct()
-    {
-        parent::__construct();
-        $this->menu = new TopMenu();
-    }
-
-
-
     /**
      * Renders and returns the top panel
      *

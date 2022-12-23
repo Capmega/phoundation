@@ -1,14 +1,15 @@
 <?php
 
-namespace Phoundation\Web\Http\Html\Elements;
+namespace Phoundation\Web\Http\Html\Components;
 
 use PDO;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Elements\ResourceElement;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\Url;
-use Phoundation\Web\WebPage;
+
 
 
 /**
@@ -88,19 +89,6 @@ class Table extends ResourceElement
     {
         parent::__construct();
         parent::setElement('table');
-    }
-
-
-
-    /**
-     * Returns a new table object
-     *
-     * @return static
-     */
-    public static function new(): static
-    {
-        $class = WebPage::getTemplate()->getComponentClass(static::class);
-        return new $class();
     }
 
 

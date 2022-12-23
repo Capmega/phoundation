@@ -14,7 +14,7 @@ namespace Templates\AdminLte\Components\Widgets\Boxes;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class InfoBox extends Box
+class InfoBox extends \Phoundation\Web\Http\Html\Components\Widgets\Boxes\InfoBox
 {
     /**
      * Renders and returns the HTML for this SmallBox object

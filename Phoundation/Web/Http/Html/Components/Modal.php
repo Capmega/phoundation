@@ -290,5 +290,8 @@ abstract class Modal extends ElementsBlock
      *
      * @return string|null
      */
-    abstract public function render(): ?string;
+    public function render(): ?string
+    {
+        return '';
+    }
 }

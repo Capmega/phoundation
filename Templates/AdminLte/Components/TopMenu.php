@@ -16,26 +16,8 @@ use Phoundation\Web\Http\Url;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class TopMenu extends \Phoundation\Web\Http\Html\Components\Menu
+class TopMenu extends \Phoundation\Web\Http\Html\Components\TopMenu
 {
-    /**
-     * Default the top panel menu
-     *
-     * @return array
-     */
-    public function getSource(): array
-    {
-        if (!$this->source) {
-            $this->source = [
-                tr('Front-end') => ['url' => '/'],
-            ];
-        }
-
-        return $this->source;
-    }
-
-
-
     /**
      * Render the HTML for the AdminLte top menu
      *
@@ -58,7 +40,7 @@ class TopMenu extends \Phoundation\Web\Http\Html\Components\Menu
                 }
 
                 $return .= '<li class="nav-item d-none d-sm-inline-block">
-                                <a href="' . Url::build($entry['url'])->www() . '" class="nav-link">' . $label . '</a>
+                                <a href="' . $entry['url'] . '" class="nav-link">' . $label . '</a>
                             </li>';
             }
         }

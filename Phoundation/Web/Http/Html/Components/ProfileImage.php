@@ -3,9 +3,8 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Content\Images\Image;
-use Phoundation\Core\Config;
 use Phoundation\Core\Session;
-use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\Html\Template\TemplateMenus;
 
 
 
@@ -27,7 +26,16 @@ class ProfileImage extends ImageMenu
     public function __construct()
     {
         // Set up the default image URL
-        $this->setUrl(Config::get('web.pages.signin', ''));
+//        $this->setUrl(Config::get('web.pages.signin', ''));
+        $this->setImage(Session::getUser()->getPicture());
+
+        if (Session::getUser()->isGuest()) {
+            // This is a guest user, make sure that the profile image shows the sign in modal
+            $this->setModalSelector('#signinModal');
+        } else {
+            $this->setMenu(TemplateMenus::getProfileImageMenu());
+        }
+
         parent::__construct();
     }
 
@@ -35,6 +43,9 @@ class ProfileImage extends ImageMenu
 
     /**
      * ProfileImage class constructor
+     *
+     * @param Image|string|null $image
+     * @return ProfileImage
      */
     public function setImage(Image|string|null $image = null): static
     {
@@ -56,10 +67,10 @@ class ProfileImage extends ImageMenu
     /**
      * Set the menu for this profile image
      *
-     * @param array|null $menu
+     * @param Menu|null $menu
      * @return static
      */
-    public function setMenu(?array $menu): static
+    public function setMenu(Menu|null $menu): static
     {
         if (Session::getUser()->isGuest()) {
             // Don't show menu
@@ -67,10 +78,10 @@ class ProfileImage extends ImageMenu
         } else {
             // Default image menu
             if (!$menu) {
-                $menu = [
-                    tr('Profile')  => Url::build('/profile')->www(),
-                    tr('Sign out') => Url::build('/signout')->www()
-                ];
+                $menu = DropDownMenu::new([
+                    tr('Profile')  => '/profile.html',
+                    tr('Sign out') => '/sign-out.html'
+                ]);
             }
         }
 
@@ -80,12 +91,12 @@ class ProfileImage extends ImageMenu
 
 
     /**
-     * Render the ProfileImage HTML
+     * Render the HTML for this component
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
-        // TODO: Implement render() method.
+        return '';
     }
 }

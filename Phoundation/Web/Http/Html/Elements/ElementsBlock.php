@@ -30,38 +30,6 @@ abstract class ElementsBlock
 
 
     /**
-     * ElementsBlock class constructor
-     *
-     * @param array|string|null $source
-     */
-    public function __construct(array|string|null $source = null)
-    {
-        if (is_string($source)) {
-            $this->setContent($source);
-        } elseif(is_array($source)) {
-            $this->setSource(($source));
-        } else {
-            $this->source  = null;
-            $this->content = null;
-        }
-    }
-
-
-
-    /**
-     * Returns a new ElementsBlock object
-     *
-     * @param array|string|null $source
-     * @return static
-     */
-    public static function new(array|string|null $source = null): static
-    {
-        return new static($source);
-    }
-
-
-
-    /**
      * Returns the source for this element
      *
      * @return array|null

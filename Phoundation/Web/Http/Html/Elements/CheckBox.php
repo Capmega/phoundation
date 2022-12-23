@@ -4,6 +4,8 @@ namespace Phoundation\Web\Http\Html\Elements;
 
 
 
+use Phoundation\Web\Http\Html\Elements\Input\InputElement;
+
 /**
  * Checkbox class
  *

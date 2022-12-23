@@ -14,7 +14,7 @@ namespace Templates\AdminLte\Components;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class Table extends \Phoundation\Web\Http\Html\Elements\Table
+class Table extends \Phoundation\Web\Http\Html\Components\Table
 {
     /**
      * Table class constructor

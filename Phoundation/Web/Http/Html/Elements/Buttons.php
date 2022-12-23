@@ -5,7 +5,7 @@ namespace Phoundation\Web\Http\Html\Elements;
 
 
 /**
- * Buttons class
+ * AdminLte Plugin Buttons class
  *
  *
  *
@@ -14,8 +14,12 @@ namespace Phoundation\Web\Http\Html\Elements;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class Buttons extends ElementsBlock
+class Buttons extends ElementsBlock
 {
+    use ButtonProperties;
+
+
+
     /**
      * The buttons to render
      *
@@ -145,5 +149,8 @@ abstract class Buttons extends ElementsBlock
     /**
      * Renders and returns the buttons HTML
      */
-    abstract public function render(): string;
+    public function render(): string
+    {
+        return '';
+    }
 }

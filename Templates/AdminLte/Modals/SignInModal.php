@@ -23,40 +23,8 @@ use Templates\AdminLte\Layouts\GridRow;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class SignInModal extends Modal
+class SignInModal extends \Phoundation\Web\Http\Html\Modals\SignInModal
 {
-    /**
-     * The sign-in object
-     *
-     * @var SignInForm|null $form
-     */
-    protected ?SignInForm $form = null;
-
-
-
-    /**
-     * SignInModal class constructor
-     */
-    public function __construct()
-    {
-        $this->form = SignInForm::new();
-        parent::__construct();
-    }
-
-
-
-    /**
-     * Access the sign-in form
-     *
-     * @return SignInForm
-     */
-    public function getForm(): SignInForm
-    {
-        return $this->form;
-    }
-
-
-
     /**
      * Render the HTML for this sign-in modal
      *

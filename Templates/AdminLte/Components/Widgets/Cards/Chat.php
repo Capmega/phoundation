@@ -14,7 +14,7 @@ namespace Templates\AdminLte\Components\Widgets\Cards;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class Chat extends Card
+class Chat extends \Phoundation\Web\Http\Html\Components\Widgets\Cards\Chat
 {
 
 }

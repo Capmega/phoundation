@@ -17,7 +17,7 @@ use Phoundation\Web\Http\Html\Elements\ElementsBlock;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class Footer extends ElementsBlock
+class Footer extends \Phoundation\Web\Http\Html\Components\Footer
 {
     /**
      * Renders and returns the HTML for the footer
@@ -33,7 +33,5 @@ class Footer extends ElementsBlock
                     <strong>Copyright © 2017-2023 <a href="https://phoundation.org">phoundation.org</a>.</strong> All rights reserved. <br>
                     <strong>Copyright © 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
                   </footer>';
-
-        return $html;
     }
 }

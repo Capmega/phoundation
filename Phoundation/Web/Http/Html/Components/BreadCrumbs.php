@@ -16,6 +16,15 @@ use Phoundation\Web\Http\Html\Elements\ElementsBlock;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Web
  */
-abstract class BreadCrumbs extends ElementsBlock
+class BreadCrumbs extends ElementsBlock
 {
+    /**
+     * Wen library breadcrumbs don't give rendered output (for now)
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        return null;
+    }
 }

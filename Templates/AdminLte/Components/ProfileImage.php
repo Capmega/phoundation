@@ -19,7 +19,7 @@ use Templates\AdminLte\TemplateMenus;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class ProfileImage extends ImageMenu
+class ProfileImage extends \Phoundation\Web\Http\Html\Components\ProfileImage
 {
     /**
      * ProfileImage class constructor

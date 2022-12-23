@@ -22,7 +22,7 @@ class BreadCrumbs extends \Phoundation\Web\Http\Html\Components\BreadCrumbs
     {
         $html = ' <ol class="breadcrumb float-sm-right">';
 
-        if ($this->source) {
+        if (isset($this->source)) {
             $count = count($this->source);
 
             foreach ($this->source as $url => $label) {

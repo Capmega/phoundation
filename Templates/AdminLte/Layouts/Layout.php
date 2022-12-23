@@ -2,8 +2,6 @@
 
 namespace Templates\AdminLte\Layouts;
 
-use Phoundation\Web\Http\Html\Elements\Element;
-
 
 
 /**
@@ -16,7 +14,6 @@ use Phoundation\Web\Http\Html\Elements\Element;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class Layout extends Element
+abstract class Layout extends \Phoundation\Web\Http\Html\Layouts\Layout
 {
-
 }

@@ -16,13 +16,16 @@ namespace Templates\AdminLte\Elements;
  */
 class CheckBox extends \Phoundation\Web\Http\Html\Elements\CheckBox
 {
+    use Type;
+
+
+
     /**
      * Checkbox class constructor
      */
     public function __construct()
     {
-        $this->setClass('form-check-input');
-        $this->setLabelClass('form-check-label');
+        $this->setType('primary');
         parent::__construct();
     }
 
@@ -35,8 +38,8 @@ class CheckBox extends \Phoundation\Web\Http\Html\Elements\CheckBox
      */
     public function render(): string
     {
-        return '<div class="form-check">
-                    ' . parent::render() . '                    
-                </div>';
+        return '  <div class="icheck-' . $this->type . '">
+                    ' . parent::render() . '
+                  </div>';
     }
 }

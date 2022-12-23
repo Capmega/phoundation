@@ -1,21 +1,18 @@
 <?php
 
-namespace Templates\Mdb\Elements;
-
-use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Web\Http\Html\Elements\Element;
+namespace Phoundation\Web\Http\Html\Elements;
 
 
 
 /**
- * MDB Plugin ButtonProperties trait
+ * ButtonProperties trait
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Templates\Mdb
+ * @package Phoundation\Web
  */
 trait ButtonProperties
 {

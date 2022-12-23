@@ -5,9 +5,7 @@ namespace Templates\AdminLte\Components;
 use Phoundation\Core\Config;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
-use Phoundation\Web\Http\Html\Components\Panel;
 use Phoundation\Web\Http\Url;
-use Templates\AdminLte\Modals\SignInModal;
 
 
 
@@ -21,19 +19,8 @@ use Templates\AdminLte\Modals\SignInModal;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class SidePanel extends Panel
+class SidePanel extends \Phoundation\Web\Http\Html\Components\SidePanel
 {
-    /**
-     * SidePanel class constructor
-     */
-    public function __construct()
-    {
-        parent::__construct();
-        $this->getModals()->add('sign-in', new SignInModal());
-    }
-
-
-
     /**
      * Renders and returns the sidebar
      *
