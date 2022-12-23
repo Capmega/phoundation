@@ -2,9 +2,6 @@
 
 namespace Templates\AdminLte\Elements;
 
-use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Web\Http\Html\Elements\Element;
-
 
 
 /**
@@ -17,44 +14,8 @@ use Phoundation\Web\Http\Html\Elements\Element;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class Icons extends Element
+class Icons extends \Phoundation\Web\Http\Html\Elements\Icons
 {
-    /**
-     * The icon size
-     *
-     * @var string|null $size
-     */
-    #[ExpectedValues(values:["xs", "sm", "lg", "2x", "3x", "4x", "5x", "6x", "7x", "8x", "9x", "10x"])]
-    protected ?string $size = null;
-
-
-
-    /**
-     * Sets the icon size
-     *
-     * @return string
-     */
-    #[ExpectedValues(values:["xs", "sm", "lg", "2x", "3x", "4x", "5x", "6x", "7x", "8x", "9x", "10x"])] public function getSize(): string
-    {
-        return $this->size;
-    }
-
-
-
-    /**
-     * Sets the icon size
-     *
-     * @param string $size
-     * @return static
-     */
-    public function setSize(#[ExpectedValues(values:["xs", "sm", "lg", "2x", "3x", "4x", "5x", "6x", "7x", "8x", "9x", "10x"])] string $size): static
-    {
-        $this->size = $size;
-        return $this;
-    }
-
-
-
     /**
      * Render the icon HTML
      *
