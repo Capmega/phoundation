@@ -838,7 +838,7 @@ class Route
                 $get = explode('&', $get);
 
                 foreach ($get as $entry) {
-                    $_GET[Strings::until($entry, '=')] = Strings::from($entry, '=', 0, true);
+                    GetValidator::addData(Strings::until($entry, '='), Strings::from($entry, '=', 0, true));
                 }
             }
 
