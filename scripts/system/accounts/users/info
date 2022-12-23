@@ -46,7 +46,7 @@ ArgvValidator::new()
 
 try {
     // Display user data
-    User::get($argv['user'])->CliDisplayForm();
+    User::get($argv['user'])->getCliForm();
 
     Log::information('Roles assigned to this user:');
     User::get($argv['user'])->roles()->CliDisplayTable();
