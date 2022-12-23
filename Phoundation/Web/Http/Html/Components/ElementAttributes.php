@@ -150,7 +150,7 @@ trait ElementAttributes
      */
     public static function new(): static
     {
-        $class = WebPage::getTemplate()->getComponentClass(static::class);
+        $class = WebPage::getTemplate()->getTemplateComponentClass(static::class);
         return new $class();
     }
 

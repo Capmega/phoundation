@@ -141,9 +141,14 @@ abstract class Template
      * @param object|string $component
      * @return string
      */
-    public function getComponentClass(object|string $component): string
+    public function getTemplateComponentClass(object|string $component): string
     {
-        $file = Strings::fromReverse($component, '\\');
+        if (!str_starts_with($component, 'Phoundation\\Web\\Http\\Html\\')) {
+            // Assume a template specific path was specified, use this.
+            return $component;
+        }
+
+        $file = Strings::from($component, 'Phoundation\\Web\\Http\\Html\\');
         $file = $this->getPath() . 'Components/' . $file . '.php';
 
         if (file_exists($file)) {

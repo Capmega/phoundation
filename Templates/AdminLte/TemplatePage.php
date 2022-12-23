@@ -3,12 +3,12 @@
 namespace Templates\AdminLte;
 
 use Phoundation\Core\Config;
+use Phoundation\Web\Http\Html\Components\Footer;
+use Phoundation\Web\Http\Html\Components\SidePanel;
+use Phoundation\Web\Http\Html\Components\TopPanel;
+use Phoundation\Web\Http\Html\Modals\SignInModal;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
-use Templates\AdminLte\Components\Footer;
-use Templates\AdminLte\Components\SidePanel;
-use Templates\AdminLte\Components\TopPanel;
-use Templates\AdminLte\Modals\SignInModal;
 
 
 

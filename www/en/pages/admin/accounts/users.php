@@ -17,7 +17,6 @@ echo Card::new()
     ->render();
 
 
-
 // Set page meta data
 WebPage::setHeaderTitle(tr('Users'));
 WebPage::setBreadCrumbs(BreadCrumbs::new([
