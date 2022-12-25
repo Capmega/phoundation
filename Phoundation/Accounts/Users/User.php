@@ -15,6 +15,7 @@ use Phoundation\Content\Images\Image;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
+use Phoundation\Core\Meta;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
@@ -1680,7 +1681,8 @@ class User extends DataEntry
             'created_by' => [
                 'display'  => true,
                 'readonly' => true,
-                'source'   => 'SELECT `username` FROM `users` WHERE `id` = :id',
+                'source'   => 'SELECT IFNULL(`username`, `email`) AS `username` FROM `accounts_users` WHERE `id` = :id',
+                'execute'  => 'id',
                 'label'    => tr('Created by')
             ],
             'created_on' => [
@@ -1692,7 +1694,7 @@ class User extends DataEntry
             'meta_id' => [
                 'display'  => true,
                 'readonly' => true,
-                'element'  => function(){},
+                'element'  => null, //Meta::new()->getHtmlTable(), // TODO implement
                 'label'    => tr('Meta information')
             ],
             'status' => [
@@ -1727,7 +1729,7 @@ class User extends DataEntry
                 'label'    => tr('Password')
             ],
             'fingerprint' => [
-                'element'  => function(){}
+                'element'  => null  // TODO Implement
             ],
             'domain' => [
                 'label'    => tr('Domain')
@@ -1770,7 +1772,7 @@ class User extends DataEntry
                 'label'    => tr('Verified on'),
             ],
             'priority' => [
-                'type'     => 'number',
+                'type'     => 'numeric',
                 'label'    => tr('Priority'),
             ],
             'is_leader' => [
@@ -1778,7 +1780,8 @@ class User extends DataEntry
                 'label'    => tr('Is leader'),
             ],
             'leaders_id' => [
-                'source'   => 'SELECT `username` FROM `users` WHERE `id` = :id',
+                'source'   => 'SELECT `username` FROM `accounts_users` WHERE `id` = :id',
+                'execute'  => 'id',
                 'label'    => tr('leaders_id'),
             ],
             'latitude' => [
@@ -1804,13 +1807,13 @@ class User extends DataEntry
             'states_id' => [
                 'element'  => 'select',
                 'source'   => 'SELECT `id`, `name` FROM `geo_states` WHERE `countries_id` = :countries_id',
-                'execute'  => [':countries_id' => isset_get($this->data['countries_id'])],
+                'execute'  => 'countries_id',
                 'label'    => tr('State'),
             ],
             'cities_id' => [
                 'element'  => 'select',
                 'source'   => 'SELECT `id`, `name` FROM `geo_cities` WHERE `states_id` = :states_id',
-                'execute'  => [':states_id' => isset_get($this->data['states_id'])],
+                'execute'  => 'states_id',
                 'label'    => tr('City'),
             ],
             'redirect' => [
@@ -1819,7 +1822,8 @@ class User extends DataEntry
             ],
             'language' => [
                 'element'  => 'select',
-                'source'   => 'SELECT `id`, `name` FROM `languages`',
+//                'source'   => 'SELECT `id`, `name` FROM `languages`',
+                'source'   => [],
                 'label'    => tr('language'),
             ],
             'gender' => [
