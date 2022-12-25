@@ -4,6 +4,7 @@ namespace Templates\AdminLte\Components;
 
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Session;
+use Phoundation\Web\Http\Html\Components\DropDownMenu;
 use Phoundation\Web\Http\Html\Components\Menu;
 use Templates\AdminLte\TemplateMenus;
 

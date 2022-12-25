@@ -22,9 +22,9 @@ class Modal extends \Phoundation\Web\Http\Html\Components\Modal
    /**
      * Render the modal
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         if (!$this->id) {
             throw new OutOfBoundsException(tr('Cannot render modal, no "id" specified'));

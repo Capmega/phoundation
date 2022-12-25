@@ -2,6 +2,8 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
+use Phoundation\Web\Http\Html\Components\Input\Input;
+
 
 
 /**
@@ -14,14 +16,14 @@ namespace Phoundation\Web\Http\Html\Components;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Text extends Element
+class Text extends Input
 {
     /**
      * The amount of columns to use for this text area
      *
      * @var int|null $cols
      */
-    protected ?int $cols;
+    protected ?int $cols = null;
 
     /**
      * The amount of rows to use for this text area

@@ -23,9 +23,9 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
     /**
      * Renders and returns the HTML for the footer
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         return $this->renderMenu($this->source, 'nav navbar-nav me-auto mb-2 mb-lg-0');
     }

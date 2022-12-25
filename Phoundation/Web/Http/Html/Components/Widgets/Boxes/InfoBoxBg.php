@@ -5,7 +5,7 @@ namespace Phoundation\Web\Http\Html\Components\Widgets\Boxes;
 
 
 /**
- * AdminLte Plugin InfoBoxBg class
+ * InfoBoxBg class
  *
  *
  *

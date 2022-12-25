@@ -60,9 +60,9 @@ abstract class Element
     /**
      * Generates and returns the HTML string
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         if (!$this->element) {
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));

@@ -7,7 +7,7 @@ use Phoundation\Web\Http\Html\Modals\SignInModal;
 
 
 /**
- * AdminLte Plugin SidePanel class
+ * SidePanel class
  *
  * 
  *

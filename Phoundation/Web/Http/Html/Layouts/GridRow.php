@@ -85,9 +85,9 @@ class GridRow extends Layout
     /**
      * Render this grid row
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         return '';
     }

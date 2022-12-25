@@ -20,9 +20,9 @@ class Icons extends \Phoundation\Web\Http\Html\Components\Icons
      * Render the icon HTML
      *
      * @note This render skips the parent Element class rendering for speed and simplicity
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         if (preg_match('/[a-z0-9-_]*]/i', $this->content)) {
             // icon names should only have letters, numbers and dashes and underscores

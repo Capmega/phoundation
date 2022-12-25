@@ -59,9 +59,9 @@ class SignInModal extends Modal
     /**
      * Render the HTML for this sign-in modal
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         // Build the form
         $form = $this->form->render();

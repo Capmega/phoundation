@@ -19,9 +19,9 @@ class DropDownMenu extends \Phoundation\Web\Http\Html\Components\DropDownMenu
     /**
      * Render and return the HTML for this Mdb DropDown menu
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         return '';
     }

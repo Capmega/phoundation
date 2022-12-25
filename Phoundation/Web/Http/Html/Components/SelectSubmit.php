@@ -3,9 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Web\Http\Html\Exception\HtmlException;
-use function Phoundation\Web\Http\Html\Elements\array_default;
-use function Phoundation\Web\Http\Html\Elements\array_params;
-use function Phoundation\Web\Http\Html\Elements\gettype;
+
 
 
 /**
@@ -23,9 +21,9 @@ class SelectSubmit extends Select
     /**
      * Generates and returns the HTML string for a <select> control
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         /*
          * Return HTML for a multi select submit button. This button, once clicked, will show a list of selectable submit buttons.

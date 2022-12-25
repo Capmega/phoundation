@@ -19,9 +19,9 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
     /**
      * Renders the HTML for the menu
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         return $this->renderMenu($this->source);
     }

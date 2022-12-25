@@ -19,9 +19,9 @@ class SignInForm extends \Phoundation\Web\Http\Html\Forms\SignInForm
     /**
      * Render the HTML for this Sign-in form
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         $this->content = '<!-- Email input -->
                           <div class="form-outline mb-4">

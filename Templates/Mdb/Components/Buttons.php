@@ -2,9 +2,9 @@
 
 namespace Templates\Mdb\Components;
 
+use Phoundation\Web\Http\Html\Components\ButtonProperties;
 
 
-use Templates\Mdb\Elements\ButtonProperties;
 
 /**
  * MDB Plugin Buttons class
@@ -24,8 +24,10 @@ class Buttons extends \Phoundation\Web\Http\Html\Components\Buttons
 
    /**
      * Renders and returns the buttons HTML
+     *
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         $html = '';
 

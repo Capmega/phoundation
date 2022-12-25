@@ -29,9 +29,9 @@ class CheckBox extends \Phoundation\Web\Http\Html\Components\CheckBox
     /**
      * Render the HTML for this checkbox
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         return '  <div class="icheck-' . $this->type . '">
                     ' . parent::render() . '

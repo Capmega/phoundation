@@ -21,9 +21,9 @@ class ImageMenu extends \Phoundation\Web\Http\Html\Components\ImageMenu
    /**
      * Renders and returns the image menu block HTML
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         if (!isset($this->image)) {
             throw new OutOfBoundsException(tr('Cannot render ImageMenu object HTML, no image specified'));

@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use PDOStatement;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputElement;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 
@@ -182,12 +183,13 @@ abstract class ResourceElement extends Element
 
 
     /**
-     * Set the HTML source_query element attribute
+     * Set the HTML source as a query
      *
      * @param PDOStatement|string|null $source_query
+     * @param array|string|null $execute
      * @return static
      */
-    public function setSourceQuery(PDOStatement|string|null $source_query): self
+    public function setSourceQuery(PDOStatement|string|null $source_query, array|string|null $execute = null): self
     {
         if ($this->source) {
             throw new HtmlException(tr('Cannot specify source query, a source was already specified'));
@@ -195,7 +197,7 @@ abstract class ResourceElement extends Element
 
         if (is_string($source_query)) {
             // Get a PDOStatement instead by executing the query
-            $source_query = sql()->query($source_query);
+            $source_query = sql()->query($source_query, $execute);
         }
 
         $this->source_query = $source_query;
@@ -205,7 +207,31 @@ abstract class ResourceElement extends Element
 
 
     /**
-     * Returns the HTML source_query element attribute
+     * Set the source
+     *
+     * @param PDOStatement|array|string|null $source
+     * @param array|string|null $execute
+     * @return static
+     */
+    public function setSource(PDOStatement|array|string|null $source, array|string|null $execute = null): self
+    {
+        if (is_array($source)) {
+            if ($execute) {
+                throw new OutOfBoundsException(tr('Cannot specify array source with an $execute variable'));
+            }
+
+            // Source is an array
+            return $this->setSourceArray($source);
+        }
+
+        // Source is an SQL query
+        return $this->setSourceQuery($source, $execute);
+    }
+
+
+
+    /**
+     * Returns the HTML source as a query
      *
      * @return PDOStatement|null
      */
@@ -247,11 +273,11 @@ abstract class ResourceElement extends Element
 
 
     /**
-     * Generates and returns the HTML string for a <select> control
+     * Generates and returns the HTML string for this resource element
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         // Render the body
         $this->content = $this->renderBody();
@@ -283,7 +309,7 @@ abstract class ResourceElement extends Element
     /**
      * Generates and returns the HTML body
      *
-     * @return string
+     * @return string|null
      */
-    abstract public function renderBody(): string;
+    abstract public function renderBody(): ?string;
 }

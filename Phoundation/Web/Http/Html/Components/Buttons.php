@@ -5,7 +5,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 
 /**
- * AdminLte Plugin Buttons class
+ * Buttons class
  *
  *
  *
@@ -148,8 +148,10 @@ class Buttons extends ElementsBlock
 
     /**
      * Renders and returns the buttons HTML
+     *
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         return '';
     }

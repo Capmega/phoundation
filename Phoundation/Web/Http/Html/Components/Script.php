@@ -8,17 +8,12 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Elements\Core;
-use Phoundation\Web\Http\Html\Elements\Html;
+use Phoundation\Web\Http\Html\Components\Core;
+use Phoundation\Web\Http\Html\Components\Html;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Uglify;
 use Throwable;
-use function Phoundation\Web\Http\Html\Elements\array_default;
-use function Phoundation\Web\Http\Html\Elements\array_params;
-use function Phoundation\Web\Http\Html\Elements\cdn_domain;
-use function Phoundation\Web\Http\Html\Elements\file_chmod;
-use function Phoundation\Web\Http\Html\Elements\file_delete;
-use const Phoundation\Web\Http\Html\Elements\LANGUAGE;
+
 
 
 /**
@@ -92,9 +87,9 @@ class Script extends Element
      *
      * @note: If web.javascript.delay is configured true, it will return an empty string and add the string to the
      *        footer script tags list instead so that it will be loaded at the end of the page for speed
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         $content = '';
 

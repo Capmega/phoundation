@@ -102,9 +102,9 @@ class GridColumn extends Layout
     /**
      * Render this grid column
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         return '';
     }

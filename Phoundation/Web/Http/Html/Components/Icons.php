@@ -57,9 +57,9 @@ class Icons extends Element
      * Render the icon HTML
      *
      * @note This render skips the parent Element class rendering for speed and simplicity
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         return '';
     }

@@ -2,7 +2,6 @@
 
 namespace Templates\Mdb\Layouts;
 
-use Phoundation\Web\Http\Html\Components\Element;
 
 
 /**
@@ -15,7 +14,6 @@ use Phoundation\Web\Http\Html\Components\Element;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Mdb
  */
-class Layout extends Element
+abstract class Layout extends \Phoundation\Web\Http\Html\Layouts\Layout
 {
-
 }

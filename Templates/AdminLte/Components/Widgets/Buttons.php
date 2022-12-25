@@ -16,10 +16,12 @@ namespace Templates\AdminLte\Components\Widgets;
  */
 class Buttons extends \Phoundation\Web\Http\Html\Components\Buttons
 {
-   /**
+    /**
      * Renders and returns the buttons HTML
+     *
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         $html = '';
 

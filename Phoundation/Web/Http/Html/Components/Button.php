@@ -4,11 +4,11 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Config;
-use function Phoundation\Web\Http\Html\Elements\str_starts_with;
+
 
 
 /**
- * AdminLte Plugin Button class
+ * Button class
  *
  *
  *

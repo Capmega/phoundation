@@ -5,6 +5,7 @@ namespace Templates\Mdb\Components;
 use Phoundation\Web\Http\Html\Components\Section;
 
 
+
 /**
  * MDB Plugin Table class
  *
@@ -15,7 +16,7 @@ use Phoundation\Web\Http\Html\Components\Section;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Mdb
  */
-class Table extends \Phoundation\Web\Http\Html\Elements\Table
+class Table extends \Phoundation\Web\Http\Html\Components\Table
 {
     /**
      * Sets whether the table is responsive or not
@@ -165,9 +166,9 @@ class Table extends \Phoundation\Web\Http\Html\Elements\Table
     /**
      * Render the MDB table
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         // Render the table
         $table = parent::render();

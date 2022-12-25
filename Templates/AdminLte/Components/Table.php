@@ -24,17 +24,4 @@ class Table extends \Phoundation\Web\Http\Html\Components\Table
         $this->addClass('table');
         parent::__construct();
     }
-
-
-
-    /**
-     * Render the MDB table
-     *
-     * @return string
-     */
-    public function render(): string
-    {
-        // Render the table
-        return parent::render();
-    }
 }

@@ -16,6 +16,11 @@ namespace Templates\Mdb\Components;
  */
 class BreadCrumbs extends \Phoundation\Web\Http\Html\Components\BreadCrumbs
 {
+    /**
+     * Render and return the HTML for this component
+     *
+     * @return string|null
+     */
     public function render(): ?string
     {
         return '';

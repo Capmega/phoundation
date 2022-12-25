@@ -7,8 +7,9 @@ use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\Url;
 
 
+
 /**
- * AdminLte Plugin SignIn form class
+ * SignIn form class
  *
  *
  *
@@ -138,9 +139,9 @@ class SignInForm extends Form
     /**
      * Render the HTML for this Sign-in form
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         return parent::render();
     }

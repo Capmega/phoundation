@@ -137,9 +137,9 @@ class CheckBox extends Element
     /**
      * Render the HTML for this checkbox
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         $html = parent::render();
 

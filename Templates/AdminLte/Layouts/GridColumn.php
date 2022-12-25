@@ -21,9 +21,9 @@ class GridColumn extends \Phoundation\Web\Http\Html\Layouts\GridColumn
     /**
      * Render this grid column
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         if (!$this->size) {
             throw new OutOfBoundsException(tr('Cannot render GridColumn, no size specified'));

@@ -2,7 +2,6 @@
 
 namespace Templates\Mdb\Components;
 
-use Phoundation\Web\Http\Html\Components\ElementsBlock;
 
 
 /**
@@ -15,14 +14,14 @@ use Phoundation\Web\Http\Html\Components\ElementsBlock;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Mdb
  */
-class Footer extends ElementsBlock
+class Footer extends \Phoundation\Web\Http\Html\Components\Footer
 {
     /**
      * Renders and returns the HTML for the footer
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         $html = '<footer id="mdb-footer" class="mt-5" style="background-color: hsl(216, 25%, 95.1%); ">
                     <div class="container py-5">                        

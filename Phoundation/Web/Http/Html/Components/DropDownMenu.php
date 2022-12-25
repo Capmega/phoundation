@@ -19,9 +19,9 @@ class DropDownMenu extends Menu
     /**
      * Render and return the HTML for this component
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         return '';
     }

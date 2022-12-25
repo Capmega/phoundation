@@ -19,9 +19,9 @@ class Container extends \Phoundation\Web\Http\Html\Layouts\Container
     /**
      * Render the HTML for this container
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         return '<div class="container' . ($this->type ? '-' . $this->type : null) . '">' . $this->content . '</div>';
     }

@@ -3,8 +3,8 @@
 namespace Templates\Mdb\Components;
 
 use Phoundation\Web\Http\Html\Components\Img;
-use Phoundation\Web\Http\Html\Components\Panel;
 use Templates\Mdb\Modals\SignInModal;
+
 
 
 /**
@@ -17,7 +17,7 @@ use Templates\Mdb\Modals\SignInModal;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Mdb
  */
-class TopPanel extends Panel
+class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
 {
     /**
      * TopPanel class constructor
@@ -34,9 +34,9 @@ class TopPanel extends Panel
     /**
      * Renders and returns the NavBar
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         $html = '    <!-- Navbar -->
                     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">

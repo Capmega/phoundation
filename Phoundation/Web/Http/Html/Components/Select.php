@@ -7,7 +7,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
-use function Phoundation\Web\Http\Html\Elements\count;
+
 
 
 /**
@@ -281,12 +281,11 @@ class Select extends ResourceElement
      * @see Select::render()
      * @see Select::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @return string The body HTML (all <option> tags) for a <select> tag
+     * @return string|null The body HTML (all <option> tags) for a <select> tag
      */
-    public function renderBody(): string
+    public function renderBody(): ?string
     {
         $return = '';
-        $empty  = true;
 
         if (($this->source === null) and ($this->source_query === null)) {
             throw new HtmlException(tr('No source specified'));
@@ -319,10 +318,14 @@ class Select extends ResourceElement
      * @see Select::render()
      * @see Select::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @return string The body HTML (all <option> tags) for a <select> tag
+     * @return string|null The body HTML (all <option> tags) for a <select> tag
      */
-    protected function renderBodyArray(): string
+    protected function renderBodyArray(): ?string
     {
+        if (!$this->source) {
+            return '';
+        }
+
         $return = '';
 
         if ($this->auto_select and ((count($this->source) == 1) and !$this->none)) {
@@ -365,9 +368,9 @@ class Select extends ResourceElement
      * @see Select::render()
      * @see Select::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @return string The body HTML (all <option> tags) for a <select> tag
+     * @return string|null The body HTML (all <option> tags) for a <select> tag
      */
-    protected function renderBodyQuery(): string
+    protected function renderBodyQuery(): ?string
     {
         $return = '';
 

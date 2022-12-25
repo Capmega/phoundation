@@ -97,9 +97,9 @@ class Grid extends Container
     /**
      * Render the HTML for this grid
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         return '';
     }

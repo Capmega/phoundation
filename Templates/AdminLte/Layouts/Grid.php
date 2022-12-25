@@ -19,9 +19,9 @@ class Grid extends \Phoundation\Web\Http\Html\Layouts\Grid
     /**
      * Render the HTML for this grid
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         $this->content = '';
 

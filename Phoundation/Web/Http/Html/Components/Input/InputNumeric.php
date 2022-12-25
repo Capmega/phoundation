@@ -24,4 +24,7 @@ class InputNumeric extends Input
         $this->type = 'numeric';
         parent::__construct();
     }
+
+
+
 }

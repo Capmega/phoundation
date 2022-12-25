@@ -18,6 +18,11 @@ use Phoundation\Web\Http\Url;
  */
 class BreadCrumbs extends \Phoundation\Web\Http\Html\Components\BreadCrumbs
 {
+    /**
+     * Renders and returns the HTML for this component
+     *
+     * @return string|null
+     */
     public function render(): ?string
     {
         $html = ' <ol class="breadcrumb float-sm-right">';

@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\WebPage;

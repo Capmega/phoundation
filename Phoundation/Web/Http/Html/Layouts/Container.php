@@ -57,9 +57,9 @@ class Container extends Layout
     /**
      * Render the HTML for this container
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         return '';
     }

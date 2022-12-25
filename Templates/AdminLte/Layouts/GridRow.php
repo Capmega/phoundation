@@ -19,9 +19,9 @@ class GridRow extends \Phoundation\Web\Http\Html\Layouts\GridRow
     /**
      * Render this grid row
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         $return = '<div class="row">';
 

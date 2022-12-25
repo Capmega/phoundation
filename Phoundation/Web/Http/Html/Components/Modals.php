@@ -151,9 +151,9 @@ class Modals extends ElementsBlock implements Iterator
     /**
      * Render the modals and return the HTML
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         if ($this->required) {
             // Ensure that these modals are available

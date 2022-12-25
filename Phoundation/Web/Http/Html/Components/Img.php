@@ -10,6 +10,7 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
 
 
+
 /**
  * Class Img
  *
@@ -288,9 +289,9 @@ class Img extends Element
     /**
      * Generates and returns the HTML string for a <select> control
      *
-     * @return string
+     * @return string|null
      */
-    public function render(): string
+    public function render(): ?string
     {
         if (!$this->src) {
             throw new HtmlException(tr('No src attribute specified'));

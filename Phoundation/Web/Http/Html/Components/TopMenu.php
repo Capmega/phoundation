@@ -5,7 +5,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 
 /**
- * AdminLte Plugin TopMenu class
+ * TopMenu class
  *
  *
  *
