@@ -2,9 +2,10 @@
 
 namespace Phoundation\Core;
 
-
-
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Http\Html\Components\Table;
+
 
 /**
  * Meta class
@@ -86,7 +87,7 @@ class Meta
      * @param array|null $data
      * @return int
      */
-    public static function init( ?string $comments = null, ?array $data = null): int
+    public function init( ?string $comments = null, ?array $data = null): int
     {
         $meta = new Meta();
         $meta->action('created', $comments, $data);
@@ -115,6 +116,19 @@ class Meta
             ':comments'   => $comments,
             ':data'       => Json::encode($data)
         ]);
+    }
+
+
+
+    /**
+     * Creates and returns an HTML table for the data in this list
+     *
+     * @return Table
+     */
+    public function getHtmlTable(): Table
+    {
+        // Create and return the table
+        return Table::new()->setSourceQuery('SELECT * FROM `meta_history` WHERE `meta_id` = :meta_id', [':meta_id' => $this->id]);
     }
 
 
