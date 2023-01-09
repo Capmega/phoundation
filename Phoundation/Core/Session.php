@@ -301,7 +301,7 @@ class Session
     public static function clear(): void
     {
         global $_SESSION;
-        $_SESSION = ['start' => $_SESSION['start']];
+        $_SESSION = ['start' => isset_get($_SESSION['start'])];
     }
 
 
