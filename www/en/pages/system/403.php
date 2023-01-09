@@ -16,7 +16,7 @@ use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 WebPage::setPageTitle(tr('403 - Forbidden'));
 WebPage::setHeaderTitle('');
 WebPage::setDescription(tr('403 - Forbidden: You do not have access to the requested resource on this server'));
-WebPage::setBreadCrumbs(BreadCrumbs::new([
+WebPage::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('403')
 ]));

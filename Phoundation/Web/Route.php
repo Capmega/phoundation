@@ -4,6 +4,7 @@ namespace Phoundation\Web;
 
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log;
@@ -199,9 +200,10 @@ class Route
      *
      * @param string $template
      * @param string|null $pattern
+     * @param array|string|null $rights
      * @return void
      */
-    public static function setSystemTemplate(string $template, ?string $pattern = null): void
+    public static function setSystemTemplate(string $template, ?string $pattern = null, array|string|null $rights = null): void
     {
         if (!is_subclass_of($template, 'Phoundation\Web\Http\Html\Template\Template')) {
             throw new OutOfBoundsException(tr('Cannot set 404 template for pattern ":pattern": Specified template class ":class" is not a sub class of "Phoundation\Web\Http\Html\Template\Template"', [
@@ -210,7 +212,10 @@ class Route
             ]));
         }
 
-        self::$system_templates[$pattern] = $template;
+        self::$system_templates[$pattern] = [
+            'template' => $template,
+            'rights'   => Arrays::force($rights)
+        ];
     }
 
 
@@ -684,8 +689,7 @@ class Route
                                 ':right'    => $right
                             ]));
 
-                            self::execute($page ?? Config::get('web.pages.access-denied', 'system/403.php'), false);
-                            return false;
+                            self::execute403();
                         }
                 }
             }
@@ -1109,10 +1113,7 @@ class Route
         self::selectSystemTemplate();
 
         try {
-            Core::writeRegister(PATH_WWW . 'system/403', 'system', 'script_path');
-            Core::writeRegister('403', 'system', 'script');
-
-            self::execute('system/403.php', false);
+            self::execute($page ?? Config::get('web.pages.access-denied', 'system/403.php'), false);
 
         } catch (Throwable $e) {
             if ($e->getCode() === 'not-exists') {
@@ -1295,26 +1296,29 @@ class Route
             try {
                 if ($regex) {
                     if (preg_match($regex, self::$uri)) {
-                        // Use this template
-                        Log::action(tr('Selecting template ":template" to display system page', [
-                            ':template' => $template
-                        ]));
+                        if (Session::getUser()->hasAllRights($template['rights'])) {
+                            // Use this template
+                            Log::action(tr('Selecting template ":template" to display system page', [
+                                ':template' => $template['template']
+                            ]));
 
-                        self::$template = $template::new();
+                            self::$template = $template['template']::new();
+                        }
+
                         return;
                     }
                 } else {
                     // This is the default template
                     Log::action(tr('Selecting default template ":template" to display system page', [
-                        ':template' => $template
+                        ':template' => $template['template']
                     ]));
 
-                    self::$template = $template::new();
+                    self::$template = $template['template']::new();
                     return;
                 }
             } catch (Exception $e) {
                 Log::warning(tr('Not selecting system template ":template" because the regex ":regex" failed with ":e". Ignoring template and skipping to next', [
-                    ':template' => $template,
+                    ':template' => $template['template'],
                     ':e'        => $e,
                     ':regex'    => $regex
                 ]));

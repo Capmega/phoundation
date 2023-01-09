@@ -30,4 +30,11 @@ abstract class Input extends Element
         $this->element = 'input';
         parent::__construct();
     }
+
+
+    public function render(): ?string
+    {
+        $this->attributes = array_merge($this->buildInputAttributes(), $this->attributes);
+        return parent::render();
+    }
 }

@@ -36,7 +36,7 @@ WebPage::setPageTitle(tr('Dashboard (under development)'));
 WebPage::setHeaderTitle(tr('Dashboard'));
 WebPage::setHeaderSubTitle(tr('(under development)'));
 WebPage::setDescription(tr(''));
-WebPage::setBreadCrumbs(BreadCrumbs::new([
+WebPage::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('Dashboard')
 ]));

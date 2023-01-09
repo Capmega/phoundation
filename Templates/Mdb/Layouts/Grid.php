@@ -29,6 +29,6 @@ class Grid extends \Phoundation\Web\Http\Html\Layouts\Grid
             $this->content .= $row->render();
         }
 
-        return parent::render();
+        return $this->content;
     }
 }

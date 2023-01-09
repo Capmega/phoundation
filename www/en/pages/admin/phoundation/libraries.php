@@ -16,7 +16,7 @@ echo Card::new()
 
 // Set page meta data
 WebPage::setHeaderTitle(tr('Libraries'));
-WebPage::setBreadCrumbs(BreadCrumbs::new([
+WebPage::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'            => tr('Home'),
     '/phoundation' => tr('Phoundation'),
     ''             => tr('Libraries')

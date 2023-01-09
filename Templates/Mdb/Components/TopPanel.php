@@ -26,7 +26,7 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
     {
         parent::__construct();
         $this->getModals()->setRequired('sign-in');
-        $this->getModals()->add('sign-in', new SignInModal());
+        $this->getModals()->add('sign-in', SignInModal::new());
     }
 
 
@@ -61,7 +61,7 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
                           <a class="navbar-brand mt-2 mt-lg-0" href="#">
                           ' . Img::new()
                 ->setSrc('/logos/phoundation/phoundation-top.png')
-                ->setAlt('The Mdb logo')
+                ->setAlt(tr('The Mdb logo'))
                 ->addAttributes([
                     'loading' => 'lazy',
                     'height'  => 50

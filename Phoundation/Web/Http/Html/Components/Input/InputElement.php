@@ -24,9 +24,9 @@ trait InputElement
     /**
      * Input element type
      *
-     * @var string|null $type
+     * @var string $type
      */
-    protected ?string $type = null;
+    protected string $type = 'text';
 
     /**
      * Input element value
@@ -40,9 +40,9 @@ trait InputElement
     /**
      * Returns the type for the input element
      *
-     * @return string|null
+     * @return string
      */
-    public function getType(): ?string
+    public function getType(): string
     {
         return $this->type;
     }
@@ -52,10 +52,10 @@ trait InputElement
     /**
      * Sets the type for the input element
      *
-     * @param string|null $type
+     * @param string $type
      * @return static
      */
-    public function setType(string|null $type): static
+    public function setType(string $type): static
     {
         $this->type = $type;
         return $this;

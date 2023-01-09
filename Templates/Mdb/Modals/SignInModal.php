@@ -12,6 +12,7 @@ use Templates\Mdb\Layouts\GridColumn;
 use Templates\Mdb\Layouts\GridRow;
 
 
+
 /**
  * MDB Plugin SignInModal class
  *
@@ -81,8 +82,7 @@ class SignInModal extends Modal
             ->setContent($layout->render());
 
         // Render the sign in modal.
-        return parent::render() . Script::new()
-            ->setContent('
+        return parent::render() . Script::new()->setContent('
             $("form#form-signin").submit(function(e) {
                 e.stopPropagation();
                 

@@ -25,7 +25,7 @@ abstract class ElementsBlock
      *
      * @var array|null $source
      */
-    protected ?array $source;
+    protected ?array $source = null;
 
 
 

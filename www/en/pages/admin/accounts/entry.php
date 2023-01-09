@@ -27,7 +27,7 @@ echo Card::new()
 // Set page meta data
 WebPage::setHeaderTitle(tr('User'));
 WebPage::setHeaderSubTitle($user->getName());
-WebPage::setBreadCrumbs(BreadCrumbs::new([
+WebPage::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('Users')
 ]));

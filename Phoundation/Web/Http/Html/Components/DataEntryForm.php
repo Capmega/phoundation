@@ -6,7 +6,7 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
-
+use Phoundation\Web\Http\Url;
 
 
 /**
@@ -147,6 +147,12 @@ class DataEntryForm extends ElementsBlock
                 continue;
             }
 
+            // Ensure password is never sent in the form
+            switch ($key) {
+                case 'password':
+                    $this->source[$key] = '';
+            }
+
             $execute = isset_get($data['execute']);
 
             if (is_string($execute)) {
@@ -187,11 +193,13 @@ class DataEntryForm extends ElementsBlock
                     include_once($file);
 
                     // Render the HTML for this element
-                    $html .= $element::new()
+                    $item = $element::new()
+                        ->setDisabled((bool) isset_get($data['disabled'], false))
                         ->setReadOnly((bool) isset_get($data['readonly'], false))
                         ->setName($key)
                         ->setValue(isset_get($this->source[$key]))
                         ->render();
+                    $html .= $this->renderItem($key, isset_get($data['label']), $item);
 
                     break;
 
@@ -207,11 +215,13 @@ class DataEntryForm extends ElementsBlock
                     $file    = Debug::getClassFile($element);
                     include_once($file);
 
-                    $html .= Text::new()
+                    $item = Text::new()
+                        ->setDisabled((bool) isset_get($data['disabled'], false))
                         ->setReadOnly((bool) isset_get($data['readonly'], false))
                         ->setName($key)
                         ->setValue(isset_get($this->source[$key]))
                         ->render();
+                    $html .= $this->renderItem($key, isset_get($data['label']), $item);
                     break;
 
                 case 'select':
@@ -220,12 +230,14 @@ class DataEntryForm extends ElementsBlock
                     $file    = Debug::getClassFile($element);
                     include_once($file);
 
-                    $html .= Select::new()
+                    $item = Select::new()
                         ->setSource(isset_get($data['source']), $execute)
+                        ->setDisabled((bool) isset_get($data['disabled'], false))
                         ->setReadOnly((bool) isset_get($data['readonly'], false))
                         ->setName($key)
                         ->setValue(isset_get($this->source[$key]))
                         ->render();
+                    $html .= $this->renderItem($key, isset_get($data['label']), $item);
                     break;
 
                 case '':
@@ -240,6 +252,26 @@ class DataEntryForm extends ElementsBlock
                     ]));
             }
         }
+
+        return $html;
+    }
+
+
+
+    /**
+     * Renders and returns the HTML for this component
+     *
+     * @param string|int|null $id
+     * @param string|null $label
+     * @param string $html
+     * @return string
+     */
+    protected function renderItem(string|int|null $id, ?string $label, string $html): string
+    {
+        $html = ' <div class="form-group">
+                    <label for="' . $id . '">' . $label . '</label>
+                    ' . $html . '
+                  </div>';
 
         return $html;
     }

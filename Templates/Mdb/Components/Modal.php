@@ -3,6 +3,7 @@
 namespace Templates\Mdb\Components;
 
 use Phoundation\Core\Strings;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -35,7 +36,7 @@ class Modal extends \Phoundation\Web\Http\Html\Components\Modal
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="' . $this->id . 'Label">' . $this->title . '</h5>
-                                <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="' . tr('Close') . '"></button>
                             </div>
                             <div class="modal-body">' . $this->content . '</div>
                             <div class="modal-footer">

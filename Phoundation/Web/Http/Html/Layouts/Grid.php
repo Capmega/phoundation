@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Layouts;
 
+use mysql_xdevapi\RowResult;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -95,6 +96,48 @@ class Grid extends Container
 
 
     /**
+     * Set the columns for the current row in this grid
+     *
+     * @param array $columns
+     * @return static
+     */
+    public function setColumns(array $columns): static
+    {
+        $this->getCurrentRow()->setColumns($columns);
+        return $this;
+    }
+
+
+
+    /**
+     * Add the specified column to the current row in this grid
+     *
+     * @param array $columns
+     * @return static
+     */
+    public function addColumns(array $columns): static
+    {
+        $this->getCurrentRow()->addColumns($columns);
+        return $this;
+    }
+
+
+
+    /**
+     * Add the specified column to the current row in this grid
+     *
+     * @param GridColumn|null $column
+     * @return static
+     */
+    public function addColumn(?GridColumn $column): static
+    {
+        $this->getCurrentRow()->addColumn($column);
+        return $this;
+    }
+
+
+    
+    /**
      * Render the HTML for this grid
      *
      * @return string|null
@@ -102,5 +145,24 @@ class Grid extends Container
     public function render(): ?string
     {
         return '';
+    }
+
+
+
+    /**
+     * Returns the current row for this grid
+     *
+     * @return GridRow
+     */
+    protected function getCurrentRow(): GridRow
+    {
+        if (!$this->rows) {
+            $row = GridRow::new();
+            $this->addRow($row);
+        } else {
+            $row = $this->rows(array_key_last($this->rows));
+        }
+
+        return $row;
     }
 }

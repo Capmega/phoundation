@@ -17,6 +17,15 @@ namespace Phoundation\Web\Http\Html\Components\Input;
 class InputFile extends Input
 {
     /**
+     * Defines what this file upload control will accept
+     *
+     * @var string|null $accept
+     */
+    protected ?string $accept = null;
+
+
+
+    /**
      * InputFile class constructor
      */
     public function __construct()

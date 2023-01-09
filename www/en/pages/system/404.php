@@ -17,7 +17,7 @@ use Phoundation\Web\WebPage;
 WebPage::setPageTitle(tr('404 - Page not found'));
 WebPage::setHeaderTitle('');
 WebPage::setDescription(tr('404 - Page not found: The page you requested does not (or no longer) exist on this server'));
-WebPage::setBreadCrumbs(BreadCrumbs::new([
+WebPage::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('404')
 ]));
