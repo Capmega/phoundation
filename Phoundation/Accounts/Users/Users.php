@@ -9,8 +9,8 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Table;
+
 
 
 /**
@@ -90,6 +90,7 @@ class Users extends DataList
     }
 
 
+
     /**
      * Add the specified data entry to the data list
      *
@@ -151,6 +152,7 @@ class Users extends DataList
     }
 
 
+
     /**
      * Remove the specified data entry from the data list
      *
@@ -206,6 +208,7 @@ class Users extends DataList
     }
 
 
+
     /**
      * Remove all rights for this right
      *
@@ -236,6 +239,7 @@ class Users extends DataList
 
         return parent::clearEntries();
     }
+
 
 
     /**
@@ -277,6 +281,7 @@ class Users extends DataList
     }
 
 
+
     /**
      * Load the data for this users list
      *
@@ -298,8 +303,8 @@ class Users extends DataList
 
         // Get column information
         $columns = Arrays::force($columns);
-        $roles = Arrays::replaceIfExists($columns, 'roles', '1 AS roles');
-        $rights = Arrays::replaceIfExists($columns, 'rights', '1 AS rights');
+        $roles   = Arrays::replaceIfExists($columns, 'roles', '1 AS roles');
+        $rights  = Arrays::replaceIfExists($columns, 'rights', '1 AS rights');
         $columns = Strings::force($columns);
 
         // Build query
@@ -370,6 +375,7 @@ class Users extends DataList
 
         return $return;
     }
+
 
 
     /**

@@ -15,7 +15,6 @@ use Phoundation\Content\Images\Image;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
-use Phoundation\Core\Meta;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
@@ -1790,7 +1789,7 @@ class User extends DataEntry
             'leaders_id' => [
                 'source'   => 'SELECT `username` FROM `accounts_users` WHERE `id` = :id',
                 'execute'  => 'id',
-                'label'    => tr('leaders_id'),
+                'label'    => tr('Leader'),
             ],
             'latitude' => [
                 'label'    => tr('Latitude'),
@@ -1805,7 +1804,7 @@ class User extends DataEntry
                 'label'    => tr('Offset latitude'),
             ],
             'offset_longitude' => [
-                'label'    => tr('offset_longitude'),
+                'label'    => tr('Offset longitude'),
             ],
             'countries_id' => [
                 'element'  => 'select',
@@ -1832,7 +1831,7 @@ class User extends DataEntry
                 'element'  => 'select',
 //                'source'   => 'SELECT `id`, `name` FROM `languages`',
                 'source'   => [],
-                'label'    => tr('language'),
+                'label'    => tr('Language'),
             ],
             'gender' => [
                 'element'  => 'select',
