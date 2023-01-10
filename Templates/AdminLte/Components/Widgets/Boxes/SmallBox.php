@@ -23,7 +23,7 @@ class SmallBox extends \Phoundation\Web\Http\Html\Components\Widgets\Boxes\Small
      */
     public function render(): ?string
     {
-        $html = '   <div class="small-box bg-' . $this->mode . ($this->shadow ? ' ' . $this->shadow : '') . '">
+        $this->render = '   <div class="small-box bg-' . $this->mode . ($this->shadow ? ' ' . $this->shadow : '') . '">
                       <div class="inner">
                         <h3>' . $this->value . '</h3>       
                         <p>' . $this->title . '</p>
@@ -40,6 +40,6 @@ class SmallBox extends \Phoundation\Web\Http\Html\Components\Widgets\Boxes\Small
                                           </a>' : '') . '                        
                     </div>';
 
-        return $html;
+        return $this->render;
     }
 }

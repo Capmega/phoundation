@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 
+
 /**
  * BreadCrumbs class
  *
@@ -15,13 +16,4 @@ namespace Phoundation\Web\Http\Html\Components;
  */
 class BreadCrumbs extends ElementsBlock
 {
-    /**
-     * Wen library breadcrumbs don't give rendered output (for now)
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return null;
-    }
 }

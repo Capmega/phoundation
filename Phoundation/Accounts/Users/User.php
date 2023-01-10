@@ -1568,6 +1568,10 @@ class User extends DataEntry
      */
     public function hasAllRights(array|string $rights): bool
     {
+        if (!$rights) {
+            return true;
+        }
+
         return $this->rights()->containsKey($rights, true, 'god');
     }
 
@@ -1581,6 +1585,10 @@ class User extends DataEntry
      */
     public function hasSomeRights(array|string $rights): bool
     {
+        if (!$rights) {
+            return true;
+        }
+
         return $this->rights()->containsKey($rights, false, 'god');
     }
 
@@ -1674,50 +1682,50 @@ class User extends DataEntry
         $this->keys = [
             'id' => [
                 'display'  => true,
-                'readonly' => true,
+                'disabled' => true,
                 'type'     => 'numeric',
                 'label'    => tr('Database ID')
             ],
             'created_by' => [
                 'display'  => true,
-                'readonly' => true,
+                'disabled' => true,
                 'source'   => 'SELECT IFNULL(`username`, `email`) AS `username` FROM `accounts_users` WHERE `id` = :id',
                 'execute'  => 'id',
                 'label'    => tr('Created by')
             ],
             'created_on' => [
                 'display'  => true,
-                'readonly' => true,
+                'disabled' => true,
                 'type'     => 'date',
                 'label'    => tr('Created on')
             ],
             'meta_id' => [
                 'display'  => true,
-                'readonly' => true,
+                'disabled' => true,
                 'element'  => null, //Meta::new()->getHtmlTable(), // TODO implement
                 'label'    => tr('Meta information')
             ],
             'status' => [
-                'readonly' => true,
+                'disabled' => true,
                 'label'    => tr('Status')
             ],
             'last_sign_in' => [
-                'readonly' => true,
+                'disabled' => true,
                 'type'     => 'date',
                 'label'    => tr('Last sign in')
             ],
             'authentication_failures' => [
-                'readonly' => true,
+                'disabled' => true,
                 'type'     => 'numeric',
                 'label'    => tr('Authentication failures')
             ],
             'locked_until' => [
-                'readonly' => true,
+                'disabled' => true,
                 'type'     => 'date',
                 'label'    => tr('Locked until')
             ],
             'sign_in_count' => [
-                'readonly' => true,
+                'disabled' => true,
                 'type'     => 'numeric',
                 'label'    => tr('Sign in count')
             ],
@@ -1767,7 +1775,7 @@ class User extends DataEntry
                 'display'  => false
             ],
             'verified_on' => [
-                'readonly' => true,
+                'disabled' => true,
                 'type'     => 'date',
                 'label'    => tr('Verified on'),
             ],

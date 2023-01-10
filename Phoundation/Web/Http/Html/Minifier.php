@@ -34,8 +34,10 @@ class Minifier
 //        include_once(PATH_ROOT.'libs/vendor/mrclay/minify/lib/Minify/CSS/Compressor.php');
 //        include_once(PATH_ROOT.'libs/vendor/mrclay/minify/lib/Minify/CommentPreserver.php');
 
-        $html = Minify_HTML::minify($html, ['cssMinifier' => ['Minify_CSS'  , 'minify'],
-                                            'jsMinifier'  => ['\JSMin\JSMin', 'minify']]);
+        $html = Minify_HTML::minify($html, [
+            'cssMinifier' => ['Minify_CSS'  , 'minify'],
+            'jsMinifier'  => ['\JSMin\JSMin', 'minify']
+        ]);
 
 // :FIX: This is a temp fix because the minifier appears to use \n as a space?
         $html = str_replace("\n", ' ', $html);

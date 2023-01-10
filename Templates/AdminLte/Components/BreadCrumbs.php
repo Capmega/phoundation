@@ -25,7 +25,7 @@ class BreadCrumbs extends \Phoundation\Web\Http\Html\Components\BreadCrumbs
      */
     public function render(): ?string
     {
-        $html = ' <ol class="breadcrumb float-sm-right">';
+        $this->render = ' <ol class="breadcrumb float-sm-right">';
 
         if (isset($this->source)) {
             $count = count($this->source);
@@ -33,14 +33,14 @@ class BreadCrumbs extends \Phoundation\Web\Http\Html\Components\BreadCrumbs
             foreach ($this->source as $url => $label) {
                 if (!--$count) {
                     // The last item is the active item
-                    $html .= '<li class="breadcrumb-item active">' . $label . '</li>';
+                    $this->render .= '<li class="breadcrumb-item active">' . $label . '</li>';
 
                 } else {
-                    $html .= '<li class="breadcrumb-item"><a href="' . Url::build($url)->www() . '">' . $label . '</a></li>';
+                    $this->render .= '<li class="breadcrumb-item"><a href="' . Url::build($url)->www() . '">' . $label . '</a></li>';
                 }
             }
         }
 
-        return $html . '</ol>';
+        return $this->render . '</ol>';
     }
 }

@@ -23,7 +23,7 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
      */
     public function render(): ?string
     {
-        $html = '<nav class="main-header navbar navbar-expand navbar-white navbar-light">
+        $this->render = '<nav class="main-header navbar navbar-expand navbar-white navbar-light">
                     <!-- Left navbar links -->
                     ' . $this->getMenu()->render() . '                    
                     <!-- Right navbar links -->
@@ -72,6 +72,6 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
                     </ul>
                   </nav>';
 
-        return $html;
+        return $this->render;
     }
 }

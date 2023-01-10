@@ -182,9 +182,9 @@ class WebPage
     /**
      * The HTML buffer for this page
      *
-     * @var string $html
+     * @var string $render
      */
-    protected static string $html = '';
+    protected static string $render = '';
 
     /**
      * The unique hash for this page

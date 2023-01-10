@@ -5,6 +5,7 @@ namespace Phoundation\Web\Http\Html\Components;
 use JetBrains\PhpStorm\ExpectedValues;
 
 
+
 /**
  * Modal class
  *
@@ -278,17 +279,5 @@ abstract class Modal extends ElementsBlock
     {
         $this->buttons = $buttons;
         return $this;
-    }
-
-
-
-    /**
-     * Render the modal
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return '';
     }
 }

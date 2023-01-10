@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 
+
 /**
  * MessagesDropDown class
  *
@@ -15,10 +16,4 @@ namespace Phoundation\Web\Http\Html\Components;
  */
 abstract class MessagesDropDown extends ElementsBlock
 {
-    /**
-     * Renders and returns the MessagesDropDown component
-     *
-     * @return string|null
-     */
-    abstract public function render(): ?string;
 }

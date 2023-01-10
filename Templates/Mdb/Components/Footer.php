@@ -23,7 +23,7 @@ class Footer extends \Phoundation\Web\Http\Html\Components\Footer
      */
     public function render(): ?string
     {
-        $html = '<footer id="mdb-footer" class="mt-5" style="background-color: hsl(216, 25%, 95.1%); ">
+        $this->render = '<footer id="mdb-footer" class="mt-5" style="background-color: hsl(216, 25%, 95.1%); ">
                     <div class="container py-5">                        
                         <div class="text-center">               
                         <p class="">
@@ -38,6 +38,6 @@ class Footer extends \Phoundation\Web\Http\Html\Components\Footer
                     </div>                    
                 </footer>';
 
-        return $html;
+        return $this->render;
     }
 }

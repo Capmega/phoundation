@@ -86,7 +86,7 @@ class Css
                 $file = Cdn::domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'css/'.($min ? Strings::until($file, '.min').'.min.css' : $file.'.css'));
             }
 
-            $html = '<link rel="stylesheet" type="text/css" href="'.$file.'">';
+            $this->render = '<link rel="stylesheet" type="text/css" href="'.$file.'">';
 
             if (str_starts_with($file, 'ie')) {
                 $html = html_iefilter($html, Strings::until(Strings::from($file, 'ie'), '.'));

@@ -8,6 +8,7 @@ use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 
 
+
 /**
  * Phoundation Modals class
  *
@@ -166,12 +167,12 @@ class Modals extends ElementsBlock implements Iterator
             }
         }
 
-        $html = '';
+        $this->render = '';
 
         foreach ($this->modals as $modal) {
-            $html .= $modal->render();
+            $this->render .= $modal->render();
         }
 
-        return $html;
+        return parent::render();
     }
 }

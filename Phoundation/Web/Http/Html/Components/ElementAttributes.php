@@ -126,6 +126,13 @@ trait ElementAttributes
      */
     protected ?int $width = null;
 
+    /**
+     * Render output storage
+     *
+     * @var string|null
+     */
+    protected ?string $render = null;
+
 
 
 //    /**

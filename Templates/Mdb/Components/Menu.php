@@ -46,7 +46,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
             return '';
         }
 
-        $html = ' <ul class="' . $ul_class . '">';
+        $this->render = ' <ul class="' . $ul_class . '">';
 
         foreach ($menu as $label => $entry) {
             if (!is_array($entry)) {
@@ -58,22 +58,22 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
 
             if (is_array(isset_get($entry['menu']))) {
                 // This is a sub menu, recurse!
-                $html .= '<li class="nav-item dropdown">
+                $this->render .= '<li class="nav-item dropdown">
                               <a class="nav-link dropdown-toggle" data-mdb-toggle="dropdown" id="navbarDropdownMenu' . Strings::capitalize($label) . '">
                                 ' . $label . ' 
                               </a>
                               ' . $this->renderSubMenu($entry['menu'], 'dropdown-menu', ' aria-labelledby="navbarDropdownMenu' . Strings::capitalize($label) . '"') . '
                           </li>';
             } else {
-                $html .= '  <li class="nav-item">
+                $this->render .= '  <li class="nav-item">
                               <a class="nav-link" href="' . Url::build(isset_get($entry['url']))->www() . '">' . $label . '</a>
                             </li>';
             }
         }
 
-        $html .= '</ul>';
+        $this->render .= '</ul>';
 
-        return $html;
+        return $this->render;
     }
 
 
@@ -93,7 +93,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
             return '';
         }
 
-        $html = ' <ul class="' . $ul_class . '"' . $ul_attributes . '>';
+        $this->render = ' <ul class="' . $ul_class . '"' . $ul_attributes . '>';
 
         foreach ($menu as $label => $entry) {
             if (!is_array($entry)) {
@@ -105,21 +105,21 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
 
             if (is_array(isset_get($entry['menu']))) {
                 // This is a sub menu, recurse!
-                $html .= '<li>
+                $this->render .= '<li>
                               <a class="dropdown-item" href="#">
                                 ' . $label . ' &raquo;
                               </a>
                               ' . $this->renderSubMenu($entry['menu'], 'dropdown-menu dropdown-submenu') . '
                           </li>';
             } else {
-                $html .= '  <li>
+                $this->render .= '  <li>
                               <a class="dropdown-item" href="' . Url::build($entry['url'])->www() . '">' . $label . '</a>
                             </li>';
             }
         }
 
-        $html .= '</ul>';
+        $this->render .= '</ul>';
 
-        return $html;
+        return $this->render;
     }
 }

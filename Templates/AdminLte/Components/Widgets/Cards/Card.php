@@ -21,10 +21,10 @@ class Card extends \Phoundation\Web\Http\Html\Components\Widgets\Cards\Card
      */
     public function render(): ?string
     {
-        $html = '   <div class="card bg-' . ($this->gradient ? 'gradient-' : '') . $this->mode . '">';
+        $this->render = '   <div class="card bg-' . ($this->gradient ? 'gradient-' : '') . $this->mode . '">';
 
         if ($this->has_reload_button or $this->has_maximize_button or $this->has_collapse_button or $this->has_close_button or $this->title or $this->header_content) {
-            $html .= '  <div class="card-header">
+            $this->render .= '  <div class="card-header">
                             <h3 class="card-title">' . $this->title . '</h3>
                             <div class="card-tools">
                               ' . $this->header_content . '
@@ -44,12 +44,12 @@ class Card extends \Phoundation\Web\Http\Html\Components\Widgets\Cards\Card
                         </div>';
         }
 
-        $html .= '    <!-- /.card-header -->
+        $this->render .= '    <!-- /.card-header -->
                       <div class="card-body">
                         ' . $this->content. '
                       </div>
                     </div>';
 
-        return $html;
+        return $this->render;
     }
 }

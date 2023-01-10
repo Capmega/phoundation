@@ -725,7 +725,7 @@ class Img extends Element
 //                $params['extra'] = ' class="lazy"';
 //            }
 //
-//            $html = '';
+//            $this->render = '';
 //
 //            if (empty($core->register['lazy_img'])) {
 //                /*
@@ -841,7 +841,7 @@ class Img extends Element
 //                    }
 //
 //                    $core->register['lazy_img'] = true;
-//                    $html .= html_script(array('event'  => 'function',
+//                    $this->render .= html_script(array('event'  => 'function',
 //                        'script' => '$(".lazy").Lazy({'.array_implode_with_keys($options, ',', ':').'});'));
 //
 //                }catch(Exception $e) {
@@ -853,9 +853,9 @@ class Img extends Element
 //                }
 //            }
 //
-//            $html .= '<'.$params['tag'].' data-src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
+//            $this->render .= '<'.$params['tag'].' data-src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
 //
-//            return $html;
+//            return $this->render;
 //        }
 //
 //        return '<'.$params['tag'].' src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';

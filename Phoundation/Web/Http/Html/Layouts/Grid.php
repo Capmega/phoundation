@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Http\Html\Layouts;
 
-use mysql_xdevapi\RowResult;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -126,29 +125,44 @@ class Grid extends Container
     /**
      * Add the specified column to the current row in this grid
      *
-     * @param GridColumn|null $column
+     * @param object|string|null $column
      * @return static
      */
-    public function addColumn(?GridColumn $column): static
+    public function addColumn(object|string|null $column): static
     {
-        $this->getCurrentRow()->addColumn($column);
+        // Get a row
+        if (isset($this->rows)) {
+            $row = current($this->rows);
+        } else {
+            // Make sure we have a row
+            $row = GridRow::new();
+            $this->addRow($row);
+        }
+
+        if (is_object($column) and !($column instanceof GridColumn)) {
+            // This is not a GridColumn object, try to render the object to HTML string
+            if (!method_exists($column, 'render')) {
+                throw new OutOfBoundsException(tr('Specified ":class" class object does not have ::render() method. Please specify either a GridColumn class object, or an HTML string or an object that has a ::render() method.', [
+                    ':class' => get_class($column)
+                ]));
+            }
+
+            // Render the HTML string
+            $column = $column->render();
+        }
+
+        if (is_string($column)) {
+            // This is not a column, it is content (should be an HTML string). Place the content in a column and add
+            // that column instead
+            $column = GridColumn::new()->setContent($column);
+        }
+
+        $row->addColumn($column);
         return $this;
     }
 
 
     
-    /**
-     * Render the HTML for this grid
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return '';
-    }
-
-
-
     /**
      * Returns the current row for this grid
      *
@@ -160,7 +174,7 @@ class Grid extends Container
             $row = GridRow::new();
             $this->addRow($row);
         } else {
-            $row = $this->rows(array_key_last($this->rows));
+            $row = $this->rows[array_key_last($this->rows)];
         }
 
         return $row;

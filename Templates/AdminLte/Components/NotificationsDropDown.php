@@ -23,7 +23,7 @@ class NotificationsDropDown extends \Phoundation\Web\Http\Html\Components\Notifi
      */
     public function render(): ?string
     {
-        $html = '       <a class="nav-link" data-toggle="dropdown" href="#">
+        $this->render = '       <a class="nav-link" data-toggle="dropdown" href="#">
                           <i class="far fa-bell"></i>
                           <span class="badge badge-warning navbar-badge">15</span>
                         </a>
@@ -48,6 +48,6 @@ class NotificationsDropDown extends \Phoundation\Web\Http\Html\Components\Notifi
                           <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
                         </div>';
 
-        return $html;
+        return $this->render;
     }
 }

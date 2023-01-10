@@ -25,33 +25,12 @@ use Phoundation\Web\Http\Url;
 class SignInModal extends Modal
 {
     /**
-     * The sign-in object
-     *
-     * @var SignInForm|null $form
-     */
-    protected ?SignInForm $form = null;
-
-
-
-    /**
      * SignInModal class constructor
      */
     public function __construct()
     {
         $this->form = SignInForm::new();
         parent::__construct();
-    }
-
-
-
-    /**
-     * Access the sign-in form
-     *
-     * @return SignInForm
-     */
-    public function getForm(): SignInForm
-    {
-        return $this->form;
     }
 
 

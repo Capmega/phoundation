@@ -6,6 +6,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Exception\OutOfBoundsException;
 
 
+
 /**
  * Class Element
  *
@@ -71,14 +72,14 @@ abstract class Element
         $attributes = $this->buildAttributes();
         $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', true);
 
-        $html = '<' . $this->element . ' ' . $attributes . $this->extra;
+        $this->render = '<' . $this->element . ' ' . $attributes . $this->extra;
 
         if ($this->content) {
-            return $html . '>' . $this->content . '</' . $this->element . '>';
+            return $this->render . '>' . $this->content . '</' . $this->element . '>';
 
         }
 
-        return $html . ' />';
+        return $this->render . ' />';
     }
 
 

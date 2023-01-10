@@ -143,16 +143,4 @@ class Buttons extends ElementsBlock
     {
         return $this->group;
     }
-
-
-
-    /**
-     * Renders and returns the buttons HTML
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return '';
-    }
 }

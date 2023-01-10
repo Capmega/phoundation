@@ -23,20 +23,20 @@ class Buttons extends \Phoundation\Web\Http\Html\Components\Buttons
      */
     public function render(): ?string
     {
-        $html = '';
+        $this->render = '';
 
         if ($this->group) {
-            $html .= '<div class="btn-group" role="group" aria-label="Button group">';
+            $this->render .= '<div class="btn-group" role="group" aria-label="Button group">';
         }
 
         foreach ($this->buttons as $button) {
-            $html .= $button->render();
+            $this->render .= $button->render();
         }
 
         if ($this->group) {
-            $html .= '</div>';
+            $this->render .= '</div>';
         }
 
-        return $html;
+        return $this->render;
     }
 }

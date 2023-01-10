@@ -23,7 +23,7 @@ class InfoBoxBg extends Box
      */
     public function render(): ?string
     {
-        $html = '   <div class="info-box bg-' . $this->mode . '">
+        $this->render = '   <div class="info-box bg-' . $this->mode . '">
                       <span class="info-box-icon"><i class="far ' . $this->icon . '"></i></span>
         
                       <div class="info-box-content">
@@ -40,6 +40,6 @@ class InfoBoxBg extends Box
                       <!-- /.info-box-content -->
                     </div>';
 
-        return $html;
+        return $this->render;
     }
 }

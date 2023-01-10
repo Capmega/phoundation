@@ -842,7 +842,7 @@ class Debug {
         /*
          * Build HTML
          */
-        $html = '<div class="debug" id="debug-bar">
+        $this->render = '<div class="debug" id="debug-bar">
                 '.($_CONFIG['cache']['method'] ? '(CACHE=' . $_CONFIG['cache']['method'].') ' : '').count(Core::readRegister('debug_queries')).' / '.number_format(microtime(true) - STARTTIME, 6).'
                 <div class="hidden list">
                     <div style="width:100%; background: #2d3945; text-align: center; font-weight: bold; padding: 3px 0 3px;">
@@ -865,20 +865,20 @@ class Debug {
          * Add query statistical data ordered by slowest queries first
          */
         foreach ($core->register['debug_queries'] as $query) {
-            $html .= '      <tr>
+            $this->render .= '      <tr>
                             <td>'.number_format($query['time'], 6).'</td>
                             <td>' . $query['function'].'</td>
                             <td>' . $query['query'].'</td>
                         </tr>';
         }
 
-        $html .= '          </tbody>
+        $this->render .= '          </tbody>
                     </table>';
 
         /*
          * Show some basic statistics
          */
-        $html .= '      <table style="width:100%">
+        $this->render .= '      <table style="width:100%">
                         <thead>
                             <tr>
                                 <th colspan="2">'.tr('General information').'</th>
@@ -907,7 +907,7 @@ class Debug {
         /*
          * Show all included files
          */
-        $html .= '      <table style="width:100%">
+        $this->render .= '      <table style="width:100%">
                         <thead>
                             <tr>
                                 <th colspan="2">'.tr('Included files (In loaded order)').'</th>
@@ -922,22 +922,22 @@ class Debug {
                         <tbody>';
 
         foreach ($files as $id => $file) {
-            $html .= '      <tr>
+            $this->render .= '      <tr>
                             <td>'.($id + 1).'</td>
                             <td>' . $file.'</td>
                         </tr>';
         }
 
-        $html .= '          </tbody>
+        $this->render .= '          </tbody>
                     </table>';
 
-        $html .= '  </div>
+        $this->render .= '  </div>
              </div>';
 
         $html  = str_replace(':query_count'   , count(Core::readRegister('debug_queries'))      , $html);
         $html  = str_replace(':execution_time', number_format(microtime(true) - STARTTIME, 6), $html);
 
-        return $html;
+        return $this->render;
     }
 
 

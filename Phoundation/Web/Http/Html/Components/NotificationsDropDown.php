@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 
+
 /**
  * NotificationsDropDown class
  *
@@ -15,10 +16,4 @@ namespace Phoundation\Web\Http\Html\Components;
  */
 abstract class NotificationsDropDown extends ElementsBlock
 {
-    /**
-     * Renders and returns the NavBar
-     *
-     * @return string|null
-     */
-    abstract public function render(): ?string;
 }

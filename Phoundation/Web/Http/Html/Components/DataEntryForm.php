@@ -2,11 +2,10 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Url;
+
 
 
 /**
@@ -130,7 +129,7 @@ class DataEntryForm extends ElementsBlock
             throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no data source specified'));
         }
 
-        $html = '';
+        $this->render = '';
 
         // Possible $data contents:
         //
@@ -199,7 +198,7 @@ class DataEntryForm extends ElementsBlock
                         ->setName($key)
                         ->setValue(isset_get($this->source[$key]))
                         ->render();
-                    $html .= $this->renderItem($key, isset_get($data['label']), $item);
+                    $this->render .= $this->renderItem($key, isset_get($data['label']), $item);
 
                     break;
 
@@ -221,7 +220,7 @@ class DataEntryForm extends ElementsBlock
                         ->setName($key)
                         ->setValue(isset_get($this->source[$key]))
                         ->render();
-                    $html .= $this->renderItem($key, isset_get($data['label']), $item);
+                    $this->render .= $this->renderItem($key, isset_get($data['label']), $item);
                     break;
 
                 case 'select':
@@ -237,7 +236,7 @@ class DataEntryForm extends ElementsBlock
                         ->setName($key)
                         ->setValue(isset_get($this->source[$key]))
                         ->render();
-                    $html .= $this->renderItem($key, isset_get($data['label']), $item);
+                    $this->render .= $this->renderItem($key, isset_get($data['label']), $item);
                     break;
 
                 case '':
@@ -253,7 +252,7 @@ class DataEntryForm extends ElementsBlock
             }
         }
 
-        return $html;
+        return parent::render();
     }
 
 
@@ -268,11 +267,9 @@ class DataEntryForm extends ElementsBlock
      */
     protected function renderItem(string|int|null $id, ?string $label, string $html): string
     {
-        $html = ' <div class="form-group">
+        return '  <div class="form-group">
                     <label for="' . $id . '">' . $label . '</label>
                     ' . $html . '
                   </div>';
-
-        return $html;
     }
 }

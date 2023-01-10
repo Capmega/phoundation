@@ -144,7 +144,7 @@ class CheckBox extends Element
         $html = parent::render();
 
         if ($this->label) {
-            $html .= Element::new()
+            $this->render .= Element::new()
                 ->setElement('label')
                 ->addAttribute('for', $this->id, true)
                 ->setClass($this->label_class)
@@ -152,7 +152,7 @@ class CheckBox extends Element
                 ->render();
         }
 
-        return $html;
+        return $this->render;
     }
 
 

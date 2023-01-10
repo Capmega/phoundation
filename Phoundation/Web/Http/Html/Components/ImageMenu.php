@@ -6,6 +6,7 @@ use Phoundation\Content\Images\UsesImage;
 use Phoundation\Exception\OutOfBoundsException;
 
 
+
 /**
  * ImageMenu class
  *
@@ -146,13 +147,4 @@ abstract class ImageMenu extends ElementsBlock
     {
         return $this->url;
     }
-
-
-
-    /**
-     * Renders and returns the image menu block HTML
-     *
-     * @return string|null
-     */
-    abstract public function render(): ?string;
 }

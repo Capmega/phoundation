@@ -191,7 +191,7 @@ Class Html
      */
     function iefilter($html, $filter) {
         if (!$filter) {
-            return $html;
+            return $this->render;
         }
 
         if ($mod = Strings::until(Strings::from($filter, '.'), '.')) {
@@ -554,13 +554,13 @@ Class Html
      * @return string The footer HTML
      */
     function footer() {
-        $html = '';
+        $this->render = '';
 
         if (Debug::enabled()) {
-            $html .= debug_bar();
+            $this->render .= debug_bar();
         }
 
-        return $html;
+        return $this->render;
     }
 
 
@@ -607,7 +607,7 @@ Class Html
      * @note Each message will be placed in an HTML template defined in $_CONFIG[flash][html]
      * @example
      * code
-     * $html = '<div>.
+     * $this->render = '<div>.
      *             'html_flash('users').'
      *          </div>';
      * /code
@@ -1060,7 +1060,7 @@ Class Html
      * @version 1.26.0: Added documentation
      * @example
      * code
-     *     $html .= '<div>
+     *     $this->render .= '<div>
      *                   '.html_select(array('name'       => 'users_id',
      *                                       'class'      => 'users',
      *                                       'autosubmit' => true,
@@ -1070,7 +1070,7 @@ Class Html
      * /code
      * @example
      * code
-     *     $html .= '<div>
+     *     $this->render .= '<div>
      *                   '.html_select(array('name'       => 'letter',
      *                                       'selected'   => $item['letter'],
      *                                       'resource'   => array('a', 'b', 'c', 'd', 'e'))).'
@@ -2311,7 +2311,7 @@ Class Html
                 $params['extra'] = ' class="lazy"';
             }
 
-            $html = '';
+            $this->render = '';
 
             if (empty($core->register['lazy_img'])) {
                 /*
@@ -2427,7 +2427,7 @@ Class Html
                     }
 
                     $core->register['lazy_img'] = true;
-                    $html .= html_script(array('event'  => 'function',
+                    $this->render .= html_script(array('event'  => 'function',
                         'script' => '$(".lazy").Lazy({'.array_implode_with_keys($options, ',', ':').'});'));
 
                 }catch(Exception $e) {
@@ -2439,9 +2439,9 @@ Class Html
                 }
             }
 
-            $html .= '<'.$params['tag'].' data-src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
+            $this->render .= '<'.$params['tag'].' data-src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
 
-            return $html;
+            return $this->render;
         }
 
         return '<'.$params['tag'].' src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
@@ -2549,11 +2549,11 @@ Class Html
         /*
          * Build HTML
          */
-        $html = '   <video width="'.$params['width'].'" height="'.$params['height'].'" '.($params['controls'] ? 'controls ' : '').''.($params['more'] ? ' '.$params['more'] : '').'>
+        $this->render = '   <video width="'.$params['width'].'" height="'.$params['height'].'" '.($params['controls'] ? 'controls ' : '').''.($params['more'] ? ' '.$params['more'] : '').'>
                     <source src="'.$params['src'].'" type="'.$params['type'].'">
                 </video>';
 
-        return $html;
+        return $this->render;
     }
 
 
@@ -2760,7 +2760,7 @@ Class Html
         }
 
         $html = $dom->saveHTML();
-        return $html;
+        return $this->render;
     }
 
 
@@ -2833,13 +2833,11 @@ Class Html
             $extra .= 'text-align:'.$params['screen_text_align'].';';
         }
 
-        $html  = '  <div id="loader-screen" style="position:fixed;top:0px;bottom:0px;left:0px;right:0px;z-index:2147483647;display:block;background:'.$params['screen_background'].';color: '.$params['screen_color'].';text-align: '.$params['screen_text_align'].';'.$extra.'" '.$params['screen_style_extra'].'>';
+        $this->render = '  <div id="loader-screen" style="position:fixed;top:0px;bottom:0px;left:0px;right:0px;z-index:2147483647;display:block;background:'.$params['screen_background'].';color: '.$params['screen_color'].';text-align: '.$params['screen_text_align'].';'.$extra.'" '.$params['screen_style_extra'].'>';
 
-        /*
-         * Show loading text
-         */
+        // Show loading text
         if ($params['text']) {
-            $html .=    '<div style="'.$params['text_style'].'">
+            $this->render .=    '<div style="'.$params['text_style'].'">
                      '.$params['text'].'
                      </div>';
         }
@@ -2864,7 +2862,7 @@ Class Html
                 $params['image_style'] .= 'bottom:'.$params['image_bottom'].';';
             }
 
-            $html .=    html_img(array('src'    => $params['image_src'],
+            $this->render .=    html_img(array('src'    => $params['image_src'],
                 'alt'    => $params['image_alt'],
                 'lazy'   => false,
                 'width'  => $params['image_width'],
@@ -2872,7 +2870,7 @@ Class Html
                 'style'  => $params['image_style']));
         }
 
-        $html .= '  </div>';
+        $this->render .= '  </div>';
 
         if (!$params['test_loader_screen']) {
             switch ($params['transition_style']) {
@@ -2881,20 +2879,20 @@ Class Html
                         /*
                          * Hide the loader screen and show the main page wrapper
                          */
-                        $html .= html_script('$("'.$params['page_selector'].'").show('.$params['transition_time'].');
+                        $this->render .= html_script('$("'.$params['page_selector'].'").show('.$params['transition_time'].');
                                           $("#loader-screen").fadeOut('.$params['transition_time'].', function() { $("#loader-screen").css("display", "none"); '.($params['screen_remove'] ? '$("#loader-screen").remove();' : '').' });');
 
-                        return $html;
+                        return $this->render;
                     }
 
                     /*
                      * Only hide the loader screen
                      */
-                    $html .= html_script('$("#loader-screen").fadeOut('.$params['transition_time'].', function() { $("#loader-screen").css("display", "none"); '.($params['screen_remove'] ? '$("#loader-screen").remove();' : '').' });');
+                    $this->render .= html_script('$("#loader-screen").fadeOut('.$params['transition_time'].', function() { $("#loader-screen").css("display", "none"); '.($params['screen_remove'] ? '$("#loader-screen").remove();' : '').' });');
                     break;
 
                 case 'slide':
-                    $html .= html_script('var height = $("#loader-screen").height(); $("#loader-screen").animate({ top: height }, '.$params['transition_time'].', function() { $("#loader-screen").css("display", "none"); '.($params['screen_remove'] ? '$("#loader-screen").remove();' : '').' });');
+                    $this->render .= html_script('var height = $("#loader-screen").height(); $("#loader-screen").animate({ top: height }, '.$params['transition_time'].', function() { $("#loader-screen").css("display", "none"); '.($params['screen_remove'] ? '$("#loader-screen").remove();' : '').' });');
                     break;
 
                 default:
@@ -2902,7 +2900,7 @@ Class Html
             }
         }
 
-        return $html;
+        return $this->render;
     }
 
 

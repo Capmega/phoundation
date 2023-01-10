@@ -21,11 +21,49 @@ abstract class ElementsBlock
 
 
     /**
+     * A form around this element block
+     *
+     * @var Form|null
+     */
+    protected ?Form $form = null;
+
+    /**
      * The data source for this element
      *
      * @var array|null $source
      */
     protected ?array $source = null;
+
+
+
+    /**
+     * Sets the content of the element to display
+     *
+     * @param bool $use_form
+     * @return static
+     */
+    public function useForm(bool $use_form): static
+    {
+        if ($use_form) {
+            $this->form = Form::new();
+        } else {
+            $this->form = null;
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the form for this elements block
+     *
+     * @return Form|null
+     */
+    public function getForm(): ?Form
+    {
+        return $this->form;
+    }
 
 
 
@@ -60,5 +98,14 @@ abstract class ElementsBlock
      *
      * @return string|null
      */
-    abstract public function render(): ?string;
+    public function render(): ?string
+    {
+        if ($this->form) {
+            $this->form->setContent($this->render);
+            return $this->form->render();
+        }
+
+        return $this->render;
+    }
+
 }

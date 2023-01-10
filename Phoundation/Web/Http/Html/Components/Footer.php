@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 
+
 /**
  * Footer class
  *
@@ -15,13 +16,4 @@ namespace Phoundation\Web\Http\Html\Components;
  */
 class Footer extends ElementsBlock
 {
-    /**
-     * Renders and returns the HTML for the footer
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return '';
-    }
 }

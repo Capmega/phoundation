@@ -104,7 +104,7 @@ class ProfileImage extends \Phoundation\Web\Http\Html\Components\ProfileImage
         }
 //.        <button type="button" class="btn btn-primary" data-mdb-toggle="modal" data-mdb-target="#exampleModal" style=""> Launch demo modal </button>
 
-        $html = ' <div class="dropdown image-menu">
+        $this->render = ' <div class="dropdown image-menu">
                     <a
                       class="' . ($this->menu ? 'dropdown-toggle ' : '') . 'd-flex align-items-center hidden-arrow"
                       href="' . ($this->menu ? '#' : $this->url) . '"
@@ -113,13 +113,13 @@ class ProfileImage extends \Phoundation\Web\Http\Html\Components\ProfileImage
                       aria-expanded="false"
                     >';
 
-        $html .= $this->image->getHtmlElement()
+        $this->render .= $this->image->getHtmlElement()
             ->setHeight($this->height)
             ->addClass('rounded-circle')
             ->setExtra('loading="lazy"')
             ->render();
 
-        $html .= '  </a>
+        $this->render .= '  </a>
                     <ul
                       class="dropdown-menu dropdown-menu-end"
                       aria-labelledby="navbarDropdownMenuAvatar"
@@ -133,16 +133,16 @@ class ProfileImage extends \Phoundation\Web\Http\Html\Components\ProfileImage
                         $entry = ['url' => $entry];
                     }
 
-                    $html .= '<li>
-                            <a class="dropdown-item" href="' . $entry['url'] . '">' . $label . '</a>
-                          </li>';
+                    $this->render .= '  <li>
+                                    <a class="dropdown-item" href="' . $entry['url'] . '">' . $label . '</a>
+                                </li>';
                 }
             }
         }
 
-        $html .= '  </ul>
+        $this->render .= '  </ul>
                   </div>' . PHP_EOL;
 
-        return $html;
+        return $this->render;
     }
 }

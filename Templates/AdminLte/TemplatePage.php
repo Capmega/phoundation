@@ -111,7 +111,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         $html =     Footer::new()->render() . '
                 </div>';
 
-        return $html;
+        return $this->render;
     }
 
 
@@ -127,7 +127,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
                       </body>
                   </html>';
 
-        return $html;
+        return $this->render;
     }
 
 
@@ -225,7 +225,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         $sub_title = WebPage::getHeaderSubTitle();
 
-        $html = '   <section class="content-header">
+        $this->render = '   <section class="content-header">
                       <div class="container-fluid">
                         <div class="row mb-2">
                           <div class="col-sm-6">
@@ -241,6 +241,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
                       </div>
                     </section>';
 
-        return $html;
+        return $this->render;
     }
 }
