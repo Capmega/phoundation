@@ -45,7 +45,9 @@ abstract class ElementsBlock
     public function useForm(bool $use_form): static
     {
         if ($use_form) {
-            $this->form = Form::new();
+            if (!$this->form) {
+                $this->form = Form::new();
+            }
         } else {
             $this->form = null;
         }
@@ -58,10 +60,14 @@ abstract class ElementsBlock
     /**
      * Returns the form for this elements block
      *
-     * @return Form|null
+     * @return Form
      */
-    public function getForm(): ?Form
+    public function getForm(): Form
     {
+        if (!$this->form) {
+            $this->form = Form::new();
+        }
+
         return $this->form;
     }
 

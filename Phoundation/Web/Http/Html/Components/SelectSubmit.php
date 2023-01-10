@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 
 
@@ -25,6 +26,7 @@ class SelectSubmit extends Select
      */
     public function render(): ?string
     {
+        throw new UnderConstructionException();
         /*
          * Return HTML for a multi select submit button. This button, once clicked, will show a list of selectable submit buttons.
          *

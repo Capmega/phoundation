@@ -108,9 +108,9 @@ trait ElementAttributes
     /**
      * The element content
      *
-     * @var string|null $content
+     * @var object|string|null $content
      */
-    protected ?string $content = null;
+    protected object|string|null $content = null;
 
     /**
      * The element height
@@ -539,11 +539,15 @@ trait ElementAttributes
     /**
      * Sets the content of the element to display
      *
-     * @param string|null $content
+     * @param object|string|null $content
      * @return static
      */
-    public function setContent(?string $content): static
+    public function setContent(object|string|null $content): static
     {
+        if (is_object($content)) {
+            self::hasElementAttributesTrait($content);
+        }
+
         $this->content = $content;
         return $this;
     }
@@ -622,5 +626,22 @@ trait ElementAttributes
     public function getWidth(): ?int
     {
         return $this->width;
+    }
+
+
+
+    /**
+     * Ensures that the specified object has ElementAttributes
+     *
+     * @param object|string $class
+     * @return void
+     */
+    public static function hasElementAttributesTrait(object|string $class): void
+    {
+        if (!has_trait(ElementAttributes::class, $class)) {
+            throw new OutOfBoundsException(tr('Specified object is not using ElementAttributes trait', [
+                ':content' => $class
+            ]));
+        }
     }
 }

@@ -46,7 +46,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
             return '';
         }
 
-        $this->render = ' <ul class="' . $ul_class . '">';
+        $html = ' <ul class="' . $ul_class . '">';
 
         foreach ($menu as $label => $entry) {
             if (!is_array($entry)) {
@@ -58,22 +58,22 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
 
             if (is_array(isset_get($entry['menu']))) {
                 // This is a sub menu, recurse!
-                $this->render .= '<li class="nav-item dropdown">
+                $html .= '<li class="nav-item dropdown">
                               <a class="nav-link dropdown-toggle" data-mdb-toggle="dropdown" id="navbarDropdownMenu' . Strings::capitalize($label) . '">
                                 ' . $label . ' 
                               </a>
                               ' . $this->renderSubMenu($entry['menu'], 'dropdown-menu', ' aria-labelledby="navbarDropdownMenu' . Strings::capitalize($label) . '"') . '
                           </li>';
             } else {
-                $this->render .= '  <li class="nav-item">
+                $html .= '  <li class="nav-item">
                               <a class="nav-link" href="' . Url::build(isset_get($entry['url']))->www() . '">' . $label . '</a>
                             </li>';
             }
         }
 
-        $this->render .= '</ul>';
+        $html .= '</ul>';
 
-        return $this->render;
+        return $html;
     }
 
 

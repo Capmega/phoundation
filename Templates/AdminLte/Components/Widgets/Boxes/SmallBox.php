@@ -24,21 +24,21 @@ class SmallBox extends \Phoundation\Web\Http\Html\Components\Widgets\Boxes\Small
     public function render(): ?string
     {
         $this->render = '   <div class="small-box bg-' . $this->mode . ($this->shadow ? ' ' . $this->shadow : '') . '">
-                      <div class="inner">
-                        <h3>' . $this->value . '</h3>       
-                        <p>' . $this->title . '</p>
-                      </div>
-                      ' . (($this->progress !== null) ? '   <div class="progress">
-                                                              <div class="progress-bar" style="width: ' . $this->progress . '%"></div>
-                                                            </div>' : '') . '
-                      ' . ($this->description ? '<p>' . $this->description . '</p>' : '') . '                        
-                      ' . ($this->icon ? '  <div class="icon">
-                                                <i class="fas ' . $this->icon . '"></i>
-                                            </div>' : '') . '
-                      ' . ($this->url ? ' <a href="' . $this->url . '" class="small-box-footer">
-                                            ' . tr('More info') . ' <i class="fas fa-arrow-circle-right"></i>
-                                          </a>' : '') . '                        
-                    </div>';
+                              <div class="inner">
+                                <h3>' . $this->value . '</h3>       
+                                <p>' . $this->title . '</p>
+                              </div>
+                              ' . (($this->progress !== null) ? '   <div class="progress">
+                                                                      <div class="progress-bar" style="width: ' . $this->progress . '%"></div>
+                                                                    </div>' : '') . '
+                              ' . ($this->description ? '<p>' . $this->description . '</p>' : '') . '                        
+                              ' . ($this->icon ? '  <div class="icon">
+                                                        <i class="fas ' . $this->icon . '"></i>
+                                                    </div>' : '') . '
+                              ' . ($this->url ? ' <a href="' . $this->url . '" class="small-box-footer">
+                                                    ' . tr('More info') . ' <i class="fas fa-arrow-circle-right"></i>
+                                                  </a>' : '') . '                        
+                            </div>';
 
         return $this->render;
     }

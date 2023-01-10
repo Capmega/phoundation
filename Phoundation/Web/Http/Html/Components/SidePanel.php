@@ -26,16 +26,4 @@ class SidePanel extends Panel
         parent::__construct();
         $this->getModals()->add('sign-in', new SignInModal());
     }
-
-
-
-    /**
-     * Renders and returns the sidebar
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-       return '';
-    }
 }

@@ -96,16 +96,4 @@ class GridColumn extends Layout
     {
         return $this->size;
     }
-
-
-
-    /**
-     * Render this grid column
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return '';
-    }
 }

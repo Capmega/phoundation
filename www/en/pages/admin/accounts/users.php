@@ -19,11 +19,12 @@ $form = Card::new()
     ->setTitle('')
     ->setButtons('reload')
     ->setContent($users->render())
-    ->useForm(true)
-    ->getForm()
+    ->useForm(true);
+
+$form->getForm()
         ->setAction(Url::build()->www())
         ->setMethod('POST');
-
+//showdie($form->render());
 $card = Card::new()
     ->setTitle(tr('Documentation'))
     ->setButtons('reload')

@@ -8,8 +8,6 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Components\Core;
-use Phoundation\Web\Http\Html\Components\Html;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Uglify;
 use Throwable;
@@ -91,7 +89,7 @@ class Script extends Element
      */
     public function render(): ?string
     {
-        $content = '';
+        $render = '';
 
         /*
          * Apply event wrapper
@@ -103,19 +101,19 @@ class Script extends Element
          */
         switch ($this->event_wrapper) {
             case 'dom_content':
-                $content = 'document.addEventListener("DOMContentLoaded", function(e) {
+                $render = 'document.addEventListener("DOMContentLoaded", function(e) {
                               ' . $this->content . '
                            });';
                 break;
 
             case 'window':
-                $content = 'window.addEventListener("load", function(e) {
+                $render = 'window.addEventListener("load", function(e) {
                               ' . $this->content . '
                            });';
                 break;
 
             case 'function':
-                $content = '$(function() {
+                $render = '$(function() {
                               ' . $this->content . '
                            });';
                 break;
@@ -131,8 +129,10 @@ class Script extends Element
                 ]));
         }
 
-        return '<script type="text/javascript">' . $content . '</script>';
+        return '<script type="text/javascript">' . $render . '</script>';
 
+
+        // TODO GARBAGE BELOW, CLEAN UP
         /*
          * @note If $_CONFIG[cdn][js][load_delayed] is true, this function will not return anything, and add the generated HTML to $core->register[script_delayed] instead
          * @note Even if $_CONFIG[cdn][js][load_delayed] is true, the return value of this function should always be received in a variable, just in case the setting gets changes for whatever reason

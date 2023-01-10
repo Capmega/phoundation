@@ -16,13 +16,4 @@ namespace Phoundation\Web\Http\Html\Components;
  */
 class DropDownMenu extends Menu
 {
-    /**
-     * Render and return the HTML for this component
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return '';
-    }
 }

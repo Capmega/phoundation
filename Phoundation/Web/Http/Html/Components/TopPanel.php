@@ -24,16 +24,4 @@ class TopPanel extends Panel
         parent::__construct();
         $this->menu = new TopMenu();
     }
-
-
-
-    /**
-     * Renders and returns the top panel
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-       return '';
-    }
 }

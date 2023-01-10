@@ -31,16 +31,4 @@ class TopMenu extends Menu
 
         return $this->source;
     }
-
-
-
-    /**
-     * Render the HTML for the AdminLte top menu
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return '';;
-    }
 }

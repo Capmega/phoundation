@@ -31,13 +31,13 @@ class ImageMenu extends \Phoundation\Web\Http\Html\Components\ImageMenu
 //.        <button type="button" class="btn btn-primary" data-mdb-toggle="modal" data-mdb-target="#exampleModal" style=""> Launch demo modal </button>
 
         $this->render = ' <div class="dropdown image-menu">
-                    <a
-                      class="' . ($this->menu ? 'dropdown-toggle ' : '') . 'd-flex align-items-center hidden-arrow"
-                      href="' . ($this->menu ? '#' : $this->url) . '"
-                      id="navbarDropdownMenuAvatar"
-                      ' . ($this->menu ? 'role="button" data-mdb-toggle="dropdown"' : ($this->modal_selector ? 'data-mdb-toggle="modal" data-mdb-target="' . $this->modal_selector . '"' : null)) . '                    
-                      aria-expanded="false"
-                    >';
+                            <a
+                              class="' . ($this->menu ? 'dropdown-toggle ' : '') . 'd-flex align-items-center hidden-arrow"
+                              href="' . ($this->menu ? '#' : $this->url) . '"
+                              id="navbarDropdownMenuAvatar"
+                              ' . ($this->menu ? 'role="button" data-mdb-toggle="dropdown"' : ($this->modal_selector ? 'data-mdb-toggle="modal" data-mdb-target="' . $this->modal_selector . '"' : null)) . '                    
+                              aria-expanded="false"
+                            >';
 
         $this->render .= $this->image->getHtmlElement()
             ->setHeight($this->height)

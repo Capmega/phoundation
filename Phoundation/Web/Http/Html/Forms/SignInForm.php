@@ -133,16 +133,4 @@ class SignInForm extends Form
         $this->forgot_password_url = Url::build($forgot_password_url)->www();
         return $this;
     }
-
-
-
-    /**
-     * Render the HTML for this Sign-in form
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return parent::render();
-    }
 }

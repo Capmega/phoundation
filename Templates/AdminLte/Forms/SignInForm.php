@@ -23,7 +23,7 @@ class SignInForm extends \Phoundation\Web\Http\Html\Forms\SignInForm
      */
     public function render(): ?string
     {
-        $this->content = '<!-- Email input -->
+        $this->render = ' <!-- Email input -->
                           <div class="form-outline mb-4">
                             <input type="email" id="email" name="email" class="form-control" />
                             <label class="form-label" for="email">' . tr('Email address') . '</label>

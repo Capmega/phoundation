@@ -51,16 +51,4 @@ class Container extends Layout
     {
         return $this->type;
     }
-
-
-
-    /**
-     * Render the HTML for this container
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return '';
-    }
 }

@@ -129,8 +129,6 @@ class DataEntryForm extends ElementsBlock
             throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no data source specified'));
         }
 
-        $this->render = '';
-
         // Possible $data contents:
         //
         // $data['display']  true   If false, this key will be completely ignored

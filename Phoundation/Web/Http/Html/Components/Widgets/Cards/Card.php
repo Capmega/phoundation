@@ -327,14 +327,4 @@ class Card extends Widget
         $this->outline = $outline;
         return $this;
     }
-
-
-
-    /**
-     * @inheritDoc
-     */
-    public function render(): ?string
-    {
-        return null;
-    }
 }

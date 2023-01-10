@@ -23,12 +23,12 @@ class Grid extends \Phoundation\Web\Http\Html\Layouts\Grid
      */
     public function render(): ?string
     {
-        $this->content = '';
+        $this->render = '';
 
         foreach ($this->rows as $row) {
-            $this->content .= $row->render();
+            $this->render .= $row->render();
         }
 
-        return $this->content;
+        return parent::render();
     }
 }

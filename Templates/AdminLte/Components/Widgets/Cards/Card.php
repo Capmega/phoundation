@@ -25,23 +25,23 @@ class Card extends \Phoundation\Web\Http\Html\Components\Widgets\Cards\Card
 
         if ($this->has_reload_button or $this->has_maximize_button or $this->has_collapse_button or $this->has_close_button or $this->title or $this->header_content) {
             $this->render .= '  <div class="card-header">
-                            <h3 class="card-title">' . $this->title . '</h3>
-                            <div class="card-tools">
-                              ' . $this->header_content . '
-                              ' . ($this->has_reload_button ? '  <button type="button" class="btn btn-tool" data-card-widget="card-refresh" data-source="widgets.html" data-source-selector="#card-refresh-content" data-load-on-init="false">
-                                                            <i class="fas fa-sync-alt"></i>
-                                                          </button>' : '') . '
-                              ' . ($this->has_maximize_button ? '<button type="button" class="btn btn-tool" data-card-widget="maximize">
-                                                            <i class="fas fa-expand"></i>
-                                                          </button>' : '') . '
-                              ' . ($this->has_collapse_button ? '<button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                            <i class="fas fa-minus"></i>
-                                                          </button>' : '') . '
-                              ' . ($this->has_close_button ? '   <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                                            <i class="fas fa-times"></i>
-                                                          </button>' : '') . '                              
-                            </div>
-                        </div>';
+                                    <h3 class="card-title">' . $this->title . '</h3>
+                                    <div class="card-tools">
+                                      ' . $this->header_content . '
+                                      ' . ($this->has_reload_button ? '   <button type="button" class="btn btn-tool" data-card-widget="card-refresh" data-source="widgets.html" data-source-selector="#card-refresh-content" data-load-on-init="false">
+                                                                            <i class="fas fa-sync-alt"></i>
+                                                                          </button>' : '') . '
+                                      ' . ($this->has_maximize_button ? ' <button type="button" class="btn btn-tool" data-card-widget="maximize">
+                                                                            <i class="fas fa-expand"></i>
+                                                                          </button>' : '') . '
+                                      ' . ($this->has_collapse_button ? ' <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                                            <i class="fas fa-minus"></i>
+                                                                          </button>' : '') . '
+                                      ' . ($this->has_close_button ? '    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                                                            <i class="fas fa-times"></i>
+                                                                          </button>' : '') . '                              
+                                    </div>
+                                </div>';
         }
 
         $this->render .= '    <!-- /.card-header -->

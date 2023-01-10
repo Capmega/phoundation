@@ -87,16 +87,4 @@ class ProfileImage extends ImageMenu
 
         return parent::setMenu($menu);
     }
-
-
-
-    /**
-     * Render the HTML for this component
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return '';
-    }
 }

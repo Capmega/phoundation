@@ -633,3 +633,28 @@ function null(?string $instance_name = null): NullDb
 {
     return Databases::NullDb($instance_name);
 }
+
+
+
+/**
+ * Returns true if the specified class has the specified trait
+ *
+ * @param string $trait
+ * @param object|string $class
+ * @return bool
+ */
+function has_trait(string $trait, object|string $class): bool
+{
+    while ($class) {
+        $traits = class_uses($class);
+
+        if (in_array($trait, $traits)) {
+            return true;
+        }
+
+        // Check parent class
+        $class = get_parent_class($class);
+    }
+
+    return false;
+}

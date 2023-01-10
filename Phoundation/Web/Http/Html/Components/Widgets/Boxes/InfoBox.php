@@ -16,13 +16,4 @@ namespace Phoundation\Web\Http\Html\Components\Widgets\Boxes;
  */
 class InfoBox extends Box
 {
-    /**
-     * Renders and returns the HTML for this SmallBox object
-     *
-     * @inheritDoc
-     */
-    public function render(): ?string
-    {
-        return '';
-    }
 }

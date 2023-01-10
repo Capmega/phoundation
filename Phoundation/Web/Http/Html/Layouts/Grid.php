@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http\Html\Layouts;
 
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\ElementAttributes;
 
 
 
@@ -141,11 +142,7 @@ class Grid extends Container
 
         if (is_object($column) and !($column instanceof GridColumn)) {
             // This is not a GridColumn object, try to render the object to HTML string
-            if (!method_exists($column, 'render')) {
-                throw new OutOfBoundsException(tr('Specified ":class" class object does not have ::render() method. Please specify either a GridColumn class object, or an HTML string or an object that has a ::render() method.', [
-                    ':class' => get_class($column)
-                ]));
-            }
+            self::hasElementAttributesTrait($column);
 
             // Render the HTML string
             $column = $column->render();

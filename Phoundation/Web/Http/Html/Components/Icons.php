@@ -50,17 +50,4 @@ class Icons extends Element
         $this->size = $size;
         return $this;
     }
-
-
-
-    /**
-     * Render the icon HTML
-     *
-     * @note This render skips the parent Element class rendering for speed and simplicity
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return '';
-    }
 }

@@ -79,16 +79,4 @@ class GridRow extends Layout
 
         return $this;
     }
-
-
-
-    /**
-     * Render this grid row
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return '';
-    }
 }

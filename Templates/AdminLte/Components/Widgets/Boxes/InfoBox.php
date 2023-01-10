@@ -24,14 +24,14 @@ class InfoBox extends \Phoundation\Web\Http\Html\Components\Widgets\Boxes\InfoBo
     public function render(): ?string
     {
         $this->render = '   <div class="info-box shadow-none">
-                      <span class="info-box-icon bg-' . $this->mode . '"><i class="far ' . $this->icon . '"></i></span>
-        
-                      <div class="info-box-content">
-                        <span class="info-box-text">' . $this->title . '</span>
-                        <span class="info-box-number">' . $this->value . '</span>
-                      </div>
-                      ' . $this->description . '
-                    </div>';
+                              <span class="info-box-icon bg-' . $this->mode . '"><i class="far ' . $this->icon . '"></i></span>
+                
+                              <div class="info-box-content">
+                                <span class="info-box-text">' . $this->title . '</span>
+                                <span class="info-box-number">' . $this->value . '</span>
+                              </div>
+                              ' . $this->description . '
+                            </div>';
 
         return $this->render;
     }
