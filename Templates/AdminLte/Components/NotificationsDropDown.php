@@ -48,6 +48,6 @@ class NotificationsDropDown extends \Phoundation\Web\Http\Html\Components\Notifi
                               <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
                             </div>';
 
-        return $this->render;
+        return parent::render();
     }
 }

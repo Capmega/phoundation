@@ -66,6 +66,19 @@ class TableDefine extends SchemaAbstract
 
 
     /**
+     * Clears the table columns
+     *
+     * @return TableDefine
+     */
+    public function clearColumns(): TableDefine
+    {
+        $this->columns = [];
+        return $this;
+    }
+
+
+
+    /**
      * Sets the table columns
      *
      * @note This will clear the current columns array
@@ -122,6 +135,19 @@ class TableDefine extends SchemaAbstract
 
 
     /**
+     * Clears the table indices
+     *
+     * @return TableDefine
+     */
+    public function clearIndices(): TableDefine
+    {
+        $this->indices = [];
+        return $this;
+    }
+
+
+
+    /**
      * Sets the table indices
      *
      * @note This will clear the current indices array
@@ -167,6 +193,19 @@ class TableDefine extends SchemaAbstract
     public function addIndex(string $index): TableDefine
     {
         $this->indices[] = $index;
+        return $this;
+    }
+
+
+
+    /**
+     * Clears the table foreign_keys
+     *
+     * @return TableDefine
+     */
+    public function clearForeignKeys(): TableDefine
+    {
+        $this->foreign_keys = [];
         return $this;
     }
 

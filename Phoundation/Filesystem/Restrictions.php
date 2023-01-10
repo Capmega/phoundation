@@ -72,6 +72,19 @@ class Restrictions
 
 
     /**
+     * Clear all paths for this restriction
+     *
+     * @return static
+     */
+    public function clearPaths(): static
+    {
+        $this->paths = [];
+        return $this;
+    }
+
+
+
+    /**
      * Set all paths for this restriction
      *
      * @param array|string $paths

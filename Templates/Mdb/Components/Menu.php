@@ -93,7 +93,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
             return '';
         }
 
-        $this->render = ' <ul class="' . $ul_class . '"' . $ul_attributes . '>';
+        $html = ' <ul class="' . $ul_class . '"' . $ul_attributes . '>';
 
         foreach ($menu as $label => $entry) {
             if (!is_array($entry)) {
@@ -105,21 +105,21 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
 
             if (is_array(isset_get($entry['menu']))) {
                 // This is a sub menu, recurse!
-                $this->render .= '<li>
+                $html .= '<li>
                               <a class="dropdown-item" href="#">
                                 ' . $label . ' &raquo;
                               </a>
                               ' . $this->renderSubMenu($entry['menu'], 'dropdown-menu dropdown-submenu') . '
                           </li>';
             } else {
-                $this->render .= '  <li>
+                $html .= '  <li>
                               <a class="dropdown-item" href="' . Url::build($entry['url'])->www() . '">' . $label . '</a>
                             </li>';
             }
         }
 
-        $this->render .= '</ul>';
+        $html .= '</ul>';
 
-        return $this->render;
+        return $html;
     }
 }

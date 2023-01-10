@@ -117,6 +117,6 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
 
         $this->render .= $this->modals->render() . PHP_EOL;
 
-        return $this->render;
+        return parent::render();
     }
 }

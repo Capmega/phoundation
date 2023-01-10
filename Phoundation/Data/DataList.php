@@ -293,6 +293,33 @@ abstract class DataList implements Iterator
 
 
     /**
+     * Add a filter to apply when loading the data list
+     *
+     * @param string $key
+     * @return static
+     */
+    public function removeFilter(string $key): static
+    {
+        unset($this->filters[$key]);
+        return $this;
+    }
+
+
+
+    /**
+     * Clears multiple filters to apply when loading the data list
+     *
+     * @return static
+     */
+    public function clearFilters(): static
+    {
+        $this->filters = [];
+        return $this;
+    }
+
+
+
+    /**
      * Set multiple filters to apply when loading the data list
      *
      * @note This will clear all already defined filters
@@ -341,33 +368,6 @@ abstract class DataList implements Iterator
             }
         }
 
-        return $this;
-    }
-
-
-
-    /**
-     * Add a filter to apply when loading the data list
-     *
-     * @param string $key
-     * @return static
-     */
-    public function removeFilter(string $key): static
-    {
-        unset($this->filters[$key]);
-        return $this;
-    }
-
-
-
-    /**
-     * Remove all filters to apply when loading the data list
-     *
-     * @return static
-     */
-    public function clearFilters(): static
-    {
-        $this->filters = [];
         return $this;
     }
 

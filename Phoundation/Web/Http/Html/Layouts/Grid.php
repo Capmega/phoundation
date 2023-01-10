@@ -3,7 +3,6 @@
 namespace Phoundation\Web\Http\Html\Layouts;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Components\ElementAttributes;
 
 
 
@@ -24,7 +23,20 @@ class Grid extends Container
      *
      * @var array $rows
      */
-    protected array $rows;
+    protected array $rows = [];
+
+
+
+    /**
+     * Clear the rows in this grid
+     *
+     * @return static
+     */
+    public function clearRows(): static
+    {
+        $this->rows = [];
+        return $this;
+    }
 
 
 
@@ -96,15 +108,29 @@ class Grid extends Container
 
 
     /**
+     * Clears the columns for the current row in this grid
+     *
+     * @return static
+     */
+    public function clearColumns(): static
+    {
+        $this->getCurrentRow()->clearColumns();
+        return $this;
+    }
+
+
+
+    /**
      * Set the columns for the current row in this grid
      *
      * @param array $columns
+     * @param int|null $size
      * @return static
      */
-    public function setColumns(array $columns): static
+    public function setColumns(array $columns, ?int $size = null): static
     {
-        $this->getCurrentRow()->setColumns($columns);
-        return $this;
+        $this->getCurrentRow()->clearColumns();
+        return $this->addColumns($columns, $size);
     }
 
 
@@ -113,11 +139,15 @@ class Grid extends Container
      * Add the specified column to the current row in this grid
      *
      * @param array $columns
+     * @param int|null $size
      * @return static
      */
-    public function addColumns(array $columns): static
+    public function addColumns(array $columns, ?int $size = null): static
     {
-        $this->getCurrentRow()->addColumns($columns);
+        foreach ($columns as $column) {
+            $this->addColumn($column, $size);
+        }
+
         return $this;
     }
 
@@ -127,12 +157,13 @@ class Grid extends Container
      * Add the specified column to the current row in this grid
      *
      * @param object|string|null $column
+     * @param int|null $size
      * @return static
      */
-    public function addColumn(object|string|null $column): static
+    public function addColumn(object|string|null $column, ?int $size = null): static
     {
         // Get a row
-        if (isset($this->rows)) {
+        if ($this->rows) {
             $row = current($this->rows);
         } else {
             // Make sure we have a row
@@ -154,7 +185,7 @@ class Grid extends Container
             $column = GridColumn::new()->setContent($column);
         }
 
-        $row->addColumn($column);
+        $row->addColumn($column, $size);
         return $this;
     }
 

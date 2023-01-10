@@ -78,6 +78,6 @@ class MessagesDropDown extends \Phoundation\Web\Http\Html\Components\MessagesDro
                                   <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
                                 </div>';
 
-        return $this->render;
+        return parent::render();
     }
 }

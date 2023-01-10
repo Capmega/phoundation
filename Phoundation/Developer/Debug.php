@@ -825,24 +825,18 @@ class Debug {
             ]));
         }
 
-        /*
-         * Add debug bar javascript directly to the footer, as this debug bar is
-         * added AFTER html_generate_js() and so won't be processed anymore
-         */
+        // Add debug bar javascript directly to the footer, as this debug bar is added AFTER html_generate_js() and so
+        // won't be processed anymore
         Html::prependToFooter(html_script('$("#debug-bar").click(function(e) { $("#debug-bar").find(".list").toggleClass("hidden"); });'));
 
-        /*
-         * Setup required variables
-         */
+        // Setup required variables
         usort($core->register['debug_queries'], 'debug_bar_sort');
         $usage = getrusage();
         $files = get_included_files();
 
 
-        /*
-         * Build HTML
-         */
-        $this->render = '<div class="debug" id="debug-bar">
+        // Build HTML
+        $html = '<div class="debug" id="debug-bar">
                 '.($_CONFIG['cache']['method'] ? '(CACHE=' . $_CONFIG['cache']['method'].') ' : '').count(Core::readRegister('debug_queries')).' / '.number_format(microtime(true) - STARTTIME, 6).'
                 <div class="hidden list">
                     <div style="width:100%; background: #2d3945; text-align: center; font-weight: bold; padding: 3px 0 3px;">
@@ -861,24 +855,20 @@ class Debug {
                         </thead>
                         <tbody>';
 
-        /*
-         * Add query statistical data ordered by slowest queries first
-         */
+        // Add query statistical data ordered by slowest queries first
         foreach ($core->register['debug_queries'] as $query) {
-            $this->render .= '      <tr>
+            $html .= '      <tr>
                             <td>'.number_format($query['time'], 6).'</td>
                             <td>' . $query['function'].'</td>
                             <td>' . $query['query'].'</td>
                         </tr>';
         }
 
-        $this->render .= '          </tbody>
+        $html .= '          </tbody>
                     </table>';
 
-        /*
-         * Show some basic statistics
-         */
-        $this->render .= '      <table style="width:100%">
+        // Show some basic statistics
+        $html .= '      <table style="width:100%">
                         <thead>
                             <tr>
                                 <th colspan="2">'.tr('General information').'</th>
@@ -904,10 +894,8 @@ class Debug {
                         </tbody>
                     </table>';
 
-        /*
-         * Show all included files
-         */
-        $this->render .= '      <table style="width:100%">
+        // Show all included files
+        $html .= '      <table style="width:100%">
                         <thead>
                             <tr>
                                 <th colspan="2">'.tr('Included files (In loaded order)').'</th>
@@ -922,22 +910,22 @@ class Debug {
                         <tbody>';
 
         foreach ($files as $id => $file) {
-            $this->render .= '      <tr>
+            $html .= '      <tr>
                             <td>'.($id + 1).'</td>
                             <td>' . $file.'</td>
                         </tr>';
         }
 
-        $this->render .= '          </tbody>
+        $html .= '          </tbody>
                     </table>';
 
-        $this->render .= '  </div>
+        $html .= '  </div>
              </div>';
 
-        $html  = str_replace(':query_count'   , count(Core::readRegister('debug_queries'))      , $html);
-        $html  = str_replace(':execution_time', number_format(microtime(true) - STARTTIME, 6), $html);
+        $html = str_replace(':query_count'   , count(Core::readRegister('debug_queries'))                    , $html);
+        $html = str_replace(':execution_time', number_format(microtime(true) - STARTTIME, 6), $html);
 
-        return $this->render;
+        return $html;
     }
 
 

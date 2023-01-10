@@ -485,6 +485,20 @@ trait ProcessVariables
     }
 
 
+
+    /**
+     * Clears the CLI return values that are accepted as "success" and won't cause an exception
+     *
+     * @return static This process so that multiple methods can be chained
+     */
+    public function clearAcceptedExitCodes(): static
+    {
+        $this->accepted_exit_codes = [];
+        return $this;
+    }
+
+
+
     /**
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
@@ -648,6 +662,19 @@ trait ProcessVariables
     public function getArguments(): array
     {
         return $this->arguments;
+    }
+
+
+
+    /**
+     * Clears the arguments for the command that will be executed
+     *
+     * @return static This process so that multiple methods can be chained
+     */
+    public function clearArguments(): static
+    {
+        $this->arguments = [];
+        return $this;
     }
 
 

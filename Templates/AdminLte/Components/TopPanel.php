@@ -72,6 +72,6 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
                             </ul>
                           </nav>';
 
-        return $this->render;
+        return parent::render();
     }
 }

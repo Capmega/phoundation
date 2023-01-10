@@ -40,6 +40,6 @@ class InfoBoxBg extends \Phoundation\Web\Http\Html\Components\Widgets\Boxes\Info
                               <!-- /.info-box-content -->
                             </div>';
 
-        return $this->render;
+        return parent::render();
     }
 }

@@ -855,7 +855,7 @@ class Img extends Element
 //
 //            $this->render .= '<'.$params['tag'].' data-src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
 //
-//            return $this->render;
+//            return parent::render();
 //        }
 //
 //        return '<'.$params['tag'].' src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';

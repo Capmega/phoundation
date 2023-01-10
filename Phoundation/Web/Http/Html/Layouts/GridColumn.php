@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http\Html\Layouts;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Exception\OutOfBoundsException;
 
 
 
@@ -95,5 +96,21 @@ class GridColumn extends Layout
     #[ExpectedValues(values: [null, 1, 2, 3, 4, 5, 6, 7 ,8, 9, 10, 11, 12])] public function getSize(): ?int
     {
         return $this->size;
+    }
+
+
+
+    /**
+     * Render this grid column
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        if (!$this->size) {
+            throw new OutOfBoundsException(tr('Cannot render GridColumn, no size specified'));
+        }
+
+        return parent::render();
     }
 }

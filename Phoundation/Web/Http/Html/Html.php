@@ -2,8 +2,14 @@
 
 namespace Phoundation\Web\Http\Html;
 
+use Phoundation\Content\Images\Image;
 use Phoundation\Core\Arrays;
-use Phoundation\Web\WebPage;
+use Phoundation\Core\Strings;
+use Phoundation\Developer\Debug;
+use Phoundation\Filesystem\File;
+use Phoundation\Web\Http\Html\Components\Script;
+use Phoundation\Web\Http\Html\Exception\HtmlException;
+use Throwable;
 
 
 
@@ -187,9 +193,10 @@ Class Html
      *
      * @param $html
      * @param $filter
-     * @return mixed|string
+     * @return string
      */
-    function iefilter($html, $filter) {
+    function iefilter($html, $filter): string
+    {
         if (!$filter) {
             return $this->render;
         }
@@ -866,7 +873,7 @@ Class Html
 
             log_file(strip_tags($params['html']), $core->register['script'], $color);
 
-        }catch(Exception $e) {
+        } catch (Throwable $e) {
             if (Debug::enabled() and (substr(Strings::from($e->getCode(), '/'), 0, 1) == '_')) {
                 /*
                  * These are exceptions sent to be shown as an html flash error, but
@@ -901,7 +908,7 @@ Class Html
 //
 //        return false;
 //
-//    }catch(Exception $e) {
+//    } catch (Throwable $e) {
 //        throw new HtmlException('html_flash_class(): Failed', $e);
 //    }
 //}
@@ -1065,7 +1072,7 @@ Class Html
      *                                       'class'      => 'users',
      *                                       'autosubmit' => true,
      *                                       'selected'   => $item['users_id'],
-     *                                       'resource'   => sql_query('SELECT `id`, `name` FROM `accounts_users` WHERE `status` IS NULL'))).'
+     *                                       'resource'   => sql()->query('SELECT `id`, `name` FROM `accounts_users` WHERE `status` IS NULL'))).'
      *               </div>
      * /code
      * @example
@@ -1407,28 +1414,22 @@ Class Html
         }
 
         if (!$script['script']) {
-            /*
-             * No javascript was specified, Notification developers
-             */
+            // No javascript was specified, Notification developers
             Notification(new HtmlException(tr('html_script(): No javascript code specified'), 'not-specified'));
             return '';
         }
 
         switch ($script['script'][0]) {
             case '>':
-                /*
-                 * Keep this script internal! This is required when script contents
-                 * contain session sensitive data, or may even change per page
-                 */
+                // Keep this script internal! This is required when script contents contain session sensitive data, or
+                // may even change per page
                 $return            = '<script type="'.$type.'" src="'.cdn_domain('js/'.substr($script['script'], 1)).'"'.($extra ? ' '.$extra : '').'></script>';
                 $script['to_file'] = false;
                 break;
 
             case '!':
-                /*
-                 * Keep this script internal! This is required when script contents
-                 * contain session sensitive data, or may even change per page
-                 */
+                // Keep this script internal! This is required when script contents contain session sensitive data, or
+                // may even change per page
                 $return            = substr($script['script'], 1);
                 $script['to_file'] = false;
 
@@ -1484,14 +1485,10 @@ Class Html
                 }
         }
 
-        /*
-         * Store internal script in external files, or keep them internal?
-         */
+        // Store internal script in external files, or keep them internal?
         if ($script['to_file']) {
             try {
-                /*
-                 * Create the cached file names
-                 */
+                // Create the cached file names
                 $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.($core->register['script_file'] ? $core->register['script_file'].'-' : '').$count;
                 $file = PATH_ROOT.'www/'.LANGUAGE.(Core::getCallType('admin') ? '/admin' : '').'/pub/js/'.$base;
 
@@ -1502,16 +1499,12 @@ Class Html
                  */
                 if (file_exists($file.'.js')) {
                     if (!filesize($file.'.js')) {
-                        /*
-                         * The javascript file is empty
-                         */
+                        // The javascript file is empty
                         log_file(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', array(':file' => $file.'.js')), 'html-script', 'yellow');
 
-                        File::new()->executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
-                            file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', PATH_ROOT.'www/'.LANGUAGE.'/pub/js');
-                            file_delete(array('patterns'       => $file.'.js,'.$file.'.min.js',
-                                'force_writable' => true,
-                                'restrictions'   => PATH_ROOT.'www/'.LANGUAGE.'/pub/js'));
+                        File::new(PATH_ROOT.'www/'.LANGUAGE.'/pub/js')->executeMode(0770, function() use ($file) {
+                            File::new($file.'.js,'.$file.'.min.js', 'ug+w', PATH_ROOT.'www/'.LANGUAGE.'/pub/js')->chmod();
+                            File::new($file.'.js,'.$file.'.min.js', PATH_ROOT.'www/'.LANGUAGE.'/pub/js')->delete();
                         });
 
                     } elseif (($_CONFIG['cdn']['cache_max_age'] > 60) and ((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time())) {
@@ -1551,7 +1544,7 @@ Class Html
                         load_libs('uglify');
                         uglify_js($file.'.js');
 
-                    }catch(Exception $e) {
+                    } catch (Throwable $e) {
                         /*
                          * Minify process failed. Notification and fall back on a plain
                          * copy
@@ -1569,7 +1562,7 @@ Class Html
                 $count++;
                 return '';
 
-            }catch(Exception $e) {
+            } catch (Throwable $e) {
                 /*
                  * Moving internal javascript to external files failed, Notification
                  * developers
@@ -1614,8 +1607,14 @@ Class Html
 
 
 
-    /*
+    /**
      * Return favicon HTML
+     *
+     * @param $icon
+     * @param $mobile_icon
+     * @param $sizes
+     * @param $precomposed
+     * @return string|void
      */
     function favicon($icon = null, $mobile_icon = null, $sizes = null, $precomposed = false) {
         array_params($params, 'icon');
@@ -1650,10 +1649,15 @@ Class Html
 
 
 
-    /*
+    /**
      * Create HTML for an HTML step process bar
+     *
+     * @param $params
+     * @param $selected
+     * @return string
      */
-    function list($params, $selected = '') {
+    function list($params, $selected = '')
+    {
         if (!is_array($params)) {
             throw new HtmlException('html_list(): Specified params is not an array', 'invalid');
         }
@@ -1683,9 +1687,7 @@ Class Html
             $return = '<div'.($params['class'] ? ' class="'.$params['class'].'"' : '').'>';
         }
 
-        /*
-         * Get first and last keys.
-         */
+        // Get first and last keys.
         end($params['steps']);
         $last  = key($params['steps']);
 
@@ -1744,31 +1746,22 @@ Class Html
 
 
 
-    /*
+    /**
      *
      */
-    function status_select($params) {
+    public static function statusSelect($params) {
         array_params ($params, 'name');
         Arrays::default($params, 'name'    , 'status');
         Arrays::default($params, 'none'    , '');
         Arrays::default($params, 'resource', false);
         Arrays::default($params, 'selected', '');
 
-        return html_select($params);
+        return self::select($params);
     }
 
 
 
-    /*
-     *
-     */
-    function hidden($source, $key = 'id') {
-        return '<input type="hidden" name="'.$key.'" value="'.isset_get($source[$key]).'">';
-    }
-
-
-
-    /*
+    /**
      * Converts the specified src URL by adding the CDN domain if it does not have a domain specified yet. Also converts the image to a different format if configured to do so
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -1893,7 +1886,7 @@ Class Html
             $file_src = $target;
             $src      = cdn_domain($target_part, '');
 
-        }catch(Exception $e) {
+        } catch (Throwable $e) {
             /*
              * Failed to upgrade image. Use the original image
              */
@@ -2015,7 +2008,7 @@ Class Html
                 }
             }
 
-        }catch(Exception $e) {
+        } catch (Throwable $e) {
             Notification($e);
             $image = null;
         }
@@ -2036,7 +2029,7 @@ Class Html
                         $file  = file_move_to_target($file_src, PATH_TMP, false, true);
                         $image = getimagesize(PATH_TMP.$file);
 
-                    }catch(Exception $e) {
+                    } catch (Throwable $e) {
                         switch ($e->getCode()) {
                             case 404:
                                 log_file(tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src)));
@@ -2075,7 +2068,7 @@ Class Html
                         try {
                             $image = getimagesize($file_src);
 
-                        }catch(Exception $e) {
+                        } catch (Throwable $e) {
                             switch ($e->getCode()) {
                                 case 404:
                                     log_file(tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src)));
@@ -2090,9 +2083,7 @@ Class Html
                                     throw $e->makeWarning(true);
                             }
 
-                            /*
-                             * Image doesnt exist
-                             */
+                            // Image doesnt exist
                             Notification(array('code'    => 'not-exists',
                                 'groups'  => 'developers',
                                 'title'   => tr('Image does not exist'),
@@ -2103,9 +2094,7 @@ Class Html
                         }
 
                     } else {
-                        /*
-                         * Image doesn't exist.
-                         */
+                        // Image doesn't exist.
                         log_console(tr('html_img(): Can not analyze image ":src", the local path ":path" does not exist', array(':src' => $params['src'], ':path' => $file_src)), 'yellow');
                         $image[0] = 0;
                         $image[1] = 0;
@@ -2116,7 +2105,7 @@ Class Html
                 $image['height'] = $image[1];
                 $status          = null;
 
-            }catch(Exception $e) {
+            } catch (Throwable $e) {
                 Notification($e);
 
                 $image['width']  = 0;
@@ -2136,7 +2125,7 @@ Class Html
                     $cache[$params['src']] = array('width'  => $image['width'],
                         'height' => $image['height']);
 
-                    sql_query('INSERT INTO `html_img_cache` (`status`, `url`, `width`, `height`)
+                    sql()->query('INSERT INTO `html_img_cache` (`status`, `url`, `width`, `height`)
                            VALUES                       (:status , :url , :width , :height )
 
                            ON DUPLICATE KEY UPDATE `status`    = NULL,
@@ -2147,7 +2136,7 @@ Class Html
                             ':height' => $image['height'],
                             ':status' => $status));
 
-                }catch(Exception $e) {
+                } catch (Throwable $e) {
                     Notification($e);
                 }
             }
@@ -2213,20 +2202,20 @@ Class Html
                      */
                     if (str_contains($params['src'], '@2x')) {
                         $pre    = Strings::until($params['src'], '@2x');
-                        $post   = str_from ($params['src'], '@2x');
+                        $post   = Strings::from($params['src'], '@2x');
                         $target = $pre.'@'.$params['width'].'x'.$params['height'].'@2x'.$post;
 
                         $pre         = Strings::until($file_src, '@2x');
-                        $post        = str_from ($file_src, '@2x');
+                        $post        = Strings::from($file_src, '@2x');
                         $file_target = $pre.'@'.$params['width'].'x'.$params['height'].'@2x'.$post;
 
                     } else {
                         $pre    = Strings::untilReverse($params['src'], '.');
-                        $post   = str_rfrom ($params['src'], '.');
+                        $post   = Strings::fromReverse($params['src'], '.');
                         $target = $pre.'@'.$params['width'].'x'.$params['height'].'.'.$post;
 
                         $pre         = Strings::untilReverse($file_src, '.');
-                        $post        = str_rfrom ($file_src, '.');
+                        $post        = Strings::fromReverse($file_src, '.');
                         $file_target = $pre.'@'.$params['width'].'x'.$params['height'].'.'.$post;
                     }
 
@@ -2241,25 +2230,22 @@ Class Html
                             File::new()->executeMode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params) {
                                 global $_CONFIG;
 
-                                image_convert(array('method' => 'resize',
+                                Image::convert([
+                                    'method' => 'resize',
                                     'source' => $file_src,
                                     'target' => $file_target,
                                     'x'      => $params['width'],
-                                    'y'      => $params['height']));
+                                    'y'      => $params['height']
+                                ]);
                             });
                         }
 
-                        /*
-                         * Convert src to the resized target
-                         */
+                        // Convert src to the resized target
                         $params['src'] = $target;
                         $file_src      = $file_target;
 
-                    }catch(Exception $e) {
-                        /*
-                         * Failed to auto resize the image. Notification and stay with
-                         * the current version meanwhile.
-                         */
+                    }catch(Throwable $e) {
+                        // Failed to auto resize the image. Notification and stay with the current version meanwhile.
                         $e->addMessages(tr('html_img(): Failed to auto resize image ":image", using non resized image with incorrect width / height instead', array(':image' => $file_src)));
                         Notification($e->makeWarning(true));
                     }
@@ -2292,41 +2278,31 @@ Class Html
         if ($params['lazy']) {
             if ($params['extra']) {
                 if (str_contains($params['extra'], 'class="')) {
-                    /*
-                     * Add lazy class to the class definition in "extra"
-                     */
+                    // Add lazy class to the class definition in "extra"
                     $params['extra'] = str_replace('class="', 'class="lazy ', $params['extra']);
 
                 } else {
-                    /*
-                     * Add class definition with "lazy" to extra
-                     */
+                    // Add class definition with "lazy" to extra
                     $params['extra'] = ' class="lazy" '.$params['extra'];
                 }
 
             } else {
-                /*
-                 * Set "extra" to be class definition with "lazy"
-                 */
+                // Set "extra" to be class definition with "lazy"
                 $params['extra'] = ' class="lazy"';
             }
 
             $this->render = '';
 
             if (empty($core->register['lazy_img'])) {
-                /*
-                 * Use lazy image loading
-                 */
+                // Use lazy image loading
                 try {
                     if (!file_exists(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/jquery.lazy.js')) {
-                        /*
-                         * jquery.lazy is not available, auto install it.
-                         */
-                        $file = download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
+                        // jquery.lazy is not available, auto install it.
+                        $file = File::download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
                         $path = cli_unzip($file);
 
                         File::new()->executeMode(PATH_ROOT.'www/en/pub/js', 0770, function() use ($path) {
-                            file_delete(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/');
+                            File::delete(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/');
                             rename($path.'jquery.lazy-master/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
                         });
 
@@ -2336,9 +2312,7 @@ Class Html
                     html_load_js('jquery.lazy/jquery.lazy');
                     load_config('lazy_img');
 
-                    /*
-                     * Build jquery.lazy options
-                     */
+                    // Build jquery.lazy options
                     $options = array();
 
                     foreach ($_CONFIG['lazy_img'] as $key => $value) {
@@ -2347,9 +2321,7 @@ Class Html
                         }
 
                         switch ($key) {
-                            /*
-                             * Booleans
-                             */
+                            // Booleans
                             case 'auto_destroy':
                                 // no-break
                             case 'chainable':
@@ -2371,15 +2343,11 @@ Class Html
                             case 'threshold':
                                 // no-break
                             case 'throttle':
-                                /*
-                                 * All these need no quotes
-                                 */
-                                $options[str_underscore_to_camelcase($key)] = $value;
+                                // All these need no quotes
+                                $options[Strings::underscoreToCamelcase($key)] = $value;
                                 break;
 
-                            /*
-                             * Callbacks
-                             */
+                            // Callbacks
                             case 'after_load':
                                 // no-break
                             case 'on_load':
@@ -2389,15 +2357,11 @@ Class Html
                             case 'on_error':
                                 // no-break
                             case 'on_finished_all':
-                                /*
-                                 * All these need no quotes
-                                 */
-                                $options[str_underscore_to_camelcase($key)] = 'function(e) {'.$value.'}';
+                                // All these need no quotes
+                                $options[Strings::underscoreToCamelcase($key)] = 'function(e) {'.$value.'}';
                                 break;
 
-                            /*
-                             * Strings
-                             */
+                            // Strings
                             case 'append_scroll':
                                 // no-break
                             case 'bind':
@@ -2418,7 +2382,7 @@ Class Html
                                 /*
                                  * All these need quotes
                                  */
-                                $options[str_underscore_to_camelcase($key)] = '"'.$value.'"';
+                                $options[Strings::underscoreToCamelcase($key)] = '"'.$value.'"';
                                 break;
 
                             default:
@@ -2427,10 +2391,12 @@ Class Html
                     }
 
                     $core->register['lazy_img'] = true;
-                    $this->render .= html_script(array('event'  => 'function',
-                        'script' => '$(".lazy").Lazy({'.array_implode_with_keys($options, ',', ':').'});'));
+                    $this->render .= Script::new([
+                        'event'  => 'function',
+                        'script' => '$(".lazy").Lazy({'.array_implode_with_keys($options, ',', ':').'});'
+                    ])->render();
 
-                }catch(Exception $e) {
+                } catch (Throwable $e) {
                     /*
                      * Oops, jquery.lazy failed to install or load. Notification, and
                      * ignore, we will just continue without lazy loading.
@@ -2449,10 +2415,11 @@ Class Html
 
 
 
-    /*
+    /**
      * Create and return a video container that has at the least src, alt, height and width
      */
-    function video($params) {
+    function video($params)
+    {
         Arrays::ensure($params, 'src,width,height,more,type');
         Arrays::default($params, 'controls', true);
 
@@ -2486,10 +2453,10 @@ Class Html
          * Local videos either have http://thisdomain.com/video, https://thisdomain.com/video, or /video
          * Remote videos must have width and height specified
          */
-        if (substr($params['src'], 0, 7) == 'http://') {
+        if (str_starts_with($params['src'], 'http://')) {
             $protocol = 'http';
 
-        } elseif ($protocol = substr($params['src'], 0, 8) == 'https://') {
+        } elseif ($protocol = str_starts_with($params['src'], 'https://')) {
             $protocol = 'https';
 
         } else {
@@ -2546,12 +2513,10 @@ Class Html
             }
         }
 
-        /*
-         * Build HTML
-         */
+        // Build HTML
         $this->render = '   <video width="'.$params['width'].'" height="'.$params['height'].'" '.($params['controls'] ? 'controls ' : '').''.($params['more'] ? ' '.$params['more'] : '').'>
-                    <source src="'.$params['src'].'" type="'.$params['type'].'">
-                </video>';
+                                <source src="'.$params['src'].'" type="'.$params['type'].'">
+                            </video>';
 
         return $this->render;
     }
@@ -2590,7 +2555,7 @@ Class Html
              * Add only one autosuggest start per selector
              */
             $sent[$params['selector']] = true;
-            $return                   .= html_script('$("'.$params['selector'].'").autosuggest();');
+            $return                   .= Script::new('$("'.$params['selector'].'").autosuggest();')->render();
         }
 
         html_load_js('base/autosuggest');

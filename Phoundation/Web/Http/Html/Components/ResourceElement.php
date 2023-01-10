@@ -280,9 +280,9 @@ abstract class ResourceElement extends Element
     public function render(): ?string
     {
         // Render the body
-        $this->render = $this->renderBody();
+        $this->content = $this->renderBody();
 
-        if (!$this->render and $this->hide_empty) {
+        if (!$this->content and $this->hide_empty) {
             return '';
         }
 

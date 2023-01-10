@@ -37,6 +37,19 @@ class Buttons extends ElementsBlock
 
 
     /**
+     * Clears the buttons list
+     *
+     * @return static
+     */
+    public function clearButtons(): static
+    {
+        $this->buttons = [];
+        return $this;
+    }
+
+
+
+    /**
      * Sets the buttons list
      *
      * @param array $buttons

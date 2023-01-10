@@ -180,13 +180,6 @@ class WebPage
     protected static array $footer_files = [];
 
     /**
-     * The HTML buffer for this page
-     *
-     * @var string $render
-     */
-    protected static string $render = '';
-
-    /**
      * The unique hash for this page
      *
      * @var string|null $hash

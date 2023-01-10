@@ -44,12 +44,12 @@ class Card extends \Phoundation\Web\Http\Html\Components\Widgets\Cards\Card
                                 </div>';
         }
 
-        $this->render .= '    <!-- /.card-header -->
-                      <div class="card-body">
-                        ' . $this->content. '
-                      </div>
-                    </div>';
+        $this->render .= '      <!-- /.card-header -->
+                                <div class="card-body">
+                                    ' . $this->content. '
+                                </div>
+                            </div>';
 
-        return $this->render;
+        return parent::render();
     }
 }

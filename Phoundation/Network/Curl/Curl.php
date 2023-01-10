@@ -676,6 +676,19 @@ abstract class Curl
 
 
     /**
+     * Clears the cookies that will be sent for this request
+     *
+     * @return static
+     */
+    public function clearCookies(): static
+    {
+        $this->cookies = [];
+        return $this;
+    }
+
+
+
+    /**
      * Sets the cookies that will be sent for this request
      *
      * @param array $cookies
@@ -806,6 +819,19 @@ abstract class Curl
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+
+
+    /**
+     * Clears other extra cURL options
+     *
+     * @return static
+     */
+    public function clearsOptions(): static
+    {
+        $this->options = [];
+        return $this;
     }
 
 

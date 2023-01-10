@@ -46,10 +46,10 @@ class ImageMenu extends \Phoundation\Web\Http\Html\Components\ImageMenu
             ->render();
 
         $this->render .= '  </a>
-                    <ul
-                      class="dropdown-menu dropdown-menu-end"
-                      aria-labelledby="navbarDropdownMenuAvatar"
-                    >';
+                            <ul
+                              class="dropdown-menu dropdown-menu-end"
+                              aria-labelledby="navbarDropdownMenuAvatar"
+                            >';
 
         if ($this->menu) {
             foreach ($this->menu->getSource() as $label => $entry) {
@@ -59,14 +59,14 @@ class ImageMenu extends \Phoundation\Web\Http\Html\Components\ImageMenu
                 }
 
                 $this->render .= '<li>
-                            <a class="dropdown-item" href="' . $entry['url'] . '">' . $label . '</a>
-                          </li>';
+                                    <a class="dropdown-item" href="' . $entry['url'] . '">' . $label . '</a>
+                                  </li>';
             }
         }
 
-        $this->render .= '  </ul>
-                  </div>' . PHP_EOL;
+        $this->render .= '      </ul>
+                            </div>' . PHP_EOL;
 
-        return $this->render;
+        return parent::render();
     }
 }

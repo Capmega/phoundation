@@ -67,9 +67,9 @@ class Select extends ResourceElement
      * Sets if the select element allows multiple options to be selected
      *
      * @param bool $multiple
-     * @return Select
+     * @return static
      */
-    public function setMultiple(bool $multiple): self
+    public function setMultiple(bool $multiple): static
     {
         $this->attributes['multiple'] = null;
         return $this;
@@ -93,9 +93,9 @@ class Select extends ResourceElement
      * Sets if there is only one option, it should automatically be selected
      *
      * @param bool $auto_select
-     * @return Select
+     * @return static
      */
-    public function setAutoSelect(bool $auto_select): self
+    public function setAutoSelect(bool $auto_select): static
     {
         $this->auto_select = $auto_select;
         return $this;
@@ -119,9 +119,9 @@ class Select extends ResourceElement
      * Enables auto select
      *
      * @see Select::setAutoSelect()
-     * @return Select
+     * @return static
      */
-    public function enableAutoSelect(): self
+    public function enableAutoSelect(): static
     {
         $this->auto_select = true;
         return $this;
@@ -133,11 +133,24 @@ class Select extends ResourceElement
      * Disables auto select
      *
      * @see Select::setAutoSelect()
-     * @return Select
+     * @return static
      */
-    public function disableAutoSelect(): self
+    public function disableAutoSelect(): static
     {
         $this->auto_select = false;
+        return $this;
+    }
+
+
+
+    /**
+     * Clear multiple selected options
+     *
+     * @return static
+     */
+    public function clearSelected(): static
+    {
+        $this->selected = [];
         return $this;
     }
 
@@ -147,9 +160,9 @@ class Select extends ResourceElement
      * Sets multiple selected options
      *
      * @param array|string|int|null $selected
-     * @return Select
+     * @return static
      */
-    public function setSelected(array|string|int|null $selected): self
+    public function setSelected(array|string|int|null $selected): static
     {
         $this->selected = [];
         return $this->addSelected($selected);
@@ -161,9 +174,9 @@ class Select extends ResourceElement
      * Adds a single or multiple selected options
      *
      * @param array|string|int $selected
-     * @return Select
+     * @return static
      */
-    public function addSelected(array|string|int $selected): self
+    public function addSelected(array|string|int $selected): static
     {
         if (is_array($selected)) {
             // Add multiple selected, only supported when multiple is enabled
@@ -198,12 +211,25 @@ class Select extends ResourceElement
 
 
     /**
+     * Clear all multiple class element attributes for option elements
+     *
+     * @return static
+     */
+    public function clearOptionClasses(): static
+    {
+        $this->option_classes = [];
+        return $this;
+    }
+
+
+
+    /**
      * Adds all multiple class element attributes for option elements
      *
      * @param array|string|null $option_classes
-     * @return Select
+     * @return static
      */
-    public function setOptionClasses(array|string|null $option_classes): self
+    public function setOptionClasses(array|string|null $option_classes): static
     {
         $this->option_classes = [];
         return $this->addOptionClasses($option_classes);
@@ -215,9 +241,9 @@ class Select extends ResourceElement
      * Adds multiple class element attributes for option elements
      *
      * @param array|string|null $option_classes
-     * @return Select
+     * @return static
      */
-    public function addOptionClasses(array|string|null $option_classes): self
+    public function addOptionClasses(array|string|null $option_classes): static
     {
         foreach (Arrays::force($option_classes, ' ') as $option_class) {
             $this->addOptionClass($option_class);
@@ -232,9 +258,9 @@ class Select extends ResourceElement
      * Adds an class element attribute for option elements
      *
      * @param string $option_class
-     * @return Select
+     * @return static
      */
-    public function addOptionClass(string $option_class): self
+    public function addOptionClass(string $option_class): static
     {
         $this->option_classes[] = $option_class;
         return $this;

@@ -91,7 +91,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageHeader(): ?string
     {
-        $this->render = '<body class="mdb-skin-custom " data-mdb-spy="scroll" data-mdb-target="#scrollspy" data-mdb-offset="250">
+        $html = '<body class="mdb-skin-custom " data-mdb-spy="scroll" data-mdb-target="#scrollspy" data-mdb-offset="250">
                     <header>
                     ' . $this->buildTopPanel($this->secondary_menu) . '
                     </header>
@@ -99,7 +99,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
                         <div class="container mt-5  mt-5  px-lg-5">
                             <div class="tab-content">';
 
-        return $this->render;
+        return $html;
     }
 
 
@@ -111,12 +111,12 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageFooter(): ?string
     {
-        $this->render = '           </div>
-                        </div>
-                    </main>' .
-                    Footer::new()->render();
+        $html = '           </div>
+                                </div>
+                            </main>' .
+                            Footer::new()->render();
 
-        return $this->render;
+        return $html;
     }
 
 
@@ -128,11 +128,11 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildHtmlFooter(): ?string
     {
-        $html  = WebPage::buildFooters() . '
-        </body>
-        </html>';
+        $html  =            WebPage::buildFooters() . '
+                        </body>
+                    </html>';
 
-        return $this->render;
+        return $html;
     }
 
 

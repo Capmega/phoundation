@@ -28,15 +28,29 @@ class GridRow extends Layout
 
 
     /**
+     * Clear the columns in this row
+     *
+     * @return static
+     */
+    public function clearColumns(): static
+    {
+        $this->columns = [];
+        return $this;
+    }
+
+
+
+    /**
      * Set the columns for this row
      *
      * @param array $columns
+     * @param int|null $size
      * @return static
      */
-    public function setColumns(array $columns): static
+    public function setColumns(array $columns, ?int $size = null): static
     {
         $this->columns = [];
-        return $this->addColumns($columns);
+        return $this->addColumns($columns, $size);
     }
 
 
@@ -45,9 +59,10 @@ class GridRow extends Layout
      * Add the specified columns to this row
      *
      * @param array $columns
+     * @param int|null $size
      * @return static
      */
-    public function addColumns(array $columns): static
+    public function addColumns(array $columns, ?int $size = null): static
     {
         // Validate columns
         foreach ($columns as $column) {
@@ -57,7 +72,7 @@ class GridRow extends Layout
                 ]));
             }
 
-            $this->addColumn($column);
+            $this->addColumn($column, $size);
         }
 
         return $this;
@@ -69,10 +84,16 @@ class GridRow extends Layout
      * Add the specified column to this row
      *
      * @param GridColumn|null $column
+     * @param int|null $size
      * @return static
      */
-    public function addColumn(?GridColumn $column): static
+    public function addColumn(?GridColumn $column, ?int $size = null): static
     {
+        // Shortcut to set column size
+        if ($size !== null) {
+            $column->setSize($size);
+        }
+
         if ($column) {
             $this->columns[] = $column;
         }

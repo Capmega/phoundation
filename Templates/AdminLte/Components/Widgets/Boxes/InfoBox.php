@@ -33,6 +33,6 @@ class InfoBox extends \Phoundation\Web\Http\Html\Components\Widgets\Boxes\InfoBo
                               ' . $this->description . '
                             </div>';
 
-        return $this->render;
+        return parent::render();
     }
 }

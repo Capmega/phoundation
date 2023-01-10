@@ -68,6 +68,6 @@ class SidePanel extends \Phoundation\Web\Http\Html\Components\SidePanel
 
         $this->render .= $this->modals->render() . PHP_EOL;
 
-        return $this->render;
+        return parent::render();
     }
 }

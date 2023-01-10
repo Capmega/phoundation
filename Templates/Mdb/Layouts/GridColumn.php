@@ -25,10 +25,7 @@ class GridColumn extends \Phoundation\Web\Http\Html\Layouts\GridColumn
      */
     public function render(): ?string
     {
-        if (!$this->size) {
-            throw new OutOfBoundsException(tr('Cannot render GridColumn, no size specified'));
-        }
-
-        return '<div class="col' . ($this->tier ? '-' . $this->tier : '') . '-' . $this->size . '">' . $this->content . '</div>';
+        $this->render = '<div class="col' . ($this->tier ? '-' . $this->tier : '') . '-' . $this->size . '">' . $this->content . '</div>';
+        return parent::render();
     }
 }

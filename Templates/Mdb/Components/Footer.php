@@ -38,6 +38,6 @@ class Footer extends \Phoundation\Web\Http\Html\Components\Footer
                             </div>                    
                         </footer>';
 
-        return $this->render;
+        return parent::render();
     }
 }

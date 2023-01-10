@@ -134,15 +134,15 @@ class ProfileImage extends \Phoundation\Web\Http\Html\Components\ProfileImage
                     }
 
                     $this->render .= '  <li>
-                                    <a class="dropdown-item" href="' . $entry['url'] . '">' . $label . '</a>
-                                </li>';
+                                            <a class="dropdown-item" href="' . $entry['url'] . '">' . $label . '</a>
+                                        </li>';
                 }
             }
         }
 
-        $this->render .= '  </ul>
-                        </div>' . PHP_EOL;
+        $this->render .= '          </ul>
+                                </div>' . PHP_EOL;
 
-        return $this->render;
+        return parent::render();
     }
 }

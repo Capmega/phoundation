@@ -143,7 +143,7 @@ abstract class Template
      */
     public function getTemplateComponentClass(object|string $component): string
     {
-        if (!str_starts_with($component, 'Phoundation\\Web\\Http\\Html\\Components\\')) {
+        if (!str_starts_with($component, 'Phoundation\\Web\\Http\\Html\\')) {
             // Assume a template specific path was specified, use this.
             return $component;
         }

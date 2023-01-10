@@ -43,6 +43,6 @@ class Buttons extends \Phoundation\Web\Http\Html\Components\Buttons
             $this->render .= '</div>';
         }
 
-        return $this->render;
+        return parent::render();
     }
 }

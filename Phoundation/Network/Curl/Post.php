@@ -129,6 +129,19 @@ class Post extends Get
 
 
     /**
+     * Clears POST values
+     *
+     * @return static
+     */
+    public function clearPostValues(): static
+    {
+        $this->post_data = [];
+        return $this;
+    }
+
+
+
+    /**
      * Sets POST values
      *
      * @param array $values
@@ -181,6 +194,19 @@ class Post extends Get
     public function getPostFileUploads(): array
     {
         return $this->upload_files;
+    }
+
+
+
+    /**
+     * Clears all files that will be uploaded over POST
+     *
+     * @return static
+     */
+    public function clearPostFileUploads(): static
+    {
+        $this->upload_files = [];
+        return $this;
     }
 
 

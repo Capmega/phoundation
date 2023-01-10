@@ -31,13 +31,13 @@ class ImageMenu extends \Phoundation\Web\Http\Html\Components\ImageMenu
 //.        <button type="button" class="btn btn-primary" data-mdb-toggle="modal" data-mdb-target="#exampleModal" style=""> Launch demo modal </button>
 
         $this->render = ' <div class="dropdown image-menu">
-                    <a
-                      class="' . ($this->menu ? 'dropdown-toggle ' : '') . 'd-flex align-items-center hidden-arrow"
-                      href="' . ($this->menu ? '#' : $this->url) . '"
-                      id="navbarDropdownMenuAvatar"
-                      ' . ($this->menu ? 'role="button" data-mdb-toggle="dropdown"' : ($this->modal_selector ? 'data-mdb-toggle="modal" data-mdb-target="' . $this->modal_selector . '"' : null)) . '                    
-                      aria-expanded="false"
-                    >';
+                            <a
+                              class="' . ($this->menu ? 'dropdown-toggle ' : '') . 'd-flex align-items-center hidden-arrow"
+                              href="' . ($this->menu ? '#' : $this->url) . '"
+                              id="navbarDropdownMenuAvatar"
+                              ' . ($this->menu ? 'role="button" data-mdb-toggle="dropdown"' : ($this->modal_selector ? 'data-mdb-toggle="modal" data-mdb-target="' . $this->modal_selector . '"' : null)) . '                    
+                              aria-expanded="false"
+                            >';
 
         $this->render .= $this->image->getHtmlElement()
             ->setHeight($this->height)
@@ -46,23 +46,23 @@ class ImageMenu extends \Phoundation\Web\Http\Html\Components\ImageMenu
             ->render();
 
         $this->render .= '  </a>
-                    <ul
-                      class="dropdown-menu dropdown-menu-end"
-                      aria-labelledby="navbarDropdownMenuAvatar"
-                    >';
+                            <ul
+                              class="dropdown-menu dropdown-menu-end"
+                              aria-labelledby="navbarDropdownMenuAvatar"
+                            >';
 
         if ($this->menu) {
             foreach ($this->menu as $label => $url) {
                 $this->render .= '<li>
-                            <a class="dropdown-item" href="' . $url . '">' . $label . '</a>
-                          </li>';
+                                    <a class="dropdown-item" href="' . $url . '">' . $label . '</a>
+                                  </li>';
             }
 
         }
 
-        $this->render .= '  </ul>
-                  </div>' . PHP_EOL;
+        $this->render .= '      </ul>
+                            </div>' . PHP_EOL;
 
-        return $this->render;
+        return parent::render();
     }
 }

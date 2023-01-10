@@ -26,7 +26,7 @@ class Grid extends \Phoundation\Web\Http\Html\Layouts\Grid
         $this->render = '';
 
         foreach ($this->rows as $row) {
-            $this->content .= $row->render();
+            $this->render .= $row->render();
         }
 
         return parent::render();

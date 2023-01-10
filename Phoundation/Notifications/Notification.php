@@ -403,6 +403,19 @@ class Notification extends DataEntry
 
 
     /**
+     * Clears the message for this notification
+     *
+     * @return static
+     */
+    public function clearGroups(): static
+    {
+        $this->setDataValue('groups', []);
+        return $this;
+    }
+
+
+
+    /**
      * Sets the message for this notification
      *
      * @note: This will reset the current already registered groups

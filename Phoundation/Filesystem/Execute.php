@@ -262,7 +262,20 @@ class Execute extends Path
 
 
     /**
-     * Sets the path that will be skipped
+     * Clears the paths that will be skipped
+     *
+     * @return Execute
+     */
+    public function clearSkipPaths(): Execute
+    {
+        $this->skip = [];
+        return $this;
+    }
+
+
+
+    /**
+     * Sets the paths that will be skipped
      *
      * @param string|array $paths
      * @return Execute
@@ -277,7 +290,7 @@ class Execute extends Path
 
 
     /**
-     * Sets the path that will be skipped
+     * Adds the paths that will be skipped
      *
      * @param string|array $paths
      * @return Execute

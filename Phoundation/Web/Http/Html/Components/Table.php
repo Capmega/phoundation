@@ -10,6 +10,7 @@ use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\Url;
 
 
+
 /**
  * Class Table
  *
@@ -92,6 +93,19 @@ class Table extends ResourceElement
 
 
     /**
+     * Clears the table's column conversions
+     *
+     * @return static
+     */
+    public function clearConvertColumns(): static
+    {
+        $this->convert_columns = [];
+        return $this;
+    }
+
+
+
+    /**
      * Sets the table's column conversions
      *
      * @param array|string|null $convert_columns
@@ -150,6 +164,19 @@ class Table extends ResourceElement
 
 
     /**
+     * Cleras the table's top buttons
+     *
+     * @return static
+     */
+    public function clearTopButtons(): static
+    {
+        $this->top_buttons = [];
+        return $this;
+    }
+
+
+
+    /**
      * Sets the table's  top buttons
      *
      * @param array|string|null $top_buttons
@@ -202,6 +229,19 @@ class Table extends ResourceElement
     public function getTopButtons(): array
     {
         return $this->top_buttons;
+    }
+
+
+
+    /**
+     * Clears the HTML row_class element attribute
+     *
+     * @return static
+     */
+    public function clearRowClasses(): static
+    {
+        $this->row_classes = [];
+        return $this;
     }
 
 
@@ -353,6 +393,19 @@ class Table extends ResourceElement
     public function setRowUrl(string|null $row_url): static
     {
         $this->row_url = $row_url;
+        return $this;
+    }
+
+
+
+    /**
+     * Clears the table headers
+     *
+     * @return static
+     */
+    public function clearColumnHeaders(): static
+    {
+        $this->column_headers = [];
         return $this;
     }
 

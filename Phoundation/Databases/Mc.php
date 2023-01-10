@@ -116,16 +116,29 @@ class Mc
 
 
     /**
+     * Clear the configured Mc connections
+     *
+     * @return static
+     */
+    public function clearConnections(): static
+    {
+        $this->configuration['connections'] = [];
+        return $this;
+    }
+
+
+
+    /**
      * Set the configured Mc connections
      *
      * @note This method will reset the currently existing connections
      * @param array $connections
-     * @return void
+     * @return static
      */
-    public function setConnections(array $connections): void
+    public function setConnections(array $connections): static
     {
         $this->configuration['connections'] = [];
-        $this->addConnections($connections);
+        return $this->addConnections($connections);
     }
 
 
@@ -134,13 +147,15 @@ class Mc
      * Add the multiple specified connections
      *
      * @param array $connections
-     * @return void
+     * @return static
      */
-    public function addConnections(array $connections): void
+    public function addConnections(array $connections): static
     {
         foreach ($connections as $connection => $configuration) {
             $this->addConnection($connection, $configuration);
         }
+
+        return $this;
     }
 
 
@@ -150,11 +165,12 @@ class Mc
      *
      * @param string $connection_name
      * @param array $configuration
-     * @return void
+     * @return static
      */
-    public function addConnection(string $connection_name, array $configuration): void
+    public function addConnection(string $connection_name, array $configuration): static
     {
         $this->configuration['connections'][$connection_name] = $configuration;
+        return $this;
     }
 
 

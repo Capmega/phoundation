@@ -178,6 +178,19 @@ abstract class Panel extends ElementsBlock
 
 
     /**
+     * Clears the panel items
+     *
+     * @return static
+     */
+    public function clearItems(): static
+    {
+        $this->items = [];
+        return $this;
+    }
+
+
+
+    /**
      * Sets the panel items
      *
      * @param array $items
@@ -186,8 +199,7 @@ abstract class Panel extends ElementsBlock
     public function setItems(array $items): static
     {
         $this->items = [];
-        $this->addItems($items);
-        return $this;
+        return $this->addItems($items);
     }
 
 

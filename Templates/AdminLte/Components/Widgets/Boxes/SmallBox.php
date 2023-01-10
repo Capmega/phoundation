@@ -40,6 +40,6 @@ class SmallBox extends \Phoundation\Web\Http\Html\Components\Widgets\Boxes\Small
                                                   </a>' : '') . '                        
                             </div>';
 
-        return $this->render;
+        return parent::render();
     }
 }

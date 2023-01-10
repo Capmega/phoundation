@@ -38,11 +38,17 @@ class TemplateMenus extends \Phoundation\Web\Http\Html\Template\TemplateMenus
     {
         $menu   = new self::$menu_class();
         $source = [
-            tr('Dashboard') => [
-                'url'  => '/dashboard',
+            tr('Home') => [
+                'url'  => '/',
             ],
             tr('Blog') => [
                 'url'  => '/blog',
+            ],
+            tr('News') => [
+                'url'  => '/news',
+            ],
+            tr('Downloads') => [
+                'url'  => '/downloads',
             ]
         ];
 

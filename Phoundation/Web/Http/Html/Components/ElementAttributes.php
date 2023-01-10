@@ -3,10 +3,10 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\WebPage;
+
 
 
 /**
@@ -231,6 +231,19 @@ trait ElementAttributes
 
 
     /**
+     * Clears the HTML class element attribute
+     *
+     * @return static
+     */
+    public function clearClasses(): static
+    {
+        $this->classes = [];
+        return $this;
+    }
+
+
+
+    /**
      * Sets the HTML class element attribute
      *
      * @param array|string|null $classes
@@ -356,6 +369,19 @@ trait ElementAttributes
 
 
     /**
+     * Clears all the extra element attribute code
+     *
+     * @return static
+     */
+    public function clearExtra(): static
+    {
+        $this->extra = '';
+        return $this;
+    }
+
+
+
+    /**
      * Sets all the extra element attribute code
      *
      * @param string|null $extra
@@ -472,6 +498,19 @@ trait ElementAttributes
 
 
     /**
+     * Clears all HTML element attributes
+     *
+     * @return static
+     */
+    public function clearAttributes(): static
+    {
+        $this->attributes = [];
+        return $this;
+    }
+
+
+
+    /**
      * Sets all HTML element attributes
      *
      * @param array $attributes
@@ -480,8 +519,7 @@ trait ElementAttributes
     public function setAttributes(array $attributes): static
     {
         $this->attributes = [];
-        $this->addAttributes($attributes);
-        return $this;
+        return $this->addAttributes($attributes);
     }
 
 
@@ -545,7 +583,9 @@ trait ElementAttributes
     public function setContent(object|string|null $content): static
     {
         if (is_object($content)) {
+            // This object must be able to render HTML. Check this and then render.
             self::hasElementAttributesTrait($content);
+            $content = $content->render();
         }
 
         $this->content = $content;

@@ -41,6 +41,8 @@ class BreadCrumbs extends \Phoundation\Web\Http\Html\Components\BreadCrumbs
             }
         }
 
-        return $this->render . '</ol>';
+        $this->render .= '</ol>';
+
+        return parent::render();
     }
 }
