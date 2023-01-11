@@ -2,11 +2,13 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
+use Composer\XdebugHandler\Process;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Input\TextArea;
+
 
 
 /**
@@ -22,11 +24,18 @@ use Phoundation\Web\Http\Html\Components\Input\TextArea;
 class DataEntryForm extends ElementsBlock
 {
     /**
-     * The data source for this form
+     * The key metadata for the specified data
      *
      * @var array $keys
      */
     protected array $keys;
+
+    /**
+     * The form specific metadata for the keys for the specified data
+     *
+     * @var array $form_keys
+     */
+    protected array $form_keys;
 
     /**
      * Optional class for input elements
@@ -120,6 +129,32 @@ class DataEntryForm extends ElementsBlock
 
 
     /**
+     * Returns the data source for this DataEntryForm
+     *
+     * @return array
+     */
+    public function getFormKeys(): array
+    {
+        return $this->form_keys;
+    }
+
+
+
+    /**
+     * Set the data source for this DataEntryForm
+     *
+     * @param array $form_keys
+     * @return static
+     */
+    public function setFormKeys(array $form_keys): static
+    {
+        $this->form_keys = $form_keys;
+        return $this;
+    }
+
+
+
+    /**
      * Standard DataEntryForm object does not render any HTML, this requires a Template class
      *
      * @return string|null
@@ -140,6 +175,12 @@ class DataEntryForm extends ElementsBlock
         // $data['source']   null   Query to get contents for select, or value from ID for readonly input element
         // $data['execute']  null   Array with bound execution variables for specified "source" query
 
+        // If form key definitions are available, reorder the keys as in the form key definitions
+        if ($this->form_keys) {
+            $this->reorderKeys();
+        }
+
+        // Go over each key and add it to the form
         foreach ($this->keys as $key => $data) {
             if (!isset_get($data['display'], true)) {
                 continue;
@@ -213,7 +254,7 @@ class DataEntryForm extends ElementsBlock
                         ->setName($key)
                         ->setValue(isset_get($this->source[$key]))
                         ->render();
-                    $this->render .= $this->renderItem($key, isset_get($data['label']), $item);
+                    $this->render .= $this->renderItem($key, isset_get($data['label']), $item, isset_get($data['size'], 12));
 
                     break;
 
@@ -238,7 +279,7 @@ class DataEntryForm extends ElementsBlock
                         ->setValue(isset_get($this->source[$key]))
                         ->render();
 
-                    $this->render .= $this->renderItem($key, isset_get($data['label']), $item);
+                    $this->render .= $this->renderItem($key, isset_get($data['label']), $item, isset_get($data['size'], 12));
                     break;
 
                 case 'select':
@@ -254,7 +295,7 @@ class DataEntryForm extends ElementsBlock
                         ->setName($key)
                         ->setSelected(isset_get($this->source[$key]))
                         ->render();
-                    $this->render .= $this->renderItem($key, isset_get($data['label']), $item);
+                    $this->render .= $this->renderItem($key, isset_get($data['label']), $item, isset_get($data['size'], 12));
                     break;
 
                 case '':
@@ -270,6 +311,9 @@ class DataEntryForm extends ElementsBlock
             }
         }
 
+        // Add one empty element to (if required) close any rows
+        $this->render .= $this->renderItem(null, null, null, -1);
+
         return parent::render();
     }
 
@@ -280,14 +324,43 @@ class DataEntryForm extends ElementsBlock
      *
      * @param string|int|null $id
      * @param string|null $label
-     * @param string $html
+     * @param string|null $html
+     * @param int $size
      * @return string
      */
-    protected function renderItem(string|int|null $id, ?string $label, string $html): string
+    protected function renderItem(string|int|null $id, ?string $label, ?string $html, int $size): string
     {
-        return '  <div class="form-group">
-                    <label for="' . $id . '">' . $label . '</label>
-                    ' . $html . '
-                  </div>';
+        if ($size === -1) {
+            // Return empty, this is just one extra call to this method in case any open rows need closing.
+            // This implementation of this method does not use rows, so just return empty.
+            return '';
+        }
+
+        return '<label for="' . $id . '">' . $label . '</label>' . $html;
+    }
+
+
+
+    /**
+     * Reorder the keys in the order of the specified keys and add the size information
+     *
+     * @return void
+     */
+    protected function reorderKeys(): void
+    {
+        $keys = [];
+
+        foreach ($this->form_keys as $key => $size) {
+            if (!array_key_exists($key, $this->keys)) {
+                throw new OutOfBoundsException(tr('Specified form key ":key" does not exist as DataEntry key', [
+                    ':key'
+                ]));
+            }
+
+            $keys[$key]         = $this->keys[$key];
+            $keys[$key]['size'] = $size;
+        }
+
+        $this->keys = $keys;
     }
 }

@@ -73,6 +73,13 @@ abstract class DataEntry
     protected array $keys = [];
 
     /**
+     * Meta information about how the keys will be displayed on forms
+     *
+     * @var array $form_keys
+     */
+    protected array $form_keys = [];
+
+    /**
      * Columns that will NOT be inserted
      *
      * @var array $remove_columns_on_insert
@@ -653,7 +660,8 @@ abstract class DataEntry
     {
         return DataEntryForm::new()
             ->setSource($this->data)
-            ->setKeys($this->keys);
+            ->setKeys($this->keys)
+           ->setFormKeys($this->form_keys);
     }
 
 
