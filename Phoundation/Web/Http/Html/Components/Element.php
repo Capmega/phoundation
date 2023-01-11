@@ -30,6 +30,13 @@ abstract class Element
      */
     protected string $element;
 
+    /**
+     * If true, will produce <element></element> instead of <element />
+     *
+     * @var bool $requires_closing_tag
+     */
+    protected bool $requires_closing_tag = true;
+
 
 
     /**
@@ -69,12 +76,17 @@ abstract class Element
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
         }
 
-        $attributes = $this->buildAttributes();
-        $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', true);
+        $attributes  = $this->buildAttributes();
+        $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', false);
+        $attributes .= $this->extra;
 
-        $this->render = '<' . $this->element . ' ' . $attributes . $this->extra;
+        if ($attributes) {
+            $attributes = ' ' . $attributes;
+        }
 
-        if ($this->content) {
+        $this->render = '<' . $this->element . $attributes;
+
+        if ($this->requires_closing_tag) {
             return $this->render . '>' . $this->content . '</' . $this->element . '>';
 
         }

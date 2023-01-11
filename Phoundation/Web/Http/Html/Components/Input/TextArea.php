@@ -1,13 +1,11 @@
 <?php
 
-namespace Phoundation\Web\Http\Html\Components;
-
-use Phoundation\Web\Http\Html\Components\Input\Input;
+namespace Phoundation\Web\Http\Html\Components\Input;
 
 
 
 /**
- * Text class
+ * TextArea class
  *
  *
  *
@@ -16,7 +14,7 @@ use Phoundation\Web\Http\Html\Components\Input\Input;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Text extends Input
+class TextArea extends Input
 {
     /**
      * The amount of columns to use for this text area
@@ -40,7 +38,10 @@ class Text extends Input
     public function __construct()
     {
         parent::__construct();
-        $this->setElement('text');
+
+        $this->requires_closing_tag = true;
+        $this->element              = 'textarea';
+        $this->type                 = null;
     }
 
 

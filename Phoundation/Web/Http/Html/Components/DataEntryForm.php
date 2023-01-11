@@ -5,7 +5,8 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
-
+use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\TextArea;
 
 
 /**
@@ -162,7 +163,23 @@ class DataEntryForm extends ElementsBlock
                 }
             }
 
-            switch (isset_get($data['element'], 'input')) {
+            // Select default element
+            if (!isset_get($data['element'])) {
+                if (isset_get($data['source'])) {
+                    // Default element for form items with a source is "select"
+                    $data['element'] = 'select';
+                } else {
+                    // Default element for form items "text input"
+                    $data['element'] = 'input';
+                }
+            }
+
+            // Select default value
+            if (isset_get($this->source[$key]) === null) {
+                $this->source[$key] = isset_get($data['default']);
+            }
+
+            switch ($data['element']) {
                 case 'input':
                     $data['type'] = isset_get($data['type'], 'text');
 
@@ -201,29 +218,32 @@ class DataEntryForm extends ElementsBlock
                     break;
 
                 case 'text':
-                    if (isset_get($data['source']) or $execute) {
-                        throw new OutOfBoundsException(tr('Text element cannot have "source" or "execute" values for key ":key"', [
-                            ':key' => $key
-                        ]));
-                    }
+                    // no-break
+                case 'textarea':
+                // If we have a source query specified, then get the actual value from the query
+                if (isset_get($data['source'])) {
+                    $this->source[$key] = sql()->getColumn($data['source'], $execute);
+                }
 
-                    // Build the element class path and load the required class file
-                    $element = '\Phoundation\Web\Http\Html\Components\Text';
+                // Build the element class path and load the required class file
+                    $element = '\Phoundation\Web\Http\Html\Components\Input\TextArea';
                     $file    = Debug::getClassFile($element);
                     include_once($file);
 
-                    $item = Text::new()
+                    $item = TextArea::new()
                         ->setDisabled((bool) isset_get($data['disabled'], false))
                         ->setReadOnly((bool) isset_get($data['readonly'], false))
+                        ->setRows((int) isset_get($data['rows'], 5))
                         ->setName($key)
                         ->setValue(isset_get($this->source[$key]))
                         ->render();
+
                     $this->render .= $this->renderItem($key, isset_get($data['label']), $item);
                     break;
 
                 case 'select':
                     // Build the element class path and load the required class file
-                    $element = '\Phoundation\Web\Http\Html\Components\Select';
+                    $element = '\Phoundation\Web\Http\Html\Components\Input\Select';
                     $file    = Debug::getClassFile($element);
                     include_once($file);
 
@@ -232,7 +252,7 @@ class DataEntryForm extends ElementsBlock
                         ->setDisabled((bool) isset_get($data['disabled'], false))
                         ->setReadOnly((bool) isset_get($data['readonly'], false))
                         ->setName($key)
-                        ->setValue(isset_get($this->source[$key]))
+                        ->setSelected(isset_get($this->source[$key]))
                         ->render();
                     $this->render .= $this->renderItem($key, isset_get($data['label']), $item);
                     break;

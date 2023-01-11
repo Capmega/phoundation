@@ -1,11 +1,12 @@
 <?php
 
-namespace Phoundation\Web\Http\Html\Components;
+namespace Phoundation\Web\Http\Html\Components\Input;
 
 use PDO;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\ResourceElement;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 
 
@@ -173,10 +174,10 @@ class Select extends ResourceElement
     /**
      * Adds a single or multiple selected options
      *
-     * @param array|string|int $selected
+     * @param array|string|int|null $selected
      * @return static
      */
-    public function addSelected(array|string|int $selected): static
+    public function addSelected(array|string|int|null $selected): static
     {
         if (is_array($selected)) {
             // Add multiple selected, only supported when multiple is enabled
@@ -435,7 +436,10 @@ class Select extends ResourceElement
                 }
             }
 
-            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($row[0]) . ' value="' . htmlentities($row[0]) . '"' . $option_data . '>' . htmlentities($row[1]) . '</option>';
+            $key   = $row[array_key_first($row)];
+            $value = $row[array_key_last($row)];
+
+            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlentities($key) . '"' . $option_data . '>' . htmlentities($value) . '</option>';
         }
 
         return $return;

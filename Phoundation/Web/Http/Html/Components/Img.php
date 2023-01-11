@@ -74,7 +74,9 @@ class Img extends Element
     {
         parent::__construct();
         parent::setElement('img');
+
         $this->setLazyLoad(Config::get('web.images.lazy-load', true));
+        $this->requires_closing_tag = false;
     }
 
 

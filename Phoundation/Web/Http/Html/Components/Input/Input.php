@@ -27,11 +27,19 @@ abstract class Input extends Element
      */
     public function __construct()
     {
-        $this->element = 'input';
         parent::__construct();
+
+        $this->requires_closing_tag = false;
+        $this->element              = 'input';
     }
 
 
+
+    /**
+     * Render and return the HTML for this Input Element
+     *
+     * @return string|null
+     */
     public function render(): ?string
     {
         $this->attributes = array_merge($this->buildInputAttributes(), $this->attributes);

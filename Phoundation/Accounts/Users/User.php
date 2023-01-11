@@ -1686,6 +1686,7 @@ class User extends DataEntry
                 'label'    => tr('Database ID')
             ],
             'created_by' => [
+                'element'  => 'input',
                 'display'  => true,
                 'disabled' => true,
                 'source'   => 'SELECT IFNULL(`username`, `email`) AS `username` FROM `accounts_users` WHERE `id` = :id',
@@ -1706,6 +1707,7 @@ class User extends DataEntry
             ],
             'status' => [
                 'disabled' => true,
+                'default'  => tr('Ok'),
                 'label'    => tr('Status')
             ],
             'last_sign_in' => [
@@ -1744,8 +1746,11 @@ class User extends DataEntry
             'title' => [
                 'label'    => tr('Title')
             ],
-            'name' => [
-                'label'    => tr('name')
+            'firstname' => [
+                'label'    => tr('First name')
+            ],
+            'lastname' => [
+                'label'    => tr('Last name')
             ],
             'nickname' => [
                 'label'    => tr('Nickname')
@@ -1824,7 +1829,6 @@ class User extends DataEntry
                 'label'    => tr('City'),
             ],
             'redirect' => [
-                'type'     => 'text',
                 'label'    => tr('Redirect'),
             ],
             'language' => [
@@ -1836,6 +1840,7 @@ class User extends DataEntry
             'gender' => [
                 'element'  => 'select',
                 'source'   => [
+                    ''       => tr('Unknown'),
                     'male'   => tr('Male'),
                     'female' => tr('Female'),
                     'other'  => tr('Other')
@@ -1843,6 +1848,7 @@ class User extends DataEntry
                 'label'    => tr('Gender'),
             ],
             'birthday' => [
+                'type'     => 'date',
                 'label'    => tr('Birthday'),
             ],
             'description' => [

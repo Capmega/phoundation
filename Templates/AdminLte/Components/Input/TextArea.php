@@ -1,27 +1,27 @@
 <?php
 
-namespace Phoundation\Web\Http\Html\Components;
+namespace Templates\AdminLte\Components\Input;
 
 
 
 /**
- * Section class
+ * Class TextArea
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package Templates\AdminLte
  */
-class Section extends Element
+class TextArea extends \Phoundation\Web\Http\Html\Components\Input\TextArea
 {
     /**
-     * Section class constructor
+     * TextArea class constructor
      */
     public function __construct()
     {
+        $this->class = 'form-control';
         parent::__construct();
-        $this->element = 'section';
     }
 }

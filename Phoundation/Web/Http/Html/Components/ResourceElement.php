@@ -74,6 +74,17 @@ abstract class ResourceElement extends Element
     protected int $count = 0;
 
 
+
+    /**
+     * ResourceElement class constructor
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+
+
     /**
      * Set the HTML none element attribute
      *

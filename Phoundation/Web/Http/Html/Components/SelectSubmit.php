@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 
 

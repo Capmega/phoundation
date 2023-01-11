@@ -8,10 +8,10 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
+use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Uglify;
 use Throwable;
-
 
 
 /**
@@ -33,6 +33,16 @@ class Script extends Element
      * @var string|null $event_wrapper
      */
     protected ?string $event_wrapper = 'dom_content';
+
+
+
+    /**
+     * Script class constructor
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
 
 
