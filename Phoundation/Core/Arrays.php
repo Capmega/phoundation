@@ -19,6 +19,28 @@ use Phoundation\Exception\UnderConstructionException;
  */
 class Arrays {
     /**
+     * If set, will filter NULL values
+     */
+    const FILTER_NULL = 1;
+
+    /**
+     * If set, will filter all empty values
+     */
+    const FILTER_EMPTY = 2;
+
+    /**
+     * If set, will quote all values
+     */
+    const QUOTE_ALWAYS = 4;
+
+    /**
+     * If set, will only display key, not value
+     */
+    const HIDE_EMPTY_VALUES = 8;
+
+
+
+    /**
      * If all the specified keys are not in the source array, an exception will be thrown
      *
      * @param array $source
@@ -271,11 +293,11 @@ class Arrays {
      * @param string $separator
      * @return string
      */
-    public static function implode(array $source, string $separator = ','): string
+    public static function implodeRecursively(array $source, string $separator = ','): string
     {
         foreach ($source as &$value) {
             if (is_array($value)) {
-                $value = Arrays::implode($value, $separator);
+                $value = Arrays::implodeRecursively($value, $separator);
             }
         }
 
@@ -316,27 +338,51 @@ class Arrays {
      * @param array $source
      * @param string $row_separator
      * @param string $key_separator
-     * @param string|null $auto_quote Quote string values with the specified quote
-     * @param bool $keep_null_values
+     * @param string|null $quote_character Quote string values with the specified quote
+     * @param int|null $options One of Arrays::FILTER_NULL, Arrays::FILTER_EMPTY, Arrays::QUOTE_REQUIRED,Arrays::QUOTE_ALWAYS
      * @return string
      */
-    public static function implodeWithKeys(array $source, string $row_separator, string $key_separator, ?string $auto_quote = null, bool $keep_null_values = true): string
+    public static function implodeWithKeys(array $source, string $row_separator, string $key_separator, ?string $quote_character = null, ?int $options = self::FILTER_NULL | self::QUOTE_ALWAYS): string
     {
         $return = [];
 
+        // Decode options
+        $filter_null       = $options & self::FILTER_NULL;
+        $filter_empty      = $options & self::FILTER_EMPTY;
+        $quote_always      = $options & self::QUOTE_ALWAYS;
+        $hide_empty_values = $options & self::HIDE_EMPTY_VALUES;
+
         foreach ($source as $key => $value) {
             if (is_array($value)) {
-                $return[] .= $key . $key_separator . $row_separator . self::implodeWithKeys($value, $row_separator, $key_separator, $auto_quote);
-
-            }elseif (($value === null) and !$keep_null_values) {
-                // Don't add this value at all
-                continue;
-
-            } elseif ($auto_quote) {
-                $return[] .= $key . $key_separator . Strings::quote($value, $auto_quote);
+                $return[] .= $key . $key_separator . $row_separator . self::implodeWithKeys($value, $row_separator, $key_separator, $quote_character, $options);
 
             } else {
-                $return[] .= $key . $key_separator . $value;
+                if (!$value) {
+                    if ($filter_empty) {
+                        // Don't add this value at all
+                        continue;
+                    }
+
+                    if ($value === null) {
+                        if ($filter_null) {
+                            // Don't add this value at all
+                            continue;
+                        }
+                    }
+
+                    if ($hide_empty_values) {
+                        // Display only the key, not the value
+                        $return[] .= $key;
+                        continue;
+                    }
+                }
+
+                if ($quote_character) {
+                    $return[] .= $key . $key_separator . Strings::quote($value, $quote_character, $quote_always);
+
+                } else {
+                    $return[] .= $key . $key_separator . $value;
+                }
             }
         }
 
