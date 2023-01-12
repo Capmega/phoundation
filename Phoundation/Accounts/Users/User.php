@@ -1711,9 +1711,11 @@ class User extends DataEntry
                 'label'    => tr('Status')
             ],
             'last_sign_in' => [
-                'disabled' => true,
-                'type'     => 'date',
-                'label'    => tr('Last sign in')
+                'disabled'  => true,
+                'type'      => 'date',
+                'null_type' => 'text',
+                'default'   => '-',
+                'label'     => tr('Last sign in')
             ],
             'authentication_failures' => [
                 'disabled' => true,
@@ -1721,9 +1723,11 @@ class User extends DataEntry
                 'label'    => tr('Authentication failures')
             ],
             'locked_until' => [
-                'disabled' => true,
-                'type'     => 'date',
-                'label'    => tr('Locked until')
+                'disabled'      => true,
+                'type'          => 'date',
+                'null_type'     => 'text',
+                'default'       => '-',
+                'label'         => tr('Locked until')
             ],
             'sign_in_count' => [
                 'disabled' => true,
@@ -1779,9 +1783,11 @@ class User extends DataEntry
                 'display'  => false
             ],
             'verified_on' => [
-                'disabled' => true,
-                'type'     => 'date',
-                'label'    => tr('Verified on'),
+                'disabled'  => true,
+                'type'      => 'date',
+                'null_type' => 'text',
+                'default'   => tr('Not verified'),
+                'label'     => tr('Verified on'),
             ],
             'priority' => [
                 'type'     => 'numeric',
