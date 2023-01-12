@@ -163,7 +163,7 @@ class Select extends ResourceElement
      * @param array|string|int|null $selected
      * @return static
      */
-    public function setSelected(array|string|int|null $selected): static
+    public function setSelected(array|string|int|null $selected = null): static
     {
         $this->selected = [];
         return $this->addSelected($selected);
@@ -312,24 +312,28 @@ class Select extends ResourceElement
      */
     public function renderBody(): ?string
     {
-        $return = '';
+        $return = null;
+        $none   = null;
 
-        if (($this->source === null) and ($this->source_query === null)) {
+        if (($this->source_array === null) and ($this->source_query === null)) {
             throw new HtmlException(tr('No source specified'));
         }
 
         if ($this->none) {
-            $return = '<option' . $this->buildOptionClassString() . $this->buildSelectedString(null) . ' value="">' . $this->none . '</option>';
+            $none = '<option' . $this->buildOptionClassString() . $this->buildSelectedString(null) . ' value="">' . $this->none . '</option>';
         }
 
-        $return .= $this->renderBodyQuery();
-        $return .= $this->renderBodyArray();
+        if ($this->source_query) {
+            $return .= $this->renderBodyQuery();
+        } elseif ($this->source_array) {
+            $return .= $this->renderBodyArray();
+        }
 
         if (!$return) {
-            $return = $this->renderBodyEmpty();
+            return $this->renderBodyEmpty();
         }
 
-        return $return;
+        return $none . $return;
     }
 
 
@@ -349,19 +353,19 @@ class Select extends ResourceElement
      */
     protected function renderBodyArray(): ?string
     {
-        if (!$this->source) {
-            return '';
+        if (!$this->source_array) {
+            return null;
         }
 
         $return = '';
 
-        if ($this->auto_select and ((count($this->source) == 1) and !$this->none)) {
+        if ($this->auto_select and ((count($this->source_array) == 1) and !$this->none)) {
             // Auto select the only available element
             // TODO implement
         }
 
         // Process array resource
-        foreach ($this->source as $key => $value) {
+        foreach ($this->source_array as $key => $value) {
             $this->count++;
             $option_data = '';
 
@@ -420,7 +424,15 @@ class Select extends ResourceElement
             $this->count++;
             $option_data = '';
 
-            if (!$row[0]) {
+            $key   = $row[array_key_first($row)];
+            $value = $row[array_key_last($row)];
+
+            if ($this->cache) {
+                // Store the data in array
+                $this->source_array[$key] = $value;
+            }
+
+            if (!$key) {
                 // To avoid select problems with "none" entries, empty id column values are not allowed
                 Log::warning(tr('Dropping result ":count" without key from source query ":query"', [
                     ':count' => $this->count,
@@ -430,16 +442,17 @@ class Select extends ResourceElement
             }
 
             // Add data- in this option?
-            if (array_key_exists($row[0], $this->source_data)) {
-                foreach ($this->source_data as $key => $value) {
-                    $option_data .= ' data-' . $key . '="' . $value . '"';
+            if (array_key_exists($key, $this->source_data)) {
+                foreach ($this->source_data as $data_key => $data_value) {
+                    $option_data .= ' data-' . $data_key . '="' . $data_value . '"';
                 }
             }
 
-            $key   = $row[array_key_first($row)];
-            $value = $row[array_key_last($row)];
-
             $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlentities($key) . '"' . $option_data . '>' . htmlentities($value) . '</option>';
+        }
+
+        if ($this->cache) {
+            $this->source_query = null;
         }
 
         return $return;

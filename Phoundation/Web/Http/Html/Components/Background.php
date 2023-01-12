@@ -7,7 +7,7 @@ use JetBrains\PhpStorm\ExpectedValues;
 
 
 /**
- * Mode trait
+ * Background trait
  *
  *
  *
@@ -16,15 +16,15 @@ use JetBrains\PhpStorm\ExpectedValues;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-trait Mode
+trait Background
 {
     /**
      * The type of infobox to show
      *
-     * @var string|null $mode
+     * @var string|null $background
      */
     #[ExpectedValues([null, 'primary', 'info', 'warning', 'danger', 'success'])]
-    protected ?string $mode = null;
+    protected ?string $background = null;
 
 
 
@@ -34,9 +34,9 @@ trait Mode
      * @return string|null
      */
     #[ExpectedValues([null, 'primary', 'info', 'warning', 'danger', 'success'])]
-    public function getMode(): ?string
+    public function getBackground(): ?string
     {
-        return $this->mode;
+        return $this->background;
     }
 
 
@@ -44,12 +44,12 @@ trait Mode
     /**
      * Returns the type of infobox to show
      *
-     * @param string|null $mode
+     * @param string|null $background
      * @return static
      */
-    public function setMode(#[ExpectedValues([null, 'primary', 'info', 'warning', 'danger', 'success'])] ?string $mode): static
+    public function setBackground(#[ExpectedValues([null, 'primary', 'info', 'warning', 'danger', 'success'])] ?string $background): static
     {
-        $this->mode = $mode;
+        $this->background = $background;
         return $this;
     }
 }

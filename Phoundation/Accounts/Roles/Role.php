@@ -6,7 +6,7 @@ use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
-
+use Phoundation\Web\Http\Html\Components\Form;
 
 
 /**
@@ -64,6 +64,30 @@ class Role extends DataEntry
     public function users(): Users
     {
         return new Users($this);
+    }
+
+
+
+    /**
+     * Creates and returns an HTML for the fir
+     *
+     * @return Form
+     */
+    public function getRightsHtmlForm(): Form
+    {
+        $form   = Form::new();
+        $rights = $this->rights();
+        $select = $rights->getHtmlSelect()->setCache(true);
+
+        foreach ($rights as $right) {
+            $select->setSelected($right->getSeoName());
+            $form->addContent($select->render() . '<br>');
+        }
+
+        // Add extra entry with nothing selected
+        $select->clearSelected();
+        $form->addContent($select->render());
+        return $form;
     }
 
 

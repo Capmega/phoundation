@@ -9,7 +9,7 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
-
+use Phoundation\Web\Http\Html\Components\Input\Select;
 
 
 /**
@@ -419,5 +419,20 @@ class Roles extends DataList
         }
 
         return $this;
+    }
+
+
+
+    /**
+     * Returns a select with the available roles
+     *
+     * @return Select
+     */
+    public function getHtmlSelect(): Select
+    {
+        return Select::new()
+            ->setNone(tr('Select a role'))
+            ->setEmpty(tr('No roles available'))
+            ->setSourceQuery('SELECT `seo_name`, `name` FROM `accounts_roles` WHERE `status` IS NULL');
     }
 }

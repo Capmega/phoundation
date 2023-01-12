@@ -9,6 +9,7 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
+use Phoundation\Web\Http\Html\Components\Input\Select;
 
 
 
@@ -423,5 +424,20 @@ class Rights extends DataList
         }
 
         return $this;
+    }
+
+
+
+    /**
+     * Returns a select with the available rights
+     *
+     * @return Select
+     */
+    public function getHtmlSelect(): Select
+    {
+        return Select::new()
+            ->setNone(tr('Select a right'))
+            ->setEmpty(tr('No rights available'))
+            ->setSourceQuery('SELECT `seo_name`, `name` FROM `accounts_rights` WHERE `status` IS NULL');
     }
 }

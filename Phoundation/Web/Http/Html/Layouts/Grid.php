@@ -3,7 +3,7 @@
 namespace Phoundation\Web\Http\Html\Layouts;
 
 use Phoundation\Exception\OutOfBoundsException;
-
+use Phoundation\Web\Http\Html\Components\ElementsBlock;
 
 
 /**
@@ -81,12 +81,24 @@ class Grid extends Container
     /**
      * Add the specified row to this grid
      *
-     * @param GridRow|null $row
+     * @param GridRow|GridColumn|ElementsBlock|null $row
      * @return static
      */
-    public function addRow(?GridRow $row): static
+    public function addRow(GridRow|GridColumn|ElementsBlock|null $row, ?int $column_size = null): static
     {
         if ($row) {
+            if (!($row instanceof GridRow)) {
+                // This is not a row!
+                if (!($row instanceof GridColumn)) {
+                    // This is not even a column, it's content. Put it in a column first
+                    $row = GridColumn::new()->setContent($row);
+                }
+
+                // This is a column, put the column in a row
+                $row = GridRow::new()->addColumn($row, $column_size);
+            }
+
+            // We have a row
             $this->rows[] = $row;
         }
 

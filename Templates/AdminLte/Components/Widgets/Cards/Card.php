@@ -21,7 +21,7 @@ class Card extends \Phoundation\Web\Http\Html\Components\Widgets\Cards\Card
      */
     public function render(): ?string
     {
-        $this->render = '   <div class="card bg-' . ($this->gradient ? 'gradient-' : '') . $this->mode . '">';
+        $this->render = '   <div class="card ' . ($this->gradient ? 'gradient-' : '') . ($this->mode ? 'card-' . $this->mode : '') . ($this->background ? 'bg-' . $this->background : '') . '">';
 
         if ($this->has_reload_button or $this->has_maximize_button or $this->has_collapse_button or $this->has_close_button or $this->title or $this->header_content) {
             $this->render .= '  <div class="card-header">

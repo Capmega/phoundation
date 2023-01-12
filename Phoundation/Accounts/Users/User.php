@@ -25,7 +25,7 @@ use Phoundation\Geo\City;
 use Phoundation\Geo\Country;
 use Phoundation\Geo\State;
 use Phoundation\Geo\Timezone;
-
+use Phoundation\Web\Http\Html\Components\Form;
 
 
 /**
@@ -1672,6 +1672,30 @@ class User extends DataEntry
 
 
     /**
+     * Creates and returns an HTML for the fir
+     *
+     * @return Form
+     */
+    public function getRolesHtmlForm(): Form
+    {
+        $form   = Form::new();
+        $roles  = $this->roles();
+        $select = $roles->getHtmlSelect()->setCache(true);
+
+        foreach ($roles as $role) {
+            $select->setSelected($role->getSeoName());
+            $form->addContent($select->render() . '<br>');
+        }
+
+        // Add extra entry with nothing selected
+        $select->clearSelected();
+        $form->addContent($select->render());
+        return $form;
+    }
+
+
+
+    /**
      * Sets the available data keys for the User class
      *
      * @return void
@@ -1846,7 +1870,7 @@ class User extends DataEntry
             'gender' => [
                 'element'  => 'select',
                 'source'   => [
-                    ''       => tr('Unknown'),
+                    ''       => tr('Select a gender'),
                     'male'   => tr('Male'),
                     'female' => tr('Female'),
                     'other'  => tr('Other')

@@ -582,13 +582,27 @@ trait ElementAttributes
      */
     public function setContent(object|string|null $content): static
     {
+        $this->content = null;
+        return $this->addContent($content);
+    }
+
+
+
+    /**
+     * Adds the specified content to the content of the element to display
+     *
+     * @param object|string|null $content
+     * @return static
+     */
+    public function addContent(object|string|null $content): static
+    {
         if (is_object($content)) {
             // This object must be able to render HTML. Check this and then render.
             self::hasElementAttributesTrait($content);
             $content = $content->render();
         }
 
-        $this->content = $content;
+        $this->content .= $content;
         return $this;
     }
 

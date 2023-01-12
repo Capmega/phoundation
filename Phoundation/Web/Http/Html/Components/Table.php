@@ -478,19 +478,19 @@ class Table extends ResourceElement
      */
     public function renderBody(): string
     {
-        if (($this->source === null) and ($this->source_query === null)) {
+        if (($this->source_array === null) and ($this->source_query === null)) {
             throw new HtmlException(tr('No source specified'));
         }
 
         $return = '';
 
-        if (($this->source === null) and ($this->source_query === null)) {
+        if (($this->source_array === null) and ($this->source_query === null)) {
             throw new HtmlException(tr('No source specified'));
         }
 
         if ($this->none) {
             // Add the none element as an array source
-            $this->source[''] = [$this->none];
+            $this->source_array[''] = [$this->none];
         }
 
         $return .= $this->renderBodyQuery();
@@ -518,14 +518,14 @@ class Table extends ResourceElement
      */
     protected function renderBodyArray(): ?string
     {
-        if (!$this->source) {
+        if (!$this->source_array) {
             return null;
         }
 
         $return = '<tbody>';
 
         // Process array resource. Go over each row and in each row over each column
-        foreach ($this->source as $key => $row_values) {
+        foreach ($this->source_array as $key => $row_values) {
             if (!is_array($row_values)) {
                 if (!is_object($row_values) or !method_exists($row_values, '__toArray')) {
                     throw new OutOfBoundsException(tr('The specified table source array is invalid. Format should be [[header columns][row columns][row columns] ...], a ":type" was encountered instead', [

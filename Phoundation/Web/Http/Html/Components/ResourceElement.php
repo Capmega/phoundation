@@ -3,9 +3,9 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use PDOStatement;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputElement;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
+
 
 
 /**
@@ -34,9 +34,9 @@ abstract class ResourceElement extends Element
     /**
      * The text displayed when the specified resource is empty
      *
-     * @var int|null $empty
+     * @var string|null $empty
      */
-    protected ?int $empty = null;
+    protected ?string $empty = null;
 
     /**
      * The text displayed when the specified resource is empty
@@ -46,11 +46,11 @@ abstract class ResourceElement extends Element
     protected ?int $hide_empty = null;
 
     /**
-     * The source data
+     * The source array
      *
-     * @var mixed $source
+     * @var array|null $source_array
      */
-    protected mixed $source = null;
+    protected ?array $source_array = null;
 
     /**
      * The query that will generate the source data
@@ -72,6 +72,13 @@ abstract class ResourceElement extends Element
      * @var int $count
      */
     protected int $count = 0;
+
+    /**
+     * If true, query source data will be stored in array source, so that it can be re-used
+     *
+     * @var bool $cache
+     */
+    protected bool $cache = false;
 
 
 
@@ -112,6 +119,18 @@ abstract class ResourceElement extends Element
 
 
     /**
+     * Returns the HTML empty element attribute
+     *
+     * @return string|null
+     */
+    public function getEmpty(): ?string
+    {
+        return $this->empty;
+    }
+
+
+
+    /**
      * Sets the HTML empty element attribute
      *
      * @param string|null $empty
@@ -126,13 +145,27 @@ abstract class ResourceElement extends Element
 
 
     /**
-     * Returns the HTML empty element attribute
+     * Returns whether query sources will be cached or not
      *
-     * @return string|null
+     * @return bool
      */
-    public function getEmpty(): ?string
+    public function getCache(): bool
     {
-        return $this->empty;
+        return $this->cache;
+    }
+
+
+
+    /**
+     * Sets whether query sources will be cached or not
+     *
+     * @param bool $cache
+     * @return static
+     */
+    public function setCache(bool $cache): self
+    {
+        $this->cache = $cache;
+        return $this;
     }
 
 
@@ -164,37 +197,55 @@ abstract class ResourceElement extends Element
 
 
     /**
-     * Set the HTML source element attribute
+     * Sets the source either as array or query
      *
-     * @param mixed $source
+     * @param PDOStatement|array|string|null $source
+     * @param array|string|null $execute
      * @return static
      */
-    public function setSourceArray(mixed $source): self
+    public function setSource(PDOStatement|array|string|null $source, array|string|null $execute = null): self
     {
-        if ($this->source) {
-            throw new HtmlException(tr('Cannot specify source, a source query was already specified'));
+        if (is_array($source)) {
+            return $this->setSourceArray($source);
         }
 
-        $this->source = $source;
+        return $this->setSourceQuery($source, $execute);
+    }
+
+
+
+    /**
+     * Sets the array source
+     *
+     * @param array $source_array
+     * @return static
+     */
+    public function setSourceArray(array $source_array): self
+    {
+        if ($this->source_query) {
+            throw new HtmlException(tr('Cannot specify source array, a source query was already specified'));
+        }
+
+        $this->source_array = $source_array;
         return $this;
     }
 
 
 
     /**
-     * Returns the HTML source element attribute
+     * Returns the array source
      *
-     * @return mixed
+     * @return array|null
      */
-    public function getSource(): mixed
+    public function getSourceArray(): ?array
     {
-        return $this->source;
+        return $this->source_array;
     }
 
 
 
     /**
-     * Set the HTML source as a query
+     * Sets the query source
      *
      * @param PDOStatement|string|null $source_query
      * @param array|string|null $execute
@@ -202,7 +253,7 @@ abstract class ResourceElement extends Element
      */
     public function setSourceQuery(PDOStatement|string|null $source_query, array|string|null $execute = null): self
     {
-        if ($this->source) {
+        if ($this->source_array) {
             throw new HtmlException(tr('Cannot specify source query, a source was already specified'));
         }
 
@@ -218,31 +269,7 @@ abstract class ResourceElement extends Element
 
 
     /**
-     * Set the source
-     *
-     * @param PDOStatement|array|string|null $source
-     * @param array|string|null $execute
-     * @return static
-     */
-    public function setSource(PDOStatement|array|string|null $source, array|string|null $execute = null): self
-    {
-        if (is_array($source)) {
-            if ($execute) {
-                throw new OutOfBoundsException(tr('Cannot specify array source with an $execute variable'));
-            }
-
-            // Source is an array
-            return $this->setSourceArray($source);
-        }
-
-        // Source is an SQL query
-        return $this->setSourceQuery($source, $execute);
-    }
-
-
-
-    /**
-     * Returns the HTML source as a query
+     * Returns the query source
      *
      * @return PDOStatement|null
      */

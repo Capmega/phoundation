@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Components\Widgets;
 
+use Phoundation\Web\Http\Html\Components\Background;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\Mode;
 
@@ -19,6 +20,7 @@ use Phoundation\Web\Http\Html\Components\Mode;
 abstract class Widget extends ElementsBlock
 {
     use Mode;
+    use Background;
 
 
 

@@ -20,21 +20,44 @@ GetValidator::new()
 $role = Role::get($_GET['id']);
 $form = Role::get($_GET['id'])->getHtmlForm();
 $card = Card::new()
+    ->setTitle(tr('Edit data for role :name', [':name' => $role->getName()]))
     ->setContent($form->render());
+
+
+
+// Build relevant links
+$relevant = Card::new()
+    ->setMode('info')
+    ->setTitle(tr('Relevant links'))
+    ->setContent('<a href="' . Url::build('/admin/accounts/users.html')->www() . '">' . tr('Users management') . '</a><br>
+                         <a href="' . Url::build('/admin/accounts/rights.html')->www() . '">' . tr('Rights management') . '</a>');
 
 
 
 // Build documentation
 $documentation = Card::new()
+    ->setMode('info')
     ->setTitle(tr('Documentation'))
     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 
+// Build the rights list management section
+$rights = Card::new()
+    ->setTitle(tr('Rights for this role'))
+    ->setContent($role->getRightsHtmlForm()
+        ->setAction('#')
+        ->setMethod('POST')
+        ->render());
+
+
+
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($card, 6)
-    ->addColumn($documentation, 6);
+    ->addColumn($card, 9)
+    ->addColumn($relevant->render() . $documentation->render(), 3)
+    ->addRow($rights, 9);
+
 
 echo $grid->render();
 
