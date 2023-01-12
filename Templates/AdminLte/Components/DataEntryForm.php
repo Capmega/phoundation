@@ -22,20 +22,20 @@ class DataEntryForm extends \Phoundation\Web\Http\Html\Components\DataEntryForm
      * Renders and returns the HTML for this component
      *
      * @param string|int|null $id
-     * @param string|null $label
      * @param string|null $html
-     * @param int $size
-     * @return string
+     * @param array|null $data
+     * @return string|null
      */
-    protected function renderItem(string|int|null $id, ?string $label, ?string $html, int $size): string
+    protected function renderItem(string|int|null $id, ?string $html, ?array $data): ?string
     {
         static $col_size = 12;
-        Log::printr($label);
-        Log::printr($size);
-        Log::printr($col_size);
+// TODO Leave the following lines for easy debugging form layouts
+//        Log::printr($label);
+//        Log::printr($size);
+//        Log::printr($col_size);
         $return = '';
 
-        if ($size === -1) {
+        if ($data === null) {
             if ($col_size === 12) {
                 // No row is open right now
                 return '';
@@ -51,18 +51,33 @@ class DataEntryForm extends \Phoundation\Web\Http\Html\Components\DataEntryForm
                 $return = '<div class="row">';
             }
 
-            $return .= '    <div class="col-sm-' . $size . '">
-                            <div class="form-group">
-                                <label for="' . $id . '">' . $label . '</label>
-                                ' . $html . '
-                            </div>
-                        </div>';
+            switch ($data['type']) {
+                case 'checkbox':
+                    $return .= '    <div class="col-sm-' . $data['size'] . '">
+                                        <div class="form-group">
+                                            <label for="' . $id . '">' . $data['label'] . '</label>
+                                            <div class="form-check">
+                                                ' . $html . '
+                                                <label class="form-check-label" for="' . $id . '">' . $data['label'] . '</label>
+                                            </div>
+                                        </div>
+                                    </div>';
+                    break;
 
-            $col_size -= $size;
+                default:
+                    $return .= '    <div class="col-sm-' . $data['size'] . '">
+                                        <div class="form-group">
+                                            <label for="' . $id . '">' . $data['label'] . '</label>
+                                            ' . $html . '
+                                        </div>
+                                    </div>';
+            }
+
+            $col_size -= $data['size'];
 
             if ($col_size < 0) {
                 throw new OutOfBoundsException(tr('Cannot add column ":label", the row would surpass size 12', [
-                    ':label' => $label
+                    ':label' => $data['label']
                 ]));
             }
         }

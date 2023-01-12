@@ -77,7 +77,7 @@ abstract class Element
         }
 
         $attributes  = $this->buildAttributes();
-        $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', false);
+        $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Arrays::FILTER_NULL | Arrays::QUOTE_ALWAYS | Arrays::HIDE_EMPTY_VALUES);
         $attributes .= $this->extra;
 
         if ($attributes) {

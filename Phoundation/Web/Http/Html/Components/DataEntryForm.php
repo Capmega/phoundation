@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use Composer\XdebugHandler\Process;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
@@ -186,6 +187,13 @@ class DataEntryForm extends ElementsBlock
                 continue;
             }
 
+            // Set defaults
+            Arrays::default($data, 'size'    , 12);
+            Arrays::default($data, 'type'    , 'text');
+            Arrays::default($data, 'label'   , null);
+            Arrays::default($data, 'disabled', false);
+            Arrays::default($data, 'readonly', false);
+
             // Ensure password is never sent in the form
             switch ($key) {
                 case 'password':
@@ -215,11 +223,28 @@ class DataEntryForm extends ElementsBlock
                 }
             }
 
-            // Select default value
+            // Set default value and override key entry values if value is null
             if (isset_get($this->source[$key]) === null) {
+                if (isset_get($data['null_element'])) {
+                    $data['element'] = $data['null_element'];
+                }
+
+                if (isset_get($data['null_type'])) {
+                    $data['type'] = $data['null_type'];
+                }
+
+                if (isset_get($data['null_disabled'])) {
+                    $data['disabled'] = $data['null_disabled'];
+                }
+
+                if (isset_get($data['null_readonly'])) {
+                    $data['readonly'] = $data['null_readonly'];
+                }
+
                 $this->source[$key] = isset_get($data['default']);
             }
 
+            // Build the form elements
             switch ($data['element']) {
                 case 'input':
                     $data['type'] = isset_get($data['type'], 'text');
@@ -247,15 +272,30 @@ class DataEntryForm extends ElementsBlock
                     $file    = Debug::getClassFile($element);
                     include_once($file);
 
-                    // Render the HTML for this element
-                    $item = $element::new()
-                        ->setDisabled((bool) isset_get($data['disabled'], false))
-                        ->setReadOnly((bool) isset_get($data['readonly'], false))
-                        ->setName($key)
-                        ->setValue(isset_get($this->source[$key]))
-                        ->render();
-                    $this->render .= $this->renderItem($key, isset_get($data['label']), $item, isset_get($data['size'], 12));
+                    // Depending on input type we might need different code
+                    switch ($data['type']) {
+                        case 'checkbox':
+                            // Render the HTML for this element
+                            $html = $element::new()
+                                ->setDisabled((bool) $data['disabled'])
+                                ->setReadOnly((bool) $data['readonly'])
+                                ->setName($key)
+                                ->setValue('1')
+                                ->setChecked((bool) $this->source[$key])
+                                ->render();
+                            break;
 
+                        default:
+                            // Render the HTML for this element
+                            $html = $element::new()
+                                ->setDisabled((bool) $data['disabled'])
+                                ->setReadOnly((bool) $data['readonly'])
+                                ->setName($key)
+                                ->setValue($this->source[$key])
+                                ->render();
+                    }
+
+                    $this->render .= $this->renderItem($key, $html, $data);
                     break;
 
                 case 'text':
@@ -271,15 +311,15 @@ class DataEntryForm extends ElementsBlock
                     $file    = Debug::getClassFile($element);
                     include_once($file);
 
-                    $item = TextArea::new()
-                        ->setDisabled((bool) isset_get($data['disabled'], false))
-                        ->setReadOnly((bool) isset_get($data['readonly'], false))
+                    $html = TextArea::new()
+                        ->setDisabled((bool) $data['disabled'])
+                        ->setReadOnly((bool) $data['readonly'])
                         ->setRows((int) isset_get($data['rows'], 5))
                         ->setName($key)
                         ->setValue(isset_get($this->source[$key]))
                         ->render();
 
-                    $this->render .= $this->renderItem($key, isset_get($data['label']), $item, isset_get($data['size'], 12));
+                    $this->render .= $this->renderItem($key, $html, $data);
                     break;
 
                 case 'select':
@@ -288,14 +328,15 @@ class DataEntryForm extends ElementsBlock
                     $file    = Debug::getClassFile($element);
                     include_once($file);
 
-                    $item = Select::new()
+                    $html = Select::new()
                         ->setSource(isset_get($data['source']), $execute)
-                        ->setDisabled((bool) isset_get($data['disabled'], false))
-                        ->setReadOnly((bool) isset_get($data['readonly'], false))
+                        ->setDisabled((bool) $data['disabled'])
+                        ->setReadOnly((bool) $data['readonly'])
                         ->setName($key)
                         ->setSelected(isset_get($this->source[$key]))
                         ->render();
-                    $this->render .= $this->renderItem($key, isset_get($data['label']), $item, isset_get($data['size'], 12));
+
+                    $this->render .= $this->renderItem($key, $html, $data);
                     break;
 
                 case '':
@@ -312,7 +353,7 @@ class DataEntryForm extends ElementsBlock
         }
 
         // Add one empty element to (if required) close any rows
-        $this->render .= $this->renderItem(null, null, null, -1);
+        $this->render .= $this->renderItem(null, null, null);
 
         return parent::render();
     }
@@ -323,20 +364,19 @@ class DataEntryForm extends ElementsBlock
      * Renders and returns the HTML for this component
      *
      * @param string|int|null $id
-     * @param string|null $label
      * @param string|null $html
-     * @param int $size
-     * @return string
+     * @param array|null $data
+     * @return string|null
      */
-    protected function renderItem(string|int|null $id, ?string $label, ?string $html, int $size): string
+    protected function renderItem(string|int|null $id, ?string $html, ?array $data): ?string
     {
-        if ($size === -1) {
+        if ($data === null) {
             // Return empty, this is just one extra call to this method in case any open rows need closing.
             // This implementation of this method does not use rows, so just return empty.
             return '';
         }
 
-        return '<label for="' . $id . '">' . $label . '</label>' . $html;
+        return '<label for="' . $id . '">' . $data['label'] . '</label>' . $html;
     }
 
 

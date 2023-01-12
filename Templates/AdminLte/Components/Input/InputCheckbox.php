@@ -21,7 +21,7 @@ class InputCheckbox extends \Phoundation\Web\Http\Html\Components\Input\InputChe
      */
     public function __construct()
     {
-        $this->class = 'form-control';
+        $this->class = 'form-check-input';
         parent::__construct();
     }
 }
