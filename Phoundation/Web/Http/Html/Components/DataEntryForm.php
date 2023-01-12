@@ -7,6 +7,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Input\TextArea;
 
@@ -183,6 +184,13 @@ class DataEntryForm extends ElementsBlock
 
         // Go over each key and add it to the form
         foreach ($this->keys as $key => $data) {
+            if (!is_array($data)) {
+                throw new OutOfBoundsException(tr('Data key definition for key ":key" is invalid. Iit should be an array but contains ":data"', [
+                    ':key'  => $key,
+                    ':data' => gettype($data) . ': ' . $data
+                ]));
+            }
+
             if (!isset_get($data['display'], true)) {
                 continue;
             }

@@ -46,14 +46,57 @@ class Right extends DataEntry
     protected function setKeys(): void
     {
         $this->keys = [
-            'id',
-            'created_by',
-            'created_on',
-            'meta_id',
-            'status',
-            'name',
-            'seo_name',
-            'description'
+            'id' => [
+                'display'  => true,
+                'disabled' => true,
+                'type'     => 'numeric',
+                'label'    => tr('Database ID')
+            ],
+            'created_by' => [
+                'element'  => 'input',
+                'display'  => true,
+                'disabled' => true,
+                'source'   => 'SELECT IFNULL(`username`, `email`) AS `username` FROM `accounts_users` WHERE `id` = :id',
+                'execute'  => 'id',
+                'label'    => tr('Created by')
+            ],
+            'created_on' => [
+                'display'  => true,
+                'disabled' => true,
+                'type'     => 'date',
+                'label'    => tr('Created on')
+            ],
+            'meta_id' => [
+                'display'  => true,
+                'disabled' => true,
+                'element'  => null, //Meta::new()->getHtmlTable(), // TODO implement
+                'label'    => tr('Meta information')
+            ],
+            'status' => [
+                'disabled' => true,
+                'default'  => tr('Ok'),
+                'label'    => tr('Status')
+            ],
+            'name' => [
+                'label'    => tr('Username')
+            ],
+            'seo_name' => [
+                'display' => false
+            ],
+            'description' => [
+                'element' => 'text',
+                'label'   => tr('Description'),
+            ]
+        ];
+
+        $this->form_keys = [
+            'id'          => 12,
+            'created_by'  => 6,
+            'created_on'  => 6,
+            'meta_id'     => 6,
+            'status'      => 6,
+            'name'        => 12,
+            'description' => 12
         ];
     }
 }
