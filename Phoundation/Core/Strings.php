@@ -361,11 +361,12 @@ class Strings
      *
      * @param string|null $source
      * @param string $quote
+     * @param bool $force
      * @return string
      */
-    public static function quote(?string $source, string $quote = "'"): string
+    public static function quote(?string $source, string $quote = "'", bool $force = false): string
     {
-        if (is_numeric($source)) {
+        if (is_numeric($source) and !$force) {
             return $source;
         }
 
@@ -653,7 +654,7 @@ class Strings
                 $source = Json::encode($source);
 
             } else {
-                $source = Arrays::implode($source, $separator);
+                $source = Arrays::implodeRecursively($source, $separator);
             }
         }
 
