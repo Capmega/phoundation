@@ -15,7 +15,7 @@ use Phoundation\Web\WebPage;
 
 // Build users table
 $table = Users::new()->getHtmlTable()
-    ->setRowUrl('/admin/accounts/:ROW.html');
+    ->setRowUrl('/admin/accounts/user-:ROW.html');
 
 $users = Card::new()
     ->setTitle('')

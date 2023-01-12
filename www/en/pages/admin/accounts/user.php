@@ -43,7 +43,7 @@ echo $grid->render();
 WebPage::setHeaderTitle(tr('User'));
 WebPage::setHeaderSubTitle($user->getName());
 WebPage::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'      => tr('Home'),
-    '/users' => tr('Users'),
-    ''       => $user->getDisplayName()
+    '/admin/'                    => tr('Home'),
+    '/admin/accounts/users.html' => tr('Users'),
+    ''                           => $user->getDisplayName()
 ]));

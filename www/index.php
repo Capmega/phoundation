@@ -114,11 +114,11 @@ Route::setSystemTemplate(Mdb::class);                                           
 
 // AdminLte based admin routes
 Route::setTemplate(AdminLte::class);
-Route::try('/^\w{2}\/admin\/ajax\/(.+?).html$/'   , '/en/ajax/$1.php'                   , 'Zadmin' );        // Execute the requested AJAX page
-Route::try('/^(\w{2})\/admin\/(.+?).html$/'       , '/$1/pages/admin/$2.php'            , 'Zadmin');         // Show the requested table page
-Route::try('/^(\w{2})\/admin\/(.+?)\/(.+?).html$/', '/$1/pages/admin/$2/entry.php?id=$3', 'Zadmin');         // Show the requested form page
-Route::try('/^(\w{2})\/admin\/?$/'                , '/admin/index.html'                 , 'Zadmin,R301');    // Redirect to admin index page
-Route::try('/^admin\/$/'                          , '/admin/index.html'                 , 'Zadmin,R301');    // Redirect to admin index page
+Route::try('/^\w{2}\/admin\/ajax\/(.+?).html$/'         , '/en/ajax/$1.php'                , 'Zadmin' );        // Execute the requested AJAX page
+Route::try('/^(\w{2})\/admin\/(.+?)\/(.+?)-(.+?).html$/', '/$1/pages/admin/$2/$3.php?id=$4', 'Zadmin');         // Show the requested form page
+Route::try('/^(\w{2})\/admin\/(.+?).html$/'             , '/$1/pages/admin/$2.php'         , 'Zadmin');         // Show the requested table page
+Route::try('/^(\w{2})\/admin\/?$/'                      , '/admin/index.html'              , 'Zadmin,R301');    // Redirect to admin index page
+Route::try('/^admin\/$/'                                , '/admin/index.html'              , 'Zadmin,R301');    // Redirect to admin index page
 
 
 
