@@ -118,10 +118,10 @@ function in_source(array $source, string|int $key): bool
  *
  * @note IMPORTANT! After calling this function, $var will exist in the scope of the calling function!
  * @param mixed $variable The variable to test
- * @param mixed $return (optional) The value to return in case the specified $variable did not exist or was NULL.*
+ * @param mixed $default (optional) The value to return in case the specified $variable did not exist or was NULL.*
  * @return mixed
  */
-function isset_get(mixed &$variable, mixed $return = null): mixed
+function isset_get(mixed &$variable, mixed $default = null): mixed
 {
     /*
      * The variable exists
@@ -135,7 +135,7 @@ function isset_get(mixed &$variable, mixed $return = null): mixed
      */
     unset($variable);
 
-    return $return;
+    return $default;
 }
 
 
