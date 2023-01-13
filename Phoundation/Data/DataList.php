@@ -134,6 +134,18 @@ abstract class DataList implements Iterator
 
 
     /**
+     * Returns the amount of items in this list
+     *
+     * @return int
+     */
+    public function count(): int
+    {
+        return count($this->list);
+    }
+
+
+
+    /**
      * Returns if the specified data entry exists in the data list
      *
      * @param DataEntry|int $entry

@@ -17,6 +17,38 @@ namespace Templates\AdminLte\Components;
 class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
 {
     /**
+     * The top notifications drop down
+     *
+     * @var NotificationsDropDown $notifications
+     */
+    protected NotificationsDropDown $notifications;
+
+
+
+    /**
+     * TopPanel class constructor
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->notifications = \Phoundation\Web\Http\Html\Components\NotificationsDropDown::new();
+    }
+
+
+
+    /**
+     * Returns the notifications drop down object
+     *
+     * @return NotificationsDropDown
+     */
+    public function getNotificationsDropDown(): NotificationsDropDown
+    {
+        return $this->notifications;
+    }
+
+
+
+    /**
      * Renders and returns the top panel
      *
      * @return string|null
@@ -57,7 +89,7 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
                               </li>
                               <!-- Notifications Dropdown Menu -->
                               <li class="nav-item dropdown">
-                                ' . NotificationsDropDown::new()->render() . '
+                                ' . $this->notifications->render() . '
                               </li>
                               <li class="nav-item">
                                 <a class="nav-link" data-widget="fullscreen" href="#" role="button">

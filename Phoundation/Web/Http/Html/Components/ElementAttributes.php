@@ -513,13 +513,13 @@ trait ElementAttributes
     /**
      * Sets all HTML element attributes
      *
-     * @param array $attributes
+     * @param array $notifications
      * @return static
      */
-    public function setAttributes(array $attributes): static
+    public function setAttributes(array $notifications): static
     {
         $this->attributes = [];
-        return $this->addAttributes($attributes);
+        return $this->addAttributes($notifications);
     }
 
 

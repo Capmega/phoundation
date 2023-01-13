@@ -2,6 +2,9 @@
 
 namespace Templates\AdminLte\Components;
 
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Notifications\Notifications;
+use Phoundation\Web\Http\Url;
 
 
 /**
@@ -17,36 +20,124 @@ namespace Templates\AdminLte\Components;
 class NotificationsDropDown extends \Phoundation\Web\Http\Html\Components\NotificationsDropDown
 {
     /**
+     * The list of notifications
+     *
+     * @var Notifications|null $notifications
+     */
+    protected ?Notifications $notifications = null;
+
+    /**
+     * Contains the URL for the notifications page
+     *
+     * @var string|null $notifications_url
+     */
+    protected ?string $notifications_url = null;
+
+
+
+    /**
+     * NotificationsDropDown class constructor
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+
+
+    /**
+     * Returns the notifications object
+     *
+     * @return Notifications|null
+     */
+    public function getNotifications(): ?Notifications
+    {
+        return $this->notifications;
+    }
+
+
+
+    /**
+     * Sets the notifications object
+     *
+     * @param Notifications|null $notifications
+     * @return static
+     */
+    public function setNotifications(?Notifications $notifications): static
+    {
+        $this->notifications = $notifications;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the notifications page URL
+     *
+     * @return string|null
+     */
+    public function getNotificationsUrl(): ?string
+    {
+        return $this->notifications_url;
+    }
+
+
+
+    /**
+     * Sets the notifications page URL
+     *
+     * @param string|null $notifications_url
+     * @return static
+     */
+    public function setNotificationsUrl(?string $notifications_url): static
+    {
+        $this->notifications_url = Url::build($notifications_url)->www();
+        return $this;
+    }
+
+
+
+    /**
      * Renders and returns the NavBar
      *
      * @return string|null
      */
     public function render(): ?string
     {
+        if (!isset($this->notifications_url)) {
+            throw new OutOfBoundsException(tr('No notifications page URL specified'));
+        }
+
+        if ($this->notifications) {
+            $count = $this->notifications->count();
+        } else {
+            $count = 0;
+        }
+
         $this->render = '   <a class="nav-link" data-toggle="dropdown" href="#">
                               <i class="far fa-bell"></i>
-                              <span class="badge badge-warning navbar-badge">15</span>
+                              ' . ($count ? '<span class="badge badge-warning navbar-badge">' . $count . '</span>' : null) . '                              
                             </a>
                             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                              <span class="dropdown-item dropdown-header">15 Notifications</span>
-                              <div class="dropdown-divider"></div>
-                              <a href="#" class="dropdown-item">
-                                <i class="fas fa-envelope mr-2"></i> 4 new messages
-                                <span class="float-right text-muted text-sm">3 mins</span>
-                              </a>
-                              <div class="dropdown-divider"></div>
-                              <a href="#" class="dropdown-item">
-                                <i class="fas fa-users mr-2"></i> 8 friend requests
-                                <span class="float-right text-muted text-sm">12 hours</span>
-                              </a>
-                              <div class="dropdown-divider"></div>
-                              <a href="#" class="dropdown-item">
-                                <i class="fas fa-file mr-2"></i> 3 new reports
-                                <span class="float-right text-muted text-sm">2 days</span>
-                              </a>
-                              <div class="dropdown-divider"></div>
-                              <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-                            </div>';
+                                  <span class="dropdown-item dropdown-header">' . tr(':count Notifications', [':count' => $count]) . '</span>
+                                  <div class="dropdown-divider"></div>';
+
+        if ($count) {
+            $this->render = '   <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                                  <span class="dropdown-item dropdown-header">' . tr(':count Notifications', [':count' => $count]) . '</span>
+                                  <div class="dropdown-divider"></div>';
+
+            foreach ($this->notifications as $notification) {
+                $this->render .= '<a href="' . $notification->getUrl() . '" class="dropdown-item">
+                                    <i class="fas fa-' . $notification->getIcon() . ' mr-2"></i> ' . $notification->getShortMessage() . '
+                                    <span class="float-right text-muted text-sm">' . $notification->getAge() . '</span>
+                                  </a>
+                                  <div class="dropdown-divider"></div>';
+            }
+        }
+
+        $this->render .= '        <a href="' . $this->notifications_url . '" class="dropdown-item dropdown-footer">' . tr('See All Notifications') . '</a>
+                                </div>';
 
         return parent::render();
     }
