@@ -23,6 +23,13 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
      */
     protected NotificationsDropDown $notifications;
 
+    /**
+     * The top messages drop down
+     *
+     * @var MessagesDropDown $messages
+     */
+    protected MessagesDropDown $messages;
+
 
 
     /**
@@ -31,7 +38,8 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
     public function __construct()
     {
         parent::__construct();
-        $this->notifications = \Phoundation\Web\Http\Html\Components\NotificationsDropDown::new();
+        $this->messages      = MessagesDropDown::new();
+        $this->notifications = NotificationsDropDown::new();
     }
 
 
@@ -44,6 +52,18 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
     public function getNotificationsDropDown(): NotificationsDropDown
     {
         return $this->notifications;
+    }
+
+
+
+    /**
+     * Returns the notifications drop down object
+     *
+     * @return MessagesDropDown
+     */
+    public function getMessagesDropDown(): MessagesDropDown
+    {
+        return $this->messages;
     }
 
 
@@ -68,7 +88,7 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
                                 <div class="navbar-search-block">
                                   <form class="form-inline">
                                     <div class="input-group input-group-sm">
-                                      <input class="form-control form-control-navbar" type="search" placeholder="' . tr('Search') . '" aria-label="' . tr('Search') . '">
+                                      <input class="form-control form-control-navbar" type="search" placeholder="' . tr('Search everywhere') . '" aria-label="' . tr('Search everywhere') . '">
                                       <div class="input-group-append">
                                         <button class="btn btn-navbar" type="submit">
                                           <i class="fas fa-search"></i>
@@ -85,7 +105,7 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
                                
                               <!-- Messages Dropdown Menu -->
                               <li class="nav-item dropdown">
-                                ' . MessagesDropDown::new()->render() . '
+                                ' . $this->messages->render() . '
                               </li>
                               <!-- Notifications Dropdown Menu -->
                               <li class="nav-item dropdown">

@@ -189,9 +189,14 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     protected function buildTopPanel(): string
     {
         $panel = TopPanel::new();
+
         $panel->getNotificationsDropDown()
             ->setNotifications(null)
             ->setNotificationsUrl('/admin/notifications/all.html');
+
+        $panel->getMessagesDropDown()
+            ->setMessages(null)
+            ->setMessagesUrl('/admin/messages/all.html');
 
 
         return $panel->render();

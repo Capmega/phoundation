@@ -21,6 +21,7 @@ GetValidator::new()
 $user = User::get($_GET['id']);
 $form = User::get($_GET['id'])->getHtmlForm();
 $card = Card::new()
+    ->setHasCollapseButton(true)
     ->setTitle(tr('Edit data for User :name', [':name' => $user->getDisplayName()]))
     ->setContent($form->render());
 

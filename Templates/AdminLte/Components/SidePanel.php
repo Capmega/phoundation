@@ -48,7 +48,7 @@ class SidePanel extends \Phoundation\Web\Http\Html\Components\SidePanel
                               </div>
                               <div class="form-inline">
                                 <div class="input-group" data-widget="sidebar-search">
-                                  <input class="form-control form-control-sidebar" type="search" placeholder="' . tr('Search') . '" aria-label="' . tr('Search') . '">
+                                  <input class="form-control form-control-sidebar" type="search" placeholder="' . tr('Search menu') . '" aria-label="' . tr('Search menu') . '">
                                   <div class="input-group-append">
                                     <button class="btn btn-sidebar">
                                       <i class="fas fa-search fa-fw"></i>

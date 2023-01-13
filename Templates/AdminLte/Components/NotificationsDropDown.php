@@ -36,16 +36,6 @@ class NotificationsDropDown extends \Phoundation\Web\Http\Html\Components\Notifi
 
 
     /**
-     * NotificationsDropDown class constructor
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-
-
-    /**
      * Returns the notifications object
      *
      * @return Notifications|null
@@ -123,14 +113,10 @@ class NotificationsDropDown extends \Phoundation\Web\Http\Html\Components\Notifi
                                   <div class="dropdown-divider"></div>';
 
         if ($count) {
-            $this->render = '   <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                                  <span class="dropdown-item dropdown-header">' . tr(':count Notifications', [':count' => $count]) . '</span>
-                                  <div class="dropdown-divider"></div>';
-
             foreach ($this->notifications as $notification) {
                 $this->render .= '<a href="' . $notification->getUrl() . '" class="dropdown-item">
                                     <i class="fas fa-' . $notification->getIcon() . ' mr-2"></i> ' . $notification->getShortMessage() . '
-                                    <span class="float-right text-muted text-sm">' . $notification->getAge() . '</span>
+                                    <span class="float-right text-muted text-sm"> ' . $notification->getAge() . '</span>
                                   </a>
                                   <div class="dropdown-divider"></div>';
             }
