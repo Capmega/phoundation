@@ -2,6 +2,7 @@
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
@@ -24,6 +25,15 @@ $card = Card::new()
     ->setHasCollapseButton(true)
     ->setTitle(tr('Edit data for User :name', [':name' => $user->getDisplayName()]))
     ->setContent($form->render());
+
+
+
+// Build profile picture card
+$picture = Card::new()
+    ->setTitle(tr('User profile picture'))
+    ->setContent(Img::new()
+        ->setSrc($user->getPicture())
+        ->setAlt(tr('Profile picture for :user', [':user' => $user->getDisplayName()])));
 
 
 
@@ -57,7 +67,7 @@ $rights = Card::new()
 // Build and render the grid
 $grid = Grid::new()
     ->addColumn($card, 9)
-    ->addColumn($relevant->render() . $documentation->render(), 3)
+    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), 3)
     ->addRow($rights, 9);
 
 echo $grid->render();

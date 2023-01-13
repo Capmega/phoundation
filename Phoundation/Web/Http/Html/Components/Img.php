@@ -4,6 +4,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
+use Phoundation\Filesystem\File;
 use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\Url;
@@ -157,10 +158,10 @@ class Img extends Element
     /**
      * Sets the HTML src element attribute
      *
-     * @param string|null $src
+     * @param File|string|null $src
      * @return Img
      */
-    public function setSrc(?string $src): static
+    public function setSrc(File|string|null $src): static
     {
 //        // Get a built src string. If $built_src is equal to specified $src then it wasn't changed and so it's an
 //        $domain         = Url::getDomain($src);
@@ -210,7 +211,9 @@ class Img extends Element
 //            $src      = Url::build($src)->img();
 //        }
 
-
+        if (is_object($src)) {
+            $src = $src->getFile();
+        }
         $this->src = Url::build($src)->img();
         return $this;
     }
