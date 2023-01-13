@@ -6,6 +6,7 @@ use PDO;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\Url;
 
@@ -775,7 +776,7 @@ class Table extends ResourceElement
             return $value;
         }
 
-        return CheckBox::new()
+        return InputCheckbox::new()
             ->setName($column)
             ->setValue($value)
             ->render();

@@ -89,12 +89,12 @@ class GridRow extends Layout
      */
     public function addColumn(?GridColumn $column, ?int $size = null): static
     {
-        // Shortcut to set column size
-        if ($size !== null) {
-            $column->setSize($size);
-        }
-
         if ($column) {
+            // Shortcut to set column size
+            if ($size !== null) {
+                $column->setSize($size);
+            }
+
             $this->columns[] = $column;
         }
 

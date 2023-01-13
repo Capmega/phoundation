@@ -19,7 +19,7 @@ $table = Roles::new()->getHtmlTable()
 
 $roles = Card::new()
     ->setTitle('Active roles')
-    ->setButtons('reload')
+    ->setSwitches('reload')
     ->setContent($table->render())
     ->useForm(true);
 

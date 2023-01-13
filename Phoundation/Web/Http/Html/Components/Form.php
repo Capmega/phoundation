@@ -30,7 +30,7 @@ class Form extends Element
     protected string $method = 'post';
 
     /**
-     * The submit target
+     * The submit page target
      *
      * @var string|null $target
      */
@@ -86,13 +86,15 @@ class Form extends Element
 
 
     /**
-     * Sets the form action
+     * Sets the form action.
+     *
+     * Defaults to the current URL
      *
      * @return string|null
      */
     public function getAction(): ?string
     {
-        return $this->action;
+        return $this->action ?? Url::build(true)->www();
     }
 
 
@@ -295,17 +297,9 @@ class Form extends Element
      */
     protected function buildAttributes(): array
     {
-        if (!$this->method) {
-            throw new OutOfBoundsException(tr('Cannot render form, no "method" specified'));
-        }
-
-        if (!$this->action) {
-            throw new OutOfBoundsException(tr('Cannot render form, no "action" specified'));
-        }
-
         // These are obligatory
         $return = [
-            'action'       => $this->action,
+            'action'       => $this->getAction(),
             'method'       => $this->method,
             'autocomplete' => $this->auto_complete ? 'on' : 'off',
         ];

@@ -19,7 +19,7 @@ $table = Users::new()->getHtmlTable()
 
 $users = Card::new()
     ->setTitle('Active users')
-    ->setButtons('reload')
+    ->setSwitches('reload')
     ->setContent($table->render())
     ->useForm(true);
 

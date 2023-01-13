@@ -19,7 +19,7 @@ $table = Rights::new()->getHtmlTable()
 
 $rights = Card::new()
     ->setTitle('Active rights')
-    ->setButtons('reload')
+    ->setSwitches('reload')
     ->setContent($table->render())
     ->useForm(true);
 

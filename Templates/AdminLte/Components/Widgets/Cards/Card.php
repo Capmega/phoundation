@@ -23,21 +23,21 @@ class Card extends \Phoundation\Web\Http\Html\Components\Widgets\Cards\Card
     {
         $this->render = '   <div class="card ' . ($this->gradient ? 'gradient-' : '') . ($this->mode ? 'card-' . $this->mode : '') . ($this->background ? 'bg-' . $this->background : '') . '">';
 
-        if ($this->has_reload_button or $this->has_maximize_button or $this->has_collapse_button or $this->has_close_button or $this->title or $this->header_content) {
+        if ($this->has_reload_switch or $this->has_maximize_switch or $this->has_collapse_switch or $this->has_close_switch or $this->title or $this->header_content) {
             $this->render .= '  <div class="card-header">
                                     <h3 class="card-title">' . $this->title . '</h3>
                                     <div class="card-tools">
                                       ' . $this->header_content . '
-                                      ' . ($this->has_reload_button ? '   <button type="button" class="btn btn-tool" data-card-widget="card-refresh" data-source="widgets.html" data-source-selector="#card-refresh-content" data-load-on-init="false">
+                                      ' . ($this->has_reload_switch ? '   <button type="button" class="btn btn-tool" data-card-widget="card-refresh" data-source="widgets.html" data-source-selector="#card-refresh-content" data-load-on-init="false">
                                                                             <i class="fas fa-sync-alt"></i>
                                                                           </button>' : '') . '
-                                      ' . ($this->has_maximize_button ? ' <button type="button" class="btn btn-tool" data-card-widget="maximize">
+                                      ' . ($this->has_maximize_switch ? ' <button type="button" class="btn btn-tool" data-card-widget="maximize">
                                                                             <i class="fas fa-expand"></i>
                                                                           </button>' : '') . '
-                                      ' . ($this->has_collapse_button ? ' <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                      ' . ($this->has_collapse_switch ? ' <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                                                             <i class="fas fa-minus"></i>
                                                                           </button>' : '') . '
-                                      ' . ($this->has_close_button ? '    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                      ' . ($this->has_close_switch ? '    <button type="button" class="btn btn-tool" data-card-widget="remove">
                                                                             <i class="fas fa-times"></i>
                                                                           </button>' : '') . '                              
                                     </div>
@@ -47,8 +47,15 @@ class Card extends \Phoundation\Web\Http\Html\Components\Widgets\Cards\Card
         $this->render .= '      <!-- /.card-header -->
                                 <div class="card-body">
                                     ' . $this->content. '
-                                </div>
-                            </div>';
+                                </div>';
+
+        if ($this->buttons) {
+            $this->render .= '  <div class="card-footer">
+                                  ' . $this->buttons->render() . '           
+                                </div>';
+        }
+
+        $this->render .= '  </div>';
 
         return parent::render();
     }

@@ -102,7 +102,7 @@ class Modals extends ElementsBlock implements Iterator
      * Returns true if the specified modal exists
      *
      * @param array|string|null $required
-     * @return bool
+     * @return Modals
      */
     public function setRequired(array|string|null $required): static
     {
@@ -139,7 +139,7 @@ class Modals extends ElementsBlock implements Iterator
 
     public function valid(): bool
     {
-        return valid($this->modals);
+        return isset($this->modals[key($this->modals)]);
     }
 
     public function rewind(): void

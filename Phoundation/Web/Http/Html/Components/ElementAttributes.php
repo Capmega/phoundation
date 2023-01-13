@@ -133,6 +133,13 @@ trait ElementAttributes
      */
     protected ?string $render = null;
 
+    /**
+     * Right aligned elements
+     *
+     * @var bool $right
+     */
+    protected bool $right = false;
+
 
 
 //    /**
@@ -285,7 +292,7 @@ trait ElementAttributes
         // Only add class if specified.
         if ($class) {
             $this->classes[$class] = true;
-            $this->class = null;
+            $this->class           = null;
         }
 
         return $this;
@@ -294,7 +301,21 @@ trait ElementAttributes
 
 
     /**
-     * Adds an class to the HTML class element attribute
+     * Removes the specified class for this element
+     *
+     * @param string $class
+     * @return $this
+     */
+    public function removeClass(string $class): static
+    {
+        unset($this->classes[$class]);
+        return $this;
+    }
+
+
+
+    /**
+     * Adds a class to the HTML class element attribute
      *
      * @param ?string $class
      * @return static
@@ -339,6 +360,19 @@ trait ElementAttributes
         }
 
         return $this->class;
+    }
+
+
+
+    /**
+     * Returns if this element has the specified class or not
+     *
+     * @param string $class
+     * @return bool
+     */
+    public function hasClass(string $class): bool
+    {
+        return isset($this->classes[$class]);
     }
 
 
@@ -680,6 +714,35 @@ trait ElementAttributes
     public function getWidth(): ?int
     {
         return $this->width;
+    }
+
+
+
+    /**
+     * Set if the button is right aligned or not
+     *
+     * @param bool $right
+     * @return Button
+     */
+    public function setRight(bool $right): static
+    {
+        if ($right) {
+            return $this->addClass('float-right');
+        }
+
+        return $this->removeClass('float-right');
+    }
+
+
+
+    /**
+     * Returns if the button is right aligned or not
+     *
+     * @return string
+     */
+    public function getRight(): string
+    {
+        return $this->hasClass('float-right');
     }
 
 

@@ -23,12 +23,25 @@ class GridRow extends \Phoundation\Web\Http\Html\Layouts\GridRow
      */
     public function render(): ?string
     {
-        $return = '<div class="row">';
+        $this->render = '<div class="row">';
 
-        foreach ($this->columns as $column) {
-            $return .= $column->render();
+        if ($this->form) {
+            // Return content rendered in a form
+            $render = '';
+
+            foreach ($this->columns as $column) {
+                $render = $column->render();
+            }
+
+            $this->form->setContent($render)->render();
+            $this->form   = null;
+        } else {
+            foreach ($this->columns as $column) {
+                $this->render .= $column->render();
+            }
         }
 
-        return $return . '</div>';
+        $this->render .= '</div>';
+        return parent::render();
     }
 }

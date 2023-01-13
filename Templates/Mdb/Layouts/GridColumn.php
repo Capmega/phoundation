@@ -2,8 +2,6 @@
 
 namespace Templates\Mdb\Layouts;
 
-use Phoundation\Exception\OutOfBoundsException;
-
 
 
 /**
@@ -25,6 +23,13 @@ class GridColumn extends \Phoundation\Web\Http\Html\Layouts\GridColumn
      */
     public function render(): ?string
     {
+        if ($this->form) {
+            // Return content rendered in a form
+            $this->render = '<div class="col' . ($this->tier ? '-' . $this->tier : '') . '-' . $this->size . '">' . $this->form->setContent($this->content)->render() . '</div>';
+            $this->form   = null;
+            return parent::render();
+        }
+
         $this->render = '<div class="col' . ($this->tier ? '-' . $this->tier : '') . '-' . $this->size . '">' . $this->content . '</div>';
         return parent::render();
     }

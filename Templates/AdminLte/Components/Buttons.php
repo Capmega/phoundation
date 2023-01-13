@@ -1,6 +1,6 @@
 <?php
 
-namespace Templates\AdminLte\Components\Widgets;
+namespace Templates\AdminLte\Components;
 
 
 
@@ -30,7 +30,7 @@ class Buttons extends \Phoundation\Web\Http\Html\Components\Buttons
         }
 
         foreach ($this->buttons as $button) {
-            $this->render .= $button->render();
+            $this->render .= $button->render(). ' ';
         }
 
         if ($this->group) {

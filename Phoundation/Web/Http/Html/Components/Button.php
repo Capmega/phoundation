@@ -24,10 +24,10 @@ class Button extends Element
 
 
     /**
-     * @var string
+     * @var string $kind
      */
-    #[ExpectedValues(values: ["success", "info", "warning", "danger", "primary", "secondary", "tertiary", "link", "light", "dark"])]
-    protected string $button_type = 'primary';
+    #[ExpectedValues(values: ['success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark'])]
+    protected string $kind = 'primary';
 
     /**
      * Floating buttons
@@ -40,6 +40,7 @@ class Button extends Element
 
     /**
      * Button class constructor
+     * @todo Get rid of the web.defaults.elements.classes.button path as this was an idea before the templating system
      */
     public function __construct()
     {
@@ -53,12 +54,12 @@ class Button extends Element
     /**
      * Set the button type
      *
-     * @param string $button_type
+     * @param string $kind
      * @return Button
      */
-    public function setButtonType(#[ExpectedValues(values: ["success", "info", "warning", "danger", "primary", "secondary", "tertiary", "link", "light", "dark"])] string $button_type): static
+    public function setKind(#[ExpectedValues(values: ['success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark'])] string $kind): static
     {
-        $this->button_type = strtolower(trim($button_type));
+        $this->kind = strtolower(trim($kind));
 
         $this->setButtonClasses();
 
@@ -72,9 +73,9 @@ class Button extends Element
      *
      * @return string
      */
-    #[ExpectedValues(values: ["success", "info", "warning", "danger", "primary", "secondary", "tertiary", "link", "light", "dark"])] public function getButtonType(): string
+    #[ExpectedValues(values: ['success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark'])] public function getKind(): string
     {
-        return $this->button_type;
+        return $this->kind;
     }
 
 
@@ -108,16 +109,17 @@ class Button extends Element
     /**
      * Set the content for this button
      *
-     * @param string|null $content
+     * @todo add documentation for when button is floating as it is unclear what is happening there
+     * @param object|string|null $content
      * @return static
      */
-    public function setContent(?string $content): static
+    public function setContent(object|string|null $content): static
     {
         if ($this->floating) {
+            // What does this do?????????????
             $this->addClass('btn-floating');
             Icons::new()->setContent($this->content)->render();
             return $this;
-
         }
 
         return parent::setContent($content);
@@ -132,14 +134,22 @@ class Button extends Element
      */
     protected function setButtonClasses(): void
     {
-        // Remove the current button type
+        // Remove the current button kind
         foreach ($this->classes as $id => $class) {
             if (str_starts_with($class, 'btn-')) {
                 unset($this->classes[$id]);
             }
         }
 
-        $this->addClass('btn-' . ($this->outlined ? 'outline-' : '') . $this->button_type);
+        $this->addClass('btn-' . ($this->outlined ? 'outline-' : '') . $this->kind);
+
+        if ($this->flat) {
+            $this->addClass('btn-flat');
+        }
+
+        if ($this->size) {
+            $this->addClass('btn-' . $this->size);
+        }
 
         if ($this->rounded) {
             $this->addClass('btn-rounded');
@@ -152,5 +162,23 @@ class Button extends Element
             $this->addClass('btn-floating');
             $this->setContent(Icons::new()->setContent($this->content)->render());
         }
+    }
+
+
+
+    /**
+     * Renders and returns the HTML for this object
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        $this->attributes['type'] = $this->type;
+
+        if ($this->anchor_url) {
+            $this->attributes['href'] = $this->anchor_url;
+        }
+
+        return parent::render();
     }
 }

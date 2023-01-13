@@ -2,13 +2,14 @@
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-
+use Templates\Mdb\Layouts\GridColumn;
 
 
 // Validate
@@ -17,14 +18,40 @@ GetValidator::new()
     ->validate();
 
 
+// Build the buttons
+$buttons = Buttons::new()
+    ->addButton('Submit')
+    ->addButton('Cancel', 'secondary', '/admin/accounts/users.html');
 
-// Build the page content
+
+
+// Build the user form
 $user = User::get($_GET['id']);
 $form = User::get($_GET['id'])->getHtmlForm();
 $card = Card::new()
-    ->setHasCollapseButton(true)
+    ->setHasCollapseSwitch(true)
     ->setTitle(tr('Edit data for User :name', [':name' => $user->getDisplayName()]))
-    ->setContent($form->render());
+    ->setContent($form->render())
+    ->setButtons($buttons);
+
+
+
+// Build the roles list management section
+$rights = Card::new()
+    ->setTitle(tr('Roles for this user'))
+    ->setContent($user->getRolesHtmlForm()
+        ->setAction('#')
+        ->setMethod('POST')
+        ->render())
+    ->setButtons($buttons);
+
+
+
+// Build the grid column with a form containing the user and roles cards
+$column = GridColumn::new()
+    ->addContent($card->render() . $rights->render())
+    ->setSize(9)
+    ->useForm(true);
 
 
 
@@ -54,21 +81,10 @@ $documentation = Card::new()
 
 
 
-// Build the roles list management section
-$rights = Card::new()
-    ->setTitle(tr('Roles for this user'))
-    ->setContent($user->getRolesHtmlForm()
-        ->setAction('#')
-        ->setMethod('POST')
-        ->render());
-
-
-
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($card, 9)
-    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), 3)
-    ->addRow($rights, 9);
+    ->addColumn($column)
+    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();
 
