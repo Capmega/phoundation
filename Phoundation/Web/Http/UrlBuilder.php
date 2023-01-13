@@ -69,12 +69,12 @@ class UrlBuilder
         if (($url === true) or ($url === 'self')) {
             // THIS URL.
             $this->useCurrentDomain();
-            $this->url = $_SERVER['REQUEST_URI'];
+            $this->url = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
         } elseif ($url === false) {
             // Special redirect. Redirect to this very page, but without queries
             $this->useCurrentDomain();
-            $this->url = Strings::until($_SERVER['REQUEST_URI'], '?');
+            $this->url = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . Strings::until($_SERVER['REQUEST_URI'], '?');
 
         } elseif ($url === 'prev') {
             // Previous page; Assume we came from the HTTP_REFERER page
