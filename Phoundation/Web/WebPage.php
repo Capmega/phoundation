@@ -28,11 +28,13 @@ use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Web\Http\Html\Components\FlashMessages\FlashMessages;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 use Throwable;
+
 
 
 /**
@@ -230,6 +232,13 @@ class WebPage
      */
     protected static ?BreadCrumbs $bread_crumbs = null;
 
+    /**
+     * Flash messages control
+     *
+     * @var FlashMessages
+     */
+    protected static FlashMessages $flash_messages;
+
 
 
     /**
@@ -288,6 +297,22 @@ class WebPage
 
 
     /**
+     * Returns the page flash messages
+     *
+     * @return FlashMessages
+     */
+    public static function getFlashMessages(): FlashMessages
+    {
+        if (!isset(self::$flash_messages)) {
+            self::$flash_messages = FlashMessages::new();
+        }
+
+        return self::$flash_messages;
+    }
+
+
+
+    /**
      * Returns the request method for this page
      *
      * @return string
@@ -332,10 +357,10 @@ class WebPage
     /**
      * Sets the bread crumbs for this page
      *
-     * @param BreadCrumbs $bread_crumbs
+     * @param BreadCrumbs|null $bread_crumbs
      * @return static
      */
-    public static function setBreadCrumbs(BreadCrumbs $bread_crumbs): static
+    public static function setBreadCrumbs(?BreadCrumbs $bread_crumbs = null): static
     {
         self::$bread_crumbs = $bread_crumbs;
         return self::getInstance();
@@ -851,7 +876,11 @@ class WebPage
             self::send($output);
 
         } catch (ValidationFailedException $e) {
-//            self::addFlashMessage();
+            // TODO Improve this uncaught validation failure handling
+            foreach ($e->getMessages() as $message) {
+                self::$flash_messages->add($message);
+            }
+
             Route::executeSystem(403);
 
         } catch (Exception $e) {

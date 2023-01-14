@@ -18,6 +18,7 @@ use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Client;
+use Phoundation\Web\Http\Html\Components\FlashMessages\FlashMessages;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Web;
 use Phoundation\Web\WebPage;
@@ -64,6 +65,13 @@ class Session
      * @var string|null $domain
      */
     protected static ?string $domain = null;
+
+    /**
+     * Session level flash messages
+     *
+     * @var FlashMessages $flash_messages
+     */
+    protected static FlashMessages $flash_messages;
 
 
 
@@ -143,6 +151,23 @@ class Session
 
         // Return the user object
         return self::$user;
+    }
+
+
+
+    /**
+     * Returns the page flash messages
+     *
+     * @todo Load flash messages for the session!
+     * @return FlashMessages
+     */
+    public static function getFlashMessages(): FlashMessages
+    {
+        if (!isset(self::$flash_messages)) {
+            self::$flash_messages = FlashMessages::new();
+        }
+
+        return self::$flash_messages;
     }
 
 
