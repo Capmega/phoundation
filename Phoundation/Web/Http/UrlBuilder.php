@@ -76,7 +76,7 @@ class UrlBuilder
             $this->useCurrentDomain();
             $this->url = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . Strings::until($_SERVER['REQUEST_URI'], '?');
 
-        } elseif ($url === 'prev') {
+        } elseif (($url === 'prev') or ($url === 'referer')) {
             // Previous page; Assume we came from the HTTP_REFERER page
             $this->url = isset_get($_SERVER['HTTP_REFERER']);
             $this->process = false;
