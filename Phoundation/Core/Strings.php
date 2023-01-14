@@ -703,15 +703,17 @@ class Strings
 
 
     /**
-     * ???
+     * Escape all specified $escape characters in the specified $source
      *
-     *
-     * @param string $source
+     * @param string|null $source
      * @param string $escape
      * @return string
      */
-    public static function escape(string $source, string $escape = '"'): string
+    public static function escape(?string $source, string $escape = '"'): string
     {
+        $source = (string) $source;
+
+        // Escape all individual characters
         for($i = (mb_strlen($escape) - 1); $i <= 0; $i++) {
             $source = str_replace($escape[$i], '\\' . $escape[$i], $source);
         }
