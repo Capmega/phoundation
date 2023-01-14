@@ -4,6 +4,7 @@ namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Content\Images\Image;
+use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\Script;
@@ -415,6 +416,19 @@ class FlashMessage extends ElementsBlock
      */
     public function render(): ?string
     {
+        $this->render = Script::new()->setContent($this->renderBare())->render();
+        return parent::render();
+    }
+
+
+
+    /**
+     * Renders and returns the HTML for this flash message without javascript tags
+     *
+     * @return string|null
+     */
+    public function renderBare(): ?string
+    {
         WebPage::loadJavascript('plugins/toastr/toastr');
 
         $image = $this->image?->getHtmlElement();
@@ -433,18 +447,16 @@ class FlashMessage extends ElementsBlock
             }
         }
 
-        $this->render = Script::new()->setContent('
+        return '
             $(document).Toasts("create", {
                 class: "bg-' . $this->type . '",
-                title: "' . $this->title . '",
-                subtitle: "' . $this->sub_title . '",
+                title: "' . Strings::escape($this->title) . '",
+                subtitle: "' . Strings::escape($this->sub_title) . '",
                 position: "' . $position . '",
-                ' . ($image ? 'image: "' . $image->getSrc() . '", image-alt: "' . $image->getAlt() . '",' : null) . '                           
-                ' . ($this->icon ? 'icon: "fas fa-' . $this->icon . ' fa-lg",' : null) . '                           
+                ' . ($image ? 'image: "' . Strings::escape($image->getSrc()) . '", image-alt: "' . Strings::escape($image->getAlt()) . '",' : null) . '                           
+                ' . ($this->icon ? 'icon: "fas fa-' . Strings::escape($this->icon) . ' fa-lg",' : null) . '                           
                 ' . ($this->auto_close ? 'autohide: true, delay: ' . $this->auto_close . ',' .  PHP_EOL : null) . '
-                body: "' . $this->content . '"
-            })')->render();
-
-        return parent::render();
+                body: "' . Strings::escape($this->content) . '"
+            })';
     }
 }

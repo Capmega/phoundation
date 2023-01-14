@@ -4,7 +4,7 @@ namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
 use Iterator;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
-
+use Phoundation\Web\Http\Html\Components\Script;
 
 
 /**
@@ -97,8 +97,11 @@ class FlashMessages extends ElementsBlock implements Iterator
         $this->render = '';
 
         foreach ($this->messages as $message) {
-            $this->render .= $message->render();
+            $this->render .= $message->renderBare();
         }
+
+        // Add script tags around all the flash calls
+        $this->render = Script::new()->setContent($this->render)->render();
 
         return parent::render();
     }
