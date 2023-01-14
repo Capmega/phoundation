@@ -23,6 +23,7 @@ use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Http;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Route;
 use Phoundation\Web\WebPage;
 use Phoundation\Web\Web;
 use Throwable;
@@ -424,7 +425,7 @@ class Core {
                     // Check for configured maintenance mode
                     if (Config::getBoolean('system.maintenance', false)) {
                         // We are in maintenance mode, have to show mainenance page.
-                        WebPage::execute(503);
+                        Route::executeSystem(503);
                     }
 
                     // Set cookie, start session where needed, etc.

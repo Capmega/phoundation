@@ -134,12 +134,12 @@ class Route
         self::$query  = Strings::from($_SERVER['REQUEST_URI']         , '?');
 
         if (strlen(self::$uri) > 2048) {
-            Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See Route() class). 404-ing the request', [
+            Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See Route() class). 400-ing the request', [
                 ':uri'   => self::$uri,
                 ':count' => strlen(self::$uri)
             ]));
 
-            self::execute404();
+            self::executeSystem(400);
         }
 
         // Ensure the post-processing function is registered
@@ -206,7 +206,7 @@ class Route
     public static function setSystemTemplate(string $template, ?string $pattern = null, array|string|null $rights = null): void
     {
         if (!is_subclass_of($template, 'Phoundation\Web\Http\Html\Template\Template')) {
-            throw new OutOfBoundsException(tr('Cannot set 404 template for pattern ":pattern": Specified template class ":class" is not a sub class of "Phoundation\Web\Http\Html\Template\Template"', [
+            throw new OutOfBoundsException(tr('Cannot set system template for pattern ":pattern": Specified template class ":class" is not a sub class of "Phoundation\Web\Http\Html\Template\Template"', [
                 ':pattern' => $pattern,
                 ':class'   => $template
             ]));
@@ -225,32 +225,55 @@ class Route
      *
      * The Route::add() call requires 3 arguments; $regex, $target, and $flags.
      *
-     * The first argument is the PERL compatible regular expression that will match the URL you wish to route to a page. Note that this must be a FULL regular expression with opening and closing tags. / is recommended for these tags, but not required. See https://www.php.net/manual/en/function.preg-match.php for more information about PERL compatible regular expressions. This regular expression may capture variables which then can be used in the target as $1, $2 for the first and second variable respectitively. Regular expression flags like i (case insensitive matches), u (unicode matches), etc. may be added after the trailing / of this variable
+     * The first argument is the PERL compatible regular expression that will match the URL you wish to route to a page.
+     * Note that this must be a FULL regular expression with opening and closing tags. / is recommended for these tags,
+     * but not required. See https://www.php.net/manual/en/function.preg-match.php for more information about PERL
+     * compatible regular expressions. This regular expression may capture variables which then can be used in the
+     * target as $1, $2 for the first and second variable respectitively. Regular expression flags like i (case
+     * insensitive matches), u (unicode matches), etc. may be added after the trailing / of this variable
      *
-     * The second argument is the page you wish to execute and the variables that should be sent to it. If your regular expression captured variables, you may use these variables here. If the page name itself is a variable, then Route::add() will try to find that page, and execute it if it exists
+     * The second argument is the page you wish to execute and the variables that should be sent to it. If your regular
+     * expression captured variables, you may use these variables here. If the page name itself is a variable, then
+     * Route::add() will try to find that page, and execute it if it exists
      *
      * The third argument is a list (CSV string or array) with flags. Current allowed flags are:
-     * A                Process the target as an attachement (i.e. Send the file so that the browser client can download it)
+     * A                Process the target as an attachement (i.e. Send the file so that the browser client can download
+     *                  it)
      * B                Block. Return absolutely nothing
-     * C                Use URL cloaking. A cloaked URL is basically a random string that the Route::add() function can look up in the `cloak` table. domain() and its related functions will generate these URL's automatically. See the "url" library, and domain() and related functions for more information
+     * C                Use URL cloaking. A cloaked URL is basically a random string that the Route::add() function can
+     *                  look up in the `cloak` table. domain() and its related functions will generate these URL's
+     *                  automatically. See the "url" library, and domain() and related functions for more information
      * D                Add HTTP_HOST to the REQUEST_URI before applying the match
      * G                The request must be GET to match
-     * H                If the routing rule matches, the router will add a *POSSIBLE HACK ATTEMPT DETECTED* log entry for later processing
-     * L                Disable language map requirements for this specific URL (Use this with non language URLs on a multi lingual site)
+     * H                If the routing rule matches, the router will add a *POSSIBLE HACK ATTEMPT DETECTED* log entry
+     *                  for later processing
+     * L                Disable language map requirements for this specific URL (Use this with non language URLs on a
+     *                  multi lingual site)
      * P                The request must be POST to match
      * M                Add queries into the REQUEST_URI before applying the match, autmatically implies Q
      * N                Do not check for permanent routing rules
-     * Q                Allow queries to pass through. If NOT specified, and the URL contains queries, the URL will NOT match!
-     * QKEY;KEY=ACTION  Is a ; separated string containing query keys that are allowed, and if specified, what action must be taken when encountered
+     * Q                Allow queries to pass through. If NOT specified, and the URL contains queries, the URL will NOT
+     *                  match!
+     * QKEY;KEY=ACTION  Is a ; separated string containing query keys that are allowed, and if specified, what action
+     *                  must be taken when encountered
      * R301             Redirect to the specified page argument using HTTP 301
      * R302             Redirect to the specified page argument using HTTP 302
-     * S$SECONDS$       Store the specified rule for this IP and apply it for $SECONDS$ amount of seconds. $SECONDS$ is optional, and defaults to 86400 seconds (1 day). This works well to auto 404 IP's that are doing naughty things for at least a day
+     * S$SECONDS$       Store the specified rule for this IP and apply it for $SECONDS$ amount of seconds. $SECONDS$ is
+     *                  optional, and defaults to 86400 seconds (1 day). This works well to auto 404 IP's that are doing
+     *                  naughty things for at least a day
      * T$TEMPLATE$      Use the specified template instead of the current template for this try
-     * X$PATHS$         Restrict access to the specified dot-comma separated $PATHS$ list. $PATHS is optional and defaults to PATH_ROOT.'www,'.PATH_ROOT.'data/content/downloads'
-     * Z$RIGHT$[$PAGE$] Requires that the current session user has the specified right, or $PAGE$ will be shown, with $PAGE$ defaulting to system/403. Multiple Z flags may be specified
-     * The $Debug::enabled() and $Debug::enabled() variables here are to set the system in Debug::enabled() or Debug::enabled() mode, but ONLY if the system runs in debug mode. The former will add extra log output in the data/log files, the latter will add LOADS of extra log data in the data/log files, so please use with care and only if you cannot resolve the problem
+     * X$PATHS$         Restrict access to the specified dot-comma separated $PATHS$ list. $PATHS is optional and
+     *                  defaults to PATH_ROOT.'www,'.PATH_ROOT.'data/content/downloads'
+     * Z$RIGHT$[$PAGE$] Requires that the current session user has the specified right, or $PAGE$ will be shown, with
+     *                  $PAGE$ defaulting to system/403. Multiple Z flags may be specified
      *
-     * Once all Route::add() calls have passed without result, the system will shut down. The shutdown() call will then automatically execute Route::execute404() which will display the 404 page
+     * The $Debug::enabled() and $Debug::enabled() variables here are to set the system in Debug::enabled() or
+     * Debug::enabled() mode, but ONLY if the system runs in debug mode. The former will add extra log output in the
+     * data/log files, the latter will add LOADS of extra log data in the data/log files, so please use with care and
+     * only if you cannot resolve the problem
+     *
+     * Once all Route::add() calls have passed without result, the system will shut down. The shutdown() call will then
+     * automatically execute Route::executeSystem() which will display the 404 page
      *
      * To use translation mapping, first set the language map using Route::map()
      *
@@ -260,13 +283,14 @@ class Route
      * @return bool
      * @throws RouteException|\Throwable
      * @package Web
-     * @see Route::execute404()
+     * @see Route::executeSystem()
      * @see Route::execute()
      * @see domain()
      * @see Route::map()
      * @see Route::insertStatic()
      * @see https://www.php.net/manual/en/function.preg-match.php
-     * @see https://regularexpressions.info/ NOTE: The site currently has broken SSL, but is one of the best resources out there to learn regular expressions
+     * @see https://regularexpressions.info/ NOTE: The site currently has broken SSL, but is one of the best resources
+     *      out there to learn regular expressions
      * @table: `routes_static`
      * @example
      * code
@@ -296,7 +320,8 @@ class Route
      * Route::add('/public\//i'          , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
      * /code
      *
-     * The following example code will set a language route map where the matched word "from" would be translated to "to" and "foor" to "bar" for the language "es"
+     * The following example code will set a language route map where the matched word "from" would be translated to
+     * "to" and "for" to "bar" for the language "es"
      *
      * code
      * Route::map(array('language' => 2,
@@ -307,7 +332,8 @@ class Route
      * Route::add('/\//', 'index')
      * /code
      *
-     * @example Setup URL translations map. In this example, URL's with /es/ with the word "conferencias" would map to the word "conferences", etc.
+     * @example Setup URL translations map. In this example, URL's with /es/ with the word "conferencias" would map to
+     *          the word "conferences", etc.
      * code
      * Route::map('es', [
      *     'conferencias' => 'conferences',
@@ -778,8 +804,10 @@ class Route
                             ':language' => $language
                         ]));
 
+                        // TODO route_postprocess() This should be a class method!
                         Core::unregisterShutdown('route_postprocess');
-                        Route::execute404();
+                        // TODO Check if this should be 404 or maybe some other HTTP code?
+                        Route::executeSystem(404);
 
                     } else {
                         // Found a map for the requested language
@@ -793,9 +821,11 @@ class Route
                         }
 
                         if (!file_exists($page)) {
+                            // TODO route_postprocess() This should be a class method!
                             Log::warning(tr('Language remapped page ":page" does not exist', [':page' => $page]));
                             Core::unregisterShutdown('route_postprocess');
-                            Route::execute404();
+                            // TODO Check if this should be 404 or maybe some other HTTP code?
+                            Route::executeSystem(404);
                         }
 
                         Log::success(tr('Found remapped page ":page"', [':page' => $page]));
@@ -808,8 +838,10 @@ class Route
                             ':page'     => $page
                         ]));
 
+                        // TODO route_postprocess() This should be a class method!
                         Core::unregisterShutdown('route_postprocess');
-                        Route::execute404();
+                        // TODO Check if this should be 404 or maybe some other HTTP code?
+                        Route::executeSystem(404);
                     }
                 }
             }
@@ -832,8 +864,10 @@ class Route
                 } else {
                     // The hardcoded file for the regex does not exist, oops!
                     Log::warning(tr('Matched hard coded page ":page" does not exist', [':page' => $page]));
+                    // TODO route_postprocess() This should be a class method!
                     Core::unregisterShutdown('route_postprocess');
-                    Route::execute404();
+                    // TODO Check if this should be 404 or maybe some other HTTP code?
+                    Route::executeSystem(404);
                 }
             }
 
@@ -847,6 +881,7 @@ class Route
             }
 
             // We are going to show the matched page so we no longer need to default to 404
+            // TODO route_postprocess() This should be a class method!
             Core::unregisterShutdown('route_postprocess');
 
             /*
@@ -1009,7 +1044,7 @@ class Route
      * @note: This function typically is called automatically
      *
      * @see Route::try()
-     * @see Route::execute404()
+     * @see Route::executeSystem()
      *
      * @return void
      */
@@ -1027,7 +1062,38 @@ class Route
         }
 
         // This is not a hack, the page simply cannot be found. Show a 404 instead
-        self::execute404();
+        self::executeSystem(404);
+    }
+
+
+
+    /**
+     * Show the system page for the specified HTTP code
+     *
+     * @param int $http_code
+     * @return void
+     *
+     * @see Route::add()
+     * @see Route::shutdown()
+     */
+    #[NoReturn] public static function executeSystem(int $http_code): void
+    {
+        Log::warning(tr('Access denied to requested resource, sending 403 instead'));
+
+        if (($http_code < 0) or ($http_code > 1000)) {
+            throw new OutOfBoundsException(tr('Specified HTTP code ":code" is invalid', [':code' => $http_code]));
+        }
+
+        $method = 'execute' . $http_code;
+
+        if (!method_exists(RouteSystem::class, $method)) {
+            throw new OutOfBoundsException(tr('Specified HTTP code ":code" does not exist', [
+                ':code' => $http_code
+            ]));
+        }
+
+        self::selectSystemTemplate();
+        RouteSystem::$method();
     }
 
 
@@ -1039,7 +1105,7 @@ class Route
      * @param bool $attachment
      * @return bool
      */
-    protected static function execute(string $target, bool $attachment): bool
+    public static function execute(string $target, bool $attachment): bool
     {
         // Set the server filesystem restrictions and template for this page
         WebPage::setServerRestrictions(self::getServerRestrictions());
@@ -1049,6 +1115,7 @@ class Route
 
         if (str_ends_with($target, 'php')) {
             // Remove the 404 auto execution on shutdown
+            // TODO route_postprocess() This should be a class method!
             Core::unregisterShutdown('route_postprocess');
             $html = WebPage::execute($target, self::$template, $attachment);
 
@@ -1095,107 +1162,6 @@ class Route
         }
 
         return true;
-    }
-
-
-
-    /**
-     * Show the 403 page
-     *
-     * @see Route::add()
-     * @see Route::shutdown()
-     * @return void
-     */
-    #[NoReturn] protected static function execute403(): void
-    {
-        Log::warning(tr('Access denied to requested resource, sending 403 instead'));
-
-        self::selectSystemTemplate();
-
-        try {
-            self::execute($page ?? Config::get('web.pages.access-denied', 'system/403.php'), false);
-
-        } catch (Throwable $e) {
-            if ($e->getCode() === 'not-exists') {
-                Log::warning(tr('The system/403.php page does not exist, showing basic 403 message instead'));
-
-                echo tr('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-                <html><head>
-                <title>:title</title>
-                </head><body>
-                <h1>:h1</h1>
-                <p>:p</p>
-                <hr>
-                :body
-                </body></html>', [
-                    ':title' => tr('403 - Forbidden'),
-                    ':h1'    => tr('Access forbidden'),
-                    ':p'     => tr('You do not have access to the requested URL on this server'),
-                    ':body'  => ((Config::get('security.expose.phoundation', false)) ? '<address>Phoundation ' . Core::FRAMEWORKCODEVERSION . '</address>' : '')
-                ]);
-
-                die();
-            }
-
-            Log::warning(tr('The 403 page failed to show with an exception, showing basic 403 message instead and logging exception below'));
-            Log::setBacktraceDisplay('BACKTRACE_DISPLAY_BOTH');
-            Log::error($e);
-
-            echo tr('403 - Forbidden: You do not have access to the requested resource');
-            die();
-        }
-    }
-
-
-
-    /**
-     * Show the 404 page
-     *
-     * @see Route::add()
-     * @see Route::shutdown()
-     * @return void
-     */
-    #[NoReturn] protected static function execute404(): void
-    {
-        Log::warning(tr('Found no routes for known hacks, sending 404'));
-
-        self::selectSystemTemplate();
-
-        try {
-            Core::writeRegister(PATH_WWW . 'system/404', 'system', 'script_path');
-            Core::writeRegister('404', 'system', 'script');
-
-            self::execute('system/404.php', false);
-
-        } catch (Throwable $e) {
-            if ($e->getCode() === 'not-exists') {
-                Log::warning(tr('The system/404.php page does not exist, showing basic 404 message instead'));
-
-                echo tr('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-                <html><head>
-                <title>:title</title>
-                </head><body>
-                <h1>:h1</h1>
-                <p>:p</p>
-                <hr>
-                :body
-                </body></html>', [
-                    ':title' => tr('404 - Not Found'),
-                    ':h1'    => tr('Not Found'),
-                    ':p'     => tr('The requested URL was not found on this server'),
-                    ':body'  => ((Config::get('security.expose.phoundation', false)) ? '<address>Phoundation ' . Core::FRAMEWORKCODEVERSION . '</address>' : '')
-                ]);
-
-                die();
-            }
-
-            Log::warning(tr('The 404 page failed to show with an exception, showing basic 404 message instead and logging exception below'));
-            Log::setBacktraceDisplay('BACKTRACE_DISPLAY_BOTH');
-            Log::error($e);
-
-            echo tr('404 - The requested resource does not exist');
-            die();
-        }
     }
 
 
