@@ -900,10 +900,7 @@ class WebPage
 
         } catch (ValidationFailedException $e) {
             // TODO Improve this uncaught validation failure handling
-            foreach ($e->getData() as $message) {
-                self::getFlashMessages()->add(tr('Validation failure'), $message, 'warning', null, 5000);
-            }
-
+            self::getFlashMessages()->add($e);
             Route::executeSystem(400);
 
         } catch (Exception $e) {

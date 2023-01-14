@@ -3,8 +3,10 @@
 namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
 use Iterator;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\Script;
+
 
 
 /**
@@ -59,29 +61,40 @@ class FlashMessages extends ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Add a flash message
      *
-     * @param FlashMessage|string|null $title
+     * @param ValidationFailedException|FlashMessage|string|null $title
      * @param string|null $message
      * @param string $type
      * @param string|null $icon
      * @param int|null $auto_close
      * @return $this
      */
-    public function add(FlashMessage|string|null $title, ?string $message = null, string $type = 'info', string $icon = null, ?int $auto_close = null): static
+    public function add(ValidationFailedException|FlashMessage|string|null $title, ?string $message = null, string $type = 'info', string $icon = null, ?int $auto_close = null): static
     {
-        if (is_string($message)) {
-            $message = FlashMessage::new()
-                ->setAutoClose($auto_close)
-                ->setMessage($message)
-                ->setTitle($title)
-                ->setType($type)
-                ->setIcon($icon);
+        if ($title) {
+            // a title was specified
+            if (is_string($title)) {
+                // Title was specified as a string, make it a flash message
+                $title = FlashMessage::new()
+                    ->setAutoClose($auto_close)
+                    ->setMessage($message)
+                    ->setTitle($title)
+                    ->setType($type)
+                    ->setIcon($icon);
+            } elseif ($title instanceof ValidationFailedException) {
+                // Title was specified as an validation exception, add each validation failure as a separate flash
+                // message
+                foreach ($title->getData() as $message) {
+                    $this->add(tr('Validation failure'), $message, 'warning', null, 5000);
+                }
+
+                return $this;
+            }
         }
 
-        $this->messages[] = $message;
+        $this->messages[] = $title;
         return $this;
     }
 
