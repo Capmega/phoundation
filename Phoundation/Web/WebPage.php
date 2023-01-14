@@ -3,6 +3,7 @@
 namespace Phoundation\Web;
 
 use Exception;
+use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Api\ApiInterface;
 use Phoundation\Cache\Cache;
@@ -12,6 +13,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
@@ -281,6 +283,32 @@ class WebPage
     {
         self::$server_restrictions = $server_restrictions;
         return self::getInstance();
+    }
+
+
+
+    /**
+     * Returns the request method for this page
+     *
+     * @return string
+     */
+    #[ExpectedValues(values: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'])]
+    public static function getRequestMethod(): string
+    {
+        return strtoupper($_SERVER['REQUEST_METHOD']);
+    }
+
+
+
+    /**
+     * Returns if this request is the specified method
+     *
+     * @param string $method
+     * @return bool
+     */
+    public static function isRequestMethod(#[ExpectedValues(values: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'])] string $method): bool
+    {
+        return $method === strtoupper($_SERVER['REQUEST_METHOD']);
     }
 
 
@@ -821,6 +849,10 @@ class WebPage
 
             // Send the page to the client
             self::send($output);
+
+        } catch (ValidationFailedException $e) {
+//            self::addFlashMessage();
+            Route::executeSystem(403);
 
         } catch (Exception $e) {
             Notification::new()
