@@ -1,7 +1,9 @@
 <?php
 
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Log;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Layouts\Grid;
@@ -13,10 +15,22 @@ use Templates\Mdb\Layouts\GridColumn;
 
 
 
-// Validate
+// Validate GET
 GetValidator::new()
     ->select('id')->isId()
     ->validate();
+
+
+// Validate POST and submit
+if (WebPage::isRequestMethod('POST')) {
+    PostValidator::new()
+        ->select('id')->isId()
+        ->select('email')->isEmail()
+        ->validate();
+
+    Log::printr($_GET);
+    Log::printr($_POST);
+}
 
 
 
