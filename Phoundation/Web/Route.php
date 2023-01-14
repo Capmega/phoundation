@@ -186,7 +186,7 @@ class Route
      * @param string|null $path
      * @param Server|Restrictions|array|string|null $server_restrictions
      */
-    public static function setParameters(string $template, ?string $path = null, Server|Restrictions|array|string|null $server_restrictions = null): void
+    public static function setPageParameters(string $template, ?string $path = null, Server|Restrictions|array|string|null $server_restrictions = null): void
     {
         self::getInstance();
 

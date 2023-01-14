@@ -113,7 +113,7 @@ Route::setSystemPageParameters(Mdb::class);                                     
 
 
 // AdminLte based admin routes
-Route::setParameters(AdminLte::class);
+Route::setPageParameters(AdminLte::class);
 Route::try('/^\w{2}\/admin\/ajax\/(.+?).html$/'         , '/en/ajax/$1.php'                , 'Zadmin' );        // Execute the requested AJAX page
 Route::try('/^(\w{2})\/admin\/(.+?)\/(.+?)-(.+?).html$/', '/$1/pages/admin/$2/$3.php?id=$4', 'Zadmin');         // Show the requested form page
 Route::try('/^(\w{2})\/admin\/(.+?).html$/'             , '/$1/pages/admin/$2.php'         , 'Zadmin');         // Show the requested table page
@@ -123,7 +123,7 @@ Route::try('/^admin\/$/'                                , '/admin/index.html'   
 
 
 // Mdb based front-page routes
-Route::setParameters(Mdb::class);
+Route::setPageParameters(Mdb::class);
 Route::try('/^\w{2}\/ajax\/(.+?).html$/', '/en/ajax/$1.php' , '' );     // Execute the requested AJAX page
 Route::try('/^(\w{2})\/(.+?).html$/'    , '/$1/pages/$2.php', '');      // Show the requested page
 Route::try('/^(\w{2})\/?$/'             , '/index.html'     , 'R301');  // Redirect to front-end index page

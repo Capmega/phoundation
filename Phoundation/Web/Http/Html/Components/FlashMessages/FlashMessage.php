@@ -166,9 +166,9 @@ class FlashMessage extends ElementsBlock
     /**
      * Returns the flash icon contents
      *
-     * @return string
+     * @return string|null
      */
-    public function getIcon(): string
+    public function getIcon(): ?string
     {
         return $this->icon;
     }
@@ -178,10 +178,10 @@ class FlashMessage extends ElementsBlock
     /**
      * Sets the flash icon contents
      *
-     * @param string $icon
+     * @param string|null $icon
      * @return $this
      */
-    public function setIcon(string $icon): static
+    public function setIcon(?string $icon): static
     {
         $this->icon = $icon;
         return $this;

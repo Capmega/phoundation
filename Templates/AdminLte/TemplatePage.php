@@ -62,6 +62,9 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildHtmlHeader(): ?string
     {
+        // Set head meta data
+        WebPage::setViewport('width=device-width, initial-scale=1');
+
         // Load basic MDB and fonts CSS
         WebPage::loadCss('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback');
         WebPage::loadCss('adminlte/plugins/fontawesome-free/css/all');

@@ -248,8 +248,8 @@ class WebPage
      */
     protected function __construct()
     {
-        self::$headers['meta']['charset']  = ['charset'  => Config::get('languages.encoding.charset', 'UTF-8')];
-        self::$headers['meta']['viewport'] = ['viewport' => Config::get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no')];
+        self::$headers['meta']['charset']  = Config::get('languages.encoding.charset', 'UTF-8');
+        self::$headers['meta']['viewport'] = Config::get('web.viewport'              , 'width=device-width, initial-scale=1, shrink-to-fit=no');
     }
 
 
@@ -308,6 +308,33 @@ class WebPage
         }
 
         return self::$flash_messages;
+    }
+
+
+
+    /**
+     * Returns the request method for this page
+     *
+     * @param bool $default If true, if no referer is available, the current page URL will be returned instead. If
+     *                      string, and no referer is available, the default string will be returned instead
+     *
+     * @return string|null
+     */
+    public static function getReferer(string|bool $default = false): ?string
+    {
+        $url = isset_get($_SERVER['HTTP_REFERER']);
+
+        if ($url) {
+            return $url;
+        }
+
+        if ($default) {
+            // We don't have a referer, return the current URL instead
+            return Url::build($default)->www();
+        }
+
+        // We got nothing...
+        return null;
     }
 
 
@@ -878,7 +905,7 @@ class WebPage
         } catch (ValidationFailedException $e) {
             // TODO Improve this uncaught validation failure handling
             foreach ($e->getMessages() as $message) {
-                self::$flash_messages->add($message);
+                self::getFlashMessages()->add($message);
             }
 
             Route::executeSystem(403);
@@ -1188,12 +1215,13 @@ class WebPage
     /**
      * Add meta information
      *
-     * @param array $meta
+     * @param string $key
+     * @param string $value
      * @return void
      */
-    public static function addMeta(array $meta): void
+    public static function addMeta(string $key, string $value): void
     {
-        self::$headers['meta'][] = $meta;
+        self::$headers['meta'][$key] = $value;
     }
 
 
@@ -1294,9 +1322,8 @@ class WebPage
             $return .= '<title>' . self::$page_title . '</title>' . PHP_EOL;
         }
 
-        foreach (self::$headers['meta'] as $header) {
-            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"', true);
-            $return .= '<meta ' . $header . ' />' . PHP_EOL;
+        foreach (self::$headers['meta'] as $key => $value) {
+            $return .= '<meta ' . $key . '=' . $value . ' />' . PHP_EOL;
         }
 
         foreach (self::$headers['link'] as $header) {

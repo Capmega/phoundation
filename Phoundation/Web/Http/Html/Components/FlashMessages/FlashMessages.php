@@ -64,11 +64,11 @@ class FlashMessages extends ElementsBlock implements Iterator
      * Add a flash message
      *
      * @param FlashMessage|string|null $message
-     * @param string|null $type
+     * @param string $type
      * @param string|null $icon
      * @return $this
      */
-    public function add(FlashMessage|string|null $message, string $type = null, string $icon = null): static
+    public function add(FlashMessage|string|null $message, string $type = 'info', string $icon = null): static
     {
         if (is_string($message)) {
             $message = FlashMessage::new()

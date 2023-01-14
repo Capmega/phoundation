@@ -155,7 +155,7 @@ class RouteSystem
                     ':code' => $variables['code']
                 ]));
 
-                echo self::$system_page->apply([
+                echo self::$system_page->render([
                     ':title' => $variables['code'] . ' - ' . Strings::capitalize($variables['title']),
                     ':h1'    => strtoupper($variables['title']),
                     ':p'     => $variables['message'],
