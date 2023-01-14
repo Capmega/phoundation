@@ -85,7 +85,7 @@ class RouteSystem
      */
     #[NoReturn] public static function execute400(): void
     {
-        self::display([
+        self::execute([
             'code'    => 400,
             'title'   => tr('bad request'),
             'message' => tr('Server cannot or will not process the request because of incorrect information sent by client')
@@ -103,7 +103,7 @@ class RouteSystem
      */
     #[NoReturn] public static function execute403(): void
     {
-        self::display([
+        self::execute([
             'code'    => 403,
             'title'   => tr('forbidden'),
             'message' => tr('You do not have access to the requested URL on this server')
@@ -121,8 +121,8 @@ class RouteSystem
      */
     #[NoReturn] public static function execute404(): void
     {
-        self::display([
-            'code'    => 403,
+        self::execute([
+            'code'    => 404,
             'title'   => tr('forbidden'),
             'message' => tr('The requested URL does not exist on this server'),
         ]);
@@ -131,12 +131,12 @@ class RouteSystem
 
 
     /**
-     * Protect exceptions generated whilst trying to display system pages
+     * Protect exceptions generated whilst trying to execute system pages
      *
      * @param array $variables
      * @return void
      */
-    #[NoReturn] protected static function display(array $variables): void
+    #[NoReturn] protected static function execute(array $variables): void
     {
         self::getInstance();
 
@@ -144,11 +144,6 @@ class RouteSystem
         Arrays::default($variables, 'title'  , '');
         Arrays::default($variables, 'message', '');
         Arrays::default($variables, 'details', ((Config::get('security.expose.phoundation', false)) ? '<address>Phoundation ' . Core::FRAMEWORKCODEVERSION . '</address>' : ''));
-
-        Log::warning(tr('Sending :code - :message', [
-            ':code'    => $variables['code'],
-            ':message' => $variables['message']
-        ]));
 
         try {
             Route::execute($page ?? Config::get('web.pages.' . strtolower(str_replace(' ', '-', $variables['title'])), 'system/' . $variables['code'] . '.php'), false);
@@ -170,8 +165,8 @@ class RouteSystem
                 die();
             }
 
-            // Something crashed whilst trying to display the system page
-            Log::warning(tr('The :code page failed to show with an exception, showing basic :code message instead and logging exception below', [
+            // Something crashed whilst trying to execute the system page
+            Log::warning(tr('The ":code" page failed to show with an exception, showing basic ":code" message instead and logging exception below', [
                 ':code' => $variables['code']
             ]));
 

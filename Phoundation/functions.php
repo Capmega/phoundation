@@ -64,7 +64,7 @@ function tr(string $text, ?array $replace = null, bool $clean = true): string
 
             // Only on non production machines, crash when not all entries were replaced as an extra check.
             if (!Debug::production()) {
-                if ($count != count($replace)) {
+                if ($count < count($replace)) {
                     foreach ($replace as $value) {
                         if (str_contains($value, ':')) {
                             // One of the $replace values contains :blah. This will cause the detector to fire off

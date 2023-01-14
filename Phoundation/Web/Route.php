@@ -48,6 +48,13 @@ class Route
     protected static Route $instance;
 
     /**
+     * The basic file path to search for file for these routes
+     *
+     * @var string $path
+     */
+    protected static string $path;
+
+    /**
      * The template to use for these routes
      *
      * @var Template $template
@@ -57,9 +64,9 @@ class Route
     /**
      * The templates to use for 404 pages in different sections
      *
-     * @var array $system_templates
+     * @var array $system_page_parameters
      */
-    protected static array $system_templates;
+    protected static array $system_page_parameters;
 
     /**
      * The default server filesystem access restrictions to use while routing
@@ -176,9 +183,10 @@ class Route
      * After this call, all tries will use the specified template and server restrictions
      *
      * @param string $template
+     * @param string|null $path
      * @param Server|Restrictions|array|string|null $server_restrictions
      */
-    public static function setTemplate(string $template, Server|Restrictions|array|string|null $server_restrictions = null): void
+    public static function setParameters(string $template, ?string $path = null, Server|Restrictions|array|string|null $server_restrictions = null): void
     {
         self::getInstance();
 
@@ -189,6 +197,7 @@ class Route
         }
 
         // Set what template and default server restrictions  we'll be using
+        self::$path                = PATH_WWW . LANGUAGE . '/pages/' . $path;
         self::$template            = $template::new();
         self::$server_restrictions = Core::ensureServer($server_restrictions, PATH_WWW, 'Route');
     }
@@ -199,11 +208,12 @@ class Route
      * Set different templates for different site section
      *
      * @param string $template
+     * @param string|null $path
      * @param string|null $pattern
      * @param array|string|null $rights
      * @return void
      */
-    public static function setSystemTemplate(string $template, ?string $pattern = null, array|string|null $rights = null): void
+    public static function setSystemPageParameters(string $template, ?string $path = null, ?string $pattern = null, array|string|null $rights = null): void
     {
         if (!is_subclass_of($template, 'Phoundation\Web\Http\Html\Template\Template')) {
             throw new OutOfBoundsException(tr('Cannot set system template for pattern ":pattern": Specified template class ":class" is not a sub class of "Phoundation\Web\Http\Html\Template\Template"', [
@@ -212,7 +222,8 @@ class Route
             ]));
         }
 
-        self::$system_templates[$pattern] = [
+        self::$system_page_parameters[$pattern] = [
+            'path'     => $path,
             'template' => $template,
             'rights'   => Arrays::force($rights)
         ];
@@ -1078,8 +1089,6 @@ class Route
      */
     #[NoReturn] public static function executeSystem(int $http_code): void
     {
-        Log::warning(tr('Access denied to requested resource, sending 403 instead'));
-
         if (($http_code < 0) or ($http_code > 1000)) {
             throw new OutOfBoundsException(tr('Specified HTTP code ":code" is invalid', [':code' => $http_code]));
         }
@@ -1092,7 +1101,7 @@ class Route
             ]));
         }
 
-        self::selectSystemTemplate();
+        self::selectSystemPageParameters($http_code);
         RouteSystem::$method();
     }
 
@@ -1111,7 +1120,7 @@ class Route
         WebPage::setServerRestrictions(self::getServerRestrictions());
 
         // Find the correct target page
-        $target = Filesystem::absolute(Strings::unslash($target), PATH_WWW . LANGUAGE . '/pages/');
+        $target = Filesystem::absolute(Strings::unslash($target), self::$path);
 
         if (str_ends_with($target, 'php')) {
             // Remove the 404 auto execution on shutdown
@@ -1255,36 +1264,46 @@ class Route
 
     /**
      * Use one of the specified system templates to display a system page
+     *
+     * @param int $code
+     * @return void
      */
-    protected static function selectSystemTemplate(): void
+    protected static function selectSystemPageParameters(int $code): void
     {
-        foreach (self::$system_templates as $regex => $template) {
+        foreach (self::$system_page_parameters as $regex => $system_page_parameters) {
             try {
                 if ($regex) {
                     if (preg_match($regex, self::$uri)) {
-                        if (Session::getUser()->hasAllRights($template['rights'])) {
+                        if (Session::getUser()->hasAllRights($system_page_parameters['rights'])) {
                             // Use this template
-                            Log::action(tr('Selecting template ":template" to display system page', [
-                                ':template' => $template['template']
+                            Log::action(tr('Selected template ":template" and path ":path" to display system page ":code"', [
+                                ':code'     => $code,
+                                ':path'     => self::$path,
+                                ':template' => $system_page_parameters['template']
                             ]));
 
-                            self::$template = $template['template']::new();
+                            self::$path     = PATH_WWW . LANGUAGE . '/pages/' . $system_page_parameters['path'];
+                            self::$template = $system_page_parameters['template']::new();
                         }
 
                         return;
                     }
                 } else {
                     // This is the default template
-                    Log::action(tr('Selecting default template ":template" to display system page', [
-                        ':template' => $template['template']
+                    self::$path     = PATH_WWW . LANGUAGE . '/pages/' . $system_page_parameters['path'];
+                    self::$template = $system_page_parameters['template']::new();
+
+                    Log::action(tr('Selected template ":template" and path ":path" to display system page ":code"', [
+                        ':code'     => $code,
+                        ':path'     => self::$path,
+                        ':template' => $system_page_parameters['template']
                     ]));
 
-                    self::$template = $template['template']::new();
                     return;
                 }
             } catch (Exception $e) {
                 Log::warning(tr('Not selecting system template ":template" because the regex ":regex" failed with ":e". Ignoring template and skipping to next', [
-                    ':template' => $template['template'],
+                    ':template' => $system_page_parameters['template'],
                     ':e'        => $e,
                     ':regex'    => $regex
                 ]));
@@ -1292,6 +1311,6 @@ class Route
         }
 
         // No system template applied!
-        Log::warning(tr('Failed to select a template to display system page'));
+        Log::warning(tr('Failed to select a template to display system page ":code"', [':code' => $code]));
     }
 }
