@@ -14,6 +14,7 @@ use Phoundation\Web\Uglify;
 use Throwable;
 
 
+
 /**
  * Class Script
  *
@@ -33,16 +34,6 @@ class Script extends Element
      * @var string|null $event_wrapper
      */
     protected ?string $event_wrapper = 'dom_content';
-
-
-
-    /**
-     * Script class constructor
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
 
 
 
