@@ -372,10 +372,6 @@ class WebPage
      */
     public static function getBreadCrumbs(): ?BreadCrumbs
     {
-        if (!isset(self::$bread_crumbs)) {
-            Log::warning(tr('WebPage BreadCrumbs object has not been set'));
-        }
-
         return self::$bread_crumbs;
     }
 
@@ -904,8 +900,8 @@ class WebPage
 
         } catch (ValidationFailedException $e) {
             // TODO Improve this uncaught validation failure handling
-            foreach ($e->getMessages() as $message) {
-                self::getFlashMessages()->add('Validation failure', $message, 'warning', null, 5000);
+            foreach ($e->getData() as $message) {
+                self::getFlashMessages()->add(tr('Validation failure'), $message, 'warning', null, 5000);
             }
 
             Route::executeSystem(400);
