@@ -13,6 +13,7 @@
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Databases\Databases;
 use Phoundation\Databases\Mc;
@@ -23,7 +24,7 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Filesystem\File;
-
+use Phoundation\Web\WebPage;
 
 
 /**
@@ -525,6 +526,33 @@ function execute_script(string $__file): void
         // Did this fail because the specified file does not exist?
         File::new($__file, PATH_SCRIPTS)->checkReadable('script', $e);
     }
+}
+
+
+
+/**
+ * Execute the page and return the contents
+ *
+ * @param string $__file
+ * @return string|null
+ */
+function execute_page(string $__file): ?string
+{
+    include($__file);
+    $body = '';
+
+    // Get all output buffers and restart buffer
+    while (ob_get_level()) {
+        $body .= ob_get_contents();
+        ob_end_clean();
+    }
+
+    ob_start(chunk_size: 4096);
+
+    // Merge the flash messages from sessions into page flash messages
+    WebPage::getFlashMessages()->mergeMessagesFrom(Session::getFlashMessages());
+
+    return $body;
 }
 
 

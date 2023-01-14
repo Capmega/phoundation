@@ -110,6 +110,17 @@ class Template
     {
         switch ($page) {
             case 'system/error':
+                return '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+                        <html><head>
+                            <title>:title</title>
+                        </head><body>
+                            <h1>:h1</h1>
+                            <p>:p</p>
+                            <hr>
+                            :body
+                        </body></html>';
+
+            case 'system/detail-error':
                 return ' <div class="error-page">
                             <h2 class="headline text-warning"> :h2</h2>
                         

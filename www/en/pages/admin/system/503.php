@@ -4,7 +4,7 @@ use Phoundation\Templates\Template;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
 
-$page = Template::page('system/error');
+$page = Template::page('system/detail-error');
 echo $page->render([
     ':h2'     => '503',
     ':h3'     => tr('503 Service Unavailable'),
@@ -18,7 +18,7 @@ echo $page->render([
 
 // Set page meta data
 WebPage::setPageTitle('503 - Service Unavailable');
-WebPage::setHeaderTitle(tr('503 - Service Unavailable'));
+WebPage::setHeaderTitle(tr('503 - Error'));
 WebPage::setDescription(tr('The server is under maintenance and will return momentarily'));
 WebPage::setBreadCrumbs();
 

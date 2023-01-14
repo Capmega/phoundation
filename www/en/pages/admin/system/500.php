@@ -4,7 +4,7 @@ use Phoundation\Templates\Template;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
 
-$page = Template::page('system/error');
+$page = Template::page('system/detail-error');
 echo $page->render([
     ':h2'     => '500',
     ':h3'     => tr('500 Internal Server Error'),
@@ -18,7 +18,7 @@ echo $page->render([
 
 // Set page meta data
 WebPage::setPageTitle('500 - Internal Server Error');
-WebPage::setHeaderTitle(tr('500 - Internal Server Error'));
+WebPage::setHeaderTitle(tr('500 - Error'));
 WebPage::setDescription(tr('The server encountered an internal error and could not fulfill your request'));
 WebPage::setBreadCrumbs();
 

@@ -185,17 +185,7 @@ abstract class TemplatePage
      */
     public function buildBody(string $target): ?string
     {
-        include($target);
-        $body = '';
-
-        // Get all output buffers and restart buffer
-        while (ob_get_level()) {
-            $body .= ob_get_contents();
-            ob_end_clean();
-        }
-
-        ob_start(chunk_size: 4096);
-        return $body;
+        return execute_page($target);
     }
 
 

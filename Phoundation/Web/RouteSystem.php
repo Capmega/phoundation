@@ -47,15 +47,7 @@ class RouteSystem
     protected function __construct()
     {
         // Initialize the template
-        self::$system_page = new Template('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-            <html><head>
-                <title>:title</title>
-            </head><body>
-                <h1>:h1</h1>
-                <p>:p</p>
-                <hr>
-                :body
-            </body></html>');
+        self::$system_page = Template::page('system/error');
     }
 
 
@@ -89,6 +81,24 @@ class RouteSystem
             'code'    => 400,
             'title'   => tr('bad request'),
             'message' => tr('Server cannot or will not process the request because of incorrect information sent by client')
+        ]);
+    }
+
+
+
+    /**
+     * Show the 403 - FORBIDDEN page
+     *
+     * @see Route::add()
+     * @see Route::shutdown()
+     * @return void
+     */
+    #[NoReturn] public static function execute401(): void
+    {
+        self::execute([
+            'code'    => 401,
+            'title'   => tr('Unauthorized'),
+            'message' => tr('You need to login to access the specified resource')
         ]);
     }
 

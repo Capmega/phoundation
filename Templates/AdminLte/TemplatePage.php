@@ -98,6 +98,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         return '<body class="sidebar-mini" style="height: auto;">
                     <div class="wrapper">
+                        ' . WebPage::getFlashMessages()->render() . '
                         ' . $this->buildTopPanel() . '
                         ' . $this->buildSidePanel();
     }

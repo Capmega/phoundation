@@ -4,7 +4,7 @@ use Phoundation\Templates\Template;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
 
-$page = Template::page('system/error');
+$page = Template::page('system/detail-error');
 echo $page->render([
     ':h2'     => '401',
     ':h3'     => tr('Forbidden'),
@@ -18,7 +18,7 @@ echo $page->render([
 
 // Set page meta data
 WebPage::setPageTitle('401 - Unauthorized');
-WebPage::setHeaderTitle(tr('401 - Unauthorized'));
+WebPage::setHeaderTitle(tr('401 - Error'));
 WebPage::setDescription(tr('You need to login to access the specified resource'));
 WebPage::setBreadCrumbs();
 

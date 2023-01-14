@@ -4,7 +4,7 @@ use Phoundation\Templates\Template;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
 
-$page = Template::page('system/error');
+$page = Template::page('system/detail-error');
 echo $page->render([
     ':h2'     => '403',
     ':h3'     => tr('Forbidden'),
@@ -18,7 +18,7 @@ echo $page->render([
 
 // Set page meta data
 WebPage::setPageTitle('403 - Forbidden');
-WebPage::setHeaderTitle(tr('403 - Forbidden'));
+WebPage::setHeaderTitle(tr('403 - Error'));
 WebPage::setDescription(tr('You do not have access to the specified resource'));
 WebPage::setBreadCrumbs();
 

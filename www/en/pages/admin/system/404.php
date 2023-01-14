@@ -4,7 +4,7 @@ use Phoundation\Templates\Template;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
 
-$page = Template::page('system/error');
+$page = Template::page('system/detail-error');
 echo $page->render([
     ':h2'     => '404',
     ':h3'     => tr('Page not found'),

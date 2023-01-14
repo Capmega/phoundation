@@ -34,7 +34,7 @@ class FlashMessages extends ElementsBlock implements Iterator
      * @param FlashMessages $messages
      * @return static
      */
-    public function moveMessagesFrom(FlashMessages $messages): static
+    public function mergeMessagesFrom(FlashMessages $messages): static
     {
         foreach ($messages as $message) {
             $this->add($message);
@@ -63,16 +63,20 @@ class FlashMessages extends ElementsBlock implements Iterator
     /**
      * Add a flash message
      *
-     * @param FlashMessage|string|null $message
+     * @param FlashMessage|string|null $title
+     * @param string|null $message
      * @param string $type
      * @param string|null $icon
+     * @param int|null $auto_close
      * @return $this
      */
-    public function add(FlashMessage|string|null $message, string $type = 'info', string $icon = null): static
+    public function add(FlashMessage|string|null $title, ?string $message = null, string $type = 'info', string $icon = null, ?int $auto_close = null): static
     {
         if (is_string($message)) {
             $message = FlashMessage::new()
+                ->setAutoClose($auto_close)
                 ->setMessage($message)
+                ->setTitle($title)
                 ->setType($type)
                 ->setIcon($icon);
         }
@@ -90,7 +94,13 @@ class FlashMessages extends ElementsBlock implements Iterator
      */
     public function render(): ?string
     {
+        $this->render = '';
 
+        foreach ($this->messages as $message) {
+            $this->render .= $message->render();
+        }
+
+        return parent::render();
     }
 
 
