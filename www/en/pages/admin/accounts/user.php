@@ -2,6 +2,7 @@
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log;
+use Phoundation\Core\Timers;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -30,13 +31,13 @@ if (WebPage::isRequestMethod('POST')) {
             ->select('username')->isOptional()->isName()
             ->select('domain')->isOptional()->isDomain()
             ->select('title')->isOptional()->isName()
-            ->select('firstname')->isOptional()->isName()
-            ->select('lastname')->isOptional()->isName()
+            ->select('first_names')->isOptional()->isName()
+            ->select('last_names')->isOptional()->isName()
             ->select('nickname')->isOptional()->isName()
             ->select('email')->isEmail()
             ->select('type')->isOptional()->isName()
             ->select('keywords')->isOptional()->sanitizeForceArray(' ')->each()->isWord()
-            ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhone()
+            ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
             ->select('address')->isOptional()->isPrintable()
             ->select('priority')->isOptional()->isNatural()->isBetween(1, 10)
             ->select('is_leader')->isOptional()->isBoolean()
@@ -56,13 +57,14 @@ if (WebPage::isRequestMethod('POST')) {
             ->select('website')->isOptional()->isUrl()
             ->select('timezone')->isOptional()->isTimezone()
     ->validate();
+
         // Update user
         $user = User::get($_GET['id']);
         $user->modify($_POST);
         $user->save();
-showdie($user);
 
         // Go back to where we came from
+showdie(Timers::get('query'));
         WebPage::getFlashMessages()->add(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), 'success');
         WebPage::redirect('prev');
 

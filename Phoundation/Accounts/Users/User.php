@@ -237,6 +237,56 @@ class User extends DataEntry
 
 
     /**
+     * Returns the first_names for this user
+     *
+     * @return string|null
+     */
+    public function getFirstNames(): ?string
+    {
+        return $this->getDataValue('first_names');
+    }
+
+
+
+    /**
+     * Sets the first_names for this user
+     *
+     * @param string|null $first_names
+     * @return static
+     */
+    public function setFirstNames(?string $first_names): static
+    {
+        return $this->setDataValue('first_names', $first_names);
+    }
+
+
+
+    /**
+     * Returns the last_names for this user
+     *
+     * @return string|null
+     */
+    public function getLastNames(): ?string
+    {
+        return $this->getDataValue('last_names');
+    }
+
+
+
+    /**
+     * Sets the last_names for this user
+     *
+     * @param string|null $lastnames
+     * @return static
+     */
+    public function setLastNames(?string $lastnames): static
+    {
+        return $this->setDataValue('last_names', $lastnames);
+    }
+
+
+
+    /**
      * Returns the email for this user
      *
      * @return string|null
@@ -585,12 +635,12 @@ class User extends DataEntry
     /**
      * Sets the phones for this user
      *
-     * @param string|null $phones
+     * @param array|string|null $phones
      * @return static
      */
-    public function setPhones(?string $phones): static
+    public function setPhones(array|string|null $phones): static
     {
-        return $this->setDataValue('phones', $phones);
+        return $this->setDataValue('phones', Strings::force($phones, ', '));
     }
 
 
@@ -1766,10 +1816,10 @@ class User extends DataEntry
                 'label'    => tr('Title')
             ],
             'firstname' => [
-                'label'    => tr('First name')
+                'label'    => tr('First names')
             ],
             'lastname' => [
-                'label'    => tr('Last name')
+                'label'    => tr('Last names')
             ],
             'nickname' => [
                 'label'    => tr('Nickname')
@@ -1909,10 +1959,10 @@ class User extends DataEntry
             'sign_in_count'           => 6,
             'authentication_failures' => 6,
             'locked_until'            => 6,
-            'username'                => 6,
-            'nickname'                => 6,
             'email'                   => 6,
             'domain'                  => 6,
+            'username'                => 6,
+            'nickname'                => 6,
             'firstname'               => 6,
             'lastname'                => 6,
             'gender'                  => 6,
