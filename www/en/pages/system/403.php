@@ -2,7 +2,6 @@
 
 use Phoundation\Templates\Template;
 use Phoundation\Web\WebPage;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 
 
 
@@ -20,7 +19,4 @@ echo Template::page('system/detail-error')->render([
 WebPage::setPageTitle(tr('403 - Forbidden'));
 WebPage::setHeaderTitle('');
 WebPage::setDescription(tr('403 - Forbidden: You do not have access to the requested resource on this server'));
-WebPage::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('403')
-]));
+WebPage::setBreadCrumbs();

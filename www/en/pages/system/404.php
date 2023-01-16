@@ -1,6 +1,6 @@
 <?php
 
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Templates\Template;
 use Phoundation\Web\WebPage;
 
 
@@ -19,7 +19,4 @@ echo Template::page('system/detail-error')->render([
 WebPage::setPageTitle(tr('404 - Page not found'));
 WebPage::setHeaderTitle('');
 WebPage::setDescription(tr('404 - Page not found: The page you requested does not (or no longer) exist on this server'));
-WebPage::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('404')
-]));
+WebPage::setBreadCrumbs();
