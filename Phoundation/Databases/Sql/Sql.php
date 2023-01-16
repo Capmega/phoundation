@@ -535,7 +535,7 @@ class Sql
     {
         // Set meta fields
         if (array_key_exists('meta_id', $row)) {
-            $row['meta_id'] = Meta::init($comments);
+            $row['meta_id'] = Meta::init($comments)->getId();
             $row['created_by'] = Session::getUser()->getId();
 
             if ($row['status'] === '__reserved') {
@@ -614,6 +614,19 @@ class Sql
 
         // This table is not a DataEntry table, just delete the entry
         return $this->erase($table, $row);
+    }
+
+
+
+    /**
+     * Truncates the specified table
+     *
+     * @param string $table
+     * @return void
+     */
+    public function truncate(string $table): void
+    {
+        $this->query('TRUNCATE `' . addslashes($table) . '`');
     }
 
 
@@ -1201,7 +1214,7 @@ class Sql
                                     VALUES                       (:id , :created_by , :meta_id , :status )', [
                                         ':id'         => $id,
                                         ':created_by' => Session::getUser()->getId(),
-                                        ':meta_id'    => Meta::init($comments),
+                                        ':meta_id'    => Meta::init($comments)->getId(),
                                         ':status'     => isset_get($data['status'])
                 ]);
 
