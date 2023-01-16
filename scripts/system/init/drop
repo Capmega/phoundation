@@ -39,4 +39,4 @@ ArgvValidator::new()->noArgumentsLeft();
 
 // Drop the core database
 sql()->drop();
-Log::warning(tr('WARNING: Dropped core database ":db"', [':db' => Config::get('databases.sql.system.db')]));
+Log::warning(tr('WARNING: Dropped core database ":db"', [':db' => Config::get('databases.sql.instances.system.name')]));
