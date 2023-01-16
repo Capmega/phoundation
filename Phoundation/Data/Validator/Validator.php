@@ -546,8 +546,9 @@ abstract class Validator
                 return $value;
             }
 
-            $column = sql()->getColumn($query, $execute);
-            $this->isEqualTo($column);
+            $execute = $this->applyExecuteVariables($execute);
+            $column  = sql()->getColumn($query, $execute);
+            $this->isValue($column);
 
             return $value;
         });
@@ -575,7 +576,8 @@ abstract class Validator
                 return $value;
             }
 
-            $column = sql()->getColumn($query, $execute);
+            $execute = $this->applyExecuteVariables($execute);
+            $column  = sql()->getColumn($query, $execute);
             $this->contains($column);
 
             return $value;
@@ -604,6 +606,7 @@ abstract class Validator
                 return $value;
             }
 
+            $execute = $this->applyExecuteVariables($execute);
             $results = sql()->list($query, $execute);
             $this->inArray($results);
 
@@ -2219,5 +2222,28 @@ abstract class Validator
         unset($this->selected_optional);
 
         return $this;
+    }
+
+
+
+    /**
+     * Go over the specified SQL execute array and apply any variable
+     *
+     * @param array|null $execute
+     * @return array|null
+     */
+    protected function applyExecuteVariables(?array $execute): ?array
+    {
+        foreach ($execute as &$value) {
+            if (is_string($value)) {
+                if (str_starts_with($value, '$')) {
+                    // Replace this value with key from the array
+                    $value = isset_get($this->source[substr($value, 1)]);
+                }
+            }
+        }
+
+        unset($value);
+        return $execute;
     }
 }
