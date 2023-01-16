@@ -13,6 +13,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
@@ -424,7 +425,8 @@ class WebPage
     public static function requiresNotGuest(string|int|null $new_target = 'sign-in'): void
     {
         if (Session::getUser()->isGuest()) {
-            throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))->setNewTarget($new_target);
+            throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
+                ->setNewTarget($new_target);
         }
     }
 
@@ -434,15 +436,22 @@ class WebPage
      * Will throw an AccessDeniedException if the current session user does not have ALL of the specified rights
      *
      * @param array|string $rights
-     * @param string|int|null $new_target
+     * @param string|int|null $missing_rights_target
+     * @param string|int|null $guest_target
      * @return void
      */
-    public static function requiresAllRights(array|string $rights, string|int|null $new_target = 403): void
+    public static function requiresAllRights(array|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
     {
         self::requiresNotGuest();
 
+        if (Session::getUser()->isGuest()) {
+            throw AccessDeniedException::new(tr('You have to sign in to view this page'))
+                ->setNewTarget($guest_target);
+        }
+
         if (!Session::getUser()->hasAllRights($rights)) {
-            throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))->setNewTarget($new_target);
+            throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
+                ->setNewTarget($missing_rights_target);
         }
     }
 
@@ -452,15 +461,22 @@ class WebPage
      * Will throw an AccessDeniedException if the current session user does not have SOME of the specified rights
      *
      * @param array|string $rights
-     * @param string|int|null $new_target
+     * @param string|int|null $missing_rights_target
+     * @param string|int|null $guest_target
      * @return void
      */
-    public static function requiresSomeRights(array|string $rights, string|int|null $new_target = 403): void
+    public static function requiresSomeRights(array|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
     {
         self::requiresNotGuest();
 
+        if (Session::getUser()->isGuest()) {
+            throw AccessDeniedException::new(tr('You have to sign in to view this page'))
+                ->setNewTarget($guest_target);
+        }
+
         if (!Session::getUser()->hasSomeRights($rights)) {
-            throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))->setNewTarget($new_target);
+            throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
+                ->setNewTarget($missing_rights_target);
         }
     }
 
@@ -902,6 +918,10 @@ class WebPage
             // TODO Improve this uncaught validation failure handling
             self::getFlashMessages()->add($e);
             Route::executeSystem(400);
+
+        } catch (DataEntryNotExistsException $e) {
+            // Show a 404 page instead
+            Route::executeSystem(404);
 
         } catch (Exception $e) {
             Notification::new()
