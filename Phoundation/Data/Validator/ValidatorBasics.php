@@ -3,7 +3,7 @@
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Core\Strings;
-use Phoundation\Data\Exception\NoKeySelectedException;
+use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use ReflectionProperty;
@@ -201,7 +201,7 @@ trait ValidatorBasics
      * @param array|string|float|int|bool|null $default
      * @return static
      */
-    public function isOptional(array|string|float|int|bool|null $default): static
+    public function isOptional(array|string|float|int|bool|null $default = null): static
     {
         $this->selected_optional = $default;
         return $this;
@@ -375,7 +375,7 @@ trait ValidatorBasics
             return false;
         }
 
-        if ($value === null) {
+        if (!$value) {
             if (!$this->reflection_selected_optional->isInitialized($this)){
                 // At this point we know we MUST have a value, so we're bad here
                 $this->addFailure(tr('is required'));

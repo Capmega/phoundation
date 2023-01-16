@@ -3,10 +3,11 @@
 namespace Phoundation\Data\Validator;
 
 use DateTime;
+use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Exception\KeyAlreadySelectedException;
+use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
@@ -266,6 +267,34 @@ abstract class Validator
     /**
      * Validates the datatype for the selected field
      *
+     * This method ensures that the specified array key is a valid latitude coordinate
+     *
+     * @return static
+     */
+    public function isLatitude(): static
+    {
+        return $this->isFloat()->isBetween(-90, 90);
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is a valid longitude coordinate
+     *
+     * @return static
+     */
+    public function isLongitude(): static
+    {
+        return $this->isFloat()->isBetween(0, 180);
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
      * This method ensures that the specified array key is a valid database id (integer, 1 and above)
      *
      * @param bool $allow_zero
@@ -490,6 +519,93 @@ abstract class Validator
             if (!str_contains($value, $string)) {
                 $this->addFailure(tr('must contain ":value"', [':value' => $string]));
             }
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified key is the same as the column value in the specified query
+     *
+     * @param PDOStatement|string $query
+     * @param array|null $execute
+     * @return static
+     */
+    public function isQueryColumn(PDOStatement|string $query, ?array $execute = null) : Validator
+    {
+        return $this->validateValues(function($value) use ($query, $execute) {
+            // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
+            $this->isScalar();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return $value;
+            }
+
+            $column = sql()->getColumn($query, $execute);
+            $this->isEqualTo($column);
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified key value contains the column value in the specified query
+     *
+     * @param PDOStatement|string $query
+     * @param array|null $execute
+     * @return static
+     */
+    public function containsQueryColumn(PDOStatement|string $query, ?array $execute = null) : Validator
+    {
+        return $this->validateValues(function($value) use ($query, $execute) {
+            // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
+            $this->isScalar();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return $value;
+            }
+
+            $column = sql()->getColumn($query, $execute);
+            $this->contains($column);
+
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is a scalar value
+     *
+     * @param PDOStatement|string $query
+     * @param array|null $execute
+     * @return static
+     */
+    public function inQueryColumns(PDOStatement|string $query, ?array $execute = null) : Validator
+    {
+        return $this->validateValues(function($value) use ($query, $execute) {
+            // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
+            $this->isScalar();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return $value;
+            }
+
+            $results = sql()->list($query, $execute);
+            $this->inArray($results);
 
             return $value;
         });
@@ -1255,6 +1371,28 @@ abstract class Validator
     {
         return $this->validateValues(function($value) {
             $this->hasMinCharacters(2)->hasMaxCharacters(128);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return $value;
+            }
+
+            $this->isPrintable();
+            return $value;
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid word
+     *
+     * @return static
+     */
+    public function isWord(): static
+    {
+        return $this->validateValues(function($value) {
+            $this->hasMinCharacters(2)->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
