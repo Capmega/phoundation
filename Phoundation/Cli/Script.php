@@ -38,6 +38,13 @@ class Script
      */
     protected static int $exit_code = 0;
 
+    /**
+     * The script that is being executed
+     *
+     * @var string|null $script
+     */
+    protected static ?string $script = null;
+
 
 
     /**
@@ -57,13 +64,10 @@ class Script
         self::only();
 
         // Get the script file to execute
-        $file = self::findScript();
-
-        Core::writeRegister($file, 'system', 'script');
-        Core::writeRegister(Strings::fromReverse($file, '/'), 'script');
+        self::$script = self::findScript();
 
         // Execute the script
-        execute_script($file);
+        execute_script(self::$script);
     }
 
 
@@ -258,6 +262,37 @@ class Script
         throw MethodNotFoundException::new(tr('The specified method file ":file" was not found', [
             ':file' => $file
         ]))->makeWarning();
+    }
+
+
+
+    /**
+     * Returns the name of the script that is running
+     *
+     * @param bool $full
+     * @return string
+     */
+    public static function getScript(bool $full = false): string
+    {
+        if ($full) {
+            return Strings::fromReverse(self::$script, PATH_ROOT . 'scripts/');
+        }
+
+        return Strings::fromReverse(self::$script, '/');
+    }
+
+
+
+    /**
+     * Returns the name of the script that is running
+     *
+     * @param string $script
+     * @param bool $full
+     * @return bool
+     */
+    public static function isScript(string $script, bool $full = false): bool
+    {
+        return $script === self::getScript($full);
     }
 
 
