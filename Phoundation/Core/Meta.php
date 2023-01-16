@@ -67,7 +67,7 @@ class Meta
 
 
     /**
-     * Returns a meta object for the specified id
+     * Returns a meta-object for the specified id
      *
      * @param int|null $id
      * @param bool $load
@@ -81,18 +81,30 @@ class Meta
 
 
     /**
+     * Returns the id for this meta-object
+     *
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+
+
+    /**
      * Creates a new meta entry and returns the database id for it
      *
      * @param string|null $comments
      * @param array|null $data
-     * @return int
+     * @return Meta
      */
-    public function init( ?string $comments = null, ?array $data = null): int
+    public static function init( ?string $comments = null, ?array $data = null): Meta
     {
         $meta = new Meta();
         $meta->action('created', $comments, $data);
 
-        return $meta->id;
+        return $meta;
     }
 
 
