@@ -2,10 +2,10 @@
 
 namespace Phoundation\Accounts;
 
-
-
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
+
+
 
 /**
  * Updates class
