@@ -15,6 +15,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
+use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
@@ -213,7 +214,7 @@ class Route
      * @param array|string|null $rights
      * @return void
      */
-    public static function setSystemPageParameters(string $template, ?string $path = null, ?string $pattern = null, array|string|null $rights = null): void
+    public static function addSystemPageParameters(string $template, ?string $path = null, ?string $pattern = null, array|string|null $rights = null): void
     {
         if (!is_subclass_of($template, 'Phoundation\Web\Http\Html\Template\Template')) {
             throw new OutOfBoundsException(tr('Cannot set system template for pattern ":pattern": Specified template class ":class" is not a sub class of "Phoundation\Web\Http\Html\Template\Template"', [
@@ -714,11 +715,16 @@ class Route
                                 ':flag' => $flag
                             ]));
 
-                            self::execute403();
+                            self::executeSystem(403);
                         }
 
                         $right = get_null(isset_get($matches[1][0]));
                         $page  = get_null(isset_get($matches[2][0]));
+
+                        if (Session::getUser()->isGuest()) {
+                            Log::warning(tr('Denied guest user access to resource because signed in user is required'));
+                            self::executeSystem(401);
+                        }
 
                         if (!Session::getUser()->hasAllRights($right)) {
                             Log::warning(tr('Denied user ":user" access to resource because of missing right ":right"', [
@@ -726,7 +732,7 @@ class Route
                                 ':right'    => $right
                             ]));
 
-                            self::execute403();
+                            self::executeSystem(403);
                         }
                 }
             }
@@ -1274,19 +1280,19 @@ class Route
             try {
                 if ($regex) {
                     if (preg_match($regex, self::$uri)) {
-                        if (Session::getUser()->hasAllRights($system_page_parameters['rights'])) {
-                            // Use this template
-                            Log::action(tr('Selected template ":template" and path ":path" to display system page ":code"', [
-                                ':code'     => $code,
-                                ':path'     => self::$path,
-                                ':template' => $system_page_parameters['template']
-                            ]));
-
-                            self::$path     = PATH_WWW . LANGUAGE . '/pages/' . $system_page_parameters['path'];
-                            self::$template = $system_page_parameters['template']::new();
+                        if (!Session::getUser()->hasAllRights($system_page_parameters['rights'])) {
+                            continue;
                         }
 
-                        return;
+                        // Use this template
+                        Log::action(tr('Selected template ":template" and path ":path" to display system page ":code"', [
+                            ':code'     => $code,
+                            ':path'     => self::$path,
+                            ':template' => $system_page_parameters['template']
+                        ]));
+
+                        self::$path     = PATH_WWW . LANGUAGE . '/pages/' . $system_page_parameters['path'];
+                        self::$template = $system_page_parameters['template']::new();
                     }
                 } else {
                     // This is the default template
@@ -1298,9 +1304,9 @@ class Route
                         ':path'     => self::$path,
                         ':template' => $system_page_parameters['template']
                     ]));
-
-                    return;
                 }
+
+                return;
             } catch (Exception $e) {
                 Log::warning(tr('Not selecting system template ":template" because the regex ":regex" failed with ":e". Ignoring template and skipping to next', [
                     ':template' => $system_page_parameters['template'],
