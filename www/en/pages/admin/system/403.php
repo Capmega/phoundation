@@ -4,8 +4,7 @@ use Phoundation\Templates\Template;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
 
-$page = Template::page('system/detail-error');
-echo $page->render([
+echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '403',
     ':h3'     => tr('Forbidden'),
     ':p'      => tr('You do not have access to this page. Please contact the system administrator if you think this was in error. Meanwhile, you may <a href=":url">return to dashboard</a> or try using the search form.', [

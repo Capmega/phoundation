@@ -4,8 +4,7 @@ use Phoundation\Templates\Template;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
 
-$page = Template::page('system/detail-error');
-echo $page->render([
+echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '404',
     ':h3'     => tr('Page not found'),
     ':p'      => tr('We could not find the page you were looking for. Meanwhile, you may <a href=":url">return to dashboard</a> or try using the search form.', [

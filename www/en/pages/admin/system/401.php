@@ -4,10 +4,9 @@ use Phoundation\Templates\Template;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
 
-$page = Template::page('system/detail-error');
-echo $page->render([
+echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '401',
-    ':h3'     => tr('Forbidden'),
+    ':h3'     => tr('Unauthorized'),
     ':p'      => tr('You need to login to access the specified resource. Please contact the system administrator if you think this was in error. Meanwhile, you may <a href=":url">return to dashboard</a> or try using the search form.', [
         ':url' => WebPage::getReferer(true)
     ]),
