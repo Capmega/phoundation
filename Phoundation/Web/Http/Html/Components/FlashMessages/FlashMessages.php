@@ -84,10 +84,10 @@ class FlashMessages extends ElementsBlock implements Iterator
                     ->setType($type)
                     ->setIcon($icon);
             } elseif ($title instanceof ValidationFailedException) {
-                // Title was specified as an validation exception, add each validation failure as a separate flash
+                // Title was specified as a validation exception, add each validation failure as a separate flash
                 // message
                 foreach ($title->getData() as $message) {
-                    $this->add(tr('Validation failure'), $message, 'warning', null, 5000);
+                    $this->add(tr('Information validation failure'), $message, 'warning', null, 5000);
                 }
 
                 return $this;

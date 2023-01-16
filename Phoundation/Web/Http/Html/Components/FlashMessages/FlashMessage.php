@@ -429,8 +429,6 @@ class FlashMessage extends ElementsBlock
      */
     public function renderBare(): ?string
     {
-        WebPage::loadJavascript('plugins/toastr/toastr');
-
         $image = $this->image?->getHtmlElement();
 
         if ($this->top) {
@@ -457,6 +455,6 @@ class FlashMessage extends ElementsBlock
                 ' . ($this->icon ? 'icon: "fas fa-' . Strings::escape($this->icon) . ' fa-lg",' : null) . '                           
                 ' . ($this->auto_close ? 'autohide: true, delay: ' . $this->auto_close . ',' .  PHP_EOL : null) . '
                 body: "' . Strings::escape($this->content) . '"
-            })';
+            });';
     }
 }
