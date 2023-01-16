@@ -221,7 +221,7 @@ abstract class Updates
         $version = $this->getNextInitVersion();
 
         // Execute this init, register the version as executed, and return the next version
-        Log::action(tr('Updating ":library" library with init version ":version"', [
+        Log::action(tr('Updating ":library" library to version ":version"', [
             ':library' => $this->library,
             ':version' => $version
         ]));
