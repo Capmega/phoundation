@@ -121,6 +121,16 @@ class Template
                         </body></html>';
 
             case 'system/detail-error':
+                return '<div class="container">
+                            <div class="d-flex justify-content-center align-items-center" style="height: 100vh">
+                                <div class="text-center">
+                                    <h1>:h1</h1>
+                                </div>
+                            </div>
+                            <p>:p</p>
+                        </div>';
+
+            case 'admin/system/detail-error':
                 return ' <div class="error-page">
                             <h2 class="headline text-warning"> :h2</h2>
                         
