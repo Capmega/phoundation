@@ -351,10 +351,16 @@ class DataEntryForm extends ElementsBlock
                     ]));
 
                 default:
-                    throw new OutOfBoundsException(tr('Unknown element ":element" specified for key ":key"', [
-                        ':element' => isset_get($data['element'], 'input'),
-                        ':key'     => $key
-                    ]));
+                    if (!is_callable($data['element'])) {
+                        throw new OutOfBoundsException(tr('Unknown element ":element" specified for key ":key"', [
+                            ':element' => isset_get($data['element'], 'input'),
+                            ':key'     => $key
+                        ]));
+                    }
+
+                    // Execute this to get the element
+                    $html = $data['element']($key, $data, $this->source);
+                    $this->render .= $this->renderItem($key, $html, $data);
             }
         }
 
