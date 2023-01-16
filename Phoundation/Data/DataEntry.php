@@ -324,13 +324,27 @@ abstract class DataEntry
 
 
     /**
-     * Sets all data for this data entry at once with an array of information
+     * Modify the data for this user with the new specified data
      *
      * @param array|null $data
      * @return static
      * @throws OutOfBoundsException
      */
-    public function setData(?array $data): static
+    public function modify(?array $data): static
+    {
+        return $this->setData($data, true);
+    }
+
+
+
+    /**
+     * Sets all data for this data entry at once with an array of information
+     *
+     * @param array|null $data
+     * @param bool $modify
+     * @return static
+     */
+    protected function setData(?array $data, bool $modify = false): static
     {
         if ($data === null) {
             // No data set
@@ -359,12 +373,20 @@ abstract class DataEntry
                     continue 2;
 
                 case 'password':
+                    if ($modify) {
+                        continue 2;
+                    }
+
                     // Passwords are always set directly
                     $this->setPasswordDirectly($value);
                     continue 2;
 
                 case $this->unique_column:
                     // Store this data directly
+                    if ($modify) {
+                        continue 2;
+                    }
+
                     $this->setDataValue($this->unique_column, $value);
                     continue 2;
             }
@@ -595,7 +617,7 @@ abstract class DataEntry
     protected function getInsertColumns(): array
     {
         $return = Arrays::remove($this->data, $this->remove_columns_on_insert);
-        $return = Arrays::keep($return, $this->keys);
+        $return = Arrays::keep($return, array_keys($this->keys));
 
         return $return;
     }
@@ -610,7 +632,7 @@ abstract class DataEntry
     protected function getUpdateColumns(): array
     {
         $return = Arrays::remove($this->data, $this->remove_columns_on_update);
-        $return = Arrays::keep($return, $this->keys);
+        $return = Arrays::keep($return, array_keys($this->keys));
 
         return $return;
     }
