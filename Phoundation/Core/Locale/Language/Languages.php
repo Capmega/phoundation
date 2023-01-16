@@ -65,12 +65,13 @@ class Languages extends DataList
      *
      * @return Select
      */
-    public static function getHtmlSelect(): Select
+    public static function getHtmlSelect(string $name = 'language'): Select
     {
-        $select = Select::new();
-        $select->setSourceQuery('SELECT `code_639_1`, `name` FROM `languages` WHERE `status` IS NULL ORDER BY `name`');
-
-        return $select;
+        return Select::new()
+            ->setSourceQuery('SELECT `code_639_1`, `name` FROM `languages` WHERE `status` IS NULL ORDER BY `name`')
+            ->setName($name)
+            ->setNone(tr('Please select a language'))
+            ->setEmpty(tr('No languages available'));
     }
 
 
