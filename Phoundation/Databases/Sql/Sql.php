@@ -8,6 +8,7 @@ use PDO;
 use PDOException;
 use PDOStatement;
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\Script;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
@@ -205,7 +206,7 @@ class Sql
         $database = $this->getDatabaseName($database);
         $this->using_database = $database;
 
-        Log::action(tr('(' . $this->uniqueid . ') Using database ":database"', [':database' => $database]));
+        Log::action(tr('(:id) Using database ":database"', [':id' => $this->uniqueid, ':database' => $database]));
 
         try {
             $this->pdo->query('USE `' . $database . '`');
@@ -1439,7 +1440,7 @@ class Sql
      */
     public function drop(): void
     {
-        $this->query('DROP DATABASE ' . $this->configuration['name']);
+        $this->query('DROP DATABASE IF EXISTS ' . $this->configuration['name']);
     }
 
 
@@ -1534,7 +1535,11 @@ class Sql
 
                 } else {
                     if (!is_scalar($value)) {
-                        throw new SqlException(tr('(' . $this->uniqueid . ') Specified key ":key" has non-scalar value ":value"', array(':key' => $key, ':value' => $value)), 'invalid');
+                        throw new SqlException(tr('(:id) Specified key ":key" has non-scalar value ":value"', [
+                            ':id'    => $this->uniqueid,
+                            ':key'   => $key,
+                            ':value' => $value
+                        ]), 'invalid');
                     }
 
                     $query = str_replace($key, $value, $query);
@@ -1687,7 +1692,8 @@ class Sql
 
             default:
                 // Here be dragons!
-                Log::warning(tr('(' . $this->uniqueid . ') WARNING: ":driver" DRIVER MAY WORK BUT IS NOT SUPPORTED!', [
+                Log::warning(tr('(:id) WARNING: ":driver" DRIVER MAY WORK BUT IS NOT SUPPORTED!', [
+                    ':id'     => $this->uniqueid,
                     ':driver' => $configuration['driver']
                 ]));
         }
@@ -1727,16 +1733,18 @@ class Sql
                     $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['host'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (($use_database and $this->configuration['name']) ? ';dbname=' . $this->configuration['name'] : '');
                     $this->pdo = new PDO($connect_string, $this->configuration['user'], $this->configuration['pass'], $this->configuration['pdo_attributes']);
 
-                    Log::success(tr('(' . $this->uniqueid . ') Connected to instance ":instance" with PDO connect string ":string"', [
+                    Log::success(tr('(:id) Connected to instance ":instance" with PDO connect string ":string"', [
+                        ':id'       => $this->uniqueid,
                         ':instance' => $this->instance,
-                        ':string' => $connect_string
+                        ':string'   => $connect_string
                     ]), 3);
                     break;
 
                 } catch (Exception $e) {
-                    Log::error(tr('(' . $this->uniqueid . ') Failed to connect to instance ":instance" with PDO connect string ":string", error follows below', [
+                    Log::error(tr('(:id) Failed to connect to instance ":instance" with PDO connect string ":string", error follows below', [
+                        ':id'       => $this->uniqueid,
                         ':instance' => $this->instance,
-                        ':string' => $connect_string
+                        ':string'   => $connect_string
                     ]));
                     Log::error($e);
 
@@ -1780,7 +1788,11 @@ class Sql
                 $this->pdo->query('SET time_zone = "' . $this->configuration['timezone'] . '";');
 
             } catch (Throwable $e) {
-                Log::warning(tr('(' . $this->uniqueid . ') Failed to set timezone for database instance ":instance" with error ":e"', [':instance' => $this->instance, ':e' => $e->getMessage()]));
+                Log::warning(tr('(:id) Failed to set timezone for database instance ":instance" with error ":e"', [
+                    ':id'       => $this->uniqueid,
+                    ':instance' => $this->instance,
+                    ':e'        => $e->getMessage()
+                ]));
 
                 if (!Core::readRegister('no_time_zone') and (Core::compareRegister('init', 'system', 'script'))) {
                     throw $e;
@@ -1799,10 +1811,26 @@ class Sql
 
         } catch (Throwable $e) {
             if ($e->getMessage() == 'could not find driver') {
-                throw new PhpModuleNotAvailableException(tr('Failed to connect with ":driver" driver, it looks like its not available', [':driver' => $this->configuration['driver']]));
+                throw new PhpModuleNotAvailableException(tr('Failed to connect with ":driver" driver, it looks like its not available', [
+                    ':driver' => $this->configuration['driver']
+                ]));
             }
 
-            Log::Warning(tr('(' . $this->uniqueid . ') Encountered exception ":e" while connecting to database server, attempting to resolve', array(':e' => $e->getMessage())));
+            if (PLATFORM_CLI) {
+                switch (Script::getScript(true)) {
+                    case 'system/init/drop':
+                        // no break
+                    case 'system/init/init':
+                        // This is not an issue, we're either dropping DB or initializing it.
+                        $this->connect(false);
+                        return;
+                }
+            }
+
+            Log::Warning(tr('(:id) Encountered exception ":e" while connecting to database server, attempting to resolve', [
+                ':id' => $this->uniqueid,
+                ':e'  => $e->getMessage()
+            ]));
 
             // We failed to use the specified database, oh noes!
             switch ($e->getCode()) {
@@ -1828,7 +1856,7 @@ class Sql
 
                     // This connection requires an SSH tunnel. Check if the tunnel process still exists
                     if (!Cli::PidGrep($tunnel['pid'])) {
-                        $server_restrictions     = servers_get($this->configuration['ssh_tunnel']['domain']);
+                        $server_restrictions = servers_get($this->configuration['ssh_tunnel']['domain']);
                         $registered = ssh_host_is_known($server_restrictions['hostname'], $server_restrictions['port']);
 
                         if ($registered === false) {
