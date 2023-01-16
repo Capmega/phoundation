@@ -4,6 +4,8 @@ use Phoundation\Templates\Template;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\WebPage;
 
+
+
 echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '404',
     ':h3'     => tr('Page not found'),
@@ -14,6 +16,8 @@ echo Template::page('admin/system/detail-error')->render([
     ':search' => tr('Search'),
     ':action' => Url::build('search/')->www()
 ]);
+
+
 
 // Set page meta data
 WebPage::setPageTitle('404 - Page not found');
