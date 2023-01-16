@@ -45,6 +45,7 @@ class SignInModal extends Modal
     {
         // Build the form
         $form = $this->form->render();
+        $this->form = null;
 
         // Build the layout
         $layout = Grid::new()
