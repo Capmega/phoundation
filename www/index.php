@@ -107,8 +107,8 @@ require('../vendor/autoload.php');
 
 
 /// Set templates for 404 pages in different sections
-Route::setSystemPageParameters(AdminLte::class, 'admin/', '/^\w{2}\/admin\//', 'admin'); // Use AdminLTE template for system pages like 403, 404, etc on admin pages
-Route::setSystemPageParameters(Mdb::class);                                                                // Use Mdb template for system pages like 403, 404, etc for all other pages
+Route::addSystemPageParameters(AdminLte::class, 'admin/', '/^\w{2}\/admin\//', 'admin'); // Use AdminLTE template for system pages like 403, 404, etc on admin pages
+Route::addSystemPageParameters(Mdb::class);                                                                // Use Mdb template for system pages like 403, 404, etc for all other pages
 
 
 
