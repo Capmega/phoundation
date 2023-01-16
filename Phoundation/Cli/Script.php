@@ -229,11 +229,15 @@ class Script
             // This is a directory.
             $file .= '/';
 
-            // Does a file with the directory name exists inside?
-            if (file_exists($file . $method)) {
-                if (!is_dir($file . $method)) {
-                    // This is the file!
-                    return $file . $method;
+            // Does a file with the directory name exists inside? Only check if the NEXT method does not exist as a file
+            $next = isset_get($methods[$position + 1]);
+
+            if (!$next or !file_exists($file . $next)) {
+                if (file_exists($file . $method)) {
+                    if (!is_dir($file . $method)) {
+                        // This is the file!
+                        return $file . $method;
+                    }
                 }
             }
 
