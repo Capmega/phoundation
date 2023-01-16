@@ -14,6 +14,8 @@ use Phoundation\Cli\Script;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Locale\Language\Language;
+use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry;
@@ -26,6 +28,7 @@ use Phoundation\Geo\Country;
 use Phoundation\Geo\State;
 use Phoundation\Geo\Timezone;
 use Phoundation\Web\Http\Html\Components\Form;
+
 
 
 /**
@@ -1594,18 +1597,6 @@ class User extends DataEntry
 
 
     /**
-     * Save all user data to database
-     *
-     * @return static
-     */
-    public function save(): static
-    {
-        return parent::save();
-    }
-
-
-
-    /**
      * Returns true if the specified password matches the users password
      *
      * @param string $password
@@ -1822,7 +1813,7 @@ class User extends DataEntry
                 'label'    => tr('Is leader'),
             ],
             'leaders_id' => [
-                'source'   => 'SELECT `username` FROM `accounts_users` WHERE `id` = :id',
+                'source'   => 'SELECT `username` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL',
                 'execute'  => 'id',
                 'label'    => tr('Leader'),
             ],
@@ -1836,25 +1827,27 @@ class User extends DataEntry
                 'label'    => tr('Accuracy'),
             ],
             'offset_latitude' => [
+                'readonly' => true,
                 'label'    => tr('Offset latitude'),
             ],
             'offset_longitude' => [
+                'readonly' => true,
                 'label'    => tr('Offset longitude'),
             ],
             'countries_id' => [
                 'element'  => 'select',
-                'source'   => 'SELECT `id`, `name` FROM `geo_countries`',
+                'source'   => 'SELECT `id`, `name` FROM `geo_countries` WHERE `status` IS NULL',
                 'label'    => tr('Country')
             ],
             'states_id' => [
                 'element'  => 'select',
-                'source'   => 'SELECT `id`, `name` FROM `geo_states` WHERE `countries_id` = :countries_id',
+                'source'   => 'SELECT `id`, `name` FROM `geo_states` WHERE `countries_id` = :countries_id AND `status` IS NULL',
                 'execute'  => 'countries_id',
                 'label'    => tr('State'),
             ],
             'cities_id' => [
                 'element'  => 'select',
-                'source'   => 'SELECT `id`, `name` FROM `geo_cities` WHERE `states_id` = :states_id',
+                'source'   => 'SELECT `id`, `name` FROM `geo_cities` WHERE `states_id` = :states_id AND `status` IS NULL',
                 'execute'  => 'states_id',
                 'label'    => tr('City'),
             ],
@@ -1862,8 +1855,11 @@ class User extends DataEntry
                 'label'    => tr('Redirect'),
             ],
             'language' => [
-                'element'  => 'select',
-//                'source'   => 'SELECT `id`, `name` FROM `languages`',
+                'element'  => function (string $key, array $data, array $source) {
+                    return Languages::getHtmlSelect($key)
+                      ->setSelected(isset_get($source['language']))
+                      ->render();
+                },
                 'source'   => [],
                 'label'    => tr('Language'),
             ],
