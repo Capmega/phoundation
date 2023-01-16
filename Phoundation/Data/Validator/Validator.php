@@ -109,8 +109,8 @@ abstract class Validator
 
             // Clear up work data
             unset($value);
-            unset($this->process_key);
             unset($this->process_value);
+            $this->process_key = null;
         }
 
         return $this;
@@ -1915,7 +1915,7 @@ abstract class Validator
      * @see self::isJson()
      * @see self::sanitizeDecodeCsv()
      * @see self::sanitizeDecodeSerialized()
-     * @see self::sanitizeMakeString()
+     * @see self::sanitizeForceString()
      */
     public function sanitizeDecodeJson(bool $array = true): static
     {
@@ -1952,7 +1952,7 @@ abstract class Validator
      * @see self::sanitizeDecodeJson()
      * @see self::sanitizeDecodeSerialized()
      * @see self::sanitizeDecodeUrl()
-     * @see self::sanitizeMakeString()
+     * @see self::sanitizeForceString()
      */
     public function sanitizeDecodeCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static
     {
@@ -1985,7 +1985,7 @@ abstract class Validator
      * @see self::sanitizeDecodeCsv()
      * @see self::sanitizeDecodeJson()
      * @see self::sanitizeDecodeUrl()
-     * @see self::sanitizeMakeString()
+     * @see self::sanitizeForceString()
      */
     public function sanitizeDecodeSerialized(): static
     {
@@ -2013,6 +2013,7 @@ abstract class Validator
      * @param string $characters
      * @return static
      * @see trim()
+     * @see self::sanitizeForceString()
      */
     public function sanitizeForceArray(string $characters = ','): static
     {
@@ -2024,7 +2025,14 @@ abstract class Validator
                 return $value;
             }
 
-            return Arrays::force($value, $characters);
+            try {
+                $value = Arrays::force($value, $characters);
+
+            } catch (Throwable) {
+                $this->addFailure(tr('cannot be processed'));
+            }
+
+            return $value;
         });
     }
 
@@ -2039,7 +2047,7 @@ abstract class Validator
      * @see self::sanitizeDecodeJson()
      * @see self::sanitizeDecodeSerialized()
      * @see self::sanitizeDecodeUrl()
-     * @see self::sanitizeMakeString()
+     * @see self::sanitizeForceString()
      */
     public function sanitizeDecodeBase58(): static
     {
@@ -2070,7 +2078,7 @@ abstract class Validator
      * @see self::sanitizeDecodeJson()
      * @see self::sanitizeDecodeSerialized()
      * @see self::sanitizeDecodeUrl()
-     * @see self::sanitizeMakeString()
+     * @see self::sanitizeForceString()
      */
     public function sanitizeDecodeBase64(): static
     {
@@ -2101,7 +2109,7 @@ abstract class Validator
      * @see self::sanitizeDecodeCsv()
      * @see self::sanitizeDecodeJson()
      * @see self::sanitizeDecodeSerialized()
-     * @see self::sanitizeMakeString()
+     * @see self::sanitizeForceString()
      */
     public function sanitizeDecodeUrl(): static
     {
@@ -2126,6 +2134,7 @@ abstract class Validator
     /**
      * Sanitize the selected value by making it a string
      *
+     * @param string $characters
      * @return static
      * @see self::sanitizeDecodeBase58()
      * @see self::sanitizeDecodeBase64()
@@ -2133,17 +2142,19 @@ abstract class Validator
      * @see self::sanitizeDecodeJson()
      * @see self::sanitizeDecodeSerialized()
      * @see self::sanitizeDecodeUrl()
+     * @see self::sanitizeForceArray()
      */
-    public function sanitizeMakeString(): static
+    public function sanitizeForceString(string $characters = ','): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function($value) use ($characters) {
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return $value;
             }
 
             try {
-                $value = Strings::force($value);
+                $value = Strings::force($value, $characters);
+
             } catch (Throwable) {
                 $this->addFailure(tr('cannot be processed'));
             }
