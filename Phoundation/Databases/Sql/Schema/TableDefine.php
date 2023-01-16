@@ -4,6 +4,7 @@ namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Strings;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;
 
@@ -278,14 +279,14 @@ class TableDefine extends SchemaAbstract
 
         // Build and execute query
         $query  = 'CREATE TABLE `' . $this->name . '` (';
-        $query .= implode(",\n", $this->columns);
+        $query .= Strings::endsNotWith(trim(implode(",\n", $this->columns)), ',');
 
         if ($this->indices) {
-            $query .= ",\n" . $indices . "\n";
+            $query .= ",\n" . Strings::endsNotWith(trim($indices), ',') . "\n";
         }
 
         if ($this->foreign_keys) {
-            $query .= ",\n" . $foreign_keys . "\n";
+            $query .= ",\n" . Strings::endsNotWith(trim($foreign_keys), ',') . "\n";
         }
 
         $query .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . Config::get('databases.sql.instances.system.auto-increment', 1) . ' DEFAULT CHARSET="' . Config::get('databases.sql.instances.system.charset', 'utf8mb4') . '" COLLATE="' . Config::get('databases.sql.instances.system.collate', 'utf8mb4_general_ci') . '";';
