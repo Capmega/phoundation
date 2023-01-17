@@ -77,7 +77,7 @@ class Config
      */
     protected function __construct()
     {
-        self::useEnvironment();
+        self::setEnvironment();
     }
 
 
@@ -104,9 +104,15 @@ class Config
      * @param string|null $environment
      * @return void
      */
-    public static function useEnvironment(?string $environment = null): void
+    public static function setEnvironment(string|null $environment = null): void
     {
-        if ($environment) {
+        if (is_string($environment)) {
+            if (!$environment) {
+                // Use no environment!
+                self::reset();
+                return;
+            }
+
             // Use the specified environment
             self::$environment = strtolower(trim($environment));
 
@@ -120,6 +126,8 @@ class Config
             // TODO Define all other required constants as well!
             self::$environment = 'production';
         }
+
+        Log::action(tr('Using environment ":env"', [':env' => self::$environment]), 5);
 
         self::reset();
         self::read(self::$environment);
@@ -640,6 +648,11 @@ class Config
 
         // Convert the data into yaml and store the data in the default file
         $data = yaml_emit($data);
+        $data = Strings::from($data, "\n");
+        $data = Strings::untilReverse($data, "\n");
+        $data = Strings::untilReverse($data, "\n") . "\n";
+
+        Log::action(tr('Saving environment ":env"', [':env' => self::$environment]));
         file_put_contents(PATH_ROOT . 'config/' . self::$environment . '.yaml', $data);
     }
 
